@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DefaultJdbcOption;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
@@ -51,4 +53,89 @@ public class DefaultProfilerConfigTest {
         assertThat(profilerConfig.readList("profiler.test.list3")).contains("foo", "bar");
         assertThat(profilerConfig.readList("profiler.test.list4")).contains("foo", "bar");
     }
+
+    @Test
+    public void readString_placeholder() {
+        Properties properties = new Properties();
+        properties.setProperty("test1", "${test2}");
+        properties.setProperty("test2", "2");
+        properties.setProperty("test3", "3");
+
+        properties.setProperty("PlaceholderNotExist", "${test6}");
+
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties, new DefaultJdbcOption());
+
+        assertThat(profilerConfig.readString("test1")).isEqualTo("2");
+        assertThat(profilerConfig.readString("test2")).isEqualTo("2");
+        assertThat(profilerConfig.readString("test3")).isEqualTo("3");
+
+        assertThat(profilerConfig.readString("empty")).isNull();
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            profilerConfig.readString("PlaceholderNotExist");
+        });
+    }
+
+    @Test
+    public void readString_placeholder_int() {
+        Properties properties = new Properties();
+        properties.setProperty("test1", "${test2}");
+        properties.setProperty("test2", "2");
+        properties.setProperty("test3", "3");
+
+        properties.setProperty("PlaceholderNotExist", "${test6}");
+
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties, new DefaultJdbcOption());
+
+        assertThat(profilerConfig.readInt("test1", 0)).isEqualTo(2);
+        assertThat(profilerConfig.readInt("test2", 0)).isEqualTo(2);
+        assertThat(profilerConfig.readInt("test3", 0)).isEqualTo(3);
+
+        assertThat(profilerConfig.readInt("empty", 4)).isEqualTo(4);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            profilerConfig.readLong("PlaceholderNotExist", 0);
+        });
+    }
+
+    @Test
+    public void readString_placeholder_long() {
+        Properties properties = new Properties();
+        properties.setProperty("test1", "${test2}");
+        properties.setProperty("test2", "2");
+        properties.setProperty("test3", "3");
+
+        properties.setProperty("PlaceholderNotExist", "${test6}");
+
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties, new DefaultJdbcOption());
+
+        assertThat(profilerConfig.readLong("test1", 0)).isEqualTo(2);
+        assertThat(profilerConfig.readLong("test2", 0)).isEqualTo(2);
+        assertThat(profilerConfig.readLong("test3", 0)).isEqualTo(3);
+
+        assertThat(profilerConfig.readLong("empty", 4)).isEqualTo(4);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            profilerConfig.readLong("PlaceholderNotExist", 0);
+        });
+    }
+
+    @Test
+    public void readString_placeholder_boolean() {
+        Properties properties = new Properties();
+        properties.setProperty("test1", "${test2}");
+        properties.setProperty("test2", "true");
+        properties.setProperty("test3", "false");
+
+        properties.setProperty("PlaceholderNotExist", "${test6}");
+
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties, new DefaultJdbcOption());
+
+        assertThat(profilerConfig.readBoolean("test1", false)).isEqualTo(true);
+        assertThat(profilerConfig.readBoolean("test2", false)).isEqualTo(true);
+        assertThat(profilerConfig.readBoolean("test3", false)).isEqualTo(false);
+
+        assertThat(profilerConfig.readBoolean("empty", true)).isEqualTo(true);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            profilerConfig.readBoolean("PlaceholderNotExist", true);
+        });
+    }
+
 }

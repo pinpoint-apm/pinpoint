@@ -44,8 +44,8 @@ public class ApplicationContextModuleFactory implements ModuleFactory {
         final Module statsModule = new StatsModule();
         final Module thriftStatsModule = new ThriftStatsModule();
 
-        final Properties properties = agentOption.getProfilerConfig().getProperties();
-        final Module exceptionTraceModule = newExceptionTraceModule(properties);
+        final ProfilerConfig properties = agentOption.getProfilerConfig();
+        final Module exceptionTraceModule = newExceptionTraceModule(properties.getProperties());
 
         return Modules.combine(config, pluginModule, applicationContextModule,
                 rpcModule,
@@ -54,7 +54,7 @@ public class ApplicationContextModuleFactory implements ModuleFactory {
     }
 
     protected Module newExceptionTraceModule(Properties properties) {
-        ConfigurationLoader configurationLoader = new ConfigurationLoader(properties::getProperty);
+        ConfigurationLoader configurationLoader = new ConfigurationLoader(properties);
         ExceptionTraceConfig exceptionTraceConfig = new DefaultExceptionTraceConfig();
         configurationLoader.load(exceptionTraceConfig);
         logger.info("{}", exceptionTraceConfig);

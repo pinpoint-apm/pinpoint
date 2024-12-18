@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcOption;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.config.Value;
+import com.navercorp.pinpoint.common.config.util.PlaceHolder;
+import com.navercorp.pinpoint.common.config.util.spring.PropertyPlaceholderHelper;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.Collections;
@@ -41,6 +43,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public static final String IMPORT_PLUGIN = "profiler.plugin.import-plugin";
 
     public static final String AGENT_CLASSLOADER_ADDITIONAL_LIBS = "profiler.agent.classloader.additional-libs";
+
+    private final PropertyPlaceholderHelper placeholder;
 
     private final Properties properties;
 
@@ -76,11 +80,18 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public DefaultProfilerConfig() {
         this.properties = new Properties();
         this.jdbcOption = JdbcOption.empty();
+        this.placeholder = newPlaceholder(false);
     }
 
     DefaultProfilerConfig(Properties properties, JdbcOption jdbcOption) {
         this.properties = Objects.requireNonNull(properties, "properties");
         this.jdbcOption = Objects.requireNonNull(jdbcOption, "jdbcOption");
+
+        this.placeholder = newPlaceholder(false);
+    }
+
+    private PropertyPlaceholderHelper newPlaceholder(boolean ignoreUnresolvablePlaceholders) {
+        return new PropertyPlaceholderHelper(PlaceHolder.START, PlaceHolder.END, PlaceHolder.DELIMITER, ignoreUnresolvablePlaceholders);
     }
 
     @Override
@@ -145,20 +156,45 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return StringUtils.tokenizeToStringList(agentClassloaderAdditionalLibs, ",");
     }
 
+
+    @Override
+    public String readString(String propertyName) {
+        return readString(propertyName, null);
+    }
+
     @Override
     public String readString(String propertyName, String defaultValue) {
-        return properties.getProperty(propertyName, defaultValue);
+        return getProperty(propertyName, defaultValue);
+    }
+
+    private String getProperty(String propertyName) {
+        return getProperty(propertyName, null);
+    }
+
+    private String getProperty(String propertyName, String defaultValue) {
+        String property = properties.getProperty(propertyName);
+        if (property == null) {
+            return defaultValue;
+        }
+        property = placeholder.replacePlaceholders(property, properties);
+        if (property == null) {
+            return defaultValue;
+        }
+        return property;
     }
 
     @Override
     public int readInt(String propertyName, int defaultValue) {
-        final String value = properties.getProperty(propertyName);
+        final String value = getProperty(propertyName);
+        if (value == null) {
+            return defaultValue;
+        }
         return NumberUtils.parseInteger(value, defaultValue);
     }
 
     @Override
     public DumpType readDumpType(String propertyName, DumpType defaultDump) {
-        String propertyValue = properties.getProperty(propertyName);
+        String propertyValue = getProperty(propertyName);
         if (propertyValue == null) {
             propertyValue = defaultDump.name();
         }
@@ -174,13 +210,16 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     @Override
     public long readLong(String propertyName, long defaultValue) {
-        final String value = properties.getProperty(propertyName);
+        final String value = getProperty(propertyName);
+        if (value == null) {
+            return defaultValue;
+        }
         return NumberUtils.parseLong(value, defaultValue);
     }
 
     @Override
     public List<String> readList(String propertyName) {
-        final String value = properties.getProperty(propertyName);
+        final String value = getProperty(propertyName);
         if (StringUtils.isEmpty(value)) {
             return Collections.emptyList();
         }
@@ -189,8 +228,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     @Override
     public boolean readBoolean(String propertyName, boolean defaultValue) {
-        final String value = properties.getProperty(propertyName);
-        if (StringUtils.isEmpty(value)) {
+        final String value = getProperty(propertyName);
+        if (value == null) {
             return defaultValue;
         }
         return Boolean.parseBoolean(value);
@@ -200,13 +239,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public Map<String, String> readPattern(String propertyNamePatternRegex) {
         final Pattern pattern = Pattern.compile(propertyNamePatternRegex);
         final Map<String, String> result = new HashMap<>();
-        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-            if (entry.getKey() instanceof String && entry.getValue() instanceof String) {
-                final String key = (String) entry.getKey();
-                if (pattern.matcher(key).matches()) {
-                    final String value = (String) entry.getValue();
-                    result.put(key, value);
-                }
+        for (String key : properties.stringPropertyNames()) {
+            if (pattern.matcher(key).matches()) {
+                String value = getProperty(key);
+                result.put(key, value);
             }
         }
         return result;

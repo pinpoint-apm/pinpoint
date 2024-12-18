@@ -51,6 +51,8 @@ public interface ProfilerConfig {
 
     List<String> getAgentClassloaderAdditionalLibs();
 
+    String readString(String propertyName);
+
     String readString(String propertyName, String defaultValue);
 
     int readInt(String propertyName, int defaultValue);
