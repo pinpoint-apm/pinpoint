@@ -37,7 +37,7 @@ public class JarFileRepository {
 
         final List<JarFileScanner> jarFileList = new ArrayList<>(jarFilePathList.size());
         for (String jarFilePath : jarFilePathList) {
-            JarFileScanner jarFileScanner = new JarFileScanner(jarFilePath);
+            JarFileScanner jarFileScanner = JarFileScanner.of(jarFilePath);
             jarFileList.add(jarFileScanner);
         }
         return jarFileList.toArray(new JarFileScanner[0]);

@@ -48,6 +48,6 @@ public class ParameterUtilsTest {
 
     @Test
     public void getComponentType() {
-        Assertions.assertEquals(ParameterUtils.getRawComponentType(int[][].class), int.class);
+        Assertions.assertEquals(int.class, ParameterUtils.getRawComponentType(int[][].class));
     }
 }

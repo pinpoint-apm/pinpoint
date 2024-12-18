@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.instrument.scanner;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -29,22 +31,30 @@ public class JarFileScanner implements Scanner {
 
     private final JarFile jarFile;
 
-    public JarFileScanner(String path) {
+
+    public static JarFileScanner of(String path) {
         Objects.requireNonNull(path, "path");
+        return new JarFileScanner(new File(path));
+    }
+
+    public static JarFileScanner of(Path path) {
+        Objects.requireNonNull(path, "path");
+        return new JarFileScanner(path.toFile());
+    }
+
+    private JarFileScanner(File file) {
+        Objects.requireNonNull(file, "file");
         try {
-            this.jarFile = new JarFile(path);
+            this.jarFile = new JarFile(file);
         } catch (IOException e) {
-            throw new IllegalStateException(path + " create fail");
+            throw new IllegalStateException(file + " create fail");
         }
     }
 
     @Override
     public boolean exist(String fileName) {
         final JarEntry jarEntry = jarFile.getJarEntry(fileName);
-        if (jarEntry == null) {
-            return false;
-        }
-        return true;
+        return jarEntry != null;
     }
 
 
@@ -62,12 +72,10 @@ public class JarFileScanner implements Scanner {
     }
 
     public void close() {
-        if (jarFile != null) {
-            try {
-                jarFile.close();
-            } catch (IOException ignored) {
-                // ignore
-            }
+        try {
+            jarFile.close();
+        } catch (IOException ignored) {
+            // ignore
         }
     }
 
