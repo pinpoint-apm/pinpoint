@@ -22,7 +22,7 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.transaction.TransactionFactory;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -51,6 +51,8 @@ public class SqlSessionTemplateITBase extends SqlSessionTestBase {
 
     private SqlSessionTemplate sqlSessionTemplate;
 
+    @AutoClose
+    @SuppressWarnings("unused")
     private AutoCloseable openMocks;
 
     @BeforeEach
@@ -64,11 +66,6 @@ public class SqlSessionTemplateITBase extends SqlSessionTestBase {
         when(this.sqlSessionFactory.getConfiguration()).thenReturn(configuration);
         when(this.sqlSessionFactory.openSession(EXECUTOR_TYPE)).thenReturn(this.sqlSessionProxy);
         this.sqlSessionTemplate = new SqlSessionTemplate(this.sqlSessionFactory, EXECUTOR_TYPE);
-    }
-
-    @AfterEach
-    public void afterEach() throws Exception {
-        openMocks.close();
     }
 
     @Override

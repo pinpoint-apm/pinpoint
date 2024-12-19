@@ -29,7 +29,7 @@ import com.ning.http.client.AsyncHandler;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Request;
 import com.ning.http.client.Response;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -48,16 +48,12 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-ning-asynchttpclient-plugin"})
 public class NingAsyncHttpClientIT {
 
+    @AutoClose("stop")
     private static WebServer webServer;
 
     @BeforeAll
     public static void BeforeClass() throws Exception {
         webServer = WebServer.newTestWebServer();
-    }
-
-    @AfterAll
-    public static void AfterClass() {
-        webServer = WebServer.cleanup(webServer);
     }
 
     @Test

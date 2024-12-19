@@ -41,7 +41,7 @@
         <apache.dubbo.version>2.7.18</apache.dubbo.version>
         <ehcache.version>2.10.6</ehcache.version>
 
-        <cxf.version>3.0.16</cxf.version>
+        <cxf.version>3.3.13</cxf.version>
     </properties>
 
     <dependencyManagement>

@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PluginTest;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -71,6 +71,8 @@ public class SqlMapClientTemplateIT {
 
     private SqlMapClient sqlMapClient;
 
+    @AutoClose
+    @SuppressWarnings("unused")
     private AutoCloseable openMocks;
     
     @BeforeEach
@@ -78,11 +80,6 @@ public class SqlMapClientTemplateIT {
         openMocks = MockitoAnnotations.openMocks(this);
         when(this.mockSqlMapExecutorDelegate.beginSessionScope()).thenReturn(this.mockSessionScope);
         this.sqlMapClient = new SqlMapClientImpl(this.mockSqlMapExecutorDelegate);
-    }
-
-    @AfterEach
-    public void afterEach() throws Exception {
-        openMocks.close();
     }
 
     @Test

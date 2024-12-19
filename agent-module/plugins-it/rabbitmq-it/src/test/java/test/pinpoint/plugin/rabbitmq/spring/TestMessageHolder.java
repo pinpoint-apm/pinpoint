@@ -31,7 +31,12 @@ public class TestMessageHolder {
         messages.add(message);
     }
 
-    public String getMessage(long timeoutMs, TimeUnit unit) throws InterruptedException {
-        return messages.poll(timeoutMs, unit);
+    public String getMessage(long timeoutMs, TimeUnit unit) {
+        try {
+            return messages.poll(timeoutMs, unit);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return null;
+        }
     }
 }

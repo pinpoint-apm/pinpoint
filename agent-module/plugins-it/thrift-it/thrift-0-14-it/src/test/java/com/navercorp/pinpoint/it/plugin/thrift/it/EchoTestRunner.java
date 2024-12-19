@@ -22,8 +22,7 @@ import com.navercorp.pinpoint.it.plugin.thrift.common.TestEnvironment;
 import com.navercorp.pinpoint.it.plugin.thrift.common.client.EchoTestClient;
 import com.navercorp.pinpoint.it.plugin.thrift.common.server.EchoTestServer;
 import org.apache.thrift.transport.TTransportException;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -35,8 +34,10 @@ import java.util.concurrent.Executors;
  */
 public abstract class EchoTestRunner<T extends EchoTestServer> {
 
+    @AutoClose("shutdown")
     private static ExecutorService SERVER_EXECUTOR;
 
+    @AutoClose("stop")
     private T echoServer;
 
     PluginTestVerifier verifier;
@@ -51,18 +52,6 @@ public abstract class EchoTestRunner<T extends EchoTestServer> {
         this.echoServer = createEchoServer(new TestEnvironment());
         this.verifier = PluginTestVerifierHolder.getInstance();
         this.echoServer.start(SERVER_EXECUTOR);
-    }
-
-    @AfterEach
-    public void tearDown() {
-        if (this.echoServer != null) {
-            this.echoServer.stop();
-        }
-    }
-
-    @AfterAll
-    public static void tearDownAfterClass() {
-        SERVER_EXECUTOR.shutdown();
     }
 
     protected T getServer() {
