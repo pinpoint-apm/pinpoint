@@ -32,7 +32,7 @@ import org.apache.cxf.interceptor.MessageSenderInterceptor;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.message.Message;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -41,10 +41,14 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"org.apache.cxf:cxf-rt-rs-client:[3.6.0,3.max)", "org.apache.cxf:cxf-rt-ws-policy:[3.6.0]", "org.apache.cxf:cxf-rt-frontend-jaxws:3.0.16", WebServer.VERSION, PluginITConstants.VERSION})
+@Dependency({"org.apache.cxf:cxf-rt-rs-client:[3.6.0,3.max)",
+        "org.apache.cxf:cxf-rt-ws-policy:[3.6.0]",
+        "org.apache.cxf:cxf-rt-frontend-jaxws:3.6.0",
+        WebServer.VERSION, PluginITConstants.VERSION})
 @PinpointConfig("cxf/pinpoint-cxf-test.config")
 public class CxfClient_3_6_x_IT {
 
+    @AutoClose("stop")
     public static WebServer webServer;
 
     @BeforeAll
@@ -52,16 +56,8 @@ public class CxfClient_3_6_x_IT {
         webServer = WebServer.newTestWebServer();
     }
 
-    @AfterAll
-    public static void afterClass() throws Exception {
-        webServer = WebServer.cleanup(webServer);
-    }
-
     public String getAddress() {
-        if (webServer != null) {
-            return webServer.getCallHttpUrl();
-        }
-        return "UNKNOWN";
+        return webServer.getCallHttpUrl();
     }
 
     @Test
