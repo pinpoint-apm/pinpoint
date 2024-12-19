@@ -40,6 +40,8 @@
         <alibaba.dubbo.version>2.6.12</alibaba.dubbo.version>
         <apache.dubbo.version>2.7.18</apache.dubbo.version>
         <ehcache.version>2.10.6</ehcache.version>
+
+        <cxf.version>3.0.16</cxf.version>
     </properties>
 
     <dependencyManagement>
@@ -185,22 +187,22 @@
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-                <version>3.0.16</version>
+                <version>${cxf.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-frontend-jaxws</artifactId>
-                <version>3.0.16</version>
+                <version>${cxf.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-http</artifactId>
-                <version>3.0.16</version>
+                <version>${cxf.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-rs-client</artifactId>
-                <version>3.0.16</version>
+                <version>${cxf.version}</version>
             </dependency>
 
             <dependency>
