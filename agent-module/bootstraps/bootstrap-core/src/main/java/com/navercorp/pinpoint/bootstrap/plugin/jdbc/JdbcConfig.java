@@ -49,7 +49,7 @@ public class JdbcConfig {
         );
     }
 
-    protected JdbcConfig(String name, boolean pluginEnable, boolean traceSqlBindValue, int maxSqlBindValue) {
+    public JdbcConfig(String name, boolean pluginEnable, boolean traceSqlBindValue, int maxSqlBindValue) {
         this.name = Objects.requireNonNull(name, "name");
         this.pluginEnable = pluginEnable;
         this.traceSqlBindValue = traceSqlBindValue;
