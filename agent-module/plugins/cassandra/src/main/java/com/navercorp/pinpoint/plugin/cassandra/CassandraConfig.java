@@ -23,6 +23,12 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConfig;
 public class CassandraConfig {
 
     public static JdbcConfig of(ProfilerConfig config) {
-        return JdbcConfig.of("cassandra", config);
+        String prefix = "profiler";
+        String name = "cassandra";
+        return new JdbcConfig(name,
+                config.readBoolean(String.format("%s.%s", prefix, name), false),
+                config.readBoolean(String.format("%s.%s.tracecqlbindvalue", prefix, name), config.getJdbcOption().isTraceSqlBindValue()),
+                config.getJdbcOption().getMaxSqlBindValueSize()
+        );
     }
 }
