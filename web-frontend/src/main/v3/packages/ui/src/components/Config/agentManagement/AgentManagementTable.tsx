@@ -28,7 +28,7 @@ export const AgentManagementTable = ({ data, onRemove }: AgentManagementTablePro
         header: 'Agent Name',
       },
       {
-        accessorKey: 'vmVersion',
+        accessorKey: 'agentVersion',
         header: 'Agent Version',
       },
       {
