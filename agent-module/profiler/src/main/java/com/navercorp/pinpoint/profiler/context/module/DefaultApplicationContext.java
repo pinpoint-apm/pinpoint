@@ -23,7 +23,6 @@ import com.google.inject.Module;
 import com.google.inject.Stage;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
-import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
@@ -32,6 +31,7 @@ import com.navercorp.pinpoint.bootstrap.module.JavaModuleFactory;
 import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
+import com.navercorp.pinpoint.profiler.AgentContextOption;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
@@ -84,10 +84,13 @@ public class DefaultApplicationContext implements ApplicationContext {
 
     private final Injector injector;
 
-    public DefaultApplicationContext(AgentOption agentOption, ModuleFactory moduleFactory) {
+    private final boolean staticResourceCleanup;
+
+    public DefaultApplicationContext(AgentContextOption agentOption, ModuleFactory moduleFactory) {
         Objects.requireNonNull(agentOption, "agentOption");
         Objects.requireNonNull(moduleFactory, "moduleFactory");
         Objects.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
+        this.staticResourceCleanup = agentOption.getStaticResourceCleanup();
 
         final Instrumentation instrumentation = agentOption.getInstrumentation();
         if (logger.isInfoEnabled()) {
@@ -245,7 +248,7 @@ public class DefaultApplicationContext implements ApplicationContext {
             this.rpcModuleLifeCycle.shutdown();
         }
 
-        if (profilerConfig.getStaticResourceCleanup()) {
+        if (staticResourceCleanup) {
             this.interceptorRegistryBinder.unbind();
         }
     }

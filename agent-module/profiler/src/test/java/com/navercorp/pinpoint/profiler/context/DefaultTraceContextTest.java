@@ -164,7 +164,6 @@ public class DefaultTraceContextTest {
 
     public ProfilerConfig getProfilerConfig() {
         ProfilerConfig profilerConfig = spy(new DefaultProfilerConfig());
-        Mockito.when(profilerConfig.getStaticResourceCleanup()).thenReturn(true);
         return profilerConfig;
     }
 }

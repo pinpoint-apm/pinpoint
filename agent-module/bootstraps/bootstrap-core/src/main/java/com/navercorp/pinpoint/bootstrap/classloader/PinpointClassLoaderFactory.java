@@ -18,10 +18,15 @@ package com.navercorp.pinpoint.bootstrap.classloader;
 
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.lang.reflect.Constructor;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * @author Taejin Koo
@@ -80,9 +85,27 @@ public final class PinpointClassLoaderFactory {
         }
     }
 
-
     public static ClassLoader createClassLoader(String name, URL[] urls, ClassLoader parent, List<String> libClass) {
         return CLASS_LOADER_FACTORY.createClassLoader(name, urls, parent, libClass);
     }
 
+
+    public static ClassLoader createClassLoader(String name, URL[] urls, ClassLoader parent, Properties properties) {
+        List<String> libClass = getAgentClassloaderLibs(properties);
+        return createClassLoader(name, urls, parent, libClass);
+    }
+
+    public static final String AGENT_CLASSLOADER_ADDITIONAL_LIBS = "profiler.agent.classloader.additional-libs";
+
+    private static List<String> getAgentClassloaderLibs(Properties properties) {
+        Set<String> libs = new HashSet<>(ProfilerLibs.PINPOINT_PROFILER_CLASS);
+
+        String libsString = properties.getProperty(AGENT_CLASSLOADER_ADDITIONAL_LIBS, "");
+        List<String> additionalLibs = StringUtils.tokenizeToStringList(libsString, ",");
+        libs.addAll(additionalLibs);
+
+        List<String> copy = new ArrayList<>(libs);
+        copy.sort(String.CASE_INSENSITIVE_ORDER);
+        return copy;
+    }
 }

@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcOption;
-import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
-import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 
 import java.util.List;
 import java.util.Map;
@@ -29,25 +27,9 @@ import java.util.Properties;
  */
 public interface ProfilerConfig {
 
-    String getActiveProfile();
-
-    JdbcOption getJdbcOption();
-
     Properties getProperties();
 
-    String getPinpointDisable();
-
-    String getGrpcStatLoggingPeriod();
-
-    @InterfaceAudience.Private
-    @VisibleForTesting
-    boolean getStaticResourceCleanup();
-
-    String getInjectionModuleFactoryClazzName();
-
-    String getApplicationNamespace();
-
-    List<String> getAgentClassloaderAdditionalLibs();
+    JdbcOption getJdbcOption();
 
     String readString(String propertyName);
 
@@ -62,7 +44,5 @@ public interface ProfilerConfig {
     boolean readBoolean(String propertyName, boolean defaultValue);
 
     Map<String, String> readPattern(String propertyNamePatternRegex);
-
-    int getLogDirMaxBackupSize();
 
 }

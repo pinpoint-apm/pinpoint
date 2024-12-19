@@ -16,26 +16,28 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import java.io.Closeable;
+import java.util.Map;
+
 /**
  * @author emeroad
  * @author hyungil.jeong
  */
-public class DummyAgent implements Agent {
+public class DummyAgent implements Closeable {
 
-    public DummyAgent(AgentOption option) {
+    public DummyAgent(Map<String, Object> map) {
 
     }
 
-    @Override
+//    @Override
     public void start() {
     }
 
     @Override
-    public void stop() {
-
+    public void close() {
     }
 
-    @Override
+//    @Override
     public void registerStopHandler() {
 
     }
