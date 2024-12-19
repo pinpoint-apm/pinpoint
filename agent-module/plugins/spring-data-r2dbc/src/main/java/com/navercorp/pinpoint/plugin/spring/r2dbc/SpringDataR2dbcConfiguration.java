@@ -32,12 +32,12 @@ public class SpringDataR2dbcConfiguration {
     public SpringDataR2dbcConfiguration(ProfilerConfig config) {
         this.enabled = config.readBoolean("profiler.spring.data.r2dbc.enable", true);
 
-        this.mssqlConfig = MssqlConfig.of(config);
-        this.oracleConfig = OracleConfig.of(config);
-        this.mariadbConfig = MariadbConfig.of(config);
-        this.mysqlConfig = MysqlConfig.of(config);
-        this.h2Config = H2Config.of(config);
-        this.postgresqlConfig = PostgresqlConfig.of(config);
+        this.mssqlConfig = JdbcConfig.of("mssql", config);
+        this.oracleConfig = JdbcConfig.of("oracle", config);
+        this.mariadbConfig = JdbcConfig.of("mariadb", config);
+        this.mysqlConfig = JdbcConfig.of("mysql", config);
+        this.h2Config = JdbcConfig.of("h2", config);
+        this.postgresqlConfig = JdbcConfig.of("postgresql", config);
     }
 
     public JdbcConfig getMssqlConfig() {
@@ -79,41 +79,5 @@ public class SpringDataR2dbcConfiguration {
                 ", h2Config=" + h2Config +
                 ", postgresqlConfig=" + postgresqlConfig +
                 '}';
-    }
-
-    static class MssqlConfig {
-        public static JdbcConfig of(ProfilerConfig config) {
-            return JdbcConfig.of("mssql", config);
-        }
-    }
-
-    static class OracleConfig {
-        public static JdbcConfig of(ProfilerConfig config) {
-            return JdbcConfig.of("oracle", config);
-        }
-    }
-
-    static class MariadbConfig {
-        public static JdbcConfig of(ProfilerConfig config) {
-            return JdbcConfig.of("mariadb", config);
-        }
-    }
-
-    static class MysqlConfig {
-        public static JdbcConfig of(ProfilerConfig config) {
-            return JdbcConfig.of("mysql", config);
-        }
-    }
-
-    static class H2Config {
-        public static JdbcConfig of(ProfilerConfig config) {
-            return JdbcConfig.of("h2", config);
-        }
-    }
-
-    static class PostgresqlConfig {
-        public static JdbcConfig of(ProfilerConfig config) {
-            return JdbcConfig.of("postgresql", config);
-        }
     }
 }
