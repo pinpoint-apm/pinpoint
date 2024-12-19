@@ -117,6 +117,9 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
             return;
         }
 
+        if (target instanceof HttpMethod) {
+            this.requestTraceWriter.write((HttpMethod) target, trace.getRequestId());
+        }
         if (!trace.canSampled()) {
             if (target instanceof HttpMethod) {
                 final HttpMethod httpMethod = (HttpMethod) target;

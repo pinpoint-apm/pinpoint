@@ -48,7 +48,7 @@ public class HttpClientStreamInterceptor implements ApiIdAwareAroundInterceptor 
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
+    private final TraceContext traceContext;
     private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
     private final CookieRecorder<HttpRequest> cookieRecorder;
     private final RequestTraceWriter<HttpRequest> requestTraceWriter;
@@ -100,6 +100,7 @@ public class HttpClientStreamInterceptor implements ApiIdAwareAroundInterceptor 
             } else {
                 requestTraceWriter.write(request);
             }
+            requestTraceWriter.write(request, trace.getRequestId());
         } catch (Throwable t) {
             if (logger.isWarnEnabled()) {
                 logger.warn("BEFORE. Caused:{}", t.getMessage(), t);
