@@ -51,18 +51,18 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
     private final AcceptedTimeService acceptedTimeService;
 
     private final TimeSlot timeSlot;
-    private final BulkWriter bulkWriter;
+    private final BulkWriter<RowKey, ColumnName> bulkWriter;
     private final MapLinkConfiguration mapLinkConfiguration;
 
     public HbaseMapStatisticsCallerDao(MapLinkConfiguration mapLinkConfiguration,
                                        AcceptedTimeService acceptedTimeService,
                                        TimeSlot timeSlot,
-                                       @Qualifier("callerBulkWriter") BulkWriter bulkWriter) {
+                                       @Qualifier("callerBulkWriter") BulkWriter<RowKey, ColumnName> bulkWriter) {
         this.mapLinkConfiguration = Objects.requireNonNull(mapLinkConfiguration, "mapLinkConfiguration");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
 
-        this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWrtier");
+        this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWriter");
     }
 
 

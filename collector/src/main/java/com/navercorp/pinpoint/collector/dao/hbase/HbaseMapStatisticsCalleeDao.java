@@ -53,13 +53,13 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
     private final TimeSlot timeSlot;
 
     private final IgnoreStatFilter ignoreStatFilter;
-    private final BulkWriter bulkWriter;
+    private final BulkWriter<RowKey, ColumnName> bulkWriter;
     private final MapLinkConfiguration mapLinkConfiguration;
 
     public HbaseMapStatisticsCalleeDao(MapLinkConfiguration mapLinkConfiguration,
                                        IgnoreStatFilter ignoreStatFilter,
                                        AcceptedTimeService acceptedTimeService, TimeSlot timeSlot,
-                                       @Qualifier("calleeBulkWriter") BulkWriter bulkWriter) {
+                                       @Qualifier("calleeBulkWriter") BulkWriter<RowKey, ColumnName> bulkWriter) {
         this.mapLinkConfiguration = Objects.requireNonNull(mapLinkConfiguration, "mapLinkConfiguration");
         this.ignoreStatFilter = Objects.requireNonNull(ignoreStatFilter, "ignoreStatFilter");
         this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
