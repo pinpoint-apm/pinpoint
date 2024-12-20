@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.test.plugin;
 
 import com.navercorp.pinpoint.test.plugin.shared.PluginSharedInstance;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
+import org.junit.platform.commons.JUnitException;
 import org.tinylog.TaggedLogger;
 
 import java.nio.file.Files;
@@ -157,13 +158,13 @@ public abstract class AbstractPluginTestSuite {
         }
 
         if (pluginTestInstanceList.isEmpty()) {
-            throw new RuntimeException("No test");
+            throw new JUnitException("No test");
         }
 
         return pluginTestInstanceList;
     }
 
     private RuntimeException newTestError(Exception e) {
-        return new RuntimeException("Fail to create test instance", e);
+        return new JUnitException("Fail to create test instance", e);
     }
 }

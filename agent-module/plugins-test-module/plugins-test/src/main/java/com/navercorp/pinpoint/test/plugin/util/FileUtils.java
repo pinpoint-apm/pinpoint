@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -29,16 +31,6 @@ import java.util.Objects;
  */
 public final class FileUtils {
     private FileUtils() {
-    }
-
-    public static URL toURL(final File file) throws IOException {
-        Objects.requireNonNull(file, "file");
-        return toURL(file, new FileFunction());
-    }
-
-    public static URL toURL(final String filePath) throws IOException {
-        Objects.requireNonNull(filePath, "filePath");
-        return toURL(filePath, new FilePathFunction());
     }
 
     public static URL[] toURLs(final File[] files) throws IOException {
@@ -51,9 +43,6 @@ public final class FileUtils {
         return toURLs(filePaths, new FilePathFunction());
     }
 
-    private static <T> URL toURL(final T source, final Function<T, URL> function) throws IOException {
-        return function.apply(source);
-    }
 
     public static <T> URL[] toURLs(final T[] source, final Function<T, URL> function) throws IOException {
         final URL[] urls = new URL[source.length];
@@ -64,7 +53,7 @@ public final class FileUtils {
         return urls;
     }
 
-    private interface Function<T, R> {
+    public interface Function<T, R> {
         R apply(T t) throws IOException;
     }
 
@@ -77,8 +66,8 @@ public final class FileUtils {
 
     private static class FilePathFunction implements Function<String, URL> {
         public URL apply(String filePath) throws MalformedURLException {
-            final File file = new File(filePath);
-            return file.toURI().toURL();
+            final Path file = Paths.get(filePath);
+            return file.toUri().toURL();
         }
     }
 
