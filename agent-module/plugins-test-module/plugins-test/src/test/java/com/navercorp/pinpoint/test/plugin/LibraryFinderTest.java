@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.test.plugin;
 
+import com.navercorp.pinpoint.test.plugin.util.PathUtils;
 import com.navercorp.pinpoint.test.plugin.util.VersionUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -7,8 +8,6 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,31 +42,31 @@ public class LibraryFinderTest {
 
     @Test
     public void globTest() {
-        String jarPath = Paths.get(File.separator, "home",
+        String jarPath = PathUtils.path(File.separator, "home",
                 "pinpoint-mssql-jdbc-driver-plugin",
                 VERSION,
                 "pinpoint-mssql-jdbc-driver-plugin-" + VERSION + ".jar"
-        ).toString();
+        );
 
         String matchPath = "pinpoint-*-plugin-" + VERSION + ".jar";
-        Path result = globMatches(jarPath, matchPath);
+        String result = globMatches(jarPath, matchPath);
         Assertions.assertNull(result);
 
-        String matchPath2 = Paths.get("*", "pinpoint-*-plugin-" + VERSION + ".jar").toString();
-        Path result2 = globMatches(jarPath, matchPath2);
+        String matchPath2 = PathUtils.path("*", "pinpoint-*-plugin-" + VERSION + ".jar");
+        String result2 = globMatches(jarPath, matchPath2);
         Assertions.assertNull(result2);
 
-        String matchPath3 = Paths.get("**", "pinpoint-*-plugin-" + VERSION + ".jar").toString();
-        Path result3 = globMatches(jarPath, matchPath3);
-        Assertions.assertEquals(Paths.get(jarPath), result3);
+        String matchPath3 = PathUtils.path("**", "pinpoint-*-plugin-" + VERSION + ".jar");
+        String result3 = globMatches(jarPath, matchPath3);
+        Assertions.assertEquals(PathUtils.path(jarPath), result3);
     }
 
-    private Path globMatches(String jarPath, String matchPath) {
+    private String globMatches(String jarPath, String matchPath) {
         LibraryFilter.LibraryMatcher matcher = LibraryFilter.globMatcher(new String[]{matchPath});
         LibraryFilter libraryFinder = new LibraryFilter(matcher);
 
         if (libraryFinder.filter(jarPath)) {
-            return Paths.get(jarPath);
+            return jarPath;
         }
         return null;
     }

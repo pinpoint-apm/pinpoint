@@ -46,12 +46,7 @@ import org.eclipse.aether.util.artifact.JavaScopes;
 import org.eclipse.aether.util.filter.DependencyFilterUtils;
 import org.eclipse.aether.version.Version;
 import org.tinylog.TaggedLogger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,8 +56,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 /**
@@ -70,7 +63,6 @@ import java.util.function.Predicate;
  */
 public class DependencyResolver {
     private static final String FOLLOW_PRECEEDING = "FOLLOW_PRECEEDING";
-    private static final String DEFAULT_LOCAL_REPOSITORY = "target/local-repo";
 
     private static final TaggedLogger logger = TestLogger.getLogger();
 
@@ -96,45 +88,12 @@ public class DependencyResolver {
         return locator.getService(RepositorySystem.class);
     }
 
-    private static class TraceRepositoryCache implements RepositoryCache {
-        private final RepositoryCache delegate;
-        private final AtomicInteger hit = new AtomicInteger();
-        private final AtomicInteger miss = new AtomicInteger();
-
-        public TraceRepositoryCache(RepositoryCache delegate) {
-            this.delegate = Objects.requireNonNull(delegate, "delegate");
-        }
-
-        @Override
-        public void put(RepositorySystemSession session, Object key, Object data) {
-            if (logger.isInfoEnabled()) {
-                logger.info("cache-put:{} {} {}", session, key, data);
-            }
-            delegate.put(session, key, data);
-        }
-
-        @Override
-        public Object get(RepositorySystemSession session, Object key) {
-            final Object result = delegate.get(session, key);
-            if (result == null) {
-                int count = miss.incrementAndGet();
-                if (logger.isInfoEnabled()) {
-                    logger.info("cache-get-miss-{}:{} {}", count, session, key);
-                }
-            } else {
-                int count = hit.incrementAndGet();
-                if (logger.isInfoEnabled()) {
-                    logger.info("cache-get-hit-{}:{} {} result:{}", count, session, key, result);
-                }
-            }
-            return result;
-        }
-    }
-
     static DefaultRepositorySystemSession newRepositorySystemSession(RepositorySystem system) {
         DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
         session.setCache(newRepositoryCache());
-        String localRepositoryPath = resolveLocalRepository();
+
+        MavenRepository mavenRepository = new MavenRepository();
+        String localRepositoryPath = mavenRepository.resolveLocalRepository();
         if (logger.isInfoEnabled()) {
             logger.info("Local repository: {}", localRepositoryPath);
         }
@@ -153,50 +112,6 @@ public class DependencyResolver {
             return new TraceRepositoryCache(cache);
         }
         return cache;
-    }
-
-    private static String resolveLocalRepository() {
-        String userHome = System.getProperty("user.home");
-
-        if (userHome == null) {
-            logger.info("Cannot find user.home property. Use default local repository");
-            return DEFAULT_LOCAL_REPOSITORY;
-        }
-
-        File mavenHomeDir = new File(userHome, ".m2");
-
-        if (!mavenHomeDir.exists() || !mavenHomeDir.isDirectory()) {
-            logger.debug("Cannot find maven home directory {}. Use default local repository", mavenHomeDir);
-            return DEFAULT_LOCAL_REPOSITORY;
-        }
-
-        File localRepository = new File(mavenHomeDir, "repository");
-        File mavenConfigFile = new File(mavenHomeDir, "settings.xml");
-
-        if (mavenConfigFile.exists() && mavenConfigFile.isFile()) {
-            try {
-                DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                Document document = builder.parse(mavenConfigFile);
-                NodeList nodeList = document.getElementsByTagName("localRepository");
-
-                if (nodeList.getLength() != 0) {
-                    Node node = nodeList.item(0);
-                    localRepository = new File(node.getTextContent());
-
-                    logger.info("Use local repository {} configured at {}", localRepository, mavenConfigFile);
-                }
-            } catch (Exception e) {
-                logger.info(e, "Fail to read maven configuration file: {}. Use default local repository", mavenConfigFile);
-            }
-        }
-
-        if (localRepository.exists() && localRepository.isDirectory()) {
-            return localRepository.getAbsolutePath();
-        }
-
-        logger.info("Local repository {} is not exists. Use default local repository", localRepository);
-
-        return DEFAULT_LOCAL_REPOSITORY;
     }
 
 
