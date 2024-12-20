@@ -9,15 +9,15 @@ import java.util.StringJoiner;
 class PathUtilsTest {
 
     @Test
-    void wrap() {
-        String wrap = PathUtils.wrap("a", "b");
+    void wrapPath() {
+        String wrap = PathUtils.wrapPath("a", "b");
         String expected = join("a", "b");
         Assertions.assertEquals(expected, wrap);
     }
 
     @Test
-    void wrap_1() {
-        String wrap = PathUtils.wrap("a");
+    void wrap_Path_1() {
+        String wrap = PathUtils.wrapPath("a");
         String expected = join("a");
         Assertions.assertEquals(expected, wrap);
     }

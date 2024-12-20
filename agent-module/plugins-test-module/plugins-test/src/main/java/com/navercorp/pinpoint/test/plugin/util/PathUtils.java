@@ -1,17 +1,24 @@
 package com.navercorp.pinpoint.test.plugin.util;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 public class PathUtils {
 
-    private static final char separatorChar = File.separatorChar;
+    public static final String SEPARATOR = File.separator;
 
-    public static String wrap(String first, String... more) {
+    public static String wrapPath(String first, String... more) {
         Objects.requireNonNull(first, "paths");
-        Path path = Paths.get(first, more);
-        return separatorChar + path.toString() + separatorChar;
+        StringJoiner joiner = new StringJoiner(SEPARATOR, SEPARATOR, SEPARATOR);
+        joiner.add(first);
+        for (String token : more) {
+            joiner.add(token);
+        }
+        return joiner.toString();
+    }
+
+    public static String path(String... paths) {
+        return String.join(SEPARATOR, paths);
     }
 }

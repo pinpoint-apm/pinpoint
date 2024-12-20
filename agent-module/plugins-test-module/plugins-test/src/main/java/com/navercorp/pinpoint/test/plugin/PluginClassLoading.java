@@ -1,11 +1,13 @@
 package com.navercorp.pinpoint.test.plugin;
 
-import com.navercorp.pinpoint.test.plugin.util.PathUtils;
+import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.test.plugin.util.VersionUtils;
 
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+
+import static com.navercorp.pinpoint.test.plugin.util.PathUtils.path;
+import static com.navercorp.pinpoint.test.plugin.util.PathUtils.wrapPath;
 
 public final class PluginClassLoading {
 
@@ -17,12 +19,12 @@ public final class PluginClassLoading {
             "hamcrest", // for JUnit
             "assertj-core",
             "pinpoint-plugins-test", // pinpoint-test-{VERSION}.jar
-            Paths.get("agent-module", "plugins-test-module", "plugins-test", "target", "classes").toString(),
+            path("agent-module", "plugins-test-module", "plugins-test", "target", "classes"),
 //            "/test/target/classes", // pinpoint-test build output directory
-            Paths.get("testcase", "target", "classes").toString(),
+            path("testcase", "target", "classes"),
             "pinpoint-testcase",
 //            "/testcase/target/classes",
-            Paths.get("pinpoint", "agent-module", "plugins").toString(),
+            path("pinpoint", "agent-module", "plugins"),
 //            "/pinpoint/plugins/", // required when executing test on IDE
 
             // logger for bootstrap classloader
@@ -36,9 +38,9 @@ public final class PluginClassLoading {
             "hamcrest", // for JUnit
             "assertj-core",
             "pinpoint-plugins-test", // pinpoint-test-{VERSION}.jar
-            Paths.get("agent-module", "plugins-test-module", "plugins-test", "target", "classes").toString(),
+            path("agent-module", "plugins-test-module", "plugins-test", "target", "classes"),
 //            "/test/target/classes", // pinpoint-test build output directory
-            Paths.get("testcase", "target", "classes").toString(),
+            path("testcase", "target", "classes"),
             "pinpoint-testcase",
 //            "/testcase/target/classes",
             // logger for bootstrap classloader
@@ -56,7 +58,8 @@ public final class PluginClassLoading {
     }
 
     private static final String[] CLASS_PATHS_TO_CHECK_AS_GLOB_MATCHES = new String[]{
-            Paths.get("**", "pinpoint-*-plugin-" + VERSION + ".jar").toString()
+            // required when executing test via mvn command
+            path("**", "pinpoint-*-plugin-" + Version.VERSION + ".jar")
     };
 
     public static String[] getGlobMatchesCheckClassPath() {
@@ -78,7 +81,7 @@ public final class PluginClassLoading {
             "guava",
             "plexus",
             "pinpoint-plugins-test",
-            Paths.get("agent-module", "plugins-test-module", "plugins-test", "target", "classes").toString(),
+            path("agent-module", "plugins-test-module", "plugins-test", "target", "classes"),
 //            "/test/target/classes", // pinpoint-test build output directory
 
             // logger for child classloader
@@ -105,13 +108,14 @@ public final class PluginClassLoading {
     }
 
     public static final String[] PLUGIN_GLOB_MATCHES = new String[]{
-            Paths.get("**", "pinpoint-*-plugin-" + VERSION + ".jar").toString(), // required when executing test via mvn command
-            Paths.get("**", "naver-pinpoint-*-plugin-" + VERSION + ".jar").toString() // required when executing test via mvn command
+            // required when executing test via mvn command
+            path("**", "pinpoint-*-plugin-" + VERSION + ".jar"),
+            path("**", "naver-pinpoint-*-plugin-" + VERSION + ".jar")
     };
 
     public static final String[] PLUGIN_CONTAINS_MATCHES = new String[]{
-            PathUtils.wrap("pinpoint", "agent-module", "plugins"),
-            PathUtils.wrap("pinpoint-naver", "agent-module", "naver-plugins")
+            wrapPath("pinpoint", "agent-module", "plugins"),
+            wrapPath("pinpoint-naver", "agent-module", "naver-plugins")
     };
 
     public static final String[] PLUGIN_IT_UTILS_CONTAINS_MATCHES = new String[]{
@@ -129,9 +133,9 @@ public final class PluginClassLoading {
             "hamcrest", // for JUnit
             "assertj-core",
             "pinpoint-test", // pinpoint-test-{VERSION}.jar
-            Paths.get("test", "target", "classes").toString(),
+            path("test", "target", "classes"),
             "pinpoint-testcase",
-            Paths.get("testcase", "target", "classes").toString(),
+            path("testcase", "target", "classes"),
             // logger for bootstrap classloader
             "tinylog-api",
             "tinylog-impl",
@@ -139,9 +143,10 @@ public final class PluginClassLoading {
 
     public static final String[] TEST_MATCHES = new String[]{
             "pinpoint-test", // pinpoint-test-{VERSION}.jar
-            Paths.get("test", "target", "classes").toString(),
+            path("test", "target", "classes"),
             "pinpoint-testcase",
-            Paths.get("testcase", "target").toString(),
-            Paths.get("testcase", "target", "classes").toString()
+            path("testcase", "target"),
+            path("testcase", "target", "classes")
     };
+
 }
