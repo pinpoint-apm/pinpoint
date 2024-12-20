@@ -32,7 +32,7 @@ import org.eclipse.paho.mqttv5.client.persist.MemoryPersistence;
 import org.eclipse.paho.mqttv5.common.MqttException;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.eclipse.paho.mqttv5.common.packet.MqttPublish;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
@@ -69,6 +69,7 @@ public class PahoMqttV5ClientIT {
     static int QOS = 2;
     static int WAIT_FOR_COMPLETION = 3000;
 
+    @AutoClose("disconnect")
     static MqttAsyncClient mqttClient;
 
     @BeforeAll
@@ -84,11 +85,6 @@ public class PahoMqttV5ClientIT {
     private static void subscribe() throws MqttException {
         IMqttToken mqttToken = mqttClient.subscribe(TOPIC, QOS);
         mqttToken.waitForCompletion(WAIT_FOR_COMPLETION);
-    }
-
-    @AfterAll
-    public static void after() throws MqttException {
-        mqttClient.disconnect();
     }
 
     @Test

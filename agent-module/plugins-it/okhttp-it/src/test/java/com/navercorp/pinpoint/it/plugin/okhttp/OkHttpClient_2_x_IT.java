@@ -33,8 +33,8 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.squareup.okhttp.internal.http.HttpEngine;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -61,18 +61,12 @@ public class OkHttpClient_2_x_IT {
     static final String OK_HTTP_CLIENT = "OK_HTTP_CLIENT";
     static final String OK_HTTP_CLIENT_INTERNAL = "OK_HTTP_CLIENT_INTERNAL";
 
+    @AutoClose("stop")
     private static WebServer webServer;
-
 
     @BeforeAll
     public static void BeforeClass() throws Exception {
         webServer = WebServer.newTestWebServer();
-    }
-
-
-    @AfterAll
-    public static void AfterClass() {
-        webServer = WebServer.cleanup(webServer);
     }
 
     @Test

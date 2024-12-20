@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestBeforeAllResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -63,6 +63,7 @@ public abstract class CassandraDatastaxITBase {
     private static String CASSANDRA_ADDRESS;
 
     private static int PORT;
+    @AutoClose
     private static Cluster cluster;
 
 
@@ -85,13 +86,6 @@ public abstract class CassandraDatastaxITBase {
         builder.withoutMetrics();
         cluster = builder.build();
         logger.info("setup cluster {}", CASSANDRA_ADDRESS);
-    }
-
-    @AfterAll
-    public static void tearDown() {
-        if (cluster != null) {
-            cluster.close();
-        }
     }
 
 

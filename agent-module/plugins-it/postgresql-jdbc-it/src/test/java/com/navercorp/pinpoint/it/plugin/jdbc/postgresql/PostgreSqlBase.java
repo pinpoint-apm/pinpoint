@@ -55,7 +55,7 @@ public abstract class PostgreSqlBase {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         DriverManagerUtils.deregisterDriver();
     }
 }

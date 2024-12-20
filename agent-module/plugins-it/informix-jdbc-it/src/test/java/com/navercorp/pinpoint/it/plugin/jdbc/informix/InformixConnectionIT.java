@@ -77,7 +77,7 @@ public class InformixConnectionIT {
     }
 
     @AfterEach
-    public void deregisterDriver() throws Exception {
+    public void deregisterDriver() {
         DriverManagerUtils.deregisterDriver();
     }
 

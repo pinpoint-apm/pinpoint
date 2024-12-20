@@ -17,21 +17,17 @@
 package com.navercorp.pinpoint.it.plugin.httpclient5;
 
 import com.navercorp.pinpoint.it.plugin.utils.WebServer;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 
 public abstract class HttpClientITBase {
+    @AutoClose("stop")
     public static WebServer webServer;
 
     @BeforeAll
     public static void beforeClass() throws Exception {
         webServer = WebServer.newTestWebServer();
 
-    }
-
-    @AfterAll
-    public static void afterClass() throws Exception {
-        webServer = WebServer.cleanup(webServer);
     }
 
     public String getAddress() {

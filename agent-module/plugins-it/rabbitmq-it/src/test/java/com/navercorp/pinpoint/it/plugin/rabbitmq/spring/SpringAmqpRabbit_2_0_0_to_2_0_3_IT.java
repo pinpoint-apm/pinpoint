@@ -38,7 +38,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.Envelope;
 import com.rabbitmq.client.impl.AMQCommand;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.core.Message;
@@ -72,6 +72,7 @@ import java.lang.reflect.Method;
 @SharedTestLifeCycleClass(TestBrokerServer.class)
 public class SpringAmqpRabbit_2_0_0_to_2_0_3_IT extends SpringAmqpRabbitITBase {
 
+    @AutoClose
     private static final TestApplicationContext CONTEXT = new TestApplicationContext();
 
     private final SpringAmqpRabbitTestRunner testRunner = new SpringAmqpRabbitTestRunner(CONTEXT);
@@ -82,11 +83,6 @@ public class SpringAmqpRabbit_2_0_0_to_2_0_3_IT extends SpringAmqpRabbitITBase {
                 CommonConfig.class,
                 MessageListenerConfig_Post_1_4_0.class,
                 ReceiverConfig_Post_1_6_0.class);
-    }
-
-    @AfterAll
-    public static void tearDownAfterClass() {
-        CONTEXT.close();
     }
 
     @Test

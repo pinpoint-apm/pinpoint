@@ -32,7 +32,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.internal.CommsCallback;
 import org.eclipse.paho.client.mqttv3.internal.wire.MqttPublish;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
@@ -69,6 +69,7 @@ public class PahoMqttV3ClientIT {
     static int QOS = 2;
     static int WAIT_FOR_COMPLETION = 3000;
 
+    @AutoClose("disconnect")
     static MqttAsyncClient mqttClient;
 
     @BeforeAll
@@ -90,13 +91,6 @@ public class PahoMqttV3ClientIT {
     private static void subscribe() throws MqttException {
         IMqttToken mqttToken = mqttClient.subscribe(TOPIC, QOS);
         mqttToken.waitForCompletion(WAIT_FOR_COMPLETION);
-    }
-
-    @AfterAll
-    public static void after() throws MqttException {
-        mqttClient.disconnect();
-
-        container.stop();
     }
 
     @Test

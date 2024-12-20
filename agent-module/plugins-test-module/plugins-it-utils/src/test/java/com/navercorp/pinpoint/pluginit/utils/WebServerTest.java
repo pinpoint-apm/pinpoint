@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.pluginit.utils;
 import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.it.plugin.utils.WebServer;
 import fi.iki.elonen.NanoHTTPD;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -38,16 +38,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class WebServerTest {
 
+    @AutoClose("stop")
     private static WebServer webServer;
 
     @BeforeAll
     public static void newTestWebServer() throws Exception {
         webServer = WebServer.newTestWebServer();
-    }
-
-    @AfterAll
-    public static void cleanup() {
-        WebServer.cleanup(webServer);
     }
 
     @Test

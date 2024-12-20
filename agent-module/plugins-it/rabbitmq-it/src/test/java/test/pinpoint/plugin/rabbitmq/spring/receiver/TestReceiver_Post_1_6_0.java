@@ -40,7 +40,7 @@ public class TestReceiver_Post_1_6_0 implements TestReceiver {
     }
 
     @Override
-    public <T> T receiveMessage(String queueName, MessageConverter<T> messageConverter, long timeoutMs) throws InterruptedException {
+    public <T> T receiveMessage(String queueName, MessageConverter<T> messageConverter, long timeoutMs) {
         Message message = rabbitTemplate.receive(queueName, timeoutMs);
         return convertMessage(messageConverter, message);
     }

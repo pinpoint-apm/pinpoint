@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import org.apache.thrift.TBase;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -48,16 +48,13 @@ public class DispatchHandlerTest {
     @Mock
     private AcceptedTimeService acceptedTimeService;
 
+    @AutoClose
+    @SuppressWarnings("unused")
     private AutoCloseable openMocks;
 
     @BeforeEach
     public void beforeEach() {
         openMocks = MockitoAnnotations.openMocks(this);
-    }
-
-    @AfterEach
-    public void afterEach() throws Exception {
-        openMocks.close();
     }
 
     @Test
