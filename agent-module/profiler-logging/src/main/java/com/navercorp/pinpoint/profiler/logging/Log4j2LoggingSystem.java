@@ -19,9 +19,14 @@ import java.util.logging.Level;
 public class Log4j2LoggingSystem implements LoggingSystem {
     public static final String CONTEXT_NAME = "pinpoint-agent-logging-context";
 
+//    private static final String[] LOOKUP = {
+//            "log4j2-test.properties", "log4j2-test.xml",
+//            "log4j2-agent.properties", "log4j2-agent.xml",
+//    };
+
     private static final String[] LOOKUP = {
-            "log4j2-test.properties", "log4j2-test.xml",
-            "log4j2-agent.properties", "log4j2-agent.xml",
+            "log4j2-test.properties", "log4j2-test.yml",
+            "log4j2-agent.properties", "log4j2-agent.yml",
     };
 
     private LoggerContext loggerContext;

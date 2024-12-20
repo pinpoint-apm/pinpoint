@@ -1,0 +1,57 @@
+Configutation:
+  name: Default
+  status: warn
+
+  Properties:
+    Property:
+      - name: "log-path"
+        value: "./logs"
+      - name: "pattern"
+        value: "%highlight{[%-5level]} %d{yyyy-MM-dd HH:mm:ss.SSS} [%t][%F] %c{1} - %msg%n"
+      - name: "charset-UTF-8"
+        value: "UTF-8"
+#  Properties:
+#    Property:
+#      - name: "pattern"
+#        value: "%d{MM-dd HH:mm:ss.sss} [%15.15t] %highlight{%-5level} %clr{%-40.40logger{1.}}{cyan}:%3L -- %msg%n"
+#      - name: "pattern11"
+#        value: "%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.}:%3L -- %msg%n"
+#      - name: "charset-UTF-8"
+#        value: "UTF-8"
+
+  Appenders:
+    Console:
+      name: Console_Appender
+      target: SYSTEM_OUT
+      PatternLayout:
+        charset: ${charset-UTF-8}
+        pattern: ${pattern}
+        disableAnsi: false
+    RollingFile:
+      name: RollingFile_Appender
+      fileName: ${log-path}/rollingfile.log
+      filePattern: "logs/archive/rollingfile.log.%d{yyyy-MM-dd-hh-mm}_%i.gz"
+      PatternLayout:
+        charset: ${charset-UTF-8}
+        pattern: ${pattern}
+      Policies:
+        SizeBasedTriggeringPolicy:
+          size: "200KB"
+        TimeBasedTriggeringPolicy:
+          interval: "1"
+      DefaultRollOverStrategy:
+        max: "30"
+        fileIndex: "max"
+  Loggers:
+    Root:
+      level: debug
+      AppenderRef:
+        - ref: Console_Appender
+        - ref: RollingFile_Appender
+    Logger:
+      name: example.demospringboot
+      additivity: false
+      level: debug
+      AppenderRef:
+        - ref: Console_Appender
+        - ref: RollingFile_Appender
