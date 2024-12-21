@@ -22,6 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,7 +38,7 @@ public class BootstrapCore {
     private final ClassLoader bootstrapClassLoader = Object.class.getClassLoader();
 
 
-    public BootstrapCore(List<String> bootstrapJarPaths) {
+    public BootstrapCore(List<Path> bootstrapJarPaths) {
         Objects.requireNonNull(bootstrapJarPaths, "bootstrapJarPaths");
 
         this.bootstrapRepository = new JarFileRepository(bootstrapJarPaths);

@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcOption;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
-import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import com.navercorp.pinpoint.common.config.Value;
 import com.navercorp.pinpoint.common.config.util.PlaceHolder;
 import com.navercorp.pinpoint.common.config.util.spring.PropertyPlaceholderHelper;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -37,42 +35,16 @@ import java.util.regex.Pattern;
  * @author netspider
  */
 public class DefaultProfilerConfig implements ProfilerConfig {
-    public static final String PROFILER_INTERCEPTOR_EXCEPTION_PROPAGATE = "profiler.interceptor.exception.propagate";
+    public static final String AGENT_ROOT_PATH_KEY = "pinpoint.agent.root.path";
 
     // TestAgent only
     public static final String IMPORT_PLUGIN = "profiler.plugin.import-plugin";
-
-    public static final String AGENT_CLASSLOADER_ADDITIONAL_LIBS = "profiler.agent.classloader.additional-libs";
 
     private final PropertyPlaceholderHelper placeholder;
 
     private final Properties properties;
 
     private final JdbcOption jdbcOption;
-
-    @Value("${pinpoint.disable:false}")
-    private String pinpointDisable = "false";
-
-    @Value("${profiler.logdir.maxbackupsize}")
-    private int logDirMaxBackupSize = 5;
-
-    @Value("${" + Profiles.ACTIVE_PROFILE_KEY + " }")
-    private String activeProfile = "";
-
-    @VisibleForTesting
-    private boolean staticResourceCleanup = false;
-
-    @Value("${profiler.transport.grpc.stats.logging.period}")
-    private String grpcStatLoggingPeriod = "PT1M";
-
-    @Value("${profiler.guice.module.factory}")
-    private String injectionModuleFactoryClazzName = null;
-    @Value("${profiler.application.namespace}")
-    private String applicationNamespace = "";
-
-    @Value("${" + AGENT_CLASSLOADER_ADDITIONAL_LIBS + "}")
-    private String agentClassloaderAdditionalLibs = "";
-
 
     public DefaultProfilerConfig() {
         this.properties = new Properties();
@@ -91,7 +63,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return new PropertyPlaceholderHelper(PlaceHolder.START, PlaceHolder.END, PlaceHolder.DELIMITER, ignoreUnresolvablePlaceholders);
     }
 
-    @Override
     public Properties getProperties() {
         return properties;
     }
@@ -101,46 +72,67 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return jdbcOption;
     }
 
-    @Override
-    public String getActiveProfile() {
-        return activeProfile;
-    }
-
-    @Override
-    public String getPinpointDisable() {
-        return pinpointDisable;
-    }
-
-    @Override
-    public String getGrpcStatLoggingPeriod() {
-        return grpcStatLoggingPeriod;
-    }
-
-    @Override
-    public boolean getStaticResourceCleanup() {
-        return staticResourceCleanup;
-    }
-
-    @Override
-    public String getInjectionModuleFactoryClazzName() {
-        return injectionModuleFactoryClazzName;
-    }
-
-    @Override
-    public String getApplicationNamespace() {
-        return applicationNamespace;
-    }
-
-
-    @Override
-    public int getLogDirMaxBackupSize() {
-        return logDirMaxBackupSize;
-    }
-
-    @Override
-    public List<String> getAgentClassloaderAdditionalLibs() {
-        return StringUtils.tokenizeToStringList(agentClassloaderAdditionalLibs, ",");
-    }
+    //
+//    @Override
+//    public String getActiveProfile() {
+//        return activeProfile;
+//    }
+//
+//    @Override
+//    public int getJdbcSqlCacheSize() {
+//        return jdbcSqlCacheSize;
+//    }
+//
+//    @Override
+//    public boolean isTraceSqlBindValue() {
+//        return traceSqlBindValue;
+//    }
+//
+//    @Override
+//    public int getMaxSqlBindValueSize() {
+//        return maxSqlBindValueSize;
+//    }
+//
+//    @Override
+//    public int getMaxSqlCacheLength() {
+//        return maxSqlCacheLength;
+//    }
+//
+//    @Override
+//    public int getMaxSqlLength() {
+//        return maxSqlLength;
+//    }
+//
+//    @Override
+//    public String getGrpcStatLoggingPeriod() {
+//        return grpcStatLoggingPeriod;
+//    }
+//
+//    @Override
+//    public HttpStatusCodeErrors getHttpStatusCodeErrors() {
+//        return httpStatusCodeErrors;
+//    }
+//
+//    @Value("${profiler.http.status.code.errors}")
+//    void setHttpStatusCodeErrors(String httpStatusCodeErrors) {
+//        List<String> httpStatusCodeErrorList = StringUtils.tokenizeToStringList(httpStatusCodeErrors, ",");
+//        this.httpStatusCodeErrors = new HttpStatusCodeErrors(httpStatusCodeErrorList);
+//    }
+//
+//    @Override
+//    public String getInjectionModuleFactoryClazzName() {
+//        return injectionModuleFactoryClazzName;
+//    }
+//
+//    @Override
+//    public String getApplicationNamespace() {
+//        return applicationNamespace;
+//    }
+//
+//    @Override
+//    public String getAgentRootPath() {
+//        return agentRootPath;
+//    }
 
 
     @Override
@@ -223,14 +215,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public String toString() {
         return "DefaultProfilerConfig{" +
                 "properties=" + properties +
-                ", pinpointDisable='" + pinpointDisable + '\'' +
-                ", logDirMaxBackupSize=" + logDirMaxBackupSize +
-                ", activeProfile='" + activeProfile + '\'' +
-                ", staticResourceCleanup=" + staticResourceCleanup +
-                ", grpcStatLoggingPeriod='" + grpcStatLoggingPeriod + '\'' +
-                ", injectionModuleFactoryClazzName='" + injectionModuleFactoryClazzName + '\'' +
-                ", applicationNamespace='" + applicationNamespace + '\'' +
-                ", agentClassloaderAdditionalLibs='" + agentClassloaderAdditionalLibs + '\'' +
                 '}';
     }
 }

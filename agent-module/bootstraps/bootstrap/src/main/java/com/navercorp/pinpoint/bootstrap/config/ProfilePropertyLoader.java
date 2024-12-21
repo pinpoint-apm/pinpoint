@@ -17,20 +17,22 @@
 package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.bootstrap.BootLogger;
-import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.bootstrap.util.ProfileConstants;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * @author yjqg6666
  * @author Woonduk Kang(emeroad)
  */
 class ProfilePropertyLoader implements PropertyLoader {
+
+    public static final String AGENT_ROOT_PATH_KEY = "pinpoint.agent.root.path";
 
     private final BootLogger logger = BootLogger.getLogger(getClass());
 
@@ -40,11 +42,9 @@ class ProfilePropertyLoader implements PropertyLoader {
     private final Path agentRootPath;
     private final Path profilesPath;
 
-    private final String[] supportedProfiles;
+    private final List<Path> supportedProfiles;
 
-    public static final String[] ALLOWED_PROPERTY_PREFIX = new String[]{"bytecode.", "profiler.", "pinpoint."};
-
-    public ProfilePropertyLoader(Properties javaSystemProperty, Properties osEnvProperty, Path agentRootPath, Path profilesPath, String[] supportedProfiles) {
+    public ProfilePropertyLoader(Properties javaSystemProperty, Properties osEnvProperty, Path agentRootPath, Path profilesPath, List<Path> supportedProfiles) {
         this.javaSystemProperty = Objects.requireNonNull(javaSystemProperty, "javaSystemProperty");
         this.osEnvProperty = Objects.requireNonNull(osEnvProperty, "osEnvProperty");
 
@@ -72,28 +72,28 @@ class ProfilePropertyLoader implements PropertyLoader {
      */
     @Override
     public Properties load() {
-        final Path defaultConfigPath = this.agentRootPath.resolve(Profiles.CONFIG_FILE_NAME);
+        final Path defaultConfigPath = this.agentRootPath.resolve(ProfileConstants.CONFIG_FILE_NAME);
 
         final Properties defaultProperties = new Properties();
         // 1. load default Properties
         logger.info(String.format("load default config:%s", defaultConfigPath));
-        PropertyLoaderUtils.loadFileProperties(defaultProperties, defaultConfigPath);
+        defaultProperties.putAll(PropertyLoaderUtils.loadFileProperties(defaultConfigPath));
 
         // 2. load profile
         final String activeProfile = getActiveProfile(defaultProperties);
         logger.info(String.format("active profile:%s", activeProfile));
 
-        final Path profilePath = Paths.get(profilesPath.toString(), activeProfile, Profiles.PROFILE_CONFIG_FILE_NAME);
+        final Path profilePath = Paths.get(profilesPath.toString(), activeProfile, ProfileConstants.PROFILE_CONFIG_FILE_NAME);
         logger.info(String.format("load profile:%s", profilePath));
-        PropertyLoaderUtils.loadFileProperties(defaultProperties, profilePath);
+        defaultProperties.putAll(PropertyLoaderUtils.loadFileProperties(profilePath));
 
-        defaultProperties.setProperty(Profiles.ACTIVE_PROFILE_KEY, activeProfile);
+        defaultProperties.setProperty(ProfileConstants.ACTIVE_PROFILE_KEY, activeProfile);
 
         // 3. load external config
-        final String externalConfig = this.javaSystemProperty.getProperty(Profiles.EXTERNAL_CONFIG_KEY);
+        final String externalConfig = this.javaSystemProperty.getProperty(ProfileConstants.EXTERNAL_CONFIG_KEY);
         if (externalConfig != null) {
             logger.info(String.format("load external config:%s", externalConfig));
-            PropertyLoaderUtils.loadFileProperties(defaultProperties, Paths.get(externalConfig));
+            defaultProperties.putAll(PropertyLoaderUtils.loadFileProperties(Paths.get(externalConfig)));
         }
 
         // 4 OS environment variables
@@ -106,66 +106,39 @@ class ProfilePropertyLoader implements PropertyLoader {
         saveAgentRootPath(agentRootPath, defaultProperties);
 
         // log path
-        saveLogConfigLocation(activeProfile, defaultProperties);
         return defaultProperties;
     }
 
     private void saveAgentRootPath(Path agentRootPath, Properties properties) {
-        properties.put(AgentDirectory.AGENT_ROOT_PATH_KEY, agentRootPath);
+        properties.put(AGENT_ROOT_PATH_KEY, agentRootPath);
         logger.info(String.format("agent root path:%s", agentRootPath));
     }
 
-    private void saveLogConfigLocation(String activeProfile, Properties properties) {
-        String log4jLocation = properties.getProperty(Profiles.LOG_CONFIG_LOCATION_KEY);
-        if (StringUtils.isEmpty(log4jLocation)) {
-            LogConfigResolver logConfigResolver = new SimpleLogConfigResolver(agentRootPath);
-            log4jLocation = logConfigResolver.getLogPath().toString();
-
-            properties.put(Profiles.LOG_CONFIG_LOCATION_KEY, log4jLocation);
-        }
-
-        logger.info(String.format("logConfig path:%s", log4jLocation));
-    }
 
     private String getActiveProfile(Properties defaultProperties) {
 //        env option support??
 //        String envProfile = System.getenv(ACTIVE_PROFILE_KEY);
-        String profile = javaSystemProperty.getProperty(Profiles.ACTIVE_PROFILE_KEY);
+        String profile = javaSystemProperty.getProperty(ProfileConstants.ACTIVE_PROFILE_KEY);
         if (profile == null) {
-            profile = defaultProperties.getProperty(Profiles.ACTIVE_PROFILE_KEY);
+            profile = defaultProperties.getProperty(ProfileConstants.ACTIVE_PROFILE_KEY);
         }
         if (profile == null) {
             throw new RuntimeException("Failed to detect pinpoint profile. Please add -D" +
-                    Profiles.ACTIVE_PROFILE_KEY +
-                    "=<profile> to VM option. Valid profiles are \"" + String.join(" | ", supportedProfiles) + "\"");
+                    ProfileConstants.ACTIVE_PROFILE_KEY +
+                    "=<profile> to VM option. Valid profiles are \"" + supportedProfiles + "\"");
         }
 
         // prevent directory traversal attack
-        for (String supportedProfile : supportedProfiles) {
-            if (supportedProfile.equalsIgnoreCase(profile)) {
-                return supportedProfile;
+        for (Path supportedProfile : supportedProfiles) {
+            if (supportedProfile.toString().equalsIgnoreCase(profile)) {
+                return supportedProfile.toString();
             }
         }
         throw new IllegalStateException("unsupported profile:" + profile);
     }
 
     private void loadProperties(Properties dstProperties, Properties property) {
-        Set<String> stringPropertyNames = property.stringPropertyNames();
-        for (String propertyName : stringPropertyNames) {
-            if (isAllowPinpointProperty(propertyName)) {
-                String val = property.getProperty(propertyName);
-                dstProperties.setProperty(propertyName, val);
-            }
-        }
+        Map<Object, Object> copy = PropertyLoaderUtils.filterAllowedPrefix(property);
+        dstProperties.putAll(copy);
     }
-
-    boolean isAllowPinpointProperty(String propertyName) {
-        for (String prefix : ALLOWED_PROPERTY_PREFIX) {
-            if (propertyName.startsWith(prefix)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 }
