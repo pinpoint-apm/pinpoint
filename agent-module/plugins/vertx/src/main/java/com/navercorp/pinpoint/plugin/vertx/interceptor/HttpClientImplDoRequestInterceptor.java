@@ -23,9 +23,13 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.plugin.vertx.HttpClientRequestClientHeaderAdaptor;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 import io.vertx.core.http.HttpClientRequest;
 
@@ -37,9 +41,12 @@ public class HttpClientImplDoRequestInterceptor implements ApiIdAwareAroundInter
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceContext traceContext;
+    private final RequestTraceWriter<HttpClientRequest> requestTraceWriter;
 
     public HttpClientImplDoRequestInterceptor(TraceContext traceContext) {
         this.traceContext = traceContext;
+        ClientHeaderAdaptor<HttpClientRequest> clientHeaderAdaptor = new HttpClientRequestClientHeaderAdaptor();
+        this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -75,6 +82,9 @@ public class HttpClientImplDoRequestInterceptor implements ApiIdAwareAroundInter
             final HttpClientRequest request = resultToRequest;
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
 
+            if (request != null) {
+                requestTraceWriter.write(request, trace.getRequestId());
+            }
             if (trace.canSampled()) {
                 recorder.recordApiId(apiId);
                 recorder.recordException(throwable);
