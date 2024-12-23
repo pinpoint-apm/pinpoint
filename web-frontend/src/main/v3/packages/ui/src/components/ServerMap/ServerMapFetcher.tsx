@@ -5,7 +5,7 @@ import {
   serverMapDataAtom,
   currentServerAtom,
   serverMapCurrentTargetAtom,
-} from '@pinpoint-fe/atoms';
+} from '@pinpoint-fe/ui/atoms';
 import {
   useExperimentals,
   useGetServerMapDataV2,

@@ -6,7 +6,7 @@ import {
   currentServerAtom,
   serverMapCurrentTargetAtom,
   scatterDataByApplicationKeyAtom,
-} from '@pinpoint-fe/atoms';
+} from '@pinpoint-fe/ui/atoms';
 import {
   mergeFilteredMapNodeData,
   mergeFilteredMapLinkData,

@@ -25,7 +25,7 @@ import { RxMagnifyingGlass } from 'react-icons/rx';
 import { LuCommand } from 'react-icons/lu';
 import { useLocalStorage } from '@pinpoint-fe/ui/hooks';
 import { useAtom } from 'jotai';
-import { globalSearchDisplayAtom } from '@pinpoint-fe/atoms';
+import { globalSearchDisplayAtom } from '@pinpoint-fe/ui/atoms';
 
 export type SideNavigationMenuItem = MenuItem & {
   aHref?: string;

@@ -4,7 +4,7 @@ import {
   AgentManagementPage as CommonAgentManagementPage,
   withInitialFetch,
 } from '@pinpoint-fe/ui';
-import { configurationAtom } from '@pinpoint-fe/atoms';
+import { configurationAtom } from '@pinpoint-fe/ui/atoms';
 
 export interface AgentManagementPageProps {}
 const AgentManagementPage = () => {

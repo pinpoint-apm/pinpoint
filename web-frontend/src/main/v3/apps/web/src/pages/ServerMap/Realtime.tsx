@@ -2,7 +2,7 @@ import React from 'react';
 import { useAtom } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 import { getServerMapPath, getServerImagePath, getRealtimePath } from '@pinpoint-fe/utils';
-import { serverMapCurrentTargetAtom } from '@pinpoint-fe/atoms';
+import { serverMapCurrentTargetAtom } from '@pinpoint-fe/ui/atoms';
 import { useServerMapSearchParameters } from '@pinpoint-fe/ui/hooks';
 import {
   ApplicationCombinedList,

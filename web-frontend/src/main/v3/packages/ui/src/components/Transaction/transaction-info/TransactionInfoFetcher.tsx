@@ -22,7 +22,7 @@ import {
 } from '@pinpoint-fe/utils';
 import { useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { RxExternalLink } from 'react-icons/rx';
-import { transactionInfoCurrentTabId, transactionInfoDatasAtom } from '@pinpoint-fe/atoms';
+import { transactionInfoCurrentTabId, transactionInfoDatasAtom } from '@pinpoint-fe/ui/atoms';
 import { cn } from '../../../lib';
 import { Popover, PopoverContent, PopoverTrigger } from '../../ui';
 import { Timeline } from '../timeline/Timeline';

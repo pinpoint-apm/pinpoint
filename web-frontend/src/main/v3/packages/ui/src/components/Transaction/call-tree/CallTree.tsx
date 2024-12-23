@@ -25,7 +25,7 @@ import { TransactionInfo } from '@pinpoint-fe/constants';
 import { RxMagnifyingGlass } from 'react-icons/rx';
 import { HighLightCode } from '../../HighLightCode';
 import { useAtomValue } from 'jotai';
-import { transactionInfoCallTreeFocusId } from '@pinpoint-fe/atoms';
+import { transactionInfoCallTreeFocusId } from '@pinpoint-fe/ui/atoms';
 
 export interface CallTreeProps {
   data: TransactionInfo.CallStackKeyValueMap[];

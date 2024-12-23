@@ -1,5 +1,5 @@
 import { useAtomValue } from 'jotai';
-import { urlSelectedSummaryDataAtom } from '@pinpoint-fe/atoms';
+import { urlSelectedSummaryDataAtom } from '@pinpoint-fe/ui/atoms';
 import { useGetUrlStatChartData } from '@pinpoint-fe/ui/hooks';
 import { UrlStatTotalCountChart } from './UrlStatTotalCountChart';
 import { UrlStatFailureCountChart } from './UrlStatFailureCountChart';
