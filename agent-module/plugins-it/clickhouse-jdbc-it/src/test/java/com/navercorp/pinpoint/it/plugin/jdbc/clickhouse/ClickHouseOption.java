@@ -15,11 +15,11 @@
  */
 package com.navercorp.pinpoint.it.plugin.jdbc.clickhouse;
 
+import com.navercorp.pinpoint.it.plugin.utils.TestcontainersOption;
+
 /**
  * @author intr3p1d
  */
 public class ClickHouseOption {
-    public static final String VERSION = "1.19.0";
-    public static final String TEST_CONTAINER = "org.testcontainers:testcontainers:" + VERSION;
-    public static final String CLICKHOUSE = "org.testcontainers:clickhouse:" + VERSION;
+    public static final String CLICKHOUSE = "org.testcontainers:clickhouse:" + TestcontainersOption.VERSION;
 }

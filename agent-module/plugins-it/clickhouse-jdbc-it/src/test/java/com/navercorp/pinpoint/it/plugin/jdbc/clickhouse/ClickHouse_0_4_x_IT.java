@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.it.plugin.jdbc.clickhouse;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
 import com.navercorp.pinpoint.it.plugin.utils.PluginITConstants;
+import com.navercorp.pinpoint.it.plugin.utils.TestcontainersOption;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.DriverProperties;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCApi;
 import com.navercorp.pinpoint.it.plugin.utils.jdbc.JDBCDriverClass;
@@ -49,7 +50,7 @@ import java.util.Properties;
 @PinpointAgent(AgentPath.PATH)
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-clickhouse-jdbc-plugin"})
 @Dependency({
-        "com.clickhouse:clickhouse-jdbc:[0.4.0,]",
+        "com.clickhouse:clickhouse-jdbc:[0.4.0,0.4.max]",
         "com.clickhouse:clickhouse-http-client:0.4.1",
         "net.jpountz.lz4:lz4:1.3.0",
 })
@@ -57,11 +58,11 @@ import java.util.Properties;
 @SharedDependency({
         "com.clickhouse:clickhouse-jdbc:0.4.0",
         PluginITConstants.VERSION, JDBCTestConstants.VERSION,
-        ClickHouseOption.TEST_CONTAINER,
+        TestcontainersOption.TEST_CONTAINER,
         ClickHouseOption.CLICKHOUSE,
 })
 @SharedTestLifeCycleClass(ClickHouseServer.class)
-public class ClickHouse_0_4_x_IT extends ClickHouseITBase{
+public class ClickHouse_0_4_x_IT extends ClickHouseITBase {
 
     private final Logger logger = LogManager.getLogger(getClass());
     protected static DriverProperties driverProperties = DatabaseContainers.readSystemProperties();
