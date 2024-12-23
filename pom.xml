@@ -173,6 +173,8 @@
         <httpcomponents.version>4.5.13</httpcomponents.version>
         <httpcomponents-core.version>4.4.14</httpcomponents-core.version>
 
+        <httpcomponents5.version>5.2.3</httpcomponents5.version>
+
         <reactor-core.version>3.6.9</reactor-core.version>
 
         <spring4.version>4.3.30.RELEASE</spring4.version>
@@ -1228,6 +1230,22 @@
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpcore</artifactId>
                 <version>${httpcomponents-core.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.httpcomponents.client5</groupId>
+                <artifactId>httpclient5</artifactId>
+                <version>${httpcomponents5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents.core5</groupId>
+                <artifactId>httpcore5</artifactId>
+                <version>${httpcomponents5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents.core5</groupId>
+                <artifactId>httpcore5-h2</artifactId>
+                <version>${httpcomponents5.version}</version>
             </dependency>
 
 
