@@ -8,7 +8,7 @@ import {
   getFormattedDateRange,
   getParsedDateRange,
   isValidDateRange,
-} from '@pinpoint-fe/utils';
+} from '@pinpoint-fe/ui/utils';
 import { parse, format } from 'date-fns';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 

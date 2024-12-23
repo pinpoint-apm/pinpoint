@@ -5,7 +5,7 @@ import {
   convertParamsToQueryString,
   getTranscationListQueryString,
   getTransactionListPath,
-} from '@pinpoint-fe/utils';
+} from '@pinpoint-fe/ui/utils';
 import {
   ApplicationType,
   SCATTER_DATA_TOTAL_KEY,

@@ -1,7 +1,4 @@
-import {
-  mergeFilteredMapNodeData,
-  mergeFilteredMapLinkData,
-} from '../../src/helper/filteredMap/merge';
+import { mergeFilteredMapNodeData, mergeFilteredMapLinkData } from './merge';
 import { newLink, newNode, prevLink, prevNode, resultLink, resultNode } from './mergeMock';
 
 describe('Test merge helper utils', () => {

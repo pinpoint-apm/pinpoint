@@ -3,7 +3,7 @@ import {
   getApplicationTypeAndName,
   getParsedDateRange,
   isValidDateRange,
-} from '@pinpoint-fe/utils';
+} from '@pinpoint-fe/ui/utils';
 import { format, parse } from 'date-fns';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 

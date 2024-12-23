@@ -12,13 +12,9 @@
     "@pinpoint-fe/constants#build": {
       "outputs": ["dist/**"]
     },
-    "@pinpoint-fe/utils#build": {
-      "dependsOn": ["@pinpoint-fe/constants#build"],
-      "outputs": ["dist/**"]
-    },
     "@pinpoint-fe/ui#build": {
       "dependsOn": [
-        "@pinpoint-fe/utils#build",
+        "@pinpoint-fe/constants#build",
         "@pinpoint-fe/scatter-chart#build",
         "@pinpoint-fe/datetime-picker#build",
         "@pinpoint-fe/server-map#build"
@@ -41,13 +37,9 @@
     "@pinpoint-fe/constants#devBuild": {
       "outputs": ["dist/**"]
     },
-    "@pinpoint-fe/utils#devBuild": {
-      "dependsOn": ["@pinpoint-fe/constants#devBuild"],
-      "outputs": ["dist/**"]
-    },
     "@pinpoint-fe/ui#devBuild": {
       "dependsOn": [
-        "@pinpoint-fe/utils#devBuild",
+        "@pinpoint-fe/constants#devBuild",
         "@pinpoint-fe/scatter-chart#devBuild",
         "@pinpoint-fe/datetime-picker#devBuild",
         "@pinpoint-fe/server-map#devBuild"
@@ -64,7 +56,6 @@
         "@pinpoint-fe/scatter-chart#devBuild",
         "@pinpoint-fe/server-map#devBuild",
         "@pinpoint-fe/constants#devBuild",
-        "@pinpoint-fe/utils#devBuild",
         "@pinpoint-fe/ui#devBuild"
       ],
       "outputs": []

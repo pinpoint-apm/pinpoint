@@ -8,7 +8,7 @@ import {
   MergedEdge,
 } from '@pinpoint-fe/server-map';
 import { FilteredMap, GetServerMap } from '@pinpoint-fe/constants';
-import { addCommas, getServerImagePath } from '@pinpoint-fe/utils';
+import { addCommas, getServerImagePath } from '@pinpoint-fe/ui/utils';
 import {
   ServerMapMenu,
   SERVERMAP_MENU_CONTENT_TYPE,

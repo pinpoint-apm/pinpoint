@@ -6,7 +6,7 @@ import { useReactToastifyToast } from '../../../Toast';
 import { getUserGroupTableColumns } from './userGroupTableColumns';
 import { useNavigate } from 'react-router-dom';
 import { APP_PATH, ConfigUserGroup } from '@pinpoint-fe/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/utils';
+import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { UserGroupTableToolbar } from './UserGroupTableToolbar';
 
 export interface UserGroupTableFetcherProps {

@@ -4,7 +4,7 @@ import bb, { ChartOptions, bar } from 'billboard.js';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import BillboardJS, { IChart } from '@billboard.js/react';
-import { abbreviateNumber, formatNewLinedDateString } from '@pinpoint-fe/utils';
+import { abbreviateNumber, formatNewLinedDateString } from '@pinpoint-fe/ui/utils';
 import { isValid } from 'date-fns';
 import { UrlStatChart as UrlStatChartApi } from '@pinpoint-fe/constants';
 import { cn } from '../../../lib';

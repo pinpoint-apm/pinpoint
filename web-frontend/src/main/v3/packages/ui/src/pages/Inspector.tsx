@@ -16,7 +16,7 @@ import {
   ApplicationCombinedList,
   ApplicationCombinedListProps,
 } from '../components';
-import { convertParamsToQueryString, getInspectorPath } from '@pinpoint-fe/utils';
+import { convertParamsToQueryString, getInspectorPath } from '@pinpoint-fe/ui/utils';
 import { PiChartLineDuotone } from 'react-icons/pi';
 
 export interface InspectorPageProps {

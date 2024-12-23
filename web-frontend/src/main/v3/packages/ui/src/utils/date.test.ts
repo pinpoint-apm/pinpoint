@@ -1,5 +1,5 @@
 import { subDays } from 'date-fns';
-import { isValidDateRange, convertToTimeUnit } from '../src/date';
+import { isValidDateRange, convertToTimeUnit } from './date';
 
 describe('Test date utils', () => {
   describe('Test "isValidDateRange"', () => {

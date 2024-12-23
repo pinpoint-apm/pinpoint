@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from '../../components';
 import { useLanguage, SupportLanguageType, useDateFormat } from '@pinpoint-fe/ui/hooks';
-import { format } from '@pinpoint-fe/utils';
+import { format } from '@pinpoint-fe/ui/utils';
 import { useTranslation } from 'react-i18next';
 
 export interface GeneralPageProps {}

@@ -46,7 +46,6 @@
     "@pinpoint-fe/datetime-picker": "*",
     "@pinpoint-fe/scatter-chart": "*",
     "@pinpoint-fe/server-map": "*",
-    "@pinpoint-fe/utils": "*",
     "@popperjs/core": "^2.11.7",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-alert-dialog": "^1.0.5",

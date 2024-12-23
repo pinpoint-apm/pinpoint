@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import { END_POINTS, ActiveThreadDump, ActiveThreadLightDump } from '@pinpoint-fe/constants';
 import { swrConfigs } from './swrConfigs';
-import { convertParamsToQueryString } from '@pinpoint-fe/utils';
+import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { useSearchParameters } from '../searchParameters';
 
 const getQueryString = (

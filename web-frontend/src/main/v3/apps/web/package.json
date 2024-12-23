@@ -18,7 +18,6 @@
   "dependencies": {
     "@pinpoint-fe/constants": "*",
     "@pinpoint-fe/ui": "*",
-    "@pinpoint-fe/utils": "*",
     "@tanstack/react-query": "^5.17.19",
     "date-fns": "^2.29.3",
     "i18next": "^23.2.11",

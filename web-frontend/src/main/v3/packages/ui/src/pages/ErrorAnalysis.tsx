@@ -25,7 +25,7 @@ import {
   getErrorAnalysisPath,
   getTransactionDetailPath,
   getTransactionDetailQueryString,
-} from '@pinpoint-fe/utils';
+} from '@pinpoint-fe/ui/utils';
 import { useErrorAnalysisSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { useTranslation } from 'react-i18next';
 import { ErrorAnalysisErrorList, BASE_PATH } from '@pinpoint-fe/constants';

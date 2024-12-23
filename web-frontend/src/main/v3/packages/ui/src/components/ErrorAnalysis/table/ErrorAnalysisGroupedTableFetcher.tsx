@@ -10,7 +10,7 @@ import {
   getErrorAnalysisPath,
   convertParamsToQueryString,
   getFormattedDateRange,
-} from '@pinpoint-fe/utils';
+} from '@pinpoint-fe/ui/utils';
 
 export interface ErrorAnalysisGroupedTableFetcherProps {
   className?: string;

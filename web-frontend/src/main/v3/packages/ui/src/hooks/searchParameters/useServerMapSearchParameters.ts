@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { addMilliseconds } from 'date-fns';
-import { getApplicationTypeAndName, getParsedDateRange } from '@pinpoint-fe/utils';
+import { getApplicationTypeAndName, getParsedDateRange } from '@pinpoint-fe/ui/utils';
 import { getSearchParameters, getDateRange } from './utils';
 
 export const useServerMapSearchParameters = () => {

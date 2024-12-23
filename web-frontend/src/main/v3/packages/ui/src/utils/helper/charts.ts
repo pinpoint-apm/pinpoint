@@ -85,6 +85,7 @@ export const getFormat = (dataUnit: string) => {
 export const getTooltipStr = (title: string, contentsData: unknown[]) => {
   const header = `<tr><th colspan="2">${title}</th></tr>`;
   const body = contentsData
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .map((d: any) => {
       const { id, value, color } = d;
 

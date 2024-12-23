@@ -6,7 +6,7 @@ import {
   getScatterFullScreenPath,
   getTransactionListPath,
   getTranscationListQueryString,
-} from '@pinpoint-fe/utils';
+} from '@pinpoint-fe/ui/utils';
 import { useGetScatterData, useServerMapSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { scatterDataAtom } from '@pinpoint-fe/ui/atoms';
 import { useAtom } from 'jotai';

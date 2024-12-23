@@ -9,7 +9,7 @@ import {
   currentServerAtom,
   serverMapDataAtom,
 } from '@pinpoint-fe/ui/atoms';
-import { convertParamsToQueryString, getParsedDate } from '@pinpoint-fe/utils';
+import { convertParamsToQueryString, getParsedDate } from '@pinpoint-fe/ui/utils';
 import { useSearchParameters, swrConfigs, useServerMapLinkedData } from '@pinpoint-fe/ui/hooks';
 import { useTranslation } from 'react-i18next';
 

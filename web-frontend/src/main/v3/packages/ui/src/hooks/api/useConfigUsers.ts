@@ -1,6 +1,6 @@
 import { useQuery, UseMutationOptions, useMutation } from '@tanstack/react-query';
 import { ConfigUsers, END_POINTS, ErrorResponse } from '@pinpoint-fe/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/utils';
+import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { queryFn } from './reactQueryHelper';
 
 const getQueryString = (queryParams?: Partial<ConfigUsers.Parameters>) => {

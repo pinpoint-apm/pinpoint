@@ -12,7 +12,7 @@ import {
   getApplicationKey,
   getFormattedDateRange,
   getRealtimePath,
-} from '@pinpoint-fe/utils';
+} from '@pinpoint-fe/ui/utils';
 import { useServerMapSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { MdArrowBackIosNew, MdArrowForwardIos } from 'react-icons/md';
 import { ServerList } from '@/components/ServerList/ServerList';

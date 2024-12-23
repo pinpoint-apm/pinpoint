@@ -5,7 +5,7 @@ import { useRechart } from './useRechart';
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip } from '../ui';
 import { Payload } from 'recharts/types/component/DefaultLegendContent';
 import { Chart } from '@pinpoint-fe/constants';
-import { getFormat } from '@pinpoint-fe/utils';
+import { getFormat } from '@pinpoint-fe/ui/utils';
 import { CustomChartTooltipContent } from './ChartTooltipContent';
 
 export interface ReChartProps {

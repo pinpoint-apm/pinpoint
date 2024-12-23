@@ -4,7 +4,7 @@ import bb, { bar, ChartOptions, DataItem } from 'billboard.js';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import BillboardJS, { IChart } from '@billboard.js/react';
-import { abbreviateNumber, getMaxTickValue } from '@pinpoint-fe/utils';
+import { abbreviateNumber, getMaxTickValue } from '@pinpoint-fe/ui/utils';
 
 export interface ResponseAvgMaxChartProps {
   /**

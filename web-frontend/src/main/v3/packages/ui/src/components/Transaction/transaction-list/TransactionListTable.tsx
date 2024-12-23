@@ -6,7 +6,7 @@ import {
   convertParamsToQueryString,
   getTransactionListPath,
   getTransactionTableUniqueKey,
-} from '@pinpoint-fe/utils';
+} from '@pinpoint-fe/ui/utils';
 import { useNavigate } from 'react-router-dom';
 
 export interface TransactionListTableProps

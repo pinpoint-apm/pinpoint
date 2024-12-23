@@ -1,5 +1,5 @@
 import { APP_PATH } from '@pinpoint-fe/constants';
-import { getApplicationTypeAndName } from '@pinpoint-fe/utils';
+import { getApplicationTypeAndName } from '@pinpoint-fe/ui/utils';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 
 export const transactionDetailRouteLoader = ({ params, request }: LoaderFunctionArgs) => {

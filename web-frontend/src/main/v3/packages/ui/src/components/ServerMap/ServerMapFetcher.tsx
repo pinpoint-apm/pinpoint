@@ -12,7 +12,7 @@ import {
   useServerMapSearchParameters,
 } from '@pinpoint-fe/ui/hooks';
 import { useTranslation } from 'react-i18next';
-import { getBaseNodeId, getServerImagePath } from '@pinpoint-fe/utils';
+import { getBaseNodeId, getServerImagePath } from '@pinpoint-fe/ui/utils';
 import { ServerMapCore, ServerMapCoreProps } from './ServerMapCore';
 
 export interface ServerMapFetcherProps

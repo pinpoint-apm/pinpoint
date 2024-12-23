@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../..
 import { type ChartConfig } from '../../ui/chart';
 import { useAtomValue } from 'jotai';
 import { userMetricConfigAtom } from '@pinpoint-fe/ui/atoms';
-import { getFormat } from '@pinpoint-fe/utils';
+import { getFormat } from '@pinpoint-fe/ui/utils';
 import { COLORS } from './constant';
 import { OpenTelemetryChart } from './OpenTelemetryChart';
 

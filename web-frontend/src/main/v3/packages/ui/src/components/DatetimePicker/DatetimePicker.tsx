@@ -7,7 +7,7 @@ import { RichDatetimePicker, RichDatetimePickerProps } from '@pinpoint-fe/dateti
 import Marquee from 'react-fast-marquee';
 
 import { SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/constants';
-import { getFormattedDateRange, getParsedDateRange, isValidDateRange } from '@pinpoint-fe/utils';
+import { getFormattedDateRange, getParsedDateRange, isValidDateRange } from '@pinpoint-fe/ui/utils';
 import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui';
 import { cn } from '../../lib';
 import { useReactToastifyToast } from '../Toast';

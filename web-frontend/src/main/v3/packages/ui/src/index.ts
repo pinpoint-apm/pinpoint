@@ -7,3 +7,4 @@ export * from './constant';
 export * from './hooks';
 export * from './lib';
 export * from './pages';
+export * from './utils';

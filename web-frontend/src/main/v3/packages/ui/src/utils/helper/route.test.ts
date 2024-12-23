@@ -4,7 +4,7 @@ import {
   getApplicationPath,
   getHostGroupPath,
   getFilteredMapPath,
-} from '../../src/helper/route';
+} from './route';
 
 describe('Test route helper utils', () => {
   describe('Test "getServerImagePath"', () => {

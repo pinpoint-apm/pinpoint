@@ -4,7 +4,7 @@ import {
   isSameObjectKeys,
   isEmpty,
   getMergedKeys,
-} from '../src/object';
+} from './object';
 
 describe('Test obejct utils', () => {
   describe('Test "getSortedKeys"', () => {

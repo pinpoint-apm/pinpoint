@@ -10,7 +10,7 @@ import {
   getServerMapPath,
   getTransactionListPath,
   getTranscationListQueryString,
-} from '@pinpoint-fe/utils';
+} from '@pinpoint-fe/ui/utils';
 import { useFilteredMapParameters } from '@pinpoint-fe/ui/hooks';
 import { MdArrowBackIosNew, MdArrowForwardIos } from 'react-icons/md';
 import { ServerList } from '@/components/ServerList/ServerList';

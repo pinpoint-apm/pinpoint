@@ -22,7 +22,7 @@ import {
   SelectItem,
   Separator,
 } from '../../ui';
-import { formatNewLinedDateString, getFormat } from '@pinpoint-fe/utils';
+import { formatNewLinedDateString, getFormat } from '@pinpoint-fe/ui/utils';
 
 export interface SystemMetricChartFetcherProps {
   chartInfo: SystemMetricMetricInfo.MetricInfoData;
