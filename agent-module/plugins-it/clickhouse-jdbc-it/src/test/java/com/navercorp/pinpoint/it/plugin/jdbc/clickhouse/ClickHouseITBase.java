@@ -105,47 +105,54 @@ public class ClickHouseITBase {
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
 
-        Connection conn = getConnection();
+        try (Connection conn = getConnection()) {
 
-        String sql1 = String.format(
-                "drop table if exists %1$s; create table %1$s(a String, b Nullable(String)) engine=Memory",
-                TABLE_NAME);
-        String sql2 = "select * from " + TABLE_NAME;
-        String sql3 = "select * from " + TABLE_NAME;
+            String sql1 = String.format(
+                    "drop table if exists %1$s; create table %1$s(a String, b Nullable(String)) engine=Memory",
+                    TABLE_NAME);
+            String sql2 = "select * from " + TABLE_NAME;
+            String sql3 = "select * from " + TABLE_NAME;
 
-        try (Statement stmt = conn.createStatement()) {
-            stmt.execute(sql1);
-        }
+            try (Statement stmt = conn.createStatement()) {
+                stmt.execute(sql1);
+            }
 
-        try (Statement stmt = conn.createStatement()) {
-            stmt.setMaxRows(3);
-            int count = 0;
-            try (ResultSet rs = stmt.executeQuery(sql2)) {
-                while (rs.next()) {
-                    count++;
+            try (Statement stmt = conn.createStatement()) {
+                stmt.setMaxRows(3);
+                try (ResultSet rs = stmt.executeQuery(sql2)) {
+                    drain(rs);
                 }
             }
+
+            try (Statement stmt = conn.createStatement()) {
+                stmt.setMaxRows(3);
+                int count = stmt.executeUpdate(sql3);
+            }
+
+
+            verifier.printCache();
+
+            Method connect = jdbcApi.getDriver().getConnect();
+            verifier.verifyTrace(Expectations.event(DB_TYPE, connect, null, databaseAddress, databaseName, Expectations.cachedArgs(jdbcUrl)));
+
+            Method execute = jdbcApi.getStatement().getExecute();
+            verifier.verifyTrace(Expectations.event(DB_EXECUTE_QUERY, execute, null, databaseAddress, databaseName, Expectations.sql(sql1, null)));
+
+            Method executeQuery = jdbcApi.getStatement().getExecuteQuery();
+            verifier.verifyTrace(Expectations.event(DB_EXECUTE_QUERY, executeQuery, null, databaseAddress, databaseName, Expectations.sql(sql2, null)));
+
+            Method executeUpdate = jdbcApi.getStatement().getExecuteUpdate();
+            verifier.verifyTrace(Expectations.event(DB_EXECUTE_QUERY, executeUpdate, null, databaseAddress, databaseName, Expectations.sql(sql3, null)));
         }
+    }
 
-        try (Statement stmt = conn.createStatement()) {
-            stmt.setMaxRows(3);
-            int count = stmt.executeUpdate(sql3);
+    private void drain(ResultSet resultSet) throws SQLException {
+        int fetchCount = 0;
+        while (resultSet.next()) {
+//            resultSet.getObject(1);
+            fetchCount++;
+            // empty
         }
-
-        verifier.printCache();
-
-        Method connect = jdbcApi.getDriver().getConnect();
-        verifier.verifyTrace(Expectations.event(DB_TYPE, connect, null, databaseAddress, databaseName, Expectations.cachedArgs(jdbcUrl)));
-
-        Method execute = jdbcApi.getStatement().getExecute();
-        verifier.verifyTrace(Expectations.event(DB_EXECUTE_QUERY, execute, null, databaseAddress, databaseName, Expectations.sql(sql1, null)));
-
-        Method executeQuery = jdbcApi.getStatement().getExecuteQuery();
-        verifier.verifyTrace(Expectations.event(DB_EXECUTE_QUERY, executeQuery, null, databaseAddress, databaseName, Expectations.sql(sql2, null)));
-
-        Method executeUpdate = jdbcApi.getStatement().getExecuteUpdate();
-        verifier.verifyTrace(Expectations.event(DB_EXECUTE_QUERY, executeUpdate, null, databaseAddress, databaseName, Expectations.sql(sql3, null)));
-
     }
 
     public void testPreparedStatements() throws SQLException {
