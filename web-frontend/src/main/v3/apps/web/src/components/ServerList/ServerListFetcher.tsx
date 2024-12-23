@@ -7,7 +7,7 @@ import {
   currentNodeStatisticsAtom,
   currentServerAgentIdAtom,
   serverMapDataAtom,
-} from '@pinpoint-fe/atoms';
+} from '@pinpoint-fe/ui/atoms';
 import { END_POINTS, GetServerMap, SearchApplication, BASE_PATH } from '@pinpoint-fe/constants';
 import { convertParamsToQueryString, getParsedDate } from '@pinpoint-fe/utils';
 import { useSearchParameters, swrConfigs, useServerMapLinkedData } from '@pinpoint-fe/ui/hooks';

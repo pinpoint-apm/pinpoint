@@ -8,7 +8,7 @@ import {
   currentNodeStatisticsAtom,
   currentServerAtom,
   serverMapDataAtom,
-} from '@pinpoint-fe/atoms';
+} from '@pinpoint-fe/ui/atoms';
 import { convertParamsToQueryString, getParsedDate } from '@pinpoint-fe/utils';
 import { useSearchParameters, swrConfigs, useServerMapLinkedData } from '@pinpoint-fe/ui/hooks';
 import { useTranslation } from 'react-i18next';

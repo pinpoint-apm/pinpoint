@@ -24,7 +24,7 @@ import {
   serverMapCurrentTargetAtom,
   serverMapCurrentTargetDataAtom,
   serverMapDataAtom,
-} from '@pinpoint-fe/atoms';
+} from '@pinpoint-fe/ui/atoms';
 import { APP_SETTING_KEYS, GetServerMap } from '@pinpoint-fe/constants';
 import { getServerImagePath } from '@pinpoint-fe/utils';
 

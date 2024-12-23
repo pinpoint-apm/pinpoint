@@ -21,7 +21,7 @@ import {
   currentServerAtom,
   scatterDataByApplicationKeyAtom,
   CurrentTarget,
-} from '@pinpoint-fe/atoms';
+} from '@pinpoint-fe/ui/atoms';
 import {
   FilteredMap,
   GetServerMap,

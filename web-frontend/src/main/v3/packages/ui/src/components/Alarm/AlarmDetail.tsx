@@ -38,7 +38,7 @@ import { ErrorToast } from '../../components/Error/ErrorToast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { WebhookDetail } from '../../components/Webhook/WebhookDetail';
 import { cn } from '../../lib/utils';
-import { configurationAtom } from '@pinpoint-fe/atoms';
+import { configurationAtom } from '@pinpoint-fe/ui/atoms';
 import { useAtomValue } from 'jotai';
 import { HelpPopover } from '../../components/HelpPopover';
 

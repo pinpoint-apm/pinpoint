@@ -3,7 +3,7 @@ import { SWRConfiguration } from 'swr';
 import { useAtom } from 'jotai';
 import { useGetHeatmapDrag } from '@pinpoint-fe/ui/hooks';
 import { TransactionListTable, TransactionListTableProps } from '../..';
-import { transactionListDatasAtom } from '@pinpoint-fe/atoms';
+import { transactionListDatasAtom } from '@pinpoint-fe/ui/atoms';
 import { HeatmapDrag } from '@pinpoint-fe/constants';
 
 export interface TransactionListFetcherProps extends TransactionListTableProps {

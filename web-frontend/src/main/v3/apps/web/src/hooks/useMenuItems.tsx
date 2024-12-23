@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { APP_PATH, MenuItem } from '@pinpoint-fe/constants';
-import { configurationAtom } from '@pinpoint-fe/atoms';
+import { configurationAtom } from '@pinpoint-fe/ui/atoms';
 import {
   PiBugBeetle,
   PiChartBar,

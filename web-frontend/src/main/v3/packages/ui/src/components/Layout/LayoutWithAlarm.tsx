@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/ta
 import { t } from 'i18next';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { configurationAtom } from '@pinpoint-fe/atoms';
+import { configurationAtom } from '@pinpoint-fe/ui/atoms';
 import { useAtomValue } from 'jotai';
 
 export interface LayoutWithAlarmProps {

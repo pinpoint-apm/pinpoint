@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAtom } from 'jotai';
-import { urlSelectedSummaryDataAtom } from '@pinpoint-fe/atoms';
+import { urlSelectedSummaryDataAtom } from '@pinpoint-fe/ui/atoms';
 import { useGetUrlStatSummaryData } from '@pinpoint-fe/ui/hooks';
 import { summaryColumns } from './UrlSummaryColumns';
 import { DataTable, DataTableCountOfRows } from '../../DataTable';

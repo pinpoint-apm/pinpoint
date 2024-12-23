@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSetAtom } from 'jotai';
-import { installationApplicationNameAtom } from '@pinpoint-fe/atoms';
+import { installationApplicationNameAtom } from '@pinpoint-fe/ui/atoms';
 import { useGetConfigApplicationDuplicationCheck } from '@pinpoint-fe/ui/hooks';
 import { CheckStatus, DuplicationCheck, DUPLICATION_CHECK_STATUS } from './DuplicationCheck';
 

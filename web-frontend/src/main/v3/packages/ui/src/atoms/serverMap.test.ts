@@ -4,7 +4,7 @@ import {
   serverMapDataAtom,
   serverMapCurrentTargetAtom,
   serverMapCurrentTargetDataAtom,
-} from '../src/serverMap';
+} from './serverMap';
 import { serverMapData, resultData } from './serverMapMock';
 
 describe('Test serverMap atom', () => {

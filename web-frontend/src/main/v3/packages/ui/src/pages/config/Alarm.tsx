@@ -38,7 +38,7 @@ import { ScrollArea } from '../../components/ui/scroll-area';
 import { useAlarmRuleMutation, useAlarmRuleQuery, useLocalStorage } from '@pinpoint-fe/ui/hooks';
 import { LayoutWithAlarm } from '../../components/Layout/LayoutWithAlarm';
 import { useSetAtom } from 'jotai';
-import { configurationAtom } from '@pinpoint-fe/atoms';
+import { configurationAtom } from '@pinpoint-fe/ui/atoms';
 import { AlarmPermissionContext } from '../../components';
 import { MdOutlineAdd } from 'react-icons/md';
 

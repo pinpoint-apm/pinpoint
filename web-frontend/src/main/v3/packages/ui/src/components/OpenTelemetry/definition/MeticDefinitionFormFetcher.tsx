@@ -22,7 +22,7 @@ import { FcAreaChart, FcBarChart, FcLineChart } from 'react-icons/fc';
 import { Separator } from '../../ui/separator';
 import { Button } from '../../ui/button';
 import { useSetAtom } from 'jotai';
-import { userMetricConfigAtom } from '@pinpoint-fe/atoms';
+import { userMetricConfigAtom } from '@pinpoint-fe/ui/atoms';
 import { IconBaseProps } from 'react-icons/lib';
 import {
   useGetOtlpMetricDefProperty,

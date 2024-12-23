@@ -8,7 +8,6 @@ export default defineConfig({
   dts: true,
   format: ['esm'],
   external: [
-    '@pinpoint-fe/atoms',
     'react',
     'react-dom',
     'react-router-dom',

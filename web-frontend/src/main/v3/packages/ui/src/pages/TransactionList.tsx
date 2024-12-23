@@ -4,7 +4,7 @@ import { TransactionInfo, TransactionInfoProps, TransactionList } from '../compo
 import { MainHeader, ApplicationCombinedList, Separator } from '../components';
 import { useAtomValue } from 'jotai';
 import { useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';
-import { transactionListDatasAtom } from '@pinpoint-fe/atoms';
+import { transactionListDatasAtom } from '@pinpoint-fe/ui/atoms';
 import { APP_SETTING_KEYS } from '@pinpoint-fe/constants';
 import { PiStackDuotone } from 'react-icons/pi';
 import { TransactionListProgressBar } from '../components/Transaction/transaction-list/TransactionListProgressBar';

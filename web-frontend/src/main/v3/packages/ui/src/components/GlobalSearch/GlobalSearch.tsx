@@ -1,4 +1,4 @@
-import { globalSearchDisplayAtom } from '@pinpoint-fe/atoms';
+import { globalSearchDisplayAtom } from '@pinpoint-fe/ui/atoms';
 import { MenuItem } from '@pinpoint-fe/constants';
 ('@radix-ui/react-icons');
 import Fuse from 'fuse.js';

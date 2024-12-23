@@ -16,7 +16,6 @@
     "move:dist": "cpx \"./dist/**\" \"../../../../../target/classes/static/\""
   },
   "dependencies": {
-    "@pinpoint-fe/atoms": "*",
     "@pinpoint-fe/constants": "*",
     "@pinpoint-fe/ui": "*",
     "@pinpoint-fe/utils": "*",

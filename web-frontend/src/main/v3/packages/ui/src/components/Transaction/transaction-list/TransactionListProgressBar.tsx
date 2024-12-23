@@ -5,7 +5,7 @@ import {
 import { useAtomValue } from 'jotai';
 import { differenceInMinutes } from 'date-fns';
 import { useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';
-import { transactionListDatasAtom } from '@pinpoint-fe/atoms';
+import { transactionListDatasAtom } from '@pinpoint-fe/ui/atoms';
 import { cn } from '../../../lib';
 
 export interface TransactionListProgressBarProps extends ProgressBarWithControlsProps {}
