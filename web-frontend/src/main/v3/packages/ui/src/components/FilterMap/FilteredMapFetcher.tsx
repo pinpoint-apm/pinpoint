@@ -12,7 +12,7 @@ import {
   mergeFilteredMapLinkData,
   getServerImagePath,
   getBaseNodeId,
-} from '@pinpoint-fe/utils';
+} from '@pinpoint-fe/ui/utils';
 import { MergedNode, MergedEdge, Node, Edge } from '@pinpoint-fe/server-map';
 import { useFilteredMapParameters, useGetFilteredServerMapData } from '@pinpoint-fe/ui/hooks';
 import { useTranslation } from 'react-i18next';

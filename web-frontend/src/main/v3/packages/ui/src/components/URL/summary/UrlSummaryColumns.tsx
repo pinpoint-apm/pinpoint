@@ -2,7 +2,7 @@ import { LuArrowUp, LuArrowDown } from 'react-icons/lu';
 import { ColumnDef } from '@tanstack/react-table';
 import { UrlStatSummary } from '@pinpoint-fe/constants';
 import { Button } from '../../ui';
-import { addCommas, numberInDecimal, numberInInteger } from '@pinpoint-fe/utils';
+import { addCommas, numberInDecimal, numberInInteger } from '@pinpoint-fe/ui/utils';
 import { cn } from '../../../lib';
 
 interface SummaryColumnProps {

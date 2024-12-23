@@ -6,7 +6,7 @@ import {
   getErrorAnalysisPath,
   convertParamsToQueryString,
   getFormattedDateRange,
-} from '@pinpoint-fe/utils';
+} from '@pinpoint-fe/ui/utils';
 import { useNavigate } from 'react-router-dom';
 import { ApplicationLinkButton } from '../../Button/ApplicationLinkButton';
 

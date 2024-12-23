@@ -7,7 +7,7 @@ import BillboardJS, { IChart } from '@billboard.js/react';
 import { isValid } from 'date-fns';
 import { UrlStatChart as UrlStatChartApi } from '@pinpoint-fe/constants';
 import { cn } from '../../../lib';
-import { formatNewLinedDateString, numberInDecimal } from '@pinpoint-fe/utils';
+import { formatNewLinedDateString, numberInDecimal } from '@pinpoint-fe/ui/utils';
 import { colors } from '../../../constant/theme';
 
 export interface UrlStatApdexChartProps {

@@ -26,7 +26,7 @@ import {
   serverMapDataAtom,
 } from '@pinpoint-fe/ui/atoms';
 import { APP_SETTING_KEYS, GetServerMap } from '@pinpoint-fe/constants';
-import { getServerImagePath } from '@pinpoint-fe/utils';
+import { getServerImagePath } from '@pinpoint-fe/ui/utils';
 
 export interface RealtimeProps {}
 

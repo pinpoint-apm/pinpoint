@@ -10,7 +10,7 @@ import {
 } from '../components';
 import { useNavigate } from 'react-router-dom';
 import { useSystemMetricSearchParameters } from '@pinpoint-fe/ui/hooks';
-import { convertParamsToQueryString, getSystemMetricPath } from '@pinpoint-fe/utils';
+import { convertParamsToQueryString, getSystemMetricPath } from '@pinpoint-fe/ui/utils';
 import { useTranslation } from 'react-i18next';
 import { PiHardDrivesDuotone } from 'react-icons/pi';
 

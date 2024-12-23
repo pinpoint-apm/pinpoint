@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom';
-import { getApplicationTypeAndName } from '@pinpoint-fe/utils';
+import { getApplicationTypeAndName } from '@pinpoint-fe/ui/utils';
 
 export const useSearchParameters = () => {
   const props = useLocation();

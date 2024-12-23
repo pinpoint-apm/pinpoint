@@ -1,4 +1,4 @@
-import { addCommas, abbreviateNumber, numberInDecimal, numberInInteger } from '../src/number';
+import { addCommas, abbreviateNumber, numberInDecimal, numberInInteger } from './number';
 
 describe('Test number utils', () => {
   describe('Test "addCommas"', () => {

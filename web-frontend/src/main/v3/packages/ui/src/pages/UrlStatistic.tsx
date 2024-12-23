@@ -11,7 +11,7 @@ import {
   UrlSummary,
 } from '../components';
 import { useNavigate } from 'react-router-dom';
-import { convertParamsToQueryString, getUrlStatPath } from '@pinpoint-fe/utils';
+import { convertParamsToQueryString, getUrlStatPath } from '@pinpoint-fe/ui/utils';
 import { useUrlStatSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { useTranslation } from 'react-i18next';
 import { PiChartBarDuotone } from 'react-icons/pi';

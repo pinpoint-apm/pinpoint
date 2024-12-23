@@ -4,7 +4,7 @@ import bb, { areaStep, ChartOptions } from 'billboard.js';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import BillboardJS, { IChart } from '@billboard.js/react';
-import { abbreviateNumber, addCommas, getMaxTickValue } from '@pinpoint-fe/utils';
+import { abbreviateNumber, addCommas, getMaxTickValue } from '@pinpoint-fe/ui/utils';
 import { format, isValid } from 'date-fns';
 import { cn } from '../../../lib/utils';
 import { colors } from '../../../constant/theme';

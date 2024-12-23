@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom';
-import { getApplicationTypeAndName, parseFilterStateFromQueryString } from '@pinpoint-fe/utils';
+import { getApplicationTypeAndName, parseFilterStateFromQueryString } from '@pinpoint-fe/ui/utils';
 import { getSearchParameters, getDateRange } from './utils';
 
 export const useFilteredMapParameters = () => {

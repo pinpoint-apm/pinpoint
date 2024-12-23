@@ -1,6 +1,6 @@
 import useSWR from 'swr';
 import { END_POINTS, ErrorAnalysisTransactionInfo } from '@pinpoint-fe/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/utils';
+import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { swrConfigs } from './swrConfigs';
 
 const getQueryString = (queryParams: Partial<ErrorAnalysisTransactionInfo.Parameters>) => {

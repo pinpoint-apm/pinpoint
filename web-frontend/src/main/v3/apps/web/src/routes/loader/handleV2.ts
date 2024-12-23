@@ -1,5 +1,5 @@
 import { APP_PATH, SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/constants';
-import { convertTimeStringToTime, convertParamsToQueryString } from '@pinpoint-fe/utils';
+import { convertTimeStringToTime, convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { parse, format, subMilliseconds } from 'date-fns';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 

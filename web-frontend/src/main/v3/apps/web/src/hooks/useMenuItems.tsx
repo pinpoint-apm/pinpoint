@@ -17,7 +17,7 @@ import {
   getSystemMetricPath,
   getErrorAnalysisPath,
   getOpenTelemetryPath,
-} from '@pinpoint-fe/utils';
+} from '@pinpoint-fe/ui/utils';
 
 export const useMenuItems = () => {
   const configuration = useAtomValue(configurationAtom);

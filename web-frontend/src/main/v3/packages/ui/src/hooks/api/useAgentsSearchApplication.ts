@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { END_POINTS, SearchApplication } from '@pinpoint-fe/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/utils';
+import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { queryFn } from './reactQueryHelper';
 
 export enum AGENT_LIST_SORT_BY {

@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import { ConfigAgentDuplicationCheck, END_POINTS } from '@pinpoint-fe/constants';
 import { swrConfigs } from './swrConfigs';
-import { convertParamsToQueryString } from '@pinpoint-fe/utils';
+import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 
 const getQueryString = (queryParams: Partial<ConfigAgentDuplicationCheck.Parameters>) => {
   if (queryParams.agentId) {

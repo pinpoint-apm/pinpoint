@@ -11,7 +11,7 @@ import {
 } from 'react-icons/fa';
 import { LuChevronRight, LuChevronDown } from 'react-icons/lu';
 import { Button, ProgressBar } from '../..';
-import { addCommas, convertParamsToQueryString, getErrorAnalysisPath } from '@pinpoint-fe/utils';
+import { addCommas, convertParamsToQueryString, getErrorAnalysisPath } from '@pinpoint-fe/ui/utils';
 import { useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';
 
 export interface CallTreeTableColumnsProps {

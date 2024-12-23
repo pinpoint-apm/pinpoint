@@ -1,6 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import { getCompatibleLocalStorageValue } from '@pinpoint-fe/utils';
+import { getCompatibleLocalStorageValue } from '@pinpoint-fe/ui/utils';
 import { APP_SETTING_KEYS, en, ko } from '@pinpoint-fe/constants';
 
 const resources = {

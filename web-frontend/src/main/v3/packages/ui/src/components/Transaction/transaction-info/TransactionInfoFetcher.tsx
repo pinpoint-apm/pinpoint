@@ -19,7 +19,7 @@ import {
   getBaseNodeId,
   getTransactionDetailPath,
   getTransactionDetailQueryString,
-} from '@pinpoint-fe/utils';
+} from '@pinpoint-fe/ui/utils';
 import { useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { RxExternalLink } from 'react-icons/rx';
 import { transactionInfoCurrentTabId, transactionInfoDatasAtom } from '@pinpoint-fe/ui/atoms';

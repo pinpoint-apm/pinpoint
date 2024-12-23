@@ -1,4 +1,4 @@
-import { convertParamsToQueryString } from '../src/string';
+import { convertParamsToQueryString } from './string';
 
 describe('Test string utils', () => {
   describe('Test "convertParamsToQueryString"', () => {

@@ -1,5 +1,5 @@
 import { InspectorAgentChart, InspectorApplicationChart } from '@pinpoint-fe/constants';
-import { getFormat } from '@pinpoint-fe/utils';
+import { getFormat } from '@pinpoint-fe/ui/utils';
 
 export const TOOLTIP_NOT_LINKED_CHART_LIST = ['Apdex Score'];
 

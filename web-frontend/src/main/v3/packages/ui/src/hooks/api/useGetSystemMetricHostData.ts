@@ -1,6 +1,6 @@
 import useSWR from 'swr';
 import { END_POINTS, SystemMetricHost } from '@pinpoint-fe/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/utils';
+import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { useSystemMetricSearchParameters } from '../searchParameters';
 import { swrConfigs } from './swrConfigs';
 

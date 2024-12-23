@@ -1,6 +1,6 @@
 import { InspectorAgentChart, InspectorApplicationChart } from '@pinpoint-fe/constants';
 import { ChartOptions, Data } from 'billboard.js';
-import { getFormat } from '@pinpoint-fe/utils';
+import { getFormat } from '@pinpoint-fe/ui/utils';
 import { useChartAxis } from './useChartAxis';
 import { useChartParseData } from './useChartParseData';
 import { TOOLTIP_NOT_LINKED_CHART_LIST, useChartTooltip } from './useChartTooltip';

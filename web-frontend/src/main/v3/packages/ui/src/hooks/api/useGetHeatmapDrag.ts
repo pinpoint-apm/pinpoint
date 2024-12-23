@@ -1,7 +1,7 @@
 import useSWR, { SWRConfiguration } from 'swr';
 import { END_POINTS, HeatmapDrag } from '@pinpoint-fe/constants';
 import { swrConfigs } from './swrConfigs';
-import { convertParamsToQueryString } from '@pinpoint-fe/utils';
+import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { useTransactionSearchParameters } from '../searchParameters/useTransactionSearchParameters';
 
 const getQueryString = (queryParams: Partial<HeatmapDrag.Parameters>) => {

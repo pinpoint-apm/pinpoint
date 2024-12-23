@@ -10,7 +10,7 @@ import { PhoneInput } from 'react-international-phone';
 
 import 'react-international-phone/style.css';
 import { PhoneNumberUtil } from 'google-libphonenumber';
-import { extractStringAfterSubstring } from '@pinpoint-fe/utils';
+import { extractStringAfterSubstring } from '@pinpoint-fe/ui/utils';
 import {
   FormField,
   FormItem,

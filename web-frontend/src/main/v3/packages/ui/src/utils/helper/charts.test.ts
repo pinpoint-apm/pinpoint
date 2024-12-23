@@ -1,4 +1,4 @@
-import { getMaxTickValue } from '../../src/helper/charts';
+import { getMaxTickValue } from './charts';
 
 describe('Test charts helper utils', () => {
   describe('Test "getMaxTickValue"', () => {

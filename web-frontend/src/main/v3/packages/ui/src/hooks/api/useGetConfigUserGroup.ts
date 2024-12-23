@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import { END_POINTS, ConfigUserGroup } from '@pinpoint-fe/constants';
 import { swrConfigs } from './swrConfigs';
-import { convertParamsToQueryString, isEmpty } from '@pinpoint-fe/utils';
+import { convertParamsToQueryString, isEmpty } from '@pinpoint-fe/ui/utils';
 
 const getQueryString = (queryParams: ConfigUserGroup.Parameters) => {
   if (isEmpty(queryParams)) {

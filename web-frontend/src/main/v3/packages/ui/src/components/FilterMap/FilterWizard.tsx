@@ -25,7 +25,7 @@ import { PiDotOutlineLight } from 'react-icons/pi';
 import { GoDot } from 'react-icons/go';
 import { FilterStatus } from './FilterStatus';
 import { FilteredMap } from '@pinpoint-fe/constants';
-import { addCommas, getApplicationTypeAndName } from '@pinpoint-fe/utils';
+import { addCommas, getApplicationTypeAndName } from '@pinpoint-fe/ui/utils';
 import { Edge, Node } from '@pinpoint-fe/server-map';
 
 export interface FilterWizardProps {

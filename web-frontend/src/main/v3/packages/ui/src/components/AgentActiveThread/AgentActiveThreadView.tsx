@@ -1,6 +1,6 @@
 import React from 'react';
 import { ActiveThradStatusWithTotal, ModifiedActiveTotalThreadStatus } from './useActiveThread';
-import { getThreadDumpPath } from '@pinpoint-fe/utils';
+import { getThreadDumpPath } from '@pinpoint-fe/ui/utils';
 import { ScatterChartCore, ScatterChartHandle } from '../../components/ScatterChart/core';
 import { getAreaChartOption } from '../../components/ScatterChart/core/defaultOption';
 import { Button } from '../../components/ui/button';

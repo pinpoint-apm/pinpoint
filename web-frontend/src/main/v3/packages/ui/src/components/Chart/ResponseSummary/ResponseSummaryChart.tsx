@@ -4,7 +4,7 @@ import bb, { bar, ChartOptions, DataItem } from 'billboard.js';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import BillboardJS, { IChart } from '@billboard.js/react';
-import { abbreviateNumber, addCommas, getMaxTickValue } from '@pinpoint-fe/utils';
+import { abbreviateNumber, addCommas, getMaxTickValue } from '@pinpoint-fe/ui/utils';
 import { HelpPopover } from '../../../components/HelpPopover';
 
 export interface ResponseSummaryChartProps {
