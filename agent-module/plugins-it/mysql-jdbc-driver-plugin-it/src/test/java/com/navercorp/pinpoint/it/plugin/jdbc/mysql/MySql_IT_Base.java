@@ -58,7 +58,7 @@ public abstract class MySql_IT_Base {
     }
 
     @AfterEach
-    public void after() throws Exception {
+    public void after() {
         DriverManagerUtils.deregisterDriver();
     }
 

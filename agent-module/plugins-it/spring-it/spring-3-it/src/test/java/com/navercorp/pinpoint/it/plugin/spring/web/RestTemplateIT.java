@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PluginTest;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.client.AbstractClientHttpRequest;
@@ -49,16 +49,12 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-resttemplate-plugin"})
 public class RestTemplateIT {
 
+    @AutoClose("stop")
     public static WebServer webServer;
 
     @BeforeAll
     public static void beforeClass() throws Exception {
         webServer = WebServer.newTestWebServer();
-    }
-
-    @AfterAll
-    public static void afterClass() throws Exception {
-        webServer = WebServer.cleanup(webServer);
     }
 
     public String getAddress() {

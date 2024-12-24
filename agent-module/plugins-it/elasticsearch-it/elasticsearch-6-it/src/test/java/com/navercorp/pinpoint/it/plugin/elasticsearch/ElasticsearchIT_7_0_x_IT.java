@@ -30,7 +30,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -46,6 +46,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @SharedTestLifeCycleClass(ESServer.class)
 public class ElasticsearchIT_7_0_x_IT extends ElasticsearchITBase {
 
+    @AutoClose
     private static RestHighLevelClient restHighLevelClient;
 
     @BeforeEach
@@ -57,14 +58,6 @@ public class ElasticsearchIT_7_0_x_IT extends ElasticsearchITBase {
         option.setMaxRetryTimeoutMillis(0);
         restHighLevelClient = new RestHighLevelClient(option.build());
     }
-
-    @AfterEach
-    public void tearDown() throws IOException {
-        if (restHighLevelClient != null) {
-            restHighLevelClient.close();
-        }
-    }
-
 
     @Test
     public void testHighLevelClient() throws Exception {

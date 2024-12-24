@@ -21,11 +21,13 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.it.plugin.rabbitmq.util.RabbitMQTestConstants;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.testcontainers.shaded.com.google.common.util.concurrent.Uninterruptibles;
 import test.pinpoint.plugin.rabbitmq.MessageConverter;
 import test.pinpoint.plugin.rabbitmq.spring.TestMessageHolder;
 import test.pinpoint.plugin.rabbitmq.spring.service.TestReceiverService;
 import test.pinpoint.plugin.rabbitmq.spring.service.TestSenderService;
 
+import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -56,11 +58,11 @@ public class SpringAmqpRabbitTestRunner {
         return remoteAddress;
     }
 
-    public PluginTestVerifier runPush(int expectedTraceCount) throws InterruptedException {
+    public PluginTestVerifier runPush(int expectedTraceCount) {
         final String message = "hello rabbit mq";
 
         testSenderService.sendMessage(RabbitMQTestConstants.EXCHANGE, RabbitMQTestConstants.ROUTING_KEY_PUSH, message);
-        Assertions.assertEquals(testMessageHolder.getMessage(10, TimeUnit.SECONDS), message);
+        Assertions.assertEquals(message, testMessageHolder.getMessage(10, TimeUnit.SECONDS));
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         // Wait till all traces are recorded (consumer traces are recorded from another thread)
@@ -72,7 +74,7 @@ public class SpringAmqpRabbitTestRunner {
         final String message = "hello rabbit mq!";
 
         testSenderService.sendMessage(RabbitMQTestConstants.EXCHANGE, RabbitMQTestConstants.ROUTING_KEY_PULL, message);
-        Assertions.assertEquals(testReceiverService.receiveMessage(MessageConverter.FOR_TEST), message);
+        Assertions.assertEquals(message, testReceiverService.receiveMessage(MessageConverter.FOR_TEST));
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         // Wait till all traces are recorded (consumer traces are recorded from another thread)
@@ -84,7 +86,7 @@ public class SpringAmqpRabbitTestRunner {
         final String message = "hello rabbit mq!";
 
         testSenderService.sendMessage(RabbitMQTestConstants.EXCHANGE, RabbitMQTestConstants.ROUTING_KEY_PULL, message);
-        Assertions.assertEquals(testReceiverService.receiveMessage(MessageConverter.FOR_TEST, timeoutMs), message);
+        Assertions.assertEquals(message, testReceiverService.receiveMessage(MessageConverter.FOR_TEST, timeoutMs));
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         // Wait till all traces are recorded (consumer traces are recorded from another thread)
@@ -92,12 +94,9 @@ public class SpringAmqpRabbitTestRunner {
         return verifier;
     }
 
-    private static void awaitAndVerifyTraceCount(PluginTestVerifier verifier, int expectedTraceCount, long maxWaitMs) throws InterruptedException {
+    private static void awaitAndVerifyTraceCount(PluginTestVerifier verifier, int expectedTraceCount, long maxWaitMs) {
         final long waitIntervalMs = 100L;
-        long maxWaitTime = maxWaitMs;
-        if (maxWaitMs < waitIntervalMs) {
-            maxWaitTime = waitIntervalMs;
-        }
+        long maxWaitTime = Math.max(maxWaitMs, waitIntervalMs);
         long startTime = System.currentTimeMillis();
         try {
             while (System.currentTimeMillis() - startTime < maxWaitTime) {
@@ -106,7 +105,7 @@ public class SpringAmqpRabbitTestRunner {
                     return;
                 } catch (AssertionError e) {
                     // ignore and retry
-                    Thread.sleep(waitIntervalMs);
+                    Uninterruptibles.sleepUninterruptibly(Duration.ofMillis(waitIntervalMs));
                 }
             }
             verifier.verifyTraceCount(expectedTraceCount);

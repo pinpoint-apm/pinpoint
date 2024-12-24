@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.test.plugin.JvmArgument;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PluginForkedTest;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -48,16 +48,12 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.notNull;
 @JvmArgument("-Dprofiler.http.record.response.headers=Connection")
 public class HttpURLConnectionIT {
 
+    @AutoClose("stop")
     private static WebServer webServer;
 
     @BeforeAll
     public static void BeforeClass() throws Exception {
         webServer = WebServer.newTestWebServer();
-    }
-
-    @AfterAll
-    public static void AfterClass() throws Exception {
-        webServer = WebServer.cleanup(webServer);
     }
 
     @Test
