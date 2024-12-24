@@ -1,5 +1,5 @@
 import React from 'react';
-import { BASE_PATH } from '@pinpoint-fe/constants';
+import { BASE_PATH } from '@pinpoint-fe/ui/constants';
 import { useGetTransactionInfo } from '@pinpoint-fe/ui/hooks';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';

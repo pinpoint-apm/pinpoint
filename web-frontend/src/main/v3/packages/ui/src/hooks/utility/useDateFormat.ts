@@ -1,4 +1,4 @@
-import { APP_SETTING_KEYS, DATE_FORMATS } from '@pinpoint-fe/constants';
+import { APP_SETTING_KEYS, DATE_FORMATS } from '@pinpoint-fe/ui/constants';
 import { useLocalStorage } from './useLocalStorage';
 import React from 'react';
 

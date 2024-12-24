@@ -1,4 +1,5 @@
-export namespace FilteredMap {
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+export namespace FilteredMapType {
   export interface FilterState {
     fromApplication?: SearchParameters['fa']; // from applicationName
     fromServiceType?: SearchParameters['fst']; // from serviceType

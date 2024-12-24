@@ -1,10 +1,10 @@
 import { atom } from 'jotai';
 import {
-  FilteredMap,
+  FilteredMapType as FilteredMap,
   GetResponseTimeHistogram,
   GetServerMap,
   SearchApplication,
-} from '@pinpoint-fe/constants';
+} from '@pinpoint-fe/ui/constants';
 import { Node, Edge } from '@pinpoint-fe/server-map';
 
 export type CurrentTarget = {

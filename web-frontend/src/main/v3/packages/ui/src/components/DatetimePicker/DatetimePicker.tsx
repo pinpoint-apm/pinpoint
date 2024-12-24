@@ -6,7 +6,7 @@ import { RxChevronLeft, RxChevronRight, RxPlay, RxTrackNext, RxStop } from 'reac
 import { RichDatetimePicker, RichDatetimePickerProps } from '@pinpoint-fe/datetime-picker';
 import Marquee from 'react-fast-marquee';
 
-import { SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/constants';
+import { SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/ui/constants';
 import { getFormattedDateRange, getParsedDateRange, isValidDateRange } from '@pinpoint-fe/ui/utils';
 import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui';
 import { cn } from '../../lib';

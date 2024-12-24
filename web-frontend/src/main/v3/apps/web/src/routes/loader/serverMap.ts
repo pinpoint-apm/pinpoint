@@ -1,7 +1,7 @@
 import {
   SEARCH_PARAMETER_DATE_FORMAT,
   SEARCH_PARAMETER_DATE_FORMAT_WHITE_LIST,
-} from '@pinpoint-fe/constants';
+} from '@pinpoint-fe/ui/constants';
 import {
   convertParamsToQueryString,
   getApplicationTypeAndName,

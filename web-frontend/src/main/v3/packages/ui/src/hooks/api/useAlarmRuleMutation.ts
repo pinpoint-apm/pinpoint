@@ -1,5 +1,5 @@
 import { UseMutationOptions, useMutation } from '@tanstack/react-query';
-import { END_POINTS, AlarmRule, ErrorResponse } from '@pinpoint-fe/constants';
+import { END_POINTS, AlarmRule, ErrorResponse } from '@pinpoint-fe/ui/constants';
 
 type AlarmRuleMutationVariable = {
   params: AlarmRule.PostParameters | AlarmRule.PutParameters | AlarmRule.DeleteParmeters;

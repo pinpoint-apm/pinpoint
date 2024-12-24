@@ -1,4 +1,4 @@
-import { ApplicationType, BASE_PATH, Transaction } from '@pinpoint-fe/constants';
+import { ApplicationType, BASE_PATH, Transaction } from '@pinpoint-fe/ui/constants';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { FaFire } from 'react-icons/fa';

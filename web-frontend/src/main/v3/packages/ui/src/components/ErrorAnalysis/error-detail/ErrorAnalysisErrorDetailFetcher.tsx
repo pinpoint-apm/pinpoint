@@ -1,5 +1,5 @@
 import { useGetErrorAnalysisTransactionInfoData } from '@pinpoint-fe/ui/hooks';
-import { ErrorAnalysisTransactionInfo } from '@pinpoint-fe/constants';
+import { ErrorAnalysisTransactionInfo } from '@pinpoint-fe/ui/constants';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../ui';
 import { ClipboardCopyButton } from '../../Button';
 import { CollapsibleCodeViewer } from '../..';

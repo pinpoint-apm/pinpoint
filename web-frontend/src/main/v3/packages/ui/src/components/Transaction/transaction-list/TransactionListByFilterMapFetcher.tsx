@@ -3,7 +3,7 @@ import { useAtom } from 'jotai';
 import { TransactionListTable, TransactionListTableProps } from './TransactionListTable';
 import { transactionListDatasAtom } from '@pinpoint-fe/ui/atoms';
 import { usePostTransactionMetaData, useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';
-import { APP_PATH, SCATTER_DATA_TOTAL_KEY, ScatterDataByAgent } from '@pinpoint-fe/constants';
+import { APP_PATH, SCATTER_DATA_TOTAL_KEY, ScatterDataByAgent } from '@pinpoint-fe/ui/constants';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../ui';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';

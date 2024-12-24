@@ -5,7 +5,7 @@ import { MainHeader, ApplicationCombinedList, Separator } from '../components';
 import { useAtomValue } from 'jotai';
 import { useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { transactionListDatasAtom } from '@pinpoint-fe/ui/atoms';
-import { APP_SETTING_KEYS } from '@pinpoint-fe/constants';
+import { APP_SETTING_KEYS } from '@pinpoint-fe/ui/constants';
 import { PiStackDuotone } from 'react-icons/pi';
 import { TransactionListProgressBar } from '../components/Transaction/transaction-list/TransactionListProgressBar';
 import { TransactionListByFilterMap } from '../components/Transaction/transaction-list/TransactionListByFilterMap';

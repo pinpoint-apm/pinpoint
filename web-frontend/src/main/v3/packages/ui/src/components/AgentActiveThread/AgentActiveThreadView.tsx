@@ -15,7 +15,7 @@ import {
 import { cn } from '../../lib';
 import { useSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { RxExternalLink, RxDrawingPinFilled, RxDrawingPin } from 'react-icons/rx';
-import { BASE_PATH } from '@pinpoint-fe/constants';
+import { BASE_PATH } from '@pinpoint-fe/ui/constants';
 
 export interface AgentActiveThreadViewProps {
   applicationLocked?: boolean;

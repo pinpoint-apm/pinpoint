@@ -1,5 +1,5 @@
 import useSWRMutation from 'swr/mutation';
-import { ConfigGroupMember, END_POINTS } from '@pinpoint-fe/constants';
+import { ConfigGroupMember, END_POINTS } from '@pinpoint-fe/ui/constants';
 import { getMutateFetcher } from './swrConfigs';
 
 interface PostConfigGroupMemberProps {

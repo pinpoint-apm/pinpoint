@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { RemovePopup } from '../../Popup';
-import { SearchApplication, ApplicationType } from '@pinpoint-fe/constants';
+import { SearchApplication, ApplicationType } from '@pinpoint-fe/ui/constants';
 
 export interface AgentManagementRemovePopupProps {
   isApplication?: boolean;

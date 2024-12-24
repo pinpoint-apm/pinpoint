@@ -1,5 +1,5 @@
 import React from 'react';
-import { Configuration } from '@pinpoint-fe/constants';
+import { Configuration } from '@pinpoint-fe/ui/constants';
 import { DataTableSkeleton, ErrorBoundary } from '../../components';
 import { AgentManagementFetcher } from '@pinpoint-fe/ui/components/Config/agentManagement';
 

@@ -1,4 +1,4 @@
-import { APP_SETTING_KEYS, DATE_FORMATS } from '@pinpoint-fe/constants';
+import { APP_SETTING_KEYS, DATE_FORMATS } from '@pinpoint-fe/ui/constants';
 import { format as dateFnsFormat } from 'date-fns';
 import { getCompatibleLocalStorageValue } from './localStorage';
 import { enUS, ko } from 'date-fns/locale';

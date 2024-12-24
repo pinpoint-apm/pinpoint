@@ -1,4 +1,4 @@
-import { Configuration, EXPERIMENTAL_CONFIG_KEYS } from '@pinpoint-fe/constants';
+import { Configuration, EXPERIMENTAL_CONFIG_KEYS } from '@pinpoint-fe/ui/constants';
 import { useLocalStorage } from './useLocalStorage';
 import { useUpdateEffect } from 'usehooks-ts';
 

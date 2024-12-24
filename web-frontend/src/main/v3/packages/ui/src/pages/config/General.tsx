@@ -1,4 +1,4 @@
-import { DATE_FORMATS } from '@pinpoint-fe/constants';
+import { DATE_FORMATS } from '@pinpoint-fe/ui/constants';
 import {
   Select,
   SelectContent,

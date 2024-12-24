@@ -1,4 +1,4 @@
-import { OtlpMetricDefUserDefined } from '@pinpoint-fe/constants';
+import { OtlpMetricDefUserDefined } from '@pinpoint-fe/ui/constants';
 import { useOpenTelemetrySearchParameters, usePostOtlpMetricData } from '@pinpoint-fe/ui/hooks';
 import React from 'react';
 import { assign } from 'lodash';

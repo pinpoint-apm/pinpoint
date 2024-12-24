@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { ConfigApplicationDuplicationCheck, END_POINTS } from '@pinpoint-fe/constants';
+import { ConfigApplicationDuplicationCheck, END_POINTS } from '@pinpoint-fe/ui/constants';
 import { swrConfigs } from './swrConfigs';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 

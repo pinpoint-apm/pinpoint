@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { END_POINTS, InspectorApplicationChart } from '@pinpoint-fe/constants';
+import { END_POINTS, InspectorApplicationChart } from '@pinpoint-fe/ui/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { useInspectorSearchParameters } from '../searchParameters';
 import { swrConfigs } from './swrConfigs';

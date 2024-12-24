@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { END_POINTS, UrlStatChart } from '@pinpoint-fe/constants';
+import { END_POINTS, UrlStatChartType as UrlStatChart } from '@pinpoint-fe/ui/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { useUrlStatSearchParameters } from '../searchParameters';
 import { swrConfigs } from './swrConfigs';

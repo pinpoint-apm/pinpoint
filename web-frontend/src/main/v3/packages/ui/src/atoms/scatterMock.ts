@@ -1,4 +1,4 @@
-import { FilteredMap } from '@pinpoint-fe/constants';
+import { FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/constants';
 
 export const scatterData: FilteredMap.Response['applicationScatterData'] = {
   application: {

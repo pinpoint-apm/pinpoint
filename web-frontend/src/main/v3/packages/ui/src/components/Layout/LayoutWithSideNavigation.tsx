@@ -1,6 +1,11 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { IMAGE_PATH, APP_PATH, APP_SETTING_KEYS, MenuItem } from '@pinpoint-fe/constants';
+import {
+  IMAGE_PATH,
+  APP_PATH,
+  APP_SETTING_KEYS,
+  MenuItemType as MenuItem,
+} from '@pinpoint-fe/ui/constants';
 import {
   Menu,
   MenuItem as MenuItemComponent,

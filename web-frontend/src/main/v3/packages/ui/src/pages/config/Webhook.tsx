@@ -8,7 +8,7 @@ import {
   Separator,
   useReactToastifyToast,
 } from '../../components';
-import { APP_SETTING_KEYS, ApplicationType, Webhook } from '@pinpoint-fe/constants';
+import { APP_SETTING_KEYS, ApplicationType, Webhook } from '@pinpoint-fe/ui/constants';
 import { cn } from '../../lib/utils';
 import { WebhookList } from '../../components/Webhook/WebhookList';
 import { WebhookTable } from '../../components/Webhook/WebhookTable';

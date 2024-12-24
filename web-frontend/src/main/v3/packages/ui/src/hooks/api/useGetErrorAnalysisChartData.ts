@@ -1,5 +1,8 @@
 import useSWR from 'swr';
-import { END_POINTS, ErrorAnalysisChart } from '@pinpoint-fe/constants';
+import {
+  END_POINTS,
+  ErrorAnalysisChartType as ErrorAnalysisChart,
+} from '@pinpoint-fe/ui/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { useErrorAnalysisSearchParameters } from '../searchParameters';
 import { swrConfigs } from './swrConfigs';

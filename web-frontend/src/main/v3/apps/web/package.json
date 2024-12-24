@@ -16,7 +16,6 @@
     "move:dist": "cpx \"./dist/**\" \"../../../../../target/classes/static/\""
   },
   "dependencies": {
-    "@pinpoint-fe/constants": "*",
     "@pinpoint-fe/ui": "*",
     "@tanstack/react-query": "^5.17.19",
     "date-fns": "^2.29.3",

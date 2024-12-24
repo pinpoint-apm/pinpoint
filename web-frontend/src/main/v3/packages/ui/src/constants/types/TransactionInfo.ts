@@ -1,4 +1,5 @@
-export namespace TransactionInfo {
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+export namespace TransactionInfoType {
   export interface Parameters {
     agentId: string;
     spanId: string;

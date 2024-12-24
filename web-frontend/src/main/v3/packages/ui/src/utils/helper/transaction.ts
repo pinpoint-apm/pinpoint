@@ -1,4 +1,4 @@
-import { TransactionInfo } from '@pinpoint-fe/constants';
+import { TransactionInfoType as TransactionInfo } from '@pinpoint-fe/ui/constants';
 import { getTransactionDetailPath } from './route';
 
 export type TransactionListQueryParam = {

@@ -1,4 +1,4 @@
-import { END_POINTS, OtlpMetricData, OtlpMetricDefUserDefined } from '@pinpoint-fe/constants';
+import { END_POINTS, OtlpMetricData, OtlpMetricDefUserDefined } from '@pinpoint-fe/ui/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { queryFn } from './reactQueryHelper';

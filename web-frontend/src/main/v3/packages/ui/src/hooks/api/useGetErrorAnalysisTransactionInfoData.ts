@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { END_POINTS, ErrorAnalysisTransactionInfo } from '@pinpoint-fe/constants';
+import { END_POINTS, ErrorAnalysisTransactionInfo } from '@pinpoint-fe/ui/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { swrConfigs } from './swrConfigs';
 

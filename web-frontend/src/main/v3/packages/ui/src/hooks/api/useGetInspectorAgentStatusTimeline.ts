@@ -1,5 +1,9 @@
 import useSWR from 'swr';
-import { END_POINTS, InspectorAgentStatusTimeline, MAX_DATE_RANGE } from '@pinpoint-fe/constants';
+import {
+  END_POINTS,
+  InspectorAgentStatusTimelineType as InspectorAgentStatusTimeline,
+  MAX_DATE_RANGE,
+} from '@pinpoint-fe/ui/constants';
 import { swrConfigs } from './swrConfigs';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { useInspectorSearchParameters } from '../searchParameters';

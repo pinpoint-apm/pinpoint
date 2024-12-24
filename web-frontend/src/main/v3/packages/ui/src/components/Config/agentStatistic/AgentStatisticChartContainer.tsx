@@ -1,6 +1,6 @@
 import React from 'react';
 import { AgentStatisticChart, ChartData } from './AgentStatisticChart';
-import { SearchApplication } from '@pinpoint-fe/constants';
+import { SearchApplication } from '@pinpoint-fe/ui/constants';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const useVersionChartData = (data: any, versionKey: 'vmVersion' | 'agentVersion') =>

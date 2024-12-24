@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Webhook } from '@pinpoint-fe/constants';
+import { Webhook } from '@pinpoint-fe/ui/constants';
 import {
   Form,
   FormControl,

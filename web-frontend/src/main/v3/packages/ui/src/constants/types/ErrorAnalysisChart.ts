@@ -1,11 +1,11 @@
-export namespace UrlStatChart {
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+export namespace ErrorAnalysisChartType {
   export interface Parameters {
     applicationName: string;
     from: number;
     to: number;
-    uri: string;
-    type: string;
     agentId?: string;
+    groupBy?: string;
   }
 
   export interface Response {

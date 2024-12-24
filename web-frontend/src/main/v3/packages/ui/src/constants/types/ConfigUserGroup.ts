@@ -1,4 +1,5 @@
 export namespace ConfigUserGroup {
+  // eslint-disable-next-line @typescript-eslint/ban-types
   export type Parameters = {} | { userId: string } | { userGroupId: string };
   export type Body = {
     id: string;

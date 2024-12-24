@@ -9,11 +9,10 @@ import {
   BarProps,
   AreaProps,
 } from 'recharts';
-import { Chart } from '@pinpoint-fe/constants';
+import { Chart, colors } from '@pinpoint-fe/ui/constants';
 import { isNil } from 'lodash';
 import { useState, useEffect } from 'react';
 import { ChartConfig } from '../../components/ui';
-import { colors } from '../../constant';
 import { getRandomColorInHSL } from '../../lib/colors';
 
 export const COLORS = [

@@ -1,9 +1,9 @@
 import React from 'react';
-import { GetServerMap } from '@pinpoint-fe/constants';
+import { GetServerMap } from '@pinpoint-fe/ui/constants';
 import { ResponseSummaryChart, ResponseAvgMaxChart, LoadChart, LoadChartProps } from '../Chart';
 import { cn } from '../../lib';
 import { HelpPopover, Separator } from '..';
-import { colors } from '../../constant/theme';
+import { colors } from '@pinpoint-fe/ui/constants';
 
 export interface ChartsBoardProps {
   className?: string;

@@ -7,7 +7,7 @@ import { ScrollArea } from '../../components/ui/scroll-area';
 import { cn } from '../../lib/utils';
 import { Label } from '../../components';
 import { Link } from 'react-router-dom';
-import { APP_PATH } from '@pinpoint-fe/constants';
+import { APP_PATH } from '@pinpoint-fe/ui/constants';
 
 export interface WebhookCheckedListProps extends WebhookListFetcherProps {
   disabled?: boolean;

@@ -1,6 +1,6 @@
 import React from 'react';
 import useSWR from 'swr';
-import { END_POINTS, ErrorAnalysisGroupedErrorList } from '@pinpoint-fe/constants';
+import { END_POINTS, ErrorAnalysisGroupedErrorList } from '@pinpoint-fe/ui/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { useErrorAnalysisSearchParameters } from '../searchParameters';
 import { swrConfigs } from './swrConfigs';

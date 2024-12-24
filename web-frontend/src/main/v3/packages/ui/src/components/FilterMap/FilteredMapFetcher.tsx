@@ -1,5 +1,5 @@
 import React from 'react';
-import { FilteredMap } from '@pinpoint-fe/constants';
+import { FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/constants';
 import { useAtom, useSetAtom } from 'jotai';
 import {
   serverMapDataAtom,

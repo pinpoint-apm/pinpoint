@@ -1,5 +1,5 @@
 import { atom } from 'jotai';
-import { Transaction, TransactionInfo } from '@pinpoint-fe/constants';
+import { Transaction, TransactionInfoType as TransactionInfo } from '@pinpoint-fe/ui/constants';
 
 export const transactionListDatasAtom = atom<
   | {

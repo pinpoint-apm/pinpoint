@@ -6,3 +6,4 @@ export { EXPERIMENTAL_CONFIG_KEYS } from './ExperimentalConfigKeys';
 export * from './types';
 export * from './path';
 export * from './locales';
+export * from './theme';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { GetServerMap, END_POINTS } from '@pinpoint-fe/constants';
+import { GetServerMap, END_POINTS } from '@pinpoint-fe/ui/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { useServerMapSearchParameters } from '../searchParameters';
 import { keepPreviousData, useQuery, useSuspenseQuery } from '@tanstack/react-query';

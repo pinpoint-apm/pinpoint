@@ -5,10 +5,9 @@ import bb, { ChartOptions, line } from 'billboard.js';
 // @ts-ignore
 import BillboardJS, { IChart } from '@billboard.js/react';
 import { isValid } from 'date-fns';
-import { UrlStatChart as UrlStatChartApi } from '@pinpoint-fe/constants';
+import { UrlStatChartType as UrlStatChartApi, colors } from '@pinpoint-fe/ui/constants';
 import { cn } from '../../../lib';
 import { formatNewLinedDateString, numberInDecimal } from '@pinpoint-fe/ui/utils';
-import { colors } from '../../../constant/theme';
 
 export interface UrlStatApdexChartProps {
   data: UrlStatChartApi.Response | undefined;

@@ -1,10 +1,12 @@
-export namespace ErrorAnalysisChart {
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+export namespace SystemMetricChart {
   export interface Parameters {
-    applicationName: string;
+    hostGroupName: string;
+    hostName: string;
+    metricDefinitionId: string;
     from: number;
     to: number;
-    agentId?: string;
-    groupBy?: string;
+    tags?: string;
   }
 
   export interface Response {

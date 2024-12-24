@@ -2,7 +2,7 @@ import { CgSpinner } from 'react-icons/cg';
 import { Alert, AlertTitle, AlertDescription } from '../ui';
 import { RxExclamationTriangle, RxCheck } from 'react-icons/rx';
 import { ErrorDetailDialog } from '../Error/ErrorDetailDialog';
-import { ErrorResponse } from '@pinpoint-fe/constants';
+import { ErrorResponse } from '@pinpoint-fe/ui/constants';
 
 export interface ApiStatusProps<T, K> {
   data: T;

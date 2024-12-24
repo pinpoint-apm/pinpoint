@@ -1,3 +1,4 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 export namespace AgentActiveThread {
   export type AgentActiveThreadType = 'PING' | 'PONG' | 'REQUEST' | 'RESPONSE';
 

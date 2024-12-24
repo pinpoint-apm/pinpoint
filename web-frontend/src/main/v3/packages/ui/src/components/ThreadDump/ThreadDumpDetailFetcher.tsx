@@ -1,4 +1,4 @@
-import { ActiveThreadDump } from '@pinpoint-fe/constants';
+import { ActiveThreadDump } from '@pinpoint-fe/ui/constants';
 import { useGetActiveThreadDump } from '@pinpoint-fe/ui/hooks';
 import { ClipboardCopyButton } from '../../components/Button/ClipboardCopyButton';
 import { HighLightCode } from '../../components/HighLightCode/HighLightCode';

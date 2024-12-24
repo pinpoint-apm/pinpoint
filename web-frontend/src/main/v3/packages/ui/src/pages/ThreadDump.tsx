@@ -6,7 +6,7 @@ import { ApplicationCombinedList } from '../components/Application';
 import { ThreadDumpList } from '../components/ThreadDump/ThreadDumpList';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '../components/ui/resizable';
 import { ThreadDumpDetail } from '../components/ThreadDump/ThreadDumpDetail';
-import { ActiveThreadLightDump } from '@pinpoint-fe/constants';
+import { ActiveThreadLightDump } from '@pinpoint-fe/ui/constants';
 
 export const ThreadDumpPage = () => {
   const [selectedThread, setSelectedThread] =
