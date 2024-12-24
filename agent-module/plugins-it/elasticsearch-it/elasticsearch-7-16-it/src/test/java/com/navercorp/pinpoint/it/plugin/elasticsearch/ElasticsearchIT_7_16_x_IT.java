@@ -33,7 +33,7 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.xcontent.XContentType;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -50,19 +50,13 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @SuppressWarnings("deprecation")
 public class ElasticsearchIT_7_16_x_IT extends ElasticsearchITBase {
 
+    @AutoClose
     private RestHighLevelClient restHighLevelClient;
 
     @BeforeEach
     public void setup() {
         restHighLevelClient = new RestHighLevelClient(
                 RestClient.builder(new HttpHost(getEsHost(), getEsPort(), "http")));
-    }
-
-    @AfterEach
-    public void tearDown() throws IOException {
-        if (restHighLevelClient != null) {
-            restHighLevelClient.close();
-        }
     }
 
     @Test

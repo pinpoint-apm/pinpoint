@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PluginTest;
 import com.navercorp.pinpoint.test.plugin.TraceObjectManagable;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -56,6 +56,8 @@ public class DubboProviderIT {
     public static final String META_PARENT_APPLICATION_TYPE = "_DUBBO_PARENT_APPLICATION_TYPE";
     public static final String META_FLAGS = "_DUBBO_FLAGS";
 
+    @AutoClose
+    @SuppressWarnings("unused")
     private AutoCloseable testcase;
 
     @Mock
@@ -81,13 +83,6 @@ public class DubboProviderIT {
         when(rpcInvocation.getAttachment(META_PARENT_APPLICATION_TYPE)).thenReturn("1000");
         when(rpcInvocation.getAttachment(META_PARENT_APPLICATION_NAME)).thenReturn("test.dubbo.consumer");
         when(rpcInvocation.getAttachment(META_FLAGS)).thenReturn("0");
-    }
-
-    @AfterEach
-    public void tearDown() throws Exception {
-        if (testcase != null) {
-            testcase.close();
-        }
     }
 
     @Test

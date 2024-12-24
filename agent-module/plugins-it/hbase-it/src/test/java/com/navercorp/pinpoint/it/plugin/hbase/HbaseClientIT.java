@@ -33,7 +33,7 @@ import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -56,16 +56,13 @@ public class HbaseClientIT {
 
     private final String tableName = "Table";
 
+    @AutoClose
+    @SuppressWarnings("unused")
     private AutoCloseable openMocks;
     
     @BeforeEach
     public void beforeEach() {
         openMocks = MockitoAnnotations.openMocks(this);
-    }
-
-    @AfterEach
-    public void after() throws Exception {
-        openMocks.close();
     }
 
     @Test

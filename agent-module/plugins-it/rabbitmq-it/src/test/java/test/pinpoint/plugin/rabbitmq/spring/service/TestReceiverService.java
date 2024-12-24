@@ -49,7 +49,7 @@ public class TestReceiverService {
         return message;
     }
 
-    public <T> T receiveMessage(MessageConverter<T> messageConverter, long timeoutMs) throws InterruptedException {
+    public <T> T receiveMessage(MessageConverter<T> messageConverter, long timeoutMs) {
         T message = testReceiver.receiveMessage(RabbitMQTestConstants.QUEUE_PULL, messageConverter, timeoutMs);
         if (message == null) {
             return null;

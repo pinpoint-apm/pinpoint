@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.it.plugin.utils.WebServer;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PluginTest;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -49,17 +49,12 @@ import java.util.concurrent.Executor;
 // google-http-client 1.26.0 does not include repackaged guava
 @Dependency({"com.google.http-client:google-http-client:[1.40.0,]", "com.google.guava:guava:20.0", PluginITConstants.VERSION, WebServer.VERSION})
 public class HttpRequestIT {
-
+    @AutoClose("stop")
     private static WebServer webServer;
 
     @BeforeAll
     public static void BeforeClass() throws Exception {
         webServer = WebServer.newTestWebServer();
-    }
-
-    @AfterAll
-    public static void AfterClass() throws Exception {
-        webServer = WebServer.cleanup(webServer);
     }
 
     @Test

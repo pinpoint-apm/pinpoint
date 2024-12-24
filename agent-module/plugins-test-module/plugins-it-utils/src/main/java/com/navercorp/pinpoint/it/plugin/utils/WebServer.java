@@ -45,8 +45,7 @@ public class WebServer extends NanoHTTPD {
     @Override
     public Response serve(IHTTPSession session) {
         Map<String, List<String>> parameters = session.getParameters();
-        Response response = newFixedLengthResponse(parameters.toString());
-        return response;
+        return newFixedLengthResponse(parameters.toString());
     }
 
 

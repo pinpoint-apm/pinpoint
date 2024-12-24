@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PluginTest;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -57,17 +57,14 @@ public class DubboConsumerIT {
 
     private AbstractInvoker abstractClusterInvoker;
 
+    @AutoClose
+    @SuppressWarnings("unused")
     private AutoCloseable openMocks;
 
     @BeforeEach
     public void setUp() {
         url = new URL("dubbo", "1.2.3.4", 5678);
         openMocks = MockitoAnnotations.openMocks(this);
-    }
-
-    @AfterEach
-    public void afterEach() throws Exception {
-        openMocks.close();
     }
 
     @Test

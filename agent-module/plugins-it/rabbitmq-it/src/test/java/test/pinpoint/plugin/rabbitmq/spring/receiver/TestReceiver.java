@@ -25,5 +25,5 @@ public interface TestReceiver {
 
     <T> T receiveMessage(String queueName, MessageConverter<T> messageConverter);
 
-    <T> T receiveMessage(String queueName, MessageConverter<T> messageConverter, long timeoutMs) throws InterruptedException;
+    <T> T receiveMessage(String queueName, MessageConverter<T> messageConverter, long timeoutMs);
 }

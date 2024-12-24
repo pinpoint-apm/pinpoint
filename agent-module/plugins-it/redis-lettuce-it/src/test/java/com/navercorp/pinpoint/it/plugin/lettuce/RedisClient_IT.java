@@ -36,7 +36,7 @@ import io.lettuce.core.api.async.RedisAsyncCommands;
 import io.lettuce.core.api.sync.RedisCommands;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -58,6 +58,7 @@ public class RedisClient_IT {
 
     private static String host;
     private static int port;
+    @AutoClose
     private static RedisClient redisClient;
 
     @SharedTestBeforeAllResult
@@ -72,13 +73,6 @@ public class RedisClient_IT {
 
         String url = String.format("redis://%s:%s", host, port);
         redisClient = RedisClient.create(url);
-    }
-
-    @AfterAll
-    public static void afterClass() {
-        if (redisClient != null) {
-            redisClient.shutdown();
-        }
     }
 
     @Test

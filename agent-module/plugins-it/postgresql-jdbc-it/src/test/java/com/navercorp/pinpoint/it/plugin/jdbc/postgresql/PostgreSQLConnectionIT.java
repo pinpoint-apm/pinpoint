@@ -32,10 +32,10 @@ import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PluginTest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -65,6 +65,7 @@ public class PostgreSQLConnectionIT {
 
     private static final Logger logger = LogManager.getLogger(PostgreSQLConnectionIT.class);
 
+    @AutoClose("stop")
     public static JdbcDatabaseContainer<?> container = PostgreSQLContainerFactory.newContainer(logger.getName());
 
     private static final JDBCDriverClass driverClass = new PostgreSql_9_4_1207_JDBCDriverClass();
@@ -75,11 +76,6 @@ public class PostgreSQLConnectionIT {
         container.start();
     }
 
-    @AfterAll
-    public static void afterClass() {
-        container.stop();
-    }
-
     @BeforeEach
     public void before() throws Exception {
         Driver driver = driverClass.newDriver();
@@ -88,7 +84,7 @@ public class PostgreSQLConnectionIT {
 
 
     @AfterEach
-    public void deregisterDriver() throws Exception {
+    public void deregisterDriver() {
         DriverManagerUtils.deregisterDriver();
     }
 

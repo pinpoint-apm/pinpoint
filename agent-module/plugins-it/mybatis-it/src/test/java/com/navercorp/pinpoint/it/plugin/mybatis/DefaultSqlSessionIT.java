@@ -27,7 +27,7 @@ import org.apache.ibatis.reflection.factory.ObjectFactory;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.defaults.DefaultSqlSession;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -60,6 +60,8 @@ public class DefaultSqlSessionIT extends SqlSessionTestBase {
     @Mock
     private Executor executor;
 
+    @AutoClose
+    @SuppressWarnings("unused")
     private AutoCloseable openMocks;
 
     @BeforeEach
@@ -67,11 +69,6 @@ public class DefaultSqlSessionIT extends SqlSessionTestBase {
         openMocks = MockitoAnnotations.openMocks(this);
         when(this.configuration.getObjectFactory()).thenReturn(this.objectFactory);
         when(this.configuration.getMappedStatement(anyString())).thenReturn(mappedStatement);
-    }
-
-    @AfterEach
-    public void afterEach() throws Exception {
-        openMocks.close();
     }
 
     @Override
