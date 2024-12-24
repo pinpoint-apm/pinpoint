@@ -96,13 +96,9 @@ public abstract class MariaDB_IT_Base {
 
     protected final void executeStatement() throws Exception {
         final int expectedResultSize = 1;
-        Connection connection = null;
-        Statement statement = null;
-        ResultSet rs = null;
-        try {
-            connection = getConnection();
-            statement = connection.createStatement();
-            rs = statement.executeQuery(STATEMENT_QUERY);
+        try (Connection connection = getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet rs = statement.executeQuery(STATEMENT_QUERY)) {
             int resultCount = 0;
             while (rs.next()) {
                 ++resultCount;
@@ -112,10 +108,6 @@ public abstract class MariaDB_IT_Base {
                 Assertions.assertEquals(3, rs.getInt(1));
             }
             Assertions.assertEquals(expectedResultSize, resultCount);
-        } finally {
-            closeQuietly(rs);
-            closeQuietly(statement);
-            closeQuietly(connection);
         }
     }
 
@@ -126,27 +118,21 @@ public abstract class MariaDB_IT_Base {
     protected final void executePreparedStatement() throws Exception {
         final int expectedResultSize = 1;
 
-        Connection connection = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            connection = getConnection();
-            ps = connection.prepareStatement(PREPARED_STATEMENT_QUERY);
-            ps.setInt(1, 3);
-            rs = ps.executeQuery();
-            int resultCount = 0;
-            while (rs.next()) {
-                ++resultCount;
-                if (resultCount > expectedResultSize) {
-                    Assertions.fail();
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement ps = connection.prepareStatement(PREPARED_STATEMENT_QUERY)) {
+                ps.setInt(1, 3);
+                try (ResultSet rs = ps.executeQuery()) {
+                    int resultCount = 0;
+                    while (rs.next()) {
+                        ++resultCount;
+                        if (resultCount > expectedResultSize) {
+                            Assertions.fail();
+                        }
+                        Assertions.assertEquals("THREE", rs.getString(2));
+                    }
+                    Assertions.assertEquals(expectedResultSize, resultCount);
                 }
-                Assertions.assertEquals("THREE", rs.getString(2));
             }
-            Assertions.assertEquals(expectedResultSize, resultCount);
-        } finally {
-            closeQuietly(rs);
-            closeQuietly(ps);
-            closeQuietly(connection);
         }
     }
 
@@ -157,44 +143,26 @@ public abstract class MariaDB_IT_Base {
         final int expectedMatchingId = 2;
         final String outputParamCountName = "outputParamCount";
 
-        Connection conn = null;
-        CallableStatement cs = null;
-        ResultSet rs = null;
-        try {
-            conn = getConnection();
-
-            cs = conn.prepareCall(CALLABLE_STATEMENT_QUERY);
+        try (Connection conn = getConnection();
+             CallableStatement cs = conn.prepareCall(CALLABLE_STATEMENT_QUERY)) {
             cs.setString(1, CALLABLE_STATEMENT_INPUT_PARAM);
             cs.registerOutParameter(2, CALLABLE_STATMENT_OUTPUT_PARAM_TYPE);
 
-            rs = cs.executeQuery();
-            int resultCount = 0;
-            while (rs.next()) {
-                ++resultCount;
-                if (resultCount > expectedResultSize) {
-                    Assertions.fail();
+            try (ResultSet rs = cs.executeQuery()) {
+                int resultCount = 0;
+                while (rs.next()) {
+                    ++resultCount;
+                    if (resultCount > expectedResultSize) {
+                        Assertions.fail();
+                    }
+                    Assertions.assertEquals(expectedMatchingId, rs.getInt(1));
+                    Assertions.assertEquals(CALLABLE_STATEMENT_INPUT_PARAM, rs.getString(2));
                 }
-                Assertions.assertEquals(expectedMatchingId, rs.getInt(1));
-                Assertions.assertEquals(CALLABLE_STATEMENT_INPUT_PARAM, rs.getString(2));
-            }
-            Assertions.assertEquals(expectedResultSize, resultCount);
+                Assertions.assertEquals(expectedResultSize, resultCount);
 
-            final int totalCount = cs.getInt(outputParamCountName);
-            Assertions.assertEquals(expectedTotalCount, totalCount);
+                final int totalCount = cs.getInt(outputParamCountName);
+                Assertions.assertEquals(expectedTotalCount, totalCount);
 
-        } finally {
-            closeQuietly(rs);
-            closeQuietly(cs);
-            closeQuietly(conn);
-        }
-    }
-
-    private void closeQuietly(AutoCloseable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (Exception ignored) {
-                // empty
             }
         }
     }

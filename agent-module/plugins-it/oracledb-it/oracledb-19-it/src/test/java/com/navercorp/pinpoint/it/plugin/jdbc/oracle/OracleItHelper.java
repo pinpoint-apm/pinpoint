@@ -74,30 +74,32 @@ public class OracleItHelper {
 
     public void testStatement(JDBCApi jdbcApi, String insertQuery, String selectQuery, String deleteQuery) throws Exception {
         Driver driverClass = jdbcApi.getJDBCDriverClass().newDriver();
-        final Connection conn = connect(driverClass);
+        try (Connection conn = connect(driverClass)) {
 
-        conn.setAutoCommit(false);
+            conn.setAutoCommit(false);
 
-        PreparedStatement insert = conn.prepareStatement(insertQuery);
-        insert.setString(1, "maru");
-        insert.setInt(2, 5);
-        insert.execute();
+            try (PreparedStatement insert = conn.prepareStatement(insertQuery)) {
+                insert.setString(1, "maru");
+                insert.setInt(2, 5);
+                insert.execute();
+            }
 
-        Statement select = conn.createStatement();
-        ResultSet rs = select.executeQuery(selectQuery);
+            try (Statement select = conn.createStatement();
+                ResultSet rs = select.executeQuery(selectQuery)) {
+                while (rs.next()) {
+                    final int id = rs.getInt("id");
+                    final String name = rs.getString("name");
+                    final int age = rs.getInt("age");
+                    logger.debug("id: {}, name: {}, age: {}", id, name, age);
+                }
+            }
 
-        while (rs.next()) {
-            final int id = rs.getInt("id");
-            final String name = rs.getString("name");
-            final int age = rs.getInt("age");
-            logger.debug("id: {}, name: {}, age: {}", id, name, age);
+            try (Statement delete = conn.createStatement()) {
+                delete.executeUpdate(deleteQuery);
+            }
+
+            conn.commit();
         }
-
-        Statement delete = conn.createStatement();
-        delete.executeUpdate(deleteQuery);
-
-        conn.commit();
-        conn.close();
     }
 
     public void verifyTestStatement(JDBCApi JDBC_API, String insertQuery, String selectQuery, String deleteQuery) {
@@ -173,16 +175,17 @@ public class OracleItHelper {
      */
     public void testStoredProcedure_with_IN_OUT_parameters(JDBCApi jdbcApi, String param1, String param2, String storedProcedureQuery) throws Exception {
         Driver driverClass = jdbcApi.getJDBCDriverClass().newDriver();
-        final Connection conn = connect(driverClass);
+        try (Connection conn = connect(driverClass)) {
 
-        CallableStatement cs = conn.prepareCall(storedProcedureQuery);
-        cs.setString(1, param1);
-        cs.setString(2, param2);
-        cs.registerOutParameter(3, Types.NCHAR);
-        cs.execute();
+            try (CallableStatement cs = conn.prepareCall(storedProcedureQuery)) {
+                cs.setString(1, param1);
+                cs.setString(2, param2);
+                cs.registerOutParameter(3, Types.NCHAR);
+                cs.execute();
 
-        Assertions.assertEquals(param1.concat(param2), cs.getString(3));
-        conn.close();
+                Assertions.assertEquals(param1.concat(param2), cs.getString(3));
+            }
+        }
     }
 
     public void verifyTestStoredProcedure_with_IN_OUT_parameters(JDBCApi JDBC_API, String param1, String param2, String storedProcedureQuery) {
@@ -255,21 +258,20 @@ public class OracleItHelper {
     */
     public void testStoredProcedure_with_INOUT_parameters(JDBCApi jdbcApi, int param1, int param2, String storedProcedureQuery) throws Exception {
         Driver driverClass = jdbcApi.getJDBCDriverClass().newDriver();
-        final Connection conn = connect(driverClass);
+        try (Connection conn = connect(driverClass)) {
+            try (CallableStatement cs = conn.prepareCall(storedProcedureQuery)) {
+                cs.setInt(1, param1);
+                cs.setInt(2, param2);
+                cs.registerOutParameter(1, Types.INTEGER);
+                cs.registerOutParameter(2, Types.INTEGER);
+                cs.registerOutParameter(3, Types.INTEGER);
+                cs.execute();
 
-        CallableStatement cs = conn.prepareCall(storedProcedureQuery);
-        cs.setInt(1, param1);
-        cs.setInt(2, param2);
-        cs.registerOutParameter(1, Types.INTEGER);
-        cs.registerOutParameter(2, Types.INTEGER);
-        cs.registerOutParameter(3, Types.INTEGER);
-        cs.execute();
-
-        Assertions.assertEquals(param2, cs.getInt(1));
-        Assertions.assertEquals(param1, cs.getInt(2));
-        Assertions.assertEquals(param1 + param2, cs.getInt(3));
-
-        conn.close();
+                Assertions.assertEquals(param2, cs.getInt(1));
+                Assertions.assertEquals(param1, cs.getInt(2));
+                Assertions.assertEquals(param1 + param2, cs.getInt(3));
+            }
+        }
     }
 
 

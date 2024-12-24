@@ -57,12 +57,13 @@ public class PostgresqlPluginController {
                 insert.execute();
             }
 
-            try (Statement select = conn.createStatement();
-                 ResultSet rs = select.executeQuery(selectQuery)) {
-                while (rs.next()) {
-                    String rsName = rs.getString(1);
-                    int rsAge = rs.getInt(2);
-                    logger.info("name:{} age:{}", rsName, rsAge);
+            try (Statement select = conn.createStatement()) {
+                try (ResultSet rs = select.executeQuery(selectQuery)) {
+                    while (rs.next()) {
+                        String rsName = rs.getString(1);
+                        int rsAge = rs.getInt(2);
+                        logger.info("name:{} age:{}", rsName, rsAge);
+                    }
                 }
             }
 

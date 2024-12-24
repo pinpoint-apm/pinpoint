@@ -54,4 +54,12 @@ public final class JdbcUtils {
             }
         }
     }
+
+    public static int fetchResultSet(ResultSet rs) throws SQLException {
+        int fetchCount = 0;
+        while (rs.next()) {
+            fetchCount++;
+        }
+        return fetchCount;
+    }
 }

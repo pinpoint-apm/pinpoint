@@ -96,33 +96,36 @@ public class MysqlDBPluginController {
 
     void testStatements() throws Exception {
 
-        final Connection conn = getConnection();
+        try (Connection conn = getConnection()) {
 
-        conn.setAutoCommit(false);
+            conn.setAutoCommit(false);
 
-        String insertQuery = "INSERT INTO test (name, age) VALUES (?, ?)";
-        String selectQuery = "SELECT * FROM test";
-        String deleteQuery = "DELETE FROM test";
+            String insertQuery = "INSERT INTO test (name, age) VALUES (?, ?)";
+            String selectQuery = "SELECT * FROM test";
+            String deleteQuery = "DELETE FROM test";
 
-        PreparedStatement insert = conn.prepareStatement(insertQuery);
-        insert.setString(1, "maru");
-        insert.setInt(2, 5);
-        insert.execute();
+            try (PreparedStatement insert = conn.prepareStatement(insertQuery)) {
+                insert.setString(1, "maru");
+                insert.setInt(2, 5);
+                insert.execute();
+            }
 
-        Statement select = conn.createStatement();
-        ResultSet rs = select.executeQuery(selectQuery);
+            try (Statement select = conn.createStatement()) {
+                try (ResultSet rs = select.executeQuery(selectQuery)) {
+                    while (rs.next()) {
+                        final int id = rs.getInt("id");
+                        final String name = rs.getString("name");
+                        final int age = rs.getInt("age");
+                    }
+                }
+            }
 
-        while (rs.next()) {
-            final int id = rs.getInt("id");
-            final String name = rs.getString("name");
-            final int age = rs.getInt("age");
+            try (Statement delete = conn.createStatement()) {
+                delete.executeUpdate(deleteQuery);
+            }
+
+            conn.commit();
         }
-
-        Statement delete = conn.createStatement();
-        delete.executeUpdate(deleteQuery);
-
-        conn.commit();
-        conn.close();
     }
 
 
@@ -135,16 +138,14 @@ public class MysqlDBPluginController {
         final String param2 = "b";
         final String storedProcedureQuery = "{ call concatCharacters(?, ?, ?) }";
 
-        final Connection conn = getConnection();
-
-        CallableStatement cs = conn.prepareCall(storedProcedureQuery);
-        cs.setString(1, param1);
-        cs.setString(2, param2);
-        cs.registerOutParameter(3, Types.VARCHAR);
-        cs.execute();
-
-
-        conn.close();
+        try (Connection conn = getConnection()) {
+            try (CallableStatement cs = conn.prepareCall(storedProcedureQuery)) {
+                cs.setString(1, param1);
+                cs.setString(2, param2);
+                cs.registerOutParameter(3, Types.VARCHAR);
+                cs.execute();
+            }
+        }
     }
 
     /*
@@ -162,27 +163,27 @@ public class MysqlDBPluginController {
         final int param2 = 2;
         final String storedProcedureQuery = "{ call swapAndGetSum(?, ?) }";
 
-        final Connection conn = getConnection();
+        try (Connection conn = getConnection()) {
 
-        CallableStatement cs = conn.prepareCall(storedProcedureQuery);
-        cs.setInt(1, param1);
-        cs.setInt(2, param2);
-        cs.registerOutParameter(1, Types.INTEGER);
-        cs.registerOutParameter(2, Types.INTEGER);
-        ResultSet rs = cs.executeQuery();
-
-        conn.close();
+            try (CallableStatement cs = conn.prepareCall(storedProcedureQuery)) {
+                cs.setInt(1, param1);
+                cs.setInt(2, param2);
+                cs.registerOutParameter(1, Types.INTEGER);
+                cs.registerOutParameter(2, Types.INTEGER);
+                try (ResultSet rs = cs.executeQuery()) {
+                }
+            }
+        }
     }
 
     void xdev() {
-        Session session = new SessionFactory().getSession("mysqlx://localhost:32772/test?user=root&password=");
-        Schema schema = session.getSchema("test");
+        try (Session session = new SessionFactory().getSession("mysqlx://localhost:32772/test?user=root&password=")) {
+            Schema schema = session.getSchema("test");
 
-        Collection collection = schema.getCollection("name");
-        DocResult docResult = collection.find("name like :param").limit(1).bind("param", "L%").execute();
-        System.out.println(docResult.fetchOne());
-
-        session.close();
+            Collection collection = schema.getCollection("name");
+            DocResult docResult = collection.find("name like :param").limit(1).bind("param", "L%").execute();
+            System.out.println(docResult.fetchOne());
+        }
     }
 
 

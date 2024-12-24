@@ -39,6 +39,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import static com.navercorp.pinpoint.it.plugin.utils.jdbc.JdbcUtils.fetchResultSet;
+
 /**
  * @author emeroad
  */
@@ -63,61 +65,63 @@ public class MySqlConnection_5_X_IT extends MySql_IT_Base {
     public void testModify() throws Exception {
 
         DriverProperties driverProperties = getDriverProperties();
-        Connection connection = getConnection(driverProperties);
+        try (Connection connection = getConnection(driverProperties)) {
 
-        logger.info("Connection class name:{}", connection.getClass().getName());
-        logger.info("Connection class cl:{}", connection.getClass().getClassLoader());
+            logger.info("Connection class name:{}", connection.getClass().getName());
+            logger.info("Connection class cl:{}", connection.getClass().getClassLoader());
 
-        DatabaseInfo url = ((DatabaseInfoAccessor) connection)._$PINPOINT$_getDatabaseInfo();
-        Assertions.assertNotNull(url);
+            DatabaseInfo url = ((DatabaseInfoAccessor) connection)._$PINPOINT$_getDatabaseInfo();
+            Assertions.assertNotNull(url);
 
-        statement(connection);
+            statement(connection);
 
-        preparedStatement(connection);
+            preparedStatement(connection);
 
-        preparedStatement2(connection);
+            preparedStatement2(connection);
 
-        preparedStatement3(connection);
+            preparedStatement3(connection);
 
-        connection.close();
-
-        DatabaseInfo clearUrl = ((DatabaseInfoAccessor) connection)._$PINPOINT$_getDatabaseInfo();
-        Assertions.assertNull(clearUrl);
+            DatabaseInfo clearUrl = ((DatabaseInfoAccessor) connection)._$PINPOINT$_getDatabaseInfo();
+            Assertions.assertNull(clearUrl);
+        }
 
     }
 
     private void statement(Connection connection) throws SQLException {
-        Statement statement = connection.createStatement();
-        statement.executeQuery("select 1");
-        statement.close();
+        try (Statement statement = connection.createStatement()) {
+            statement.executeQuery("select 1");
+        }
     }
 
     private void preparedStatement(Connection connection) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement("select 1");
-        logger.info("PreparedStatement className:{}", preparedStatement.getClass().getName());
-        ResultSet resultSet = preparedStatement.executeQuery();
-        resultSet.close();
-        preparedStatement.close();
+        try (PreparedStatement preparedStatement = connection.prepareStatement("select 1")) {
+            logger.info("PreparedStatement className:{}", preparedStatement.getClass().getName());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                fetchResultSet(resultSet);
+            }
+        }
     }
 
     private void preparedStatement2(Connection connection) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement("select * from member where id = ?");
-        preparedStatement.setInt(1, 1);
-        ResultSet resultSet = preparedStatement.executeQuery();
-        resultSet.close();
-        preparedStatement.close();
+        try (PreparedStatement preparedStatement = connection.prepareStatement("select * from member where id = ?")) {
+            preparedStatement.setInt(1, 1);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                fetchResultSet(resultSet);
+            }
+        }
     }
 
     private void preparedStatement3(Connection connection) throws SQLException {
         connection.setAutoCommit(false);
 
-        PreparedStatement preparedStatement = connection.prepareStatement("select * from member where id = ? or id = ?  or id = ?");
-        preparedStatement.setInt(1, 1);
-        preparedStatement.setInt(2, 2);
-        preparedStatement.setString(3, "3");
-        ResultSet resultSet = preparedStatement.executeQuery();
-        resultSet.close();
-        preparedStatement.close();
+        try (PreparedStatement preparedStatement = connection.prepareStatement("select * from member where id = ? or id = ?  or id = ?")) {
+            preparedStatement.setInt(1, 1);
+            preparedStatement.setInt(2, 2);
+            preparedStatement.setString(3, "3");
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                fetchResultSet(resultSet);
+            }
+        }
 
         connection.commit();
 
