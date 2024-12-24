@@ -38,28 +38,21 @@ public class DruidIT {
 
     @Test
     public void test() throws SQLException {
-        DruidDataSource dataSource = new DruidDataSource();
+        try (DruidDataSource dataSource = new DruidDataSource()) {
+            dataSource.setUrl(JDBC_URL);
+            dataSource.setValidationQuery("select 'x'");
+            dataSource.setUsername("test");
+            dataSource.setPassword("test");
 
-        dataSource.setUrl(JDBC_URL);
-        dataSource.setValidationQuery("select 'x'");
-        dataSource.setUsername("test");
-        dataSource.setPassword("test");
-
-        dataSource.init();
-        try {
-            Connection connection = dataSource.getConnection();
-            Assertions.assertNotNull(connection);
-
-            connection.close();
-
+            dataSource.init();
+            try (Connection connection = dataSource.getConnection()) {
+                Assertions.assertNotNull(connection);
+            }
             PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
             verifier.printCache();
 
             verifier.verifyTrace(event(serviceType, getConnectionMethod));
             verifier.verifyTrace(event(serviceType, closeConnectionMethod));
-        } finally {
-            dataSource.close();
         }
     }
-
 }

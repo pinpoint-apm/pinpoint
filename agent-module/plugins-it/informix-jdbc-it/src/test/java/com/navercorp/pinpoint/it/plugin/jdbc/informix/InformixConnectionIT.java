@@ -46,6 +46,8 @@ import java.sql.Statement;
 import java.util.Collections;
 import java.util.List;
 
+import static com.navercorp.pinpoint.it.plugin.utils.jdbc.JdbcUtils.fetchResultSet;
+
 /**
  * @author Taejin Koo
  */
@@ -77,7 +79,7 @@ public class InformixConnectionIT {
     }
 
     @AfterEach
-    public void deregisterDriver() throws Exception {
+    public void deregisterDriver() {
         DriverManagerUtils.deregisterDriver();
     }
 
@@ -106,9 +108,7 @@ public class InformixConnectionIT {
 
     @Test
     public void execute() throws SQLException {
-        Connection connection = null;
-        try {
-            connection = createConnection("localhost:" + port + "/sysmaster", "informix", "in4mix");
+        try (Connection connection = createConnection("localhost:" + port + "/sysmaster", "informix", "in4mix")) {
 
             statement(connection);
 
@@ -128,26 +128,15 @@ public class InformixConnectionIT {
 
 //            List<SpanEvent> currentSpanEvents = getCurrentSpanEvents();
 //            LOGGER.info("{}", currentSpanEvents);
-        } finally {
-            if (connection != null) {
-                connection.close();
-            }
         }
     }
 
     @Test()
     public void executeFail() throws SQLException {
         Assertions.assertThrows(SQLException.class, () -> {
-            Connection connection = null;
-            try {
-                connection = createConnection("localhost:" + port + "/sysmaster", "informix", "in4mix");
-
-                Statement statement = connection.createStatement();
-
-                statement.execute("select * from members");
-            } finally {
-                if (connection != null) {
-                    connection.close();
+            try (Connection connection = createConnection("localhost:" + port + "/sysmaster", "informix", "in4mix")) {
+                try (Statement statement = connection.createStatement()) {
+                    statement.execute("select * from members");
                 }
             }
         });
@@ -155,89 +144,98 @@ public class InformixConnectionIT {
     }
 
     private void statement(Connection connection) throws SQLException {
-        Statement statement = connection.createStatement();
-        statement.executeQuery("select 1");
-        statement.close();
+        try (Statement statement = connection.createStatement()) {
+            try (ResultSet resultSet = statement.executeQuery("select 1")) {
+                fetchResultSet(resultSet);
+            }
+        }
     }
 
     private void preparedStatement(Connection connection) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement("select 1");
-        LOGGER.debug("PreparedStatement className:" + preparedStatement.getClass().getName());
-        ResultSet resultSet = preparedStatement.executeQuery();
-        resultSet.close();
-        preparedStatement.close();
+        try (PreparedStatement preparedStatement = connection.prepareStatement("select 1")) {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                LOGGER.debug("PreparedStatement className:" + preparedStatement.getClass().getName());
+                fetchResultSet(resultSet);
+            }
+        }
     }
 
 
     private void preparedStatement2(Connection connection) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement("select * from member where id = ?");
-        preparedStatement.setInt(1, 1);
-        ResultSet resultSet = preparedStatement.executeQuery();
-        resultSet.close();
-        preparedStatement.close();
+        try (PreparedStatement preparedStatement = connection.prepareStatement("select * from member where id = ?")) {
+            preparedStatement.setInt(1, 1);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                fetchResultSet(resultSet);
+            }
+        }
     }
 
     private void preparedStatement3(Connection connection) throws SQLException {
         connection.setAutoCommit(false);
 
-        PreparedStatement preparedStatement = connection.prepareStatement("select * from member where id = ? or id = ?  or id = ?");
-        preparedStatement.setInt(1, 1);
-        preparedStatement.setInt(2, 2);
-        preparedStatement.setString(3, "3");
-        ResultSet resultSet = preparedStatement.executeQuery();
-        resultSet.close();
-        preparedStatement.close();
+        try (PreparedStatement preparedStatement = connection.prepareStatement("select * from member where id = ? or id = ?  or id = ?")) {
+            preparedStatement.setInt(1, 1);
+            preparedStatement.setInt(2, 2);
+            preparedStatement.setString(3, "3");
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                fetchResultSet(resultSet);
+            }
+        }
 
         connection.commit();
-
         connection.setAutoCommit(true);
     }
 
     private void preparedStatement4(Connection connection) throws SQLException {
 //        Statement.RETURN_GENERATED_KEYS or Statement.NO_GENERATED_KEYS
-        PreparedStatement preparedStatement = connection.prepareStatement("select 1", Statement.RETURN_GENERATED_KEYS);
-        LOGGER.debug("PreparedStatement className:{}", preparedStatement.getClass().getName());
-        ResultSet resultSet = preparedStatement.executeQuery();
-        resultSet.close();
-        preparedStatement.close();
+        try (PreparedStatement preparedStatement = connection.prepareStatement("select 1", Statement.RETURN_GENERATED_KEYS)) {
+            LOGGER.debug("PreparedStatement className:{}", preparedStatement.getClass().getName());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                fetchResultSet(resultSet);
+            }
+        }
     }
 
     private void preparedStatement5(Connection connection) throws SQLException {
 //        Statement.RETURN_GENERATED_KEYS or Statement.NO_GENERATED_KEYS
-        PreparedStatement preparedStatement = connection.prepareStatement("select 1", new String[]{"test"});
-        LOGGER.info("PreparedStatement className:{}", preparedStatement.getClass().getName());
-        ResultSet resultSet = preparedStatement.executeQuery();
-        resultSet.close();
-        preparedStatement.close();
+        try (PreparedStatement preparedStatement = connection.prepareStatement("select 1", new String[]{"test"})) {
+            LOGGER.info("PreparedStatement className:{}", preparedStatement.getClass().getName());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                fetchResultSet(resultSet);
+            }
+        }
     }
 
     private void preparedStatement6(Connection connection) throws SQLException {
 //        Statement.RETURN_GENERATED_KEYS or Statement.NO_GENERATED_KEYS
         int[] columnIndex = {1};
-        PreparedStatement preparedStatement = connection.prepareStatement("select 1", columnIndex);
-        LOGGER.info("PreparedStatement className:{}", preparedStatement.getClass().getName());
-        ResultSet resultSet = preparedStatement.executeQuery();
-        resultSet.close();
-        preparedStatement.close();
+        try (PreparedStatement preparedStatement = connection.prepareStatement("select 1", columnIndex)) {
+            LOGGER.info("PreparedStatement className:{}", preparedStatement.getClass().getName());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                fetchResultSet(resultSet);
+            }
+        }
     }
 
     private void preparedStatement7(Connection connection) throws SQLException {
 //        Statement.RETURN_GENERATED_KEYS or Statement.NO_GENERATED_KEYS
-        PreparedStatement preparedStatement = connection.prepareStatement("select 1", ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-        LOGGER.info("PreparedStatement className:{}", preparedStatement.getClass().getName());
-        ResultSet resultSet = preparedStatement.executeQuery();
-        resultSet.close();
-        preparedStatement.close();
+        try (PreparedStatement preparedStatement = connection.prepareStatement("select 1", ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+            LOGGER.info("PreparedStatement className:{}", preparedStatement.getClass().getName());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                fetchResultSet(resultSet);
+            }
+        }
     }
 
     private void preparedStatement8(Connection connection) throws SQLException {
 //        Statement.RETURN_GENERATED_KEYS or Statement.NO_GENERATED_KEYS
 //        ResultSet.HOLD_CURSORS_OVER_COMMIT or ResultSet.CLOSE_CURSORS_AT_COMMIT
-        PreparedStatement preparedStatement = connection.prepareStatement("select 1", ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY, ResultSet.HOLD_CURSORS_OVER_COMMIT);
-        LOGGER.info("PreparedStatement className:{}", preparedStatement.getClass().getName());
-        ResultSet resultSet = preparedStatement.executeQuery();
-        resultSet.close();
-        preparedStatement.close();
+        try (PreparedStatement preparedStatement = connection.prepareStatement("select 1", ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY, ResultSet.HOLD_CURSORS_OVER_COMMIT)) {
+            LOGGER.info("PreparedStatement className:{}", preparedStatement.getClass().getName());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                fetchResultSet(resultSet);
+            }
+        }
     }
 
 }

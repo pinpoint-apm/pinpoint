@@ -9,23 +9,24 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Objects;
 
 
 public class SimpleJdbcTemplate {
-    private final DataSource datasource;
+    private final DataSource dataSource;
     private final ConnectionInterceptor connectionInterceptor;
 
     public SimpleJdbcTemplate(DataSource dataSource) {
-        this.datasource = dataSource;
+        this.dataSource = Objects.requireNonNull(dataSource, "dataSource");
         this.connectionInterceptor = new AutoCommitConnectionInterceptor();
     }
     public SimpleJdbcTemplate(DataSource dataSource, ConnectionInterceptor connectionInterceptor) {
-        this.datasource = dataSource;
-        this.connectionInterceptor = connectionInterceptor;
+        this.dataSource = Objects.requireNonNull(dataSource, "dataSource");
+        this.connectionInterceptor = Objects.requireNonNull(connectionInterceptor, "connectionInterceptor");
     }
 
     private Connection getConnection() throws SQLException {
-        final Connection connection = datasource.getConnection();
+        final Connection connection = dataSource.getConnection();
         connectionInterceptor.before(connection);
         return connection;
     }

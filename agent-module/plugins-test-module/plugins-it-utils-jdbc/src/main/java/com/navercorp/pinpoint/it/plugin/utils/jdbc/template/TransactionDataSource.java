@@ -21,6 +21,7 @@ import java.sql.Savepoint;
 import java.sql.Statement;
 import java.sql.Struct;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -30,12 +31,12 @@ import java.util.logging.Logger;
  * WARNING Not thread safe
  */
 public class TransactionDataSource implements DataSource {
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
     private Connection innerConnection;
 
     public TransactionDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
+        this.dataSource = Objects.requireNonNull(dataSource, "dataSource");
     }
 
     @Override
@@ -49,11 +50,11 @@ public class TransactionDataSource implements DataSource {
         return wrapUnclosedConnection(this.innerConnection);
     }
 
-    public void doInTransaction(TransactionCallback transacion) throws SQLException {
+    public void doInTransaction(TransactionCallback transaction) throws SQLException {
         final Connection innerConnection = getCurrentConnection();
         innerConnection.setAutoCommit(false);
         try {
-            transacion.doInTransaction();
+            transaction.doInTransaction();
         } finally {
             try {
                 innerConnection.commit();

@@ -42,6 +42,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
 
+import static com.navercorp.pinpoint.it.plugin.utils.jdbc.JdbcUtils.fetchResultSet;
+
 /**
  * @author intr3p1d
  */
@@ -120,7 +122,7 @@ public class ClickHouseITBase {
             try (Statement stmt = conn.createStatement()) {
                 stmt.setMaxRows(3);
                 try (ResultSet rs = stmt.executeQuery(sql2)) {
-                    drain(rs);
+                    fetchResultSet(rs);
                 }
             }
 
@@ -143,15 +145,6 @@ public class ClickHouseITBase {
 
             Method executeUpdate = jdbcApi.getStatement().getExecuteUpdate();
             verifier.verifyTrace(Expectations.event(DB_EXECUTE_QUERY, executeUpdate, null, databaseAddress, databaseName, Expectations.sql(sql3, null)));
-        }
-    }
-
-    private void drain(ResultSet resultSet) throws SQLException {
-        int fetchCount = 0;
-        while (resultSet.next()) {
-//            resultSet.getObject(1);
-            fetchCount++;
-            // empty
         }
     }
 

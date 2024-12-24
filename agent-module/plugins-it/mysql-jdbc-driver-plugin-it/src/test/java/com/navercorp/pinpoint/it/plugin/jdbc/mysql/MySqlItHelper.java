@@ -80,62 +80,65 @@ public class MySqlItHelper {
     void testStatements(JDBCApi jdbcApi) throws Exception {
 
         Driver driverClass = jdbcApi.getJDBCDriverClass().newDriver();
-        final Connection conn = connect(driverClass);
+        try (Connection conn = connect(driverClass)) {
 
-        conn.setAutoCommit(false);
+            conn.setAutoCommit(false);
 
-        String insertQuery = "INSERT INTO test (name, age) VALUES (?, ?)";
-        String selectQuery = "SELECT * FROM test";
-        String deleteQuery = "DELETE FROM test";
+            String insertQuery = "INSERT INTO test (name, age) VALUES (?, ?)";
+            String selectQuery = "SELECT * FROM test";
+            String deleteQuery = "DELETE FROM test";
 
-        PreparedStatement insert = conn.prepareStatement(insertQuery);
-        insert.setString(1, "maru");
-        insert.setInt(2, 5);
-        insert.execute();
+            try (PreparedStatement insert = conn.prepareStatement(insertQuery)) {
+                insert.setString(1, "maru");
+                insert.setInt(2, 5);
+                insert.execute();
+            }
 
-        Statement select = conn.createStatement();
-        ResultSet rs = select.executeQuery(selectQuery);
+            try (Statement select = conn.createStatement()) {
+                try (ResultSet rs = select.executeQuery(selectQuery)) {
+                    while (rs.next()) {
+                        final int id = rs.getInt("id");
+                        final String name = rs.getString("name");
+                        final int age = rs.getInt("age");
+                        logger.debug("id: {}, name: {}, age: {}", id, name, age);
+                    }
+                }
+            }
 
-        while (rs.next()) {
-            final int id = rs.getInt("id");
-            final String name = rs.getString("name");
-            final int age = rs.getInt("age");
-            logger.debug("id: {}, name: {}, age: {}", id, name, age);
+            try (Statement delete = conn.createStatement()) {
+                delete.executeUpdate(deleteQuery);
+            }
+
+            conn.commit();
+
+            PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
+
+            verifier.printCache();
+
+            Method connect = jdbcApi.getDriver().getConnect();
+            verifier.verifyTrace(event(MYSQL, connect, null, databaseAddress, databaseName, cachedArgs(jdbcUrl)));
+
+            final JDBCApi.ConnectionClass connectionClass = jdbcApi.getConnection();
+            Method setAutoCommit = connectionClass.getSetAutoCommit();
+            verifier.verifyTrace(event(MYSQL, setAutoCommit, null, databaseAddress, databaseName, args(false)));
+
+            Method prepareStatement = connectionClass.getPrepareStatement();
+            verifier.verifyTrace(event(MYSQL, prepareStatement, null, databaseAddress, databaseName, sql(insertQuery, null)));
+
+            final JDBCApi.PreparedStatementClass preparedStatementClass = jdbcApi.getPreparedStatement();
+            Method execute = preparedStatementClass.getExecute();
+            verifier.verifyTrace(event(MYSQL_EXECUTE_QUERY, execute, null, databaseAddress, databaseName, Expectations.sql(insertQuery, null, "maru, 5")));
+
+            final JDBCApi.StatementClass statementClass = jdbcApi.getStatement();
+            Method executeQuery = statementClass.getExecuteQuery();
+            verifier.verifyTrace(event(MYSQL_EXECUTE_QUERY, executeQuery, null, databaseAddress, databaseName, Expectations.sql(selectQuery, null)));
+
+            Method executeUpdate = statementClass.getExecuteUpdate();
+            verifier.verifyTrace(event(MYSQL_EXECUTE_QUERY, executeUpdate, null, databaseAddress, databaseName, Expectations.sql(deleteQuery, null)));
+
+            Method commit = connectionClass.getCommit();
+            verifier.verifyTrace(event(MYSQL, commit, null, databaseAddress, databaseName));
         }
-
-        Statement delete = conn.createStatement();
-        delete.executeUpdate(deleteQuery);
-
-        conn.commit();
-        conn.close();
-
-        PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-
-        verifier.printCache();
-
-        Method connect = jdbcApi.getDriver().getConnect();
-        verifier.verifyTrace(event(MYSQL, connect, null, databaseAddress, databaseName, cachedArgs(jdbcUrl)));
-
-        final JDBCApi.ConnectionClass connectionClass = jdbcApi.getConnection();
-        Method setAutoCommit = connectionClass.getSetAutoCommit();
-        verifier.verifyTrace(event(MYSQL, setAutoCommit, null, databaseAddress, databaseName, args(false)));
-
-        Method prepareStatement = connectionClass.getPrepareStatement();
-        verifier.verifyTrace(event(MYSQL, prepareStatement, null, databaseAddress, databaseName, sql(insertQuery, null)));
-
-        final JDBCApi.PreparedStatementClass preparedStatementClass = jdbcApi.getPreparedStatement();
-        Method execute = preparedStatementClass.getExecute();
-        verifier.verifyTrace(event(MYSQL_EXECUTE_QUERY, execute, null, databaseAddress, databaseName, Expectations.sql(insertQuery, null, "maru, 5")));
-
-        final JDBCApi.StatementClass statementClass = jdbcApi.getStatement();
-        Method executeQuery = statementClass.getExecuteQuery();
-        verifier.verifyTrace(event(MYSQL_EXECUTE_QUERY, executeQuery, null, databaseAddress, databaseName, Expectations.sql(selectQuery, null)));
-
-        Method executeUpdate = statementClass.getExecuteUpdate();
-        verifier.verifyTrace(event(MYSQL_EXECUTE_QUERY, executeUpdate, null, databaseAddress, databaseName, Expectations.sql(deleteQuery, null)));
-
-        Method commit = connectionClass.getCommit();
-        verifier.verifyTrace(event(MYSQL, commit, null, databaseAddress, databaseName));
     }
 
     private Connection connect(Driver driverClass) throws Exception {
@@ -152,17 +155,15 @@ public class MySqlItHelper {
         final String storedProcedureQuery = "{ call concatCharacters(?, ?, ?) }";
 
         final Driver driverClass = jdbcApi.getJDBCDriverClass().newDriver();
-        final Connection conn = connect(driverClass);
-
-        CallableStatement cs = conn.prepareCall(storedProcedureQuery);
-        cs.setString(1, param1);
-        cs.setString(2, param2);
-        cs.registerOutParameter(3, Types.VARCHAR);
-        cs.execute();
-
-        Assertions.assertEquals(param1.concat(param2), cs.getString(3));
-
-        conn.close();
+        try (Connection conn = connect(driverClass)) {
+            try (CallableStatement cs = conn.prepareCall(storedProcedureQuery)) {
+                cs.setString(1, param1);
+                cs.setString(2, param2);
+                cs.registerOutParameter(3, Types.VARCHAR);
+                cs.execute();
+                Assertions.assertEquals(param1.concat(param2), cs.getString(3));
+            }
+        }
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
 
         verifier.printCache();
@@ -203,21 +204,21 @@ public class MySqlItHelper {
         final String storedProcedureQuery = "{ call swapAndGetSum(?, ?) }";
 
         final Driver driverClass = jdbcApi.getJDBCDriverClass().newDriver();
-        final Connection conn = connect(driverClass);
+        try (Connection conn = connect(driverClass)) {
+            try (CallableStatement cs = conn.prepareCall(storedProcedureQuery)) {
+                cs.setInt(1, param1);
+                cs.setInt(2, param2);
+                cs.registerOutParameter(1, Types.INTEGER);
+                cs.registerOutParameter(2, Types.INTEGER);
+                try (ResultSet rs = cs.executeQuery()) {
+                    Assertions.assertTrue(rs.next());
+                    Assertions.assertEquals(param1 + param2, rs.getInt(1));
+                }
+                Assertions.assertEquals(param2, cs.getInt(1));
+                Assertions.assertEquals(param1, cs.getInt(2));
+            }
+        }
 
-        CallableStatement cs = conn.prepareCall(storedProcedureQuery);
-        cs.setInt(1, param1);
-        cs.setInt(2, param2);
-        cs.registerOutParameter(1, Types.INTEGER);
-        cs.registerOutParameter(2, Types.INTEGER);
-        ResultSet rs = cs.executeQuery();
-
-        Assertions.assertTrue(rs.next());
-        Assertions.assertEquals(param1 + param2, rs.getInt(1));
-        Assertions.assertEquals(param2, cs.getInt(1));
-        Assertions.assertEquals(param1, cs.getInt(2));
-
-        conn.close();
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
 
         verifier.printCache();

@@ -89,90 +89,51 @@ public class MariaDBPluginController {
         return "OK";
     }
 
-    private final void executeStatement() throws Exception {
-        final int expectedResultSize = 1;
-        Connection connection = null;
-        Statement statement = null;
-        ResultSet rs = null;
-        try {
-            connection = getConnection();
-            statement = connection.createStatement();
-            rs = statement.executeQuery(STATEMENT_QUERY);
-            int resultCount = 0;
+    private int executeStatement() throws Exception {
+        int resultCount = 0;
+        try (Connection connection = getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet rs = statement.executeQuery(STATEMENT_QUERY)) {
             while (rs.next()) {
                 ++resultCount;
             }
-        } finally {
-            closeQuietly(rs);
-            closeQuietly(statement);
-            closeQuietly(connection);
         }
+        return resultCount;
     }
 
-    private void executePreparedStatement() throws Exception {
-        final int expectedResultSize = 1;
+    private int executePreparedStatement() throws Exception {
+        int resultCount = 0;
 
-        Connection connection = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            connection = getConnection();
-            ps = connection.prepareStatement(PREPARED_STATEMENT_QUERY);
+        try (Connection connection = getConnection();
+             PreparedStatement ps = connection.prepareStatement(PREPARED_STATEMENT_QUERY)) {
             ps.setInt(1, 3);
-            rs = ps.executeQuery();
-            int resultCount = 0;
-            while (rs.next()) {
-                ++resultCount;
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ++resultCount;
+                }
             }
-        } finally {
-            closeQuietly(rs);
-            closeQuietly(ps);
-            closeQuietly(connection);
         }
+        return resultCount;
     }
 
-    private final void executeCallableStatement() throws Exception {
-
-        final int expectedResultSize = 1;
-        final int expectedTotalCount = 3;
-        final int expectedMatchingId = 2;
+    private int executeCallableStatement() throws Exception {
         final String outputParamCountName = "outputParamCount";
-
-        Connection conn = null;
-        CallableStatement cs = null;
-        ResultSet rs = null;
-        try {
-            conn = getConnection();
-
-            cs = conn.prepareCall(CALLABLE_STATEMENT_QUERY);
+        int resultCount = 0;
+        try (Connection conn = getConnection();
+            CallableStatement cs = conn.prepareCall(CALLABLE_STATEMENT_QUERY)) {
             cs.setString(1, CALLABLE_STATEMENT_INPUT_PARAM);
             cs.registerOutParameter(2, CALLABLE_STATMENT_OUTPUT_PARAM_TYPE);
-
-            rs = cs.executeQuery();
-            int resultCount = 0;
-            while (rs.next()) {
-                ++resultCount;
+            try (ResultSet rs = cs.executeQuery() ) {
+                while (rs.next()) {
+                    ++resultCount;
+                }
             }
             final int totalCount = cs.getInt(outputParamCountName);
-
-        } finally {
-            closeQuietly(rs);
-            closeQuietly(cs);
-            closeQuietly(conn);
         }
+        return resultCount;
     }
 
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(MariaDBServer.getUri(), "root", "");
-    }
-
-    private void closeQuietly(AutoCloseable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (Exception ignored) {
-                // empty
-            }
-        }
     }
 }

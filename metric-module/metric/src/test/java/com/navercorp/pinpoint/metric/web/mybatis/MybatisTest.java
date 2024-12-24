@@ -58,9 +58,9 @@ public class MybatisTest {
     public void testDataSource() throws Exception {
         Connection connection = dataSource.getConnection();
         assertThat(connection).isInstanceOf(WrappedPinotConnection.class);
-        PreparedStatement preparedStatement = connection.prepareStatement("testSQL");
-        assertThat(preparedStatement).isInstanceOf(WrappedPinotPreparedStatement.class);
-        connection.close();
+        try (PreparedStatement preparedStatement = connection.prepareStatement("testSQL")) {
+            assertThat(preparedStatement).isInstanceOf(WrappedPinotPreparedStatement.class);
+        }
     }
 
     @Disabled
