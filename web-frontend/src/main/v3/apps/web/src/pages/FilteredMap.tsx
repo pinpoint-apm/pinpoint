@@ -23,11 +23,11 @@ import {
   CurrentTarget,
 } from '@pinpoint-fe/ui/atoms';
 import {
-  FilteredMap,
+  FilteredMapType as FilteredMap,
   GetServerMap,
   SCATTER_DATA_TOTAL_KEY,
   BASE_PATH,
-} from '@pinpoint-fe/constants';
+} from '@pinpoint-fe/ui/constants';
 import {
   ApplicationCombinedList,
   FilteredMap as FilteredMapComponent,

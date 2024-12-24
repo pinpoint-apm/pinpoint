@@ -25,7 +25,7 @@ import {
   scatterDataAtom,
   CurrentTarget,
 } from '@pinpoint-fe/ui/atoms';
-import { FilteredMap, GetServerMap, BASE_PATH } from '@pinpoint-fe/constants';
+import { FilteredMapType as FilteredMap, GetServerMap, BASE_PATH } from '@pinpoint-fe/ui/constants';
 import { IoMdClose } from 'react-icons/io';
 import {
   ApdexScore,

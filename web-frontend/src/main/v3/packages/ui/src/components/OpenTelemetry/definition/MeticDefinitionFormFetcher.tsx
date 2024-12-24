@@ -32,7 +32,7 @@ import {
   usePatchOtlpMetricDefUserDefined,
 } from '@pinpoint-fe/ui/hooks';
 import { useReactToastifyToast } from '../../../components/Toast';
-import { OtlpMetricDefUserDefined } from '@pinpoint-fe/constants';
+import { OtlpMetricDefUserDefined } from '@pinpoint-fe/ui/constants';
 import { Checkbox } from '../../ui/checkbox';
 import { getNewWidgetLayout } from '../../../components/Dashboard/DashBoard';
 import { Switch } from '../../../components/ui/switch';

@@ -1,5 +1,5 @@
 import { useAtomValue } from 'jotai';
-import { APP_PATH, MenuItem } from '@pinpoint-fe/constants';
+import { APP_PATH, MenuItemType as MenuItem } from '@pinpoint-fe/ui/constants';
 import { configurationAtom } from '@pinpoint-fe/ui/atoms';
 import {
   PiBugBeetle,

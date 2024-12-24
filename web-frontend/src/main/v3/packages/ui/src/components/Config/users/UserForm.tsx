@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 
-import { ConfigUsers } from '@pinpoint-fe/constants';
+import { ConfigUsers } from '@pinpoint-fe/ui/constants';
 import { PhoneInput } from 'react-international-phone';
 
 import 'react-international-phone/style.css';

@@ -1,5 +1,5 @@
 import { Responsive, WidthProvider } from 'react-grid-layout';
-import { screens } from '../../constant';
+import { screens } from '@pinpoint-fe/ui/constants';
 import ReactGridLayout from 'react-grid-layout';
 import {
   DRAGGABLE_CANCEL_CLASS,

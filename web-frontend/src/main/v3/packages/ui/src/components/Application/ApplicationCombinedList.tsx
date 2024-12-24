@@ -1,6 +1,6 @@
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger, Separator } from '../ui';
 import { ApplicationItem, ApplicationList, ApplicationVirtualList } from './ApplicationList';
-import { APP_SETTING_KEYS, ApplicationType } from '@pinpoint-fe/constants';
+import { APP_SETTING_KEYS, ApplicationType } from '@pinpoint-fe/ui/constants';
 import { LuStar, LuStarOff } from 'react-icons/lu';
 import { cn } from '../../lib/utils';
 import { Toaster } from '../ui/toaster';

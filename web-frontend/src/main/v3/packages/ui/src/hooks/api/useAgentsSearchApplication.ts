@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { END_POINTS, SearchApplication } from '@pinpoint-fe/constants';
+import { END_POINTS, SearchApplication } from '@pinpoint-fe/ui/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { queryFn } from './reactQueryHelper';
 

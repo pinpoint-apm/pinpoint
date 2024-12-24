@@ -42,7 +42,6 @@
   "dependencies": {
     "@billboard.js/react": "^1.1.1",
     "@hookform/resolvers": "^3.3.2",
-    "@pinpoint-fe/constants": "*",
     "@pinpoint-fe/datetime-picker": "*",
     "@pinpoint-fe/scatter-chart": "*",
     "@pinpoint-fe/server-map": "*",

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Webhook } from '@pinpoint-fe/constants';
+import { Webhook } from '@pinpoint-fe/ui/constants';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { RxDotsVertical } from 'react-icons/rx';
 import { Button } from '../../components/ui/button';

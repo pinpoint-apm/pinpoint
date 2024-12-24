@@ -1,4 +1,4 @@
-import { APP_PATH } from '@pinpoint-fe/constants';
+import { APP_PATH } from '@pinpoint-fe/ui/constants';
 import { getApplicationTypeAndName } from '@pinpoint-fe/ui/utils';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 

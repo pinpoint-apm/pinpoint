@@ -1,4 +1,4 @@
-import { AlarmRule, END_POINTS } from '@pinpoint-fe/constants';
+import { AlarmRule, END_POINTS } from '@pinpoint-fe/ui/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { queryFn } from './reactQueryHelper';

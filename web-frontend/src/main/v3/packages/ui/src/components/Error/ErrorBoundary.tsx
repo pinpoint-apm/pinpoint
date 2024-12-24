@@ -6,7 +6,7 @@ import {
 } from 'react-error-boundary';
 import { ErrorDetailDialog } from './ErrorDetailDialog';
 import { useReactToastifyToast } from '../Toast';
-import { ErrorResponse } from '@pinpoint-fe/constants';
+import { ErrorResponse } from '@pinpoint-fe/ui/constants';
 import { ErrorToast } from './ErrorToast';
 import { useSearchParameters } from '@pinpoint-fe/ui/hooks';
 

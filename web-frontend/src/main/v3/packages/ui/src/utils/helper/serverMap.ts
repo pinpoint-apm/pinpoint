@@ -1,4 +1,8 @@
-import { ApplicationType, FilteredMap, GetServerMap } from '@pinpoint-fe/constants';
+import {
+  ApplicationType,
+  FilteredMapType as FilteredMap,
+  GetServerMap,
+} from '@pinpoint-fe/ui/constants';
 
 export const getBaseNodeId = ({
   application,

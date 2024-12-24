@@ -1,4 +1,4 @@
-import { APP_SETTING_KEYS, EXPERIMENTAL_CONFIG_KEYS } from '@pinpoint-fe/constants';
+import { APP_SETTING_KEYS, EXPERIMENTAL_CONFIG_KEYS } from '@pinpoint-fe/ui/constants';
 
 export const getCompatibleLocalStorageValue = (
   key: APP_SETTING_KEYS | EXPERIMENTAL_CONFIG_KEYS | string,

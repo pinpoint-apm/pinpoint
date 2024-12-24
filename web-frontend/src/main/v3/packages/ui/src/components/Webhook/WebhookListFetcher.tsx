@@ -1,5 +1,5 @@
 import React from 'react';
-import { Webhook } from '@pinpoint-fe/constants';
+import { Webhook } from '@pinpoint-fe/ui/constants';
 import { useGetWebhook } from '@pinpoint-fe/ui/hooks';
 
 export interface WebhookListFetcherProps extends Webhook.Parameters {

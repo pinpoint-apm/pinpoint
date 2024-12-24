@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { END_POINTS, ConfigGroupMember } from '@pinpoint-fe/constants';
+import { END_POINTS, ConfigGroupMember } from '@pinpoint-fe/ui/constants';
 import { swrConfigs } from './swrConfigs';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 

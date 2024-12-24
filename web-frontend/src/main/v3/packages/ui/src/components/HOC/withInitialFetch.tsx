@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useExperimentals, useGetConfiguration } from '@pinpoint-fe/ui/hooks';
 import { useSetAtom } from 'jotai';
 import { configurationAtom } from '@pinpoint-fe/ui/atoms';
-import { APP_PATH, Configuration } from '@pinpoint-fe/constants';
+import { APP_PATH, Configuration } from '@pinpoint-fe/ui/constants';
 
 export const withInitialFetch =
   <P extends object>(WrappedComponent: React.ComponentType<P>) =>

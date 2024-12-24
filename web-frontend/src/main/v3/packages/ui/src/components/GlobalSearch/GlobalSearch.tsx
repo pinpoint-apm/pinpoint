@@ -1,5 +1,5 @@
 import { globalSearchDisplayAtom } from '@pinpoint-fe/ui/atoms';
-import { MenuItem } from '@pinpoint-fe/constants';
+import { MenuItemType as MenuItem } from '@pinpoint-fe/ui/constants';
 ('@radix-ui/react-icons');
 import Fuse from 'fuse.js';
 import {

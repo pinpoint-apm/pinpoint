@@ -2,7 +2,7 @@ import React from 'react';
 import useSWR from 'swr';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { ChartsBoard, ChartsBoardProps } from '..';
-import { END_POINTS, GetResponseTimeHistogram, GetServerMap } from '@pinpoint-fe/constants';
+import { END_POINTS, GetResponseTimeHistogram, GetServerMap } from '@pinpoint-fe/ui/constants';
 import {
   serverMapCurrentTargetDataAtom,
   currentNodeStatisticsAtom,

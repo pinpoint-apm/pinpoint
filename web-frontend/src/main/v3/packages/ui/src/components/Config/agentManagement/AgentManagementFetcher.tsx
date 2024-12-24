@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Configuration, ApplicationType, SearchApplication } from '@pinpoint-fe/constants';
+import { Configuration, ApplicationType, SearchApplication } from '@pinpoint-fe/ui/constants';
 import { ApplicationCombinedList } from '../../../components/Application';
 import { Button, ScrollArea, Separator, useReactToastifyToast } from '../../../components';
 import { AgentManagementTable } from './AgentManagementTable';

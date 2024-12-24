@@ -1,4 +1,4 @@
-import { GetServerMap } from '@pinpoint-fe/constants';
+import { GetServerMap } from '@pinpoint-fe/ui/constants';
 
 export const serverMapData: GetServerMap.Response = {
   applicationMapData: {

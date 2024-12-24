@@ -1,5 +1,5 @@
 import React from 'react';
-import { END_POINTS, GetScatter, ApplicationType } from '@pinpoint-fe/constants';
+import { END_POINTS, GetScatter, ApplicationType } from '@pinpoint-fe/ui/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { useServerMapSearchParameters } from '../searchParameters';
 import { useQuery } from '@tanstack/react-query';

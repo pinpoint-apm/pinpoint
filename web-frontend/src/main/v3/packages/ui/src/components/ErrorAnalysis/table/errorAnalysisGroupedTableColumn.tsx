@@ -1,7 +1,7 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { RxCross2 } from 'react-icons/rx';
 import { Badge } from '../../ui';
-import { ErrorAnalysisGroupedErrorList } from '@pinpoint-fe/constants';
+import { ErrorAnalysisGroupedErrorList } from '@pinpoint-fe/ui/constants';
 import { addCommas, format } from '@pinpoint-fe/ui/utils';
 import { ErrorGroupedTableVolumneChart } from './ErrorGroupedTableVolumneChart';
 // import { cn } from '../../../lib';

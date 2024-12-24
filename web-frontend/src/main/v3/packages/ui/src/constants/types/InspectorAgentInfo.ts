@@ -1,4 +1,4 @@
-export namespace InspectorAgentInfo {
+export namespace InspectorAgentInfoType {
   export interface Parameters {
     agentId: string;
     timestamp: number;

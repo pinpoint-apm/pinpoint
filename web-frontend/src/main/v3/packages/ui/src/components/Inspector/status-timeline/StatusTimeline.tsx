@@ -1,6 +1,8 @@
 import { cn } from '../../../lib';
-import { InspectorAgentStatusTimeline } from '@pinpoint-fe/constants';
-import { colors } from '../../../constant';
+import {
+  InspectorAgentStatusTimelineType as InspectorAgentStatusTimeline,
+  colors,
+} from '@pinpoint-fe/ui/constants';
 import { TimelineBar, TimelineBarProps } from './TimelineBar';
 import { TimelineEvent } from './TimelineEvent';
 

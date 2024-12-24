@@ -1,4 +1,4 @@
-import { FilteredMap } from '@pinpoint-fe/constants';
+import { FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/constants';
 import { isEmpty } from '../../object';
 
 export const parseFilterStateFromQueryString = (queryString: string): FilteredMap.FilterState[] => {

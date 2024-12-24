@@ -1,5 +1,5 @@
 import React from 'react';
-import { ApplicationType } from '@pinpoint-fe/constants';
+import { ApplicationType } from '@pinpoint-fe/ui/constants';
 import { ListItemSkeleton, VirtualList, VirtualListProps } from '../VirtualList';
 import { ApplicationListFetcher } from '.';
 import { ErrorBoundary } from '../Error';

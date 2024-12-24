@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { RemovePopup } from '../../Popup';
-import { ConfigUsers } from '@pinpoint-fe/constants';
+import { ConfigUsers } from '@pinpoint-fe/ui/constants';
 
 export interface UserRemovePopupProps {
   popupTrigger: React.ReactNode;

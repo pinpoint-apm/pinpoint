@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { END_POINTS, TraceViewerData } from '@pinpoint-fe/constants';
+import { END_POINTS, TraceViewerData } from '@pinpoint-fe/ui/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { swrConfigs } from './swrConfigs';
 

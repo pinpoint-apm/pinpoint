@@ -5,7 +5,7 @@ import { DataTable } from '../../../DataTable';
 import { useReactToastifyToast } from '../../../Toast';
 import { getUserGroupTableColumns } from './userGroupTableColumns';
 import { useNavigate } from 'react-router-dom';
-import { APP_PATH, ConfigUserGroup } from '@pinpoint-fe/constants';
+import { APP_PATH, ConfigUserGroup } from '@pinpoint-fe/ui/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { UserGroupTableToolbar } from './UserGroupTableToolbar';
 

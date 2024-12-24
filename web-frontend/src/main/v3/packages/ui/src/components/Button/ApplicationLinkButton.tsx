@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ApplicationType } from '@pinpoint-fe/constants';
+import { ApplicationType } from '@pinpoint-fe/ui/constants';
 import { useSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { Button } from '../ui';
 import { cn } from '../../lib';

@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { END_POINTS, ErrorAnalysisGroups } from '@pinpoint-fe/constants';
+import { END_POINTS, ErrorAnalysisGroups } from '@pinpoint-fe/ui/constants';
 import { swrConfigs } from './swrConfigs';
 
 export const useGetErrorAnalysisGroupsData = () => {

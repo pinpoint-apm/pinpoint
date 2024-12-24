@@ -1,9 +1,9 @@
 import {
-  FilteredMap,
+  FilteredMapType as FilteredMap,
   GetScatter,
   SCATTER_DATA_TOTAL_KEY,
   ScatterDataByAgent,
-} from '@pinpoint-fe/constants';
+} from '@pinpoint-fe/ui/constants';
 
 const getScatterChartedData = (dotList: number[], from: number) => {
   return {

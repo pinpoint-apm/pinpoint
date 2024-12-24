@@ -1,4 +1,4 @@
-import { Transaction } from '@pinpoint-fe/constants';
+import { Transaction } from '@pinpoint-fe/ui/constants';
 import { VirtualizedDataTable, VirtualizedDataTableProps } from '../../DataTable';
 import { transactionListTableColumns } from '.';
 import { useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';

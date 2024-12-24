@@ -11,7 +11,7 @@ import {
   SCATTER_DATA_TOTAL_KEY,
   SEARCH_PARAMETER_DATE_FORMAT,
   BASE_PATH,
-} from '@pinpoint-fe/constants';
+} from '@pinpoint-fe/ui/constants';
 import { format } from 'date-fns';
 import {
   ScatterChartCore,

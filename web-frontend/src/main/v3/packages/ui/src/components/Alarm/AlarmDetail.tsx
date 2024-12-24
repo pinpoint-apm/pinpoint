@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { AlarmRule, ErrorResponse } from '@pinpoint-fe/constants';
+import { AlarmRule, ErrorResponse } from '@pinpoint-fe/ui/constants';
 import omit from 'lodash.omit';
 import {
   useAlarmRuleMutation,

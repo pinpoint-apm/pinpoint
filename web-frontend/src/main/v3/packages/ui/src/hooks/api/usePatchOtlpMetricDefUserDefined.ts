@@ -1,5 +1,5 @@
 import { UseMutationOptions, useMutation } from '@tanstack/react-query';
-import { END_POINTS, OtlpMetricDefUserDefined } from '@pinpoint-fe/constants';
+import { END_POINTS, OtlpMetricDefUserDefined } from '@pinpoint-fe/ui/constants';
 
 export const usePatchOtlpMetricDefUserDefined = (
   options?: UseMutationOptions<

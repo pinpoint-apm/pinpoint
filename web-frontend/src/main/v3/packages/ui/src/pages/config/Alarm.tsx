@@ -5,7 +5,7 @@ import {
   AlarmRule,
   ApplicationType,
   Configuration,
-} from '@pinpoint-fe/constants';
+} from '@pinpoint-fe/ui/constants';
 import { cn } from '../../lib';
 import { Separator } from '../../components/ui/separator';
 import {

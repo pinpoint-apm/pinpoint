@@ -96,7 +96,7 @@ export const OpenTelemetryChartTooltipContent = ({
                     // nestLabel ? 'items-end' : 'items-center',
                   )}
                 >
-                  <div className="overflow-hidden text-ellipsis mr-auto">
+                  <div className="mr-auto overflow-hidden text-ellipsis">
                     <span className="text-muted-foreground">{item.name}</span>
                   </div>
                   {item.value && (

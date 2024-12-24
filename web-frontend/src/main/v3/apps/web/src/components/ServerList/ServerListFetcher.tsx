@@ -8,7 +8,7 @@ import {
   currentServerAgentIdAtom,
   serverMapDataAtom,
 } from '@pinpoint-fe/ui/atoms';
-import { END_POINTS, GetServerMap, SearchApplication, BASE_PATH } from '@pinpoint-fe/constants';
+import { END_POINTS, GetServerMap, SearchApplication, BASE_PATH } from '@pinpoint-fe/ui/constants';
 import { convertParamsToQueryString, getParsedDate, getInspectorPath } from '@pinpoint-fe/ui/utils';
 import { useSearchParameters, swrConfigs, useServerMapLinkedData } from '@pinpoint-fe/ui/hooks';
 import { ServerList as SL, ServerListProps } from '@pinpoint-fe/ui';

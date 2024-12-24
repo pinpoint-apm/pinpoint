@@ -1,5 +1,5 @@
 import useSWR, { SWRConfiguration } from 'swr';
-import { END_POINTS, HeatmapDrag } from '@pinpoint-fe/constants';
+import { END_POINTS, HeatmapDrag } from '@pinpoint-fe/ui/constants';
 import { swrConfigs } from './swrConfigs';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { useTransactionSearchParameters } from '../searchParameters/useTransactionSearchParameters';

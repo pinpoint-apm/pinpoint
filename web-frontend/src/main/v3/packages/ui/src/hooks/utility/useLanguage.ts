@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { APP_SETTING_KEYS } from '@pinpoint-fe/constants';
+import { APP_SETTING_KEYS } from '@pinpoint-fe/ui/constants';
 import { useLocalStorage } from './useLocalStorage';
 import React from 'react';
 

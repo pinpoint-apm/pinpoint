@@ -1,4 +1,4 @@
-export namespace InspectorAgentStatusTimeline {
+export namespace InspectorAgentStatusTimelineType {
   export interface Parameters {
     agentId: string;
     from: number;

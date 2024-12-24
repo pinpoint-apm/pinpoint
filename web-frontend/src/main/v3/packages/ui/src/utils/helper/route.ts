@@ -3,8 +3,8 @@ import {
   APP_PATH,
   GetServerMap,
   IMAGE_PATH,
-  FilteredMap,
-} from '@pinpoint-fe/constants';
+  FilteredMapType as FilteredMap,
+} from '@pinpoint-fe/ui/constants';
 import { convertParamsToQueryString } from '../string';
 
 export const getServerImagePath = (application?: ApplicationType | GetServerMap.NodeData) => {

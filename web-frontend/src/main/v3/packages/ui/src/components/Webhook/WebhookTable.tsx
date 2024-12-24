@@ -1,4 +1,4 @@
-import { Webhook } from '@pinpoint-fe/constants';
+import { Webhook } from '@pinpoint-fe/ui/constants';
 import { DataTable } from '../../components/DataTable/DataTable';
 import { cn } from '../../lib/utils';
 import { WebhookTableColumnsProps, webhookTableColumns } from './webhookTableColumns';

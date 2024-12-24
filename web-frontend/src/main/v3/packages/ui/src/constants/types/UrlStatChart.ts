@@ -1,11 +1,12 @@
-export namespace SystemMetricChart {
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+export namespace UrlStatChartType {
   export interface Parameters {
-    hostGroupName: string;
-    hostName: string;
-    metricDefinitionId: string;
+    applicationName: string;
     from: number;
     to: number;
-    tags?: string;
+    uri: string;
+    type: string;
+    agentId?: string;
   }
 
   export interface Response {

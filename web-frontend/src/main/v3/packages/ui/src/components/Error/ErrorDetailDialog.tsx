@@ -10,7 +10,7 @@ import {
   Separator,
 } from '../ui';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
-import { ErrorDetailResponse } from '@pinpoint-fe/constants';
+import { ErrorDetailResponse } from '@pinpoint-fe/ui/constants';
 import { cn } from '../../lib';
 import { HighLightCode } from '../HighLightCode';
 import { RxChevronDown, RxChevronUp } from 'react-icons/rx';

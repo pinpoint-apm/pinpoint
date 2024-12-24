@@ -1,4 +1,4 @@
-import { ErrorResponse } from '@pinpoint-fe/constants';
+import { ErrorResponse } from '@pinpoint-fe/ui/constants';
 import { SWRConfiguration } from 'swr';
 
 export const parseErrorResponse = async (response: Response) => {

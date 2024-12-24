@@ -1,4 +1,8 @@
-import { BASE_PATH, SEARCH_PARAMETER_DATE_FORMAT, TransactionInfo } from '@pinpoint-fe/constants';
+import {
+  BASE_PATH,
+  SEARCH_PARAMETER_DATE_FORMAT,
+  TransactionInfoType as TransactionInfo,
+} from '@pinpoint-fe/ui/constants';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import {

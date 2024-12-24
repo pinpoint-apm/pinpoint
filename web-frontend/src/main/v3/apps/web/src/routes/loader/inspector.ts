@@ -1,4 +1,4 @@
-import { APP_PATH, SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/constants';
+import { APP_PATH, SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/ui/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import {
   getApplicationTypeAndName,

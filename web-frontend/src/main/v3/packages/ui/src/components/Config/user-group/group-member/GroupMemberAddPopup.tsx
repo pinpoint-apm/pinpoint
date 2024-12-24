@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Popover, PopoverContent, PopoverTrigger } from '../../../ui';
-import { ConfigGroupMember, ConfigUsers } from '@pinpoint-fe/constants';
+import { ConfigGroupMember, ConfigUsers } from '@pinpoint-fe/ui/constants';
 import { MdOutlineAddCircleOutline } from 'react-icons/md';
 import { useReactToastifyToast } from '../../../Toast';
 import { useTranslation } from 'react-i18next';

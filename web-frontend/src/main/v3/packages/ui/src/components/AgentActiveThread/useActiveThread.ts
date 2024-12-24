@@ -1,5 +1,5 @@
 import React from 'react';
-import { AgentActiveThread } from '@pinpoint-fe/constants';
+import { AgentActiveThread } from '@pinpoint-fe/ui/constants';
 import { ScatterDataType } from '@pinpoint-fe/scatter-chart';
 
 const getType = (index: number) => {

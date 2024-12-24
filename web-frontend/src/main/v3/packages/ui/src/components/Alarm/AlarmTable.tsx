@@ -1,4 +1,4 @@
-import { AlarmRule } from '@pinpoint-fe/constants';
+import { AlarmRule } from '@pinpoint-fe/ui/constants';
 import { DataTable } from '../../components/DataTable';
 import { AlarmTableColumns, alarmTableColumns } from './alarmTableColumns';
 import { cn } from '../../lib/utils';

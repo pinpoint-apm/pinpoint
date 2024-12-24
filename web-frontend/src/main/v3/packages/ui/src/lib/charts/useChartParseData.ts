@@ -1,4 +1,4 @@
-import { InspectorAgentChart } from '@pinpoint-fe/constants';
+import { InspectorAgentChart } from '@pinpoint-fe/ui/constants';
 
 const STACKING_DATA_FIELDNAME_LIST = [
   'fastCount',

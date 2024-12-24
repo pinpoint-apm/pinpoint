@@ -1,11 +1,11 @@
 import { atom } from 'jotai';
 
 import {
-  FilteredMap,
+  FilteredMapType as FilteredMap,
   GetScatter,
   SCATTER_DATA_TOTAL_KEY,
   ScatterDataByAgent,
-} from '@pinpoint-fe/constants';
+} from '@pinpoint-fe/ui/constants';
 import { getScatterData, getMergedKeys } from '@pinpoint-fe/ui/utils';
 
 const scatterDataRootAtom = atom<ScatterDataByAgent>({

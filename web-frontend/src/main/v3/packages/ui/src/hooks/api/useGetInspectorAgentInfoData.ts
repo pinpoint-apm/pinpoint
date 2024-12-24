@@ -1,5 +1,8 @@
 import useSWR from 'swr';
-import { END_POINTS, InspectorAgentInfo } from '@pinpoint-fe/constants';
+import {
+  END_POINTS,
+  InspectorAgentInfoType as InspectorAgentInfo,
+} from '@pinpoint-fe/ui/constants';
 import { swrConfigs } from './swrConfigs';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { useInspectorSearchParameters } from '../searchParameters';
