@@ -89,6 +89,8 @@ public class PahoMqttV5ClientIT {
     @AfterAll
     public static void after() throws MqttException {
         mqttClient.disconnect();
+
+        container.stop();
     }
 
     @Test

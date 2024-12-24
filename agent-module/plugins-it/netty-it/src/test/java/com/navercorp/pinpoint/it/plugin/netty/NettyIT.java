@@ -41,7 +41,7 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -57,16 +57,12 @@ import java.util.concurrent.TimeUnit;
 @PinpointConfig("pinpoint-netty-plugin-test.config")
 public class NettyIT {
 
+    @AutoClose("stop")
     private static WebServer webServer;
 
     @BeforeAll
     public static void BeforeClass() throws Exception {
         webServer = WebServer.newTestWebServer();
-    }
-
-    @AfterAll
-    public static void AfterClass() {
-        webServer = WebServer.cleanup(webServer);
     }
 
     @Test

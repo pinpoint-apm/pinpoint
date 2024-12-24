@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PluginTest;
 import com.navercorp.pinpoint.test.plugin.shared.SharedDependency;
 import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleClass;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -50,6 +50,7 @@ import java.net.URI;
 @SharedDependency({PluginITConstants.VERSION, JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MONGODB})
 @SharedTestLifeCycleClass(MongodbServer.class)
 public class ReactiveMongoDBIT_4_2_x_IT extends MongoDBITBase {
+    @AutoClose
     private static MongoClient mongoClient;
     private static MongoDatabase database;
     private static URI uri;
@@ -60,13 +61,6 @@ public class ReactiveMongoDBIT_4_2_x_IT extends MongoDBITBase {
         uri = new URI(driverProperties.getUrl());
         mongoClient = MongoClients.create("mongodb://" + uri.getHost() + ":" + uri.getPort());
         database = mongoClient.getDatabase("myMongoDbFake").withReadPreference(ReadPreference.secondaryPreferred()).withWriteConcern(WriteConcern.MAJORITY);
-    }
-
-    @AfterAll
-    public static void cleanAfterClass() throws Exception {
-        if (mongoClient != null) {
-            mongoClient.close();
-        }
     }
 
     @Override

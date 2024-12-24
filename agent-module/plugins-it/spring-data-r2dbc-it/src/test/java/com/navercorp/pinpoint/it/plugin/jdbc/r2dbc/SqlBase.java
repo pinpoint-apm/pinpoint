@@ -43,11 +43,11 @@ public abstract class SqlBase {
     }
 
     @BeforeEach
-    public void registerDriver() throws Exception {
+    public void registerDriver() {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
     }
 
     static class JdbcUrlSplitter {

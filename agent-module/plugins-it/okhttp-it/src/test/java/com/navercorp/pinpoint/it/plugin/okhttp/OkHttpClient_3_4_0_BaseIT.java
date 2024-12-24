@@ -24,7 +24,7 @@ import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -43,16 +43,12 @@ public abstract class OkHttpClient_3_4_0_BaseIT {
     static final String OK_HTTP_CLIENT = "OK_HTTP_CLIENT";
     static final String OK_HTTP_CLIENT_INTERNAL = "OK_HTTP_CLIENT_INTERNAL";
 
+    @AutoClose("stop")
     private static WebServer webServer;
 
     @BeforeAll
     public static void BeforeClass() throws Exception {
         webServer = WebServer.newTestWebServer();
-    }
-
-    @AfterAll
-    public static void AfterClass() {
-        webServer = WebServer.cleanup(webServer);
     }
 
     @Test

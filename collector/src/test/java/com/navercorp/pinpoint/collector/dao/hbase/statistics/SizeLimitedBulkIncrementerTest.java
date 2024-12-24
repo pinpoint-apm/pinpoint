@@ -16,19 +16,19 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
-import com.navercorp.pinpoint.collector.monitor.dao.hbase.BulkOperationReporter;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementerTestClazz.Flusher;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementerTestClazz.Incrementer;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementerTestClazz.TestData;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementerTestClazz.TestDataSet;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementerTestClazz.TestVerifier;
+import com.navercorp.pinpoint.collector.monitor.dao.hbase.BulkOperationReporter;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,16 +57,12 @@ public class SizeLimitedBulkIncrementerTest {
 
     private final int bulkLimitSize = 1000;
 
+    @AutoClose
     private static final BulkIncrementerFactory bulkIncrementerFactory = new BulkIncrementerFactory();
 
     private final BulkOperationReporter reporter = new BulkOperationReporter();
     private final BulkIncrementer bulkIncrementer = bulkIncrementerFactory.wrap(
             new DefaultBulkIncrementer(new RowKeyMerge(CF)), 1000, reporter);
-
-    @AfterAll
-    public static void afterClass() {
-        bulkIncrementerFactory.close();
-    }
 
     @Mock
     private RowKeyDistributorByHashPrefix rowKeyDistributor;
