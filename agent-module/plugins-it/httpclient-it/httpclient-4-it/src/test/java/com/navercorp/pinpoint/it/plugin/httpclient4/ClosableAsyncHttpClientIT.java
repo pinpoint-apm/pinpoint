@@ -32,6 +32,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -56,10 +57,9 @@ public class ClosableAsyncHttpClientIT extends HttpClientITBase {
 
     @Test
     public void test() throws Exception {
-        CloseableHttpAsyncClient httpClient = HttpAsyncClients.custom().useSystemProperties().build();
-        httpClient.start();
-
-        try {
+        HttpAsyncClientBuilder builder = HttpAsyncClients.custom().useSystemProperties();
+        try (CloseableHttpAsyncClient httpClient = builder.build()){
+            httpClient.start();
             HttpPost httpRequest = new HttpPost(getAddress());
 
             List<NameValuePair> params = new ArrayList<>();
@@ -72,8 +72,6 @@ public class ClosableAsyncHttpClientIT extends HttpClientITBase {
             if ((response != null) && (response.getEntity() != null)) {
                 EntityUtils.consume(response.getEntity());
             }
-        } finally {
-            httpClient.close();
         }
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();

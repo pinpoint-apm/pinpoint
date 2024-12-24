@@ -44,7 +44,7 @@ public class TestReceiver_Pre_1_6_0 implements TestReceiver {
     }
 
     @Override
-    public <T> T receiveMessage(String queueName, MessageConverter<T> messageConverter, long timeoutMs) throws InterruptedException {
+    public <T> T receiveMessage(String queueName, MessageConverter<T> messageConverter, long timeoutMs) {
         // RabbitTemplate.receive with timeout is only available from 1.6.0+
         // We could instead utilize RabbitTemplate.setReceiveTimeout, but it's just the same thing as above for
         // trace verification purposes.

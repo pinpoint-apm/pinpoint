@@ -30,7 +30,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -45,16 +45,12 @@ public class HttpClientIT {
 
     private static final String VERSION = JDBCTestConstants.VERSION;
 
+    @AutoClose("stop")
     public static WebServer webServer;
 
     @BeforeAll
     public static void beforeClass() throws Exception {
         webServer = WebServer.newTestWebServer();
-    }
-
-    @AfterAll
-    public static void afterClass() throws Exception {
-        webServer = WebServer.cleanup(webServer);
     }
 
     public String getAddress() {
