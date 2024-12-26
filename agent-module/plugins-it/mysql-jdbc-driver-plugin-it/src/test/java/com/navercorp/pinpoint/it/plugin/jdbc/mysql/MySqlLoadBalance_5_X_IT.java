@@ -71,8 +71,8 @@ public class MySqlLoadBalance_5_X_IT extends MySql_IT_Base {
     @Test
     public void loadBalancedUrlModify() throws Exception {
         // random fail
-        final Connection con = getConnection(getDriverProperties());
-        try (Connection connection = con) {
+        final Object internalConnection;
+        try (Connection connection = getConnection(getDriverProperties())) {
 
             logger.info("Connection class name:{}", connection.getClass().getName());
             logger.info("Connection class cl:{}", connection.getClass().getClassLoader());
@@ -92,7 +92,7 @@ public class MySqlLoadBalance_5_X_IT extends MySql_IT_Base {
             }
 
             current.setAccessible(true);
-            Object internalConnection = current.get(invocationHandler);
+            internalConnection = current.get(invocationHandler);
 
 
             DatabaseInfo url = ((DatabaseInfoAccessor) internalConnection)._$PINPOINT$_getDatabaseInfo();
@@ -117,7 +117,7 @@ public class MySqlLoadBalance_5_X_IT extends MySql_IT_Base {
             preparedStatement8(connection);
         }
 
-        DatabaseInfo clearUrl = ((DatabaseInfoAccessor) con)._$PINPOINT$_getDatabaseInfo();
+        DatabaseInfo clearUrl = ((DatabaseInfoAccessor) internalConnection)._$PINPOINT$_getDatabaseInfo();
         Assertions.assertNull(clearUrl);
     }
 
