@@ -51,6 +51,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
+import static com.navercorp.pinpoint.it.plugin.utils.jdbc.JdbcUtils.doInTransaction;
 import static com.navercorp.pinpoint.it.plugin.utils.jdbc.JdbcUtils.fetchResultSet;
 
 /**
@@ -176,19 +177,16 @@ public class MSSSqlConnectionIT {
     }
 
     private void preparedStatement3(Connection connection) throws SQLException {
-        connection.setAutoCommit(false);
-
-        try (PreparedStatement preparedStatement = connection.prepareStatement("select * from member where id = ? or id = ?  or id = ?")) {
-            preparedStatement.setInt(1, 1);
-            preparedStatement.setInt(2, 2);
-            preparedStatement.setString(3, "3");
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                fetchResultSet(resultSet);
+        doInTransaction(connection, () -> {
+            try (PreparedStatement preparedStatement = connection.prepareStatement("select * from member where id = ? or id = ?  or id = ?")) {
+                preparedStatement.setInt(1, 1);
+                preparedStatement.setInt(2, 2);
+                preparedStatement.setString(3, "3");
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    fetchResultSet(resultSet);
+                }
             }
-        }
-
-        connection.commit();
-        connection.setAutoCommit(true);
+        });
     }
 
     private void preparedStatement4(Connection connection) throws SQLException {

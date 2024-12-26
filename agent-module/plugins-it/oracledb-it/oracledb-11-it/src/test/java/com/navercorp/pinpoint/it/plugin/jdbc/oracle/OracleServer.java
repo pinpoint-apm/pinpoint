@@ -17,6 +17,8 @@ import java.time.Duration;
 import java.util.Objects;
 import java.util.Properties;
 
+import static com.navercorp.pinpoint.it.plugin.utils.jdbc.JdbcUtils.doInTransaction;
+
 public class OracleServer implements SharedTestLifeCycle {
     private final Logger logger = LogManager.getLogger(getClass());
     private final String dockerImageVersion;
@@ -55,19 +57,16 @@ public class OracleServer implements SharedTestLifeCycle {
 
 
     public void create() throws Exception {
-        final Connection conn = connect();
-
-        conn.setAutoCommit(false);
-
-        Statement statement = conn.createStatement();
-        statement.execute("CREATE TABLE test (id INTEGER NOT NULL, name VARCHAR(45) NOT NULL, age INTEGER NOT NULL, CONSTRAINT test_pk PRIMARY KEY (id))");
-        statement.execute("CREATE SEQUENCE test_seq");
-        statement.execute("CREATE OR REPLACE TRIGGER test_trigger BEFORE INSERT ON test FOR EACH ROW BEGIN SELECT test_seq.nextval INTO :new.id FROM dual; END;");
-        statement.execute("CREATE OR REPLACE PROCEDURE concatCharacters(a IN VARCHAR2, b IN VARCHAR2, c OUT VARCHAR2) AS BEGIN c := a || b; END concatCharacters;");
-        statement.execute("CREATE OR REPLACE PROCEDURE swapAndGetSum(a IN OUT NUMBER, b IN OUT NUMBER, c OUT NUMBER) IS BEGIN c := a; a := b; b := c; SELECT c + a INTO c FROM DUAL; END swapAndGetSum;");
-        statement.close();
-        conn.commit();
-        conn.close();
+        try (Connection conn = connect()) {
+            doInTransaction(conn, () -> {
+                Statement statement = conn.createStatement();
+                statement.execute("CREATE TABLE test (id INTEGER NOT NULL, name VARCHAR(45) NOT NULL, age INTEGER NOT NULL, CONSTRAINT test_pk PRIMARY KEY (id))");
+                statement.execute("CREATE SEQUENCE test_seq");
+                statement.execute("CREATE OR REPLACE TRIGGER test_trigger BEFORE INSERT ON test FOR EACH ROW BEGIN SELECT test_seq.nextval INTO :new.id FROM dual; END;");
+                statement.execute("CREATE OR REPLACE PROCEDURE concatCharacters(a IN VARCHAR2, b IN VARCHAR2, c OUT VARCHAR2) AS BEGIN c := a || b; END concatCharacters;");
+                statement.execute("CREATE OR REPLACE PROCEDURE swapAndGetSum(a IN OUT NUMBER, b IN OUT NUMBER, c OUT NUMBER) IS BEGIN c := a; a := b; b := c; SELECT c + a INTO c FROM DUAL; END swapAndGetSum;");
+            });
+        }
     }
 
     private Connection connect() throws SQLException {

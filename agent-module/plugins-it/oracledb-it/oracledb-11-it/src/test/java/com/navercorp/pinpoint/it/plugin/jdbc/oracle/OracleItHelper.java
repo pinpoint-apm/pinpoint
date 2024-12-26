@@ -40,6 +40,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.args;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.cachedArgs;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
+import static com.navercorp.pinpoint.it.plugin.utils.jdbc.JdbcUtils.doInTransaction;
 
 public class OracleItHelper {
     protected static final String ORACLE = "ORACLE";
@@ -75,48 +76,43 @@ public class OracleItHelper {
     public void create(JDBCApi jdbcApi) throws Exception {
         Driver driverClass = jdbcApi.getJDBCDriverClass().newDriver();
         try (Connection conn = connect(driverClass)) {
-
-            conn.setAutoCommit(false);
-
-            try (Statement statement = conn.createStatement()) {
-                statement.execute("CREATE TABLE test (id INTEGER NOT NULL, name VARCHAR(45) NOT NULL, age INTEGER NOT NULL, CONSTRAINT test_pk PRIMARY KEY (id))");
-                statement.execute("CREATE SEQUENCE test_seq");
-                statement.execute("CREATE OR REPLACE TRIGGER test_trigger BEFORE INSERT ON test FOR EACH ROW BEGIN SELECT test_seq.nextval INTO :new.id FROM dual; END;");
-                statement.execute("CREATE OR REPLACE PROCEDURE concatCharacters(a IN VARCHAR2, b IN VARCHAR2, c OUT VARCHAR2) AS BEGIN c := a || b; END concatCharacters;");
-                statement.execute("CREATE OR REPLACE PROCEDURE swapAndGetSum(a IN OUT NUMBER, b IN OUT NUMBER, c OUT NUMBER) IS BEGIN c := a; a := b; b := c; SELECT c + a INTO c FROM DUAL; END swapAndGetSum;");
-            }
-            conn.commit();
+            doInTransaction(conn, () -> {
+                try (Statement statement = conn.createStatement()) {
+                    statement.execute("CREATE TABLE test (id INTEGER NOT NULL, name VARCHAR(45) NOT NULL, age INTEGER NOT NULL, CONSTRAINT test_pk PRIMARY KEY (id))");
+                    statement.execute("CREATE SEQUENCE test_seq");
+                    statement.execute("CREATE OR REPLACE TRIGGER test_trigger BEFORE INSERT ON test FOR EACH ROW BEGIN SELECT test_seq.nextval INTO :new.id FROM dual; END;");
+                    statement.execute("CREATE OR REPLACE PROCEDURE concatCharacters(a IN VARCHAR2, b IN VARCHAR2, c OUT VARCHAR2) AS BEGIN c := a || b; END concatCharacters;");
+                    statement.execute("CREATE OR REPLACE PROCEDURE swapAndGetSum(a IN OUT NUMBER, b IN OUT NUMBER, c OUT NUMBER) IS BEGIN c := a; a := b; b := c; SELECT c + a INTO c FROM DUAL; END swapAndGetSum;");
+                }
+            });
         }
     }
 
     public void testStatement(JDBCApi jdbcApi, String insertQuery, String selectQuery, String deleteQuery) throws Exception {
         Driver driverClass = jdbcApi.getJDBCDriverClass().newDriver();
         try (Connection conn = connect(driverClass)) {
+            doInTransaction(conn, () -> {
+                try (PreparedStatement insert = conn.prepareStatement(insertQuery)) {
+                    insert.setString(1, "maru");
+                    insert.setInt(2, 5);
+                    insert.execute();
+                }
 
-            conn.setAutoCommit(false);
-
-            try (PreparedStatement insert = conn.prepareStatement(insertQuery)) {
-                insert.setString(1, "maru");
-                insert.setInt(2, 5);
-                insert.execute();
-            }
-
-            try (Statement select = conn.createStatement()) {
-                try (ResultSet rs = select.executeQuery(selectQuery)) {
-                    while (rs.next()) {
-                        final int id = rs.getInt("id");
-                        final String name = rs.getString("name");
-                        final int age = rs.getInt("age");
-                        logger.debug("id: {}, name: {}, age: {}", id, name, age);
+                try (Statement select = conn.createStatement()) {
+                    try (ResultSet rs = select.executeQuery(selectQuery)) {
+                        while (rs.next()) {
+                            final int id = rs.getInt("id");
+                            final String name = rs.getString("name");
+                            final int age = rs.getInt("age");
+                            logger.debug("id: {}, name: {}, age: {}", id, name, age);
+                        }
                     }
                 }
-            }
 
-            try (Statement delete = conn.createStatement()) {
-                delete.executeUpdate(deleteQuery);
-            }
-
-            conn.commit();
+                try (Statement delete = conn.createStatement()) {
+                    delete.executeUpdate(deleteQuery);
+                }
+            });
         }
     }
 

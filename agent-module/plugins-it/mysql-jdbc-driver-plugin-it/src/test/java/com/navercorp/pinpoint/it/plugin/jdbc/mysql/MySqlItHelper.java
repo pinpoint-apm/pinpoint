@@ -43,6 +43,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.args;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.cachedArgs;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
+import static com.navercorp.pinpoint.it.plugin.utils.jdbc.JdbcUtils.doInTransaction;
 
 /**
  * @author Jongho Moon
@@ -78,38 +79,34 @@ public class MySqlItHelper {
 
 
     void testStatements(JDBCApi jdbcApi) throws Exception {
+        String insertQuery = "INSERT INTO test (name, age) VALUES (?, ?)";
+        String selectQuery = "SELECT * FROM test";
+        String deleteQuery = "DELETE FROM test";
 
         Driver driverClass = jdbcApi.getJDBCDriverClass().newDriver();
         try (Connection conn = connect(driverClass)) {
+            doInTransaction(conn, () -> {
+                try (PreparedStatement insert = conn.prepareStatement(insertQuery)) {
+                    insert.setString(1, "maru");
+                    insert.setInt(2, 5);
+                    insert.execute();
+                }
 
-            conn.setAutoCommit(false);
-
-            String insertQuery = "INSERT INTO test (name, age) VALUES (?, ?)";
-            String selectQuery = "SELECT * FROM test";
-            String deleteQuery = "DELETE FROM test";
-
-            try (PreparedStatement insert = conn.prepareStatement(insertQuery)) {
-                insert.setString(1, "maru");
-                insert.setInt(2, 5);
-                insert.execute();
-            }
-
-            try (Statement select = conn.createStatement()) {
-                try (ResultSet rs = select.executeQuery(selectQuery)) {
-                    while (rs.next()) {
-                        final int id = rs.getInt("id");
-                        final String name = rs.getString("name");
-                        final int age = rs.getInt("age");
-                        logger.debug("id: {}, name: {}, age: {}", id, name, age);
+                try (Statement select = conn.createStatement()) {
+                    try (ResultSet rs = select.executeQuery(selectQuery)) {
+                        while (rs.next()) {
+                            final int id = rs.getInt("id");
+                            final String name = rs.getString("name");
+                            final int age = rs.getInt("age");
+                            logger.debug("id: {}, name: {}, age: {}", id, name, age);
+                        }
                     }
                 }
-            }
 
-            try (Statement delete = conn.createStatement()) {
-                delete.executeUpdate(deleteQuery);
-            }
-
-            conn.commit();
+                try (Statement delete = conn.createStatement()) {
+                    delete.executeUpdate(deleteQuery);
+                }
+            });
 
             PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
 

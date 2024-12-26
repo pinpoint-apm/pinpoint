@@ -42,6 +42,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import static com.navercorp.pinpoint.it.plugin.utils.jdbc.JdbcUtils.doInTransaction;
 import static com.navercorp.pinpoint.it.plugin.utils.jdbc.JdbcUtils.fetchResultSet;
 
 /**
@@ -148,20 +149,16 @@ public class MySqlLoadBalance_6_X_IT extends MySql_IT_Base {
     }
 
     private void preparedStatement3(Connection connection) throws SQLException {
-        connection.setAutoCommit(false);
-
-        try (PreparedStatement preparedStatement = connection.prepareStatement("select * from member where id = ? or id = ?  or id = ?")) {
-            preparedStatement.setInt(1, 1);
-            preparedStatement.setInt(2, 2);
-            preparedStatement.setString(3, "3");
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                fetchResultSet(resultSet);
+        doInTransaction(connection, () -> {
+            try (PreparedStatement preparedStatement = connection.prepareStatement("select * from member where id = ? or id = ?  or id = ?")) {
+                preparedStatement.setInt(1, 1);
+                preparedStatement.setInt(2, 2);
+                preparedStatement.setString(3, "3");
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    fetchResultSet(resultSet);
+                }
             }
-        }
-
-        connection.commit();
-
-        connection.setAutoCommit(true);
+        });
     }
 
 

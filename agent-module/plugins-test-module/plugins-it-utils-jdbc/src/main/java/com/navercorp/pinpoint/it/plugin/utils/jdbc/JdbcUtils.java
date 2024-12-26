@@ -62,4 +62,20 @@ public final class JdbcUtils {
         }
         return fetchCount;
     }
+
+    public static void doInTransaction(Connection connection, TransactionCallback callback) throws SQLException {
+        connection.setAutoCommit(false);
+        try {
+            callback.doInTransaction();
+            connection.commit();
+        } catch (Exception e) {
+            connection.rollback();
+        } finally {
+            connection.setAutoCommit(true);
+        }
+    }
+
+    public interface TransactionCallback {
+        void doInTransaction() throws SQLException;
+    }
 }

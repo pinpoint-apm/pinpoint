@@ -40,6 +40,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.args;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.cachedArgs;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
+import static com.navercorp.pinpoint.it.plugin.utils.jdbc.JdbcUtils.doInTransaction;
 
 public class OracleItHelper {
     protected static final String ORACLE = "ORACLE";
@@ -75,30 +76,27 @@ public class OracleItHelper {
     public void testStatement(JDBCApi jdbcApi, String insertQuery, String selectQuery, String deleteQuery) throws Exception {
         Driver driverClass = jdbcApi.getJDBCDriverClass().newDriver();
         try (Connection conn = connect(driverClass)) {
-
-            conn.setAutoCommit(false);
-
-            try (PreparedStatement insert = conn.prepareStatement(insertQuery)) {
-                insert.setString(1, "maru");
-                insert.setInt(2, 5);
-                insert.execute();
-            }
-
-            try (Statement select = conn.createStatement();
-                ResultSet rs = select.executeQuery(selectQuery)) {
-                while (rs.next()) {
-                    final int id = rs.getInt("id");
-                    final String name = rs.getString("name");
-                    final int age = rs.getInt("age");
-                    logger.debug("id: {}, name: {}, age: {}", id, name, age);
+            doInTransaction(conn, () -> {
+                try (PreparedStatement insert = conn.prepareStatement(insertQuery)) {
+                    insert.setString(1, "maru");
+                    insert.setInt(2, 5);
+                    insert.execute();
                 }
-            }
 
-            try (Statement delete = conn.createStatement()) {
-                delete.executeUpdate(deleteQuery);
-            }
+                try (Statement select = conn.createStatement();
+                     ResultSet rs = select.executeQuery(selectQuery)) {
+                    while (rs.next()) {
+                        final int id = rs.getInt("id");
+                        final String name = rs.getString("name");
+                        final int age = rs.getInt("age");
+                        logger.debug("id: {}, name: {}, age: {}", id, name, age);
+                    }
+                }
 
-            conn.commit();
+                try (Statement delete = conn.createStatement()) {
+                    delete.executeUpdate(deleteQuery);
+                }
+            });
         }
     }
 
