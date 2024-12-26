@@ -64,7 +64,8 @@ public class MySqlConnection_6_X_IT extends MySql_IT_Base {
     public void testModify() throws Exception {
 
         DriverProperties driverProperties = getDriverProperties();
-        try (Connection connection = getConnection(driverProperties)) {
+        final Connection con = getConnection(driverProperties);
+        try (Connection connection = con) {
 
             logger.info("Connection class name:{}", connection.getClass().getName());
             logger.info("Connection class cl:{}", connection.getClass().getClassLoader());
@@ -79,11 +80,10 @@ public class MySqlConnection_6_X_IT extends MySql_IT_Base {
             preparedStatement2(connection);
 
             preparedStatement3(connection);
-
-            DatabaseInfo clearUrl = ((DatabaseInfoAccessor) connection)._$PINPOINT$_getDatabaseInfo();
-            Assertions.assertNull(clearUrl);
         }
 
+        DatabaseInfo clearUrl = ((DatabaseInfoAccessor) con)._$PINPOINT$_getDatabaseInfo();
+        Assertions.assertNull(clearUrl);
     }
 
     private void statement(Connection connection) throws SQLException {

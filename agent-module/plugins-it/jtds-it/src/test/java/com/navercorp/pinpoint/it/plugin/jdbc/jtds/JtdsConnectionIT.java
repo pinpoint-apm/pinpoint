@@ -121,8 +121,8 @@ public class JtdsConnectionIT {
     public void testModify() throws Exception {
         logger.debug("testModify");
 
-        try (Connection connection = connectDB() ) {
-
+        final Connection con = connectDB();
+        try (Connection connection = con) {
             logger.debug("Connection class name:{}", connection.getClass().getName());
             logger.debug("Connection class cl:{}", connection.getClass().getClassLoader());
 
@@ -152,10 +152,10 @@ public class JtdsConnectionIT {
             preparedStatement7(connection);
 
             preparedStatement8(connection);
-
-            DatabaseInfo clearUrl = ((DatabaseInfoAccessor) connection)._$PINPOINT$_getDatabaseInfo();
-            Assertions.assertNull(clearUrl);
         }
+
+        DatabaseInfo clearUrl = ((DatabaseInfoAccessor) con)._$PINPOINT$_getDatabaseInfo();
+        Assertions.assertNull(clearUrl);
 
     }
 

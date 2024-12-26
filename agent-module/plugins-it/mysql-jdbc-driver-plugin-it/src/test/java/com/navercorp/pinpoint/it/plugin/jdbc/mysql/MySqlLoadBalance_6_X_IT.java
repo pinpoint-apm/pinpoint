@@ -71,7 +71,8 @@ public class MySqlLoadBalance_6_X_IT extends MySql_IT_Base {
     @Test
     public void loadBalancedUrlModify() throws Exception {
         // random fail
-        try (Connection connection = getConnection(getDriverProperties())) {
+        final Connection con = getConnection(getDriverProperties());
+        try (Connection connection = con) {
 
             logger.info("Connection class name:{}", connection.getClass().getName());
             logger.info("Connection class cl:{}", connection.getClass().getClassLoader());
@@ -115,10 +116,10 @@ public class MySqlLoadBalance_6_X_IT extends MySql_IT_Base {
 
             preparedStatement8(connection);
 
-            DatabaseInfo clearUrl = ((DatabaseInfoAccessor) internalConnection)._$PINPOINT$_getDatabaseInfo();
-            Assertions.assertNull(clearUrl);
         }
 
+        DatabaseInfo clearUrl = ((DatabaseInfoAccessor) con)._$PINPOINT$_getDatabaseInfo();
+        Assertions.assertNull(clearUrl);
     }
 
     private void statement(Connection connection) throws SQLException {
