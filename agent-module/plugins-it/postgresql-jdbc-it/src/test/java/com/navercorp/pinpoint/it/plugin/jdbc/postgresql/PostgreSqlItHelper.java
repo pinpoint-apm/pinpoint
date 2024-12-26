@@ -39,6 +39,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.args;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.cachedArgs;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
+import static com.navercorp.pinpoint.it.plugin.utils.jdbc.JdbcUtils.doInTransaction;
 
 
 /**
@@ -75,35 +76,33 @@ public class PostgreSqlItHelper {
         final String name = "testUser";
         final int age = 5;
 
+        String insertQuery = "INSERT INTO test (name, age) VALUES (?, ?)";
+        String selectQuery = "SELECT * FROM test";
+        String deleteQuery = "DELETE FROM test";
+
+
         try (Connection conn = DriverManager.getConnection(jdbcUrl, databaseUser, databasePassword)) {
-
-            conn.setAutoCommit(false);
-
-            String insertQuery = "INSERT INTO test (name, age) VALUES (?, ?)";
-            String selectQuery = "SELECT * FROM test";
-            String deleteQuery = "DELETE FROM test";
-
-            try (PreparedStatement insertPreparedStatement = conn.prepareStatement(insertQuery)) {
-                insertPreparedStatement.setString(1, name);
-                insertPreparedStatement.setInt(2, age);
-                insertPreparedStatement.execute();
-                try (Statement selectStatement = conn.createStatement()) {
-                    try (ResultSet rs = selectStatement.executeQuery(selectQuery)) {
-                        while (rs.next()) {
-                            final String nameRs = rs.getString("name");
-                            final int ageRs = rs.getInt("age");
-                            logger.debug("name : {}, age: {}", nameRs, ageRs);
+            doInTransaction(conn, () -> {
+                try (PreparedStatement insertPreparedStatement = conn.prepareStatement(insertQuery)) {
+                    insertPreparedStatement.setString(1, name);
+                    insertPreparedStatement.setInt(2, age);
+                    insertPreparedStatement.execute();
+                    try (Statement selectStatement = conn.createStatement()) {
+                        try (ResultSet rs = selectStatement.executeQuery(selectQuery)) {
+                            while (rs.next()) {
+                                final String nameRs = rs.getString("name");
+                                final int ageRs = rs.getInt("age");
+                                logger.debug("name : {}, age: {}", nameRs, ageRs);
+                            }
                         }
                     }
                 }
-            }
 
 
-            try (Statement deleteStatement = conn.createStatement()) {
-                deleteStatement.executeUpdate(deleteQuery, Statement.NO_GENERATED_KEYS);
-            }
-
-            conn.commit();
+                try (Statement deleteStatement = conn.createStatement()) {
+                    deleteStatement.executeUpdate(deleteQuery, Statement.NO_GENERATED_KEYS);
+                }
+            });
 
             PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
 
