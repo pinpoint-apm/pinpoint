@@ -49,8 +49,8 @@ public class RequestTraceReader<T> {
         this.requestAdaptor = Objects.requireNonNull(requestAdaptor, "requestAdaptor");
          this.traceHeaderReader = new DefaultTraceHeaderReader<T>(requestAdaptor);
         this.async = async;
-        String applicationNamespace = traceContext.getProfilerConfig().getApplicationNamespace();
-        this.nameSpaceChecker = NameSpaceCheckFactory.newNamespace(requestAdaptor, applicationNamespace);
+        String clusterNamespace = traceContext.getClusterNamespace();
+        this.nameSpaceChecker = NameSpaceCheckFactory.newNamespace(requestAdaptor, clusterNamespace);
     }
 
     // Read the transaction information from the request.

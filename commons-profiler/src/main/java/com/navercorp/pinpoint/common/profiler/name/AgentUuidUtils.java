@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.util;
+package com.navercorp.pinpoint.common.profiler.name;
+
+import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;

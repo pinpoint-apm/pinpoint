@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,21 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.config;
+package com.navercorp.pinpoint.profiler.context.module;
 
-import java.nio.file.Path;
+import com.google.inject.BindingAnnotation;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface LogConfigResolver {
-    Path getLogPath();
+@BindingAnnotation
+@Target(PARAMETER)
+@Retention(RUNTIME)
+public @interface ClusterNamespace {
 }

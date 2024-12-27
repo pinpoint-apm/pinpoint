@@ -40,6 +40,12 @@
     <dependencies>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-bootstrap</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-bootstrap-core</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>

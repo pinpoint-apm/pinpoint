@@ -21,7 +21,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.jar.JarFile;
@@ -41,14 +40,14 @@ public class PluginJar {
     private final JarFile jarFile;
     private final PluginManifest manifest;
 
-    private PluginJar(String filePath) {
-        Objects.requireNonNull(filePath, "filePath");
-        Path path = Paths.get(filePath);
+    public PluginJar(Path path) {
+        Objects.requireNonNull(path, "path");
         this.url = toURL(path);
 
         this.jarFile = createJarFile(path);
         this.manifest = PluginManifest.of(jarFile);
     }
+
 
     private URL toURL(Path file) {
         try {
@@ -67,8 +66,8 @@ public class PluginJar {
         }
     }
 
-    public static PluginJar fromFilePath(String filePath) {
-        return new PluginJar(filePath);
+    public static PluginJar fromFilePath(Path path) {
+        return new PluginJar(path);
     }
 
     private static void verify(Path file) {

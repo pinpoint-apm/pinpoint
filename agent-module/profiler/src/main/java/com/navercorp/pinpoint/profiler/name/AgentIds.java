@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap;
+package com.navercorp.pinpoint.profiler.name;
 
 import java.util.Objects;
 

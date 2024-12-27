@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap;
+package com.navercorp.pinpoint.profiler.name;
 
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
-import com.navercorp.pinpoint.common.util.AgentUuidUtils;
+import com.navercorp.pinpoint.common.profiler.name.AgentUuidUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.Objects;
@@ -27,7 +29,7 @@ import java.util.UUID;
  * @author Woonduk Kang(emeroad)
  */
 public class AgentIdResolver {
-    private final BootLogger logger = BootLogger.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final List<AgentProperties> agentPropertyList;
 
@@ -42,7 +44,7 @@ public class AgentIdResolver {
         if (StringUtils.isEmpty(agentId)) {
             logger.info("Failed to resolve AgentId(-Dpinpoint.agentId)");
             agentId = newRandomAgentId();
-            logger.info("Auto generate AgentId='" + agentId + "'");
+            logger.info("Auto generate AgentId='{}'", agentId);
         }
 
         final String applicationName = getApplicationName();
@@ -66,12 +68,13 @@ public class AgentIdResolver {
 
     private String getAgentId() {
         for (AgentProperties agentProperty : agentPropertyList) {
-            final String agentId = agentProperty.getAgentId();
+            final AgentProperties.KeyValue keyValue = agentProperty.getAgentId();
+            final String agentId = keyValue.getValue();
             if (StringUtils.isEmpty(agentId)) {
                 continue;
             }
             if (idValidator.validateAgentId(agentProperty.getType(), agentId)) {
-                logger.info(agentProperty.getType().getDesc() + " " + agentProperty.getAgentIdKey() + "=" + agentId);
+                logger.info(agentProperty.getType().getDesc() + " " + keyValue.getKey() + "=" + agentId);
                 return agentId;
             }
         }
@@ -80,9 +83,10 @@ public class AgentIdResolver {
 
     private String getAgentName() {
         for (AgentProperties agentProperty : agentPropertyList) {
-            final String agentName = agentProperty.getAgentName();
+            final AgentProperties.KeyValue keyValue = agentProperty.getAgentName();
+            final String agentName = keyValue.getValue();
             if (idValidator.validateAgentName(agentProperty.getType(), agentName)) {
-                logger.info(agentProperty.getType().getDesc() + " " + agentProperty.getAgentNameKey() + "=" + agentName);
+                logger.info(agentProperty.getType().getDesc() + " " + keyValue.getKey() + "=" + agentName);
                 return agentName;
             }
         }
@@ -91,12 +95,13 @@ public class AgentIdResolver {
 
     private String getApplicationName() {
         for (AgentProperties agentProperty : agentPropertyList) {
-            final String applicationName = agentProperty.getApplicationName();
+            final AgentProperties.KeyValue keyValue = agentProperty.getApplicationName();
+            final String applicationName = keyValue.getValue();
             if (StringUtils.isEmpty(applicationName)) {
                 continue;
             }
             if (idValidator.validateApplicationName(agentProperty.getType(), applicationName)) {
-                logger.info(agentProperty.getType().getDesc() + " " + agentProperty.getApplicationNameKey() + "=" + applicationName);
+                logger.info(agentProperty.getType().getDesc() + " " + keyValue.getKey() + "=" + applicationName);
                 return applicationName;
             }
         }
