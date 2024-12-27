@@ -32,7 +32,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
+import java.net.URI;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 
@@ -111,9 +113,9 @@ public class JarProfilerPluginClassInjectorTest {
     private Plugin<?> getMockPlugin(Class<?> clazz) throws Exception {
 
         final URL location = CodeSourceUtils.getCodeLocation(clazz);
-
+        URI uri = location.toURI();
         logger.debug("url:{}", location);
-        PluginJar pluginJar = PluginJar.fromFilePath(location.getFile());
+        PluginJar pluginJar = PluginJar.fromFilePath(Paths.get(uri));
         return new JarPlugin<>(pluginJar, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 

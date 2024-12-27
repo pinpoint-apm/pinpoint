@@ -16,10 +16,11 @@
 package com.navercorp.pinpoint.profiler.sender.grpc.metric;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.time.Duration;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * @author youngjin.kim2
@@ -28,8 +29,13 @@ public class ChannelzScheduledReporterBuilder {
 
     private Duration reportPeriod = Duration.ofSeconds(60);
 
-    public ChannelzScheduledReporterBuilder acceptConfig(ProfilerConfig config) {
-        String reportPeriodStr = Objects.requireNonNull(config, "config").getGrpcStatLoggingPeriod();
+    public ChannelzScheduledReporterBuilder acceptConfig(Function<String, String> config) {
+        Objects.requireNonNull(config, "config");
+
+        String reportPeriodStr = config.apply("profiler.transport.grpc.stats.logging.period");
+        if (StringUtils.isEmpty(reportPeriodStr)) {
+            reportPeriodStr = "PT1M";
+        }
         this.reportPeriod = Duration.parse(reportPeriodStr);
         return this;
     }

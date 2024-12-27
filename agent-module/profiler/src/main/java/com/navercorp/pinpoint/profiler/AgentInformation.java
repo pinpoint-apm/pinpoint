@@ -31,6 +31,8 @@ public interface AgentInformation {
 
     boolean isContainer();
 
+    String getClusterNamespace();
+
     long getStartTime();
 
     int getPid();

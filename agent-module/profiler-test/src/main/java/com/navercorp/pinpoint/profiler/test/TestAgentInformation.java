@@ -37,8 +37,11 @@ public class TestAgentInformation extends DefaultAgentInformation {
     private static final ServiceType SERVICE_TYPE = ServiceType.TEST_STAND_ALONE;
     private static final String JVM_VERSION = JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VERSION);
     private static final String AGENT_VERSION = Version.VERSION;
+    private static final String CLUSTER_NAMESPACE = "cluster-namespace";
 
     public TestAgentInformation() {
-        super(AGENT_ID, AGENT_NAME, APPLICATION_NAME, IS_CONTAINER, System.currentTimeMillis(), PID, MACHINE_NAME, HOST_IP, SERVICE_TYPE, JVM_VERSION, AGENT_VERSION);
+        super(AGENT_ID, AGENT_NAME, APPLICATION_NAME, IS_CONTAINER, System.currentTimeMillis(),
+                PID, MACHINE_NAME, HOST_IP, SERVICE_TYPE, JVM_VERSION, AGENT_VERSION,
+                CLUSTER_NAMESPACE);
     }
 }

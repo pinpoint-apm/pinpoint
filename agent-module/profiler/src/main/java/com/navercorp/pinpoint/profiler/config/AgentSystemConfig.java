@@ -1,14 +1,14 @@
-package com.navercorp.pinpoint.bootstrap.config;
+package com.navercorp.pinpoint.profiler.config;
 
-import com.navercorp.pinpoint.ProductInfo;
-import com.navercorp.pinpoint.bootstrap.AgentIdSourceType;
-import com.navercorp.pinpoint.bootstrap.BootLogger;
+import com.navercorp.pinpoint.profiler.name.AgentIdSourceType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 import java.util.Properties;
 
 public class AgentSystemConfig {
-    private final BootLogger logger = BootLogger.getLogger(getClass());
+    private final Logger logger = LogManager.getLogger(getClass());
 
     private final Properties systemProperty;
 
@@ -25,8 +25,8 @@ public class AgentSystemConfig {
     }
 
     public void savePinpointVersion(String version) {
-        logger.info(String.format("pinpoint version:%s", version));
-        systemProperty.setProperty(ProductInfo.NAME + ".version", version);
+        logger.info("pinpoint version:{}", version);
+        systemProperty.setProperty("pinpoint.version", version);
     }
 
 }

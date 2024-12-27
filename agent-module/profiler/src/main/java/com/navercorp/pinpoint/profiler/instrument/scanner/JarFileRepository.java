@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.instrument.scanner;
 
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -28,15 +29,15 @@ public class JarFileRepository {
     private final JarFileScanner[] scanners;
 
 
-    public JarFileRepository(List<String> jarFilePathList) {
+    public JarFileRepository(List<Path> jarFilePathList) {
         this.scanners = newJarScanner(jarFilePathList);
     }
 
-    private JarFileScanner[] newJarScanner(List<String> jarFilePathList) {
+    private JarFileScanner[] newJarScanner(List<Path> jarFilePathList) {
         Objects.requireNonNull(jarFilePathList, "jarFilePathList");
 
         final List<JarFileScanner> jarFileList = new ArrayList<>(jarFilePathList.size());
-        for (String jarFilePath : jarFilePathList) {
+        for (Path jarFilePath : jarFilePathList) {
             JarFileScanner jarFileScanner = JarFileScanner.of(jarFilePath);
             jarFileList.add(jarFileScanner);
         }
