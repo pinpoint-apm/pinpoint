@@ -21,12 +21,14 @@ import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirBaseClassPathResolver;
 import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
 import com.navercorp.pinpoint.bootstrap.agentdir.BootDir;
 import com.navercorp.pinpoint.bootstrap.agentdir.ClassPathResolver;
+import com.navercorp.pinpoint.bootstrap.agentdir.FileUtils;
 import com.navercorp.pinpoint.bootstrap.agentdir.JavaAgentPathResolver;
 import com.navercorp.pinpoint.bootstrap.config.DisableOptions;
 
 import java.lang.instrument.Instrumentation;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -146,7 +148,8 @@ public class PinpointBootStrap {
     private void appendToBootstrapClassLoader(Instrumentation instrumentation, BootDir bootDir) {
         List<JarFile> jarFiles = bootDir.openJarFiles();
         for (JarFile jarFile : jarFiles) {
-            logger.info("appendToBootstrapClassLoader:" + jarFile.getName());
+            Path path = FileUtils.subpathAfterLast(Paths.get(jarFile.getName()), 2);
+            logger.info("appendToBootstrapClassLoader:" + path);
             instrumentation.appendToBootstrapClassLoaderSearch(jarFile);
         }
     }

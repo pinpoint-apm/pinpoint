@@ -162,7 +162,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
 
         List<Path> pluginFileList = filterReadPermission(jars);
         for (Path pluginJar : pluginFileList) {
-            logger.info("Found plugins:" + pluginJar);
+            logger.info("plugin path:" + FileUtils.subpathAfterLast(pluginJar, 2));
         }
         return pluginFileList;
     }

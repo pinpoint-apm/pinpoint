@@ -74,7 +74,7 @@ public class BootDir {
         }
         if (jarPathList.size() == 1) {
             final Path file = jarPathList.get(0);
-            logger.info("found " + jarName + " path:" + file);
+            logger.info("boot path:" + FileUtils.subpathAfterLast(file, 2));
             return FileUtils.toRealPath(file);
         }
 
