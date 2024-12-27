@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
 import com.navercorp.pinpoint.bootstrap.agentdir.BootDir;
 import com.navercorp.pinpoint.bootstrap.agentdir.ClassPathResolver;
 import com.navercorp.pinpoint.bootstrap.agentdir.JavaAgentPathResolver;
+import com.navercorp.pinpoint.bootstrap.config.DisableOptions;
 
 import java.lang.instrument.Instrumentation;
 import java.nio.file.Files;
@@ -43,7 +44,7 @@ public class PinpointBootStrap {
 
     public static void premain(String agentArgs, Instrumentation instrumentation) {
 
-        if (disabled()) {
+        if (DisableOptions.isBootDisabled()) {
             if (logger.isWarnEnabled()) {
                 logger.warn("PinPoint is disabled via Env/Property.");
             }
@@ -59,13 +60,6 @@ public class PinpointBootStrap {
         PinpointBootStrap bootStrap = new PinpointBootStrap(agentArgs, instrumentation);
         bootStrap.start();
 
-    }
-
-    private static boolean disabled() {
-        final String prop = System.getProperty("pinpoint.disable");
-        final String disable = prop != null ? prop : System.getenv("PINPOINT_DISABLE");
-
-        return (disable != null) && !disable.equalsIgnoreCase("false");
     }
 
     private final String agentArgs;
