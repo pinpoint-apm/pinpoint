@@ -30,7 +30,7 @@ import java.util.Objects;
 /**
  * @author Woonduk Kang(emeroad)
  */
-final class FileUtils {
+public final class FileUtils {
 
     private static final BootLogger logger = BootLogger.getLogger(FileUtils.class);
 
@@ -52,6 +52,17 @@ final class FileUtils {
         }
     }
 
+    public static Path subpathAfterLast(Path path, int lastIndex) {
+        int end = path.getNameCount();
+        int begin = end - Math.min(end, lastIndex);
+        return path.subpath(begin, end);
+    }
+
+    public static Path subpathAfter(Path path, int beginIndex) {
+        int end = path.getNameCount();
+        int begin = Math.min(beginIndex, end);
+        return path.subpath(begin, end);
+    }
 
     public static Path toRealPath(Path path) {
         try {

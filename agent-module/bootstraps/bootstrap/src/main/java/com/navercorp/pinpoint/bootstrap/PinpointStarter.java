@@ -16,6 +16,7 @@ package com.navercorp.pinpoint.bootstrap;
 
 import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
+import com.navercorp.pinpoint.bootstrap.agentdir.FileUtils;
 import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
 import com.navercorp.pinpoint.bootstrap.classloader.ProfilerLibs;
 import com.navercorp.pinpoint.bootstrap.config.AgentSystemConfig;
@@ -237,8 +238,10 @@ class PinpointStarter {
         if (logger.isInfoEnabled()) {
             logger.info(String.format("agent JarPath:%s", agentJarFullPath));
             logger.info(String.format("agent LibDir:%s", agentLibPath));
+            int agentLibNameCount = agentLibPath.getNameCount() - 1;
             for (Path url : libUrlList) {
-                logger.info(String.format("agent Lib:%s", url));
+                Path subpath = FileUtils.subpathAfter(url, agentLibNameCount);
+                logger.info(String.format("agent lib:%s", subpath));
             }
             logger.info(String.format("agent config:%s", agentConfigPath));
         }
