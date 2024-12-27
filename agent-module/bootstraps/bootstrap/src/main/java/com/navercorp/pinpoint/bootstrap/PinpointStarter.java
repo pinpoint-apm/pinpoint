@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
 import com.navercorp.pinpoint.bootstrap.classloader.ProfilerLibs;
 import com.navercorp.pinpoint.bootstrap.config.AgentSystemConfig;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.DisableOptions;
 import com.navercorp.pinpoint.bootstrap.config.LogConfig;
 import com.navercorp.pinpoint.bootstrap.config.OsEnvSimpleProperty;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
@@ -106,7 +107,7 @@ class PinpointStarter {
             final Properties properties = loadProperties();
 
             ProfilerConfig profilerConfig = ProfilerConfigLoader.load(properties);
-            if (!profilerConfig.getPinpointDisable().equalsIgnoreCase("false")) {
+            if (DisableOptions.isDisabled(properties::getProperty, DisableOptions.CONFIG)) {
                 this.logger.warn("value of disable property is not false, pinpoint.disable=" + profilerConfig.getPinpointDisable());
                 return false;
             }
