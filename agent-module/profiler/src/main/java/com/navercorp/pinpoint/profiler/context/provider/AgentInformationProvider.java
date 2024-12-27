@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.profiler.context.module.AgentName;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
+import com.navercorp.pinpoint.profiler.context.module.ClusterNamespace;
 import com.navercorp.pinpoint.profiler.context.module.Container;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import org.apache.logging.log4j.LogManager;
@@ -52,9 +53,13 @@ public class AgentInformationProvider implements Provider<AgentInformation> {
     private final long agentStartTime;
     private final ServiceType serverType;
 
+    private final Provider<String> clusterNamespaceProvider;
+
     @Inject
     public AgentInformationProvider(@AgentId String agentId, @AgentName String agentName, @ApplicationName String applicationName,
-                                    @Container boolean isContainer, @AgentStartTime long agentStartTime, @ApplicationServerType ServiceType serverType) {
+                                    @Container boolean isContainer, @AgentStartTime long agentStartTime,
+                                    @ApplicationServerType ServiceType serverType,
+                                    @ClusterNamespace Provider<String> clusterNamespaceProvider) {
         Objects.requireNonNull(agentId, "agentId");
         Objects.requireNonNull(applicationName, "applicationName");
 
@@ -64,7 +69,7 @@ public class AgentInformationProvider implements Provider<AgentInformation> {
         this.isContainer = isContainer;
         this.agentStartTime = agentStartTime;
         this.serverType = Objects.requireNonNull(serverType, "serverType");
-
+        this.clusterNamespaceProvider = clusterNamespaceProvider;
     }
 
     public AgentInformation get() {
@@ -78,7 +83,10 @@ public class AgentInformationProvider implements Provider<AgentInformation> {
 
         final int pid = RuntimeMXBeanUtils.getPid();
         final String jvmVersion = JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VERSION);
-        return new DefaultAgentInformation(agentId, agentName, applicationName, isContainer, agentStartTime, pid, machineName, hostIp, serverType, jvmVersion, Version.VERSION);
+        String clusterNamespace = this.clusterNamespaceProvider.get();
+        return new DefaultAgentInformation(agentId, agentName, applicationName, isContainer, agentStartTime, pid,
+                machineName, hostIp, serverType, jvmVersion, Version.VERSION,
+                clusterNamespace);
     }
 
     private String getHostIp() {

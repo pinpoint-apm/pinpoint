@@ -17,20 +17,23 @@
 package com.navercorp.pinpoint.profiler.test;
 
 import com.google.inject.Module;
-import com.navercorp.pinpoint.bootstrap.AgentOption;
-import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
+import com.navercorp.pinpoint.profiler.AgentContextOption;
+import com.navercorp.pinpoint.profiler.AgentContextOptionBuilder;
+import com.navercorp.pinpoint.profiler.AgentOption;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.Properties;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -41,37 +44,42 @@ public class MockApplicationContextFactory {
     }
 
     public DefaultApplicationContext build(String configPath) {
-        ProfilerConfig profilerConfig = loadProfilerConfig(configPath);
+        Properties profilerConfig = loadProfilerConfig(configPath);
         return build(profilerConfig);
     }
 
-    private ProfilerConfig loadProfilerConfig(String configPath) {
+    private Properties loadProfilerConfig(String configPath) {
         final InputStream stream = openStream(configPath);
-        return ProfilerConfigLoader.load(stream);
+        return ProfilerConfigLoader.loadProperties(stream);
     }
 
     private InputStream openStream(String configPath) {
-        File file = new File(configPath);
+        Path file = Paths.get(configPath);
         try {
-            return new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException("pinpoint.config not found. configPath:" + configPath);
+            return Files.newInputStream(file);
+        } catch (IOException e) {
+            throw new RuntimeException("pinpoint.config IOError. configPath:" + configPath);
         }
     }
 
-    public DefaultApplicationContext build(ProfilerConfig config) {
+    public DefaultApplicationContext build(Properties config) {
         return build(config, newModuleFactory());
     }
 
-    public DefaultApplicationContext build(ProfilerConfig config, ModuleFactory moduleFactory) {
+    public DefaultApplicationContext build(Properties config, ModuleFactory moduleFactory) {
         Instrumentation instrumentation = new DummyInstrumentation();
         String mockAgentId = "mockAgentId";
         String mockAgentName = "mockAgentName";
         String mockApplicationName = "mockApplicationName";
 
-        AgentOption agentOption = new DefaultAgentOption(instrumentation, mockAgentId, mockAgentName, mockApplicationName,
-                config, Collections.emptyList(), Collections.emptyList());
-        return new DefaultApplicationContext(agentOption, moduleFactory);
+        AgentOption agentOption = new com.navercorp.pinpoint.profiler.AgentOption(instrumentation,
+                config, Collections.emptyMap(), null,
+                Collections.emptyList(), Collections.emptyList(), false);
+        ProfilerConfig profilerConfig = ProfilerConfigLoader.load(config);
+        AgentContextOption agentContextOption = AgentContextOptionBuilder.build(agentOption,
+                mockAgentId, mockAgentName, mockApplicationName,
+                profilerConfig);
+        return new DefaultApplicationContext(agentContextOption, moduleFactory);
     }
 
 
@@ -80,8 +88,7 @@ public class MockApplicationContextFactory {
 
         InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
         Module interceptorRegistryModule = InterceptorRegistryModule.wrap(binder);
-        ModuleFactory moduleFactory = new OverrideModuleFactory(pluginModule, interceptorRegistryModule);
-        return moduleFactory;
+        return new OverrideModuleFactory(pluginModule, interceptorRegistryModule);
 
     }
 }

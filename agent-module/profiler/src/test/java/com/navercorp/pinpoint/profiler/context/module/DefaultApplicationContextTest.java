@@ -22,11 +22,12 @@ import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
-import com.navercorp.pinpoint.bootstrap.AgentOption;
-import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.profiler.AgentContextOption;
+import com.navercorp.pinpoint.profiler.AgentContextOptionBuilder;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
+import com.navercorp.pinpoint.profiler.AgentOption;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
 import org.junit.jupiter.api.Assertions;
@@ -38,8 +39,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -50,8 +49,7 @@ public class DefaultApplicationContextTest {
 
     @Test
     public void test() {
-        DefaultApplicationContext applicationContext = newApplicationContext();
-        try {
+        try (DefaultApplicationContext applicationContext = newApplicationContext()) {
             Injector injector = applicationContext.getInjector();
             Map<Key<?>, Binding<?>> bindings = injector.getBindings();
             for (Map.Entry<Key<?>, Binding<?>> e : bindings.entrySet()) {
@@ -66,8 +64,6 @@ public class DefaultApplicationContextTest {
             AgentInfoSender instance1 = injector.getInstance(AgentInfoSender.class);
             AgentInfoSender instance2 = injector.getInstance(AgentInfoSender.class);
             Assertions.assertSame(instance1, instance2);
-        } finally {
-            applicationContext.close();
         }
     }
 
@@ -84,19 +80,21 @@ public class DefaultApplicationContextTest {
     }
 
     private DefaultApplicationContext newApplicationContext() {
-        ProfilerConfig profilerConfig = spy(new DefaultProfilerConfig());
-        when(profilerConfig.getStaticResourceCleanup()).thenReturn(true);
-//        when(profilerConfig.getTransportModule()).thenReturn("GRPC");
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig();
 
         Instrumentation instrumentation = mock(Instrumentation.class);
-        AgentOption agentOption = new DefaultAgentOption(instrumentation, "mockAgentId", "mockAgentName", "mockApplicationName",
-                profilerConfig, Collections.emptyList(), Collections.emptyList());
+        AgentOption agentOption = new AgentOption(instrumentation,
+                profilerConfig.getProperties(), Collections.emptyMap(), null,
+                Collections.emptyList(), Collections.emptyList(), false);
 
         InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();
         Module interceptorRegistryModule = InterceptorRegistryModule.wrap(interceptorRegistryBinder);
         ModuleFactory moduleFactory = new OverrideModuleFactory(interceptorRegistryModule);
 
-        return new DefaultApplicationContext(agentOption, moduleFactory);
+        AgentContextOption agentContextOption = AgentContextOptionBuilder.build(agentOption,
+                "mockAgentId", "mockAgentName", "mockApplicationName",
+                profilerConfig);
+        return new DefaultApplicationContext(agentContextOption, moduleFactory);
     }
 
 }

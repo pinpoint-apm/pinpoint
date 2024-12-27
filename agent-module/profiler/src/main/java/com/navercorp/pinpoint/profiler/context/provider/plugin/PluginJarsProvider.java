@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.profiler.plugin.filter.PluginFilterFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -44,7 +45,7 @@ public class PluginJarsProvider implements Provider<List<PluginJar>> {
     private final List<PluginJar> pluginJars;
 
     @Inject
-    public PluginJarsProvider(@PluginJarPaths List<String> pluginJarPaths, PluginLoadingConfig pluginLoadingConfig) {
+    public PluginJarsProvider(@PluginJarPaths List<Path> pluginJarPaths, PluginLoadingConfig pluginLoadingConfig) {
         Objects.requireNonNull(pluginJarPaths, "pluginJarPaths");
         Objects.requireNonNull(pluginLoadingConfig, "pluginLoadingConfig");
 
@@ -59,7 +60,7 @@ public class PluginJarsProvider implements Provider<List<PluginJar>> {
         return pluginJars;
     }
 
-    private List<PluginJar> createPluginJars(final List<String> pluginJarPaths,
+    private List<PluginJar> createPluginJars(final List<Path> pluginJarPaths,
                                              final PluginFilter pluginFilter,
                                              final List<String> orderedPluginIdList) {
         if (CollectionUtils.isEmpty(pluginJarPaths)) {
@@ -95,9 +96,9 @@ public class PluginJarsProvider implements Provider<List<PluginJar>> {
         return pluginJars;
     }
 
-    private List<PluginJar> filter(List<String> pluginJarPaths, PluginFilter pluginFilter) {
+    private List<PluginJar> filter(List<Path> pluginJarPaths, PluginFilter pluginFilter) {
         List<PluginJar> list = new ArrayList<>();
-        for (String pluginJarPath : pluginJarPaths) {
+        for (Path pluginJarPath : pluginJarPaths) {
             PluginJar pluginJar = PluginJar.fromFilePath(pluginJarPath);
             if (!pluginFilter.accept(pluginJar)) {
                 continue;

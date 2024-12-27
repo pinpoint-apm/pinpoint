@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.bootstrap;
 
 import java.lang.reflect.Constructor;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 
@@ -38,16 +39,20 @@ public class AgentBootLoader {
         this.executeTemplate = new ContextClassLoaderExecuteTemplate<>(agentClassLoader);
     }
 
-    public Agent boot(final AgentOption agentOption) {
+    public Object boot(final AgentOption agentOption) {
 
-        final Class<?> bootStrapClazz = getBootStrapClass();
+        final Class<?> agentClazz = getBootStrapClass("com.navercorp.pinpoint.profiler.Agent");
+        final Class<?> bootStrapClazz = getBootStrapClass(bootClass);
+        if (!agentClazz.isAssignableFrom(bootStrapClazz)) {
+            throw new IllegalStateException("Invalid AgentClass:" + bootStrapClazz);
+        }
 
-        final Object agent = executeTemplate.execute(new Callable<Object>() {
+        return executeTemplate.execute(new Callable<Object>() {
             @Override
             public Object call() throws Exception {
                 try {
-                    Constructor<?> constructor = bootStrapClazz.getDeclaredConstructor(AgentOption.class);
-                    return constructor.newInstance(agentOption);
+                    Constructor<?> constructor = bootStrapClazz.getDeclaredConstructor(Map.class);
+                    return constructor.newInstance(agentOption.toMap());
                 } catch (InstantiationException e) {
                     throw new BootStrapException("boot create failed. Error:" + e.getMessage(), e);
                 } catch (IllegalAccessException e) {
@@ -55,23 +60,11 @@ public class AgentBootLoader {
                 }
             }
         });
-
-        if (agent instanceof Agent) {
-            return (Agent) agent;
-        } else {
-            String agentClassName;
-            if (agent == null) {
-                agentClassName = "Agent is null";
-            } else {
-                agentClassName = agent.getClass().getName();
-            }
-            throw new BootStrapException("Invalid AgentType. boot failed. AgentClass:" + agentClassName);
-        }
     }
 
-    private Class<?> getBootStrapClass() {
+    private Class<?> getBootStrapClass(String clazzName) {
         try {
-            return this.classLoader.loadClass(bootClass);
+            return this.classLoader.loadClass(clazzName);
         } catch (ClassNotFoundException e) {
             throw new BootStrapException("boot class not found. bootClass:" + bootClass + " Error:" + e.getMessage(), e);
         }

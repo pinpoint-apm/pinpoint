@@ -68,8 +68,7 @@ public class DefaultTraceContext implements TraceContext {
                                final ApiMetaDataService apiMetaDataService,
                                final StringMetaDataService stringMetaDataService,
                                final SqlMetaDataService sqlMetaDataService,
-                               final JdbcContext jdbcContext
-    ) {
+                               final JdbcContext jdbcContext) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
         this.agentInformation = Objects.requireNonNull(agentInformation, "agentInformation");
         this.serverMetaDataHolder = Objects.requireNonNull(serverMetaDataHolder, "serverMetaDataHolder");
@@ -154,8 +153,6 @@ public class DefaultTraceContext implements TraceContext {
     }
 
 
-
-
     @Override
     public Trace removeTraceObject() {
         return removeTraceObject(true);
@@ -235,7 +232,6 @@ public class DefaultTraceContext implements TraceContext {
     }
 
 
-
     @Override
     public ServerMetaDataHolder getServerMetaDataHolder() {
         return this.serverMetaDataHolder;
@@ -247,4 +243,8 @@ public class DefaultTraceContext implements TraceContext {
         return jdbcContext;
     }
 
+    @Override
+    public String getClusterNamespace() {
+        return this.agentInformation.getClusterNamespace();
+    }
 }

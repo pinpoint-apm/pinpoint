@@ -30,9 +30,23 @@ public class Log4j2LoggingSystem implements LoggingSystem {
     private PluginLoggerBinder binder;
 
 
-    public Log4j2LoggingSystem(Path agentPath) {
-        Objects.requireNonNull(agentPath, "agentPath");
-        this.configLocation = getConfigPath(agentPath);
+    public static Log4j2LoggingSystem searchPath(Path agentPath) {
+        Path configPath = getConfiguration(agentPath);
+        return new Log4j2LoggingSystem(configPath);
+    }
+
+    private static Path getConfiguration(Path profilePath) {
+        for (String configFile : LOOKUP) {
+            Path configLocation = profilePath.resolve(configFile);
+            if (Files.exists(configLocation)) {
+                return configLocation;
+            }
+        }
+        throw new IllegalStateException("'log4j2-agent.xml' not found. agentPath:" + profilePath);
+    }
+
+    Log4j2LoggingSystem(Path configLocation) {
+        this.configLocation = Objects.requireNonNull(configLocation, "configLocation");
     }
 
     @Override
@@ -49,8 +63,7 @@ public class Log4j2LoggingSystem implements LoggingSystem {
         Logger logger = getLoggerContextLogger();
         logger.info("{} start logPath:{}", this.getClass().getSimpleName(), configLocation);
 
-        logger.info("LoggerContextFactory:{}", LogManager.getFactory().getClass().getName());
-        logger.info("LoggerContext:{}", loggerContext.getClass().getName());
+        logger.info("LoggerContextFactory:{} LoggerContext:{}", LogManager.getFactory().getClass().getName(), loggerContext.getClass().getName());
 
         this.binder = new Log4j2Binder(loggerContext);
         bindPluginLogFactory(this.binder);
@@ -87,22 +100,12 @@ public class Log4j2LoggingSystem implements LoggingSystem {
     }
 
 
-    private Path getConfigPath(Path profilePath) {
-        for (String configFile : LOOKUP) {
-            Path configLocation = profilePath.resolve(configFile);
-            if (Files.exists(configLocation)) {
-                return configLocation;
-            }
-        }
-        throw new IllegalStateException("'log4j2-agent.xml' not found. agentPath:" + profilePath);
-    }
-
     private LoggerContext getLoggerContext() {
         Log4jEnvExecutor executor = new Log4jEnvExecutor();
-        return executor.call(this::newLoggerContext);
+        return executor.call(this::initLoggerContext);
     }
 
-    public LoggerContext newLoggerContext() {
+    public LoggerContext initLoggerContext() {
         ClassLoader classLoader = this.getClass().getClassLoader();
         URI uri = configLocation.toUri();
         return LogManager.getContext(classLoader, false, null, uri, CONTEXT_NAME);

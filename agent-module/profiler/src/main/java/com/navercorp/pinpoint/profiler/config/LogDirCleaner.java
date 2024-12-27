@@ -1,8 +1,5 @@
-package com.navercorp.pinpoint.bootstrap.agentdir;
+package com.navercorp.pinpoint.profiler.config;
 
-import com.navercorp.pinpoint.bootstrap.BootLogger;
-
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,8 +12,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class LogDirCleaner {
-    private final BootLogger logger = BootLogger.getLogger(this.getClass());
-
     private final Path logPath;
     private final int maxSize;
 
@@ -30,7 +25,6 @@ public class LogDirCleaner {
             return;
         }
         if (!Files.isDirectory(logPath)) {
-            logger.warn(logPath + " is not directory");
             return;
         }
         List<Path> agentDirectories = directoryList();
@@ -49,7 +43,6 @@ public class LogDirCleaner {
                     .sorted(Comparator.comparing(Path::toFile))
                     .collect(Collectors.toList());
         } catch (IOException e) {
-            logger.warn("directoryList error:" + logPath + " " + e.getMessage());
             return Collections.emptyList();
         }
     }
@@ -61,7 +54,6 @@ public class LogDirCleaner {
         List<Path> deleteTargets = agentDirectories.subList(0, removeSize);
 
         for (Path file : deleteTargets) {
-            logger.info("delete agent dir:" + file.toAbsolutePath());
             deleteAll(file);
         }
 
@@ -80,10 +72,15 @@ public class LogDirCleaner {
     private void deleteAll(Path file) {
         try (Stream<Path> paths = Files.walk(file)) {
             paths.sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .forEach(File::delete);
-        } catch (IOException e) {
-            logger.info("delete error :" + file + " " + e.getMessage());
+                    .forEach(this::deletePath);
+        } catch (IOException ignore) {
+        }
+    }
+
+    public void deletePath(Path path) {
+        try {
+            Files.delete(path);
+        } catch (IOException ignore) {
         }
     }
 
