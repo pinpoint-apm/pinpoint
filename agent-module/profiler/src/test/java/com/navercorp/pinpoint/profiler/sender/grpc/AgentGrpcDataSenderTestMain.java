@@ -40,12 +40,13 @@ import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.JvmGcType;
 import io.grpc.NameResolverProvider;
 
+import java.io.Closeable;
 import java.util.Collections;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class AgentGrpcDataSenderTestMain {
+public class AgentGrpcDataSenderTestMain implements Closeable {
     private static final String AGENT_ID = "mockAgentId";
     private static final String AGENT_NAME = "mockAgentName";
     private static final String APPLICATION_NAME = "mockApplicationName";
@@ -82,24 +83,23 @@ public class AgentGrpcDataSenderTestMain {
     }
 
     private AgentInfo newAgentInfo() {
-        AgentInformation agentInformation = new DefaultAgentInformation(AGENT_ID, AGENT_NAME, APPLICATION_NAME, true, START_TIME, 99, "", "", ServiceType.TEST_STAND_ALONE, "1.0", "1.0");
+        AgentInformation agentInformation = new DefaultAgentInformation(AGENT_ID, AGENT_NAME, APPLICATION_NAME, true, START_TIME,
+                99, "", "", ServiceType.TEST_STAND_ALONE, "1.0", "1.0", "cluster-namespace");
         JvmInformation jvmInformation = new JvmInformation("1.0", JvmGcType.G1);
         ServerMetaData serverInfo = new DefaultServerMetaData("serverInfo", Collections.emptyList(), Collections.emptyMap(), Collections.emptyList());
         return new AgentInfo(agentInformation, serverInfo, jvmInformation);
     }
 
     public static void main(String[] args) {
-        AgentGrpcDataSenderTestMain main = new AgentGrpcDataSenderTestMain();
-        try {
+        try (AgentGrpcDataSenderTestMain main = new AgentGrpcDataSenderTestMain()) {
             main.request();
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            main.close();
         }
     }
 
-    private void close() {
+    @Override
+    public void close() {
         this.scheduledExecutorService.shutdown();
     }
 }

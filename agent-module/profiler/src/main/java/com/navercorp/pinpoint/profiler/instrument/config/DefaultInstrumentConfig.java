@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.instrument.config;
 
-import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilableClassFilter;
 import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
@@ -27,6 +26,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class DefaultInstrumentConfig implements InstrumentConfig {
+
+    public static final String PROFILER_INTERCEPTOR_EXCEPTION_PROPAGATE = "profiler.interceptor.exception.propagate";
 
     public static final String INSTRUMENT_ENGINE_ASM = "ASM";
 
@@ -58,7 +59,7 @@ public class DefaultInstrumentConfig implements InstrumentConfig {
     @Value("${profiler.applicationservertype}")
     private String applicationServerType = null;
 
-    @Value("${" + DefaultProfilerConfig.PROFILER_INTERCEPTOR_EXCEPTION_PROPAGATE + "}")
+    @Value("${" + PROFILER_INTERCEPTOR_EXCEPTION_PROPAGATE + "}")
     private boolean propagateInterceptorException = false;
 
     @Value("${profiler.lambda.expressions.support}")

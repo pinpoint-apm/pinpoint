@@ -14,11 +14,25 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint;
+package com.navercorp.pinpoint.profiler;
+
+import java.io.Closeable;
 
 /**
  * @author emeroad
+ * @author hyungil.jeong
  */
-public final class ProductInfo {
-    public static final String NAME = "pinpoint";
+public interface Agent extends Closeable {
+
+    /**
+     * // caution
+     * stop is registered together to run when exit the jvm.
+     * If inherit this method, should implement it to shut down automatically
+     */
+    void start();
+
+    @Override
+    void close();
+
+    void registerStopHandler();
 }

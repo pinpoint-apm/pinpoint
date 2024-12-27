@@ -16,14 +16,17 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import com.navercorp.pinpoint.profiler.Agent;
+
+import java.util.Map;
+
 /**
  * @author emeroad
  * @author hyungil.jeong
  */
 public class DummyAgent implements Agent {
 
-    public DummyAgent(AgentOption option) {
-
+    public DummyAgent(Map<String, Object> map) {
     }
 
     @Override
@@ -31,8 +34,7 @@ public class DummyAgent implements Agent {
     }
 
     @Override
-    public void stop() {
-
+    public void close() {
     }
 
     @Override

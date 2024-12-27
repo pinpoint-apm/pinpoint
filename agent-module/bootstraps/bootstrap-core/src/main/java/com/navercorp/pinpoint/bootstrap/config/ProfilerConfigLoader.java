@@ -32,7 +32,7 @@ public class ProfilerConfigLoader {
         return load(properties);
     }
 
-    private static Properties loadProperties(InputStream inputStream) {
+    public static Properties loadProperties(InputStream inputStream) {
         try {
             return PropertyUtils.loadProperty(inputStream);
         } catch (IOException ex) {
@@ -51,5 +51,4 @@ public class ProfilerConfigLoader {
 
         return profilerConfig;
     }
-
 }

@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap;
+package com.navercorp.pinpoint.profiler.name;
+
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -35,48 +37,53 @@ public class AgentProperties {
         return type;
     }
 
-    public String getAgentId() {
-        return trimProperty(type.getAgentId());
-    }
-
-    public String getAgentIdKey() {
-        return type.getAgentId();
+    public KeyValue getAgentId() {
+        return keyValue(type.getAgentId());
     }
 
 
-    public String getAgentName() {
-        return trimProperty(type.getAgentName());
+    public KeyValue getAgentName() {
+        return keyValue(type.getAgentName());
     }
 
-    public String getAgentNameKey() {
-        return type.getAgentName();
+    public KeyValue getApplicationName() {
+        return keyValue(type.getApplicationName());
     }
 
-
-    public String getApplicationName() {
-        return trimProperty(type.getApplicationName());
+    private KeyValue keyValue(String key) {
+        String value = this.properties.apply(key);
+        value = StringUtils.trim(value);
+        return new KeyValue(key, value);
     }
 
-    public String getApplicationNameKey() {
-        return type.getApplicationName();
-    }
+    public static class KeyValue {
+        private final String key;
+        private final String name;
 
-    private String trimProperty(String key) {
-        return trim(this.properties.apply(key));
-    }
-
-    private String trim(String string) {
-        if (string == null) {
-            return null;
+        public KeyValue(String key, String name) {
+            this.key = Objects.requireNonNull(key, "key");
+            this.name = name;
         }
-        return string.trim();
+
+        public String getKey() {
+            return key;
+        }
+
+        public String getValue() {
+            return name;
+        }
+
+        @Override
+        public String toString() {
+            return key + "=" + name;
+        }
     }
 
     @Override
     public String toString() {
-        return "AgentProperties{" +
-                "type=" + type +
-                ", properties=" + properties +
+        return "AgentProperties{"
+                + type + "="
+                + properties +
                 '}';
     }
 }
