@@ -21,13 +21,11 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.it.plugin.rabbitmq.util.RabbitMQTestConstants;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.testcontainers.shaded.com.google.common.util.concurrent.Uninterruptibles;
 import test.pinpoint.plugin.rabbitmq.MessageConverter;
 import test.pinpoint.plugin.rabbitmq.spring.TestMessageHolder;
 import test.pinpoint.plugin.rabbitmq.spring.service.TestReceiverService;
 import test.pinpoint.plugin.rabbitmq.spring.service.TestSenderService;
 
-import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -105,12 +103,20 @@ public class SpringAmqpRabbitTestRunner {
                     return;
                 } catch (AssertionError e) {
                     // ignore and retry
-                    Uninterruptibles.sleepUninterruptibly(Duration.ofMillis(waitIntervalMs));
+                    await(waitIntervalMs);
                 }
             }
             verifier.verifyTraceCount(expectedTraceCount);
         } finally {
             verifier.printCache();
+        }
+    }
+
+    private static void await(long waitIntervalMs) {
+        try {
+            Thread.sleep(waitIntervalMs);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
         }
     }
 }
