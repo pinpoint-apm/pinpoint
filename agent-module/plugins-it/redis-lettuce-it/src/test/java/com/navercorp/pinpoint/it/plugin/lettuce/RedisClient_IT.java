@@ -58,7 +58,7 @@ public class RedisClient_IT {
 
     private static String host;
     private static int port;
-    @AutoClose
+    @AutoClose("shutdown")
     private static RedisClient redisClient;
 
     @SharedTestBeforeAllResult
