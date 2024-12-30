@@ -58,6 +58,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Predicate;
 
+import static com.navercorp.pinpoint.test.plugin.util.CollectionUtils.union;
+
 /**
  * @author Jongho Moon
  */
@@ -336,13 +338,6 @@ public class DependencyResolver {
         }
 
         return result;
-    }
-
-    private static List<Artifact> union(List<Artifact> list1, List<Artifact> list2) {
-        List<Artifact> lists = new ArrayList<>(list1.size() + list2.size());
-        lists.addAll(list1);
-        lists.addAll(list2);
-        return lists;
     }
 
 }

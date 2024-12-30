@@ -9,10 +9,4 @@ public class OsUtils {
         return osName.contains(WINDOW);
     }
 
-    public static String getClassPathSeparator() {
-        if (OsUtils.isWindows()) {
-            return ";";
-        }
-        return ":";
-    }
 }

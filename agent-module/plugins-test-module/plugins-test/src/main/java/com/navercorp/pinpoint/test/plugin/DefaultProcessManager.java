@@ -17,11 +17,11 @@
 package com.navercorp.pinpoint.test.plugin;
 
 import com.navercorp.pinpoint.bootstrap.config.Profiles;
+import com.navercorp.pinpoint.test.plugin.util.ClassPath;
 import com.navercorp.pinpoint.test.plugin.util.CommandLineOption;
 import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import org.tinylog.TaggedLogger;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -89,7 +89,7 @@ public class DefaultProcessManager implements ProcessManager {
         option.addOption(context.getJavaExecutable());
 
         option.addOption("-cp");
-        option.addOption(getClassPathAsString(pluginTestInstance));
+        option.addOption(ClassPath.join(pluginTestInstance.getClassPath()));
 
         option.addOption(getAgent());
 
@@ -137,23 +137,6 @@ public class DefaultProcessManager implements ProcessManager {
 
     private String getAgent() {
         return String.format("-javaagent:%s=AGENT_TYPE=PLUGIN_TEST", context.getAgentJar());
-    }
-
-    private String getClassPathAsString(PinpointPluginTestInstance pluginTestInstance) {
-        StringBuilder classPath = new StringBuilder();
-        boolean first = true;
-
-        for (String lib : pluginTestInstance.getClassPath()) {
-            if (first) {
-                first = false;
-            } else {
-                classPath.append(File.pathSeparatorChar);
-            }
-
-            classPath.append(lib);
-        }
-
-        return classPath.toString();
     }
 
 }
