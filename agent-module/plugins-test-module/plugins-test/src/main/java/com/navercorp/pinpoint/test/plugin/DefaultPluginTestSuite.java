@@ -34,8 +34,8 @@ import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.tinylog.TaggedLogger;
 
-import java.io.File;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -108,9 +108,9 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
             return null;
         }
 
-        final List<String> libs = new ArrayList<>();
-        libs.add(context.getTestClassLocation().toString());
-        libs.addAll(context.getSharedLibList());
+        final List<Path> libs = new ArrayList<>();
+        libs.add(context.getTestClassLocation());
+        libs.addAll(FileUtils.toPaths(context.getSharedLibList()));
 
         if (ArrayUtils.hasLength(sharedDependencies)) {
             final DependencyResolver resolver = getDependencyResolver(repositories);
@@ -150,7 +150,8 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
 
         final String pluginsTest = "com.navercorp.pinpoint:pinpoint-plugins-test:" + VersionUtils.VERSION;
         final Map<String, List<Artifact>> agentDependency = resolver.resolveDependencySets(pluginsTest);
-        final List<String> agentLibs = new ArrayList<>(context.getAgentLibList());
+        final List<Path> agentLibs = new ArrayList<>(16);
+        agentLibs.addAll(FileUtils.toPaths(context.getAgentLibList()));
 
         for (Map.Entry<String, List<Artifact>> dependencyCase : agentDependency.entrySet()) {
             try {
@@ -165,7 +166,7 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
         final Map<String, List<Artifact>> dependencyCases = resolver.resolveDependencySets(DEPENDENCY_VERSION_FILTER, dependencies);
         for (Map.Entry<String, List<Artifact>> dependencyCase : dependencyCases.entrySet()) {
             final String testId = dependencyCase.getKey();
-            final List<String> libs = new ArrayList<>();
+            final List<Path> libs = new ArrayList<>();
             try {
                 final List<Artifact> artifactList = dependencyCase.getValue();
                 libs.addAll(resolveArtifactsAndDependencies(resolver, artifactList));
@@ -174,12 +175,7 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
                 continue;
             }
 
-            final List<File> fileList = new ArrayList<>();
-            for (String classPath : agentLibs) {
-                File file = new File(classPath);
-                fileList.add(file);
-            }
-            final URL[] agentUrls = URLUtils.fileToUrls(fileList);
+            final URL[] agentUrls = URLUtils.pathToUrls(agentLibs);
 
             final Thread thread = Thread.currentThread();
             final ClassLoader currentClassLoader = thread.getContextClassLoader();
@@ -198,8 +194,8 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
         return pluginTestInstanceList;
     }
 
-    private List<String> resolveArtifactsAndDependencies(DependencyResolver resolver, List<Artifact> artifacts) throws DependencyResolutionException {
-        final List<File> files = resolver.resolveArtifactsAndDependencies(artifacts);
+    private List<Path> resolveArtifactsAndDependencies(DependencyResolver resolver, List<Artifact> artifacts) throws DependencyResolutionException {
+        final List<Path> files = resolver.resolveArtifactsAndDependencies(artifacts);
         return FileUtils.toAbsolutePath(files);
     }
 
@@ -210,7 +206,7 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
     private List<PluginTestInstance> createCasesWithJdkOnly(PluginTestContext context) throws ClassNotFoundException {
         final PluginTestInstanceFactory pluginTestInstanceFactory = new PluginTestInstanceFactory(context);
         ClassLoader contextClassLoader = ClassLoaderUtils.getContextClassLoader();
-        List<String> libs = Collections.emptyList();
+        List<Path> libs = Collections.emptyList();
         List<String> transformIncludeList = Collections.emptyList();
         final PluginTestInstance pluginTestInstance = pluginTestInstanceFactory.create(contextClassLoader, "", null, libs, transformIncludeList, classLoding);
         final List<PluginTestInstance> pluginTestInstanceList = new ArrayList<>();

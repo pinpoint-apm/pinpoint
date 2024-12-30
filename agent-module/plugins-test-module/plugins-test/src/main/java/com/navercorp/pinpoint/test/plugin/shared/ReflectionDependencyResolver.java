@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.test.plugin.shared;
 
 import com.navercorp.pinpoint.test.plugin.util.ThreadContextCallable;
 
-import java.io.File;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
@@ -39,12 +39,12 @@ public class ReflectionDependencyResolver {
         this.repositoryUrls = Objects.requireNonNull(repositoryUrls, "repositoryUrls");
     }
 
-    public List<File> lookup(final List<String> classpathList) throws Exception {
+    public List<Path> lookup(final List<String> classpathList) throws Exception {
         String paths = String.join(ArtifactIdUtils.ARTIFACT_SEPARATOR, classpathList);
         return lookup(paths);
     }
 
-    private List<File> lookup(final String classpath) throws Exception {
+    private List<Path> lookup(final String classpath) throws Exception {
         synchronized (this) {
             if (dependencyResolverObject == null) {
                 call(new Callable<Object>() {
@@ -58,10 +58,10 @@ public class ReflectionDependencyResolver {
         }
 
         try {
-            return call(new Callable<List<File>>() {
+            return call(new Callable<List<Path>>() {
                 @Override
-                public List<File> call() throws Exception {
-                    return (List<File>) resolveArtifactsAndDependenciesMethod.invoke(dependencyResolverObject, classpath);
+                public List<Path> call() throws Exception {
+                    return (List<Path>) resolveArtifactsAndDependenciesMethod.invoke(dependencyResolverObject, classpath);
                 }
             });
         } catch (Exception e) {

@@ -54,11 +54,11 @@ public class SharedProcessManager implements ProcessManager {
     private final PluginForkedTestContext context;
     private final Map<String, List<Artifact>> testRepository = new LinkedHashMap<>();
     private final String sharedClassName;
-    private final List<String> sharedLibs;
+    private final List<Path> sharedLibs;
 
     private Process process = null;
 
-    public SharedProcessManager(PluginForkedTestContext context, String sharedClassName, List<String> sharedLibs) {
+    public SharedProcessManager(PluginForkedTestContext context, String sharedClassName, List<Path> sharedLibs) {
         this.context = Objects.requireNonNull(context, "context");
         this.sharedClassName = sharedClassName;
         this.sharedLibs = sharedLibs;
@@ -143,8 +143,8 @@ public class SharedProcessManager implements ProcessManager {
         option.addOptions(jvmArguments);
 
 
-        String classPath = ClassPath.join(context.getRequiredLibraries());
         option.addOption("-cp");
+        String classPath = ClassPath.join(context.getRequiredLibraries());
         option.addOption(classPath);
 
         option.addOption(getAgent());
@@ -155,7 +155,7 @@ public class SharedProcessManager implements ProcessManager {
         final String mavenDependencyResolverClassPaths = ClassPath.join(context.getMavenDependencyLibraries());
         option.addSystemProperty(SharedPluginTestConstants.MAVEN_DEPENDENCY_RESOLVER_CLASS_PATHS, mavenDependencyResolverClassPaths);
         if (sharedLibs != null) {
-            final String sharedDependencyResolverClassPaths = ClassPath.join(sharedLibs);
+            final String sharedDependencyResolverClassPaths = ClassPath.joinPath(sharedLibs);
             option.addSystemProperty(SharedPluginTestConstants.SHARED_DEPENDENCY_RESOLVER_CLASS_PATHS, sharedDependencyResolverClassPaths);
         }
         if (sharedClassName != null) {

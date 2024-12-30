@@ -22,7 +22,7 @@ import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -58,11 +58,11 @@ public class DependencyResolverTest {
         int i = 0;
         for (Map.Entry<String, List<Artifact>> set : sets.entrySet()) {
             logger.debug("{}", i++);
-            List<File> results = resolver.resolveArtifactsAndDependencies(set.getValue());
+            List<Path> results = resolver.resolveArtifactsAndDependencies(set.getValue());
 
             logger.debug(set.getKey());
 
-            for (File result : results) {
+            for (Path result : results) {
                 logger.debug("{}", result);
             }
         }

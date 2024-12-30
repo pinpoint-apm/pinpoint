@@ -47,7 +47,7 @@ import org.eclipse.aether.util.filter.DependencyFilterUtils;
 import org.eclipse.aether.version.Version;
 import org.tinylog.TaggedLogger;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -150,22 +150,19 @@ public class DependencyResolver {
         rangeRequest.setRepositories(repositories);
 
         VersionRangeResult rangeResult = system.resolveVersionRange(session, rangeRequest);
+
         List<Version> versions = new ArrayList<>();
-        if (filter != null) {
-            for (Version version : rangeResult.getVersions()) {
-                if (DependencyVersionFilter.NOT_FILTERED == filter.test(version.toString())) {
-                    versions.add(version);
-                }
+        for (Version version : rangeResult.getVersions()) {
+            if (DependencyVersionFilter.NOT_FILTERED == filter.test(version.toString())) {
+                versions.add(version);
             }
-        } else {
-            versions = new ArrayList<>(rangeResult.getVersions());
         }
         versions.sort(Comparator.naturalOrder());
 
         return versions;
     }
 
-    public List<File> resolveArtifactsAndDependencies(String artifactsAsString) throws DependencyResolutionException {
+    public List<Path> resolveArtifactsAndDependencies(String artifactsAsString) throws DependencyResolutionException {
         List<Artifact> artifactList = getArtifactList(artifactsAsString);
         return resolveArtifactsAndDependencies(artifactList);
     }
@@ -179,25 +176,28 @@ public class DependencyResolver {
         return ArtifactIdUtils.toArtifact(artifactNameArray);
     }
 
-    public List<File> resolveArtifactsAndDependencies(List<Artifact> artifacts) throws DependencyResolutionException {
+    public List<Path> resolveArtifactsAndDependencies(List<Artifact> artifacts) throws DependencyResolutionException {
         List<Dependency> dependencies = new ArrayList<>();
-
         for (Artifact artifact : artifacts) {
             dependencies.add(new Dependency(artifact, JavaScopes.RUNTIME));
         }
 
+        List<ArtifactResult> artifactResults = requestArtifact(dependencies);
+
+        List<Path> files = new ArrayList<>(artifactResults.size());
+        for (ArtifactResult artifactResult : artifactResults) {
+            files.add(artifactResult.getArtifact().getFile().toPath());
+        }
+        return files;
+    }
+
+    private List<ArtifactResult> requestArtifact(List<Dependency> dependencies) throws DependencyResolutionException {
         CollectRequest collectRequest = new CollectRequest((Dependency) null, dependencies, repositories);
         DependencyFilter classpathFilter = DependencyFilterUtils.classpathFilter(JavaScopes.RUNTIME);
         DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, classpathFilter);
         DependencyResult result = system.resolveDependencies(session, dependencyRequest);
 
-        List<File> files = new ArrayList<>();
-
-        for (ArtifactResult artifactResult : result.getArtifactResults()) {
-            files.add(artifactResult.getArtifact().getFile());
-        }
-
-        return files;
+        return result.getArtifactResults();
     }
 
     public String getNewestVersion(String groupId, String artifactId) throws VersionRangeResolutionException {
@@ -215,7 +215,7 @@ public class DependencyResolver {
     }
 
     public Map<String, List<Artifact>> resolveDependencySets(String... dependencies) {
-        return resolveDependencySets(null, dependencies);
+        return resolveDependencySets(DependencyVersionFilter::isNotFiltered, dependencies);
     }
 
     public Map<String, List<Artifact>> resolveDependencySets(Predicate<String> filter, String... dependencies) {

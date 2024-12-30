@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.test.plugin.util;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -33,52 +31,45 @@ public final class FileUtils {
     private FileUtils() {
     }
 
-    public static URL[] toURLs(final File[] files) throws IOException {
-        Objects.requireNonNull(files, "files");
-        return toURLs(files, new FileFunction());
-    }
-
-    public static URL[] toURLs(final String[] filePaths) throws IOException {
+    public static URL[] toURLs(final String[] filePaths) throws MalformedURLException {
         Objects.requireNonNull(filePaths, "filePaths");
-        return toURLs(filePaths, new FilePathFunction());
-    }
-
-
-    public static <T> URL[] toURLs(final T[] source, final Function<T, URL> function) throws IOException {
-        final URL[] urls = new URL[source.length];
-        for (int i = 0; i < source.length; i++) {
-            T t = source[i];
-            urls[i] = function.apply(t);
+        final URL[] urls = new URL[filePaths.length];
+        for (int i = 0; i < filePaths.length; i++) {
+            String path = filePaths[i];
+            urls[i] = Paths.get(path).toUri().toURL();
         }
         return urls;
     }
 
-    public interface Function<T, R> {
-        R apply(T t) throws IOException;
-    }
-
-
-    private static class FileFunction implements Function<File, URL> {
-        public URL apply(File file) throws MalformedURLException {
-            return file.toURI().toURL();
-        }
-    }
-
-    private static class FilePathFunction implements Function<String, URL> {
-        public URL apply(String filePath) throws MalformedURLException {
-            final Path file = Paths.get(filePath);
-            return file.toUri().toURL();
-        }
-    }
-
-    public static List<String> toAbsolutePath(List<File> files) {
+    public static List<Path> toAbsolutePath(List<Path> files) {
         Objects.requireNonNull(files, "files");
 
-        List<String> libs = new ArrayList<>(files.size());
-        for (File lib : files) {
-            libs.add(lib.getAbsolutePath());
+        List<Path> libs = new ArrayList<>(files.size());
+        for (Path lib : files) {
+            libs.add(lib.toAbsolutePath());
         }
         return libs;
+    }
+
+    public static List<Path> toPaths(List<String> filePaths) {
+        Objects.requireNonNull(filePaths, "filePaths");
+
+        List<Path> result = new ArrayList<>(filePaths.size());
+        for (String filePath : filePaths) {
+            final Path file = Paths.get(filePath);
+            result.add(file);
+        }
+        return result;
+    }
+
+    public static List<String> toString(List<Path> filePaths) {
+        Objects.requireNonNull(filePaths, "filePaths");
+
+        List<String> result = new ArrayList<>(filePaths.size());
+        for (Path filePath : filePaths) {
+            result.add(filePath.toString());
+        }
+        return result;
     }
 
 }

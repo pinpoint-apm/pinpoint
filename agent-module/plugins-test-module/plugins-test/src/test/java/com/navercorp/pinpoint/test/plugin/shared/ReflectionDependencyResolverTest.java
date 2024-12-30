@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.test.plugin.shared;
 import com.navercorp.pinpoint.test.plugin.util.ClassLoaderUtils;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,7 +35,7 @@ public class ReflectionDependencyResolverTest {
     public void get() throws Exception {
         ClassLoader contextClassLoader = ClassLoaderUtils.getContextClassLoader();
         ReflectionDependencyResolver dependencyResolver = new ReflectionDependencyResolver(contextClassLoader, new String[]{});
-        List<File> files = dependencyResolver.lookup(Collections.singletonList("commons-logging:commons-logging:1.2"));
+        List<Path> files = dependencyResolver.lookup(Collections.singletonList("commons-logging:commons-logging:1.2"));
         assertThat(files).hasSize(1);
     }
 }

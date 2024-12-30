@@ -28,7 +28,7 @@ import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.tinylog.TaggedLogger;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -123,9 +123,9 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
 
     private List<PluginForkedTestInstance> createSharedCasesWithDependencies(PluginForkedTestContext context) {
         DependencyResolver resolver = getDependencyResolver(this.repositories);
-        List<String> sharedLibs = new ArrayList<>();
-        sharedLibs.add(context.getTestClassLocation());
-        sharedLibs.addAll(context.getSharedLibraries());
+        List<Path> sharedLibs = new ArrayList<>();
+        sharedLibs.add(context.getTestClassLocationPath());
+        sharedLibs.addAll(FileUtils.toPaths(context.getSharedLibraries()));
         if (sharedDependencies != null) {
             Map<String, List<Artifact>> dependencyMap = resolver.resolveDependencySets(sharedDependencies);
             for (Map.Entry<String, List<Artifact>> artifactEntry : dependencyMap.entrySet()) {
@@ -152,7 +152,7 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
             final String testId = artifactEntry.getKey();
             final List<Artifact> artifacts = artifactEntry.getValue();
 
-            List<String> libs = null;
+            List<Path> libs = null;
             try {
                 libs = resolveArtifactsAndDependencies(resolver, artifacts);
             } catch (DependencyResolutionException e) {
@@ -169,8 +169,8 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
         return cases;
     }
 
-    private List<String> resolveArtifactsAndDependencies(DependencyResolver resolver, List<Artifact> artifacts) throws DependencyResolutionException {
-        final List<File> files = resolver.resolveArtifactsAndDependencies(artifacts);
+    private List<Path> resolveArtifactsAndDependencies(DependencyResolver resolver, List<Artifact> artifacts) throws DependencyResolutionException {
+        final List<Path> files = resolver.resolveArtifactsAndDependencies(artifacts);
         return FileUtils.toAbsolutePath(files);
     }
 
@@ -178,7 +178,7 @@ public class DefaultPluginForkedTestSuite extends AbstractPluginForkedTestSuite 
         return RESOLVER_FACTORY.get(repositories);
     }
 
-    private PluginForkedTestInstance newSharedProcessPluginTestCase(PluginForkedTestContext context, String testId, List<String> libs, SharedProcessManager sharedProcessManager) {
+    private PluginForkedTestInstance newSharedProcessPluginTestCase(PluginForkedTestContext context, String testId, List<Path> libs, SharedProcessManager sharedProcessManager) {
         if (classLoding == ClassLoding.System) {
             return new SharedPluginForkedTestInstance(context, testId, libs, true, sharedProcessManager);
         }

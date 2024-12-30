@@ -45,4 +45,8 @@ public class DependencyVersionFilter implements Predicate<String> {
         }
         return NOT_FILTERED;
     }
+
+    public static boolean isNotFiltered(String value) {
+        return NOT_FILTERED;
+    }
 }
