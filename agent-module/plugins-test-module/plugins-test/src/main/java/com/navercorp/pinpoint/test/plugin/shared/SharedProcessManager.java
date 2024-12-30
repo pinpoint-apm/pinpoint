@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.test.plugin.PluginTestConstants;
 import com.navercorp.pinpoint.test.plugin.ProcessManager;
 import com.navercorp.pinpoint.test.plugin.ProcessTerminator;
 import com.navercorp.pinpoint.test.plugin.junit5.launcher.SharedPluginForkedTestLauncher;
+import com.navercorp.pinpoint.test.plugin.util.ClassPath;
 import com.navercorp.pinpoint.test.plugin.util.CollectionUtils;
 import com.navercorp.pinpoint.test.plugin.util.CommandLineOption;
 import com.navercorp.pinpoint.test.plugin.util.StringUtils;
@@ -31,7 +32,6 @@ import com.navercorp.pinpoint.test.plugin.util.TestLogger;
 import org.eclipse.aether.artifact.Artifact;
 import org.tinylog.TaggedLogger;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -48,7 +48,6 @@ import java.util.concurrent.TimeUnit;
  * @author Taejin Koo
  */
 public class SharedProcessManager implements ProcessManager {
-    public static final String PATH_SEPARATOR = File.pathSeparator;
 
     private final TaggedLogger logger = TestLogger.getLogger();
 
@@ -144,7 +143,7 @@ public class SharedProcessManager implements ProcessManager {
         option.addOptions(jvmArguments);
 
 
-        String classPath = join(context.getRequiredLibraries());
+        String classPath = ClassPath.join(context.getRequiredLibraries());
         option.addOption("-cp");
         option.addOption(classPath);
 
@@ -153,16 +152,16 @@ public class SharedProcessManager implements ProcessManager {
         option.addSystemProperty("pinpoint.applicationName", "test");
         option.addSystemProperty("java.net.preferIPv4Addresses", "true");
 
-        final String mavenDependencyResolverClassPaths = join(context.getMavenDependencyLibraries());
+        final String mavenDependencyResolverClassPaths = ClassPath.join(context.getMavenDependencyLibraries());
         option.addSystemProperty(SharedPluginTestConstants.MAVEN_DEPENDENCY_RESOLVER_CLASS_PATHS, mavenDependencyResolverClassPaths);
         if (sharedLibs != null) {
-            final String sharedDependencyResolverClassPaths = join(sharedLibs);
+            final String sharedDependencyResolverClassPaths = ClassPath.join(sharedLibs);
             option.addSystemProperty(SharedPluginTestConstants.SHARED_DEPENDENCY_RESOLVER_CLASS_PATHS, sharedDependencyResolverClassPaths);
         }
         if (sharedClassName != null) {
             option.addSystemProperty(SharedPluginTestConstants.SHARED_CLASS_NAME, sharedClassName);
         }
-        final String repositoryUrlString = join(context.getRepositoryUrls());
+        final String repositoryUrlString = ClassPath.join(context.getRepositoryUrls());
         option.addSystemProperty(SharedPluginTestConstants.TEST_REPOSITORY_URLS, repositoryUrlString);
         option.addSystemProperty(SharedPluginTestConstants.TEST_LOCATION, context.getTestClassLocation());
         option.addSystemProperty(SharedPluginTestConstants.TEST_CLAZZ_NAME, context.getTestClass().getName());
@@ -212,10 +211,6 @@ public class SharedProcessManager implements ProcessManager {
             }
         }
         return false;
-    }
-
-    private String join(List<String> mavenDependencyLibraries) {
-        return String.join(PATH_SEPARATOR, mavenDependencyLibraries);
     }
 
     private static final String DEFAULT_ENCODING = PluginTestConstants.UTF_8_NAME;
