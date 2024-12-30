@@ -18,9 +18,11 @@ package com.navercorp.pinpoint.test.plugin;
 
 import com.navercorp.pinpoint.test.plugin.junit5.launcher.SharedPluginForkedTestLauncher;
 import com.navercorp.pinpoint.test.plugin.shared.SharedProcessManager;
+import com.navercorp.pinpoint.test.plugin.util.FileUtils;
 
 import java.io.File;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,11 +36,11 @@ public class SharedPluginForkedTestInstance implements PluginForkedTestInstance 
 
     private final PluginForkedTestContext context;
     private final String testId;
-    private final List<String> libs;
+    private final List<Path> libs;
     private final boolean onSystemClassLoader;
     private final SharedProcessManager processManager;
 
-    public SharedPluginForkedTestInstance(PluginForkedTestContext context, String testId, List<String> libs, boolean onSystemClassLoader, SharedProcessManager processManager) {
+    public SharedPluginForkedTestInstance(PluginForkedTestContext context, String testId, List<Path> libs, boolean onSystemClassLoader, SharedProcessManager processManager) {
         this.context = context;
         this.testId = testId + ":" + (onSystemClassLoader ? "system" : "child") + ":" + context.getJvmVersion();
         this.libs = libs;
@@ -54,7 +56,7 @@ public class SharedPluginForkedTestInstance implements PluginForkedTestInstance 
     public List<String> getClassPath() {
         if (onSystemClassLoader) {
             List<String> libs = new ArrayList<>(context.getRequiredLibraries());
-            libs.addAll(this.libs);
+            libs.addAll(FileUtils.toString(this.libs));
             libs.add(context.getTestClassLocation());
 
             return libs;
@@ -83,8 +85,8 @@ public class SharedPluginForkedTestInstance implements PluginForkedTestInstance 
             StringBuilder classPath = new StringBuilder();
             classPath.append(CHILD_CLASS_PATH_PREFIX);
 
-            for (String lib : libs) {
-                classPath.append(lib);
+            for (Path lib : libs) {
+                classPath.append(lib.toString());
                 classPath.append(File.pathSeparatorChar);
             }
 

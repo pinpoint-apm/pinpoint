@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.test.plugin.shared;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -24,10 +24,10 @@ import java.util.List;
  */
 public class TestInfo {
     private final String testId;
-    private final List<File> dependencyFileList;
+    private final List<Path> dependencyFileList;
     private final List<String> repositoryUrls;
 
-    public TestInfo(String testId, List<File> dependencyFileList, List<String> repositoryUrls) {
+    public TestInfo(String testId, List<Path> dependencyFileList, List<String> repositoryUrls) {
         this.testId = testId;
         this.dependencyFileList = dependencyFileList;
         this.repositoryUrls = repositoryUrls;
@@ -37,7 +37,7 @@ public class TestInfo {
         return testId;
     }
 
-    public List<File> getDependencyFileList() {
+    public List<Path> getDependencyFileList() {
         return dependencyFileList;
     }
 

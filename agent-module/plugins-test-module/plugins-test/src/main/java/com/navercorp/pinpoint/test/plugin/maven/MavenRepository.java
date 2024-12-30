@@ -6,10 +6,13 @@ import org.tinylog.TaggedLogger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -43,7 +46,7 @@ public class MavenRepository {
 
         Path mavenConfigFile = mavenHomeDir.resolve("settings.xml");
         if (isFile(mavenConfigFile)) {
-            final List<String> localRepoList = getRepositoryFromSettings(mavenConfigFile.toFile());
+            final List<String> localRepoList = getRepositoryFromSettings(mavenConfigFile);
             for (String localRepo : localRepoList) {
                 final Path localRepoPath = Paths.get(localRepo);
                 if (isDirectory(localRepoPath)) {
@@ -62,10 +65,9 @@ public class MavenRepository {
         return DEFAULT_LOCAL_REPOSITORY;
     }
 
-    public List<String> getRepositoryFromSettings(File mavenConfigFile) {
+    public List<String> getRepositoryFromSettings(Path mavenConfigFile) {
         try {
-            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document document = builder.parse(mavenConfigFile);
+            Document document = parse(mavenConfigFile);
             NodeList nodeList = document.getElementsByTagName("localRepository");
 
             List<String> repositorySettings = new ArrayList<>();
@@ -78,6 +80,13 @@ public class MavenRepository {
             logger.warn(e, "Fail to read maven configuration file: {}. Use default local repository", mavenConfigFile);
         }
         return Collections.emptyList();
+    }
+
+    private Document parse(Path mavenConfigFile) throws ParserConfigurationException, SAXException, IOException {
+        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        try (InputStream is = Files.newInputStream(mavenConfigFile)) {
+            return builder.parse(is);
+        }
     }
 
 

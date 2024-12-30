@@ -48,6 +48,8 @@ import org.tinylog.TaggedLogger;
 import java.io.File;
 import java.io.PrintStream;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -146,19 +148,19 @@ public class SharedPluginForkedTestLauncher {
         this.out = out;
     }
 
-    private List<TestInfo> newTestCaseInfo(List<TestParameter> testParameters, File testClazzLocation, String[] repositoryUrls, ClassLoader dependencyClassLoader) throws Exception {
+    private List<TestInfo> newTestCaseInfo(List<TestParameter> testParameters, Path testClazzLocation, String[] repositoryUrls, ClassLoader dependencyClassLoader) throws Exception {
         ReflectionDependencyResolver dependencyResolver = new ReflectionDependencyResolver(dependencyClassLoader, repositoryUrls);
-        List<File> loggerDependencies = getLoggerDependencies(dependencyResolver, dependencyClassLoader);
+        List<Path> loggerDependencies = getLoggerDependencies(dependencyResolver, dependencyClassLoader);
         logger.debug("loggerDependency:{}", loggerDependencies);
 
         List<TestInfo> testInfos = new ArrayList<>();
         for (TestParameter testParameter : testParameters) {
-            final List<File> testDependency = new ArrayList<>();
+            final List<Path> testDependency = new ArrayList<>();
             testDependency.add(testClazzLocation);
 
             testDependency.addAll(loggerDependencies);
 
-            List<File> testParameterDependency = getTestParameterDependency(dependencyClassLoader, dependencyResolver, testParameter);
+            List<Path> testParameterDependency = getTestParameterDependency(dependencyClassLoader, dependencyResolver, testParameter);
             testDependency.addAll(testParameterDependency);
 
             final TestInfo testInfo = new TestInfo(testParameter.getTestId(), testDependency, Arrays.asList(repositoryUrls));
@@ -167,40 +169,40 @@ public class SharedPluginForkedTestLauncher {
         return testInfos;
     }
 
-    private List<File> getTestParameterDependency(ClassLoader mavenDependencyResolverClassLoader,
+    private List<Path> getTestParameterDependency(ClassLoader mavenDependencyResolverClassLoader,
                                                   ReflectionDependencyResolver dependencyResolver,
                                                   TestParameter testParameter) throws Exception {
 
         final List<String> mavenDependencies = testParameter.getMavenDependencies();
-        List<File> testDependencyFileList = lookup(dependencyResolver, mavenDependencies, mavenDependencyResolverClassLoader);
+        List<Path> testDependencyFileList = lookup(dependencyResolver, mavenDependencies, mavenDependencyResolverClassLoader);
         if (logger.isDebugEnabled()) {
             logger.debug("@Dependency {}", mavenDependencies);
-            for (File file : testDependencyFileList) {
+            for (Path file : testDependencyFileList) {
                 logger.debug("-> {}", file);
             }
         }
         return testDependencyFileList;
     }
 
-    private List<File> getLoggerDependencies(ReflectionDependencyResolver dependencyResolver, ClassLoader mavenDependencyResolverClassLoader) throws Exception {
+    private List<Path> getLoggerDependencies(ReflectionDependencyResolver dependencyResolver, ClassLoader mavenDependencyResolverClassLoader) throws Exception {
         if (!testLogger) {
             return Collections.emptyList();
         }
         List<String> dependencyLib = PluginClassLoading.LOGGER_DEPENDENCY;
-        List<File> libFiles = lookup(dependencyResolver, dependencyLib, mavenDependencyResolverClassLoader);
+        List<Path> libFiles = lookup(dependencyResolver, dependencyLib, mavenDependencyResolverClassLoader);
         if (logger.isDebugEnabled()) {
             logger.debug("LoggerDependency {}", dependencyLib);
-            for (File libFile : libFiles) {
+            for (Path libFile : libFiles) {
                 logger.debug("-> {}", libFile);
             }
         }
         return libFiles;
     }
 
-    private List<File> lookup(final ReflectionDependencyResolver dependencyResolver, final List<String> dependencyLib, ClassLoader cl) throws Exception {
-        Callable<List<File>> callable = new ThreadContextCallable<>(new Callable<List<File>>() {
+    private List<Path> lookup(final ReflectionDependencyResolver dependencyResolver, final List<String> dependencyLib, ClassLoader cl) throws Exception {
+        Callable<List<Path>> callable = new ThreadContextCallable<>(new Callable<List<Path>>() {
             @Override
-            public List<File> call() throws Exception {
+            public List<Path> call() throws Exception {
                 return dependencyResolver.lookup(dependencyLib);
             }
         }, cl);
@@ -225,8 +227,9 @@ public class SharedPluginForkedTestLauncher {
 
     public void execute() throws Exception {
         logTestInformation();
-        ClassLoader mavenDependencyResolverClassLoader = new ChildFirstClassLoader(URLUtils.fileToUrls(mavenDependencyResolverClassPaths));
-        File testClazzLocation = new File(testLocation);
+        URL[] classPath = URLUtils.fileToUrls(mavenDependencyResolverClassPaths);
+        ClassLoader mavenDependencyResolverClassLoader = new ChildFirstClassLoader(classPath);
+        Path testClazzLocation = Paths.get(testLocation);
         List<TestInfo> testInfos = newTestCaseInfo(testParameters, testClazzLocation, repositoryUrls, mavenDependencyResolverClassLoader);
 
         executes(testInfos);
@@ -240,7 +243,8 @@ public class SharedPluginForkedTestLauncher {
         SharedTestExecutor sharedTestExecutor = null;
         SharedTestLifeCycleWrapper sharedTestLifeCycleWrapper = null;
         if (sharedClazzName != null && sharedDependencyResolverClassPaths != null) {
-            final ClassLoader sharedClassLoader = new ChildFirstClassLoader(URLUtils.fileToUrls(sharedDependencyResolverClassPaths));
+            URL[] classPath = URLUtils.fileToUrls(sharedDependencyResolverClassPaths);
+            final ClassLoader sharedClassLoader = new ChildFirstClassLoader(classPath);
             sharedTestExecutor = new SharedTestExecutor(sharedClazzName, sharedClassLoader);
             sharedTestExecutor.startBefore(10, TimeUnit.MINUTES);
             sharedTestLifeCycleWrapper = sharedTestExecutor.getSharedClassWrapper();
@@ -256,13 +260,13 @@ public class SharedPluginForkedTestLauncher {
     }
 
     private ClassLoader createTestClassLoader(TestInfo testInfo) {
-        List<File> dependencyFileList = testInfo.getDependencyFileList();
+        List<Path> dependencyFileList = testInfo.getDependencyFileList();
         if (logger.isDebugEnabled()) {
-            for (File dependency : dependencyFileList) {
+            for (Path dependency : dependencyFileList) {
                 logger.debug("testcase cl lib :{}", dependency);
             }
         }
-        URL[] urls = URLUtils.fileToUrls(dependencyFileList);
+        URL[] urls = URLUtils.pathToUrls(dependencyFileList);
         return new ChildFirstClassLoader(urls, ProfilerClass.PINPOINT_PROFILER_CLASS);
     }
 

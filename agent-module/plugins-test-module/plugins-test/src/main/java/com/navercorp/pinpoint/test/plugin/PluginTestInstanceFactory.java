@@ -19,13 +19,14 @@ package com.navercorp.pinpoint.test.plugin;
 import com.navercorp.pinpoint.test.plugin.agent.PluginTestAgentStarter;
 import com.navercorp.pinpoint.test.plugin.classloader.PluginAgentTestClassLoader;
 import com.navercorp.pinpoint.test.plugin.classloader.PluginTestJunitTestClassLoader;
+import com.navercorp.pinpoint.test.plugin.util.FileUtils;
 import com.navercorp.pinpoint.test.plugin.util.URLUtils;
 import org.junit.platform.commons.JUnitException;
 
-import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -40,17 +41,14 @@ public class PluginTestInstanceFactory {
 
     public PluginTestInstance create(ClassLoader parentClassLoader, String testId,
                                      PluginAgentTestClassLoader agentClassLoader,
-                                     List<String> libs,
+                                     List<Path> libs,
                                      List<String> transformIncludeList,
                                      ClassLoding classLoading) throws ClassNotFoundException {
         final String id = testId + ":" + classLoading;
         PluginTestInstanceCallback instanceContext = startAgent(context.getConfigFile().toString(), agentClassLoader);
-        final List<File> fileList = new ArrayList<>();
-        for (String classPath : getClassPath(libs, classLoading)) {
-            File file = new File(classPath);
-            fileList.add(file);
-        }
-        final URL[] urls = URLUtils.fileToUrls(fileList);
+
+        List<Path> classPath = getClassPath(libs, this.context);
+        final URL[] urls = URLUtils.pathToUrls(classPath);
 
         PluginTestJunitTestClassLoader testClassLoader = new PluginTestJunitTestClassLoader(urls, parentClassLoader, instanceContext);
         testClassLoader.setAgentClassLoader(agentClassLoader);
@@ -61,10 +59,11 @@ public class PluginTestInstanceFactory {
         return new DefaultPluginTestInstance(id, testClassLoader, testClass, context.isManageTraceObject(), instanceContext);
     }
 
-    List<String> getClassPath(List<String> libs, ClassLoding classLoading) {
-        final List<String> libList = new ArrayList<>(context.getJunitLibList());
+    List<Path> getClassPath(List<Path> libs, PluginTestContext context) {
+        final List<Path> libList = new ArrayList<>(16);
+        libList.addAll(FileUtils.toPaths(context.getJunitLibList()));
         libList.addAll(libs);
-        libList.add(context.getTestClassLocation().toString());
+        libList.add(context.getTestClassLocation());
         return libList;
     }
 

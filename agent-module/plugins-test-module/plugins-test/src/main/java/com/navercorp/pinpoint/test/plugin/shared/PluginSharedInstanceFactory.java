@@ -20,20 +20,14 @@ import com.navercorp.pinpoint.test.plugin.classloader.PluginTestSharedTestClassL
 import com.navercorp.pinpoint.test.plugin.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.test.plugin.util.URLUtils;
 
-import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
+import java.nio.file.Path;
 import java.util.List;
 
 public class PluginSharedInstanceFactory {
 
-    public PluginSharedInstance create(String testClassName, String sharedClassName, List<String> libs) throws ClassNotFoundException {
-        final List<File> fileList = new ArrayList<>();
-        for (String classPath : libs) {
-            File file = new File(classPath);
-            fileList.add(file);
-        }
-        final URL[] urls = URLUtils.fileToUrls(fileList);
+    public PluginSharedInstance create(String testClassName, String sharedClassName, List<Path> libs) throws ClassNotFoundException {
+        final URL[] urls = URLUtils.pathToUrls(libs);
         final ClassLoader contextClassLoader = ClassLoaderUtils.getContextClassLoader();
         final PluginTestSharedTestClassLoader classLoader = new PluginTestSharedTestClassLoader(urls, contextClassLoader);
 

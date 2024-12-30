@@ -94,8 +94,12 @@ public class PluginForkedTestContext {
         return repositoryUrls;
     }
 
-    public String  getTestClassLocation() {
+    public String getTestClassLocation() {
         return testClassLocation.toString();
+    }
+
+    public Path getTestClassLocationPath() {
+        return testClassLocation;
     }
 
     public Path getAgentJar() {
