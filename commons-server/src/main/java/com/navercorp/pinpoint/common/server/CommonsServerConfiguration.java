@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.common.server;
 
-import com.navercorp.pinpoint.common.server.bo.thrift.SpanFactory;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializerV1;
 import com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializerV1;
@@ -28,10 +27,6 @@ public class CommonsServerConfiguration {
         return new AgentEventMessageSerializerV1();
     }
 
-    @Bean
-    public SpanFactory spanFactory() {
-        return new SpanFactory();
-    }
 
     @Bean
     public TimeSlot timeSlot() {

@@ -16,13 +16,19 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
-import com.navercorp.pinpoint.thrift.dto.TAnnotation;
-import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
-import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
-import com.navercorp.pinpoint.thrift.dto.TSpan;
-import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
-import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
+import com.google.protobuf.StringValue;
+import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
+import com.navercorp.pinpoint.grpc.trace.PAnnotation;
+import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
+import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
+import com.navercorp.pinpoint.grpc.trace.PMessageEvent;
+import com.navercorp.pinpoint.grpc.trace.PNextEvent;
+import com.navercorp.pinpoint.grpc.trace.PParentInfo;
+import com.navercorp.pinpoint.grpc.trace.PSpan;
+import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
+import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
+import com.navercorp.pinpoint.grpc.trace.PTransactionId;
+import com.navercorp.pinpoint.io.SpanVersion;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -37,47 +43,62 @@ public class RandomTSpan {
 
     private final Random random = new Random();
 
-    public TSpan randomTSpan() {
-        final TSpan tSpan = new TSpan();
-        tSpan.setAgentId("agentId");
-        tSpan.setApplicationName("appName");
-        tSpan.setAgentStartTime(System.currentTimeMillis());
+    public PSpan.Builder randomPSpan() {
+        PSpan.Builder span = PSpan.newBuilder();
+        PTransactionId transactionId = getPTransactionId();
+        span.setTransactionId(transactionId);
+        span.setVersion(SpanVersion.TRACE_V2);
+        span.setSpanId(random.nextLong());
+        span.setParentSpanId(random.nextInt(0, 100000));
+        span.setStartTime(System.currentTimeMillis() + random.nextInt(0, 1000));
+        span.setElapsed(random.nextInt(0, 2000));
 
-        tSpan.setTransactionId(TransactionIdUtils.formatByteBuffer("agent", System.currentTimeMillis(), random.nextLong(0, Long.MAX_VALUE)));
-        tSpan.setSpanId(random.nextLong());
-        tSpan.setParentSpanId(random.nextInt(0, 100000));
-        tSpan.setStartTime(System.currentTimeMillis() + random.nextInt(0, 1000));
-        tSpan.setElapsed(random.nextInt(0, 2000));
-        tSpan.setRpc(randomAlphanumeric(10));
+        span.setServiceType(randomServerServiceType());
+        PAcceptEvent.Builder acceptEvent = PAcceptEvent.newBuilder();
+        acceptEvent.setRpc(randomAlphanumeric(10));
+        acceptEvent.setEndPoint(randomAlphanumeric(20));
+        acceptEvent.setRemoteAddr(randomAlphanumeric(20));
 
-        tSpan.setServiceType(randomServerServiceType());
-        tSpan.setEndPoint(randomAlphanumeric(20));
-        tSpan.setRemoteAddr(randomAlphanumeric(20));
+        PParentInfo.Builder parentInfo = PParentInfo.newBuilder();
+        parentInfo.setParentApplicationName("parentApp");
+        parentInfo.setParentApplicationType(randomServerServiceType());
+        parentInfo.setAcceptorHost("acceptHost");
+        acceptEvent.setParentInfo(parentInfo);
 
-        List<TAnnotation> tAnnotationList = randomTAnnotationList();
+        span.setAcceptEvent(acceptEvent);
+
+
+        List<PAnnotation> tAnnotationList = randomTAnnotationList();
         if (CollectionUtils.isNotEmpty(tAnnotationList)) {
-            tSpan.setAnnotations(tAnnotationList);
+            tAnnotationList.addAll(span.getAnnotationList());
         }
-        tSpan.setFlag((short) random.nextInt(0, 4));
-        tSpan.setErr((short) random.nextInt(0, 2));
+        span.setFlag((short) random.nextInt(0, 4));
+        span.setErr((short) random.nextInt(0, 2));
 //        tSpan.setSpanEventList()
-        tSpan.setParentApplicationName("parentApp");
-        tSpan.setParentApplicationType(randomServerServiceType());
-        tSpan.setAcceptorHost("acceptHost");
-        tSpan.setApiId(random.nextInt(0, 5000));
+
+
+        span.setApiId(random.nextInt(0, 5000));
         if (random.nextBoolean()) {
-            tSpan.setApplicationServiceType(randomServerServiceType());
+            span.setApplicationServiceType(randomServerServiceType());
         } else {
-            tSpan.setApplicationServiceType(tSpan.getServiceType());
+            span.setApplicationServiceType(span.getServiceType());
         }
         if (random.nextBoolean()) {
-            TIntStringValue exceptionInfo = new TIntStringValue();
+            PIntStringValue.Builder exceptionInfo = PIntStringValue.newBuilder();
             exceptionInfo.setIntValue(random.nextInt(0, 5000));
-            exceptionInfo.setStringValue(randomAlphanumeric(100));
-            tSpan.setExceptionInfo(exceptionInfo);
+            exceptionInfo.setStringValue(StringValue.of(randomAlphanumeric(100)));
+            span.setExceptionInfo(exceptionInfo);
         }
-        tSpan.setLoggingTransactionInfo((byte) random.nextInt(0, 256));
-        return tSpan;
+        span.setLoggingTransactionInfo((byte) random.nextInt(0, 256));
+        return span;
+    }
+
+    private PTransactionId getPTransactionId() {
+        return PTransactionId.newBuilder()
+                .setAgentId("agent")
+                .setAgentStartTime(System.currentTimeMillis())
+                .setSequence(random.nextLong(0, Long.MAX_VALUE))
+                .build();
     }
 
     private short randomServerServiceType() {
@@ -85,57 +106,62 @@ public class RandomTSpan {
         return (short) random.nextInt(1000, 1899);
     }
 
-    public List<TAnnotation> randomTAnnotationList() {
+    public List<PAnnotation> randomTAnnotationList() {
         int annotationSize = random.nextInt(0, 3);
-        List<TAnnotation> result = new ArrayList<>();
+        List<PAnnotation> result = new ArrayList<>();
         for (int i = 0; i < annotationSize; i++) {
             result.add(randomTAnnotation(i));
         }
         return result;
     }
 
-    public TAnnotation randomTAnnotation(int key) {
-        TAnnotation tAnnotation = new TAnnotation();
+    public PAnnotation randomTAnnotation(int key) {
+        PAnnotation.Builder annotation = PAnnotation.newBuilder();
         // sort order
-        tAnnotation.setKey(key);
-        TAnnotationValue tAnnotationValue = new TAnnotationValue();
+        annotation.setKey(key);
+        PAnnotationValue.Builder tAnnotationValue = PAnnotationValue.newBuilder();
         tAnnotationValue.setStringValue(randomAlphanumeric(10));
-        tAnnotation.setValue(tAnnotationValue);
-        return tAnnotation;
+        annotation.setValue(tAnnotationValue);
+        return annotation.build();
     }
 
-    public TSpanEvent randomTSpanEvent(short sequence) {
-        TSpanEvent tSpanEvent = new TSpanEvent();
+    public PSpanEvent randomTSpanEvent(short sequence) {
+        PSpanEvent.Builder spanEvent = PSpanEvent.newBuilder();
 //        @deprecated
-//        tSpanEvent.setSpanId();
-        tSpanEvent.setSequence(sequence);
-        tSpanEvent.setStartElapsed(random.nextInt(0, 1000));
-        tSpanEvent.setEndElapsed(random.nextInt(0, 1000));
-//        tSpanEvent.setRpc(randomAlphanumeric(10));
+//        spanEvent.setSpanId();
+        spanEvent.setSequence(sequence);
+        spanEvent.setStartElapsed(random.nextInt(0, 1000));
+        spanEvent.setEndElapsed(random.nextInt(0, 1000));
+//        spanEvent.setRpc(randomAlphanumeric(10));
 //         Database (2000 ~ 2899)
-        tSpanEvent.setServiceType((short) random.nextInt(2000, 2889));
-        tSpanEvent.setEndPoint(randomAlphanumeric(10));
+        spanEvent.setServiceType((short) random.nextInt(2000, 2889));
 
-        List<TAnnotation> tAnnotationList = randomTAnnotationList();
+        List<PAnnotation> tAnnotationList = randomTAnnotationList();
         if (CollectionUtils.isNotEmpty(tAnnotationList)) {
-            tSpanEvent.setAnnotations(tAnnotationList);
+            spanEvent.addAllAnnotation(tAnnotationList);
         }
-        tSpanEvent.setDepth(random.nextInt(0, 256));
-        tSpanEvent.setNextSpanId(random.nextLong());
+        spanEvent.setDepth(random.nextInt(1, 256));
+        PMessageEvent messageEvent = PMessageEvent.newBuilder()
+                .setNextSpanId(random.nextLong())
+                .setDestinationId(randomAlphanumeric(20))
+                .setEndPoint(randomAlphanumeric(20))
+                .build();
 
-        tSpanEvent.setDestinationId(randomAlphanumeric(20));
-        tSpanEvent.setApiId(random.nextInt(0, 65535));
+        spanEvent.setNextEvent(PNextEvent.newBuilder().setMessageEvent(messageEvent).build());
 
-        tSpanEvent.setNextAsyncId(random.nextInt());
+        spanEvent.setApiId(random.nextInt(0, 65535));
+
+        spanEvent.setAsyncEvent(random.nextInt());
 
         if (random.nextBoolean()) {
-            TIntStringValue exceptionInfo = new TIntStringValue();
-            exceptionInfo.setIntValue(random.nextInt(0, 5000));
-            exceptionInfo.setStringValue(randomAlphanumeric(100));
-            tSpanEvent.setExceptionInfo(exceptionInfo);
+            PIntStringValue exception = PIntStringValue.newBuilder()
+                    .setIntValue(random.nextInt(0, 5000))
+                    .setStringValue(StringValue.of(randomAlphanumeric(100)))
+                    .build();
+            spanEvent.setExceptionInfo(exception);
         }
 
-        return tSpanEvent;
+        return spanEvent.build();
     }
 
     private int randomNegative(int value) {
@@ -145,20 +171,17 @@ public class RandomTSpan {
         return value;
     }
 
-    public TSpanChunk randomTSpanChunk() {
-        final TSpanChunk tSpanChunk = new TSpanChunk();
-        tSpanChunk.setAgentId("agentId");
-        tSpanChunk.setApplicationName("appName");
-        tSpanChunk.setAgentStartTime(System.currentTimeMillis());
+    public PSpanChunk.Builder randomTSpanChunk() {
+        final PSpanChunk.Builder spanChunk = PSpanChunk.newBuilder();
+        spanChunk.setVersion(SpanVersion.TRACE_V2);
+        spanChunk.setTransactionId(getPTransactionId());
+        spanChunk.setSpanId(random.nextLong());
 
-        tSpanChunk.setTransactionId(TransactionIdUtils.formatByteBuffer("agent", System.currentTimeMillis(), random.nextLong(0, Long.MAX_VALUE)));
-        tSpanChunk.setSpanId(random.nextLong());
-
-        tSpanChunk.setEndPoint(randomAlphanumeric(20));
+        spanChunk.setEndPoint(randomAlphanumeric(20));
 
 //        tSpanChunk.setSpanEventList()
-        tSpanChunk.setApplicationServiceType(randomServerServiceType());
-        return tSpanChunk;
+        spanChunk.setApplicationServiceType(randomServerServiceType());
+        return spanChunk;
     }
 
 
