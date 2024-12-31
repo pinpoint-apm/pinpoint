@@ -1,53 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.navercorp.pinpoint.uristat.web.dao.UriStatChartDao">
-    <resultMap id="totalUriStatResultMap" type="UriStatChartValue">
-        <constructor>
-            <arg column="timestamp" javaType="_long"/>
-            <arg column="tot0" javaType="java.lang.Double"/>
-            <arg column="tot1" javaType="java.lang.Double"/>
-            <arg column="tot2" javaType="java.lang.Double"/>
-            <arg column="tot3" javaType="java.lang.Double"/>
-            <arg column="tot4" javaType="java.lang.Double"/>
-            <arg column="tot5" javaType="java.lang.Double"/>
-            <arg column="tot6" javaType="java.lang.Double"/>
-            <arg column="tot7" javaType="java.lang.Double"/>
-            <arg column="version" javaType="string"/>
-        </constructor>
-    </resultMap>
-    <resultMap id="failedUriStatResultMap" type="UriStatChartValue">
-        <constructor>
-            <arg column="timestamp" javaType="_long"/>
-            <arg column="fail0" javaType="java.lang.Double"/>
-            <arg column="fail1" javaType="java.lang.Double"/>
-            <arg column="fail2" javaType="java.lang.Double"/>
-            <arg column="fail3" javaType="java.lang.Double"/>
-            <arg column="fail4" javaType="java.lang.Double"/>
-            <arg column="fail5" javaType="java.lang.Double"/>
-            <arg column="fail6" javaType="java.lang.Double"/>
-            <arg column="fail7" javaType="java.lang.Double"/>
-            <arg column="version" javaType="string"/>
-        </constructor>
-    </resultMap>
-    <resultMap id="apdexResultMap" type="UriStatChartValue">
-        <constructor>
-            <arg column="timestamp" javaType="_long"/>
-            <arg column="apdexRaw" javaType="java.lang.Double"/>
-            <arg column="count" javaType="java.lang.Double"/>
-            <arg column="version" javaType="string"/>
-        </constructor>
-    </resultMap>
-    <resultMap id="latencyResultMap" type="UriStatChartValue">
-        <constructor>
-            <arg column="timestamp" javaType="_long"/>
-            <arg column="totalTimeMs" javaType="java.lang.Double"/>
-            <arg column="maxLatencyMs" javaType="java.lang.Double"/>
-            <arg column="count" javaType="java.lang.Double"/>
-            <arg column="version" javaType="string"/>
-        </constructor>
+    <resultMap id="totalChartEntity" type="TotalChartEntity">
     </resultMap>
 
-    <select id="selectTotalUriStat" resultMap="totalUriStatResultMap" parameterType="UriStatChartQueryParameter">
+    <resultMap id="failureChartEntity" type="FailureChartEntity">
+    </resultMap>
+
+    <resultMap id="apdexChartEntity" type="ApdexChartEntity">
+    </resultMap>
+
+    <resultMap id="latencyChartEntity" type="LatencyChartEntity">
+    </resultMap>
+
+    <select id="selectTotalUriStat" resultMap="totalChartEntity" parameterType="UriStatChartQueryParameter">
         SELECT
             DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
                 '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
@@ -74,7 +40,7 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectFailedUriStat" resultMap="failedUriStatResultMap" parameterType="UriStatChartQueryParameter">
+    <select id="selectFailedUriStat" resultMap="failureChartEntity" parameterType="UriStatChartQueryParameter">
         SELECT
             DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
                 '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
@@ -101,7 +67,7 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectUriApdex" resultMap="apdexResultMap" parameterType="UriStatChartQueryParameter">
+    <select id="selectUriApdex" resultMap="apdexChartEntity" parameterType="UriStatChartQueryParameter">
         SELECT
             DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
                 '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
@@ -122,7 +88,7 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectUriLatency" resultMap="latencyResultMap" parameterType="UriStatChartQueryParameter">
+    <select id="selectUriLatency" resultMap="latencyChartEntity" parameterType="UriStatChartQueryParameter">
         SELECT
             DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
                 '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
