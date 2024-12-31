@@ -1,19 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.navercorp.pinpoint.uristat.web.dao.PinotUriStatSummaryDao">
-    <resultMap id="uriStatSummary" type="UriStatSummary">
-        <constructor>
-            <arg column="uri" javaType="string"/>
-            <arg column="apdexRaw" javaType="_double"/>
-            <arg column="totalCount" javaType="_double"/>
-            <arg column="failureCount" javaType="_double"/>
-            <arg column="maxTimeMs" javaType="_double"/>
-            <arg column="totalTimeMs" javaType="_double"/>
-            <arg column="version" javaType="string"/>
-        </constructor>
+    <resultMap id="uriStatSummaryEntity" type="UriStatSummaryEntity">
     </resultMap>
 
-    <select id="uriStatSummary" resultMap="uriStatSummary" parameterType="UriStatSummaryQueryParameter">
+    <select id="uriStatSummary" resultMap="uriStatSummaryEntity" parameterType="UriStatSummaryQueryParameter">
         SELECT
             uri,
             sum(apdexRaw) as apdexRaw,

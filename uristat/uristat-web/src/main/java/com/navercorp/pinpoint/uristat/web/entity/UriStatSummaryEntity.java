@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 NAVER Corp.
+ * Copyright 2024 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.navercorp.pinpoint.uristat.web.entity;
 
-package com.navercorp.pinpoint.uristat.web.model;
-
-import com.navercorp.pinpoint.common.util.MathUtils;
-
-public class UriStatSummary {
+/**
+ * @author intr3p1d
+ */
+public class UriStatSummaryEntity {
     private String uri;
+    private Double apdexRaw;
     private Double totalCount;
     private Double failureCount;
     private Double maxTimeMs;
-    private Double avgTimeMs;
-    private Double apdex;
+    private Double totalTimeMs;
     private String version;
 
-    public UriStatSummary() {
+    public UriStatSummaryEntity() {
     }
 
     public String getUri() {
@@ -36,6 +36,14 @@ public class UriStatSummary {
 
     public void setUri(String uri) {
         this.uri = uri;
+    }
+
+    public Double getApdexRaw() {
+        return apdexRaw;
+    }
+
+    public void setApdexRaw(Double apdexRaw) {
+        this.apdexRaw = apdexRaw;
     }
 
     public Double getTotalCount() {
@@ -62,20 +70,12 @@ public class UriStatSummary {
         this.maxTimeMs = maxTimeMs;
     }
 
-    public Double getAvgTimeMs() {
-        return avgTimeMs;
+    public Double getTotalTimeMs() {
+        return totalTimeMs;
     }
 
-    public void setAvgTimeMs(Double avgTimeMs) {
-        this.avgTimeMs = avgTimeMs;
-    }
-
-    public Double getApdex() {
-        return apdex;
-    }
-
-    public void setApdex(Double apdex) {
-        this.apdex = apdex;
+    public void setTotalTimeMs(Double totalTimeMs) {
+        this.totalTimeMs = totalTimeMs;
     }
 
     public String getVersion() {

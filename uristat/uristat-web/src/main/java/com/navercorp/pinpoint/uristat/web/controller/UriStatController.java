@@ -70,7 +70,7 @@ public class UriStatController {
         return range;
     }
 
-    @GetMapping("summary")
+    @GetMapping("/summary")
     public List<UriStatSummary> getUriStatPagedSummary(
             @RequestParam("applicationName") String applicationName,
             @RequestParam(value = "agentId", required = false) String agentId,
