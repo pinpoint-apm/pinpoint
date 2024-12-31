@@ -12,6 +12,7 @@ import java.util.Objects;
 @Repository
 public class PinotTotalCountChartDao implements UriStatChartDao {
     private static final String NAMESPACE = UriStatChartDao.class.getName() + ".";
+    private static final String SELECT_TOTAL_CHART = "selectTotalUriStat";
 
     private final SqlSessionTemplate sqlPinotSessionTemplate;
 
@@ -20,12 +21,7 @@ public class PinotTotalCountChartDao implements UriStatChartDao {
     }
 
     @Override
-    public List<UriStatChartValue> getChartDataApplication(UriStatChartQueryParameter queryParameter) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectTotalUriStatApplication", queryParameter);
-    }
-
-    @Override
-    public List<UriStatChartValue> getChartDataAgent(UriStatChartQueryParameter queryParameter) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectTotalUriStatAgentId", queryParameter);
+    public List<UriStatChartValue> getChartData(UriStatChartQueryParameter queryParameter) {
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_TOTAL_CHART, queryParameter);
     }
 }

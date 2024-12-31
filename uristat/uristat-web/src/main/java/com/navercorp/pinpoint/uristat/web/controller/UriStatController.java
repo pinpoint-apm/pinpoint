@@ -49,7 +49,7 @@ public class UriStatController {
     private final TenantProvider tenantProvider;
     private final UriStatChartService uriStatChartService;
     private final UriStatChartTypeFactory chartTypeFactory;
-    private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(30000L, 200);
+    private static final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(30000L, 200);
     private final RangeValidator rangeValidator;
 
     public UriStatController(UriStatSummaryService uriStatService,
@@ -91,37 +91,9 @@ public class UriStatController {
                 .setLimit(count)
                 .build();
 
-        if (query.isApplicationStat()) {
-            return uriStatService.getUriStatApplicationPagedSummary(query);
-        } else {
-            return uriStatService.getUriStatAgentPagedSummary(query);
-        }
+        return uriStatService.getUriStatPagedSummary(query);
     }
 
-    @GetMapping("top50")
-    @Deprecated
-    public List<UriStatSummary> getUriStatSummary(
-            @RequestParam("applicationName") String applicationName,
-            @RequestParam(value = "agentId", required = false) String agentId,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to
-    ) {
-        Range range = checkTimeRange(from, to);
-        UriStatSummaryQueryParameter query = new UriStatSummaryQueryParameter.Builder()
-                .setTenantId(tenantProvider.getTenantId())
-                .setApplicationName(applicationName)
-                .setAgentId(agentId)
-                .setRange(range)
-                .build();
-
-        if (query.isApplicationStat()) {
-            return uriStatService.getUriStatApplicationSummary(query);
-        } else {
-            return uriStatService.getUriStatAgentSummary(query);
-        }
-    }
-
-    @Deprecated
     @GetMapping("/chart")
     public UriStatView getCollectedUriStat(
             @RequestParam("applicationName") String applicationName,
@@ -149,10 +121,6 @@ public class UriStatController {
     }
 
     private List<UriStatChartValue> getChartData(UriStatChartType chartType, UriStatChartQueryParameter query) {
-        if (query.isApplicationStat()) {
-            return uriStatChartService.getUriStatChartDataApplication(chartType, query);
-        } else {
-            return uriStatChartService.getUriStatChartDataAgent(chartType, query);
-        }
+        return uriStatChartService.getUriStatChartData(chartType, query);
     }
 }

@@ -13,18 +13,7 @@
         </constructor>
     </resultMap>
 
-    <resultMap id="uriStatSummaryOld" type="UriStatSummary">
-        <constructor>
-            <arg column="uri" javaType="string"/>
-            <arg column="totalCount" javaType="_double"/>
-            <arg column="failureCount" javaType="_double"/>
-            <arg column="maxLatencyMs" javaType="_double"/>
-            <arg column="totalTimeMs" javaType="_double"/>
-            <arg column="version" javaType="string"/>
-        </constructor>
-    </resultMap>
-
-    <select id="uriStatApplicationSummary" resultMap="uriStatSummary" parameterType="UriStatSummaryQueryParameter">
+    <select id="uriStatSummary" resultMap="uriStatSummary" parameterType="UriStatSummaryQueryParameter">
         SELECT
             uri,
             sum(apdexRaw) as apdexRaw,
@@ -32,67 +21,16 @@
             max(maxLatencyMs) as maxTimeMs,
             sum(totalTimeMs) as totalTimeMs,
             sum(failureCount) as failureCount,
-            version
+        version
         FROM uriStat
         WHERE tenantId = #{tenantId}
-          AND applicationName = #{applicationName}
-          AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+            AND applicationName = #{applicationName}
+            <if test="agentId != null">
+                AND agentId = #{agentId}
+            </if>
+            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
         GROUP BY uri, version
         ORDER BY ${orderBy} ${isDesc}
         LIMIT #{limit}
-    </select>
-
-    <select id="uriStatAgentSummary" resultMap="uriStatSummary" parameterType="UriStatSummaryQueryParameter">
-        SELECT
-            uri,
-            sum(apdexRaw) as apdexRaw,
-            sum("count") as totalCount,
-            max(maxLatencyMs) as maxTimeMs,
-            sum(totalTimeMs) as totalTimeMs,
-            sum(failureCount) as failureCount,
-            version
-        FROM uriStat
-        WHERE tenantId = #{tenantId}
-          AND applicationName = #{applicationName}
-          AND agentId = #{agentId}
-          AND "timestamp" BETWEEN #{range.from} AND #{range.to}
-        GROUP BY uri, version
-        ORDER BY ${orderBy} ${isDesc}
-        LIMIT #{limit}
-    </select>
-
-    <select id="top50UriStatApplication" resultMap="uriStatSummaryOld" parameterType="UriStatSummaryQueryParameter">
-        SELECT
-            uri,
-            sum("count") as totalCount,
-            max(maxLatencyMs) as maxLatencyMs,
-            sum(totalTimeMs) as totalTimeMs,
-            sum(failureCount) as failureCount,
-            version
-        FROM uriStat
-        WHERE tenantId = #{tenantId}
-         AND applicationName = #{applicationName}
-          AND "timestamp" BETWEEN #{range.from} AND #{range.to}
-        GROUP BY uri, version
-        ORDER BY totalCount desc
-        LIMIT 50
-    </select>
-
-    <select id="top50UriStatAgent" resultMap="uriStatSummaryOld" parameterType="UriStatSummaryQueryParameter">
-        SELECT
-            uri,
-            sum("count") as totalCount,
-            max(maxLatencyMs) as maxLatencyMs,
-            sum(totalTimeMs) as totalTimeMs,
-            sum(failureCount) as failureCount,
-            version
-        FROM uriStat
-        WHERE tenantId = #{tenantId}
-          AND applicationName = #{applicationName}
-          AND agentId = #{agentId}
-          AND "timestamp" BETWEEN #{range.from} AND #{range.to}
-        GROUP BY uri, version
-        ORDER BY totalCount desc
-        LIMIT 50
     </select>
 </mapper>

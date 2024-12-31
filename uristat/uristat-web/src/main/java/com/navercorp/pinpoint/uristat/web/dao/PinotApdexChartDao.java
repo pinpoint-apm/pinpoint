@@ -12,6 +12,7 @@ import java.util.Objects;
 @Repository
 public class PinotApdexChartDao implements UriStatChartDao {
     private static final String NAMESPACE = UriStatChartDao.class.getName() + ".";
+    private static final String SELECT_APDEX_CHART = "selectUriApdex";
 
     private final SqlSessionTemplate sqlPinotSessionTemplate;
 
@@ -20,12 +21,7 @@ public class PinotApdexChartDao implements UriStatChartDao {
     }
 
     @Override
-    public List<UriStatChartValue> getChartDataApplication(UriStatChartQueryParameter queryParameter) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectUriApdexApplication", queryParameter);
-    }
-
-    @Override
-    public List<UriStatChartValue> getChartDataAgent(UriStatChartQueryParameter queryParameter) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectUriApdexAgent", queryParameter);
+    public List<UriStatChartValue> getChartData(UriStatChartQueryParameter queryParameter) {
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_APDEX_CHART, queryParameter);
     }
 }

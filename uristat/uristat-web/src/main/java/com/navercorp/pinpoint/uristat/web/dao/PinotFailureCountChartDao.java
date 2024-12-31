@@ -12,6 +12,7 @@ import java.util.Objects;
 @Repository
 public class PinotFailureCountChartDao implements UriStatChartDao {
     private static final String NAMESPACE = UriStatChartDao.class.getName() + ".";
+    private static final String SELECT_FAILURE_CHART = "selectFailedUriStat";
 
     private final SqlSessionTemplate sqlPinotSessionTemplate;
 
@@ -20,12 +21,7 @@ public class PinotFailureCountChartDao implements UriStatChartDao {
     }
 
     @Override
-    public List<UriStatChartValue> getChartDataApplication(UriStatChartQueryParameter queryParameter) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectFailedUriStatApplication", queryParameter);
-    }
-
-    @Override
-    public List<UriStatChartValue> getChartDataAgent(UriStatChartQueryParameter queryParameter) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectFailedUriStatAgentId", queryParameter);
+    public List<UriStatChartValue> getChartData(UriStatChartQueryParameter queryParameter) {
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_FAILURE_CHART, queryParameter);
     }
 }

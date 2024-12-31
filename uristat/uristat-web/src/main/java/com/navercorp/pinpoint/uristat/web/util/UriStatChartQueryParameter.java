@@ -90,7 +90,9 @@ public class UriStatChartQueryParameter extends QueryParameter {
         }
 
         public Builder setAgentId(String agentId) {
-            this.agentId = agentId;
+            if (StringUtils.hasLength(agentId)) {
+                this.agentId = agentId;
+            }
             return self();
         }
 
