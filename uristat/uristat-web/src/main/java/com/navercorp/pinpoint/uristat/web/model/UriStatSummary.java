@@ -37,16 +37,6 @@ public class UriStatSummary {
         this.version = version;
     }
 
-    @Deprecated
-    public UriStatSummary(String uri, double totalCount, double failureCount, double maxTimeMs, double totalTimeMs, String version) {
-        this.uri = uri;
-        this.apdex = 0;
-        this.totalCount = totalCount;
-        this.failureCount = failureCount;
-        this.maxTimeMs = maxTimeMs;
-        this.avgTimeMs = MathUtils.average(totalTimeMs, totalCount);
-        this.version = version;
-    }
     public String getUri() {
         return uri;
     }

@@ -22,6 +22,5 @@ import com.navercorp.pinpoint.uristat.web.util.UriStatChartQueryParameter;
 import java.util.List;
 
 public interface UriStatChartDao {
-    List<UriStatChartValue> getChartDataApplication(UriStatChartQueryParameter queryParameter);
-    List<UriStatChartValue> getChartDataAgent(UriStatChartQueryParameter queryParameter);
+    List<UriStatChartValue> getChartData(UriStatChartQueryParameter queryParameter);
 }

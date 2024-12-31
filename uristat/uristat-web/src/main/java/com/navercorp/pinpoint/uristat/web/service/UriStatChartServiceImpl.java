@@ -27,13 +27,7 @@ import java.util.List;
 public class UriStatChartServiceImpl implements UriStatChartService {
 
     @Override
-    public List<UriStatChartValue> getUriStatChartDataApplication(UriStatChartType type, UriStatChartQueryParameter queryParameter) {
-        return type.getChartDao().getChartDataApplication(queryParameter);
+    public List<UriStatChartValue> getUriStatChartData(UriStatChartType type, UriStatChartQueryParameter queryParameter) {
+        return type.getChartDao().getChartData(queryParameter);
     }
-
-    @Override
-    public List<UriStatChartValue> getUriStatChartDataAgent(UriStatChartType type, UriStatChartQueryParameter queryParameter) {
-        return type.getChartDao().getChartDataAgent(queryParameter);
-    }
-
 }

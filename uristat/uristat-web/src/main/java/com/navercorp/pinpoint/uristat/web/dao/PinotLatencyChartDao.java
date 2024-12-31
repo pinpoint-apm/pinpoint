@@ -12,6 +12,7 @@ import java.util.Objects;
 @Repository
 public class PinotLatencyChartDao implements UriStatChartDao {
     private static final String NAMESPACE = UriStatChartDao.class.getName() + ".";
+    private static final String SELECT_LATENCY_CHART = "selectUriLatency";
 
     private final SqlSessionTemplate sqlPinotSessionTemplate;
 
@@ -20,12 +21,8 @@ public class PinotLatencyChartDao implements UriStatChartDao {
     }
 
     @Override
-    public List<UriStatChartValue> getChartDataApplication(UriStatChartQueryParameter queryParameter) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectUriLatencyApplication", queryParameter);
+    public List<UriStatChartValue> getChartData(UriStatChartQueryParameter queryParameter) {
+        return sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_LATENCY_CHART, queryParameter);
     }
 
-    @Override
-    public List<UriStatChartValue> getChartDataAgent(UriStatChartQueryParameter queryParameter) {
-        return sqlPinotSessionTemplate.selectList(NAMESPACE + "selectUriLatencyAgent", queryParameter);
-    }
 }
