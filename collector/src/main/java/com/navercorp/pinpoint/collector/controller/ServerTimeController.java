@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ServerTimeController {
 
-    @GetMapping(value = "/serverTime")
+    @GetMapping(value = {"/api/serverTime", "/serverTime"})
     public ServerTime getServerTime() {
         return new ServerTime();
     }
