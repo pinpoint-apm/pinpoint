@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
+import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.RandomTSpan;
@@ -8,25 +9,21 @@ import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.filter.EmptySpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
-import com.navercorp.pinpoint.common.server.bo.thrift.SpanFactory;
-import com.navercorp.pinpoint.common.util.JvmUtils;
-import com.navercorp.pinpoint.common.util.JvmVersion;
-import com.navercorp.pinpoint.thrift.dto.TSpan;
-import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
-import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
-import org.apache.commons.lang3.builder.EqualsBuilder;
+import com.navercorp.pinpoint.common.server.bo.grpc.BindAttribute;
+import com.navercorp.pinpoint.common.server.bo.grpc.CollectorGrpcSpanFactory;
+import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanBinder;
+import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanFactory;
+import com.navercorp.pinpoint.grpc.trace.PSpan;
+import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
+import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeEach;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -45,78 +42,40 @@ public class SpanEncoderTest {
     private final RandomTSpan randomTSpan = new RandomTSpan();
     private final Random random = new Random();
 
-    private final SpanFactory spanFactory = new SpanFactory();
+    private final BindAttribute attribute = new BindAttribute("agentId", "applicationName", 88, spanAcceptedTime);
+    private final GrpcSpanBinder grpcSpanBinder = new GrpcSpanBinder();
+    private final SpanEventFilter filter = new EmptySpanEventFilter();
+    private final GrpcSpanFactory grpcSpanFactory = new CollectorGrpcSpanFactory(grpcSpanBinder, filter);
 
     private final SpanEncoder spanEncoder = new SpanEncoderV0();
     private final SpanDecoder spanDecoder = new SpanDecoderV0();
 
-    private final SpanEventFilter filter = new EmptySpanEventFilter();
 
-    @BeforeEach
-    public  void before() {
-        JvmVersion version = JvmUtils.getVersion();
-        Assumptions.assumeFalse(version.onOrAfter(JvmVersion.JAVA_17), "Skip test for Java 17+");
-    }
-
-    @Test
+    @RepeatedTest(REPEAT_COUNT)
     public void testEncodeSpanColumnValue_simpleSpan() {
         SpanBo spanBo = randomSpan();
         assertSpan(spanBo);
     }
 
 
-    @Test
-    public void testEncodeSpanColumnValue_simpleSpan_N() {
-        for (int i = 0; i < REPEAT_COUNT; i++) {
-            testEncodeSpanColumnValue_simpleSpan();
-        }
-    }
-
-
-    @Test
+    @RepeatedTest(REPEAT_COUNT)
     public void testEncodeSpanColumnValue_complexSpan() {
-
         SpanBo spanBo = randomComplexSpan();
         assertSpan(spanBo);
-
     }
 
-    @Test
-    public void testEncodeSpanColumnValue_complexSpan_N() {
-        for (int i = 0; i < REPEAT_COUNT; i++) {
-            testEncodeSpanColumnValue_complexSpan();
-        }
-    }
 
-    @Test
+    @RepeatedTest(REPEAT_COUNT)
     public void testEncodeSpanColumnValue_simpleSpanChunk() {
-
         SpanChunkBo spanChunkBo = randomSpanChunk();
         assertSpanChunk(spanChunkBo);
-
-    }
-
-    @Test
-    public void testEncodeSpanColumnValue_simpleSpanChunk_N() {
-        for (int i = 0; i < REPEAT_COUNT; i++) {
-            testEncodeSpanColumnValue_simpleSpanChunk();
-        }
     }
 
 
-    @Test
+    @RepeatedTest(REPEAT_COUNT)
     public void testEncodeSpanColumnValue_complexSpanChunk() {
-
         SpanChunkBo spanChunkBo = randomComplexSpanChunk();
         assertSpanChunk(spanChunkBo);
-
-    }
-
-    @Test
-    public void testEncodeSpanColumnValue_complexSpanChunk_N() {
-        for (int i = 0; i < REPEAT_COUNT; i++) {
-            testEncodeSpanColumnValue_complexSpanChunk();
-        }
     }
 
     private long getCollectorAcceptTime() {
@@ -132,42 +91,35 @@ public class SpanEncoderTest {
     }
 
     private SpanBo randomSpan() {
-        TSpan tSpan = randomTSpan.randomTSpan();
-        return spanFactory.buildSpanBo(tSpan, spanAcceptedTime, filter);
-    }
-
-    private <T> List<T> newArrayList(T... elements) {
-        Objects.requireNonNull(elements, "elements");
-        List<T> list = new ArrayList<>(elements.length);
-        Collections.addAll(list, elements);
-        return list;
+        PSpan.Builder tSpan = randomTSpan.randomPSpan();
+        return grpcSpanFactory.buildSpanBo(tSpan.build(), attribute);
     }
 
     public SpanBo randomComplexSpan() {
-        TSpan tSpan = randomTSpan.randomTSpan();
-        TSpanEvent tSpanEvent1 = randomTSpan.randomTSpanEvent((short) 1);
-        TSpanEvent tSpanEvent2 = randomTSpan.randomTSpanEvent((short) 2);
-        TSpanEvent tSpanEvent3 = randomTSpan.randomTSpanEvent((short) 3);
-        TSpanEvent tSpanEvent4 = randomTSpan.randomTSpanEvent((short) 5);
+        PSpan.Builder pSpan = randomTSpan.randomPSpan();
+        PSpanEvent spanEvent1 = randomTSpan.randomTSpanEvent((short) 1);
+        PSpanEvent spanEvent2 = randomTSpan.randomTSpanEvent((short) 2);
+        PSpanEvent spanEvent3 = randomTSpan.randomTSpanEvent((short) 3);
+        PSpanEvent spanEvent4 = randomTSpan.randomTSpanEvent((short) 5);
 
-        tSpan.setSpanEventList(newArrayList(tSpanEvent1, tSpanEvent2, tSpanEvent3, tSpanEvent4));
-        return spanFactory.buildSpanBo(tSpan, spanAcceptedTime, filter);
+        pSpan.addAllSpanEvent(List.of(spanEvent1, spanEvent2, spanEvent3, spanEvent4));
+        return grpcSpanFactory.buildSpanBo(pSpan.build(), attribute);
     }
 
     private SpanChunkBo randomSpanChunk() {
-        TSpanChunk tSpanChunk = randomTSpan.randomTSpanChunk();
-        return spanFactory.buildSpanChunkBo(tSpanChunk, spanAcceptedTime, filter);
+        PSpanChunk.Builder spanChunk = randomTSpan.randomTSpanChunk();
+        return grpcSpanFactory.buildSpanChunkBo(spanChunk.build(), attribute);
     }
 
     public SpanChunkBo randomComplexSpanChunk() {
-        TSpanChunk tSpanChunk = randomTSpan.randomTSpanChunk();
-        TSpanEvent tSpanEvent1 = randomTSpan.randomTSpanEvent((short) 1);
-        TSpanEvent tSpanEvent2 = randomTSpan.randomTSpanEvent((short) 2);
-        TSpanEvent tSpanEvent3 = randomTSpan.randomTSpanEvent((short) 3);
-        TSpanEvent tSpanEvent4 = randomTSpan.randomTSpanEvent((short) 5);
+        PSpanChunk.Builder spanChunk = randomTSpan.randomTSpanChunk();
+        PSpanEvent spanEvent1 = randomTSpan.randomTSpanEvent((short) 1);
+        PSpanEvent spanEvent2 = randomTSpan.randomTSpanEvent((short) 2);
+        PSpanEvent spanEvent3 = randomTSpan.randomTSpanEvent((short) 3);
+        PSpanEvent spanEvent4 = randomTSpan.randomTSpanEvent((short) 5);
 
-        tSpanChunk.setSpanEventList(newArrayList(tSpanEvent1, tSpanEvent2, tSpanEvent3, tSpanEvent4));
-        return spanFactory.buildSpanChunkBo(tSpanChunk, spanAcceptedTime, filter);
+        spanChunk.addAllSpanEvent(List.of(spanEvent1, spanEvent2, spanEvent3, spanEvent4));
+        return grpcSpanFactory.buildSpanChunkBo(spanChunk.build(), attribute);
     }
 
 
@@ -183,20 +135,27 @@ public class SpanEncoderTest {
         decodingContext.setCollectorAcceptedTime(spanBo.getCollectorAcceptTime());
 
         SpanBo decode = (SpanBo) spanDecoder.decode(qualifier, column, decodingContext);
-        // TODO Check CI log
-        // logger.debug("span dump \noriginal spanBo:{} \ndecode spanBo:{} ", spanBo, decode);
 
-        List<String> notSerializedField = newArrayList("parentApplicationId", "parentApplicationServiceType");
-        List<String> excludeField = newArrayList("annotationBoList", "spanEventBoList");
+        List<String> notSerializedField = Lists.newArrayList("parentApplicationId", "parentApplicationServiceType");
+        List<String> excludeField = List.of("annotationBoList", "spanEventBoList");
         notSerializedField.addAll(excludeField);
-        Assertions.assertTrue(EqualsBuilder.reflectionEquals(decode, spanBo, notSerializedField));
+        Assertions.assertThat(decode)
+                .usingRecursiveComparison()
+                .ignoringFields(notSerializedField.toArray(new String[0]))
+                .isEqualTo(spanBo);
 
         logger.debug("{} {}", spanBo.getAnnotationBoList(), decode.getAnnotationBoList());
-        Assertions.assertTrue(EqualsBuilder.reflectionEquals(spanBo.getAnnotationBoList(), decode.getAnnotationBoList()), "annotation");
+        Assertions.assertThat(spanBo.getAnnotationBoList())
+                .usingRecursiveComparison()
+                .ignoringFields("annotation")
+                .isEqualTo(decode.getAnnotationBoList());
 
         List<SpanEventBo> spanEventBoList = spanBo.getSpanEventBoList();
         List<SpanEventBo> decodedSpanEventBoList = decode.getSpanEventBoList();
-        Assertions.assertEquals(spanEventBoList, decodedSpanEventBoList);
+        Assertions.assertThat(spanEventBoList)
+                .usingRecursiveComparison()
+                .ignoringFields("annotationBoList")
+                .isEqualTo(decodedSpanEventBoList);
     }
 
     private void assertSpanChunk(SpanChunkBo spanChunkBo) {
@@ -214,16 +173,23 @@ public class SpanEncoderTest {
         // TODO Check CI log
         // logger.debug("spanChunk dump \noriginal spanChunkBo:{} \ndecode spanChunkBo:{} ", spanChunkBo, decode);
 
-        List<String> notSerializedField = newArrayList("endPoint", "serviceType", "applicationServiceType");
-        List<String> excludeField = newArrayList("spanEventBoList", "localAsyncId");
+        List<String> notSerializedField = Lists.newArrayList("endPoint", "serviceType", "applicationServiceType");
+        List<String> excludeField = List.of("spanEventBoList", "localAsyncId");
         notSerializedField.addAll(excludeField);
-        Assertions.assertTrue(EqualsBuilder.reflectionEquals(decode, spanChunkBo, notSerializedField));
+        Assertions.assertThat(decode)
+                .usingRecursiveComparison()
+                .ignoringFields(notSerializedField.toArray(new String[0]))
+                .isEqualTo(spanChunkBo);
 
 
         List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
         List<SpanEventBo> decodedSpanEventBoList = decode.getSpanEventBoList();
-        Assertions.assertEquals(spanEventBoList, decodedSpanEventBoList);
-
+//        Assertions.assertEquals(spanEventBoList.size(), spanEventBoList.size());
+//        Assertions.assertTrue(EqualsBuilder.reflectionEquals(spanEventBoList, decodedSpanEventBoList), "spanEventBoList");
+        Assertions.assertThat(spanEventBoList)
+                .usingRecursiveComparison()
+                .ignoringFields("annotationBoList")
+                .isEqualTo(decodedSpanEventBoList);
     }
 
     @Test
