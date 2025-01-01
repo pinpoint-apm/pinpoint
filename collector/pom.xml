@@ -274,6 +274,12 @@
             <artifactId>jakarta.annotation-api</artifactId>
         </dependency>
 
+
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-redis-timeseries</artifactId>
+            <version>3.1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>

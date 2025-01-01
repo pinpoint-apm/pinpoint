@@ -20,7 +20,7 @@ import java.util.Objects;
 /**
  * @author emeroad
  */
-public class DefaultBulkWriter implements BulkWriter {
+public class DefaultBulkWriter implements BulkWriter<RowKey, ColumnName> {
 
     private final Logger logger;
 
