@@ -33,7 +33,7 @@ public class StressController {
 
         latch.await();
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("message", "ok");
 
         return map;

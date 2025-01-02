@@ -1,5 +1,15 @@
 package com.navercorp.pinpoint.testapp.controller;
 
+import com.navercorp.pinpoint.testapp.util.Description;
+import org.springframework.ui.Model;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+
+import javax.annotation.PostConstruct;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -9,21 +19,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
-import javax.annotation.PostConstruct;
-
-import org.springframework.ui.Model;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
-
-/**
- * @author koo.taejin
- */
-import com.navercorp.pinpoint.testapp.util.Description;
 
 @RestController(value = "apisController")
 public class ApisController {
@@ -53,7 +48,7 @@ public class ApisController {
 
             SortedSet<RequestMappedUri> alreadyMappedRequests = this.apiMappings.get(controllerName);
             if (alreadyMappedRequests == null) {
-                alreadyMappedRequests = new TreeSet<RequestMappedUri>(RequestMappedUri.MAPPED_URI_ORDER);
+                alreadyMappedRequests = new TreeSet<>(RequestMappedUri.MAPPED_URI_ORDER);
                 this.apiMappings.put(controllerName, alreadyMappedRequests);
             }
             alreadyMappedRequests.addAll(createRequestMappedApis(handlerMethod, mappedRequests));
@@ -64,7 +59,7 @@ public class ApisController {
         if (CollectionUtils.isEmpty(mappedUris)) {
             return Collections.emptySet();
         }
-        Set<RequestMappedUri> requestMappedUris = new HashSet<RequestMappedUri>(mappedUris.size());
+        Set<RequestMappedUri> requestMappedUris = new HashSet<>(mappedUris.size());
         Description description = handlerMethod.getMethodAnnotation(Description.class);
         for (String mappedUri : mappedUris) {
             requestMappedUris.add(new RequestMappedUri(mappedUri, description));
