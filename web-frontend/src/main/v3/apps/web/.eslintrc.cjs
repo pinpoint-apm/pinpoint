@@ -1,7 +1,3 @@
-// const eslintConf = require('@pinpoint-fe/configs/eslintrc');
-
-// module.exports = eslintConf;
-
 module.exports = {
   parser: '@typescript-eslint/parser',
   extends: [

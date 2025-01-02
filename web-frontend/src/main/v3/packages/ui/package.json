@@ -108,7 +108,6 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@pinpoint-fe/configs": "*",
     "@storybook/addon-essentials": "^7.4.0",
     "@storybook/addon-interactions": "^7.4.0",
     "@storybook/addon-links": "^7.4.0",

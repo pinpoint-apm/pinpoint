@@ -1,12 +1,8 @@
-const prettierConfig = require('@pinpoint-fe/configs/prettier.config.cjs');
-
-module.exports = prettierConfig;
-
-// module.exports = {
-//   printWidth: 80,
-//   tabWidth: 2,
-//   singleQuote: true,
-//   trailingComma: 'all',
-//   jsxBracketSameLine: false,
-//   semi: true,
-// };
+module.exports = {
+  printWidth: 100,
+  tabWidth: 2,
+  singleQuote: true,
+  trailingComma: 'all',
+  semi: true,
+  endOfLine: 'auto',
+};
