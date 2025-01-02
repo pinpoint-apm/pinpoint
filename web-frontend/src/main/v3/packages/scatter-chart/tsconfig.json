@@ -1,16 +1,29 @@
 {
-  "extends": "@pinpoint-fe/tsconfig/base.json",
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Default",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "moduleResolution": "node",
+    "preserveWatchOutput": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ES6"
+  },
   "include": [
     ".",
     "**/*.ts",
     "**/*.tsx"
   ],
   "exclude": [
+    "dist",
     "build",
-    "node_modules"
-  ],
-  "compilerOptions": {
-    "target": "ES6",
-    "resolveJsonModule": true
-  }
+    "node_modules",
+    "**/*.stories.tsx"
+  ]
 }
