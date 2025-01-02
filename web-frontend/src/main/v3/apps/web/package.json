@@ -32,7 +32,6 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@pinpoint-fe/configs": "*",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
     "@types/react-router-dom": "^5.3.3",
