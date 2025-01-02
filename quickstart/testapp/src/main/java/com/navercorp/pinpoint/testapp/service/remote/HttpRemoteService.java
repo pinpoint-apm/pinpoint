@@ -1,11 +1,6 @@
 package com.navercorp.pinpoint.testapp.service.remote;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -21,8 +16,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -39,7 +38,7 @@ public class HttpRemoteService implements RemoteService {
 
     @Override
     public <R> R get(String url, Class<R> responseType) throws Exception {
-        HttpUriRequest httpMethod = createGet(url, new LinkedMultiValueMap<String, String>());
+        HttpUriRequest httpMethod = createGet(url, new LinkedMultiValueMap<>());
         return execute(httpMethod, responseType);
     }
 
@@ -51,12 +50,12 @@ public class HttpRemoteService implements RemoteService {
 
     @Override
     public <R> R post(String url, Class<R> responseType) throws Exception {
-        HttpUriRequest httpMethod = createPost(url, new LinkedMultiValueMap<String, String>());
+        HttpUriRequest httpMethod = createPost(url, new LinkedMultiValueMap<>());
         return execute(httpMethod, responseType);
     }
 
     @Override
-    public <R> R post(String url, MultiValueMap<String, String> params, Class<R> responseType) throws Exception {
+    public <R> R post(String url, MultiValueMap<String, String> params, Class<R> responseType) throws IOException {
         HttpUriRequest httpMethod = createPost(url, params);
         return execute(httpMethod, responseType);
     }
@@ -75,10 +74,10 @@ public class HttpRemoteService implements RemoteService {
         return new HttpGet(uri.build());
     }
 
-    private HttpPost createPost(String url, MultiValueMap<String, String> params) throws UnsupportedEncodingException {
+    private HttpPost createPost(String url, MultiValueMap<String, String> params) {
         HttpPost post = new HttpPost(url);
 
-        List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+        List<NameValuePair> nvps = new ArrayList<>();
         for (Map.Entry<String, List<String>> entry : params.entrySet()) {
             String key = entry.getKey();
 
@@ -87,17 +86,16 @@ public class HttpRemoteService implements RemoteService {
             }
         }
 
-        post.setEntity(new UrlEncodedFormEntity(nvps));
+        post.setEntity(new UrlEncodedFormEntity(nvps, StandardCharsets.UTF_8));
 
         return post;
     }
 
-    private <R> R execute(HttpUriRequest httpMethod, Class<R> responseType) throws Exception {
-        CloseableHttpClient httpclient = HttpClients.createDefault();
-
-        CloseableHttpResponse response = httpclient.execute(httpMethod);
-        HttpEntity entity = response.getEntity();
-
-        return mapper.readValue(entity.getContent(), responseType);
+    private <R> R execute(HttpUriRequest httpMethod, Class<R> responseType) throws IOException {
+        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+            CloseableHttpResponse response = httpclient.execute(httpMethod);
+            HttpEntity entity = response.getEntity();
+            return mapper.readValue(entity.getContent(), responseType);
+        }
     }
 }

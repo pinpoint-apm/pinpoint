@@ -17,7 +17,7 @@ public class SimpleController {
     @RequestMapping("/getCurrentTimestamp")
     @Description("Returns the server's current timestamp.")
     public Map<String, Object> getCurrentTimestamp() {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("getCurrentTimestamp", System.currentTimeMillis());
 
         return map;
@@ -25,7 +25,7 @@ public class SimpleController {
 
     @RequestMapping("/testUserInputRequestAttribute")
     public Map<String, Object> testUserInputAttribute(HttpServletRequest request) {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("message", "test user input attribute");
         request.setAttribute("pinpoint.metric.uri-template", "/userInput");
         return map;
@@ -36,7 +36,7 @@ public class SimpleController {
     public Map<String, Object> sleep3() throws InterruptedException {
         Thread.sleep(3000);
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("message", "ok");
 
         return map;
@@ -47,7 +47,7 @@ public class SimpleController {
     public Map<String, Object> sleep5() throws InterruptedException {
         Thread.sleep(5000);
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("message", "ok");
 
         return map;
@@ -58,7 +58,7 @@ public class SimpleController {
     public Map<String, Object> sleep7() throws InterruptedException {
         Thread.sleep(7000);
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("message", "ok");
 
         return map;
@@ -75,7 +75,7 @@ public class SimpleController {
         if ( fail < 2.0 ) {
             throw new RuntimeException();
         }
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("message", "ok");
 
         return map;

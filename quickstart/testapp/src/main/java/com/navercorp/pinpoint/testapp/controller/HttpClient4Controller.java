@@ -32,7 +32,7 @@ public class HttpClient4Controller {
     @RequestMapping("/getGeoCode")
     @Description("HTTP GET to " + GOOGLE_GEOCODE_URL)
     public Map<String, Object> getGeoCode(@RequestParam(defaultValue = DEFAULT_GET_GEOCODE_ADDRESS, required = false) String address) throws Exception {
-        LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
+        LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("address", address);
         params.add("sensor", "false");
 

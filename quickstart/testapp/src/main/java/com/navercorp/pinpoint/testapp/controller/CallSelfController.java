@@ -67,7 +67,7 @@ public class CallSelfController {
         return response;
     }
     
-    private static final String createTargetUrl(final HttpServletRequest request, final String path) throws URISyntaxException {
+    private static String createTargetUrl(final HttpServletRequest request, final String path) throws URISyntaxException {
         return new URIBuilder()
                 .setScheme("http")
                 .setHost(LOCAL_IP)
