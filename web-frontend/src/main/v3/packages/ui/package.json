@@ -109,7 +109,6 @@
   },
   "devDependencies": {
     "@pinpoint-fe/configs": "*",
-    "@pinpoint-fe/tsconfig": "*",
     "@storybook/addon-essentials": "^7.4.0",
     "@storybook/addon-interactions": "^7.4.0",
     "@storybook/addon-links": "^7.4.0",
