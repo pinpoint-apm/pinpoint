@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.test.plugin;
 
 import com.navercorp.pinpoint.test.plugin.classloader.PluginTestClassLoader;
-import com.navercorp.pinpoint.test.plugin.shared.ThreadFactory;
+import com.navercorp.pinpoint.test.plugin.shared.TestThreadFactory;
 import com.navercorp.pinpoint.test.plugin.util.CallExecutable;
 import com.navercorp.pinpoint.test.plugin.util.RunExecutable;
 import org.junit.platform.commons.JUnitException;
@@ -27,6 +27,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -47,8 +48,8 @@ public class DefaultPluginTestInstance implements PluginTestInstance {
         this.callback = callback;
 
         final String threadName = id + "-Thread";
-        final ThreadFactory threadFactory = new ThreadFactory(threadName, this.classLoader);
-        this.executorService = Executors.newSingleThreadExecutor(threadFactory);
+        final ThreadFactory testThreadFactory = new TestThreadFactory(threadName, this.classLoader);
+        this.executorService = Executors.newSingleThreadExecutor(testThreadFactory);
     }
 
     @Override

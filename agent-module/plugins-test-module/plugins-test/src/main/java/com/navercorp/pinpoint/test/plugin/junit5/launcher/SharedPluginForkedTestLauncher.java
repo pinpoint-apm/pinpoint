@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.test.plugin.shared.SharedTestLifeCycleWrapper;
 import com.navercorp.pinpoint.test.plugin.shared.TestInfo;
 import com.navercorp.pinpoint.test.plugin.shared.TestParameter;
 import com.navercorp.pinpoint.test.plugin.shared.TestParameterParser;
-import com.navercorp.pinpoint.test.plugin.shared.ThreadFactory;
+import com.navercorp.pinpoint.test.plugin.shared.TestThreadFactory;
 import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.util.ChildFirstClassLoader;
 import com.navercorp.pinpoint.test.plugin.util.CollectionUtils;
@@ -38,8 +38,11 @@ import com.navercorp.pinpoint.test.plugin.util.URLUtils;
 import org.junit.jupiter.engine.JupiterTestEngine;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
+import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
 import org.junit.platform.launcher.LauncherSession;
+import org.junit.platform.launcher.TestExecutionListener;
+import org.junit.platform.launcher.TestIdentifier;
 import org.junit.platform.launcher.core.LauncherConfig;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
@@ -55,11 +58,18 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class SharedPluginForkedTestLauncher {
 
     private static final TaggedLogger logger = TestLogger.getLogger();
+
+    private static final String TEST_RESULT_SUCCESS = "SUCCESS";
 
     public static void main(String[] args) throws Exception {
         final String mavenDependencyResolverClassPaths = System.getProperty(SharedPluginTestConstants.MAVEN_DEPENDENCY_RESOLVER_CLASS_PATHS);
@@ -271,74 +281,89 @@ public class SharedPluginForkedTestLauncher {
     }
 
     private void execute(final TestInfo testInfo, SharedTestLifeCycleWrapper sharedTestLifeCycleWrapper) {
-        try {
-            final ClassLoader testClassLoader = createTestClassLoader(testInfo);
-            final SharedPluginForkedTestLauncherListener listener = new SharedPluginForkedTestLauncherListener(testInfo.getTestId());
-            Runnable runnable = new Runnable() {
-                @Override
-                public void run() {
-                    final Class<?> testClazz = loadClass();
-                    boolean manageTraceObject = !testClazz.isAnnotationPresent(TraceObjectManagable.class);
-                    SharedTestBeforeAllInvoker invoker = new SharedTestBeforeAllInvoker(testClazz);
-                    try {
-                        if (sharedTestLifeCycleWrapper != null) {
-                            invoker.invoke(sharedTestLifeCycleWrapper.getLifeCycleResult());
+        final ClassLoader testClassLoader = createTestClassLoader(testInfo);
+
+        Callable<String> callable = new Callable<String>() {
+            @Override
+            public String call() {
+                final Class<?> testClazz = loadClass();
+                boolean manageTraceObject = !testClazz.isAnnotationPresent(TraceObjectManagable.class);
+                SharedTestBeforeAllInvoker invoker = new SharedTestBeforeAllInvoker(testClazz);
+                try {
+                    if (sharedTestLifeCycleWrapper != null) {
+                        invoker.invoke(sharedTestLifeCycleWrapper.getLifeCycleResult());
+                    }
+                } catch (Throwable th) {
+                    logger.error(th, "invoker setter method failed. testClazz:{} testId:{}", testClazzName, testInfo.getTestId());
+                    return th.getMessage();
+                }
+
+                LauncherConfig launcherConfig = getLauncherConfig(testInfo.getTestId(), manageTraceObject);
+
+                LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
+                        .selectors(DiscoverySelectors.selectClass(testClazz))
+                        .build();
+                try (LauncherSession session = LauncherFactory.openSession(launcherConfig)) {
+                    Launcher launcher = session.getLauncher();
+                    SharedPluginForkedTestLauncherListener listener = new SharedPluginForkedTestLauncherListener(testInfo.getTestId());
+                    launcher.execute(request, new TestExecutionListener() {
+                        @Override
+                        public void executionStarted(TestIdentifier testIdentifier) {
+                            listener.executionStarted(testIdentifier);
                         }
-                    } catch (Throwable th) {
-                        logger.error(th, "invoker setter method failed. testClazz:{} testId:{}", testClazzName, testInfo.getTestId());
-                    }
-                    try {
-                        listener.executionStarted();
-                        LauncherConfig launcherConfig = LauncherConfig.builder()
-                                .enableTestEngineAutoRegistration(false)
-                                .enableLauncherSessionListenerAutoRegistration(false)
-                                .enableLauncherDiscoveryListenerAutoRegistration(false)
-                                .enablePostDiscoveryFilterAutoRegistration(false)
-                                .enableTestExecutionListenerAutoRegistration(false)
-                                .addTestEngines(new JupiterTestEngine())
-                                .addTestExecutionListeners(new SharedPluginForkedTestExecutionListener(testInfo.getTestId()))
-                                .addTestExecutionListeners(new SharedPluginForkedTestVerifierExecutionListener(manageTraceObject))
-                                .build();
 
-                        LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
-                                .selectors(DiscoverySelectors.selectClass(testClazz))
-                                .build();
-                        LauncherSession session = LauncherFactory.openSession(launcherConfig);
-                        session.getLauncher().execute(request);
-                        listener.executionFinished(TestExecutionResult.successful());
-                    } catch (Throwable t) {
-                        t.printStackTrace();
-                        listener.executionFinished(TestExecutionResult.failed(t));
-                    }
+                        @Override
+                        public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
+                            listener.executionFinished(testIdentifier, testExecutionResult);
+                        }
+                    });
                 }
+                return TEST_RESULT_SUCCESS;
+            }
 
-                private Class<?> loadClass() {
-                    try {
-                        return testClassLoader.loadClass(testClazzName);
-                    } catch (ClassNotFoundException e) {
-                        throw new RuntimeException(e);
-                    }
+            private Class<?> loadClass() {
+                try {
+                    return testClassLoader.loadClass(testClazzName);
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
                 }
-            };
-            String threadName = testClazzName + " " + testInfo.getTestId() + " Thread";
-
-            ThreadFactory threadFactory = new ThreadFactory(threadName, testClassLoader);
-            Thread testThread = threadFactory.newThread(runnable);
-            testThread.start();
-
-            testThread.join(TimeUnit.MINUTES.toMillis(5));
-            checkTerminatedState(testThread, testClazzName + " " + testInfo.getTestId());
-        } catch (Exception e) {
-            e.printStackTrace();
+            }
+        };
+        ExecutorService executorService = newExecutorService(testInfo, testClassLoader);
+        Future<String> submit = executorService.submit(callable);
+        try {
+            String result = submit.get(5, TimeUnit.MINUTES);
+            if (!TEST_RESULT_SUCCESS.equals(result)) {
+                logger.error("test failed. testClazz:{} testId:{} result:{}", testClazzName, testInfo.getTestId(), result);
+            }
+        } catch (TimeoutException ex) {
+            submit.cancel(true);
+            ex.printStackTrace();
+        } catch (Throwable ex) {
+            ex.printStackTrace();
         } finally {
             ReflectPluginTestVerifier.getInstance().cleanUp(true);
+            executorService.shutdown();
         }
     }
 
-
-    private void checkTerminatedState(Thread testThread, String testInfo) {
-        if (testThread.isAlive()) {
-            throw new IllegalStateException(testInfo + " not finished");
-        }
+    private ExecutorService newExecutorService(TestInfo testInfo, ClassLoader testClassLoader) {
+        String threadName = testClazzName + " " + testInfo.getTestId() + " Thread";
+        ThreadFactory testThreadFactory = new TestThreadFactory(threadName, testClassLoader);
+        return Executors.newSingleThreadExecutor(testThreadFactory);
     }
+
+    private LauncherConfig getLauncherConfig(String testId, boolean manageTraceObject) {
+        return LauncherConfig.builder()
+                .enableTestEngineAutoRegistration(false)
+                .enableLauncherSessionListenerAutoRegistration(false)
+                .enableLauncherDiscoveryListenerAutoRegistration(false)
+                .enablePostDiscoveryFilterAutoRegistration(false)
+                .enableTestExecutionListenerAutoRegistration(false)
+                .addTestEngines(new JupiterTestEngine())
+                .addTestExecutionListeners(new SharedPluginForkedTestExecutionListener(testId))
+                .addTestExecutionListeners(new SharedPluginForkedTestVerifierExecutionListener(manageTraceObject))
+                .build();
+    }
+
 }

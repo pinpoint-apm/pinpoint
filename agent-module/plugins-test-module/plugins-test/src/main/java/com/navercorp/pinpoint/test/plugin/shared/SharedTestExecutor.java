@@ -25,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -47,8 +48,8 @@ public class SharedTestExecutor {
         this.testClazzName = Objects.requireNonNull(testClazzName, "testClazzName");
         this.testClassLoader = Objects.requireNonNull(testClassLoader, "testClassLoader");
 
-        ThreadFactory threadFactory = new ThreadFactory(testClazzName + "-Shared-Executor", testClassLoader);
-        this.executor = Executors.newSingleThreadExecutor(threadFactory);
+        ThreadFactory testThreadFactory = new TestThreadFactory(testClazzName + "-Shared-Executor", testClassLoader);
+        this.executor = Executors.newSingleThreadExecutor(testThreadFactory);
     }
 
     public void startBefore(long timeout, TimeUnit unit) {
