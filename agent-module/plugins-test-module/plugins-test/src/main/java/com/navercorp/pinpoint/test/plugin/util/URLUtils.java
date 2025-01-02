@@ -1,8 +1,10 @@
 package com.navercorp.pinpoint.test.plugin.util;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,5 +42,12 @@ public final class URLUtils {
         }
     }
 
+    public static String encode(String str) {
+        try {
+            return java.net.URLEncoder.encode(str, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }

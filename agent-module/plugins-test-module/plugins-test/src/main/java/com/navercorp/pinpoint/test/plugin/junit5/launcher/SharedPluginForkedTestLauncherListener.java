@@ -17,34 +17,32 @@
 package com.navercorp.pinpoint.test.plugin.junit5.launcher;
 
 import com.navercorp.pinpoint.test.plugin.ExceptionWriter;
+import com.navercorp.pinpoint.test.plugin.util.URLUtils;
 import org.junit.platform.engine.TestExecutionResult;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import org.junit.platform.launcher.TestIdentifier;
 
 import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.JUNIT_OUTPUT_DELIMITER;
-import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.UTF_8_NAME;
 
 public class SharedPluginForkedTestLauncherListener {
     private static final String ENGINE_ID = "[engine:junit-jupiter]";
     private static final String SEGEMENT_ID = "dependency:";
 
     private final ExceptionWriter writer = new ExceptionWriter();
-    private String testId;
+    private final String testId;
 
-    public SharedPluginForkedTestLauncherListener(String testId) throws UnsupportedEncodingException {
-        this.testId = URLEncoder.encode(testId, UTF_8_NAME);
+    public SharedPluginForkedTestLauncherListener(String testId) {
+        this.testId = URLUtils.encode(testId);
     }
 
-    public void executionStarted() {
-        System.out.println(JUNIT_OUTPUT_DELIMITER + "executionStarted" + JUNIT_OUTPUT_DELIMITER + toReportId());
+    public void executionStarted(TestIdentifier testIdentifier) {
+        System.out.println(JUNIT_OUTPUT_DELIMITER + "executionStarted" + JUNIT_OUTPUT_DELIMITER + toReportId(testIdentifier));
     }
 
-    public void executionFinished(TestExecutionResult testExecutionResult) {
-        System.out.println(JUNIT_OUTPUT_DELIMITER + "executionFinished" + JUNIT_OUTPUT_DELIMITER + toReportId() + JUNIT_OUTPUT_DELIMITER + toResult(testExecutionResult));
+    public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
+        System.out.println(JUNIT_OUTPUT_DELIMITER + "executionFinished" + JUNIT_OUTPUT_DELIMITER + toReportId(testIdentifier) + JUNIT_OUTPUT_DELIMITER + toResult(testExecutionResult));
     }
 
-    String toReportId() {
+    String toReportId(TestIdentifier testIdentifier) {
         return "[" + SEGEMENT_ID + testId + "]";
     }
 

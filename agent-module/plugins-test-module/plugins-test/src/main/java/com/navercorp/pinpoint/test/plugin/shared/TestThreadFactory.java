@@ -1,12 +1,13 @@
 package com.navercorp.pinpoint.test.plugin.shared;
 
 import java.util.Objects;
+import java.util.concurrent.ThreadFactory;
 
-public class ThreadFactory implements java.util.concurrent.ThreadFactory {
+public class TestThreadFactory implements ThreadFactory {
     private final String threadName;
     private final ClassLoader cl;
 
-    public ThreadFactory(String threadName, ClassLoader cl) {
+    public TestThreadFactory(String threadName, ClassLoader cl) {
         this.threadName = Objects.requireNonNull(threadName, "threadName");
         this.cl = Objects.requireNonNull(cl, "cl");
     }

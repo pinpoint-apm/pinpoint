@@ -17,25 +17,22 @@
 package com.navercorp.pinpoint.test.plugin.junit5.launcher;
 
 import com.navercorp.pinpoint.test.plugin.ExceptionWriter;
+import com.navercorp.pinpoint.test.plugin.util.URLUtils;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.launcher.TestExecutionListener;
 import org.junit.platform.launcher.TestIdentifier;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
 import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.JUNIT_OUTPUT_DELIMITER;
-import static com.navercorp.pinpoint.test.plugin.PluginTestConstants.UTF_8_NAME;
 
 public class SharedPluginForkedTestExecutionListener implements TestExecutionListener {
     private static final String ENGINE_ID = "[engine:junit-jupiter]";
     private static final String SEGEMENT_ID = "dependency:";
 
     private final ExceptionWriter writer = new ExceptionWriter();
-    private String testId;
+    private final String testId;
 
-    public SharedPluginForkedTestExecutionListener(String testId) throws UnsupportedEncodingException {
-        this.testId = URLEncoder.encode(testId, UTF_8_NAME);
+    public SharedPluginForkedTestExecutionListener(String testId) {
+        this.testId = URLUtils.encode(testId);
     }
 
     @Override
