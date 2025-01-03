@@ -24,6 +24,7 @@ public class SimpleController {
     }
 
     @RequestMapping("/testUserInputRequestAttribute")
+    @Description("Test user input request attribute \"pinpoint.metric.uri-template\"= \"/userInput\".")
     public Map<String, Object> testUserInputAttribute(HttpServletRequest request) {
         Map<String, Object> map = new HashMap<>();
         map.put("message", "test user input attribute");
@@ -65,7 +66,7 @@ public class SimpleController {
     }
 
     @RequestMapping("/randomResponseTime/**")
-    @Description("Waits for random time and then returns")
+    @Description("Waits for a random time (0s ~ 10s), then has a (20%) chance to fail.")
     public Map<String, Object> randomResponseTime() throws InterruptedException {
         double a = Math.random() * 10000;
         double fail = Math.random() * 10;
@@ -82,6 +83,7 @@ public class SimpleController {
     }
 
     @RequestMapping("/fails")
+    @Description("Call that fails with an RuntimeException.")
     public void fails() throws Exception {
         throw new RuntimeException();
     }
