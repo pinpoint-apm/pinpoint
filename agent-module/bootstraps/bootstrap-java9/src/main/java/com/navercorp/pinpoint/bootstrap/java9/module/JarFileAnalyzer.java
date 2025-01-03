@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.bootstrap.java9.module;
 
 import com.navercorp.pinpoint.bootstrap.module.Providers;
-import com.navercorp.pinpoint.common.util.ClassUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -124,28 +123,20 @@ public class JarFileAnalyzer implements PackageAnalyzer {
             }
 
             final String fileName = jarEntry.getName();
-            if (!checkFIleExtension(fileName, CLASS_EXTENSION)) {
+            if (!checkFileExtension(fileName, CLASS_EXTENSION)) {
                 // skip non-class file
                 return null;
             }
 
-            final String packageName = ClassUtils.getPackageName(fileName, '/', null);
+            final String packageName = ModuleUtils.getPackageName(fileName, '/');
             if (packageName == null) {
                 return null;
             }
-            return toPackageName(packageName);
+            return ModuleUtils.toPackageName(packageName);
         }
 
-        private boolean checkFIleExtension(String fileName, String extension) {
+        private boolean checkFileExtension(String fileName, String extension) {
             return fileName.endsWith(extension);
-        }
-
-
-        private String toPackageName(String dirFormat) {
-            if (dirFormat == null) {
-                return null;
-            }
-            return dirFormat.replace('/', '.');
         }
     }
 }
