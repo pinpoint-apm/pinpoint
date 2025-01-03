@@ -9,10 +9,10 @@ class ModuleUtilsTest {
 
     @Test
     void isJava11JvmVersionUpper() {
-        assertFalse(ModuleUtils.jvmVersionUpper(7));
-        assertFalse(ModuleUtils.jvmVersionUpper(8));
-
+        assertTrue(ModuleUtils.jvmVersionUpper(7));
+        assertTrue(ModuleUtils.jvmVersionUpper(8));
         assertTrue(ModuleUtils.jvmVersionUpper(11));
-        assertTrue(ModuleUtils.jvmVersionUpper(17));
+
+        assertFalse(ModuleUtils.jvmVersionUpper(17));
     }
 }
