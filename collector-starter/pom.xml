@@ -16,7 +16,6 @@
     <properties>
         <jdk.version>17</jdk.version>
         <jdk.home>${env.JAVA_17_HOME}</jdk.home>
-        <javax.servlet.version>${javax.servlet4.version}</javax.servlet.version>
     </properties>
 
     <dependencies>
