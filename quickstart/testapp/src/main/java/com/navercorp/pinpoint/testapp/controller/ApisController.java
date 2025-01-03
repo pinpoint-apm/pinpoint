@@ -6,6 +6,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
@@ -44,7 +45,7 @@ public class ApisController {
             }
 
             String controllerName = handlerMethodBeanClazz.getSimpleName();
-            Set<String> mappedRequests = requestMappingInfo.getPatternsCondition().getPatterns();
+            Set<String> mappedRequests = requestMappingInfo.getPatternValues();
 
             SortedSet<RequestMappedUri> alreadyMappedRequests = this.apiMappings.get(controllerName);
             if (alreadyMappedRequests == null) {
@@ -68,9 +69,9 @@ public class ApisController {
     }
 
     @GetMapping(value = {"/", "/index.html", "/apis"})
-    public String apis(Model model) {
+    public ModelAndView apis(Model model) {
         model.addAttribute("apiMappings", this.apiMappings);
-        return "apis";
+        return new ModelAndView("apis.html", model.asMap());
     }
 
     public static class RequestMappedUri {
