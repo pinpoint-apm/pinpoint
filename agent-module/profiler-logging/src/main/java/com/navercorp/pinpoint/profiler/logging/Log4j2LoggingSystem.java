@@ -21,7 +21,7 @@ public class Log4j2LoggingSystem implements LoggingSystem {
 
     private static final String[] LOOKUP = {
             "log4j2-test.properties", "log4j2-test.xml",
-            "log4j2-agent.properties", "log4j2-agent.xml",
+            "log4j2-agent.properties", "log4j2-agent.yaml",
     };
 
     private LoggerContext loggerContext;
