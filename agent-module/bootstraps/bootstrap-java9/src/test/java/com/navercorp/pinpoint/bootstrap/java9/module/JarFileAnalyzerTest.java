@@ -30,6 +30,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -91,11 +92,11 @@ public class JarFileAnalyzerTest {
 
     @Test
     public void filter_emptyPackage() {
-        JarFileAnalyzer.JarEntryFilter filter = new JarFileAnalyzer.PackageFilter();
+        Function<JarEntry, String> filter = new JarFileAnalyzer.PackageFilter();
         JarEntry jarEntry = mock(JarEntry.class);
         when(jarEntry.getName()).thenReturn("test.class");
 
-        String empty = filter.filter(jarEntry);
+        String empty = filter.apply(jarEntry);
         Assertions.assertNull(empty);
     }
 

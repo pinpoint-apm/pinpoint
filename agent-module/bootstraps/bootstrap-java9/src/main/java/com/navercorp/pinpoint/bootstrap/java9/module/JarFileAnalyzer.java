@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -42,14 +43,14 @@ public class JarFileAnalyzer implements PackageAnalyzer {
     private static final String SERVICE_LOADER = META_INF + "services/";
 
     private final JarFile jarFile;
-    private final JarEntryFilter filter;
-    private final ServiceLoaderEntryFilter serviceLoaderEntryFilter;
+    private final Function<JarEntry, String> filter;
+    private final Function<JarEntry, Providers> serviceLoaderEntryFilter;
 
 
     JarFileAnalyzer(JarFile jarFile) {
         this.jarFile = Objects.requireNonNull(jarFile, "jarFile");
         this.filter = new PackageFilter();
-        this.serviceLoaderEntryFilter = new DefaultServiceLoaderEntryFilter();
+        this.serviceLoaderEntryFilter = new ServiceLoaderEntryFilter(jarFile);
     }
 
     @Override
@@ -61,12 +62,12 @@ public class JarFileAnalyzer implements PackageAnalyzer {
         while (entries.hasMoreElements()) {
             final JarEntry jarEntry = entries.nextElement();
 
-            final String packageName = this.filter.filter(jarEntry);
+            final String packageName = this.filter.apply(jarEntry);
             if (packageName != null) {
                 packageSet.add(packageName);
             }
 
-            final Providers provides = this.serviceLoaderEntryFilter.filter(jarEntry);
+            final Providers provides = this.serviceLoaderEntryFilter.apply(jarEntry);
             if (provides != null) {
                 packageSet.add(provides.getServicePackage());
                 providesList.add(provides);
@@ -76,13 +77,15 @@ public class JarFileAnalyzer implements PackageAnalyzer {
     }
 
 
-    interface ServiceLoaderEntryFilter {
-        Providers filter(JarEntry jarEntry);
-    }
+    static class ServiceLoaderEntryFilter implements Function<JarEntry, Providers> {
 
-    class DefaultServiceLoaderEntryFilter implements ServiceLoaderEntryFilter {
-        @Override
-        public Providers filter(JarEntry jarEntry) {
+        private final JarFile jarFile;
+
+        public ServiceLoaderEntryFilter(JarFile jarFile) {
+            this.jarFile = Objects.requireNonNull(jarFile, "jarFile");
+        }
+
+        public Providers apply(JarEntry jarEntry) {
             final String jarEntryName = jarEntry.getName();
             if (!jarEntryName.startsWith(SERVICE_LOADER)) {
                 return null;
@@ -104,16 +107,10 @@ public class JarFileAnalyzer implements PackageAnalyzer {
                 throw new IllegalStateException(jarFile.getName() + " File read fail ", e);
             }
         }
-
     }
 
-
-    interface JarEntryFilter {
-        String filter(JarEntry jarEntry);
-    }
-
-    static class PackageFilter implements JarEntryFilter {
-        public String filter(JarEntry jarEntry) {
+    static class PackageFilter implements Function<JarEntry, String> {
+        public String apply(JarEntry jarEntry) {
             if (jarEntry.getName().startsWith(META_INF)) {
                 // skip META-INF
                 return null;
