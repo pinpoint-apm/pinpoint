@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirBaseClassPathResolver;
 import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
 import com.navercorp.pinpoint.bootstrap.agentdir.BootDir;
@@ -74,7 +73,7 @@ public class PinpointBootStrap {
 
 
     private void start() {
-        logger.info(ProductInfo.NAME + " agentArgs:" + agentArgs);
+        logger.info("pinpoint agentArgs:" + agentArgs);
         logger.info("PinpointBootStrap.ClassLoader:" + PinpointBootStrap.class.getClassLoader());
         logger.info("ContextClassLoader:" + Thread.currentThread().getContextClassLoader());
 

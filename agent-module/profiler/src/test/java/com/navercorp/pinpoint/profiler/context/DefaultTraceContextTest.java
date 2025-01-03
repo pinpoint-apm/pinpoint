@@ -30,10 +30,8 @@ import com.navercorp.pinpoint.profiler.context.id.TransactionCounter;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.provider.sampler.SamplerConfig;
 import com.navercorp.pinpoint.profiler.sampler.CountingSamplerFactory;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -45,8 +43,8 @@ import static org.mockito.Mockito.spy;
  * @author HyunGil Jeong
  */
 public class DefaultTraceContextTest {
-    private final Logger logger = LogManager.getLogger(this.getClass());
 
+    @AutoClose
     private DefaultApplicationContext applicationContext;
 
     @BeforeEach
@@ -57,13 +55,6 @@ public class DefaultTraceContextTest {
         applicationContext.start();
     }
 
-    @AfterEach
-    public void tearDown() throws Exception {
-        if (applicationContext != null) {
-            applicationContext.close();
-        }
-    }
-
     @Test
     public void parseTest() {
         String agent = "test";
@@ -72,13 +63,12 @@ public class DefaultTraceContextTest {
         TraceId traceId = new DefaultTraceId(agent, agentStartTime, agentTransactionCount);
 
         String id = traceId.getTransactionId();
-        logger.debug("id={}", id);
 
         TransactionId transactionid = TransactionIdUtils.parseTransactionId(id);
 
-        Assertions.assertEquals(transactionid.getAgentId(), agent);
-        Assertions.assertEquals(transactionid.getAgentStartTime(), agentStartTime);
-        Assertions.assertEquals(transactionid.getTransactionSequence(), agentTransactionCount);
+        Assertions.assertEquals(agent, transactionid.getAgentId());
+        Assertions.assertEquals(agentStartTime, transactionid.getAgentStartTime());
+        Assertions.assertEquals(agentTransactionCount, transactionid.getTransactionSequence());
     }
 
     @Test
@@ -132,7 +122,8 @@ public class DefaultTraceContextTest {
 
 
         final long newTransactionCount = 22L;
-        @SuppressWarnings("unused") final long expectedSampledNewCount = newTransactionCount / samplingRate + (newTransactionCount % samplingRate > 0 ? 1 : 0);
+        @SuppressWarnings("unused")
+        final long expectedSampledNewCount = newTransactionCount / samplingRate + (newTransactionCount % samplingRate > 0 ? 1 : 0);
         final long expectedUnsampledNewCount = newTransactionCount - expectedSampledNewCount;
         for (int i = 0; i < newTransactionCount; i++) {
             traceContext.newTraceObject();
@@ -163,8 +154,6 @@ public class DefaultTraceContextTest {
     }
 
     public ProfilerConfig getProfilerConfig() {
-        ProfilerConfig profilerConfig = spy(new DefaultProfilerConfig());
-        Mockito.when(profilerConfig.getStaticResourceCleanup()).thenReturn(true);
-        return profilerConfig;
+        return spy(new DefaultProfilerConfig());
     }
 }

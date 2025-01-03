@@ -92,7 +92,11 @@ public class GrpcModule extends PrivateModule {
 
     public GrpcModule(ProfilerConfig profilerConfig) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
-        this.reporter = new ChannelzScheduledReporterBuilder().acceptConfig(this.profilerConfig).build();
+
+        ChannelzScheduledReporterBuilder builder = new ChannelzScheduledReporterBuilder();
+        builder.acceptConfig(this.profilerConfig.getProperties()::getProperty);
+        this.reporter = builder.build();
+
     }
 
     @Override

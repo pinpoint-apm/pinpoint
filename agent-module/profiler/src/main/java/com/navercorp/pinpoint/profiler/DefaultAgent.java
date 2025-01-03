@@ -16,16 +16,16 @@
 
 package com.navercorp.pinpoint.profiler;
 
-import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.banner.Banner;
 import com.navercorp.pinpoint.banner.Mode;
 import com.navercorp.pinpoint.banner.PinpointBanner;
-import com.navercorp.pinpoint.bootstrap.Agent;
-import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import com.navercorp.pinpoint.bootstrap.config.Profiles;
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
+import com.navercorp.pinpoint.profiler.config.AgentSystemConfig;
+import com.navercorp.pinpoint.profiler.config.LogConfig;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultModuleFactoryResolver;
@@ -34,6 +34,10 @@ import com.navercorp.pinpoint.profiler.context.module.ModuleFactoryResolver;
 import com.navercorp.pinpoint.profiler.context.provider.ShutdownHookRegisterProvider;
 import com.navercorp.pinpoint.profiler.logging.Log4j2LoggingSystem;
 import com.navercorp.pinpoint.profiler.logging.LoggingSystem;
+import com.navercorp.pinpoint.profiler.name.AgentIdResolver;
+import com.navercorp.pinpoint.profiler.name.AgentIdResolverBuilder;
+import com.navercorp.pinpoint.profiler.name.AgentIdSourceType;
+import com.navercorp.pinpoint.profiler.name.AgentIds;
 import com.navercorp.pinpoint.profiler.util.SystemPropertyDumper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -56,6 +60,7 @@ public class DefaultAgent implements Agent {
     private final LoggingSystem loggingSystem;
     private final Logger logger;
 
+    private final AgentOption agentOption;
     private final ProfilerConfig profilerConfig;
 
     private final ApplicationContext applicationContext;
@@ -64,32 +69,87 @@ public class DefaultAgent implements Agent {
     private volatile AgentStatus agentStatus;
 
 
-    public DefaultAgent(AgentOption agentOption) {
-        Objects.requireNonNull(agentOption, "agentOption");
-        Objects.requireNonNull(agentOption.getInstrumentation(), "instrumentation");
-        Objects.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
+    public DefaultAgent(Map<String, Object> map) {
+        Objects.requireNonNull(map, "map");
 
-        this.profilerConfig = agentOption.getProfilerConfig();
+        this.agentOption = AgentOption.of(map);
 
-        final Path logConfigPath = getLogConfigPath(profilerConfig);
+        Properties properties = agentOption.getProperties();
+        this.profilerConfig = ProfilerConfigLoader.load(properties);
+
+        final Path agentPath = agentOption.getAgentPath();
+        final Path logConfigPath = getLogConfigPath(profilerConfig, agentPath);
+
+        LogConfig logConfig = new LogConfig(logConfigPath);
+        logConfig.saveLogFilePath();
+        logConfig.cleanLogDir(properties);
+
         this.loggingSystem = newLoggingSystem(logConfigPath);
         this.loggingSystem.start();
 
         logger = LogManager.getLogger(this.getClass());
-        dumpAgentOption(agentOption);
+
+        logger.info("logConfig path:{}", loggingSystem.getConfigLocation());
+
+        AgentContextOption agentContextOption = buildContextOption(agentOption, profilerConfig);
+
+        dumpAgentOption(agentContextOption);
 
         dumpSystemProperties();
-        dumpConfig(agentOption.getProfilerConfig());
+        dumpConfig(profilerConfig);
+
+        // save system config
+        saveSystemConfig(agentContextOption);
 
         changeStatus(AgentStatus.INITIALIZING);
 
         preloadOnStartup();
 
-        this.applicationContext = newApplicationContext(agentOption);
-
+        this.applicationContext = newApplicationContext(agentContextOption);
     }
 
-    private void dumpAgentOption(AgentOption agentOption) {
+    protected AgentContextOption buildContextOption(AgentOption agentOption, ProfilerConfig profilerConfig) {
+        final AgentIds agentIds = resolveAgentIds();
+        if (agentIds == null) {
+            logger.warn("Failed to resolve AgentId and ApplicationId");
+            throw new RuntimeException("Failed to resolve AgentId and ApplicationId");
+        }
+
+        final String agentId = agentIds.getAgentId();
+        if (agentId == null) {
+            logger.warn("agentId is null");
+            throw new RuntimeException("agentId is null");
+        }
+        final String agentName = agentIds.getAgentName();
+        final String applicationName = agentIds.getApplicationName();
+        if (applicationName == null) {
+            logger.warn("applicationName is null");
+            throw new RuntimeException("applicationName is null");
+        }
+
+        return AgentContextOptionBuilder.build(agentOption,
+                agentId, agentName, applicationName,
+                profilerConfig);
+    }
+
+    private AgentIds resolveAgentIds() {
+        AgentIdResolverBuilder builder = new AgentIdResolverBuilder();
+        builder.addProperties(AgentIdSourceType.SYSTEM, System.getProperties()::getProperty);
+        builder.addProperties(AgentIdSourceType.SYSTEM_ENV, System.getenv()::get);
+        builder.addProperties(AgentIdSourceType.AGENT_ARGUMENT, agentOption.getAgentArgs()::get);
+        AgentIdResolver agentIdResolver = builder.build();
+        return agentIdResolver.resolve();
+    }
+
+
+    private void saveSystemConfig(AgentContextOption option) {
+        // set the path of log file as a system property
+        AgentSystemConfig agentSystemConfig = new AgentSystemConfig();
+        agentSystemConfig.saveAgentIdForLog(option.getAgentId());
+        agentSystemConfig.savePinpointVersion(Version.VERSION);
+    }
+
+    private void dumpAgentOption(AgentContextOption agentOption) {
         logger.info("AgentOption");
         logger.info("- agentId:{}", agentOption.getAgentId());
         logger.info("- applicationName:{}", agentOption.getApplicationName());
@@ -97,17 +157,22 @@ public class DefaultAgent implements Agent {
         logger.info("- instrumentation:{}", agentOption.getInstrumentation());
     }
 
-    private LoggingSystem newLoggingSystem(Path profilePath) {
-        return new Log4j2LoggingSystem(profilePath);
+    private LoggingSystem newLoggingSystem(Path agentPath) {
+        return Log4j2LoggingSystem.searchPath(agentPath);
     }
 
-    protected ApplicationContext newApplicationContext(AgentOption agentOption) {
+    protected ApplicationContext newApplicationContext(AgentContextOption agentOption) {
         Objects.requireNonNull(agentOption, "agentOption");
         ProfilerConfig profilerConfig = Objects.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
 
-        ModuleFactoryResolver moduleFactoryResolver = new DefaultModuleFactoryResolver(profilerConfig.getInjectionModuleFactoryClazzName());
+        String factoryClazzName = getInjectionModuleFactoryClazzName(profilerConfig);
+        ModuleFactoryResolver moduleFactoryResolver = new DefaultModuleFactoryResolver(factoryClazzName);
         ModuleFactory moduleFactory = moduleFactoryResolver.resolve();
         return new DefaultApplicationContext(agentOption, moduleFactory);
+    }
+
+    private String getInjectionModuleFactoryClazzName(ProfilerConfig profilerConfig) {
+        return profilerConfig.readString("profiler.guice.module.factory", null);
     }
 
     protected ApplicationContext getApplicationContext() {
@@ -136,12 +201,12 @@ public class DefaultAgent implements Agent {
         }
     }
 
-    private Path getLogConfigPath(ProfilerConfig config) {
+    protected Path getLogConfigPath(ProfilerConfig config, Path agentPath) {
         final String location = config.readString(Profiles.LOG_CONFIG_LOCATION_KEY, null);
-        if (location == null) {
-            throw new IllegalStateException("logPath($PINPOINT_DIR/profiles/${profile}/) not found");
+        if (location != null) {
+            return Paths.get(location);
         }
-        return Paths.get(location);
+        return agentPath;
     }
 
 
@@ -162,7 +227,7 @@ public class DefaultAgent implements Agent {
             }
         }
 
-        logger.info("Starting {} Agent.", ProductInfo.NAME);
+        logger.info("Starting pinpoint Agent.");
         this.applicationContext.start();
         printBanner();
     }
@@ -194,7 +259,7 @@ public class DefaultAgent implements Agent {
                 @Override
                 public void run() {
                     logger.info("stop() started. threadName:" + Thread.currentThread().getName());
-                    DefaultAgent.this.stop();
+                    DefaultAgent.this.close();
                 }
             });
 
@@ -205,7 +270,7 @@ public class DefaultAgent implements Agent {
     }
 
     @Override
-    public void stop() {
+    public void close() {
         synchronized (agentStatusLock) {
             if (this.agentStatus == AgentStatus.RUNNING) {
                 changeStatus(AgentStatus.STOPPED);
@@ -214,11 +279,11 @@ public class DefaultAgent implements Agent {
                 return;
             }
         }
-        logger.info("Stopping {} Agent.", ProductInfo.NAME);
+        logger.info("Stopping pinpoint Agent.");
         this.applicationContext.close();
 
         // for testcase
-        if (profilerConfig.getStaticResourceCleanup()) {
+        if (agentOption.isStaticResourceCleanup()) {
             this.loggingSystem.close();
         }
     }

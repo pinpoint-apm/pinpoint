@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
-import com.navercorp.pinpoint.bootstrap.BootLogger;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+
+import com.navercorp.pinpoint.common.util.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.util.Objects;
@@ -32,7 +34,7 @@ public class ContainerResolver {
     public static final String KUBERNETES_SERVICE_HOST = "KUBERNETES_SERVICE_HOST";
     public static final String DOT_DOCKER_ENV_FILEPATH = "/.dockerenv";
 
-    private final BootLogger logger = BootLogger.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Properties properties;
 
@@ -60,11 +62,11 @@ public class ContainerResolver {
     private boolean readPropertyBool(String key) {
         String value = properties.getProperty(key);
         if (StringUtils.isEmpty(value)) {
-            logger.info("-D" + key + " found.");
+            logger.info("-D{} found", key);
             return true;
         }
         boolean boolValue = Boolean.parseBoolean(value);
-        logger.info("-D" + key + " found : " + value + ", resolved to " + boolValue);
+        logger.info("-D{} found : {}, resolved to {}", key, value, boolValue);
         return boolValue;
     }
 

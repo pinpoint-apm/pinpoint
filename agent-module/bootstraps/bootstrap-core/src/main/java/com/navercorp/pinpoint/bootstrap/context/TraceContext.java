@@ -100,4 +100,5 @@ public interface TraceContext {
 
     JdbcContext getJdbcContext();
 
+    String getClusterNamespace();
 }
