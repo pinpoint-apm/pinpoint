@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { ErrorResponse } from '@pinpoint-fe/constants';
+import { ErrorResponse } from '@pinpoint-fe/ui/constants';
 import { Separator } from '../../components/ui/separator';
 import { ErrorDetailDialog } from './ErrorDetailDialog';
 import { cn } from '../../lib/utils';

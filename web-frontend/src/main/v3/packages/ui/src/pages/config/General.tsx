@@ -1,4 +1,4 @@
-import { DATE_FORMATS } from '@pinpoint-fe/constants';
+import { DATE_FORMATS } from '@pinpoint-fe/ui/constants';
 import {
   Select,
   SelectContent,
@@ -8,8 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../../components';
-import { useLanguage, SupportLanguageType, useDateFormat } from '@pinpoint-fe/hooks';
-import { format } from '@pinpoint-fe/utils';
+import { useLanguage, SupportLanguageType, useDateFormat } from '@pinpoint-fe/ui/hooks';
+import { format } from '@pinpoint-fe/ui/utils';
 import { useTranslation } from 'react-i18next';
 
 export interface GeneralPageProps {}

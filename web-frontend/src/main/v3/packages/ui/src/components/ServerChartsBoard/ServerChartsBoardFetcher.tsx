@@ -2,15 +2,15 @@ import React from 'react';
 import useSWR from 'swr';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { ChartsBoard, ChartsBoardProps } from '..';
-import { END_POINTS, GetResponseTimeHistogram, GetServerMap } from '@pinpoint-fe/constants';
+import { END_POINTS, GetResponseTimeHistogram, GetServerMap } from '@pinpoint-fe/ui/constants';
 import {
   serverMapCurrentTargetDataAtom,
   currentNodeStatisticsAtom,
   currentServerAtom,
   serverMapDataAtom,
-} from '@pinpoint-fe/atoms';
-import { convertParamsToQueryString, getParsedDate } from '@pinpoint-fe/utils';
-import { useSearchParameters, swrConfigs, useServerMapLinkedData } from '@pinpoint-fe/hooks';
+} from '@pinpoint-fe/ui/atoms';
+import { convertParamsToQueryString, getParsedDate } from '@pinpoint-fe/ui/utils';
+import { useSearchParameters, swrConfigs, useServerMapLinkedData } from '@pinpoint-fe/ui/hooks';
 import { useTranslation } from 'react-i18next';
 
 export interface ServerChartsBoardFetcherProps extends ChartsBoardProps {

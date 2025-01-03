@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import { useSystemMetricSearchParameters } from '@pinpoint-fe/hooks';
+import { useSystemMetricSearchParameters } from '@pinpoint-fe/ui/hooks';
 import {
   getSystemMetricPath,
   convertParamsToQueryString,
   getFormattedDateRange,
-} from '@pinpoint-fe/utils';
+} from '@pinpoint-fe/ui/utils';
 import { HostSearchList } from '../../Host';
 
 export interface SystemMetricSidebarProps {}

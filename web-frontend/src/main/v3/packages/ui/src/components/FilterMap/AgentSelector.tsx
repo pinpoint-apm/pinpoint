@@ -1,4 +1,4 @@
-import { ApplicationType } from '@pinpoint-fe/constants';
+import { ApplicationType } from '@pinpoint-fe/ui/constants';
 
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from '../ui';
 import { ServerIcon } from '../Application/ServerIcon';

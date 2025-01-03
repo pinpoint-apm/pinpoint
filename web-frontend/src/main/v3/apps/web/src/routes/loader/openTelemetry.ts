@@ -1,9 +1,9 @@
-import { APP_PATH, SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/constants';
+import { APP_PATH, SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/ui/constants';
 import {
   getApplicationTypeAndName,
   getParsedDateRange,
   isValidDateRange,
-} from '@pinpoint-fe/utils';
+} from '@pinpoint-fe/ui/utils';
 import { parse, format } from 'date-fns';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 

@@ -1,15 +1,18 @@
 import React from 'react';
 import Fuse from 'fuse.js';
 import { RxMagnifyingGlass } from 'react-icons/rx';
-import { useGetTraceViewerData, useTransactionSearchParameters } from '@pinpoint-fe/hooks';
-import { TraceViewerData, TransactionInfo } from '@pinpoint-fe/constants';
+import { useGetTraceViewerData, useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';
+import {
+  TraceViewerData,
+  TransactionInfoType as TransactionInfo,
+  colors,
+} from '@pinpoint-fe/ui/constants';
 import { FlameGraph } from '../../FlameGraph';
 import { cn } from '../../../lib';
 import { TimelineDetail } from './TimelineDetail';
 import { FlameNodeType } from '../../FlameGraph/FlameNode';
 import { LuMoveDown, LuMoveUp } from 'react-icons/lu';
 import { Button, Input } from '../..';
-import { colors } from '../../../constant';
 
 export interface TimelineFetcherProps {
   transactionInfo?: TransactionInfo.Response;

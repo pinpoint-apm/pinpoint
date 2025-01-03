@@ -25,10 +25,10 @@ import {
   getErrorAnalysisPath,
   getTransactionDetailPath,
   getTransactionDetailQueryString,
-} from '@pinpoint-fe/utils';
-import { useErrorAnalysisSearchParameters } from '@pinpoint-fe/hooks';
+} from '@pinpoint-fe/ui/utils';
+import { useErrorAnalysisSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { useTranslation } from 'react-i18next';
-import { ErrorAnalysisErrorList, BASE_PATH } from '@pinpoint-fe/constants';
+import { ErrorAnalysisErrorList, BASE_PATH } from '@pinpoint-fe/ui/constants';
 import { format } from 'date-fns';
 import { IoMdClose } from 'react-icons/io';
 import { PiBugBeetleDuotone } from 'react-icons/pi';

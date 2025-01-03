@@ -1,6 +1,6 @@
 import React from 'react';
 import { ActiveThradStatusWithTotal, ModifiedActiveTotalThreadStatus } from './useActiveThread';
-import { getThreadDumpPath } from '@pinpoint-fe/utils';
+import { getThreadDumpPath } from '@pinpoint-fe/ui/utils';
 import { ScatterChartCore, ScatterChartHandle } from '../../components/ScatterChart/core';
 import { getAreaChartOption } from '../../components/ScatterChart/core/defaultOption';
 import { Button } from '../../components/ui/button';
@@ -13,9 +13,9 @@ import {
   TooltipTrigger,
 } from '../../components/ui/tooltip';
 import { cn } from '../../lib';
-import { useSearchParameters } from '@pinpoint-fe/hooks';
+import { useSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { RxExternalLink, RxDrawingPinFilled, RxDrawingPin } from 'react-icons/rx';
-import { BASE_PATH } from '@pinpoint-fe/constants';
+import { BASE_PATH } from '@pinpoint-fe/ui/constants';
 
 export interface AgentActiveThreadViewProps {
   applicationLocked?: boolean;

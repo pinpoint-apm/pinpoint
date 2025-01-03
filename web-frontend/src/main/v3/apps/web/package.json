@@ -16,11 +16,7 @@
     "move:dist": "cpx \"./dist/**\" \"../../../../../target/classes/static/\""
   },
   "dependencies": {
-    "@pinpoint-fe/atoms": "*",
-    "@pinpoint-fe/constants": "*",
-    "@pinpoint-fe/hooks": "*",
     "@pinpoint-fe/ui": "*",
-    "@pinpoint-fe/utils": "*",
     "@tanstack/react-query": "^5.17.19",
     "date-fns": "^2.29.3",
     "i18next": "^23.2.11",
@@ -36,7 +32,6 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@pinpoint-fe/configs": "*",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
     "@types/react-router-dom": "^5.3.3",

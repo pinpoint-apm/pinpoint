@@ -6,8 +6,8 @@ import deepmerge from 'deepmerge';
 // @ts-ignore
 import BillboardJS, { IChart } from '@billboard.js/react';
 import { cn, DEFAULT_CHART_CONFIG } from '../../../lib';
-import { InspectorAgentChart, InspectorApplicationChart } from '@pinpoint-fe/constants';
-import { formatNewLinedDateString } from '@pinpoint-fe/utils';
+import { InspectorAgentChart, InspectorApplicationChart } from '@pinpoint-fe/ui/constants';
+import { formatNewLinedDateString } from '@pinpoint-fe/ui/utils';
 
 export interface ChartCoreProps {
   data: InspectorAgentChart.Response | InspectorApplicationChart.Response;

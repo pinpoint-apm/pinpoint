@@ -3,7 +3,7 @@ import { VirtualSearchList } from '../VirtualList';
 import { cn } from '../../lib/utils';
 import { Badge } from '../../components/ui/badge';
 import React from 'react';
-import { useHeightToBottom } from '@pinpoint-fe/hooks';
+import { useHeightToBottom } from '@pinpoint-fe/ui/hooks';
 
 export interface HostSearchListProps {
   className?: string;

@@ -10,8 +10,8 @@ import {
   getServerMapPath,
   getTransactionListPath,
   getTranscationListQueryString,
-} from '@pinpoint-fe/utils';
-import { useFilteredMapParameters } from '@pinpoint-fe/hooks';
+} from '@pinpoint-fe/ui/utils';
+import { useFilteredMapParameters } from '@pinpoint-fe/ui/hooks';
 import { MdArrowBackIosNew, MdArrowForwardIos } from 'react-icons/md';
 import { ServerList } from '@/components/ServerList/ServerList';
 import {
@@ -21,13 +21,13 @@ import {
   currentServerAtom,
   scatterDataByApplicationKeyAtom,
   CurrentTarget,
-} from '@pinpoint-fe/atoms';
+} from '@pinpoint-fe/ui/atoms';
 import {
-  FilteredMap,
+  FilteredMapType as FilteredMap,
   GetServerMap,
   SCATTER_DATA_TOTAL_KEY,
   BASE_PATH,
-} from '@pinpoint-fe/constants';
+} from '@pinpoint-fe/ui/constants';
 import {
   ApplicationCombinedList,
   FilteredMap as FilteredMapComponent,

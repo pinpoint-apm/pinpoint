@@ -1,4 +1,4 @@
-import { colors } from '../../../constant/theme';
+import { colors } from '@pinpoint-fe/ui/constants';
 
 export const COLORS = [
   colors.blue[600],

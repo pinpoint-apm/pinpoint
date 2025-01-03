@@ -1,4 +1,4 @@
-import { ErrorAnalysisGroupedErrorList } from '@pinpoint-fe/constants';
+import { ErrorAnalysisGroupedErrorList } from '@pinpoint-fe/ui/constants';
 import { ComposedChart, ReferenceLine } from 'recharts';
 import { useRechart } from '../../ReChart/useRechart';
 

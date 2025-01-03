@@ -2,8 +2,9 @@ import path from 'path';
 import { defineConfig } from 'vite';
 import { compression } from 'vite-plugin-compression2';
 // import react from '@vitejs/plugin-react';
-import { BASE_PATH } from '@pinpoint-fe/constants';
 
+// import { BASE_PATH } from '@pinpoint-fe/ui'; TODO: import from ui
+const BASE_PATH = process.env.BASE_PATH || '';
 const isDev = process.env.NODE_ENV === 'development';
 const target = isDev ? 'http://localhost:8080' : 'http://localhost:8080';
 const basePath = isDev ? '/' : BASE_PATH || '/';

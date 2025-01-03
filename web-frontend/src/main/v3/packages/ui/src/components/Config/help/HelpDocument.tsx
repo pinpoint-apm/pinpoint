@@ -1,4 +1,4 @@
-import { SupportLanguageType, useLanguage } from '@pinpoint-fe/hooks';
+import { SupportLanguageType, useLanguage } from '@pinpoint-fe/ui/hooks';
 
 export interface HelpDocumentProps {}
 

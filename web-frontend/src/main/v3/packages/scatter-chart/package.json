@@ -48,7 +48,6 @@
   },
   "devDependencies": {
     "@babel/core": "^7.17.10",
-    "@pinpoint-fe/tsconfig": "*",
     "@storybook/addon-actions": "^6.5.15",
     "@storybook/addon-essentials": "^6.5.15",
     "@storybook/addon-interactions": "^6.5.15",

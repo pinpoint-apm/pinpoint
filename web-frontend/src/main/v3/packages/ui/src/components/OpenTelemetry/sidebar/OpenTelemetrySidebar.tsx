@@ -1,10 +1,10 @@
 import { AgentSearchList } from '../../Agent';
-import { useOpenTelemetrySearchParameters } from '@pinpoint-fe/hooks';
+import { useOpenTelemetrySearchParameters } from '@pinpoint-fe/ui/hooks';
 import {
   convertParamsToQueryString,
   getFormattedDateRange,
   getOpenTelemetryPath,
-} from '@pinpoint-fe/utils';
+} from '@pinpoint-fe/ui/utils';
 import { ApplicationLinkButton } from '../../Button/ApplicationLinkButton';
 import { Separator } from '../../ui';
 import { useNavigate } from 'react-router-dom';

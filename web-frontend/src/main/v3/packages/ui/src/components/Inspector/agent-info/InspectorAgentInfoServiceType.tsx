@@ -1,5 +1,5 @@
 import React from 'react';
-import { InspectorAgentInfo } from '@pinpoint-fe/constants';
+import { InspectorAgentInfoType as InspectorAgentInfo } from '@pinpoint-fe/ui/constants';
 import { cn } from '../../../lib';
 import { InfoDefinition } from './InspectorAgentInfoFetcher';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../../ui';
@@ -47,7 +47,7 @@ export const InspectorAgentInfoServiceType = ({
             <ul className="list-none">
               {serviceInfos.map(({ serviceName, serviceLibs }) => (
                 <AccordionItem value={serviceName} key={serviceName}>
-                  <AccordionTrigger className="text-xs py-1">
+                  <AccordionTrigger className="py-1 text-xs">
                     <li>{serviceName}</li>
                   </AccordionTrigger>
                   <AccordionContent className="text-xs">
@@ -72,7 +72,7 @@ export const InspectorAgentInfoServiceType = ({
           ({ key, label, value, show, renderer }) =>
             show && (
               <React.Fragment key={key}>
-                <dt className="py-1 font-semibold text-xs">{label}</dt>
+                <dt className="py-1 text-xs font-semibold">{label}</dt>
                 <dd className="py-1 text-xs">{renderer ? renderer({ key, value }) : value}</dd>
               </React.Fragment>
             ),

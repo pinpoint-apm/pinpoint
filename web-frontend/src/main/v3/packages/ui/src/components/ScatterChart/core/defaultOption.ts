@@ -1,5 +1,5 @@
 import { ScatterChartOption } from '@pinpoint-fe/scatter-chart';
-import { addCommas, formatNewLinedDateString } from '@pinpoint-fe/utils';
+import { addCommas, formatNewLinedDateString } from '@pinpoint-fe/ui/utils';
 
 export const getDefaultOption = ({ x, y }: { x: [number, number]; y: [number, number] }) =>
   ({

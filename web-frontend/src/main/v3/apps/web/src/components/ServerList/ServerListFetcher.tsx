@@ -7,11 +7,10 @@ import {
   currentNodeStatisticsAtom,
   currentServerAgentIdAtom,
   serverMapDataAtom,
-} from '@pinpoint-fe/atoms';
-import { END_POINTS, GetServerMap, SearchApplication, BASE_PATH } from '@pinpoint-fe/constants';
-import { convertParamsToQueryString, getParsedDate } from '@pinpoint-fe/utils';
-import { useSearchParameters, swrConfigs, useServerMapLinkedData } from '@pinpoint-fe/hooks';
-import { getInspectorPath } from '@pinpoint-fe/utils';
+} from '@pinpoint-fe/ui/atoms';
+import { END_POINTS, GetServerMap, SearchApplication, BASE_PATH } from '@pinpoint-fe/ui/constants';
+import { convertParamsToQueryString, getParsedDate, getInspectorPath } from '@pinpoint-fe/ui/utils';
+import { useSearchParameters, swrConfigs, useServerMapLinkedData } from '@pinpoint-fe/ui/hooks';
 import { ServerList as SL, ServerListProps } from '@pinpoint-fe/ui';
 
 export interface ServerListFetcherProps extends ServerListProps {

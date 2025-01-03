@@ -22,7 +22,7 @@ import { FcAreaChart, FcBarChart, FcLineChart } from 'react-icons/fc';
 import { Separator } from '../../ui/separator';
 import { Button } from '../../ui/button';
 import { useSetAtom } from 'jotai';
-import { userMetricConfigAtom } from '@pinpoint-fe/atoms';
+import { userMetricConfigAtom } from '@pinpoint-fe/ui/atoms';
 import { IconBaseProps } from 'react-icons/lib';
 import {
   useGetOtlpMetricDefProperty,
@@ -30,9 +30,9 @@ import {
   useOpenTelemetrySearchParameters,
   // useOpenTelemetrySearchParameters,
   usePatchOtlpMetricDefUserDefined,
-} from '@pinpoint-fe/hooks';
+} from '@pinpoint-fe/ui/hooks';
 import { useReactToastifyToast } from '../../../components/Toast';
-import { OtlpMetricDefUserDefined } from '@pinpoint-fe/constants';
+import { OtlpMetricDefUserDefined } from '@pinpoint-fe/ui/constants';
 import { Checkbox } from '../../ui/checkbox';
 import { getNewWidgetLayout } from '../../../components/Dashboard/DashBoard';
 import { Switch } from '../../../components/ui/switch';

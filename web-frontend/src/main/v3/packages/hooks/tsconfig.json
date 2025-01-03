@@ -1,4 +1,0 @@
-{
-  "extends": "@pinpoint-fe/tsconfig/react-library.json",
-  "include": ["."]
-}

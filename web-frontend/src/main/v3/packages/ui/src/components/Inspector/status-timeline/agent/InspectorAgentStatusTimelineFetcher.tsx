@@ -1,4 +1,4 @@
-import { useGetInspectorAgentStatusTimeline } from '@pinpoint-fe/hooks';
+import { useGetInspectorAgentStatusTimeline } from '@pinpoint-fe/ui/hooks';
 import { cn } from '../../../../lib';
 import { StatusTimeline } from '../StatusTimeline';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlarmRule } from '@pinpoint-fe/constants';
+import { AlarmRule } from '@pinpoint-fe/ui/constants';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { RxDotsVertical } from 'react-icons/rx';
 import { MdOutlineEmail, MdOutlineSms, MdOutlineWebhook } from 'react-icons/md';

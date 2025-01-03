@@ -18,15 +18,15 @@ import {
   ResizablePanelGroup,
   HelpPopover,
 } from '..';
-import { useServerMapSearchParameters, useTabFocus } from '@pinpoint-fe/hooks';
+import { useServerMapSearchParameters, useTabFocus } from '@pinpoint-fe/ui/hooks';
 import {
   CurrentTarget,
   serverMapCurrentTargetAtom,
   serverMapCurrentTargetDataAtom,
   serverMapDataAtom,
-} from '@pinpoint-fe/atoms';
-import { APP_SETTING_KEYS, GetServerMap } from '@pinpoint-fe/constants';
-import { getServerImagePath } from '@pinpoint-fe/utils';
+} from '@pinpoint-fe/ui/atoms';
+import { APP_SETTING_KEYS, GetServerMap } from '@pinpoint-fe/ui/constants';
+import { getServerImagePath } from '@pinpoint-fe/ui/utils';
 
 export interface RealtimeProps {}
 

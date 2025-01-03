@@ -1,4 +1,4 @@
-import { Configuration } from '@pinpoint-fe/constants';
+import { Configuration } from '@pinpoint-fe/ui/constants';
 import { UserGroupTable } from './UserGroupTable';
 
 export interface UserGroupProps {

@@ -10,7 +10,7 @@ import {
 import { serverMapRouteLoader } from './loader/serverMap';
 import { realtimeLoader } from './loader/realtime';
 import FilteredMap from '@/pages/FilteredMap';
-import { BASE_PATH, APP_PATH } from '@pinpoint-fe/constants';
+import { BASE_PATH, APP_PATH } from '@pinpoint-fe/ui/constants';
 import NotFound from '@/pages/NotFound';
 import ErrorAnalysis from '@/pages/ErrorAnalysis';
 import { errorAnalysisRouteLoader } from './loader/errorAnalysis';

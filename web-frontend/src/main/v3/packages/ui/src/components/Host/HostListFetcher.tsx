@@ -1,7 +1,7 @@
 import React from 'react';
 import Fuse from 'fuse.js';
 import { RxCheck } from 'react-icons/rx';
-import { useGetSystemMetricHostData } from '@pinpoint-fe/hooks';
+import { useGetSystemMetricHostData } from '@pinpoint-fe/ui/hooks';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui';
 import { cn } from '../../lib';
 

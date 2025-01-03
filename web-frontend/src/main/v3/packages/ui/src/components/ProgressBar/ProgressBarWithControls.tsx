@@ -6,7 +6,7 @@ import { useUpdateEffect } from 'usehooks-ts';
 import { ProgressBar, ProgressBarProps } from './ProgressBar';
 import { CgSpinner } from 'react-icons/cg';
 import { cn } from '../../lib';
-import { colors } from '../../constant';
+import { colors } from '@pinpoint-fe/ui/constants';
 import { LuRotateCcw } from 'react-icons/lu';
 
 export interface ProgressBarWithControlsProps extends ProgressBarProps {

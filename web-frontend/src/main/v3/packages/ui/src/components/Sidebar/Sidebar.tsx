@@ -9,9 +9,9 @@ import {
   ElementStyles,
   MenuItemStylesParams,
 } from 'react-pro-sidebar';
-import { APP_SETTING_KEYS } from '@pinpoint-fe/constants';
+import { APP_SETTING_KEYS } from '@pinpoint-fe/ui/constants';
 import { cn } from '../../lib';
-import { useLocalStorage } from '@pinpoint-fe/hooks';
+import { useLocalStorage } from '@pinpoint-fe/ui/hooks';
 import { LuChevronFirst, LuChevronLast } from 'react-icons/lu';
 
 export interface SideNavigationProps {

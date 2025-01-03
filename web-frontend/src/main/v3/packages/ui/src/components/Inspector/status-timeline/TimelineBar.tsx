@@ -1,7 +1,7 @@
 import React from 'react';
 import { format } from 'date-fns';
 import { cn } from '../../../lib';
-import { colors } from '../../../constant';
+import { colors } from '@pinpoint-fe/ui/constants';
 import { InteractiveTimelineBar, InteractiveTimelineBarProps } from './InteractiveTimelineBar';
 
 export interface TimelineBarProps

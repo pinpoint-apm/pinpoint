@@ -21,7 +21,8 @@
       "@/atoms/*": ["atoms/*"],
       "@/routes/*": ["routes/*"],
       "@/utils/*": ["utils/*"],
-      "@/*": ["*"]
+      "@/*": ["*"],
+      "@pinpoint-fe/ui/*": ["../../../packages/ui/src/*"]
     }
   },
   "include": ["src"],

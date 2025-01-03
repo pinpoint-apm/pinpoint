@@ -1,12 +1,12 @@
 import React from 'react';
-import { useDeleteConfigUserGroup, useGetConfigUserGroup } from '@pinpoint-fe/hooks';
+import { useDeleteConfigUserGroup, useGetConfigUserGroup } from '@pinpoint-fe/ui/hooks';
 import { useTranslation } from 'react-i18next';
 import { DataTable } from '../../../DataTable';
 import { useReactToastifyToast } from '../../../Toast';
 import { getUserGroupTableColumns } from './userGroupTableColumns';
 import { useNavigate } from 'react-router-dom';
-import { APP_PATH, ConfigUserGroup } from '@pinpoint-fe/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/utils';
+import { APP_PATH, ConfigUserGroup } from '@pinpoint-fe/ui/constants';
+import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
 import { UserGroupTableToolbar } from './UserGroupTableToolbar';
 
 export interface UserGroupTableFetcherProps {

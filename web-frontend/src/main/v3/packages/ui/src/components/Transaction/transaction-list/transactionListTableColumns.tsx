@@ -1,10 +1,10 @@
-import { ApplicationType, BASE_PATH, Transaction } from '@pinpoint-fe/constants';
+import { ApplicationType, BASE_PATH, Transaction } from '@pinpoint-fe/ui/constants';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { FaFire } from 'react-icons/fa';
 import { Button } from '../../../components';
 import { RxExternalLink } from 'react-icons/rx';
-import { getTransactionDetailPath, getTransactionDetailQueryString } from '@pinpoint-fe/utils';
+import { getTransactionDetailPath, getTransactionDetailQueryString } from '@pinpoint-fe/ui/utils';
 
 export const transactionListTableColumns = (
   application: ApplicationType | null,

@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from '../ui';
 
-import { AGENT_LIST_SORT, useAgentListSortBy } from '@pinpoint-fe/hooks';
+import { AGENT_LIST_SORT, useAgentListSortBy } from '@pinpoint-fe/ui/hooks';
 
 export interface AgentListSortBySelectorProps {
   align?: 'center' | 'end' | 'start' | undefined;

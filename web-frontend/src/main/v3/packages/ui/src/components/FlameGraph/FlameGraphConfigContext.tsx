@@ -1,5 +1,5 @@
 import React from 'react';
-import { colors } from '../../constant';
+import { colors } from '@pinpoint-fe/ui/constants';
 
 export const flameGraphDefaultConfig = {
   height: {

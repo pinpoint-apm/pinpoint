@@ -1,5 +1,5 @@
 import { AlarmTable, AlarmTableProps } from './AlarmTable';
-import { useAlarmRuleQuery } from '@pinpoint-fe/hooks';
+import { useAlarmRuleQuery } from '@pinpoint-fe/ui/hooks';
 
 export interface AlarmListFetcherProps extends AlarmTableProps {
   applicationId?: string;

@@ -2,7 +2,7 @@ import { formatDistanceToNowStrict, format } from 'date-fns';
 import { LuArrowUp, LuArrowDown } from 'react-icons/lu';
 import { RxClock } from 'react-icons/rx';
 import { ColumnDef } from '@tanstack/react-table';
-import { ErrorAnalysisErrorList } from '@pinpoint-fe/constants';
+import { ErrorAnalysisErrorList } from '@pinpoint-fe/ui/constants';
 import {
   Button,
   DropdownMenu,

@@ -5,7 +5,7 @@ import {
   AlarmRule,
   ApplicationType,
   Configuration,
-} from '@pinpoint-fe/constants';
+} from '@pinpoint-fe/ui/constants';
 import { cn } from '../../lib';
 import { Separator } from '../../components/ui/separator';
 import {
@@ -35,10 +35,10 @@ import { Button } from '../../components/ui/button';
 import { useReactToastifyToast } from '../../components/Toast';
 import { Cross2Icon } from '@radix-ui/react-icons';
 import { ScrollArea } from '../../components/ui/scroll-area';
-import { useAlarmRuleMutation, useAlarmRuleQuery, useLocalStorage } from '@pinpoint-fe/hooks';
+import { useAlarmRuleMutation, useAlarmRuleQuery, useLocalStorage } from '@pinpoint-fe/ui/hooks';
 import { LayoutWithAlarm } from '../../components/Layout/LayoutWithAlarm';
 import { useSetAtom } from 'jotai';
-import { configurationAtom } from '@pinpoint-fe/atoms';
+import { configurationAtom } from '@pinpoint-fe/ui/atoms';
 import { AlarmPermissionContext } from '../../components';
 import { MdOutlineAdd } from 'react-icons/md';
 

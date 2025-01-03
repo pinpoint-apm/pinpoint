@@ -1,10 +1,10 @@
 import React from 'react';
 import { IoMdClose } from 'react-icons/io';
-import { TraceViewerData } from '@pinpoint-fe/constants';
+import { TraceViewerData } from '@pinpoint-fe/ui/constants';
 import { Separator } from '@radix-ui/react-dropdown-menu';
 import { Button } from '../../../components/ui';
 import { useSetAtom } from 'jotai';
-import { transactionInfoCallTreeFocusId, transactionInfoCurrentTabId } from '@pinpoint-fe/atoms';
+import { transactionInfoCallTreeFocusId, transactionInfoCurrentTabId } from '@pinpoint-fe/ui/atoms';
 
 export interface TimelineDetailProps {
   start: number;

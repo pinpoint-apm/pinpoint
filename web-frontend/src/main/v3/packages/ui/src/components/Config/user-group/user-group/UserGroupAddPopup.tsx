@@ -17,7 +17,7 @@ import {
   FormMessage,
 } from '../../../ui';
 import { useReactToastifyToast } from '../../../Toast';
-import { usePostConfigUserGroup } from '@pinpoint-fe/hooks';
+import { usePostConfigUserGroup } from '@pinpoint-fe/ui/hooks';
 import { TFunction } from 'i18next';
 import { cn } from '../../../../lib';
 

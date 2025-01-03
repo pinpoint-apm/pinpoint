@@ -1,6 +1,11 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { IMAGE_PATH, APP_PATH, APP_SETTING_KEYS, MenuItem } from '@pinpoint-fe/constants';
+import {
+  IMAGE_PATH,
+  APP_PATH,
+  APP_SETTING_KEYS,
+  MenuItemType as MenuItem,
+} from '@pinpoint-fe/ui/constants';
 import {
   Menu,
   MenuItem as MenuItemComponent,
@@ -23,9 +28,9 @@ import {
 import { useDebounce, useHover } from 'usehooks-ts';
 import { RxMagnifyingGlass } from 'react-icons/rx';
 import { LuCommand } from 'react-icons/lu';
-import { useLocalStorage } from '@pinpoint-fe/hooks';
+import { useLocalStorage } from '@pinpoint-fe/ui/hooks';
 import { useAtom } from 'jotai';
-import { globalSearchDisplayAtom } from '@pinpoint-fe/atoms';
+import { globalSearchDisplayAtom } from '@pinpoint-fe/ui/atoms';
 
 export type SideNavigationMenuItem = MenuItem & {
   aHref?: string;

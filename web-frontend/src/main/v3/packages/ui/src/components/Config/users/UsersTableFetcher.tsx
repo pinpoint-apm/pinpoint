@@ -5,8 +5,8 @@ import {
   usePostConfigUser,
   usePutConfigUser,
   useDeleteConfigUser,
-} from '@pinpoint-fe/hooks';
-import { Configuration, ConfigUsers, ErrorResponse } from '@pinpoint-fe/constants';
+} from '@pinpoint-fe/ui/hooks';
+import { Configuration, ConfigUsers, ErrorResponse } from '@pinpoint-fe/ui/constants';
 import { UsersTable } from './UsersTable';
 import { FaRegTrashCan } from 'react-icons/fa6';
 import { UserForm } from './UserForm';

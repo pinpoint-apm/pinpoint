@@ -1,4 +1,8 @@
-import { BASE_PATH, SEARCH_PARAMETER_DATE_FORMAT, TransactionInfo } from '@pinpoint-fe/constants';
+import {
+  BASE_PATH,
+  SEARCH_PARAMETER_DATE_FORMAT,
+  TransactionInfoType as TransactionInfo,
+} from '@pinpoint-fe/ui/constants';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import {
@@ -11,8 +15,8 @@ import {
 } from 'react-icons/fa';
 import { LuChevronRight, LuChevronDown } from 'react-icons/lu';
 import { Button, ProgressBar } from '../..';
-import { addCommas, convertParamsToQueryString, getErrorAnalysisPath } from '@pinpoint-fe/utils';
-import { useTransactionSearchParameters } from '@pinpoint-fe/hooks';
+import { addCommas, convertParamsToQueryString, getErrorAnalysisPath } from '@pinpoint-fe/ui/utils';
+import { useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';
 
 export interface CallTreeTableColumnsProps {
   metaData: TransactionInfo.Response;

@@ -4,7 +4,7 @@ import { RxMagnifyingGlass } from 'react-icons/rx';
 import { GroupMemberAddPopup } from './GroupMemberAddPopup';
 import { Button, Input } from '../../../ui';
 import { MdOutlineAdd } from 'react-icons/md';
-import { ConfigGroupMember } from '@pinpoint-fe/constants';
+import { ConfigGroupMember } from '@pinpoint-fe/ui/constants';
 
 export interface GroupMemberTableToolbarProps {
   onCompleteAdd?: () => void;

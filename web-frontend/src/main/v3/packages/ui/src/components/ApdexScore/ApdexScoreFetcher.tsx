@@ -1,5 +1,5 @@
 import { Separator } from '../ui/separator';
-import { useGetApdexScore, UseGetApdexScoreProps } from '@pinpoint-fe/hooks';
+import { useGetApdexScore, UseGetApdexScoreProps } from '@pinpoint-fe/ui/hooks';
 import { HelpPopover } from '..';
 
 export interface ApdexScoreFetcherProps extends UseGetApdexScoreProps {}

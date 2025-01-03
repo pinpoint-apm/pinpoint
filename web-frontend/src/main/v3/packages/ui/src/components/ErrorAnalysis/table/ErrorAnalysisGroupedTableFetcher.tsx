@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   useErrorAnalysisSearchParameters,
   useGetErrorAnalysisGroupedErrorListData,
-} from '@pinpoint-fe/hooks';
+} from '@pinpoint-fe/ui/hooks';
 import { cn } from '../../../lib';
 import { DataTable } from '../../DataTable';
 import { errorGroupedTableColumns } from './errorAnalysisGroupedTableColumn';
@@ -10,7 +10,7 @@ import {
   getErrorAnalysisPath,
   convertParamsToQueryString,
   getFormattedDateRange,
-} from '@pinpoint-fe/utils';
+} from '@pinpoint-fe/ui/utils';
 
 export interface ErrorAnalysisGroupedTableFetcherProps {
   className?: string;

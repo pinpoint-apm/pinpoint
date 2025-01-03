@@ -1,9 +1,9 @@
 import React from 'react';
-import { AgentActiveThread, GetServerMap } from '@pinpoint-fe/constants';
+import { AgentActiveThread, GetServerMap } from '@pinpoint-fe/ui/constants';
 import { useActiveThread } from './useActiveThread';
 import { AgentActiveThreadView } from './AgentActiveThreadView';
 import { useAtomValue } from 'jotai';
-import { serverMapCurrentTargetAtom, serverMapCurrentTargetDataAtom } from '@pinpoint-fe/atoms';
+import { serverMapCurrentTargetAtom, serverMapCurrentTargetDataAtom } from '@pinpoint-fe/ui/atoms';
 import { AgentActiveThreadSkeleton } from './AgentActiveThreadSkeleton';
 
 export interface ActiveRequestProps {}

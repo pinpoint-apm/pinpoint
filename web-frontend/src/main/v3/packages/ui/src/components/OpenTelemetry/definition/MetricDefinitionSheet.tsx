@@ -12,7 +12,7 @@ import { MetricDefinitionForm } from './MetricDefinitionForm';
 import { cn } from '../../../lib';
 import { Cross2Icon } from '@radix-ui/react-icons';
 import { PreviewChart } from '../charts';
-import { OtlpMetricDefUserDefined } from '@pinpoint-fe/constants';
+import { OtlpMetricDefUserDefined } from '@pinpoint-fe/ui/constants';
 
 export interface MetricDefinitionSheetProps extends SheetPrimitive.DialogProps {
   layouts?: ReactGridLayout.Layouts;

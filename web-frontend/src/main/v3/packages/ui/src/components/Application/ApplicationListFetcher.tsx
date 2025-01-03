@@ -1,5 +1,5 @@
 import { Button } from '../ui';
-import { useGetApplicationList } from '@pinpoint-fe/hooks';
+import { useGetApplicationList } from '@pinpoint-fe/ui/hooks';
 import { LuRotateCw } from 'react-icons/lu';
 
 import { ApplicationVirtualListProps, ApplicationVirtualList } from '.';

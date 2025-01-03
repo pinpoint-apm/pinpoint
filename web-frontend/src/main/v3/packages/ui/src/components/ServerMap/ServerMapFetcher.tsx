@@ -5,14 +5,14 @@ import {
   serverMapDataAtom,
   currentServerAtom,
   serverMapCurrentTargetAtom,
-} from '@pinpoint-fe/atoms';
+} from '@pinpoint-fe/ui/atoms';
 import {
   useExperimentals,
   useGetServerMapDataV2,
   useServerMapSearchParameters,
-} from '@pinpoint-fe/hooks';
+} from '@pinpoint-fe/ui/hooks';
 import { useTranslation } from 'react-i18next';
-import { getBaseNodeId, getServerImagePath } from '@pinpoint-fe/utils';
+import { getBaseNodeId, getServerImagePath } from '@pinpoint-fe/ui/utils';
 import { ServerMapCore, ServerMapCoreProps } from './ServerMapCore';
 
 export interface ServerMapFetcherProps

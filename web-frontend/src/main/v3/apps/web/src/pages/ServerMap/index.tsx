@@ -12,8 +12,8 @@ import {
   getApplicationKey,
   getFormattedDateRange,
   getRealtimePath,
-} from '@pinpoint-fe/utils';
-import { useServerMapSearchParameters } from '@pinpoint-fe/hooks';
+} from '@pinpoint-fe/ui/utils';
+import { useServerMapSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { MdArrowBackIosNew, MdArrowForwardIos } from 'react-icons/md';
 import { ServerList } from '@/components/ServerList/ServerList';
 import { RxChevronRight } from 'react-icons/rx';
@@ -24,8 +24,8 @@ import {
   currentServerAtom,
   scatterDataAtom,
   CurrentTarget,
-} from '@pinpoint-fe/atoms';
-import { FilteredMap, GetServerMap, BASE_PATH } from '@pinpoint-fe/constants';
+} from '@pinpoint-fe/ui/atoms';
+import { FilteredMapType as FilteredMap, GetServerMap, BASE_PATH } from '@pinpoint-fe/ui/constants';
 import { IoMdClose } from 'react-icons/io';
 import {
   ApdexScore,

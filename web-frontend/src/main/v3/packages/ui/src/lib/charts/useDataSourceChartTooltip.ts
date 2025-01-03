@@ -1,4 +1,4 @@
-import { InspectorAgentDataSourceChart } from '@pinpoint-fe/constants';
+import { InspectorAgentDataSourceChart } from '@pinpoint-fe/ui/constants';
 
 type TooltipContentsData = {
   id: string;
