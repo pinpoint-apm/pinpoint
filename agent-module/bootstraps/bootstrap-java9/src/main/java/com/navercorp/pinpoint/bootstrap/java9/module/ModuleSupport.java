@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.bootstrap.java9.module;
 
 
 import com.navercorp.pinpoint.bootstrap.module.JavaModule;
-import com.navercorp.pinpoint.common.util.JvmUtils;
-import com.navercorp.pinpoint.common.util.JvmVersion;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
@@ -161,8 +159,7 @@ public class ModuleSupport {
 
         // for Java9DefineClass
         baseModule.addExports("jdk.internal.misc", agentModule);
-        final JvmVersion version = JvmUtils.getVersion();
-        if (version.onOrAfter(JvmVersion.JAVA_11)) {
+        if (ModuleUtils.jvmVersionUpper(11)) {
             final String internalAccessModule = "jdk.internal.access";
             if (baseModule.getPackages().contains(internalAccessModule)) {
                 baseModule.addExports(internalAccessModule, agentModule);
