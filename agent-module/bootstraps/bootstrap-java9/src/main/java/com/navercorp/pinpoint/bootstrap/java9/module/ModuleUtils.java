@@ -32,6 +32,6 @@ public final class ModuleUtils {
     }
 
     public static boolean jvmVersionUpper(int version) {
-        return getJavaVersion() <= version;
+        return getJavaVersion() >= version;
     }
 }
