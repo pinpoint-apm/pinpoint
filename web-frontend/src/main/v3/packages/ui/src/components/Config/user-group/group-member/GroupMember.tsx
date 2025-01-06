@@ -9,7 +9,6 @@ export const GroupMember = () => {
 
   return (
     <>
-      <h3 className="text-base font-semibold">{userGroupName}</h3>
       <GroupMemberTable
         userGroupId={userGroupName}
         enableAllGroupMemberAdd={true}

@@ -13,6 +13,8 @@
     "UPDATE_SUCCESS": "Successfully updated.",
     "UPDATE_FAIL": "Update failed",
     "ADD": "Add",
+    "ADD_SUCCESS": "Successfully added.",
+    "ADD_FAILED": "Addtion failed.",
     "CREATE": "Create",
     "CREATE_SUCCESS": "Successfully created.",
     "CREATE_FAILED": "Creation failed.",

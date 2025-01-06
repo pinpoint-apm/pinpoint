@@ -57,6 +57,7 @@ export const GroupMemberTableFetcher = ({
 
   return (
     <div className="space-y-2">
+      <h3 className="text-base font-semibold">Group members</h3>
       <GroupMemberTableToolbar
         userGroupId={userGroupId}
         enableGroupMemberAdd={enableGroupMemberAdd}
