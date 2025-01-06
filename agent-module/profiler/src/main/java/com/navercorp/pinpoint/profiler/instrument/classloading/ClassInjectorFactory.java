@@ -35,6 +35,6 @@ public class ClassInjectorFactory {
     }
 
     public ClassInjector newClassInjector(PluginConfig pluginConfig) {
-        return new JarProfilerPluginClassInjector(pluginConfig, instrumentEngine, bootstrapCore);
+        return PluginClassInjector.from(pluginConfig, instrumentEngine, bootstrapCore);
     }
 }
