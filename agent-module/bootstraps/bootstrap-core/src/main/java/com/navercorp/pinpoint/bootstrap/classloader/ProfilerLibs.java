@@ -28,7 +28,7 @@ public class ProfilerLibs {
     public static final List<String> PINPOINT_PROFILER_CLASS;
 
     static {
-        String[] lib = new String[] {
+        String[] lib = new String[]{
                 "com.navercorp.pinpoint.common.buffer",
                 "com.navercorp.pinpoint.common.profiler",
                 "com.navercorp.pinpoint.profiler",
@@ -66,8 +66,9 @@ public class ProfilerLibs {
                 // google guice
                 "com.google.inject",
                 "org.aopalliance",
-                // snakeyaml
-                "org.yaml.snakeyaml",
+
+                // jackson
+                "com.fasterxml.jackson",
 
                 "org.apache.commons.lang",
                 "org.apache.commons.logging",
