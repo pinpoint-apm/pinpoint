@@ -13,6 +13,8 @@
     "UPDATE_SUCCESS": "수정했습니다.",
     "UPDATE_FAIL": "수정에 실패하였습니다.",
     "ADD": "등록",
+    "ADD_SUCCESS": "등록했습니다.",
+    "ADD_FAILED": "등록에 실패하였습니다.",
     "CREATE": "생성",
     "CREATE_SUCCESS": "생성했습니다.",
     "CREATE_FAILED": "생성에 실패하였습니다.",

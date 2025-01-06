@@ -25,7 +25,7 @@ export const UserGroupPage = (props: UserGroupPageProps) => {
                 User Group
               </Link>
               <MdArrowForwardIos className="text-sm text-muted-foreground" />
-              Group Members
+              {userGroupName}
             </div>
           ) : (
             <>User Group</>

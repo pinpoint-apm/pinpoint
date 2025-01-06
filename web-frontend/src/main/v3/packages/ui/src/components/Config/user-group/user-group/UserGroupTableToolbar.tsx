@@ -55,16 +55,6 @@ export const UserGroupTableToolbar = ({
 
   return (
     <div className="flex justify-between">
-      <UserGroupAddPopup
-        popupTrigger={
-          <Button disabled={!enableUserGroupAdd}>
-            <MdOutlineAdd className="mr-0.5" />{' '}
-            {t('CONFIGURATION.USER_GROUP.LABEL.USER_GROUP_ADD_BUTTON')}
-          </Button>
-        }
-        onCompleteAdd={handleOnAdd}
-        {...props}
-      />
       <div className="flex items-center w-64 pl-3 pr-2 border rounded shadow-sm h-9">
         <Input
           value={inputValue}
@@ -77,6 +67,16 @@ export const UserGroupTableToolbar = ({
           <RxMagnifyingGlass />
         </Button>
       </div>
+      <UserGroupAddPopup
+        popupTrigger={
+          <Button disabled={!enableUserGroupAdd}>
+            <MdOutlineAdd className="mr-0.5" />{' '}
+            {t('CONFIGURATION.USER_GROUP.LABEL.USER_GROUP_ADD_BUTTON')}
+          </Button>
+        }
+        onCompleteAdd={handleOnAdd}
+        {...props}
+      />
     </div>
   );
 };

@@ -51,16 +51,6 @@ export const GroupMemberTableToolbar = ({
 
   return (
     <div className="flex justify-between">
-      <GroupMemberAddPopup
-        popupTrigger={
-          <Button disabled={!enableGroupMemberAdd}>
-            <MdOutlineAdd className="mr-0.5" />{' '}
-            {t('CONFIGURATION.USER_GROUP.LABEL.GROUP_MEMBER_ADD_BUTTON')}
-          </Button>
-        }
-        onCompleteAdd={handleOnAdd}
-        {...props}
-      />
       <div className="flex items-center w-64 pl-3 pr-2 border rounded shadow-sm h-9">
         <Input
           value={inputValue}
@@ -73,6 +63,16 @@ export const GroupMemberTableToolbar = ({
           <RxMagnifyingGlass />
         </Button>
       </div>
+      <GroupMemberAddPopup
+        popupTrigger={
+          <Button disabled={!enableGroupMemberAdd}>
+            <MdOutlineAdd className="mr-0.5" />{' '}
+            {t('CONFIGURATION.USER_GROUP.LABEL.GROUP_MEMBER_ADD_BUTTON')}
+          </Button>
+        }
+        onCompleteAdd={handleOnAdd}
+        {...props}
+      />
     </div>
   );
 };
