@@ -16,6 +16,10 @@
 
 package com.navercorp.pinpoint.loader.plugins.trace.yaml;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ParsedTraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.ServiceTypeInfo;
@@ -23,8 +27,6 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.loader.plugins.trace.TraceMetadataProviderParser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.error.YAMLException;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,23 +62,17 @@ public class TraceMetadataProviderYamlParser implements TraceMetadataProviderPar
     }
 
     private ParsedTraceMetadata parse0(URL metaUrl) throws IOException {
-        InputStream inputStream = null;
-        try {
-            inputStream = metaUrl.openStream();
-            Yaml yaml = new Yaml();
-            ParsedTraceMetadata parsedTraceMetadata = yaml.loadAs(inputStream, ParsedTraceMetadata.class);
+        try (InputStream inputStream = metaUrl.openStream()) {
+            ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+            ParsedTraceMetadata parsedTraceMetadata = mapper.readValue(inputStream, ParsedTraceMetadata.class);
             if (parsedTraceMetadata == null) {
                 logger.warn("Empty type provider definition. Skipping : {}", metaUrl.toExternalForm());
             }
             return parsedTraceMetadata;
+        } catch (JsonParseException | JsonMappingException e) {
+            throw new IllegalStateException("Error parsing yml : " + metaUrl, e);
         } catch (IOException e) {
             throw new IllegalStateException("Error opening stream : " + metaUrl, e);
-        } catch (YAMLException e) {
-            throw new IllegalStateException("Error parsing yml : " + metaUrl, e);
-        } finally {
-            if (inputStream != null) {
-                inputStream.close();
-            }
         }
     }
 
