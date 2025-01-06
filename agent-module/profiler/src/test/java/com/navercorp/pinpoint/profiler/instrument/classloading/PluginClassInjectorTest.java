@@ -38,10 +38,14 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class JarProfilerPluginClassInjectorTest {
+public class PluginClassInjectorTest {
 
     public static final String CONTEXT_TYPE_MATCH_CLASS_LOADER = "org.springframework.context.support.ContextTypeMatchClassLoader";
 
@@ -117,6 +121,22 @@ public class JarProfilerPluginClassInjectorTest {
         logger.debug("url:{}", location);
         PluginJar pluginJar = PluginJar.fromFilePath(Paths.get(uri));
         return new JarPlugin<>(pluginJar, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+    }
+
+    @Test
+    public void testInjectClass_bootstrap() {
+        BootstrapCore bootstrapCore = new BootstrapCore(Collections.emptyList());
+        ClassInjector boot = mock(ClassInjector.class);
+        ClassInjector url = mock(ClassInjector.class);
+        ClassInjector plain = mock(ClassInjector.class);
+
+        ClassInjector injector = new PluginClassInjector(bootstrapCore, boot, url, plain);
+        ClassLoader booptstrapCl = Object.class.getClassLoader();
+        injector.injectClass(booptstrapCl, "java.lang.String");
+        injector.injectClass(this.getClass().getClassLoader(), "Test");
+
+        verify(boot).injectClass(booptstrapCl, "java.lang.String");
+        verify(boot, never()).injectClass(this.getClass().getClassLoader(), "Test");
     }
 
 }
