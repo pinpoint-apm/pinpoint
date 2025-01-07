@@ -95,13 +95,16 @@ public class JarFileAnalyzer implements PackageAnalyzer {
             if (jarEntryName.indexOf('/', SERVICE_LOADER.length()) != -1) {
                 return null;
             }
-            try {
-                InputStream inputStream = jarFile.getInputStream(jarEntry);
 
+            List<String> serviceImplClassName = readServiceProviderConfig(jarEntry);
+            String serviceClassName = jarEntryName.substring(SERVICE_LOADER.length());
+            return new Providers(serviceClassName, serviceImplClassName);
+        }
+
+        private List<String> readServiceProviderConfig(JarEntry jarEntry) {
+            try (InputStream inputStream = jarFile.getInputStream(jarEntry)) {
                 ServiceDescriptorParser parser = new ServiceDescriptorParser();
-                List<String> serviceImplClassName = parser.parse(inputStream);
-                String serviceClassName = jarEntryName.substring(SERVICE_LOADER.length());
-                return new Providers(serviceClassName, serviceImplClassName);
+                return parser.parse(inputStream);
             } catch (IOException e) {
                 throw new IllegalStateException(jarFile.getName() + " File read fail ", e);
             }
