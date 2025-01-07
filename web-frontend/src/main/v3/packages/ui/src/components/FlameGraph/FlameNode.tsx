@@ -138,6 +138,8 @@ export const FlameNode = React.memo(FlameNodeComponent) as <T>(
 
 const getEllipsizedText = (text: string, maxWidth = 1, svgRef?: React.RefObject<SVGSVGElement>) => {
   if (!svgRef?.current) return text;
+
+  if (maxWidth <= 0) return null;
   else {
     const svg = svgRef.current;
     const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
