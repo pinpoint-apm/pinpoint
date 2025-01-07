@@ -5,6 +5,9 @@ import { FlameNode, FlameNodeType, FlameNodeProps } from './FlameNode';
 import { FlameAxis } from './FlameAxis';
 import { FlameGraphConfigContext, flameGraphDefaultConfig } from './FlameGraphConfigContext';
 import { FlameTimeline } from './FlameTimeline';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui';
+import { GoZoomIn, GoZoomOut } from 'react-icons/go';
+import { Button } from '../ui';
 
 export interface FlameGraphProps<T>
   extends Pick<FlameNodeProps<T>, 'customNodeStyle' | 'customTextStyle' | 'onClickNode'> {
@@ -33,6 +36,10 @@ export const FlameGraph = <T,>({
   const containerWidth = width * zoom;
   const widthRatio = (containerWidth - config.padding.left - config.padding.right) / widthOffset;
   const [scrollLeft, setScrollLeft] = React.useState(0);
+
+  React.useEffect(() => {
+    setScrollLeft(0);
+  }, [data]);
 
   React.useEffect(() => {
     const handleWheel = (event: WheelEvent) => {
@@ -127,8 +134,42 @@ export const FlameGraph = <T,>({
     return MaxDepth;
   }
 
+  function handleZoomClick(type: 'in' | 'out') {
+    setZoom((prevZoom) => {
+      if (type === 'in') {
+        return prevZoom + 1;
+      }
+      return Math.max(1, prevZoom - 1);
+    });
+  }
+
   return (
     <FlameGraphConfigContext.Provider value={{ config }}>
+      <TooltipProvider>
+        <Tooltip delayDuration={0}>
+          <TooltipTrigger asChild>
+            <div className="absolute space-x-1 right-[275px] -top-10">
+              <Button
+                variant={'outline'}
+                size="sm"
+                className="h-7"
+                onClick={() => handleZoomClick('in')}
+              >
+                <GoZoomIn size={15} />
+              </Button>
+              <Button
+                variant={'outline'}
+                size="sm"
+                className="h-7"
+                onClick={() => handleZoomClick('out')}
+              >
+                <GoZoomOut size={15} />
+              </Button>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>Zoom In/Out: Command + Scroll</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <div className="relative w-full h-full overflow-x-auto" ref={containerRef}>
         <svg width={containerWidth} height={config.height.timeline} className="shadow-md">
           <FlameTimeline width={containerWidth} start={start} end={end} zoom={zoom} />
