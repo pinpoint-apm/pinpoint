@@ -34,7 +34,6 @@ public class ZookeeperClusterProperties {
 
     private final String webZNodePath;
     private final String collectorZNodePath;
-    private final String flinkZNodePath;
 
     private ZookeeperClusterProperties(Builder builder) {
         this.enable = builder.enable;
@@ -44,7 +43,6 @@ public class ZookeeperClusterProperties {
         String zNodeRootPath = builder.zNodeRoot;
         this.webZNodePath = ZKPaths.makePath(zNodeRootPath, builder.webLeafPath);
         this.collectorZNodePath = ZKPaths.makePath(zNodeRootPath, builder.collectorLeafPath);
-        this.flinkZNodePath = ZKPaths.makePath(zNodeRootPath, builder.flinkLeafPath);
     }
 
     public boolean isEnable() {
@@ -63,10 +61,6 @@ public class ZookeeperClusterProperties {
         return collectorZNodePath;
     }
 
-    public String getFlinkZNodePath() {
-        return flinkZNodePath;
-    }
-
     public int getSessionTimeout() {
         return sessionTimeout;
     }
@@ -82,7 +76,6 @@ public class ZookeeperClusterProperties {
         private String zNodeRoot = ZookeeperConstants.DEFAULT_CLUSTER_ZNODE_ROOT_PATH;
         private String webLeafPath = ZookeeperConstants.WEB_LEAF_PATH;
         private String collectorLeafPath = ZookeeperConstants.COLLECTOR_LEAF_PATH;
-        private String flinkLeafPath = ZookeeperConstants.FLINK_LEAF_PATH;
 
         private int sessionTimeout = 3000;
 
@@ -129,14 +122,6 @@ public class ZookeeperClusterProperties {
             this.collectorLeafPath = collectorLeafPath;
         }
 
-        public String getFlinkLeafPath() {
-            return flinkLeafPath;
-        }
-
-        public void setFlinkLeafPath(String flinkLeafPath) {
-            this.flinkLeafPath = flinkLeafPath;
-        }
-
         public int getSessionTimeout() {
             return sessionTimeout;
         }
@@ -162,7 +147,6 @@ public class ZookeeperClusterProperties {
         sb.append(", sessionTimeout=").append(sessionTimeout);
         sb.append(", webZNodePath='").append(webZNodePath).append('\'');
         sb.append(", collectorZNodePath='").append(collectorZNodePath).append('\'');
-        sb.append(", flinkZNodePath='").append(flinkZNodePath).append('\'');
         sb.append('}');
         return sb.toString();
     }

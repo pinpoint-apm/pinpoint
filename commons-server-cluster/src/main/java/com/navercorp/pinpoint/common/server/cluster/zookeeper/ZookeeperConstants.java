@@ -28,6 +28,5 @@ public class ZookeeperConstants {
 
     public static final String WEB_LEAF_PATH = "web";
     public static final String COLLECTOR_LEAF_PATH = "collector";
-    public static final String FLINK_LEAF_PATH = "flink";
 
 }

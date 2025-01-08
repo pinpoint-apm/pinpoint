@@ -44,14 +44,6 @@ public class ClusterConfigurationTest {
     @Qualifier("clusterProperties")
     ZookeeperClusterProperties defaultClusterProperties;
 
-    @Autowired
-    @Qualifier("flinkClusterProperties")
-    ZookeeperClusterProperties flinkClusterProperties;
-
-    @Autowired
-    @Qualifier("flinkSpanStatClusterProperties")
-    ZookeeperClusterProperties spanStatFlinkClusterProperties;
-
     @Test
     public void clusterConfigurationTest() {
         ZNodePathFactory zNodePathFactory = new ZNodePathFactory("/cluster");
@@ -60,32 +52,7 @@ public class ClusterConfigurationTest {
         Assertions.assertEquals("localhost", defaultClusterProperties.getAddress());
         Assertions.assertEquals(zNodePathFactory.create("webs"), defaultClusterProperties.getWebZNodePath());
         Assertions.assertEquals(zNodePathFactory.createCollectorPath(), defaultClusterProperties.getCollectorZNodePath());
-        Assertions.assertEquals(zNodePathFactory.createFlinkPath(), defaultClusterProperties.getFlinkZNodePath());
         Assertions.assertEquals(1000, defaultClusterProperties.getSessionTimeout());
-    }
-
-    @Test
-    public void flinkClusterConfigurationTest() {
-        ZNodePathFactory zNodePathFactory = new ZNodePathFactory("/flink-cluster");
-
-        Assertions.assertFalse(flinkClusterProperties.isEnable());
-        Assertions.assertEquals("127.0.0.1", flinkClusterProperties.getAddress());
-        Assertions.assertEquals(zNodePathFactory.createWebPath(), flinkClusterProperties.getWebZNodePath());
-        Assertions.assertEquals(zNodePathFactory.create("collectors"), flinkClusterProperties.getCollectorZNodePath());
-        Assertions.assertEquals(zNodePathFactory.createFlinkPath(), flinkClusterProperties.getFlinkZNodePath());
-        Assertions.assertEquals(2000, flinkClusterProperties.getSessionTimeout());
-    }
-
-    @Test
-    public void spanStatFlinkClusterConfigurationTest() {
-        ZNodePathFactory zNodePathFactory = new ZNodePathFactory("/span-stat-flink-cluster");
-
-        Assertions.assertTrue(defaultClusterProperties.isEnable());
-        Assertions.assertEquals("0.0.0.0", spanStatFlinkClusterProperties.getAddress());
-        Assertions.assertEquals(zNodePathFactory.createWebPath(), spanStatFlinkClusterProperties.getWebZNodePath());
-        Assertions.assertEquals(zNodePathFactory.createCollectorPath(), spanStatFlinkClusterProperties.getCollectorZNodePath());
-        Assertions.assertEquals(zNodePathFactory.create("flinks"), spanStatFlinkClusterProperties.getFlinkZNodePath());
-        Assertions.assertEquals(3000, spanStatFlinkClusterProperties.getSessionTimeout());
     }
 
     private static class ZNodePathFactory {
@@ -106,10 +73,6 @@ public class ClusterConfigurationTest {
 
         private String createCollectorPath() {
             return ZKPaths.makePath(zNodeRoot, ZookeeperConstants.COLLECTOR_LEAF_PATH);
-        }
-
-        private String createFlinkPath() {
-            return ZKPaths.makePath(zNodeRoot, ZookeeperConstants.FLINK_LEAF_PATH);
         }
 
     }

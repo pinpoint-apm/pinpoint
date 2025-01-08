@@ -37,12 +37,6 @@ public class BatchProperties {
     @Value("${batch.server.env}")
     private String batchEnv;
 
-    @Value("${batch.flink.server}")
-    private String[] flinkServerList = new String[0];
-
-    @Value("${batch.flink.rest.port:8081}")
-    private int flinkRestPort;
-
     @Value("${job.alarm.enable:true}")
     private boolean alarmJobEnable;
 
@@ -63,12 +57,6 @@ public class BatchProperties {
 
     @Value("${job.agent.count.cron}")
     private String agentCountJobCron;
-
-    @Value("${job.flink.check.enable:true}")
-    private boolean flinkCheckJobEnable;
-
-    @Value("${job.flink.check.cron}")
-    private String flinkCheckJobCron;
 
     @Value("${job.cleanup.inactive.agents.enable:true}")
     private boolean cleanupInactiveAgentsJobEnable;
@@ -119,14 +107,6 @@ public class BatchProperties {
         annotationVisitor.visit(this, new LoggingEvent(this.logger));
     }
 
-    public List<String> getFlinkServerList() {
-        return Arrays.asList(flinkServerList);
-    }
-
-    public int getFlinkRestPort() {
-        return flinkRestPort;
-    }
-
     public String getBatchEnv() {
         return batchEnv;
     }
@@ -159,17 +139,10 @@ public class BatchProperties {
         return agentCountJobCron;
     }
 
-    public boolean isFlinkCheckJobEnable() {
-        return flinkCheckJobEnable;
-    }
-
-    public String getFlinkCheckJobCron() {
-        return flinkCheckJobCron;
-    }
-
     public String getUriStatAlarmJobCron() {
         return uriStatAlarmJobCron;
     }
+
     public int getCleanupInactiveAgentsDurationDays() {
         return cleanupInactiveAgentsDurationDays;
     }
@@ -202,8 +175,6 @@ public class BatchProperties {
     public String toString() {
         return "BatchProperties{" +
                 "batchEnv='" + batchEnv + '\'' +
-                ", flinkServerList=" + Arrays.toString(flinkServerList) +
-                ", flinkRestPort=" + flinkRestPort +
                 ", alarmJobEnable=" + alarmJobEnable +
                 ", alarmJobCron='" + alarmJobCron + '\'' +
                 ", alarmAgentInspectorStatTableCount=" + alarmAgentInspectorStatTableCount +
@@ -211,8 +182,6 @@ public class BatchProperties {
                 ", agentInspectorStatTablePaddingLength=" + agentInspectorStatTablePaddingLength +
                 ", agentCountJobEnable=" + agentCountJobEnable +
                 ", agentCountJobCron='" + agentCountJobCron + '\'' +
-                ", flinkCheckJobEnable=" + flinkCheckJobEnable +
-                ", flinkCheckJobCron='" + flinkCheckJobCron + '\'' +
                 ", cleanupInactiveAgentsJobEnable=" + cleanupInactiveAgentsJobEnable +
                 ", cleanupInactiveAgentsJobCron='" + cleanupInactiveAgentsJobCron + '\'' +
                 ", uriStatAlarmJobEnable=" + uriStatAlarmJobEnable +
