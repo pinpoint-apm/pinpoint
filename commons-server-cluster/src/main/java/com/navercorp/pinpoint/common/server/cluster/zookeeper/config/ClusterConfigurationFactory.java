@@ -32,30 +32,11 @@ public class ClusterConfigurationFactory {
     private static final String DEFAULT_CLUSTER = "cluster";
     private static final String DEFAULT_CLUSTER_ZOOKEEPER = "cluster.zookeeper";
 
-    private static final String FLINK_CLUSTER = "flink.cluster";
-    private static final String FLINK_CLUSTER_ZOOKEEPER = "flink.cluster.zookeeper";
-
-    private static final String FLINK_SPAN_STAT_CLUSTER = "span.stat.flink.cluster";
-    private static final String SPAN_STAT_FLINK_CLUSTER_ZOOKEEPER = "span.stat.flink.cluster.zookeeper";
-
     @Bean(DEFAULT_CLUSTER)
     @ConfigurationProperties(prefix = DEFAULT_CLUSTER)
     public ClusterEnable newDefaultConfigurationEnable() {
         return new ClusterEnable();
     }
-
-    @Bean(FLINK_CLUSTER)
-    @ConfigurationProperties(prefix = FLINK_CLUSTER)
-    public ClusterEnable newFlinkClusterEnable() {
-        return new ClusterEnable();
-    }
-
-    @Bean(FLINK_SPAN_STAT_CLUSTER)
-    @ConfigurationProperties(prefix = FLINK_SPAN_STAT_CLUSTER)
-    public ClusterEnable newFlinkSpanStatClusterEnable() {
-        return new ClusterEnable();
-    }
-
 
     @Bean(DEFAULT_CLUSTER_ZOOKEEPER)
     @ConfigurationProperties(prefix = DEFAULT_CLUSTER_ZOOKEEPER)
@@ -63,36 +44,10 @@ public class ClusterConfigurationFactory {
         return ZookeeperClusterProperties.newBuilder();
     }
 
-    @Bean(FLINK_CLUSTER_ZOOKEEPER)
-    @ConfigurationProperties(prefix = FLINK_CLUSTER_ZOOKEEPER)
-    public ZookeeperClusterProperties.Builder newFlinkPropertiesBuilder() {
-        return ZookeeperClusterProperties.newBuilder();
-    }
-
-    @Bean(SPAN_STAT_FLINK_CLUSTER_ZOOKEEPER)
-    @ConfigurationProperties(prefix = SPAN_STAT_FLINK_CLUSTER_ZOOKEEPER)
-    public ZookeeperClusterProperties.Builder newFlinkSpanStatPropertiesBuilder() {
-        return ZookeeperClusterProperties.newBuilder();
-    }
-
     @Bean
     public ZookeeperClusterProperties clusterProperties() {
         ClusterEnable clusterEnable = newDefaultConfigurationEnable();
         ZookeeperClusterProperties.Builder builder = newDefaultPropertiesBuilder();
-        return createProperties(clusterEnable, builder);
-    }
-
-    @Bean
-    public ZookeeperClusterProperties flinkClusterProperties() {
-        ClusterEnable clusterEnable = newFlinkClusterEnable();
-        ZookeeperClusterProperties.Builder builder = newFlinkPropertiesBuilder();
-        return createProperties(clusterEnable, builder);
-    }
-
-    @Bean
-    public ZookeeperClusterProperties flinkSpanStatClusterProperties() {
-        ClusterEnable clusterEnable = newFlinkSpanStatClusterEnable();
-        ZookeeperClusterProperties.Builder builder = newFlinkSpanStatPropertiesBuilder();
         return createProperties(clusterEnable, builder);
     }
 

@@ -77,14 +77,6 @@ public class BatchJobLauncher extends JobLaunchSupport {
         }
     }
 
-    public void flinkCheckJob() {
-        if (batchProperties.isFlinkCheckJobEnable()) {
-            run("flinkCheckJob", createTimeParameter());
-        } else {
-            logger.debug("Skip flinkCheckJob, because 'enableFlinkCheckJob' is disabled.");
-        }
-    }
-
     public void cleanupInactiveAgentsJob() {
         if (batchProperties.isCleanupInactiveAgentsJobEnable()) {
             run("cleanupInactiveAgentsJob", createTimeParameter());

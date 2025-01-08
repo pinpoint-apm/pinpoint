@@ -31,21 +31,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Woonduk Kang(emeroad)
  */
-@TestPropertySource(locations = "classpath:batch-root.properties",
-        properties = {"batch.flink.server=1,2"})
+@TestPropertySource(locations = "classpath:batch-root.properties")
 @ContextConfiguration(classes = BatchProperties.class)
 @ExtendWith(SpringExtension.class)
 public class BatchPropertiesTest {
 
     @Autowired
     BatchProperties properties;
-
-    @Test
-    public void test() {
-        assertThat(properties)
-                .extracting(BatchProperties::getBatchEnv, BatchProperties::getFlinkServerList)
-                .containsExactly("release", List.of("1", "2"));
-    }
 
     @Test
     public void cleanupInactiveAgentsConfigurationTest() {

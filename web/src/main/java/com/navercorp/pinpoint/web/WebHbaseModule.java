@@ -8,7 +8,6 @@ import com.navercorp.pinpoint.common.server.hbase.config.HbaseClientConfiguratio
 import com.navercorp.pinpoint.web.applicationmap.config.MapHbaseConfiguration;
 import com.navercorp.pinpoint.web.dao.hbase.config.AgentStatDaoConfiguration;
 import com.navercorp.pinpoint.web.dao.hbase.config.AgentStatOperationConfiguration;
-import com.navercorp.pinpoint.web.dao.hbase.config.ApplicationMetricConfiguration;
 import com.navercorp.pinpoint.web.dao.hbase.config.SampledAgentStatDaoConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,7 +23,6 @@ import org.springframework.context.annotation.PropertySource;
         AgentStatDaoConfiguration.class,
         AgentStatOperationConfiguration.class,
 
-        ApplicationMetricConfiguration.class,
         SampledAgentStatDaoConfiguration.class,
 
         HbaseNamespaceConfiguration.class,
