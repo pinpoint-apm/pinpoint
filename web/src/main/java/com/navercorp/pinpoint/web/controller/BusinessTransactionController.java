@@ -100,7 +100,7 @@ public class BusinessTransactionController {
             @RequestParam(value = "focusTimestamp", required = false, defaultValue = DEFAULT_FOCUS_TIMESTAMP)
             @PositiveOrZero
             long focusTimestamp,
-            @RequestParam(value = "agentId", required = false) @NotBlank String agentId,
+            @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam(value = "spanId", required = false, defaultValue = DEFAULT_SPAN_ID) long spanId,
             @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
             @RequestParam(value = "useStatisticsAgentState", required = false, defaultValue = "false")
