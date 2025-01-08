@@ -7,6 +7,11 @@ import {
   TransactionInfoType as TransactionInfo,
   colors,
 } from '@pinpoint-fe/ui/constants';
+import {
+  getColorByString,
+  getContrastingTextColor,
+  getDarkenHexColor,
+} from '@pinpoint-fe/ui/lib/colors';
 import { FlameGraph } from '../../FlameGraph';
 import { cn } from '../../../lib';
 import { TimelineDetail } from './TimelineDetail';
@@ -144,15 +149,22 @@ export const TimelineFetcher = ({ transactionInfo }: TimelineFetcherProps) => {
         data={flameGraphData}
         start={transactionInfo?.callStackStart}
         end={transactionInfo?.callStackEnd}
-        customNodeStyle={(node, color) => {
+        customNodeStyle={(node, _color) => {
+          const nodeApplicationName = node?.detail?.args?.['Application Name'] || '';
+          const color = nodeApplicationName ? getColorByString(nodeApplicationName) : _color?.color;
+          const hoverColor = getDarkenHexColor(color);
+
           const id = node.detail.args.id;
           const isFocused = focusedNodeId === id || selectedTrace?.args.id === id;
 
           return {
-            fill: isFocused ? color?.hoverColor : color?.color,
+            fill: isFocused ? hoverColor : color,
+            stroke: colors.white,
+            strokeWidth: 0.5,
           };
         }}
-        customTextStyle={(node) => {
+        customTextStyle={(node, _color) => {
+          const nodeApplicationName = node?.detail?.args?.['Application Name'] || '';
           const id = node.detail.args.id;
           const isFocused = focusedNodeId === id || selectedTrace?.args.id === id;
           const isHighLighted = searchedListIds?.includes(id);
@@ -165,7 +177,9 @@ export const TimelineFetcher = ({ transactionInfo }: TimelineFetcherProps) => {
                 paintOrder: 'stroke',
                 strokeLinejoin: 'round',
               }
-            : {};
+            : {
+                fill: getContrastingTextColor(getColorByString(nodeApplicationName)) || _color,
+              };
           return {
             ...hilightedStyle,
             fontWeight: isFocused ? 'bold' : '',

@@ -93,8 +93,8 @@ const FlameNodeComponent = <T,>({
           width={width}
           height={height}
           style={{
-            ...nodeStyle,
             fill: isHover ? hoverColor : color,
+            ...nodeStyle,
           }}
         />
         <text
