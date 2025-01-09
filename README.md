@@ -85,16 +85,16 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 
 Java version required to run Pinpoint:
 <!-- <compatibilityJava.md> -->
-| Pinpoint Version | Agent | Collector | Web | Batch | Flink |
-|------------------|-------|-----------|-----|-------|-------|
-| 2.0.x            | 6-13  | 8         | 8   | 8     | 8     |
-| 2.1.x            | 6-14  | 8         | 8   | 8     | 8     |
-| 2.2.x            | 7-14  | 8         | 8   | 8     | 8     |
-| 2.3.x            | 7-17  | 8         | 8   | 8     | 8     |
-| 2.4.x            | 7-18  | 11        | 11  | 11    | 11    |
-| 2.5.x            | 8-19  | 11        | 11  | 11    | 11    |
-| 3.0.x            | 8-21  | 17        | 17  | 17    | 17    |
-| 3.1.x            | 8-21  | 17        | 17  | 17    | 17    |
+| Pinpoint Version | Agent | Collector | Web | Batch | 
+|------------------|-------|-----------|-----|-------|
+| 2.0.x            | 6-13  | 8         | 8   | 8     |
+| 2.1.x            | 6-14  | 8         | 8   | 8     |
+| 2.2.x            | 7-14  | 8         | 8   | 8     |
+| 2.3.x            | 7-17  | 8         | 8   | 8     |
+| 2.4.x            | 7-18  | 11        | 11  | 11    |
+| 2.5.x            | 8-19  | 11        | 11  | 11    |
+| 3.0.x            | 8-21  | 17        | 17  | 17    |
+| 3.1.x            | 8-21  | 17        | 17  | 17    |
 
 <!-- </compatibilityJava.md> -->
 HBase compatibility table:
@@ -117,15 +117,6 @@ Agent - Collector compatibility table:
 | 3.1.x         | no              | no              | yes             |
 
 <!-- </compatibilityPinpoint.md> -->
-Flink compatibility table:
-<!-- <compatibilityFlink.md> -->
-| Pinpoint Version | Flink 1.3.X - 1.7.X | Flink 1.14.X | Flink 1.18.X    |
-|------------------|---------------------|--------------|-----------------|
-| 2.0.x - 2.3.x    | yes                 | no           | no              |
-| 2.4.x - 2.5.x    | yes                 | yes          | no              |
-| 3.0.x            | no                  | no           | yes(deprecated) |
-| 3.1.x            | no                  | no           | yes(deprecated) |
-<!-- </compatibilityFlink.md> -->
 Pinot compatibility table:
 <!-- <compatibilityPinot.md> -->
 | Pinpoint Version | Pinot 0.11.0 | Pinot 0.12.0 | Pinot 1.0.0 | [Pinot 1.2.0](https://github.com/pinpoint-apm/pinpoint/issues/11613) |
