@@ -17,6 +17,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
   HelpPopover,
+  ErrorBoundary,
 } from '..';
 import { useServerMapSearchParameters, useTabFocus } from '@pinpoint-fe/ui/hooks';
 import {
@@ -105,7 +106,11 @@ export const Realtime = () => {
               </div>
             </div>
             <ResizablePanel className="!overflow-auto">
-              {isFocus && <AgentActiveThreadFetcher />}
+              {isFocus && (
+                <ErrorBoundary>
+                  <AgentActiveThreadFetcher />
+                </ErrorBoundary>
+              )}
             </ResizablePanel>
           </ResizablePanelGroup>
         )}
