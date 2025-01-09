@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.realtime.collector.receiver;
 
-import com.navercorp.pinpoint.thrift.io.TCommandType;
+import com.navercorp.pinpoint.realtime.dto.CommandType;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -27,11 +27,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class SupportedCommandUtilsTest {
 
-    private static final List<TCommandType> TYPES = List.of(
-            TCommandType.ECHO,
-            TCommandType.ACTIVE_THREAD_COUNT,
-            TCommandType.ACTIVE_THREAD_DUMP,
-            TCommandType.ACTIVE_THREAD_LIGHT_DUMP
+    private static final List<CommandType> TYPES = List.of(
+            CommandType.ECHO,
+            CommandType.ACTIVE_THREAD_COUNT,
+            CommandType.ACTIVE_THREAD_DUMP,
+            CommandType.ACTIVE_THREAD_LIGHT_DUMP
     );
 
     private static final List<Integer> CODES = TYPES.stream()
@@ -40,7 +40,7 @@ public class SupportedCommandUtilsTest {
 
     @Test
     public void testConverting() {
-        List<TCommandType> result = SupportedCommandUtils.newSupportCommandList(CODES);
+        List<CommandType> result = SupportedCommandUtils.newSupportCommandList(CODES);
         assertThat(result).hasSameElementsAs(TYPES);
     }
 

@@ -117,10 +117,6 @@
             <AppenderRef ref="console"/>
             <Appenderref ref="rollingFile"/>
         </Logger>
-        <Logger name="org.apache.curator" level="DEBUG" additivity="false">
-            <AppenderRef ref="console"/>
-            <Appenderref ref="rollingFile"/>
-        </Logger>
         -->
         <Logger name="org.apache.zookeeper" level="INFO" additivity="false">
             <AppenderRef ref="console"/>

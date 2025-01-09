@@ -16,12 +16,6 @@
 package com.navercorp.pinpoint.web;
 
 import com.navercorp.pinpoint.common.server.trace.ApiParserProvider;
-import com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory;
-import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -48,16 +42,6 @@ public class WebServiceConfig {
         @Bean
         public ApiParserProvider apiParserProvider() {
             return new ApiParserProvider();
-        }
-
-        @Bean
-        public SerializerFactory<HeaderTBaseSerializer> commandHeaderTBaseSerializerFactory() {
-            return CommandHeaderTBaseSerializerFactory.getDefaultInstance();
-        }
-
-        @Bean
-        public DeserializerFactory<HeaderTBaseDeserializer> commandHeaderTBaseDeserializerFactory() {
-            return CommandHeaderTBaseDeserializerFactory.getDefaultInstance();
         }
 
     }

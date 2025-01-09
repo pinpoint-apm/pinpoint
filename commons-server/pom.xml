@@ -38,11 +38,6 @@
     <dependencies>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-thrift</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-grpc</artifactId>
             <scope>provided</scope>
         </dependency>
@@ -138,12 +133,9 @@
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
         </dependency>
-
-        <!-- commons module may be used at agent so there will be problems. you should set optional -->
         <dependency>
-            <groupId>org.apache.thrift</groupId>
-            <artifactId>libthrift</artifactId>
-            <optional>true</optional>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler</artifactId>
         </dependency>
 
         <!-- Logging dependencies -->

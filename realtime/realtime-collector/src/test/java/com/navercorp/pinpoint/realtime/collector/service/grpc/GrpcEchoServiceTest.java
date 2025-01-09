@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.realtime.collector.receiver.grpc.GrpcAgentConnecti
 import com.navercorp.pinpoint.realtime.collector.service.EchoService;
 import com.navercorp.pinpoint.realtime.collector.sink.EchoPublisher;
 import com.navercorp.pinpoint.realtime.collector.sink.SinkRepository;
+import com.navercorp.pinpoint.realtime.dto.CommandType;
 import com.navercorp.pinpoint.realtime.dto.Echo;
-import com.navercorp.pinpoint.thrift.io.TCommandType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -70,7 +70,7 @@ public class GrpcEchoServiceTest {
             return null;
         }).when(connection).request(any());
 
-        doReturn(List.of(TCommandType.ECHO)).when(connection)
+        doReturn(List.of(CommandType.ECHO)).when(connection)
                 .getSupportCommandList();
 
         ClusterKey clusterKey = ClusterKey.parse("application-name:agent-id:1234");

@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.common.server.util;
 
 import com.navercorp.pinpoint.common.server.bo.event.DeadlockBo;
-import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.Collections;
@@ -42,7 +41,8 @@ public enum AgentEventType {
     AGENT_CLOSED_BY_SERVER(10300, "Agent connection closed by server", Void.class, DURATIONAL, AGENT_LIFECYCLE),
     AGENT_UNEXPECTED_CLOSE_BY_SERVER(10301, "Agent connection unexpectedly closed by server", Void.class, DURATIONAL, AGENT_LIFECYCLE),
     AGENT_DEADLOCK_DETECTED(10401, "Agent deadlock detected", DeadlockBo.class, AGENT_LIFECYCLE),
-    USER_THREAD_DUMP(20100, "Thread dump by user", TCommandThreadDumpResponse.class, USER_REQUEST, THREAD_DUMP),
+    // TODO
+    USER_THREAD_DUMP(20100, "Thread dump by user", Void.class, USER_REQUEST, THREAD_DUMP),
     OTHER(-1, "Other event", String.class, AgentEventTypeCategory.OTHER);
     
     private final int code;

@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.io.header.v2.HeaderV2;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
-import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
+import com.navercorp.pinpoint.io.util.MessageType;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
@@ -74,18 +74,18 @@ public class SpanService extends SpanGrpc.SpanImplBase {
         }
 
         if (spanMessage.hasSpan()) {
-            final Message<PSpan> message = newMessage(spanMessage.getSpan(), DefaultTBaseLocator.SPAN);
+            final Message<PSpan> message = newMessage(spanMessage.getSpan(), MessageType.SPAN);
             dispatch(message, stream);
         } else if (spanMessage.hasSpanChunk()) {
-            final Message<PSpanChunk> message = newMessage(spanMessage.getSpanChunk(), DefaultTBaseLocator.SPANCHUNK);
+            final Message<PSpanChunk> message = newMessage(spanMessage.getSpanChunk(), MessageType.SPANCHUNK);
             dispatch(message, stream);
         } else {
             logger.info("Found empty span message {}", MessageFormatUtils.debugLog(spanMessage));
         }
     }
 
-    private <T> Message<T> newMessage(T requestData, short serviceType) {
-        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, serviceType);
+    private <T> Message<T> newMessage(T requestData, MessageType messageType) {
+        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, messageType.getCode());
         final HeaderEntity headerEntity = new HeaderEntity(new HashMap<>());
         return new DefaultMessage<>(header, headerEntity, requestData);
     }

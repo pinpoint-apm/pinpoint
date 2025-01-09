@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
-import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
+import com.navercorp.pinpoint.io.util.MessageType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -51,7 +51,7 @@ public class AgentDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES>
 
         this.handlerMap = new IntHashMap<>();
         for (RequestResponseHandler<REQ, RES> handler : handlers) {
-            RequestResponseHandler<REQ, RES> old = handlerMap.put(handler.type(), handler);
+            RequestResponseHandler<REQ, RES> old = handlerMap.put(handler.type().getCode(), handler);
             if (old != null) {
                 throw new IllegalArgumentException("Unexpected type new:" + handler + " old:" + old);
             }
@@ -71,7 +71,7 @@ public class AgentDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES>
 
     private SimpleHandler<REQ> getSimpleHandler(Header header) {
         final short type = header.getType();
-        if (type == DefaultTBaseLocator.AGENT_INFO) {
+        if (type == MessageType.AGENT_INFO.getCode()) {
             return agentInfoHandler;
         }
 

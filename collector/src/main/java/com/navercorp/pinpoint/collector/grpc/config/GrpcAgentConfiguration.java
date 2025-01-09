@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleAndRequestResponseHandler;
 import com.navercorp.pinpoint.collector.manage.HandlerManager;
 import com.navercorp.pinpoint.collector.receiver.AgentDispatchHandler;
-import com.navercorp.pinpoint.collector.receiver.AgentLifeCycleChangeEventHandler;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandlerFactoryBean;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver;
@@ -43,8 +42,6 @@ import com.navercorp.pinpoint.grpc.server.lifecycle.DefaultPingEventHandler;
 import com.navercorp.pinpoint.grpc.server.lifecycle.DefaultPingSessionRegistry;
 import com.navercorp.pinpoint.grpc.server.lifecycle.PingEventHandler;
 import com.navercorp.pinpoint.grpc.server.lifecycle.PingSessionRegistry;
-import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
-import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import io.grpc.BindableService;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerServiceDefinition;
@@ -200,18 +197,6 @@ public class GrpcAgentConfiguration {
     @Bean
     public ShutdownEventListener shutdownEventListener() {
         return new ShutdownEventListener();
-    }
-
-    @Bean
-    public AgentLifeCycleChangeEventHandler agentLifeCycleChangeEventHandler(AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTaskService,
-                                                                             AgentEventAsyncTaskService agentEventAsyncTaskService,
-                                                                             ChannelPropertiesFactory channelPropertiesFactory) {
-        return new AgentLifeCycleChangeEventHandler(agentLifeCycleAsyncTaskService, agentEventAsyncTaskService, channelPropertiesFactory);
-    }
-
-    @Bean
-    public List<ServerStateChangeEventHandler> channelStateChangeEventHandlers(AgentLifeCycleChangeEventHandler handler) {
-        return List.of(handler);
     }
 
     @Bean

@@ -56,27 +56,11 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-commons-server-cluster</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons-hbase</artifactId>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-collector-monitor</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-rpc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-thrift</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-thrift-datasender</artifactId>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
@@ -86,20 +70,6 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-plugins-assembly</artifactId>
             <type>pom</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.zookeeper</groupId>
-            <artifactId>zookeeper</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
@@ -130,11 +100,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.thrift</groupId>
-            <artifactId>libthrift</artifactId>
         </dependency>
 
         <!-- if  2.3.x jackson needed, should modify scope runtime -->
@@ -256,13 +221,6 @@
 
 
 
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-rpc</artifactId>
-            <version>${project.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>jakarta.annotation</groupId>
             <artifactId>jakarta.annotation-api</artifactId>

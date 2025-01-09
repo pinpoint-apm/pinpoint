@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.activethread;
 
-import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
+import com.navercorp.pinpoint.common.server.threaddump.TThreadState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

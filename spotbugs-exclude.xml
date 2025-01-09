@@ -9,8 +9,6 @@
     -->
     <Match>
         <Or>
-            <Package name="com.navercorp.pinpoint.thrift.dto.*" />
-            <Package name="com.navercorp.pinpoint.thrift.dto.command.*" />
             <Package name="com.navercorp.pinpoint.common.util.apache.*" />
             <Package name="com.navercorp.pinpoint.bootstrap.util.spring.*" />
             <Package name="com.navercorp.pinpoint.common.profiler.concurrent.jsr166.*" />

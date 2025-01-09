@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.io.header.HeaderEntity;
 import com.navercorp.pinpoint.io.header.v2.HeaderV2;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
-import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
+import com.navercorp.pinpoint.io.util.MessageType;
 import io.grpc.Context;
 import io.grpc.Metadata;
 import io.grpc.Status;
@@ -77,7 +77,7 @@ public class AgentService extends AgentGrpc.AgentImplBase {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    final Message<PAgentInfo> message = newMessage(agentInfo, DefaultTBaseLocator.AGENT_INFO);
+                    final Message<PAgentInfo> message = newMessage(agentInfo, MessageType.AGENT_INFO);
                     simpleRequestHandlerAdaptor.request(message, responseObserver);
                     // Update service type of PingSession
                     AgentService.this.pingEventHandler.update((short) agentInfo.getServiceType());
@@ -155,8 +155,8 @@ public class AgentService extends AgentGrpc.AgentImplBase {
         return idAllocator.getAndIncrement();
     }
 
-    private <T> Message<T> newMessage(T requestData, short type) {
-        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, type);
+    private <T> Message<T> newMessage(T requestData, MessageType type) {
+        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, type.getCode());
         final HeaderEntity headerEntity = new HeaderEntity(Collections.emptyMap());
         return new DefaultMessage<>(header, headerEntity, requestData);
     }
