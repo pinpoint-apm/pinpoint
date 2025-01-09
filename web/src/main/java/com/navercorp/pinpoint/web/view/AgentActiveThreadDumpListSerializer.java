@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.view;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
+import com.navercorp.pinpoint.common.server.threaddump.TThreadState;
 import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadDump;
 import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadDumpList;
 

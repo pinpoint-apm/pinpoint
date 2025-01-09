@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.realtime.collector.receiver;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.thrift.io.TCommandType;
+import com.navercorp.pinpoint.realtime.dto.CommandType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,14 +30,14 @@ public final class SupportedCommandUtils {
     private SupportedCommandUtils() {
     }
 
-    public static List<TCommandType> newSupportCommandList(List<Integer> supportCommandList) {
+    public static List<CommandType> newSupportCommandList(List<Integer> supportCommandList) {
         if (CollectionUtils.isEmpty(supportCommandList)) {
             return Collections.emptyList();
         }
 
-        final List<TCommandType> result = new ArrayList<>(supportCommandList.size());
+        final List<CommandType> result = new ArrayList<>(supportCommandList.size());
         for (Integer supportCommandCode : supportCommandList) {
-            TCommandType commandType = TCommandType.getType(supportCommandCode.shortValue());
+            CommandType commandType = CommandType.getType(supportCommandCode.shortValue());
             if (commandType != null) {
                 result.add(commandType);
             }

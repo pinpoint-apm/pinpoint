@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.realtime.collector.sink.ActiveThreadLightDumpPubli
 import com.navercorp.pinpoint.realtime.collector.sink.SinkRepository;
 import com.navercorp.pinpoint.realtime.dto.ATDDemand;
 import com.navercorp.pinpoint.realtime.dto.ATDSupply;
-import com.navercorp.pinpoint.thrift.io.TCommandType;
+import com.navercorp.pinpoint.realtime.dto.CommandType;
 import reactor.core.publisher.Mono;
 
 import java.util.Objects;
@@ -71,7 +71,7 @@ class GrpcActiveThreadDumpService implements ActiveThreadDumpService {
                 sink.error(new IgnoreDemandException("Connection not found"));
                 return;
             }
-            if (!conn.getSupportCommandList().contains(TCommandType.ACTIVE_THREAD_DUMP)) {
+            if (!conn.getSupportCommandList().contains(CommandType.ACTIVE_THREAD_DUMP)) {
                 sink.error(new RuntimeException("Command not supported"));
                 return;
             }
@@ -94,7 +94,7 @@ class GrpcActiveThreadDumpService implements ActiveThreadDumpService {
                 sink.error(new IgnoreDemandException("Connection not found"));
                 return;
             }
-            if (!conn.getSupportCommandList().contains(TCommandType.ACTIVE_THREAD_LIGHT_DUMP)) {
+            if (!conn.getSupportCommandList().contains(CommandType.ACTIVE_THREAD_LIGHT_DUMP)) {
                 sink.error(new RuntimeException("Command not supported"));
                 return;
             }

@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.realtime.collector.sink.ActiveThreadCountPublisher
 import com.navercorp.pinpoint.realtime.collector.sink.SinkRepository;
 import com.navercorp.pinpoint.realtime.dto.ATCDemand;
 import com.navercorp.pinpoint.realtime.dto.ATCSupply;
-import com.navercorp.pinpoint.thrift.io.TCommandType;
+import com.navercorp.pinpoint.realtime.dto.CommandType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -77,7 +77,7 @@ public class GrpcActiveThreadCountServiceTest {
             return null;
         }).when(connection).request(any());
 
-        doReturn(List.of(TCommandType.ACTIVE_THREAD_COUNT)).when(connection)
+        doReturn(List.of(CommandType.ACTIVE_THREAD_COUNT)).when(connection)
                 .getSupportCommandList();
 
         doReturn(connection).when(connectionRepository)

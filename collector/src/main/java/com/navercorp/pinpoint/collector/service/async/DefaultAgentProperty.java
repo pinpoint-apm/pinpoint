@@ -27,10 +27,10 @@ public class DefaultAgentProperty implements AgentProperty {
     private final String applicationName;
     private final String agentId;
     private final long agentStartTime;
-    private final Map<String, Object> properties;
+    private final Map<?, ?> properties;
     private final short serviceType;
 
-    public DefaultAgentProperty(String applicationName, short serviceType, String agentId, long agentStartTime, Map<String, Object> properties) {
+    public DefaultAgentProperty(String applicationName, short serviceType, String agentId, long agentStartTime, Map<?, ?> properties) {
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.serviceType = serviceType;
         this.agentId = Objects.requireNonNull(agentId, "agentId");

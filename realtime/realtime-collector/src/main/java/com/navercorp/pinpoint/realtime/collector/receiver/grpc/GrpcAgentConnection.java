@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.realtime.collector.receiver.ClusterPoint;
 import com.navercorp.pinpoint.realtime.collector.receiver.SupportedCommandUtils;
-import com.navercorp.pinpoint.thrift.io.TCommandType;
+import com.navercorp.pinpoint.realtime.dto.CommandType;
 import io.grpc.stub.ServerCallStreamObserver;
 
 import java.net.InetSocketAddress;
@@ -35,7 +35,7 @@ public class GrpcAgentConnection implements ClusterPoint {
     private final InetSocketAddress remoteAddress;
     private final ClusterKey clusterKey;
     private final ServerCallStreamObserver<PCmdRequest> requestObserver;
-    private final List<TCommandType> supportCommandList;
+    private final List<CommandType> supportCommandList;
 
     public GrpcAgentConnection(
             InetSocketAddress remoteAddress,
@@ -60,7 +60,7 @@ public class GrpcAgentConnection implements ClusterPoint {
         return this.clusterKey;
     }
 
-    public List<TCommandType> getSupportCommandList() {
+    public List<CommandType> getSupportCommandList() {
         return supportCommandList;
     }
 

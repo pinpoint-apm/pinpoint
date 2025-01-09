@@ -76,11 +76,6 @@
             <url>http://repo.spring.io/libs-release</url>
         </repository>
         -->
-        <!-- curator patch -->
-        <repository>
-            <id>curator-patch-repo</id>
-            <url>file://${maven.multiModuleProjectDirectory}/libs</url>
-        </repository>
     </repositories>
 
     <modules>
@@ -97,14 +92,10 @@
         <module>commons-profiler</module>
         <module>commons-hbase</module>
         <module>commons-server</module>
-        <module>commons-server-cluster</module>
         <module>commons-mybatis</module>
         <module>commons-mapstruct-spi</module>
         <module>datasource</module>
         <module>basic-login</module>
-        <module>thrift-datasender</module>
-        <module>rpc</module>
-        <module>thrift</module>
         <module>grpc</module>
         <module>web</module>
         <module>web-starter</module>
@@ -225,7 +216,6 @@
 
         <jakarta.validation-api.version>${jakarta.validation-api3.version}</jakarta.validation-api.version>
 
-
         <asm.version>9.6</asm.version>
         <thrift.version>0.16.0</thrift.version>
         <caffeine.version>2.9.2</caffeine.version>
@@ -251,9 +241,6 @@
         <jakarta.jaxb.version>4.0.1</jakarta.jaxb.version>
 
         <zookeeper.version>3.8.4</zookeeper.version>
-        <curator.version>4.2.0</curator.version>
-        <curator.framework.version>4.2.1</curator.framework.version>
-        <curator.test.version>5.5.0</curator.test.version>
 
         <mockito.version>4.11.0</mockito.version>
         <bytebuddy.version>1.12.23</bytebuddy.version>
@@ -372,11 +359,6 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-commons-server-cluster</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-basic-login</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -413,11 +395,6 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-rpc</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-redis</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -428,20 +405,10 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-thrift</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-grpc</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-thrift-datasender</artifactId>
-                <version>${project.version}</version>
-            </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-batch</artifactId>
@@ -1567,51 +1534,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.curator</groupId>
-                <artifactId>curator-client</artifactId>
-                <version>${curator.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>zookeeper</artifactId>
-                        <groupId>org.apache.zookeeper</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.curator</groupId>
-                        <artifactId>curator-test</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.curator</groupId>
-                <artifactId>curator-framework</artifactId>
-                <version>${curator.framework.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>zookeeper</artifactId>
-                        <groupId>org.apache.zookeeper</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.curator</groupId>
-                        <artifactId>curator-test</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <!-- for zookeeper test -->
-            <!-- ZooKeeper Version Compatibility : https://curator.apache.org/zk-compatibility.html-->
-            <dependency>
-                <groupId>org.apache.curator</groupId>
-                <artifactId>curator-test</artifactId>
-                <version>${curator.test.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>zookeeper</artifactId>
-                        <groupId>org.apache.zookeeper</groupId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
                 <groupId>org.apache.thrift</groupId>
                 <artifactId>libthrift</artifactId>
                 <version>${thrift.version}</version>
@@ -1861,7 +1783,6 @@
                     <configuration>
                         <linkXRef>true</linkXRef>
                         <excludes>
-                            <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
                             <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
                             <exclude>com/navercorp/pinpoint/bootstrap/util/spring/**/*.java</exclude>
                             <exclude>com/navercorp/pinpoint/common/profiler/concurrent/jsr166/**/*.java</exclude>
@@ -1890,7 +1811,6 @@
                     <configuration>
                         <skip>${plugin.jacoco.skip}</skip>
                         <excludes>
-                            <exclude>com/navercorp/pinpoint/thrift/dto/**/*.class</exclude>
                             <exclude>com/navercorp/pinpoint/common/util/apache/**/*.class</exclude>
                             <exclude>com/navercorp/pinpoint/bootstrap/util/spring/**/*.java</exclude>
                             <exclude>com/navercorp/pinpoint/common/profiler/concurrent/jsr166/**/*.class</exclude>

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.handler;
+package com.navercorp.pinpoint.io.util;
 
-import com.navercorp.pinpoint.io.request.ServerRequest;
-import com.navercorp.pinpoint.io.request.ServerResponse;
-import com.navercorp.pinpoint.io.util.MessageType;
-import org.springframework.stereotype.Service;
+import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.header.v2.HeaderV2;
 
-/**
- * @author emeroad
- * @author koo.taejin
- */
-@Service
-public interface RequestResponseHandler<REQ, RES> {
+public class HeaderFactoryV2 implements HeaderFactory {
 
-    MessageType type();
+    @Override
+    public Header newHeader(short type) {
+        return new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, type);
+    }
 
-    void handleRequest(ServerRequest<REQ> serverRequest, ServerResponse<RES> serverResponse);
 }

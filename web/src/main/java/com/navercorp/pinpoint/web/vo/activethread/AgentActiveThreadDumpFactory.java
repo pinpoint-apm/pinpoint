@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.web.vo.activethread;
 
 import com.navercorp.pinpoint.common.server.bo.event.ThreadDumpBo;
 import com.navercorp.pinpoint.common.server.bo.event.ThreadState;
+import com.navercorp.pinpoint.common.server.threaddump.TThreadState;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.realtime.dto.ActiveThreadDump;
-import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
 import com.navercorp.pinpoint.web.util.ThreadDumpUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;

@@ -27,8 +27,7 @@ import com.navercorp.pinpoint.realtime.collector.receiver.ClusterPoint;
 import com.navercorp.pinpoint.realtime.collector.receiver.ClusterPointLocator;
 import com.navercorp.pinpoint.realtime.collector.receiver.grpc.GrpcAgentConnection;
 import com.navercorp.pinpoint.realtime.collector.sink.SinkRepository;
-import com.navercorp.pinpoint.rpc.PinpointSocketException;
-import com.navercorp.pinpoint.thrift.io.TCommandType;
+import com.navercorp.pinpoint.realtime.dto.CommandType;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import org.apache.logging.log4j.LogManager;
@@ -102,7 +101,7 @@ public class ClusterPointController {
 
         List<GrpcAgentConnectionStats> result = new ArrayList<>(grpcAgentConnectionList.size());
         for (GrpcAgentConnection grpcAgentConnection : grpcAgentConnectionList) {
-            if (!grpcAgentConnection.getSupportCommandList().contains(TCommandType.ECHO)) {
+            if (!grpcAgentConnection.getSupportCommandList().contains(CommandType.ECHO)) {
                 result.add(new GrpcAgentConnectionStats(
                         grpcAgentConnection,
                         CheckConnectionStatusResult.STATUS_CHECK_NOT_SUPPORTED
@@ -179,7 +178,7 @@ public class ClusterPointController {
                 return CheckConnectionStatusResult.FAIL_AND_CLEAR_CONNECTION;
             }
             return CheckConnectionStatusResult.FAIL;
-        } catch (PinpointSocketException e) {
+        } catch (ClusterException e) {
             logger.warn("Exception occurred while request message. message:{}", e.getMessage(), e);
             clearConnection();
             return CheckConnectionStatusResult.FAIL_AND_CLEAR_CONNECTION;
@@ -223,16 +222,16 @@ public class ClusterPointController {
                 return responseFuture;
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw new PinpointSocketException(e);
+                throw new ClusterException(e);
             } catch (ExecutionException e) {
-                throw new PinpointSocketException(e.getCause());
+                throw new ClusterException(e.getCause());
             } catch (TimeoutException e) {
-                throw new PinpointSocketException(e);
+                throw new ClusterException(e);
             } catch (Exception ignored) {
             }
         }
 
-        throw new PinpointSocketException("Request limit exceeded. limit:" +  maxCount);
+        throw new ClusterException("Request limit exceeded. limit:" +  maxCount);
     }
 
     private <T> String buildHtml(List<T> stats) {
