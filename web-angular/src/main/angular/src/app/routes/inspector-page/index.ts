@@ -11,23 +11,23 @@ import { InspectorPageComponent } from './inspector-page.component';
 import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
 import { AppWidgetModule } from 'app/core/components/app-widget';
 import { SideNavigationBarModule } from 'app/core/components/side-navigation-bar';
+import { MessagePopupModule } from 'app/core/components/message-popup';
 
 @NgModule({
-    declarations: [
-        InspectorPageComponent
-    ],
-    imports: [
-        SharedModule,
-        SideNavigationBarModule,
-        NoticeModule,
-        ServerAndAgentListModule,
-        ApplicationInspectorContentsModule,
-        AgentInspectorContentsModule,
-        HelpViewerPopupModule,
-        RouterModule.forChild(routing),
-        AppWidgetModule,
-    ],
-    exports: [],
-    providers: []
+  declarations: [InspectorPageComponent],
+  imports: [
+    SharedModule,
+    SideNavigationBarModule,
+    NoticeModule,
+    ServerAndAgentListModule,
+    ApplicationInspectorContentsModule,
+    AgentInspectorContentsModule,
+    HelpViewerPopupModule,
+    RouterModule.forChild(routing),
+    AppWidgetModule,
+    MessagePopupModule,
+  ],
+  exports: [],
+  providers: [],
 })
 export class InspectorPageModule {}

@@ -44,7 +44,8 @@
         "For case 1, you should delete the mapping between !{0} and !{1}.",
         "For case 2, the agent id of the duplicate agent must change."
       ]
-    }
+    },
+    "DEPRECATED_MESSAGE": "V2's inspector data is no longer provided. Use <a href=\"!{0}\" style=\"color:#428bca\">V3 inspector</a>."
   },
   "TRANSACTION_LIST": {
     "SELECT_TRANSACTION": "Select your transaction",
