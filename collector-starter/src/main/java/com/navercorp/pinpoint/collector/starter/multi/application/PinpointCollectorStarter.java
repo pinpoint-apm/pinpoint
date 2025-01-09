@@ -84,7 +84,7 @@ public class PinpointCollectorStarter {
 
         if (types.hasType(CollectorType.METRIC)) {
             logger.info(String.format("Start %s collector", CollectorType.METRIC));
-            SpringApplicationBuilder metricAppBuilder = createAppBuilder(builder, 15200,
+            SpringApplicationBuilder metricAppBuilder = createAppBuilder(builder, 9995,
                     MetricCollectorApp.class,
                     OtlpMetricCollectorConfig.class);
             metricAppBuilder.listeners(new AdditionalProfileListener("metric"));
