@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.realtime.collector.sink.ActiveThreadLightDumpPubli
 import com.navercorp.pinpoint.realtime.collector.sink.SinkRepository;
 import com.navercorp.pinpoint.realtime.dto.ATDDemand;
 import com.navercorp.pinpoint.realtime.dto.ATDSupply;
-import com.navercorp.pinpoint.thrift.io.TCommandType;
+import com.navercorp.pinpoint.realtime.dto.CommandType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -74,7 +74,7 @@ public class GrpcActiveThreadDumpServiceTest {
             return null;
         }).when(connection).request(any());
 
-        doReturn(List.of(TCommandType.ACTIVE_THREAD_DUMP)).when(connection)
+        doReturn(List.of(CommandType.ACTIVE_THREAD_DUMP)).when(connection)
                 .getSupportCommandList();
 
         doReturn(connection).when(connectionRepository)
@@ -122,7 +122,7 @@ public class GrpcActiveThreadDumpServiceTest {
             return null;
         }).when(connection).request(any());
 
-        doReturn(List.of(TCommandType.ACTIVE_THREAD_LIGHT_DUMP)).when(connection)
+        doReturn(List.of(CommandType.ACTIVE_THREAD_LIGHT_DUMP)).when(connection)
                 .getSupportCommandList();
 
         doReturn(connection).when(connectionRepository)

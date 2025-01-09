@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
-import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
+import com.navercorp.pinpoint.io.util.MessageType;
 
 import java.util.Objects;
 
@@ -32,7 +32,6 @@ public class SpanDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES> 
     private final SimpleHandler<REQ> spanDataHandler;
 
     private final SimpleHandler<REQ> spanChunkHandler;
-    
 
     public SpanDispatchHandler(SimpleHandler<REQ> spanDataHandler, SimpleHandler<REQ> spanChunkHandler) {
         this.spanDataHandler = Objects.requireNonNull(spanDataHandler, "spanDataHandler");
@@ -40,12 +39,13 @@ public class SpanDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES> 
     }
 
     private SimpleHandler<REQ> getSimpleHandler(Header header) {
-        final short type = header.getType();
-        return switch (type) {
-            case DefaultTBaseLocator.SPAN -> spanDataHandler;
-            case DefaultTBaseLocator.SPANCHUNK -> spanChunkHandler;
-            default -> throw new UnsupportedOperationException("unsupported header:" + header);
-        };
+        final int type = header.getType();
+        if (type == MessageType.SPAN.getCode()) {
+            return spanChunkHandler;
+        } else if (type == MessageType.SPANCHUNK.getCode()) {
+            return spanDataHandler;
+        }
+        throw new UnsupportedOperationException("unsupported header:" + header);
     }
 
     @Override

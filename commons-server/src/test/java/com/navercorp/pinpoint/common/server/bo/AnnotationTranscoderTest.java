@@ -21,25 +21,15 @@ import com.navercorp.pinpoint.common.util.BytesStringStringValue;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TCompactProtocol;
-import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.TIOStreamTransport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.util.Arrays;
 import java.util.Date;
 
 /**
  * @author emeroad
  */
 public class AnnotationTranscoderTest {
-
-    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void testDecode() {
@@ -114,21 +104,6 @@ public class AnnotationTranscoderTest {
     }
 
     @Test
-    public void testGetTypeCode() throws Exception {
-        int i = 2 << 8;
-        logger.debug("{}", i);
-        write(i);
-        int j = 3 << 8;
-        logger.debug("{}", j);
-        write(j);
-        write(10);
-        write(512);
-        write(256);
-
-
-    }
-
-    @Test
     public void testIntString() {
 
         testIntString(-1, "");
@@ -197,20 +172,4 @@ public class AnnotationTranscoderTest {
         Assertions.assertTrue(decode.isBooleanValue2());
     }
 
-    private void write(int value) throws TException {
-        TCompactProtocol.Factory factory = new TCompactProtocol.Factory();
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(16);
-        TIOStreamTransport transport = new TIOStreamTransport(baos);
-        TProtocol protocol = factory.getProtocol(transport);
-
-        protocol.writeI32(value);
-        byte[] buffer = baos.toByteArray();
-        logger.debug(Arrays.toString(buffer));
-    }
-
-    @Test
-    public void testEncode() throws Exception {
-
-    }
 }

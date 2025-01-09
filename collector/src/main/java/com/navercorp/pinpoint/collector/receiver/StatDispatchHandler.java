@@ -21,7 +21,8 @@ import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
-import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
+import com.navercorp.pinpoint.io.util.MessageType;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.Objects;
 
@@ -31,10 +32,15 @@ import java.util.Objects;
  */
 public class StatDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES> {
 
+    private static final int[] DISPATCH_TABLE = new int[]{
+            MessageType.AGENT_STAT.getCode(),
+            MessageType.AGENT_STAT_BATCH.getCode(),
+            MessageType.AGENT_URI_STAT.getCode()
+    };
+
     private final SimpleHandler<REQ> agentStatHandler;
 
     private final SimpleHandler<REQ> agentEventHandler;
-
 
     public StatDispatchHandler(SimpleHandler<REQ> agentStatHandler, SimpleHandler<REQ> agentEventHandler) {
         this.agentStatHandler = Objects.requireNonNull(agentStatHandler, "agentStatHandler");
@@ -42,10 +48,8 @@ public class StatDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES> 
     }
 
     private SimpleHandler<REQ> getSimpleHandler(Header header) {
-        // To change below code to switch table make it a little bit faster.
-        // FIXME (2014.08) Legacy - TAgentStats should not be sent over the wire.
-        final short type = header.getType();
-        if (type == DefaultTBaseLocator.AGENT_STAT || type == DefaultTBaseLocator.AGENT_STAT_BATCH || type == DefaultTBaseLocator.AGENT_URI_STAT) {
+        final int type = header.getType();
+        if (ArrayUtils.contains(DISPATCH_TABLE, type)) {
             return new SimpleDualHandler<>(agentStatHandler, agentEventHandler);
         }
 

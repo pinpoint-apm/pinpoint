@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.handler;
+package com.navercorp.pinpoint.io.util;
 
-import com.navercorp.pinpoint.io.request.ServerRequest;
-import com.navercorp.pinpoint.io.request.ServerResponse;
-import com.navercorp.pinpoint.io.util.MessageType;
-import org.springframework.stereotype.Service;
+import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.header.v1.HeaderV1;
 
 /**
- * @author emeroad
- * @author koo.taejin
+ * @author Woonduk Kang(emeroad)
  */
-@Service
-public interface RequestResponseHandler<REQ, RES> {
-
-    MessageType type();
-
-    void handleRequest(ServerRequest<REQ> serverRequest, ServerResponse<RES> serverResponse);
+public class HeaderFactoryV1 implements HeaderFactory {
+    @Override
+    public Header newHeader(short type) {
+        return new HeaderV1(type);
+    }
 }

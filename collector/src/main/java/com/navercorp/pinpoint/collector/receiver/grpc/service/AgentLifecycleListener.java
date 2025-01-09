@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.navercorp.pinpoint.collector.receiver.grpc.ShutdownEventListener;
 import com.navercorp.pinpoint.collector.service.AgentInfoService;
-import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.grpc.server.lifecycle.LifecycleListener;
 import com.navercorp.pinpoint.grpc.server.lifecycle.PingSession;

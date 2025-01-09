@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.event.ThreadState;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.ThreadDumpMetricSnapshot;
 import com.navercorp.pinpoint.profiler.util.ThreadDumpUtils;
 import com.navercorp.pinpoint.realtime.dto.ActiveThreadDump;
-import com.navercorp.pinpoint.thrift.sender.message.ThreadStateGrpcMessageConverter;
+import com.navercorp.pinpoint.web.converter.ThreadStateGrpcMessageConverter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

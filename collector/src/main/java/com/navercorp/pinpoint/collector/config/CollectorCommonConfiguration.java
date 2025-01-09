@@ -3,7 +3,6 @@ package com.navercorp.pinpoint.collector.config;
 import com.navercorp.pinpoint.collector.manage.HandlerManager;
 import com.navercorp.pinpoint.common.server.bo.filter.SequenceSpanEventFilter;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
-import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,12 +18,6 @@ public class CollectorCommonConfiguration {
     @Bean
     public HandlerManager handlerManager() {
         return new HandlerManager();
-    }
-
-    @Bean
-    public ChannelPropertiesFactory ChannelPropertiesFactory(@Value("${collector.receiver.channel.properties.key:#{null}}")
-                                                             String channelPropertiesKey) {
-        return new ChannelPropertiesFactory(channelPropertiesKey);
     }
 
     @Bean

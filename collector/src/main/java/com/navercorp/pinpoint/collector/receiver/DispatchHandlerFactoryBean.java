@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.receiver;
 
 import com.navercorp.pinpoint.collector.manage.HandlerManager;
-import com.navercorp.pinpoint.collector.receiver.thrift.DelegateDispatchHandler;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.FactoryBean;

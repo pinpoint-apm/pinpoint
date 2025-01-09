@@ -5,7 +5,8 @@ import org.springframework.util.Assert;
 import java.util.Objects;
 
 public class ClusterKey {
-    public static final String DELIMITER = ":";
+    public static final char DELIMITER_CHAR = ':';
+    public static final String DELIMITER = "" + DELIMITER_CHAR;
 
     private final String applicationName;
     private final String agentId;
@@ -21,9 +22,9 @@ public class ClusterKey {
 
     public static String compose(String applicationName, String agentId, long startTimestamp) {
         return applicationName +
-                DELIMITER +
+                DELIMITER_CHAR +
                 agentId +
-                DELIMITER +
+                DELIMITER_CHAR +
                 startTimestamp;
     }
 
@@ -61,18 +62,12 @@ public class ClusterKey {
     public int hashCode() {
         int result = applicationName.hashCode();
         result = 31 * result + agentId.hashCode();
-        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
+        result = 31 * result + Long.hashCode(startTimestamp);
         return result;
     }
 
     public String format() {
-        StringBuilder builder = new StringBuilder(64);
-        builder.append(applicationName);
-        builder.append(DELIMITER);
-        builder.append(agentId);
-        builder.append(DELIMITER);
-        builder.append(startTimestamp);
-        return builder.toString();
+        return compose(applicationName, agentId, startTimestamp);
     }
 
     @Override

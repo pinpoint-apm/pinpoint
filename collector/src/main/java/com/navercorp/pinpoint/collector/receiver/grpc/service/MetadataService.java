@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.io.header.HeaderEntity;
 import com.navercorp.pinpoint.io.header.v2.HeaderV2;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
-import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
+import com.navercorp.pinpoint.io.util.MessageType;
 import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
@@ -69,7 +69,7 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
             logger.debug("Request PApiMetaData={}", debugLog(apiMetaData));
         }
 
-        final Message<PApiMetaData> message = newMessage(apiMetaData, DefaultTBaseLocator.APIMETADATA);
+        final Message<PApiMetaData> message = newMessage(apiMetaData, MessageType.APIMETADATA);
         doExecutor(message, responseObserver);
     }
 
@@ -79,7 +79,7 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
             logger.debug("Request PSqlMetaData={}", debugLog(sqlMetaData));
         }
 
-        final Message<PSqlMetaData> message = newMessage(sqlMetaData, DefaultTBaseLocator.SQLMETADATA);
+        final Message<PSqlMetaData> message = newMessage(sqlMetaData, MessageType.SQLMETADATA);
         doExecutor(message, responseObserver);
     }
 
@@ -89,7 +89,7 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
             logger.debug("Request PSqlUidMetaData={}", debugLog(sqlUidMetaData));
         }
 
-        Message<PSqlUidMetaData> message = newMessage(sqlUidMetaData, DefaultTBaseLocator.SQLUIDMETADATA);
+        Message<PSqlUidMetaData> message = newMessage(sqlUidMetaData, MessageType.SQLUIDMETADATA);
         doExecutor(message, responseObserver);
     }
 
@@ -99,7 +99,7 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
             logger.debug("Request PStringMetaData={}", debugLog(stringMetaData));
         }
 
-        final Message<PStringMetaData> message = newMessage(stringMetaData, DefaultTBaseLocator.STRINGMETADATA);
+        final Message<PStringMetaData> message = newMessage(stringMetaData, MessageType.STRINGMETADATA);
         doExecutor(message, responseObserver);
     }
 
@@ -109,12 +109,12 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
             logger.debug("Request PStringMetaData={}", debugLog(exceptionMetaData));
         }
 
-        final Message<PExceptionMetaData> message = newMessage(exceptionMetaData, DefaultTBaseLocator.EXCEPTIONMETADATA);
+        final Message<PExceptionMetaData> message = newMessage(exceptionMetaData, MessageType.EXCEPTIONMETADATA);
         doExecutor(message, responseObserver);
     }
 
-    private <T> Message<T> newMessage(T requestData, short type) {
-        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, type);
+    private <T> Message<T> newMessage(T requestData, MessageType type) {
+        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, type.getCode());
         final HeaderEntity headerEntity = new HeaderEntity(Collections.emptyMap());
         return new DefaultMessage<>(header, headerEntity, requestData);
     }

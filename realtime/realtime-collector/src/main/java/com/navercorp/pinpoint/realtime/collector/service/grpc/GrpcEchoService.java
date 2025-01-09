@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.realtime.collector.receiver.grpc.GrpcAgentConnecti
 import com.navercorp.pinpoint.realtime.collector.service.EchoService;
 import com.navercorp.pinpoint.realtime.collector.sink.EchoPublisher;
 import com.navercorp.pinpoint.realtime.collector.sink.SinkRepository;
+import com.navercorp.pinpoint.realtime.dto.CommandType;
 import com.navercorp.pinpoint.realtime.dto.Echo;
-import com.navercorp.pinpoint.thrift.io.TCommandType;
 import reactor.core.publisher.Mono;
 
 import java.util.Objects;
@@ -54,7 +54,7 @@ class GrpcEchoService implements EchoService {
                 sink.error(new IgnoreDemandException("Connection not found"));
                 return;
             }
-            if (!conn.getSupportCommandList().contains(TCommandType.ECHO)) {
+            if (!conn.getSupportCommandList().contains(CommandType.ECHO)) {
                 sink.error(new RuntimeException("Command not supported"));
                 return;
             }

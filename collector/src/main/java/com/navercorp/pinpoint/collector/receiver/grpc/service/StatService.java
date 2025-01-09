@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.io.header.v2.HeaderV2;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
-import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
+import com.navercorp.pinpoint.io.util.MessageType;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
@@ -74,13 +74,13 @@ public class StatService extends StatGrpc.StatImplBase {
         }
 
         if (statMessage.hasAgentStat()) {
-            final Message<PAgentStat> message = newMessage(statMessage.getAgentStat(), DefaultTBaseLocator.AGENT_STAT);
+            final Message<PAgentStat> message = newMessage(statMessage.getAgentStat(), MessageType.AGENT_STAT);
             dispatch(message, stream);
         } else if (statMessage.hasAgentStatBatch()) {
-            final Message<PAgentStatBatch> message = newMessage(statMessage.getAgentStatBatch(), DefaultTBaseLocator.AGENT_STAT_BATCH);
+            final Message<PAgentStatBatch> message = newMessage(statMessage.getAgentStatBatch(), MessageType.AGENT_STAT_BATCH);
             dispatch(message, stream);
         } else if (statMessage.hasAgentUriStat()) {
-            final Message<PAgentUriStat> message = newMessage(statMessage.getAgentUriStat(), DefaultTBaseLocator.AGENT_URI_STAT);
+            final Message<PAgentUriStat> message = newMessage(statMessage.getAgentUriStat(), MessageType.AGENT_URI_STAT);
             dispatch(message, stream);
         } else {
             logger.info("Found empty stat message {}", MessageFormatUtils.debugLog(statMessage));
@@ -88,8 +88,8 @@ public class StatService extends StatGrpc.StatImplBase {
     }
 
 
-    private <T> Message<T> newMessage(T requestData, short serviceType) {
-        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, serviceType);
+    private <T> Message<T> newMessage(T requestData, MessageType messageType) {
+        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, messageType.getCode());
         final HeaderEntity headerEntity = new HeaderEntity(new HashMap<>());
         return new DefaultMessage<>(header, headerEntity, requestData);
     }

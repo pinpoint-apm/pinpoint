@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.realtime.collector.sink.ActiveThreadCountPublisher
 import com.navercorp.pinpoint.realtime.collector.sink.SinkRepository;
 import com.navercorp.pinpoint.realtime.dto.ATCDemand;
 import com.navercorp.pinpoint.realtime.dto.ATCSupply;
-import com.navercorp.pinpoint.thrift.io.TCommandType;
+import com.navercorp.pinpoint.realtime.dto.CommandType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import reactor.core.publisher.Flux;
@@ -89,7 +89,7 @@ class GrpcActiveThreadCountService implements ActiveThreadCountService {
                         sink.error(new IgnoreDemandException("Connection not found"));
                         return;
                     }
-                    if (!conn.getSupportCommandList().contains(TCommandType.ACTIVE_THREAD_COUNT)) {
+                    if (!conn.getSupportCommandList().contains(CommandType.ACTIVE_THREAD_COUNT)) {
                         sink.error(new RuntimeException("Command not supported"));
                         return;
                     }

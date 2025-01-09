@@ -19,10 +19,8 @@ package com.navercorp.pinpoint.web.util;
 import com.navercorp.pinpoint.common.server.bo.event.MonitorInfoBo;
 import com.navercorp.pinpoint.common.server.bo.event.ThreadDumpBo;
 import com.navercorp.pinpoint.common.server.bo.event.ThreadState;
+import com.navercorp.pinpoint.common.server.threaddump.TThreadState;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.thrift.dto.command.TMonitorInfo;
-import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
-import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -37,79 +35,6 @@ public final class ThreadDumpUtils {
     public static final String LINE_SEPARATOR = System.lineSeparator();
     public static final String TAB_SEPARATOR = "    "; // tab to 4 spaces
 
-    public static String createDumpMessage(TThreadDump threadDump) {
-        TThreadState threadState = getThreadState(threadDump.getThreadState());
-
-        // set threadName
-        StringBuilder message = new StringBuilder(64);
-        message.append("\"").append(threadDump.getThreadName()).append("\"");
-
-        // set threadId
-        String hexStringThreadId = Long.toHexString(threadDump.getThreadId());
-        message.append(" Id=0x").append(hexStringThreadId);
-
-        // set threadState
-        message.append(' ').append(threadState.name());
-
-        if (!StringUtils.isBlank(threadDump.getLockName())) {
-            message.append(" on ").append(threadDump.getLockName());
-        }
-
-        if (!StringUtils.isBlank(threadDump.getLockOwnerName())) {
-            message.append(" owned by \"").append(threadDump.getLockOwnerName()).append("\" Id=").append(threadDump.getLockOwnerId());
-        }
-
-        if (threadDump.isSuspended()) {
-            message.append(" (suspended)");
-        }
-        if (threadDump.isInNative()) {
-            message.append(" (in native)");
-        }
-        message.append(LINE_SEPARATOR);
-
-        // set StackTrace
-        for (int i = 0; i < threadDump.getStackTraceSize(); i++) {
-            String stackTrace = threadDump.getStackTrace().get(i);
-            message.append(TAB_SEPARATOR).append("at ").append(stackTrace);
-            message.append(LINE_SEPARATOR);
-
-            if (i == 0 && !StringUtils.isBlank(threadDump.getLockName())) {
-                switch (threadState) {
-                    case BLOCKED -> {
-                        message.append(TAB_SEPARATOR).append("-  blocked on ").append(threadDump.getLockName());
-                        message.append(LINE_SEPARATOR);
-                    }
-                    case WAITING, TIMED_WAITING -> {
-                        message.append(TAB_SEPARATOR).append("-  waiting on ").append(threadDump.getLockName());
-                        message.append(LINE_SEPARATOR);
-                    }
-                }
-            }
-
-            if (threadDump.getLockedMonitors() != null) {
-                for (TMonitorInfo lockedMonitor : threadDump.getLockedMonitors()) {
-                    if (lockedMonitor.getStackDepth() == i) {
-                        message.append(TAB_SEPARATOR).append("-  locked ").append(lockedMonitor.getStackFrame());
-                        message.append(LINE_SEPARATOR);
-                    }
-                }
-            }
-        }
-
-        // set Locks
-        List<String> lockedSynchronizers = threadDump.getLockedSynchronizers();
-        if (CollectionUtils.hasLength(lockedSynchronizers)) {
-            message.append(LINE_SEPARATOR).append(TAB_SEPARATOR).append("Number of locked synchronizers = ").append(lockedSynchronizers.size());
-            message.append(LINE_SEPARATOR);
-            for (String lockedSynchronizer : lockedSynchronizers) {
-                message.append(TAB_SEPARATOR).append("- ").append(lockedSynchronizer);
-                message.append(LINE_SEPARATOR);
-            }
-        }
-
-        message.append(LINE_SEPARATOR);
-        return message.toString();
-    }
 
     public static String createDumpMessage(ThreadDumpBo threadDump) {
         ThreadState threadState = getThreadState(threadDump.getThreadState());
