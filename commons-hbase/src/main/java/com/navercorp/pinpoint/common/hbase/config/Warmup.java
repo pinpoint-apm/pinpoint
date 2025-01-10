@@ -65,14 +65,19 @@ public class Warmup implements Consumer<Connection> {
                 StopWatch stopWatch = new StopWatch(this.getClass().getName() + "-" + tableName.getNameAsString());
                 stopWatch.start();
 
-                RegionLocator regionLocator = connection.getRegionLocator(tableName);
-                List<HRegionLocation> allRegion = regionLocator.getAllRegionLocations();
+                List<HRegionLocation> allRegions = getAllRegions(connection, tableName);
 
                 stopWatch.stop();
-                logger.info("{} allRegionLocations {}  regionSize:{} {}ms", warmup, tableName, allRegion.size(), stopWatch.getTotalTimeMillis());
+                logger.info("{} allRegionLocations {}  regionSize:{} {}ms", warmup, tableName, allRegions.size(), stopWatch.getTotalTimeMillis());
             } catch (IOException e) {
                 logger.warn("Failed to {} for Table:{}. message:{}", warmup, hBaseTable.getName(), e.getMessage(), e);
             }
+        }
+    }
+
+    private List<HRegionLocation> getAllRegions(Connection connection, TableName tableName) throws IOException {
+        try (RegionLocator regionLocator = connection.getRegionLocator(tableName)) {
+            return regionLocator.getAllRegionLocations();
         }
     }
 
