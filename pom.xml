@@ -250,7 +250,7 @@
         <javax.jaxb.version>2.3.1</javax.jaxb.version>
         <jakarta.jaxb.version>4.0.1</jakarta.jaxb.version>
 
-        <zookeeper.version>3.8.1</zookeeper.version>
+        <zookeeper.version>3.8.4</zookeeper.version>
         <curator.version>4.2.0</curator.version>
         <curator.framework.version>4.2.1</curator.framework.version>
         <curator.test.version>5.5.0</curator.test.version>
