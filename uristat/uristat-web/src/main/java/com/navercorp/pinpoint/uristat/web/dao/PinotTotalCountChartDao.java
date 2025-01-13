@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.uristat.web.dao;
 
-import com.navercorp.pinpoint.uristat.web.entity.TotalChartEntity;
+import com.navercorp.pinpoint.uristat.web.entity.UriStatChartEntity;
 import com.navercorp.pinpoint.uristat.web.mapper.EntityToModelMapper;
 import com.navercorp.pinpoint.uristat.web.model.UriStatChartValue;
 import com.navercorp.pinpoint.uristat.web.util.UriStatChartQueryParameter;
@@ -30,9 +30,9 @@ public class PinotTotalCountChartDao implements UriStatChartDao {
 
     @Override
     public List<UriStatChartValue> getChartData(UriStatChartQueryParameter queryParameter) {
-        List<TotalChartEntity> entities = sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_TOTAL_CHART, queryParameter);
+        List<UriStatChartEntity> entities = sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_TOTAL_CHART, queryParameter);
         return entities.stream()
-                .map(mapper::toModel
+                .map(mapper::toTotalChart
                 ).toList();
     }
 }

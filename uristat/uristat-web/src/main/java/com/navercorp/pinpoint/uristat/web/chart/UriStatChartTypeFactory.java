@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -24,7 +25,7 @@ public class UriStatChartTypeFactory {
 
         final UriStatChartType uriStatChartType = uriStatCharts.get(type);
         if (uriStatChartType == null) {
-            throw new RuntimeException("Invalid uri stat chart type: " + type);
+            throw new NoSuchElementException("Invalid uri stat chart type: " + type);
         }
         return uriStatChartType;
     }

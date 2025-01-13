@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.uristat.web.entity;
+package com.navercorp.pinpoint.uristat.web.view;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * @author intr3p1d
  */
-public class UriStatSummaryEntity extends UriStatChartEntity {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class UriStatSummaryView {
+
     private String uri;
-    private Double apdexRaw;
     private Double totalCount;
     private Double failureCount;
     private Double maxTimeMs;
-    private Double totalTimeMs;
+    private Double avgTimeMs;
+    private Double apdex;
     private String version;
 
-    public UriStatSummaryEntity() {
+    UriStatView chart;
+
+    public UriStatSummaryView() {
     }
 
     public String getUri() {
@@ -36,14 +42,6 @@ public class UriStatSummaryEntity extends UriStatChartEntity {
 
     public void setUri(String uri) {
         this.uri = uri;
-    }
-
-    public Double getApdexRaw() {
-        return apdexRaw;
-    }
-
-    public void setApdexRaw(Double apdexRaw) {
-        this.apdexRaw = apdexRaw;
     }
 
     public Double getTotalCount() {
@@ -70,12 +68,20 @@ public class UriStatSummaryEntity extends UriStatChartEntity {
         this.maxTimeMs = maxTimeMs;
     }
 
-    public Double getTotalTimeMs() {
-        return totalTimeMs;
+    public Double getAvgTimeMs() {
+        return avgTimeMs;
     }
 
-    public void setTotalTimeMs(Double totalTimeMs) {
-        this.totalTimeMs = totalTimeMs;
+    public void setAvgTimeMs(Double avgTimeMs) {
+        this.avgTimeMs = avgTimeMs;
+    }
+
+    public Double getApdex() {
+        return apdex;
+    }
+
+    public void setApdex(Double apdex) {
+        this.apdex = apdex;
     }
 
     public String getVersion() {
@@ -84,5 +90,13 @@ public class UriStatSummaryEntity extends UriStatChartEntity {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public UriStatView getChart() {
+        return chart;
+    }
+
+    public void setChart(UriStatView chart) {
+        this.chart = chart;
     }
 }

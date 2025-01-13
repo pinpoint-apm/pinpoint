@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.uristat.web.service;
 
+import com.navercorp.pinpoint.uristat.web.chart.UriStatChartType;
 import com.navercorp.pinpoint.uristat.web.dao.UriStatSummaryDao;
 import com.navercorp.pinpoint.uristat.web.model.UriStatSummary;
 import com.navercorp.pinpoint.uristat.web.util.UriStatSummaryQueryParameter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,12 +31,19 @@ public class UriStatSummaryServiceImpl implements UriStatSummaryService {
 
     private final UriStatSummaryDao uriStatSummaryDao;
 
-    public UriStatSummaryServiceImpl(UriStatSummaryDao uriStatDao) {
+    public UriStatSummaryServiceImpl(
+            @Qualifier("pinotUriStatSummaryDao") UriStatSummaryDao uriStatDao
+    ) {
         this.uriStatSummaryDao = Objects.requireNonNull(uriStatDao);
     }
 
     @Override
     public List<UriStatSummary> getUriStatPagedSummary(UriStatSummaryQueryParameter queryParameter) {
         return uriStatSummaryDao.getUriStatPagedSummary(queryParameter);
+    }
+
+    @Override
+    public List<UriStatSummary> getUriStatMiniChart(UriStatChartType type, UriStatSummaryQueryParameter queryParameter) {
+        return type.getSummaryDao().getUriStatPagedSummary(queryParameter);
     }
 }

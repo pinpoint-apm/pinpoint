@@ -29,4 +29,9 @@ public class MapperConfig {
     EntityToModelMapper entityToModelMapper() {
         return Mappers.getMapper(EntityToModelMapper.class);
     }
+
+    @Bean
+    ModelToViewMapper modelToViewMapper() {
+        return Mappers.getMapper(ModelToViewMapper.class);
+    }
 }

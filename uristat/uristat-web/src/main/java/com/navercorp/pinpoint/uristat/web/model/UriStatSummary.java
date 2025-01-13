@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.uristat.web.model;
 
-import com.navercorp.pinpoint.common.util.MathUtils;
+import java.util.List;
 
 public class UriStatSummary {
     private String uri;
@@ -26,6 +26,8 @@ public class UriStatSummary {
     private Double avgTimeMs;
     private Double apdex;
     private String version;
+
+    private List<UriStatChartValue> chartValue;
 
     public UriStatSummary() {
     }
@@ -84,5 +86,13 @@ public class UriStatSummary {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public List<UriStatChartValue> getChartValue() {
+        return chartValue;
+    }
+
+    public void setChartValue(List<UriStatChartValue> chartValue) {
+        this.chartValue = chartValue;
     }
 }

@@ -24,4 +24,90 @@
         ORDER BY ${orderBy} ${isDesc}
         LIMIT #{limit}
     </select>
+
+    <sql id="useMultiStageEngine">
+        SET useMultiStageEngine = true;
+    </sql>
+
+    <sql id="totalChart">
+            sum(tot0) as tot0,
+            sum(tot1) as tot1,
+            sum(tot2) as tot2,
+            sum(tot3) as tot3,
+            sum(tot4) as tot4,
+            sum(tot5) as tot5,
+            sum(tot6) as tot6,
+            sum(tot7) as tot7,
+    </sql>
+
+    <sql id="failureChart">
+            sum(fail0) as fail0,
+            sum(fail1) as fail1,
+            sum(fail2) as fail2,
+            sum(fail3) as fail3,
+            sum(fail4) as fail4,
+            sum(fail5) as fail5,
+            sum(fail6) as fail6,
+            sum(fail7) as fail7,
+    </sql>
+
+    <sql id="apdexChart">
+            sum("count") as "count",
+    </sql>
+
+    <sql id="latencyChart">
+            max(maxLatencyMs) as maxLatencyMs,
+            sum("count") as "count",
+    </sql>
+
+    <sql id="selectStatSummary">
+        DATETIMECONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
+        '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
+        uri,
+        sum(sum(apdexRaw)) OVER (PARTITION BY uri, version) as apdexRaw,
+        sum(sum("count")) OVER (PARTITION BY uri, version) as totalCount,
+        max(max(maxLatencyMs)) OVER (PARTITION BY uri, version) as maxTimeMs,
+        sum(sum(totalTimeMs)) OVER (PARTITION BY uri, version) as totalTimeMs,
+        sum(sum(failureCount)) OVER (PARTITION BY uri, version) as failureCount,
+        version
+        FROM uriStat
+        WHERE tenantId = #{tenantId}
+        AND applicationName = #{applicationName}
+        <if test="agentId != null">
+            AND agentId = #{agentId}
+        </if>
+        AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+        GROUP BY "timestamp", uri, version
+        ORDER BY ${orderBy} ${isDesc}
+        LIMIT #{tenTimesLimit}
+    </sql>
+
+    <select id="uriStatSummaryTotal" resultMap="uriStatSummaryEntity" parameterType="UriStatSummaryQueryParameter">
+        <include refid="useMultiStageEngine"></include>
+        SELECT
+        <include refid="totalChart"></include>
+        <include refid="selectStatSummary"></include>
+    </select>
+
+    <select id="uriStatSummaryFailure" resultMap="uriStatSummaryEntity" parameterType="UriStatSummaryQueryParameter">
+        <include refid="useMultiStageEngine"></include>
+        SELECT
+        <include refid="failureChart"></include>
+        <include refid="selectStatSummary"></include>
+    </select>
+
+    <select id="uriStatSummaryApdex" resultMap="uriStatSummaryEntity" parameterType="UriStatSummaryQueryParameter">
+        <include refid="useMultiStageEngine"></include>
+        SELECT
+        <include refid="apdexChart"></include>
+        <include refid="selectStatSummary"></include>
+    </select>
+
+    <select id="uriStatSummaryLatency" resultMap="uriStatSummaryEntity" parameterType="UriStatSummaryQueryParameter">
+        <include refid="useMultiStageEngine"></include>
+        SELECT
+        <include refid="latencyChart"></include>
+        <include refid="selectStatSummary"></include>
+    </select>
+
 </mapper>
