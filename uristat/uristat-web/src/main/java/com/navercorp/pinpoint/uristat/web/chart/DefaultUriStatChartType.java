@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.uristat.web.chart;
 
 import com.navercorp.pinpoint.uristat.web.dao.UriStatChartDao;
+import com.navercorp.pinpoint.uristat.web.dao.UriStatSummaryDao;
 
 import java.util.List;
 import java.util.Objects;
@@ -28,11 +29,18 @@ public class DefaultUriStatChartType implements UriStatChartType {
 
     private final List<String> fieldNames;
     private final UriStatChartDao chartDao;
+    private final UriStatSummaryDao summaryDao;
 
-    public DefaultUriStatChartType(String type, List<String> fieldNames, UriStatChartDao chartDao) {
+    public DefaultUriStatChartType(
+            String type,
+            List<String> fieldNames,
+            UriStatChartDao chartDao,
+            UriStatSummaryDao summaryDao
+    ) {
         this.type = Objects.requireNonNull(type, "type");
         this.fieldNames = Objects.requireNonNull(fieldNames, "fieldNames");
         this.chartDao = Objects.requireNonNull(chartDao, "chartDao");
+        this.summaryDao = Objects.requireNonNull(summaryDao, "summaryDao");
     }
 
     @Override
@@ -51,11 +59,17 @@ public class DefaultUriStatChartType implements UriStatChartType {
     }
 
     @Override
+    public UriStatSummaryDao getSummaryDao() {
+        return summaryDao;
+    }
+
+    @Override
     public String toString() {
         return "UriStatChartType{" +
                 "type='" + type + '\'' +
                 ", fieldNames=" + fieldNames +
                 ", chartDao=" + chartDao.getClass().getSimpleName() +
+                ", summaryDao=" + summaryDao.getClass().getSimpleName() +
                 '}';
     }
 }

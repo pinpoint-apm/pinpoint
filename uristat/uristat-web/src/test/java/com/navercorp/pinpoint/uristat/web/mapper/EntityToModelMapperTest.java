@@ -1,9 +1,6 @@
 package com.navercorp.pinpoint.uristat.web.mapper;
 
-import com.navercorp.pinpoint.uristat.web.entity.ApdexChartEntity;
-import com.navercorp.pinpoint.uristat.web.entity.FailureChartEntity;
-import com.navercorp.pinpoint.uristat.web.entity.LatencyChartEntity;
-import com.navercorp.pinpoint.uristat.web.entity.TotalChartEntity;
+import com.navercorp.pinpoint.uristat.web.entity.UriStatChartEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriStatSummaryEntity;
 import com.navercorp.pinpoint.uristat.web.model.UriStatChartValue;
 import com.navercorp.pinpoint.uristat.web.model.UriStatSummary;
@@ -43,7 +40,7 @@ class EntityToModelMapperTest {
 
     @Test
     void testTotalEntityToModel() {
-        TotalChartEntity entity = new TotalChartEntity();
+        UriStatChartEntity entity = new UriStatChartEntity();
         entity.setTimestamp(1000);
         entity.setVersion("version");
         entity.setTot0(10.0);
@@ -55,7 +52,7 @@ class EntityToModelMapperTest {
         entity.setTot6(70.0);
         entity.setTot7(80.0);
 
-        UriStatChartValue model = mapper.toModel(entity);
+        UriStatChartValue model = mapper.toTotalChart(entity);
 
         assertEquals(entity.getTimestamp(), model.getTimestamp());
         assertEquals(entity.getVersion(), model.getVersion());
@@ -74,7 +71,7 @@ class EntityToModelMapperTest {
 
     @Test
     void testFailureEntityToModel() {
-        FailureChartEntity entity = new FailureChartEntity();
+        UriStatChartEntity entity = new UriStatChartEntity();
         entity.setTimestamp(1000);
         entity.setVersion("version");
         entity.setFail0(10.0);
@@ -86,7 +83,7 @@ class EntityToModelMapperTest {
         entity.setFail6(70.0);
         entity.setFail7(80.0);
 
-        UriStatChartValue model = mapper.toModel(entity);
+        UriStatChartValue model = mapper.toFailureChart(entity);
 
         assertEquals(entity.getTimestamp(), model.getTimestamp());
         assertEquals(entity.getVersion(), model.getVersion());
@@ -105,14 +102,14 @@ class EntityToModelMapperTest {
 
     @Test
     void testLatencyEntityToModel() {
-        LatencyChartEntity entity = new LatencyChartEntity();
+        UriStatChartEntity entity = new UriStatChartEntity();
         entity.setTimestamp(1000);
         entity.setVersion("version");
         entity.setTotalTimeMs(1200.0);
         entity.setMaxLatencyMs(500.0);
         entity.setCount(3.0);
 
-        UriStatChartValue model = mapper.toModel(entity);
+        UriStatChartValue model = mapper.toLatencyChart(entity);
 
         assertEquals(entity.getTimestamp(), model.getTimestamp());
         assertEquals(entity.getVersion(), model.getVersion());
@@ -125,13 +122,13 @@ class EntityToModelMapperTest {
 
     @Test
     void testApdexEntityToModel() {
-        ApdexChartEntity entity = new ApdexChartEntity();
+        UriStatChartEntity entity = new UriStatChartEntity();
         entity.setTimestamp(1000);
         entity.setVersion("version");
         entity.setApdexRaw(50.0);
         entity.setCount(100.0);
 
-        UriStatChartValue model = mapper.toModel(entity);
+        UriStatChartValue model = mapper.toApdexChart(entity);
 
         assertEquals(entity.getTimestamp(), model.getTimestamp());
         assertEquals(entity.getVersion(), model.getVersion());

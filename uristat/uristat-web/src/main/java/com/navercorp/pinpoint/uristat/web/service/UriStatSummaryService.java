@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.uristat.web.service;
 
+import com.navercorp.pinpoint.uristat.web.chart.UriStatChartType;
 import com.navercorp.pinpoint.uristat.web.model.UriStatSummary;
 import com.navercorp.pinpoint.uristat.web.util.UriStatSummaryQueryParameter;
 
@@ -23,4 +24,5 @@ import java.util.List;
 
 public interface UriStatSummaryService {
     List<UriStatSummary> getUriStatPagedSummary(UriStatSummaryQueryParameter queryParameter);
+    List<UriStatSummary> getUriStatMiniChart(UriStatChartType type, UriStatSummaryQueryParameter queryParameter);
 }

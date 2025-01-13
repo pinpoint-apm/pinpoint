@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.uristat.web.dao;
 
-import com.navercorp.pinpoint.uristat.web.entity.LatencyChartEntity;
+import com.navercorp.pinpoint.uristat.web.entity.UriStatChartEntity;
 import com.navercorp.pinpoint.uristat.web.mapper.EntityToModelMapper;
 import com.navercorp.pinpoint.uristat.web.model.UriStatChartValue;
 import com.navercorp.pinpoint.uristat.web.util.UriStatChartQueryParameter;
@@ -29,9 +29,9 @@ public class PinotLatencyChartDao implements UriStatChartDao {
 
     @Override
     public List<UriStatChartValue> getChartData(UriStatChartQueryParameter queryParameter) {
-        List<LatencyChartEntity> entities = sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_LATENCY_CHART, queryParameter);
+        List<UriStatChartEntity> entities = sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_LATENCY_CHART, queryParameter);
         return entities.stream()
-                .map(mapper::toModel
+                .map(mapper::toLatencyChart
                 ).toList();
     }
 

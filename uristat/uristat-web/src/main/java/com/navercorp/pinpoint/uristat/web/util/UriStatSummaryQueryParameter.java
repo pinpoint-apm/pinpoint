@@ -31,6 +31,7 @@ public class UriStatSummaryQueryParameter extends QueryParameter {
     private final String agentId;
     private final OrderBy orderBy;
     private final String isDesc;
+    private final long tenTimesLimit;
 
     public String getTenantId() {
         return tenantId;
@@ -105,6 +106,7 @@ public class UriStatSummaryQueryParameter extends QueryParameter {
         this.agentId = builder.agentId;
         this.orderBy = builder.orderBy;
         this.isDesc = builder.isDesc;
+        this.tenTimesLimit = builder.getLimit() * 10;
     }
 
     public static class Builder extends QueryParameter.Builder<Builder> {
