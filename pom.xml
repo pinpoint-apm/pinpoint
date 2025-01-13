@@ -153,7 +153,7 @@
 
         <!-- library -->
         <dropwizard-metrics.version>4.2.26</dropwizard-metrics.version>
-        <micrometer-metrics.version>1.13.2</micrometer-metrics.version>
+        <micrometer-metrics.version>1.13.9</micrometer-metrics.version>
 
         <mysql-connector-java.verison>8.0.28</mysql-connector-java.verison>
 
@@ -1632,12 +1632,6 @@
                 <groupId>org.semver4j</groupId>
                 <artifactId>semver4j</artifactId>
                 <version>5.3.0</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.micrometer</groupId>
-                <artifactId>micrometer-registry-otlp</artifactId>
-                <version>1.13.3</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
