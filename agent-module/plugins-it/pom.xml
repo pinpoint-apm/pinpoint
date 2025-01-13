@@ -33,6 +33,7 @@
         <module>cassandra-it</module>
         <module>clickhouse-jdbc-it</module>
         <module>cxf-it</module>
+        <module>dbcp-it</module>
         <module>druid-it</module>
         <module>dubbo-it</module>
         <module>elasticsearch-it</module>
