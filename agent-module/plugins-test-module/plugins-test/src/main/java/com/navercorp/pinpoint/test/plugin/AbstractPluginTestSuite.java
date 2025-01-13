@@ -135,9 +135,9 @@ public abstract class AbstractPluginTestSuite {
                     jvmArguments, debug, importPluginIds, manageTraceObject, transformIncludeList, agentLibList, sharedLibList, junitLibList);
 
             return createSharedInstance(context);
-        } catch (Exception e) {
-            logger.warn(e.getMessage());
-            throw newTestError(e);
+        } catch (Exception ex) {
+            logger.warn(ex, "PluginTestContext create failed {}", ex.getMessage());
+            throw newTestError(ex);
         }
     }
 
@@ -152,9 +152,9 @@ public abstract class AbstractPluginTestSuite {
                     jvmArguments, debug, importPluginIds, manageTraceObject, transformIncludeList, agentLibList, sharedLibList, junitLibList);
 
             pluginTestInstanceList.addAll(createTestCases(context));
-        } catch (Exception e) {
-            logger.warn(e.getMessage());
-            throw newTestError(e);
+        } catch (Exception ex) {
+            logger.warn(ex, "PluginTestContext create failed {}", ex.getMessage());
+            throw newTestError(ex);
         }
 
         if (pluginTestInstanceList.isEmpty()) {

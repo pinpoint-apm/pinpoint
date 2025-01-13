@@ -121,8 +121,8 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
                 try {
                     final List<Artifact> artifactList = dependencyCase.getValue();
                     libs.addAll(resolveArtifactsAndDependencies(resolver, artifactList));
-                } catch (DependencyResolutionException e) {
-                    logger.info("Failed to resolve artifacts and dependencies. dependency={}", dependencyCase, e);
+                } catch (DependencyResolutionException ex) {
+                    logger.info(ex, "Failed to resolve artifacts and dependencies. dependency={}", dependencyCase);
                 }
             }
         }
@@ -158,7 +158,7 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
                 final List<Artifact> artifactList = dependencyCase.getValue();
                 agentLibs.addAll(resolveArtifactsAndDependencies(resolver, artifactList));
             } catch (DependencyResolutionException e) {
-                logger.info("Failed to resolve artifacts and dependencies. dependency={}", dependencyCase);
+                logger.info(e, "Failed to resolve artifacts and dependencies. dependency={}", dependencyCase);
                 return pluginTestInstanceList;
             }
         }
@@ -171,7 +171,7 @@ public class DefaultPluginTestSuite extends AbstractPluginTestSuite {
                 final List<Artifact> artifactList = dependencyCase.getValue();
                 libs.addAll(resolveArtifactsAndDependencies(resolver, artifactList));
             } catch (DependencyResolutionException e) {
-                logger.info("Failed to resolve artifacts and dependencies. dependency={}", dependencyCase);
+                logger.info(e, "Failed to resolve artifacts and dependencies. dependency={}", dependencyCase);
                 continue;
             }
 
