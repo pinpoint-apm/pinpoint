@@ -16,10 +16,11 @@ const getQueryString = (queryParams: Partial<InspectorAgentStatusTimeline.Parame
 };
 
 export const useGetInspectorAgentStatusTimeline = () => {
-  const { dateRange, agentId } = useInspectorSearchParameters();
+  const { application, dateRange, agentId } = useInspectorSearchParameters();
   const from = dateRange.from.getTime();
   const to = dateRange.to.getTime();
   const queryParams = {
+    applicationName: application?.applicationName,
     agentId,
     from: calcFrom(from, to),
     to,
