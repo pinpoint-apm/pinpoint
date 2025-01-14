@@ -26,8 +26,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static java.lang.String.format;
-
 public class SubscriberHelpers {
     /**
      * A Subscriber that stores the publishers results and provides a latch so can block on completion.
@@ -141,7 +139,7 @@ public class SubscriberHelpers {
 
         @Override
         public void onComplete() {
-            System.out.println(format(message, getReceived()));
+            System.out.printf(message, getReceived());
             super.onComplete();
         }
     }

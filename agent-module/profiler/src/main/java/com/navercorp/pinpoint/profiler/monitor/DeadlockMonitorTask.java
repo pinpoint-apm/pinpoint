@@ -94,14 +94,13 @@ public class DeadlockMonitorTask implements Runnable {
      * To find loadClass cause. MAX_FRAME is too short , the length.
      */
     private String createThreadDump(ThreadInfo threadInfo) {
-        StringBuilder sb = new StringBuilder("\"" + threadInfo.getThreadName() + "\"" +
-                " Id=" + threadInfo.getThreadId() + " " + threadInfo.getThreadState());
+        StringBuilder sb = new StringBuilder(128);
+        sb.append("\"").append(threadInfo.getThreadName()).append("\"").append(" Id=").append(threadInfo.getThreadId()).append(" ").append(threadInfo.getThreadState());
         if (threadInfo.getLockName() != null) {
-            sb.append(" on " + threadInfo.getLockName());
+            sb.append(" on ").append(threadInfo.getLockName());
         }
         if (threadInfo.getLockOwnerName() != null) {
-            sb.append(" owned by \"" + threadInfo.getLockOwnerName() +
-                    "\" Id=" + threadInfo.getLockOwnerId());
+            sb.append(" owned by \"").append(threadInfo.getLockOwnerName()).append("\" Id=").append(threadInfo.getLockOwnerId());
         }
         if (threadInfo.isSuspended()) {
             sb.append(" (suspended)");
@@ -114,22 +113,22 @@ public class DeadlockMonitorTask implements Runnable {
         StackTraceElement[] stackTrace = threadInfo.getStackTrace();
         for (int i = 0; i < stackTrace.length; i++) {
             StackTraceElement ste = stackTrace[i];
-            sb.append("\tat " + ste.toString());
+            sb.append("\tat ").append(ste.toString());
             sb.append('\n');
             if (i == 0 && threadInfo.getLockInfo() != null) {
                 LockInfo lockInfo = threadInfo.getLockInfo();
                 Thread.State ts = threadInfo.getThreadState();
                 switch (ts) {
                     case BLOCKED:
-                        sb.append("\t-  blocked on " + lockInfo);
+                        sb.append("\t-  blocked on ").append(lockInfo);
                         sb.append('\n');
                         break;
                     case WAITING:
-                        sb.append("\t-  waiting on " + lockInfo);
+                        sb.append("\t-  waiting on ").append(lockInfo);
                         sb.append('\n');
                         break;
                     case TIMED_WAITING:
-                        sb.append("\t-  waiting on " + lockInfo);
+                        sb.append("\t-  waiting on ").append(lockInfo);
                         sb.append('\n');
                         break;
                     default:
@@ -139,7 +138,7 @@ public class DeadlockMonitorTask implements Runnable {
             MonitorInfo[] lockedMonitors = threadInfo.getLockedMonitors();
             for (MonitorInfo mi : lockedMonitors) {
                 if (mi.getLockedStackDepth() == i) {
-                    sb.append("\t-  locked " + mi);
+                    sb.append("\t-  locked ").append(mi);
                     sb.append('\n');
                 }
             }
@@ -147,10 +146,10 @@ public class DeadlockMonitorTask implements Runnable {
 
         LockInfo[] locks = threadInfo.getLockedSynchronizers();
         if (locks.length > 0) {
-            sb.append("\n\tNumber of locked synchronizers = " + locks.length);
+            sb.append("\n\tNumber of locked synchronizers = ").append(locks.length);
             sb.append('\n');
             for (LockInfo li : locks) {
-                sb.append("\t- " + li);
+                sb.append("\t- ").append(li);
                 sb.append('\n');
             }
         }

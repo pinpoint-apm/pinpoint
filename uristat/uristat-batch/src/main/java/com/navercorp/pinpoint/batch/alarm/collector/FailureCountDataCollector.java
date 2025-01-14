@@ -24,7 +24,7 @@ public class FailureCountDataCollector implements PinotDataCollector<Long> {
         }
 
         UriStatQueryParams params = new UriStatQueryParams(tenantId, serviceName, applicationName, targetUri, range);
-        Double retVal = uriStatDao.selectFailureCount(params);
-        return retVal.longValue();
+        double retVal = uriStatDao.selectFailureCount(params);
+        return (long) retVal;
     }
 }
