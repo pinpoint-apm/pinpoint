@@ -156,6 +156,7 @@
         <micrometer-metrics.version>1.13.9</micrometer-metrics.version>
 
         <mysql-connector-java.verison>8.0.28</mysql-connector-java.verison>
+        <mysql-connector-j.verison>8.4.0</mysql-connector-j.verison>
 
         <fastxml.jackson.version>2.16.2</fastxml.jackson.version>
         <mapstruct.version>1.6.3</mapstruct.version>
@@ -1048,9 +1049,9 @@
                 <version>${mybatis.spring.version}</version>
             </dependency>
             <dependency>
-                <groupId>mysql</groupId>
-                <artifactId>mysql-connector-java</artifactId>
-                <version>8.0.28</version>
+                <groupId>com.mysql</groupId>
+                <artifactId>mysql-connector-j</artifactId>
+                <version>${mysql-connector-j.verison}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>com.google.protobuf</groupId>
