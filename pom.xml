@@ -793,6 +793,12 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-actuator</artifactId>
                 <version>${spring-boot.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>io.micrometer</groupId>
+                        <artifactId>micrometer-jakarta9</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
