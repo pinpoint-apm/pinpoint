@@ -1,5 +1,6 @@
 export namespace InspectorAgentStatusTimelineType {
   export interface Parameters {
+    applicationName: string;
     agentId: string;
     from: number;
     to: number;
