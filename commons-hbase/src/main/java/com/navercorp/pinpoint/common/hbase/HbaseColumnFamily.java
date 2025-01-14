@@ -72,6 +72,20 @@ public class HbaseColumnFamily {
         }
     }
 
+    public static final ServiceUid SERVICE_UID = new ServiceUid(HbaseTable.SERVICE_UID, Bytes.toBytes("I"));
+    public static class ServiceUid extends HbaseColumnFamily {
+        private ServiceUid(HbaseTable hBaseTable, byte[] columnFamilyName) {
+            super(hBaseTable, columnFamilyName);
+        }
+    }
+
+    public static final ServiceName SERVICE_NAME = new ServiceName(HbaseTable.SERVICE_NAME, Bytes.toBytes("N"));
+    public static class ServiceName extends HbaseColumnFamily {
+        private ServiceName(HbaseTable hBaseTable, byte[] columnFamilyName) {
+            super(hBaseTable, columnFamilyName);
+        }
+    }
+
     public static final ApplicationIndex APPLICATION_INDEX_AGENTS = new ApplicationIndex(HbaseTable.APPLICATION_INDEX, Bytes.toBytes("Agents"));
     public static class ApplicationIndex extends HbaseColumnFamily {
         private ApplicationIndex(HbaseTable hBaseTable, byte[] columnFamilyName) {
