@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.batch.alarm.collector;
 
-import com.navercorp.pinpoint.batch.alarm.vo.UriStatQueryParams;
 import com.navercorp.pinpoint.batch.alarm.dao.UriStatDao;
+import com.navercorp.pinpoint.batch.alarm.vo.UriStatQueryParams;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.pinot.alarm.collector.PinotDataCollector;
 
@@ -24,7 +24,7 @@ public class TotalCountDataCollector implements PinotDataCollector<Long> {
         }
 
         UriStatQueryParams params = new UriStatQueryParams(tenantId, serviceName, applicationName, targetUri, range);
-        Double retVal = uriStatDao.selectTotalCount(params);
-        return retVal.longValue();
+        double retVal = uriStatDao.selectTotalCount(params);
+        return (long) retVal;
     }
 }

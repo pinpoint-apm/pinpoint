@@ -24,7 +24,7 @@ public class MaxResponseDataCollector implements PinotDataCollector<Long> {
         }
 
         UriStatQueryParams params = new UriStatQueryParams(tenantId, serviceName, applicationName, targetUri, range);
-        Double retVal = uriStatDao.selectMaxResponse(params);
-        return retVal.longValue();
+        double retVal = uriStatDao.selectMaxResponse(params);
+        return (long) retVal;
     }
 }

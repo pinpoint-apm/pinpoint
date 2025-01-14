@@ -61,8 +61,9 @@ public class FilterDescriptor {
         }
 
         private <T> T readValueAs(Class<T> valueType, JsonNode jsonNode, JsonParser p) throws IOException {
-            JsonParser traverse = jsonNode.traverse(p.getCodec());
-            return traverse.readValueAs(valueType);
+            try (JsonParser traverse = jsonNode.traverse(p.getCodec())) {
+                return traverse.readValueAs(valueType);
+            }
         }
     }
 
