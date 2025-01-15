@@ -22,7 +22,7 @@ import org.apache.logging.log4j.Logger;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,11 +42,12 @@ import java.util.concurrent.TimeUnit;
 public class SpringDataR2dbcPluginController {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    R2dbcDatabase r2dbcDatabase;
+    @Autowired
+    MysqlR2dbcDatabase r2dbcDatabase;
 
-    public SpringDataR2dbcPluginController(@Qualifier("mysql") R2dbcDatabase r2dbcDatabase) {
-        this.r2dbcDatabase = r2dbcDatabase;
-    }
+//    public SpringDataR2dbcPluginController(@Qualifier("mysql") R2dbcDatabase r2dbcDatabase) {
+//        this.r2dbcDatabase = r2dbcDatabase;
+//    }
 
     @GetMapping("/template/insert")
     public Mono<Map<String, Object>> insert() throws SQLException {
@@ -86,11 +87,12 @@ public class SpringDataR2dbcPluginController {
         Publisher<? extends Connection> conn = r2dbcDatabase.getConnectionFactory().create();
         final ObservableSubscriber<String> subscriber = new ObservableSubscriber();
         Mono.from(conn)
-                .flatMapMany(
-                        c -> Flux.from(c.createStatement("SELECT * FROM persons")
-                                .execute())
+                .flatMapMany(connection -> {
+                            System.out.println("## Before");
+                            return connection.createStatement("SELECT first_name FROM persons").execute();
+                        }
                 ).flatMap(result -> result.map(((row, rowMetadata) -> row.get("first_name", String.class)))
-        ).subscribe(subscriber);
+                ).subscribe(subscriber);
         subscriber.await();
         return subscriber.getReceived();
     }
