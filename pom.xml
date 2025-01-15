@@ -1604,7 +1604,7 @@
             <dependency>
                 <groupId>io.lettuce</groupId>
                 <artifactId>lettuce-core</artifactId>
-                <version>6.5.0.RELEASE</version>
+                <version>6.5.2.RELEASE</version>
             </dependency>
 
             <dependency>
