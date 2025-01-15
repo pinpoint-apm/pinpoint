@@ -57,7 +57,7 @@ public class TraceRowKeyDecoderV2 implements RowKeyDecoder<TransactionId> {
         long agentStartTime = BytesUtils.bytesToLong(rowKey, offset + AGENT_ID_MAX_LEN);
         long transactionSequence = BytesUtils.bytesToLong(rowKey, offset + BytesUtils.LONG_BYTE_LENGTH + AGENT_ID_MAX_LEN);
 
-        return new TransactionId(agentId, agentStartTime, transactionSequence);
+        return TransactionId.of(agentId, agentStartTime, transactionSequence);
     }
 
     // for test

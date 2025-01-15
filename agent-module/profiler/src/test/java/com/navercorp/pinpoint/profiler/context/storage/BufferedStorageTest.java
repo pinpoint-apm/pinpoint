@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.storage;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.profiler.context.DefaultSpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
@@ -30,7 +31,7 @@ import org.junit.jupiter.api.Test;
 
 public class BufferedStorageTest {
 
-    private final String agentId = "agentId";
+    private static final String agentId = "agentId";
     private final long agentStartTime = System.currentTimeMillis();
 
     private final CountingDataSender countingDataSender = new CountingDataSender();
@@ -43,7 +44,7 @@ public class BufferedStorageTest {
     }
 
     private TraceRoot newInternalTraceId() {
-        TraceId traceId = new DefaultTraceId(agentId, agentStartTime, 100);
+        TraceId traceId = new DefaultTraceId(TransactionId.of(agentId, agentStartTime, 100));
         return TraceRoot.remote(traceId, agentId, agentStartTime, 100);
     }
 
@@ -51,7 +52,6 @@ public class BufferedStorageTest {
     public void testStore_Noflush() {
         BufferedStorage bufferedStorage = newBufferedStorage(10);
 
-        Span span = new Span(internalTraceId);
         SpanEvent spanEvent = new SpanEvent();
         bufferedStorage.store(spanEvent);
         bufferedStorage.store(spanEvent);
@@ -63,7 +63,6 @@ public class BufferedStorageTest {
     public void testStore_flush() {
         BufferedStorage bufferedStorage = newBufferedStorage(1);
 
-        Span span = new Span(internalTraceId);
         SpanEvent spanEvent = new SpanEvent();
         bufferedStorage.store(spanEvent);
         bufferedStorage.store(spanEvent);
@@ -113,7 +112,6 @@ public class BufferedStorageTest {
     public void testStore_manual_flush() {
         BufferedStorage bufferedStorage = newBufferedStorage(10);
 
-        Span span = new Span(internalTraceId);
         SpanEvent spanEvent = new SpanEvent();
         bufferedStorage.store(spanEvent);
         bufferedStorage.store(spanEvent);

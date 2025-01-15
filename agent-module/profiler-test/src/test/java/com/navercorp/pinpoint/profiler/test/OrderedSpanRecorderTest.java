@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.test;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.profiler.context.DefaultAsyncSpanChunk;
 import com.navercorp.pinpoint.profiler.context.DefaultLocalAsyncId;
 import com.navercorp.pinpoint.profiler.context.DefaultSpanChunk;
@@ -67,7 +68,7 @@ public class OrderedSpanRecorderTest {
         final long startTime = 100;
         final long spanId = 1L;
 
-        TraceId traceId = new DefaultTraceId(agentId, startTime, 0, -1L, spanId, (short) 0);
+        TraceId traceId = new DefaultTraceId(TransactionId.of(agentId, startTime, 0), null, -1L, spanId, (short) 0);
         final TraceRoot traceRoot = TraceRoot.remote(traceId, agentId, startTime, 0);
 
         Span span = createSpan(traceRoot, startTime);
@@ -111,13 +112,13 @@ public class OrderedSpanRecorderTest {
         // given
         final long startTime1 = 100;
         final long spanId = 1L;
-        TraceId traceId1 = new DefaultTraceId(agentId, startTime1, 0, -1L, spanId, (short) 0);
+        TraceId traceId1 = new DefaultTraceId(TransactionId.of(agentId, startTime1, 0), null, -1L, spanId, (short) 0);
         final TraceRoot traceRoot1 = TraceRoot.remote(traceId1, agentId, startTime1, 0);
 
 
         final long startTime2 = startTime1 + 10L;
         final long spanId2 = 2L;
-        final TraceId traceId2 = new DefaultTraceId(agentId, startTime2, 0, -1L, spanId2, (short) 0);
+        final TraceId traceId2 = new DefaultTraceId(TransactionId.of(agentId, startTime2, 0), null, -1L, spanId2, (short) 0);
         final TraceRoot traceRoot2 = TraceRoot.remote(traceId2, agentId, startTime2, 0);
 
 
@@ -164,12 +165,12 @@ public class OrderedSpanRecorderTest {
         // given
         final long startTime1 = 100;
         final long spanId1 = 1L;
-        final TraceId traceId1 = new DefaultTraceId(agentId, startTime1, 0, -1L, spanId1, (short) 0);
+        final TraceId traceId1 = new DefaultTraceId(TransactionId.of(agentId, startTime1, 0), null, -1L, spanId1, (short) 0);
         final TraceRoot traceRoot1 = TraceRoot.remote(traceId1, agentId, startTime1, 0);
 
         final long startTime2 = startTime1 + 10L;
         final long spanId2 = 2L;
-        final TraceId traceId2 = new DefaultTraceId(agentId, startTime2, 0, -1L, spanId2, (short) 0);
+        final TraceId traceId2 = new DefaultTraceId(TransactionId.of(agentId, startTime2, 0), null, -1L, spanId2, (short) 0);
         final TraceRoot traceRoot2 = TraceRoot.remote(traceId2, agentId, startTime2, 0);
 
         Span span1 = createSpan(traceRoot1, startTime1);

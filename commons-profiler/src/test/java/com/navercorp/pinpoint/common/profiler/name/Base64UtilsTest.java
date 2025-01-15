@@ -27,14 +27,14 @@ import java.util.UUID;
 /**
  * @author HyunGil Jeong
  */
-public class AgentUuidUtilsTest {
+public class Base64UtilsTest {
 
     @RepeatedTest(10)
     public void testEncodingAndDecoding() {
         UUID expected = UUID.randomUUID();
-        String encoded = AgentUuidUtils.encode(expected);
+        String encoded = Base64Utils.encode(expected);
         Assertions.assertTrue(IdValidateUtils.validateId(encoded, PinpointConstants.AGENT_ID_MAX_LEN));
-        UUID actual = AgentUuidUtils.decode(encoded);
+        UUID actual = Base64Utils.decode(encoded);
         Assertions.assertEquals(expected, actual);
     }
 
@@ -42,7 +42,7 @@ public class AgentUuidUtilsTest {
     public void decodeShouldFailWhenSrcIsNot22CharactersLong() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             String invalid = "012345678901234567890";
-            AgentUuidUtils.decode(invalid);
+            Base64Utils.decode(invalid);
         });
     }
 
@@ -50,14 +50,14 @@ public class AgentUuidUtilsTest {
     public void decodeShouldFailWhenSrcContainsInvalidCharacter() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             String invalid = "012345678901.345678901";
-            AgentUuidUtils.decode(invalid);
+            Base64Utils.decode(invalid);
         });
     }
 
     @Test
     public void encodeStringShouldThrowNpeForNullArgument() {
         Assertions.assertThrows(NullPointerException.class, () -> {
-            AgentUuidUtils.encode((String) null);
+            Base64Utils.encode((String) null);
         });
     }
 
@@ -65,21 +65,21 @@ public class AgentUuidUtilsTest {
     public void encodeStringShouldThrowIllegalArgumentExceptionForInvalidUuidString() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             String invalidUuidString = "abcdefg";
-            AgentUuidUtils.encode(invalidUuidString);
+            Base64Utils.encode(invalidUuidString);
         });
     }
 
     @Test
     public void encodeUuidShouldThrowNpeForNullArgument() {
         Assertions.assertThrows(NullPointerException.class, () -> {
-            AgentUuidUtils.encode((UUID) null);
+            Base64Utils.encode((UUID) null);
         });
     }
 
     @Test
     public void decodeShouldThrowNpeForNullArgument() {
         Assertions.assertThrows(NullPointerException.class, () -> {
-            AgentUuidUtils.decode(null);
+            Base64Utils.decode(null);
         });
     }
 }

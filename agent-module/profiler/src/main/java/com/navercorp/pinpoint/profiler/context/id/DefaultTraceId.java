@@ -18,7 +18,8 @@ package com.navercorp.pinpoint.profiler.context.id;
 
 import com.navercorp.pinpoint.bootstrap.context.SpanId;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionUId;
 
 import java.util.Objects;
 
@@ -27,48 +28,51 @@ import java.util.Objects;
  */
 public class DefaultTraceId implements TraceId {
 
-    private final String agentId;
-    private final long agentStartTime;
-    private final long transactionSequence;
+    private final TransactionId transactionId;
+    private final TransactionUId transactionUId;
 
     private final long parentSpanId;
     private final long spanId;
     private final short flags;
 
-    public DefaultTraceId(String agentId, long agentStartTime, long transactionId) {
-        this(agentId, agentStartTime, transactionId, SpanId.NULL, SpanId.newSpanId(), (short) 0);
+
+    public DefaultTraceId(TransactionId transactionId) {
+        this(transactionId, null, SpanId.NULL, SpanId.newSpanId(), (short) 0);
     }
 
-    public TraceId getNextTraceId() {
-        return new DefaultTraceId(this.agentId, this.agentStartTime, transactionSequence, spanId, SpanId.nextSpanID(spanId, parentSpanId), flags);
+    public static TraceId v4(TransactionId transactionId, TransactionUId txId) {
+        return new DefaultTraceId(transactionId, txId, SpanId.NULL, SpanId.newSpanId(), (short) 0);
     }
 
-    public DefaultTraceId(String agentId, long agentStartTime, long transactionId, long parentSpanId, long spanId, short flags) {
-        this.agentId = Objects.requireNonNull(agentId, "agentId");
-        this.agentStartTime = agentStartTime;
-        this.transactionSequence = transactionId;
+    public DefaultTraceId(TransactionId transactionId,
+                          TransactionUId transactionUId,
+                          long parentSpanId, long spanId, short flags) {
+        this.transactionId = Objects.requireNonNull(transactionId, "transactionId");
+
+        // optional
+        this.transactionUId = transactionUId;
 
         this.parentSpanId = parentSpanId;
         this.spanId = spanId;
         this.flags = flags;
     }
 
+    public TraceId getNextTraceId() {
+        return new DefaultTraceId(transactionId, transactionUId, spanId, SpanId.nextSpanID(spanId, parentSpanId), flags);
+    }
+
     public String getTransactionId() {
-        return TransactionIdUtils.formatString(agentId, agentStartTime, transactionSequence);
+        return transactionId.toString();
     }
 
-    public String getAgentId() {
-        return agentId;
+    public TransactionId getInternalTransactionId() {
+        return transactionId;
     }
 
-    public long getAgentStartTime() {
-        return agentStartTime;
+    @Override
+    public String getTransactionUId() {
+        return transactionUId.toString();
     }
-
-    public long getTransactionSequence() {
-        return transactionSequence;
-    }
-
 
     public long getParentSpanId() {
         return parentSpanId;
@@ -89,15 +93,12 @@ public class DefaultTraceId implements TraceId {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DefaultTraceId{");
-        sb.append("agentId='").append(agentId).append('\'');
-        sb.append(", agentStartTime=").append(agentStartTime);
-        sb.append(", transactionSequence=").append(transactionSequence);
-        sb.append(", parentSpanId=").append(parentSpanId);
-        sb.append(", spanId=").append(spanId);
-        sb.append(", flags=").append(flags);
-        sb.append('}');
-        return sb.toString();
+        return "DefaultTraceId{" +
+                "transactionId=" + transactionId +
+                ", transactionUId=" + transactionUId +
+                ", parentSpanId=" + parentSpanId +
+                ", spanId=" + spanId +
+                ", flags=" + flags +
+                '}';
     }
-
 }

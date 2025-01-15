@@ -30,8 +30,8 @@ public class HeatMapServiceImplTest {
 
     private static final String APPLICATION_NAME = "applicationName";
     private static final int LIMIT = 50;
-    private static final TransactionId TRANSACTION_ID_1 = new TransactionId("txAgent1", 10, 100);
-    private static final TransactionId TRANSACTION_ID_2 = new TransactionId("txAgent2", 20, 200);
+    private static final TransactionId TRANSACTION_ID_1 = TransactionId.of("txAgent1", 10, 100);
+    private static final TransactionId TRANSACTION_ID_2 = TransactionId.of("txAgent2", 20, 200);
 
     @Test
     public void legacyCompatibilityCheckPassTest() {

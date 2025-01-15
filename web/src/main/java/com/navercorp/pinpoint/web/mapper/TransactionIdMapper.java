@@ -16,23 +16,22 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -77,6 +76,6 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
         String agentId = buffer.readPrefixedString();
         long agentStartTime = buffer.readSVLong();
         long transactionSequence = buffer.readVLong();
-        return new TransactionId(agentId, agentStartTime, transactionSequence);
+        return TransactionId.of(agentId, agentStartTime, transactionSequence);
     }
 }

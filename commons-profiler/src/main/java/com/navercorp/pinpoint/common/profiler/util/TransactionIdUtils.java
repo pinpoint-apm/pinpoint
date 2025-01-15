@@ -106,7 +106,7 @@ public final class TransactionIdUtils {
         final long agentStartTime = buffer.readVLong();
         final long transactionSequence = buffer.readVLong();
 
-        return new TransactionId(agentId, agentStartTime,transactionSequence);
+        return TransactionId.of(agentId, agentStartTime,transactionSequence);
     }
 
     public static TransactionId parseTransactionId(final String transactionId) {
@@ -137,7 +137,7 @@ public final class TransactionIdUtils {
             transactionSequenceIndex = transactionId.length();
         }
         final long transactionSequence = parseLong(transactionId, agentStartTimeIndex + 1, transactionSequenceIndex);
-        return new TransactionId(agentId, agentStartTime, transactionSequence);
+        return TransactionId.of(agentId, agentStartTime, transactionSequence);
     }
 
     private static int nextIndex(String transactionId, int fromIndex) {

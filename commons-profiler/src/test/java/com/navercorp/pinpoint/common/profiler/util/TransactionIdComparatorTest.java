@@ -33,37 +33,37 @@ public class TransactionIdComparatorTest {
 
     @Test
     public void sameAll() {
-        TransactionId id1 = new TransactionId("A1", 1, 1);
-        TransactionId id2 = new TransactionId("A1", 1, 1);
+        TransactionId id1 = TransactionId.of("A1", 1, 1);
+        TransactionId id2 = TransactionId.of("A1", 1, 1);
         Assertions.assertEquals(0, comparator.compare(id1, id2));
     }
 
     @Test
     public void diffAgentStartTimeAsc() {
-        TransactionId id1 = new TransactionId("A1", 1, 1);
-        TransactionId id2 = new TransactionId("A1", 2, 1);
+        TransactionId id1 = TransactionId.of("A1", 1, 1);
+        TransactionId id2 = TransactionId.of("A1", 2, 1);
         Assertions.assertEquals(-1, comparator.compare(id1, id2));
     }
 
     @Test
     public void diffAgentStartTimeDesc() {
-        TransactionId id1 = new TransactionId("A1", 2, 1);
-        TransactionId id2 = new TransactionId("A1", 1, 1);
+        TransactionId id1 = TransactionId.of("A1", 2, 1);
+        TransactionId id2 = TransactionId.of("A1", 1, 1);
 
         Assertions.assertEquals(1, comparator.compare(id1, id2));
     }
 
     @Test
     public void diffSeqAsc() {
-        TransactionId id1 = new TransactionId("A1", 1, 1);
-        TransactionId id2 = new TransactionId("A1", 1, 2);
+        TransactionId id1 = TransactionId.of("A1", 1, 1);
+        TransactionId id2 = TransactionId.of("A1", 1, 2);
         Assertions.assertEquals(-1, comparator.compare(id1, id2));
     }
 
     @Test
     public void diffSeqDesc() {
-        TransactionId id1 = new TransactionId("A1", 1, 2);
-        TransactionId id2 = new TransactionId("A1", 1, 1);
+        TransactionId id1 = TransactionId.of("A1", 1, 2);
+        TransactionId id2 = TransactionId.of("A1", 1, 1);
         Assertions.assertEquals(1, comparator.compare(id1, id2));
     }
 
@@ -77,7 +77,7 @@ public class TransactionIdComparatorTest {
 
         List<TransactionId> list = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            list.add(new TransactionId("A", 1, numbers.get(i)));
+            list.add(TransactionId.of("A", 1, numbers.get(i)));
         }
         logger.debug("{}", list);
 

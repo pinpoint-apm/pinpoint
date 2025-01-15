@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.name;
 
-import com.navercorp.pinpoint.common.profiler.name.AgentUuidUtils;
+import com.navercorp.pinpoint.common.profiler.name.Base64Utils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -63,7 +63,7 @@ public class AgentIdResolver {
 
     private String newRandomAgentId() {
         UUID agentUUID = UUID.randomUUID();
-        return AgentUuidUtils.encode(agentUUID);
+        return Base64Utils.encode(agentUUID);
     }
 
     private String getAgentId() {

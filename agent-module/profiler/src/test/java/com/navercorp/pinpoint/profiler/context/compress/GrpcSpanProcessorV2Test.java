@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.compress;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
@@ -66,7 +67,7 @@ public class GrpcSpanProcessorV2Test {
     }
 
     private Span newSpan() {
-        TraceId traceId = new DefaultTraceId("agent", 1, 0);
+        TraceId traceId = new DefaultTraceId(TransactionId.of("agent", 1, 0));
         TraceRoot traceRoot = TraceRoot.remote(traceId, "agent", 0, 3);
         return new Span(traceRoot);
     }

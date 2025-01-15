@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.profiler.context.MockTraceContextFactory;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionCounter;
@@ -109,7 +110,7 @@ public class ActiveTraceRepositoryTest {
         List<ActiveTraceSnapshot> activeTraceInfos = this.activeTraceRepository.snapshot();
         awaitLatch.countDown();
         List<TraceThreadTuple> executedTraces = futures.get(5, TimeUnit.SECONDS);
-        Map<Long, TraceThreadTuple> executedTraceMap = new HashMap<Long, TraceThreadTuple>(executedTraces.size());
+        Map<Long, TraceThreadTuple> executedTraceMap = new HashMap<>(executedTraces.size());
         for (TraceThreadTuple tuple : executedTraces) {
             executedTraceMap.put(tuple.id, tuple);
         }
@@ -140,7 +141,7 @@ public class ActiveTraceRepositoryTest {
 
         int totalNewCount = sampledNewCount + unsampledNewCount;
         final ListeningExecutorService executor = MoreExecutors.listeningDecorator(executorService);
-        final List<ListenableFuture<TraceThreadTuple>> futures = new ArrayList<ListenableFuture<TraceThreadTuple>>();
+        final List<ListenableFuture<TraceThreadTuple>> futures = new ArrayList<>();
         for (int i = 0; i < totalNewCount; i++) {
             futures.add(executeNewTrace(executor, awaitLatch, executeLatch));
         }
@@ -175,7 +176,7 @@ public class ActiveTraceRepositoryTest {
             @Override
             public TraceThreadTuple call() throws Exception {
                 try {
-                    TraceId agentId1 = new DefaultTraceId("agentId", 0L, id);
+                    TraceId agentId1 = new DefaultTraceId(TransactionId.of("agentId", 0L, id));
                     Trace agentId = traceContext.continueTraceObject(agentId1);
                     return new TraceThreadTuple(agentId, Thread.currentThread().getId());
                 } finally {

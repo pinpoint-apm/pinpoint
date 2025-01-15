@@ -15,7 +15,7 @@ public class SpanQueryBuilderTest {
 
     private static final int COLLECTOR_ACCEPTOR_TIME = 100;
     private static final int RESPONSE_TIME = 200;
-    private static final TransactionId txId = new TransactionId("agent", 1, 2);
+    private static final TransactionId txId = TransactionId.of("agent", 1, 2);
 
     @Test
     public void spanQuery_build() {
@@ -26,7 +26,7 @@ public class SpanQueryBuilderTest {
         SpanQuery spanQuery = builder.build(traceInfo);
 
         SpanBo span = new SpanBo();
-        span.setTransactionId(new TransactionId("agent", 1, 2));
+        span.setTransactionId(TransactionId.of("agent", 1, 2));
         span.setCollectorAcceptTime(100);
         span.setElapsed(200);
         span.setApplicationId("appName");

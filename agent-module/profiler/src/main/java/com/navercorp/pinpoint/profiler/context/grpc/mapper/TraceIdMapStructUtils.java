@@ -16,7 +16,9 @@
 package com.navercorp.pinpoint.profiler.context.grpc.mapper;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.grpc.trace.PTransactionId;
+import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import org.mapstruct.Qualifier;
 
 import java.lang.annotation.ElementType;
@@ -36,10 +38,15 @@ public class TraceIdMapStructUtils {
 
     @ToTransactionId
     public static PTransactionId newTransactionId(TraceId traceId) {
-        final PTransactionId.Builder builder = PTransactionId.newBuilder();
-        builder.setAgentId(traceId.getAgentId());
-        builder.setAgentStartTime(traceId.getAgentStartTime());
-        builder.setSequence(traceId.getTransactionSequence());
-        return builder.build();
+        if (traceId instanceof DefaultTraceId) {
+            DefaultTraceId defaultTraceId = (DefaultTraceId) traceId;
+            TransactionId txId = defaultTraceId.getInternalTransactionId();
+            final PTransactionId.Builder builder = PTransactionId.newBuilder();
+            builder.setAgentId(txId.getAgentId());
+            builder.setAgentStartTime(txId.getAgentStartTime());
+            builder.setSequence(txId.getTransactionSequence());
+            return builder.build();
+        }
+        throw new IllegalArgumentException("Unexpected TraceId type: " + traceId);
     }
 }
