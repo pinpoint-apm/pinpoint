@@ -39,11 +39,11 @@ public class MetaSpanCallTreeFactory {
     private static final String CORRUPTED_AGENT_ID = "CORRUPTED";
     private static final long AGENT_START_TIME = 0;
 
-    private long timeoutMillisec = DEFAULT_TIMEOUT_MILLISEC;
+    private final long timeoutMillisec = DEFAULT_TIMEOUT_MILLISEC;
 
     public CallTree unknown(final long startTimeMillis) {
         final SpanBo rootSpan = new SpanBo();
-        rootSpan.setTransactionId(new TransactionId(UNKNOWN_AGENT_ID, AGENT_START_TIME, 0));
+        rootSpan.setTransactionId(TransactionId.of(UNKNOWN_AGENT_ID, AGENT_START_TIME, 0));
         rootSpan.setAgentId(UNKNOWN_AGENT_ID);
         rootSpan.setApplicationId("UNKNOWN");
         rootSpan.setStartTime(startTimeMillis);
@@ -69,7 +69,7 @@ public class MetaSpanCallTreeFactory {
         rootSpan.setSpanId(spanId);
         rootSpan.setStartTime(startTimeMillis);
 
-        rootSpan.setTransactionId(new TransactionId(CORRUPTED_AGENT_ID, AGENT_START_TIME, 0));
+        rootSpan.setTransactionId(TransactionId.of(CORRUPTED_AGENT_ID, AGENT_START_TIME, 0));
         rootSpan.setAgentId(CORRUPTED_AGENT_ID);
         rootSpan.setApplicationId("CORRUPTED");
         rootSpan.setServiceType(ServiceType.UNKNOWN.getCode());

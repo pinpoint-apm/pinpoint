@@ -16,63 +16,21 @@
 
 package com.navercorp.pinpoint.common.profiler.util;
 
-import com.navercorp.pinpoint.common.util.IdValidateUtils;
-
 /**
  * @author emeroad
  */
-public class TransactionId {
+public interface TransactionId {
 
-    private final String agentId;
-    private final long agentStartTime;
-    private final long transactionSequence;
+    String getAgentId();
 
-    public TransactionId(String agentId, long agentStartTime, long transactionSequence) {
-        if (!IdValidateUtils.validateId(agentId)) {
-            throw new IllegalArgumentException("invalid agentId");
-        }
-        this.agentId = agentId;
-        this.agentStartTime = agentStartTime;
-        this.transactionSequence = transactionSequence;
-    }
+    long getAgentStartTime();
 
-    public String getAgentId() {
-        return agentId;
-    }
+    long getTransactionSequence();
 
-    public long getAgentStartTime() {
-        return agentStartTime;
-    }
-
-    public long getTransactionSequence() {
-        return transactionSequence;
-    }
+    String getId();
 
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        TransactionId that = (TransactionId) o;
-
-        if (agentStartTime != that.agentStartTime) return false;
-        if (transactionSequence != that.transactionSequence) return false;
-        if (!agentId.equals(that.agentId)) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = agentId.hashCode();
-        result = 31 * result + (int) (agentStartTime ^ (agentStartTime >>> 32));
-        result = 31 * result + (int) (transactionSequence ^ (transactionSequence >>> 32));
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return TransactionIdUtils.formatString(this);
+    static TransactionId of(String agentId, long agentStartTime, long transactionSequence) {
+        return new TransactionIdV1(agentId, agentStartTime, transactionSequence);
     }
 }

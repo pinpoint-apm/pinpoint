@@ -284,9 +284,9 @@ public class GrpcSpanBinder {
     private TransactionId newTransactionId(PTransactionId pTransactionId, String spanAgentId) {
         final String transactionAgentId = pTransactionId.getAgentId();
         if (StringUtils.hasLength(transactionAgentId)) {
-            return new TransactionId(transactionAgentId, pTransactionId.getAgentStartTime(), pTransactionId.getSequence());
+            return TransactionId.of(transactionAgentId, pTransactionId.getAgentStartTime(), pTransactionId.getSequence());
         } else {
-            return new TransactionId(spanAgentId, pTransactionId.getAgentStartTime(), pTransactionId.getSequence());
+            return TransactionId.of(spanAgentId, pTransactionId.getAgentStartTime(), pTransactionId.getSequence());
         }
     }
 

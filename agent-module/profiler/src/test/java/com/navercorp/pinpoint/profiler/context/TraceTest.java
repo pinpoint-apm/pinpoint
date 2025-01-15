@@ -19,11 +19,10 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.profiler.context.errorhandler.BypassErrorHandler;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecorder;
-import com.navercorp.pinpoint.profiler.context.exception.disabled.DisabledExceptionContext;
-import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionContext;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultSpanRecorder;
@@ -72,7 +71,7 @@ public class TraceTest {
     @Test
     public void trace() {
 
-        final TraceId traceId = new DefaultTraceId(agentId, agentStartTime, 1);
+        final TraceId traceId = new DefaultTraceId(TransactionId.of(agentId, agentStartTime, 1));
         final TraceRoot traceRoot = TraceRoot.remote(traceId, agentId, traceStartTime, 0);
 
         final CallStack<SpanEvent> callStack = newCallStack();
@@ -101,7 +100,7 @@ public class TraceTest {
     @Test
     public void popEventTest() {
 
-        final TraceId traceId = new DefaultTraceId(agentId, agentStartTime, 1);
+        final TraceId traceId = new DefaultTraceId(TransactionId.of(agentId, agentStartTime, 1));
         final TraceRoot traceRoot = TraceRoot.remote(traceId, agentId, traceStartTime, 0);
 
         final CallStack<SpanEvent> callStack = newCallStack();

@@ -67,8 +67,8 @@ public class ScatterDataTest {
 
         long currentTime = System.currentTimeMillis();
 
-        TransactionId transactionId1 = new TransactionId(transactionAgentId, currentTime, 1);
-        TransactionId transactionId2 = new TransactionId(transactionAgentId, currentTime, 2);
+        TransactionId transactionId1 = TransactionId.of(transactionAgentId, currentTime, 1);
+        TransactionId transactionId2 = TransactionId.of(transactionAgentId, currentTime, 2);
 
         long acceptedTime = Math.max(Math.abs(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE)), from);
         int executionTime = (int) Math.abs(ThreadLocalRandom.current().nextLong(60 * 1000));
@@ -102,7 +102,7 @@ public class ScatterDataTest {
 
         long currentTime = System.currentTimeMillis();
 
-        TransactionId transactionId = new TransactionId(transactionAgentId, currentTime, 1);
+        TransactionId transactionId = TransactionId.of(transactionAgentId, currentTime, 1);
 
         long acceptedTime = Math.max(Math.abs(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE)), from);
         int executionTime = (int) Math.abs(ThreadLocalRandom.current().nextLong(60 * 1000));
@@ -124,7 +124,7 @@ public class ScatterDataTest {
 
         List<TransactionId> transactionIdList = new ArrayList<>(createSize);
         for (int i = 0; i < createSize; i++) {
-            transactionIdList.add(new TransactionId(transactionAgentId, currentTime, i));
+            transactionIdList.add(TransactionId.of(transactionAgentId, currentTime, i));
         }
 
         long acceptedTime = Math.max(Math.abs(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE)), from);

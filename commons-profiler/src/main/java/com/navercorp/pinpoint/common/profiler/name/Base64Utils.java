@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.profiler.name;
 
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Objects;
@@ -26,9 +27,12 @@ import java.util.UUID;
 /**
  * @author HyunGil Jeong
  */
-public class AgentUuidUtils {
+public class Base64Utils {
+
+    private static final Charset ISO_8859 = StandardCharsets.ISO_8859_1;
 
     private static final Base64.Encoder ENCODER = Base64.getUrlEncoder().withoutPadding();
+    private static final Base64.Decoder DECODER = Base64.getUrlDecoder();
 
     /**
      * Base64 encodes the given {@code uuidString} into URL and filename safe string as specified by RFC 4648 section 5.
@@ -67,7 +71,7 @@ public class AgentUuidUtils {
         BytesUtils.writeLong(uuid.getLeastSignificantBits(), bytes, BytesUtils.LONG_BYTE_LENGTH);
 
         byte[] encode = ENCODER.encode(bytes);
-        return new String(encode, StandardCharsets.US_ASCII);
+        return new String(encode, ISO_8859);
     }
 
     /**
@@ -83,12 +87,12 @@ public class AgentUuidUtils {
      */
     public static UUID decode(String src) {
         Objects.requireNonNull(src, "src");
-        byte[] bytes = src.getBytes(StandardCharsets.US_ASCII);
+        byte[] bytes = src.getBytes(ISO_8859);
         if (bytes.length != 22) {
             throw new IllegalArgumentException("Invalid src byte array: " + src);
         }
 
-        byte[] decoded = Base64.getUrlDecoder().decode(bytes);
+        byte[] decoded = DECODER.decode(bytes);
 
         long mostSigBits = BytesUtils.bytesToLong(decoded, 0);
         long leastSigBits = BytesUtils.bytesToLong(decoded, BytesUtils.LONG_BYTE_LENGTH);

@@ -1,9 +1,12 @@
 package com.navercorp.pinpoint.profiler.context.grpc;
 
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
+import com.navercorp.pinpoint.grpc.trace.PTransactionId;
 import com.navercorp.pinpoint.io.SpanVersion;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.AsyncId;
@@ -147,7 +150,7 @@ class GrpcSpanMessageConverterTest {
     static TraceRoot newTraceRoot() {
         TraceRoot traceRoot = mock(TraceRoot.class);
         final long agentStartTime = System.currentTimeMillis();
-        when(traceRoot.getTraceId()).thenReturn(new DefaultTraceId(agentId, agentStartTime, 0));
+        when(traceRoot.getTraceId()).thenReturn(new DefaultTraceId(TransactionId.of(agentId, agentStartTime, 0)));
         when(traceRoot.getTraceStartTime()).thenReturn(agentStartTime + 100);
         when(traceRoot.getLocalTransactionId()).thenReturn((long) 1);
 
@@ -171,9 +174,8 @@ class GrpcSpanMessageConverterTest {
 
         // skipped in compressed type
         // assertEquals(span.getTraceRoot().getTraceId().getAgentId(), pSpan.getTransactionId().getAgentId());
-        assertEquals(span.getTraceRoot().getTraceId().getAgentStartTime(), pSpan.getTransactionId().getAgentStartTime());
-        assertEquals(span.getTraceRoot().getTraceId().getAgentStartTime(), pSpan.getTransactionId().getAgentStartTime());
-        assertEquals(span.getTraceRoot().getTraceId().getTransactionSequence(), pSpan.getTransactionId().getSequence());
+        assertEqualsTraceId(span.getTraceRoot().getTraceId(), pSpan.getTransactionId());
+
 
         assertEquals(span.getTraceRoot().getTraceId().getSpanId(), pSpan.getSpanId());
         assertEquals(span.getTraceRoot().getTraceId().getParentSpanId(), pSpan.getParentSpanId());
@@ -220,6 +222,17 @@ class GrpcSpanMessageConverterTest {
         }
     }
 
+    private void assertEqualsTraceId(TraceId traceId, PTransactionId transactionId) {
+        if (traceId instanceof DefaultTraceId) {
+            DefaultTraceId defaultTraceId = (DefaultTraceId) traceId;
+            TransactionId transactionIdObject = defaultTraceId.getInternalTransactionId();
+            assertEquals(transactionIdObject.getAgentId(), transactionId.getAgentId());
+            assertEquals(transactionIdObject.getAgentStartTime(), transactionId.getAgentStartTime());
+            assertEquals(transactionIdObject.getTransactionSequence(), transactionId.getSequence());
+        } else {
+            throw new IllegalArgumentException("Unsupported TraceId type");
+        }
+    }
 
 
     @Test
@@ -231,10 +244,7 @@ class GrpcSpanMessageConverterTest {
         assertEquals(applicationServiceType, pSpanChunk.getApplicationServiceType());
 
         // skipped in compressed type
-        // assertEquals(spanChunk.getTraceRoot().getTraceId().getAgentId(), pSpanChunk.getTransactionId().getAgentId());
-        assertEquals(spanChunk.getTraceRoot().getTraceId().getAgentStartTime(), pSpanChunk.getTransactionId().getAgentStartTime());
-        assertEquals(spanChunk.getTraceRoot().getTraceId().getAgentStartTime(), pSpanChunk.getTransactionId().getAgentStartTime());
-        assertEquals(spanChunk.getTraceRoot().getTraceId().getTransactionSequence(), pSpanChunk.getTransactionId().getSequence());
+        assertEqualsTraceId(spanChunk.getTraceRoot().getTraceId(), pSpanChunk.getTransactionId());
 
         assertEquals(spanChunk.getTraceRoot().getTraceId().getSpanId(), pSpanChunk.getSpanId());
 
@@ -271,10 +281,8 @@ class GrpcSpanMessageConverterTest {
         assertEquals(applicationServiceType, pSpanChunk.getApplicationServiceType());
 
         // skipped in compressed type
-        // assertEquals(spanChunk.getTraceRoot().getTraceId().getAgentId(), pSpanChunk.getTransactionId().getAgentId());
-        assertEquals(spanChunk.getTraceRoot().getTraceId().getAgentStartTime(), pSpanChunk.getTransactionId().getAgentStartTime());
-        assertEquals(spanChunk.getTraceRoot().getTraceId().getAgentStartTime(), pSpanChunk.getTransactionId().getAgentStartTime());
-        assertEquals(spanChunk.getTraceRoot().getTraceId().getTransactionSequence(), pSpanChunk.getTransactionId().getSequence());
+//         assertEquals(spanChunk.getTraceRoot().getTraceId().getAgentId(), pSpanChunk.getTransactionId().getAgentId());
+        assertEqualsTraceId(spanChunk.getTraceRoot().getTraceId(), pSpanChunk.getTransactionId());
 
         assertEquals(spanChunk.getTraceRoot().getTraceId().getSpanId(), pSpanChunk.getSpanId());
 

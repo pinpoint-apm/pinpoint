@@ -42,14 +42,14 @@ public class TraceRowKeyEncoderV2Test {
         return new RowKeyDistributorByHashPrefix(oneByteSimpleHash);
     }
 
-    private RowKeyEncoder<TransactionId> traceRowKeyEncoder = new TraceRowKeyEncoderV2(distributorByHashPrefix);
+    private final RowKeyEncoder<TransactionId> traceRowKeyEncoder = new TraceRowKeyEncoderV2(distributorByHashPrefix);
 
-    private RowKeyDecoder<TransactionId> traceRowKeyDecoder = new TraceRowKeyDecoderV2();
+    private final RowKeyDecoder<TransactionId> traceRowKeyDecoder = new TraceRowKeyDecoderV2();
 
     @Test
     public void encodeRowKey() {
 
-        TransactionId spanTransactionId = new TransactionId("traceAgentId", System.currentTimeMillis(), random.nextLong(0, 10000));
+        TransactionId spanTransactionId = TransactionId.of("traceAgentId", System.currentTimeMillis(), random.nextLong(0, 10000));
 
         byte[] rowKey = traceRowKeyEncoder.encodeRowKey(spanTransactionId);
         TransactionId transactionId = traceRowKeyDecoder.decodeRowKey(rowKey);

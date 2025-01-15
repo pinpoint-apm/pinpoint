@@ -42,13 +42,23 @@ public class DefaultTraceIdFactory implements TraceIdFactory {
 
     @Override
     public TraceId newTraceId(long localTransactionId) {
-        return new DefaultTraceId(agentId, agentStartTime, localTransactionId);
+        TransactionId transactionId = TransactionId.of(agentId, agentStartTime, localTransactionId);
+        return newTraceId(transactionId);
     }
 
     public TraceId continueTraceId(String transactionId, long parentSpanId, long spanId, short flags) {
         Objects.requireNonNull(transactionId, "transactionId");
 
-        final TransactionId parseId = TransactionIdUtils.parseTransactionId(transactionId);
-        return new DefaultTraceId(parseId.getAgentId(), parseId.getAgentStartTime(), parseId.getTransactionSequence(), parentSpanId, spanId, flags);
+        final TransactionId parseTxId = TransactionIdUtils.parseTransactionId(transactionId);
+        return continueTraceId(parseTxId, parentSpanId, spanId, flags);
+    }
+
+
+    public static TraceId newTraceId(TransactionId transactionId) {
+        return new DefaultTraceId(transactionId);
+    }
+
+    public static TraceId continueTraceId(TransactionId transactionId, long parentSpanId, long spanId, short flags) {
+        return new DefaultTraceId(transactionId, null, parentSpanId, spanId, flags);
     }
 }

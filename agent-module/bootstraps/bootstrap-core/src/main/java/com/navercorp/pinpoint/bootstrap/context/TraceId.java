@@ -25,17 +25,14 @@ public interface TraceId {
 
     long getSpanId();
 
-    String getTransactionId();
-
-    String getAgentId();
-
-    long getAgentStartTime();
-
-    long getTransactionSequence();
-
     long getParentSpanId();
 
     short getFlags();
 
     boolean isRoot();
+
+
+    String getTransactionId();
+
+    String getTransactionUId();
 }

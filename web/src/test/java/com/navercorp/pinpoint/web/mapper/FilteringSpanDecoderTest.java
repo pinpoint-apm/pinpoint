@@ -171,7 +171,7 @@ public class FilteringSpanDecoderTest {
             long agentStartTime = ThreadLocalRandom.current().nextLong(originAgentStartTime, boundAgentStartTime);
 
             int transactionSequence = ThreadLocalRandom.current().nextInt(0, 10);
-            return new TransactionId(agentId, agentStartTime, transactionSequence);
+            return TransactionId.of(agentId, agentStartTime, transactionSequence);
         }
 
         private static long createCollectorAcceptTime() {

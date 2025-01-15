@@ -35,17 +35,17 @@ public class TransactionIdUtilsTest {
     @Test
     public void testParseTransactionId() {
         TransactionId transactionId = TransactionIdUtils.parseTransactionId(AGENT_ID + TransactionIdUtils.TRANSACTION_ID_DELIMITER + "1" + TransactionIdUtils.TRANSACTION_ID_DELIMITER + "2");
-        Assertions.assertEquals(transactionId.getAgentId(), "test");
-        Assertions.assertEquals(transactionId.getAgentStartTime(), 1L);
-        Assertions.assertEquals(transactionId.getTransactionSequence(), 2L);
+        Assertions.assertEquals("test", transactionId.getAgentId());
+        Assertions.assertEquals(1L, transactionId.getAgentStartTime());
+        Assertions.assertEquals(2L, transactionId.getTransactionSequence());
     }
 
     @Test
     public void testParseTransactionId2() {
         TransactionId transactionId = TransactionIdUtils.parseTransactionId(AGENT_ID + TransactionIdUtils.TRANSACTION_ID_DELIMITER + "1" + TransactionIdUtils.TRANSACTION_ID_DELIMITER + "2" + TransactionIdUtils.TRANSACTION_ID_DELIMITER);
-        Assertions.assertEquals(transactionId.getAgentId(), AGENT_ID);
-        Assertions.assertEquals(transactionId.getAgentStartTime(), 1L);
-        Assertions.assertEquals(transactionId.getTransactionSequence(), 2L);
+        Assertions.assertEquals(AGENT_ID, transactionId.getAgentId());
+        Assertions.assertEquals(1L, transactionId.getAgentStartTime());
+        Assertions.assertEquals(2L, transactionId.getTransactionSequence());
     }
 
 
@@ -56,9 +56,9 @@ public class TransactionIdUtilsTest {
             String id1 = AGENT_ID + TransactionIdUtils.TRANSACTION_ID_DELIMITER + "1" + TransactionIdUtils.TRANSACTION_ID_DELIMITER + "2";
             String id2 = AGENT_ID + TransactionIdUtils.TRANSACTION_ID_DELIMITER + "1" + TransactionIdUtils.TRANSACTION_ID_DELIMITER + "3";
             TransactionId transactionId = TransactionIdUtils.parseTransactionId(id1 + ", " + id2);
-            Assertions.assertEquals(transactionId.getAgentId(), "test");
-            Assertions.assertEquals(transactionId.getAgentStartTime(), 1L);
-            Assertions.assertEquals(transactionId.getTransactionSequence(), 2L);
+            Assertions.assertEquals("test", transactionId.getAgentId());
+            Assertions.assertEquals(1L, transactionId.getAgentStartTime());
+            Assertions.assertEquals(2L, transactionId.getTransactionSequence());
         });
     }
 
@@ -68,9 +68,9 @@ public class TransactionIdUtilsTest {
         long time = System.currentTimeMillis();
         byte[] bytes = TransactionIdUtils.formatBytes(AGENT_ID, time, 2);
         TransactionId transactionId = TransactionIdUtils.parseTransactionId(bytes, AGENT_ID);
-        Assertions.assertEquals(transactionId.getAgentId(), AGENT_ID);
-        Assertions.assertEquals(transactionId.getAgentStartTime(), time);
-        Assertions.assertEquals(transactionId.getTransactionSequence(), 2L);
+        Assertions.assertEquals(AGENT_ID, transactionId.getAgentId());
+        Assertions.assertEquals(time, transactionId.getAgentStartTime());
+        Assertions.assertEquals(2L, transactionId.getTransactionSequence());
     }
 
     @Test
@@ -78,9 +78,9 @@ public class TransactionIdUtilsTest {
         long time = Long.MAX_VALUE;
         byte[] bytes = TransactionIdUtils.formatBytes(AGENT_ID, time, Long.MAX_VALUE);
         TransactionId transactionId = TransactionIdUtils.parseTransactionId(bytes, AGENT_ID);
-        Assertions.assertEquals(transactionId.getAgentId(), AGENT_ID);
-        Assertions.assertEquals(transactionId.getAgentStartTime(), Long.MAX_VALUE);
-        Assertions.assertEquals(transactionId.getTransactionSequence(), Long.MAX_VALUE);
+        Assertions.assertEquals(AGENT_ID, transactionId.getAgentId());
+        Assertions.assertEquals(Long.MAX_VALUE, transactionId.getAgentStartTime());
+        Assertions.assertEquals(Long.MAX_VALUE, transactionId.getTransactionSequence());
     }
 
     @Test
@@ -88,9 +88,9 @@ public class TransactionIdUtilsTest {
         long time = Long.MIN_VALUE;
         byte[] bytes = TransactionIdUtils.formatBytes(AGENT_ID, time, Long.MIN_VALUE);
         TransactionId transactionId = TransactionIdUtils.parseTransactionId(bytes, AGENT_ID);
-        Assertions.assertEquals(transactionId.getAgentId(), AGENT_ID);
-        Assertions.assertEquals(transactionId.getAgentStartTime(), Long.MIN_VALUE);
-        Assertions.assertEquals(transactionId.getTransactionSequence(), Long.MIN_VALUE);
+        Assertions.assertEquals(AGENT_ID, transactionId.getAgentId());
+        Assertions.assertEquals(Long.MIN_VALUE, transactionId.getAgentStartTime());
+        Assertions.assertEquals(Long.MIN_VALUE, transactionId.getTransactionSequence());
     }
 
 

@@ -60,7 +60,7 @@ public class DefaultTraceContextTest {
         String agent = "test";
         long agentStartTime = System.currentTimeMillis();
         long agentTransactionCount = 10;
-        TraceId traceId = new DefaultTraceId(agent, agentStartTime, agentTransactionCount);
+        TraceId traceId = new DefaultTraceId(TransactionId.of(agent, agentStartTime, agentTransactionCount));
 
         String id = traceId.getTransactionId();
 
@@ -132,7 +132,7 @@ public class DefaultTraceContextTest {
 
         final long expectedSampledContinuationCount = 5L;
         for (int i = 0; i < expectedSampledContinuationCount; i++) {
-            traceContext.continueTraceObject(new DefaultTraceId("agentId", 0L, i));
+            traceContext.continueTraceObject(new DefaultTraceId(TransactionId.of("agentId", 0L, i)));
             traceContext.removeTraceObject();
         }
 

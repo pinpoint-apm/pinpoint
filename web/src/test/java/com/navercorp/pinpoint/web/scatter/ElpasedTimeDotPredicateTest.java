@@ -20,7 +20,7 @@ public class ElpasedTimeDotPredicateTest {
     }
 
     private Dot newDot(int elapsedTime) {
-        TransactionId transactionId = new TransactionId("agent", 0, 1);
+        TransactionId transactionId = TransactionId.of("agent", 0, 1);
         return new Dot(transactionId, 0, elapsedTime, 0, "agentId");
     }
 }

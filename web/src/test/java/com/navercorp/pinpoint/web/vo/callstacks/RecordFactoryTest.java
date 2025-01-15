@@ -93,7 +93,7 @@ public class RecordFactoryTest {
         final RecordFactory factory = newRecordFactory();
 
         SpanBo spanBo = new SpanBo();
-        spanBo.setTransactionId(new TransactionId("test", 0, 0));
+        spanBo.setTransactionId(TransactionId.of("test", 0, 0));
         spanBo.setExceptionInfo(1, null);
         Align align = new SpanAlign(spanBo);
 
@@ -221,7 +221,7 @@ public class RecordFactoryTest {
                 .setAgentName("")
                 .setApplicationId("express-node-sample-name")
                 .setAgentStartTime(1670293953108L)
-                .setTransactionId(new TransactionId("express-node-sample-id", 1670293953108L, 30))
+                .setTransactionId(TransactionId.of("express-node-sample-id", 1670293953108L, 30))
                 .setParentSpanId(-1)
                 .setParentApplicationId(null)
                 .setParentApplicationServiceType((short) 0)
