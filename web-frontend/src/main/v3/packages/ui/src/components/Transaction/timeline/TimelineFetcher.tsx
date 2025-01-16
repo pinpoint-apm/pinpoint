@@ -18,6 +18,7 @@ import { TimelineDetail } from './TimelineDetail';
 import { FlameNodeType } from '../../FlameGraph/FlameNode';
 import { LuMoveDown, LuMoveUp } from 'react-icons/lu';
 import { Button, Input } from '../..';
+import { TimelineInfo } from './TimelineInfo';
 
 export interface TimelineFetcherProps {
   transactionInfo?: TransactionInfo.Response;
@@ -200,6 +201,7 @@ export const TimelineFetcher = ({ transactionInfo }: TimelineFetcherProps) => {
           }}
         />
       )}
+      <TimelineInfo data={data?.traceEvents} selectedTrace={selectedTrace} />
     </div>
   );
 };
