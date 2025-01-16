@@ -246,3 +246,12 @@ mappings:
         aggregationFunction : AVG
         chartType : "spline"
         unit : "count"
+  - definitionId: "deadlock"
+    metricName: "deadlock"
+    title: "deadlock thread count"
+    fields:
+      - fieldName: "deadlockedThreadCount"
+        matchingRule: EXACT_ONE
+        aggregationFunction : MAX
+        chartType : "spline"
+        unit : "count"

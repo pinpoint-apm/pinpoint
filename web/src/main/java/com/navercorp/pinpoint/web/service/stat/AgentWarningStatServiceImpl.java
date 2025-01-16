@@ -36,7 +36,7 @@ import java.util.Objects;
 /**
  * @author Taejin Koo
  */
-@Service
+//@Service
 public class AgentWarningStatServiceImpl implements AgentWarningStatService {
 
     private static final long LIMIT_TIME = 60000;
@@ -48,12 +48,11 @@ public class AgentWarningStatServiceImpl implements AgentWarningStatService {
     }
 
     @Override
-    public List<AgentStatusTimelineSegment> select(String agentId, Range range) {
+    public List<AgentStatusTimelineSegment> select(String applicationName, String agentId, Range range) {
         List<AgentWarningStatDataPoint> agentWarningStatDataPointList = select0(agentId, range);
         return createTimelineSegment(agentWarningStatDataPointList);
     }
 
-    @Override
     public Map<Long, List<AgentStatusTimelineSegment>> selectSeparatedByStartTimestamp(String agentId, Range range) {
         Map<Long, List<AgentStatusTimelineSegment>> result = new HashMap<>();
 

@@ -473,14 +473,14 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
 
     @Override
-    public InspectorTimeline getAgentStatusTimeline(String agentId, Range range, int... excludeAgentEventTypeCodes) {
+    public InspectorTimeline getAgentStatusTimeline(String applicationName, String agentId, Range range, int... excludeAgentEventTypeCodes) {
         Objects.requireNonNull(agentId, "agentId");
         Objects.requireNonNull(range, "range");
 
         AgentStatus initialStatus = getAgentStatus(agentId, range.getFrom());
         List<AgentEvent> agentEvents = agentEventService.getAgentEvents(agentId, range);
 
-        List<AgentStatusTimelineSegment> warningStatusTimelineSegmentList = agentWarningStatService.select(agentId, range);
+        List<AgentStatusTimelineSegment> warningStatusTimelineSegmentList = agentWarningStatService.select(applicationName, agentId, range);
 
         AgentStatusTimelineBuilder agentStatusTimelinebuilder = new AgentStatusTimelineBuilder(range, initialStatus, agentEvents, warningStatusTimelineSegmentList);
         AgentStatusTimeline agentStatusTimeline = agentStatusTimelinebuilder.build();

@@ -73,6 +73,12 @@ public class PinotAgentStatDao implements AgentStatDao {
     }
 
     @Override
+    public CompletableFuture<List<SystemMetricPoint<Double>>> selectAgentStat(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
+        InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, getTableName(inspectorDataSearchKey), generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
+        return asyncTemplate.selectList(NAMESPACE + "selectInspectorData", inspectorQueryParameter);
+    }
+
+    @Override
     public List<Tag> getTagInfo(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
         InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, getTableName(inspectorDataSearchKey), generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName());
         return syncTemplate.selectList(NAMESPACE + "selectTagInfo", inspectorQueryParameter);

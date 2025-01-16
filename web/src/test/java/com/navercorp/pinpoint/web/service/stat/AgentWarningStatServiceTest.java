@@ -60,7 +60,7 @@ public class AgentWarningStatServiceTest {
 
         List<DeadlockThreadCountBo> mockData = createMockData(10, 5000);
         when(deadlockDao.getAgentStatList("pinpoint", range)).thenReturn(mockData);
-        List<AgentStatusTimelineSegment> timelineSegmentList = agentWarningStatService.select("pinpoint", range);
+        List<AgentStatusTimelineSegment> timelineSegmentList = agentWarningStatService.select("applicationName", "pinpoint", range);
         assertThat(timelineSegmentList).hasSize(1);
     }
 
@@ -70,7 +70,7 @@ public class AgentWarningStatServiceTest {
 
         List<DeadlockThreadCountBo> mockData = createMockData(10, 70000);
         when(deadlockDao.getAgentStatList("pinpoint", range)).thenReturn(mockData);
-        List<AgentStatusTimelineSegment> timelineSegmentList = agentWarningStatService.select("pinpoint", range);
+        List<AgentStatusTimelineSegment> timelineSegmentList = agentWarningStatService.select("applicationName","pinpoint", range);
         assertThat(timelineSegmentList).hasSize(10);
     }
 

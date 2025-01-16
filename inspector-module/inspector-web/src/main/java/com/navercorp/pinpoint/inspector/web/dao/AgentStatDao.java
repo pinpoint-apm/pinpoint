@@ -30,6 +30,8 @@ import java.util.concurrent.CompletableFuture;
  * @author minwoo.jung
  */
 public interface AgentStatDao {
+    CompletableFuture<List<SystemMetricPoint<Double>>> selectAgentStat(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
+
     CompletableFuture<List<SystemMetricPoint<Double>>> selectAgentStatAvg(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 
     CompletableFuture<List<SystemMetricPoint<Double>>> selectAgentStatMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);

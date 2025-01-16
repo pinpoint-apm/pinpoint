@@ -42,8 +42,8 @@
 
     <select id="selectInspectorMaxData" parameterType="inspectorQueryParameter" resultMap="inspectorMetricPointResultMap" >
         SELECT
-        MAX(fieldValue) AS avgValue,
-        DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime
+            MAX(fieldValue) AS avgValue,
+            DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime
         FROM ${tableName}
         WHERE
             <!--  tenantId = #{tenantId}
@@ -61,8 +61,8 @@
 
     <select id="selectInspectorSumData" parameterType="inspectorQueryParameter" resultMap="inspectorMetricPointResultMap" >
         SELECT
-        SUM(fieldValue) AS avgValue,
-        DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime
+            SUM(fieldValue) AS avgValue,
+            DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime
         FROM ${tableName}
         WHERE
             <!--  tenantId = #{tenantId}
@@ -75,6 +75,24 @@
             </foreach>
         GROUP BY avgTime
         ORDER BY avgTime asc
+        LIMIT ${limit}
+    </select>
+
+    <select id="selectInspectorData" parameterType="inspectorQueryParameter" resultMap="inspectorMetricPointResultMap" >
+        SELECT
+            fieldValue AS avgValue,
+            cast(eventTime AS long) AS avgTime
+        FROM ${tableName}
+        WHERE
+        <!--  tenantId = #{tenantId}
+              AND serviceName = #{serviceName} -->
+        sortKey = #{sortKey}
+        AND fieldName = #{fieldName}
+        AND eventTime BETWEEN #{range.from} AND #{range.to}
+        <foreach collection="tagList" item="tag" separator=" ">
+            AND tags = #{tag}
+        </foreach>
+        ORDER BY eventTime asc
         LIMIT ${limit}
     </select>
 
