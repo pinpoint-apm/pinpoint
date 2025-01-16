@@ -203,21 +203,23 @@ public class AgentInfoController {
 
     @GetMapping(value = "/getAgentStatusTimeline")
     public InspectorTimeline getAgentStatusTimeline(
+            @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("agentId") @NotBlank String agentId,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to) {
         final Range range = Range.between(from, to);
-        return agentInfoService.getAgentStatusTimeline(agentId, range);
+        return agentInfoService.getAgentStatusTimeline(applicationName, agentId, range);
     }
 
     @GetMapping(value = "/getAgentStatusTimeline", params = {"exclude"})
     public InspectorTimeline getAgentStatusTimeline(
+            @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("agentId") @NotBlank String agentId,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
             @RequestParam(value = "exclude", defaultValue = "") int[] excludeEventTypeCodes) {
         final Range range = Range.between(from, to);
-        return agentInfoService.getAgentStatusTimeline(agentId, range, excludeEventTypeCodes);
+        return agentInfoService.getAgentStatusTimeline(applicationName, agentId, range, excludeEventTypeCodes);
     }
 
     @RequestMapping(value = "/isAvailableAgentId")

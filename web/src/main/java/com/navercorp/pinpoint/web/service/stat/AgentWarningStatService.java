@@ -27,8 +27,6 @@ import java.util.Map;
  */
 public interface AgentWarningStatService {
 
-    List<AgentStatusTimelineSegment> select(String agentId, Range range);
-
-    Map<Long, List<AgentStatusTimelineSegment>> selectSeparatedByStartTimestamp(String agentId, Range range);
+    List<AgentStatusTimelineSegment> select(String applicationName, String agentId, Range range);
 
 }

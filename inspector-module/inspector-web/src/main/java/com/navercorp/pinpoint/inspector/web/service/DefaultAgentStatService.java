@@ -96,6 +96,23 @@ public class DefaultAgentStatService implements AgentStatService {
         return new InspectorMetricData(metricDefinition.getTitle(), timeStampList, processedMetricValueList);
     }
 
+    @Override
+    public List<SystemMetricPoint<Double>> selectAgentStatUnconvertedTime(InspectorDataSearchKey inspectorDataSearchKey, TimeWindow timeWindow) {
+        MetricDefinition metricDefinition = ymlInspectorManager.findElementOfBasicGroup(inspectorDataSearchKey.getMetricDefinitionId());
+
+        QueryResult queryResult = selectOneField(inspectorDataSearchKey, metricDefinition);
+
+        try {
+            CompletableFuture<List<SystemMetricPoint<Double>>> future = queryResult.future();
+            List<SystemMetricPoint<Double>> doubleList = future.get();
+
+            List<SystemMetricPoint<Double>> postProcessedDataList = postprocessFieldData(queryResult.field(), doubleList);
+            return postProcessedDataList;
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public InspectorMetricGroupData selectAgentStatWithGrouping(InspectorDataSearchKey inspectorDataSearchKey, TimeWindow timeWindow){
         MetricDefinition metricDefinition = ymlInspectorManager.findElementOfBasicGroup(inspectorDataSearchKey.getMetricDefinitionId());
         MetricDefinition newMetricDefinition = preProcess(inspectorDataSearchKey, metricDefinition);
@@ -139,15 +156,13 @@ public class DefaultAgentStatService implements AgentStatService {
     private List<InspectorMetricValue> postprocessMetricData(MetricDefinition metricDefinition, List<InspectorMetricValue> metricValueList) {
         MetricPostProcessor postProcessor = metricProcessorManager.getPostProcessor(metricDefinition.getPostProcess());
         return postProcessor.postProcess(metricValueList);
-
     }
 
     private InspectorMetricValue createInspectorMetricValue(TimeWindow timeWindow, Field field,
                                                             List<SystemMetricPoint<Double>> sampledSystemMetricDataList,
                                                             UncollectedDataCreator<Double> uncollectedDataCreator) {
 
-        FieldPostProcessor postProcessor = fieldProcessorManager.getPostProcessor(field.getPostProcess());
-        List<SystemMetricPoint<Double>> postProcessedDataList = postProcessor.postProcess(sampledSystemMetricDataList);
+        List<SystemMetricPoint<Double>> postProcessedDataList = postprocessFieldData(field, sampledSystemMetricDataList);
 
         TimeSeriesBuilder<Double> builder = new TimeSeriesBuilder<>(timeWindow, uncollectedDataCreator);
         List<SystemMetricPoint<Double>> filledSystemMetricDataList = builder.build(postProcessedDataList);
@@ -157,6 +172,12 @@ public class DefaultAgentStatService implements AgentStatService {
                 .collect(Collectors.toList());
 
         return new InspectorMetricValue(field.getFieldAlias(), field.getTags(), field.getChartType(), field.getUnit(), valueList);
+    }
+
+    private List<SystemMetricPoint<Double>> postprocessFieldData(Field field, List<SystemMetricPoint<Double>> sampledSystemMetricDataList) {
+        FieldPostProcessor postProcessor = fieldProcessorManager.getPostProcessor(field.getPostProcess());
+        List<SystemMetricPoint<Double>> postProcessedDataList = postProcessor.postProcess(sampledSystemMetricDataList);
+        return postProcessedDataList;
     }
 
     private List<QueryResult> selectAll(InspectorDataSearchKey inspectorDataSearchKey, MetricDefinition metricDefinition) {
@@ -178,6 +199,12 @@ public class DefaultAgentStatService implements AgentStatService {
         }
 
         return invokeList;
+    }
+
+    private QueryResult selectOneField(InspectorDataSearchKey inspectorDataSearchKey, MetricDefinition metricDefinition) {
+        Field field = metricDefinition.getFields().stream().findFirst().get();
+        CompletableFuture<List<SystemMetricPoint<Double>>> doubleFuture = agentStatDao.selectAgentStat(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
+        return new QueryResult(doubleFuture, field);
     }
 
 

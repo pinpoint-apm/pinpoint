@@ -74,7 +74,7 @@ public interface AgentInfoService {
 
     List<Optional<AgentStatus>> getAgentStatus(AgentStatusQuery query);
 
-    InspectorTimeline getAgentStatusTimeline(String agentId, Range range, int... excludeAgentEventTypeCodes);
+    InspectorTimeline getAgentStatusTimeline(String applicatioName, String agentId, Range range, int... excludeAgentEventTypeCodes);
 
     boolean isExistAgentId(String agentId);
 
