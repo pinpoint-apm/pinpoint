@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.profiler.context.module.config.ConfigModule;
 import com.navercorp.pinpoint.profiler.context.module.config.ConfigurationLoader;
 import com.navercorp.pinpoint.profiler.context.monitor.config.DefaultExceptionTraceConfig;
 import com.navercorp.pinpoint.profiler.context.monitor.config.ExceptionTraceConfig;
+import com.navercorp.pinpoint.profiler.micrometer.MicrometerModule;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -45,12 +46,20 @@ public class ApplicationContextModuleFactory implements ModuleFactory {
         final Module thriftStatsModule = new ThriftStatsModule();
 
         final ProfilerConfig properties = agentOption.getProfilerConfig();
+        final Module micrometerModule = new MicrometerModule(properties::readString);
+
         final Module exceptionTraceModule = newExceptionTraceModule(properties.getProperties());
 
-        return Modules.combine(config, pluginModule, applicationContextModule,
+
+
+        return Modules.combine(config,
+                pluginModule,
+                applicationContextModule,
                 rpcModule,
-                statsModule, thriftStatsModule,
-                exceptionTraceModule);
+                statsModule,
+                thriftStatsModule,
+                exceptionTraceModule,
+                micrometerModule);
     }
 
     protected Module newExceptionTraceModule(Properties properties) {
