@@ -30,7 +30,6 @@
         <dependency>
             <groupId>io.opentelemetry.proto</groupId>
             <artifactId>opentelemetry-proto</artifactId>
-            <version>0.19.0-alpha</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
