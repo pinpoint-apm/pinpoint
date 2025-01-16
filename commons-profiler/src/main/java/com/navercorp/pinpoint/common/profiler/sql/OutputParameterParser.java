@@ -40,10 +40,14 @@ public class OutputParameterParser {
         for (int index = 0; index < outputParams.length(); index++) {
             final char ch = outputParams.charAt(index);
             if (ch == SEPARATOR) {
-                if (lookAhead1(outputParams, index) == SEPARATOR) {
+                int ahead = lookAhead1(outputParams, index);
+                if (ahead == SEPARATOR) {
                     params.append(SEPARATOR);
                     index++;
                 } else {
+                    if (ahead == ' ') {
+                        index++;
+                    }
                     result.add(params.toString());
                     params = new StringBuilder();
                 }
