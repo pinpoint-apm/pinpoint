@@ -111,11 +111,6 @@
             <version>${netty4.version}</version>
             <classifier>linux-x86_64</classifier>
         </dependency>
-        <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
-            <version>${javax.annotation-api.version}</version>
-        </dependency>
 
         <!-- https://mvnrepository.com/artifact/io.netty/netty-codec-http2 -->
         <dependency>
