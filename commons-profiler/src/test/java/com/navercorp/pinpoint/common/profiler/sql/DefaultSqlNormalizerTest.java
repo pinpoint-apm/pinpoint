@@ -244,7 +244,13 @@ public class DefaultSqlNormalizerTest {
 
         sql = "select * from table a = ? and b=? and c=? and d=?";
         expected = "select * from table a = '1' and b='50' and c=' foo ' and d='11'";
-        bindValues = parameterParser.parseOutputParameter("1,50, foo ,11");
+        bindValues = parameterParser.parseOutputParameter("1,50,  foo ,11");
+        result = sqlNormalizer.combineBindValues(sql, bindValues);
+        Assertions.assertEquals(expected, result);
+
+        sql = "select * from table a = ? and b=? and c=? and d=?";
+        expected = "select * from table a = '1' and b='50' and c='foo' and d='11'";
+        bindValues = parameterParser.parseOutputParameter("1, 50, foo, 11");
         result = sqlNormalizer.combineBindValues(sql, bindValues);
         Assertions.assertEquals(expected, result);
 

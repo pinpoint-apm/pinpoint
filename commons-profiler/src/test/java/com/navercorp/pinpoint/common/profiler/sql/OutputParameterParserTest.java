@@ -45,6 +45,9 @@ public class OutputParameterParserTest {
 
         assertOutputParameter("");
 
+        assertOutputParameter("1, 2, 3", "1", "2", "3");
+
+        assertOutputParameter("1 , 2,  3", "1 ", "2", " 3");
     }
 
     private void assertOutputParameter(String outputParam, String... params) {
