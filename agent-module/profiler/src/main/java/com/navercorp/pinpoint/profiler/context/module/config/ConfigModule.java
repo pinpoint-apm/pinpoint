@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.module.config;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
+import com.google.inject.name.Names;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.AgentContextOption;
@@ -49,8 +50,6 @@ import com.navercorp.pinpoint.profiler.instrument.config.DefaultInstrumentMatche
 import com.navercorp.pinpoint.profiler.instrument.config.InstrumentConfig;
 import com.navercorp.pinpoint.profiler.instrument.config.InstrumentMatcherCacheConfig;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.micrometer.config.DefaultMicrometerConfig;
-import com.navercorp.pinpoint.profiler.micrometer.config.MicrometerConfig;
 import com.navercorp.pinpoint.profiler.plugin.PluginJar;
 import com.navercorp.pinpoint.profiler.plugin.config.DefaultPluginLoadingConfig;
 import com.navercorp.pinpoint.profiler.plugin.config.PluginLoadingConfig;
@@ -118,11 +117,6 @@ public class ConfigModule extends AbstractModule {
         logger.info("{}", monitorConfig);
         bind(MonitorConfig.class).toInstance(monitorConfig);
 
-        MicrometerConfig micrometerConfig = new DefaultMicrometerConfig();
-        configurationLoader.load(micrometerConfig);
-        logger.info("{}", micrometerConfig);
-        bind(MicrometerConfig.class).toInstance(micrometerConfig);
-
         bind(Instrumentation.class).toInstance(agentOption.getInstrumentation());
 
         bind(InterceptorRegistryBinder.class).toProvider(InterceptorRegistryBinderProvider.class).in(Scopes.SINGLETON);
@@ -164,6 +158,10 @@ public class ConfigModule extends AbstractModule {
         bind(String.class).annotatedWith(AgentId.class).toInstance(agentOption.getAgentId());
         bind(String.class).annotatedWith(AgentName.class).toInstance(agentOption.getAgentName());
         bind(String.class).annotatedWith(ApplicationName.class).toInstance(agentOption.getApplicationName());
+
+        bind(String.class).annotatedWith(Names.named("pinpoint.agentId")).toInstance(agentOption.getAgentId());
+        bind(String.class).annotatedWith(Names.named("pinpoint.agentName")).toInstance(agentOption.getAgentName());
+        bind(String.class).annotatedWith(Names.named("pinpoint.applicationName")).toInstance(agentOption.getApplicationName());
 
         final ContainerResolver containerResolver = new ContainerResolver();
         final boolean isContainer = containerResolver.isContainer();

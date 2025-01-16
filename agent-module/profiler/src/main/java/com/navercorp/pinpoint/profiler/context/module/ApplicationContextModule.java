@@ -114,8 +114,6 @@ import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFacto
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
-import com.navercorp.pinpoint.profiler.micrometer.MicrometerMonitor;
-import com.navercorp.pinpoint.profiler.micrometer.MicrometerMonitorProvider;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DeadlockMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DeadlockThreadRegistry;
@@ -216,7 +214,6 @@ public class ApplicationContextModule extends AbstractModule {
         bind(DeadlockMonitor.class).toProvider(DeadlockMonitorProvider.class).in(Scopes.SINGLETON);
         bind(AgentInfoSender.class).toProvider(AgentInfoSenderProvider.class).in(Scopes.SINGLETON);
         bind(AgentStatMonitor.class).to(DefaultAgentStatMonitor.class).in(Scopes.SINGLETON);
-        bind(MicrometerMonitor.class).toProvider(MicrometerMonitorProvider.class).in(Scopes.SINGLETON);
     }
 
     private void bindTraceComponent() {

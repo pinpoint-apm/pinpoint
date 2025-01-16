@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.micrometer;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.navercorp.pinpoint.profiler.micrometer.config.MicrometerConfig;
 import io.micrometer.registry.otlp.OtlpConfig;
 import org.apache.logging.log4j.LogManager;
@@ -33,8 +35,9 @@ public class DefaultMicrometerMonitor implements MicrometerMonitor {
 
     private final AgentOtlpMeterRegistry registry;
 
-    public DefaultMicrometerMonitor(String applicationName,
-                                    String agentId,
+    @Inject
+    public DefaultMicrometerMonitor(@Named("pinpoint.applicationName") String applicationName,
+                                    @Named("pinpoint.agentId") String agentId,
                                     MicrometerConfig config) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(agentId, "agentId");

@@ -40,6 +40,7 @@
 
         <module>profiler</module>
         <module>profiler-logging</module>
+        <module>profiler-micrometer</module>
         <module>profiler-optional</module>
         <module>profiler-test</module>
 

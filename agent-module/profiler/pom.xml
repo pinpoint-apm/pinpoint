@@ -155,6 +155,12 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-profiler-micrometer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- required java9 java.xml -->
         <!--<dependency>
             <groupId>xerces</groupId>
@@ -177,10 +183,7 @@
             <artifactId>grpc-inprocess</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-otlp</artifactId>
-        </dependency>
+
     </dependencies>
 
     <build>
