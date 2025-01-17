@@ -41,9 +41,9 @@ public class SpanDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES> 
     private SimpleHandler<REQ> getSimpleHandler(Header header) {
         final int type = header.getType();
         if (type == MessageType.SPAN.getCode()) {
-            return spanChunkHandler;
-        } else if (type == MessageType.SPANCHUNK.getCode()) {
             return spanDataHandler;
+        } else if (type == MessageType.SPANCHUNK.getCode()) {
+            return spanChunkHandler;
         }
         throw new UnsupportedOperationException("unsupported header:" + header);
     }
