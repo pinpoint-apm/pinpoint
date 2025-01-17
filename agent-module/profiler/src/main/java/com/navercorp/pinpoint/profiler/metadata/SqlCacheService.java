@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.DataConsumer;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.cache.Cache;
 import com.navercorp.pinpoint.profiler.cache.Result;
@@ -16,12 +16,12 @@ public class SqlCacheService<ID> {
 
     private final CachingSqlNormalizer<ParsingResultInternal<ID>> cachingSqlNormalizer;
 
-    private final EnhancedDataSender<MetaDataType> enhancedDataSender;
+    private final DataConsumer<MetaDataType> dataSender;
 
     private final int trimSqlLength;
 
-    public SqlCacheService(EnhancedDataSender<MetaDataType> enhancedDataSender, Cache<String, Result<ID>> sqlCache, int trimSqlLength) {
-        this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
+    public SqlCacheService(DataConsumer<MetaDataType> dataSender, Cache<String, Result<ID>> sqlCache, int trimSqlLength) {
+        this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
         this.cachingSqlNormalizer = new DefaultCachingSqlNormalizer<>(sqlCache);
         this.trimSqlLength = trimSqlLength;
     }
@@ -48,7 +48,7 @@ public class SqlCacheService<ID> {
             // So the sql could be new one. We have to send sql metadata to collector.
             final MetaDataType sqlMetaData = converter.apply(parsingResult);
 
-            this.enhancedDataSender.request(sqlMetaData);
+            this.dataSender.send(sqlMetaData);
         } else {
             if (isDebug) {
                 logger.debug("cache hit {}", parsingResult);

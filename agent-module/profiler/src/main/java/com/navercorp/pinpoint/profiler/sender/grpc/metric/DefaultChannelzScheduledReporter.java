@@ -56,7 +56,7 @@ public class DefaultChannelzScheduledReporter implements ChannelzScheduledReport
     }
 
     @Override
-    public void stop() {
+    public void close() {
         if (!MoreExecutors.shutdownAndAwaitTermination(scheduledExecutorService, Duration.ofSeconds(3))) {
             logger.warn("ScheduledReporter shutdown failed");
         }

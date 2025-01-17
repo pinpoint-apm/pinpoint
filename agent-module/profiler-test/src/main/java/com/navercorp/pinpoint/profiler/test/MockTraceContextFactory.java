@@ -20,7 +20,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistryAdaptor;
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.common.profiler.message.LoggingDataSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
@@ -58,7 +58,7 @@ public class MockTraceContextFactory {
 
             bind(AgentInformation.class).toInstance(new TestAgentInformation());
             bind(StorageFactory.class).toInstance(new LogStorageFactory());
-            bind(EnhancedDataSender.class).toInstance(new LoggingDataSender<>());
+            bind(DataSender.class).toInstance(new LoggingDataSender<>());
         }
     }
 

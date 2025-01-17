@@ -1,10 +1,10 @@
 package com.navercorp.pinpoint.profiler.sender.grpc.metric;
 
-import com.navercorp.pinpoint.common.profiler.Stoppable;
+import java.io.Closeable;
 
-public interface ChannelzScheduledReporter extends Stoppable {
+public interface ChannelzScheduledReporter extends Closeable {
     void registerRootChannel(long id, ChannelzReporter reporter);
 
     @Override
-    void stop();
+    void close();
 }

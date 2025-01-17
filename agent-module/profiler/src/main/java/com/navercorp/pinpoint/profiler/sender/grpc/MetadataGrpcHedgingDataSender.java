@@ -20,7 +20,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  */
-public class MetadataGrpcHedgingDataSender<T> extends AbstractGrpcDataSender<T> implements EnhancedDataSender<T> {
+public class MetadataGrpcHedgingDataSender<T> extends AbstractGrpcDataSender<T> implements DataSender<T> {
 
     private final MetadataGrpc.MetadataStub metadataStub;
 
@@ -63,20 +63,8 @@ public class MetadataGrpcHedgingDataSender<T> extends AbstractGrpcDataSender<T> 
         return ExecutorFactory.newFixedThreadPool(1, senderExecutorQueueSize, threadFactory);
     }
 
-
-    // Unsupported Operation
     @Override
-    public boolean request(T data, int retry) {
-        throw new UnsupportedOperationException("unsupported operation request(data, retry)");
-    }
-
-    @Override
-    public boolean send(T data) {
-        throw new UnsupportedOperationException("unsupported operation send(data)");
-    }
-
-    @Override
-    public boolean request(final T data) {
+    public boolean send(final T data) {
         Runnable sendTask = new Runnable() {
             @Override
             public void run() {
@@ -133,7 +121,7 @@ public class MetadataGrpcHedgingDataSender<T> extends AbstractGrpcDataSender<T> 
     }
 
     @Override
-    public void stop() {
+    public void close() {
         if (shutdown) {
             return;
         }

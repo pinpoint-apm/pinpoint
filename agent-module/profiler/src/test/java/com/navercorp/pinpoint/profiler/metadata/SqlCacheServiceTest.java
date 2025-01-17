@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.metadata;
 
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.DataConsumer;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +40,7 @@ public class SqlCacheServiceTest {
     private SqlCacheService<Integer> sut;
 
     @Mock
-    private EnhancedDataSender<MetaDataType> dataSender;
+    private DataConsumer<MetaDataType> dataSender;
 
     @BeforeEach
     public void setUp() {
@@ -57,7 +57,7 @@ public class SqlCacheServiceTest {
         boolean notNewValue = sut.cacheSql(parsingResult, DefaultSqlMetaDataService::newSqlMetaData);
 
         assertTrue(newValue);
-        verify(dataSender).request(any(SqlMetaData.class));
+        verify(dataSender).send(any(SqlMetaData.class));
 
         Assertions.assertFalse(notNewValue);
         verifyNoMoreInteractions(dataSender);

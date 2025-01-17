@@ -168,7 +168,7 @@ class MetadataGrpcDataSenderTest {
         MetadataGrpcHedgingDataSender<MetaDataType> metadataGrpcDataSender = getMetadataGrpcHedgingDataSender(channelBuilder);
 
         ApiMetaData apiMetaData = new ApiMetaData(1, "call", 10, 2);
-        boolean send = metadataGrpcDataSender.request(apiMetaData);
+        boolean send = metadataGrpcDataSender.send(apiMetaData);
 
         Assertions.assertThat(send).isTrue();
         Thread.sleep(DEFAULT_TEST_HEDGING_DELAY_MILLIS * 2);
@@ -184,7 +184,7 @@ class MetadataGrpcDataSenderTest {
         MetadataGrpcHedgingDataSender<MetaDataType> metadataGrpcDataSender = getMetadataGrpcHedgingDataSender(channelBuilder);
 
         ApiMetaData apiMetaData = new ApiMetaData(1, UNAVAILABLE_METADATA, 10, 2);
-        boolean send = metadataGrpcDataSender.request(apiMetaData);
+        boolean send = metadataGrpcDataSender.send(apiMetaData);
 
         Assertions.assertThat(send).isTrue();
         Thread.sleep(DEFAULT_TEST_HEDGING_DELAY_MILLIS * 4);
@@ -199,7 +199,7 @@ class MetadataGrpcDataSenderTest {
         MetadataGrpcHedgingDataSender<MetaDataType> metadataGrpcDataSender = getMetadataGrpcHedgingDataSender(channelBuilder);
 
         ApiMetaData apiMetaData = new ApiMetaData(2, UNAVAILABLE_METADATA, 10, 2);
-        boolean send = metadataGrpcDataSender.request(apiMetaData);
+        boolean send = metadataGrpcDataSender.send(apiMetaData);
 
         Assertions.assertThat(send).isTrue();
         Thread.sleep(DEFAULT_TEST_HEDGING_DELAY_MILLIS * 4);
@@ -215,7 +215,7 @@ class MetadataGrpcDataSenderTest {
         MetadataGrpcHedgingDataSender<MetaDataType> metadataGrpcDataSender = getMetadataGrpcHedgingDataSender(channelBuilder);
 
         ApiMetaData apiMetaData = new ApiMetaData(3, DELAY_METADATA, 10, 2);
-        boolean send = metadataGrpcDataSender.request(apiMetaData);
+        boolean send = metadataGrpcDataSender.send(apiMetaData);
 
         Assertions.assertThat(send).isTrue();
         Thread.sleep(DEFAULT_TEST_HEDGING_DELAY_MILLIS * 4);
@@ -230,7 +230,7 @@ class MetadataGrpcDataSenderTest {
         MetadataGrpcHedgingDataSender<MetaDataType> metadataGrpcDataSender = getMetadataGrpcHedgingDataSender(channelBuilder);
 
         ApiMetaData apiMetaData = new ApiMetaData(3, RUNTIME_EXCEPTION_METADATA, 10, 2);
-        boolean send = metadataGrpcDataSender.request(apiMetaData);
+        boolean send = metadataGrpcDataSender.send(apiMetaData);
 
         Assertions.assertThat(send).isTrue();
         Thread.sleep(DEFAULT_TEST_HEDGING_DELAY_MILLIS * 4);
@@ -246,7 +246,7 @@ class MetadataGrpcDataSenderTest {
         MetadataGrpcHedgingDataSender<MetaDataType> metadataGrpcDataSender = getMetadataGrpcHedgingDataSender(channelBuilder);
 
         ApiMetaData apiMetaData = new ApiMetaData(3, UNAVAILABLE_METADATA, 10, 2);
-        boolean send = metadataGrpcDataSender.request(apiMetaData);
+        boolean send = metadataGrpcDataSender.send(apiMetaData);
 
         Assertions.assertThat(send).isTrue();
         Thread.sleep(DEFAULT_TEST_HEDGING_DELAY_MILLIS * 7);
@@ -263,7 +263,7 @@ class MetadataGrpcDataSenderTest {
         MetadataGrpcHedgingDataSender<MetaDataType> metadataGrpcDataSender = getMetadataGrpcHedgingDataSender(channelBuilder);
 
         ApiMetaData apiMetaData = new ApiMetaData(3, UNAVAILABLE_METADATA, 10, 2);
-        boolean send = metadataGrpcDataSender.request(apiMetaData);
+        boolean send = metadataGrpcDataSender.send(apiMetaData);
 
         Assertions.assertThat(send).isTrue();
         Thread.sleep(DEFAULT_TEST_HEDGING_DELAY_MILLIS * 6);

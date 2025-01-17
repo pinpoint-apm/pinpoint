@@ -20,7 +20,7 @@ package com.navercorp.pinpoint.common.profiler.message;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class EmptyDataSender<REQ> implements EnhancedDataSender<REQ> {
+public class EmptyDataSender<REQ> implements DataSender<REQ> {
 
     private static final DataSender<?> INSTANCE = new EmptyDataSender<>();
 
@@ -36,17 +36,7 @@ public class EmptyDataSender<REQ> implements EnhancedDataSender<REQ> {
 
 
     @Override
-    public void stop() {
-    }
-
-    @Override
-    public boolean request(REQ data) {
-        return true;
-    }
-
-    @Override
-    public boolean request(REQ data, int retry) {
-        return false;
+    public void close() {
     }
 
 }

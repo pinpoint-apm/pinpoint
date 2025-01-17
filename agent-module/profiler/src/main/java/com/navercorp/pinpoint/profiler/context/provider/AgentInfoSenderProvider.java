@@ -36,7 +36,7 @@ import java.util.Objects;
 public class AgentInfoSenderProvider implements Provider<AgentInfoSender> {
 
     private final ContextConfig contextConfig;
-    private final Provider<AsyncDataSender<MetaDataType, ResultResponse>> enhancedDataSenderProvider;
+    private final Provider<AsyncDataSender<MetaDataType, ResultResponse>> asyncDataSenderProvider;
     private final Provider<AgentInfoFactory> agentInfoFactoryProvider;
     private final ServerMetaDataRegistryService serverMetaDataRegistryService;
 
@@ -47,16 +47,16 @@ public class AgentInfoSenderProvider implements Provider<AgentInfoSender> {
             Provider<AgentInfoFactory> agentInfoFactoryProvider,
             ServerMetaDataRegistryService serverMetaDataRegistryService) {
         this.contextConfig = Objects.requireNonNull(contextConfig, "contextConfig");
-        this.enhancedDataSenderProvider = Objects.requireNonNull(asyncDataSenderProvider, "asyncDataSenderProvider");
+        this.asyncDataSenderProvider = Objects.requireNonNull(asyncDataSenderProvider, "dataSenderProvider");
         this.agentInfoFactoryProvider = Objects.requireNonNull(agentInfoFactoryProvider, "agentInfoFactoryProvider");
         this.serverMetaDataRegistryService = Objects.requireNonNull(serverMetaDataRegistryService, "serverMetaDataRegistryService");
     }
 
     @Override
     public AgentInfoSender get() {
-        final AsyncDataSender<MetaDataType, ResultResponse> enhancedDataSender = this.enhancedDataSenderProvider.get();
+        final AsyncDataSender<MetaDataType, ResultResponse> dataSender = this.asyncDataSenderProvider.get();
         final AgentInfoFactory agentInfoFactory = this.agentInfoFactoryProvider.get();
-        final AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(enhancedDataSender, agentInfoFactory)
+        final AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory)
                 .sendInterval(contextConfig.getAgentInfoSendRetryInterval())
                 .build();
         serverMetaDataRegistryService.addListener(new ServerMetaDataRegistryService.OnChangeListener() {

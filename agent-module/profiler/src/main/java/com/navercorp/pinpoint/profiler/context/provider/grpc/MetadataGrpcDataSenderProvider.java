@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.context.provider.grpc;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
@@ -47,7 +47,7 @@ import java.util.Objects;
 /**
  * @author jaehong.kim
  */
-public class MetadataGrpcDataSenderProvider implements Provider<EnhancedDataSender<MetaDataType>> {
+public class MetadataGrpcDataSenderProvider implements Provider<DataSender<MetaDataType>> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -78,7 +78,7 @@ public class MetadataGrpcDataSenderProvider implements Provider<EnhancedDataSend
     }
 
     @Override
-    public EnhancedDataSender<MetaDataType> get() {
+    public DataSender<MetaDataType> get() {
         final String collectorIp = grpcTransportConfig.getMetadataCollectorIp();
         final int collectorPort = grpcTransportConfig.getMetadataCollectorPort();
         final boolean sslEnable = grpcTransportConfig.isMetadataSslEnable();

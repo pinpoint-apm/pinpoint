@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.profiler.context.provider.metadata;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
@@ -37,17 +37,17 @@ import java.util.Objects;
 public class SqlMetadataServiceProvider implements Provider<SqlMetaDataService> {
     private final ProfilerConfig profilerConfig;
     private final MonitorConfig monitorConfig;
-    private final EnhancedDataSender<MetaDataType> enhancedDataSender;
+    private final DataSender<MetaDataType> dataSender;
     private final SimpleCacheFactory simpleCacheFactory;
 
     @Inject
     public SqlMetadataServiceProvider(ProfilerConfig profilerConfig,
                                       MonitorConfig monitorConfig,
-                                      @MetadataDataSender EnhancedDataSender<MetaDataType> enhancedDataSender,
+                                      @MetadataDataSender DataSender<MetaDataType> dataSender,
                                       SimpleCacheFactory simpleCacheFactory) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
         this.monitorConfig = Objects.requireNonNull(monitorConfig, "monitorConfig");
-        this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
+        this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
         this.simpleCacheFactory = Objects.requireNonNull(simpleCacheFactory, "simpleCacheFactory");
     }
 
@@ -57,11 +57,11 @@ public class SqlMetadataServiceProvider implements Provider<SqlMetaDataService> 
 
         if (monitorConfig.isSqlStatEnable()) {
             SimpleCache<String, byte[]> sqlCache = simpleCacheFactory.newSqlUidCache();
-            SqlCacheService<byte[]> sqlCacheService = new SqlCacheService<>(enhancedDataSender, sqlCache, maxSqlLength);
+            SqlCacheService<byte[]> sqlCacheService = new SqlCacheService<>(dataSender, sqlCache, maxSqlLength);
             return new SqlUidMetaDataService(sqlCacheService);
         } else {
             SimpleCache<String, Integer> sqlCache = simpleCacheFactory.newSqlCache();
-            SqlCacheService<Integer> sqlCacheService = new SqlCacheService<>(enhancedDataSender, sqlCache, maxSqlLength);
+            SqlCacheService<Integer> sqlCacheService = new SqlCacheService<>(dataSender, sqlCache, maxSqlLength);
             return new DefaultSqlMetaDataService(sqlCacheService);
         }
     }

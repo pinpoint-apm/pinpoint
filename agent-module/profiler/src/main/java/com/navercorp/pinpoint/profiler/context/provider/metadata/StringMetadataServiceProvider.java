@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.context.provider.metadata;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.metadata.DefaultStringMetaDataService;
@@ -33,18 +33,18 @@ import java.util.Objects;
  */
 public class StringMetadataServiceProvider implements Provider<StringMetaDataService> {
 
-    private final EnhancedDataSender<MetaDataType> enhancedDataSender;
+    private final DataSender<MetaDataType> dataSender;
     private final SimpleCacheFactory simpleCacheFactory;
 
     @Inject
-    public StringMetadataServiceProvider(@MetadataDataSender EnhancedDataSender<MetaDataType> enhancedDataSender, SimpleCacheFactory simpleCacheFactory) {
-        this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
+    public StringMetadataServiceProvider(@MetadataDataSender DataSender<MetaDataType> dataSender, SimpleCacheFactory simpleCacheFactory) {
+        this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
         this.simpleCacheFactory = Objects.requireNonNull(simpleCacheFactory, "simpleCacheFactory");
     }
 
     @Override
     public StringMetaDataService get() {
         final SimpleCache<String, Integer> stringCache = simpleCacheFactory.newSimpleCache();
-        return new DefaultStringMetaDataService(enhancedDataSender, stringCache);
+        return new DefaultStringMetaDataService(dataSender, stringCache);
     }
 }

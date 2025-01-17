@@ -24,7 +24,7 @@ import org.apache.logging.log4j.Logger;
  * @author emeroad
  * @author netspider
  */
-public class LoggingDataSender<REQ> implements EnhancedDataSender<REQ> {
+public class LoggingDataSender<REQ> implements DataSender<REQ> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -36,21 +36,7 @@ public class LoggingDataSender<REQ> implements EnhancedDataSender<REQ> {
 
 
     @Override
-    public void stop() {
+    public void close() {
         logger.info("LoggingDataSender stop");
     }
-
-    @Override
-    public boolean request(REQ data) {
-        logger.info("request tBase:{}", data);
-        return true;
-    }
-
-    @Override
-    public boolean request(REQ data, int retry) {
-        logger.info("request tBase:{} retry:{}", data, retry);
-        return false;
-    }
-
-
 }

@@ -100,7 +100,7 @@ public class AgentGrpcDataSender extends GrpcDataSender<MetaDataType> implements
 
 
     @Override
-    public void stop() {
+    public void close() {
         if (shutdown) {
             return;
         }
