@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.profiler.context.exception.model.ExceptionWrapper;
 import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.mapstruct.NullValueCheckStrategy;
 
@@ -68,12 +67,10 @@ public interface ExceptionMetaDataMapper {
         return builder;
     }
 
-    @Mappings({
-            @Mapping(source = "exceptionWrappers", target = "exceptions"),
-            @Mapping(source = "traceRoot.traceId", target = "transactionId", qualifiedBy = TraceIdMapStructUtils.ToTransactionId.class),
-            @Mapping(source = "traceRoot.traceId.spanId", target = "spanId"),
-            @Mapping(source = "traceRoot.shared.uriTemplate", target = "uriTemplate")
-    })
+    @Mapping(source = "exceptionWrappers", target = "exceptions")
+    @Mapping(source = "traceRoot.traceId", target = "transactionId", qualifiedBy = TraceIdMapStructUtils.ToTransactionId.class)
+    @Mapping(source = "traceRoot.traceId.spanId", target = "spanId")
+    @Mapping(source = "traceRoot.shared.uriTemplate", target = "uriTemplate")
     PExceptionMetaData toProto(ExceptionMetaData model);
 
     default PException toProto(ExceptionWrapper model) {
@@ -111,11 +108,9 @@ public interface ExceptionMetaDataMapper {
         return Collections.emptyList();
     }
 
-    @Mappings({
-            @Mapping(source = "className", target = "className", defaultValue = EMPTY_STRING),
-            @Mapping(source = "fileName", target = "fileName", defaultValue = EMPTY_STRING),
-            @Mapping(source = "lineNumber", target = "lineNumber", defaultValue = EMPTY_STRING),
-            @Mapping(source = "methodName", target = "methodName", defaultValue = EMPTY_STRING),
-    })
+    @Mapping(source = "className", target = "className", defaultValue = EMPTY_STRING)
+    @Mapping(source = "fileName", target = "fileName", defaultValue = EMPTY_STRING)
+    @Mapping(source = "lineNumber", target = "lineNumber", defaultValue = EMPTY_STRING)
+    @Mapping(source = "methodName", target = "methodName", defaultValue = EMPTY_STRING)
     PStackTraceElement toProto(StackTraceElement model);
 }

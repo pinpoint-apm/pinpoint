@@ -29,11 +29,9 @@ import com.navercorp.pinpoint.profiler.metadata.StringMetaData;
 import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.SubclassMapping;
-import org.mapstruct.SubclassMappings;
 
 /**
  * @author intr3p1d
@@ -54,21 +52,17 @@ public interface MetaDataMapper {
         return (GeneratedMessageV3) mapSubClass(metaDataType);
     }
 
-    @SubclassMappings({
-            @SubclassMapping(source = SqlMetaData.class, target = PSqlMetaData.class),
-            @SubclassMapping(source = SqlUidMetaData.class, target = PSqlUidMetaData.class),
-            @SubclassMapping(source = ApiMetaData.class, target = PApiMetaData.class),
-            @SubclassMapping(source = StringMetaData.class, target = PStringMetaData.class),
-    })
+    @SubclassMapping(source = SqlMetaData.class, target = PSqlMetaData.class)
+    @SubclassMapping(source = SqlUidMetaData.class, target = PSqlUidMetaData.class)
+    @SubclassMapping(source = ApiMetaData.class, target = PApiMetaData.class)
+    @SubclassMapping(source = StringMetaData.class, target = PStringMetaData.class)
     Object mapSubClass(MetaDataType metaDataType);
 
     PSqlMetaData map(SqlMetaData sqlMetaData);
 
     PSqlUidMetaData map(SqlUidMetaData sqlUidMetaData);
 
-    @Mappings({
-            @Mapping(target = "location", ignore = true)
-    })
+    @Mapping(target = "location", ignore = true)
     PApiMetaData map(ApiMetaData apiMetaData);
 
     PStringMetaData map(StringMetaData stringMetaData);

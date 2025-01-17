@@ -27,7 +27,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.Mappings;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ValueMapping;
@@ -44,14 +43,12 @@ import org.mapstruct.ValueMapping;
 )
 public interface ThreadDumpMapper {
 
-    @Mappings({
-            @Mapping(source = "threadState", target = "threadState"),
-            @Mapping(source = "stackTrace", target = "stackTrace", ignore = true),
-            @Mapping(source = "lockedMonitors", target = "lockedMonitor"),
-            @Mapping(source = "lockedSynchronizers", target = "lockedSynchronizer", ignore = true),
-    })
+    @Mapping(source = "threadState", target = "threadState")
+    @Mapping(source = "stackTrace", target = "stackTrace", ignore = true)
+    @Mapping(source = "lockedMonitors", target = "lockedMonitor")
+    @Mapping(source = "lockedSynchronizers", target = "lockedSynchronizer", ignore = true)
     PThreadDump map(ThreadDumpMetricSnapshot snapshot);
-    
+
     @AfterMapping
     default void addAll(ThreadDumpMetricSnapshot snapshot, @MappingTarget PThreadDump.Builder builder) {
         for (String stackTrace : snapshot.getStackTrace()) {
