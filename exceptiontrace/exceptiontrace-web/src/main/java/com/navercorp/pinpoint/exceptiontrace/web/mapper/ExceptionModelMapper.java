@@ -15,23 +15,16 @@
  */
 package com.navercorp.pinpoint.exceptiontrace.web.mapper;
 
-import com.navercorp.pinpoint.common.server.mapper.MapStructUtils;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionGroupSummary;
-import com.navercorp.pinpoint.exceptiontrace.web.model.GroupedFieldName;
-import com.navercorp.pinpoint.exceptiontrace.web.model.params.GroupFilterParams;
 import com.navercorp.pinpoint.exceptiontrace.web.util.TimeSeriesUtils;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;
-import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionGroupSummaryView;
 import org.mapstruct.AfterMapping;
-import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.Mappings;
-import org.mapstruct.Named;
 
 import java.util.List;
 
@@ -46,9 +39,7 @@ import java.util.List;
 )
 public interface ExceptionModelMapper {
 
-    @Mappings({
-            @Mapping(target = "chart", ignore = true),
-    })
+    @Mapping(target = "chart", ignore = true)
     ExceptionGroupSummaryView toSummaryView (
             ExceptionGroupSummary summary,
             TimeWindow timeWindow

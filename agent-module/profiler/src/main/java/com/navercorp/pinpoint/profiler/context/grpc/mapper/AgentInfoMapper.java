@@ -29,7 +29,6 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
-import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -51,40 +50,33 @@ import java.util.List;
 )
 public interface AgentInfoMapper {
 
-    @Mappings({
-            @Mapping(source = "agentInformation.hostIp", target = "ip"),
-            @Mapping(source = "agentInformation.machineName", target = "hostname"),
-            @Mapping(source = ".", target = "ports", qualifiedByName = "emptyPort"),
-            @Mapping(source = "agentInformation.container", target = "container"),
-            @Mapping(source = "agentInformation.pid", target = "pid"),
-            @Mapping(source = "agentInformation.serverType.code", target = "serviceType"),
-            @Mapping(source = "agentInformation.jvmVersion", target = "vmVersion"),
-            @Mapping(source = ".", target = "agentVersion", qualifiedByName = "agentVersion"),
 
-            @Mapping(target = "endStatus", ignore = true),
-            @Mapping(target = "endTimestamp", ignore = true),
-
-    })
+    @Mapping(source = "agentInformation.hostIp", target = "ip")
+    @Mapping(source = "agentInformation.machineName", target = "hostname")
+    @Mapping(source = ".", target = "ports", qualifiedByName = "emptyPort")
+    @Mapping(source = "agentInformation.container", target = "container")
+    @Mapping(source = "agentInformation.pid", target = "pid")
+    @Mapping(source = "agentInformation.serverType.code", target = "serviceType")
+    @Mapping(source = "agentInformation.jvmVersion", target = "vmVersion")
+    @Mapping(source = ".", target = "agentVersion", qualifiedByName = "agentVersion")
+    @Mapping(target = "endStatus", ignore = true)
+    @Mapping(target = "endTimestamp", ignore = true)
     PAgentInfo map(AgentInfo agentInfo);
 
-    @Mappings({
-            @Mapping(source = "vmArgs", target = "vmArg"),
-            @Mapping(source = "serviceInfos", target = "serviceInfo"),
-            @Mapping(source = "serverInfo", target = "serverInfo"),
-    })
+
+    @Mapping(source = "vmArgs", target = "vmArg")
+    @Mapping(source = "serviceInfos", target = "serviceInfo")
+    @Mapping(source = "serverInfo", target = "serverInfo")
     PServerMetaData map(ServerMetaData serverMetaData);
 
-    @Mappings({
-            @Mapping(source = "serviceLibs", target = "serviceLib"),
-    })
+
+    @Mapping(source = "serviceLibs", target = "serviceLib")
     PServiceInfo map(ServiceInfo serviceInfo);
 
-    @Mappings({
-            @Mapping(source = "jvmVersion", target = "vmVersion"),
-            @Mapping(source = "jvmGcType", target = "gcType", qualifiedBy = JvmGcTypeMapper.ToPJvmGcType.class),
 
-            @Mapping(target = "version", ignore = true),
-    })
+    @Mapping(source = "jvmVersion", target = "vmVersion")
+    @Mapping(source = "jvmGcType", target = "gcType", qualifiedBy = JvmGcTypeMapper.ToPJvmGcType.class)
+    @Mapping(target = "version", ignore = true)
     PJvmInfo map(JvmInformation jvmInformation);
 
     @Named("emptyPort")

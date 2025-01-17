@@ -19,7 +19,6 @@ import com.navercorp.pinpoint.exceptiontrace.collector.entity.ExceptionMetaDataE
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
 
 /**
  * @author intr3p1d
@@ -27,13 +26,11 @@ import org.mapstruct.Mappings;
 @Mapper(componentModel = "spring", uses = {StackTraceMapper.class, ErrorMessageMapper.class})
 public interface ExceptionMetaDataMapper {
 
-    @Mappings({
-            @Mapping(source = "stackTrace", target = "stackTraceClassName", qualifiedBy = StackTraceMapper.StackTraceToClassNames.class),
-            @Mapping(source = "stackTrace", target = "stackTraceFileName", qualifiedBy = StackTraceMapper.StackTraceToFileNames.class),
-            @Mapping(source = "stackTrace", target = "stackTraceLineNumber", qualifiedBy = StackTraceMapper.StackTraceToLineNumbers.class),
-            @Mapping(source = "stackTrace", target = "stackTraceMethodName", qualifiedBy = StackTraceMapper.StackTraceToMethodNames.class),
-            @Mapping(source = "errorMessage", target = "errorMessage", qualifiedBy = ErrorMessageMapper.ReplaceCharacters.class)
-    })
+    @Mapping(source = "stackTrace", target = "stackTraceClassName", qualifiedBy = StackTraceMapper.StackTraceToClassNames.class)
+    @Mapping(source = "stackTrace", target = "stackTraceFileName", qualifiedBy = StackTraceMapper.StackTraceToFileNames.class)
+    @Mapping(source = "stackTrace", target = "stackTraceLineNumber", qualifiedBy = StackTraceMapper.StackTraceToLineNumbers.class)
+    @Mapping(source = "stackTrace", target = "stackTraceMethodName", qualifiedBy = StackTraceMapper.StackTraceToMethodNames.class)
+    @Mapping(source = "errorMessage", target = "errorMessage", qualifiedBy = ErrorMessageMapper.ReplaceCharacters.class)
     ExceptionMetaDataEntity toEntity(ExceptionMetaData model);
 
 }

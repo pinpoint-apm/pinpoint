@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.exceptiontrace.web.mapper;
 
 import com.navercorp.pinpoint.common.server.mapper.MapStructUtils;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionChartValueViewEntity;
@@ -28,20 +27,18 @@ import com.navercorp.pinpoint.exceptiontrace.web.model.Grouped;
 import com.navercorp.pinpoint.exceptiontrace.web.model.GroupedFieldName;
 import com.navercorp.pinpoint.exceptiontrace.web.model.params.GroupFilterParams;
 import com.navercorp.pinpoint.exceptiontrace.web.util.GroupByAttributes;
-import com.navercorp.pinpoint.exceptiontrace.web.util.TimeSeriesUtils;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;
-import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionDetailView;
-import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionGroupSummaryView;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.makeReadableString;
@@ -61,33 +58,28 @@ import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.replace
 )
 public interface ExceptionEntityMapper {
 
-    @Mappings({
-            @Mapping(source = ".", target = "stackTrace", qualifiedBy = StackTraceMapper.StringsToStackTrace.class),
-    })
+    @Mapping(source = ".", target = "stackTrace", qualifiedBy = StackTraceMapper.StringsToStackTrace.class)
     ExceptionMetaData toModel(ExceptionMetaDataEntity entity);
 
-    @Mappings({
-            @Mapping(source = ".", target = "stackTrace", qualifiedBy = StackTraceMapper.StringsToStackTrace.class),
-    })
+    @Mapping(source = ".", target = "stackTrace", qualifiedBy = StackTraceMapper.StringsToStackTrace.class)
     ExceptionDetailView toDetailView(ExceptionMetaDataEntity entity);
 
-    @Mappings({
-            @Mapping(target = "groupedFieldName", ignore = true),
-            @Mapping(target = "groupFilterParams", ignore = true),
-            @Mapping(source = "entity.values", target = "values", qualifiedBy = MapStructUtils.JsonStrToList.class),
-            @Mapping(target = "tags", ignore = true),
-    })
+    @Retention(RetentionPolicy.CLASS)
+    @Mapping(target = "groupedFieldName", ignore = true)
+    @Mapping(target = "groupFilterParams", ignore = true)
+    @Mapping(source = "entity.values", target = "values", qualifiedBy = MapStructUtils.JsonStrToList.class)
+    public @interface ToGrouped {
+    }
+
+    @ToGrouped
+    @Mapping(target = "tags", ignore = true)
     ExceptionChartValueView toChartView(
             ExceptionChartValueViewEntity entity,
             List<GroupByAttributes> attributesList
     );
 
-    @Mappings({
-            @Mapping(target = "groupedFieldName", ignore = true),
-            @Mapping(target = "groupFilterParams", ignore = true),
-            @Mapping(source = "entity.values", target = "values", qualifiedBy = MapStructUtils.JsonStrToList.class),
-            @Mapping(target = "lastTransactionSearchParams", source = "entity"),
-    })
+    @ToGrouped
+    @Mapping(target = "lastTransactionSearchParams", source = "entity")
     ExceptionGroupSummary toSummary(
             ExceptionGroupSummaryEntity entity,
             List<GroupByAttributes> attributesList

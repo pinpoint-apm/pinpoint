@@ -38,7 +38,6 @@ import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.Mappings;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
@@ -139,84 +138,59 @@ public interface CustomMetricMapper {
         return null;
     }
 
-    @Mappings({
-            @Mapping(source = ".", target = "intCountMetric"),
-
-            @Mapping(target = "longCountMetric", ignore = true),
-            @Mapping(target = "intGaugeMetric", ignore = true),
-            @Mapping(target = "longGaugeMetric", ignore = true),
-            @Mapping(target = "doubleGaugeMetric", ignore = true),
-    })
+    @Mapping(source = ".", target = "intCountMetric")
+    @Mapping(target = "longCountMetric", ignore = true)
+    @Mapping(target = "intGaugeMetric", ignore = true)
+    @Mapping(target = "longGaugeMetric", ignore = true)
+    @Mapping(target = "doubleGaugeMetric", ignore = true)
     PCustomMetric map(PIntCountMetric intCountMetric);
 
-    @Mappings({
-            @Mapping(source = "metricName", target = "name"),
-            @Mapping(target = "values", ignore = true),
-    })
+    @Mapping(source = "metricName", target = "name")
+    @Mapping(target = "values", ignore = true)
     PIntCountMetric createIntCountMetric(String metricName, CustomMetricVo[] customMetricVos);
 
-    @Mappings({
-            @Mapping(source = ".", target = "longCountMetric"),
-
-            @Mapping(target = "intCountMetric", ignore = true),
-            @Mapping(target = "intGaugeMetric", ignore = true),
-            @Mapping(target = "longGaugeMetric", ignore = true),
-            @Mapping(target = "doubleGaugeMetric", ignore = true),
-    })
+    @Mapping(source = ".", target = "longCountMetric")
+    @Mapping(target = "intCountMetric", ignore = true)
+    @Mapping(target = "intGaugeMetric", ignore = true)
+    @Mapping(target = "longGaugeMetric", ignore = true)
+    @Mapping(target = "doubleGaugeMetric", ignore = true)
     PCustomMetric map(PLongCountMetric pLongCountMetric);
 
-    @Mappings({
-            @Mapping(source = "metricName", target = "name"),
-            @Mapping(target = "values", ignore = true),
-    })
+    @Mapping(source = "metricName", target = "name")
+    @Mapping(target = "values", ignore = true)
     PLongCountMetric createLongCountMetric(String metricName, CustomMetricVo[] customMetricVos);
 
-    @Mappings({
-            @Mapping(source = ".", target = "intGaugeMetric"),
-
-            @Mapping(target = "intCountMetric", ignore = true),
-            @Mapping(target = "longCountMetric", ignore = true),
-            @Mapping(target = "longGaugeMetric", ignore = true),
-            @Mapping(target = "doubleGaugeMetric", ignore = true),
-    })
+    @Mapping(source = ".", target = "intGaugeMetric")
+    @Mapping(target = "intCountMetric", ignore = true)
+    @Mapping(target = "longCountMetric", ignore = true)
+    @Mapping(target = "longGaugeMetric", ignore = true)
+    @Mapping(target = "doubleGaugeMetric", ignore = true)
     PCustomMetric map(PIntGaugeMetric pIntGaugeMetric);
 
-    @Mappings({
-            @Mapping(source = "metricName", target = "name"),
-            @Mapping(target = "values", ignore = true),
-    })
+    @Mapping(source = "metricName", target = "name")
+    @Mapping(target = "values", ignore = true)
     PIntGaugeMetric createIntGaugeMetric(String metricName, CustomMetricVo[] customMetricVos);
 
-    @Mappings({
-            @Mapping(source = ".", target = "longGaugeMetric"),
-
-            @Mapping(target = "intCountMetric", ignore = true),
-            @Mapping(target = "longCountMetric", ignore = true),
-            @Mapping(target = "intGaugeMetric", ignore = true),
-            @Mapping(target = "doubleGaugeMetric", ignore = true),
-    })
+    @Mapping(source = ".", target = "longGaugeMetric")
+    @Mapping(target = "intCountMetric", ignore = true)
+    @Mapping(target = "longCountMetric", ignore = true)
+    @Mapping(target = "intGaugeMetric", ignore = true)
+    @Mapping(target = "doubleGaugeMetric", ignore = true)
     PCustomMetric map(PLongGaugeMetric pLongGaugeMetric);
 
-    @Mappings({
-            @Mapping(source = "metricName", target = "name"),
-            @Mapping(target = "values", ignore = true),
-    })
+    @Mapping(source = "metricName", target = "name")
+    @Mapping(target = "values", ignore = true)
     PLongGaugeMetric createLongGaugeMetric(String metricName, CustomMetricVo[] customMetricVos);
 
-    @Mappings({
-            @Mapping(source = ".", target = "doubleGaugeMetric"),
-
-            @Mapping(target = "intCountMetric", ignore = true),
-            @Mapping(target = "longCountMetric", ignore = true),
-            @Mapping(target = "intGaugeMetric", ignore = true),
-            @Mapping(target = "longGaugeMetric", ignore = true),
-    })
+    @Mapping(source = ".", target = "doubleGaugeMetric")
+    @Mapping(target = "intCountMetric", ignore = true)
+    @Mapping(target = "longCountMetric", ignore = true)
+    @Mapping(target = "intGaugeMetric", ignore = true)
+    @Mapping(target = "longGaugeMetric", ignore = true)
     PCustomMetric map(PDouleGaugeMetric pDouleGaugeMetric);
 
-    @Mappings({
-            @Mapping(source = "metricName", target = "name"),
-            @Mapping(target = "values", ignore = true),
-    })
+    @Mapping(source = "metricName", target = "name")
+    @Mapping(target = "values", ignore = true)
     PDouleGaugeMetric createDoubleGaugeMetric(String metricName, CustomMetricVo[] customMetricVos);
 
 

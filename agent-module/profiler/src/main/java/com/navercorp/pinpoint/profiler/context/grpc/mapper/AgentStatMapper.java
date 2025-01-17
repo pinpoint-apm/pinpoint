@@ -51,7 +51,6 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
-import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -84,27 +83,19 @@ public interface AgentStatMapper {
         return pAgentStatBatchBuilder;
     }
 
-    @Mappings({
-            @Mapping(source = "agentStats", target = "agentStat"),
-    })
+    @Mapping(source = "agentStats", target = "agentStat")
     PAgentStatBatch map(AgentStatMetricSnapshotBatch batch);
 
-    @Mappings({
-            @Mapping(source = "loadedClassCount", target = "loadedClass"),
-    })
+    @Mapping(source = "loadedClassCount", target = "loadedClass")
     PAgentStat map(AgentStatMetricSnapshot snapshot);
 
-    @Mappings({
-            @Mapping(source = "type", target = "type", qualifiedBy = JvmGcTypeMapper.ToPJvmGcType.class),
-    })
+    @Mapping(source = "type", target = "type", qualifiedBy = JvmGcTypeMapper.ToPJvmGcType.class)
     PJvmGc map(JvmGcMetricSnapshot snapshot);
 
     PJvmGcDetailed map(JvmGcDetailedMetricSnapshot snapshot);
 
-    @Mappings({
-            @Mapping(source = "jvmCpuUsage", target = "jvmCpuLoad"),
-            @Mapping(source = "systemCpuUsage", target = "systemCpuLoad"),
-    })
+    @Mapping(source = "jvmCpuUsage", target = "jvmCpuLoad")
+    @Mapping(source = "systemCpuUsage", target = "systemCpuLoad")
     PCpuLoad map(CpuLoadMetricSnapshot snapshot);
 
     PTransaction map(TransactionMetricSnapshot snapshot);
@@ -132,26 +123,18 @@ public interface AgentStatMapper {
         return histogram.getCounter();
     }
 
-    @Mappings({
-            @Mapping(source = "dataSourceList", target = "dataSource"),
-    })
+    @Mapping(source = "dataSourceList", target = "dataSource")
     PDataSourceList map(DataSourceMetricSnapshot snapshot);
 
-    @Mappings({
-            @Mapping(source = "activeConnectionSize", target = "activeConnectionSize", conditionQualifiedByName = "isNotZero"),
-    })
+    @Mapping(source = "activeConnectionSize", target = "activeConnectionSize", conditionQualifiedByName = "isNotZero")
     PDataSource map(DataSource dataSource);
 
-    @Mappings({
-            @Mapping(source = "avg", target = "avg", conditionQualifiedBy = MapperUtils.IsNotZeroLong.class),
-            @Mapping(source = "max", target = "max", conditionQualifiedBy = MapperUtils.IsNotZeroLong.class),
-    })
+    @Mapping(source = "avg", target = "avg", conditionQualifiedBy = MapperUtils.IsNotZeroLong.class)
+    @Mapping(source = "max", target = "max", conditionQualifiedBy = MapperUtils.IsNotZeroLong.class)
     PResponseTime map(ResponseTimeValue value);
 
-    @Mappings({
-            @Mapping(source = "deadlockedThreadCount", target = "count"),
-            @Mapping(target = "threadDump", ignore = true),
-    })
+    @Mapping(source = "deadlockedThreadCount", target = "count")
+    @Mapping(target = "threadDump", ignore = true)
     PDeadlock map(DeadlockMetricSnapshot snapshot);
 
     PFileDescriptor map(FileDescriptorMetricSnapshot snapshot);

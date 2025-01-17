@@ -28,7 +28,6 @@ import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -50,18 +49,14 @@ public interface UriStatMapper {
     PUriHistogram EMPTY_DETAILED_DATA_INSTANCE = PUriHistogram.getDefaultInstance();
     UriStatHistogramBucket.Layout layout = UriStatHistogramBucket.getLayout();
 
-    @Mappings({
-            @Mapping(source = ".", target = "bucketVersion", qualifiedByName = "currentBucketVersion"),
-            @Mapping(source = "allUriStatData", target = "eachUriStat")
-    })
+    @Mapping(source = ".", target = "bucketVersion", qualifiedByName = "currentBucketVersion")
+    @Mapping(source = "allUriStatData", target = "eachUriStat")
     PAgentUriStat map(AgentUriStatData agentUriStatData);
 
-    @Mappings({
-            @Mapping(source = "value.uri", target = "uri"),
-            @Mapping(source = "value.totalHistogram", target = "totalHistogram", qualifiedByName = "checkEmptyThenMap"),
-            @Mapping(source = "value.failedHistogram", target = "failedHistogram", qualifiedByName = "checkEmptyThenMap"),
-            @Mapping(source = "key.timestamp", target = "timestamp")
-    })
+    @Mapping(source = "value.uri", target = "uri")
+    @Mapping(source = "value.totalHistogram", target = "totalHistogram", qualifiedByName = "checkEmptyThenMap")
+    @Mapping(source = "value.failedHistogram", target = "failedHistogram", qualifiedByName = "checkEmptyThenMap")
+    @Mapping(source = "key.timestamp", target = "timestamp")
     PEachUriStat map(Map.Entry<URIKey, EachUriStatData> eachUriStatDataEntry);
 
     @Named("checkEmptyThenMap")
@@ -72,9 +67,7 @@ public interface UriStatMapper {
         return map(uriStatHistogram);
     }
 
-    @Mappings({
-            @Mapping(target = "histogram", ignore = true)
-    })
+    @Mapping(target = "histogram", ignore = true)
     PUriHistogram map(UriStatHistogram uriStatHistogram);
 
     @AfterMapping

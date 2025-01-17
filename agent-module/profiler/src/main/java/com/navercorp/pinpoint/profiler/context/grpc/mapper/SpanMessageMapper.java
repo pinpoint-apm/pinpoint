@@ -40,7 +40,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -65,28 +64,19 @@ public interface SpanMessageMapper {
     String DEFAULT_REMOTE_ADDRESS = "UNKNOWN";
     String DEFAULT_END_POINT = "UNKNOWN";
 
-    @Mappings({
-            @Mapping(source = "applicationServiceType", target = "version", qualifiedByName = "spanVersion"),
-            @Mapping(source = "applicationServiceType", target = "applicationServiceType"),
-
-            @Mapping(source = "span.traceRoot.traceId", target = "transactionId", qualifiedBy = TraceIdMapStructUtils.ToTransactionId.class),
-            @Mapping(source = "span.traceRoot.traceId.spanId", target = "spanId"),
-            @Mapping(source = "span.traceRoot.traceId.parentSpanId", target = "parentSpanId"),
-
-            @Mapping(source = "span.elapsedTime", target = "elapsed"),
-
-            @Mapping(source = "span", target = "acceptEvent", qualifiedByName = "toAcceptEvent"),
-
-            @Mapping(source = "span.traceRoot.traceId.flags", target = "flag"),
-            @Mapping(source = "span.traceRoot.shared.errorCode", target = "err"),
-
-            @Mapping(source = "span.exceptionInfo", target = "exceptionInfo"),
-            @Mapping(source = "span.traceRoot.shared.loggingInfo", target = "loggingTransactionInfo"),
-
-            @Mapping(source = "span.annotations", target = "annotation"),
-
-            @Mapping(source = "span.spanEventList", target = "spanEvent")
-    })
+    @Mapping(source = "applicationServiceType", target = "version", qualifiedByName = "spanVersion")
+    @Mapping(source = "applicationServiceType", target = "applicationServiceType")
+    @Mapping(source = "span.traceRoot.traceId", target = "transactionId", qualifiedBy = TraceIdMapStructUtils.ToTransactionId.class)
+    @Mapping(source = "span.traceRoot.traceId.spanId", target = "spanId")
+    @Mapping(source = "span.traceRoot.traceId.parentSpanId", target = "parentSpanId")
+    @Mapping(source = "span.elapsedTime", target = "elapsed")
+    @Mapping(source = "span", target = "acceptEvent", qualifiedByName = "toAcceptEvent")
+    @Mapping(source = "span.traceRoot.traceId.flags", target = "flag")
+    @Mapping(source = "span.traceRoot.shared.errorCode", target = "err")
+    @Mapping(source = "span.exceptionInfo", target = "exceptionInfo")
+    @Mapping(source = "span.traceRoot.shared.loggingInfo", target = "loggingTransactionInfo")
+    @Mapping(source = "span.annotations", target = "annotation")
+    @Mapping(source = "span.spanEventList", target = "spanEvent")
     void map(Span span, short applicationServiceType, @MappingTarget PSpan.Builder builder);
 
     default void map(SpanChunk spanChunk, short applicationServiceType, @MappingTarget PSpanChunk.Builder builder) {
@@ -97,29 +87,20 @@ public interface SpanMessageMapper {
         }
     }
 
-    @Mappings({
-            @Mapping(source = "applicationServiceType", target = "version", qualifiedByName = "spanVersion"),
-            @Mapping(source = "applicationServiceType", target = "applicationServiceType"),
-
-            @Mapping(source = "spanChunk.traceRoot.traceId", target = "transactionId", qualifiedBy = TraceIdMapStructUtils.ToTransactionId.class),
-            @Mapping(source = "spanChunk.traceRoot.traceId.spanId", target = "spanId"),
-            @Mapping(source = "spanChunk.traceRoot.shared.endPoint", target = "endPoint"),
-
-            @Mapping(source = "spanChunk.spanEventList", target = "spanEvent"),
-
-            @Mapping(target = "keyTime", ignore = true),
-            @Mapping(target = "localAsyncId", ignore = true),
-    })
+    @Mapping(source = "applicationServiceType", target = "version", qualifiedByName = "spanVersion")
+    @Mapping(source = "applicationServiceType", target = "applicationServiceType")
+    @Mapping(source = "spanChunk.traceRoot.traceId", target = "transactionId", qualifiedBy = TraceIdMapStructUtils.ToTransactionId.class)
+    @Mapping(source = "spanChunk.traceRoot.traceId.spanId", target = "spanId")
+    @Mapping(source = "spanChunk.traceRoot.shared.endPoint", target = "endPoint")
+    @Mapping(source = "spanChunk.spanEventList", target = "spanEvent")
+    @Mapping(target = "keyTime", ignore = true)
+    @Mapping(target = "localAsyncId", ignore = true)
     void toPSpanChunk(SpanChunk spanChunk, short applicationServiceType, @MappingTarget PSpanChunk.Builder builder);
 
     @InheritConfiguration
-    @Mappings({
-            @Mapping(source = "asyncSpanChunk.localAsyncId", target = "localAsyncId"),
-    })
+    @Mapping(source = "asyncSpanChunk.localAsyncId", target = "localAsyncId")
     void toAsyncSpanChunk(AsyncSpanChunk asyncSpanChunk, short applicationServiceType, @MappingTarget PSpanChunk.Builder builder);
 
-    @Mappings({
-    })
     PLocalAsyncId map(LocalAsyncId localAsyncId);
 
 
@@ -128,45 +109,31 @@ public interface SpanMessageMapper {
         return SpanVersion.TRACE_V2;
     }
 
-    @Mappings({
-            @Mapping(source = "elapsedTime", target = "endElapsed"),
-            @Mapping(source = "depth", target = "depth", conditionQualifiedBy = MapperUtils.IsNotMinusOne.class),
-            @Mapping(source = ".", target = "nextEvent"),
-            @Mapping(source = "asyncIdObject.asyncId", target = "asyncEvent"),
-            @Mapping(source = "annotations", target = "annotation"),
 
-            @Mapping(target = "startElapsed", ignore = true)
-    })
+    @Mapping(source = "elapsedTime", target = "endElapsed")
+    @Mapping(source = "depth", target = "depth", conditionQualifiedBy = MapperUtils.IsNotMinusOne.class)
+    @Mapping(source = ".", target = "nextEvent")
+    @Mapping(source = "asyncIdObject.asyncId", target = "asyncEvent")
+    @Mapping(source = "annotations", target = "annotation")
+    @Mapping(target = "startElapsed", ignore = true)
     PSpanEvent map(SpanEvent spanEvent);
 
-
-    @Mappings({
-            @Mapping(source = ".", target = "messageEvent"),
-    })
+    @Mapping(source = ".", target = "messageEvent")
     PNextEvent mapNextEvent(SpanEvent spanEvent);
 
-    @Mappings({
-            @Mapping(source = "nextSpanId", target = "nextSpanId", conditionQualifiedBy = MapperUtils.IsNotMinusOne.class),
-    })
+    @Mapping(source = "nextSpanId", target = "nextSpanId", conditionQualifiedBy = MapperUtils.IsNotMinusOne.class)
     PMessageEvent mapMessageEvent(SpanEvent spanEvent);
 
-    @Mappings({
-            @Mapping(source = ".", target = "value", qualifiedBy = AnnotationValueMapper.ToPAnnotationValue.class),
-    })
+    @Mapping(source = ".", target = "value", qualifiedBy = AnnotationValueMapper.ToPAnnotationValue.class)
     PAnnotation map(Annotation<?> annotation);
 
     @Named("toAcceptEvent")
-    @Mappings({
-            @Mapping(source = "remoteAddr", target = "remoteAddr", defaultValue = DEFAULT_REMOTE_ADDRESS),
-            @Mapping(source = "traceRoot.shared", target = "rpc", qualifiedBy = SpanUriGetter.ToCollectedUri.class),
-            @Mapping(source = "traceRoot.shared.endPoint", target = "endPoint", defaultValue = DEFAULT_END_POINT),
-
-            @Mapping(source = ".", target = "parentInfo")
-    })
+    @Mapping(source = "remoteAddr", target = "remoteAddr", defaultValue = DEFAULT_REMOTE_ADDRESS)
+    @Mapping(source = "traceRoot.shared", target = "rpc", qualifiedBy = SpanUriGetter.ToCollectedUri.class)
+    @Mapping(source = "traceRoot.shared.endPoint", target = "endPoint", defaultValue = DEFAULT_END_POINT)
+    @Mapping(source = ".", target = "parentInfo")
     PAcceptEvent toAcceptEvent(Span span);
 
-    @Mappings({
-            @Mapping(source = "parentApplicationType", target = "parentApplicationType", conditionQualifiedBy = MapperUtils.IsNotZeroShort.class),
-    })
+    @Mapping(source = "parentApplicationType", target = "parentApplicationType", conditionQualifiedBy = MapperUtils.IsNotZeroShort.class)
     PParentInfo toParentInfo(Span span);
 }
