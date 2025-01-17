@@ -79,7 +79,7 @@ public class AgentGrpcDataSenderTestMain implements Closeable {
         sender.request(agentInfo);
 
         TimeUnit.SECONDS.sleep(60);
-        sender.stop();
+        sender.close();
     }
 
     private AgentInfo newAgentInfo() {

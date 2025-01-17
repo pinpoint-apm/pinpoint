@@ -176,7 +176,7 @@ public class SpanGrpcDataSender extends GrpcDataSender<SpanType> {
     }
 
     @Override
-    public void stop() {
+    public void close() {
         if (shutdown) {
             return;
         }

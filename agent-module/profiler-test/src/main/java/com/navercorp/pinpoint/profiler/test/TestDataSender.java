@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.profiler.test;
 
 import com.google.common.primitives.UnsignedBytes;
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaData;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaData;
@@ -37,7 +37,7 @@ import java.util.NoSuchElementException;
  * @author Jongho Moon
  * @author jaehong.kim
  */
-public class TestDataSender implements EnhancedDataSender<MetaDataType> {
+public class TestDataSender implements DataSender<MetaDataType> {
 
     private final List<Object> datas = Collections.synchronizedList(new ArrayList<>());
 
@@ -132,22 +132,9 @@ public class TestDataSender implements EnhancedDataSender<MetaDataType> {
     }
 
     @Override
-    public void stop() {
+    public void close() {
         // do nothing
     }
-
-    @Override
-    public boolean request(MetaDataType data) {
-        addData(data);
-        return true;
-    }
-
-    @Override
-    public boolean request(MetaDataType data, int retry) {
-        addData(data);
-        return true;
-    }
-
 
     public String getApiDescription(int id) {
         return syncGet(apiIdMap, id);

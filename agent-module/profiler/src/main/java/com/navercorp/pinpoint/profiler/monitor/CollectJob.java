@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor;
 
-import com.navercorp.pinpoint.common.profiler.message.DataSender;
+import com.navercorp.pinpoint.common.profiler.message.DataConsumer;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshotBatch;
@@ -35,7 +35,7 @@ public class CollectJob implements Runnable {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final DataSender<MetricType> dataSender;
+    private final DataConsumer<MetricType> dataSender;
     private final String agentId;
     private final long agentStartTimestamp;
     private final AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector;
@@ -46,10 +46,10 @@ public class CollectJob implements Runnable {
     private long prevCollectionTimestamp = System.currentTimeMillis();
     private List<AgentStatMetricSnapshot> agentStats;
 
-    public CollectJob(DataSender<MetricType> dataSender,
-                       String agentId, long agentStartTimestamp,
-                       AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector,
-                       int numCollectionsPerBatch) {
+    public CollectJob(DataConsumer<MetricType> dataSender,
+                      String agentId, long agentStartTimestamp,
+                      AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector,
+                      int numCollectionsPerBatch) {
         this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
         this.agentId = agentId;
         this.agentStartTimestamp = agentStartTimestamp;

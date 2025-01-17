@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.metadata;
 
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.DataConsumer;
 import com.navercorp.pinpoint.profiler.cache.Result;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 
@@ -29,10 +29,10 @@ public class DefaultStringMetaDataService implements StringMetaDataService {
 
     private final SimpleCache<String, Integer> stringCache;
 
-    private final EnhancedDataSender<MetaDataType> enhancedDataSender;
+    private final DataConsumer<MetaDataType> dataSender;
 
-    public DefaultStringMetaDataService(EnhancedDataSender<MetaDataType> enhancedDataSender, SimpleCache<String, Integer> stringCache) {
-        this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
+    public DefaultStringMetaDataService(DataConsumer<MetaDataType> dataSender, SimpleCache<String, Integer> stringCache) {
+        this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
         this.stringCache = Objects.requireNonNull(stringCache, "stringCache");
 
     }
@@ -45,7 +45,7 @@ public class DefaultStringMetaDataService implements StringMetaDataService {
         final Result<Integer> result = this.stringCache.put(value);
         if (result.isNewValue()) {
             final StringMetaData stringMetaData = new StringMetaData(result.getId(), value);
-            this.enhancedDataSender.request(stringMetaData);
+            this.dataSender.send(stringMetaData);
         }
         return result.getId();
     }

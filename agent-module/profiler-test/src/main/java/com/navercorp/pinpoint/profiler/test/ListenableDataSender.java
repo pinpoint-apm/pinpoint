@@ -44,7 +44,7 @@ public class ListenableDataSender<T> implements DataSender<T> {
     }
 
     @Override
-    public void stop() {
+    public void close() {
     }
 
     public interface Listener<T> {

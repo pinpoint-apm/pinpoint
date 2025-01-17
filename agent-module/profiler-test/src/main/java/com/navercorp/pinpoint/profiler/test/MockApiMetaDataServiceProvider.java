@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.test;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 
@@ -29,17 +29,17 @@ import java.util.Objects;
  */
 public class MockApiMetaDataServiceProvider implements Provider<ApiMetaDataService> {
 
-    private final Provider<EnhancedDataSender<MetaDataType>> enhancedDataSenderProvider;
+    private final Provider<DataSender<MetaDataType>> dataSenderProvider;
 
     @Inject
-    public MockApiMetaDataServiceProvider(Provider<EnhancedDataSender<MetaDataType>> enhancedDataSenderProvider) {
-        this.enhancedDataSenderProvider = Objects.requireNonNull(enhancedDataSenderProvider, "enhancedDataSenderProvider");
+    public MockApiMetaDataServiceProvider(Provider<DataSender<MetaDataType>> dataSenderProvider) {
+        this.dataSenderProvider = Objects.requireNonNull(dataSenderProvider, "dataSenderProvider");
     }
 
     @Override
     public ApiMetaDataService get() {
-        final EnhancedDataSender<MetaDataType> enhancedDataSender = this.enhancedDataSenderProvider.get();
-        return new MockApiMetaDataService(enhancedDataSender);
+        final DataSender<MetaDataType> dataSender = this.dataSenderProvider.get();
+        return new MockApiMetaDataService(dataSender);
     }
 
 }

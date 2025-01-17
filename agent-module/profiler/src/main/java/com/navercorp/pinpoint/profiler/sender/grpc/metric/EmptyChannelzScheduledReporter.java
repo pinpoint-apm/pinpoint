@@ -7,7 +7,7 @@ public class EmptyChannelzScheduledReporter implements ChannelzScheduledReporter
     }
 
     @Override
-    public void stop() {
+    public void close() {
 
     }
 }

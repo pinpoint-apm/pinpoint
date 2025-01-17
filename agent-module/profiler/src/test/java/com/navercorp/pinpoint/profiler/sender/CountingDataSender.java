@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanType;
@@ -26,29 +26,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author emeroad
  */
-public class CountingDataSender implements EnhancedDataSender<SpanType> {
+public class CountingDataSender implements DataSender<SpanType> {
 
-    private final AtomicInteger requestCounter = new AtomicInteger();
-    private final AtomicInteger requestRetryCounter = new AtomicInteger();
-    private final AtomicInteger requestResponseListenerCounter = new AtomicInteger();
     private final AtomicInteger senderCounter = new AtomicInteger();
 
     private final AtomicInteger spanCounter = new AtomicInteger();
     private final AtomicInteger spanChunkCounter = new AtomicInteger();
-
-
-    @Override
-    public boolean request(SpanType data) {
-        requestCounter.incrementAndGet();
-        return false;
-    }
-
-    @Override
-    public boolean request(SpanType data, int retry) {
-        requestRetryCounter.incrementAndGet();
-        return false;
-    }
-
 
     @Override
     public boolean send(SpanType data) {
@@ -62,26 +45,12 @@ public class CountingDataSender implements EnhancedDataSender<SpanType> {
     }
 
     @Override
-    public void stop() {
-        this.requestCounter.set(0);
-        this.requestRetryCounter.set(0);
-        this.requestResponseListenerCounter.set(0);
+    public void close() {
         this.senderCounter.set(0);
         this.spanCounter.set(0);
         this.spanChunkCounter.set(0);
     }
 
-    public int getRequestCounter() {
-        return requestCounter.get();
-    }
-
-    public int getRequestRetryCounter() {
-        return requestRetryCounter.get();
-    }
-
-    public int getRequestResponseListenerCounter() {
-        return requestResponseListenerCounter.get();
-    }
 
     public int getSenderCounter() {
         return senderCounter.get();
@@ -96,15 +65,12 @@ public class CountingDataSender implements EnhancedDataSender<SpanType> {
     }
 
     public int getTotalCount() {
-        return requestCounter.get() + requestRetryCounter.get() + requestResponseListenerCounter.get() + senderCounter.get();
+        return senderCounter.get();
     }
 
     @Override
     public String toString() {
         return "CountingDataSender{" +
-                "requestCounter=" + requestCounter +
-                ", requestRetryCounter=" + requestRetryCounter +
-                ", requestResponseListenerCounter=" + requestResponseListenerCounter +
                 ", senderCounter=" + senderCounter +
                 ", spanCounter=" + spanCounter +
                 ", spanChunkCounter=" + spanChunkCounter +

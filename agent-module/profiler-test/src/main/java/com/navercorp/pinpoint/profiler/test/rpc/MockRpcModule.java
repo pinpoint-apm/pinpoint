@@ -23,7 +23,6 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.navercorp.pinpoint.common.profiler.message.AsyncDataSender;
 import com.navercorp.pinpoint.common.profiler.message.DataSender;
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
 import com.navercorp.pinpoint.common.profiler.message.ResultResponse;
 import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.module.AgentDataSender;
@@ -71,14 +70,14 @@ public class MockRpcModule extends PrivateModule {
         bind(statDataSenderKey).toInstance(statDataSender);
         expose(statDataSenderKey);
 
-        EnhancedDataSender<MetaDataType> enhancedDataSender = new TestDataSender();
-        logger.debug("enhancedDataSender:{}", enhancedDataSender);
-        TypeLiteral<EnhancedDataSender<MetaDataType>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType>>() {
+        DataSender<MetaDataType> testDataSender = new TestDataSender();
+        logger.debug("testDataSender:{}", testDataSender);
+        TypeLiteral<DataSender<MetaDataType>> dataSenderTypeLiteral = new TypeLiteral<DataSender<MetaDataType>>() {
         };
-        bind(dataSenderTypeLiteral).toInstance(enhancedDataSender);
+        bind(dataSenderTypeLiteral).toInstance(testDataSender);
         expose(dataSenderTypeLiteral);
 
-        AsyncDataSender<MetaDataType, ResultResponse>  asyncDataSender = new AsyncDataSenderDelegator(enhancedDataSender);
+        AsyncDataSender<MetaDataType, ResultResponse>  asyncDataSender = new AsyncDataSenderDelegator(testDataSender);
         logger.debug("asyncDataSender:{}", asyncDataSender);
         TypeLiteral<AsyncDataSender<MetaDataType, ResultResponse>> asyncDataSenderTypeLiteral = new TypeLiteral<AsyncDataSender<MetaDataType, ResultResponse>>() {
         };
@@ -90,10 +89,10 @@ public class MockRpcModule extends PrivateModule {
         bind(agentDataSender).to(asyncDataSenderTypeLiteral).in(Scopes.SINGLETON);
         expose(agentDataSender);
 
-        logger.debug("enhancedDataSender:{}", enhancedDataSender);
-        TypeLiteral<EnhancedDataSender<MetaDataType>> enhancedDataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType>>() {
+        logger.debug("testDataSender:{}", testDataSender);
+        TypeLiteral<DataSender<MetaDataType>> metadataDataSenderTypeLiteral = new TypeLiteral<DataSender<MetaDataType>>() {
         };
-        Key<EnhancedDataSender<MetaDataType>> metadataDataSender = Key.get(enhancedDataSenderTypeLiteral, MetadataDataSender.class);
+        Key<DataSender<MetaDataType>> metadataDataSender = Key.get(metadataDataSenderTypeLiteral, MetadataDataSender.class);
         bind(metadataDataSender).to(dataSenderTypeLiteral).in(Scopes.SINGLETON);
         expose(metadataDataSender);
 

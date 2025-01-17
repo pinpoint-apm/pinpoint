@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor;
 
-import com.navercorp.pinpoint.common.profiler.message.DataSender;
+import com.navercorp.pinpoint.common.profiler.message.DataConsumer;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
 import com.navercorp.pinpoint.profiler.monitor.metric.uri.AgentUriStatData;
@@ -34,10 +34,10 @@ public class UriStatCollectingJob implements Runnable, Closeable {
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isTraceable = logger.isTraceEnabled();
 
-    private final DataSender<MetricType> dataSender;
+    private final DataConsumer<MetricType> dataSender;
     private final UriStatStorage uriStatStorage;
 
-    public UriStatCollectingJob(DataSender<MetricType> dataSender, UriStatStorage uriStatStorage) {
+    public UriStatCollectingJob(DataConsumer<MetricType> dataSender, UriStatStorage uriStatStorage) {
         this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
         this.uriStatStorage = Objects.requireNonNull(uriStatStorage, "uriStatStorage");
     }

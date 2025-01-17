@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.DataConsumer;
 import com.navercorp.pinpoint.profiler.cache.UidCache;
 import com.navercorp.pinpoint.profiler.cache.UidGenerator;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +26,7 @@ class SqlUidMetaDataServiceTest {
     SqlCacheService<byte[]> sqlCacheService;
 
     @Mock
-    EnhancedDataSender<MetaDataType> dataSender;
+    DataConsumer<MetaDataType> dataSender;
 
     @BeforeEach
     void setUp() {
@@ -46,7 +46,7 @@ class SqlUidMetaDataServiceTest {
         assertCached(parsingResult2);
 
         assertSameId(parsingResult1, parsingResult2);
-        verify(dataSender, times(1)).request(any(SqlUidMetaData.class));
+        verify(dataSender, times(1)).send(any(SqlUidMetaData.class));
     }
 
     @Test
@@ -62,7 +62,7 @@ class SqlUidMetaDataServiceTest {
         assertNew(parsingResult2);
 
         assertSameId(parsingResult1, parsingResult2);
-        verify(dataSender, times(2)).request(any(SqlUidMetaData.class));
+        verify(dataSender, times(2)).send(any(SqlUidMetaData.class));
     }
 
     @Test
@@ -76,7 +76,7 @@ class SqlUidMetaDataServiceTest {
         assertNew(parsingResult2);
 
         assertDifferentId(parsingResult1, parsingResult2);
-        verify(dataSender, times(2)).request(any(SqlUidMetaData.class));
+        verify(dataSender, times(2)).send(any(SqlUidMetaData.class));
     }
 
     @Test

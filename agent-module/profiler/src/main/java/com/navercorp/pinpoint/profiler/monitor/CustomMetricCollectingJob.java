@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor;
 
-import com.navercorp.pinpoint.common.profiler.message.DataSender;
+import com.navercorp.pinpoint.common.profiler.message.DataConsumer;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentCustomMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentCustomMetricSnapshot;
@@ -36,7 +36,7 @@ public class CustomMetricCollectingJob implements Runnable {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final DataSender<MetricType> dataSender;
+    private final DataConsumer<MetricType> dataSender;
     private final AgentCustomMetricCollector agentCustomMetricCollector;
     private final int numCollectionsPerBatch;
 
@@ -45,7 +45,7 @@ public class CustomMetricCollectingJob implements Runnable {
     private long prevCollectionTimestamp = System.currentTimeMillis();
     private List<AgentCustomMetricSnapshot> agentCustomMetricSnapshotList;
 
-    public CustomMetricCollectingJob(DataSender<MetricType> dataSender, AgentCustomMetricCollector agentCustomMetricCollector, int numCollectionsPerBatch) {
+    public CustomMetricCollectingJob(DataConsumer<MetricType> dataSender, AgentCustomMetricCollector agentCustomMetricCollector, int numCollectionsPerBatch) {
         this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
         this.agentCustomMetricCollector = Objects.requireNonNull(agentCustomMetricCollector, "agentCustomMetricCollector");
         Assert.isTrue(numCollectionsPerBatch > 0, "numCollectionsPerBatch must be `numCollectionsPerBatch > 0`");
@@ -79,7 +79,7 @@ public class CustomMetricCollectingJob implements Runnable {
         logger.trace("collect agentCustomMetric:{}", agentCustomMetricSnapshotBatch);
         dataSender.send(agentCustomMetricSnapshotBatch);
 
-        this.agentCustomMetricSnapshotList = new ArrayList<AgentCustomMetricSnapshot>(numCollectionsPerBatch);
+        this.agentCustomMetricSnapshotList = new ArrayList<>(numCollectionsPerBatch);
     }
 
 }

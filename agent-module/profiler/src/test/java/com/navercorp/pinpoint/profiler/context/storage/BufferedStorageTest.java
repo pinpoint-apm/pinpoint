@@ -38,7 +38,7 @@ public class BufferedStorageTest {
 
     @BeforeEach
     public void before() {
-        countingDataSender.stop();
+        countingDataSender.close();
         internalTraceId = newInternalTraceId();
     }
 
@@ -48,7 +48,7 @@ public class BufferedStorageTest {
     }
 
     @Test
-    public void testStore_Noflush() throws Exception {
+    public void testStore_Noflush() {
         BufferedStorage bufferedStorage = newBufferedStorage(10);
 
         Span span = new Span(internalTraceId);
@@ -60,7 +60,7 @@ public class BufferedStorageTest {
     }
 
     @Test
-    public void testStore_flush() throws Exception {
+    public void testStore_flush() {
         BufferedStorage bufferedStorage = newBufferedStorage(1);
 
         Span span = new Span(internalTraceId);
@@ -77,7 +77,7 @@ public class BufferedStorageTest {
 
 
     @Test
-    public void testStore_spanFlush() throws Exception {
+    public void testStore_spanFlush() {
         BufferedStorage bufferedStorage = newBufferedStorage(10);
 
         Span span = new Span(internalTraceId);
@@ -93,7 +93,7 @@ public class BufferedStorageTest {
     }
 
     @Test
-    public void testStore_spanLastFlush() throws Exception {
+    public void testStore_spanLastFlush() {
         BufferedStorage bufferedStorage = newBufferedStorage(10);
 
         Span span = new Span(internalTraceId);
@@ -110,7 +110,7 @@ public class BufferedStorageTest {
     }
 
     @Test
-    public void testStore_manual_flush() throws Exception {
+    public void testStore_manual_flush() {
         BufferedStorage bufferedStorage = newBufferedStorage(10);
 
         Span span = new Span(internalTraceId);

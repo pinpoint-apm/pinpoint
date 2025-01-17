@@ -21,10 +21,9 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
-import com.navercorp.pinpoint.common.profiler.Stoppable;
+import com.navercorp.pinpoint.common.profiler.IOUtils;
 import com.navercorp.pinpoint.common.profiler.message.AsyncDataSender;
 import com.navercorp.pinpoint.common.profiler.message.DataSender;
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
 import com.navercorp.pinpoint.common.profiler.message.ResultResponse;
 import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
@@ -44,7 +43,7 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
     private final Provider<AsyncDataSender<MetaDataType, ResultResponse>> agentDataSenderProvider;
-    private final Provider<EnhancedDataSender<MetaDataType>> metadataDataSenderProvider;
+    private final Provider<DataSender<MetaDataType>> metadataDataSenderProvider;
     private final Provider<DataSender<SpanType>> spanDataSenderProvider;
     private final Provider<DataSender<MetricType>> statDataSenderProvider;
 
@@ -52,7 +51,7 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
     private final Provider<ScheduledExecutorService> reconnectScheduledExecutorProvider;
 
     private AsyncDataSender<MetaDataType, ResultResponse> agentDataSender;
-    private EnhancedDataSender<MetaDataType> metadataDataSender;
+    private DataSender<MetaDataType> metadataDataSender;
 
     private DataSender<SpanType> spanDataSender;
     private DataSender<MetricType> statDataSender;
@@ -65,7 +64,7 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
     @Inject
     public GrpcModuleLifeCycle(
             @AgentDataSender Provider<AsyncDataSender<MetaDataType, ResultResponse>> agentDataSenderProvider,
-            @MetadataDataSender Provider<EnhancedDataSender<MetaDataType>> metadataDataSenderProvider,
+            @MetadataDataSender Provider<DataSender<MetaDataType>> metadataDataSenderProvider,
             @SpanDataSender Provider<DataSender<SpanType>> spanDataSenderProvider,
             @StatDataSender Provider<DataSender<MetricType>> statDataSenderProvider,
             Provider<ExecutorService> dnsExecutorServiceProvider,
@@ -107,10 +106,10 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
     @Override
     public void shutdown() {
         logger.info("shutdown()");
-        Stoppable.stopQuietly(spanDataSender);
-        Stoppable.stopQuietly(statDataSender);
-        Stoppable.stopQuietly(agentDataSender);
-        Stoppable.stopQuietly(metadataDataSender);
+        IOUtils.closeQuietly(spanDataSender, (ex) -> logger.warn("spanDataSender close fail", ex));
+        IOUtils.closeQuietly(statDataSender, (ex) -> logger.warn("statDataSender close fail", ex));
+        IOUtils.closeQuietly(agentDataSender, (ex) -> logger.warn("agentDataSender close fail", ex));
+        IOUtils.closeQuietly(metadataDataSender, (ex) -> logger.warn("metadataDataSender close fail", ex));
 
         if (dnsExecutorService != null) {
             if (!MoreExecutors.shutdownAndAwaitTermination(dnsExecutorService, Duration.ofSeconds(3))) {
@@ -122,7 +121,7 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
                 logger.warn("reconnectScheduledExecutor shutdown failed");
             }
         }
-        Stoppable.stopQuietly(reporter);
+        IOUtils.closeQuietly(reporter, (ex) -> logger.warn("reporter close fail", ex));
     }
 
     @Override

@@ -25,7 +25,6 @@ import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.profiler.message.AsyncDataSender;
 import com.navercorp.pinpoint.common.profiler.message.DataSender;
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.common.profiler.message.ResultResponse;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
@@ -174,9 +173,9 @@ public class GrpcModule extends PrivateModule {
         bind(agentDataSender).toProvider(AgentGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(agentDataSender);
 
-        TypeLiteral<EnhancedDataSender<MetaDataType>> metaDataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<MetaDataType>>() {
+        TypeLiteral<DataSender<MetaDataType>> metaDataSenderTypeLiteral = new TypeLiteral<DataSender<MetaDataType>>() {
         };
-        Key<EnhancedDataSender<MetaDataType>> metadataDataSender = Key.get(metaDataSenderTypeLiteral, MetadataDataSender.class);
+        Key<DataSender<MetaDataType>> metadataDataSender = Key.get(metaDataSenderTypeLiteral, MetadataDataSender.class);
         bind(metadataDataSender).toProvider(MetadataGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(metadataDataSender);
     }

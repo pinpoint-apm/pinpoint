@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author jaehong.kim
  */
-public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements EnhancedDataSender<T> {
+public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements DataSender<T> {
     //
     private final MetadataGrpc.MetadataStub metadataStub;
     private final int maxAttempts;
@@ -82,19 +82,8 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
         return new HashedWheelTimer(threadFactory, 100, TimeUnit.MILLISECONDS, 512, false, MAX_PENDING_TIMEOUTS);
     }
 
-    // Unsupported Operation
     @Override
-    public boolean request(T data, int retry) {
-        throw new UnsupportedOperationException("unsupported operation request(data, retry)");
-    }
-
-    @Override
-    public boolean send(T data) {
-        throw new UnsupportedOperationException("unsupported operation send(data)");
-    }
-
-    @Override
-    public boolean request(final T data) {
+    public boolean send(final T data) {
         if (data == null) {
             return true;
         }
@@ -194,7 +183,7 @@ public class MetadataGrpcDataSender<T> extends GrpcDataSender<T> implements Enha
 
 
     @Override
-    public void stop() {
+    public void close() {
         if (shutdown) {
             return;
         }

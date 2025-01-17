@@ -142,7 +142,7 @@ public class StatGrpcDataSender extends GrpcDataSender<MetricType> {
     }
 
     @Override
-    public void stop() {
+    public void close() {
         if (shutdown) {
             return;
         }

@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.common.profiler.message.EnhancedDataSender;
+import com.navercorp.pinpoint.common.profiler.message.DataConsumer;
 import com.navercorp.pinpoint.profiler.cache.Result;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
 
@@ -30,10 +30,10 @@ public class DefaultApiMetaDataService implements ApiMetaDataService {
 
     private final SimpleCache<String, Integer> apiCache;
 
-    private final EnhancedDataSender<MetaDataType> enhancedDataSender;
+    private final DataConsumer<MetaDataType> dataSender;
 
-    public DefaultApiMetaDataService(EnhancedDataSender<MetaDataType> enhancedDataSender, SimpleCache<String, Integer> apiCache) {
-        this.enhancedDataSender = Objects.requireNonNull(enhancedDataSender, "enhancedDataSender");
+    public DefaultApiMetaDataService(DataConsumer<MetaDataType> dataSender, SimpleCache<String, Integer> apiCache) {
+        this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
         this.apiCache = Objects.requireNonNull(apiCache, "apiCache");
     }
 
@@ -50,7 +50,7 @@ public class DefaultApiMetaDataService implements ApiMetaDataService {
                     methodDescriptor.getLineNumber(),
                     methodDescriptor.getType());
 
-            this.enhancedDataSender.request(apiMetadata);
+            this.dataSender.send(apiMetadata);
         }
 
         return result.getId();
