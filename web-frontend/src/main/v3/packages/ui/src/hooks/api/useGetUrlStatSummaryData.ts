@@ -15,10 +15,12 @@ export const useGetUrlStatSummaryData = ({
   orderBy,
   isDesc,
   count,
+  type,
 }: {
   orderBy?: string;
   isDesc?: boolean;
   count?: number;
+  type?: UrlStatSummary.Parameters['type'];
 }) => {
   const { application, dateRange, agentId } = useUrlStatSearchParameters();
   const from = dateRange.from.getTime();
@@ -31,7 +33,7 @@ export const useGetUrlStatSummaryData = ({
     agentId,
     isDesc: isDesc ?? true,
     count: count || 50,
-    // orderBy: orderBy || 'totalCount',
+    type,
     orderby: orderBy || 'totalCount', // * url 통계 쪽 api에선 파라미터를 orderby로 쓰고있음
   };
   const queryString = getQueryString(queryParams);

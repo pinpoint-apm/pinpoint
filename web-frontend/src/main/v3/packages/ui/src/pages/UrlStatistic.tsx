@@ -15,6 +15,18 @@ import { convertParamsToQueryString, getUrlStatPath } from '@pinpoint-fe/ui/util
 import { useUrlStatSearchParameters } from '@pinpoint-fe/ui/hooks';
 import { useTranslation } from 'react-i18next';
 import { PiChartBarDuotone } from 'react-icons/pi';
+// import { ErrorBoundary } from '../../Error/ErrorBoundary';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@pinpoint-fe/ui/components';
+import { UrlStatSummary } from '../constants';
+
+const TAB_LIST = [
+  { id: 'total', display: 'Total Count' },
+  { id: 'failure', display: 'Failure Count' },
+  { id: 'apdex', display: 'Apdex' },
+  { id: 'latency', display: 'Latency' },
+];
+
+type TYPE = UrlStatSummary.Parameters['type'];
 
 export interface UrlStatisticPageProps {
   ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
@@ -26,6 +38,7 @@ export const UrlStatisticPage = ({
   const navigate = useNavigate();
   const { searchParameters, application, agentId } = useUrlStatSearchParameters();
   const { t } = useTranslation();
+  const [type, setType] = React.useState<TYPE>('total');
 
   const handleChangeDateRagePicker = React.useCallback(
     (({ formattedDates: formattedDate }) => {
@@ -72,11 +85,29 @@ export const UrlStatisticPage = ({
         <LayoutWithContentSidebar>
           <UrlSidebar />
           <>
-            <UrlStatChart
-              emptyMessage={t('COMMON.NO_DATA')}
-              guideMessage={t('URL_STAT.SELECT_URL_INFO')}
-            />
-            <UrlSummary />
+            <Tabs
+              defaultValue="total"
+              className="p-3 bg-white border rounded"
+              onValueChange={(value) => setType(value as TYPE)}
+            >
+              <TabsList>
+                {TAB_LIST.map((tab) => (
+                  <TabsTrigger key={tab.id} value={tab.id}>
+                    {tab.display}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+              {TAB_LIST.map((tab) => (
+                <TabsContent key={tab.id} value={tab.id} className="h-72">
+                  <UrlStatChart
+                    type={tab.id}
+                    emptyMessage={t('COMMON.NO_DATA')}
+                    guideMessage={t('URL_STAT.SELECT_URL_INFO')}
+                  />
+                </TabsContent>
+              ))}
+            </Tabs>
+            <UrlSummary type={type} />
           </>
         </LayoutWithContentSidebar>
       )}

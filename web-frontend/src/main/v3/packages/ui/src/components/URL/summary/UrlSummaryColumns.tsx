@@ -4,6 +4,7 @@ import { UrlStatSummary } from '@pinpoint-fe/ui/constants';
 import { Button } from '../../ui';
 import { addCommas, numberInDecimal, numberInInteger } from '@pinpoint-fe/ui/utils';
 import { cn } from '../../../lib';
+import { MiniChart } from '../../common/MiniChart';
 
 interface SummaryColumnProps {
   orderBy: string;
@@ -145,6 +146,18 @@ export const summaryColumns = ({
     meta: {
       headerClassName: 'w-24',
       cellClassName: 'px-4 text-right',
+    },
+  },
+  {
+    accessorKey: 'chart',
+    header: 'Volume',
+    meta: {
+      headerClassName: 'w-40 text-sm font-medium text-center',
+      cellClassName: 'text-[-webkit-right]',
+    },
+    cell: (props) => {
+      const chart = props.getValue() as UrlStatSummary.SummaryData['chart'];
+      return <MiniChart chart={chart} />;
     },
   },
 ];

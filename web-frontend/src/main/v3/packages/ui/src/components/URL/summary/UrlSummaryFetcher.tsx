@@ -5,12 +5,14 @@ import { useGetUrlStatSummaryData } from '@pinpoint-fe/ui/hooks';
 import { summaryColumns } from './UrlSummaryColumns';
 import { DataTable, DataTableCountOfRows } from '../../DataTable';
 import { cn } from '../../../lib';
+import { UrlStatSummary } from '@pinpoint-fe/ui/constants';
 
 export interface UrlSummaryFetcherProps {
+  type?: UrlStatSummary.Parameters['type'];
   className?: string;
 }
 
-export const UrlSummaryFetcher = ({ className }: UrlSummaryFetcherProps) => {
+export const UrlSummaryFetcher = ({ className, type }: UrlSummaryFetcherProps) => {
   const [urlSelectedSummaryData, setUrlSelectedSummaryData] = useAtom(urlSelectedSummaryDataAtom);
   const [count, setCount] = React.useState(50);
   const [orderBy, setOrderBy] = React.useState('totalCount');
@@ -19,6 +21,7 @@ export const UrlSummaryFetcher = ({ className }: UrlSummaryFetcherProps) => {
     count,
     isDesc,
     orderBy,
+    type,
   });
   const columns = summaryColumns({
     orderBy,
