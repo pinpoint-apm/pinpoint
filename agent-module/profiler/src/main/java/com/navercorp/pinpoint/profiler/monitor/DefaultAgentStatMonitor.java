@@ -75,19 +75,12 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
         Objects.requireNonNull(agentStatCollector, "agentStatCollector");
 
 
-        long collectionIntervalMs = monitorConfig.getProfileJvmStatCollectIntervalMs();
-        int numCollectionsPerBatch = monitorConfig.getProfileJvmStatBatchSendCount();
+        this.collectionIntervalMs = getCollectionIntervalMs(monitorConfig.getProfileJvmStatCollectIntervalMs());
 
-        if (collectionIntervalMs < MIN_COLLECTION_INTERVAL_MS) {
-            collectionIntervalMs = DEFAULT_COLLECTION_INTERVAL_MS;
-        }
-        if (collectionIntervalMs > MAX_COLLECTION_INTERVAL_MS) {
-            collectionIntervalMs = DEFAULT_COLLECTION_INTERVAL_MS;
-        }
+        int numCollectionsPerBatch = monitorConfig.getProfileJvmStatBatchSendCount();
         if (numCollectionsPerBatch < 1) {
             numCollectionsPerBatch = DEFAULT_NUM_COLLECTIONS_PER_SEND;
         }
-        this.collectionIntervalMs = collectionIntervalMs;
 
         List<Runnable> runnableList = new ArrayList<>();
 
@@ -95,7 +88,8 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
         runnableList.add(statCollectingJob);
 
         if (monitorConfig.isCustomMetricEnable() && customMetricRegistryService != null) {
-            Runnable customMetricCollectionJob = new CustomMetricCollectingJob(dataSender, new AgentCustomMetricCollector(customMetricRegistryService), numCollectionsPerBatch);
+            AgentCustomMetricCollector agentCustomMetricCollector = new AgentCustomMetricCollector(customMetricRegistryService);
+            Runnable customMetricCollectionJob = new CustomMetricCollectingJob(dataSender, agentCustomMetricCollector, numCollectionsPerBatch);
             runnableList.add(customMetricCollectionJob);
         }
 
@@ -107,6 +101,16 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
         this.statMonitorJob = new StatMonitorJob(runnableList);
 
         preLoadClass(agentId, agentStartTimestamp, agentStatCollector);
+    }
+
+    private long getCollectionIntervalMs(long collectionIntervalMs) {
+        if (collectionIntervalMs < MIN_COLLECTION_INTERVAL_MS) {
+            collectionIntervalMs = DEFAULT_COLLECTION_INTERVAL_MS;
+        }
+        if (collectionIntervalMs > MAX_COLLECTION_INTERVAL_MS) {
+            collectionIntervalMs = DEFAULT_COLLECTION_INTERVAL_MS;
+        }
+        return collectionIntervalMs;
     }
 
     // https://github.com/naver/pinpoint/issues/2881

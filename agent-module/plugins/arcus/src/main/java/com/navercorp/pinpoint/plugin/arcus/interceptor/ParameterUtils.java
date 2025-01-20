@@ -12,16 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.plugin.arcus;
+package com.navercorp.pinpoint.plugin.arcus.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 
 /**
  * @author emeroad
  */
 public class ParameterUtils {
 
-    public static int findFirstString(InstrumentMethod method, int maxIndex) {
+    public static int findFirstString(MethodDescriptor method, int maxIndex) {
         if (method == null) {
             return -1;
         }
