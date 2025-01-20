@@ -1007,7 +1007,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
             }
             final InstrumentMethod onNextMethod = target.getDeclaredMethod("onNext", "java.lang.Object");
             if (onNextMethod != null) {
-                onNextMethod.addScopedInterceptor(CoreSubscriberOnNextInterceptor.class, va(ReactorConstants.REACTOR), "CoreSubscriberOnNext");
+                onNextMethod.addInterceptor(CoreSubscriberOnNextInterceptor.class, va(ReactorConstants.REACTOR));
             }
 
             return target.toBytecode();
