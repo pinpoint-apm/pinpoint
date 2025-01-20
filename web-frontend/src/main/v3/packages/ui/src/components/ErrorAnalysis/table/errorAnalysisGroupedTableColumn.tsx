@@ -3,8 +3,7 @@ import { RxCross2 } from 'react-icons/rx';
 import { Badge } from '../../ui';
 import { ErrorAnalysisGroupedErrorList } from '@pinpoint-fe/ui/constants';
 import { addCommas, format } from '@pinpoint-fe/ui/utils';
-import { ErrorGroupedTableVolumneChart } from './ErrorGroupedTableVolumneChart';
-// import { cn } from '../../../lib';
+import { MiniChart } from '../../common/MiniChart';
 
 interface ErrorGroupedTableColumnProps {
   groupBy?: string[];
@@ -89,7 +88,7 @@ export const errorGroupedTableColumns = ({
     header: 'Volume',
     cell: (props) => {
       const chart = props.getValue() as ErrorAnalysisGroupedErrorList.ErrorData['chart'];
-      return <ErrorGroupedTableVolumneChart chart={chart} />;
+      return <MiniChart chart={chart} />;
     },
   },
   {

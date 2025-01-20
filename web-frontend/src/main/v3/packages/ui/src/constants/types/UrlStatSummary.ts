@@ -1,3 +1,4 @@
+import { Chart } from './common/Chart';
 export namespace UrlStatSummary {
   export interface Parameters {
     applicationName: string;
@@ -7,6 +8,7 @@ export namespace UrlStatSummary {
     isDesc: boolean;
     count: number;
     agentId?: string;
+    type?: 'total' | 'failure' | 'apdex' | 'latency';
   }
 
   export type Response = SummaryData[];
@@ -17,5 +19,7 @@ export namespace UrlStatSummary {
     apdex: number;
     avgTimeMs: number;
     maxTimeMs: number;
+    version: string;
+    chart: Chart;
   }
 }

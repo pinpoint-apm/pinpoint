@@ -1,12 +1,12 @@
-import { ErrorAnalysisGroupedErrorList } from '@pinpoint-fe/ui/constants';
+import { Chart } from '@pinpoint-fe/ui/constants';
 import { ComposedChart, ReferenceLine } from 'recharts';
-import { useRechart } from '../../ReChart/useRechart';
+import { useRechart } from '../ReChart/useRechart';
 
-export interface ErrorGroupedTableVolumneChart {
-  chart: ErrorAnalysisGroupedErrorList.ErrorData['chart'];
+export interface MiniChart {
+  chart: Chart;
 }
 
-export const ErrorGroupedTableVolumneChart = ({ chart }: ErrorGroupedTableVolumneChart) => {
+export const MiniChart = ({ chart }: MiniChart) => {
   const { data, maxValue, renderChartChildComponents } = useRechart(chart);
 
   return (
@@ -17,7 +17,7 @@ export const ErrorGroupedTableVolumneChart = ({ chart }: ErrorGroupedTableVolumn
       margin={{
         top: 6,
         right: 30,
-        bottom: 2,
+        bottom: 6,
         left: 2,
       }}
     >
