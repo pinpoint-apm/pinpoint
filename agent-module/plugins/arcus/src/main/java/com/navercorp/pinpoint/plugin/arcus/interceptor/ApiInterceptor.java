@@ -54,7 +54,7 @@ public class ApiInterceptor implements AroundInterceptor {
         this.methodDescriptor = targetMethod;
 
         if (traceKey) {
-            int index = findFirstString(targetMethod);
+            int index = ParameterUtils.findFirstString(targetMethod, 3);
 
             if (index != -1) {
                 this.traceKey = true;
@@ -67,20 +67,6 @@ public class ApiInterceptor implements AroundInterceptor {
             this.traceKey = false;
             this.keyIndex = -1;
         }
-    }
-
-    private static int findFirstString(MethodDescriptor method) {
-        if (method == null) {
-            return -1;
-        }
-        final String[] methodParams = method.getParameterTypes();
-        final int minIndex = Math.min(methodParams.length, 3);
-        for (int i = 0; i < minIndex; i++) {
-            if ("java.lang.String".equals(methodParams[i])) {
-                return i;
-            }
-        }
-        return -1;
     }
 
     @Override

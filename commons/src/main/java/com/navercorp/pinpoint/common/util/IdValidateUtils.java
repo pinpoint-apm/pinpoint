@@ -32,7 +32,7 @@ public final class IdValidateUtils {
     @Deprecated
     public static String STABLE_VERSION_PATTERN_VALUE = AgentVersionPostfix.STABLE_VERSION_PATTERN_STRING;
 
-    public static final String ID_PATTERN_VALUE = "[a-zA-Z0-9._\\-]+";;
+    public static final String ID_PATTERN_VALUE = "[a-zA-Z0-9._\\-]+";
     private static final Pattern ID_PATTERN = Pattern.compile(ID_PATTERN_VALUE);
 
     private IdValidateUtils() {
