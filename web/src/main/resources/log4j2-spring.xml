@@ -34,23 +34,20 @@
      </Properties>
 
     <Appenders>
-        <Select>
-            <SpringProfile name="local">
-                <Console name="console" target="system_out">
-                    <PatternLayout pattern="${console_message_pattern}"/>
-                </Console>
-            </SpringProfile>
-            <SpringProfile name="release">
-                <Console name="console" target="system_out">
-                    <PatternLayout pattern="${file_message_pattern}"/>
-                </Console>
-            </SpringProfile>
-            <DefaultArbiter>
-                <Console name="console" target="system_out">
-                    <PatternLayout pattern="${console_message_pattern}"/>
-                </Console>
-            </DefaultArbiter>
-        </Select>
+        <Console name="console" target="system_out">
+            <!-- Select Pattern -->
+            <Select>
+                <SpringProfile name="local">
+                        <PatternLayout pattern="${console_message_pattern}"/>
+                </SpringProfile>
+                <SpringProfile name="release">
+                        <PatternLayout pattern="${file_message_pattern}"/>
+                </SpringProfile>
+                <DefaultArbiter>
+                        <PatternLayout pattern="${console_message_pattern}"/>
+                </DefaultArbiter>
+            </Select>
+        </Console>
 
         <RollingFile name="rollingFile" filename="${logging_dir}/pinpoint-web.log"
                      filepattern="${logging_dir}/pinpoint-web-${rolling-date-format}-%i.log"  >
@@ -139,6 +136,9 @@
             <AppenderRef ref="console"/>
         </Logger>
         <Logger name="org.apache.hadoop" level="${logger_level}" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+        <Logger name="org.apache.pinot.client.Connection" level="FATAL" additivity="false">
             <AppenderRef ref="console"/>
         </Logger>
         <Root level="INFO">
