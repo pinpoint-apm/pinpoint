@@ -148,6 +148,7 @@ export const AgentActiveThreadFetcher = () => {
             </div>
             <div className="flex flex-grow w-full h-[-webkit-fill-available] overflow-hidden">
               <AgentActiveThreadView
+                applicationName={applicationName}
                 activeThreadCounts={activeThreadCounts?.result}
                 setting={setting}
               />

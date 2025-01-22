@@ -23,11 +23,12 @@ export interface AgentActiveSettingProps {
   defaultValues?: AgentActiveSettingType;
 }
 
-export const DefaultValue = { yMax: 100, isSplit: true };
+export const DefaultValue = { yMax: 100, isSplit: true, inactivityThreshold: 5 };
 
 const FormSchema = z.object({
-  yMax: z.coerce.number(),
+  yMax: z.coerce.number().min(1),
   isSplit: z.boolean(),
+  inactivityThreshold: z.coerce.number().min(0), // minutes
 });
 
 export type AgentActiveSettingType = z.infer<typeof FormSchema>;
@@ -51,6 +52,7 @@ export const AgentActiveSetting = ({
     defaultValues: {
       yMax: defaultValues?.yMax,
       isSplit: defaultValues?.isSplit,
+      inactivityThreshold: defaultValues?.inactivityThreshold,
     },
   });
 
@@ -77,7 +79,7 @@ export const AgentActiveSetting = ({
     >
       <div className="mb-3 font-semibold">Agent request chart Setting</div>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
           <FormField
             control={form.control}
             name="yMax"
@@ -85,7 +87,13 @@ export const AgentActiveSetting = ({
               <FormItem>
                 <FormLabel className="text-xs text-muted-foreground">Max of Y axis</FormLabel>
                 <FormControl>
-                  <Input type="number" className="w-24 h-7" onKeyDown={handleKeyDown} {...field} />
+                  <Input
+                    type="number"
+                    className="w-24 h-7"
+                    onKeyDown={handleKeyDown}
+                    min={1}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -105,6 +113,27 @@ export const AgentActiveSetting = ({
                     onCheckedChange={(checked) => {
                       return field.onChange(checked);
                     }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="inactivityThreshold"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs text-muted-foreground">
+                  Inactivity Threshold (m)
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    className="w-24 h-7"
+                    onKeyDown={handleKeyDown}
+                    min={0}
+                    {...field}
                   />
                 </FormControl>
                 <FormMessage />
