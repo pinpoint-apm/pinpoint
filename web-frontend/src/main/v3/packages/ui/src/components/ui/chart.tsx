@@ -6,6 +6,7 @@ import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 import { cn } from '../../lib/utils';
 import { toCssVariable } from '../../lib/charts';
 import { Payload } from 'recharts/types/component/DefaultLegendContent';
+import { reverse } from 'lodash';
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: '', dark: '.dark' } as const;
@@ -100,15 +101,19 @@ const ChartTooltipContent = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
     React.ComponentProps<'div'> & {
+      isReverse?: boolean;
       hideLabel?: boolean;
       hideIndicator?: boolean;
       indicator?: 'line' | 'dot' | 'dashed';
       nameKey?: string;
       labelKey?: string;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      valueFormatter?: (value: any, payload: Payload[]) => React.ReactNode;
     }
 >(
   (
     {
+      isReverse,
       active,
       payload,
       className,
@@ -118,6 +123,7 @@ const ChartTooltipContent = React.forwardRef<
       label,
       labelFormatter,
       labelClassName,
+      valueFormatter,
       formatter,
       color,
       nameKey,
@@ -158,6 +164,7 @@ const ChartTooltipContent = React.forwardRef<
     }
 
     const nestLabel = payload.length === 1 && indicator !== 'dot';
+    const payloadForRender = isReverse ? reverse(payload) : payload;
 
     return (
       <div
@@ -169,7 +176,7 @@ const ChartTooltipContent = React.forwardRef<
       >
         {!nestLabel ? tooltipLabel : null}
         <div className="grid gap-1.5">
-          {payload.map((item, index) => {
+          {payloadForRender.map((item, index) => {
             const key = `${nameKey || item.name || item.dataKey || 'value'}`;
             const itemConfig = getPayloadConfigFromPayload(config, item, key);
             const indicatorColor = color || item.payload.fill || item.color;
@@ -224,7 +231,9 @@ const ChartTooltipContent = React.forwardRef<
                       </div>
                       {item.value && (
                         <span className="font-mono font-medium tabular-nums text-foreground">
-                          {item.value.toLocaleString()}
+                          {valueFormatter
+                            ? valueFormatter(item.value, item.payload)
+                            : item.value.toLocaleString()}
                         </span>
                       )}
                     </div>
@@ -246,6 +255,7 @@ const ChartLegendContent = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<'div'> &
     Pick<RechartsPrimitive.LegendProps, 'payload' | 'verticalAlign'> & {
+      isReverse?: boolean;
       hideIcon?: boolean;
       nameKey?: string;
       mouseHoverDataKey?: Payload['dataKey'] | undefined;
@@ -254,6 +264,7 @@ const ChartLegendContent = React.forwardRef<
 >(
   (
     {
+      isReverse,
       className,
       hideIcon = false,
       payload,
@@ -270,6 +281,8 @@ const ChartLegendContent = React.forwardRef<
     if (!payload?.length) {
       return null;
     }
+
+    const payloadForRender = isReverse ? reverse(payload) : payload;
     return (
       <TooltipProvider delayDuration={0}>
         <div
@@ -282,7 +295,7 @@ const ChartLegendContent = React.forwardRef<
             onMouseLeave?.(e);
           }}
         >
-          {payload.map((item) => {
+          {payloadForRender.map((item) => {
             const key = `${nameKey || item.dataKey || 'value'}`;
             const itemConfig = getPayloadConfigFromPayload(config, item, key);
 
