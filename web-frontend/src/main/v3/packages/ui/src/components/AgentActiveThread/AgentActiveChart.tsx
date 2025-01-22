@@ -23,33 +23,36 @@ import { AgentActiveData } from './AgentActiveTable';
 export const DefaultValue = { yMax: 100 };
 
 export interface AgentActiveChartProps {
+  loading?: boolean;
   data?: AgentActiveData[];
   setting?: AgentActiveSettingType;
   clickedActiveThread?: string;
   setClickedActiveThread?: React.Dispatch<React.SetStateAction<string>>;
 }
 
+const TICK_COUNT = 4;
 const DefaultReferenceLineLength = 50;
 const chartConfig = {
-  slow: {
-    label: 'slow',
-    color: '#e67f22',
-  },
-  '5s': {
-    label: '5s',
-    color: '#ffba00',
+  '1s': {
+    label: '1s',
+    color: '#34b994',
   },
   '3s': {
     label: '3s',
     color: '#51afdf',
   },
-  '1s': {
-    label: '1s',
-    color: '#34b994',
+  '5s': {
+    label: '5s',
+    color: '#ffba00',
+  },
+  slow: {
+    label: 'slow',
+    color: '#e67f22',
   },
 } satisfies ChartConfig;
 
 export const AgentActiveChart = ({
+  loading,
   data,
   setting,
   clickedActiveThread,
@@ -91,28 +94,41 @@ export const AgentActiveChart = ({
             tickLine={false}
             axisLine={false}
             tickMargin={10}
+            ticks={Array.from({ length: TICK_COUNT + 1 }, (_, index) =>
+              Math.ceil((yMax / TICK_COUNT) * index),
+            )}
             allowDecimals={false}
             domain={() => [0, yMax]}
           />
-          <ChartTooltip content={<ChartTooltipContent />} />
-          <ChartLegend content={<ChartLegendContent />} />
-          {Object.keys(chartConfig).map((key) => (
-            <Bar
-              key={key}
-              dataKey={key}
-              stackId="agentActiveThread"
-              fill={chartConfig[key as keyof typeof chartConfig].color}
-            >
-              {data?.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  opacity={
-                    clickedActiveThread ? (entry.server === clickedActiveThread ? 1 : 0.3) : 1
-                  }
-                />
-              ))}
-            </Bar>
-          ))}
+          <ChartTooltip
+            content={
+              <ChartTooltipContent
+                isReverse={true}
+                valueFormatter={(value) => ((value as number) < 0 ? '-' : value)}
+              />
+            }
+          />
+          <ChartLegend content={<ChartLegendContent isReverse={true} />} />
+          {Object.keys(chartConfig)
+            .reverse()
+            .map((key) => (
+              <Bar
+                key={key}
+                dataKey={key}
+                stackId="agentActiveThread"
+                fill={chartConfig[key as keyof typeof chartConfig].color}
+                hide={loading}
+              >
+                {data?.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    opacity={
+                      clickedActiveThread ? (entry.server === clickedActiveThread ? 1 : 0.3) : 1
+                    }
+                  />
+                ))}
+              </Bar>
+            ))}
           {Array.from({ length: ReferenceLineLength }, (_, index) => {
             return (
               <ReferenceLine

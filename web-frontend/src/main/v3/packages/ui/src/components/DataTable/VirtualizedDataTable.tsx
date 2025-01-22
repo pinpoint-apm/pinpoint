@@ -22,6 +22,7 @@ import { cn } from '../../lib';
 type ExpandableTData<T> = T & { subRows?: ExpandableTData<T>[] };
 
 export interface VirtualizedDataTableProps<TData, TValue> {
+  loading?: boolean;
   data: TData[];
   columns: ColumnDef<TData, TValue>[];
   focusRowIndex?: number;
@@ -47,6 +48,7 @@ type MetaType = {
 };
 
 export function VirtualizedDataTable<TData, TValue>({
+  loading,
   data,
   columns,
   focusRowIndex,
@@ -292,7 +294,7 @@ export function VirtualizedDataTable<TData, TValue>({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
+                {loading ? 'Loading...' : 'No results.'}
               </TableCell>
             </TableRow>
           )}
