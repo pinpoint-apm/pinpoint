@@ -5,23 +5,23 @@ import { UseMutationOptions, useMutation } from '@tanstack/react-query';
 // Due to the problem of the query parameters being too long, it is POST request to send query parameters in the body.
 
 export const usePostOtlpMetricData = (
-  options?: UseMutationOptions<OtlpMetricData.Response, unknown, OtlpMetricData.Body, unknown>,
+  options?: UseMutationOptions<OtlpMetricData.Response, Error, OtlpMetricData.Body, unknown>,
 ) => {
   const postData = async (bodyData: OtlpMetricData.Body) => {
-    try {
-      const response = await fetch(`${END_POINTS.OTLP_METRIC_DATA}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(bodyData),
-      });
-      const data = await response.json();
+    const response = await fetch(`${END_POINTS.OTLP_METRIC_DATA}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(bodyData),
+    });
 
-      return data;
-    } catch (error) {
-      throw error;
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(JSON.stringify(data)); // 에러 처리
     }
+    return data;
   };
 
   return useMutation({
