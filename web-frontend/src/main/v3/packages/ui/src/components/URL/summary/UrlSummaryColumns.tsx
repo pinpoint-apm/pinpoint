@@ -152,7 +152,7 @@ export const summaryColumns = ({
     accessorKey: 'chart',
     header: 'Volume',
     meta: {
-      headerClassName: 'w-40 text-sm font-medium text-center',
+      headerClassName: 'w-52 text-sm font-medium text-center',
       cellClassName: 'text-[-webkit-right]',
     },
     cell: (props) => {
