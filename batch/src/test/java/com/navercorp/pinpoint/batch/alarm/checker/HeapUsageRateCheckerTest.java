@@ -16,100 +16,59 @@
 
 package com.navercorp.pinpoint.batch.alarm.checker;
 
-import com.navercorp.pinpoint.batch.alarm.DataCollectorFactory;
-import com.navercorp.pinpoint.batch.alarm.collector.AgentStatDataCollector;
-import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
-import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
-import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.batch.alarm.collector.pinot.HeapDataCollector;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
-import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
-import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
+@ExtendWith({MockitoExtension.class})
 public class HeapUsageRateCheckerTest {
 
     private static final String SERVICE_NAME = "local_service";
     private static final String SERVICE_TYPE = "tomcat";
-    private static final List<String> mockAgentIds = List.of("local_tomcat");
 
-    private static AgentStatDao<JvmGcBo> jvmGcDao;
-
-    private static AgentStatDao<CpuLoadBo> cpuLoadDao;
-
-    @BeforeAll
-    public static void before() {
-        jvmGcDao = new AgentStatDao<>() {
-
-            @Override
-            public String getChartType() {
-                return AgentStatType.JVM_GC.getChartType();
-            }
-
-            @Override
-            public List<JvmGcBo> getAgentStatList(String agentId, Range range) {
-                List<JvmGcBo> jvmGcs = new ArrayList<>();
-
-                for (int i = 0; i < 36; i++) {
-                    JvmGcBo jvmGcBo = new JvmGcBo();
-                    jvmGcBo.setHeapUsed(70L);
-                    jvmGcBo.setHeapMax(100L);
-
-                    jvmGcs.add(jvmGcBo);
-                }
-
-                return jvmGcs;
-            }
-
-            @Override
-            public boolean agentStatExists(String agentId, Range range) {
-                return true;
-            }
-        };
-
-        cpuLoadDao = new AgentStatDao<>() {
-            @Override
-            public String getChartType() {
-                return AgentStatType.CPU_LOAD.getChartType();
-            }
-
-            @Override
-            public List<CpuLoadBo> getAgentStatList(String agentId, Range range) {
-                return Collections.emptyList();
-            }
-
-            @Override
-            public boolean agentStatExists(String agentId, Range range) {
-                return false;
-            }
-        };
-    }
-
+    @Mock
+    HeapDataCollector heapDataCollector;
 
     @Test
     public void checkTest1() {
         Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.HEAP_USAGE_RATE.getName(), 70, "testGroup", false, false, false, "");
-        AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, jvmGcDao, cpuLoadDao, mockAgentIds, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
-        AgentChecker<Long> checker = new HeapUsageRateChecker(collector, rule);
+        AgentChecker<Long> checker = new HeapUsageRateChecker(heapDataCollector, rule);
 
+        Map<String, Long> heapUsageRateMap = Map.ofEntries(
+            Map.entry("local_tomcat01", 71L),
+            Map.entry("local_tomcat02", 70L),
+            Map.entry("local_tomcat03", 60L)
+        );
+
+        when(heapDataCollector.getHeapUsageRate()).thenReturn(heapUsageRateMap);
         checker.check();
         assertTrue(checker.isDetected());
     }
 
     @Test
     public void checkTest2() {
-        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.HEAP_USAGE_RATE.getName(), 71, "testGroup", false, false, false, "");
-        AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, jvmGcDao, cpuLoadDao, mockAgentIds, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
-        AgentChecker<Long> checker = new HeapUsageRateChecker(collector, rule);
+        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.HEAP_USAGE_RATE.getName(), 70, "testGroup", false, false, false, "");
+        AgentChecker<Long> checker = new HeapUsageRateChecker(heapDataCollector, rule);
+
+        Map<String, Long> heapUsageRateMap = Map.ofEntries(
+            Map.entry("local_tomcat01", 50L),
+            Map.entry("local_tomcat02", 40L),
+            Map.entry("local_tomcat03", 60L)
+        );
+
+        when(heapDataCollector.getHeapUsageRate()).thenReturn(heapUsageRateMap);
 
         checker.check();
         assertFalse(checker.isDetected());

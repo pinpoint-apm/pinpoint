@@ -12,9 +12,4 @@ public class DisableAgentCompatibility implements LegacyAgentCompatibility {
     public boolean isLegacyAgent(short serviceType, String version) {
         return false;
     }
-
-    @Override
-    public boolean isActiveAgent(String agentId, Range range) {
-        return false;
-    }
 }

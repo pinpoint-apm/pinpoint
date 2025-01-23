@@ -1,7 +1,5 @@
 package com.navercorp.pinpoint.web.service.component;
 
-import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
-import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,9 +9,6 @@ import org.semver4j.Semver;
 
 @ExtendWith(MockitoExtension.class)
 class DefaultLegacyAgentCompatibilityTest {
-    @Mock
-    AgentStatDao<JvmGcBo> jvmGcDao;
-
     @Test
     void semver() {
         Semver version = Semver.parse("0.7.0");
@@ -25,7 +20,7 @@ class DefaultLegacyAgentCompatibilityTest {
 
     @Test
     void legacy_serviceType() {
-        LegacyAgentCompatibility compatibility = new DefaultLegacyAgentCompatibility(jvmGcDao);
+        LegacyAgentCompatibility compatibility = new DefaultLegacyAgentCompatibility();
 
         Assertions.assertTrue(compatibility.isLegacyAgent(node));
 
@@ -35,7 +30,7 @@ class DefaultLegacyAgentCompatibilityTest {
     @Test
     void legacy_semver() {
 
-        LegacyAgentCompatibility compatibility = new DefaultLegacyAgentCompatibility(jvmGcDao);
+        LegacyAgentCompatibility compatibility = new DefaultLegacyAgentCompatibility();
 
         Assertions.assertTrue(compatibility.isLegacyAgent(node, "0.7.0"));
         Assertions.assertTrue(compatibility.isLegacyAgent(node, "0.7.1"));

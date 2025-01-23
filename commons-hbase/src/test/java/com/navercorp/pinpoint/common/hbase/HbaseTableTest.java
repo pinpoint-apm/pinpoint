@@ -51,14 +51,6 @@ public class HbaseTableTest {
     }
 
     @Test
-    public void agentStatStatisticsTest() {
-        HbaseColumnFamily.AgentStatStatistics agentStatStatistics = HbaseColumnFamily.AGENT_STAT_STATISTICS;
-        Assertions.assertArrayEquals(Bytes.toBytes("S"), agentStatStatistics.getName());
-        Assertions.assertEquals("AgentStatV2", agentStatStatistics.getTable().getName());
-        Assertions.assertEquals(5 * 60 * 1000, agentStatStatistics.TIMESPAN_MS);
-    }
-
-    @Test
     public void apiMetadataApiTest() {
         HbaseColumnFamily.ApiMetadata apiMetadataApi = HbaseColumnFamily.API_METADATA_API;
         Assertions.assertArrayEquals(Bytes.toBytes("Api"), apiMetadataApi.getName());
@@ -71,14 +63,6 @@ public class HbaseTableTest {
         HbaseColumnFamily applicationIndexAgents = HbaseColumnFamily.APPLICATION_INDEX_AGENTS;
         Assertions.assertArrayEquals(Bytes.toBytes("Agents"), applicationIndexAgents.getName());
         Assertions.assertEquals("ApplicationIndex", applicationIndexAgents.getTable().getName());
-    }
-
-    @Test
-    public void applicationStatStatisticsTest() {
-        HbaseColumnFamily.ApplicationStatStatistics applicationStatStatistics = HbaseColumnFamily.APPLICATION_STAT_STATISTICS;
-        Assertions.assertArrayEquals(Bytes.toBytes("S"), applicationStatStatistics.getName());
-        Assertions.assertEquals("ApplicationStatAggre", applicationStatStatistics.getTable().getName());
-        Assertions.assertEquals(5 * 60 * 1000, applicationStatStatistics.TIMESPAN_MS);
     }
 
     @Test

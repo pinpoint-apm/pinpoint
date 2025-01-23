@@ -17,9 +17,7 @@
 package com.navercorp.pinpoint.batch.alarm.checker;
 
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
-import com.navercorp.pinpoint.batch.alarm.collector.DataSourceDataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.DataSourceDataGetter;
-import com.navercorp.pinpoint.batch.alarm.collector.FileDescriptorDataGetter;
 import com.navercorp.pinpoint.batch.alarm.vo.DataSourceAlarmVO;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;

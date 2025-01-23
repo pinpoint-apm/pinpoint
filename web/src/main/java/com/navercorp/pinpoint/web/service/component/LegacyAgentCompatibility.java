@@ -6,8 +6,4 @@ public interface LegacyAgentCompatibility {
     boolean isLegacyAgent(short serviceType);
 
     boolean isLegacyAgent(short serviceType, String version);
-
-//    boolean isActiveAgent(Application agent, String version, Range range);
-
-    boolean isActiveAgent(String agentId, Range range);
 }
