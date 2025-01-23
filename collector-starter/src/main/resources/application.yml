@@ -17,5 +17,7 @@ pinpoint:
         enabled: true
         hbase:
           enabled: true
+      otlpmetric:
+        enabled: true
     realtime:
       enabled: true

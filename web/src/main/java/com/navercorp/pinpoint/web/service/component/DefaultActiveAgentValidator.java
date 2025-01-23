@@ -27,10 +27,12 @@ public class DefaultActiveAgentValidator implements ActiveAgentValidator {
     @Override
     public boolean isActiveAgent(String agentId, Range range) {
         Objects.requireNonNull(agentId, "agentId");
+
         if (isActiveAgentByEvent(agentId, range)) {
             return true;
         }
-        return agentCompatibility.isActiveAgent(agentId, range);
+
+        return false;
     }
 
     @Override
@@ -48,12 +50,8 @@ public class DefaultActiveAgentValidator implements ActiveAgentValidator {
             if (isActiveAgentByEvent(agentId, range)) {
                 return true;
             }
-        } else {
-            logger.trace("agentCompatibility.isActiveAgent");
-            if (agentCompatibility.isActiveAgent(agentId, range)) {
-                return true;
-            }
         }
+
         return false;
     }
 
@@ -64,6 +62,7 @@ public class DefaultActiveAgentValidator implements ActiveAgentValidator {
                 return true;
             }
         }
+
         return false;
     }
 

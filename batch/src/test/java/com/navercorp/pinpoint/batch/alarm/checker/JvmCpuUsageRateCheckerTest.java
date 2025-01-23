@@ -16,88 +16,43 @@
 
 package com.navercorp.pinpoint.batch.alarm.checker;
 
-import com.navercorp.pinpoint.batch.alarm.DataCollectorFactory;
-import com.navercorp.pinpoint.batch.alarm.collector.AgentStatDataCollector;
-import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
-import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
-import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.batch.alarm.collector.pinot.JvmCpuDataCollector;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
-import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
-import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
+@ExtendWith({MockitoExtension.class})
 public class JvmCpuUsageRateCheckerTest {
 
     private static final String SERVICE_NAME = "local_service";
     private static final String SERVICE_TYPE = "tomcat";
-    private static final List<String> mockAgentIds = List.of("local_tomcat");
 
-
-    private static AgentStatDao<JvmGcBo> jvmGcDao;
-
-    private static AgentStatDao<CpuLoadBo> cpuLoadDao;
-
-    @BeforeAll
-    public static void before() {
-        jvmGcDao = new AgentStatDao<>() {
-
-            @Override
-            public String getChartType() {
-                return AgentStatType.JVM_GC.getChartType();
-            }
-
-            @Override
-            public List<JvmGcBo> getAgentStatList(String agentId, Range range) {
-                return Collections.emptyList();
-            }
-
-            @Override
-            public boolean agentStatExists(String agentId, Range range) {
-                return false;
-            }
-        };
-
-        cpuLoadDao = new AgentStatDao<>() {
-            @Override
-            public String getChartType() {
-                return AgentStatType.CPU_LOAD.getChartType();
-            }
-
-            public List<CpuLoadBo> getAgentStatList(String agentId, Range range) {
-                List<CpuLoadBo> cpuLoads = new ArrayList<>();
-
-                for (int i = 0; i < 36; i++) {
-                    CpuLoadBo cpuLoad = new CpuLoadBo();
-                    cpuLoad.setJvmCpuLoad(0.6);
-                    cpuLoads.add(cpuLoad);
-                }
-
-                return cpuLoads;
-            }
-
-            @Override
-            public boolean agentStatExists(String agentId, Range range) {
-                return true;
-            }
-        };
-    }
-
+    @Mock
+    JvmCpuDataCollector jvmCpuDataCollector;
 
     @Test
     public void checkTest1() {
         Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.JVM_CPU_USAGE_RATE.getName(), 60, "testGroup", false, false, false, "");
-        AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, jvmGcDao, cpuLoadDao, mockAgentIds, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
-        AgentChecker<Long> checker = new JvmCpuUsageRateChecker(collector, rule);
+
+        JvmCpuUsageRateChecker checker = new JvmCpuUsageRateChecker(jvmCpuDataCollector, rule);
+        Map<String, Long> jvmCpuUsageRate = Map.ofEntries(
+            Map.entry("local_tomcat01", 71L),
+            Map.entry("local_tomcat02", 72L),
+            Map.entry("local_tomcat03", 73L)
+        );
+
+        when(jvmCpuDataCollector.getJvmCpuUsageRate()).thenReturn(jvmCpuUsageRate);
 
         checker.check();
         assertTrue(checker.isDetected());
@@ -105,9 +60,16 @@ public class JvmCpuUsageRateCheckerTest {
 
     @Test
     public void checkTest2() {
-        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.JVM_CPU_USAGE_RATE.getName(), 61, "testGroup", false, false, false, "");
-        AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, jvmGcDao, cpuLoadDao, mockAgentIds, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
-        AgentChecker<Long> checker = new JvmCpuUsageRateChecker(collector, rule);
+        Rule rule = new Rule(SERVICE_NAME, SERVICE_TYPE, CheckerCategory.JVM_CPU_USAGE_RATE.getName(), 60, "testGroup", false, false, false, "");
+
+        JvmCpuUsageRateChecker checker = new JvmCpuUsageRateChecker(jvmCpuDataCollector, rule);
+        Map<String, Long> jvmCpuUsageRate = Map.ofEntries(
+            Map.entry("local_tomcat01", 51L),
+            Map.entry("local_tomcat02", 52L),
+            Map.entry("local_tomcat03", 53L)
+        );
+
+        when(jvmCpuDataCollector.getJvmCpuUsageRate()).thenReturn(jvmCpuUsageRate);
 
         checker.check();
         assertFalse(checker.isDetected());

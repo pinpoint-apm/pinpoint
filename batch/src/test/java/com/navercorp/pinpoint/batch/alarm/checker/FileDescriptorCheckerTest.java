@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.batch.alarm.checker;
 
-import com.navercorp.pinpoint.batch.alarm.collector.FileDescriptorDataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.pinot.FileDescriptorDataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Map;
 
@@ -30,6 +32,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author minwoo.jung
  */
+@ExtendWith({MockitoExtension.class})
 public class FileDescriptorCheckerTest {
 
     @Test

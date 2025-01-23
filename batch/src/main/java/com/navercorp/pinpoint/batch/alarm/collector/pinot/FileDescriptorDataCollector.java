@@ -33,8 +33,8 @@ import java.util.Objects;
  * @author minwoo-jung
  */
 public class FileDescriptorDataCollector extends DataCollector implements FileDescriptorDataGetter {
-    private final static String METRIC_NAME = "fileDescriptor";
-    private final static String FIELD_NAME = "openFileDescriptorCount";
+    protected final static String METRIC_NAME = "fileDescriptor";
+    protected final static String FIELD_NAME = "openFileDescriptorCount";
 
     private final AlarmDao alarmDao;
     private final Application application;

@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.batch.alarm;
 
-import com.navercorp.pinpoint.batch.alarm.collector.AgentStatDataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.pinot.HeapDataCollector;
 import com.navercorp.pinpoint.batch.alarm.vo.AppAlarmChecker;
 import com.navercorp.pinpoint.batch.config.AlarmCheckerConfiguration;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -48,7 +48,7 @@ public class AlarmProcessorTest {
     private ActiveAgentValidator activeAgentValidator;
 
     @Mock
-    private AgentStatDataCollector agentStatDataCollector;
+    private HeapDataCollector heapDataCollector;
 
     @Autowired
     CheckerRegistry checkerRegistry;
@@ -78,8 +78,8 @@ public class AlarmProcessorTest {
         Map<String, Long> heapUsageRate = Map.of(agentIds.get(1), 80L, agentIds.get(2), 85L);
 
         when(alarmService.selectRuleByApplicationId(SERVICE_NAME)).thenReturn(List.of(rule1, rule2));
-        when(dataCollectorFactory.createDataCollector(any(), any(), any(), anyLong())).thenReturn(agentStatDataCollector);
-        when(agentStatDataCollector.getHeapUsageRate()).thenReturn(heapUsageRate);
+        when(dataCollectorFactory.createDataCollector(any(), any(), any(), anyLong())).thenReturn(heapDataCollector);
+        when(heapDataCollector.getHeapUsageRate()).thenReturn(heapUsageRate);
 
         // Executions
         AlarmProcessor processor = new AlarmProcessor(dataCollectorFactory, alarmService, applicationIndexDao, activeAgentValidator, checkerRegistry);

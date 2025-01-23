@@ -27,6 +27,7 @@ import java.io.IOException;
 /**
  * @author Taejin Koo
  */
+@Deprecated
 public class DoubleApplicationStatSerializer extends JsonSerializer<DoubleApplicationStatPoint> {
 
     @Override

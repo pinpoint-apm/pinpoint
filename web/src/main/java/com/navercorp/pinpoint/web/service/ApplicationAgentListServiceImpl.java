@@ -115,10 +115,6 @@ public class ApplicationAgentListServiceImpl implements ApplicationAgentListServ
         if (agentStatusFilter.test(agentAndStatus.getStatus())) {
             return true;
         }
-        final AgentInfo agentInfo = agentAndStatus.getAgentInfo();
-        if (legacyAgentCompatibility.isLegacyAgent(agentInfo.getServiceTypeCode(), agentInfo.getAgentVersion())) {
-            return legacyAgentCompatibility.isActiveAgent(agentInfo.getAgentId(), range);
-        }
 
         return false;
     }

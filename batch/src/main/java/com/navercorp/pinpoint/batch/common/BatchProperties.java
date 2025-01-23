@@ -79,9 +79,6 @@ public class BatchProperties {
     @Value("${job.cleanup.inactive.applications.cron}")
     private String cleanupInactiveApplicationsJobCron;
 
-    @Value("${alarm.collector.version:1}")
-    private int collectorVersion;
-
     private static final int MINIMUM_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS = 7;
 
     @PostConstruct
@@ -155,10 +152,6 @@ public class BatchProperties {
         return cleanupInactiveApplicationsJobCron;
     }
 
-    public int getCollectorVersion() {
-        return collectorVersion;
-    }
-
     public int getAgentInspectorStatTableCount() {
         return alarmAgentInspectorStatTableCount;
     }
@@ -189,7 +182,6 @@ public class BatchProperties {
                 ", cleanupInactiveAgentsDurationDays=" + cleanupInactiveAgentsDurationDays +
                 ", cleanupInactiveApplicationsJobEnable=" + cleanupInactiveApplicationsJobEnable +
                 ", cleanupInactiveApplicationsJobCron='" + cleanupInactiveApplicationsJobCron + '\'' +
-                ", collectorVersion=" + collectorVersion +
                 '}';
     }
 }

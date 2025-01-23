@@ -82,7 +82,6 @@ public class ApplicationAgentListServiceImplTest {
 
         LegacyAgentCompatibility legacyAgentCompatibility = mock(LegacyAgentCompatibility.class);
         lenient().when(legacyAgentCompatibility.isLegacyAgent(ArgumentMatchers.anyShort(), ArgumentMatchers.any())).thenReturn(false);
-        lenient().when(legacyAgentCompatibility.isActiveAgent(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(false);
 
         applicationAgentListService = new ApplicationAgentListServiceImpl(applicationIndexDao, agentInfoDao, agentLifeCycleDao, legacyAgentCompatibility, mapResponseDao);
     }

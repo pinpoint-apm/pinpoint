@@ -54,15 +54,6 @@ public class HbaseColumnFamily {
         }
     }
 
-    public static final AgentStatStatistics AGENT_STAT_STATISTICS = new AgentStatStatistics(HbaseTable.AGENT_STAT_VER2, Bytes.toBytes("S"));
-    public static class AgentStatStatistics extends HbaseColumnFamily {
-        public static final int TIMESPAN_MS = 5 * 60 * 1000;
-
-        private AgentStatStatistics(HbaseTable hBaseTable, byte[] columnFamilyName) {
-            super(hBaseTable, columnFamilyName);
-        }
-    }
-
     public static final AgentUriStatStatistics AGENT_URI_STAT_STATISTICS = new AgentUriStatStatistics(HbaseTable.AGENT_URI_STAT, Bytes.toBytes("Uri"));
     public static class AgentUriStatStatistics extends HbaseColumnFamily {
         public static final int TIMESPAN_MS = 5 * 60 * 1000;
@@ -84,15 +75,6 @@ public class HbaseColumnFamily {
     public static final ApplicationIndex APPLICATION_INDEX_AGENTS = new ApplicationIndex(HbaseTable.APPLICATION_INDEX, Bytes.toBytes("Agents"));
     public static class ApplicationIndex extends HbaseColumnFamily {
         private ApplicationIndex(HbaseTable hBaseTable, byte[] columnFamilyName) {
-            super(hBaseTable, columnFamilyName);
-        }
-    }
-
-    public static final ApplicationStatStatistics APPLICATION_STAT_STATISTICS = new ApplicationStatStatistics(HbaseTable.APPLICATION_STAT_AGGRE, Bytes.toBytes("S"));
-    public static class ApplicationStatStatistics extends HbaseColumnFamily {
-        public int TIMESPAN_MS = 5 * 60 * 1000;
-
-        private ApplicationStatStatistics(HbaseTable hBaseTable, byte[] columnFamilyName) {
             super(hBaseTable, columnFamilyName);
         }
     }
