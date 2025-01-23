@@ -1,9 +1,12 @@
-import { OtlpMetricDefUserDefined } from '@pinpoint-fe/ui/constants';
+import { useTranslation } from 'react-i18next';
+import { ErrorDetailResponse, OtlpMetricDefUserDefined } from '@pinpoint-fe/ui/constants';
 import { useOpenTelemetrySearchParameters, usePostOtlpMetricData } from '@pinpoint-fe/ui/hooks';
 import React from 'react';
 import { assign } from 'lodash';
 import { ReChart } from '../../../components/ReChart';
 import { useInView } from 'react-intersection-observer';
+import { Button } from '../../ui';
+import { ErrorDetailDialog } from '../../Error/ErrorDetailDialog';
 
 export interface OpenTelemetryMetricFetcherProps {
   metricDefinition: OtlpMetricDefUserDefined.Metric;
@@ -15,7 +18,8 @@ export const OpenTelemetryMetricFetcher = ({
   metricDefinition,
   dashboardId,
 }: OpenTelemetryMetricFetcherProps) => {
-  const { mutate, data } = usePostOtlpMetricData();
+  const { t } = useTranslation();
+  const { mutate, data, error } = usePostOtlpMetricData();
   const { dateRange, agentId } = useOpenTelemetrySearchParameters();
   const prevDateRange = React.useRef<{ from: Date; to: Date }>();
   const prevAgentId = React.useRef<string>();
@@ -24,23 +28,7 @@ export const OpenTelemetryMetricFetcher = ({
     threshold: 0.1,
   });
 
-  React.useEffect(() => {
-    if (!inView) {
-      return;
-    }
-
-    // Even if inView changes, if dateRange and agentId are the same value, no new call is made.
-    if (
-      prevDateRange.current?.from === dateRange?.from &&
-      prevDateRange.current?.to === dateRange?.to &&
-      prevAgentId.current === agentId
-    ) {
-      return;
-    }
-
-    prevDateRange.current = dateRange;
-    prevAgentId.current = agentId;
-
+  function getMetricData() {
     const {
       applicationName,
       metricGroupName,
@@ -70,9 +58,42 @@ export const OpenTelemetryMetricFetcher = ({
         agentId ? { agentId } : {},
       ),
     );
+  }
+
+  React.useEffect(() => {
+    if (!inView) {
+      return;
+    }
+
+    // Even if inView changes, if dateRange and agentId are the same value, no new call is made.
+    if (
+      prevDateRange.current?.from === dateRange?.from &&
+      prevDateRange.current?.to === dateRange?.to &&
+      prevAgentId.current === agentId
+    ) {
+      return;
+    }
+
+    prevDateRange.current = dateRange;
+    prevAgentId.current = agentId;
+
+    getMetricData();
   }, [inView, dateRange, agentId, metricDefinition]);
 
   const { stack, stackDetails } = metricDefinition;
+
+  if (error) {
+    const errorObj = JSON.parse(error.message);
+    return (
+      <div className="flex flex-col items-center justify-center w-full h-full">
+        {errorObj?.message}
+        <ErrorDetailDialog error={errorObj as unknown as ErrorDetailResponse} />
+        <Button className="text-xs" variant="outline" onClick={() => getMetricData()}>
+          {t('COMMON.TRY_AGAIN')}
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div ref={ref} className="w-full h-full">
