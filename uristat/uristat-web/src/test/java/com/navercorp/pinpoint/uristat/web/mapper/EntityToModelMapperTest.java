@@ -24,8 +24,8 @@ class EntityToModelMapperTest {
         entity.setFailureCount(10.0);
         entity.setMaxTimeMs(200.0);
         entity.setVersion("version");
-        entity.setApdexRaw(50.0);
-        entity.setTotalTimeMs(1000.0);
+        entity.setTotalApdexRaw(50.0);
+        entity.setSumOfTotalTimeMs(1000.0);
 
         UriStatSummary model = mapper.toModel(entity);
 

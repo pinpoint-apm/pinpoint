@@ -19,12 +19,10 @@ import com.google.common.primitives.Doubles;
 import com.navercorp.pinpoint.common.util.MathUtils;
 import com.navercorp.pinpoint.uristat.web.entity.UriStatChartEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriStatSummaryEntity;
-import com.navercorp.pinpoint.uristat.web.model.UriStatChartValue;
 import org.mapstruct.Named;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -51,12 +49,12 @@ public class MapperUtils {
 
     @Named("toApdex")
     public static Double toApdex(UriStatSummaryEntity entity) {
-        return MathUtils.average(entity.getApdexRaw(), entity.getTotalCount());
+        return MathUtils.average(entity.getTotalApdexRaw(), entity.getTotalCount());
     }
 
     @Named("toAvgTimeMs")
     public static Double toAvgTimeMs(UriStatSummaryEntity entity) {
-        return MathUtils.average(entity.getTotalTimeMs(), entity.getTotalCount());
+        return MathUtils.average(entity.getSumOfTotalTimeMs(), entity.getTotalCount());
     }
 
     @Named("toTotalHistogram")

@@ -20,11 +20,11 @@ package com.navercorp.pinpoint.uristat.web.entity;
  */
 public class UriStatSummaryEntity extends UriStatChartEntity {
     private String uri;
-    private Double apdexRaw;
+    private Double totalApdexRaw;
     private Double totalCount;
     private Double failureCount;
     private Double maxTimeMs;
-    private Double totalTimeMs;
+    private Double sumOfTotalTimeMs;
     private String version;
 
     public UriStatSummaryEntity() {
@@ -38,12 +38,12 @@ public class UriStatSummaryEntity extends UriStatChartEntity {
         this.uri = uri;
     }
 
-    public Double getApdexRaw() {
-        return apdexRaw;
+    public Double getTotalApdexRaw() {
+        return totalApdexRaw;
     }
 
-    public void setApdexRaw(Double apdexRaw) {
-        this.apdexRaw = apdexRaw;
+    public void setTotalApdexRaw(Double totalApdexRaw) {
+        this.totalApdexRaw = totalApdexRaw;
     }
 
     public Double getTotalCount() {
@@ -70,12 +70,12 @@ public class UriStatSummaryEntity extends UriStatChartEntity {
         this.maxTimeMs = maxTimeMs;
     }
 
-    public Double getTotalTimeMs() {
-        return totalTimeMs;
+    public Double getSumOfTotalTimeMs() {
+        return sumOfTotalTimeMs;
     }
 
-    public void setTotalTimeMs(Double totalTimeMs) {
-        this.totalTimeMs = totalTimeMs;
+    public void setSumOfTotalTimeMs(Double totalTimeMs) {
+        this.sumOfTotalTimeMs = totalTimeMs;
     }
 
     public String getVersion() {
