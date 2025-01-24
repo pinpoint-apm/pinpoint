@@ -221,24 +221,31 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
         }}
         onClickDetailView={(callStackData) => {
           const nextItem = mapData?.find((d) => Number(d.id) === Number(callStackData.id) + 1);
+          console.info('callStackData', callStackData);
+          console.info('nextItem', nextItem);
           if (nextItem?.title === 'SQL-BindValue' || nextItem?.title === 'MONGO-JSON-BindValue') {
+            console.info(111);
             const formData = new FormData();
             formData.append('type', callStackData.title === 'SQL' ? 'sql' : 'mongoJson');
             formData.append('metaData', callStackData.arguments);
             formData.append('bind', nextItem.arguments);
+            console.info(222);
             mutate(formData);
-
+            console.info(333);
             setSqlDetail({
               originalSql: callStackData.arguments,
               bindValue: nextItem.arguments,
             });
           } else {
+            console.info(444);
             setSqlDetail({
               originalSql: callStackData.arguments,
               bindedSql: undefined,
               bindValue: undefined,
             });
+            console.info(555);
           }
+          console.info(666);
           setSheetOpen(true);
         }}
       />
