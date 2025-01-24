@@ -17,6 +17,8 @@ export const CollapsibleCodeViewer = ({
   language,
   defaultOpen = true,
 }: CollapsibleCodeViewerProps) => {
+  console.log('CollapsibleCodeViewerProps', title, code, language, defaultOpen);
+
   const [isOpen, setIsOpen] = React.useState(defaultOpen);
 
   return (
