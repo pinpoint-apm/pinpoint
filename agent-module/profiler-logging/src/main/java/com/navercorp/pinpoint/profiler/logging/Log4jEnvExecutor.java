@@ -4,14 +4,18 @@ import java.util.function.Supplier;
 
 public class Log4jEnvExecutor {
 
-    public static final String FACTORY_PROPERTY_NAME = "log4j2.loggerContextFactory";
+    /**
+     * log4j 2.24
+     * ref : {@value org.apache.logging.log4j.spi.Provider#PROVIDER_PROPERTY_NAME}
+     */
+    public static final String PROVIDER_PROPERTY_NAME = "log4j.provider";
 
     public <V> V call(Supplier<V> supplier) {
-        final String factory = prepare(FACTORY_PROPERTY_NAME, Log4j2ContextFactory.class.getName());
+        final String factory = prepare(PROVIDER_PROPERTY_NAME, Log4j2ContextFactory.class.getName());
         try {
             return supplier.get();
         } finally {
-            rollback(FACTORY_PROPERTY_NAME, factory);
+            rollback(PROVIDER_PROPERTY_NAME, factory);
         }
     }
 
