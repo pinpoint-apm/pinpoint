@@ -407,6 +407,11 @@
                 <artifactId>rocketmq-client</artifactId>
                 <version>4.7.1</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.pulsar</groupId>
+                <artifactId>pulsar-client</artifactId>
+                <version>4.0.0</version>
+            </dependency>
             <!-- Spring Data R2DBC -->
             <dependency>
                 <groupId>org.springframework.data</groupId>
