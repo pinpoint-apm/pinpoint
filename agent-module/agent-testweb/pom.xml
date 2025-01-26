@@ -95,6 +95,7 @@
         <module>arcus-plugin-testweb</module>
         <module>mysql-jdbc-plugin-testweb</module>
         <module>spring-restclient-plugin-testweb</module>
+        <module>pulsar-plugin-testweb</module>
     </modules>
 
     <dependencyManagement>

@@ -119,6 +119,7 @@
         <module>spring-cloud-sleuth</module>
         <module>spring-stub</module>
         <module>ktor</module>
+        <module>pulsar</module>
     </modules>
 
 
