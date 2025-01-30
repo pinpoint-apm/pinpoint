@@ -93,6 +93,7 @@ import org.mockito.stubbing.Answer;
 import org.objectweb.asm.tree.ClassNode;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -257,15 +258,37 @@ public class ASMClassTest {
     }
 
     @Test
+    public void getSpecificDeclaredMethod() throws Exception {
+        ASMClass clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass");
+        InstrumentMethod method1 = clazz.getDeclaredMethod("argSpecificMethod", MethodFilters.chain(
+                MethodFilters.argAt(1, "long")
+        ));
+        assertNotNull(method1);
+        assertEquals(2, method1.getParameterTypes().length);
+        assertEquals("int", method1.getParameterTypes()[0]);
+    }
+
+    @Test
     public void getDeclaredConstructors() throws Exception {
         ASMClass clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass");
         List<InstrumentMethod> constructors = clazz.getDeclaredConstructors();
         assertNotNull(constructors);
-        assertThat(constructors).hasSize(2);
+        assertThat(constructors).hasSize(4);
         assertEquals("ArgsClass", constructors.get(0).getName());
 
         assertEquals("ArgsClass", constructors.get(1).getName());
         assertArrayEquals(new String[]{"int"}, constructors.get(1).getParameterTypes());
+    }
+
+    @Test
+    public void getSpecificDeclaredConstructor() throws Exception {
+        ASMClass clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass");
+        InstrumentMethod constructor = clazz.getConstructor(MethodFilters.chain(
+                MethodFilters.name("ArgsClass"),
+                MethodFilters.argAt(1, "int")
+        ));
+        assertNotNull(constructor);
+        assertEquals("java.lang.String", constructor.getParameterTypes()[0]);
     }
 
     @Test
