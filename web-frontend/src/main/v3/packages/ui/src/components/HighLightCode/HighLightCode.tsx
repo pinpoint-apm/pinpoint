@@ -33,7 +33,7 @@ export const HighLightCode = ({
   }, []);
   React.useEffect(() => {
     console.log('3');
-    const value = hljs.highlight(code, { language }).value;
+    const value = hljs.highlight(code || '', { language }).value;
     setHighLightedCode(value);
     console.log('4', value);
   }, [code, language]);
