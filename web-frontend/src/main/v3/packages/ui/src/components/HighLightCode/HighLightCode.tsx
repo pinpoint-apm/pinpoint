@@ -20,15 +20,25 @@ export interface HighLightCodeProps {
   className?: string;
 }
 
-export const HighLightCode = ({ language = 'text', code = '', className }: HighLightCodeProps) => {
+export const HighLightCode = ({
+  language = 'text',
+  code = '',
+  className,
+}: HighLightCodeProps = {}) => {
+  console.log('1', language, code, className);
   const [highLightedCode, setHighLightedCode] = React.useState(code);
   React.useEffect(() => {
+    console.log('2');
     hljs.highlightAll();
   }, []);
   React.useEffect(() => {
+    console.log('3');
     const value = hljs.highlight(code, { language }).value;
     setHighLightedCode(value);
+    console.log('4', value);
   }, [code, language]);
+
+  console.log('highLightedCode', highLightedCode);
 
   return (
     // <pre>
