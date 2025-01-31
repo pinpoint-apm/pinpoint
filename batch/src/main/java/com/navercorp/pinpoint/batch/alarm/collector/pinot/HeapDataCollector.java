@@ -36,8 +36,8 @@ import java.util.Objects;
 public class HeapDataCollector extends DataCollector implements HeapDataGetter {
 
     private final static String METRIC_NAME = "jvmGc";
-    private final static String FIELD_HEAP_USED = "heapUsed";
-    private final static String FIELD_HEAP_MAX = "heapMax";
+    protected final static String FIELD_HEAP_USED = "heapUsed";
+    protected final static String FIELD_HEAP_MAX = "heapMax";
     private final AlarmDao alarmDao;
     private final Application application;
     private final Map<String, Long> agentHeapUsageRate = new HashMap<>();

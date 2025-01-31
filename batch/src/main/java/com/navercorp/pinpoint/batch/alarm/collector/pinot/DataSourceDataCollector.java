@@ -46,12 +46,13 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
 
     private final Logger logger = LogManager.getLogger(DataSourceDataCollector.class);
     private static final String EMTPY_STRING = "";
-    private final static String METRIC_NAME = "dataSource";
-    private final static String FIELD_ACTIVE_CONNECTION = "activeConnectionSize";
-    private final static String FIELD_MAX_CONNECTION = "maxConnectionSize";
+    protected final static String METRIC_NAME = "dataSource";
+    protected final static String FIELD_ACTIVE_CONNECTION = "activeConnectionSize";
+    protected final static String FIELD_MAX_CONNECTION = "maxConnectionSize";
     private final static String JDBC_URL = "jdbcUrl";
     private final static String ID = "id";
     private final static String DATABASE_NAME = "databaseName";
+
     private final AlarmDao alarmDao;
     private final Application application;
     private final List<String> agentIds;
