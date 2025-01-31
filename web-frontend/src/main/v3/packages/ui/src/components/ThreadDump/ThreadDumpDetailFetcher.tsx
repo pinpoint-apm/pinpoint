@@ -32,7 +32,7 @@ export const ThreadDumpDetailFetcher = ({ thread }: ThreadDumpDetailFetcherProps
           <Separator />
           <div className="relative flex-1 h-full p-4 overflow-hidden">
             <HighLightCode
-              code={detail}
+              code={detail || ''}
               language={'java'}
               className="h-full p-2 overflow-auto text-xs"
             />

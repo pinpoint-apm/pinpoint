@@ -35,7 +35,7 @@ export const CollapsibleCodeViewer = ({
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent className="px-4 pb-4">
-        <HighLightCode language={language} code={code} className="p-2 text-xs" />
+        <HighLightCode language={language} code={code || ''} className="p-2 text-xs" />
       </CollapsibleContent>
     </Collapsible>
   );

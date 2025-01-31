@@ -130,7 +130,7 @@ export const ErrorDetailDialog = ({
                   StackTrace {stackTraceOpen ? <RxChevronUp /> : <RxChevronDown />}
                 </CollapsibleTrigger>
                 <CollapsibleContent>
-                  <HighLightCode language="java" code={error.trace} className="p-2 text-xs" />
+                  <HighLightCode language="java" code={error.trace || ''} className="p-2 text-xs" />
                 </CollapsibleContent>
               </Collapsible>
             </div>

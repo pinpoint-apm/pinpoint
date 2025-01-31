@@ -296,7 +296,7 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
           <DialogHeader>
             <DialogTitle className="text-base">Content</DialogTitle>
           </DialogHeader>
-          <HighLightCode className="p-2 text-xs min-h-20" code={content} />
+          <HighLightCode className="p-2 text-xs min-h-20" code={content || ''} />
         </DialogContent>
       </Dialog>
     </div>
