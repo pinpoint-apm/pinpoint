@@ -43,7 +43,7 @@ export const OpenTelemetryMetricFetcher = ({
     mutate(
       assign(
         {
-          applicationName,
+          applicationName: metricName === 'memory' ? 'error' : applicationName,
           metricGroupName,
           metricName,
           tagGroupList,

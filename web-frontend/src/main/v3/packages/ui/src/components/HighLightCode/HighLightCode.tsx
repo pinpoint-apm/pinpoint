@@ -1,24 +1,49 @@
-import { cn } from '@pinpoint-fe/ui/lib';
-import SyntaxHighlighter from 'react-syntax-highlighter/dist/esm/default-highlight';
-// import SyntaxHighlighter from 'react-syntax-highlighter';
-import { atomOneLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import 'highlight.js/styles/atom-one-light.min.css';
+import React from 'react';
+import hljs from 'highlight.js/lib/core';
+import typescript from 'highlight.js/lib/languages/typescript';
+import sql from 'highlight.js/lib/languages/sql';
+import java from 'highlight.js/lib/languages/java';
+import plaintext from 'highlight.js/lib/languages/plaintext';
+import { cn } from '../../lib';
 
-// 추가 언어 필요시 등록
-type LanguageType = 'typescript' | 'sql' | 'java' | 'text';
+// 언어 등록
+hljs.registerLanguage('typescript', typescript);
+hljs.registerLanguage('sql', sql);
+hljs.registerLanguage('java', java);
+hljs.registerLanguage('plaintext', plaintext);
+
 export interface HighLightCodeProps {
-  language?: LanguageType;
+  language?: 'typescript' | 'sql' | 'java' | 'plaintext';
   code?: string;
   className?: string;
 }
 
-export const HighLightCode = ({ language = 'text', code = '', className }: HighLightCodeProps) => {
+export const HighLightCode = ({
+  language = 'plaintext',
+  code = '',
+  className,
+}: HighLightCodeProps) => {
+  const [highLightedCode, setHighLightedCode] = React.useState(code);
+
+  React.useEffect(() => {
+    try {
+      const value = hljs.highlight(code, { language }).value; // 수정
+      setHighLightedCode(value);
+    } catch (error) {
+      console.error(`Highlight.js 오류:`, error);
+      setHighLightedCode(code); // 에러 발생 시 원본 코드 그대로 출력
+    }
+  }, [code, language]);
+
   return (
-    <SyntaxHighlighter
-      language={language}
-      style={atomOneLight}
-      class={cn('hljs test111', className)}
-    >
-      {code}
-    </SyntaxHighlighter>
+    <div className={cn('hljs', className)}>
+      {highLightedCode.split('\n').map((str, i) => (
+        <React.Fragment key={i}>
+          <code dangerouslySetInnerHTML={{ __html: str }} className="break-all"></code>
+          <br />
+        </React.Fragment>
+      ))}
+    </div>
   );
 };
