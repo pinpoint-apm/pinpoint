@@ -150,11 +150,11 @@ public class DefaultAgent implements Agent {
     }
 
     private void dumpAgentOption(AgentContextOption agentOption) {
-        logger.info("AgentOption");
-        logger.info("- agentId:{}", agentOption.getAgentId());
-        logger.info("- applicationName:{}", agentOption.getApplicationName());
-        logger.info("- agentName:{}", agentOption.getAgentName());
-        logger.info("- instrumentation:{}", agentOption.getInstrumentation());
+        logger.warn("AgentOption");
+        logger.warn("- agentId: {}", agentOption.getAgentId());
+        logger.warn("- agentName: {}", agentOption.getAgentName());
+        logger.warn("- applicationName: {}", agentOption.getApplicationName());
+        logger.info("- instrumentation: {}", agentOption.getInstrumentation());
     }
 
     private LoggingSystem newLoggingSystem(Path agentPath) {
