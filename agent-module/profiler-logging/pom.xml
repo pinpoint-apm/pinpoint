@@ -31,6 +31,12 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-bootstrap-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <scope>provided</scope>
+            <version>1.0.0</version>
+        </dependency>
 
         <!-- Logging dependencies -->
         <dependency>
