@@ -43,7 +43,7 @@ export const OpenTelemetryMetricFetcher = ({
     mutate(
       assign(
         {
-          applicationName: metricName === 'cpu' ? 'error' : applicationName,
+          applicationName,
           metricGroupName,
           metricName,
           tagGroupList,
