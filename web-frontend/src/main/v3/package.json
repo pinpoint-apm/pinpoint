@@ -23,8 +23,8 @@
   },
   "engines": {
     "npm": ">=7.0.0",
-    "node": ">=14.0.0"
+    "node": ">=22.13.1"
   },
-  "packageManager": "yarn@1.22.10",
+  "packageManager": "yarn@1.22.22",
   "dependencies": {}
 }

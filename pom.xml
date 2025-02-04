@@ -272,8 +272,8 @@
         <!-- frontend-plugin -->
         <plugin.frontend.version>1.13.4</plugin.frontend.version>
         <!-- https://nodejs.org/ko/download/releases/ -->
-        <plugin.frontend.node.version>v16.17.1</plugin.frontend.node.version>
-        <plugin.frontend.yarn.version>v1.22.19</plugin.frontend.yarn.version>
+        <plugin.frontend.node.version>v22.13.1</plugin.frontend.node.version>
+        <plugin.frontend.yarn.version>v1.22.22</plugin.frontend.yarn.version>
         <plugin.frontend.node.install.dir>/node_install/node-${plugin.frontend.node.version}</plugin.frontend.node.install.dir>
 
         <spring-boot-maven-plugin.attatch>false</spring-boot-maven-plugin.attatch>
