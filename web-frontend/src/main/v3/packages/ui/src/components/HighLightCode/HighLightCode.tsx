@@ -25,9 +25,15 @@ export const HighLightCode = ({ language = 'text', code = '', className }: HighL
   React.useEffect(() => {
     hljs.highlightAll();
   }, []);
+
   React.useEffect(() => {
-    const value = hljs.highlight(code, { language }).value;
-    setHighLightedCode(value);
+    try {
+      const value = hljs.highlight(code, { language }).value;
+      setHighLightedCode(value);
+    } catch (e) {
+      console.error('Highlight Error', e);
+      setHighLightedCode(code || '');
+    }
   }, [code, language]);
 
   return (

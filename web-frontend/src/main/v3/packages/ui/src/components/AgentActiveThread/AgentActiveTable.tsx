@@ -56,7 +56,7 @@ export const AgentActiveTable = ({
             >
               <RxExternalLink />
             </Button>
-            {true && (
+            {message && (
               <TooltipProvider delayDuration={0}>
                 <Tooltip>
                   <TooltipTrigger asChild>
