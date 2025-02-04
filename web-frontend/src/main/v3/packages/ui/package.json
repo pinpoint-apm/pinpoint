@@ -12,14 +12,14 @@
       "types": "./dist/index.d.ts"
     },
     "./**": "./dist/index.js",
-    "./dist/pinpoint-fe-common-ui.css": "./dist/index.css",
+    "./dist/pinpoint-fe-common-ui.css": "./dist/style.css",
     "./tailwind.config.js": "./tailwind.config.js"
   },
   "scripts": {
     "format": "prettier --write \"./src/**/*.{js,jsx,ts,tsx}\"",
-    "dev": "tsup --config ./tsup.config.dev.ts --watch",
-    "devBuild": "tsup --config ./tsup.config.dev.ts",
-    "build": "yarn format && yarn lint && tsc && tsup --config ./tsup.config.prod.ts",
+    "dev": "vite build --watch",
+    "devBuild": "vite build",
+    "build": "yarn format && yarn lint && tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
