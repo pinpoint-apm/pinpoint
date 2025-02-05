@@ -32,12 +32,14 @@ public class MetricDataView {
     private ChartType chartType;
     private String unit;
     private List<MetricValue> metricValueList;
+    private final String message;
 
     public MetricDataView(MetricData metricData) {
         this.timestamp = metricData.getTimestampList();
         this.chartType = metricData.getChartType();
         this.unit = metricData.getUnit();
         this.metricValueList = metricData.getMetricValueList();
+        this.message = metricData.getMessage();
     }
 
     public List<Long> getTimestamp() {
@@ -54,6 +56,10 @@ public class MetricDataView {
 
     public List<MetricValueView> getMetricValues() {
         return metricValueList.stream().map(MetricValueView::new).collect(Collectors.toList());
+    }
+
+    public String getMessage() {
+        return message;
     }
 
     public static class MetricValueView {

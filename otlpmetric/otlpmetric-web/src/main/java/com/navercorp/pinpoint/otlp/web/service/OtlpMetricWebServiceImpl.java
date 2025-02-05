@@ -39,6 +39,8 @@ import java.util.stream.Collectors;
 @Service
 public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
     private final Logger logger = LogManager.getLogger(this.getClass());
+    private static final String EMPTY_STRING = "";
+
     @Deprecated
     public static final OtlpChartView EMPTY_CHART = OtlpChartViewBuilder.EMPTY_CHART_VIEW;
     @Deprecated
@@ -138,6 +140,10 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
     public MetricData getMetricData(String tenantId, String serviceName, String applicationName, String agentId, String metricGroupName, String metricName, PrimaryForFieldAndTagRelation primaryForFieldAndTagRelation, List<String> tagGroupList, List<String> fieldNameList, ChartType chartType, AggregationFunction aggregationFunction, TimeWindow timeWindow) {
         List<FieldAttribute> fields = otlpMetricDao.getFields(serviceName, applicationName, agentId, metricGroupName, metricName, tagGroupList, fieldNameList);
 
+        if(fields.size() == 0) {
+            return createEmptyMetricData(timeWindow, chartType);
+        }
+
         OtlpMetricDataQueryParameter.Builder builder =
                 new OtlpMetricDataQueryParameter.Builder()
                         .setServiceName(serviceName)
@@ -173,6 +179,10 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
             }
 
         return metricData;
+    }
+
+    private MetricData createEmptyMetricData(TimeWindow timeWindow, ChartType chartType) {
+        return new MetricData(TimeUtils.createTimeStampList(timeWindow), chartType, EMPTY_STRING, "There is no metadata for the metric query.");
     }
 
     private String getLegendName(OtlpMetricDataQueryParameter chartQueryParameter, PrimaryForFieldAndTagRelation primaryForFieldAndTagRelation) {
