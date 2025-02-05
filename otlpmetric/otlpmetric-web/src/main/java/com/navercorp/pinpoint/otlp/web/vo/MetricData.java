@@ -26,16 +26,23 @@ import java.util.List;
  * @author minwoo-jung
  */
 public class MetricData {
+    private final static String EMPTY_MESSAEG = "";
     private List<Long> timestampList;
     private final ChartType chartType;
     private final String unit;
     private final List<MetricValue> metricValueList;
+    private final String message;
 
-    public MetricData(List<Long> timestampList, ChartType chartType, String unit) {
+    public MetricData(List<Long> timestampList, ChartType chartType, String unit, String message) {
         this.timestampList = timestampList;
         this.chartType = chartType;
         this.unit = unit;
         this.metricValueList = new ArrayList<>();
+        this.message = message;
+    }
+
+    public MetricData(List<Long> timestampList, ChartType chartType, String unit) {
+        this(timestampList, chartType, unit, EMPTY_MESSAEG);
     }
 
     public void addMetricValue(MetricValue metricValue) {
@@ -56,5 +63,9 @@ public class MetricData {
 
     public List<MetricValue> getMetricValueList() {
         return metricValueList;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }
