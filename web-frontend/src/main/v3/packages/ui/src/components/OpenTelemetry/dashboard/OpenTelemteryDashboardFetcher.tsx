@@ -34,7 +34,6 @@ import { MetricDefinitionSheet } from '../definition/MetricDefinitionSheet';
 import { OpenTelemetryAlertDialog } from './OpenTelemetryAlertDialog';
 import { isEqual, sortBy } from 'lodash';
 import { cn } from '../../../lib/utils';
-import { Widget } from '../../Dashboard/Widget';
 import { OpenTelemetryMetric } from '../charts/OpenTelemetryMetric';
 
 export interface OpenTelemetryDashboardFetcherProps {}
@@ -228,21 +227,10 @@ export const OpenTelemetryDashboardFetcher = () => {
                 metrics.map((metric) => {
                   return (
                     <div key={metric?.id}>
-                      <Widget
-                        title={metric.title}
-                        onClickDelete={() => {
-                          setCurrentDeletingTarget(metric);
-                        }}
-                        onClickEdit={() => {
-                          setCurrentEditingTarget(metric);
-                        }}
-                      >
-                        <OpenTelemetryMetric
-                          inView={true}
-                          metricDefinition={metric}
-                          dashboardId={applicationName}
-                        />
-                      </Widget>
+                      <OpenTelemetryMetric
+                        metricDefinition={metric}
+                        dashboardId={applicationName}
+                      />
                     </div>
                   );
                 })}

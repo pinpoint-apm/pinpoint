@@ -14,7 +14,7 @@ import { PiNotePencil } from 'react-icons/pi';
 import { PropsWithChildren } from 'react';
 
 export interface WidgetProps extends PropsWithChildren {
-  title?: string;
+  title?: React.ReactNode;
   onClickEdit?: () => void;
   onClickDelete?: () => void;
 }

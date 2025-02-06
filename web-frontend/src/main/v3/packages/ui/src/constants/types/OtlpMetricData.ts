@@ -32,6 +32,7 @@ export namespace OtlpMetricData {
     chartType: string;
     unit: string;
     metricValues: MetricValue[];
+    message?: string;
   }
 
   export interface MetricValue {
