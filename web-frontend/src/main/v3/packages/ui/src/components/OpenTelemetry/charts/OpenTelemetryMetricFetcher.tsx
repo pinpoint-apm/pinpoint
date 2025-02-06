@@ -1,22 +1,28 @@
 import { useTranslation } from 'react-i18next';
-import { ErrorDetailResponse, OtlpMetricDefUserDefined } from '@pinpoint-fe/ui/constants';
+import { colors, ErrorDetailResponse, OtlpMetricDefUserDefined } from '@pinpoint-fe/ui/constants';
 import { useOpenTelemetrySearchParameters, usePostOtlpMetricData } from '@pinpoint-fe/ui/hooks';
 import React from 'react';
 import { assign } from 'lodash';
 import { ReChart } from '../../../components/ReChart';
 import { useInView } from 'react-intersection-observer';
-import { Button } from '../../ui';
+import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../ui';
 import { ErrorDetailDialog } from '../../Error/ErrorDetailDialog';
+import { Widget } from '../../Dashboard/Widget';
+import { HiMiniExclamationCircle } from 'react-icons/hi2';
+import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 
 export interface OpenTelemetryMetricFetcherProps {
   metricDefinition: OtlpMetricDefUserDefined.Metric;
   dashboardId?: string;
-  inView?: boolean;
+  onDeleted?: (metric: OtlpMetricDefUserDefined.Metric) => void;
+  onEdit?: (metric: OtlpMetricDefUserDefined.Metric) => void;
 }
 
 export const OpenTelemetryMetricFetcher = ({
   metricDefinition,
   dashboardId,
+  onDeleted,
+  onEdit,
 }: OpenTelemetryMetricFetcherProps) => {
   const { t } = useTranslation();
   const { mutate, data, error } = usePostOtlpMetricData();
@@ -95,32 +101,64 @@ export const OpenTelemetryMetricFetcher = ({
     );
   }
 
+  const message = 'test message\ntestmesage~~~';
+
   return (
-    <div ref={ref} className="w-full h-full">
-      <ReChart
-        syncId={dashboardId}
-        chartData={{
-          title: '',
-          timestamp: data?.timestamp || [],
-          metricValueGroups: [
-            {
-              groupName: '',
-              chartType: data?.chartType || '',
-              unit: data?.unit || '',
-              metricValues: (data?.metricValues || [])?.map((mv) => {
-                return {
-                  fieldName: mv?.legendName,
-                  values: mv?.values,
-                };
-              }),
-            },
-          ],
-        }}
-        unit={data?.unit}
-        tooltipConfig={{
-          showTotal: stack && stackDetails?.showTotal,
-        }}
-      />
-    </div>
+    <Widget
+      title={
+        <div className="flex flex-row gap-1">
+          {metricDefinition.title}
+          {message && (
+            <TooltipProvider delayDuration={0}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <HiMiniExclamationCircle color={colors.gray[400]} size={16} />
+                  </div>
+                </TooltipTrigger>
+                <TooltipPrimitive.Portal>
+                  <TooltipContent>
+                    {message?.split('\n').map((m, i) => <p key={i}>{m}</p>)}
+                  </TooltipContent>
+                </TooltipPrimitive.Portal>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
+      }
+      onClickDelete={() => {
+        onDeleted?.(metricDefinition);
+      }}
+      onClickEdit={() => {
+        onEdit?.(metricDefinition);
+      }}
+    >
+      <div ref={ref} className="w-full h-full">
+        <ReChart
+          syncId={dashboardId}
+          chartData={{
+            title: '',
+            timestamp: data?.timestamp || [],
+            metricValueGroups: [
+              {
+                groupName: '',
+                chartType: data?.chartType || '',
+                unit: data?.unit || '',
+                metricValues: (data?.metricValues || [])?.map((mv) => {
+                  return {
+                    fieldName: mv?.legendName,
+                    values: mv?.values,
+                  };
+                }),
+              },
+            ],
+          }}
+          unit={data?.unit}
+          tooltipConfig={{
+            showTotal: stack && stackDetails?.showTotal,
+          }}
+        />
+      </div>
+    </Widget>
   );
 };
