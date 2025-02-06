@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.view.error;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
@@ -15,9 +16,9 @@ public class PinpointErrorData {
     private final String hostName;
     private final RequestInfo requestInfo;
 
-    public PinpointErrorData(String hostName, WebRequest request) {
+    public PinpointErrorData(String hostName, WebRequest request, boolean includeCookies) {
         this.hostName = hostName;
-        this.requestInfo = new RequestInfo(request);
+        this.requestInfo = new RequestInfo(request, includeCookies);
     }
 
     public String getHostName() {
@@ -34,13 +35,17 @@ public class PinpointErrorData {
         private final Map<String, List<String>> headers;
         private final Map<String, String[]> parameters;
 
-        public RequestInfo(WebRequest request) {
+        @JsonIgnore
+        private boolean includeCookies = true;
+
+        public RequestInfo(WebRequest request, boolean includeCookies) {
+            this.includeCookies = includeCookies;
             if (request instanceof ServletWebRequest webRequest) {
                 this.method = webRequest.getRequest().getMethod();
                 this.headers = getRequestHeader(webRequest);
                 this.parameters = request.getParameterMap();
             } else {
-                this.method = "UNKNOWN";
+                this.method = UNKNOWN;
                 this.headers = null;
                 this.parameters = null;
             }
@@ -65,9 +70,12 @@ public class PinpointErrorData {
             }
 
             Map<String, List<String>> result = new HashMap<>();
-            while(keys.hasNext()) {
+            while (keys.hasNext()) {
                 String key = keys.next();
                 if (key == null) {
+                    continue;
+                }
+                if (key.equals("cookie") && !includeCookies) {
                     continue;
                 }
                 result.put(key, List.of(webRequest.getHeaderValues(key)));

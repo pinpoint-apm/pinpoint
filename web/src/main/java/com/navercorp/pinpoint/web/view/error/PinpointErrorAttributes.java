@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web.view.error;
 
 import org.apache.commons.lang3.SystemUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
 import org.springframework.stereotype.Component;
@@ -11,6 +12,9 @@ import java.util.Map;
 @Component
 public class PinpointErrorAttributes extends DefaultErrorAttributes {
     private final String hostname;
+
+    @Value("${server.error.include-cookies:true}")
+    private boolean includeCookies;
 
     public PinpointErrorAttributes() {
         this.hostname = SystemUtils.getHostName();
@@ -32,7 +36,7 @@ public class PinpointErrorAttributes extends DefaultErrorAttributes {
     }
 
     private void addCustomData(WebRequest webRequest, Map<String, Object> errorAttributes) {
-        PinpointErrorData pinpointErrorData = new PinpointErrorData(this.hostname, webRequest);
+        PinpointErrorData pinpointErrorData = new PinpointErrorData(this.hostname, webRequest, includeCookies);
         errorAttributes.put("data", pinpointErrorData);
     }
 }
