@@ -25,9 +25,7 @@ import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.grpc.trace.PStatMessage;
 import com.navercorp.pinpoint.grpc.trace.StatGrpc;
-import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.HeaderEntity;
-import com.navercorp.pinpoint.io.header.v2.HeaderV2;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
@@ -89,9 +87,8 @@ public class StatService extends StatGrpc.StatImplBase {
 
 
     private <T> Message<T> newMessage(T requestData, MessageType messageType) {
-        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, messageType.getCode());
         final HeaderEntity headerEntity = new HeaderEntity(new HashMap<>());
-        return new DefaultMessage<>(header, headerEntity, requestData);
+        return new DefaultMessage<>(messageType, headerEntity, requestData);
     }
 
     private void dispatch(final Message<? extends GeneratedMessageV3> message, ServerCallStream<PStatMessage, Empty> responseObserver) {

@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleAndRequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.common.util.apache.IntHashMap;
-import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.io.util.MessageType;
@@ -60,28 +59,27 @@ public class AgentDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES>
     }
 
     protected RequestResponseHandler<REQ, RES> getRequestResponseHandler(ServerRequest<? extends REQ> serverRequest) {
-        final Header header = serverRequest.getHeader();
-        final short type = header.getType();
+        MessageType messageType = serverRequest.getMessageType();
+        final short type = messageType.getCode();
         RequestResponseHandler<REQ, RES> handler = this.handlerMap.get(type);
         if (handler == null) {
-            throw new UnsupportedOperationException("unsupported header:" + header);
+            throw new UnsupportedOperationException("unsupported header:" + messageType);
         }
         return handler;
     }
 
-    private SimpleHandler<REQ> getSimpleHandler(Header header) {
-        final short type = header.getType();
-        if (type == MessageType.AGENT_INFO.getCode()) {
+    private SimpleHandler<REQ> getSimpleHandler(MessageType type) {
+        if (type == MessageType.AGENT_INFO) {
             return agentInfoHandler;
         }
 
-        throw new UnsupportedOperationException("unsupported header:" + header);
+        throw new UnsupportedOperationException("unsupported header:" + type);
     }
 
     @Override
     public void dispatchSendMessage(ServerRequest<REQ> serverRequest) {
-        final Header header = serverRequest.getHeader();
-        SimpleHandler<REQ> simpleHandler = getSimpleHandler(header);
+        MessageType messageType = serverRequest.getMessageType();
+        SimpleHandler<REQ> simpleHandler = getSimpleHandler(messageType);
         simpleHandler.handleSimple(serverRequest);
     }
 

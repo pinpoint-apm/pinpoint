@@ -12,6 +12,6 @@ class MessageTypeTest {
         MessageType type = MessageType.getType(MessageType.SPAN.getCode());
         assertEquals(MessageType.SPAN, type);
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> MessageType.getType((short)-1));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> MessageType.getType((short)-2));
     }
 }

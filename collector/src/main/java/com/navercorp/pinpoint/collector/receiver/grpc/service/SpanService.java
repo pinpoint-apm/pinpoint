@@ -24,9 +24,7 @@ import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
-import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.HeaderEntity;
-import com.navercorp.pinpoint.io.header.v2.HeaderV2;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
@@ -85,9 +83,8 @@ public class SpanService extends SpanGrpc.SpanImplBase {
     }
 
     private <T> Message<T> newMessage(T requestData, MessageType messageType) {
-        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, messageType.getCode());
         final HeaderEntity headerEntity = new HeaderEntity(new HashMap<>());
-        return new DefaultMessage<>(header, headerEntity, requestData);
+        return new DefaultMessage<>(messageType, headerEntity, requestData);
     }
 
     private void dispatch(final Message<? extends GeneratedMessageV3> message, ServerCallStream<PSpanMessage, Empty> responseObserver) {

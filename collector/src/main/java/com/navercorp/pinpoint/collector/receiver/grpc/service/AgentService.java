@@ -26,9 +26,7 @@ import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PPing;
 import com.navercorp.pinpoint.grpc.trace.PResult;
-import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.HeaderEntity;
-import com.navercorp.pinpoint.io.header.v2.HeaderV2;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.util.MessageType;
@@ -156,8 +154,7 @@ public class AgentService extends AgentGrpc.AgentImplBase {
     }
 
     private <T> Message<T> newMessage(T requestData, MessageType type) {
-        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, type.getCode());
         final HeaderEntity headerEntity = new HeaderEntity(Collections.emptyMap());
-        return new DefaultMessage<>(header, headerEntity, requestData);
+        return new DefaultMessage<>(type, headerEntity, requestData);
     }
 }
