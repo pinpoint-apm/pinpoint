@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.receiver;
 
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
-import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.io.util.MessageType;
@@ -38,19 +37,18 @@ public class SpanDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES> 
         this.spanChunkHandler = Objects.requireNonNull(spanChunkHandler, "spanChunkHandler");
     }
 
-    private SimpleHandler<REQ> getSimpleHandler(Header header) {
-        final int type = header.getType();
-        if (type == MessageType.SPAN.getCode()) {
+    private SimpleHandler<REQ> getSimpleHandler(MessageType type) {
+        if (type == MessageType.SPAN) {
             return spanDataHandler;
-        } else if (type == MessageType.SPANCHUNK.getCode()) {
+        } else if (type == MessageType.SPANCHUNK) {
             return spanChunkHandler;
         }
-        throw new UnsupportedOperationException("unsupported header:" + header);
+        throw new UnsupportedOperationException("unsupported header:" + type);
     }
 
     @Override
     public void dispatchSendMessage(ServerRequest<REQ> serverRequest) {
-        SimpleHandler<REQ> simpleHandler = getSimpleHandler(serverRequest.getHeader());
+        SimpleHandler<REQ> simpleHandler = getSimpleHandler(serverRequest.getMessageType());
         simpleHandler.handleSimple(serverRequest);
     }
 

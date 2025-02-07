@@ -18,12 +18,11 @@ package com.navercorp.pinpoint.collector.receiver;
 
 import com.navercorp.pinpoint.collector.handler.SimpleDualHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
-import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.io.util.MessageType;
-import org.apache.commons.lang3.ArrayUtils;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -32,11 +31,11 @@ import java.util.Objects;
  */
 public class StatDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES> {
 
-    private static final int[] DISPATCH_TABLE = new int[]{
-            MessageType.AGENT_STAT.getCode(),
-            MessageType.AGENT_STAT_BATCH.getCode(),
-            MessageType.AGENT_URI_STAT.getCode()
-    };
+    private static final List<MessageType> DISPATCH_TABLE = List.of(
+            MessageType.AGENT_STAT,
+            MessageType.AGENT_STAT_BATCH,
+            MessageType.AGENT_URI_STAT
+    );
 
     private final SimpleHandler<REQ> agentStatHandler;
 
@@ -47,18 +46,17 @@ public class StatDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES> 
         this.agentEventHandler = Objects.requireNonNull(agentEventHandler, "agentEventHandler");
     }
 
-    private SimpleHandler<REQ> getSimpleHandler(Header header) {
-        final int type = header.getType();
-        if (ArrayUtils.contains(DISPATCH_TABLE, type)) {
+    private SimpleHandler<REQ> getSimpleHandler(MessageType type) {
+        if (DISPATCH_TABLE.contains(type)) {
             return new SimpleDualHandler<>(agentStatHandler, agentEventHandler);
         }
 
-        throw new UnsupportedOperationException("unsupported header:" + header);
+        throw new UnsupportedOperationException("unsupported header:" + type);
     }
 
     @Override
     public void dispatchSendMessage(ServerRequest<REQ> serverRequest) {
-        SimpleHandler<REQ> simpleHandler = getSimpleHandler(serverRequest.getHeader());
+        SimpleHandler<REQ> simpleHandler = getSimpleHandler(serverRequest.getMessageType());
         simpleHandler.handleSimple(serverRequest);
     }
 

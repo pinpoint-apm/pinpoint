@@ -25,9 +25,7 @@ import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
-import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.HeaderEntity;
-import com.navercorp.pinpoint.io.header.v2.HeaderV2;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.util.MessageType;
@@ -114,9 +112,8 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
     }
 
     private <T> Message<T> newMessage(T requestData, MessageType type) {
-        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, type.getCode());
         final HeaderEntity headerEntity = new HeaderEntity(Collections.emptyMap());
-        return new DefaultMessage<>(header, headerEntity, requestData);
+        return new DefaultMessage<>(type, headerEntity, requestData);
     }
 
     void doExecutor(final Message<? extends GeneratedMessageV3> message, final StreamObserver<? extends GeneratedMessageV3> responseObserver) {

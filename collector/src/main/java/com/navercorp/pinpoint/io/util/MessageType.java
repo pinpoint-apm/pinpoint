@@ -8,6 +8,8 @@ import java.lang.reflect.Modifier;
 
 public class MessageType {
 
+    public static final MessageType EMPTY = new MessageType(-1);
+
     public static final MessageType SPAN = new MessageType(40);
 
     public static final MessageType AGENT_INFO = new MessageType(50);
