@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
-
+import io.grpc.Context;
 import io.grpc.StatusException;
 
 /**
@@ -28,4 +28,5 @@ public interface ServerRequestFactory {
 
     <T> ServerRequest<T> newServerRequest(Message<T> message) throws StatusException;
 
+    <T> ServerRequest<T> newServerRequest(Context context, Message<T> message) throws StatusException;
 }

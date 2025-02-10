@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.io.request;
 
+import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.io.util.MessageType;
 
 import java.util.Objects;
@@ -33,6 +34,11 @@ public class DefaultServerRequest<T> extends DefaultAttributeMap implements Serv
         this.message = Objects.requireNonNull(message, "message");
         this.remoteAddress = Objects.requireNonNull(remoteAddress, "remoteAddress");
         this.remotePort = remotePort;
+    }
+
+    @Override
+    public Header getHeader() {
+        return message.getHeader();
     }
 
     @Override

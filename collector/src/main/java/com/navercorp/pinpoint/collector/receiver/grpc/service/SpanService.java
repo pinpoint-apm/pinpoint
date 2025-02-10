@@ -19,15 +19,17 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
-import com.navercorp.pinpoint.grpc.trace.PSpan;
-import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
+import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.util.MessageType;
+import io.grpc.Context;
+import io.grpc.StatusException;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
@@ -64,34 +66,35 @@ public class SpanService extends SpanGrpc.SpanImplBase {
         return new ServerCallStream<>(logger, serverStreamId.incrementAndGet(), responseObserver, this::messageDispatch, streamCloseOnError, Empty::getDefaultInstance);
     }
 
-    private void messageDispatch(PSpanMessage spanMessage, ServerCallStream<PSpanMessage, Empty> stream) {
+    private void messageDispatch(PSpanMessage spanMessage, ServerCallStream<PSpanMessage, Empty> responseObserver) {
         if (isDebug) {
             logger.debug("Send PSpan={}", MessageFormatUtils.debugLog(spanMessage));
         }
 
-        if (spanMessage.hasSpan()) {
-            final Message<PSpan> message = newMessage(spanMessage.getSpan(), MessageType.SPAN);
-            dispatch(message, stream);
-        } else if (spanMessage.hasSpanChunk()) {
-            final Message<PSpanChunk> message = newMessage(spanMessage.getSpanChunk(), MessageType.SPANCHUNK);
-            dispatch(message, stream);
-        } else {
-            logger.info("Found empty span message {}", MessageFormatUtils.debugLog(spanMessage));
-        }
-    }
-
-    private <T> Message<T> newMessage(T requestData, MessageType messageType) {
-        return new DefaultMessage<>(messageType, requestData);
-    }
-
-    private void dispatch(final Message<? extends GeneratedMessageV3> message, ServerCallStream<PSpanMessage, Empty> responseObserver) {
+        final Context context = Context.current();
+        final Header header = ServerContext.getAgentInfo(context);
         try {
-            @SuppressWarnings("unchecked")
-            ServerRequest<GeneratedMessageV3> request = (ServerRequest<GeneratedMessageV3>) serverRequestFactory.newServerRequest(message);
-            dispatchHandler.dispatchSendMessage(request);
+            if (spanMessage.hasSpan()) {
+                final ServerRequest<GeneratedMessageV3> request = wrapRequest(context, header, MessageType.SPAN, spanMessage.getSpan());
+                dispatch(request, responseObserver);
+            } else if (spanMessage.hasSpanChunk()) {
+                final ServerRequest<GeneratedMessageV3> request = wrapRequest(context, header, MessageType.SPANCHUNK, spanMessage.getSpanChunk());
+                dispatch(request, responseObserver);
+            } else {
+                logger.info("Found empty span message {}", MessageFormatUtils.debugLog(spanMessage));
+            }
         } catch (Throwable e) {
-            logger.warn("Failed to request. message={}", MessageFormatUtils.debugLog(message), e);
+            logger.warn("Failed to request. header={}", header, e);
             responseObserver.onNextError(e);
         }
+    }
+
+    private <T> ServerRequest<GeneratedMessageV3> wrapRequest(Context context, Header header, MessageType messageType, T data) throws StatusException {
+        final Message<T> message = new DefaultMessage<>(header, messageType, data);
+        return (ServerRequest<GeneratedMessageV3>) serverRequestFactory.newServerRequest(context, message);
+    }
+
+    private void dispatch(final ServerRequest<GeneratedMessageV3> request, ServerCallStream<PSpanMessage, Empty> responseObserver) {
+        dispatchHandler.dispatchSendMessage(request);
     }
 }

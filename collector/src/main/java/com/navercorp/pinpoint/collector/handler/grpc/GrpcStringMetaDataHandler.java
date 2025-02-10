@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.collector.service.StringMetaDataService;
 import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
-import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
 import com.navercorp.pinpoint.io.request.ServerRequest;
@@ -57,8 +56,9 @@ public class GrpcStringMetaDataHandler implements RequestResponseHandler<Generat
     @Override
     public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
         final GeneratedMessageV3 data = serverRequest.getData();
+        final Header header = serverRequest.getHeader();
         if (data instanceof PStringMetaData stringMetaData) {
-            PResult result = handleStringMetaData(stringMetaData);
+            PResult result = handleStringMetaData(header, stringMetaData);
             serverResponse.write(result);
         } else {
             logger.warn("Invalid request type. serverRequest={}", serverRequest);
@@ -66,15 +66,14 @@ public class GrpcStringMetaDataHandler implements RequestResponseHandler<Generat
         }
     }
 
-    private PResult handleStringMetaData(final PStringMetaData stringMetaData) {
+    private PResult handleStringMetaData(Header header, final PStringMetaData stringMetaData) {
         if (logger.isDebugEnabled()) {
             logger.debug("Handle PStringMetaData={}", MessageFormatUtils.debugLog(stringMetaData));
         }
 
         try {
-            final Header agentInfo = ServerContext.getAgentInfo();
-            final String agentId = agentInfo.getAgentId();
-            final long agentStartTime = agentInfo.getAgentStartTime();
+            final String agentId = header.getAgentId();
+            final long agentStartTime = header.getAgentStartTime();
 
             final String stringValue = stringMetaData.getStringValue();
 

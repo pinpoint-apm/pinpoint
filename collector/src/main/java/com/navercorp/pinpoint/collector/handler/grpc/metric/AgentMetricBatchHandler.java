@@ -6,8 +6,8 @@ import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentStatBatchMappe
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
-import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -30,18 +30,19 @@ public class AgentMetricBatchHandler implements GrpcMetricHandler {
     }
 
     @Override
-    public boolean accept(GeneratedMessageV3 message) {
+    public boolean accept(ServerRequest<GeneratedMessageV3> request) {
+        GeneratedMessageV3 message = request.getData();
         return message instanceof PAgentStatBatch;
     }
 
     @Override
-    public void handle(GeneratedMessageV3 message) {
+    public void handle(ServerRequest<GeneratedMessageV3> request) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Handle PAgentStatBatch={}", MessageFormatUtils.debugLog(message));
+            logger.debug("Handle PAgentStatBatch={}", MessageFormatUtils.debugLog(request.getData()));
         }
-        final PAgentStatBatch agentStatBatch = (PAgentStatBatch) message;
+        final PAgentStatBatch agentStatBatch = (PAgentStatBatch) request.getData();
 
-        final Header header = ServerContext.getAgentInfo();
+        final Header header = request.getHeader();
         final AgentStatBo agentStatBo = this.agentStatBatchMapper.map(agentStatBatch, header);
         if (agentStatBo == null) {
             return;

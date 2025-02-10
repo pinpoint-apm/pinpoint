@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializerV1;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
-import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
@@ -69,10 +68,11 @@ public class GrpcAgentEventHandler implements SimpleHandler<GeneratedMessageV3> 
     @Override
     public void handleSimple(ServerRequest<GeneratedMessageV3> serverRequest) {
         final GeneratedMessageV3 data = serverRequest.getData();
+        final Header header = serverRequest.getHeader();
         if (data instanceof PAgentStat agentStat) {
-            handleAgentStat(agentStat);
+            handleAgentStat(header, agentStat);
         } else if (data instanceof PAgentStatBatch agentStatBatch) {
-            handleAgentStatBatch(agentStatBatch);
+            handleAgentStatBatch(header, agentStatBatch);
         } else if (data instanceof PAgentUriStat) {
             // do nothing
         } else {
@@ -81,12 +81,11 @@ public class GrpcAgentEventHandler implements SimpleHandler<GeneratedMessageV3> 
         }
     }
 
-    private void handleAgentStat(PAgentStat agentStat) {
+    private void handleAgentStat(Header header, PAgentStat agentStat) {
         if (logger.isDebugEnabled()) {
             logger.debug("Handle PAgentStat={}", MessageFormatUtils.debugLog(agentStat));
         }
 
-        final Header header = ServerContext.getAgentInfo();
         final AgentEventBo agentEventBo = this.agentEventMapper.map(agentStat, header);
         if (agentEventBo == null) {
             return;
@@ -99,12 +98,11 @@ public class GrpcAgentEventHandler implements SimpleHandler<GeneratedMessageV3> 
         }
     }
 
-    private void handleAgentStatBatch(PAgentStatBatch agentStatBatch) {
+    private void handleAgentStatBatch(Header header, PAgentStatBatch agentStatBatch) {
         if (logger.isDebugEnabled()) {
             logger.debug("Handle PAgentStatBatch={}", MessageFormatUtils.debugLog(agentStatBatch));
         }
 
-        final Header header = ServerContext.getAgentInfo();
         final List<AgentEventBo> agentEventBoList = this.agentEventBatchMapper.map(agentStatBatch, header);
         if (CollectionUtils.isEmpty(agentEventBoList)) {
             return;

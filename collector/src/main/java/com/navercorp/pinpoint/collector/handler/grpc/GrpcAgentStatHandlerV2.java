@@ -47,11 +47,9 @@ public class GrpcAgentStatHandlerV2 implements SimpleHandler<GeneratedMessageV3>
 
     @Override
     public void handleSimple(ServerRequest<GeneratedMessageV3> serverRequest) {
-        final GeneratedMessageV3 data = serverRequest.getData();
-
         for (GrpcMetricHandler messageHandler : metricHandlers) {
-            if (messageHandler.accept(data)) {
-                messageHandler.handle(data);
+            if (messageHandler.accept(serverRequest)) {
+                messageHandler.handle(serverRequest);
                 return;
             }
         }

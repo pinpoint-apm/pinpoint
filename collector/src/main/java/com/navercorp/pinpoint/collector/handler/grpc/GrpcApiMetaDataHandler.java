@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.common.util.LineNumber;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
-import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.io.request.ServerRequest;
@@ -60,8 +59,9 @@ public class GrpcApiMetaDataHandler implements RequestResponseHandler<GeneratedM
     @Override
     public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
         final GeneratedMessageV3 data = serverRequest.getData();
+        final Header header = serverRequest.getHeader();
         if (data instanceof PApiMetaData apiMetaData) {
-            GeneratedMessageV3 result = handleApiMetaData(apiMetaData);
+            GeneratedMessageV3 result = handleApiMetaData(header, apiMetaData);
             serverResponse.write(result);
         } else {
             logger.warn("Invalid request type. serverRequest={}", serverRequest);
@@ -69,13 +69,12 @@ public class GrpcApiMetaDataHandler implements RequestResponseHandler<GeneratedM
         }
     }
 
-    PResult handleApiMetaData(final PApiMetaData apiMetaData) {
+    PResult handleApiMetaData(Header header, final PApiMetaData apiMetaData) {
         if (isDebug) {
             logger.debug("Handle PApiMetaData={}", MessageFormatUtils.debugLog(apiMetaData));
         }
 
         try {
-            final Header header = ServerContext.getAgentInfo();
             final String agentId = header.getAgentId();
             final long agentStartTime = header.getAgentStartTime();
             final int line = LineNumber.defaultLineNumber(apiMetaData.getLine());

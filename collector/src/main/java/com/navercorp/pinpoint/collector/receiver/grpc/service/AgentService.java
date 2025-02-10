@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
+import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.lifecycle.PingEventHandler;
@@ -152,6 +153,7 @@ public class AgentService extends AgentGrpc.AgentImplBase {
     }
 
     private <T> Message<T> newMessage(T requestData, MessageType type) {
-        return new DefaultMessage<>(type, requestData);
+        Header header = ServerContext.getAgentInfo();
+        return new DefaultMessage<>(header, type, requestData);
     }
 }

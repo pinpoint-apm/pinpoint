@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.collector.service.AgentInfoService;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
-import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.io.request.ServerRequest;
@@ -62,8 +61,9 @@ public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler<Gen
     @Override
     public void handleSimple(ServerRequest<GeneratedMessageV3> serverRequest) {
         final GeneratedMessageV3 data = serverRequest.getData();
+        final Header header = serverRequest.getHeader();
         if (data instanceof PAgentInfo agentInfo) {
-            handleAgentInfo(agentInfo);
+            handleAgentInfo(header, agentInfo);
         } else {
             logger.warn("Invalid request type. serverRequest={}", serverRequest);
             throw Status.INTERNAL.withDescription("Bad Request(invalid request type)").asRuntimeException();
@@ -73,8 +73,9 @@ public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler<Gen
     @Override
     public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
         final GeneratedMessageV3 data = serverRequest.getData();
+        final Header header = serverRequest.getHeader();
         if (data instanceof PAgentInfo agentInfo) {
-            final PResult result = handleAgentInfo(agentInfo);
+            final PResult result = handleAgentInfo(header, agentInfo);
             serverResponse.write(result);
         } else {
             logger.warn("Invalid request type. serverRequest={}", serverRequest);
@@ -82,14 +83,13 @@ public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler<Gen
         }
     }
 
-    private PResult handleAgentInfo(PAgentInfo agentInfo) {
+    private PResult handleAgentInfo(Header header, PAgentInfo agentInfo) {
         if (isDebug) {
             logger.debug("Handle PAgentInfo={}", MessageFormatUtils.debugLog(agentInfo));
         }
 
         try {
             // agent info
-            final Header header = ServerContext.getAgentInfo();
             final AgentInfoBo agentInfoBo = this.agentInfoBoMapper.map(agentInfo, header);
             this.agentInfoService.insert(agentInfoBo);
             return PResult.newBuilder().setSuccess(true).build();

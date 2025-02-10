@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.common.server.bo.exception.StackTraceElementWrappe
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
-import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PException;
 import com.navercorp.pinpoint.grpc.trace.PExceptionMetaData;
 import com.navercorp.pinpoint.grpc.trace.PResult;
@@ -67,8 +66,9 @@ public class GrpcExceptionMetaDataHandler implements RequestResponseHandler<Gene
     @Override
     public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
         final GeneratedMessageV3 data = serverRequest.getData();
+        final Header header = serverRequest.getHeader();
         if (data instanceof PExceptionMetaData exceptionMetaData) {
-            PResult result = handleExceptionMetaData(exceptionMetaData);
+            PResult result = handleExceptionMetaData(header, exceptionMetaData);
             serverResponse.write(result);
         } else {
             logger.warn("Invalid request type. serverRequest={}", serverRequest);
@@ -76,15 +76,13 @@ public class GrpcExceptionMetaDataHandler implements RequestResponseHandler<Gene
         }
     }
 
-    private PResult handleExceptionMetaData(final PExceptionMetaData exceptionMetaData) {
+    private PResult handleExceptionMetaData(final Header header, final PExceptionMetaData exceptionMetaData) {
         if (isDebug) {
             logger.debug("Handle PExceptionMetaData={}", MessageFormatUtils.debugLog(exceptionMetaData));
         }
 
         try {
-            final Header agentInfo = ServerContext.getAgentInfo();
-
-            ExceptionMetaDataBo exceptionMetaDataBo = mapExceptionMetaDataBo(agentInfo, exceptionMetaData);
+            ExceptionMetaDataBo exceptionMetaDataBo = mapExceptionMetaDataBo(header, exceptionMetaData);
 
             List<ExceptionWrapperBo> exceptionWrapperBos = mapExceptionWrapperBo(exceptionMetaData.getExceptionsList());
             exceptionMetaDataBo.setExceptionWrapperBos(exceptionWrapperBos);

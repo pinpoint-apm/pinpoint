@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.collector.service.SqlMetaDataService;
 import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
-import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.io.request.ServerRequest;
@@ -60,7 +59,7 @@ public class GrpcSqlMetaDataHandler implements RequestResponseHandler<GeneratedM
     public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
         final GeneratedMessageV3 data = serverRequest.getData();
         if (data instanceof PSqlMetaData sqlMetaData) {
-            PResult result = handleSqlMetaData(sqlMetaData);
+            PResult result = handleSqlMetaData(serverRequest.getHeader(), sqlMetaData);
             serverResponse.write(result);
         } else {
             logger.warn("Invalid request type. serverRequest={}", serverRequest);
@@ -68,13 +67,12 @@ public class GrpcSqlMetaDataHandler implements RequestResponseHandler<GeneratedM
         }
     }
 
-    private PResult handleSqlMetaData(PSqlMetaData sqlMetaData) {
+    private PResult handleSqlMetaData(Header header, PSqlMetaData sqlMetaData) {
         if (isDebug) {
             logger.debug("Handle PSqlMetaData={}", MessageFormatUtils.debugLog(sqlMetaData));
         }
 
-        final Header agentInfo = ServerContext.getAgentInfo();
-        final SqlMetaDataBo sqlMetaDataBo = mapSqlMetaDataBo(agentInfo, sqlMetaData);
+        final SqlMetaDataBo sqlMetaDataBo = mapSqlMetaDataBo(header, sqlMetaData);
 
         boolean result = true;
         for (SqlMetaDataService sqlMetaDataService : sqlMetaDataServices) {

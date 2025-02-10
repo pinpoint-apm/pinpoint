@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.collector.service.SqlUidMetaDataService;
 import com.navercorp.pinpoint.common.server.bo.SqlUidMetaDataBo;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
-import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
 import com.navercorp.pinpoint.io.request.ServerRequest;
@@ -56,8 +55,9 @@ public class GrpcSqlUidMetaDataHandler implements RequestResponseHandler<Generat
     @Override
     public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
         final GeneratedMessageV3 data = serverRequest.getData();
+        final Header header = serverRequest.getHeader();
         if (data instanceof PSqlUidMetaData sqlUidMetaData) {
-            PResult result = handleSqlUidMetaData(sqlUidMetaData);
+            PResult result = handleSqlUidMetaData(header, sqlUidMetaData);
             serverResponse.write(result);
         } else {
             logger.warn("Invalid request type. serverRequest={}", serverRequest);
@@ -65,13 +65,12 @@ public class GrpcSqlUidMetaDataHandler implements RequestResponseHandler<Generat
         }
     }
 
-    private PResult handleSqlUidMetaData(PSqlUidMetaData sqlUidMetaData) {
+    private PResult handleSqlUidMetaData(Header header, PSqlUidMetaData sqlUidMetaData) {
         if (isDebug) {
             logger.debug("Handle PSqlUidMetaData={}", MessageFormatUtils.debugLog(sqlUidMetaData));
         }
 
-        final Header agentInfo = ServerContext.getAgentInfo();
-        SqlUidMetaDataBo sqlUidMetaDataBo = mapSqlUidMetaDataBo(agentInfo, sqlUidMetaData);
+        SqlUidMetaDataBo sqlUidMetaDataBo = mapSqlUidMetaDataBo(header, sqlUidMetaData);
 
         boolean result = true;
         for (SqlUidMetaDataService sqlUidMetaDataService : sqlUidMetaDataServices) {

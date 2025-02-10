@@ -31,7 +31,6 @@ import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
-import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.grpc.trace.PTransactionId;
@@ -77,20 +76,20 @@ public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
     @Override
     public void handleSimple(ServerRequest<GeneratedMessageV3> serverRequest) {
         final GeneratedMessageV3 data = serverRequest.getData();
+        final Header header = serverRequest.getHeader();
         if (data instanceof PSpan span) {
-            handleSpan(span);
+            handleSpan(header, span);
         } else {
             logger.warn("Invalid request type. serverRequest={}", serverRequest);
             throw Status.INTERNAL.withDescription("Bad Request(invalid request type)").asRuntimeException();
         }
     }
 
-    private void handleSpan(PSpan span) {
+    private void handleSpan(Header header, PSpan span) {
         if (isDebug) {
             logger.debug("Handle PSpan={}", createSimpleSpanLog(span));
         }
 
-        final Header header = ServerContext.getAgentInfo();
         final BindAttribute attribute = BindAttribute.of(header, acceptedTimeService.getAcceptedTime());
         final SpanBo spanBo = spanFactory.buildSpanBo(span, attribute);
         if (!sampler.isSampling(spanBo)) {
