@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
-import com.navercorp.pinpoint.io.header.HeaderEntity;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
@@ -34,7 +33,6 @@ import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -83,12 +81,12 @@ public class SpanService extends SpanGrpc.SpanImplBase {
     }
 
     private <T> Message<T> newMessage(T requestData, MessageType messageType) {
-        final HeaderEntity headerEntity = new HeaderEntity(new HashMap<>());
-        return new DefaultMessage<>(messageType, headerEntity, requestData);
+        return new DefaultMessage<>(messageType, requestData);
     }
 
     private void dispatch(final Message<? extends GeneratedMessageV3> message, ServerCallStream<PSpanMessage, Empty> responseObserver) {
         try {
+            @SuppressWarnings("unchecked")
             ServerRequest<GeneratedMessageV3> request = (ServerRequest<GeneratedMessageV3>) serverRequestFactory.newServerRequest(message);
             dispatchHandler.dispatchSendMessage(request);
         } catch (Throwable e) {

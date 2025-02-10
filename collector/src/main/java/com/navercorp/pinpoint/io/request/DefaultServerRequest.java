@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.io.request;
 
-import com.navercorp.pinpoint.io.header.HeaderEntity;
 import com.navercorp.pinpoint.io.util.MessageType;
 
 import java.util.Objects;
@@ -39,12 +38,6 @@ public class DefaultServerRequest<T> extends DefaultAttributeMap implements Serv
     @Override
     public MessageType getMessageType() {
         return message.getMessageType();
-    }
-
-
-    @Override
-    public HeaderEntity getHeaderEntity() {
-        return message.getHeaderEntity();
     }
 
     @Override

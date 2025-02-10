@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.io.request;
 
-import com.navercorp.pinpoint.io.header.HeaderEntity;
 import com.navercorp.pinpoint.io.util.MessageType;
 
 /**
@@ -28,11 +27,6 @@ public class EmptyMessage<T> implements Message<T> {
     @Override
     public MessageType getMessageType() {
         return MessageType.EMPTY;
-    }
-
-    @Override
-    public HeaderEntity getHeaderEntity() {
-        return HeaderEntity.EMPTY_HEADER_ENTITY;
     }
 
     @Override

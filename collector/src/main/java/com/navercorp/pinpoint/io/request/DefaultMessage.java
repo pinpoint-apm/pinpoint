@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.io.request;
 
-import com.navercorp.pinpoint.io.header.HeaderEntity;
 import com.navercorp.pinpoint.io.util.MessageType;
 
 import java.util.Objects;
@@ -26,12 +25,10 @@ import java.util.Objects;
  */
 public class DefaultMessage<T> implements Message<T> {
     private final MessageType messageType;
-    private final HeaderEntity headerEntity;
     private final T data;
 
-    public DefaultMessage(MessageType messageType, HeaderEntity headerEntity, T data) {
+    public DefaultMessage(MessageType messageType, T data) {
         this.messageType = Objects.requireNonNull(messageType, "messageType");
-        this.headerEntity = Objects.requireNonNull(headerEntity, "headerEntity");
         this.data = data;
     }
 
@@ -41,10 +38,6 @@ public class DefaultMessage<T> implements Message<T> {
         return messageType;
     }
 
-    @Override
-    public HeaderEntity getHeaderEntity() {
-        return headerEntity;
-    }
 
     @Override
     public T getData() {
@@ -55,7 +48,6 @@ public class DefaultMessage<T> implements Message<T> {
     public String toString() {
         return "DefaultMessage{" +
                 "messageType=" + messageType +
-                ", headerEntity=" + headerEntity +
                 ", data=" + data +
                 '}';
     }
