@@ -86,6 +86,10 @@ export const errorGroupedTableColumns = ({
   {
     accessorKey: 'chart',
     header: 'Volume',
+    meta: {
+      headerClassName: 'w-52 text-sm font-medium text-center',
+      cellClassName: 'text-[-webkit-right]',
+    },
     cell: (props) => {
       const chart = props.getValue() as ErrorAnalysisGroupedErrorList.ErrorData['chart'];
       return <MiniChart chart={chart} />;
