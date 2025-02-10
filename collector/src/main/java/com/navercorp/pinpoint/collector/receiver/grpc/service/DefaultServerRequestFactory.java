@@ -27,6 +27,7 @@ import io.grpc.Status;
 import io.grpc.StatusException;
 
 import java.net.InetSocketAddress;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -39,12 +40,19 @@ public class DefaultServerRequestFactory implements ServerRequestFactory {
     @Override
     public <T> ServerRequest<T> newServerRequest(Message<T> message) throws StatusException {
         final Context current = Context.current();
-        final Header header = ServerContext.getAgentInfo(current);
+        return newServerRequest(current, message);
+    }
+
+    @Override
+    public <T> ServerRequest<T> newServerRequest(Context context, Message<T> message) throws StatusException {
+        Objects.requireNonNull(context, "context");
+
+        final Header header = message.getHeader();
         if (header == null) {
             throw Status.INTERNAL.withDescription("Not found request header").asException();
         }
 
-        final TransportMetadata transportMetadata = ServerContext.getTransportMetadata(current);
+        final TransportMetadata transportMetadata = ServerContext.getTransportMetadata(context);
         if (transportMetadata == null) {
             throw Status.INTERNAL.withDescription("Not found transportMetadata").asException();
         }

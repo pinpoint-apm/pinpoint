@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.grpc.Header;
+import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PExceptionMetaData;
@@ -110,7 +112,8 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
     }
 
     private <T> Message<T> newMessage(T requestData, MessageType type) {
-        return new DefaultMessage<>(type, requestData);
+        Header header = ServerContext.getAgentInfo();
+        return new DefaultMessage<>(header, type, requestData);
     }
 
     void doExecutor(final Message<? extends GeneratedMessageV3> message, final StreamObserver<? extends GeneratedMessageV3> responseObserver) {

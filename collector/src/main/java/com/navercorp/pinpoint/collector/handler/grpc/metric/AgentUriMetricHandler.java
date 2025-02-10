@@ -8,6 +8,7 @@ import com.navercorp.pinpoint.collector.service.AgentUriStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -35,20 +36,21 @@ public class AgentUriMetricHandler implements GrpcMetricHandler {
     }
 
     @Override
-    public boolean accept(GeneratedMessageV3 message) {
+    public boolean accept(ServerRequest<GeneratedMessageV3> reqeust) {
+        GeneratedMessageV3 message = reqeust.getData();
         return message instanceof PAgentUriStat;
 
     }
 
     @Override
-    public void handle(GeneratedMessageV3 message) {
+    public void handle(ServerRequest<GeneratedMessageV3> request) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Handle PAgentUriStat={}", MessageFormatUtils.debugLog(message));
+            logger.debug("Handle PAgentUriStat={}", MessageFormatUtils.debugLog(request.getData()));
         }
         if (!uriStatEnable) {
             return;
         }
-        final PAgentUriStat agentUriStat = (PAgentUriStat) message;
+        final PAgentUriStat agentUriStat = (PAgentUriStat) request.getData();
         final AgentUriStatBo agentUriStatBo = agentUriStatMapper.map(agentUriStat);
         agentUriStatService.save(agentUriStatBo);
     }

@@ -46,7 +46,7 @@ public class GrpcApiMetaDataHandlerTest {
                     return null;
                 }).when(mockedService).insert(any());
 
-                PResult result = dut.handleApiMetaData(actualStub);
+                PResult result = dut.handleApiMetaData(header, actualStub);
                 assertThat(result.getSuccess()).isTrue();
             }
         });
