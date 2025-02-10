@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.io.request;
 
-import com.navercorp.pinpoint.io.header.HeaderEntity;
 import com.navercorp.pinpoint.io.util.MessageType;
 
 /**
@@ -24,8 +23,6 @@ import com.navercorp.pinpoint.io.util.MessageType;
 public interface ServerRequest<T> extends AttributeMap {
 
     MessageType getMessageType();
-
-    HeaderEntity getHeaderEntity();
 
     T getData();
 

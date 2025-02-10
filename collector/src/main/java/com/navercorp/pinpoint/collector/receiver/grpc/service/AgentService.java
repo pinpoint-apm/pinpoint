@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PPing;
 import com.navercorp.pinpoint.grpc.trace.PResult;
-import com.navercorp.pinpoint.io.header.HeaderEntity;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.util.MessageType;
@@ -38,7 +37,6 @@ import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Collections;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
@@ -154,7 +152,6 @@ public class AgentService extends AgentGrpc.AgentImplBase {
     }
 
     private <T> Message<T> newMessage(T requestData, MessageType type) {
-        final HeaderEntity headerEntity = new HeaderEntity(Collections.emptyMap());
-        return new DefaultMessage<>(type, headerEntity, requestData);
+        return new DefaultMessage<>(type, requestData);
     }
 }

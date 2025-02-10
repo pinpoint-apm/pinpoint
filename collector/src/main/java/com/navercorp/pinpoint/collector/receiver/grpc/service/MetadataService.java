@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
-import com.navercorp.pinpoint.io.header.HeaderEntity;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.util.MessageType;
@@ -34,7 +33,6 @@ import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Collections;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
@@ -112,8 +110,7 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
     }
 
     private <T> Message<T> newMessage(T requestData, MessageType type) {
-        final HeaderEntity headerEntity = new HeaderEntity(Collections.emptyMap());
-        return new DefaultMessage<>(type, headerEntity, requestData);
+        return new DefaultMessage<>(type, requestData);
     }
 
     void doExecutor(final Message<? extends GeneratedMessageV3> message, final StreamObserver<? extends GeneratedMessageV3> responseObserver) {

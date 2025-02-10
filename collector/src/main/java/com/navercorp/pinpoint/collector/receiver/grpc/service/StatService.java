@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.grpc.trace.PStatMessage;
 import com.navercorp.pinpoint.grpc.trace.StatGrpc;
-import com.navercorp.pinpoint.io.header.HeaderEntity;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
@@ -35,7 +34,6 @@ import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -87,12 +85,12 @@ public class StatService extends StatGrpc.StatImplBase {
 
 
     private <T> Message<T> newMessage(T requestData, MessageType messageType) {
-        final HeaderEntity headerEntity = new HeaderEntity(new HashMap<>());
-        return new DefaultMessage<>(messageType, headerEntity, requestData);
+        return new DefaultMessage<>(messageType, requestData);
     }
 
     private void dispatch(final Message<? extends GeneratedMessageV3> message, ServerCallStream<PStatMessage, Empty> responseObserver) {
         try {
+            @SuppressWarnings("unchecked")
             ServerRequest<GeneratedMessageV3> request = (ServerRequest<GeneratedMessageV3>) serverRequestFactory.newServerRequest(message);
             dispatchHandler.dispatchSendMessage(request);
         } catch (Throwable e) {
