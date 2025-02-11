@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.io.request;
 
 import com.navercorp.pinpoint.grpc.Header;
+import com.navercorp.pinpoint.grpc.server.TransportMetadata;
 import com.navercorp.pinpoint.io.util.MessageType;
 
 import java.util.Objects;
@@ -25,44 +26,57 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class DefaultServerRequest<T> extends DefaultAttributeMap implements ServerRequest<T> {
+    private final Header header;
+    private final TransportMetadata transport;
+    private final long requestTime;
+    private final MessageType messageType;
+    private final T data;
 
-    private final Message<T> message;
-    private final String remoteAddress;
-    private final int remotePort;
-
-    public DefaultServerRequest(Message<T> message, String remoteAddress, int remotePort) {
-        this.message = Objects.requireNonNull(message, "message");
-        this.remoteAddress = Objects.requireNonNull(remoteAddress, "remoteAddress");
-        this.remotePort = remotePort;
+    public DefaultServerRequest(Header header, TransportMetadata transport, long requestTime, MessageType messageType, T data) {
+        this.header = Objects.requireNonNull(header, "header");
+        this.transport = Objects.requireNonNull(transport, "transport");
+        this.requestTime = requestTime;
+        this.messageType = Objects.requireNonNull(messageType, "messageType");
+        this.data = data;
     }
 
     @Override
     public Header getHeader() {
-        return message.getHeader();
+        return header;
     }
 
     @Override
     public MessageType getMessageType() {
-        return message.getMessageType();
+        return messageType;
+    }
+
+    @Override
+    public long getRequestTime() {
+        return requestTime;
     }
 
     @Override
     public T getData() {
-        return message.getData();
+        return data;
     }
 
     @Override
     public String getRemoteAddress() {
-        return remoteAddress;
+        return transport.getRemoteAddress().getHostString();
     }
 
     @Override
     public int getRemotePort() {
-        return remotePort;
+        return transport.getRemoteAddress().getPort();
     }
 
     @Override
     public String toString() {
-        return "DefaultServerRequest{" + "message=" + message + ", remoteAddress='" + remoteAddress + '\'' + ", remotePort=" + remotePort + '}';
+        return "DefaultServerRequest{" +
+                "header=" + header +
+                ", messageType=" + messageType +
+                ", data=" + data +
+                ", address='" + transport.getRemoteAddress() + '\'' +
+                '}';
     }
 }

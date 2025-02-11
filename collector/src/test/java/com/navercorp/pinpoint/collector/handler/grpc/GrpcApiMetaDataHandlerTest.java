@@ -10,7 +10,7 @@ import com.navercorp.pinpoint.grpc.trace.PResult;
 import io.grpc.Context;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
@@ -34,7 +34,8 @@ public class GrpcApiMetaDataHandlerTest {
                 .setLocation("/Users/workspace/pinpoint/@pinpoint-naver-apm/pinpoint-agent-node/samples/express/src/routes/index.js")
                 .build();
 
-        Header header = new Header("name", "express-node-sample-id", "agentName", "applicationName", 0, 1668495162817L, 0, Collections.emptyList());
+        Header header = new Header("name", "express-node-sample-id", "agentName", "applicationName",
+                0, 1668495162817L, 0, List.of());
         Context headerContext = Context.current().withValue(ServerContext.AGENT_INFO_KEY, header);
         headerContext.run(new Runnable() {
             @Override

@@ -63,7 +63,8 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         final List<Integer> supportCommandCodeList = getSupportCommandCodeList(headers);
         final boolean grpcBuiltInRetry = getGrpcBuiltInRetry(headers);
         final Map<String, Object> properties = metadataConverter.apply(headers);
-        return new Header(name, agentId, agentName, applicationName, serviceType, startTime, socketId, supportCommandCodeList, grpcBuiltInRetry, properties);
+        return new Header(name, agentId, agentName, applicationName, serviceType, startTime, socketId,
+                supportCommandCodeList, grpcBuiltInRetry, properties);
     }
 
     public static Map<String, Object> emptyProperties(Metadata headers) {

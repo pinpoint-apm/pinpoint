@@ -6,6 +6,7 @@ import com.navercorp.pinpoint.collector.handler.grpc.GrpcMetricHandler;
 import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentUriStatMapper;
 import com.navercorp.pinpoint.collector.service.AgentUriStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
+import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.io.request.ServerRequest;
@@ -50,8 +51,9 @@ public class AgentUriMetricHandler implements GrpcMetricHandler {
         if (!uriStatEnable) {
             return;
         }
+        final Header header = request.getHeader();
         final PAgentUriStat agentUriStat = (PAgentUriStat) request.getData();
-        final AgentUriStatBo agentUriStatBo = agentUriStatMapper.map(agentUriStat);
+        final AgentUriStatBo agentUriStatBo = agentUriStatMapper.map(header, agentUriStat);
         agentUriStatService.save(agentUriStatBo);
     }
 
