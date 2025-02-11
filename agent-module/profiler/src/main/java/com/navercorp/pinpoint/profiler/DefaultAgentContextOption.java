@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.profiler;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.profiler.name.ObjectName;
 
 import java.lang.instrument.Instrumentation;
 import java.nio.file.Path;
@@ -10,9 +11,7 @@ import java.util.Objects;
 public class DefaultAgentContextOption implements AgentContextOption {
     private final Instrumentation instrumentation;
 
-    private final String agentId;
-    private final String agentName;
-    private final String applicationName;
+    private final ObjectName objectName;
 
     private final ProfilerConfig profilerConfig;
 
@@ -23,18 +22,14 @@ public class DefaultAgentContextOption implements AgentContextOption {
     private final boolean staticResourceCleanup;
 
     public DefaultAgentContextOption(final Instrumentation instrumentation,
-                                     String agentId,
-                                     String agentName,
-                                     String applicationName,
+                                     final ObjectName objectName,
                                      final ProfilerConfig profilerConfig,
                                      final Path agentPath,
                                      final List<Path> pluginJars,
                                      final List<Path> bootstrapJarPaths,
                                      boolean staticResourceCleanup) {
         this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
-        this.agentId = Objects.requireNonNull(agentId, "agentId");
-        this.agentName = agentName;
-        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+        this.objectName = Objects.requireNonNull(objectName, "objectName");
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
 
         this.agentPath = agentPath;
@@ -49,18 +44,8 @@ public class DefaultAgentContextOption implements AgentContextOption {
     }
 
     @Override
-    public String getAgentId() {
-        return agentId;
-    }
-
-    @Override
-    public String getAgentName() {
-        return agentName;
-    }
-
-    @Override
-    public String getApplicationName() {
-        return applicationName;
+    public ObjectName getObjectName() {
+        return objectName;
     }
 
     @Override
@@ -92,9 +77,7 @@ public class DefaultAgentContextOption implements AgentContextOption {
     public String toString() {
         return "DefaultAgentOption{" +
                 "instrumentation=" + instrumentation +
-                ", agentId='" + agentId + '\'' +
-                ", agentName='" + agentName + '\'' +
-                ", applicationName='" + applicationName + '\'' +
+                ", objectName='" + objectName + '\'' +
                 ", profilerConfig=" + profilerConfig +
                 ", pluginJars=" + pluginJars +
                 ", bootstrapJarPaths=" + bootstrapJarPaths +

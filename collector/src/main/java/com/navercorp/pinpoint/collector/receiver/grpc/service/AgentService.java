@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.collector.grpc.lifecycle.PingEventHandler;
 import com.navercorp.pinpoint.collector.grpc.lifecycle.PingSession;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
+import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;

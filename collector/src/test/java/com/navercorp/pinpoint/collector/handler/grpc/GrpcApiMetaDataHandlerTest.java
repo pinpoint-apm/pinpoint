@@ -4,6 +4,7 @@ import com.navercorp.pinpoint.collector.service.ApiMetaDataService;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.grpc.Header;
+import com.navercorp.pinpoint.grpc.HeaderV1;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PResult;
@@ -34,7 +35,7 @@ public class GrpcApiMetaDataHandlerTest {
                 .setLocation("/Users/workspace/pinpoint/@pinpoint-naver-apm/pinpoint-agent-node/samples/express/src/routes/index.js")
                 .build();
 
-        Header header = new Header("name", "express-node-sample-id", "agentName", "applicationName",
+        Header header = new HeaderV1("name", "express-node-sample-id", "agentName", "applicationName",
                 0, 1668495162817L, 0, List.of());
         Context headerContext = Context.current().withValue(ServerContext.AGENT_INFO_KEY, header);
         headerContext.run(new Runnable() {

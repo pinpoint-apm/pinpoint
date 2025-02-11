@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.profiler.context.id.TraceIdFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
+import com.navercorp.pinpoint.profiler.name.ObjectName;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -48,6 +49,7 @@ public class DefaultTraceContext implements TraceContext {
     private final TraceIdFactory traceIdFactory;
     private final TraceFactory traceFactory;
 
+    private final ObjectName objectName;
     private final AgentInformation agentInformation;
 
     private final ApiMetaDataService apiMetaDataService;
@@ -61,6 +63,7 @@ public class DefaultTraceContext implements TraceContext {
     private final JdbcContext jdbcContext;
 
     public DefaultTraceContext(final ProfilerConfig profilerConfig,
+                               final ObjectName objectName,
                                final AgentInformation agentInformation,
                                final TraceIdFactory traceIdFactory,
                                final TraceFactory traceFactory,
@@ -70,6 +73,7 @@ public class DefaultTraceContext implements TraceContext {
                                final SqlMetaDataService sqlMetaDataService,
                                final JdbcContext jdbcContext) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.objectName = Objects.requireNonNull(objectName, "objectName");
         this.agentInformation = Objects.requireNonNull(agentInformation, "agentInformation");
         this.serverMetaDataHolder = Objects.requireNonNull(serverMetaDataHolder, "serverMetaDataHolder");
 
@@ -186,12 +190,12 @@ public class DefaultTraceContext implements TraceContext {
 
     @Override
     public String getAgentId() {
-        return this.agentInformation.getAgentId();
+        return this.objectName.getAgentId();
     }
 
     @Override
     public String getApplicationName() {
-        return this.agentInformation.getApplicationName();
+        return this.objectName.getApplicationName();
     }
 
     @Override

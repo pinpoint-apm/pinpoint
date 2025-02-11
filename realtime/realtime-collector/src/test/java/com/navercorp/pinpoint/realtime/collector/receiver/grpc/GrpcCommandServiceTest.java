@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.realtime.collector.receiver.grpc;
 import com.google.protobuf.Empty;
 import com.google.protobuf.StringValue;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.grpc.Header;
+import com.navercorp.pinpoint.grpc.HeaderV1;
 import com.navercorp.pinpoint.grpc.server.DefaultTransportMetadata;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCount;
@@ -318,7 +318,7 @@ public class GrpcCommandServiceTest {
                                 InetSocketAddress.createUnresolved("127.0.0.1", 9991),
                                 0, 1234
                         ))
-                        .withValue(ServerContext.getAgentInfoKey(), new Header(
+                        .withValue(ServerContext.getAgentInfoKey(), new HeaderV1(
                                 "name",
                                 "agent-id",
                                 "agent-name",

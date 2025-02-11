@@ -30,5 +30,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @BindingAnnotation
 @Target(PARAMETER)
 @Retention(RUNTIME)
+@Deprecated
 public @interface AgentId {
 }
