@@ -65,7 +65,8 @@ public class Header {
 
     public Header(String name, String agentId, String agentName, String applicationName,
                   int serviceType, long agentStartTime,
-                  long socketId, List<Integer> supportCommandCodeList) {
+                  long socketId,
+                  List<Integer> supportCommandCodeList) {
         this(name, agentId, agentName, applicationName,
                 serviceType, agentStartTime,
                 socketId, supportCommandCodeList,
@@ -75,18 +76,19 @@ public class Header {
     public Header(String name,
                   String agentId, String agentName, String applicationName,
                   int serviceType,
-                  long agentStartTime, long socketId,
+                  long agentStartTime,
+                  long socketId,
                   List<Integer> supportCommandCodeList,
                   boolean grpcBuiltInRetry,
                   final Map<String, Object> properties) {
         this.name = Objects.requireNonNull(name, "name");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+        // allow null
+        this.agentName = agentName;
         this.serviceType = serviceType;
         this.agentStartTime = agentStartTime;
         this.socketId = socketId;
-        // allow null
-        this.agentName = agentName;
         this.supportCommandCodeList = supportCommandCodeList;
         this.grpcBuiltInRetry = grpcBuiltInRetry;
         this.properties = Objects.requireNonNull(properties, "properties");
@@ -132,6 +134,7 @@ public class Header {
         return Collections.unmodifiableMap(properties);
     }
 
+
     @Override
     public String toString() {
         return "Header{" +
@@ -150,36 +153,24 @@ public class Header {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         Header header = (Header) o;
-
-        if (agentStartTime != header.agentStartTime) return false;
-        if (socketId != header.socketId) return false;
-        if (serviceType != header.serviceType) return false;
-        if (name != null ? !name.equals(header.name) : header.name != null) return false;
-        if (agentId != null ? !agentId.equals(header.agentId) : header.agentId != null) return false;
-        if (applicationName != null ? !applicationName.equals(header.applicationName) : header.applicationName != null)
-            return false;
-        if (grpcBuiltInRetry != header.grpcBuiltInRetry) return false;
-        if (supportCommandCodeList != null ? !supportCommandCodeList.equals(header.supportCommandCodeList) : header.supportCommandCodeList != null)
-            return false;
-        return properties != null ? properties.equals(header.properties) : header.properties == null;
+        return agentStartTime == header.agentStartTime && socketId == header.socketId && serviceType == header.serviceType && grpcBuiltInRetry == header.grpcBuiltInRetry && Objects.equals(name, header.name) && Objects.equals(agentId, header.agentId) && Objects.equals(agentName, header.agentName) && Objects.equals(applicationName, header.applicationName) && Objects.equals(supportCommandCodeList, header.supportCommandCodeList) && Objects.equals(properties, header.properties);
     }
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (agentId != null ? agentId.hashCode() : 0);
-        result = 31 * result + (applicationName != null ? applicationName.hashCode() : 0);
-        result = 31 * result + (int) (agentStartTime ^ (agentStartTime >>> 32));
-        result = 31 * result + (int) (socketId ^ (socketId >>> 32));
+        int result = Objects.hashCode(name);
+        result = 31 * result + Objects.hashCode(agentId);
+        result = 31 * result + Objects.hashCode(agentName);
+        result = 31 * result + Objects.hashCode(applicationName);
+        result = 31 * result + Long.hashCode(agentStartTime);
+        result = 31 * result + Long.hashCode(socketId);
         result = 31 * result + serviceType;
-        result = 31 * result + (supportCommandCodeList != null ? supportCommandCodeList.hashCode() : 0);
-        result = 31 * result + (grpcBuiltInRetry ? 1 : 0);
-        result = 31 * result + (properties != null ? properties.hashCode() : 0);
+        result = 31 * result + Objects.hashCode(supportCommandCodeList);
+        result = 31 * result + Boolean.hashCode(grpcBuiltInRetry);
+        result = 31 * result + Objects.hashCode(properties);
         return result;
     }
-
 }

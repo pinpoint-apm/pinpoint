@@ -20,14 +20,9 @@ import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
 import com.navercorp.pinpoint.io.request.DefaultServerRequest;
-import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.util.MessageType;
 import io.grpc.Context;
-import io.grpc.Status;
-import io.grpc.StatusException;
-
-import java.net.InetSocketAddress;
-import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -38,27 +33,20 @@ public class DefaultServerRequestFactory implements ServerRequestFactory {
     }
 
     @Override
-    public <T> ServerRequest<T> newServerRequest(Message<T> message) throws StatusException {
-        final Context current = Context.current();
-        return newServerRequest(current, message);
+    public <T> ServerRequest<T> newServerRequest(MessageType messageType, T data) {
+        Context context = Context.current();
+        return newServerRequest(context, messageType, data);
     }
 
     @Override
-    public <T> ServerRequest<T> newServerRequest(Context context, Message<T> message) throws StatusException {
-        Objects.requireNonNull(context, "context");
-
-        final Header header = message.getHeader();
-        if (header == null) {
-            throw Status.INTERNAL.withDescription("Not found request header").asException();
-        }
-
+    public <T> ServerRequest<T> newServerRequest(Context context, MessageType messageType, T data) {
+        final Header header = ServerContext.getAgentInfo(context);
         final TransportMetadata transportMetadata = ServerContext.getTransportMetadata(context);
         if (transportMetadata == null) {
-            throw Status.INTERNAL.withDescription("Not found transportMetadata").asException();
+            throw new IllegalStateException("transportMetadata is null");
         }
-
-        InetSocketAddress inetSocketAddress = transportMetadata.getRemoteAddress();
-        return new DefaultServerRequest<>(message, inetSocketAddress.getHostString(), inetSocketAddress.getPort());
+        long requestTime = System.currentTimeMillis();
+        return new DefaultServerRequest<>(header, transportMetadata, requestTime, messageType, data);
     }
 
 }

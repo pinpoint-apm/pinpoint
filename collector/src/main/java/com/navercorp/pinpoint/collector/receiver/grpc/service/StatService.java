@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
@@ -27,8 +26,6 @@ import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.grpc.trace.PStatMessage;
 import com.navercorp.pinpoint.grpc.trace.StatGrpc;
-import com.navercorp.pinpoint.io.request.DefaultMessage;
-import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.util.MessageType;
 import io.grpc.stub.ServerCallStreamObserver;
@@ -66,38 +63,35 @@ public class StatService extends StatGrpc.StatImplBase {
         return new ServerCallStream<>(logger, serverStreamId.incrementAndGet(), responseObserver, this::messageDispatch, streamCloseOnError, Empty::getDefaultInstance);
     }
 
-    private void messageDispatch(PStatMessage statMessage, ServerCallStream<PStatMessage, Empty> stream) {
+    private void messageDispatch(PStatMessage statMessage, ServerCallStream<PStatMessage, Empty> response) {
         if (isDebug) {
             logger.debug("Send PAgentStat={}", MessageFormatUtils.debugLog(statMessage));
         }
-
         if (statMessage.hasAgentStat()) {
-            final Message<PAgentStat> message = newMessage(statMessage.getAgentStat(), MessageType.AGENT_STAT);
-            dispatch(message, stream);
+            PAgentStat agentStat = statMessage.getAgentStat();
+            ServerRequest<PAgentStat> request = this.serverRequestFactory.newServerRequest(MessageType.AGENT_STAT, agentStat);
+            this.dispatch(request, response);
         } else if (statMessage.hasAgentStatBatch()) {
-            final Message<PAgentStatBatch> message = newMessage(statMessage.getAgentStatBatch(), MessageType.AGENT_STAT_BATCH);
-            dispatch(message, stream);
+            PAgentStatBatch agentStatBatch = statMessage.getAgentStatBatch();
+            ServerRequest<PAgentStatBatch> request = this.serverRequestFactory.newServerRequest(MessageType.AGENT_STAT_BATCH, agentStatBatch);
+            this.dispatch(request, response);
         } else if (statMessage.hasAgentUriStat()) {
-            final Message<PAgentUriStat> message = newMessage(statMessage.getAgentUriStat(), MessageType.AGENT_URI_STAT);
-            dispatch(message, stream);
+            PAgentUriStat agentUriStat = statMessage.getAgentUriStat();
+            ServerRequest<PAgentUriStat> request = this.serverRequestFactory.newServerRequest(MessageType.AGENT_URI_STAT, agentUriStat);
+            this.dispatch(request, response);
         } else {
-            logger.info("Found empty stat message {}", MessageFormatUtils.debugLog(statMessage));
+            if (logger.isInfoEnabled()) {
+                logger.info("Found empty stat message header:{}", ServerContext.getAgentInfo());
+            }
         }
     }
 
-
-    private <T> Message<T> newMessage(T requestData, MessageType messageType) {
-        Header header = ServerContext.getAgentInfo();
-        return new DefaultMessage<>(header, messageType, requestData);
-    }
-
-    private void dispatch(final Message<? extends GeneratedMessageV3> message, ServerCallStream<PStatMessage, Empty> responseObserver) {
+    @SuppressWarnings("unchecked")
+    private void dispatch(ServerRequest<? extends GeneratedMessageV3> request, ServerCallStream<PStatMessage, Empty> responseObserver) {
         try {
-            @SuppressWarnings("unchecked")
-            ServerRequest<GeneratedMessageV3> request = (ServerRequest<GeneratedMessageV3>) serverRequestFactory.newServerRequest(message);
-            dispatchHandler.dispatchSendMessage(request);
+            dispatchHandler.dispatchSendMessage((ServerRequest<GeneratedMessageV3>) request);
         } catch (Throwable e) {
-            logger.warn("Failed to request. message={}", MessageFormatUtils.debugLog(message), e);
+            logger.warn("Failed to request. header={}", request.getHeader(), e);
             responseObserver.onNextError(e);
         }
     }

@@ -55,11 +55,10 @@ public class ServerCallStream<Req extends GeneratedMessageV3, Res extends Genera
 
     @Override
     public void onError(Throwable throwable) {
-        Header header = ServerContext.getAgentInfo();
-
         Status status = Status.fromThrowable(throwable);
         Metadata metadata = Status.trailersFromThrowable(throwable);
         if (logger.isInfoEnabled()) {
+            Header header = ServerContext.getAgentInfo();
             logger.info("onError: Failed to span streamId=, {} {} {}", streamId, header, status, metadata);
         }
 
@@ -68,8 +67,10 @@ public class ServerCallStream<Req extends GeneratedMessageV3, Res extends Genera
 
     @Override
     public void onCompleted() {
-        Header header = ServerContext.getAgentInfo();
-        logger.info("onCompleted streamId={} {}", streamId, header);
+        if (logger.isInfoEnabled()) {
+            Header header = ServerContext.getAgentInfo();
+            logger.info("onCompleted streamId={} {}", streamId, header);
+        }
 
         responseCompleted();
     }

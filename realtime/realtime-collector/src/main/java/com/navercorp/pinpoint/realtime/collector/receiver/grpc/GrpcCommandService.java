@@ -35,6 +35,7 @@ import com.navercorp.pinpoint.realtime.collector.sink.ActiveThreadLightDumpPubli
 import com.navercorp.pinpoint.realtime.collector.sink.EchoPublisher;
 import com.navercorp.pinpoint.realtime.collector.sink.Publisher;
 import com.navercorp.pinpoint.realtime.collector.sink.SinkRepository;
+import io.grpc.Context;
 import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.StatusException;
@@ -78,12 +79,15 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
     @Override
     @SuppressWarnings("deprecation")
     public StreamObserver<PCmdMessage> handleCommand(StreamObserver<PCmdRequest> requestObserver) {
-        Long transportId = getTransportIdFromContext();
-        ClusterKey clusterKey = getClusterKeyFromContext();
+        final Context context = Context.current();
+        Long transportId = getTransportIdFromContext(context);
+
+        final Header header = ServerContext.getAgentInfo(context);
+        ClusterKey clusterKey = getClusterKeyFromContext(header);
 
         logger.info("{} => local. handleCommand(). transportId:{}.", clusterKey, transportId);
 
-        List<Integer> supportCommandCodeList = getSupportCommandCodeListFromContext();
+        List<Integer> supportCommandCodeList = header.getSupportCommandCodeList();
         if (supportCommandCodeList != Header.SUPPORT_COMMAND_CODE_LIST_NOT_EXIST) {
             logger.warn(
                     "handleCommand() not support included Header:{}. Connection will be disconnected.",
@@ -120,7 +124,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
                     List<Integer> supportCommandServiceKeyList =
                             value.getHandshakeMessage().getSupportCommandServiceKeyList();
                     GrpcAgentConnection conn =
-                            buildAgentConnection(serverCallStreamObserver, supportCommandServiceKeyList);
+                            buildAgentConnection(header, serverCallStreamObserver, supportCommandServiceKeyList);
 
                     if (connRef.compareAndSet(null, conn)) {
                         GrpcCommandService.this.agentConnectionRepository.add(conn);
@@ -146,9 +150,12 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
     @Override
     public StreamObserver<PCmdMessage> handleCommandV2(StreamObserver<PCmdRequest> requestObserver) {
-        Long transportId = getTransportIdFromContext();
-        ClusterKey clusterKey = getClusterKeyFromContext();
-        List<Integer> supportCommandCodeList = getSupportCommandCodeListFromContext();
+        final Context context = Context.current();
+        Long transportId = getTransportIdFromContext(context);
+
+        final Header header = ServerContext.getAgentInfo(context);
+        ClusterKey clusterKey = getClusterKeyFromContext(header);
+        List<Integer> supportCommandCodeList = header.getSupportCommandCodeList();
         logger.info(
                 "{} => local. handleCommandV2(). transportId:{}, supportCommandCodeList{}",
                 clusterKey,
@@ -171,7 +178,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
                 (ServerCallStreamObserver<PCmdRequest>) requestObserver;
 
         serverCallStreamObserver.setOnReadyHandler(() -> {
-            GrpcAgentConnection conn = buildAgentConnection(serverCallStreamObserver, supportCommandCodeList);
+            GrpcAgentConnection conn = buildAgentConnection(header, serverCallStreamObserver, supportCommandCodeList);
             if (connRef.compareAndSet(null, conn)) {
                 logger.info("{} => local. ready() transportId:{}", clusterKey, transportId);
                 GrpcCommandService.this.agentConnectionRepository.add(conn);
@@ -215,13 +222,13 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         };
     }
 
-    private GrpcAgentConnection buildAgentConnection(
+    private GrpcAgentConnection buildAgentConnection(Header header,
             ServerCallStreamObserver<PCmdRequest> requestObserver,
             List<Integer> supportCommandServiceCodeList
     ) {
         return new GrpcAgentConnection(
                 getRemoteAddressFromContext(),
-                getClusterKeyFromContext(),
+                getClusterKeyFromContext(header),
                 requestObserver,
                 supportCommandServiceCodeList
         );
@@ -294,7 +301,10 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
     private <T> void emitMono(T response, StreamObserver<Empty> responseObserver, Publisher<T> sink) {
         if (sink == null) {
-            logger.warn("Could not find echo sink: clusterKey = {}", getClusterKeyFromContext());
+            if (logger.isWarnEnabled()) {
+                Header header = ServerContext.getAgentInfo();
+                logger.warn("Could not find echo sink: clusterKey = {}", getClusterKeyFromContext(header));
+            }
             responseObserver.onError(new StatusException(Status.NOT_FOUND));
             return;
         }
@@ -308,18 +318,12 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         return transportMetadata.getRemoteAddress();
     }
 
-    private ClusterKey getClusterKeyFromContext() {
-        Header header = ServerContext.getAgentInfo();
+    private ClusterKey getClusterKeyFromContext(Header header) {
         return new ClusterKey(header.getApplicationName(), header.getAgentId(), header.getAgentStartTime());
     }
 
-    private List<Integer> getSupportCommandCodeListFromContext() {
-        Header header = ServerContext.getAgentInfo();
-        return header.getSupportCommandCodeList();
-    }
-
-    private Long getTransportIdFromContext() {
-        TransportMetadata transportMetadata = ServerContext.getTransportMetadata();
+    private Long getTransportIdFromContext(Context context) {
+        TransportMetadata transportMetadata = ServerContext.getTransportMetadata(context);
         return transportMetadata.getTransportId();
     }
 

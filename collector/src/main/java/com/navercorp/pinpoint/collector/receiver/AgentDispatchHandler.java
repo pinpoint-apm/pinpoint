@@ -58,7 +58,7 @@ public class AgentDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES>
 
     }
 
-    protected RequestResponseHandler<REQ, RES> getRequestResponseHandler(ServerRequest<? extends REQ> serverRequest) {
+    protected RequestResponseHandler<REQ, RES> getRequestResponseHandler(ServerRequest<REQ> serverRequest) {
         MessageType messageType = serverRequest.getMessageType();
         final short type = messageType.getCode();
         RequestResponseHandler<REQ, RES> handler = this.handlerMap.get(type);

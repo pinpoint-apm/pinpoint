@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.grpc.BindAttribute;
 import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanFactory;
-import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
@@ -60,14 +59,11 @@ public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
 
     private final GrpcSpanFactory spanFactory;
 
-    private final AcceptedTimeService acceptedTimeService;
-
     private final Sampler<BasicSpan> sampler;
 
-    public GrpcSpanHandler(TraceService[] traceServices, GrpcSpanFactory spanFactory, AcceptedTimeService acceptedTimeService, SpanSamplerFactory spanSamplerFactory) {
+    public GrpcSpanHandler(TraceService[] traceServices, GrpcSpanFactory spanFactory, SpanSamplerFactory spanSamplerFactory) {
         this.traceServices = Objects.requireNonNull(traceServices, "traceServices");
         this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory");
-        this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.sampler = spanSamplerFactory.createBasicSpanSampler();
 
         logger.info("TraceServices {}", Arrays.toString(traceServices));
@@ -76,21 +72,21 @@ public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
     @Override
     public void handleSimple(ServerRequest<GeneratedMessageV3> serverRequest) {
         final GeneratedMessageV3 data = serverRequest.getData();
-        final Header header = serverRequest.getHeader();
         if (data instanceof PSpan span) {
-            handleSpan(header, span);
+            final Header header = serverRequest.getHeader();
+            BindAttribute attribute = BindAttribute.of(header, serverRequest.getRequestTime());
+            handleSpan(attribute, span);
         } else {
             logger.warn("Invalid request type. serverRequest={}", serverRequest);
             throw Status.INTERNAL.withDescription("Bad Request(invalid request type)").asRuntimeException();
         }
     }
 
-    private void handleSpan(Header header, PSpan span) {
+    private void handleSpan(BindAttribute attribute, PSpan span) {
         if (isDebug) {
             logger.debug("Handle PSpan={}", createSimpleSpanLog(span));
         }
 
-        final BindAttribute attribute = BindAttribute.of(header, acceptedTimeService.getAcceptedTime());
         final SpanBo spanBo = spanFactory.buildSpanBo(span, attribute);
         if (!sampler.isSampling(spanBo)) {
             if (isDebug) {

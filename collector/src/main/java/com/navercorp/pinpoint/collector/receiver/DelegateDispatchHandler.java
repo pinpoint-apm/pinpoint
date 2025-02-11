@@ -45,7 +45,7 @@ public class DelegateDispatchHandler<REQ, RES> implements DispatchHandler<REQ, R
 
     @Override
     public void dispatchSendMessage(ServerRequest<REQ> serverRequest) {
-        acceptedTimeService.accept();
+        acceptedTimeService.accept(serverRequest.getRequestTime());
 
         if (!checkAvailable()) {
             logger.debug("Handler is disabled. Skipping send message {}.", serverRequest);
@@ -58,7 +58,7 @@ public class DelegateDispatchHandler<REQ, RES> implements DispatchHandler<REQ, R
 
     @Override
     public void dispatchRequestMessage(ServerRequest<REQ> serverRequest, ServerResponse<RES> serverResponse) {
-        acceptedTimeService.accept();
+        acceptedTimeService.accept(serverRequest.getRequestTime());
 
         if (!checkAvailable()) {
             logger.debug("Handler is disabled. Skipping request message {}.", serverRequest);

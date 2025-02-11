@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.grpc.server.lifecycle;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
+import io.grpc.Context;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,14 +43,15 @@ public class DefaultPingEventHandler implements PingEventHandler {
 
     @Override
     public void connect() {
-        final TransportMetadata transportMetadata = ServerContext.getTransportMetadata();
+        final Context context = Context.current();
+        final TransportMetadata transportMetadata = ServerContext.getTransportMetadata(context);
+        final Header header = ServerContext.getAgentInfo(context);
         if (transportMetadata == null) {
-            logger.info("Skip connect event handle of ping, not found TransportMetadata. header={}", ServerContext.getAgentInfo());
+            logger.info("Skip connect event handle of ping, not found TransportMetadata. header={}", header);
             return;
         }
 
         final Long transportId = transportMetadata.getTransportId();
-        final Header header = ServerContext.getAgentInfo();
         final PingSession pingSession = PingSession.of(transportId, header);
         pingSession.setLastPingTimeMillis(System.currentTimeMillis());
         final PingSession oldSession = pingSessionRegistry.add(pingSession.getId(), pingSession);
@@ -61,9 +63,10 @@ public class DefaultPingEventHandler implements PingEventHandler {
 
     @Override
     public void ping() {
-        final TransportMetadata transportMetadata = ServerContext.getTransportMetadata();
+        final Context context = Context.current();
+        final TransportMetadata transportMetadata = ServerContext.getTransportMetadata(context);
         if (transportMetadata == null) {
-            logger.info("Skip ping event handle of ping, not found TransportMetadata. header={}", ServerContext.getAgentInfo());
+            logger.info("Skip ping event handle of ping, not found TransportMetadata. header={}", ServerContext.getAgentInfo(context));
             return;
         }
 
@@ -84,9 +87,10 @@ public class DefaultPingEventHandler implements PingEventHandler {
 
     @Override
     public void close() {
-        final TransportMetadata transportMetadata = ServerContext.getTransportMetadata();
+        final Context context = Context.current();
+        final TransportMetadata transportMetadata = ServerContext.getTransportMetadata(context);
         if (transportMetadata == null) {
-            logger.info("Skip close event handle of ping, not found TransportMetadata. header={}", ServerContext.getAgentInfo());
+            logger.info("Skip close event handle of ping, not found TransportMetadata. header={}", ServerContext.getAgentInfo(context));
             return;
         }
 
@@ -102,9 +106,10 @@ public class DefaultPingEventHandler implements PingEventHandler {
 
     @Override
     public void update(final short serviceType) {
-        final TransportMetadata transportMetadata = ServerContext.getTransportMetadata();
+        final Context context = Context.current();
+        final TransportMetadata transportMetadata = ServerContext.getTransportMetadata(context);
         if (transportMetadata == null) {
-            logger.info("Skip update event handle of ping, not found TransportMetadata. header={}", ServerContext.getAgentInfo());
+            logger.info("Skip update event handle of ping, not found TransportMetadata. header={}", ServerContext.getAgentInfo(context));
             return;
         }
 

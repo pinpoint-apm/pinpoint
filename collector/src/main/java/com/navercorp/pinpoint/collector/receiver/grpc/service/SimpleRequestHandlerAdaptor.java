@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcServerResponse;
 import com.navercorp.pinpoint.collector.receiver.grpc.retry.GrpcRetryFriendlyServerResponse;
 import com.navercorp.pinpoint.grpc.Header;
-import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import io.grpc.Status;
@@ -39,22 +38,20 @@ public class SimpleRequestHandlerAdaptor<REQ, RES> {
     private final Logger logger;
 
     private final DispatchHandler<REQ, RES> dispatchHandler;
-    private final ServerRequestFactory serverRequestFactory;
 
-    public SimpleRequestHandlerAdaptor(String name, DispatchHandler<REQ, RES> dispatchHandler, ServerRequestFactory serverRequestFactory) {
+    public SimpleRequestHandlerAdaptor(String name, DispatchHandler<REQ, RES> dispatchHandler) {
         Objects.requireNonNull(name, "name");
         this.logger = LogManager.getLogger(name);
         this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
-        this.serverRequestFactory = Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
     }
 
-    public void request(Message<? extends REQ> message, StreamObserver<? extends RES> responseObserver) {
+    public void request(ServerRequest<? extends REQ> request, StreamObserver<? extends RES> responseObserver) {
         try {
-            final ServerRequest<? extends REQ> request = serverRequestFactory.newServerRequest(message);
             final ServerResponse<? extends RES> response = newServerResponse(request, responseObserver);
             this.dispatchHandler.dispatchRequestMessage((ServerRequest<REQ>) request, (ServerResponse<RES>) response);
         } catch (Exception e) {
-            logger.warn("Failed to request. message={}", message, e);
+            final Header header = request.getHeader();
+            logger.warn("Failed to request. header={}", header, e);
             if (e instanceof StatusException || e instanceof StatusRuntimeException) {
                 responseObserver.onError(e);
             } else {
