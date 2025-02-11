@@ -102,7 +102,6 @@
         <module>webhook</module>
         <module>web-frontend</module>
         <module>hbase</module>
-        <module>flink</module>
         <module>batch</module>
 
         <module>pinot</module>
@@ -586,11 +585,6 @@
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-plugins-assembly</artifactId>
                 <type>pom</type>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-flink</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
