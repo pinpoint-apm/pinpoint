@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.collector.dao.hbase.statistics.CallerColumnName;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.ColumnName;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.MapLinkConfiguration;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKey;
-import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
@@ -48,7 +47,6 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final AcceptedTimeService acceptedTimeService;
 
     private final TimeSlot timeSlot;
 
@@ -58,11 +56,10 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
     public HbaseMapStatisticsCalleeDao(MapLinkConfiguration mapLinkConfiguration,
                                        IgnoreStatFilter ignoreStatFilter,
-                                       AcceptedTimeService acceptedTimeService, TimeSlot timeSlot,
+                                       TimeSlot timeSlot,
                                        @Qualifier("calleeBulkWriter") BulkWriter bulkWriter) {
         this.mapLinkConfiguration = Objects.requireNonNull(mapLinkConfiguration, "mapLinkConfiguration");
         this.ignoreStatFilter = Objects.requireNonNull(ignoreStatFilter, "ignoreStatFilter");
-        this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
 
         this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWriter");
@@ -70,7 +67,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
 
     @Override
-    public void update(String calleeApplicationName, ServiceType calleeServiceType, String callerApplicationName, ServiceType callerServiceType, String callerHost, int elapsed, boolean isError) {
+    public void update(long requestTime, String calleeApplicationName, ServiceType calleeServiceType, String callerApplicationName, ServiceType callerServiceType, String callerHost, int elapsed, boolean isError) {
         Objects.requireNonNull(calleeApplicationName, "calleeApplicationName");
         Objects.requireNonNull(callerApplicationName, "callerApplicationName");
 
@@ -90,8 +87,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
         }
 
         // make row key. rowkey is me
-        final long acceptedTime = acceptedTimeService.getAcceptedTime();
-        final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
+        final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
         final RowKey calleeRowKey = new CallRowKey(calleeApplicationName, calleeServiceType.getCode(), rowTimeSlot);
 
         final short callerSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(calleeServiceType, elapsed, isError);

@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.util.Puts;
-import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
@@ -53,8 +52,6 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     private final TableNameProvider tableNameProvider;
 
-    private final AcceptedTimeService acceptedTimeService;
-
     private final TimeSlot timeSlot;
 
     private final AbstractRowKeyDistributor rowKeyDistributor;
@@ -66,25 +63,24 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     public HbaseHostApplicationMapDao(HbaseOperations hbaseTemplate,
                                       TableNameProvider tableNameProvider,
                                       @Qualifier("acceptApplicationRowKeyDistributor") AbstractRowKeyDistributor rowKeyDistributor,
-                                      AcceptedTimeService acceptedTimeService,
                                       TimeSlot timeSlot) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
-        this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
     }
 
 
     @Override
-    public void insert(String host, String bindApplicationName, short bindServiceType, String parentApplicationName, short parentServiceType) {
+    public void insert(long requestTime, String host, String bindApplicationName, short bindServiceType,
+                       String parentApplicationName, short parentServiceType) {
         Objects.requireNonNull(host, "host");
         Objects.requireNonNull(bindApplicationName, "bindApplicationName");
         if (logger.isDebugEnabled()) {
             logger.debug("insert HostApplicationMap, host:{}, app:{},SType:{},parentApp:{},parentAppSType{}", host, bindApplicationName, bindServiceType, parentApplicationName, parentServiceType);
         }
 
-        final long statisticsRowSlot = getSlotTime();
+        final long statisticsRowSlot = timeSlot.getTimeSlot(requestTime);
 
         final CacheKey cacheKey = new CacheKey(host, bindApplicationName, bindServiceType, parentApplicationName, parentServiceType);
         final boolean needUpdate = updater.update(cacheKey, statisticsRowSlot);
@@ -92,13 +88,6 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
             insertHostVer2(host, bindApplicationName, bindServiceType, statisticsRowSlot, parentApplicationName, parentServiceType);
         }
     }
-
-
-    private long getSlotTime() {
-        final long acceptedTime = acceptedTimeService.getAcceptedTime();
-        return timeSlot.getTimeSlot(acceptedTime);
-    }
-
 
     private void insertHostVer2(String host, String bindApplicationName, short bindServiceType, long statisticsRowSlot, String parentApplicationName, short parentServiceType) {
         if (logger.isDebugEnabled()) {

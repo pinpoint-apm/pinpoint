@@ -16,11 +16,9 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
+import com.navercorp.pinpoint.collector.grpc.lifecycle.LifecycleListener;
+import com.navercorp.pinpoint.collector.grpc.lifecycle.PingSession;
 import com.navercorp.pinpoint.collector.receiver.grpc.ShutdownEventListener;
-import com.navercorp.pinpoint.collector.service.AgentInfoService;
-import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
-import com.navercorp.pinpoint.grpc.server.lifecycle.LifecycleListener;
-import com.navercorp.pinpoint.grpc.server.lifecycle.PingSession;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -35,30 +33,16 @@ public class AgentLifecycleListener implements LifecycleListener {
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final KeepAliveService lifecycleService;
-    private final AgentInfoService agentInfoService;
     private final ShutdownEventListener shutdownEventListener;
 
-    public AgentLifecycleListener(KeepAliveService lifecycleService, AgentInfoService agentInfoService, ShutdownEventListener shutdownEventListener) {
+    public AgentLifecycleListener(KeepAliveService lifecycleService, ShutdownEventListener shutdownEventListener) {
         this.lifecycleService = Objects.requireNonNull(lifecycleService, "lifecycleService");
-        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
         this.shutdownEventListener = Objects.requireNonNull(shutdownEventListener, "shutdownEventListener");
     }
 
     @Override
     public void connect(PingSession lifecycle) {
         logger.info("connect:{}", lifecycle);
-        try {
-            if (lifecycle.isUndefinedServiceType()) {
-                // fallback
-                final AgentInfoBo agentInfoBo = agentInfoService.getSimpleAgentInfo(lifecycle.getAgentId(), lifecycle.getAgentStartTime());
-                logger.info("ServiceType is UNDEFINED. Fallback:AgentInfo lookup {} -> {}", lifecycle, agentInfoBo);
-                if (agentInfoBo != null) {
-                    lifecycle.setServiceType(agentInfoBo.getServiceTypeCode());
-                }
-            }
-        } catch (Exception e) {
-            logger.warn("Fallback:AgentInfo lookup Failed. session={}", lifecycle, e);
-        }
         lifecycleService.updateState(lifecycle, ManagedAgentLifeCycle.RUNNING);
     }
 

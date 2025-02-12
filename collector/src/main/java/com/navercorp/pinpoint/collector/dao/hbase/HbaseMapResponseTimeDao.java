@@ -65,7 +65,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 
 
     @Override
-    public void received(String applicationName, ServiceType applicationServiceType, String agentId, int elapsed, boolean isError) {
+    public void received(long requestTime, String applicationName, ServiceType applicationServiceType, String agentId, int elapsed, boolean isError) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(agentId, "agentId");
 
@@ -74,8 +74,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         }
 
         // make row key. rowkey is me
-        final long acceptedTime = acceptedTimeService.getAcceptedTime();
-        final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
+        final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
         final RowKey selfRowKey = new CallRowKey(applicationName, applicationServiceType.getCode(), rowTimeSlot);
 
         final short slotNumber = ApplicationMapStatisticsUtils.getSlotNumber(applicationServiceType, elapsed, isError);
@@ -104,7 +103,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         }
 
         // make row key. rowkey is me
-        final long acceptedTime = acceptedTimeService.getAcceptedTime();
+        long acceptedTime = acceptedTimeService.getAcceptedTime();
         final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
         final RowKey selfRowKey = new CallRowKey(applicationName, applicationServiceType.getCode(), rowTimeSlot);
 

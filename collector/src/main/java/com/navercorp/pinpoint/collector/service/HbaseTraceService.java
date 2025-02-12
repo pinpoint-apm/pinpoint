@@ -86,7 +86,7 @@ public class HbaseTraceService implements TraceService {
         final List<SpanEventBo> spanEventList = spanChunkBo.getSpanEventBoList();
         if (spanEventList != null) {
             // TODO need to batch update later.
-            insertSpanEventList(spanEventList, applicationServiceType, spanChunkBo.getApplicationId(), spanChunkBo.getAgentId(), spanChunkBo.getEndPoint());
+            insertSpanEventList(spanEventList, applicationServiceType, spanChunkBo.getApplicationId(), spanChunkBo.getAgentId(), spanChunkBo.getEndPoint(), spanChunkBo.getCollectorAcceptTime());
         }
 
         // TODO should be able to tell whether the span chunk is successfully inserted
@@ -114,7 +114,7 @@ public class HbaseTraceService implements TraceService {
         }, grpcSpanServerExecutor);
     }
 
-    private void insertAcceptorHost(SpanEventBo spanEvent, String applicationId, ServiceType serviceType) {
+    private void insertAcceptorHost(long requestTime, SpanEventBo spanEvent, String applicationId, ServiceType serviceType) {
         final String endPoint = spanEvent.getEndPoint();
         if (endPoint == null) {
             logger.debug("endPoint is null. spanEvent:{}", spanEvent);
@@ -125,7 +125,8 @@ public class HbaseTraceService implements TraceService {
             logger.debug("destinationId is null. spanEvent:{}", spanEvent);
             return;
         }
-        hostApplicationMapDao.insert(endPoint, destinationId, spanEvent.getServiceType(), applicationId, serviceType.getCode());
+        hostApplicationMapDao.insert(requestTime, endPoint, destinationId, spanEvent.getServiceType(),
+                applicationId, serviceType.getCode());
     }
 
     private void insertAcceptorHost(SpanBo span) {
@@ -144,9 +145,11 @@ public class HbaseTraceService implements TraceService {
 
         final ServiceType spanServiceType = registry.findServiceType(span.getServiceType());
         if (spanServiceType.isQueue()) {
-            hostApplicationMapDao.insert(span.getEndPoint(), spanApplicationName, applicationServiceTypeCode, parentApplicationName, parentServiceType);
+            hostApplicationMapDao.insert(span.getCollectorAcceptTime(), span.getEndPoint(), spanApplicationName, applicationServiceTypeCode,
+                    parentApplicationName, parentServiceType);
         } else {
-            hostApplicationMapDao.insert(acceptorHost, spanApplicationName, applicationServiceTypeCode, parentApplicationName, parentServiceType);
+            hostApplicationMapDao.insert(span.getCollectorAcceptTime(), acceptorHost, spanApplicationName, applicationServiceTypeCode,
+                    parentApplicationName, parentServiceType);
         }
     }
 
@@ -165,15 +168,19 @@ public class HbaseTraceService implements TraceService {
         if (span.getParentSpanId() == -1) {
             if (spanServiceType.isQueue()) {
                 // create virtual queue node
-                statisticsService.updateCaller(span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(), span.getApplicationId(), applicationServiceType, span.getEndPoint(), span.getElapsed(), isError);
+                statisticsService.updateCaller(span.getCollectorAcceptTime(), span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(), span.getApplicationId(), applicationServiceType, span.getEndPoint(),
+                        span.getElapsed(), isError);
 
-                statisticsService.updateCallee(span.getApplicationId(), applicationServiceType, span.getAcceptorHost(), spanServiceType, span.getAgentId(), span.getElapsed(), isError);
+                statisticsService.updateCallee(span.getCollectorAcceptTime(), span.getApplicationId(), applicationServiceType, span.getAcceptorHost(), spanServiceType, span.getAgentId(),
+                        span.getElapsed(), isError);
             } else {
                 // create virtual user
-                statisticsService.updateCaller(span.getApplicationId(), ServiceType.USER, span.getAgentId(), span.getApplicationId(), applicationServiceType, span.getAgentId(), span.getElapsed(), isError);
+                statisticsService.updateCaller(span.getCollectorAcceptTime(), span.getApplicationId(), ServiceType.USER, span.getAgentId(), span.getApplicationId(), applicationServiceType, span.getAgentId(),
+                        span.getElapsed(), isError);
 
                 // update the span information of the current node (self)
-                statisticsService.updateCallee(span.getApplicationId(), applicationServiceType, span.getApplicationId(), ServiceType.USER, span.getAgentId(), span.getElapsed(), isError);
+                statisticsService.updateCallee(span.getCollectorAcceptTime(), span.getApplicationId(), applicationServiceType, span.getApplicationId(), ServiceType.USER, span.getAgentId(),
+                        span.getElapsed(), isError);
             }
             bugCheck++;
         }
@@ -192,16 +199,19 @@ public class HbaseTraceService implements TraceService {
             if (spanServiceType.isQueue()) {
                 if (!applicationServiceType.isQueue() && !parentApplicationType.isQueue()) {
                     // emulate virtual queue node's accept Span and record it's acceptor host
-                    hostApplicationMapDao.insert(span.getRemoteAddr(), span.getAcceptorHost(), spanServiceType.getCode(), parentApplicationName, parentApplicationType.getCode());
+                    hostApplicationMapDao.insert(span.getCollectorAcceptTime(), span.getRemoteAddr(), span.getAcceptorHost(), spanServiceType.getCode(),
+                            parentApplicationName, parentApplicationType.getCode());
                     // emulate virtual queue node's send SpanEvent
-                    statisticsService.updateCaller(span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(), span.getApplicationId(), applicationServiceType, span.getEndPoint(), span.getElapsed(), isError);
+                    statisticsService.updateCaller(span.getCollectorAcceptTime(), span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(), span.getApplicationId(),
+                            applicationServiceType, span.getEndPoint(), span.getElapsed(), isError);
 
                     parentApplicationName = span.getAcceptorHost();
                     parentApplicationType = spanServiceType;
                 }
             }
 
-            statisticsService.updateCallee(span.getApplicationId(), applicationServiceType, parentApplicationName, parentApplicationType, span.getAgentId(), span.getElapsed(), isError);
+            statisticsService.updateCallee(span.getCollectorAcceptTime(), span.getApplicationId(), applicationServiceType, parentApplicationName, parentApplicationType, span.getAgentId(),
+                    span.getElapsed(), isError);
             bugCheck++;
         }
 
@@ -210,7 +220,7 @@ public class HbaseTraceService implements TraceService {
         // it is odd to record reversely, because of already recording the caller data at previous node.
         // the data may be different due to timeout or network error.
 
-        statisticsService.updateResponseTime(span.getApplicationId(), applicationServiceType, span.getAgentId(), span.getElapsed(), isError);
+        statisticsService.updateResponseTime(span.getCollectorAcceptTime(), span.getApplicationId(), applicationServiceType, span.getAgentId(), span.getElapsed(), isError);
 
         if (bugCheck != 1) {
             logger.info("ambiguous span found(bug). span:{}", span);
@@ -229,16 +239,17 @@ public class HbaseTraceService implements TraceService {
 
         final ServiceType applicationServiceType = getApplicationServiceType(span);
         // TODO need to batch update later.
-        insertSpanEventList(spanEventList, applicationServiceType, span.getApplicationId(), span.getAgentId(), span.getEndPoint());
+        insertSpanEventList(spanEventList, applicationServiceType, span.getApplicationId(), span.getAgentId(), span.getEndPoint(), span.getCollectorAcceptTime());
     }
 
-    private void insertSpanEventList(List<SpanEventBo> spanEventList, ServiceType applicationServiceType, String applicationId, String agentId, String endPoint) {
+    private void insertSpanEventList(List<SpanEventBo> spanEventList, ServiceType applicationServiceType, String applicationId,
+                                     String agentId, String endPoint, long requestTime) {
 
         for (SpanEventBo spanEvent : spanEventList) {
             final ServiceType spanEventType = registry.findServiceType(spanEvent.getServiceType());
 
             if (isAlias(spanEventType, spanEvent)) {
-                insertAcceptorHost(spanEvent, applicationId, applicationServiceType);
+                insertAcceptorHost(requestTime, spanEvent, applicationId, applicationServiceType);
                 continue;
             }
 
@@ -264,10 +275,10 @@ public class HbaseTraceService implements TraceService {
              * save information to draw a server map based on statistics
              */
             // save the information of caller (the spanevent that called span)
-            statisticsService.updateCaller(applicationId, applicationServiceType, agentId, spanEventApplicationName, spanEventType, spanEventEndPoint, elapsed, hasException);
+            statisticsService.updateCaller(requestTime, applicationId, applicationServiceType, agentId, spanEventApplicationName, spanEventType, spanEventEndPoint, elapsed, hasException);
 
             // save the information of callee (the span that spanevent called)
-            statisticsService.updateCallee(spanEventApplicationName, spanEventType, applicationId, applicationServiceType, endPoint, elapsed, hasException);
+            statisticsService.updateCallee(requestTime, spanEventApplicationName, spanEventType, applicationId, applicationServiceType, endPoint, elapsed, hasException);
         }
     }
 

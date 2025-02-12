@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.collector.dao.hbase.statistics.CalleeColumnName;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.ColumnName;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.MapLinkConfiguration;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKey;
-import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
@@ -48,18 +47,15 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final AcceptedTimeService acceptedTimeService;
 
     private final TimeSlot timeSlot;
     private final BulkWriter bulkWriter;
     private final MapLinkConfiguration mapLinkConfiguration;
 
     public HbaseMapStatisticsCallerDao(MapLinkConfiguration mapLinkConfiguration,
-                                       AcceptedTimeService acceptedTimeService,
                                        TimeSlot timeSlot,
                                        @Qualifier("callerBulkWriter") BulkWriter bulkWriter) {
         this.mapLinkConfiguration = Objects.requireNonNull(mapLinkConfiguration, "mapLinkConfiguration");
-        this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
 
         this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWrtier");
@@ -67,7 +63,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
 
     @Override
-    public void update(String callerApplicationName, ServiceType callerServiceType, String callerAgentid, String calleeApplicationName, ServiceType calleeServiceType, String calleeHost, int elapsed, boolean isError) {
+    public void update(long requestTime, String callerApplicationName, ServiceType callerServiceType, String callerAgentid, String calleeApplicationName, ServiceType calleeServiceType, String calleeHost, int elapsed, boolean isError) {
         Objects.requireNonNull(callerApplicationName, "callerApplicationName");
         Objects.requireNonNull(calleeApplicationName, "calleeApplicationName");
 
@@ -81,8 +77,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         calleeHost = StringUtils.defaultString(calleeHost);
 
         // make row key. rowkey is me
-        final long acceptedTime = acceptedTimeService.getAcceptedTime();
-        final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
+        final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
         final RowKey callerRowKey = new CallRowKey(callerApplicationName, callerServiceType.getCode(), rowTimeSlot);
 
         final short calleeSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(calleeServiceType, elapsed, isError);
