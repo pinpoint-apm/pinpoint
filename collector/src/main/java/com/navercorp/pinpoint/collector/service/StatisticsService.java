@@ -49,25 +49,26 @@ public class StatisticsService {
      * <br/>
      * The following message is generated for the callee(MySQL) :<br/>
      * MySQL (MYSQL) <- emeroad-app (TOMCAT)[localhost:8080]
+     *
      * @param callerApplicationName callerApplicationName
-     * @param callerServiceType callerServiceType
+     * @param callerServiceType     callerServiceType
      * @param calleeApplicationName calleeApplicationName
-     * @param calleeServiceType calleeServiceType
-     * @param calleeHost calleeHost
-     * @param elapsed elapsed
-     * @param isError isError
+     * @param calleeServiceType     calleeServiceType
+     * @param calleeHost            calleeHost
+     * @param elapsed               elapsed
+     * @param isError               isError
      */
     public void updateCaller(
+            long requestTime,
             @NotBlank String callerApplicationName,
             ServiceType callerServiceType,
             @NotBlank String callerAgentId,
             @NotBlank String calleeApplicationName,
             ServiceType calleeServiceType,
             String calleeHost,
-            int elapsed,
-            boolean isError
+            int elapsed, boolean isError
     ) {
-        mapStatisticsCallerDao.update(callerApplicationName, callerServiceType, callerAgentId, calleeApplicationName, calleeServiceType, calleeHost, elapsed, isError);
+        mapStatisticsCallerDao.update(requestTime, callerApplicationName, callerServiceType, callerAgentId, calleeApplicationName, calleeServiceType, calleeHost, elapsed, isError);
     }
 
     /**
@@ -76,34 +77,35 @@ public class StatisticsService {
      * <br/><br/>
      * The following message is generated for the caller(Tomcat) :<br/>
      * emeroad-app (TOMCAT) -> MySQL (MYSQL)[10.25.141.69:3306]
-     * @param callerApplicationName callerApplicationName
-     * @param callerServiceType callerServiceType
+     *
      * @param calleeApplicationName calleeApplicationName
-     * @param calleeServiceType calleeServiceType
-     * @param callerHost callerHost
-     * @param elapsed elapsed
-     * @param isError isError
+     * @param calleeServiceType     calleeServiceType
+     * @param callerApplicationName callerApplicationName
+     * @param callerServiceType     callerServiceType
+     * @param callerHost            callerHost
+     * @param elapsed               elapsed
+     * @param isError               isError
      */
     public void updateCallee(
+            long requestTime,
             @NotBlank String calleeApplicationName,
             ServiceType calleeServiceType,
             @NotBlank String callerApplicationName,
             ServiceType callerServiceType,
             String callerHost,
-            int elapsed,
-            boolean isError
+            int elapsed, boolean isError
     ) {
-        mapStatisticsCalleeDao.update(calleeApplicationName, calleeServiceType, callerApplicationName, callerServiceType, callerHost, elapsed, isError);
+        mapStatisticsCalleeDao.update(requestTime, calleeApplicationName, calleeServiceType, callerApplicationName, callerServiceType, callerHost, elapsed, isError);
     }
 
     public void updateResponseTime(
+            long requestTime,
             @NotBlank String applicationName,
             ServiceType serviceType,
             String agentId,
-            int elapsed,
-            boolean isError
+            int elapsed, boolean isError
     ) {
-        mapResponseTimeDao.received(applicationName, serviceType, agentId, elapsed, isError);
+        mapResponseTimeDao.received(requestTime, applicationName, serviceType, agentId, elapsed, isError);
     }
 
     public void updateAgentState(

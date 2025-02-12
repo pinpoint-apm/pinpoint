@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.collector.grpc.lifecycle.PingEventHandler;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.AgentService;
@@ -25,7 +26,6 @@ import com.navercorp.pinpoint.collector.receiver.grpc.service.MetadataService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
-import com.navercorp.pinpoint.grpc.server.lifecycle.PingEventHandler;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.io.request.ServerRequest;

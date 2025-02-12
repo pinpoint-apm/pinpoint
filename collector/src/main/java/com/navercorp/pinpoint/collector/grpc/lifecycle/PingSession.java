@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.grpc.server.lifecycle;
+package com.navercorp.pinpoint.collector.grpc.lifecycle;
 
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.Header;
+import com.navercorp.pinpoint.io.request.ServerRequest;
 
 import java.util.Map;
 import java.util.Objects;
@@ -31,36 +31,23 @@ public class PingSession {
     private static final AtomicLongFieldUpdater<PingSession> UPDATER = AtomicLongFieldUpdater.newUpdater(PingSession.class, "eventIdAllocator");
 
     private final Long id;
-    private final String applicationName;
-    private final String agentId;
-    private final long agentStartTime;
-    private final long socketId;
-    private final Map<String, Object> properties;
 
-    private short serviceType;
+    private final Header header;
 
     private volatile long eventIdAllocator = 0;
 
     private boolean updated = false;
     private long lastPingTimeMillis;
 
-    public static PingSession of(Long id, Header header) {
-        Objects.requireNonNull(id, "id");
-        Objects.requireNonNull(header, "header");
+    public static PingSession of(ServerRequest<?> request) {
+        Objects.requireNonNull(request, "request");
 
-        return new PingSession(id, header.getApplicationName(), header.getAgentId(), header.getAgentStartTime(),
-                (short) header.getServiceType(), header.getSocketId(), header.getProperties());
+        return new PingSession(request.getTransportId(), request.getHeader());
     }
 
-    public PingSession(Long id, String applicationName, String agentId, long agentStartTime, short serviceType, long socketId, Map<String, Object> properties) {
+    public PingSession(Long id, Header header) {
         this.id = Objects.requireNonNull(id, "id");
-
-        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
-        this.agentId = Objects.requireNonNull(agentId, "agentId");
-        this.agentStartTime = agentStartTime;
-        this.serviceType = serviceType;
-        this.socketId = socketId;
-        this.properties = Objects.requireNonNull(properties, "properties");
+        this.header = Objects.requireNonNull(header, "header");
     }
 
     public Long getId() {
@@ -72,43 +59,27 @@ public class PingSession {
     }
 
     public short getServiceType() {
-        synchronized (this) {
-            return serviceType;
-        }
-    }
-
-    public void setServiceType(short serviceType) {
-        synchronized (this) {
-            if (this.serviceType == ServiceType.UNDEFINED.getCode()) {
-                this.serviceType = serviceType;
-            }
-        }
-    }
-
-    public boolean isUndefinedServiceType() {
-        synchronized (this) {
-            return this.serviceType == ServiceType.UNDEFINED.getCode();
-        }
+        return (short) header.getServiceType();
     }
 
     public String getApplicationName() {
-        return applicationName;
+        return header.getApplicationName();
     }
 
     public String getAgentId() {
-        return agentId;
+        return header.getAgentId();
     }
 
     public long getAgentStartTime() {
-        return agentStartTime;
+        return header.getAgentStartTime();
     }
 
     public long getSocketId() {
-        return socketId;
+        return header.getSocketId();
     }
 
     public Map<String, Object> getProperties() {
-        return this.properties;
+        return header.getProperties();
     }
 
     // Flag to avoid duplication.
@@ -132,13 +103,8 @@ public class PingSession {
     public String toString() {
         return "PingSession{" +
                 "id=" + id +
-                ", applicationName='" + applicationName + '\'' +
-                ", agentId='" + agentId + '\'' +
-                ", agentStartTime=" + agentStartTime +
-                ", socketId=" + socketId +
-                ", properties=" + properties +
+                ", header='" + header + '\'' +
                 ", eventIdAllocator=" + eventIdAllocator +
-                ", serviceType=" + serviceType +
                 ", updated=" + updated +
                 ", lastPingTimeMillis=" + lastPingTimeMillis +
                 '}';

@@ -17,6 +17,9 @@ public class MessageType {
     public static final MessageType AGENT_STAT_BATCH = new MessageType(56);
     public static final MessageType AGENT_URI_STAT = new MessageType(57);
 
+    public static final MessageType PING = new MessageType(60);
+    public static final MessageType PING_CLOSE = new MessageType(62);
+
     public static final MessageType SPANCHUNK = new MessageType(70);
 
     public static final MessageType SQLMETADATA = new MessageType(300);

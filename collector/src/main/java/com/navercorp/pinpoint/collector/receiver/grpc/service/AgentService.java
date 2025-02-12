@@ -17,11 +17,11 @@
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.collector.grpc.lifecycle.PingEventHandler;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
-import com.navercorp.pinpoint.grpc.server.lifecycle.PingEventHandler;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PPing;
@@ -79,7 +79,7 @@ public class AgentService extends AgentGrpc.AgentImplBase {
                 public void run() {
                     simpleRequestHandlerAdaptor.request(request, responseObserver);
                     // Update service type of PingSession
-                    AgentService.this.pingEventHandler.update((short) agentInfo.getServiceType());
+                    pingEventHandler.update(request);
                 }
             });
         } catch (RejectedExecutionException ree) {
@@ -98,14 +98,16 @@ public class AgentService extends AgentGrpc.AgentImplBase {
             private final long id = nextSessionId();
             @Override
             public void onNext(PPing ping) {
+                final ServerRequest<PPing> request = serverRequestFactory.newServerRequest(MessageType.PING, ping);
+
                 if (first.compareAndSet(false, true)) {
                     // Only first
                     if (logger.isDebugEnabled()) {
                         thLogger.debug("PingSession:{} start:{}", id, MessageFormatUtils.debugLog(ping));
                     }
-                    AgentService.this.pingEventHandler.connect();
+                    AgentService.this.pingEventHandler.connect(request);
                 } else {
-                    AgentService.this.pingEventHandler.ping();
+                    AgentService.this.pingEventHandler.ping(request);
                 }
                 if (logger.isDebugEnabled()) {
                     thLogger.debug("PingSession:{} onNext:{}", id, MessageFormatUtils.debugLog(ping));
@@ -143,7 +145,8 @@ public class AgentService extends AgentGrpc.AgentImplBase {
             }
 
             private void disconnect() {
-                AgentService.this.pingEventHandler.close();
+                final ServerRequest<Void> request = serverRequestFactory.newServerRequest(MessageType.PING_CLOSE, null);
+                AgentService.this.pingEventHandler.close(request);
             }
 
         };

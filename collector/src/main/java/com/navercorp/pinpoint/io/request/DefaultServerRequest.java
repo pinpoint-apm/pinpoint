@@ -70,6 +70,10 @@ public class DefaultServerRequest<T> extends DefaultAttributeMap implements Serv
         return transport.getRemoteAddress().getPort();
     }
 
+    public Long getTransportId() {
+        return transport.getTransportId();
+    }
+
     @Override
     public String toString() {
         return "DefaultServerRequest{" +

@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.grpc.server.lifecycle;
+package com.navercorp.pinpoint.collector.grpc.lifecycle;
+
+import java.util.Collection;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface LifecycleListener {
+public interface PingSessionRegistry {
+    PingSession add(Long transportId, PingSession lifecycle);
 
-    void connect(PingSession lifecycle);
+    PingSession get(Long transportId);
 
-    void handshake(PingSession lifecycle);
+    PingSession remove(Long transportId);
 
-    void close(PingSession lifecycle);
-
+    Collection<PingSession> values();
 }

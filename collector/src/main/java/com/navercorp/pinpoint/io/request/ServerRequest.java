@@ -34,4 +34,6 @@ public interface ServerRequest<T> extends AttributeMap {
     String getRemoteAddress();
 
     int getRemotePort();
+
+    Long getTransportId();
 }

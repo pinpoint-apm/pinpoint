@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.grpc.server.lifecycle;
+package com.navercorp.pinpoint.collector.grpc.lifecycle;
 
 import java.util.Collection;
 import java.util.Objects;

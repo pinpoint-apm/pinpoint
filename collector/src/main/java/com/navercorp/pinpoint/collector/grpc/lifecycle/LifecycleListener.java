@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.grpc.server.lifecycle;
+package com.navercorp.pinpoint.collector.grpc.lifecycle;
 
 /**
  * @author Woonduk Kang(emeroad)
- * @author jaehong.kim
  */
-public interface PingEventHandler {
-    void connect();
+public interface LifecycleListener {
 
-    void ping();
+    void connect(PingSession lifecycle);
 
-    void close();
+    void handshake(PingSession lifecycle);
 
-    void update(short serviceType);
+    void close(PingSession lifecycle);
+
 }
