@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
-import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
+import com.navercorp.pinpoint.common.profiler.message.DataConsumer;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.BytesStringStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -16,8 +16,11 @@ public class SqlUidMetaDataService implements SqlMetaDataService {
 
     private final SqlCacheService<byte[]> sqlCacheService;
 
-    public SqlUidMetaDataService(SqlCacheService<byte[]> sqlCacheService) {
+    private final DataConsumer<MetaDataType> dataSender;
+
+    public SqlUidMetaDataService(DataConsumer<MetaDataType> dataSender, SqlCacheService<byte[]> sqlCacheService) {
         this.sqlCacheService = Objects.requireNonNull(sqlCacheService, "sqlCacheService");
+        this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
     }
 
     @Override
@@ -36,7 +39,12 @@ public class SqlUidMetaDataService implements SqlMetaDataService {
 
         final ParsingResultInternal<byte[]> result = (UidParsingResult) parsingResult;
         if (result != EMPTY_RESULT) {
-            this.sqlCacheService.cacheSql(result, SqlUidMetaDataService::newSqlUidMetaData);
+            boolean isNewValue = this.sqlCacheService.cacheSql(result);
+
+            if (isNewValue) {
+                final MetaDataType sqlMetaData = new SqlUidMetaData(result.getId(), result.getSql());
+                dataSender.send(sqlMetaData);
+            }
         }
 
         String output = StringUtils.defaultIfEmpty(parsingResult.getOutput(), null);
@@ -44,10 +52,5 @@ public class SqlUidMetaDataService implements SqlMetaDataService {
 
         final BytesStringStringValue sqlValue = new BytesStringStringValue(result.getId(), output, bindValue);
         return Annotations.of(AnnotationKey.SQL_UID.getCode(), sqlValue);
-    }
-
-    @VisibleForTesting
-    static MetaDataType newSqlUidMetaData(ParsingResultInternal<byte[]> parsingResult) {
-        return new SqlUidMetaData(parsingResult.getId(), parsingResult.getSql());
     }
 }

@@ -57,12 +57,12 @@ public class SqlMetadataServiceProvider implements Provider<SqlMetaDataService> 
 
         if (monitorConfig.isSqlStatEnable()) {
             SimpleCache<String, byte[]> sqlCache = simpleCacheFactory.newSqlUidCache();
-            SqlCacheService<byte[]> sqlCacheService = new SqlCacheService<>(dataSender, sqlCache, maxSqlLength);
-            return new SqlUidMetaDataService(sqlCacheService);
+            SqlCacheService<byte[]> sqlCacheService = new SqlCacheService<>(sqlCache, maxSqlLength);
+            return new SqlUidMetaDataService(dataSender, sqlCacheService);
         } else {
             SimpleCache<String, Integer> sqlCache = simpleCacheFactory.newSqlCache();
-            SqlCacheService<Integer> sqlCacheService = new SqlCacheService<>(dataSender, sqlCache, maxSqlLength);
-            return new DefaultSqlMetaDataService(sqlCacheService);
+            SqlCacheService<Integer> sqlCacheService = new SqlCacheService<>(sqlCache, maxSqlLength);
+            return new DefaultSqlMetaDataService(dataSender, sqlCacheService);
         }
     }
 }
