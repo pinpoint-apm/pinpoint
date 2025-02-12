@@ -201,6 +201,8 @@
         <jaxb4.version>4.0.0</jaxb4.version>
         <jakarta.validation-api3.version>3.0.2</jakarta.validation-api3.version>
 
+        <problem-spring-web.version>0.29.1</problem-spring-web.version>
+
 <!--        <slf4j.version>1.7.30</slf4j.version>-->
         <slf4j.version>2.0.16</slf4j.version>
         <log4j2.version>2.24.2</log4j2.version>
@@ -763,6 +765,11 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-tomcat</artifactId>
                 <version>${spring-boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.zalando</groupId>
+                <artifactId>problem-spring-web-starter</artifactId>
+                <version>${problem-spring-web.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>

@@ -35,6 +35,7 @@ import org.springframework.core.env.StandardEnvironment;
         WebServiceConfig.class,
         RealtimeConfig.class,
         MainDataSourceConfiguration.class,
+        ProblemSpringWebConfig.class,
 
         CacheConfiguration.class,
 
