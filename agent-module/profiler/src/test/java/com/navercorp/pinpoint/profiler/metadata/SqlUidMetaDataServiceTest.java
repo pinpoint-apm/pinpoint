@@ -13,26 +13,22 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class SqlUidMetaDataServiceTest {
-    static int LENGTH_LIMIT = 100;
-
     SqlUidMetaDataService sut;
-    SqlCacheService<byte[]> sqlCacheService;
 
     @Mock
     DataConsumer<MetaDataType> dataSender;
 
     @BeforeEach
     void setUp() {
-        UidCache sqlCache = new UidCache(100, new UidGenerator.Murmur(), LENGTH_LIMIT);
-        sqlCacheService = new SqlCacheService<>(dataSender, sqlCache, 1000);
-        sut = new SqlUidMetaDataService(sqlCacheService);
+        UidCache sqlCache = new UidCache(100, new UidGenerator.Murmur(), 1000);
+        SqlCacheService<byte[]> sqlCacheService = new SqlCacheService<>(sqlCache, 1000);
+        sut = new SqlUidMetaDataService(dataSender, sqlCacheService);
     }
 
     @Test
@@ -40,10 +36,10 @@ class SqlUidMetaDataServiceTest {
         String sql = "select * from A";
 
         UidParsingResult parsingResult1 = (UidParsingResult) sut.wrapSqlResult(sql);
-        assertNew(parsingResult1);
+        sut.newSqlAnnotation(parsingResult1, null);
 
         UidParsingResult parsingResult2 = (UidParsingResult) sut.wrapSqlResult(sql);
-        assertCached(parsingResult2);
+        sut.newSqlAnnotation(parsingResult2, null);
 
         assertSameId(parsingResult1, parsingResult2);
         verify(dataSender, times(1)).send(any(SqlUidMetaData.class));
@@ -54,12 +50,12 @@ class SqlUidMetaDataServiceTest {
         String sql = "select * from A";
 
         UidParsingResult parsingResult1 = (UidParsingResult) sut.wrapSqlResult(sql);
-        assertNew(parsingResult1);
+        sut.newSqlAnnotation(parsingResult1, null);
 
         setUp();
 
         UidParsingResult parsingResult2 = (UidParsingResult) sut.wrapSqlResult(sql);
-        assertNew(parsingResult2);
+        sut.newSqlAnnotation(parsingResult2, null);
 
         assertSameId(parsingResult1, parsingResult2);
         verify(dataSender, times(2)).send(any(SqlUidMetaData.class));
@@ -69,43 +65,14 @@ class SqlUidMetaDataServiceTest {
     void differentSqlDifferentId() {
         String sql1 = "select * from A";
         UidParsingResult parsingResult1 = (UidParsingResult) sut.wrapSqlResult(sql1);
-        assertNew(parsingResult1);
+        sut.newSqlAnnotation(parsingResult1, null);
 
         String sql2 = "select * from B";
         UidParsingResult parsingResult2 = (UidParsingResult) sut.wrapSqlResult(sql2);
-        assertNew(parsingResult2);
+        sut.newSqlAnnotation(parsingResult2, null);
 
         assertDifferentId(parsingResult1, parsingResult2);
         verify(dataSender, times(2)).send(any(SqlUidMetaData.class));
-    }
-
-    @Test
-    void bypassCache() {
-        String veryLongSql = veryLongSql();
-
-        UidParsingResult parsingResult1 = (UidParsingResult) sut.wrapSqlResult(veryLongSql);
-        assertNew(parsingResult1);
-
-        UidParsingResult parsingResult2 = (UidParsingResult) sut.wrapSqlResult(veryLongSql);
-        assertNew(parsingResult2);
-
-        assertSameId(parsingResult1, parsingResult2);
-    }
-
-    String veryLongSql() {
-        StringBuilder a = new StringBuilder();
-        for (int i = 0; i < LENGTH_LIMIT + 1; i++) {
-            a.append("a");
-        }
-        return a.toString();
-    }
-
-    void assertNew(UidParsingResult parsingResult) {
-        assertTrue(sqlCacheService.cacheSql(parsingResult, SqlUidMetaDataService::newSqlUidMetaData));
-    }
-
-    void assertCached(UidParsingResult parsingResult) {
-        assertFalse(sqlCacheService.cacheSql(parsingResult, SqlUidMetaDataService::newSqlUidMetaData));
     }
 
     static void assertSameId(UidParsingResult parsingResult1, UidParsingResult parsingResult2) {

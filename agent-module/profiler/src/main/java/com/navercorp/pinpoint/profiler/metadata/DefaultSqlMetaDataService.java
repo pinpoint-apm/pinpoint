@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
-import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
+import com.navercorp.pinpoint.common.profiler.message.DataConsumer;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -35,8 +35,11 @@ public class DefaultSqlMetaDataService implements SqlMetaDataService {
 
     private final SqlCacheService<Integer> sqlCacheService;
 
-    public DefaultSqlMetaDataService(SqlCacheService<Integer> sqlCacheService) {
+    private final DataConsumer<MetaDataType> dataSender;
+
+    public DefaultSqlMetaDataService(DataConsumer<MetaDataType> dataSender, SqlCacheService<Integer> sqlCacheService) {
         this.sqlCacheService = Objects.requireNonNull(sqlCacheService, "sqlCacheService");
+        this.dataSender = Objects.requireNonNull(dataSender, "dataSender");
     }
 
     @Override
@@ -53,10 +56,14 @@ public class DefaultSqlMetaDataService implements SqlMetaDataService {
             throw new IllegalStateException("Unexpected DefaultParsingResult :" + parsingResult);
         }
 
-
         final ParsingResultInternal<Integer> result = (DefaultParsingResult) parsingResult;
         if (result != EMPTY_RESULT) {
-            this.sqlCacheService.cacheSql(result, DefaultSqlMetaDataService::newSqlMetaData);
+            boolean isNewValue = this.sqlCacheService.cacheSql(result);
+
+            if (isNewValue) {
+                final MetaDataType sqlMetaData = new SqlMetaData(result.getId(), result.getSql());
+                dataSender.send(sqlMetaData);
+            }
         }
 
         String output = StringUtils.defaultIfEmpty(parsingResult.getOutput(), null);
@@ -64,10 +71,5 @@ public class DefaultSqlMetaDataService implements SqlMetaDataService {
 
         final IntStringStringValue sqlValue = new IntStringStringValue(result.getId(), output, bindValue);
         return Annotations.of(AnnotationKey.SQL_ID.getCode(), sqlValue);
-    }
-
-    @VisibleForTesting
-    static MetaDataType newSqlMetaData(ParsingResultInternal<Integer> parsingResult) {
-        return new SqlMetaData(parsingResult.getId(), parsingResult.getSql());
     }
 }

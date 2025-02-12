@@ -16,68 +16,54 @@
 
 package com.navercorp.pinpoint.profiler.metadata;
 
-import com.navercorp.pinpoint.common.profiler.message.DataConsumer;
 import com.navercorp.pinpoint.profiler.cache.SimpleCache;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-@ExtendWith(MockitoExtension.class)
 public class SqlCacheServiceTest {
-    private static final int MAX_LENGTH = 1000;
+    static final int MAX_LENGTH = 1000;
 
-    private SqlCacheService<Integer> sut;
+    SqlCacheService<Integer> sut;
 
-    @Mock
-    private DataConsumer<MetaDataType> dataSender;
-
-    @BeforeEach
-    public void setUp() {
-        SimpleCache<String, Integer> sqlCache = SimpleCache.newIdCache(100);
-        sut = new SqlCacheService<>(dataSender, sqlCache, MAX_LENGTH);
-    }
-
-    @Test
-    public void cacheSql() {
-        final String sql = "select * from A";
-        final ParsingResultInternal<Integer> parsingResult = new DefaultParsingResult(sql);
-
-        boolean newValue = sut.cacheSql(parsingResult, DefaultSqlMetaDataService::newSqlMetaData);
-        boolean notNewValue = sut.cacheSql(parsingResult, DefaultSqlMetaDataService::newSqlMetaData);
-
-        assertTrue(newValue);
-        verify(dataSender).send(any(SqlMetaData.class));
-
-        Assertions.assertFalse(notNewValue);
-        verifyNoMoreInteractions(dataSender);
-    }
-
-    @Test
-    public void trimSql() {
-        final String sql = veryLongString();
-        final ParsingResultInternal<Integer> parsingResult = new DefaultParsingResult(sql);
-
-        sut.cacheSql(parsingResult, DefaultSqlMetaDataService::newSqlMetaData);
-
-        assertTrue(parsingResult.getSql().length() < sql.length());
-    }
-
-    private String veryLongString() {
+    static String veryLongString() {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < MAX_LENGTH + 100; i++) {
             builder.append("a");
         }
         return builder.toString();
+    }
+
+    @BeforeEach
+    void setUp() {
+        SimpleCache<String, Integer> sqlCache = SimpleCache.newIdCache(100);
+        sut = new SqlCacheService<>(sqlCache, MAX_LENGTH);
+    }
+
+    @Test
+    void cacheSql() {
+        final String sql = "select * from A";
+        final ParsingResultInternal<Integer> parsingResult = new DefaultParsingResult(sql);
+
+        boolean newValue = sut.cacheSql(parsingResult);
+        boolean notNewValue = sut.cacheSql(parsingResult);
+
+        assertTrue(newValue);
+        assertFalse(notNewValue);
+    }
+
+    @Test
+    void trimSql() {
+        final String sql = veryLongString();
+        final ParsingResultInternal<Integer> parsingResult = new DefaultParsingResult(sql);
+
+        sut.cacheSql(parsingResult);
+
+        assertTrue(parsingResult.getSql().length() < sql.length());
     }
 }
