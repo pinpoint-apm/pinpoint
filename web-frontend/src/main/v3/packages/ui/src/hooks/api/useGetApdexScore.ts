@@ -1,6 +1,6 @@
 import React from 'react';
-import { GetApdexScore, END_POINTS, GetServerMap } from '@pinpoint-fe/ui/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
+import { GetApdexScore, END_POINTS, GetServerMap } from '@pinpoint-fe/ui/src/constants';
+import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { keepPreviousData, useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { useServerMapSearchParameters } from '../searchParameters';
 import { queryFn } from './reactQueryHelper';

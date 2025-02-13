@@ -1,7 +1,7 @@
 import React from 'react';
 import { GoDotFill } from 'react-icons/go';
 import { FaChartLine } from 'react-icons/fa';
-import { GetResponseTimeHistogram, SearchApplication } from '@pinpoint-fe/ui/constants';
+import { GetResponseTimeHistogram, SearchApplication } from '@pinpoint-fe/ui/src/constants';
 import { Button, cn } from '../..';
 
 export interface ServerListProps {

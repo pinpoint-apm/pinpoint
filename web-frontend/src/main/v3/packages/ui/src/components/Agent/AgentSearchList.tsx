@@ -2,11 +2,11 @@ import React from 'react';
 import { AgentList, AgentListProps } from '.';
 import { VirtualSearchList } from '../VirtualList';
 import { cn } from '../../lib/utils';
-import { useAgentListSortBy } from '@pinpoint-fe/ui/hooks';
+import { useAgentListSortBy } from '@pinpoint-fe/ui/src/hooks';
 import { AgentListSortBySelector } from './AgentListSortBySelector';
 import { Badge } from '../../components/ui/badge';
 import { RxCross2 } from 'react-icons/rx';
-import { useHeightToBottom } from '@pinpoint-fe/ui/hooks';
+import { useHeightToBottom } from '@pinpoint-fe/ui/src/hooks';
 import { HelpPopover } from '../../components/HelpPopover';
 
 export interface AgentSearchListProps {

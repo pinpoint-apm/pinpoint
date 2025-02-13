@@ -3,16 +3,16 @@ import './datepicker.scss';
 
 import React from 'react';
 import ReactDatePicker from 'react-datepicker';
-import { ReactComponent as ArrowLeft } from '@/assets/arrow-left.svg';
-import { ReactComponent as ArrowRight } from '@/assets/arrow-right.svg';
-import { ReactComponent as ArrowDoubleLeft } from '@/assets/arrow-double-left.svg';
-import { ReactComponent as ArrowDoubleRight } from '@/assets/arrow-double-right.svg';
+import { ReactComponent as ArrowLeft } from '../assets/arrow-left.svg';
+import { ReactComponent as ArrowRight } from '../assets/arrow-right.svg';
+import { ReactComponent as ArrowDoubleLeft } from '../assets/arrow-double-left.svg';
+import { ReactComponent as ArrowDoubleRight } from '../assets/arrow-double-right.svg';
 import { RichDatetimePickerProps } from './RichDatetimePicker';
 import { Locale, addDays, format, isWithinInterval, subMonths } from 'date-fns';
 import { DateRange } from '../types';
 import classNames from 'classnames';
 import AppContext from './context/appContext';
-import { getZonedEndOfDay, getZonedStartOfDay } from '@/utils/date';
+import { getZonedEndOfDay, getZonedStartOfDay } from '../utils/date';
 import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 
 export interface DatePickerProps
@@ -115,14 +115,14 @@ export const DatePicker = ({
         prevYearButtonDisabled,
         nextYearButtonDisabled,
       }) => (
-        <div className="rdp-mb-2 rdp-flex rdp-justify-between rdp-p-2">
-          <div className="rdp-flex rdp-items-center">
+        <div className="mb-2 flex justify-between p-2">
+          <div className="flex items-center">
             {!hideCalendarYearButton && (
               <button
                 data-testid="test-calendar-year-button"
                 onClick={decreaseYear}
                 disabled={prevYearButtonDisabled}
-                className="rdp-h-5 rdp-w-5 rdp-p-0 disabled:rdp-cursor-not-allowed disabled:rdp-opacity-40"
+                className="h-5 w-5 p-0 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <ArrowDoubleLeft />
               </button>
@@ -130,23 +130,21 @@ export const DatePicker = ({
             <button
               onClick={decreaseMonth}
               disabled={prevMonthButtonDisabled}
-              className={classNames(
-                'rdp-h-5 rdp-w-5 rdp-p-0 disabled:rdp-cursor-not-allowed disabled:rdp-opacity-40',
-                { 'rdp-ml-5': hideCalendarYearButton },
-              )}
+              className={classNames('h-5 w-5 p-0 disabled:cursor-not-allowed disabled:opacity-40', {
+                'ml-5': hideCalendarYearButton,
+              })}
             >
               <ArrowLeft />
             </button>
           </div>
           {format(date, 'MMM yyyy', { locale })}
-          <div className="rdp-flex rdp-items-center">
+          <div className="flex items-center">
             <button
               onClick={increaseMonth}
               disabled={nextMonthButtonDisabled}
-              className={classNames(
-                'rdp-h-5 rdp-w-5 rdp-p-0 disabled:rdp-cursor-not-allowed disabled:rdp-opacity-40',
-                { 'rdp-mr-5': hideCalendarYearButton },
-              )}
+              className={classNames('h-5 w-5 p-0 disabled:cursor-not-allowed disabled:opacity-40', {
+                'mr-5': hideCalendarYearButton,
+              })}
             >
               <ArrowRight />
             </button>
@@ -155,7 +153,7 @@ export const DatePicker = ({
                 data-testid="test-calendar-year-button"
                 onClick={increaseYear}
                 disabled={nextYearButtonDisabled}
-                className="rdp-h-5 rdp-w-5 rdp-p-0 disabled:rdp-cursor-not-allowed disabled:rdp-opacity-40"
+                className="h-5 w-5 p-0 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <ArrowDoubleRight />
               </button>

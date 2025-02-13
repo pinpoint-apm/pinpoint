@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { END_POINTS, UserGroupType as UserGroup } from '@pinpoint-fe/ui/constants';
+import { END_POINTS, UserGroupType as UserGroup } from '@pinpoint-fe/ui/src/constants';
 import { swrConfigs } from './swrConfigs';
 
 export const useGetUserGroup = ({ disableFetch }: { disableFetch?: boolean }) => {

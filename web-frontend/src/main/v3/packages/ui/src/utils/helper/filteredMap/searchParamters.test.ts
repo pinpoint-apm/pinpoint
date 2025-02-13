@@ -1,5 +1,5 @@
 import { parseFilterStateFromQueryString, getFilteredMapQueryString } from './searchParameters';
-import { FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/constants';
+import { FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/src/constants';
 
 describe('Test FilteredMap helper utils', () => {
   describe('Test "parseFilterStateFromQueryString"', () => {

@@ -9,12 +9,12 @@ import {
   TabsList,
   TabsTrigger,
 } from '../../../components';
-import { useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';
+import { useTransactionSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { addMinutes, subMinutes } from 'date-fns';
 import { ChartCore } from '../../../components/Inspector/charts/ChartCore';
 import { useBreakpoint } from '../../../lib/useBreakpoint';
 import { useAtomValue } from 'jotai';
-import { transactionInfoDatasAtom } from '@pinpoint-fe/ui/atoms';
+import { transactionInfoDatasAtom } from '@pinpoint-fe/ui/src/atoms';
 
 const chartIdList: AGENT_CHART_ID[] = ['heap', 'nonHeap', 'cpu'];
 

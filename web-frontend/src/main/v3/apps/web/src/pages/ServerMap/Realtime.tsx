@@ -1,9 +1,9 @@
 import React from 'react';
 import { useAtom } from 'jotai';
 import { useNavigate } from 'react-router-dom';
-import { getServerMapPath, getServerImagePath, getRealtimePath } from '@pinpoint-fe/ui/utils';
-import { serverMapCurrentTargetAtom } from '@pinpoint-fe/ui/atoms';
-import { useServerMapSearchParameters } from '@pinpoint-fe/ui/hooks';
+import { getServerMapPath, getServerImagePath, getRealtimePath } from '@pinpoint-fe/ui/src/utils';
+import { serverMapCurrentTargetAtom } from '@pinpoint-fe/ui/src/atoms';
+import { useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import {
   ApplicationCombinedList,
   DatetimePicker,
@@ -13,7 +13,7 @@ import {
   Realtime,
   withInitialFetch,
 } from '@pinpoint-fe/ui';
-import { getLayoutWithSideNavigation } from '@/components/Layout/LayoutWithSideNavigation';
+import { getLayoutWithSideNavigation } from '@pinpoint-fe/web/src/components/Layout/LayoutWithSideNavigation';
 import { PiTreeStructureDuotone } from 'react-icons/pi';
 
 export interface RealtimePageProps {}

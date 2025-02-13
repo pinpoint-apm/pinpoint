@@ -1,5 +1,5 @@
 import React from 'react';
-import { RichDatetimePicker } from '@/components/RichDatetimePicker';
+import { RichDatetimePicker } from './components/RichDatetimePicker';
 import { subMinutes } from 'date-fns';
 import { convertToTimeUnit } from './utils/date';
 import { DateRange } from './types';
@@ -16,7 +16,7 @@ function App() {
 
   return (
     <>
-      <div className="rdp-w-85">
+      <div className="w-85">
         <RichDatetimePicker
           startDate={startDate}
           endDate={endDate}
@@ -24,7 +24,7 @@ function App() {
           defaultOpen
         />
       </div>
-      <div className="rdp-w-85">
+      <div className="w-85">
         <RichDatetimePicker
           localeKey="ko"
           startDate={startDate}
@@ -34,7 +34,7 @@ function App() {
           getPanelContainer={() => document.querySelector('#panel-container')}
         />
       </div>
-      <div className="rdp-w-85">
+      <div className="w-85">
         <RichDatetimePicker
           localeKey="ko"
           startDate={startDate}
@@ -45,8 +45,8 @@ function App() {
           {(props) => {
             return props?.map(({ timeUnitToMilliseconds, formattedTimeUnit }, i) => {
               return (
-                <div className="rdp-flex rdp-gap-2" key={i}>
-                  <div className="rdp-w-12">{formattedTimeUnit}</div>
+                <div className="flex gap-2" key={i}>
+                  <div className="w-12">{formattedTimeUnit}</div>
                   {timeUnitToMilliseconds} 전
                 </div>
               );

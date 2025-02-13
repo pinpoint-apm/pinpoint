@@ -3,11 +3,11 @@ import React from 'react';
 import classNames from 'classnames';
 import { isValid } from 'date-fns';
 import { useOnClickOutside, useUpdateEffect } from 'usehooks-ts';
-import { getLocale } from '@/utils/locale';
-import { DateRange, LocaleKey } from '@/types';
-import { SEAM_TOKEN } from '@/constants/patterns';
-import { useCaptureKeydown } from '@/utils/useCaptureKeydown';
-import { getFormattedTimeUnit, getZonedEndOfDay, parseTimeString } from '@/utils/date';
+import { getLocale } from '../utils/locale';
+import { DateRange, LocaleKey } from '../types';
+import { SEAM_TOKEN } from '../constants/patterns';
+import { useCaptureKeydown } from '../utils/useCaptureKeydown';
+import { getFormattedTimeUnit, getZonedEndOfDay, parseTimeString } from '../utils/date';
 import { DatePanel, DatePanelProps } from './DatePanel';
 import { withPortalPanelContainer } from './hoc/withPortalPanelContainer';
 import AppContext from './context/appContext';
@@ -163,26 +163,23 @@ export const RichDatetimePicker = ({
 
   return (
     <AppContext.Provider value={{ appContext, setAppContext }}>
-      <div
-        className={classNames('rich-datetime-picker rdp-relative', className)}
-        ref={containerRef}
-      >
+      <div className={classNames('rich-datetime-picker relative', className)} ref={containerRef}>
         <div
           ref={triggerRef}
           className={classNames(
             'rich-datetime-picker__trigger',
             {
-              'rdp-border-primary': open,
-              'rdp-border-stateRed': !isValidInput,
+              'border-primary': open,
+              'border-stateRed': !isValidInput,
             },
             {
-              disable: disable,
+              'div-disable': disable,
             },
             triggerClassName,
           )}
           onClick={() => setOpen(true)}
         >
-          <div className="rich-datetime-picker__tag rdp-absolute rdp-left-1.5 rdp-top-1.5">
+          <div className="rich-datetime-picker__tag absolute left-1.5 top-1.5">
             {from && to ? getFormattedTimeUnit(to?.getTime() - from?.getTime(), formatTag) : '-'}
           </div>
           {open ? (

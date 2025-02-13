@@ -1,4 +1,4 @@
-import { GetServerMap } from '@pinpoint-fe/ui/constants';
+import { GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import { cn } from '../../lib';
 
 export interface InstanceCountProps {

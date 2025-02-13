@@ -4,7 +4,7 @@ import {
   BASE_PATH,
   SEARCH_PARAMETER_DATE_FORMAT,
   SearchApplication,
-} from '@pinpoint-fe/ui/constants';
+} from '@pinpoint-fe/ui/src/constants';
 import { Button, Input, VirtualizedDataTable } from '../../../components';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import { LuChevronRight, LuChevronDown, LuMoveDown, LuMoveUp } from 'react-icons/lu';

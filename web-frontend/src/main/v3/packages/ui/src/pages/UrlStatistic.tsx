@@ -11,12 +11,12 @@ import {
   UrlSummary,
 } from '../components';
 import { useNavigate } from 'react-router-dom';
-import { convertParamsToQueryString, getUrlStatPath } from '@pinpoint-fe/ui/utils';
-import { useUrlStatSearchParameters } from '@pinpoint-fe/ui/hooks';
+import { convertParamsToQueryString, getUrlStatPath } from '@pinpoint-fe/ui/src/utils';
+import { useUrlStatSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { useTranslation } from 'react-i18next';
 import { PiChartBarDuotone } from 'react-icons/pi';
 // import { ErrorBoundary } from '../../Error/ErrorBoundary';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@pinpoint-fe/ui/components';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@pinpoint-fe/ui/src/components';
 import { UrlStatSummary } from '../constants';
 
 const TAB_LIST = [

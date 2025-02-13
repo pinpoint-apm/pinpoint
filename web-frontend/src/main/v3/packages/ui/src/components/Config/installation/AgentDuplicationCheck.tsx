@@ -1,8 +1,8 @@
 import React from 'react';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { installationAgentIdAtom } from '@pinpoint-fe/ui/atoms';
-import { useGetConfigAgentDuplicationCheck } from '@pinpoint-fe/ui/hooks';
+import { installationAgentIdAtom } from '@pinpoint-fe/ui/src/atoms';
+import { useGetConfigAgentDuplicationCheck } from '@pinpoint-fe/ui/src/hooks';
 import { CheckStatus, DUPLICATION_CHECK_STATUS, DuplicationCheck } from './DuplicationCheck';
 
 export interface AgentDuplicationCheckProps {}

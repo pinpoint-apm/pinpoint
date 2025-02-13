@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDeleteConfigGroupMember, useGetConfigGroupMember } from '@pinpoint-fe/ui/hooks';
+import { useDeleteConfigGroupMember, useGetConfigGroupMember } from '@pinpoint-fe/ui/src/hooks';
 import { useTranslation } from 'react-i18next';
 import { DataTable, RowFilterInfo } from '../../../DataTable';
 import { useReactToastifyToast } from '../../../Toast';

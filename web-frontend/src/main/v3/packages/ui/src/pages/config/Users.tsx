@@ -1,4 +1,4 @@
-import { Configuration } from '@pinpoint-fe/ui/constants';
+import { Configuration } from '@pinpoint-fe/ui/src/constants';
 import { DataTableSkeleton, ErrorBoundary } from '../../components';
 import { UsersTableFetcher } from '../../components/Config/users/UsersTableFetcher';
 import React from 'react';

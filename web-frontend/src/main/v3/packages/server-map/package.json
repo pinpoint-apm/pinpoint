@@ -6,29 +6,17 @@
   "author": "NAVER",
   "license": "Apache-2.0",
   "type": "module",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
-  },
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist/**"
-  ],
+  "main": "./src/index.ts",
   "scripts": {
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint": "yarn format && eslint ./src/**/*.ts --config .eslintrc.cjs",
     "test": "jest",
     "storybook": "start-storybook -p 6008",
     "build-storybook": "build-storybook",
-    "build": "tsup --config tsup.config.production.ts",
+    "build": "yarn lint && tsc",
     "clean": "yarn clean:dist && yarn clean:node_modules && yarn clean:turbo",
     "clean:node_modules": "rm -rf node_modules",
-    "clean:dist": "rm -rf dist",
-    "clean:turbo": "rm -rf .turbo",
-    "dev": "tsup --config tsup.config.dev.ts --watch",
-    "devBuild": "tsup --config tsup.config.dev.ts"
+    "clean:dist": "rm -rf dist"
   },
   "dependencies": {
     "cytoscape": "^3.24.0",
@@ -66,7 +54,6 @@
     "jest-environment-jsdom": "^28.1.2",
     "prettier": "^3.3.3",
     "ts-jest": "^28.0.5",
-    "tsup": "^6.2.1",
     "typescript": "^4.5.5"
   }
 }

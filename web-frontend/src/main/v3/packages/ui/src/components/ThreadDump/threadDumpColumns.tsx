@@ -1,4 +1,4 @@
-import { ActiveThreadLightDump } from '@pinpoint-fe/ui/constants';
+import { ActiveThreadLightDump } from '@pinpoint-fe/ui/src/constants';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 

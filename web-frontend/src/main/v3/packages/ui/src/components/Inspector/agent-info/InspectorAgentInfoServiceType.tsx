@@ -1,5 +1,5 @@
 import React from 'react';
-import { InspectorAgentInfoType as InspectorAgentInfo } from '@pinpoint-fe/ui/constants';
+import { InspectorAgentInfoType as InspectorAgentInfo } from '@pinpoint-fe/ui/src/constants';
 import { cn } from '../../../lib';
 import { InfoDefinition } from './InspectorAgentInfoFetcher';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../../ui';

@@ -1,5 +1,5 @@
 import { useMediaQuery } from 'react-responsive';
-import { screens } from '@pinpoint-fe/ui/constants';
+import { screens } from '@pinpoint-fe/ui/src/constants';
 
 export function useBreakpoint<K extends string>(breakpointKey: K) {
   const breakpointValue = screens[breakpointKey as keyof typeof screens];

@@ -5,11 +5,11 @@ import {
   SideNavigationMenuItem,
 } from '@pinpoint-fe/ui';
 import { FaCog } from 'react-icons/fa';
-import { APP_PATH } from '@pinpoint-fe/ui/constants';
+import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 import { LuDoorOpen, LuUserCircle2 } from 'react-icons/lu';
 import { CONFIG_MENU_MAP } from './LayoutWithConfiguration';
 import { MdOutlineAdminPanelSettings } from 'react-icons/md';
-import { useMenuItems } from '@/hooks/useMenuItems';
+import { useMenuItems } from '@pinpoint-fe/web/src/hooks/useMenuItems';
 
 export interface LayoutWithSideNavigationProps extends LayoutWithSideNavigationComponentProps {}
 

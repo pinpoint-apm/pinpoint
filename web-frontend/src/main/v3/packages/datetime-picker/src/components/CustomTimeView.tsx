@@ -8,7 +8,7 @@ import {
   getZonedStartOfDay,
   getZonedStartOfMonth,
   parseTimeString,
-} from '@/utils/date';
+} from '../utils/date';
 import { Transition } from '@headlessui/react';
 import AppContext from './context/appContext';
 import { formatInTimeZone, utcToZonedTime } from 'date-fns-tz';
@@ -49,38 +49,37 @@ export const CustomTimeView = ({
       as="div"
       show={show}
       className={classNames('rich-datetime-picker__more', {
-        'rdp-left-0 rdp-rounded-l rdp-border-r rdp-border-r-rgba2': direction === 'left',
-        'rdp-right-0 rdp-rounded-r rdp-border-l rdp-border-l-rgba2': direction === 'right',
-        'rdp-left-0 rdp-w-full rdp-rounded-bl rdp-rounded-br rdp-border-t rdp-border-t-rgba2':
-          direction === 'bottom',
+        'left-0 rounded-l border-r border-r-rgba2': direction === 'left',
+        'right-0 rounded-r border-l border-l-rgba2': direction === 'right',
+        'left-0 w-full rounded-bl rounded-br border-t border-t-rgba2': direction === 'bottom',
       })}
-      enter="rdp-transition-all rdp-transform rdp-duration-200"
-      enterFrom="rdp-opacity-0 rdp-translate-x-0"
-      enterTo={classNames('rdp-opacity-100', {
-        '-rdp-translate-x-[100%]': direction === 'left',
-        'rdp-translate-x-[100%]': direction === 'right',
-        'rdp-translate-y-[100%]': direction === 'bottom',
+      enter="transition-all transform duration-200"
+      enterFrom="opacity-0 translate-x-0"
+      enterTo={classNames('opacity-100', {
+        '-translate-x-[100%]': direction === 'left',
+        'translate-x-[100%]': direction === 'right',
+        'translate-y-[100%]': direction === 'bottom',
       })}
-      leave="rdp-transition-all rdp-transform rdp-duration-200"
-      leaveFrom={classNames('rdp-opacity-100', {
-        '-rdp-translate-x-[100%]': direction === 'left',
-        'rdp-translate-x-[100%]': direction === 'right',
-        '-rdp-translate-y-[100%]': direction === 'bottom',
+      leave="transition-all transform duration-200"
+      leaveFrom={classNames('opacity-100', {
+        '-translate-x-[100%]': direction === 'left',
+        'translate-x-[100%]': direction === 'right',
+        '-translate-y-[100%]': direction === 'bottom',
       })}
-      leaveTo="rdp-translate-x-0 rdp-opacity-0"
+      leaveTo="translate-x-0 opacity-0"
     >
       {children ? (
         children
       ) : (
-        <div className="rdp-flex rdp-flex-col rdp-gap-4 rdp-px-5 rdp-py-3">
-          <div className="rdp-text-sm rdp-font-bold">Type custom times like:</div>
+        <div className="flex flex-col gap-4 px-5 py-3">
+          <div className="text-sm font-bold">Type custom times like:</div>
           {Object.keys(customTimes).map((key, i) => {
             const times = customTimes?.[key];
 
             return times?.length > 0 ? (
               <div key={i}>
-                <div className="rdp-mb-2 rdp-text-xs">{key}</div>
-                <div className="rdp-flex rdp-flex-wrap rdp-gap-1.5">
+                <div className="mb-2 text-xs">{key}</div>
+                <div className="flex flex-wrap gap-1.5">
                   {times.map((time, i) => {
                     return (
                       <label

@@ -1,6 +1,6 @@
 import { ApiStatus } from '.';
-import { useGetServerTime, useGetConfiguration } from '@pinpoint-fe/ui/hooks';
-import { END_POINTS } from '@pinpoint-fe/ui/constants';
+import { useGetServerTime, useGetConfiguration } from '@pinpoint-fe/ui/src/hooks';
+import { END_POINTS } from '@pinpoint-fe/ui/src/constants';
 
 export interface ApiCheckProps {
   children?: React.ReactNode;

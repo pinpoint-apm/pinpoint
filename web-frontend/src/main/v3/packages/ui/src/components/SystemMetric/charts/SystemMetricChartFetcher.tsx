@@ -1,6 +1,6 @@
 import React from 'react';
-import { SystemMetricMetricInfo } from '@pinpoint-fe/ui/constants';
-import { useGetSystemMetricChartData, useGetSystemMetricTagsData } from '@pinpoint-fe/ui/hooks';
+import { SystemMetricMetricInfo } from '@pinpoint-fe/ui/src/constants';
+import { useGetSystemMetricChartData, useGetSystemMetricTagsData } from '@pinpoint-fe/ui/src/hooks';
 import bb, { ChartOptions, line } from 'billboard.js';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -22,7 +22,7 @@ import {
   SelectItem,
   Separator,
 } from '../../ui';
-import { formatNewLinedDateString, getFormat } from '@pinpoint-fe/ui/utils';
+import { formatNewLinedDateString, getFormat } from '@pinpoint-fe/ui/src/utils';
 
 export interface SystemMetricChartFetcherProps {
   chartInfo: SystemMetricMetricInfo.MetricInfoData;

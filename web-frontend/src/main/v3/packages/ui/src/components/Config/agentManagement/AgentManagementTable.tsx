@@ -1,5 +1,5 @@
 import React from 'react';
-import { SearchApplication } from '@pinpoint-fe/ui/constants';
+import { SearchApplication } from '@pinpoint-fe/ui/src/constants';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button, DataTable } from '../../../components';
 import { cn } from '../../../lib';

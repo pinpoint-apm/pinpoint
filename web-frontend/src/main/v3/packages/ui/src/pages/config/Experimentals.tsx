@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Checkbox } from '../../components';
-import { Configuration, EXPERIMENTAL_CONFIG_KEYS } from '@pinpoint-fe/ui/constants';
-import { useExperimentals } from '@pinpoint-fe/ui/hooks';
+import { Configuration, EXPERIMENTAL_CONFIG_KEYS } from '@pinpoint-fe/ui/src/constants';
+import { useExperimentals } from '@pinpoint-fe/ui/src/hooks';
 
 export interface ExperimentalPageProps {
   configuration?: Configuration;

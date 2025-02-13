@@ -1,4 +1,4 @@
-import { Chart } from '@pinpoint-fe/ui/constants';
+import { Chart } from '@pinpoint-fe/ui/src/constants';
 import { ComposedChart, ReferenceLine } from 'recharts';
 import { useRechart } from '../ReChart/useRechart';
 import { ChartContainer } from '../ui';

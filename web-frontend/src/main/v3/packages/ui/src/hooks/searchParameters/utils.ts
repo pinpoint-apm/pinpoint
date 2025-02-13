@@ -1,4 +1,4 @@
-import { getParsedDate, getParsedDateRange } from '@pinpoint-fe/ui/utils';
+import { getParsedDate, getParsedDateRange } from '@pinpoint-fe/ui/src/utils';
 
 export const getSearchParameters = (search: string) => {
   return Object.fromEntries(

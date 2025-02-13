@@ -1,9 +1,9 @@
 import React, { HTMLAttributes } from 'react';
 import classNames from 'classnames';
 import { Locale, formatDistance } from 'date-fns';
-import { convertToMilliseconds, getFormattedTimeUnit } from '@/utils/date';
-import { ReactComponent as CalendarIcon } from '@/assets/calendar.svg';
-import { ReactComponent as MoreIcon } from '@/assets/more.svg';
+import { convertToMilliseconds, getFormattedTimeUnit } from '../utils/date';
+import { ReactComponent as CalendarIcon } from '../assets/calendar.svg';
+import { ReactComponent as MoreIcon } from '../assets/more.svg';
 import { DateRange } from '..';
 import { TimeUnitFormat } from '..';
 import { CustomTimeView, CustomTimeViewProps, getDefaultCustomTimes } from './CustomTimeView';

@@ -2,7 +2,11 @@ import {
   ApplicationType,
   FilteredMapType as FilteredMap,
   GetServerMap,
-} from '@pinpoint-fe/ui/constants';
+} from '@pinpoint-fe/ui/src/constants';
+import { Edge as ServerMapEdge, Node as ServerMapNode } from '@pinpoint-fe/server-map';
+
+export type Edge = ServerMapEdge;
+export type Node = ServerMapNode;
 
 export const getBaseNodeId = ({
   application,

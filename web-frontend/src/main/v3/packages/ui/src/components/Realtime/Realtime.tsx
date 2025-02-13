@@ -19,15 +19,15 @@ import {
   HelpPopover,
   ErrorBoundary,
 } from '..';
-import { useServerMapSearchParameters, useTabFocus } from '@pinpoint-fe/ui/hooks';
+import { useServerMapSearchParameters, useTabFocus } from '@pinpoint-fe/ui/src/hooks';
 import {
   CurrentTarget,
   serverMapCurrentTargetAtom,
   serverMapCurrentTargetDataAtom,
   serverMapDataAtom,
-} from '@pinpoint-fe/ui/atoms';
-import { APP_SETTING_KEYS, GetServerMap } from '@pinpoint-fe/ui/constants';
-import { getServerImagePath } from '@pinpoint-fe/ui/utils';
+} from '@pinpoint-fe/ui/src/atoms';
+import { APP_SETTING_KEYS, GetServerMap } from '@pinpoint-fe/ui/src/constants';
+import { getServerImagePath } from '@pinpoint-fe/ui/src/utils';
 
 export interface RealtimeProps {}
 

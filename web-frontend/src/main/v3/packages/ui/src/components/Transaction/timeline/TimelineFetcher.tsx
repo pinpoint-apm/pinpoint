@@ -1,17 +1,17 @@
 import React from 'react';
 import Fuse from 'fuse.js';
 import { RxMagnifyingGlass } from 'react-icons/rx';
-import { useGetTraceViewerData, useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';
+import { useGetTraceViewerData, useTransactionSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import {
   TraceViewerData,
   TransactionInfoType as TransactionInfo,
   colors,
-} from '@pinpoint-fe/ui/constants';
+} from '@pinpoint-fe/ui/src/constants';
 import {
   getColorByString,
   getContrastingTextColor,
   getDarkenHexColor,
-} from '@pinpoint-fe/ui/lib/colors';
+} from '@pinpoint-fe/ui/src/lib/colors';
 import { FlameGraph } from '../../FlameGraph';
 import { cn } from '../../../lib';
 import { TimelineDetail } from './TimelineDetail';

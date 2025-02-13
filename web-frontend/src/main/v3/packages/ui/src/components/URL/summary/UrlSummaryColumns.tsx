@@ -1,8 +1,8 @@
 import { LuArrowUp, LuArrowDown } from 'react-icons/lu';
 import { ColumnDef } from '@tanstack/react-table';
-import { UrlStatSummary } from '@pinpoint-fe/ui/constants';
+import { UrlStatSummary } from '@pinpoint-fe/ui/src/constants';
 import { Button } from '../../ui';
-import { addCommas, numberInDecimal, numberInInteger } from '@pinpoint-fe/ui/utils';
+import { addCommas, numberInDecimal, numberInInteger } from '@pinpoint-fe/ui/src/utils';
 import { cn } from '../../../lib';
 import { MiniChart } from '../../common/MiniChart';
 

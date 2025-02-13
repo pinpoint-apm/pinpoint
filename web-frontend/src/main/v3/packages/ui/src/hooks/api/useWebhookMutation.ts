@@ -1,5 +1,5 @@
 import { UseMutationOptions, useMutation } from '@tanstack/react-query';
-import { END_POINTS, Webhook, ErrorResponse } from '@pinpoint-fe/ui/constants';
+import { END_POINTS, Webhook, ErrorResponse } from '@pinpoint-fe/ui/src/constants';
 
 type WebhookMutationVariable = {
   params: Webhook.PostParameters | Webhook.PutParameters | Webhook.DeleteParmeters;

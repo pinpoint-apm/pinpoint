@@ -7,7 +7,7 @@ import {
   ToastContent,
 } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { toastCountAtom } from '@pinpoint-fe/ui/atoms';
+import { toastCountAtom } from '@pinpoint-fe/ui/src/atoms';
 import { useAtom } from 'jotai';
 import { Button } from '../../components';
 

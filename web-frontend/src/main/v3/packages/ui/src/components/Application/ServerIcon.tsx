@@ -1,5 +1,5 @@
-import { ApplicationType } from '@pinpoint-fe/ui/constants';
-import { getServerIconPath } from '@pinpoint-fe/ui/utils';
+import { ApplicationType } from '@pinpoint-fe/ui/src/constants';
+import { getServerIconPath } from '@pinpoint-fe/ui/src/utils';
 import { cn } from '../../lib';
 import React from 'react';
 

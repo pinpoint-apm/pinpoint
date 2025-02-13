@@ -7,8 +7,8 @@
     "apps/*"
   ],
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
+    "build": "yarn workspace @pinpoint-fe/web build",
+    "dev": "yarn workspace @pinpoint-fe/web dev",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "clean": "turbo run clean --force && rm -rf node_modules",
@@ -18,8 +18,7 @@
     "deploy:storybook": "turbo run chromatic"
   },
   "devDependencies": {
-    "prettier": "^3.4.2",
-    "turbo": "^2.3.3"
+    "prettier": "^3.4.2"
   },
   "engines": {
     "npm": ">=7.0.0",

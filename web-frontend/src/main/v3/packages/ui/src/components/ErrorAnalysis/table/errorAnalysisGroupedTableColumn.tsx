@@ -1,8 +1,8 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { RxCross2 } from 'react-icons/rx';
 import { Badge } from '../../ui';
-import { ErrorAnalysisGroupedErrorList } from '@pinpoint-fe/ui/constants';
-import { addCommas, format } from '@pinpoint-fe/ui/utils';
+import { ErrorAnalysisGroupedErrorList } from '@pinpoint-fe/ui/src/constants';
+import { addCommas, format } from '@pinpoint-fe/ui/src/utils';
 import { MiniChart } from '../../common/MiniChart';
 
 interface ErrorGroupedTableColumnProps {

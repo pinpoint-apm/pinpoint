@@ -1,12 +1,12 @@
 import { ErrorAnalysisGroupBy } from './ErrorAnalysisGroupBy';
 import { Separator } from '../../ui';
 import { AgentSearchList } from '../../Agent';
-import { useErrorAnalysisSearchParameters } from '@pinpoint-fe/ui/hooks';
+import { useErrorAnalysisSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import {
   getErrorAnalysisPath,
   convertParamsToQueryString,
   getFormattedDateRange,
-} from '@pinpoint-fe/ui/utils';
+} from '@pinpoint-fe/ui/src/utils';
 import { useNavigate } from 'react-router-dom';
 import { ApplicationLinkButton } from '../../Button/ApplicationLinkButton';
 

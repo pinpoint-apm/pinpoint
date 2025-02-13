@@ -1,7 +1,7 @@
 import {
   useErrorAnalysisSearchParameters,
   useGetErrorAnalysisGroupsData,
-} from '@pinpoint-fe/ui/hooks';
+} from '@pinpoint-fe/ui/src/hooks';
 import { cn } from '../../../lib';
 import { Checkbox } from '../../ui';
 import { Label } from '../../ui/label';
@@ -10,7 +10,7 @@ import {
   getErrorAnalysisPath,
   convertParamsToQueryString,
   getFormattedDateRange,
-} from '@pinpoint-fe/ui/utils';
+} from '@pinpoint-fe/ui/src/utils';
 
 export interface ErrorAnalysisGroupByFetcherProps {
   className?: string;

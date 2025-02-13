@@ -1,4 +1,4 @@
-import { colors } from '@pinpoint-fe/ui/constants';
+import { colors } from '@pinpoint-fe/ui/src/constants';
 import {
   ChartConfig,
   ChartContainer,

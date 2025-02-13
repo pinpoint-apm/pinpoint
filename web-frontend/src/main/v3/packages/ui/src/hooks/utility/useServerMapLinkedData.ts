@@ -1,4 +1,4 @@
-import { GetServerMap } from '@pinpoint-fe/ui/constants';
+import { GetServerMap } from '@pinpoint-fe/ui/src/constants';
 
 type LinkedData = Pick<GetServerMap.NodeData, 'applicationName' | 'serviceTypeCode'>;
 

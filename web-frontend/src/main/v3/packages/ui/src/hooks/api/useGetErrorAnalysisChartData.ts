@@ -2,8 +2,8 @@ import useSWR from 'swr';
 import {
   END_POINTS,
   ErrorAnalysisChartType as ErrorAnalysisChart,
-} from '@pinpoint-fe/ui/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
+} from '@pinpoint-fe/ui/src/constants';
+import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useErrorAnalysisSearchParameters } from '../searchParameters';
 import { swrConfigs } from './swrConfigs';
 

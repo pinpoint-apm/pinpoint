@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useInspectorSearchParameters } from '@pinpoint-fe/ui/hooks';
+import { useInspectorSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { useTranslation } from 'react-i18next';
 import {
   DatetimePicker,
@@ -16,7 +16,7 @@ import {
   ApplicationCombinedList,
   ApplicationCombinedListProps,
 } from '../components';
-import { convertParamsToQueryString, getInspectorPath } from '@pinpoint-fe/ui/utils';
+import { convertParamsToQueryString, getInspectorPath } from '@pinpoint-fe/ui/src/utils';
 import { PiChartLineDuotone } from 'react-icons/pi';
 
 export interface InspectorPageProps {

@@ -1,10 +1,10 @@
 import React from 'react';
 import { Button, Popover, PopoverContent, PopoverTrigger } from '../../../ui';
-import { ConfigGroupMember, ConfigUsers } from '@pinpoint-fe/ui/constants';
+import { ConfigGroupMember, ConfigUsers } from '@pinpoint-fe/ui/src/constants';
 import { MdOutlineAddCircleOutline } from 'react-icons/md';
 import { useReactToastifyToast } from '../../../Toast';
 import { useTranslation } from 'react-i18next';
-import { useGetConfigUsers, usePostConfigGroupMember } from '@pinpoint-fe/ui/hooks';
+import { useGetConfigUsers, usePostConfigGroupMember } from '@pinpoint-fe/ui/src/hooks';
 import { UsersTable } from '../../users/UsersTable';
 
 export interface GroupMemberAddPopupProps {

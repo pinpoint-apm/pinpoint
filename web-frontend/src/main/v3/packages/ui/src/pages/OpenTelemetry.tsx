@@ -11,8 +11,8 @@ import {
   OpenTelemetrySidebar,
   OpenTelemetryDashboard,
 } from '../components';
-import { convertParamsToQueryString, getOpenTelemetryPath } from '@pinpoint-fe/ui/utils';
-import { useOpenTelemetrySearchParameters } from '@pinpoint-fe/ui/hooks';
+import { convertParamsToQueryString, getOpenTelemetryPath } from '@pinpoint-fe/ui/src/utils';
+import { useOpenTelemetrySearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { SiOpentelemetry } from 'react-icons/si';
 
 export interface OpenTelemetryPageProps {

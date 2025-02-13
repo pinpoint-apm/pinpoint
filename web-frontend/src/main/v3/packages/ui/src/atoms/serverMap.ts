@@ -4,7 +4,7 @@ import {
   GetResponseTimeHistogram,
   GetServerMap,
   SearchApplication,
-} from '@pinpoint-fe/ui/constants';
+} from '@pinpoint-fe/ui/src/constants';
 import { Node, Edge } from '@pinpoint-fe/server-map';
 
 export type CurrentTarget = {

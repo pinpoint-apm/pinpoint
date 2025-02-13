@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { ConfigUsers } from '@pinpoint-fe/ui/constants';
+import { ConfigUsers } from '@pinpoint-fe/ui/src/constants';
 import { UsersTableToolbar, UsersTableToolbarProps } from './UsersTableToolbar';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '../../../components';

@@ -23,12 +23,12 @@ import {
   useGetOtlpMetricDefUserDefined,
   useOpenTelemetrySearchParameters,
   usePatchOtlpMetricDefUserDefined,
-} from '@pinpoint-fe/ui/hooks';
+} from '@pinpoint-fe/ui/src/hooks';
 import { BiSolidSave } from 'react-icons/bi';
 import { RxPlusCircled } from 'react-icons/rx';
 import { useReactToastifyToast } from '../../../components/Toast';
 import { LoadingButton } from '../../../components/Button';
-import { OtlpMetricDefUserDefined } from '@pinpoint-fe/ui/constants';
+import { OtlpMetricDefUserDefined } from '@pinpoint-fe/ui/src/constants';
 import { DashBoard } from '../../Dashboard/DashBoard';
 import { MetricDefinitionSheet } from '../definition/MetricDefinitionSheet';
 import { OpenTelemetryAlertDialog } from './OpenTelemetryAlertDialog';

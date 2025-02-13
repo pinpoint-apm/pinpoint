@@ -8,7 +8,7 @@ import {
   Separator,
   useReactToastifyToast,
 } from '../../components';
-import { APP_SETTING_KEYS, ApplicationType, Webhook } from '@pinpoint-fe/ui/constants';
+import { APP_SETTING_KEYS, ApplicationType, Webhook } from '@pinpoint-fe/ui/src/constants';
 import { cn } from '../../lib/utils';
 import { WebhookList } from '../../components/Webhook/WebhookList';
 import { WebhookTable } from '../../components/Webhook/WebhookTable';
@@ -32,7 +32,7 @@ import {
 import { Cross2Icon } from '@radix-ui/react-icons';
 import { ScrollArea } from '../../components/ui/scroll-area';
 import { WebhookDetail } from '../../components/Webhook/WebhookDetail';
-import { useGetWebhook, useLocalStorage, useWebhookMutation } from '@pinpoint-fe/ui/hooks';
+import { useGetWebhook, useLocalStorage, useWebhookMutation } from '@pinpoint-fe/ui/src/hooks';
 import { MdOutlineAdd } from 'react-icons/md';
 
 export interface WebhookPageProps {

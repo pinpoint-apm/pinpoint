@@ -32,13 +32,13 @@ const TemplateDatetimePicker = (args: RichDatetimePickerProps) => {
     setEndDate(params[1]);
   };
   return (
-    <div className="rdp-h-[400px] rdp-font-sans">
+    <div className="h-[400px] font-sans">
       <RichDatetimePicker
         {...args}
         startDate={startDate}
         endDate={endDate}
         onChange={handleChange}
-        className="rdp-w-85"
+        className="w-85"
         // dateFormat="MMM dd, HH:mm"
       />
     </div>
@@ -72,8 +72,8 @@ export const CustomizeListItems: Story = {
     children: (props) => {
       return props?.map(({ timeUnitToMilliseconds, formattedTimeUnit }, i) => {
         return (
-          <div className="rdp-flex rdp-gap-2" key={i}>
-            <div className="rdp-w-12">{formattedTimeUnit}</div>
+          <div className="flex gap-2" key={i}>
+            <div className="w-12">{formattedTimeUnit}</div>
             현재로부터 {timeUnitToMilliseconds}ms 전
           </div>
         );

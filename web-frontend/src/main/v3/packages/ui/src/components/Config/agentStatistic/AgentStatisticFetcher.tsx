@@ -1,9 +1,9 @@
 import React from 'react';
 import { HiOutlineRefresh } from 'react-icons/hi';
 import { useTranslation } from 'react-i18next';
-import { Configuration } from '@pinpoint-fe/ui/constants';
+import { Configuration } from '@pinpoint-fe/ui/src/constants';
 import { Button, Separator } from '../../../components';
-import { useGetAgentsStatistics } from '@pinpoint-fe/ui/hooks';
+import { useGetAgentsStatistics } from '@pinpoint-fe/ui/src/hooks';
 import { CgSpinner } from 'react-icons/cg';
 import { cn } from '../../../lib';
 import { AgentStatisticContainer } from './AgentStatisticChartContainer';

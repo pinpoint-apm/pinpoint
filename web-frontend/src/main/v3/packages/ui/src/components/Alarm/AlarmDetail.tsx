@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { AlarmRule, ErrorResponse } from '@pinpoint-fe/ui/constants';
+import { AlarmRule, ErrorResponse } from '@pinpoint-fe/ui/src/constants';
 import omit from 'lodash.omit';
 import {
   useAlarmRuleMutation,
@@ -11,7 +11,7 @@ import {
   useGetUserGroup,
   useGetWebhook,
   useWebhookIncludeMutaion,
-} from '@pinpoint-fe/ui/hooks';
+} from '@pinpoint-fe/ui/src/hooks';
 import {
   Form,
   FormControl,
@@ -38,7 +38,7 @@ import { ErrorToast } from '../../components/Error/ErrorToast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { WebhookDetail } from '../../components/Webhook/WebhookDetail';
 import { cn } from '../../lib/utils';
-import { configurationAtom } from '@pinpoint-fe/ui/atoms';
+import { configurationAtom } from '@pinpoint-fe/ui/src/atoms';
 import { useAtomValue } from 'jotai';
 import { HelpPopover } from '../../components/HelpPopover';
 

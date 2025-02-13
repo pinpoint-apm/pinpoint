@@ -1,2 +1,2 @@
-export * from '@/components/RichDatetimePicker';
-export * from '@/types';
+export * from './components/RichDatetimePicker';
+export * from './types';

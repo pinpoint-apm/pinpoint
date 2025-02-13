@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom';
-import { getApplicationTypeAndName } from '@pinpoint-fe/ui/utils';
+import { getApplicationTypeAndName } from '@pinpoint-fe/ui/src/utils';
 import { getDateRange, getSearchParameters } from './utils';
 
 export const useErrorAnalysisSearchParameters = () => {

@@ -1,6 +1,9 @@
-import { useGetConfigInstallationInfo } from '@pinpoint-fe/ui/hooks';
+import { useGetConfigInstallationInfo } from '@pinpoint-fe/ui/src/hooks';
 import { useAtomValue } from 'jotai';
-import { installationAgentIdAtom, installationApplicationNameAtom } from '@pinpoint-fe/ui/atoms';
+import {
+  installationAgentIdAtom,
+  installationApplicationNameAtom,
+} from '@pinpoint-fe/ui/src/atoms';
 import { Textarea } from '../../ui';
 import { ClipboardCopyButton } from '../../Button';
 

@@ -1,4 +1,4 @@
-import { FilteredMapType as FilteredMap, GetServerMap } from '@pinpoint-fe/ui/constants';
+import { FilteredMapType as FilteredMap, GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import { VirtualList, VirtualSearchList } from '../VirtualList';
 
 export interface MergedServerSearchListProps {

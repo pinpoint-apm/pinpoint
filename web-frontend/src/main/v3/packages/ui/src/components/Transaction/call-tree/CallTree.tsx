@@ -1,6 +1,6 @@
 import React from 'react';
 import { format } from 'date-fns';
-import { usePostBind } from '@pinpoint-fe/ui/hooks';
+import { usePostBind } from '@pinpoint-fe/ui/src/hooks';
 import { useUpdateEffect } from 'usehooks-ts';
 import { IoMdClose } from 'react-icons/io';
 import { LuMoveUp, LuMoveDown } from 'react-icons/lu';
@@ -21,11 +21,11 @@ import {
   SelectValue,
   getExecPercentage,
 } from '../..';
-import { TransactionInfoType as TransactionInfo } from '@pinpoint-fe/ui/constants';
+import { TransactionInfoType as TransactionInfo } from '@pinpoint-fe/ui/src/constants';
 import { RxMagnifyingGlass } from 'react-icons/rx';
 import { HighLightCode } from '../../HighLightCode';
 import { useAtomValue } from 'jotai';
-import { transactionInfoCallTreeFocusId } from '@pinpoint-fe/ui/atoms';
+import { transactionInfoCallTreeFocusId } from '@pinpoint-fe/ui/src/atoms';
 
 export interface CallTreeProps {
   data: TransactionInfo.CallStackKeyValueMap[];

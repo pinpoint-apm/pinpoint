@@ -1,6 +1,6 @@
 import React from 'react';
 import { useOnClickOutside } from 'usehooks-ts';
-import { cn } from '@pinpoint-fe/ui/lib';
+import { cn } from '@pinpoint-fe/ui/src/lib';
 import {
   Button,
   Input,
@@ -11,7 +11,7 @@ import {
   FormLabel,
   FormMessage,
   Checkbox,
-} from '@pinpoint-fe/ui/components/ui';
+} from '@pinpoint-fe/ui/src/components/ui';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';

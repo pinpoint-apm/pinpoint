@@ -1,6 +1,6 @@
 import React from 'react';
-import { END_POINTS, GetScatter, ApplicationType } from '@pinpoint-fe/ui/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
+import { END_POINTS, GetScatter, ApplicationType } from '@pinpoint-fe/ui/src/constants';
+import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useServerMapSearchParameters } from '../searchParameters';
 import { useQuery } from '@tanstack/react-query';
 import { queryFn } from './reactQueryHelper';

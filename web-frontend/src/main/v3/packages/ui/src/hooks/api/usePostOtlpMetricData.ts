@@ -1,4 +1,4 @@
-import { END_POINTS, OtlpMetricData } from '@pinpoint-fe/ui/constants';
+import { END_POINTS, OtlpMetricData } from '@pinpoint-fe/ui/src/constants';
 import { UseMutationOptions, useMutation } from '@tanstack/react-query';
 
 // It is an API to get metricData.(It should be GET request.)

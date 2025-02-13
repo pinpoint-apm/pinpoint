@@ -1,4 +1,4 @@
-import { DateRange, TimePatternKeys, TimeUnitFormat } from '@/types';
+import { DateRange, TimePatternKeys, TimeUnitFormat } from '../types';
 import {
   endOfDay,
   endOfMonth,
@@ -17,7 +17,7 @@ import {
   subYears,
 } from 'date-fns';
 import { removeSpaces } from './string';
-import { SEAM_TOKEN, dateFormats, timePatterns } from '@/constants/patterns';
+import { SEAM_TOKEN, dateFormats, timePatterns } from '../constants/patterns';
 import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 
 // const TimeUnitToMillisecondsMap: { [key in TimeUnit]: number } = {

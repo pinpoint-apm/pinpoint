@@ -1,7 +1,7 @@
 import useSWR from 'swr';
-import { END_POINTS, InspectorAgentEvents } from '@pinpoint-fe/ui/constants';
+import { END_POINTS, InspectorAgentEvents } from '@pinpoint-fe/ui/src/constants';
 import { swrConfigs } from './swrConfigs';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
+import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useInspectorSearchParameters } from '../searchParameters';
 
 const getQueryString = (queryParams: Partial<InspectorAgentEvents.Parameters>) => {

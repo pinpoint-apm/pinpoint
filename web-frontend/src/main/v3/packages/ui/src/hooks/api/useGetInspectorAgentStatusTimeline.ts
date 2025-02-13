@@ -3,9 +3,9 @@ import {
   END_POINTS,
   InspectorAgentStatusTimelineType as InspectorAgentStatusTimeline,
   MAX_DATE_RANGE,
-} from '@pinpoint-fe/ui/constants';
+} from '@pinpoint-fe/ui/src/constants';
 import { swrConfigs } from './swrConfigs';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
+import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useInspectorSearchParameters } from '../searchParameters';
 
 const getQueryString = (queryParams: Partial<InspectorAgentStatusTimeline.Parameters>) => {

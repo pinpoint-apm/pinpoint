@@ -1,20 +1,20 @@
 import React from 'react';
-import { FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/constants';
+import { FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/src/constants';
 import { useAtom, useSetAtom } from 'jotai';
 import {
   serverMapDataAtom,
   currentServerAtom,
   serverMapCurrentTargetAtom,
   scatterDataByApplicationKeyAtom,
-} from '@pinpoint-fe/ui/atoms';
+} from '@pinpoint-fe/ui/src/atoms';
 import {
   mergeFilteredMapNodeData,
   mergeFilteredMapLinkData,
   getServerImagePath,
   getBaseNodeId,
-} from '@pinpoint-fe/ui/utils';
+} from '@pinpoint-fe/ui/src/utils';
 import { MergedNode, MergedEdge, Node, Edge } from '@pinpoint-fe/server-map';
-import { useFilteredMapParameters, useGetFilteredServerMapData } from '@pinpoint-fe/ui/hooks';
+import { useFilteredMapParameters, useGetFilteredServerMapData } from '@pinpoint-fe/ui/src/hooks';
 import { useTranslation } from 'react-i18next';
 import { SERVERMAP_MENU_FUNCTION_TYPE, ServerMapCore, ServerMapCoreProps } from '..';
 

@@ -1,7 +1,7 @@
-import { useGetActiveThreadLightDump } from '@pinpoint-fe/ui/hooks';
+import { useGetActiveThreadLightDump } from '@pinpoint-fe/ui/src/hooks';
 import { transactionListTableColumns } from './threadDumpColumns';
 import { VirtualizedDataTable } from '../../components/DataTable';
-import { ActiveThreadLightDump } from '@pinpoint-fe/ui/constants';
+import { ActiveThreadLightDump } from '@pinpoint-fe/ui/src/constants';
 import { Row } from '@tanstack/react-table';
 
 export interface ThreadDumpListFectherProps {

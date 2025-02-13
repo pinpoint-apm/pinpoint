@@ -1,6 +1,6 @@
 import React from 'react';
-import { BASE_PATH } from '@pinpoint-fe/ui/constants';
-import { useGetTransactionInfo } from '@pinpoint-fe/ui/hooks';
+import { BASE_PATH } from '@pinpoint-fe/ui/src/constants';
+import { useGetTransactionInfo } from '@pinpoint-fe/ui/src/hooks';
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { FaChevronRight } from 'react-icons/fa6';
@@ -19,10 +19,10 @@ import {
   getBaseNodeId,
   getTransactionDetailPath,
   getTransactionDetailQueryString,
-} from '@pinpoint-fe/ui/utils';
-import { useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';
+} from '@pinpoint-fe/ui/src/utils';
+import { useTransactionSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { RxExternalLink } from 'react-icons/rx';
-import { transactionInfoCurrentTabId, transactionInfoDatasAtom } from '@pinpoint-fe/ui/atoms';
+import { transactionInfoCurrentTabId, transactionInfoDatasAtom } from '@pinpoint-fe/ui/src/atoms';
 import { cn } from '../../../lib';
 import { Popover, PopoverContent, PopoverTrigger } from '../../ui';
 import { Timeline } from '../timeline/Timeline';

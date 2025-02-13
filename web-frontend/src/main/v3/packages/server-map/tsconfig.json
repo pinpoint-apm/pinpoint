@@ -1,5 +1,5 @@
 {
-  "include": [".", "**/*.ts", "**/*.tsx"],
+  "include": ["src"],
   "exclude": ["build", "node_modules", "dist", "build", "node_modules", "**/*.stories.tsx"],
   "compilerOptions": {
     "composite": false,
@@ -16,6 +16,7 @@
     "lib": ["dom", "ES2015"],
     "module": "ESNext",
     "target": "ES6",
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "outDir": "dist"
   }
 }

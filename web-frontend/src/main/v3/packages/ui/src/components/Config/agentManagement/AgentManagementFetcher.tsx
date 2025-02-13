@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Configuration, ApplicationType, SearchApplication } from '@pinpoint-fe/ui/constants';
+import { Configuration, ApplicationType, SearchApplication } from '@pinpoint-fe/ui/src/constants';
 import { ApplicationCombinedList } from '../../../components/Application';
 import { Button, ScrollArea, Separator, useReactToastifyToast } from '../../../components';
 import { AgentManagementTable } from './AgentManagementTable';
@@ -8,7 +8,7 @@ import {
   useDeleteAgent,
   useDeleteApplication,
   useGetAgentsSearchApplication,
-} from '@pinpoint-fe/ui/hooks';
+} from '@pinpoint-fe/ui/src/hooks';
 import { FaRegTrashCan } from 'react-icons/fa6';
 import { AgentManagementRemovePopup } from './AgentManagementRemovePopup';
 
