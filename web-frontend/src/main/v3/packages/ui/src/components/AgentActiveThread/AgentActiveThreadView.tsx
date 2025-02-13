@@ -1,5 +1,5 @@
 import React from 'react';
-import { AgentActiveThread } from '@pinpoint-fe/ui/constants';
+import { AgentActiveThread } from '@pinpoint-fe/ui/src/constants';
 import { AgentActiveTable, AgentActiveData } from './AgentActiveTable';
 import { AgentActiveSettingType } from './AgentActiveSetting';
 import { AgentActiveChart } from './AgentActiveChart';

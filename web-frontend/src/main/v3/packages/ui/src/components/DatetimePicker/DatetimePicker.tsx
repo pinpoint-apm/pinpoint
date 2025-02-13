@@ -1,17 +1,21 @@
 import './datetime-picker.css';
-import '@pinpoint-fe/datetime-picker/dist/rich-datetime-picker.css';
+// import '@pinpoint-fe/datetime-picker/dist/rich-datetime-picker.css';
 import React from 'react';
 import { subDays, format, subYears } from 'date-fns';
 import { RxChevronLeft, RxChevronRight, RxPlay, RxTrackNext, RxStop } from 'react-icons/rx';
 import { RichDatetimePicker, RichDatetimePickerProps } from '@pinpoint-fe/datetime-picker';
 import Marquee from 'react-fast-marquee';
 
-import { SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/ui/constants';
-import { getFormattedDateRange, getParsedDateRange, isValidDateRange } from '@pinpoint-fe/ui/utils';
+import { SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/ui/src/constants';
+import {
+  getFormattedDateRange,
+  getParsedDateRange,
+  isValidDateRange,
+} from '@pinpoint-fe/ui/src/utils';
 import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui';
 import { cn } from '../../lib';
 import { useReactToastifyToast } from '../Toast';
-import { useDateFormat, useLanguage, useSearchParameters } from '@pinpoint-fe/ui/hooks';
+import { useDateFormat, useLanguage, useSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 
 export type DateState = {
   dates?: {

@@ -4,9 +4,9 @@ import bb, { ChartOptions, line } from 'billboard.js';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import BillboardJS, { IChart } from '@billboard.js/react';
-import { addCommas, formatNewLinedDateString, numberInInteger } from '@pinpoint-fe/ui/utils';
+import { addCommas, formatNewLinedDateString, numberInInteger } from '@pinpoint-fe/ui/src/utils';
 import { isValid } from 'date-fns';
-import { UrlStatChartType as UrlStatChartApi, colors } from '@pinpoint-fe/ui/constants';
+import { UrlStatChartType as UrlStatChartApi, colors } from '@pinpoint-fe/ui/src/constants';
 import { cn } from '../../../lib';
 
 export interface UrlStatLatencyChartProps {

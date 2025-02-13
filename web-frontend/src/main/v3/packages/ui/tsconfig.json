@@ -19,12 +19,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-
     "baseUrl": "./src",
-    "paths": {
-      // "@/*": ["*"]
-      "@pinpoint-fe/ui/*": ["*"]
-    },
     "sourceMap": true
   },
   "include": ["src"],

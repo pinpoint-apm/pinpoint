@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tab } from '@headlessui/react';
-import { FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/constants';
-import { getServerImagePath } from '@pinpoint-fe/ui/utils';
+import { FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/src/constants';
+import { getServerImagePath } from '@pinpoint-fe/ui/src/utils';
 import { HiOutlineArrowRight } from 'react-icons/hi';
 import { Badge, cn } from '../..';
 

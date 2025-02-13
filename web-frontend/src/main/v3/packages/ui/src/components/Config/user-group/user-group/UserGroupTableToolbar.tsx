@@ -5,8 +5,8 @@ import { UserGroupAddPopup } from './UserGroupAddPopup';
 import { Button, Input } from '../../../ui';
 import { MdOutlineAdd } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
-import { APP_PATH } from '@pinpoint-fe/ui/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
+import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
+import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 
 export interface UserGroupTableToolbarProps {
   onCompleteAdd?: () => void;

@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai';
-import { APP_PATH, MenuItemType as MenuItem } from '@pinpoint-fe/ui/constants';
-import { configurationAtom } from '@pinpoint-fe/ui/atoms';
+import { APP_PATH, MenuItemType as MenuItem } from '@pinpoint-fe/ui/src/constants';
+import { configurationAtom } from '@pinpoint-fe/ui/src/atoms';
 import {
   PiBugBeetle,
   PiChartBar,
@@ -9,7 +9,7 @@ import {
   PiTreeStructure,
 } from 'react-icons/pi';
 import { SiOpentelemetry } from 'react-icons/si';
-import { useSearchParameters } from '@pinpoint-fe/ui/hooks';
+import { useSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import {
   getServerMapPath,
   getInspectorPath,
@@ -17,7 +17,7 @@ import {
   getSystemMetricPath,
   getErrorAnalysisPath,
   getOpenTelemetryPath,
-} from '@pinpoint-fe/ui/utils';
+} from '@pinpoint-fe/ui/src/utils';
 
 export const useMenuItems = () => {
   const configuration = useAtomValue(configurationAtom);

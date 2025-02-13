@@ -11,33 +11,18 @@
   },
   "license": "Apache-2.0",
   "type": "module",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    },
-    "./dist/index.css": "./dist/index.css"
-  },
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist/**"
-  ],
-  "sideEffects": [
-    "dist/**/*.css"
-  ],
+  "main": "./src/index.ts",
   "scripts": {
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint": "yarn format && eslint ./src/**/*.ts --config .eslintrc.cjs",
     "test": "jest",
     "storybook": "start-storybook -p 6009",
     "build-storybook": "build-storybook",
-    "build": "yarn lint && tsup --config tsup.config.production.ts",
+    "build": "yarn lint && tsc",
     "clean": "yarn clean:dist && yarn clean:node_modules && yarn clean:turbo",
     "clean:node_modules": "rm -rf node_modules",
     "clean:dist": "rm -rf dist",
     "clean:turbo": "rm -rf .turbo",
-    "dev": "tsup --config tsup.config.dev.ts --watch",
-    "devBuild": "tsup src/index.ts --format esm,cjs --dts",
     "chromatic": "npx chromatic --project-token=8e9829505277"
   },
   "dependencies": {
@@ -78,7 +63,8 @@
     "storybook-css-modules": "^1.0.8",
     "style-loader": "^3.3.1",
     "ts-jest": "^28.0.5",
-    "tsup": "^6.2.1",
-    "typescript": "^4.5.5"
+    "typescript": "^4.5.5",
+     "vite": "^4.4.5",
+    "vite-plugin-dts": "^3.5.3"
   }
 }

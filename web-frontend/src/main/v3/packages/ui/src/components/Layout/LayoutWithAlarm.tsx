@@ -1,10 +1,10 @@
-import { APP_PATH } from '@pinpoint-fe/ui/constants';
+import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 import { Separator } from '../../components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { t } from 'i18next';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { configurationAtom } from '@pinpoint-fe/ui/atoms';
+import { configurationAtom } from '@pinpoint-fe/ui/src/atoms';
 import { useAtomValue } from 'jotai';
 
 export interface LayoutWithAlarmProps {

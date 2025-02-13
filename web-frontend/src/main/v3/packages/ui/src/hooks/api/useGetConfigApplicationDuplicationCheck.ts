@@ -1,7 +1,7 @@
 import useSWR from 'swr';
-import { ConfigApplicationDuplicationCheck, END_POINTS } from '@pinpoint-fe/ui/constants';
+import { ConfigApplicationDuplicationCheck, END_POINTS } from '@pinpoint-fe/ui/src/constants';
 import { swrConfigs } from './swrConfigs';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
+import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 
 const getQueryString = (queryParams: Partial<ConfigApplicationDuplicationCheck.Parameters>) => {
   if (queryParams.applicationName) {

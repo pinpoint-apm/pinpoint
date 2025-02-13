@@ -1,5 +1,5 @@
 import { UseMutationOptions, useMutation } from '@tanstack/react-query';
-import { END_POINTS, TransactionMetaData } from '@pinpoint-fe/ui/constants';
+import { END_POINTS, TransactionMetaData } from '@pinpoint-fe/ui/src/constants';
 
 export const usePostTransactionMetaData = (
   options?: UseMutationOptions<TransactionMetaData.PostResponse, unknown, FormData, unknown>,

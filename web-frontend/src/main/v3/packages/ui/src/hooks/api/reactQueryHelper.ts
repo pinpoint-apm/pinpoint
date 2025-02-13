@@ -1,4 +1,4 @@
-import { ErrorResponse } from '@pinpoint-fe/ui/constants';
+import { ErrorResponse } from '@pinpoint-fe/ui/src/constants';
 import { QueryClient } from '@tanstack/react-query';
 
 export const queryFn = (url: string) => async () => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Row } from '@tanstack/react-table';
-import { ErrorAnalysisErrorList } from '@pinpoint-fe/ui/constants';
-import { useGetErrorAnalysisErrorListData } from '@pinpoint-fe/ui/hooks';
+import { ErrorAnalysisErrorList } from '@pinpoint-fe/ui/src/constants';
+import { useGetErrorAnalysisErrorListData } from '@pinpoint-fe/ui/src/hooks';
 import { DataTable, DataTableCountOfRows } from '../../DataTable';
 import { errorTableColumns } from './errorAnalysisTableColumns';
 import { cn } from '../../../lib';

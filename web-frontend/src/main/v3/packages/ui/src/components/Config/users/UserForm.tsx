@@ -5,12 +5,12 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 
-import { ConfigUsers } from '@pinpoint-fe/ui/constants';
+import { ConfigUsers } from '@pinpoint-fe/ui/src/constants';
 import { PhoneInput } from 'react-international-phone';
 
 import 'react-international-phone/style.css';
 import { PhoneNumberUtil } from 'google-libphonenumber';
-import { extractStringAfterSubstring } from '@pinpoint-fe/ui/utils';
+import { extractStringAfterSubstring } from '@pinpoint-fe/ui/src/utils';
 import {
   FormField,
   FormItem,

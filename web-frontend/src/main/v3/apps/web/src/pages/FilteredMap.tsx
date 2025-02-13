@@ -10,10 +10,10 @@ import {
   getServerMapPath,
   getTransactionListPath,
   getTranscationListQueryString,
-} from '@pinpoint-fe/ui/utils';
-import { useFilteredMapParameters } from '@pinpoint-fe/ui/hooks';
+} from '@pinpoint-fe/ui/src/utils';
+import { useFilteredMapParameters } from '@pinpoint-fe/ui/src/hooks';
 import { MdArrowBackIosNew, MdArrowForwardIos } from 'react-icons/md';
-import { ServerList } from '@/components/ServerList/ServerList';
+import { ServerList } from '@pinpoint-fe/web/src/components/ServerList/ServerList';
 import {
   serverMapDataAtom,
   serverMapCurrentTargetAtom,
@@ -21,13 +21,13 @@ import {
   currentServerAtom,
   scatterDataByApplicationKeyAtom,
   CurrentTarget,
-} from '@pinpoint-fe/ui/atoms';
+} from '@pinpoint-fe/ui/src/atoms';
 import {
   FilteredMapType as FilteredMap,
   GetServerMap,
   SCATTER_DATA_TOTAL_KEY,
   BASE_PATH,
-} from '@pinpoint-fe/ui/constants';
+} from '@pinpoint-fe/ui/src/constants';
 import {
   ApplicationCombinedList,
   FilteredMap as FilteredMapComponent,
@@ -57,8 +57,8 @@ import {
   SERVERMAP_MENU_FUNCTION_TYPE,
   ScatterChartStatic,
 } from '@pinpoint-fe/ui';
-import { getLayoutWithSideNavigation } from '@/components/Layout/LayoutWithSideNavigation';
-import { Node, Edge } from '@pinpoint-fe/server-map';
+import { getLayoutWithSideNavigation } from '@pinpoint-fe/web/src/components/Layout/LayoutWithSideNavigation';
+import { Node, Edge } from '@pinpoint-fe/ui/src/utils/helper/serverMap';
 import { PiTreeStructureDuotone } from 'react-icons/pi';
 
 export interface FilteredMapPageProps {}

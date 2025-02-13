@@ -1,5 +1,5 @@
-import { globalSearchDisplayAtom } from '@pinpoint-fe/ui/atoms';
-import { MenuItemType as MenuItem } from '@pinpoint-fe/ui/constants';
+import { globalSearchDisplayAtom } from '@pinpoint-fe/ui/src/atoms';
+import { MenuItemType as MenuItem } from '@pinpoint-fe/ui/src/constants';
 ('@radix-ui/react-icons');
 import Fuse from 'fuse.js';
 import {
@@ -17,7 +17,7 @@ import { useAtom } from 'jotai';
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { getTransactionDetailPathByTransactionId, isRegexString } from '@pinpoint-fe/ui/utils';
+import { getTransactionDetailPathByTransactionId, isRegexString } from '@pinpoint-fe/ui/src/utils';
 import { PiStack } from 'react-icons/pi';
 
 export interface GlobalSearchProps {

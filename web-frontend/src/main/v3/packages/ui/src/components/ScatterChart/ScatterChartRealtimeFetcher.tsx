@@ -1,6 +1,6 @@
 import React from 'react';
-import { SCATTER_DATA_TOTAL_KEY, BASE_PATH, GetScatter } from '@pinpoint-fe/ui/constants';
-import { CurrentTarget } from '@pinpoint-fe/ui/atoms';
+import { SCATTER_DATA_TOTAL_KEY, BASE_PATH, GetScatter } from '@pinpoint-fe/ui/src/constants';
+import { CurrentTarget } from '@pinpoint-fe/ui/src/atoms';
 import {
   convertParamsToQueryString,
   getFormattedDateRange,
@@ -8,8 +8,8 @@ import {
   getScatterFullScreenRealtimePath,
   getTransactionListPath,
   getTranscationListQueryString,
-} from '@pinpoint-fe/ui/utils';
-import { useGetScatterRealtimeData, useServerMapSearchParameters } from '@pinpoint-fe/ui/hooks';
+} from '@pinpoint-fe/ui/src/utils';
+import { useGetScatterRealtimeData, useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { ScatterChartCore, ScatterChartCoreProps, ScatterChartHandle } from './core';
 import { useStoragedAxisY } from './core/useStoragedAxisY';
 

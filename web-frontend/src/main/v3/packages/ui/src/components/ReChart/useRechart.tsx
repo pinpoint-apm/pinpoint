@@ -9,7 +9,7 @@ import {
   BarProps,
   AreaProps,
 } from 'recharts';
-import { Chart, colors } from '@pinpoint-fe/ui/constants';
+import { Chart, colors } from '@pinpoint-fe/ui/src/constants';
 import { isNil } from 'lodash';
 import { useState, useEffect } from 'react';
 import { ChartConfig } from '../../components/ui';

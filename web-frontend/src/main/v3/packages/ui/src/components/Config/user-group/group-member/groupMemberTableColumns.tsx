@@ -1,6 +1,6 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { FaRegTrashCan } from 'react-icons/fa6';
-import { ConfigGroupMember } from '@pinpoint-fe/ui/constants';
+import { ConfigGroupMember } from '@pinpoint-fe/ui/src/constants';
 import { GroupMemberRemovePopup } from './GroupMemberRemovePopup';
 import { Button } from '../../../ui';
 

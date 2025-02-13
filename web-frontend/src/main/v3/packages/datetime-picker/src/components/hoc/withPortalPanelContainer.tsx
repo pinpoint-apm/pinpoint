@@ -2,7 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { DatePanelProps } from '../DatePanel';
 import { useOnClickOutside } from 'usehooks-ts';
-import { throttle } from '@/utils/functions';
+import { throttle } from '../../utils/functions';
 
 interface WithPortalPanelContainerProps extends DatePanelProps {
   triggerRef: React.RefObject<HTMLDivElement>;
@@ -54,7 +54,7 @@ export const withPortalPanelContainer = (WrappedComponent: React.ComponentType<D
 
     return getPanelContainer?.() ? (
       createPortal(
-        <div className="rich-datetime-picker rdp-overflow-hidden" ref={panelWrapperRef}>
+        <div className="rich-datetime-picker overflow-hidden" ref={panelWrapperRef}>
           <WrappedComponent style={datePanelStyle} {...props} />
         </div>,
         getPanelContainer() as HTMLElement,

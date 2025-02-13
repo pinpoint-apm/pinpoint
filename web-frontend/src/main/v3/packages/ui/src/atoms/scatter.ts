@@ -5,8 +5,8 @@ import {
   GetScatter,
   SCATTER_DATA_TOTAL_KEY,
   ScatterDataByAgent,
-} from '@pinpoint-fe/ui/constants';
-import { getScatterData, getMergedKeys } from '@pinpoint-fe/ui/utils';
+} from '@pinpoint-fe/ui/src/constants';
+import { getScatterData, getMergedKeys } from '@pinpoint-fe/ui/src/utils';
 
 const scatterDataRootAtom = atom<ScatterDataByAgent>({
   curr: {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocalStorage as useLocalStorageTS } from 'usehooks-ts';
-import { APP_SETTING_KEYS, EXPERIMENTAL_CONFIG_KEYS } from '@pinpoint-fe/ui/constants';
-import { getCompatibleLocalStorageValue } from '@pinpoint-fe/ui/utils';
+import { APP_SETTING_KEYS, EXPERIMENTAL_CONFIG_KEYS } from '@pinpoint-fe/ui/src/constants';
+import { getCompatibleLocalStorageValue } from '@pinpoint-fe/ui/src/utils';
 
 type LocalStorageKeyTypes = APP_SETTING_KEYS | EXPERIMENTAL_CONFIG_KEYS | string;
 

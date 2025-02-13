@@ -1,4 +1,4 @@
-import { useGetConfigInstallationInfo } from '@pinpoint-fe/ui/hooks';
+import { useGetConfigInstallationInfo } from '@pinpoint-fe/ui/src/hooks';
 import { LuExternalLink } from 'react-icons/lu';
 
 export interface DownloadProps {}

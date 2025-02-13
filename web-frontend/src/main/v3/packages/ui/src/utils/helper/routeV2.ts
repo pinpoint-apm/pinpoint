@@ -1,4 +1,4 @@
-import { ApplicationType, APP_PATH } from '@pinpoint-fe/ui/constants';
+import { ApplicationType, APP_PATH } from '@pinpoint-fe/ui/src/constants';
 import { convertToTimeUnit, getParsedDateRange } from '../date';
 import { getApplicationPath } from './route';
 

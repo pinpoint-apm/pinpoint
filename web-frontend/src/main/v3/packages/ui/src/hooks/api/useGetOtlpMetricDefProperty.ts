@@ -1,5 +1,5 @@
-import { END_POINTS, OtlpMetricDefProperty } from '@pinpoint-fe/ui/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
+import { END_POINTS, OtlpMetricDefProperty } from '@pinpoint-fe/ui/src/constants';
+import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useOpenTelemetrySearchParameters } from '../searchParameters';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { queryFn } from './reactQueryHelper';

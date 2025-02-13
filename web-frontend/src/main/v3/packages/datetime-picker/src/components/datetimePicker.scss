@@ -250,54 +250,54 @@
       --tw-backdrop-sepia:  ;
     }
 
-    @apply rdp-text-rgba8;
+    @apply text-rgba8;
   }
   .rich-datetime-picker__trigger {
-    @apply rdp-relative rdp-flex rdp-h-8 rdp-rounded rdp-border;
+    @apply relative flex h-8 rounded border;
   }
-  .rich-datetime-picker__trigger.disable {
-    @apply rdp-pointer-events-none rdp-opacity-50;
+  .rich-datetime-picker__trigger.div-disable {
+    @apply pointer-events-none opacity-50;
   }
   .rich-datetime-picker__input {
-    @apply rdp-w-full rdp-rounded rdp-bg-transparent rdp-pl-12.5 rdp-text-sm focus:rdp-outline-none;
+    @apply w-full rounded bg-transparent pl-12.5 text-sm focus:outline-none;
   }
   .rich-datetime-picker__panel {
-    @apply rdp-absolute rdp-top-[calc(100%+2px)] rdp-z-10 rdp-w-full rdp-rounded rdp-bg-white rdp-shadow-box1;
+    @apply absolute top-[calc(100%+2px)] z-10 w-full rounded bg-white shadow-box1;
   }
   .rich-datetime-picker__panel.expand-left {
-    @apply rdp-rounded-l-none;
+    @apply rounded-l-none;
   }
   .rich-datetime-picker__panel.expand-right {
-    @apply rdp-rounded-r-none;
+    @apply rounded-r-none;
   }
   .rich-datetime-picker__panel.expand-bottom {
-    @apply rdp-rounded-b-none;
+    @apply rounded-b-none;
   }
   .rich-datetime-picker__panel.expand-left .rich-datetime-picker__item {
-    @apply first:rdp-rounded-l-none last:rdp-rounded-l-none;
+    @apply first:rounded-l-none last:rounded-l-none;
   }
   .rich-datetime-picker__panel.expand-right .rich-datetime-picker__item {
-    @apply first:rdp-rounded-r-none last:rdp-rounded-r-none;
+    @apply first:rounded-r-none last:rounded-r-none;
   }
   .rich-datetime-picker__panel.expand-bottom .rich-datetime-picker__item {
-    @apply last:rdp-rounded-b-none;
+    @apply last:rounded-b-none;
   }
   .rich-datetime-picker__item {
-    @apply rdp-flex rdp-h-7.5 rdp-cursor-pointer rdp-items-center rdp-gap-2.5 rdp-bg-inherit rdp-p-1.5 first:rdp-rounded-t last:rdp-rounded-b hover:rdp-bg-rgba06;
+    @apply flex h-7.5 cursor-pointer items-center gap-2.5 bg-inherit p-1.5 first:rounded-t last:rounded-b hover:bg-rgba06;
   }
   .rich-datetime-picker__item-text {
-    @apply rdp-text-sm rdp-font-normal;
+    @apply text-sm font-normal;
   }
   .rich-datetime-picker__tag {
-    @apply rdp-flex rdp-h-5 rdp-w-9 rdp-cursor-pointer rdp-items-center rdp-justify-center rdp-rounded-sm rdp-bg-rgba1 rdp-text-xs rdp-text-rgba5;
+    @apply flex h-5 w-9 cursor-pointer items-center justify-center rounded-sm bg-rgba1 text-xs text-rgba5;
   }
   .rich-datetime-picker__tag--colorized {
-    @apply rdp-flex rdp-h-5 rdp-items-center rdp-justify-center rdp-rounded-sm rdp-px-1.5 rdp-pt-1 rdp-text-xs rdp-text-primary;
+    @apply flex h-5 items-center justify-center rounded-sm px-1.5 pt-1 text-xs text-primary;
   }
   .rich-datetime-picker__more {
-    @apply rdp-absolute rdp-top-0 -rdp-z-10 rdp-h-full rdp-w-70 rdp-cursor-default rdp-overflow-auto rdp-bg-white rdp-shadow-box1;
+    @apply absolute top-0 -z-10 h-full w-70 cursor-default overflow-auto bg-white shadow-box1;
   }
   .rich-datetime-picker__more-label {
-    @apply rdp-flex rdp-cursor-pointer rdp-items-center rdp-justify-center rdp-rounded-sm rdp-bg-rgbaPrimary rdp-px-1.5 rdp-py-1 rdp-text-xs rdp-text-primary hover:rdp-bg-primary hover:rdp-text-white;
+    @apply flex cursor-pointer items-center justify-center rounded-sm bg-rgbaPrimary px-1.5 py-1 text-xs text-primary hover:bg-primary hover:text-white;
   }
 }

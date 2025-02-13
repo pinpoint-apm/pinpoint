@@ -1,9 +1,9 @@
 import { ChartOptions } from 'billboard.js';
-import { InspectorAgentDataSourceChart } from '@pinpoint-fe/ui/constants';
+import { InspectorAgentDataSourceChart } from '@pinpoint-fe/ui/src/constants';
 import { useChartAxis } from './useChartAxis';
 import { useChartType } from './useChartType';
 import { DEFAULT_CHART_CONFIG } from './useChartConfig';
-import { getFormat } from '@pinpoint-fe/ui/utils';
+import { getFormat } from '@pinpoint-fe/ui/src/utils';
 import { useDataSourceChartTooltip } from './useDataSourceChartTooltip';
 
 export const useDataSourceChartConfig = (data?: InspectorAgentDataSourceChart.Response) => {

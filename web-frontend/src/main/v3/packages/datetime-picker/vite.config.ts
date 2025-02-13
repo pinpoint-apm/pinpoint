@@ -24,21 +24,24 @@ export default defineConfig({
   build: {
     lib: {
       entry: './src/index.ts',
-      name: 'RichDatetimePicker',
+      name: 'index',
+      formats: ['es', 'cjs'],
       fileName: (format) => {
-        const ext = format === 'umd' ? 'cjs' : 'js';
-
-        return `rich-datetime-picker.${format}.${ext}`;
+        if (format === 'cjs') {
+          return 'index.cjs';
+        }
+        return 'index.js';
       },
     },
     rollupOptions: {
       external: ['react', 'react-dom'],
       output: {
-        assetFileNames: 'rich-datetime-picker.[ext]',
-        globals: {
-          react: 'React',
-          'react-dom': 'ReactDOM',
-        },
+        dir: 'dist',
+        // assetFileNames: 'rich-datetime-picker.[ext]',
+        // globals: {
+        //   react: 'React',
+        //   'react-dom': 'ReactDOM',
+        // },
       },
     },
   },

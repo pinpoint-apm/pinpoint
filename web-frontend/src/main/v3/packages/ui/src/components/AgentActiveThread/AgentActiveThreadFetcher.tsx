@@ -1,8 +1,11 @@
 import React from 'react';
-import { AgentActiveThread, GetServerMap } from '@pinpoint-fe/ui/constants';
+import { AgentActiveThread, GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import { AgentActiveThreadView } from './AgentActiveThreadView';
 import { useAtomValue } from 'jotai';
-import { serverMapCurrentTargetAtom, serverMapCurrentTargetDataAtom } from '@pinpoint-fe/ui/atoms';
+import {
+  serverMapCurrentTargetAtom,
+  serverMapCurrentTargetDataAtom,
+} from '@pinpoint-fe/ui/src/atoms';
 import { AgentActiveThreadSkeleton } from './AgentActiveThreadSkeleton';
 import {
   Tooltip,

@@ -2,12 +2,12 @@ import React from 'react';
 import { ErrorBoundary } from '../Error/ErrorBoundary';
 import { WebhookListFetcher, WebhookListFetcherProps } from './WebhookListFetcher';
 import { Checkbox } from '../ui/checkbox';
-import { useGetWebhook } from '@pinpoint-fe/ui/hooks';
+import { useGetWebhook } from '@pinpoint-fe/ui/src/hooks';
 import { ScrollArea } from '../../components/ui/scroll-area';
 import { cn } from '../../lib/utils';
 import { Label } from '../../components';
 import { Link } from 'react-router-dom';
-import { APP_PATH } from '@pinpoint-fe/ui/constants';
+import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 
 export interface WebhookCheckedListProps extends WebhookListFetcherProps {
   disabled?: boolean;

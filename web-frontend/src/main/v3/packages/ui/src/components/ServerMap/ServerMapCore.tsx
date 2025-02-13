@@ -7,8 +7,8 @@ import {
   ServerMapProps as ServerMapComponentProps,
   MergedEdge,
 } from '@pinpoint-fe/server-map';
-import { FilteredMapType as FilteredMap, GetServerMap } from '@pinpoint-fe/ui/constants';
-import { addCommas, getServerImagePath } from '@pinpoint-fe/ui/utils';
+import { FilteredMapType as FilteredMap, GetServerMap } from '@pinpoint-fe/ui/src/constants';
+import { addCommas, getServerImagePath } from '@pinpoint-fe/ui/src/utils';
 import {
   ServerMapMenu,
   SERVERMAP_MENU_CONTENT_TYPE,

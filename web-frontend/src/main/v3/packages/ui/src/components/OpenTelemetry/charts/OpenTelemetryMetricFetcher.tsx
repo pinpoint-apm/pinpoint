@@ -1,6 +1,10 @@
 import { useTranslation } from 'react-i18next';
-import { colors, ErrorDetailResponse, OtlpMetricDefUserDefined } from '@pinpoint-fe/ui/constants';
-import { useOpenTelemetrySearchParameters, usePostOtlpMetricData } from '@pinpoint-fe/ui/hooks';
+import {
+  colors,
+  ErrorDetailResponse,
+  OtlpMetricDefUserDefined,
+} from '@pinpoint-fe/ui/src/constants';
+import { useOpenTelemetrySearchParameters, usePostOtlpMetricData } from '@pinpoint-fe/ui/src/hooks';
 import React from 'react';
 import { assign } from 'lodash';
 import { ReChart } from '../../../components/ReChart';

@@ -5,20 +5,20 @@ import {
   convertParamsToQueryString,
   getTranscationListQueryString,
   getTransactionListPath,
-} from '@pinpoint-fe/ui/utils';
+} from '@pinpoint-fe/ui/src/utils';
 import {
   ApplicationType,
   SCATTER_DATA_TOTAL_KEY,
   SEARCH_PARAMETER_DATE_FORMAT,
   BASE_PATH,
-} from '@pinpoint-fe/ui/constants';
+} from '@pinpoint-fe/ui/src/constants';
 import { format } from 'date-fns';
 import {
   ScatterChartCore,
   ScatterChartCoreProps,
   ScatterChartHandle,
 } from './core/ScatterChartCore';
-import { useServerMapSearchParameters } from '@pinpoint-fe/ui/hooks';
+import { useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { useStoragedAxisY } from './core/useStoragedAxisY';
 
 export interface ScatterChartStaticProps

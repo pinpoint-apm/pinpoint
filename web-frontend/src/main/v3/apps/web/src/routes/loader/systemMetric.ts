@@ -1,6 +1,6 @@
-import { APP_PATH, SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/ui/constants';
-import { isValidDateRange } from '@pinpoint-fe/ui/utils';
-import { getParsedDateRange } from '@pinpoint-fe/ui/utils';
+import { APP_PATH, SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/ui/src/constants';
+import { isValidDateRange } from '@pinpoint-fe/ui/src/utils';
+import { getParsedDateRange } from '@pinpoint-fe/ui/src/utils';
 import { parse, format } from 'date-fns';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 

@@ -2,9 +2,9 @@ import useSWR from 'swr';
 import {
   END_POINTS,
   InspectorAgentInfoType as InspectorAgentInfo,
-} from '@pinpoint-fe/ui/constants';
+} from '@pinpoint-fe/ui/src/constants';
 import { swrConfigs } from './swrConfigs';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
+import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useInspectorSearchParameters } from '../searchParameters';
 
 const getQueryString = (queryParams: Partial<InspectorAgentInfo.Parameters>) => {

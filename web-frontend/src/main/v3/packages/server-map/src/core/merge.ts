@@ -106,10 +106,7 @@ const groupByType = (groupBySource: GroupBySource, nodes: Node[]) => {
   );
 };
 
-export const getMergedData = (
-  data: { nodes: Node[]; edges: Edge[] },
-  renderNode?: ServerMapProps['renderNode'],
-) => {
+export const getMergedData = (data: { nodes: Node[]; edges: Edge[] }, renderNode?: ServerMapProps['renderNode']) => {
   const { edges, nodes } = data;
   const mergedTypes = new Set<string>();
   const targetNodeIds = edges.map((edge) => edge.target);

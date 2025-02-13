@@ -1,14 +1,14 @@
 import React from 'react';
-import { SCATTER_DATA_TOTAL_KEY, BASE_PATH } from '@pinpoint-fe/ui/constants';
-import { CurrentTarget } from '@pinpoint-fe/ui/atoms';
+import { SCATTER_DATA_TOTAL_KEY, BASE_PATH } from '@pinpoint-fe/ui/src/constants';
+import { CurrentTarget } from '@pinpoint-fe/ui/src/atoms';
 import {
   convertParamsToQueryString,
   getScatterFullScreenPath,
   getTransactionListPath,
   getTranscationListQueryString,
-} from '@pinpoint-fe/ui/utils';
-import { useGetScatterData, useServerMapSearchParameters } from '@pinpoint-fe/ui/hooks';
-import { scatterDataAtom } from '@pinpoint-fe/ui/atoms';
+} from '@pinpoint-fe/ui/src/utils';
+import { useGetScatterData, useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import { scatterDataAtom } from '@pinpoint-fe/ui/src/atoms';
 import { useAtom } from 'jotai';
 import { ScatterChartCore, ScatterChartCoreProps, ScatterChartHandle } from './core';
 import { useStoragedAxisY } from './core/useStoragedAxisY';

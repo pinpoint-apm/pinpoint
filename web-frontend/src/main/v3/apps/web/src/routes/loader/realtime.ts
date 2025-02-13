@@ -1,4 +1,4 @@
-import { getApplicationTypeAndName } from '@pinpoint-fe/ui/utils';
+import { getApplicationTypeAndName } from '@pinpoint-fe/ui/src/utils';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 
 export const realtimeLoader = ({ params, request }: LoaderFunctionArgs) => {

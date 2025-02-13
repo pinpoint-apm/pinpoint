@@ -1,6 +1,6 @@
 import React from 'react';
-import { useLocalStorage } from '@pinpoint-fe/ui/hooks';
-import { APP_SETTING_KEYS } from '@pinpoint-fe/ui/constants';
+import { useLocalStorage } from '@pinpoint-fe/ui/src/hooks';
+import { APP_SETTING_KEYS } from '@pinpoint-fe/ui/src/constants';
 
 type AxisRangeType = [number, number];
 

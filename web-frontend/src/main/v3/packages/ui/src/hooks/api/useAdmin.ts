@@ -1,5 +1,5 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
-import { END_POINTS } from '@pinpoint-fe/ui/constants';
+import { END_POINTS } from '@pinpoint-fe/ui/src/constants';
 
 type deleteApplicationParams = {
   applicationName: string;

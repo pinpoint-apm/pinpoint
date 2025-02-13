@@ -3,7 +3,7 @@ import {
   GetScatter,
   SCATTER_DATA_TOTAL_KEY,
   ScatterDataByAgent,
-} from '@pinpoint-fe/ui/constants';
+} from '@pinpoint-fe/ui/src/constants';
 
 const getScatterChartedData = (dotList: number[], from: number) => {
   return {

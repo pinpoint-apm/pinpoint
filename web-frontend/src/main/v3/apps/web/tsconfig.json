@@ -15,16 +15,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "baseUrl": "./src",
-    "paths": {
-      "@/components/*": ["components/*"],
-      "@/atoms/*": ["atoms/*"],
-      "@/routes/*": ["routes/*"],
-      "@/utils/*": ["utils/*"],
-      "@/*": ["*"],
-      "@pinpoint-fe/ui": ["../../../packages/ui/src"],
-      "@pinpoint-fe/ui/*": ["../../../packages/ui/src/*"]
-    }
+    "baseUrl": "./src"
   },
   "include": ["src"],
   "exclude": ["dist", "build", "node_modules", "**/*.stories.tsx"],

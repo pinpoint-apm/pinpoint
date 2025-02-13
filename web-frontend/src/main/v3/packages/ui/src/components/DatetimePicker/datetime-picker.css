@@ -33,9 +33,9 @@
   ) {
   background-color: hsl(var(--ui-primary) / 0.25) !important;
 }
-.rdp-border-primary {
+.border-primary {
   border-color: hsl(var(--ui-primary)) !important;
 }
-.rdp-border-stateRed {
+.border-stateRed {
   border-color: hsl(var(--ui-destructive)) !important;
 }

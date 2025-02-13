@@ -1,4 +1,4 @@
-import { FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/constants';
+import { FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/src/constants';
 
 export const prevNode = {
   key: 'key',

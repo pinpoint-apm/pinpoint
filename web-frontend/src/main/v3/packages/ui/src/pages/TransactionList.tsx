@@ -3,9 +3,9 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '../compone
 import { TransactionInfo, TransactionInfoProps, TransactionList } from '../components/Transaction';
 import { MainHeader, ApplicationCombinedList, Separator } from '../components';
 import { useAtomValue } from 'jotai';
-import { useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';
-import { transactionListDatasAtom } from '@pinpoint-fe/ui/atoms';
-import { APP_SETTING_KEYS } from '@pinpoint-fe/ui/constants';
+import { useTransactionSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import { transactionListDatasAtom } from '@pinpoint-fe/ui/src/atoms';
+import { APP_SETTING_KEYS } from '@pinpoint-fe/ui/src/constants';
 import { PiStackDuotone } from 'react-icons/pi';
 import { TransactionListProgressBar } from '../components/Transaction/transaction-list/TransactionListProgressBar';
 import { TransactionListByFilterMap } from '../components/Transaction/transaction-list/TransactionListByFilterMap';

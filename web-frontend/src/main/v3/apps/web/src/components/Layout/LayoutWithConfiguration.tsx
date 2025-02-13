@@ -1,4 +1,4 @@
-import { APP_PATH } from '@pinpoint-fe/ui/constants';
+import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 import {
   LayoutWithConfiguration as LayoutWithConfigurationComponent,
   LayoutWithConfigurationProps as LayoutWithConfigurationComponentProps,

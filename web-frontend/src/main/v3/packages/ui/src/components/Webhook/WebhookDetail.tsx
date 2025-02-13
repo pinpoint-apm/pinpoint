@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Webhook } from '@pinpoint-fe/ui/constants';
+import { Webhook } from '@pinpoint-fe/ui/src/constants';
 import {
   Form,
   FormControl,
@@ -14,7 +14,7 @@ import {
 import { Input, Button } from '../../components';
 import { useReactToastifyToast } from '../../components/Toast';
 import { Optional } from '../../components/Form/Optional';
-import { useWebhookMutation } from '@pinpoint-fe/ui/hooks';
+import { useWebhookMutation } from '@pinpoint-fe/ui/src/hooks';
 import { ErrorToast } from '../../components/Error/ErrorToast';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../lib/utils';

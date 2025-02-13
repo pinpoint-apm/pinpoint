@@ -1,9 +1,9 @@
 import React from 'react';
-import { TraceViewerData } from '@pinpoint-fe/ui/constants';
+import { TraceViewerData } from '@pinpoint-fe/ui/src/constants';
 import { Separator } from '@radix-ui/react-dropdown-menu';
-import { getColorByString } from '@pinpoint-fe/ui/lib/colors';
+import { getColorByString } from '@pinpoint-fe/ui/src/lib/colors';
 import { LuChevronFirst, LuChevronLast } from 'react-icons/lu';
-import { cn } from '@pinpoint-fe/ui/lib';
+import { cn } from '@pinpoint-fe/ui/src/lib';
 
 export interface TimelineInfoProps {
   data?: TraceViewerData.TraceEvent[];

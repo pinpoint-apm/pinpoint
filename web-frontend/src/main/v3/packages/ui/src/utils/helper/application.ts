@@ -1,4 +1,4 @@
-import { ApplicationType } from '@pinpoint-fe/ui/constants';
+import { ApplicationType } from '@pinpoint-fe/ui/src/constants';
 
 export const getApplicationTypeAndName = (path = '') => {
   const splittedPath = path.match(/\/?([^/]+)[@|^]([^/]+)$/);

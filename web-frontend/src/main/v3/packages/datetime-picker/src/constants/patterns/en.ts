@@ -1,4 +1,4 @@
-import { TimePattern } from '@/index';
+import { TimePattern } from '../../index';
 
 export const timePattern: TimePattern = {
   second: /^(past)?\s*(\d+)\s*(s|sec|second|seconds)$/i,

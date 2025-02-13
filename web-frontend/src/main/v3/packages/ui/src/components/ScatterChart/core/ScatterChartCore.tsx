@@ -1,4 +1,4 @@
-import '@pinpoint-fe/scatter-chart/dist/index.css';
+// import '@pinpoint-fe/scatter-chart/src/style/index.css';
 
 import React from 'react';
 import {

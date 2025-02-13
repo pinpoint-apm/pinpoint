@@ -4,9 +4,9 @@ import {
   getPanelGroupElement,
   getResizeHandleElement,
 } from 'react-resizable-panels';
-import { APP_SETTING_KEYS } from '@pinpoint-fe/ui/constants';
+import { APP_SETTING_KEYS } from '@pinpoint-fe/ui/src/constants';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '..';
-import { useLocalStorage } from '@pinpoint-fe/ui/hooks';
+import { useLocalStorage } from '@pinpoint-fe/ui/src/hooks';
 import { cn } from '../../lib';
 
 interface SizeInfo {

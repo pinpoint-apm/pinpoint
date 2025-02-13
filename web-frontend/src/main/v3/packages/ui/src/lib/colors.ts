@@ -1,4 +1,4 @@
-import { colors } from '@pinpoint-fe/ui/constants';
+import { colors } from '@pinpoint-fe/ui/src/constants';
 
 export const getRandomColor = () => {
   const random = (Math.random() * 0xfffff * 1000000).toString(16);

@@ -23,14 +23,6 @@
 
     /* */
     "baseUrl": "./src",
-    "paths": {
-      "@/components/*": ["components/*"],
-      "@/constants/*": ["constants/*"],
-      "@/utils/*": ["utils/*"],
-      "@/types/*": ["types/*"],
-      "@/assets/*": ["assets/*"],
-      "@/*": ["*"]
-    },
     "types": ["vite-plugin-svgr/client", "jest", "node"],
     "esModuleInterop": true
   },

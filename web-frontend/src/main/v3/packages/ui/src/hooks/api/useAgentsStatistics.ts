@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { END_POINTS, SearchApplication } from '@pinpoint-fe/ui/constants';
+import { END_POINTS, SearchApplication } from '@pinpoint-fe/ui/src/constants';
 import { queryFn } from './reactQueryHelper';
 
 export const useGetAgentsStatistics = (load: boolean) => {

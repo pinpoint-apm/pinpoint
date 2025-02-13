@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ConfigGroupMember } from '@pinpoint-fe/ui/constants';
+import { ConfigGroupMember } from '@pinpoint-fe/ui/src/constants';
 import { RemovePopup } from '../../../Popup';
 
 export interface GroupMemberRemovePopupProps {

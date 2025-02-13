@@ -1,8 +1,8 @@
-import { useGetInspectorAgentEvents } from '@pinpoint-fe/ui/hooks';
+import { useGetInspectorAgentEvents } from '@pinpoint-fe/ui/src/hooks';
 import { format } from 'date-fns';
 import { DataTable } from '../../../DataTable';
 import { ColumnDef } from '@tanstack/react-table';
-import { InspectorAgentEvents } from '@pinpoint-fe/ui/constants';
+import { InspectorAgentEvents } from '@pinpoint-fe/ui/src/constants';
 
 export interface InspectorAgentEventViewerFetcherProps {
   eventRange: number[];

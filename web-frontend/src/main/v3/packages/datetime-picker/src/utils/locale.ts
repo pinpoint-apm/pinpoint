@@ -1,5 +1,5 @@
 import { enUS, ja, ko, zhCN } from 'date-fns/locale';
-import { LocaleKey } from '@/types';
+import { LocaleKey } from '../types';
 import { Locale } from 'date-fns';
 
 export const getLocale = (localeKey: LocaleKey): Locale => {

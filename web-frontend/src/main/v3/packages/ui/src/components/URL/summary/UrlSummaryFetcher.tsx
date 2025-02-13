@@ -1,11 +1,11 @@
 import React from 'react';
 import { useAtom } from 'jotai';
-import { urlSelectedSummaryDataAtom } from '@pinpoint-fe/ui/atoms';
-import { useGetUrlStatSummaryData } from '@pinpoint-fe/ui/hooks';
+import { urlSelectedSummaryDataAtom } from '@pinpoint-fe/ui/src/atoms';
+import { useGetUrlStatSummaryData } from '@pinpoint-fe/ui/src/hooks';
 import { summaryColumns } from './UrlSummaryColumns';
 import { DataTable, DataTableCountOfRows } from '../../DataTable';
 import { cn } from '../../../lib';
-import { UrlStatSummary } from '@pinpoint-fe/ui/constants';
+import { UrlStatSummary } from '@pinpoint-fe/ui/src/constants';
 
 export interface UrlSummaryFetcherProps {
   type?: UrlStatSummary.Parameters['type'];

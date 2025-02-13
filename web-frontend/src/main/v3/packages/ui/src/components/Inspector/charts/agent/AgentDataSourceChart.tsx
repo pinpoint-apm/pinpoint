@@ -1,4 +1,4 @@
-import { useGetInspectorAgentDataSourceChartData } from '@pinpoint-fe/ui/hooks';
+import { useGetInspectorAgentDataSourceChartData } from '@pinpoint-fe/ui/src/hooks';
 import { InspectorChart } from '../InspectorChart';
 import { useDataSourceChartConfig } from '../../../../lib';
 

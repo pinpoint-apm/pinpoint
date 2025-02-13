@@ -1,6 +1,6 @@
 import useSWR from 'swr';
-import { END_POINTS, TransactionInfoType as TransactionInfo } from '@pinpoint-fe/ui/constants';
-import { convertParamsToQueryString } from '@pinpoint-fe/ui/utils';
+import { END_POINTS, TransactionInfoType as TransactionInfo } from '@pinpoint-fe/ui/src/constants';
+import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useTransactionSearchParameters } from '../searchParameters';
 import { swrConfigs } from './swrConfigs';
 import { useExperimentals } from '../utility';

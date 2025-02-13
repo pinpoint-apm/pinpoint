@@ -1,14 +1,14 @@
 import {
   SEARCH_PARAMETER_DATE_FORMAT,
   SEARCH_PARAMETER_DATE_FORMAT_WHITE_LIST,
-} from '@pinpoint-fe/ui/constants';
+} from '@pinpoint-fe/ui/src/constants';
 import {
   convertParamsToQueryString,
   getApplicationTypeAndName,
   getFormattedDateRange,
   getParsedDateRange,
   isValidDateRange,
-} from '@pinpoint-fe/ui/utils';
+} from '@pinpoint-fe/ui/src/utils';
 import { parse, format } from 'date-fns';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 

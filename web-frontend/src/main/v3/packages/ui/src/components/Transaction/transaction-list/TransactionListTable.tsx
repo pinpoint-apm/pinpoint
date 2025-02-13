@@ -1,12 +1,12 @@
-import { Transaction } from '@pinpoint-fe/ui/constants';
+import { Transaction } from '@pinpoint-fe/ui/src/constants';
 import { VirtualizedDataTable, VirtualizedDataTableProps } from '../../DataTable';
 import { transactionListTableColumns } from '.';
-import { useTransactionSearchParameters } from '@pinpoint-fe/ui/hooks';
+import { useTransactionSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import {
   convertParamsToQueryString,
   getTransactionListPath,
   getTransactionTableUniqueKey,
-} from '@pinpoint-fe/ui/utils';
+} from '@pinpoint-fe/ui/src/utils';
 import { useNavigate } from 'react-router-dom';
 
 export interface TransactionListTableProps

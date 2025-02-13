@@ -1,10 +1,10 @@
 import React from 'react';
 import { SWRConfiguration } from 'swr';
 import { useAtom } from 'jotai';
-import { useGetHeatmapDrag } from '@pinpoint-fe/ui/hooks';
+import { useGetHeatmapDrag } from '@pinpoint-fe/ui/src/hooks';
 import { TransactionListTable, TransactionListTableProps } from '../..';
-import { transactionListDatasAtom } from '@pinpoint-fe/ui/atoms';
-import { HeatmapDrag } from '@pinpoint-fe/ui/constants';
+import { transactionListDatasAtom } from '@pinpoint-fe/ui/src/atoms';
+import { HeatmapDrag } from '@pinpoint-fe/ui/src/constants';
 
 export interface TransactionListFetcherProps extends TransactionListTableProps {
   params?: Partial<HeatmapDrag.Parameters>;

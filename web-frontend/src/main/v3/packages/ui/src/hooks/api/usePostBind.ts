@@ -1,5 +1,5 @@
 import { UseMutationOptions, useMutation } from '@tanstack/react-query';
-import { END_POINTS, Bind } from '@pinpoint-fe/ui/constants';
+import { END_POINTS, Bind } from '@pinpoint-fe/ui/src/constants';
 
 export const usePostBind = (
   options?: UseMutationOptions<Bind.Response, unknown, FormData, unknown>,

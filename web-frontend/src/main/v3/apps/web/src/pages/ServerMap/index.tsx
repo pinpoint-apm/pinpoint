@@ -12,10 +12,10 @@ import {
   getApplicationKey,
   getFormattedDateRange,
   getRealtimePath,
-} from '@pinpoint-fe/ui/utils';
-import { useServerMapSearchParameters } from '@pinpoint-fe/ui/hooks';
+} from '@pinpoint-fe/ui/src/utils';
+import { useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { MdArrowBackIosNew, MdArrowForwardIos } from 'react-icons/md';
-import { ServerList } from '@/components/ServerList/ServerList';
+import { ServerList } from '@pinpoint-fe/web/src/components/ServerList/ServerList';
 import { RxChevronRight } from 'react-icons/rx';
 import {
   serverMapDataAtom,
@@ -24,8 +24,12 @@ import {
   currentServerAtom,
   scatterDataAtom,
   CurrentTarget,
-} from '@pinpoint-fe/ui/atoms';
-import { FilteredMapType as FilteredMap, GetServerMap, BASE_PATH } from '@pinpoint-fe/ui/constants';
+} from '@pinpoint-fe/ui/src/atoms';
+import {
+  FilteredMapType as FilteredMap,
+  GetServerMap,
+  BASE_PATH,
+} from '@pinpoint-fe/ui/src/constants';
 import { IoMdClose } from 'react-icons/io';
 import {
   ApdexScore,
@@ -52,7 +56,7 @@ import {
   ServerChartsBoard,
   HelpPopover,
 } from '@pinpoint-fe/ui';
-import { getLayoutWithSideNavigation } from '@/components/Layout/LayoutWithSideNavigation';
+import { getLayoutWithSideNavigation } from '@pinpoint-fe/web/src/components/Layout/LayoutWithSideNavigation';
 import { Edge, Node } from '@pinpoint-fe/server-map';
 import { PiTreeStructureDuotone } from 'react-icons/pi';
 

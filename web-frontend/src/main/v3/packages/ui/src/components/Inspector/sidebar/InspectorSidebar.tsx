@@ -1,10 +1,10 @@
 import { AgentSearchList } from '../../Agent';
-import { useInspectorSearchParameters } from '@pinpoint-fe/ui/hooks';
+import { useInspectorSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import {
   convertParamsToQueryString,
   getFormattedDateRange,
   getInspectorPath,
-} from '@pinpoint-fe/ui/utils';
+} from '@pinpoint-fe/ui/src/utils';
 import { ApplicationLinkButton } from '../../Button/ApplicationLinkButton';
 import { Separator } from '../../ui';
 import { useNavigate } from 'react-router-dom';

@@ -125,7 +125,7 @@ export const createMultipleCharts = () => {
           dataIndex++;
           newData(staticData[dataIndex]);
           if (dataIndex === staticData.length - 1) {
-            clearInterval(interval);
+            clearInterval(interval as any);
           }
         }, 1000);
       }

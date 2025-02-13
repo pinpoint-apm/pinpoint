@@ -1,11 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  relative: true,
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-  prefix: 'rdp-',
+  // prefix: '',
   theme: {
     extend: {
       colors: {
-        primary: '#9338FF',
         stateRed: '#F84302',
         rgba1: 'rgba(0, 0, 0, 0.1)',
         rgba2: 'rgba(0, 0, 0, 0.2)',

@@ -1,5 +1,5 @@
 import { parse, isValid, differenceInDays } from 'date-fns';
-import { SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/ui/constants';
+import { SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/ui/src/constants';
 import { format, getCurrentFormat } from './format';
 
 export const getParsedDateRange = (

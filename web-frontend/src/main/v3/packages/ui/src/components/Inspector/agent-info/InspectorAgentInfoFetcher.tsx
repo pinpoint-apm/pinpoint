@@ -9,10 +9,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '../../ui';
-import { useGetInspectorAgentInfoData } from '@pinpoint-fe/ui/hooks';
+import { useGetInspectorAgentInfoData } from '@pinpoint-fe/ui/src/hooks';
 import { InspectorAgentInfoServiceType } from './InspectorAgentInfoServiceType';
 import { LuChevronsUpDown } from 'react-icons/lu';
-import { insertIf } from '@pinpoint-fe/ui/utils';
+import { insertIf } from '@pinpoint-fe/ui/src/utils';
 
 export type InfoDefinition = {
   key: string;

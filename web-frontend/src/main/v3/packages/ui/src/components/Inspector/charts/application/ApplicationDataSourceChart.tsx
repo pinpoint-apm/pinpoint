@@ -1,9 +1,9 @@
 import React from 'react';
-import { useGetInspectorApplicationDataSourceChartData } from '@pinpoint-fe/ui/hooks';
+import { useGetInspectorApplicationDataSourceChartData } from '@pinpoint-fe/ui/src/hooks';
 import { InspectorChart } from '../InspectorChart';
 import { useChartConfig } from '../../../../lib';
 import { ApplicationDataSourceChartTable, ApplicationDataSourceChartTableData } from '.';
-import { colors } from '@pinpoint-fe/ui/constants';
+import { colors } from '@pinpoint-fe/ui/src/constants';
 
 export interface ApplicationDataSourceChartProps {
   className?: string;

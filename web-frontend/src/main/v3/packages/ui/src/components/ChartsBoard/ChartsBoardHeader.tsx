@@ -1,5 +1,5 @@
 import { HiOutlineArrowRight } from 'react-icons/hi';
-import { getApplicationTypeAndName } from '@pinpoint-fe/ui/utils';
+import { getApplicationTypeAndName } from '@pinpoint-fe/ui/src/utils';
 import { Edge } from '@pinpoint-fe/server-map';
 import { ServerIcon } from '../Application/ServerIcon';
 

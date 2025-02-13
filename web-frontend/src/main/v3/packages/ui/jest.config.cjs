@@ -5,6 +5,6 @@ module.exports = {
   moduleDirectories: ['node_modules'],
   collectCoverageFrom: ['./src/**/*.[jt]s?(x)'],
   moduleNameMapper: {
-    '^@pinpoint-fe/ui/(.*)$': '<rootDir>/src/$1',
+    '^@pinpoint-fe/ui/src/(.*)$': '<rootDir>/src/$1',
   },
 };

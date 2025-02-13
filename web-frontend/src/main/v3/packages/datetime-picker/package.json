@@ -6,7 +6,7 @@
   },
   "license": "MIT",
   "type": "module",
-  "types": "./dist/index.d.ts",
+  "main": "./src/index.ts",
   "scripts": {
     "dev": "vite build --watch",
     "devBuild": "vite build",
@@ -23,17 +23,6 @@
     "storybook": "storybook dev -p 6006",
     "storybook:deploy": "storybook-to-ghpages",
     "build-storybook": "storybook build"
-  },
-  "files": [
-    "dist"
-  ],
-  "exports": {
-    ".": {
-      "import": "./dist/rich-datetime-picker.es.js",
-      "require": "./dist/rich-datetime-picker.umd.cjs",
-      "types": "./dist/index.d.ts"
-    },
-    "./dist/rich-datetime-picker.css": "./dist/rich-datetime-picker.css"
   },
   "dependencies": {
     "@headlessui/react": "1.7.16",

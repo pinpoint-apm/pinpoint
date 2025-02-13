@@ -1,14 +1,14 @@
 import { VirtualizedDataTable } from '../DataTable';
 import { ColumnDef } from '@tanstack/react-table';
-import { cn } from '@pinpoint-fe/ui/lib';
+import { cn } from '@pinpoint-fe/ui/src/lib';
 import React from 'react';
 import { TooltipContent, TooltipProvider, Tooltip, TooltipTrigger, Button } from '../ui';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 import { HiMiniExclamationCircle } from 'react-icons/hi2';
-import { BASE_PATH, colors } from '@pinpoint-fe/ui/constants';
+import { BASE_PATH, colors } from '@pinpoint-fe/ui/src/constants';
 import { RxExternalLink } from 'react-icons/rx';
-import { getThreadDumpPath } from '@pinpoint-fe/ui/utils';
-import { useSearchParameters } from '@pinpoint-fe/ui/hooks';
+import { getThreadDumpPath } from '@pinpoint-fe/ui/src/utils';
+import { useSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 
 export type AgentActiveData = {
   server: string;
