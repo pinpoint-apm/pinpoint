@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web.frontend.export;
 
 import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.common.server.frontend.export.FrontendConfigExporter;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -30,6 +31,8 @@ public class ConfigPropertiesExporter implements FrontendConfigExporter {
         export.put("showExceptionTrace", webProperties.isShowExceptionTrace());
         export.put("showSqlStat", webProperties.isShowSqlStat());
         export.put("openSource", webProperties.isOpenSource());
+        export.put("inspectorPeriodMax", webProperties.getInspectorPeriodMax());
+        export.put("serverMapPeriodMax", webProperties.getServerMapPeriodMax());
 
         export.put("version", Version.VERSION);
 

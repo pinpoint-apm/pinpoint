@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.metric.web;
+package com.navercorp.pinpoint.metric.web.frontend.export;
 
+import com.navercorp.pinpoint.common.server.frontend.export.FrontendConfigExporter;
 import com.navercorp.pinpoint.metric.web.config.SystemMetricProperties;
-import com.navercorp.pinpoint.metric.web.frontend.export.SystemMetricPropertiesExporter;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author minwoo-jung
  */
-@Configuration
-public class MetricWebConfig {
+public class SystemMetricPropertiesExporter implements FrontendConfigExporter {
 
-    @Bean
-    public SystemMetricProperties systemMetricProperties() {
-        return new SystemMetricProperties();
+    private final SystemMetricProperties systemMetricProperties;
+
+    public SystemMetricPropertiesExporter(SystemMetricProperties systemMetricProperties) {
+        this.systemMetricProperties = Objects.requireNonNull(systemMetricProperties, "systemMetricProperties");;
     }
 
-    @Bean
-    public SystemMetricPropertiesExporter systemMetricPropertiesExporter(SystemMetricProperties systemMetricProperties) {
-        return new SystemMetricPropertiesExporter(systemMetricProperties);
+    @Override
+    public void export(Map<String, Object> export) {
+        export.put("systemMetricPeriodMax", systemMetricProperties.getSystemMetricPeriodMax());
     }
 }
