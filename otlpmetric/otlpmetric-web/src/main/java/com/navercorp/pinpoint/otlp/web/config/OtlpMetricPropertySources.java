@@ -23,8 +23,9 @@ import org.springframework.context.annotation.PropertySources;
  * @author minwoo-jung
  */
 @PropertySources({
-        @PropertySource(name = "OtlpMetricPropertySources-WEB", value = { OtlpMetricPropertySources.WEB_CONFIG}),
+        @PropertySource(name = "OtlpMetricPropertySources-WEB", value = { OtlpMetricPropertySources.OTLP_METRIC_CONFIG, OtlpMetricPropertySources.OTLP_METRIC_CONFIG_ROOT}),
 })
 public class OtlpMetricPropertySources {
-    public static final String WEB_CONFIG = "classpath:otlpmetric/web/profiles/${pinpoint.profiles.active:release}/otlpmetric-web.properties";
+    public static final String OTLP_METRIC_CONFIG = "classpath:otlpmetric/web/profiles/${pinpoint.profiles.active:release}/otlpmetric-web.properties";
+    public static final String OTLP_METRIC_CONFIG_ROOT = "classpath:otlpmetric/web/otlpmetric-web-root.properties";
 }

@@ -16,15 +16,16 @@
 
 package com.navercorp.pinpoint.otlp.web.controller;
 
+import com.navercorp.pinpoint.common.server.util.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.otlp.common.web.defined.AppMetricDefinitionUtil;
 import com.navercorp.pinpoint.otlp.common.web.defined.PrimaryForFieldAndTagRelation;
 import com.navercorp.pinpoint.otlp.common.web.definition.property.AggregationFunction;
 import com.navercorp.pinpoint.otlp.common.web.definition.property.ChartType;
+import com.navercorp.pinpoint.otlp.web.config.OtlpMetricProperties;
 import com.navercorp.pinpoint.otlp.web.service.OtlpMetricWebService;
 import com.navercorp.pinpoint.otlp.web.view.MetricDataRequestParameter;
 import com.navercorp.pinpoint.otlp.web.view.MetricDataView;
@@ -42,6 +43,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -55,9 +57,10 @@ public class OpenTelemetryMetricController {
     private final String tenantId;
     private final RangeValidator rangeValidator;
 
-    public OpenTelemetryMetricController(OtlpMetricWebService otlpMetricWebService, TenantProvider tenantProvider, @Qualifier("rangeValidator14d") RangeValidator rangeValidator) {
+    public OpenTelemetryMetricController(OtlpMetricWebService otlpMetricWebService, TenantProvider tenantProvider, OtlpMetricProperties otlpMetricProperties) {
         this.otlpMetricWebService = Objects.requireNonNull(otlpMetricWebService, "otlpMetricWebService");
-        this.rangeValidator = Objects.requireNonNull(rangeValidator, "rangeValidator");
+        Objects.requireNonNull(otlpMetricProperties, "otlpMetricProperties");
+        this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(otlpMetricProperties.getOtlpMetricPeriodMax()));
         Objects.requireNonNull(tenantProvider, "tenantProvider");
         tenantId = tenantProvider.getTenantId();
     }

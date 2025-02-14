@@ -16,12 +16,14 @@
 
 package com.navercorp.pinpoint.metric.web.controller;
 
+import com.navercorp.pinpoint.common.server.util.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.metric.common.model.Tag;
+import com.navercorp.pinpoint.metric.web.config.SystemMetricProperties;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.MetricInfo;
 import com.navercorp.pinpoint.metric.web.model.SystemMetricData;
@@ -37,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 
@@ -57,13 +60,14 @@ public class SystemMetricController {
                                   SystemMetricHostInfoService systemMetricHostInfoService,
                                   YMLSystemMetricBasicGroupManager systemMetricBasicGroupManager,
                                   TenantProvider tenantProvider,
-                                  @Qualifier("rangeValidator30d") RangeValidator rangeValidator
+                                  SystemMetricProperties systemMetricProperties
                                   ) {
         this.systemMetricDataService = Objects.requireNonNull(systemMetricDataService, "systemMetricService");
         this.systemMetricHostInfoService = Objects.requireNonNull(systemMetricHostInfoService, "systemMetricHostInfoService");
         this.systemMetricBasicGroupManager = Objects.requireNonNull(systemMetricBasicGroupManager, "systemMetricBasicGroupManager");
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
-        this.rangeValidator = Objects.requireNonNull(rangeValidator, "rangeValidator");
+        Objects.requireNonNull(systemMetricProperties, "systemMetricProperties");
+        this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(systemMetricProperties.getSystemMetricPeriodMax()));
     }
 
     @GetMapping(value = "/hostGroup")

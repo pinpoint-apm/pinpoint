@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Profile;
         WebMetricPropertySources.class,
         MetricWebPinotDaoConfiguration.class,
         PinotConfiguration.class,
+        MetricWebConfig.class,
 
         YamlConfiguration.class
 })

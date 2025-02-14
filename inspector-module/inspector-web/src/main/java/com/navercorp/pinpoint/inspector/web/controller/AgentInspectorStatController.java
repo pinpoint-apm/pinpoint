@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.inspector.web.controller;
 
+import com.navercorp.pinpoint.common.server.util.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
+import com.navercorp.pinpoint.inspector.web.config.InspectorWebProperties;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricGroupData;
@@ -36,6 +38,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Duration;
 import java.util.Objects;
 
 /**
@@ -51,11 +54,12 @@ public class AgentInspectorStatController {
     private final TenantProvider tenantProvider;
     private final RangeValidator rangeValidator;
 
-    public AgentInspectorStatController(AgentStatService agentStatService, ApdexStatService apdexStatService, TenantProvider tenantProvider, @Qualifier("rangeValidator14d") RangeValidator rangeValidator) {
+    public AgentInspectorStatController(AgentStatService agentStatService, ApdexStatService apdexStatService, TenantProvider tenantProvider, InspectorWebProperties inspectorWebProperties) {
         this.agentStatService = Objects.requireNonNull(agentStatService, "agentStatService");
         this.apdexStatService = Objects.requireNonNull(apdexStatService, "apdexStatService");
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
-        this.rangeValidator = Objects.requireNonNull(rangeValidator, "rangeValidator");
+        Objects.requireNonNull(inspectorWebProperties, "inspectorWebProperties");
+        this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(inspectorWebProperties.getInspectorPeriodMax()));
     }
 
     // TODO : (minwoo) tenantId should be considered. The collector side should also be considered.

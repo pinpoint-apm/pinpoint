@@ -14,12 +14,14 @@ package com.navercorp.pinpoint.otlp.web;/*
  * limitations under the License.
  */
 
+import com.navercorp.pinpoint.otlp.web.config.OtlpMetricProperties;
 import com.navercorp.pinpoint.otlp.web.config.OtlpMetricPropertySources;
 import com.navercorp.pinpoint.otlp.web.config.mysql.OtlpMetricWebMysqlDaoConfiguration;
 import com.navercorp.pinpoint.otlp.web.config.pinot.OtlpMetricWebPinotDaoConfiguration;
 import com.navercorp.pinpoint.otlp.web.config.pinot.OtlpMetricPinotTableProperties;
 import com.navercorp.pinpoint.pinot.config.PinotConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -39,4 +41,9 @@ import org.springframework.context.annotation.Import;
 })
 @ConditionalOnProperty(name = "pinpoint.modules.web.otlpmetric.enabled", havingValue = "true")
 public class OtlpMetricWebConfig {
+
+    @Bean
+    OtlpMetricProperties otlpMetricProperties() {
+        return new OtlpMetricProperties();
+    }
 }

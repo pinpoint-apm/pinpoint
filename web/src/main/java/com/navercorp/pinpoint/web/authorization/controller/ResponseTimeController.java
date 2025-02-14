@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.authorization.controller;
 
+import com.navercorp.pinpoint.common.server.util.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
@@ -26,6 +27,7 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramServiceOption;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
+import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.view.histogram.HistogramView;
 import com.navercorp.pinpoint.web.view.histogram.ServerHistogramView;
 import com.navercorp.pinpoint.web.view.histogram.TimeHistogramChart;
@@ -49,6 +51,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -64,9 +67,10 @@ public class ResponseTimeController {
     private final ApplicationFactory applicationFactory;
 
     public ResponseTimeController(ResponseTimeHistogramService responseTimeHistogramService,
-                                  RangeValidator rangeValidator, ApplicationFactory applicationFactory) {
+                                  ConfigProperties configProperties, ApplicationFactory applicationFactory) {
         this.responseTimeHistogramService = Objects.requireNonNull(responseTimeHistogramService, "responseTimeHistogramService");
-        this.rangeValidator = Objects.requireNonNull(rangeValidator, "dateLimit");
+        Objects.requireNonNull(configProperties, "configProperties");
+        this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(configProperties.getServerMapPeriodMax()));
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
     }
 

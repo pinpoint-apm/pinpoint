@@ -19,8 +19,10 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 
 @PropertySources({
-        @PropertySource(name = "UriStatPropertySources", value = {UriStatWebPropertySources.URISTAT}),
+        @PropertySource(name = "UriStatPropertySources", value = {UriStatWebPropertySources.URISTAT, UriStatWebPropertySources.URISTAT_ROOT}),
 })
 public class UriStatWebPropertySources {
-    public static final String URISTAT= "classpath:profiles/${pinpoint.profiles.active:release}/pinpoint-web-uristat.properties";
+
+    public static final String URISTAT = "classpath:profiles/${pinpoint.profiles.active:release}/pinpoint-web-uristat.properties";
+    public static final String URISTAT_ROOT = "classpath:pinpoint-web-uristat-root.properties";
 }

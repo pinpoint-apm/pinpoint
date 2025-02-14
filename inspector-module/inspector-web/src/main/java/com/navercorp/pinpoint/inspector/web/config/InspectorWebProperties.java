@@ -16,6 +16,11 @@
 
 package com.navercorp.pinpoint.inspector.web.config;
 
+import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
+import com.navercorp.pinpoint.common.server.config.LoggingEvent;
+import jakarta.annotation.PostConstruct;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
 /**
@@ -23,12 +28,24 @@ import org.springframework.beans.factory.annotation.Value;
  */
 public class InspectorWebProperties {
 
+    private final Logger logger = LogManager.getLogger(InspectorWebProperties.class);
+
     @Value("${pinot.inspector.agent.table.count}")
     private int agentStatTableCount;
     @Value("${pinot.inspector.agent.table.prefix}")
     private String agentStatTablePrefix;
     @Value("${pinot.inspector.agent.table.padding.length}")
     private int agentStatTablePaddingLength;
+    @Value("${web.inspector.api.period.max:14}")
+    private int inspectorPeriodMax;
+
+    @PostConstruct
+    public void log() {
+        logger.info("{}", this);
+        AnnotationVisitor<Value> annotationVisitor = new AnnotationVisitor<>(Value.class);
+        annotationVisitor.visit(this, new LoggingEvent(this.logger));
+    }
+
 
     public int getAgentStatTableCount() {
         return agentStatTableCount;
@@ -40,5 +57,19 @@ public class InspectorWebProperties {
 
     public int getAgentStatTablePaddingLength() {
         return agentStatTablePaddingLength;
+    }
+
+    public int getInspectorPeriodMax() {
+        return inspectorPeriodMax;
+    }
+
+    @Override
+    public String toString() {
+        return "InspectorWebProperties{" +
+                "agentStatTableCount=" + agentStatTableCount +
+                ", agentStatTablePrefix='" + agentStatTablePrefix + '\'' +
+                ", agentStatTablePaddingLength=" + agentStatTablePaddingLength +
+                ", inspectorPeriodMax=" + inspectorPeriodMax +
+                '}';
     }
 }
