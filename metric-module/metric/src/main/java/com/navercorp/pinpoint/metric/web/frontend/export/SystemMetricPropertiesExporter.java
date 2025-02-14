@@ -35,6 +35,6 @@ public class SystemMetricPropertiesExporter implements FrontendConfigExporter {
 
     @Override
     public void export(Map<String, Object> export) {
-        export.put("systemMetricPeriodMax", systemMetricProperties.getSystemMetricPeriodMax());
+        export.put("periodMax.systemMetric", systemMetricProperties.getSystemMetricPeriodMax());
     }
 }

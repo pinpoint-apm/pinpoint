@@ -35,6 +35,6 @@ public class OtlpMetricPropertiesExporter implements FrontendConfigExporter {
 
     @Override
     public void export(Map<String, Object> export) {
-        export.put("otlpMetricPeriodMax", otlpMetricProperties.getOtlpMetricPeriodMax());
+        export.put("periodMax.otlpMetric", otlpMetricProperties.getOtlpMetricPeriodMax());
     }
 }
