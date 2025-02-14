@@ -75,6 +75,11 @@ public class ASMNestedClass implements InstrumentClass {
     }
 
     @Override
+    public InstrumentMethod getDeclaredMethod(String name, MethodFilter filter) {
+        return null;
+    }
+
+    @Override
     @Deprecated
     public InstrumentMethod getLambdaMethod(String... parameterTypes) {
         return null;
@@ -107,6 +112,11 @@ public class ASMNestedClass implements InstrumentClass {
 
     @Override
     public InstrumentMethod getConstructor(String... parameterTypes) {
+        return null;
+    }
+
+    @Override
+    public InstrumentMethod getConstructor(MethodFilter filter) {
         return null;
     }
 
