@@ -3,7 +3,7 @@ package com.navercorp.pinpoint.web.frontend;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.frontend.export.ConfigPropertiesExporter;
 import com.navercorp.pinpoint.web.frontend.export.ExperimentalPropertiesExporter;
-import com.navercorp.pinpoint.web.frontend.export.FrontendConfigExporter;
+import com.navercorp.pinpoint.common.server.frontend.export.FrontendConfigExporter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;

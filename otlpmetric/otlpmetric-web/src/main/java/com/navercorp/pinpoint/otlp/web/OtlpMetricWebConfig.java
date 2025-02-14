@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.otlp.web.config.OtlpMetricPropertySources;
 import com.navercorp.pinpoint.otlp.web.config.mysql.OtlpMetricWebMysqlDaoConfiguration;
 import com.navercorp.pinpoint.otlp.web.config.pinot.OtlpMetricWebPinotDaoConfiguration;
 import com.navercorp.pinpoint.otlp.web.config.pinot.OtlpMetricPinotTableProperties;
+import com.navercorp.pinpoint.otlp.web.frontend.export.OtlpMetricPropertiesExporter;
 import com.navercorp.pinpoint.pinot.config.PinotConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -43,7 +44,12 @@ import org.springframework.context.annotation.Import;
 public class OtlpMetricWebConfig {
 
     @Bean
-    OtlpMetricProperties otlpMetricProperties() {
+    public OtlpMetricProperties otlpMetricProperties() {
         return new OtlpMetricProperties();
+    }
+
+    @Bean
+    public OtlpMetricPropertiesExporter otlpMetricPropertiesExporter(OtlpMetricProperties otlpMetricProperties) {
+        return new OtlpMetricPropertiesExporter(otlpMetricProperties);
     }
 }

@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.frontend.export;
 
+import com.navercorp.pinpoint.common.server.frontend.export.FrontendConfigExporter;
 import com.navercorp.pinpoint.web.frontend.config.ExperimentalProperties;
 import org.springframework.stereotype.Component;
 

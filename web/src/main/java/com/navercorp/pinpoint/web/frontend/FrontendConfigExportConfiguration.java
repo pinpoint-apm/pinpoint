@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.web.frontend;
 
 import com.navercorp.pinpoint.web.frontend.controller.FrontendConfigController;
-import com.navercorp.pinpoint.web.frontend.export.FrontendConfigExporter;
+import com.navercorp.pinpoint.common.server.frontend.export.FrontendConfigExporter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;

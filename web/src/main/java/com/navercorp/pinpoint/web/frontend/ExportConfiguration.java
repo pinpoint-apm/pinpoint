@@ -4,7 +4,7 @@ import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.frontend.config.ExperimentalProperties;
 import com.navercorp.pinpoint.web.frontend.export.ConfigPropertiesExporter;
 import com.navercorp.pinpoint.web.frontend.export.ExperimentalPropertiesExporter;
-import com.navercorp.pinpoint.web.frontend.export.FrontendConfigExporter;
+import com.navercorp.pinpoint.common.server.frontend.export.FrontendConfigExporter;
 import com.navercorp.pinpoint.web.frontend.export.UserServiceConfigExporter;
 import com.navercorp.pinpoint.web.service.UserService;
 import org.springframework.context.annotation.Bean;

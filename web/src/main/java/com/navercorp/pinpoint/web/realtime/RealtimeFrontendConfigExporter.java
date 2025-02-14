@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.web.realtime;
 
-import com.navercorp.pinpoint.web.frontend.export.FrontendConfigExporter;
+import com.navercorp.pinpoint.common.server.frontend.export.FrontendConfigExporter;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
