@@ -82,6 +82,12 @@ public class ConfigProperties {
     @Value("${pinpoint.modules.web.webhook:false}")
     private boolean webhookEnable;
 
+    @Value("${web.servermap.api.period.max:2}")
+    private int serverMapPeriodMax;
+
+    @Value("${web.inspector.api.period.max:14}")
+    private int inspectorPeriodMax;
+
     public String getSecurityGuideUrl() {
         return securityGuideUrl;
     }
@@ -145,9 +151,17 @@ public class ConfigProperties {
     public String getWebSocketAllowedOrigins() {
         return webSocketAllowedOrigins;
     }
-    
+
     public boolean isWebhookEnable() {
         return webhookEnable;
+    }
+
+    public int getServerMapPeriodMax() {
+        return serverMapPeriodMax;
+    }
+
+    public int getInspectorPeriodMax() {
+        return inspectorPeriodMax;
     }
 
     @PostConstruct
@@ -172,6 +186,7 @@ public class ConfigProperties {
         sb.append(", showStackTraceOnError=").append(showStackTraceOnError);
         sb.append(", webSocketAllowedOrigins=").append(webSocketAllowedOrigins);
         sb.append(", showOtlpMetric=").append(showOtlpMetric);
+        sb.append(", serverMapPeriodMax=").append(serverMapPeriodMax);
         sb.append('}');
         return sb.toString();
     }

@@ -16,21 +16,22 @@
 
 package com.navercorp.pinpoint.exceptiontrace.web.controller;
 
+import com.navercorp.pinpoint.common.server.util.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
-import com.navercorp.pinpoint.exceptiontrace.web.mapper.ExceptionEntityMapper;
-import com.navercorp.pinpoint.exceptiontrace.web.mapper.ExceptionModelMapper;
-import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionGroupSummary;
-import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;
-import com.navercorp.pinpoint.exceptiontrace.web.service.ExceptionTraceService;
-import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
-import com.navercorp.pinpoint.exceptiontrace.web.util.GroupByAttributes;
-import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionDetailView;
-import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartView;
-import com.navercorp.pinpoint.exceptiontrace.web.util.TimeSeriesUtils;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
+import com.navercorp.pinpoint.exceptiontrace.web.config.ExceptionTraceProperties;
+import com.navercorp.pinpoint.exceptiontrace.web.mapper.ExceptionModelMapper;
+import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionGroupSummary;
+import com.navercorp.pinpoint.exceptiontrace.web.service.ExceptionTraceService;
+import com.navercorp.pinpoint.exceptiontrace.web.util.ExceptionTraceQueryParameter;
+import com.navercorp.pinpoint.exceptiontrace.web.util.GroupByAttributes;
+import com.navercorp.pinpoint.exceptiontrace.web.util.TimeSeriesUtils;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartView;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionDetailView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionGroupSummaryView;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
@@ -38,7 +39,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,6 +46,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -79,13 +80,14 @@ public class ExceptionTraceController {
     public ExceptionTraceController(
             ExceptionTraceService exceptionTraceService,
             TenantProvider tenantProvider,
-            @Qualifier("rangeValidator7d") RangeValidator rangeValidator,
+            ExceptionTraceProperties exceptionTraceProperties,
             ExceptionModelMapper mapper
     ) {
         this.exceptionTraceService = Objects.requireNonNull(exceptionTraceService, "exceptionTraceService");
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
-        this.rangeValidator = Objects.requireNonNull(rangeValidator, "rangeValidator");
         this.mapper = Objects.requireNonNull(mapper, "mapper");
+        Objects.requireNonNull(exceptionTraceProperties, "exceptionTraceProperties");
+        this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(exceptionTraceProperties.getExceptionTracePeriodMax()));
     }
 
     @GetMapping("/transactionInfo")

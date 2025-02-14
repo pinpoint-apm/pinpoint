@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.web.applicationmap.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.navercorp.pinpoint.common.server.util.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
@@ -33,6 +34,7 @@ import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramSe
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramServiceOption;
 import com.navercorp.pinpoint.web.applicationmap.view.NodeHistogramSummaryView;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
+import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
 import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
 import com.navercorp.pinpoint.web.view.LinkHistogramSummaryView;
@@ -55,6 +57,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Nullable;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -83,14 +86,15 @@ public class MapController {
     public MapController(
             MapService mapService,
             ResponseTimeHistogramService responseTimeHistogramService,
-            RangeValidator rangeValidator,
-            ApplicationFactory applicationFactory
+            ApplicationFactory applicationFactory,
+            ConfigProperties configProperties
     ) {
         this.mapService = Objects.requireNonNull(mapService, "mapService");
         this.responseTimeHistogramService =
                 Objects.requireNonNull(responseTimeHistogramService, "responseTimeHistogramService");
-        this.rangeValidator = Objects.requireNonNull(rangeValidator, "rangeValidator");
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
+        Objects.requireNonNull(configProperties, "configProperties");
+        this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(configProperties.getServerMapPeriodMax()));
     }
 
     private SearchOption.Builder searchOptionBuilder() {

@@ -24,8 +24,9 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 
 @PropertySources({
-        @PropertySource(name = "WebMetricPropertySources", value = {WebMetricPropertySources.METRIC}),
+        @PropertySource(name = "WebMetricPropertySources", value = {WebMetricPropertySources.METRIC, WebMetricPropertySources.METRIC_ROOT}),
 })
-public class WebMetricPropertySources {
+class WebMetricPropertySources {
     public static final String METRIC= "classpath:pinot-web/profiles/${pinpoint.profiles.active:release}/pinpoint-web-metric.properties";
+    public static final String METRIC_ROOT= "classpath:pinot-web/pinpoint-web-metric-root.properties";
 }

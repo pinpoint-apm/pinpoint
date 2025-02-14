@@ -1,7 +1,9 @@
 package com.navercorp.pinpoint.inspector.web.controller;
 
+import com.navercorp.pinpoint.common.server.util.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
+import com.navercorp.pinpoint.inspector.web.config.InspectorWebProperties;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricGroupData;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Duration;
 import java.util.Objects;
 
 @RestController
@@ -31,11 +34,12 @@ public class ApplicationInspectorStatController {
     private final ApdexStatService apdexStatService;
     private final RangeValidator rangeValidator;
 
-    public ApplicationInspectorStatController(ApplicationStatService applicationStatService, TenantProvider tenantProvider, ApdexStatService apdexStatService, @Qualifier("rangeValidator14d") RangeValidator rangeValidator) {
+    public ApplicationInspectorStatController(ApplicationStatService applicationStatService, TenantProvider tenantProvider, ApdexStatService apdexStatService, InspectorWebProperties inspectorWebProperties) {
         this.applicationStatService = Objects.requireNonNull(applicationStatService, "applicationStatService");
         this.apdexStatService = Objects.requireNonNull(apdexStatService, "apdexStatService");
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
-        this.rangeValidator = Objects.requireNonNull(rangeValidator, "rangeValidator");
+        Objects.requireNonNull(inspectorWebProperties, "inspectorWebProperties");
+        this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(inspectorWebProperties.getInspectorPeriodMax()));
     }
 
     @GetMapping(value = "/chart")
