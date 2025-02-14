@@ -10,7 +10,6 @@ spring:
 server:
   port: 8080
   error:
-    path: /api-public/error
     include-exception: true
     include-message: always
     include-binding-errors: always

@@ -38,6 +38,7 @@ import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoCo
 import org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
 import org.springframework.context.annotation.Import;
 /**
  * @author minwoo.jung
@@ -49,7 +50,8 @@ import org.springframework.context.annotation.Import;
         SpringDataWebAutoConfiguration.class,
         RedisAutoConfiguration.class,
         RedisRepositoriesAutoConfiguration.class,
-        RedisReactiveAutoConfiguration.class
+        RedisReactiveAutoConfiguration.class,
+        ErrorMvcAutoConfiguration.class,
 })
 @Import({
         PinpointWebModule.class,
