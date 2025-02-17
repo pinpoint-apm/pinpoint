@@ -97,8 +97,9 @@ public class KeepAliveService {
 
     public void updateState(PingSession pingSession) {
         try {
+            final long pingTimestamp = System.currentTimeMillis();
             final AgentProperty agentProperty = newChannelProperties(pingSession);
-            this.agentLifeCycleAsyncTask.handlePingEvent(agentProperty);
+            this.agentLifeCycleAsyncTask.handlePingEvent(agentProperty, pingTimestamp);
         } catch (Exception e) {
             logger.warn("Failed to update state. ping session={}", pingSession, e);
         }

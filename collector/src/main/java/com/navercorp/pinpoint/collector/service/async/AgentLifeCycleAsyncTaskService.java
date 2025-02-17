@@ -67,31 +67,23 @@ public class AgentLifeCycleAsyncTaskService {
         final AgentLifeCycleBo agentLifeCycleBo = new AgentLifeCycleBo(agentId, startTimestamp, eventTimestamp, eventIdentifier, agentLifeCycleState);
         agentLifeCycleService.insert(agentLifeCycleBo);
 
-        final ServiceType serviceType = registry.findServiceType(agentProperty.getServiceType());
-        if (isUpdateAgentState(serviceType)) {
-            statisticsService.updateAgentState(applicationName, serviceType, agentId);
-        }
+        updateAgentState(agentProperty, eventTimestamp, applicationName, agentId);
     }
 
     @Async("agentEventWorker")
-    public void handlePingEvent(AgentProperty agentProperty) {
+    public void handlePingEvent(AgentProperty agentProperty, long eventTimestamp) {
         Objects.requireNonNull(agentProperty, "agentProperty");
 
         final String agentId = agentProperty.getAgentId();
-        if (agentId == null) {
-            logger.warn("Failed to handle event of agent ping, agentId is null. agentProperty={}", agentProperty);
-            return;
-        }
-
         final String applicationName = agentProperty.getApplicationName();
-        if (applicationName == null) {
-            logger.warn("Failed to handle event of agent ping, applicationName is null. agentProperty={}", agentProperty);
-            return;
-        }
 
+        updateAgentState(agentProperty, eventTimestamp, applicationName, agentId);
+    }
+
+    private void updateAgentState(AgentProperty agentProperty, long eventTimestamp, String applicationName, String agentId) {
         final ServiceType serviceType = registry.findServiceType(agentProperty.getServiceType());
         if (isUpdateAgentState(serviceType)) {
-            statisticsService.updateAgentState(applicationName, serviceType, agentId);
+            statisticsService.updateAgentState(eventTimestamp, applicationName, serviceType, agentId);
         }
     }
 
