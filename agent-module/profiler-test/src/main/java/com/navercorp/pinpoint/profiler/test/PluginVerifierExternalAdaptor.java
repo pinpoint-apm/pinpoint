@@ -624,7 +624,6 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         for (String method : executedMethod) {
             System.out.println(method);
         }
-
     }
 
     @Override
@@ -634,8 +633,24 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
 
     @Override
     public void printCache(PrintStream out) {
+        CallSteps callSteps = new CallSteps(handler.getOrderedSpanRecorder());
+        out.println("STEPS:");
+        for (SpanEvent spanEvent : callSteps.get()) {
+            int apiId = spanEvent.getApiId();
+            String apiDescription = handler.getTestDataSender().getApiDescription(apiId);
+            String depth = toDepth(spanEvent.getDepth());
+            out.println(depth + apiDescription);
+        }
         this.handler.getOrderedSpanRecorder().print(out);
         this.handler.getTestDataSender().printDatas(out);
+    }
+
+    private String toDepth(int depth) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < depth; i++) {
+            builder.append("  ");
+        }
+        return builder.toString();
     }
 
     @Override
