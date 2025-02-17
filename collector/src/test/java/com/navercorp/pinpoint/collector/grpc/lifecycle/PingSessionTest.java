@@ -16,7 +16,7 @@ class PingSessionTest {
         when(header.getServiceType()).thenReturn((int) ServiceType.SPRING.getCode());
         PingSession session = new PingSession(1L, header);
 
-        Assertions.assertEquals(ServiceType.SPRING.getCode(), session.getServiceType());
+        Assertions.assertEquals(ServiceType.SPRING.getCode(), session.getHeader().getServiceType());
     }
 
 

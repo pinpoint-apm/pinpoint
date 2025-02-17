@@ -16,18 +16,23 @@
 
 package com.navercorp.pinpoint.collector.grpc.lifecycle;
 
-import com.navercorp.pinpoint.io.request.ServerRequest;
+import io.grpc.Context;
 
 /**
  * @author Woonduk Kang(emeroad)
  * @author jaehong.kim
  */
 public interface PingEventHandler {
-    <T> void connect(ServerRequest<T> request);
 
-    <T> void ping(ServerRequest<T> request);
+    PingSession newPingSession(Context context);
 
-    <T> void close(ServerRequest<T> request);
+    void connect(PingSession pingSession);
 
-    <T> void update(ServerRequest<T> request);
+    void ping(PingSession pingSession);
+
+    void close(PingSession pingSession);
+
+    void update(PingSession pingSession);
+
+    void update(Long id);
 }
