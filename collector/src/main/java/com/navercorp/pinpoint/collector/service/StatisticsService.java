@@ -109,10 +109,11 @@ public class StatisticsService {
     }
 
     public void updateAgentState(
+            long requestTime,
             @NotBlank final String callerApplicationName,
             final ServiceType callerServiceType,
             @NotBlank final String callerAgentId
     ) {
-        mapResponseTimeDao.updatePing(callerApplicationName, callerServiceType, callerAgentId, 0, false);
+        mapResponseTimeDao.updatePing(requestTime, callerApplicationName, callerServiceType, callerAgentId, 0, false);
     }
 }
