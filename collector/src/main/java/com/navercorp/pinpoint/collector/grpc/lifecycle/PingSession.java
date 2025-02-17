@@ -17,9 +17,7 @@
 package com.navercorp.pinpoint.collector.grpc.lifecycle;
 
 import com.navercorp.pinpoint.grpc.Header;
-import com.navercorp.pinpoint.io.request.ServerRequest;
 
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
@@ -39,12 +37,6 @@ public class PingSession {
     private boolean updated = false;
     private long lastPingTimeMillis;
 
-    public static PingSession of(ServerRequest<?> request) {
-        Objects.requireNonNull(request, "request");
-
-        return new PingSession(request.getTransportId(), request.getHeader());
-    }
-
     public PingSession(Long id, Header header) {
         this.id = Objects.requireNonNull(id, "id");
         this.header = Objects.requireNonNull(header, "header");
@@ -58,28 +50,8 @@ public class PingSession {
         return UPDATER.incrementAndGet(this);
     }
 
-    public short getServiceType() {
-        return (short) header.getServiceType();
-    }
-
-    public String getApplicationName() {
-        return header.getApplicationName();
-    }
-
-    public String getAgentId() {
-        return header.getAgentId();
-    }
-
-    public long getAgentStartTime() {
-        return header.getAgentStartTime();
-    }
-
-    public long getSocketId() {
-        return header.getSocketId();
-    }
-
-    public Map<String, Object> getProperties() {
-        return header.getProperties();
+    public Header getHeader() {
+        return header;
     }
 
     // Flag to avoid duplication.

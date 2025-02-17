@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.collector.service.async.AgentProperty;
 import com.navercorp.pinpoint.collector.service.async.DefaultAgentProperty;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.grpc.Header;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -58,11 +59,12 @@ public class KeepAliveService {
     }
 
     private AgentProperty newChannelProperties(PingSession pingSession) {
-        final String applicationName = pingSession.getApplicationName();
-        final String agentId = pingSession.getAgentId();
-        final long agentStartTime = pingSession.getAgentStartTime();
-        short serviceType = pingSession.getServiceType();
-        return new DefaultAgentProperty(applicationName, serviceType, agentId, agentStartTime, pingSession.getProperties());
+        Header header = pingSession.getHeader();
+        final String applicationName = header.getApplicationName();
+        final String agentId = header.getAgentId();
+        final long agentStartTime = header.getAgentStartTime();
+        short serviceType = (short) header.getServiceType();
+        return new DefaultAgentProperty(applicationName, serviceType, agentId, agentStartTime, header.getProperties());
     }
 
     public void updateState(PingSession lifecycle, ManagedAgentLifeCycle managedAgentLifeCycle) {
@@ -75,7 +77,7 @@ public class KeepAliveService {
     public void updateState(PingSession pingSession, boolean closeState, AgentLifeCycleState agentLifeCycleState, AgentEventType agentEventType) {
 
         final long pingTimestamp = System.currentTimeMillis();
-        final long socketId = pingSession.getSocketId();
+        final long socketId = pingSession.getHeader().getSocketId();
         if (socketId == -1) {
             // TODO dump client ip for debug
             logger.warn("SocketId not exist. pingSession:{}", pingSession);

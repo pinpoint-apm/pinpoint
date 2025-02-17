@@ -16,7 +16,10 @@
 
 package com.navercorp.pinpoint.collector.grpc.lifecycle;
 
-import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.grpc.Header;
+import com.navercorp.pinpoint.grpc.server.ServerContext;
+import com.navercorp.pinpoint.grpc.server.TransportMetadata;
+import io.grpc.Context;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,24 +42,32 @@ public class DefaultPingEventHandler implements PingEventHandler {
     }
 
     @Override
-    public <T> void connect(ServerRequest<T> request) {
-        final PingSession pingSession = PingSession.of(request);
-        pingSession.setLastPingTimeMillis(request.getRequestTime());
+    public PingSession newPingSession(Context context) {
+        Objects.requireNonNull(context, "context");
+
+        Header header = ServerContext.getAgentInfo(context);
+        TransportMetadata transport = ServerContext.getTransportMetadata(context);
+
+        PingSession pingSession = new PingSession(transport.getTransportId(), header);
         final PingSession oldSession = pingSessionRegistry.add(pingSession.getId(), pingSession);
         if (oldSession != null) {
             logger.warn("Duplicated ping session old={}, new={}", oldSession, pingSession);
         }
+        return pingSession;
+    }
+
+    @Override
+    public void connect(PingSession pingSession) {
+        Objects.requireNonNull(pingSession, "pingSession");
+
+        pingSession.setLastPingTimeMillis(System.currentTimeMillis());
         lifecycleListener.connect(pingSession);
     }
 
     @Override
-    public <T> void ping(ServerRequest<T> request) {
-        Long transportId = request.getTransportId();
-        final PingSession pingSession = pingSessionRegistry.get(transportId);
-        if (pingSession == null) {
-            logger.info("Skip ping event handle of ping, not found ping session. header={}", request.getHeader());
-            return;
-        }
+    public void ping(PingSession pingSession) {
+        Objects.requireNonNull(pingSession, "pingSession");
+
         // Avoid too frequent updates.
         final long currentTimeMillis = System.currentTimeMillis();
         if (PING_MIN_TIME_MILLIS < (currentTimeMillis - pingSession.getLastPingTimeMillis())) {
@@ -68,33 +79,39 @@ public class DefaultPingEventHandler implements PingEventHandler {
     }
 
     @Override
-    public <T> void close(ServerRequest<T> request) {
-        Long transportId = request.getTransportId();
+    public void close(PingSession pingSession) {
+        Objects.requireNonNull(pingSession, "pingSession");
 
-        final PingSession removedSession = pingSessionRegistry.remove(transportId);
-        if (removedSession == null) {
-            return;
-        }
+        pingSessionRegistry.remove(pingSession.getId());
+
         if (logger.isDebugEnabled()) {
-            logger.debug("Remove ping session. pingSession={}", removedSession);
+            logger.debug("Remove ping session. pingSession={}", pingSession);
         }
-        lifecycleListener.close(removedSession);
+        lifecycleListener.close(pingSession);
     }
 
     @Override
-    public <T> void update(ServerRequest<T> request) {
-        Long transportId = request.getTransportId();
-        final PingSession pingSession = pingSessionRegistry.get(transportId);
-        if (pingSession == null) {
-            logger.info("Skip update event handle of ping, not found ping session. header={}", request.getHeader());
-            return;
-        }
+    public void update(PingSession pingSession) {
+        Objects.requireNonNull(pingSession, "pingSession");
+
         if (logger.isDebugEnabled()) {
-            logger.debug("Update ping session. PingSession={}", pingSession);
+            logger.debug("Update ping session. header={}", pingSession);
         }
         if (!pingSession.isUpdated()) {
             lifecycleListener.connect(pingSession);
             pingSession.setUpdated(true);
         }
+    }
+
+    @Override
+    public void update(Long id) {
+        Objects.requireNonNull(id, "id");
+
+        final PingSession pingSession = pingSessionRegistry.get(id);
+        if (pingSession == null) {
+            logger.info("Skip update event handle of ping, not found ping session. transportMetadata={}", id);
+            return;
+        }
+        update(pingSession);
     }
 }
