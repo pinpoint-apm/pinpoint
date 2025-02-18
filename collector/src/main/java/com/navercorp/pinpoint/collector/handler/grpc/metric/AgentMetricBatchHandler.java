@@ -10,11 +10,9 @@ import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
-@Component
 public class AgentMetricBatchHandler implements GrpcMetricHandler {
     private final Logger logger = LogManager.getLogger(this.getClass());
 

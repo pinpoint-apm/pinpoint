@@ -17,14 +17,13 @@
 package com.navercorp.pinpoint.collector.handler.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.collector.config.CollectorProperties;
 import com.navercorp.pinpoint.collector.handler.grpc.metric.AgentMetricBatchHandler;
 import com.navercorp.pinpoint.collector.handler.grpc.metric.AgentMetricHandler;
 import com.navercorp.pinpoint.collector.handler.grpc.metric.AgentUriMetricHandler;
+import com.navercorp.pinpoint.collector.handler.grpc.metric.DisableAgentUriGrpcMetricHandler;
 import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentStatBatchMapper;
 import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentStatMapper;
 import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentUriStatMapper;
-import com.navercorp.pinpoint.collector.service.AgentStatService;
 import com.navercorp.pinpoint.collector.service.AgentUriStatService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.UriStatHistogramBucket;
@@ -39,6 +38,7 @@ import io.grpc.StatusRuntimeException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -123,22 +123,24 @@ public class GrpcAgentUriMetricHandlerV2Test {
 
 
     private GrpcAgentStatHandlerV2 createMockHandler(AgentUriStatService agentUriStatService, boolean enableUriStat) {
+
+        List<GrpcMetricHandler> handlers = new ArrayList<>();
+
         GrpcAgentStatMapper mockAgentStatMapper = mock(GrpcAgentStatMapper.class);
         GrpcAgentStatBatchMapper agentStatBatchMapper = new GrpcAgentStatBatchMapper(mockAgentStatMapper);
 
-        AgentStatService[] agentStatServices = new AgentStatService[0];
-
-        AgentMetricHandler statHandler = new AgentMetricHandler(mockAgentStatMapper, agentStatServices);
+        AgentMetricHandler statHandler = new AgentMetricHandler(mockAgentStatMapper, List.of());
         AgentMetricBatchHandler statBatchHandler = new AgentMetricBatchHandler(agentStatBatchMapper, statHandler);
+        handlers.add(statHandler);
+        handlers.add(statBatchHandler);
 
-
-        CollectorProperties collectorProperties = mock(CollectorProperties.class);
-        when(collectorProperties.isUriStatEnable()).thenReturn(enableUriStat);
-        GrpcAgentUriStatMapper grpcAgentUriStatMapper = new GrpcAgentUriStatMapper();
-        AgentUriMetricHandler uriHandler = new AgentUriMetricHandler(collectorProperties, grpcAgentUriStatMapper, agentUriStatService);
-
-        List<GrpcMetricHandler> handlers = List.of(statHandler, statBatchHandler, uriHandler);
-
+        if (enableUriStat) {
+            GrpcAgentUriStatMapper grpcAgentUriStatMapper = new GrpcAgentUriStatMapper();
+            AgentUriMetricHandler uriHandler = new AgentUriMetricHandler(grpcAgentUriStatMapper, agentUriStatService);
+            handlers.add(uriHandler);
+        } else {
+            handlers.add(new DisableAgentUriGrpcMetricHandler());
+        }
         return new GrpcAgentStatHandlerV2(handlers);
     }
 

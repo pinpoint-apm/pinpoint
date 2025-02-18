@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public interface GrpcMetricHandler {
-    boolean accept(ServerRequest<GeneratedMessageV3> message);
+    boolean accept(ServerRequest<GeneratedMessageV3> request);
 
-    void handle(ServerRequest<GeneratedMessageV3> message);
+    void handle(ServerRequest<GeneratedMessageV3> request);
 }
