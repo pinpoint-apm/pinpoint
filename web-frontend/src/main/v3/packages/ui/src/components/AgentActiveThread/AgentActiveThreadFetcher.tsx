@@ -18,6 +18,7 @@ import { RxDrawingPinFilled, RxDrawingPin } from 'react-icons/rx';
 import { format } from 'date-fns';
 import { BsGearFill } from 'react-icons/bs';
 import { AgentActiveSetting, AgentActiveSettingType, DefaultValue } from './AgentActiveSetting';
+import { HelpPopover } from '@pinpoint-fe/ui/src/components/HelpPopover';
 
 export interface ActiveRequestProps {}
 
@@ -138,7 +139,10 @@ export const AgentActiveThreadFetcher = () => {
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              <div className="w-full truncate">{applicationName}</div>
+              <div className="flex flex-row w-full gap-1 truncate">
+                {applicationName}
+                <HelpPopover helpKey="HELP_VIEWER.REAL_TIME" />
+              </div>
               <div className="flex items-center gap-1 font-normal text-gray-400">
                 <span className="text-sm">
                   {format(activeThreadCounts?.result?.timeStamp || 0, 'yyyy.MM.dd HH:mm:ss')}

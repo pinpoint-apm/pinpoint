@@ -99,12 +99,6 @@ export const Realtime = () => {
           >
             <ResizablePanel>{isFocus && <ServerMap shouldPoll={true} />}</ResizablePanel>
             <ResizableHandle withHandle className="!h-1" />
-            <div className="px-4 bg-secondary h-9">
-              <div className="flex items-center h-full gap-1 font-semibold">
-                Active Request
-                <HelpPopover helpKey="HELP_VIEWER.REAL_TIME" />
-              </div>
-            </div>
             <ResizablePanel className="!overflow-auto">
               {isFocus && (
                 <ErrorBoundary>
