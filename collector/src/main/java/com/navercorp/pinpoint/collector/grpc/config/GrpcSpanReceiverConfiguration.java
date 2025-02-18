@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.SpanService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamCloseOnError;
-import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import io.github.bucket4j.Bandwidth;
@@ -144,11 +143,9 @@ public class GrpcSpanReceiverConfiguration {
     @Bean
     public FactoryBean<DispatchHandler<GeneratedMessageV3, GeneratedMessageV3>> grpcSpanDispatchHandlerFactoryBean(
             SpanDispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
-            AcceptedTimeService acceptedTimeService,
             HandlerManager handlerManager) {
         DispatchHandlerFactoryBean<GeneratedMessageV3, GeneratedMessageV3> bean = new DispatchHandlerFactoryBean<>();
         bean.setDispatchHandler(dispatchHandler);
-        bean.setAcceptedTimeService(acceptedTimeService);
         bean.setHandlerManager(handlerManager);
         return bean;
     }

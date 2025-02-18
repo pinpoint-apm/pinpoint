@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.receiver;
 
 import com.navercorp.pinpoint.collector.manage.HandlerManager;
-import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import org.apache.logging.log4j.LogManager;
@@ -31,13 +30,11 @@ import java.util.Objects;
 public class DelegateDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES> {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final AcceptedTimeService acceptedTimeService;
     private final DispatchHandler<REQ, RES> delegate;
 
     private final HandlerManager handlerManager;
 
-    public DelegateDispatchHandler(AcceptedTimeService acceptedTimeService, DispatchHandler<REQ, RES> delegate, HandlerManager handlerManager) {
-        this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
+    public DelegateDispatchHandler(DispatchHandler<REQ, RES> delegate, HandlerManager handlerManager) {
         this.delegate = Objects.requireNonNull(delegate, "delegate");
         this.handlerManager = Objects.requireNonNull(handlerManager, "handlerManager");
     }
@@ -45,7 +42,6 @@ public class DelegateDispatchHandler<REQ, RES> implements DispatchHandler<REQ, R
 
     @Override
     public void dispatchSendMessage(ServerRequest<REQ> serverRequest) {
-        acceptedTimeService.accept(serverRequest.getRequestTime());
 
         if (!checkAvailable()) {
             logger.debug("Handler is disabled. Skipping send message {}.", serverRequest);
@@ -58,7 +54,6 @@ public class DelegateDispatchHandler<REQ, RES> implements DispatchHandler<REQ, R
 
     @Override
     public void dispatchRequestMessage(ServerRequest<REQ> serverRequest, ServerResponse<RES> serverResponse) {
-        acceptedTimeService.accept(serverRequest.getRequestTime());
 
         if (!checkAvailable()) {
             logger.debug("Handler is disabled. Skipping request message {}.", serverRequest);

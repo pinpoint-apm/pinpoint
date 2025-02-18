@@ -17,10 +17,8 @@
 package com.navercorp.pinpoint.collector.receiver;
 
 import com.navercorp.pinpoint.collector.manage.HandlerManager;
-import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Objects;
 
@@ -29,18 +27,12 @@ import java.util.Objects;
  */
 public class DispatchHandlerFactoryBean<REQ, RES> implements FactoryBean<DispatchHandler<REQ, RES>> {
 
-    private AcceptedTimeService acceptedTimeService;
     private DispatchHandler<REQ, RES> dispatchHandler;
 
     private HandlerManager handlerManager;
 
     public DispatchHandlerFactoryBean() {
 
-    }
-
-    @Autowired
-    public void setAcceptedTimeService(AcceptedTimeService acceptedTimeService) {
-        this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
     }
 
     public void setDispatchHandler(DispatchHandler<REQ, RES> dispatchHandler) {
@@ -53,7 +45,7 @@ public class DispatchHandlerFactoryBean<REQ, RES> implements FactoryBean<Dispatc
 
     @Override
     public DispatchHandler<REQ, RES> getObject() throws Exception {
-        return new DelegateDispatchHandler<>(acceptedTimeService, dispatchHandler, handlerManager);
+        return new DelegateDispatchHandler<>(dispatchHandler, handlerManager);
     }
 
     @Override
@@ -63,7 +55,6 @@ public class DispatchHandlerFactoryBean<REQ, RES> implements FactoryBean<Dispatc
 
     @PostConstruct
     public void afterPropertiesSet() {
-        Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
         Objects.requireNonNull(dispatchHandler, "dispatchHandler");
         Objects.requireNonNull(handlerManager, "handlerManager");
     }
