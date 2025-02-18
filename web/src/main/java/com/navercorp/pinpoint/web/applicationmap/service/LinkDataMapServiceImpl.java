@@ -20,8 +20,11 @@ package com.navercorp.pinpoint.web.applicationmap.service;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapStatisticsCalleeDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapStatisticsCallerDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.InboundDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.OutboundDao;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -32,22 +35,48 @@ import java.util.Objects;
 @Service
 public class LinkDataMapServiceImpl implements LinkDataMapService {
 
+    @Value("${pinpoint.modules.web.application-based-server-map.enabled:true}")
+    private boolean isApplicationMapEnabled;
+
     private final MapStatisticsCallerDao mapStatisticsCallerDao;
 
     private final MapStatisticsCalleeDao mapStatisticsCalleeDao;
 
-    public LinkDataMapServiceImpl(MapStatisticsCallerDao mapStatisticsCallerDao, MapStatisticsCalleeDao mapStatisticsCalleeDao) {
+    private final OutboundDao outboundDao;
+
+    private final InboundDao inboundDao;
+
+    public LinkDataMapServiceImpl(
+            MapStatisticsCallerDao mapStatisticsCallerDao, MapStatisticsCalleeDao mapStatisticsCalleeDao,
+            OutboundDao outboundDao, InboundDao inboundDao
+    ) {
         this.mapStatisticsCallerDao = Objects.requireNonNull(mapStatisticsCallerDao, "mapStatisticsCallerDao");
         this.mapStatisticsCalleeDao = Objects.requireNonNull(mapStatisticsCalleeDao, "mapStatisticsCalleeDao");
+        this.outboundDao = Objects.requireNonNull(outboundDao, "serviceGroupOutboundDao");
+        this.inboundDao = Objects.requireNonNull(inboundDao, "serviceGroupInboundDao");
     }
 
     @Override
     public LinkDataMap selectCallerLinkDataMap(Application application, Range range, boolean timeAggregated) {
-        return mapStatisticsCallerDao.selectCaller(application, range, timeAggregated);
+//        return mapStatisticsCallerDao.selectCaller(application, range, timeAggregated);
+
+        LinkDataMap linkDataMap = mapStatisticsCallerDao.selectCaller(application, range, timeAggregated);
+        LinkDataMap linkDataMap1 = outboundDao.selectOutboud(application, range, timeAggregated);
+
+        if (isApplicationMapEnabled) {
+            return linkDataMap1;
+        }
+        return linkDataMap;
     }
 
     @Override
     public LinkDataMap selectCalleeLinkDataMap(Application application, Range range, boolean timeAggregated) {
-        return mapStatisticsCalleeDao.selectCallee(application, range, timeAggregated);
+//        return mapStatisticsCalleeDao.selectCallee(application, range, timeAggregated);
+        LinkDataMap linkDataMap = mapStatisticsCalleeDao.selectCallee(application, range, timeAggregated);
+        LinkDataMap linkDataMap1 = inboundDao.selectInbound(application, range, timeAggregated);
+        if (isApplicationMapEnabled) {
+            return linkDataMap1;
+        }
+        return linkDataMap;
     }
 }

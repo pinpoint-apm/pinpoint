@@ -32,12 +32,17 @@ import com.navercorp.pinpoint.common.hbase.scan.ResultScannerFactory;
 import com.navercorp.pinpoint.common.hbase.util.ScanMetricReporter;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
+import com.navercorp.pinpoint.web.applicationmap.dao.InboundDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapStatisticsCalleeDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapStatisticsCallerDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.OutboundDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.hbase.ApplicationMapScanFactory;
+import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseInboundDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapResponseTimeDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapStatisticsCalleeDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapStatisticsCallerDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseOutboundDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.MapScanFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.RowMapperFactory;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
@@ -164,5 +169,40 @@ public class MapHbaseConfiguration {
                                                               RowKeyDistributorByHashPrefix rowKeyDistributor) {
         return new HbaseMapStatisticsCallerDao(hbaseTemplate, tableNameProvider, callerMapper, mapScanFactory, rowKeyDistributor);
     }
+
+
+
+    @Bean
+    public ApplicationMapScanFactory applicationMapScanFactory(RangeFactory rangeFactory) {
+        return new ApplicationMapScanFactory(rangeFactory);
+    }
+
+    @Bean
+    public InboundDao hbaseInboundDao(@Qualifier("mapHbaseTemplate")
+                                      HbaseTemplate hbaseTemplate,
+                                      TableNameProvider tableNameProvider,
+                                      @Qualifier("applicationMapInboundMapper")
+                                      RowMapperFactory<LinkDataMap> serviceGroupInboundMapper,
+                                      ApplicationMapScanFactory applicationMapScanFactory,
+                                      @Qualifier("applicationMapInboundRowKeyDistributor")
+                                      RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+        return new HbaseInboundDao(hbaseTemplate, tableNameProvider, serviceGroupInboundMapper, applicationMapScanFactory, rowKeyDistributorByHashPrefix);
+    }
+
+    @Bean
+    public OutboundDao hbaseOutboundDao(@Qualifier("mapHbaseTemplate")
+                                        HbaseTemplate hbaseTemplate,
+                                        TableNameProvider tableNameProvider,
+                                        @Qualifier("applicationMapOutboundMapper")
+                                        RowMapperFactory<LinkDataMap> applicationMapOutboundMapper,
+                                        ApplicationMapScanFactory applicationMapScanFactory,
+                                        @Qualifier("applicationMapOutboundRowKeyDistributor")
+                                        RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+        return new HbaseOutboundDao(hbaseTemplate, tableNameProvider, applicationMapOutboundMapper, applicationMapScanFactory, rowKeyDistributorByHashPrefix);
+    }
+
+
+
+
 }
 
