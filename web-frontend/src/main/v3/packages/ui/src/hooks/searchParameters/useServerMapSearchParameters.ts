@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { addMilliseconds } from 'date-fns';
-import { getApplicationTypeAndName, getParsedDateRange } from '@pinpoint-fe/ui/src/utils';
+import { addMilliseconds, subMinutes } from 'date-fns';
+import { getApplicationTypeAndName } from '@pinpoint-fe/ui/src/utils';
 import { getSearchParameters, getDateRange } from './utils';
 
 export const useServerMapSearchParameters = () => {
@@ -19,11 +19,15 @@ export const useServerMapSearchParameters = () => {
 
   React.useEffect(() => {
     if (isRealtime) {
-      const newDateRange = getParsedDateRange();
-      setRealtimeDateRange({ ...newDateRange, isRealtime: true });
+      const now = new Date();
+      setRealtimeDateRange({
+        from: subMinutes(now, 5),
+        to: now,
+        isRealtime: true,
+      });
       intervalRef.current = setInterval(() => {
         setRealtimeDateRange((prev) => ({
-          ...prev,
+          isRealtime: true,
           from: addMilliseconds(prev.from, 2000),
           to: addMilliseconds(prev.to, 2000),
         }));

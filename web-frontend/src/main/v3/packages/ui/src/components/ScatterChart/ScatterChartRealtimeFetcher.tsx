@@ -9,9 +9,14 @@ import {
   getTransactionListPath,
   getTranscationListQueryString,
 } from '@pinpoint-fe/ui/src/utils';
-import { useGetScatterRealtimeData, useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import {
+  useGetScatterData,
+  useGetScatterRealtimeData,
+  useServerMapSearchParameters,
+} from '@pinpoint-fe/ui/src/hooks';
 import { ScatterChartCore, ScatterChartCoreProps, ScatterChartHandle } from './core';
 import { useStoragedAxisY } from './core/useStoragedAxisY';
+import { subMinutes, subSeconds } from 'date-fns';
 
 export interface ScatterChartRealtimeFetcherProps {
   node: CurrentTarget;
@@ -31,17 +36,44 @@ export const ScatterChartRealtimeFetcher = ({
   const currentNode = `${node.applicationName}^${node.serviceType}`;
   const [x] = React.useState<[number, number]>([from, to]);
   const [y, setY] = useStoragedAxisY();
-  const { data, isLoading, setQueryParams } = useGetScatterRealtimeData(node);
+
+  // 5분 전 ~ 현재까지의 데이터
+  const [defaultDateRange, setDefaultDateRange] = React.useState(dateRange);
+  const { data, isLoading, setQueryParams } = useGetScatterData(node, defaultDateRange);
+
+  const {
+    data: realtimeData,
+    isLoading: isRealtimeLoading,
+    setQueryParams: setRealtimeQueryParams,
+  } = useGetScatterRealtimeData(node, {
+    ...dateRange,
+    from: subSeconds(dateRange.to, 2),
+  });
   const sc = scatterRef.current;
   const isScatterMounted = scatterRef.current?.isMounted();
 
   React.useEffect(() => {
+    const now = new Date();
+    setDefaultDateRange({
+      from: subMinutes(now, 5),
+      to: now,
+      isRealtime: true,
+    });
+  }, [node?.applicationName]);
+
+  React.useEffect(() => {
     if (!isLoading && data) {
       const scatterData = getScatterData(data);
-
       sc?.render(scatterData.curr?.[agentId] || []);
     }
   }, [data]);
+
+  React.useEffect(() => {
+    if (!isRealtimeLoading && realtimeData) {
+      const scatterData = getScatterData(realtimeData);
+      sc?.render(scatterData.curr?.[agentId] || []);
+    }
+  }, [realtimeData]);
 
   React.useEffect(() => {
     if (sc && isScatterMounted) {
@@ -52,13 +84,24 @@ export const ScatterChartRealtimeFetcher = ({
       sc.setAxisOption({ x: { min: from, max: to }, y: { min: y[0], max: y[1] } });
       sc.startRealtime(to - from);
 
+      const xGroupUnit = Math.round((x[1] - x[0]) / width);
+      const yGroupUnit = Math.round((y[1] - y[0]) / height) || 1;
+      const timestamp = new Date().getTime();
+
       setQueryParams((prev: GetScatter.Parameters) => ({
         ...prev,
         from: from,
         to: to,
-        xGroupUnit: Math.round((x[1] - x[0]) / width),
-        yGroupUnit: Math.round((y[1] - y[0]) / height) || 1,
-        timestamp: new Date().getTime(),
+        xGroupUnit,
+        yGroupUnit,
+        timestamp,
+      }));
+
+      setRealtimeQueryParams((prev: GetScatter.Parameters) => ({
+        ...prev,
+        xGroupUnit,
+        yGroupUnit,
+        timestamp,
       }));
     }
   }, [isScatterMounted, x, y, currentNode]);

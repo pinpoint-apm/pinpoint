@@ -32,7 +32,7 @@ export const ScatterChartFetcher = ({
   const [x, setX] = React.useState<[number, number]>([from, to]);
   const [y, setY] = useStoragedAxisY();
   const isScatterMounted = scatterRef.current?.isMounted();
-  const { data, isLoading, setQueryParams } = useGetScatterData(node);
+  const { data, isLoading, setQueryParams } = useGetScatterData(node, dateRange);
   const [scatterData, setScatterData] = useAtom(scatterDataAtom);
 
   React.useEffect(() => {

@@ -1,7 +1,6 @@
 import React from 'react';
 import { ApplicationType, END_POINTS, GetScatter } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
-import { useServerMapSearchParameters } from '../searchParameters';
 import { useQuery } from '@tanstack/react-query';
 import { queryFn } from './reactQueryHelper';
 
@@ -19,11 +18,17 @@ const getQueryString = (queryParams: GetScatter.Parameters, applicationName?: st
   return '';
 };
 
-export const useGetScatterRealtimeData = (application: ApplicationType) => {
-  const { dateRange } = useServerMapSearchParameters();
+export const useGetScatterRealtimeData = (
+  application: ApplicationType,
+  dateRange: {
+    from: Date;
+    to: Date;
+    isRealtime: boolean;
+  },
+) => {
   const from = dateRange.from.getTime();
   const to = dateRange.to.getTime();
-  const [isCompletePrepareFetching, setPrepareFetching] = React.useState(false);
+
   // xGroupUnit, yGroupUnit이 반올림해서 오기 때문에 같을 경우 rerendering을 안함. 그래서 timestamp 를 임시로 받음.
   const [queryParams, setQueryParams] = React.useState<
     GetScatter.Parameters & { timestamp?: number }
@@ -48,7 +53,6 @@ export const useGetScatterRealtimeData = (application: ApplicationType) => {
   });
 
   React.useEffect(() => {
-    setPrepareFetching(false);
     setQueryParams((prev) => ({
       ...prev,
       from,
@@ -59,10 +63,7 @@ export const useGetScatterRealtimeData = (application: ApplicationType) => {
 
   React.useEffect(() => {
     if (!isLoading && data) {
-      if (data?.complete === true) {
-        setPrepareFetching(true);
-      } else {
-        setPrepareFetching(false);
+      if (!data?.complete) {
         setQueryParams((prev) => ({
           ...prev,
           to: data.resultFrom - 1,
@@ -72,14 +73,12 @@ export const useGetScatterRealtimeData = (application: ApplicationType) => {
   }, [data]);
 
   React.useEffect(() => {
-    if (isCompletePrepareFetching) {
-      setQueryParams((prev) => ({
-        ...prev,
-        from: to - 2000,
-        to: to,
-      }));
-    }
-  }, [to, isCompletePrepareFetching]);
+    setQueryParams((prev) => ({
+      ...prev,
+      from,
+      to,
+    }));
+  }, [from, to]);
 
   return { data, isLoading, setQueryParams };
 };
