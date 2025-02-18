@@ -11,11 +11,10 @@ import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Objects;
 
-@Component
 public class AgentMetricHandler implements GrpcMetricHandler {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -24,10 +23,11 @@ public class AgentMetricHandler implements GrpcMetricHandler {
     private final AgentStatService[] agentStatServiceList;
 
     public AgentMetricHandler(GrpcAgentStatMapper agentStatMapper,
-                              AgentStatService[] agentStatServiceList) {
+                              List<AgentStatService> agentStatServiceList) {
         this.agentStatMapper = Objects.requireNonNull(agentStatMapper, "agentStatMapper");
-        this.agentStatServiceList = Objects.requireNonNull(agentStatServiceList, "agentStatServiceList");
 
+        Objects.requireNonNull(agentStatServiceList, "agentStatServiceList");
+        this.agentStatServiceList = agentStatServiceList.toArray(new AgentStatService[0]);
         for (AgentStatService service : this.agentStatServiceList) {
             logger.info("{}:{}", AgentStatService.class.getSimpleName(), service.getClass().getSimpleName());
         }
