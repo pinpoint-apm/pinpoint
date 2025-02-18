@@ -1,7 +1,6 @@
 import React from 'react';
 import { END_POINTS, GetScatter, ApplicationType } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
-import { useServerMapSearchParameters } from '../searchParameters';
 import { useQuery } from '@tanstack/react-query';
 import { queryFn } from './reactQueryHelper';
 
@@ -22,8 +21,14 @@ const getQueryString = (
   return '';
 };
 
-export const useGetScatterData = (application: ApplicationType) => {
-  const { dateRange } = useServerMapSearchParameters();
+export const useGetScatterData = (
+  application: ApplicationType,
+  dateRange: {
+    isRealtime: boolean;
+    from: Date;
+    to: Date;
+  },
+) => {
   const from = dateRange.from.getTime();
   const to = dateRange.to.getTime();
   // xGroupUnit, yGroupUnit이 반올림해서 오기 때문에 같을 경우 rerendering을 안함. 그래서 timestamp 를 임시로 받음.
