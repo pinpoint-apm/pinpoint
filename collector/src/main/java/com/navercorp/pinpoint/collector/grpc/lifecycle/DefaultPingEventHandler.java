@@ -17,13 +17,11 @@
 package com.navercorp.pinpoint.collector.grpc.lifecycle;
 
 import com.navercorp.pinpoint.grpc.Header;
-import com.navercorp.pinpoint.grpc.server.ServerContext;
-import com.navercorp.pinpoint.grpc.server.TransportMetadata;
-import io.grpc.Context;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -31,6 +29,8 @@ import java.util.Objects;
  */
 public class DefaultPingEventHandler implements PingEventHandler {
     private static final long PING_MIN_TIME_MILLIS = 60 * 1000; // 1min
+
+    private static final AtomicLong sessionIdAllocator = new AtomicLong();
 
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final PingSessionRegistry pingSessionRegistry;
@@ -42,32 +42,36 @@ public class DefaultPingEventHandler implements PingEventHandler {
     }
 
     @Override
-    public PingSession newPingSession(Context context) {
-        Objects.requireNonNull(context, "context");
+    public PingSession newPingSession(Long id, Header header) {
+        Objects.requireNonNull(header, "header");
+        Objects.requireNonNull(id, "transport");
 
-        Header header = ServerContext.getAgentInfo(context);
-        TransportMetadata transport = ServerContext.getTransportMetadata(context);
+        PingSession pingSession = new PingSession(id, nextSessionId(), header);
+        pingSessionRegistry.add(pingSession);
 
-        PingSession pingSession = new PingSession(transport.getTransportId(), header);
-        final PingSession oldSession = pingSessionRegistry.add(pingSession.getId(), pingSession);
-        if (oldSession != null) {
-            logger.warn("Duplicated ping session old={}, new={}", oldSession, pingSession);
-        }
         return pingSession;
     }
 
-    @Override
-    public void connect(PingSession pingSession) {
-        Objects.requireNonNull(pingSession, "pingSession");
-
-        pingSession.setLastPingTimeMillis(System.currentTimeMillis());
-        lifecycleListener.connect(pingSession);
+    private long nextSessionId() {
+        return sessionIdAllocator.incrementAndGet();
     }
 
     @Override
     public void ping(PingSession pingSession) {
         Objects.requireNonNull(pingSession, "pingSession");
+        if (pingSession.firstPing()) {
+            connect(pingSession);
+        } else {
+            updatePing(pingSession);
+        }
+    }
 
+    private void connect(PingSession pingSession) {
+        pingSession.setLastPingTimeMillis(System.currentTimeMillis());
+        lifecycleListener.connect(pingSession);
+    }
+
+    private void updatePing(PingSession pingSession) {
         // Avoid too frequent updates.
         final long currentTimeMillis = System.currentTimeMillis();
         if (PING_MIN_TIME_MILLIS < (currentTimeMillis - pingSession.getLastPingTimeMillis())) {
@@ -82,7 +86,7 @@ public class DefaultPingEventHandler implements PingEventHandler {
     public void close(PingSession pingSession) {
         Objects.requireNonNull(pingSession, "pingSession");
 
-        pingSessionRegistry.remove(pingSession.getId());
+        pingSessionRegistry.remove(pingSession);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Remove ping session. pingSession={}", pingSession);

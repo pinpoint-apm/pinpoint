@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.collector.grpc.lifecycle.PingEventHandler;
 import com.navercorp.pinpoint.collector.grpc.lifecycle.PingSession;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
+import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
@@ -41,14 +42,11 @@ import org.apache.logging.log4j.Logger;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author jaehong.kim
  */
 public class AgentService extends AgentGrpc.AgentImplBase {
-    private static final AtomicLong idAllocator = new AtomicLong();
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -94,24 +92,17 @@ public class AgentService extends AgentGrpc.AgentImplBase {
     @Override
     public StreamObserver<PPing> pingSession(final StreamObserver<PPing> response) {
         Context context = Context.current();
-        PingSession pingSession = this.pingEventHandler.newPingSession(context);
+        Header header = ServerContext.getAgentInfo(context);
+        TransportMetadata transport = ServerContext.getTransportMetadata(context);
+        PingSession pingSession = this.pingEventHandler.newPingSession(transport.getTransportId(), header);
 
         final ServerCallStreamObserver<PPing> responseObserver = (ServerCallStreamObserver<PPing>) response;
         return new StreamObserver<>() {
-            private final AtomicBoolean first = new AtomicBoolean(false);
             private final ThrottledLogger thLogger = ThrottledLogger.getLogger(AgentService.this.logger, 100);
 
             @Override
             public void onNext(PPing ping) {
-                if (first.compareAndSet(false, true)) {
-                    // Only first
-                    if (logger.isDebugEnabled()) {
-                        thLogger.debug("PingSession:{} start:PPing", pingSession.getId());
-                    }
-                    AgentService.this.pingEventHandler.connect(pingSession);
-                } else {
-                    AgentService.this.pingEventHandler.ping(pingSession);
-                }
+                AgentService.this.pingEventHandler.ping(pingSession);
                 if (logger.isDebugEnabled()) {
                     thLogger.debug("PingSession:{} onNext:PPing", pingSession);
                 }
@@ -132,7 +123,7 @@ public class AgentService extends AgentGrpc.AgentImplBase {
                 final Status status = Status.fromThrowable(t);
                 final Metadata metadata = Status.trailersFromThrowable(t);
                 if (thLogger.isInfoEnabled()) {
-                    thLogger.info("Failed to ping stream, id={}, {} metadata:{}", pingSession.getId(), status, metadata);
+                    thLogger.info("Failed to ping stream, id={}, {} metadata:{}", pingSession.getTransportId(), status, metadata);
                 }
                 // responseObserver.onCompleted();
                 disconnect(pingSession);
@@ -152,10 +143,6 @@ public class AgentService extends AgentGrpc.AgentImplBase {
             }
 
         };
-    }
-
-    private long nextSessionId() {
-        return idAllocator.getAndIncrement();
     }
 
 }

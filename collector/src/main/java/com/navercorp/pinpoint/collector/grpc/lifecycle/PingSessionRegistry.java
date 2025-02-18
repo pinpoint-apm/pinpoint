@@ -16,17 +16,19 @@
 
 package com.navercorp.pinpoint.collector.grpc.lifecycle;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public interface PingSessionRegistry {
-    PingSession add(Long transportId, PingSession lifecycle);
+    boolean add(PingSession lifecycle);
 
     PingSession get(Long transportId);
 
-    PingSession remove(Long transportId);
+    boolean remove(PingSession pingSession);
 
-    Collection<PingSession> values();
+    List<PingSession> values();
+
+    int size();
 }

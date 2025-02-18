@@ -25,5 +25,5 @@ public interface AgentProperty {
     String getAgentId();
     long getStartTime();
     Object get(String key);
-    short getServiceType();
+    int getServiceType();
 }

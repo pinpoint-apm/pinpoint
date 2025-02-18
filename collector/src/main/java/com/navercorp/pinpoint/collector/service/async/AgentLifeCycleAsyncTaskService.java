@@ -67,7 +67,7 @@ public class AgentLifeCycleAsyncTaskService {
         final AgentLifeCycleBo agentLifeCycleBo = new AgentLifeCycleBo(agentId, startTimestamp, eventTimestamp, eventIdentifier, agentLifeCycleState);
         agentLifeCycleService.insert(agentLifeCycleBo);
 
-        updateAgentState(agentProperty, eventTimestamp, applicationName, agentId);
+        updateAgentState(agentProperty.getServiceType(), eventTimestamp, applicationName, agentId);
     }
 
     @Async("agentEventWorker")
@@ -77,11 +77,11 @@ public class AgentLifeCycleAsyncTaskService {
         final String agentId = agentProperty.getAgentId();
         final String applicationName = agentProperty.getApplicationName();
 
-        updateAgentState(agentProperty, eventTimestamp, applicationName, agentId);
+        updateAgentState(agentProperty.getServiceType(), eventTimestamp, applicationName, agentId);
     }
 
-    private void updateAgentState(AgentProperty agentProperty, long eventTimestamp, String applicationName, String agentId) {
-        final ServiceType serviceType = registry.findServiceType(agentProperty.getServiceType());
+    private void updateAgentState(int serviceTypeCode, long eventTimestamp, String applicationName, String agentId) {
+        final ServiceType serviceType = registry.findServiceType((short) serviceTypeCode);
         if (isUpdateAgentState(serviceType)) {
             statisticsService.updateAgentState(eventTimestamp, applicationName, serviceType, agentId);
         }

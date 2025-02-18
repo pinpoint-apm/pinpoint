@@ -16,39 +16,88 @@
 
 package com.navercorp.pinpoint.collector.grpc.lifecycle;
 
-import java.util.Collection;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multimaps;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Set;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class DefaultPingSessionRegistry implements PingSessionRegistry {
 
-    private final ConcurrentMap<Long, PingSession> map = new ConcurrentHashMap<>();
+    private final ListMultimap<Long, PingSession> map;
+    private final int limit;
 
+    public DefaultPingSessionRegistry() {
+        this(3);
+    }
+
+
+    public DefaultPingSessionRegistry(int limit) {
+        ListMultimap<Long, PingSession> multimap = LinkedListMultimap.create();
+        this.map = Multimaps.synchronizedListMultimap(multimap);
+        this.limit = limit;
+    }
 
     @Override
-    public PingSession add(Long transportId, PingSession lifecycle) {
-        Objects.requireNonNull(transportId, "transportId");
-        return map.put(transportId, lifecycle);
+    public boolean add(PingSession pingSession) {
+        Objects.requireNonNull(pingSession, "pingSession");
+
+        final List<PingSession> pingSessions = map.get(pingSession.getTransportId());
+        synchronized (map) {
+            if (pingSessions.size() >= limit) {
+                // OOM defense
+                pingSessions.remove(0);
+            }
+            pingSessions.add(pingSession);
+        }
+        return true;
     }
 
     @Override
     public PingSession get(Long transportId) {
         Objects.requireNonNull(transportId, "transportId");
-        return map.get(transportId);
+
+        final List<PingSession> pingSessions = map.get(transportId);
+        synchronized (map) {
+            final int size = pingSessions.size();
+            if (size == 0) {
+                return null;
+            }
+            return pingSessions.get(size - 1);
+        }
     }
 
     @Override
-    public PingSession remove(Long transportId) {
-        Objects.requireNonNull(transportId, "transportId");
-        return map.remove(transportId);
+    public boolean remove(PingSession pingSession) {
+        Objects.requireNonNull(pingSession, "pingSession");
+
+        return map.remove(pingSession.getTransportId(), pingSession);
     }
 
     @Override
-    public Collection<PingSession> values() {
-        return map.values();
+    public List<PingSession> values() {
+        List<PingSession> list = new ArrayList<>(32);
+        Set<Long> keys = this.map.keySet();
+        synchronized (this.map) {
+            for (Long key : keys) {
+                List<PingSession> pingSessions = this.map.get(key);
+                final int size = pingSessions.size();
+                if (size != 0) {
+                    list.add(pingSessions.get(size - 1));
+                }
+            }
+            return list;
+        }
+    }
+
+    @Override
+    public int size() {
+        return map.size();
     }
 }

@@ -51,7 +51,7 @@ public class AgentLifecycleListener implements LifecycleListener {
         if (isDebug) {
             logger.debug("handshake:{}", lifecycle);
         }
-        lifecycleService.updateState(lifecycle);
+        lifecycleService.updateState(lifecycle.getHeader());
     }
 
     @Override

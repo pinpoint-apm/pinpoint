@@ -28,9 +28,9 @@ public class DefaultAgentProperty implements AgentProperty {
     private final String agentId;
     private final long agentStartTime;
     private final Map<?, ?> properties;
-    private final short serviceType;
+    private final int serviceType;
 
-    public DefaultAgentProperty(String applicationName, short serviceType, String agentId, long agentStartTime, Map<?, ?> properties) {
+    public DefaultAgentProperty(String applicationName, int serviceType, String agentId, long agentStartTime, Map<?, ?> properties) {
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.serviceType = serviceType;
         this.agentId = Objects.requireNonNull(agentId, "agentId");
@@ -44,7 +44,7 @@ public class DefaultAgentProperty implements AgentProperty {
     }
 
     @Override
-    public short getServiceType() {
+    public int getServiceType() {
         return serviceType;
     }
 
