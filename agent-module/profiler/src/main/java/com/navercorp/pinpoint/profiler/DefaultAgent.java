@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import com.navercorp.pinpoint.bootstrap.config.Profiles;
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
+import com.navercorp.pinpoint.grpc.protocol.ProtocolVersion;
 import com.navercorp.pinpoint.profiler.config.AgentSystemConfig;
 import com.navercorp.pinpoint.profiler.config.LogConfig;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
@@ -34,10 +35,7 @@ import com.navercorp.pinpoint.profiler.context.module.ModuleFactoryResolver;
 import com.navercorp.pinpoint.profiler.context.provider.ShutdownHookRegisterProvider;
 import com.navercorp.pinpoint.profiler.logging.Log4j2LoggingSystem;
 import com.navercorp.pinpoint.profiler.logging.LoggingSystem;
-import com.navercorp.pinpoint.profiler.name.AgentIdResolver;
-import com.navercorp.pinpoint.profiler.name.AgentIdResolverBuilder;
-import com.navercorp.pinpoint.profiler.name.AgentIdSourceType;
-import com.navercorp.pinpoint.profiler.name.AgentIds;
+import com.navercorp.pinpoint.profiler.name.ObjectName;
 import com.navercorp.pinpoint.profiler.util.SystemPropertyDumper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -109,51 +107,28 @@ public class DefaultAgent implements Agent {
     }
 
     protected AgentContextOption buildContextOption(AgentOption agentOption, ProfilerConfig profilerConfig) {
-        final AgentIds agentIds = resolveAgentIds();
-        if (agentIds == null) {
-            logger.warn("Failed to resolve AgentId and ApplicationId");
-            throw new RuntimeException("Failed to resolve AgentId and ApplicationId");
-        }
-
-        final String agentId = agentIds.getAgentId();
-        if (agentId == null) {
-            logger.warn("agentId is null");
-            throw new RuntimeException("agentId is null");
-        }
-        final String agentName = agentIds.getAgentName();
-        final String applicationName = agentIds.getApplicationName();
-        if (applicationName == null) {
-            logger.warn("applicationName is null");
-            throw new RuntimeException("applicationName is null");
-        }
-
-        return AgentContextOptionBuilder.build(agentOption,
-                agentId, agentName, applicationName,
-                profilerConfig);
-    }
-
-    private AgentIds resolveAgentIds() {
-        AgentIdResolverBuilder builder = new AgentIdResolverBuilder();
-        builder.addProperties(AgentIdSourceType.SYSTEM, System.getProperties()::getProperty);
-        builder.addProperties(AgentIdSourceType.SYSTEM_ENV, System.getenv()::get);
-        builder.addProperties(AgentIdSourceType.AGENT_ARGUMENT, agentOption.getAgentArgs()::get);
-        AgentIdResolver agentIdResolver = builder.build();
-        return agentIdResolver.resolve();
+        AgentContextOptionBuilder builder = new AgentContextOptionBuilder();
+        return builder.build(agentOption, profilerConfig);
     }
 
 
     private void saveSystemConfig(AgentContextOption option) {
         // set the path of log file as a system property
         AgentSystemConfig agentSystemConfig = new AgentSystemConfig();
-        agentSystemConfig.saveAgentIdForLog(option.getAgentId());
+        agentSystemConfig.saveAgentIdForLog(option.getObjectName().getAgentId());
         agentSystemConfig.savePinpointVersion(Version.VERSION);
     }
 
     private void dumpAgentOption(AgentContextOption agentOption) {
-        logger.warn("AgentOption");
-        logger.warn("- agentId: {}", agentOption.getAgentId());
-        logger.warn("- agentName: {}", agentOption.getAgentName());
-        logger.warn("- applicationName: {}", agentOption.getApplicationName());
+        final ObjectName objectName = agentOption.getObjectName();
+        logger.warn("AgentOption : {}", objectName.getClass().getSimpleName());
+        logger.warn("- agentId: {}", objectName.getAgentId());
+        logger.warn("- agentName: {}", objectName.getAgentName());
+        logger.warn("- applicationName: {}", objectName.getApplicationName());
+        if (objectName.getVersion() == ProtocolVersion.V4) {
+            logger.warn("- serviceName: {}", objectName.getServiceName());
+            logger.warn("- apikey: #####");
+        }
         logger.info("- instrumentation: {}", agentOption.getInstrumentation());
     }
 

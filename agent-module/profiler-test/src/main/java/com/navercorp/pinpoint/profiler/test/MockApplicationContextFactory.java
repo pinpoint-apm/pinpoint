@@ -25,6 +25,8 @@ import com.navercorp.pinpoint.profiler.AgentOption;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.name.ObjectName;
+import com.navercorp.pinpoint.profiler.name.v1.ObjectNameV1;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,16 +70,14 @@ public class MockApplicationContextFactory {
 
     public DefaultApplicationContext build(Properties config, ModuleFactory moduleFactory) {
         Instrumentation instrumentation = new DummyInstrumentation();
-        String mockAgentId = "mockAgentId";
-        String mockAgentName = "mockAgentName";
-        String mockApplicationName = "mockApplicationName";
+        ObjectName objectName = new ObjectNameV1("mockAgentId", "mockAgentName", "mockApplicationName");
 
         AgentOption agentOption = new com.navercorp.pinpoint.profiler.AgentOption(instrumentation,
                 config, Collections.emptyMap(), null,
                 Collections.emptyList(), Collections.emptyList(), false);
         ProfilerConfig profilerConfig = ProfilerConfigLoader.load(config);
         AgentContextOption agentContextOption = AgentContextOptionBuilder.build(agentOption,
-                mockAgentId, mockAgentName, mockApplicationName,
+                objectName,
                 profilerConfig);
         return new DefaultApplicationContext(agentContextOption, moduleFactory);
     }

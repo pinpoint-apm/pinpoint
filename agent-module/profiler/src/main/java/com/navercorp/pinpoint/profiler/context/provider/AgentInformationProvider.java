@@ -21,18 +21,15 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.SystemPropertyKey;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.DefaultAgentInformation;
-import com.navercorp.pinpoint.profiler.context.module.AgentId;
-import com.navercorp.pinpoint.profiler.context.module.AgentName;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
 import com.navercorp.pinpoint.profiler.context.module.ClusterNamespace;
 import com.navercorp.pinpoint.profiler.context.module.Container;
+import com.navercorp.pinpoint.profiler.name.ObjectName;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,9 +43,7 @@ import java.util.Objects;
 public class AgentInformationProvider implements Provider<AgentInformation> {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final String agentId;
-    private final String agentName;
-    private final String applicationName;
+    private final ObjectName objectName;
     private final boolean isContainer;
     private final long agentStartTime;
     private final ServiceType serverType;
@@ -56,16 +51,12 @@ public class AgentInformationProvider implements Provider<AgentInformation> {
     private final Provider<String> clusterNamespaceProvider;
 
     @Inject
-    public AgentInformationProvider(@AgentId String agentId, @AgentName String agentName, @ApplicationName String applicationName,
-                                    @Container boolean isContainer, @AgentStartTime long agentStartTime,
+    public AgentInformationProvider(ObjectName objectName,
+                                    @Container boolean isContainer,
+                                    @AgentStartTime long agentStartTime,
                                     @ApplicationServerType ServiceType serverType,
                                     @ClusterNamespace Provider<String> clusterNamespaceProvider) {
-        Objects.requireNonNull(agentId, "agentId");
-        Objects.requireNonNull(applicationName, "applicationName");
-
-        this.agentId = checkId("agentId", agentId);
-        this.applicationName = checkId("applicationName", applicationName);
-        this.agentName = agentName;
+        this.objectName = Objects.requireNonNull(objectName, "objectName");
         this.isContainer = isContainer;
         this.agentStartTime = agentStartTime;
         this.serverType = Objects.requireNonNull(serverType, "serverType");
@@ -84,7 +75,7 @@ public class AgentInformationProvider implements Provider<AgentInformation> {
         final int pid = RuntimeMXBeanUtils.getPid();
         final String jvmVersion = JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VERSION);
         String clusterNamespace = this.clusterNamespaceProvider.get();
-        return new DefaultAgentInformation(agentId, agentName, applicationName, isContainer, agentStartTime, pid,
+        return new DefaultAgentInformation(objectName, isContainer, agentStartTime, pid,
                 machineName, hostIp, serverType, jvmVersion, Version.VERSION,
                 clusterNamespace);
     }
@@ -98,12 +89,5 @@ public class AgentInformationProvider implements Provider<AgentInformation> {
             hostIp = NetworkUtils.LOOPBACK_ADDRESS_V4_1;
         }
         return NetworkUtils.getRepresentationHostIp(hostIp);
-    }
-
-    private String checkId(String keyName, String id) {
-        if (!IdValidateUtils.validateId(id)) {
-            throw new IllegalArgumentException("invalid " + keyName + "=" + id);
-        }
-        return id;
     }
 }
