@@ -15,38 +15,6 @@ export const AgentActiveThreadView = ({
   activeThreadCounts,
   setting,
 }: AgentActiveThreadViewProps) => {
-  ///
-  // const [activeThreadCounts, setActiveThreadCounts] = React.useState<AgentActiveThread.Result>();
-  // React.useEffect(() => {
-  //   const interval = setTimeout(() => {
-  //     const now = new Date().getTime();
-  //     const activeThreadCounts = {} as AgentActiveThread.ActiveThreadCounts;
-
-  //     for (let i = 0; i < 2; i++) {
-  //       activeThreadCounts[`s${Math.floor(Math.random() * 5)}`] = {
-  //         code: 0,
-  //         message: 'TIMEOUT',
-  //         // message: Math.random() > 0.5 ? 'OK' : 'TIMEOUT',
-  //         status: [
-  //           Math.floor(Math.random() * 25),
-  //           Math.floor(Math.random() * 25),
-  //           Math.floor(Math.random() * 25),
-  //           Math.floor(Math.random() * 25),
-  //         ],
-  //       };
-  //     }
-
-  //     setActiveThreadCounts({
-  //       timeStamp: now,
-  //       applicationName: 'test',
-  //       activeThreadCounts,
-  //     });
-  //   }, 1000);
-
-  //   return () => clearInterval(interval);
-  // }, []);
-  ///
-
   const dataMap = React.useRef(
     new Map<string, { status: number[]; lastOKTimeStamp: number; message?: string }>(),
   );

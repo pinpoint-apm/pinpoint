@@ -140,7 +140,7 @@ export const AgentActiveThreadFetcher = () => {
                 </Tooltip>
               </TooltipProvider>
               <div className="flex flex-row w-full gap-1 truncate">
-                {applicationName}
+                {applicationNameRef.current}
                 <HelpPopover helpKey="HELP_VIEWER.REAL_TIME" />
               </div>
               <div className="flex items-center gap-1 font-normal text-gray-400">
@@ -155,7 +155,7 @@ export const AgentActiveThreadFetcher = () => {
             </div>
             <div className="flex flex-grow w-full h-[-webkit-fill-available] overflow-hidden">
               <AgentActiveThreadView
-                applicationName={applicationName}
+                applicationName={applicationNameRef.current}
                 activeThreadCounts={activeThreadCounts?.result}
                 setting={setting}
               />
