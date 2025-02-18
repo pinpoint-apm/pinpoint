@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.grpc.lifecycle;
 import com.navercorp.pinpoint.grpc.Header;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 /**
@@ -26,28 +27,40 @@ import java.util.concurrent.atomic.AtomicLongFieldUpdater;
  * @author jaehong.kim
  */
 public class PingSession {
-    private static final AtomicLongFieldUpdater<PingSession> UPDATER = AtomicLongFieldUpdater.newUpdater(PingSession.class, "eventIdAllocator");
-
-    private final Long id;
-
-    private final Header header;
+    private static final AtomicLongFieldUpdater<PingSession> EVENT_UPDATER = AtomicLongFieldUpdater.newUpdater(PingSession.class, "eventIdAllocator");
+    private static final AtomicIntegerFieldUpdater<PingSession> PING_UPDATER = AtomicIntegerFieldUpdater.newUpdater(PingSession.class, "pingEvent");
 
     private volatile long eventIdAllocator = 0;
+    private volatile int pingEvent = 0;
+
+    private final Long transportId;
+    private final long sessionId;
+
+    private final Header header;
 
     private boolean updated = false;
     private long lastPingTimeMillis;
 
-    public PingSession(Long id, Header header) {
-        this.id = Objects.requireNonNull(id, "id");
+    public PingSession(Long transportId, long sessionId, Header header) {
+        this.transportId = Objects.requireNonNull(transportId, "transportId");
+        this.sessionId = sessionId;
         this.header = Objects.requireNonNull(header, "header");
     }
 
-    public Long getId() {
-        return id;
+    public boolean firstPing() {
+        return PING_UPDATER.getAndIncrement(this) == 0;
+    }
+
+    public Long getTransportId() {
+        return transportId;
+    }
+
+    public long getSessionId() {
+        return sessionId;
     }
 
     public long nextEventIdAllocator() {
-        return UPDATER.incrementAndGet(this);
+        return EVENT_UPDATER.incrementAndGet(this);
     }
 
     public Header getHeader() {
@@ -74,11 +87,25 @@ public class PingSession {
     @Override
     public String toString() {
         return "PingSession{" +
-                "id=" + id +
+                "transportId=" + transportId +
+                ", sessionId=" + sessionId +
                 ", header='" + header + '\'' +
                 ", eventIdAllocator=" + eventIdAllocator +
                 ", updated=" + updated +
                 ", lastPingTimeMillis=" + lastPingTimeMillis +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PingSession that = (PingSession) o;
+        return sessionId == that.sessionId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Long.hashCode(sessionId);
     }
 }

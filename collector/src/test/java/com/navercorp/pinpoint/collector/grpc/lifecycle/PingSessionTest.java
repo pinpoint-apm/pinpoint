@@ -14,7 +14,7 @@ class PingSessionTest {
     void getServiceType() {
         Header header = mock(Header.class);
         when(header.getServiceType()).thenReturn((int) ServiceType.SPRING.getCode());
-        PingSession session = new PingSession(1L, header);
+        PingSession session = new PingSession(1L, 0, header);
 
         Assertions.assertEquals(ServiceType.SPRING.getCode(), session.getHeader().getServiceType());
     }
@@ -23,12 +23,20 @@ class PingSessionTest {
     @Test
     void nextEventIdAllocator() {
         Header header = mock(Header.class);
-        when(header.getServiceType()).thenReturn((int) ServiceType.SPRING.getCode());
-        PingSession session = new PingSession(1L, header);
+        PingSession session = new PingSession(1L, 0, header);
 
         Assertions.assertEquals(1, session.nextEventIdAllocator());
         Assertions.assertEquals(2, session.nextEventIdAllocator());
+    }
 
+    @Test
+    void ping() {
+        Header header = mock(Header.class);
+        PingSession session = new PingSession(1L, 0, header);
+
+        Assertions.assertTrue(session.firstPing());
+        Assertions.assertFalse(session.firstPing());
+        Assertions.assertFalse(session.firstPing());
     }
 
 }

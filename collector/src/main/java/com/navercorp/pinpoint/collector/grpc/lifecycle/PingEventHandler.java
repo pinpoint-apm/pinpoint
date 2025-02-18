@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.grpc.lifecycle;
 
-import io.grpc.Context;
+import com.navercorp.pinpoint.grpc.Header;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -24,9 +24,7 @@ import io.grpc.Context;
  */
 public interface PingEventHandler {
 
-    PingSession newPingSession(Context context);
-
-    void connect(PingSession pingSession);
+    PingSession newPingSession(Long id, Header header);
 
     void ping(PingSession pingSession);
 
