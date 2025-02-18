@@ -39,7 +39,6 @@ import com.navercorp.pinpoint.collector.receiver.grpc.service.MetadataService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
-import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
 import io.grpc.BindableService;
 import io.grpc.ServerInterceptor;
@@ -147,12 +146,10 @@ public class GrpcAgentConfiguration {
     @Bean
     public FactoryBean<DispatchHandler<GeneratedMessageV3, GeneratedMessageV3>> grpcDispatchHandlerFactoryBean(
             AgentDispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
-            HandlerManager handlerManager,
-            AcceptedTimeService acceptedTimeService) {
+            HandlerManager handlerManager) {
         DispatchHandlerFactoryBean<GeneratedMessageV3, GeneratedMessageV3> bean = new DispatchHandlerFactoryBean<>();
         bean.setDispatchHandler(dispatchHandler);
         bean.setHandlerManager(handlerManager);
-        bean.setAcceptedTimeService(acceptedTimeService);
         return bean;
     }
 

@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.io.util.MessageType;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author emeroad
@@ -37,18 +36,15 @@ public class StatDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES> 
             MessageType.AGENT_URI_STAT
     );
 
-    private final SimpleHandler<REQ> agentStatHandler;
-
-    private final SimpleHandler<REQ> agentEventHandler;
+    private final SimpleDualHandler<REQ> handler;
 
     public StatDispatchHandler(SimpleHandler<REQ> agentStatHandler, SimpleHandler<REQ> agentEventHandler) {
-        this.agentStatHandler = Objects.requireNonNull(agentStatHandler, "agentStatHandler");
-        this.agentEventHandler = Objects.requireNonNull(agentEventHandler, "agentEventHandler");
+        this.handler = new SimpleDualHandler<>(agentStatHandler, agentEventHandler);
     }
 
     private SimpleHandler<REQ> getSimpleHandler(MessageType type) {
         if (DISPATCH_TABLE.contains(type)) {
-            return new SimpleDualHandler<>(agentStatHandler, agentEventHandler);
+            return handler;
         }
 
         throw new UnsupportedOperationException("unsupported header:" + type);

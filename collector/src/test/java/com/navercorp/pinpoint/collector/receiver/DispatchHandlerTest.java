@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.collector.receiver;
 
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
-import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.io.util.MessageType;
@@ -27,7 +26,6 @@ import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static org.mockito.Mockito.mock;
@@ -44,8 +42,6 @@ public class DispatchHandlerTest {
     private static final TestRequestHandler TEST_REQUEST_HANDLER = new TestRequestHandler();
     @InjectMocks
     TestDispatchHandler testDispatchHandler = new TestDispatchHandler();
-    @Mock
-    private AcceptedTimeService acceptedTimeService;
 
     @AutoClose
     @SuppressWarnings("unused")
