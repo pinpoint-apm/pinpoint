@@ -44,7 +44,7 @@ public class MetricHandlerConfiguration {
     }
 
     @Bean
-    public GrpcMetricHandler agentMetricHandler(GrpcAgentStatMapper agentStatMapper,
+    public AgentMetricHandler agentMetricHandler(GrpcAgentStatMapper agentStatMapper,
                                                 List<AgentStatService> agentStatServiceList) {
         return new AgentMetricHandler(agentStatMapper, agentStatServiceList);
     }
