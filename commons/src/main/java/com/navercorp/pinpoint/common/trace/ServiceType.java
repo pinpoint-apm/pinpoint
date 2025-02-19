@@ -228,6 +228,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
  * <tr><td>8660</td><td><i>KAFKA_CLIENT</i></td></tr>
  * <tr><td>8661</td><td><i>KAFKA_CLIENT_INTERNAL</i></td></tr>
  * <tr><td>8662</td><td><i>KAFKA_STREAMS</i></td></tr>
+ * <tr><td>8663</td><td>PULSAR_CLIENT</td></tr>
+ * <tr><td>8664</td><td>PULSAR_CLIENT_INTERNAL</td></tr>
  * </table>
  *
  * <h3>HBase Library (8800 ~ 8899)</h3>
