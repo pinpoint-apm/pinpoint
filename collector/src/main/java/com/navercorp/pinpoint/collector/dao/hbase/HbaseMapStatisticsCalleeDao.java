@@ -51,7 +51,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
     private final TimeSlot timeSlot;
 
     private final IgnoreStatFilter ignoreStatFilter;
-    private final BulkWriter bulkWriter;
+    private final BulkWriter<RowKey, ColumnName> bulkWriter;
     private final MapLinkConfiguration mapLinkConfiguration;
 
     public HbaseMapStatisticsCalleeDao(MapLinkConfiguration mapLinkConfiguration,
