@@ -50,7 +50,7 @@ export const ErrorAnalysisTableFetcher = ({
         selectedCount={count}
         onChange={(c) => setCount(c)}
       />
-      <div className={cn('rounded-md border bg-white', className)}>
+      <div className={cn('max-h-[calc(100%-20rem)] rounded-md border bg-white', className)}>
         <DataTable
           tableClassName="[&>tbody]:text-xs"
           columns={columns}

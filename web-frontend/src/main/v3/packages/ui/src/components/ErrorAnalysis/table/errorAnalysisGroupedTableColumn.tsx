@@ -4,11 +4,15 @@ import { Badge } from '../../ui';
 import { ErrorAnalysisGroupedErrorList } from '@pinpoint-fe/ui/src/constants';
 import { addCommas, format } from '@pinpoint-fe/ui/src/utils';
 import { MiniChart } from '../../common/MiniChart';
+import { cn } from '@pinpoint-fe/ui/src/lib';
 
 interface ErrorGroupedTableColumnProps {
   groupBy?: string[];
   onClickGroupBy?: (group: string) => void;
 }
+
+const headerClassName = 'flex justify-center test111';
+const cellClassName = 'flex items-center px-4 justify-center';
 
 export const errorGroupedTableColumns = ({
   groupBy,
@@ -36,6 +40,7 @@ export const errorGroupedTableColumns = ({
         </div>
       );
     },
+    size: 910,
     cell: (props) => {
       const original = props.row.original;
       const fieldName = original?.groupedFieldName;
@@ -69,8 +74,10 @@ export const errorGroupedTableColumns = ({
       return format(timestamp, 'MMM do HH:mm');
     },
     meta: {
-      headerClassName: 'w-32',
+      headerClassName,
+      cellClassName,
     },
+    size: 128,
   },
   {
     accessorKey: 'lastOccurred',
@@ -80,20 +87,23 @@ export const errorGroupedTableColumns = ({
       return format(timestamp, 'MMM do HH:mm');
     },
     meta: {
-      headerClassName: 'w-32',
+      headerClassName,
+      cellClassName,
     },
+    size: 128,
   },
   {
     accessorKey: 'chart',
     header: 'Volume',
     meta: {
-      headerClassName: 'w-52 text-sm font-medium text-center',
-      cellClassName: 'text-[-webkit-right]',
+      headerClassName,
+      cellClassName,
     },
     cell: (props) => {
       const chart = props.getValue() as ErrorAnalysisGroupedErrorList.ErrorData['chart'];
       return <MiniChart chart={chart} />;
     },
+    size: 200,
   },
   {
     accessorKey: 'count',
@@ -103,8 +113,9 @@ export const errorGroupedTableColumns = ({
       return addCommas(count);
     },
     meta: {
-      headerClassName: 'text-right pr-4',
-      cellClassName: 'text-right pr-4',
+      headerClassName,
+      cellClassName: cn(cellClassName, 'justify-end'),
     },
+    size: 72,
   },
 ];

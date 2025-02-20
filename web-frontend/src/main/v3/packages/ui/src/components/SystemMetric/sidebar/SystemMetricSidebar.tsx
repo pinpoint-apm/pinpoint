@@ -13,7 +13,7 @@ export const SystemMetricSidebar = () => {
   const navigate = useNavigate();
   const { dateRange, hostGroupName, hostName } = useSystemMetricSearchParameters();
   return (
-    <div className="w-60 min-w-[15rem] border-r-1 h-full">
+    <div className="w-auto h-full min-w-auto">
       <HostSearchList
         selectedHost={hostName}
         onClickHost={(host) => {

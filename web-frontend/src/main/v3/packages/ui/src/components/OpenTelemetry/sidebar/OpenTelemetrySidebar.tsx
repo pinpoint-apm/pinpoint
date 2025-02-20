@@ -13,7 +13,7 @@ export const OpenTelemetrySidebar = () => {
   const navigate = useNavigate();
   const { application, dateRange, agentId } = useOpenTelemetrySearchParameters();
   return (
-    <div className="w-60 min-w-[15rem] border-r-1 h-full">
+    <div className="w-auto h-full min-w-auto">
       <ApplicationLinkButton />
       <Separator />
       <AgentSearchList

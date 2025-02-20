@@ -13,7 +13,7 @@ export const InspectorSidebar = () => {
   const navigate = useNavigate();
   const { application, dateRange, agentId, version } = useInspectorSearchParameters();
   return (
-    <div className="w-60 min-w-[15rem] border-r-1 h-full">
+    <div className="w-auto h-full min-w-auto">
       <ApplicationLinkButton />
       <Separator />
       <AgentSearchList
