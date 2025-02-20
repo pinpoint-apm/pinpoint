@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTemplate;
 import com.navercorp.pinpoint.common.hbase.parallel.ParallelResultScanner;
 import com.navercorp.pinpoint.common.hbase.parallel.ScanTaskException;
@@ -46,7 +47,6 @@ import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.client.metrics.ScanMetrics;
-import org.apache.hbase.thirdparty.com.google.common.util.concurrent.MoreExecutors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
