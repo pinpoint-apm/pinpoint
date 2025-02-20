@@ -32,6 +32,8 @@ import com.navercorp.pinpoint.profiler.context.module.InterceptorRegistryModule;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.profiler.context.module.OverrideModuleFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.name.ObjectName;
+import com.navercorp.pinpoint.profiler.name.v1.ObjectNameV1;
 import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -88,9 +90,10 @@ public class DependencyGraph {
         InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();
         Module testInterceptorRegistryModule = InterceptorRegistryModule.wrap(interceptorRegistryBinder);
         ModuleFactory moduleFactory = new OverrideModuleFactory(testInterceptorRegistryModule);
+        ObjectName objectName = new ObjectNameV1("mockAgentId", "mockAgentName", "mockApplicationName");
 
         AgentContextOption agentContextOption = AgentContextOptionBuilder.build(agentOption,
-                "mockAgentId", "mockAgentName", "mockApplicationName", profilerConfig);
+                objectName, profilerConfig);
         return new DefaultApplicationContext(agentContextOption, moduleFactory);
     }
 

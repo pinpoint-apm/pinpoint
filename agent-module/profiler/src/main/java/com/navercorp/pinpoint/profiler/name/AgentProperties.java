@@ -24,59 +24,40 @@ import java.util.function.Function;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class AgentProperties {
-    private final AgentIdSourceType type;
+public class AgentProperties{
+    private final IdSourceType type;
     private final Function<String, String> properties;
 
-    public AgentProperties(AgentIdSourceType type, Function<String, String> properties) {
+    public AgentProperties(IdSourceType type, Function<String, String> properties) {
         this.type = Objects.requireNonNull(type, "type");
         this.properties = Objects.requireNonNull(properties, "properties");
     }
 
-    public AgentIdSourceType getType() {
+    public IdSourceType getType() {
         return type;
     }
 
-    public KeyValue getAgentId() {
-        return keyValue(type.getAgentId());
+    public ObjectNameProperty getAgentId() {
+        return getProperty(type.getAgentId(), type, AgentIdType.AgentId);
     }
 
 
-    public KeyValue getAgentName() {
-        return keyValue(type.getAgentName());
+    public ObjectNameProperty getAgentName() {
+        return getProperty(type.getAgentName(), type, AgentIdType.AgentName);
     }
 
-    public KeyValue getApplicationName() {
-        return keyValue(type.getApplicationName());
+    public ObjectNameProperty getApplicationName() {
+        return getProperty(type.getApplicationName(), type, AgentIdType.ApplicationName);
     }
 
-    private KeyValue keyValue(String key) {
+    public ObjectNameProperty getServiceName() {
+        return getProperty(type.getServiceName(), type, AgentIdType.ServiceName);
+    }
+
+    public ObjectNameProperty getProperty(String key, IdSourceType sourceType, AgentIdType idType) {
         String value = this.properties.apply(key);
         value = StringUtils.trim(value);
-        return new KeyValue(key, value);
-    }
-
-    public static class KeyValue {
-        private final String key;
-        private final String name;
-
-        public KeyValue(String key, String name) {
-            this.key = Objects.requireNonNull(key, "key");
-            this.name = name;
-        }
-
-        public String getKey() {
-            return key;
-        }
-
-        public String getValue() {
-            return name;
-        }
-
-        @Override
-        public String toString() {
-            return key + "=" + name;
-        }
+        return new ObjectNameProperty(key, value, sourceType, idType);
     }
 
     @Override
@@ -86,4 +67,5 @@ public class AgentProperties {
                 + properties +
                 '}';
     }
+
 }

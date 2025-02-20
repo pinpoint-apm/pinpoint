@@ -21,7 +21,6 @@ import com.google.inject.name.Named;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.profiler.message.DataSender;
 import com.navercorp.pinpoint.common.profiler.message.EmptyDataSender;
-import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.context.monitor.config.DefaultMonitorConfig;
@@ -32,6 +31,7 @@ import com.navercorp.pinpoint.profiler.monitor.collector.AgentCustomMetricCollec
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
+import com.navercorp.pinpoint.profiler.name.ObjectName;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -64,14 +64,14 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
 
     @Inject
     public DefaultAgentStatMonitor(@StatDataSender DataSender<MetricType> dataSender,
-                                   @AgentId String agentId,
+                                   ObjectName objectName,
                                    @AgentStartTime long agentStartTimestamp,
                                    @Named("AgentStatCollector") AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector,
                                    CustomMetricRegistryService customMetricRegistryService,
                                    UriStatStorage uriStatStorage,
                                    MonitorConfig monitorConfig) {
         Objects.requireNonNull(dataSender, "dataSender");
-        Objects.requireNonNull(agentId, "agentId");
+        Objects.requireNonNull(objectName, "objectName");
         Objects.requireNonNull(agentStatCollector, "agentStatCollector");
 
 
@@ -84,7 +84,7 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
 
         List<Runnable> runnableList = new ArrayList<>();
 
-        Runnable statCollectingJob = new CollectJob(dataSender, agentId, agentStartTimestamp, agentStatCollector, numCollectionsPerBatch);
+        Runnable statCollectingJob = new CollectJob(dataSender, objectName.getAgentId(), agentStartTimestamp, agentStatCollector, numCollectionsPerBatch);
         runnableList.add(statCollectingJob);
 
         if (monitorConfig.isCustomMetricEnable() && customMetricRegistryService != null) {
@@ -100,7 +100,7 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
 
         this.statMonitorJob = new StatMonitorJob(runnableList);
 
-        preLoadClass(agentId, agentStartTimestamp, agentStatCollector);
+        preLoadClass(objectName, agentStartTimestamp, agentStatCollector);
     }
 
     private long getCollectionIntervalMs(long collectionIntervalMs) {
@@ -118,9 +118,9 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
     // prevent deadlock for JDK6
     // Single thread execution is more safe than multi thread execution.
     // eg) executor.scheduleAtFixedRate(collectJob, 0(initialDelay is zero), this.collectionIntervalMs, TimeUnit.MILLISECONDS);
-    private void preLoadClass(String agentId, long agentStartTimestamp, AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector) {
+    private void preLoadClass(ObjectName objectName, long agentStartTimestamp, AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector) {
         logger.debug("pre-load class start");
-        CollectJob collectJob = new CollectJob(EmptyDataSender.instance(), agentId, agentStartTimestamp, agentStatCollector, 1);
+        CollectJob collectJob = new CollectJob(EmptyDataSender.instance(), objectName.getAgentId(), agentStartTimestamp, agentStatCollector, 1);
 
         // It is called twice to initialize some fields.
         collectJob.run();

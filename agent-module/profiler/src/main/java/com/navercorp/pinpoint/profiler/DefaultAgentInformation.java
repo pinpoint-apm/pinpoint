@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.profiler.name.ObjectName;
 
 import java.util.Objects;
 
@@ -26,9 +27,7 @@ import java.util.Objects;
  * @author hyungil.jeong
  */
 public class DefaultAgentInformation implements AgentInformation {
-    private final String agentId;
-    private final String agentName;
-    private final String applicationName;
+    private final ObjectName objectName;
     private final boolean isContainer;
     private final long startTime;
     private final int pid;
@@ -41,9 +40,7 @@ public class DefaultAgentInformation implements AgentInformation {
     private final String clusterNamespace;
 
     public DefaultAgentInformation(
-            String agentId,
-            String agentName,
-            String applicationName,
+            ObjectName objectName,
             boolean isContainer,
             long startTime,
             int pid,
@@ -53,9 +50,7 @@ public class DefaultAgentInformation implements AgentInformation {
             String jvmVersion,
             String agentVersion,
             String clusterNamespace) {
-        this.agentId = Objects.requireNonNull(agentId, "agentId");
-        this.agentName = Objects.requireNonNull(agentName, "agentName");
-        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+        this.objectName = Objects.requireNonNull(objectName, "objectName");
         this.isContainer = isContainer;
         this.startTime = startTime;
         this.pid = pid;
@@ -70,17 +65,17 @@ public class DefaultAgentInformation implements AgentInformation {
 
     @Override
     public String getAgentId() {
-        return agentId;
+        return objectName.getAgentId();
     }
 
     @Override
     public String getAgentName() {
-        return agentName;
+        return objectName.getAgentName();
     }
 
     @Override
     public String getApplicationName() {
-        return applicationName;
+        return objectName.getApplicationName();
     }
 
     @Override
@@ -130,9 +125,7 @@ public class DefaultAgentInformation implements AgentInformation {
 
     @Override
     public String toString() {
-        return "{" + "agentId='" + agentId + '\'' +
-                ", agentName='" + agentName + '\'' +
-                ", applicationName='" + applicationName + '\'' +
+        return "{" + "objectName='" + objectName + '\'' +
                 ", isContainer=" + isContainer +
                 ", startTime=" + startTime +
                 ", pid=" + pid +

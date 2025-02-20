@@ -19,8 +19,9 @@ package com.navercorp.pinpoint.profiler.sender.grpc;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
 import com.navercorp.pinpoint.common.profiler.message.MessageConverter;
+import com.navercorp.pinpoint.common.profiler.message.ResultResponse;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.ClientHeaderFactoryV1;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
@@ -38,10 +39,13 @@ import com.navercorp.pinpoint.profiler.context.provider.grpc.GrpcNameResolverPro
 import com.navercorp.pinpoint.profiler.metadata.AgentInfo;
 import com.navercorp.pinpoint.profiler.metadata.MetaDataType;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.JvmGcType;
+import com.navercorp.pinpoint.profiler.name.ObjectName;
+import com.navercorp.pinpoint.profiler.name.v1.ObjectNameV1;
 import io.grpc.NameResolverProvider;
 
 import java.io.Closeable;
 import java.util.Collections;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -59,7 +63,7 @@ public class AgentGrpcDataSenderTestMain implements Closeable {
     public void request() throws Exception {
         MetaDataMapper mapper = new MetaDataMapperImpl();
         MessageConverter<MetaDataType, GeneratedMessageV3> messageConverter = new GrpcMetadataMessageConverter(mapper);
-        HeaderFactory headerFactory = new AgentHeaderFactory(AGENT_ID, AGENT_NAME, APPLICATION_NAME, SERVICE_TYPE, START_TIME);
+        HeaderFactory headerFactory = new ClientHeaderFactoryV1(AGENT_ID, AGENT_NAME, APPLICATION_NAME, SERVICE_TYPE, START_TIME);
 
         DnsExecutorServiceProvider dnsExecutorServiceProvider = new DnsExecutorServiceProvider();
         GrpcNameResolverProvider grpcNameResolverProvider = new GrpcNameResolverProvider(dnsExecutorServiceProvider);
@@ -76,14 +80,15 @@ public class AgentGrpcDataSenderTestMain implements Closeable {
 
         AgentInfo agentInfo = newAgentInfo();
 
-        sender.request(agentInfo);
+        CompletableFuture<ResultResponse> request = sender.request(agentInfo);
+        request.get(10, TimeUnit.SECONDS);
 
-        TimeUnit.SECONDS.sleep(60);
         sender.close();
     }
 
     private AgentInfo newAgentInfo() {
-        AgentInformation agentInformation = new DefaultAgentInformation(AGENT_ID, AGENT_NAME, APPLICATION_NAME, true, START_TIME,
+        ObjectName objectName = new ObjectNameV1(AGENT_ID, AGENT_NAME, APPLICATION_NAME);
+        AgentInformation agentInformation = new DefaultAgentInformation(objectName, true, START_TIME,
                 99, "", "", ServiceType.TEST_STAND_ALONE, "1.0", "1.0", "cluster-namespace");
         JvmInformation jvmInformation = new JvmInformation("1.0", JvmGcType.G1);
         ServerMetaData serverInfo = new DefaultServerMetaData("serverInfo", Collections.emptyList(), Collections.emptyMap(), Collections.emptyList());

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.context.id;
 
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.profiler.context.module.AgentId;
+import com.navercorp.pinpoint.profiler.name.ObjectName;
 
 import java.util.Objects;
 
@@ -27,12 +27,12 @@ import java.util.Objects;
  */
 public class DefaultTraceRootFactory implements TraceRootFactory {
 
-    private final String agentId;
+    private final ObjectName objectName;
     private final TraceIdFactory traceIdFactory;
 
     @Inject
-    public DefaultTraceRootFactory(@AgentId String agentId, TraceIdFactory traceIdFactory) {
-        this.agentId = Objects.requireNonNull(agentId, "agentId");
+    public DefaultTraceRootFactory(ObjectName objectName, TraceIdFactory traceIdFactory) {
+        this.objectName = Objects.requireNonNull(objectName, "objectName");
         this.traceIdFactory = Objects.requireNonNull(traceIdFactory, "traceIdFactory");
     }
 
@@ -40,14 +40,14 @@ public class DefaultTraceRootFactory implements TraceRootFactory {
     public TraceRoot newTraceRoot(long transactionId) {
         final TraceId traceId = traceIdFactory.newTraceId(transactionId);
         final long startTime = traceStartTime();
-        return TraceRoot.remote(traceId, this.agentId, startTime, transactionId);
+        return TraceRoot.remote(traceId, this.objectName.getAgentId(), startTime, transactionId);
     }
 
 
     @Override
     public LocalTraceRoot newDisableTraceRoot(long transactionId) {
         final long startTime = traceStartTime();
-        return TraceRoot.local(agentId, startTime, transactionId);
+        return TraceRoot.local(this.objectName.getAgentId(), startTime, transactionId);
     }
 
     private long traceStartTime() {
@@ -60,6 +60,6 @@ public class DefaultTraceRootFactory implements TraceRootFactory {
         Objects.requireNonNull(traceId, "traceId");
 
         final long startTime = traceStartTime();
-        return TraceRoot.remote(traceId, this.agentId, startTime, transactionId);
+        return TraceRoot.remote(traceId, this.objectName.getAgentId(), startTime, transactionId);
     }
 }

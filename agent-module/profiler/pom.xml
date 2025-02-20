@@ -93,6 +93,11 @@
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.uuid</groupId>
+            <artifactId>java-uuid-generator</artifactId>
+            <version>5.1.0</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.grpc;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
+import com.navercorp.pinpoint.grpc.protocol.ProtocolVersion;
 import io.grpc.Metadata;
 
 import java.util.Objects;
@@ -26,15 +27,16 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  * @author jaehong.kim
  */
-public class AgentHeaderFactory implements HeaderFactory {
-
+public class ClientHeaderFactoryV1 implements HeaderFactory {
+    private final ProtocolVersion protocolVersion;
     private final String agentId;
     private final String agentName;
     private final String applicationName;
     private final long agentStartTime;
     private final int serviceType;
 
-    public AgentHeaderFactory(String agentId, String agentName, String applicationName, int serviceType, long agentStartTime) {
+    public ClientHeaderFactoryV1(String agentId, String agentName, String applicationName, int serviceType, long agentStartTime) {
+        this.protocolVersion = ProtocolVersion.V1;
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentName = agentName;
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
@@ -48,6 +50,9 @@ public class AgentHeaderFactory implements HeaderFactory {
         headers.put(Header.APPLICATION_NAME_KEY, applicationName);
         headers.put(Header.SERVICE_TYPE_KEY, Integer.toString(serviceType));
         headers.put(Header.AGENT_START_TIME_KEY, Long.toString(agentStartTime));
+
+        headers.put(Header.PROTOCOL_VERSION_NAME_KEY, Integer.toString(protocolVersion.version()));
+
         if (!StringUtils.isEmpty(agentName)) {
             headers.put(Header.AGENT_NAME_KEY, agentName);
         }

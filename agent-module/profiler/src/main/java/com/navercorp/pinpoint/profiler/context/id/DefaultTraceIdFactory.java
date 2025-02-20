@@ -20,8 +20,8 @@ import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
-import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
+import com.navercorp.pinpoint.profiler.name.ObjectName;
 
 import java.util.Objects;
 
@@ -30,19 +30,19 @@ import java.util.Objects;
  */
 public class DefaultTraceIdFactory implements TraceIdFactory {
 
-    private final String agentId;
+    private final ObjectName objectName;
     private final long agentStartTime;
 
     @Inject
-    public DefaultTraceIdFactory(@AgentId String agentId, @AgentStartTime long agentStartTime) {
-        this.agentId = Objects.requireNonNull(agentId, "agentId");
+    public DefaultTraceIdFactory(ObjectName objectName, @AgentStartTime long agentStartTime) {
+        this.objectName = Objects.requireNonNull(objectName, "objectName");
         this.agentStartTime = agentStartTime;
 
     }
 
     @Override
     public TraceId newTraceId(long localTransactionId) {
-        TransactionId transactionId = TransactionId.of(agentId, agentStartTime, localTransactionId);
+        TransactionId transactionId = TransactionId.of(objectName.getAgentId(), agentStartTime, localTransactionId);
         return newTraceId(transactionId);
     }
 

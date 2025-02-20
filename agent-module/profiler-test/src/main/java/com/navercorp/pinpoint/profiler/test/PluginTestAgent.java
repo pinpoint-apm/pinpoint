@@ -26,6 +26,8 @@ import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.profiler.instrument.config.DefaultInstrumentConfig;
+import com.navercorp.pinpoint.profiler.name.ObjectName;
+import com.navercorp.pinpoint.profiler.name.v1.ObjectNameV1;
 
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -75,15 +77,17 @@ public class PluginTestAgent extends DefaultAgent {
     }
 
     @Override
-    protected AgentContextOption buildContextOption(AgentOption agentOption, ProfilerConfig profilerConfig) {
+    protected ObjectName buildObjectName() {
+        return new ObjectNameV1("mockAgentId", "mockAgentName", "mockApplicationName");
+    }
+
+    @Override
+    protected AgentContextOption buildContextOption(AgentOption agentOption, ObjectName objectName, ProfilerConfig profilerConfig) {
         Properties properties = profilerConfig.getProperties();
         properties.put(DefaultInstrumentConfig.PROFILER_INTERCEPTOR_EXCEPTION_PROPAGATE, "true");
 
-        String agentId = "mockAgentId";
-        String agentName = "mockAgentName";
-        String applicationName = "mockApplicationName";
         return AgentContextOptionBuilder.build(agentOption,
-                agentId, agentName, applicationName,
+                objectName,
                 profilerConfig);
     }
 

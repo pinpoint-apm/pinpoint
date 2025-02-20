@@ -21,22 +21,24 @@ import java.util.Objects;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public enum AgentIdSourceType {
-    SYSTEM("SystemProperties(-D)", "pinpoint.", "agentId", "agentName", "applicationName"),
-    SYSTEM_ENV("EnvironmentVariable", "PINPOINT_", "AGENT_ID", "AGENT_NAME", "APPLICATION_NAME"),
-    AGENT_ARGUMENT("AgentArgument", "", SYSTEM.agentId, SYSTEM.agentName, SYSTEM.applicationName);
+public enum IdSourceType {
+    SYSTEM("SystemProperties(-D)", "pinpoint.%s", "agentId", "agentName", "applicationName", "serviceName"),
+    SYSTEM_ENV("EnvironmentVariable", "PINPOINT_%s", "AGENT_ID", "AGENT_NAME", "APPLICATION_NAME", "SERVICE_NAME"),
+    AGENT_ARGUMENT("AgentArgument", "%s", SYSTEM.agentId, SYSTEM.agentName, SYSTEM.applicationName, SYSTEM.serviceName);
 
     private final String desc;
 
     private final String agentId;
     private final String agentName;
     private final String applicationName;
+    private final String serviceName;
 
-    AgentIdSourceType(String desc, String prefix, String agentId, String agentName, String applicationName) {
+    IdSourceType(String desc, String format, String agentId, String agentName, String applicationName, String serviceName) {
         this.desc = Objects.requireNonNull(desc, "desc");
-        this.agentId = prefix + Objects.requireNonNull(agentId, "agentId");
-        this.agentName = prefix + Objects.requireNonNull(agentName, "agentName");
-        this.applicationName = prefix + Objects.requireNonNull(applicationName, "applicationName");
+        this.agentId = String.format(format, Objects.requireNonNull(agentId, "agentId"));
+        this.agentName = String.format(format, Objects.requireNonNull(agentName, "agentName"));
+        this.applicationName = String.format(format, Objects.requireNonNull(applicationName, "applicationName"));
+        this.serviceName = String.format(format, Objects.requireNonNull(serviceName, "serviceName"));
     }
 
     public String getDesc() {
@@ -55,6 +57,10 @@ public enum AgentIdSourceType {
         return applicationName;
     }
 
+    public String getServiceName() {
+        return serviceName;
+    }
+
     @Override
     public String toString() {
         return "AgentIdSourceType{" +
@@ -62,6 +68,7 @@ public enum AgentIdSourceType {
                 ", agentId='" + agentId + '\'' +
                 ", agentName='" + agentName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
+                ", serviceName='" + serviceName + '\'' +
                 '}';
     }
 }

@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class AgentHeaderReaderTest {
+public class ServerHeaderReaderTest {
 
     private static final String AGENT_ID = "agentId";
     private static final String AGENT_NAME = "agentName";
@@ -36,19 +36,19 @@ public class AgentHeaderReaderTest {
     private static final long SOCKET_ID = 1001;
     private static final int SERVICE_TYPE = ServiceType.STAND_ALONE.getCode();
 
-    private final HeaderReader<Header> reader = new AgentHeaderReader("test");
+    private final HeaderReader<Header> reader = new ServerHeaderReaderFactory("test");
 
     @Test
     public void extract() {
         Metadata metadata = newMetadata();
         Header header = reader.extract(metadata);
 
-        Assertions.assertEquals(header.getAgentId(), AGENT_ID);
-        Assertions.assertEquals(header.getAgentName(), AGENT_NAME);
-        Assertions.assertEquals(header.getApplicationName(), APPLICATION_NAME);
-        Assertions.assertEquals(header.getAgentStartTime(), AGENT_START_TIME);
-        Assertions.assertEquals(header.getSocketId(), SOCKET_ID);
-        Assertions.assertEquals(header.getServiceType(), SERVICE_TYPE);
+        Assertions.assertEquals(AGENT_ID, header.getAgentId());
+        Assertions.assertEquals(AGENT_NAME, header.getAgentName());
+        Assertions.assertEquals(APPLICATION_NAME, header.getApplicationName());
+        Assertions.assertEquals(AGENT_START_TIME, header.getAgentStartTime());
+        Assertions.assertEquals(SOCKET_ID, header.getSocketId());
+        Assertions.assertEquals(SERVICE_TYPE, header.getServiceType());
     }
 
     @Test

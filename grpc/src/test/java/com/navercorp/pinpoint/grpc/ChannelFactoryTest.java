@@ -106,7 +106,7 @@ public class ChannelFactoryTest {
     @Test
     public void build() throws InterruptedException {
 
-        HeaderFactory headerFactory = new AgentHeaderFactory("agentId", "agentName", "appName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis());
+        HeaderFactory headerFactory = new ClientHeaderFactoryV1("agentId", "agentName", "appName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis());
 
         CountRecordClientInterceptor countRecordClientInterceptor = new CountRecordClientInterceptor();
 
