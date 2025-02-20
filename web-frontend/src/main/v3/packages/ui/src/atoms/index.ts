@@ -4,6 +4,7 @@ export * from './globalSearch';
 export * from './installationInfo';
 export * from './openTelemetry';
 export * from './scatter';
+export * from './searchParameters';
 export * from './serverMap';
 export * from './toast';
 export * from './transaction';
