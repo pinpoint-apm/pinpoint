@@ -30,7 +30,8 @@ import { RxMagnifyingGlass } from 'react-icons/rx';
 import { LuCommand } from 'react-icons/lu';
 import { useLocalStorage } from '@pinpoint-fe/ui/src/hooks';
 import { useAtom } from 'jotai';
-import { globalSearchDisplayAtom } from '@pinpoint-fe/ui/src/atoms';
+import { globalSearchDisplayAtom, searchParametersAtom } from '@pinpoint-fe/ui/src/atoms';
+import { getApplicationTypeAndName } from '@pinpoint-fe/ui/src/utils';
 
 export type SideNavigationMenuItem = MenuItem & {
   aHref?: string;
@@ -60,9 +61,23 @@ export const LayoutWithSideNavigation = ({
   topMenuItems,
   bottomMenuItems,
 }: LayoutWithSideNavigationProps) => {
+  const [, setSearchParameters] = useAtom(searchParametersAtom);
   const [, setGlobalSearchOpen] = useAtom(globalSearchDisplayAtom);
   const [collapsed] = useLocalStorage(APP_SETTING_KEYS.SIDE_NAV_BAR_SCALE, false);
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
+  const application = getApplicationTypeAndName(pathname);
+  const searchParameters = Object.fromEntries(new URLSearchParams(search));
+
+  React.useEffect(() => {
+    if (application && searchParameters) {
+      setSearchParameters({ application, searchParameters });
+    }
+  }, [
+    application?.applicationName,
+    application?.serviceType,
+    searchParameters?.to,
+    searchParameters?.from,
+  ]);
 
   const SubMenuItem = ({ item }: MenuItemProps) => {
     const hoverRef = React.useRef<HTMLLIElement>(null);
