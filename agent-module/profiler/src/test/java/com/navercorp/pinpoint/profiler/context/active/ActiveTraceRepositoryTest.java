@@ -20,6 +20,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.Uninterruptibles;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -106,7 +107,7 @@ public class ActiveTraceRepositoryTest {
         ListenableFuture<List<TraceThreadTuple>> futures = executeTransactions(
                 executorService, awaitLatch, executeLatch,
                 expectedSampledNewCount, expectedUnsampledNewCount, expectedSampledContinuationCount, expectedUnsampledContinuationCount);
-        executeLatch.await(5, TimeUnit.SECONDS);
+        Uninterruptibles.awaitUninterruptibly(executeLatch, 5, TimeUnit.SECONDS);
         List<ActiveTraceSnapshot> activeTraceInfos = this.activeTraceRepository.snapshot();
         awaitLatch.countDown();
         List<TraceThreadTuple> executedTraces = futures.get(5, TimeUnit.SECONDS);
@@ -115,10 +116,7 @@ public class ActiveTraceRepositoryTest {
             executedTraceMap.put(tuple.id, tuple);
         }
 
-        executorService.shutdown();
-        if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
-            executorService.shutdownNow();
-        }
+        MoreExecutors.shutdownAndAwaitTermination(executorService, 5, TimeUnit.SECONDS);
 
         // Then
         assertEquals(expectedSampledNewCount, transactionCounter.getSampledNewCount());
