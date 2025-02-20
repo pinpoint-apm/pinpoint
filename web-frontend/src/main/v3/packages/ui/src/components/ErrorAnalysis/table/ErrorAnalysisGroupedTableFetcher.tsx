@@ -4,7 +4,7 @@ import {
   useGetErrorAnalysisGroupedErrorListData,
 } from '@pinpoint-fe/ui/src/hooks';
 import { cn } from '../../../lib';
-import { DataTable } from '../../DataTable';
+import { VirtualizedDataTable } from '../../DataTable';
 import { errorGroupedTableColumns } from './errorAnalysisGroupedTableColumn';
 import {
   getErrorAnalysisPath,
@@ -15,7 +15,6 @@ import {
 export interface ErrorAnalysisGroupedTableFetcherProps {
   className?: string;
 }
-
 export const ErrorAnalysisGroupedTableFetcher = ({
   className,
 }: ErrorAnalysisGroupedTableFetcherProps) => {
@@ -36,8 +35,12 @@ export const ErrorAnalysisGroupedTableFetcher = ({
   });
 
   return (
-    <div className={cn('rounded-md border bg-white', className)}>
-      <DataTable tableClassName="[&>tbody]:text-xs" columns={columns} data={data || []} />
+    <div className={cn('max-h-[calc(100%-20rem)] rounded-md border bg-white', className)}>
+      <VirtualizedDataTable
+        tableClassName="[&>tbody]:text-xs"
+        columns={columns}
+        data={data || []}
+      />
     </div>
   );
 };

@@ -12,6 +12,9 @@ interface SummaryColumnProps {
   onClickColumnHeader: (accessorKey: string) => void;
 }
 
+const headerClassName = 'flex justify-end';
+const cellClassName = 'flex items-center px-4 justify-end';
+
 const ColumnHeaderButton = ({
   accessorKey,
   title,
@@ -52,6 +55,10 @@ export const summaryColumns = ({
       />
     ),
     cell: (props) => props.getValue(),
+    meta: {
+      cellClassName: 'flex items-center',
+    },
+    size: 500,
   },
   {
     accessorKey: 'totalCount',
@@ -68,9 +75,10 @@ export const summaryColumns = ({
       return addCommas(totalCount);
     },
     meta: {
-      headerClassName: 'w-40',
-      cellClassName: 'px-4 text-right',
+      headerClassName,
+      cellClassName,
     },
+    size: 140,
   },
   {
     accessorKey: 'failureCount',
@@ -87,9 +95,10 @@ export const summaryColumns = ({
       return addCommas(failureCount);
     },
     meta: {
-      headerClassName: 'w-40',
-      cellClassName: 'px-4 text-right',
+      headerClassName,
+      cellClassName,
     },
+    size: 140,
   },
   {
     accessorKey: 'apdex',
@@ -106,9 +115,10 @@ export const summaryColumns = ({
       return numberInDecimal(apdex, 2);
     },
     meta: {
-      headerClassName: 'w-24',
-      cellClassName: 'px-4 text-right',
+      headerClassName,
+      cellClassName,
     },
+    size: 100,
   },
   {
     accessorKey: 'avgTimeMs',
@@ -125,9 +135,10 @@ export const summaryColumns = ({
       return addCommas(numberInInteger(avg));
     },
     meta: {
-      headerClassName: 'w-24',
-      cellClassName: 'px-4 text-right',
+      headerClassName,
+      cellClassName,
     },
+    size: 100,
   },
   {
     accessorKey: 'maxTimeMs',
@@ -144,20 +155,21 @@ export const summaryColumns = ({
       return addCommas(numberInInteger(max));
     },
     meta: {
-      headerClassName: 'w-24',
-      cellClassName: 'px-4 text-right',
+      headerClassName,
+      cellClassName,
     },
+    size: 100,
   },
   {
     accessorKey: 'chart',
     header: 'Volume',
     meta: {
-      headerClassName: 'w-52 text-sm font-medium text-center',
-      cellClassName: 'text-[-webkit-right]',
+      headerClassName: 'flex justify-center text-sm font-medium',
     },
     cell: (props) => {
       const chart = props.getValue() as UrlStatSummary.SummaryData['chart'];
       return <MiniChart chart={chart} />;
     },
+    size: 170,
   },
 ];

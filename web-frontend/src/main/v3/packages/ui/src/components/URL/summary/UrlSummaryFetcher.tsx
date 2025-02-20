@@ -3,7 +3,7 @@ import { useAtom } from 'jotai';
 import { urlSelectedSummaryDataAtom } from '@pinpoint-fe/ui/src/atoms';
 import { useGetUrlStatSummaryData } from '@pinpoint-fe/ui/src/hooks';
 import { summaryColumns } from './UrlSummaryColumns';
-import { DataTable, DataTableCountOfRows } from '../../DataTable';
+import { DataTableCountOfRows, VirtualizedDataTable } from '../../DataTable';
 import { cn } from '../../../lib';
 import { UrlStatSummary } from '@pinpoint-fe/ui/src/constants';
 
@@ -52,7 +52,7 @@ export const UrlSummaryFetcher = ({ className, type }: UrlSummaryFetcherProps) =
         onChange={(c) => setCount(c)}
       />
       <div className={cn('max-h-[calc(100%-26rem)] rounded-md border bg-white', className)}>
-        <DataTable
+        <VirtualizedDataTable
           tableClassName="text-xs"
           columns={columns}
           data={data || []}

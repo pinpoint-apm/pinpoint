@@ -101,7 +101,7 @@ export const ErrorAnalysisPage = ({
         </div>
       </MainHeader>
       {application && (
-        <LayoutWithContentSidebar contentWrapperClassName="h-fit">
+        <LayoutWithContentSidebar>
           <ErrorAnalysisSidebar />
           <>
             <div className="py-2 bg-white border rounded h-72">

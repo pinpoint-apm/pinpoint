@@ -151,7 +151,18 @@ export const AgentListFetcher = ({
                                 </div>
                               </div>
                             </TooltipTrigger>
-                            <TooltipContent>{instance.agentId}</TooltipContent>
+                            <TooltipContent>
+                              <>
+                                <div>
+                                  <span className="text-gray-500">Agent ID:</span>{' '}
+                                  {instance.agentId}
+                                </div>
+                                <div>
+                                  <span className="text-gray-500">Agent Name:</span>{' '}
+                                  {instance.agentName}
+                                </div>
+                              </>
+                            </TooltipContent>
                           </Tooltip>
                         )}
                       </div>

@@ -109,7 +109,8 @@ export const InspectorAgentInfoFetcher = () => {
         <CollapsibleTrigger className="mr-auto cursor-pointer" asChild>
           <div className="flex items-center gap-1">
             {isOpen ? <RxChevronDown /> : <RxChevronRight />}
-            <span className="font-semibold">{data?.agentId}</span>{' '}
+            <span className="font-semibold">{data?.agentId}</span>
+            {data?.agentName && <span className="text-xs text-gray-500">({data?.agentName})</span>}
           </div>
         </CollapsibleTrigger>
       </div>
