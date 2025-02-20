@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.profiler.context.id.TraceIdFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
+import com.navercorp.pinpoint.profiler.name.ObjectName;
 
 import java.util.Objects;
 
@@ -38,6 +39,7 @@ import java.util.Objects;
 public class TraceContextProvider implements Provider<TraceContext> {
     private final ProfilerConfig profilerConfig;
 
+    private final ObjectName objectName;
     private final Provider<AgentInformation> agentInformationProvider;
 
     private final TraceIdFactory traceIdFactory;
@@ -51,6 +53,7 @@ public class TraceContextProvider implements Provider<TraceContext> {
 
     @Inject
     public TraceContextProvider(ProfilerConfig profilerConfig,
+                                ObjectName objectName,
                                 final Provider<AgentInformation> agentInformationProvider,
                                 TraceIdFactory traceIdFactory,
                                 TraceFactory traceFactory,
@@ -60,6 +63,7 @@ public class TraceContextProvider implements Provider<TraceContext> {
                                 SqlMetaDataService sqlMetaDataService,
                                 JdbcContext jdbcContext) {
         this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
+        this.objectName = Objects.requireNonNull(objectName, "objectName");
         this.agentInformationProvider = Objects.requireNonNull(agentInformationProvider, "agentInformationProvider");
 
         this.traceIdFactory = Objects.requireNonNull(traceIdFactory, "traceIdFactory");
@@ -76,7 +80,7 @@ public class TraceContextProvider implements Provider<TraceContext> {
     @Override
     public TraceContext get() {
         AgentInformation agentInformation = this.agentInformationProvider.get();
-        return new DefaultTraceContext(profilerConfig, agentInformation, traceIdFactory, traceFactory,
+        return new DefaultTraceContext(profilerConfig, objectName, agentInformation, traceIdFactory, traceFactory,
                 serverMetaDataHolder, apiMetaDataService, stringMetaDataService, sqlMetaDataService,
                 jdbcContext);
     }

@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.profiler.config;
 
-import com.navercorp.pinpoint.profiler.name.AgentIdSourceType;
+import com.navercorp.pinpoint.profiler.name.IdSourceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,7 +21,7 @@ public class AgentSystemConfig {
     }
 
     public void saveAgentIdForLog(String agentId) {
-        systemProperty.setProperty(AgentIdSourceType.SYSTEM.getAgentId(), agentId);
+        systemProperty.setProperty(IdSourceType.SYSTEM.getAgentId(), agentId);
     }
 
     public void savePinpointVersion(String version) {

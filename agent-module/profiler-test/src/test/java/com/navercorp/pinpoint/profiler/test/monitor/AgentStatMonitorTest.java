@@ -25,6 +25,8 @@ import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollecto
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshotBatch;
 import com.navercorp.pinpoint.profiler.monitor.metric.MetricType;
+import com.navercorp.pinpoint.profiler.name.ObjectName;
+import com.navercorp.pinpoint.profiler.name.v1.ObjectNameV1;
 import com.navercorp.pinpoint.profiler.test.ListenableDataSender;
 import com.navercorp.pinpoint.profiler.test.Recorder;
 import com.navercorp.pinpoint.profiler.test.RecorderAdaptor;
@@ -82,9 +84,10 @@ public class AgentStatMonitorTest {
         Mockito.when(mockProfilerConfig.getProfileJvmStatCollectIntervalMs()).thenReturn((int) collectionIntervalMs);
         Mockito.when(mockProfilerConfig.getProfileJvmStatBatchSendCount()).thenReturn(numCollectionsPerBatch);
 
+        ObjectName objectName = new ObjectNameV1("agentId", "agentName", "applicationName");
         // When
         AgentStatMonitor monitor = new DefaultAgentStatMonitor(this.dataSender,
-                "agentId",
+                objectName,
                 System.currentTimeMillis(),
                 agentStatCollector, null, null,
                 mockProfilerConfig);

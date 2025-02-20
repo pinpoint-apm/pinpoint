@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.profiler;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.profiler.name.ObjectName;
 
 import java.lang.instrument.Instrumentation;
 import java.nio.file.Path;
@@ -10,11 +11,7 @@ public interface AgentContextOption {
 
     Instrumentation getInstrumentation();
 
-    String getAgentId();
-
-    String getAgentName();
-
-    String getApplicationName();
+    ObjectName getObjectName();
 
     ProfilerConfig getProfilerConfig();
 

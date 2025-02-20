@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import com.navercorp.pinpoint.bootstrap.config.Profiles;
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
+import com.navercorp.pinpoint.grpc.protocol.ProtocolVersion;
 import com.navercorp.pinpoint.profiler.config.AgentSystemConfig;
 import com.navercorp.pinpoint.profiler.config.LogConfig;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
@@ -34,10 +35,10 @@ import com.navercorp.pinpoint.profiler.context.module.ModuleFactoryResolver;
 import com.navercorp.pinpoint.profiler.context.provider.ShutdownHookRegisterProvider;
 import com.navercorp.pinpoint.profiler.logging.Log4j2LoggingSystem;
 import com.navercorp.pinpoint.profiler.logging.LoggingSystem;
-import com.navercorp.pinpoint.profiler.name.AgentIdResolver;
-import com.navercorp.pinpoint.profiler.name.AgentIdResolverBuilder;
-import com.navercorp.pinpoint.profiler.name.AgentIdSourceType;
-import com.navercorp.pinpoint.profiler.name.AgentIds;
+import com.navercorp.pinpoint.profiler.name.ObjectName;
+import com.navercorp.pinpoint.profiler.name.ObjectNameValidationFailedException;
+import com.navercorp.pinpoint.profiler.name.v4.ObjectNameV4;
+import com.navercorp.pinpoint.profiler.util.MaskUtils;
 import com.navercorp.pinpoint.profiler.util.SystemPropertyDumper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -84,6 +85,10 @@ public class DefaultAgent implements Agent {
         logConfig.saveLogFilePath();
         logConfig.cleanLogDir(properties);
 
+        ObjectName objectName = buildObjectName();
+
+        // save system config
+        saveSystemConfig(objectName);
         this.loggingSystem = newLoggingSystem(logConfigPath);
         this.loggingSystem.start();
 
@@ -91,15 +96,12 @@ public class DefaultAgent implements Agent {
 
         logger.info("logConfig path:{}", loggingSystem.getConfigLocation());
 
-        AgentContextOption agentContextOption = buildContextOption(agentOption, profilerConfig);
+        AgentContextOption agentContextOption = buildContextOption(agentOption, objectName, profilerConfig);
 
         dumpAgentOption(agentContextOption);
 
         dumpSystemProperties();
         dumpConfig(profilerConfig);
-
-        // save system config
-        saveSystemConfig(agentContextOption);
 
         changeStatus(AgentStatus.INITIALIZING);
 
@@ -108,54 +110,41 @@ public class DefaultAgent implements Agent {
         this.applicationContext = newApplicationContext(agentContextOption);
     }
 
-    protected AgentContextOption buildContextOption(AgentOption agentOption, ProfilerConfig profilerConfig) {
-        final AgentIds agentIds = resolveAgentIds();
-        if (agentIds == null) {
-            logger.warn("Failed to resolve AgentId and ApplicationId");
-            throw new RuntimeException("Failed to resolve AgentId and ApplicationId");
+    protected ObjectName buildObjectName() {
+        try {
+            ObjectNameBuilder objectNameBuilder = new ObjectNameBuilder();
+            return objectNameBuilder.build(agentOption, profilerConfig);
+        } catch (ObjectNameValidationFailedException e) {
+            System.err.printf("ObjectName validation failed %s %s", e.getAgentIdType(), e.getMessage());
+            throw e;
         }
-
-        final String agentId = agentIds.getAgentId();
-        if (agentId == null) {
-            logger.warn("agentId is null");
-            throw new RuntimeException("agentId is null");
-        }
-        final String agentName = agentIds.getAgentName();
-        final String applicationName = agentIds.getApplicationName();
-        if (applicationName == null) {
-            logger.warn("applicationName is null");
-            throw new RuntimeException("applicationName is null");
-        }
-
-        return AgentContextOptionBuilder.build(agentOption,
-                agentId, agentName, applicationName,
-                profilerConfig);
     }
 
-    private AgentIds resolveAgentIds() {
-        AgentIdResolverBuilder builder = new AgentIdResolverBuilder();
-        builder.addProperties(AgentIdSourceType.SYSTEM, System.getProperties()::getProperty);
-        builder.addProperties(AgentIdSourceType.SYSTEM_ENV, System.getenv()::get);
-        builder.addProperties(AgentIdSourceType.AGENT_ARGUMENT, agentOption.getAgentArgs()::get);
-        AgentIdResolver agentIdResolver = builder.build();
-        return agentIdResolver.resolve();
+    protected AgentContextOption buildContextOption(AgentOption agentOption, ObjectName objectName, ProfilerConfig profilerConfig) {
+        return AgentContextOptionBuilder.build(agentOption, objectName, profilerConfig);
     }
 
-
-    private void saveSystemConfig(AgentContextOption option) {
+    private void saveSystemConfig(ObjectName objectName) {
         // set the path of log file as a system property
         AgentSystemConfig agentSystemConfig = new AgentSystemConfig();
-        agentSystemConfig.saveAgentIdForLog(option.getAgentId());
+        agentSystemConfig.saveAgentIdForLog(objectName.getAgentId());
         agentSystemConfig.savePinpointVersion(Version.VERSION);
     }
 
     private void dumpAgentOption(AgentContextOption agentOption) {
-        logger.warn("AgentOption");
-        logger.warn("- agentId: {}", agentOption.getAgentId());
-        logger.warn("- agentName: {}", agentOption.getAgentName());
-        logger.warn("- applicationName: {}", agentOption.getApplicationName());
+        final ObjectName objectName = agentOption.getObjectName();
+        logger.warn("AgentOption : {}", objectName.getClass().getSimpleName());
+        logger.warn("- agentId: {}", objectName.getAgentId());
+        logger.warn("- agentName: {}", objectName.getAgentName());
+        logger.warn("- applicationName: {}", objectName.getApplicationName());
+        if (objectName.getVersion() == ProtocolVersion.V4) {
+            ObjectNameV4 v4 = (ObjectNameV4) objectName;
+            logger.warn("- serviceName: {}", objectName.getServiceName());
+            logger.warn("- apikey: {}", MaskUtils.masking(v4.getApiKey(), 2));
+        }
         logger.info("- instrumentation: {}", agentOption.getInstrumentation());
     }
+
 
     private LoggingSystem newLoggingSystem(Path agentPath) {
         return Log4j2LoggingSystem.searchPath(agentPath);

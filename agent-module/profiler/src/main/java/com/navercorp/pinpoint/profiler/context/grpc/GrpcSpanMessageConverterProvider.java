@@ -27,8 +27,8 @@ import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetter;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapper;
-import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
+import com.navercorp.pinpoint.profiler.name.ObjectName;
 
 import java.util.Objects;
 
@@ -37,18 +37,18 @@ import java.util.Objects;
  */
 public class GrpcSpanMessageConverterProvider implements Provider<MessageConverter<SpanType, GeneratedMessageV3>> {
 
-    private final String agentId;
+    private final ObjectName objectName;
     private final short applicationServiceTypeCode;
     private final SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanPostProcessor;
     private final SpanUriGetter spanUriGetter;
     private final SpanMessageMapper mapper;
 
     @Inject
-    public GrpcSpanMessageConverterProvider(@AgentId String agentId, @ApplicationServerType ServiceType applicationServiceType,
+    public GrpcSpanMessageConverterProvider(ObjectName objectName, @ApplicationServerType ServiceType applicationServiceType,
                                             SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanPostProcessor,
                                             SpanUriGetter spanUriGetter,
                                             SpanMessageMapper spanMessageMapper) {
-        this.agentId = Objects.requireNonNull(agentId, "agentId");
+        this.objectName = Objects.requireNonNull(objectName, "objectName");
         this.applicationServiceTypeCode = applicationServiceType.getCode();
         this.spanPostProcessor = Objects.requireNonNull(spanPostProcessor, "spanPostProcessor");
         this.spanUriGetter = Objects.requireNonNull(spanUriGetter, "spanUriGetter");
@@ -57,7 +57,7 @@ public class GrpcSpanMessageConverterProvider implements Provider<MessageConvert
 
     @Override
     public MessageConverter<SpanType, GeneratedMessageV3> get() {
-        return new GrpcSpanMessageConverter(agentId, applicationServiceTypeCode, spanPostProcessor, mapper);
+        return new GrpcSpanMessageConverter(objectName.getAgentId(), applicationServiceTypeCode, spanPostProcessor, mapper);
     }
 
 }

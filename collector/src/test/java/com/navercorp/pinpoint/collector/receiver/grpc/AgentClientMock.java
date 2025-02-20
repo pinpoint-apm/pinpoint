@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.ClientHeaderFactoryV1;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
@@ -66,7 +66,7 @@ public class AgentClientMock {
         NettyChannelBuilder builder = NettyChannelBuilder.forAddress(host, port);
 
         if (agentHeader) {
-            HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockAgentName", "mockApplicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis());
+            HeaderFactory headerFactory = new ClientHeaderFactoryV1("mockAgentId", "mockAgentName", "mockApplicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis());
             final Metadata extraHeaders = headerFactory.newHeader();
             final ClientInterceptor headersInterceptor = MetadataUtils.newAttachHeadersInterceptor(extraHeaders);
             builder.intercept(headersInterceptor);

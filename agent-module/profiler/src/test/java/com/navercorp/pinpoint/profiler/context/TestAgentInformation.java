@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.SystemPropertyKey;
 import com.navercorp.pinpoint.profiler.DefaultAgentInformation;
+import com.navercorp.pinpoint.profiler.name.v1.ObjectNameV1;
 
 /**
  * TODO duplicate com.navercorp.pinpoint.test.TestAgentInformation
@@ -42,7 +43,7 @@ public class TestAgentInformation extends DefaultAgentInformation {
     private static final String CLUSTER_NAMESPACE = "cluster-namespace";
 
     public TestAgentInformation() {
-        super(AGENT_ID, AGENT_NAME, APPLICATION_NAME, IS_CONTAINER, System.currentTimeMillis(),
+        super(new ObjectNameV1(AGENT_ID, AGENT_NAME, APPLICATION_NAME), IS_CONTAINER, System.currentTimeMillis(),
                 PID, MACHINE_NAME, HOST_IP, SERVICE_TYPE, JVM_VERSION, AGENT_VERSION,
                 CLUSTER_NAMESPACE);
     }

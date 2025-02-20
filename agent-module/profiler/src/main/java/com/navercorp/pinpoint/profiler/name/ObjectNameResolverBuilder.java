@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.name;
 
+import com.navercorp.pinpoint.profiler.name.v1.ObjectNameResolverV1;
+import com.navercorp.pinpoint.profiler.name.v4.ObjectNameResolverV4;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -24,20 +27,29 @@ import java.util.function.Function;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class AgentIdResolverBuilder {
+public class ObjectNameResolverBuilder {
     private final List<AgentProperties> agentProperties = new ArrayList<>();
     
 
-    public void addProperties(AgentIdSourceType sourceType, Function<String, String> env) {
+    public void addProperties(IdSourceType sourceType, Function<String, String> env) {
         Objects.requireNonNull(sourceType, "sourceType");
         Objects.requireNonNull(env, "env");
 
-        AgentProperties properties = new AgentProperties(sourceType, env);
-        this.agentProperties.add(properties);
+        AgentProperties agentProperties = new AgentProperties(sourceType, env);
+        this.agentProperties.add(agentProperties);
     }
 
-    public AgentIdResolver build() {
+    public ObjectNameResolver build() {
+        return buildV1();
+    }
+
+    public ObjectNameResolver buildV1() {
         List<AgentProperties> copy = new ArrayList<>(this.agentProperties);
-        return new AgentIdResolver(copy);
+        return new ObjectNameResolverV1(copy);
+    }
+
+    public ObjectNameResolver buildV4() {
+        List<AgentProperties> copy = new ArrayList<>(this.agentProperties);
+        return new ObjectNameResolverV4(copy);
     }
 }

@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFacto
 import com.navercorp.pinpoint.collector.receiver.grpc.service.SpanService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamCloseOnError;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
-import com.navercorp.pinpoint.grpc.server.AgentHeaderReader;
 import com.navercorp.pinpoint.grpc.server.HeaderPropagationInterceptor;
+import com.navercorp.pinpoint.grpc.server.ServerHeaderReaderFactory;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
@@ -79,7 +79,7 @@ public class SpanServerTestMain {
         grpcReceiver.setEnable(true);
         grpcReceiver.setServerOption(ServerOption.newBuilder().build());
 
-        AgentHeaderReader agentHeaderReader = new AgentHeaderReader("test");
+        ServerHeaderReaderFactory agentHeaderReader = new ServerHeaderReaderFactory("test");
         HeaderPropagationInterceptor interceptor = new HeaderPropagationInterceptor(agentHeaderReader);
         grpcReceiver.setServerInterceptorList(List.of(interceptor));
 

@@ -18,9 +18,13 @@ package com.navercorp.pinpoint.profiler.context.provider.grpc;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.ClientHeaderFactoryV1;
+import com.navercorp.pinpoint.grpc.ClientHeaderFactoryV4;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
+import com.navercorp.pinpoint.grpc.protocol.ProtocolVersion;
 import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.name.ObjectName;
+import com.navercorp.pinpoint.profiler.name.v4.ObjectNameV4;
 
 import java.util.Objects;
 
@@ -28,15 +32,41 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class AgentHeaderFactoryProvider implements Provider<HeaderFactory> {
+    private final ObjectName objectName;
     private final AgentInformation agentInformation;
 
     @Inject
-    public AgentHeaderFactoryProvider(AgentInformation agentInformation) {
+    public AgentHeaderFactoryProvider(ObjectName objectName, AgentInformation agentInformation) {
+        this.objectName = Objects.requireNonNull(objectName, "objectName");
         this.agentInformation = Objects.requireNonNull(agentInformation, "agentInformation");
     }
 
     @Override
     public HeaderFactory get() {
-        return new AgentHeaderFactory(agentInformation.getAgentId(), agentInformation.getAgentName(), agentInformation.getApplicationName(), agentInformation.getServerType().getCode(), agentInformation.getStartTime());
+        ProtocolVersion version = objectName.getVersion();
+        if (version == ProtocolVersion.V4) {
+            return createV4();
+        }
+        return createV1();
+    }
+
+    private HeaderFactory createV1() {
+        String agentId = objectName.getAgentId();
+        String agentName = objectName.getAgentName();
+        String applicationName = objectName.getApplicationName();
+        return new ClientHeaderFactoryV1(agentId, agentName, applicationName, agentInformation.getServerType().getCode(), agentInformation.getStartTime());
+    }
+
+    private HeaderFactory createV4() {
+        if (objectName instanceof ObjectNameV4) {
+            ObjectNameV4 objectName = (ObjectNameV4) this.objectName;
+            String agentId = objectName.getAgentId();
+            String agentName = objectName.getAgentName();
+            String applicationName = objectName.getApplicationName();
+            String serviceName = objectName.getServiceName();
+            String apiKey = objectName.getApiKey();
+            return new ClientHeaderFactoryV4(agentId, agentName, applicationName, serviceName, agentInformation.getServerType().getCode(), agentInformation.getStartTime(), apiKey);
+        }
+        throw new IllegalStateException("unsupported ObjectType:" + objectName);
     }
 }
