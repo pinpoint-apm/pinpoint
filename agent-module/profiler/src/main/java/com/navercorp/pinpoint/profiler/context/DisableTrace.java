@@ -194,4 +194,11 @@ public class DisableTrace implements Trace {
         return scopePool.add(name);
     }
 
+    @Override
+    public TraceScope addBoundaryScope(String name) {
+        if (scopePool == null) {
+            this.scopePool = new DefaultTraceScopePool();
+        }
+        return scopePool.addBoundary(name);
+    }
 }
