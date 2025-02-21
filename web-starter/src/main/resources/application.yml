@@ -6,6 +6,9 @@ spring:
       default-view-inclusion: true
   profiles:
     active: release, metric
+  mvc:
+    problemdetails:
+      enabled: true
 
 server:
   port: 8080
@@ -30,7 +33,7 @@ pinpoint:
       enabled: true
     otlpmetric:
       enabled: true
-      
+
 pinpoint.web.websocket:
   async-send-timeout:
   max-session-idle-timeout: 10800000 # 3 hours

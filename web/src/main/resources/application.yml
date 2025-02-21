@@ -4,6 +4,9 @@ spring:
   jackson:
     mapper:
       default-view-inclusion: true
+  mvc:
+    problemdetails:
+      enabled: true
 
 server:
   port: 8080
