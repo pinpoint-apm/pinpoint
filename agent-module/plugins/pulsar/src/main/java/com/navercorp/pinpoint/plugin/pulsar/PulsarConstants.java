@@ -34,9 +34,9 @@ public class PulsarConstants {
     public static final String SCOPE = "PULSAR_SEND_COMPLETED";
 
     public static final ServiceType PULSAR_CLIENT = ServiceTypeFactory.of(
-            8663, "PULSAR_CLIENT", "PULSAR_CLIENT", QUEUE, RECORD_STATISTICS);
+            8670, "PULSAR_CLIENT", "PULSAR_CLIENT", QUEUE, RECORD_STATISTICS);
     public static final ServiceType PULSAR_CLIENT_INTERNAL = ServiceTypeFactory.of(
-            8664, "PULSAR_CLIENT_INTERNAL", "PULSAR_CLIENT_INTERNAL", QUEUE, RECORD_STATISTICS);
+            8671, "PULSAR_CLIENT_INTERNAL", "PULSAR_CLIENT_INTERNAL", QUEUE, RECORD_STATISTICS);
 
     public static final AnnotationKey PULSAR_RETRY_COUNT_ANNOTATION_KEY =
             AnnotationKeyFactory.of(893, "pulsar.retry.count", VIEW_IN_RECORD_SET);
