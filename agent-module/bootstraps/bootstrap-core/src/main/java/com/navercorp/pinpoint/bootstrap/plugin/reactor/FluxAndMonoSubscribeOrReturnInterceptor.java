@@ -18,77 +18,52 @@ package com.navercorp.pinpoint.bootstrap.plugin.reactor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 
-public class FluxAndMonoSubscribeOrReturnInterceptor implements AroundInterceptor {
+public class FluxAndMonoSubscribeOrReturnInterceptor implements ApiIdAwareAroundInterceptor {
     private final PluginLogger logger = PluginLogManager.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     public FluxAndMonoSubscribeOrReturnInterceptor() {
     }
 
-    @Override
-    public void before(Object target, Object[] args) {
-    }
-
-    @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void before(Object target, int apiId, Object[] args) {
         if (isDebug) {
-            logger.afterInterceptor(target, args, result, throwable);
+            logger.beforeInterceptor(target, args);
         }
 
-        if (throwable != null) {
-            // Ignore if an error occurs.
-            return;
-        }
-        if (result == null) {
-            return;
-        }
-
-        if (checkTargetReactorContextAccessor(target, args, result)) {
-            return;
-        }
-        if (checkTargetAsyncContextAccessor(target, args, result)) {
-            return;
-        }
-        if (checkSubscriberReactorContextAccessor(target, args, result)) {
-            return;
+        try {
+            final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(target);
+            if (asyncContext != null) {
+                final ReactorSubscriber reactorSubscriber = new ReactorSubscriber(asyncContext);
+                ReactorSubscriberAccessorUtils.set(reactorSubscriber, args, 0);
+                if (isDebug) {
+                    logger.debug("Pass reactorSubscriber to subscribe(args[0]). asyncContext={}", asyncContext);
+                }
+            }
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
+            }
         }
     }
 
-    boolean checkTargetReactorContextAccessor(final Object target, final Object[] args, final Object result) {
-        final AsyncContext asyncContext = ReactorContextAccessorUtils.getAsyncContext(target);
-        if (asyncContext != null) {
-            setReactorContextToResult(asyncContext, result);
-            return true;
-        }
-        return false;
-    }
-
-    boolean checkTargetAsyncContextAccessor(final Object target, final Object[] args, final Object result) {
-        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(target);
-        if (asyncContext != null) {
-            setReactorContextToResult(asyncContext, result);
-            return true;
-        }
-        return false;
-    }
-
-    boolean checkSubscriberReactorContextAccessor(final Object target, final Object[] args, final Object result) {
-        final AsyncContext asyncContext = ReactorContextAccessorUtils.getAsyncContext(args, 0);
-        if (asyncContext != null) {
-            setReactorContextToResult(asyncContext, result);
-            return true;
-        }
-        return false;
-    }
-
-    protected void setReactorContextToResult(AsyncContext asyncContext, Object result) {
-        ReactorContextAccessorUtils.setAsyncContext(asyncContext, result);
-        if (isDebug) {
-            logger.debug("Set reactorContext to result. reactorContext={}", asyncContext);
+    @Override
+    public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
+        try {
+            final ReactorSubscriber reactorSubscriber = ReactorSubscriberAccessorUtils.get(args, 0);
+            if (reactorSubscriber != null) {
+                ReactorSubscriberAccessorUtils.set(reactorSubscriber, result);
+                if (isDebug) {
+                    logger.debug("Pass reactorSubscriber to result. reactorSubscriber={}", reactorSubscriber);
+                }
+            }
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("AFTER. Caused:{}", th.getMessage(), th);
+            }
         }
     }
 }

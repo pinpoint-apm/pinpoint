@@ -75,6 +75,7 @@ public class BoundaryTraceScope implements TraceScope {
         final StringBuilder sb = new StringBuilder("DefaultTraceScope{");
         sb.append("name='").append(name).append('\'');
         sb.append(", depth=").append(depth);
+        sb.append(", skippedBoundary=").append(skippedBoundary);
         sb.append('}');
         return sb.toString();
     }

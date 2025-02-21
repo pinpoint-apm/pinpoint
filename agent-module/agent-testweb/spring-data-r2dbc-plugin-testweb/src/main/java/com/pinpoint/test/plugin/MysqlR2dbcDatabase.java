@@ -32,7 +32,7 @@ public class MysqlR2dbcDatabase implements R2dbcDatabase {
         System.out.println("INIT");
         MySqlConnectionConfiguration connectionConfiguration = MySqlConnectionConfiguration.builder()
                 .host("localhost")
-                .port(32789)
+                .port(32783)
                 .database("test")
                 .user("root")
                 .password("")

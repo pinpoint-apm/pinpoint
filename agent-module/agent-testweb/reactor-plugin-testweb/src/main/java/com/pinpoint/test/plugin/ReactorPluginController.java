@@ -71,9 +71,12 @@ public class ReactorPluginController {
 
     @GetMapping("/parallelFlux/runOn")
     public Mono<String> parallelFluxRunOn() {
-        Flux.range(1, 10)
+        Flux.range(1, 1)
                 .parallel(2)
                 .runOn(Schedulers.parallel())
+                .map(i -> {
+                    return call();
+                })
                 .subscribe(i -> System.out.println(Thread.currentThread().getName() + " -> " + i));
 
         return Mono.just("OK");
@@ -84,11 +87,12 @@ public class ReactorPluginController {
         Scheduler s = Schedulers.newParallel("parallel-scheduler", 4);
 
         final Flux<String> flux = Flux
-                .range(1, 2)
+                .range(1, 1)
                 .map(i -> 10 + i)
                 .publishOn(s)
-                .map(i -> "value " + i);
-
+                .map(i -> {
+                    return call();
+                });
         flux.subscribe(System.out::println);
 
         return Mono.just("OK");
@@ -99,8 +103,9 @@ public class ReactorPluginController {
         Scheduler s = Schedulers.newParallel("parallel-scheduler", 4);
 
         final Flux<String> flux = Flux
-                .range(1, 2)
-                .map(i -> 10 + i)
+                .range(1, 1).map(i -> {
+                    return call();
+                })
                 .subscribeOn(s)
                 .map(i -> "value " + i);
 
@@ -111,22 +116,19 @@ public class ReactorPluginController {
 
     @GetMapping("/mono/publishOn")
     public Mono<String> monoPublishOn() {
-        Flux<Integer> test = Flux
-                .just(0, 1)
-                .hide()
-                .flatMap(f -> Mono.just(f).publishOn(Schedulers.parallel()).map(i -> 1 / i));
-        test.subscribe(System.out::println);
+        Mono.just("test").publishOn(Schedulers.parallel()).map(i -> {
+            return call();
+        }).subscribe(System.out::println);
 
         return Mono.just("OK");
     }
 
     @GetMapping("/mono/subscribeOn")
     public Mono<String> monoSubscribeOn() {
-        Flux<Integer> test = Flux.fromIterable(Arrays.asList("A"))
-                .flatMap(w -> Mono.fromCallable(() -> Arrays.asList(1, 2))
-                        .subscribeOn(Schedulers.parallel())
-                        .flatMapMany(Flux::fromIterable));
-        test.subscribe(System.out::println);
+        Mono.fromCallable(() -> Arrays.asList(1, 2))
+                .subscribeOn(Schedulers.parallel()).map(i -> {
+                    return call();
+                }).subscribe(System.out::println);
         return Mono.just("OK");
     }
 
@@ -134,12 +136,7 @@ public class ReactorPluginController {
     public Mono<String> monoDelay() {
         System.out.println("MAIN thread=" + Thread.currentThread().getName());
         return Mono.delay(Duration.ofMillis(100L)).map(aLong -> {
-            System.out.println("DELAY thread=" + Thread.currentThread().getName());
-            WebClient client = WebClient.create("http://naver.com");
-            WebClient.ResponseSpec response = client.method(HttpMethod.GET)
-                    .uri("").retrieve();
-            Mono<String> body = response.bodyToMono(String.class);
-            return body.block();
+            return call();
         });
     }
 
@@ -148,11 +145,7 @@ public class ReactorPluginController {
         System.out.println("MAIN thread=" + Thread.currentThread().getName());
         return Mono.just("Hello").delayElement(Duration.ofMillis(100L)).map(o -> {
             System.out.println("DELAY thread=" + Thread.currentThread().getName());
-            WebClient client = WebClient.create("http://naver.com");
-            WebClient.ResponseSpec response = client.method(HttpMethod.GET)
-                    .uri("").retrieve();
-            Mono<String> body = response.bodyToMono(String.class);
-            return body.block();
+            return call();
         });
     }
 
@@ -160,12 +153,7 @@ public class ReactorPluginController {
     public Mono<String> monoDelaySubscription() {
         System.out.println("MAIN thread=" + Thread.currentThread().getName());
         return Mono.just("Hello").delaySubscription(Duration.ofMillis(100L)).map(o -> {
-            System.out.println("DELAY thread=" + Thread.currentThread().getName());
-            WebClient client = WebClient.create("http://naver.com");
-            WebClient.ResponseSpec response = client.method(HttpMethod.GET)
-                    .uri("").retrieve();
-            Mono<String> body = response.bodyToMono(String.class);
-            return body.block();
+            return call();
         });
     }
 
@@ -173,12 +161,7 @@ public class ReactorPluginController {
     public Mono<String> monoTake() {
         System.out.println("MAIN thread=" + Thread.currentThread().getName());
         return Mono.just("Hello").take(Duration.ofMillis(100L)).map(o -> {
-            System.out.println("TAKE thread=" + Thread.currentThread().getName());
-            WebClient client = WebClient.create("http://naver.com");
-            WebClient.ResponseSpec response = client.method(HttpMethod.GET)
-                    .uri("").retrieve();
-            Mono<String> body = response.bodyToMono(String.class);
-            return body.block();
+            return call();
         });
     }
 
@@ -186,12 +169,7 @@ public class ReactorPluginController {
     public Flux<String> fluxInterval() {
         System.out.println("MAIN thread=" + Thread.currentThread().getName());
         return Flux.interval(Duration.ofMillis(100L)).take(3).map(o -> {
-            System.out.println("INTERVAL thread=" + Thread.currentThread().getName());
-            WebClient client = WebClient.create("http://naver.com");
-            WebClient.ResponseSpec response = client.method(HttpMethod.GET)
-                    .uri("").retrieve();
-            Mono<String> body = response.bodyToMono(String.class);
-            return body.block();
+            return call();
         });
     }
 
@@ -199,12 +177,7 @@ public class ReactorPluginController {
     public Flux<String> fluxBuffer() {
         System.out.println(Thread.currentThread().getName());
         return Flux.just(1, 2, 3).delayElements(Duration.ofMillis(100L)).take(3).map(o -> {
-            System.out.println(Thread.currentThread().getName());
-            WebClient client = WebClient.create("http://naver.com");
-            WebClient.ResponseSpec response = client.method(HttpMethod.GET)
-                    .uri("").retrieve();
-            Mono<String> body = response.bodyToMono(String.class);
-            return body.block();
+            return call();
         });
     }
 
@@ -233,7 +206,7 @@ public class ReactorPluginController {
     @GetMapping("/flux/cancelOn")
     public Mono<String> fluxCancelOn() {
         System.out.println(Thread.currentThread().getName());
-        WebClient client = WebClient.create("http://naver.com");
+        WebClient client = WebClient.create("http://httpbin.org");
         Mono<String> callback = client.method(HttpMethod.GET)
                 .uri("").retrieve().bodyToMono(String.class);
 
@@ -330,5 +303,13 @@ public class ReactorPluginController {
         WebClient.ResponseSpec response = client.method(HttpMethod.GET)
                 .uri("").retrieve();
         return response.bodyToMono(String.class);
+    }
+
+    private String call() {
+        WebClient client = WebClient.create("http://httpbin.org");
+        WebClient.ResponseSpec response = client.method(HttpMethod.GET)
+                .uri("").retrieve();
+        Mono<String> body = response.bodyToMono(String.class);
+        return body.block();
     }
 }

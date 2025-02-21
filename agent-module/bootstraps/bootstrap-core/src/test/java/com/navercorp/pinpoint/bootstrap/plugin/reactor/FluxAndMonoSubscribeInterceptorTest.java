@@ -31,115 +31,36 @@ public class FluxAndMonoSubscribeInterceptorTest {
     final ServiceType mockServiceType = mock(ServiceType.class);
 
     @Test
-    public void targetContainReactorContext() {
-        AsyncContext mockAsyncContext = mock(AsyncContext.class);
-        MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
-        MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
-        FluxAndMonoSubscribeInterceptor interceptor = new FluxAndMonoSubscribeInterceptor(mockTraceContext, mockServiceType);
-
-        // Set asyncContext to target
-        target._$PINPOINT$_setReactorContext(mockAsyncContext);
-        // before
-        AsyncContext asyncContext = interceptor.getAsyncContext(target, new Object[]{arg0});
-
-        assertNull(asyncContext);
-        assertNotNull(arg0._$PINPOINT$_getReactorContext());
-        assertEquals(arg0._$PINPOINT$_getReactorContext(), mockAsyncContext);
-
-        // after
-        asyncContext = interceptor.getAsyncContext(target, new Object[]{arg0}, new Object(), null);
-
-        assertNull(asyncContext);
-    }
-
-    @Test
     public void targetContainAsyncContext() {
         AsyncContext mockAsyncContext = mock(AsyncContext.class);
-        MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
-        MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
-        FluxAndMonoSubscribeInterceptor interceptor = new FluxAndMonoSubscribeInterceptor(mockTraceContext, mockServiceType);
+        MockAsyncContextImpl target = new MockAsyncContextImpl();
+        MockReactorSubscriberAccessor arg0 = new MockReactorSubscriberAccessor();
+        FluxAndMonoSubscribeInterceptor interceptor = new FluxAndMonoSubscribeInterceptor();
 
         // Set asyncContext to target
         target._$PINPOINT$_setAsyncContext(mockAsyncContext);
         // before
-        AsyncContext asyncContext = interceptor.getAsyncContext(target, new Object[]{arg0});
-
-        assertNotNull(asyncContext);
-        assertNotNull(target._$PINPOINT$_getReactorContext());
-        assertEquals(target._$PINPOINT$_getReactorContext(), mockAsyncContext);
-        assertNotNull(arg0._$PINPOINT$_getReactorContext());
-        assertEquals(arg0._$PINPOINT$_getReactorContext(), mockAsyncContext);
-
+        interceptor.before(target, 1, new Object[]{arg0});
         // after
-        asyncContext = interceptor.getAsyncContext(target, new Object[]{arg0}, new Object(), null);
+        interceptor.after(target, 1, new Object[]{arg0}, new Object(), null);
 
-        assertNotNull(asyncContext);
-        assertEquals(asyncContext, mockAsyncContext);
+        assertNotNull(arg0._$PINPOINT$_getReactorSubscriber());
+        assertEquals(arg0._$PINPOINT$_getReactorSubscriber().getAsyncContext(), mockAsyncContext);
     }
 
     @Test
     public void targetNotContainAsyncContext() {
-        MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
-        MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
-        FluxAndMonoSubscribeInterceptor interceptor = new FluxAndMonoSubscribeInterceptor(mockTraceContext, mockServiceType);
+        MockAsyncContextImpl target = new MockAsyncContextImpl();
+        MockReactorSubscriberAccessor arg0 = new MockReactorSubscriberAccessor();
+        FluxAndMonoSubscribeInterceptor interceptor = new FluxAndMonoSubscribeInterceptor();
 
         // Not set asyncContext to target
         // before
-        AsyncContext asyncContext = interceptor.getAsyncContext(target, new Object[]{arg0});
-
-        assertNull(asyncContext);
-        assertNull(target._$PINPOINT$_getAsyncContext());
-        assertNull(target._$PINPOINT$_getReactorContext());
-        assertNull(arg0._$PINPOINT$_getReactorContext());
-
+        interceptor.before(target, 1, new Object[]{arg0});
         // after
-        asyncContext = interceptor.getAsyncContext(target, new Object[]{arg0}, new Object(), null);
+        interceptor.after(target, 1, new Object[]{arg0}, new Object(), null);
 
-        assertNull(asyncContext);
-    }
-
-    @Test
-    public void arg0ContainReactorContext() {
-        AsyncContext mockAsyncContext = mock(AsyncContext.class);
-        MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
-        MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
-        FluxAndMonoSubscribeInterceptor interceptor = new FluxAndMonoSubscribeInterceptor(mockTraceContext, mockServiceType);
-
-        // Set asyncContext to target
-        arg0._$PINPOINT$_setReactorContext(mockAsyncContext);
-        // before
-        AsyncContext asyncContext = interceptor.getAsyncContext(target, new Object[]{arg0});
-
-        assertNull(asyncContext);
         assertNull(target._$PINPOINT$_getAsyncContext());
-        assertNotNull(target._$PINPOINT$_getReactorContext());
-        assertEquals(target._$PINPOINT$_getReactorContext(), mockAsyncContext);
-
-        // after
-        asyncContext = interceptor.getAsyncContext(target, new Object[]{arg0}, new Object(), null);
-
-        assertNull(asyncContext);
-    }
-
-    @Test
-    public void arg0NotContainReactorContext() {
-        AsyncContext mockAsyncContext = mock(AsyncContext.class);
-        MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
-        MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
-        FluxAndMonoSubscribeInterceptor interceptor = new FluxAndMonoSubscribeInterceptor(mockTraceContext, mockServiceType);
-
-        // Not set asyncContext to target
-        // before
-        AsyncContext asyncContext = interceptor.getAsyncContext(target, new Object[]{arg0});
-
-        assertNull(asyncContext);
-        assertNull(target._$PINPOINT$_getAsyncContext());
-        assertNull(target._$PINPOINT$_getReactorContext());
-        assertNull(arg0._$PINPOINT$_getReactorContext());
-
-        // after
-        asyncContext = interceptor.getAsyncContext(target, new Object[]{arg0}, new Object(), null);
-
-        assertNull(asyncContext);
+        assertNull(arg0._$PINPOINT$_getReactorSubscriber());
     }
 }

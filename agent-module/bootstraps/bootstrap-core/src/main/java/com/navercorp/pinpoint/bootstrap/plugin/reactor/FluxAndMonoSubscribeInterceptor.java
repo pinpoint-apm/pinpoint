@@ -18,87 +18,40 @@ package com.navercorp.pinpoint.bootstrap.plugin.reactor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 
-public class FluxAndMonoSubscribeInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
-    private final ServiceType serviceType;
+public class FluxAndMonoSubscribeInterceptor implements ApiIdAwareAroundInterceptor {
+    private final PluginLogger logger = PluginLogManager.getLogger(getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
 
-    public FluxAndMonoSubscribeInterceptor(TraceContext traceContext, ServiceType serviceType) {
-        super(traceContext);
-        this.serviceType = serviceType;
+    public FluxAndMonoSubscribeInterceptor() {
     }
 
-    // AsyncContext must exist in Target for tracking.
-    public AsyncContext getAsyncContext(Object target, Object[] args) {
-        if (checkTargetReactorContextAccessor(target, args)) {
-            return AsyncContextAccessorUtils.getAsyncContext(target);
-        }
-        if (checkTargetAsyncContextAccessor(target, args)) {
-            return AsyncContextAccessorUtils.getAsyncContext(target);
-        }
-        if (checkSubscriberReactorContextAccessor(target, args)) {
-            return AsyncContextAccessorUtils.getAsyncContext(target);
-        }
-        return AsyncContextAccessorUtils.getAsyncContext(target);
-    }
-
-    private boolean checkTargetReactorContextAccessor(final Object target, final Object[] args) {
-        final AsyncContext asyncContext = ReactorContextAccessorUtils.getAsyncContext(target);
-        if (asyncContext != null) {
-            setReactorContextToSubscriber(asyncContext, args);
-            return true;
-        }
-        return false;
-    }
-
-    private boolean checkTargetAsyncContextAccessor(final Object target, final Object[] args) {
-        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(target);
-        if (asyncContext != null) {
-            setReactorContextToTarget(asyncContext, target);
-            setReactorContextToSubscriber(asyncContext, args);
-            return true;
-        }
-        return false;
-    }
-
-    private boolean checkSubscriberReactorContextAccessor(final Object target, final Object[] args) {
-        final AsyncContext asyncContext = ReactorContextAccessorUtils.getAsyncContext(args, 0);
-        if (asyncContext != null) {
-            setReactorContextToTarget(asyncContext, target);
-            return true;
-        }
-        return false;
-    }
-
-    protected void setReactorContextToTarget(AsyncContext asyncContext, Object target) {
-        ReactorContextAccessorUtils.setAsyncContext(asyncContext, target);
+    @Override
+    public void before(Object target, int apiId, Object[] args) {
         if (isDebug) {
-            logger.debug("Set reactorContext to target. reactorContext={}", asyncContext);
+            logger.beforeInterceptor(target, args);
         }
-    }
 
-    protected void setReactorContextToSubscriber(AsyncContext asyncContext, Object[] args) {
-        ReactorContextAccessorUtils.setAsyncContext(asyncContext, args, 0);
-        if (isDebug) {
-            logger.debug("Set reactorContext to args[0]. asyncContext={}", asyncContext);
+        try {
+            final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(target);
+            if (asyncContext != null) {
+                final ReactorSubscriber reactorSubscriber = new ReactorSubscriber(asyncContext);
+                ReactorSubscriberAccessorUtils.set(reactorSubscriber, args, 0);
+                if (isDebug) {
+                    logger.debug("Pass this to subscribe(args[0]). reactorSubscriber={}", reactorSubscriber);
+                }
+            }
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
+            }
         }
     }
 
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
-    }
-
-    public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        return AsyncContextAccessorUtils.getAsyncContext(target);
-    }
-
-    @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
-        recorder.recordApiId(apiId);
-        recorder.recordServiceType(serviceType);
-        recorder.recordException(throwable);
+    public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
     }
 }

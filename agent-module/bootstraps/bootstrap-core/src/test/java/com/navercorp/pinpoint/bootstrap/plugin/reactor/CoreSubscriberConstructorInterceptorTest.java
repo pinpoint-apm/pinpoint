@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.reactor;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,58 +27,58 @@ public class CoreSubscriberConstructorInterceptorTest {
 
     @Test
     public void arg0ContainReactorContext() {
-        AsyncContext mockAsyncContext = mock(AsyncContext.class);
-        MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
-        MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
+        ReactorSubscriber reactorSubscriber = mock(ReactorSubscriber.class);
+        MockReactorActualAccessor target = new MockReactorActualAccessor();
+        MockReactorSubscriberAccessor arg0 = new MockReactorSubscriberAccessor();
         CoreSubscriberConstructorInterceptor interceptor = new CoreSubscriberConstructorInterceptor();
 
         // Set asyncContext to target
-        arg0._$PINPOINT$_setReactorContext(mockAsyncContext);
+        arg0._$PINPOINT$_setReactorSubscriber(reactorSubscriber);
         interceptor.after(target, new Object[]{arg0}, new Object(), null);
 
-        assertNotNull(target._$PINPOINT$_getReactorContext());
-        assertEquals(target._$PINPOINT$_getReactorContext(), arg0._$PINPOINT$_getReactorContext());
+        assertNotNull(target._$PINPOINT$_getReactorActual());
+        assertEquals(target._$PINPOINT$_getReactorActual(), arg0);
     }
 
     @Test
     public void argNotContainReactorContext() {
-        MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
-        MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
+        MockReactorActualAccessor target = new MockReactorActualAccessor();
+        Object arg0 = new Object();
         CoreSubscriberConstructorInterceptor interceptor = new CoreSubscriberConstructorInterceptor();
 
         // Not set asyncContext to target
         interceptor.after(target, new Object[]{arg0}, new Object(), null);
 
-        assertNull(target._$PINPOINT$_getReactorContext());
+        assertNull(target._$PINPOINT$_getReactorActual());
     }
 
     @Test
     public void arg1ContainReactorContext() {
-        AsyncContext mockAsyncContext = mock(AsyncContext.class);
-        MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
-        MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
-        MockAsyncContextAndReactorContextImpl arg1 = new MockAsyncContextAndReactorContextImpl();
+        ReactorSubscriber reactorSubscriber = mock(ReactorSubscriber.class);
+        MockReactorActualAccessor target = new MockReactorActualAccessor();
+        Object arg0 = new Object();
+        MockReactorSubscriberAccessor arg1 = new MockReactorSubscriberAccessor();
         CoreSubscriberConstructorInterceptor interceptor = new CoreSubscriberConstructorInterceptor();
 
         // Set asyncContext to target
-        arg1._$PINPOINT$_setReactorContext(mockAsyncContext);
+        arg1._$PINPOINT$_setReactorSubscriber(reactorSubscriber);
         interceptor.after(target, new Object[]{arg0, arg1}, new Object(), null);
 
-        assertNotNull(target._$PINPOINT$_getReactorContext());
-        assertEquals(target._$PINPOINT$_getReactorContext(), arg1._$PINPOINT$_getReactorContext());
+        assertNotNull(target._$PINPOINT$_getReactorActual());
+        assertEquals(target._$PINPOINT$_getReactorActual(), arg1);
     }
 
     @Test
     public void throwableIsNotNull() {
-        AsyncContext mockAsyncContext = mock(AsyncContext.class);
-        MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
-        MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
+        ReactorSubscriber reactorSubscriber = mock(ReactorSubscriber.class);
+        MockReactorActualAccessor target = new MockReactorActualAccessor();
+        MockReactorSubscriberAccessor arg0 = new MockReactorSubscriberAccessor();
         Throwable throwable = new Throwable("ERROR");
         CoreSubscriberConstructorInterceptor interceptor = new CoreSubscriberConstructorInterceptor();
 
-        arg0._$PINPOINT$_setReactorContext(mockAsyncContext);
+        arg0._$PINPOINT$_setReactorSubscriber(reactorSubscriber);
         interceptor.after(target, new Object[]{arg0}, new Object(), throwable);
 
-        assertNull(target._$PINPOINT$_getReactorContext());
+        assertNull(target._$PINPOINT$_getReactorActual());
     }
 }

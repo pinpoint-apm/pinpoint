@@ -51,9 +51,8 @@ public abstract class AsyncContextSpanEventNestedApiIdAwareAroundInterceptor ext
 
         // try entry API.
         if (Boolean.FALSE == tryEnter(trace)) {
-            // skip nested API.
             if (isDebug) {
-                logger.debug("Skip nested async API.before(), traceScopeName={}", traceScopeName);
+                logger.debug("Skip nested async API.before(), trace={}, traceScopeName={}", trace, traceScopeName);
             }
             return;
         }
@@ -86,9 +85,6 @@ public abstract class AsyncContextSpanEventNestedApiIdAwareAroundInterceptor ext
 
         final AsyncContext asyncContext = getAsyncContext(target, args, result, throwable);
         if (asyncContext == null) {
-            if (isTrace) {
-                logger.trace("AsyncContext not found");
-            }
             return;
         }
 
@@ -98,9 +94,8 @@ public abstract class AsyncContextSpanEventNestedApiIdAwareAroundInterceptor ext
         }
 
         if (Boolean.FALSE == canLeave(trace)) {
-            // skip nested API.
             if (isDebug) {
-                logger.debug("Skip nested async API.after(), traceScopeName={}", traceScopeName);
+                logger.debug("Skip nested async API.after(), trace={}, traceScopeName={}", trace, traceScopeName);
             }
             return;
         }
@@ -143,7 +138,11 @@ public abstract class AsyncContextSpanEventNestedApiIdAwareAroundInterceptor ext
             scope = trace.getScope(traceScopeName);
         }
         if (scope != null) {
-            return scope.tryEnter();
+            boolean result = scope.tryEnter();
+            return result;
+        }
+        if (isDebug) {
+            logger.debug("Skip to enter, not found scope, scopeName={}", traceScopeName);
         }
         return false;
     }
@@ -156,6 +155,7 @@ public abstract class AsyncContextSpanEventNestedApiIdAwareAroundInterceptor ext
                 return true;
             }
         }
+
         return false;
     }
 }
