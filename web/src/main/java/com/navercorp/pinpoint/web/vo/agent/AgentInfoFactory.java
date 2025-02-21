@@ -18,7 +18,10 @@ public class AgentInfoFactory {
         AgentInfo agentInfo = new AgentInfo();
         agentInfo.setApplicationName(agentInfoBo.getApplicationName());
         agentInfo.setAgentId(agentInfoBo.getAgentId());
-        agentInfo.setAgentName(agentInfoBo.getAgentName());
+
+        final String agentName = agentInfoBo.getAgentName();
+        agentInfo.setAgentName(agentName, agentInfoBo.getAgentId());
+
         agentInfo.setStartTimestamp(agentInfoBo.getStartTime());
         agentInfo.setHostName(agentInfoBo.getHostName());
         agentInfo.setIp(agentInfoBo.getIp());
@@ -30,4 +33,5 @@ public class AgentInfoFactory {
         agentInfo.setContainer(agentInfoBo.isContainer());
         return agentInfo;
     }
+
 }

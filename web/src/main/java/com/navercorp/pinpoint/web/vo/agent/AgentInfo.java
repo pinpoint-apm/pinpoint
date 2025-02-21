@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.vo.agent;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.view.ServiceTypeDescView;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
 
@@ -65,6 +66,14 @@ public class AgentInfo {
 
     public void setAgentName(String agentName) {
         this.agentName = agentName;
+    }
+
+    public void setAgentName(String agentName, String agentId) {
+        if (StringUtils.isEmpty(agentName)) {
+            this.setAgentName(agentId);
+        } else {
+            this.setAgentName(agentName);
+        }
     }
 
     public long getStartTimestamp() {
