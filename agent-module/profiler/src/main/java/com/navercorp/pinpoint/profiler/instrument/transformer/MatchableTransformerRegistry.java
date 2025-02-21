@@ -31,7 +31,7 @@ import org.apache.logging.log4j.Logger;
 import java.lang.instrument.ClassFileTransformer;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -229,7 +229,7 @@ public class MatchableTransformerRegistry implements TransformerRegistry {
     private void addIndexData(final String key, final IndexValue indexValue, final Map<String, Set<IndexValue>> index) {
         Set<IndexValue> indexValueSet = index.get(key);
         if (indexValueSet == null) {
-            indexValueSet = new HashSet<>();
+            indexValueSet = new LinkedHashSet<>();
             index.put(key, indexValueSet);
         }
         indexValueSet.add(indexValue);
