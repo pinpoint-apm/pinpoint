@@ -105,14 +105,12 @@ export const OpenTelemetryMetricFetcher = ({
     );
   }
 
-  const message = 'test message\ntestmesage~~~';
-
   return (
     <Widget
       title={
         <div className="flex flex-row gap-1">
           {metricDefinition.title}
-          {message && (
+          {data?.message && (
             <TooltipProvider delayDuration={0}>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -122,7 +120,7 @@ export const OpenTelemetryMetricFetcher = ({
                 </TooltipTrigger>
                 <TooltipPrimitive.Portal>
                   <TooltipContent>
-                    {message?.split('\n').map((m, i) => <p key={i}>{m}</p>)}
+                    {data?.message?.split('\n').map((m, i) => <p key={i}>{m}</p>)}
                   </TooltipContent>
                 </TooltipPrimitive.Portal>
               </Tooltip>

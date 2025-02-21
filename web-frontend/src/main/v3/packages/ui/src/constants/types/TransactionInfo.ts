@@ -19,7 +19,7 @@ export namespace TransactionInfoType {
     callStackStart: number;
     callStackEnd: number;
     callStackIndex: CallStackIndex;
-    callStack: any[][];
+    callStack: any[][]; // ['depth', 'begin', 'end', 'excludeFromTimeline', 'applicationName', 'tab', 'id', 'parentId', 'isMethod', 'hasChild', 'title', 'arguments', 'executeTime', 'gap', 'elapsedTime', 'barWidth', 'executionMilliseconds', 'simpleClassName', 'methodType', 'apiType', 'agent', 'isFocused', 'hasException', 'isAuthorized', 'agentName', 'lineNumber', 'location', 'applicationServiceType', 'exceptionChainId']
     applicationMapData: ApplicationMapData;
     loggingTransactionInfo: boolean;
     agentId: string;
