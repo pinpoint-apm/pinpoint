@@ -33,6 +33,8 @@ public class ExceptionRecord extends BaseRecord {
             final int tab, final int id, final int parentId, final Align align,
             ServiceType applicationServiceType
     ) {
+        this.begin = align.getStartTime();
+        this.elapsed = align.getElapsed();
         this.tab = tab;
         this.id = id;
         this.parentId = parentId;
