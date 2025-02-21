@@ -74,7 +74,7 @@ public class AgentHeaderReaderTest {
         Metadata metadata = newMetadata();
         metadata.remove(Header.AGENT_NAME_KEY, AGENT_NAME);
         final Header header = reader.extract(metadata);
-        Assertions.assertNull(header.getAgentName());
+        Assertions.assertEquals(AGENT_ID, header.getAgentName());
     }
 
     @Test
