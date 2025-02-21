@@ -32,13 +32,14 @@ import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.CoreSubscriberOnSubscribeInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.CoreSubscriberConstructorInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoConstructorInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoOperatorConstructorInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.CoreSubscriberOnNextInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoOperatorSubscribeInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoSubscribeInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoSubscribeOrReturnInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorActualAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorSubscriberAccessor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.ChannelOperationsChannelMethodInterceptor;
@@ -76,7 +77,7 @@ public class ReactorNettyPlugin implements ProfilerPlugin, MatchableTransformTem
             logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
-        logger.info("{} version range=[0.8.2.RELEASE, 1.0.4.RELEASE], config:{}", this.getClass().getSimpleName(), config);
+        logger.info("{}, config:{}", this.getClass().getSimpleName(), config);
 
         if (ServiceType.UNDEFINED.equals(context.getConfiguredApplicationType())) {
             final ReactorNettyDetector detector = new ReactorNettyDetector(config.getBootstrapMains());
@@ -295,18 +296,10 @@ public class ReactorNettyPlugin implements ProfilerPlugin, MatchableTransformTem
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             // Async Object
             target.addField(AsyncContextAccessor.class);
-            target.addField(ReactorContextAccessor.class);
-
-            for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
-                final String[] parameterTypes = constructorMethod.getParameterTypes();
-                if (ArrayUtils.hasLength(parameterTypes)) {
-                    constructorMethod.addInterceptor(FluxAndMonoConstructorInterceptor.class);
-                }
-            }
 
             final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "reactor.core.CoreSubscriber");
             if (subscribeMethod != null) {
-                subscribeMethod.addInterceptor(FluxAndMonoSubscribeInterceptor.class, va(ReactorNettyConstants.REACTOR_NETTY_INTERNAL));
+                subscribeMethod.addInterceptor(FluxAndMonoSubscribeInterceptor.class);
             }
             // since 3.3.0
             final InstrumentMethod subscribeOrReturnMethod = target.getDeclaredMethod("subscribeOrReturn", "reactor.core.CoreSubscriber");
@@ -324,17 +317,10 @@ public class ReactorNettyPlugin implements ProfilerPlugin, MatchableTransformTem
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             // Async Object
             target.addField(AsyncContextAccessor.class);
-            target.addField(ReactorContextAccessor.class);
 
-            for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
-                final String[] parameterTypes = constructorMethod.getParameterTypes();
-                if (ArrayUtils.hasLength(parameterTypes)) {
-                    constructorMethod.addInterceptor(FluxAndMonoOperatorConstructorInterceptor.class);
-                }
-            }
             final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "reactor.core.CoreSubscriber");
             if (subscribeMethod != null) {
-                subscribeMethod.addInterceptor(FluxAndMonoOperatorSubscribeInterceptor.class, va(ReactorNettyConstants.REACTOR_NETTY_INTERNAL));
+                subscribeMethod.addInterceptor(FluxAndMonoOperatorSubscribeInterceptor.class);
             }
             // since 3.3.0
             final InstrumentMethod subscribeOrReturnMethod = target.getDeclaredMethod("subscribeOrReturn", "reactor.core.CoreSubscriber");
@@ -349,15 +335,24 @@ public class ReactorNettyPlugin implements ProfilerPlugin, MatchableTransformTem
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-            // Async Object
             target.addField(AsyncContextAccessor.class);
-            target.addField(ReactorContextAccessor.class);
+            target.addField(ReactorActualAccessor.class);
+            target.addField(ReactorSubscriberAccessor.class);
 
             for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
                 final String[] parameterTypes = constructorMethod.getParameterTypes();
                 if (ArrayUtils.hasLength(parameterTypes)) {
                     constructorMethod.addInterceptor(CoreSubscriberConstructorInterceptor.class);
                 }
+            }
+
+            final InstrumentMethod onSubscribeMethod = target.getDeclaredMethod("onSubscribe", "org.reactivestreams.Subscription");
+            if (onSubscribeMethod != null) {
+                onSubscribeMethod.addInterceptor(CoreSubscriberOnSubscribeInterceptor.class);
+            }
+            final InstrumentMethod onNextMethod = target.getDeclaredMethod("onNext", "java.lang.Object");
+            if (onNextMethod != null) {
+                onNextMethod.addInterceptor(CoreSubscriberOnNextInterceptor.class, va(ReactorNettyConstants.REACTOR_NETTY_INTERNAL));
             }
 
             return target.toBytecode();
@@ -368,16 +363,24 @@ public class ReactorNettyPlugin implements ProfilerPlugin, MatchableTransformTem
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-            // Async Object
             target.addField(AsyncContextAccessor.class);
-            target.addField(ReactorContextAccessor.class);
+            target.addField(ReactorActualAccessor.class);
+            target.addField(ReactorSubscriberAccessor.class);
 
-            // Reactor
             for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
                 final String[] parameterTypes = constructorMethod.getParameterTypes();
                 if (ArrayUtils.hasLength(parameterTypes)) {
                     constructorMethod.addInterceptor(CoreSubscriberConstructorInterceptor.class);
                 }
+            }
+
+            final InstrumentMethod onSubscribeMethod = target.getDeclaredMethod("onSubscribe", "org.reactivestreams.Subscription");
+            if (onSubscribeMethod != null) {
+                onSubscribeMethod.addInterceptor(CoreSubscriberOnSubscribeInterceptor.class);
+            }
+            final InstrumentMethod onNextMethod = target.getDeclaredMethod("onNext", "java.lang.Object");
+            if (onNextMethod != null) {
+                onNextMethod.addInterceptor(CoreSubscriberOnNextInterceptor.class, va(ReactorNettyConstants.REACTOR_NETTY_INTERNAL));
             }
 
             final InstrumentMethod onErrorMethod = target.getDeclaredMethod("onError", "java.lang.Throwable");

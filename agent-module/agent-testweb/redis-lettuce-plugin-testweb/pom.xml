@@ -40,6 +40,10 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-agent-testweb-commons</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

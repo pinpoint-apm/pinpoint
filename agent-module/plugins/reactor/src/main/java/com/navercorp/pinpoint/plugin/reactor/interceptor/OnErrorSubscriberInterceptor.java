@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.plugin.reactor.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessorUtils;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
 import com.navercorp.pinpoint.plugin.reactor.ReactorPluginConfig;
@@ -41,7 +41,7 @@ public class OnErrorSubscriberInterceptor extends AsyncContextSpanEventApiIdAwar
     // AsyncContext must exist in Target for tracking.
     public AsyncContext getAsyncContext(Object target, Object[] args) {
         if (traceOnError) {
-            return ReactorContextAccessorUtils.getAsyncContext(target);
+            return AsyncContextAccessorUtils.getAsyncContext(target);
         }
         return null;
     }
@@ -52,7 +52,7 @@ public class OnErrorSubscriberInterceptor extends AsyncContextSpanEventApiIdAwar
 
     public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
         if (traceOnError) {
-            return ReactorContextAccessorUtils.getAsyncContext(target);
+            return AsyncContextAccessorUtils.getAsyncContext(target);
         }
         return null;
     }

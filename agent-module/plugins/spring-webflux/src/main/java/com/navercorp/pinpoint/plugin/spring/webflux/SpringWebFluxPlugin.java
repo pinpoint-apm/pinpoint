@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.InterfaceInternalNameMatcherOperand;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.SuperClassInternalNameMatcherOperand;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
@@ -31,6 +33,13 @@ import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.CoreSubscriberOnSubscribeInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.CoreSubscriberConstructorInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.CoreSubscriberOnNextInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoSubscribeInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorActualAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorSubscriberAccessor;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.AbstractHandlerMethodMappingInterceptor;
 import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.AbstractUrlHandlerMappingInterceptor;
 import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.BodyInserterRequestBuilderWriteToInterceptor;
@@ -61,7 +70,7 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
             return;
         }
 
-        logger.info("{} version range=[5.0.0.RELEASE, 5.2.1.RELEASE], config:{}", this.getClass().getSimpleName(), config);
+        logger.info("{}, config:{}", this.getClass().getSimpleName(), config);
         // Server
         transformTemplate.transform("org.springframework.web.reactive.DispatcherHandler", DispatchHandlerTransform.class,
                 TransformCallbackParametersBuilder.newBuilder()
@@ -74,12 +83,27 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
         transformTemplate.transform("org.springframework.web.server.adapter.DefaultServerWebExchange", ServerWebExchangeTransform.class);
         transformTemplate.transform("org.springframework.web.reactive.result.method.InvocableHandlerMethod", InvocableHandlerMethodTransform.class);
 
+        // Reactive
+        final Matcher httpServerFluxMatcher = Matchers.newPackageBasedMatcher("org.springframework.http.server.reactive", new SuperClassInternalNameMatcherOperand("reactor.core.publisher.Flux", true));
+        transformTemplate.transform(httpServerFluxMatcher, FluxAndMonoTransform.class);
+        final Matcher httpServerMonoMatcher = Matchers.newPackageBasedMatcher("org.springframework.http.server.reactive", new SuperClassInternalNameMatcherOperand("reactor.core.publisher.Mono", true));
+        transformTemplate.transform(httpServerMonoMatcher, FluxAndMonoTransform.class);
+        final Matcher httpServerCoreSubscriberMatcher = Matchers.newPackageBasedMatcher("org.springframework.http.server.reactive", new InterfaceInternalNameMatcherOperand("reactor.core.CoreSubscriber", true));
+        transformTemplate.transform(httpServerCoreSubscriberMatcher, CoreSubscriberTransform.class);
+
         // Client
         if (Boolean.TRUE == config.isClientEnable()) {
             // If there is a conflict with Reactor-Netty, set it to false.
             transformTemplate.transform("org.springframework.web.reactive.function.client.DefaultWebClient$DefaultRequestBodyUriSpec", DefaultWebClientTransform.class);
             transformTemplate.transform("org.springframework.web.reactive.function.client.ExchangeFunctions$DefaultExchangeFunction", ExchangeFunctionTransform.class);
             transformTemplate.transform("org.springframework.web.reactive.function.client.DefaultClientRequestBuilder$BodyInserterRequest", BodyInserterRequestTransform.class);
+            // Reactive
+            final Matcher httpClientFluxMatcher = Matchers.newPackageBasedMatcher("org.springframework.http.client.reactive", new SuperClassInternalNameMatcherOperand("reactor.core.publisher.Flux", true));
+            transformTemplate.transform(httpClientFluxMatcher, FluxAndMonoTransform.class);
+            final Matcher httpClientMonoMatcher = Matchers.newPackageBasedMatcher("org.springframework.http.client.reactive", new SuperClassInternalNameMatcherOperand("reactor.core.publisher.Mono", true));
+            transformTemplate.transform(httpClientMonoMatcher, FluxAndMonoTransform.class);
+            final Matcher httpClientCoreSubscriberMatcher = Matchers.newPackageBasedMatcher("org.springframework.http.client.reactive", new InterfaceInternalNameMatcherOperand("reactor.core.CoreSubscriber", true));
+            transformTemplate.transform(httpClientCoreSubscriberMatcher, CoreSubscriberTransform.class);
         }
 
         // uri stat
@@ -93,6 +117,8 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
                             .addBoolean(config.isUriStatCollectMethod())
                             .build());
         }
+
+
     }
 
     @Override
@@ -277,4 +303,47 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
         }
     }
 
+    public static class FluxAndMonoTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            // Async Object
+            target.addField(AsyncContextAccessor.class);
+
+            final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "reactor.core.CoreSubscriber");
+            if (subscribeMethod != null) {
+                subscribeMethod.addInterceptor(FluxAndMonoSubscribeInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class CoreSubscriberTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(AsyncContextAccessor.class);
+            target.addField(ReactorActualAccessor.class);
+            target.addField(ReactorSubscriberAccessor.class);
+
+            for (InstrumentMethod constructorMethod : target.getDeclaredConstructors()) {
+                final String[] parameterTypes = constructorMethod.getParameterTypes();
+                if (ArrayUtils.hasLength(parameterTypes)) {
+                    constructorMethod.addInterceptor(CoreSubscriberConstructorInterceptor.class);
+                }
+            }
+
+            final InstrumentMethod onSubscribeMethod = target.getDeclaredMethod("onSubscribe", "org.reactivestreams.Subscription");
+            if (onSubscribeMethod != null) {
+                onSubscribeMethod.addInterceptor(CoreSubscriberOnSubscribeInterceptor.class);
+            }
+            final InstrumentMethod onNextMethod = target.getDeclaredMethod("onNext", "java.lang.Object");
+            if (onNextMethod != null) {
+                onNextMethod.addInterceptor(CoreSubscriberOnNextInterceptor.class, va(SpringWebFluxConstants.SPRING_WEBFLUX));
+            }
+
+            return target.toBytecode();
+        }
+    }
 }
