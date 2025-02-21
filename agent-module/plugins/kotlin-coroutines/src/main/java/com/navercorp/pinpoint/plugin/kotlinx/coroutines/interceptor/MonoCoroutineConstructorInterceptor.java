@@ -17,11 +17,11 @@
 package com.navercorp.pinpoint.plugin.kotlinx.coroutines.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
-import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessorUtils;
 import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
 
@@ -44,7 +44,7 @@ public class MonoCoroutineConstructorInterceptor implements AroundInterceptor {
         }
 
         try {
-            final AsyncContext asyncContext = ReactorContextAccessorUtils.getAsyncContext(args, 1);
+            final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 1);
             if (asyncContext != null) {
                 if (target instanceof Continuation) {
                     CoroutineContext context = ((Continuation<?>) target).getContext();

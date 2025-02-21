@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.reactor;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 
 public class CoreSubscriberConstructorInterceptor implements AroundInterceptor {
     private final PluginLogger logger = PluginLogManager.getLogger(getClass());
@@ -40,10 +40,12 @@ public class CoreSubscriberConstructorInterceptor implements AroundInterceptor {
         }
 
         try {
-            // Check actual subscriber
-            final AsyncContext actualAsyncContext = ReactorContextAccessorUtils.findAsyncContext(args, 0);
-            if (actualAsyncContext != null) {
-                setReactorContextToTarget(actualAsyncContext, target);
+            if (target instanceof ReactorActualAccessor) {
+                // Check actual subscriber
+                final ReactorSubscriberAccessor actual = findActual(args);
+                if (actual != null) {
+                    ((ReactorActualAccessor) target)._$PINPOINT$_setReactorActual(actual);
+                }
             }
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -52,10 +54,17 @@ public class CoreSubscriberConstructorInterceptor implements AroundInterceptor {
         }
     }
 
-    protected void setReactorContextToTarget(final AsyncContext asyncContext, final Object target) {
-        ReactorContextAccessorUtils.setAsyncContext(asyncContext, target);
-        if (isDebug) {
-            logger.debug("Set reactorContext to target. reactorContext={}", asyncContext);
+    public static ReactorSubscriberAccessor findActual(Object[] args) {
+        if (ArrayUtils.isEmpty(args)) {
+            return null;
         }
+        final int length = args.length - 1;
+        for (int i = 0; i <= length; i++) {
+            final Object arg = args[i];
+            if (arg instanceof ReactorSubscriberAccessor) {
+                return (ReactorSubscriberAccessor) arg;
+            }
+        }
+        return null;
     }
 }

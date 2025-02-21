@@ -34,7 +34,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoSubscribeInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessor;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.ExtendedBsonListGetter;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.FieldNameGetter;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.OperatorGetter;
@@ -536,11 +535,10 @@ public class MongoPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             target.addField(AsyncContextAccessor.class);
-            target.addField(ReactorContextAccessor.class);
 
             final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "org.reactivestreams.Subscriber");
             if (subscribeMethod != null) {
-                subscribeMethod.addInterceptor(FluxAndMonoSubscribeInterceptor.class, va(MongoConstants.MONGO_REACTIVE));
+                subscribeMethod.addInterceptor(FluxAndMonoSubscribeInterceptor.class);
             }
             return target.toBytecode();
         }

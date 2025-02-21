@@ -30,7 +30,7 @@ public class RunnableRunInterceptor extends AsyncContextSpanEventSimpleAroundInt
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
     }
 
     @Override

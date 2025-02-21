@@ -16,42 +16,59 @@
 
 package com.navercorp.pinpoint.plugin.reactor.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoOperatorSubscribeInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessor;
-import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessorUtils;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorSubscriber;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorSubscriberAccessorUtils;
 
-public class ParallelFluxSubscribeInterceptor extends FluxAndMonoOperatorSubscribeInterceptor {
+public class ParallelFluxSubscribeInterceptor implements ApiIdAwareAroundInterceptor {
+    private final PluginLogger logger = PluginLogManager.getLogger(getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
 
-    public ParallelFluxSubscribeInterceptor(TraceContext traceContext, ServiceType serviceType) {
-        super(traceContext, serviceType);
+    public ParallelFluxSubscribeInterceptor() {
     }
 
-    @Override
-    protected void setReactorContextToSubscriber(AsyncContext asyncContext, Object[] args) {
+    public void before(Object target, int apiId, Object[] args) {
+        if (isDebug) {
+            logger.beforeInterceptor(target, args);
+        }
+
         if (args == null) {
             return;
         }
 
-        for (Object arg : args) {
-            if (arg instanceof Object[]) {
-                final Object[] array = (Object[]) arg;
-                for (Object object : array) {
-                    setAsyncContext(asyncContext, object);
+        try {
+            final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(target);
+            if (asyncContext != null) {
+                ReactorSubscriber reactorSubscriber = new ReactorSubscriber(asyncContext);
+                setReactorSubscriber(reactorSubscriber, args);
+                if (isDebug) {
+                    logger.debug("Set reactorSubscriber to args. reactorSubscriber={}", reactorSubscriber);
                 }
-            } else {
-                setAsyncContext(asyncContext, arg);
+            }
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
             }
         }
     }
 
-    private void setAsyncContext(final AsyncContext asyncContext, final Object object) {
-        if (object instanceof ReactorContextAccessor) {
-            ReactorContextAccessorUtils.setAsyncContext(asyncContext, object);
-            if (isDebug) {
-                logger.debug("Set reactorContext to args. reactorContext={}", asyncContext);
+    @Override
+    public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
+    }
+
+    private void setReactorSubscriber(final ReactorSubscriber reactorSubscriber, final Object[] args) {
+        for (Object arg : args) {
+            if (arg instanceof Object[]) {
+                final Object[] array = (Object[]) arg;
+                for (Object object : array) {
+                    ReactorSubscriberAccessorUtils.set(reactorSubscriber, object);
+                }
+            } else {
+                ReactorSubscriberAccessorUtils.set(reactorSubscriber, arg);
             }
         }
     }

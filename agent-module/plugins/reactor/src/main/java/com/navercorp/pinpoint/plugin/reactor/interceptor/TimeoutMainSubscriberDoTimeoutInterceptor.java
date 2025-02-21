@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.plugin.reactor.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessorUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
@@ -40,7 +40,7 @@ public class TimeoutMainSubscriberDoTimeoutInterceptor extends AsyncContextSpanE
 
     public AsyncContext getAsyncContext(Object target, Object[] args) {
         if (traceTimeout) {
-            return ReactorContextAccessorUtils.getAsyncContext(target);
+            return AsyncContextAccessorUtils.getAsyncContext(target);
         }
         return null;
     }
@@ -51,7 +51,7 @@ public class TimeoutMainSubscriberDoTimeoutInterceptor extends AsyncContextSpanE
 
     public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
         if (traceTimeout) {
-            return ReactorContextAccessorUtils.getAsyncContext(target);
+            return AsyncContextAccessorUtils.getAsyncContext(target);
         }
         return null;
     }
