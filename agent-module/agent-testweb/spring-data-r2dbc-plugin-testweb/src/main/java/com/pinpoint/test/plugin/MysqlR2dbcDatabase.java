@@ -16,39 +16,30 @@
 
 package com.pinpoint.test.plugin;
 
-import dev.miku.r2dbc.mysql.MySqlConnectionConfiguration;
-import dev.miku.r2dbc.mysql.MySqlConnectionFactory;
-import dev.miku.r2dbc.mysql.constant.SslMode;
+import io.asyncer.r2dbc.mysql.MySqlConnectionConfiguration;
+import io.asyncer.r2dbc.mysql.MySqlConnectionFactory;
+import io.asyncer.r2dbc.mysql.constant.SslMode;
 import io.r2dbc.spi.ConnectionFactory;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 
 @Component
-@Qualifier("mysql")
 public class MysqlR2dbcDatabase implements R2dbcDatabase {
     private ConnectionFactory connectionFactory;
 
-    @PostConstruct
-    public void init() throws Exception {
+    public MysqlR2dbcDatabase() {
+        System.out.println("INIT");
         MySqlConnectionConfiguration connectionConfiguration = MySqlConnectionConfiguration.builder()
                 .host("localhost")
-                .port(49178)
+                .port(32789)
                 .database("test")
                 .user("root")
                 .password("")
                 .connectTimeout(Duration.ofSeconds(5 * 60))
                 .sslMode(SslMode.DISABLED)
                 .build();
-
         connectionFactory = MySqlConnectionFactory.from(connectionConfiguration);
-    }
-
-    @PreDestroy
-    public void destroy() {
     }
 
     @Override
