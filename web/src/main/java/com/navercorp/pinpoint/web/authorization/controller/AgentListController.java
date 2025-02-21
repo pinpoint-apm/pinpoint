@@ -207,7 +207,10 @@ public class AgentListController {
             for (ServerInstance instance : group.getInstanceList()) {
                 AgentInfo agentInfo = new AgentInfo();
                 agentInfo.setAgentId(instance.getName());
-                agentInfo.setAgentName(instance.getAgentName());
+
+                final String agentName = instance.getAgentName();
+                agentInfo.setAgentName(agentName, instance.getName());
+
                 agentInfo.setServiceType(instance.getServiceType());
 
                 AgentStatus agentStatus = new AgentStatus(instance.getName(), instance.getStatus(), 0);
