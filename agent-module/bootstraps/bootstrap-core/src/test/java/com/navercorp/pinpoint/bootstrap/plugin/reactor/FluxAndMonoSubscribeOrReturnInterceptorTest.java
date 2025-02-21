@@ -27,77 +27,65 @@ import static org.mockito.Mockito.mock;
 public class FluxAndMonoSubscribeOrReturnInterceptorTest {
 
     @Test
-    public void targetContainReactorContext() {
-        AsyncContext mockAsyncContext = mock(AsyncContext.class);
-        MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
-        MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
-        MockAsyncContextAndReactorContextImpl result = new MockAsyncContextAndReactorContextImpl();
-        FluxAndMonoSubscribeOrReturnInterceptor interceptor = new FluxAndMonoSubscribeOrReturnInterceptor();
-
-        // Set asyncContext to target
-        target._$PINPOINT$_setReactorContext(mockAsyncContext);
-        interceptor.after(target, new Object[]{arg0}, result, null);
-
-        assertNotNull(result._$PINPOINT$_getReactorContext());
-        assertEquals(result._$PINPOINT$_getReactorContext(), mockAsyncContext);
-    }
-
-    @Test
     public void targetContainAsyncContext() {
         AsyncContext mockAsyncContext = mock(AsyncContext.class);
-        MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
-        MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
-        MockAsyncContextAndReactorContextImpl result = new MockAsyncContextAndReactorContextImpl();
+        MockAsyncContextImpl target = new MockAsyncContextImpl();
+        MockReactorSubscriberAccessor arg0 = new MockReactorSubscriberAccessor();
+        MockReactorSubscriberAccessor result = new MockReactorSubscriberAccessor();
         FluxAndMonoSubscribeOrReturnInterceptor interceptor = new FluxAndMonoSubscribeOrReturnInterceptor();
 
         // Set asyncContext to target
         target._$PINPOINT$_setAsyncContext(mockAsyncContext);
-        interceptor.after(target, new Object[]{arg0}, result, null);
+        interceptor.before(target, 1, new Object[]{arg0});
+        interceptor.after(target, 1, new Object[]{arg0}, result, null);
 
-        assertNotNull(result._$PINPOINT$_getReactorContext());
-        assertEquals(result._$PINPOINT$_getReactorContext(), mockAsyncContext);
+        assertNotNull(result._$PINPOINT$_getReactorSubscriber());
+        assertEquals(result._$PINPOINT$_getReactorSubscriber().getAsyncContext(), mockAsyncContext);
     }
 
     @Test
     public void targetNotContainAsyncContext() {
-        MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
-        MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
-        MockAsyncContextAndReactorContextImpl result = new MockAsyncContextAndReactorContextImpl();
+        MockAsyncContextImpl target = new MockAsyncContextImpl();
+        MockReactorSubscriberAccessor arg0 = new MockReactorSubscriberAccessor();
+        MockReactorSubscriberAccessor result = new MockReactorSubscriberAccessor();
         FluxAndMonoSubscribeOrReturnInterceptor interceptor = new FluxAndMonoSubscribeOrReturnInterceptor();
 
         // Not set asyncContext to target
-        interceptor.after(target, new Object[]{arg0}, result, null);
+        interceptor.before(target, 1, new Object[]{arg0});
+        interceptor.after(target, 1, new Object[]{arg0}, result, null);
 
-        assertNull(result._$PINPOINT$_getReactorContext());
+        assertNull(result._$PINPOINT$_getReactorSubscriber());
     }
 
     @Test
-    public void arg0ContainReactorContext() {
+    public void arg0ContainReactorSubscriber() {
         AsyncContext mockAsyncContext = mock(AsyncContext.class);
-        MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
-        MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
-        MockAsyncContextAndReactorContextImpl result = new MockAsyncContextAndReactorContextImpl();
+        ReactorSubscriber mockReactorSubscriber = mock(ReactorSubscriber.class);
+        MockAsyncContextImpl target = new MockAsyncContextImpl();
+        MockReactorSubscriberAccessor arg0 = new MockReactorSubscriberAccessor();
+        MockReactorSubscriberAccessor result = new MockReactorSubscriberAccessor();
         FluxAndMonoSubscribeOrReturnInterceptor interceptor = new FluxAndMonoSubscribeOrReturnInterceptor();
 
         // Set asyncContext to target
-        arg0._$PINPOINT$_setReactorContext(mockAsyncContext);
-        interceptor.after(target, new Object[]{arg0}, result, null);
+        arg0._$PINPOINT$_setReactorSubscriber(mockReactorSubscriber);
+        interceptor.before(target, 1, new Object[]{arg0});
+        interceptor.after(target, 1, new Object[]{arg0}, result, null);
 
-        assertNotNull(result._$PINPOINT$_getReactorContext());
-        assertEquals(result._$PINPOINT$_getReactorContext(), mockAsyncContext);
+        assertNotNull(result._$PINPOINT$_getReactorSubscriber());
     }
 
     @Test
-    public void arg0NotContainReactorContext() {
+    public void arg0NotContainReactorSubscriber() {
         AsyncContext mockAsyncContext = mock(AsyncContext.class);
-        MockAsyncContextAndReactorContextImpl target = new MockAsyncContextAndReactorContextImpl();
-        MockAsyncContextAndReactorContextImpl arg0 = new MockAsyncContextAndReactorContextImpl();
-        MockAsyncContextAndReactorContextImpl result = new MockAsyncContextAndReactorContextImpl();
+        MockAsyncContextImpl target = new MockAsyncContextImpl();
+        MockReactorSubscriberAccessor arg0 = new MockReactorSubscriberAccessor();
+        MockReactorSubscriberAccessor result = new MockReactorSubscriberAccessor();
         FluxAndMonoSubscribeOrReturnInterceptor interceptor = new FluxAndMonoSubscribeOrReturnInterceptor();
 
         // Not set asyncContext to target
-        interceptor.after(target, new Object[]{arg0}, result, null);
+        interceptor.before(target, 1, new Object[]{arg0});
+        interceptor.after(target, 1, new Object[]{arg0}, result, null);
 
-        assertNull(result._$PINPOINT$_getReactorContext());
+        assertNull(result._$PINPOINT$_getReactorSubscriber());
     }
 }

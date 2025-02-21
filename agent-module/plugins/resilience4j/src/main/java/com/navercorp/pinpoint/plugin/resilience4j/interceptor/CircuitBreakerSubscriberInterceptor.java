@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.plugin.resilience4j.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessorUtils;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.resilience4j.Resilience4JConstants;
 import com.navercorp.pinpoint.plugin.resilience4j.Resilience4JPluginConfig;
@@ -40,7 +40,7 @@ public class CircuitBreakerSubscriberInterceptor extends AsyncContextSpanEventSi
 
     public AsyncContext getAsyncContext(Object target, Object[] args) {
         if (traceCircuitBreaker) {
-            return ReactorContextAccessorUtils.getAsyncContext(target);
+            return AsyncContextAccessorUtils.getAsyncContext(target);
         }
         return null;
     }
@@ -51,7 +51,7 @@ public class CircuitBreakerSubscriberInterceptor extends AsyncContextSpanEventSi
 
     public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
         if (traceCircuitBreaker) {
-            return ReactorContextAccessorUtils.getAsyncContext(target);
+            return AsyncContextAccessorUtils.getAsyncContext(target);
         }
         return null;
     }

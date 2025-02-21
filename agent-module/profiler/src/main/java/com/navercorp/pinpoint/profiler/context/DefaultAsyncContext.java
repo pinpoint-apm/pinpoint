@@ -63,12 +63,14 @@ public class DefaultAsyncContext implements AsyncContext {
 
     @Override
     public Trace continueAsyncTraceObject() {
-
         final Reference<Trace> reference = remote.binder().get();
         final Trace nestedTrace = reference.get();
         if (nestedTrace != null) {
             // return Nested Trace Object?
             if (nestedTrace.canSampled()) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("asyncTraceContext.continuAsyncTraceObject() nestedTrace:{}", nestedTrace);
+                }
                 return nestedTrace;
             }
             return null;
@@ -126,7 +128,7 @@ public class DefaultAsyncContext implements AsyncContext {
 
     @Override
     public void close() {
-       remote.binder().remove();
+        remote.binder().remove();
     }
 
     @Override

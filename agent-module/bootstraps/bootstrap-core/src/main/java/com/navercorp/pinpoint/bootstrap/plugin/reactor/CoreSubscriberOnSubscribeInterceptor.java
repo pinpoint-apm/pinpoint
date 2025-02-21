@@ -16,27 +16,159 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.reactor;
 
-import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 
 public class CoreSubscriberOnSubscribeInterceptor implements AroundInterceptor {
+    private final PluginLogger logger = PluginLogManager.getLogger(getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     public CoreSubscriberOnSubscribeInterceptor() {
     }
 
     @Override
     public void before(Object target, Object[] args) {
-        final AsyncContext thisAsyncContext = ReactorContextAccessorUtils.getAsyncContext(target);
-        final AsyncContext subscriptionAsyncContext = ReactorContextAccessorUtils.getAsyncContext(args, 0);
-        if (thisAsyncContext != null) {
-            if (subscriptionAsyncContext == null) {
-                ReactorContextAccessorUtils.setAsyncContext(thisAsyncContext, args, 0);
+        if (isDebug) {
+            logger.beforeInterceptor(target, args);
+        }
+
+        try {
+            // args[0]
+            final ReactorSubscriber subscriptionReactorSubscriber = getSubscriptionReactorSubscriber(args);
+            // actual
+            final ReactorSubscriber actualReactorSubscriber = getActualReactorSubscriber(target);
+            // target
+            ReactorSubscriber thisReactorSubscriber = getThisReactorSubscriber(target);
+
+            // set this
+            if (thisReactorSubscriber == null) {
+                // e.g. actual.onSubscribe(this);
+                thisReactorSubscriber = passSubscriptionToThis(subscriptionReactorSubscriber);
             }
-        } else {
-            if (subscriptionAsyncContext != null) {
-                ReactorContextAccessorUtils.setAsyncContext(subscriptionAsyncContext, target);
+
+            if (thisReactorSubscriber == null) {
+                // Fill in the missing part of the subscriptionOrReturn
+                thisReactorSubscriber = passActualToThis(actualReactorSubscriber);
+            }
+
+            if (thisReactorSubscriber == null) {
+                // not found reactorSubscriber
+                return;
+            }
+
+            // set subscription
+            if (subscriptionReactorSubscriber == null) {
+                // TODO need to check
+                passThisToSubscription(thisReactorSubscriber, args);
+            }
+
+            // set actual
+            if (actualReactorSubscriber == null) {
+                passThisToActual(thisReactorSubscriber, target);
+            }
+
+            onSubscribe(thisReactorSubscriber, target);
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
             }
         }
+    }
+
+
+    private ReactorSubscriber getThisReactorSubscriber(Object target) {
+        final ReactorSubscriber thisReactorSubscriber = ReactorSubscriberAccessorUtils.get(target);
+        if (thisReactorSubscriber != null) {
+            if (isDebug) {
+                logger.debug("this reactorSubscriber={}", thisReactorSubscriber);
+            }
+        }
+        return thisReactorSubscriber;
+    }
+
+    private ReactorSubscriber getSubscriptionReactorSubscriber(Object[] args) {
+        final ReactorSubscriber subscriptionReactorSubscriber = ReactorSubscriberAccessorUtils.get(args, 0);
+        if (subscriptionReactorSubscriber != null) {
+            if (isDebug) {
+                logger.debug("subscription(args[0]) reactorSubscriber={}", subscriptionReactorSubscriber);
+            }
+        }
+        return subscriptionReactorSubscriber;
+    }
+
+    private ReactorSubscriber getActualReactorSubscriber(Object target) {
+        if (target instanceof ReactorActualAccessor) {
+            final ReactorSubscriberAccessor reactorSubscriberAccessor = ((ReactorActualAccessor) target)._$PINPOINT$_getReactorActual();
+            if (reactorSubscriberAccessor != null) {
+                final ReactorSubscriber reactorSubscriber = reactorSubscriberAccessor._$PINPOINT$_getReactorSubscriber();
+                if (reactorSubscriber != null) {
+                    if (isDebug) {
+                        logger.debug("actual(parent) reactorSubscriber={}", reactorSubscriber);
+                    }
+                    return reactorSubscriber;
+                }
+            }
+        }
+        return null;
+    }
+
+    private ReactorSubscriber passSubscriptionToThis(ReactorSubscriber reactorSubscriber) {
+        if (reactorSubscriber != null) {
+            if (isDebug) {
+                logger.debug("Pass subscription(args[0]) to this");
+            }
+            return new ReactorSubscriber(reactorSubscriber.getAsyncContext());
+        }
+
+        return null;
+    }
+
+    private ReactorSubscriber passActualToThis(ReactorSubscriber reactorSubscriber) {
+        if (reactorSubscriber != null) {
+            if (isDebug) {
+                logger.debug("Pass actual(parent) to this");
+            }
+            return new ReactorSubscriber(reactorSubscriber.getAsyncContext());
+        }
+        return null;
+    }
+
+    private ReactorSubscriber passThisToSubscription(ReactorSubscriber reactorSubscriber, Object[] args) {
+        ReactorSubscriberAccessor reactorSubscriberAccessor = ArrayArgumentUtils.getArgument(args, 0, ReactorSubscriberAccessor.class);
+        if (reactorSubscriberAccessor != null) {
+            final ReactorSubscriber subscriptionReactorSubscriber = new ReactorSubscriber(reactorSubscriber.getAsyncContext());
+            ReactorSubscriberAccessorUtils.set(subscriptionReactorSubscriber, args, 0);
+            if (isDebug) {
+                logger.debug("Pass this to subscription(args[0])");
+            }
+            return subscriptionReactorSubscriber;
+        }
+
+        return null;
+    }
+
+    private ReactorSubscriber passThisToActual(ReactorSubscriber reactorSubscriber, Object target) {
+        if (target instanceof ReactorActualAccessor) {
+            final ReactorSubscriberAccessor reactorSubscriberAccessor = ((ReactorActualAccessor) target)._$PINPOINT$_getReactorActual();
+            if (reactorSubscriberAccessor != null) {
+                ReactorSubscriber actualReactorSubscriber = new ReactorSubscriber(reactorSubscriber.getAsyncContext());
+                reactorSubscriberAccessor._$PINPOINT$_setReactorSubscriber(actualReactorSubscriber);
+                if (isDebug) {
+                    logger.debug("Pass this to actual(parent)");
+                }
+                return actualReactorSubscriber;
+            }
+        }
+
+        return null;
+    }
+
+    private void onSubscribe(ReactorSubscriber reactorSubscriber, Object target) {
+        reactorSubscriber.setSubscribe(Boolean.TRUE);
+        AsyncContextAccessorUtils.setAsyncContext(reactorSubscriber.getAsyncContext(), target);
     }
 
     @Override

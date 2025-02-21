@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.reactive.result.method.RequestMappingInfo;
 import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -120,5 +121,13 @@ public class RedisLettucePluginController {
         reactiveStringRedisTemplate.opsForValue().set("foo", "bar");
 
         return reactiveStringRedisTemplate.opsForValue().get("foo");
+    }
+
+    @GetMapping("/reactive/set")
+    public Flux<Boolean> reactiveSet() {
+        return Flux.just("foo", "bar")
+                .zipWith(Flux.just("bar", "baz"))
+                .flatMap(tuple -> reactiveStringRedisTemplate.opsForValue().set(tuple.getT1(), tuple.getT2()));
+
     }
 }

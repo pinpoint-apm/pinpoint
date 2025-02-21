@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.plugin.reactor.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventApiIdAwareAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorContextAccessorUtils;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorSubscriber;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorSubscriberAccessorUtils;
 import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
 import com.navercorp.pinpoint.plugin.reactor.ReactorPluginConfig;
 
@@ -45,18 +45,18 @@ public class FluxAndMonoSubscribeMethodInterceptor extends SpanEventApiIdAwareAr
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) throws Exception {
-        if (AsyncContextAccessorUtils.getAsyncContext(target) != null) {
-            return;
-        }
-        if (ReactorContextAccessorUtils.getAsyncContext(target) != null) {
-            return;
-        }
-
-        if (traceSubscribe) {
-            final AsyncContext asyncContext = recorder.recordNextAsyncContext();
-            ReactorContextAccessorUtils.setAsyncContext(asyncContext, target);
+        ReactorSubscriber reactorSubscriber = ReactorSubscriberAccessorUtils.get(args, 0);
+        if (reactorSubscriber == null) {
+            final AsyncContext nextAsyncContext = recorder.recordNextAsyncContext();
+            // set reactorSubscriber to args[0]
+            reactorSubscriber = new ReactorSubscriber(nextAsyncContext);
+            ReactorSubscriberAccessorUtils.set(reactorSubscriber, args, 0);
             if (isDebug) {
-                logger.debug("Set reactorContext to target. asyncContext={}", asyncContext);
+                logger.debug("Set reactorSubscriber to args[0]. reactorSubscriber={}", reactorSubscriber);
+            }
+        } else {
+            if (isDebug) {
+                logger.debug("Already set reactorSubscriber to args[0]. reactorSubscriber={}", reactorSubscriber);
             }
         }
     }

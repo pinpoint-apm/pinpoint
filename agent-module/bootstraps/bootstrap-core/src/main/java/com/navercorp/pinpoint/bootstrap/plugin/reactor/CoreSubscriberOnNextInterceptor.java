@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.reactor;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventNestedApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -32,9 +32,9 @@ public class CoreSubscriberOnNextInterceptor extends AsyncContextSpanEventNested
         this.serviceType = serviceType;
     }
 
-    // AsyncContext must exist in Target for tracking.
+    @Override
     public AsyncContext getAsyncContext(Object target, Object[] args) {
-        return ReactorContextAccessorUtils.getAsyncContext(target);
+        return AsyncContextAccessorUtils.getAsyncContext(target);
     }
 
     @Override
@@ -42,19 +42,13 @@ public class CoreSubscriberOnNextInterceptor extends AsyncContextSpanEventNested
     }
 
     public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        return ReactorContextAccessorUtils.getAsyncContext(target);
-    }
-
-    @Override
-    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
-        if (trace.canSampled()) {
-            recorder.recordServiceType(serviceType);
-            recorder.recordApiId(apiId);
-            recorder.recordException(throwable);
-        }
+        return AsyncContextAccessorUtils.getAsyncContext(target);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
+        recorder.recordServiceType(serviceType);
+        recorder.recordApiId(apiId);
+        recorder.recordException(throwable);
     }
 }
