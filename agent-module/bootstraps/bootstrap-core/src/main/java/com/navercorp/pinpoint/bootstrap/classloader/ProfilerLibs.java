@@ -29,7 +29,6 @@ public class ProfilerLibs {
 
     static {
         String[] lib = new String[]{
-                "com.navercorp.pinpoint.common.buffer",
                 "com.navercorp.pinpoint.common.profiler",
                 "com.navercorp.pinpoint.profiler",
                 "com.navercorp.pinpoint.thrift",

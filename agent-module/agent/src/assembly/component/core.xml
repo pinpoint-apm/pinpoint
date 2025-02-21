@@ -75,7 +75,6 @@
         </dependencySet>
         <dependencySet>
             <includes>
-                <include>com.navercorp.pinpoint:pinpoint-commons-buffer</include>
                 <include>com.navercorp.pinpoint:pinpoint-commons-profiler</include>
             </includes>
             <outputDirectory>lib</outputDirectory>
