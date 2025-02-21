@@ -49,7 +49,7 @@ import org.springframework.context.annotation.Import;
         SpringDataWebAutoConfiguration.class,
         RedisAutoConfiguration.class,
         RedisRepositoriesAutoConfiguration.class,
-        RedisReactiveAutoConfiguration.class
+        RedisReactiveAutoConfiguration.class,
 })
 @Import({
         PinpointWebModule.class,
