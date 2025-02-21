@@ -40,6 +40,12 @@ public class DefaultTraceScopePool {
         return map.put(name, new DefaultTraceScope(name));
     }
 
+    public TraceScope addBoundary(String name) {
+        Objects.requireNonNull(name, "name");
+
+        return map.put(name, new BoundaryTraceScope(name));
+    }
+
     public void clear() {
         map.clear();
     }

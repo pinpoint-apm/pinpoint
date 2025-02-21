@@ -301,6 +301,14 @@ public class ChildTrace implements Trace {
     }
 
     @Override
+    public TraceScope addBoundaryScope(String name) {
+        if (scopePool == null) {
+            this.scopePool = new DefaultTraceScopePool();
+        }
+        return scopePool.addBoundary(name);
+    }
+
+    @Override
     public String toString() {
         return "ChildTrace{" +
                 "traceRoot=" + getTraceRoot() +
