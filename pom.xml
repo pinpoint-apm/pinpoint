@@ -118,7 +118,7 @@
         <module>web-angular</module>
         <module>otlpmetric</module>
         <module>redis-timeseries</module>
-
+        <module>feature-flag</module>
     </modules>
 
     <properties>
@@ -585,6 +585,11 @@
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-plugins-assembly</artifactId>
                 <type>pom</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-feature-flag</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
