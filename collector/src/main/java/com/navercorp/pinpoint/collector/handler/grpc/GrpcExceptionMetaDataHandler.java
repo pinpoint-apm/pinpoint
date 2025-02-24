@@ -84,7 +84,9 @@ public class GrpcExceptionMetaDataHandler implements RequestResponseHandler<Gene
         try {
             ExceptionMetaDataBo exceptionMetaDataBo = mapExceptionMetaDataBo(header, exceptionMetaData);
 
-            List<ExceptionWrapperBo> exceptionWrapperBos = mapExceptionWrapperBo(exceptionMetaData.getExceptionsList());
+            List<ExceptionWrapperBo> exceptionWrapperBos = mapExceptionWrapperBo(
+                    exceptionMetaData.getExceptionsList(), header
+            );
             exceptionMetaDataBo.setExceptionWrapperBos(exceptionWrapperBos);
 
 
@@ -114,24 +116,27 @@ public class GrpcExceptionMetaDataHandler implements RequestResponseHandler<Gene
     }
 
     private List<ExceptionWrapperBo> mapExceptionWrapperBo(
-            List<PException> exceptions
+            List<PException> exceptions, final Header header
     ) {
         return exceptions.stream().map(
                 (PException p) -> new ExceptionWrapperBo(
                         StringUtils.defaultIfEmpty(p.getExceptionClassName(), EMPTY),
                         StringUtils.defaultIfEmpty(p.getExceptionMessage(), EMPTY),
-                        getFallbackTime(p.getStartTime(), p),
+                        getFallbackTime(p.getStartTime(), p, header),
                         p.getExceptionId(), p.getExceptionDepth(),
                         handleStackTraceElements(p.getStackTraceElementList())
                 )
         ).collect(Collectors.toList());
     }
 
-    private long getFallbackTime(long actual, PException p) {
+    private long getFallbackTime(long actual, PException p, final Header header) {
         if (actual > 0) {
             return actual;
         }
-        logger.warn("Invalid startTime={}, PException={}", actual, p);
+        logger.warn("Invalid StartTime. Fallback to current time. actual={} {} {} {} {} {}",
+                actual, header.getApplicationName(), header.getAgentId(),
+                p.getExceptionClassName(), p.getExceptionId(), p.getExceptionDepth()
+        );
         return System.currentTimeMillis();
     }
 
