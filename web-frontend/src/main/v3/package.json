@@ -9,13 +9,9 @@
   "scripts": {
     "build": "yarn workspace @pinpoint-fe/web build",
     "dev": "yarn workspace @pinpoint-fe/web dev",
-    "lint": "turbo run lint",
-    "test": "turbo run test",
-    "clean": "turbo run clean --force && rm -rf node_modules",
-    "clean:dist": "turbo run clean:dist --force",
-    "storybook": "turbo run storybook --force",
-    "build:storybook": "turbo run build-storybook",
-    "deploy:storybook": "turbo run chromatic"
+    "lint": "yarn workspace @pinpoint-fe/web lint",
+    "test": "yarn workspace @pinpoint-fe/web test",
+    "clean": "yarn workspace @pinpoint-fe/web clean && rm -rf node_modules"
   },
   "devDependencies": {
     "prettier": "^3.4.2"

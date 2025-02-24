@@ -16,7 +16,6 @@ import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-  HelpPopover,
   ErrorBoundary,
 } from '..';
 import { useServerMapSearchParameters, useTabFocus } from '@pinpoint-fe/ui/src/hooks';

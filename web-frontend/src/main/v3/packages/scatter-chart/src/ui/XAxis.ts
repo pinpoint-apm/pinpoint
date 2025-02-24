@@ -1,4 +1,4 @@
-import { DeepNonNullable, Padding, TickOption } from '../types/types';
+import { DeepNonNullable, TickOption } from '../types/types';
 import { drawLine, drawText } from '../utils/draw';
 import { Axis, AxisProps } from './Axis';
 
