@@ -72,7 +72,11 @@
       }
     }
   },
-  "routing": {},
+  "routing": {
+    "segmentPrunerTypes": [
+      "time"
+    ]
+  },
   "query": {},
   "fieldConfigList": [],
   "ingestionConfig": {

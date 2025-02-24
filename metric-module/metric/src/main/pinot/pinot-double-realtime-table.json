@@ -41,5 +41,10 @@
         "maxNumRecordsPerSegment": "6000000"
       }
     }
+  },
+  "routing": {
+    "segmentPrunerTypes": [
+      "time"
+    ]
   }
 }
