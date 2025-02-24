@@ -27,6 +27,14 @@
       "realtime.segment.flush.threshold.time": "24h",
       "realtime.segment.flush.threshold.segment.size": "64M",
       "stream.kafka.consumer.prop.auto.offset.reset": "smallest"
+    },
+    "segmentPartitionConfig": {
+      "columnPartitionMap": {
+        "applicationName": {
+          "functionName": "Murmur",
+          "numPartitions": 64
+        }
+      }
     }
   },
   "task": {
@@ -38,6 +46,12 @@
         "maxNumRecordsPerSegment": "1000000"
       }
     }
+  },
+  "routing": {
+    "segmentPrunerTypes": [
+      "time",
+      "partition"
+    ]
   },
   "metadata": {
   }
