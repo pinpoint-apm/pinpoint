@@ -120,10 +120,19 @@ public class GrpcExceptionMetaDataHandler implements RequestResponseHandler<Gene
                 (PException p) -> new ExceptionWrapperBo(
                         StringUtils.defaultIfEmpty(p.getExceptionClassName(), EMPTY),
                         StringUtils.defaultIfEmpty(p.getExceptionMessage(), EMPTY),
-                        p.getStartTime(), p.getExceptionId(), p.getExceptionDepth(),
+                        getFallbackTime(p.getStartTime(), p),
+                        p.getExceptionId(), p.getExceptionDepth(),
                         handleStackTraceElements(p.getStackTraceElementList())
                 )
         ).collect(Collectors.toList());
+    }
+
+    private long getFallbackTime(long actual, PException p) {
+        if (actual > 0) {
+            return actual;
+        }
+        logger.warn("Invalid startTime={}, PException={}", actual, p);
+        return System.currentTimeMillis();
     }
 
     private List<StackTraceElementWrapperBo> handleStackTraceElements(List<PStackTraceElement> pStackTraceElements) {
