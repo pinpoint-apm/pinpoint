@@ -145,7 +145,9 @@ class PinpointStarter {
     }
 
     private Properties copyJavaSystemProperty() {
-        return new Properties(System.getProperties());
+        Properties copy = new Properties();
+        copy.putAll(System.getProperties());
+        return copy;
     }
 
     private Properties copyOSEnvVariables() {
