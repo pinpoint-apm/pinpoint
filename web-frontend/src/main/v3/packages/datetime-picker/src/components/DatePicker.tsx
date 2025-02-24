@@ -3,10 +3,10 @@ import './datepicker.scss';
 
 import React from 'react';
 import ReactDatePicker from 'react-datepicker';
-import { ReactComponent as ArrowLeft } from '../assets/arrow-left.svg';
-import { ReactComponent as ArrowRight } from '../assets/arrow-right.svg';
-import { ReactComponent as ArrowDoubleLeft } from '../assets/arrow-double-left.svg';
-import { ReactComponent as ArrowDoubleRight } from '../assets/arrow-double-right.svg';
+import ArrowLeft from '../assets/arrow-left.svg?react';
+import ArrowRight from '../assets/arrow-right.svg?react';
+import ArrowDoubleLeft from '../assets/arrow-double-left.svg?react';
+import ArrowDoubleRight from '../assets/arrow-double-right.svg?react';
 import { RichDatetimePickerProps } from './RichDatetimePicker';
 import { Locale, addDays, format, isWithinInterval, subMonths } from 'date-fns';
 import { DateRange } from '../types';

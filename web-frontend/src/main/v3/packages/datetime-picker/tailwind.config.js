@@ -6,6 +6,7 @@ export default {
   theme: {
     extend: {
       colors: {
+        primary: '#9338FF',
         stateRed: '#F84302',
         rgba1: 'rgba(0, 0, 0, 0.1)',
         rgba2: 'rgba(0, 0, 0, 0.2)',

@@ -19,10 +19,9 @@
     "storybook": "start-storybook -p 6009",
     "build-storybook": "build-storybook",
     "build": "yarn lint && tsc",
-    "clean": "yarn clean:dist && yarn clean:node_modules && yarn clean:turbo",
+    "clean": "yarn clean:dist && yarn clean:node_modules",
     "clean:node_modules": "rm -rf node_modules",
     "clean:dist": "rm -rf dist",
-    "clean:turbo": "rm -rf .turbo",
     "chromatic": "npx chromatic --project-token=8e9829505277"
   },
   "dependencies": {

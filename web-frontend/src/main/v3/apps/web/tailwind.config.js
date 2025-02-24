@@ -3,7 +3,7 @@ import rdpTailwindConfig from '@pinpoint-fe/datetime-picker/tailwind.config.js';
 
 /** @type {import('tailwindcss').Config} */
 export default {
-  presets: [uiTailwindConfig, rdpTailwindConfig],
+  presets: [rdpTailwindConfig, uiTailwindConfig],
   content: [
     './index.html',
     './src/**/*.{ts,tsx}',
