@@ -59,7 +59,7 @@ public class ServerCallStream<Req extends GeneratedMessageV3, Res extends Genera
         Metadata metadata = Status.trailersFromThrowable(throwable);
         if (logger.isInfoEnabled()) {
             Header header = ServerContext.getAgentInfo();
-            logger.info("onError: Failed to span streamId=, {} {} {}", streamId, header, status, metadata);
+            logger.info("onError: Failed to span streamId={}, {} {} {}", streamId, header, status, metadata);
         }
 
         responseCompleted();
