@@ -24,7 +24,7 @@
     </organization>
     <groupId>com.navercorp.pinpoint</groupId>
     <artifactId>pinpoint</artifactId>
-    <version>3.0.2-alpha2</version>
+    <version>3.0.2-SNAPSHOT</version>
     <name>pinpoint</name>
     <packaging>pom</packaging>
 

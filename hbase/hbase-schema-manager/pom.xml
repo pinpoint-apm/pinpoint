@@ -6,7 +6,7 @@
     <parent>
         <artifactId>pinpoint-hbase</artifactId>
         <groupId>com.navercorp.pinpoint</groupId>
-        <version>3.0.2-alpha2</version>
+        <version>3.0.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-hbase-schema-manager</artifactId>
