@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
-import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
@@ -73,11 +72,6 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         if (logger.isDebugEnabled()) {
             logger.debug("insert ApplicationTraceIndex: {}", span);
         }
-
-        // Assert agentId
-        CollectorUtils.checkAgentId(span.getAgentId());
-        // Assert applicationName
-        CollectorUtils.checkApplicationName(span.getApplicationId());
 
         final long acceptedTime = span.getCollectorAcceptTime();
         final byte[] distributedKey = applicationIndexRowKeyEncoder.encodeRowKey(span);

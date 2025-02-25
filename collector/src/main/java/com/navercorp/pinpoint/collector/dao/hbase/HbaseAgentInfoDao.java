@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.AgentInfoDao;
-import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
@@ -68,13 +67,6 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         if (logger.isDebugEnabled()) {
             logger.debug("insert agent info. {}", agentInfo);
         }
-
-        // Assert agentId
-        CollectorUtils.checkAgentId(agentInfo.getAgentId());
-        // Assert applicationName
-        CollectorUtils.checkApplicationName(agentInfo.getApplicationName());
-        //check agentName if set
-        CollectorUtils.checkAgentName(agentInfo.getAgentName());
 
         final byte[] rowKey = rowKeyEncoder.encodeRowKey(agentInfo.getAgentId(), agentInfo.getStartTime());
         final Put put = new Put(rowKey, true);

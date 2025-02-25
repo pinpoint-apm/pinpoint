@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.TraceDao;
-import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.collector.util.DurabilityApplier;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
@@ -103,11 +102,6 @@ public class HbaseTraceDaoV2 implements TraceDao {
         if (logger.isDebugEnabled()) {
             logger.debug("insert trace: {}", spanBo);
         }
-
-        // Assert agentId
-        CollectorUtils.checkAgentId(spanBo.getAgentId());
-        // Assert applicationName
-        CollectorUtils.checkApplicationName(spanBo.getApplicationId());
 
         long acceptedTime = spanBo.getCollectorAcceptTime();
 

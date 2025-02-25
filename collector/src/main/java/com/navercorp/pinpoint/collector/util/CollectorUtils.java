@@ -50,18 +50,21 @@ public final class CollectorUtils {
         return hostName + "@" + pid;
     }
 
+    @Deprecated
     public static void checkAgentId(final String agentId) {
         if (!IdValidateUtils.validateId(agentId)) {
             throw new IllegalArgumentException("invalid agentId. agentId=" + agentId);
         }
     }
 
+    @Deprecated
     public static void checkApplicationName(final String applicationName) {
         if (!IdValidateUtils.validateId(applicationName)) {
             throw new IllegalArgumentException("invalid applicationName. applicationName=" + applicationName);
         }
     }
 
+    @Deprecated
     public static void checkAgentName(final String agentName) {
         if (StringUtils.isEmpty(agentName)) {
             return;
