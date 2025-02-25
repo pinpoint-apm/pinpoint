@@ -4,8 +4,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.server.config.PinpointIdCacheConfiguration;
-import com.navercorp.pinpoint.common.util.UuidUtils;
+import com.navercorp.pinpoint.common.server.vo.ServiceUid;
 import com.navercorp.pinpoint.web.dao.ServiceNameDao;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.CheckAndMutate;
@@ -16,13 +15,10 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 // serviceUid -> serviceName
 @Repository
@@ -42,21 +38,19 @@ public class HbaseServiceNameDao implements ServiceNameDao {
         this.serviceNameMapper = Objects.requireNonNull(serviceNameMapper, "serviceNameMapper");
     }
 
-
     @Override
     public List<String> selectAllServiceNames() {
         Scan scan = new Scan();
         scan.addFamily(NAME.getName());
-        scan.setCaching(30);
+        scan.setCaching(20);
 
         TableName serviceInfoTableName = tableNameProvider.getTableName(NAME.getTable());
         return hbaseOperations.find(serviceInfoTableName, scan, serviceNameMapper);
     }
 
     @Override
-    @Cacheable(cacheNames = "serviceNameCache", key = "#serviceUid", cacheManager = PinpointIdCacheConfiguration.SERVICE_NAME_CACHE_NAME, unless = "#result == null")
-    public String selectServiceName(UUID serviceUid) {
-        byte[] rowKey = UuidUtils.toBytes(serviceUid);
+    public String selectServiceName(ServiceUid serviceUid) {
+        byte[] rowKey = Bytes.toBytes(serviceUid.getValue());
 
         Get get = new Get(rowKey);
         get.addFamily(NAME.getName());
@@ -66,10 +60,9 @@ public class HbaseServiceNameDao implements ServiceNameDao {
         return hbaseOperations.get(serviceInfoTableName, get, serviceNameMapper);
     }
 
-
     @Override
-    public boolean insertServiceNameIfNotExists(UUID serviceUid, String serviceName) {
-        byte[] rowKey = UuidUtils.toBytes(serviceUid);
+    public boolean insertServiceNameIfNotExists(ServiceUid serviceUid, String serviceName) {
+        byte[] rowKey = Bytes.toBytes(serviceUid.getValue());
 
         Put put = new Put(rowKey);
         put.addColumn(NAME.getName(), NAME.getName(), Bytes.toBytes(serviceName));
@@ -84,9 +77,8 @@ public class HbaseServiceNameDao implements ServiceNameDao {
     }
 
     @Override
-    @CacheEvict(cacheNames = "serviceNameCache", key = "#serviceUid", cacheManager = PinpointIdCacheConfiguration.SERVICE_NAME_CACHE_NAME)
-    public void deleteServiceName(UUID serviceUid) {
-        byte[] rowKey = UuidUtils.toBytes(serviceUid);
+    public void deleteServiceName(ServiceUid serviceUid) {
+        byte[] rowKey = Bytes.toBytes(serviceUid.getValue());
         Delete delete = new Delete(rowKey);
 
         TableName ServiceInfoTableName = tableNameProvider.getTableName(NAME.getTable());

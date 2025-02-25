@@ -11,7 +11,7 @@ import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.config.LogProperties;
 import com.navercorp.pinpoint.web.config.ScatterChartProperties;
 import com.navercorp.pinpoint.web.config.WebMysqlDaoConfiguration;
-import com.navercorp.pinpoint.web.config.WebPinpointIdCacheConfiguration;
+import com.navercorp.pinpoint.web.config.WebV4Configuration;
 import com.navercorp.pinpoint.web.frontend.FrontendConfigExportConfiguration;
 import com.navercorp.pinpoint.web.install.InstallModule;
 import com.navercorp.pinpoint.web.query.QueryServiceConfiguration;
@@ -38,7 +38,7 @@ import org.springframework.core.env.StandardEnvironment;
         MainDataSourceConfiguration.class,
         ProblemSpringWebConfig.class,
 
-        WebPinpointIdCacheConfiguration.class,
+        WebV4Configuration.class,
         CacheConfiguration.class,
 
         ApplicationMapModule.class,

@@ -1,8 +1,9 @@
 package com.navercorp.pinpoint.web.controller;
 
-import com.navercorp.pinpoint.common.server.bo.id.ServiceInfo;
 import com.navercorp.pinpoint.common.server.response.Response;
 import com.navercorp.pinpoint.common.server.response.SimpleResponse;
+import com.navercorp.pinpoint.common.server.vo.ServiceInfo;
+import com.navercorp.pinpoint.common.server.vo.ServiceUid;
 import com.navercorp.pinpoint.web.service.ServiceGroupService;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
@@ -48,11 +48,11 @@ public class ServiceGroupController {
 
     @GetMapping(value = "/service")
     public ResponseEntity<ServiceInfo> getServiceInfo(@RequestParam("serviceName") @NotBlank String serviceName) {
-        UUID uuid = serviceGroupService.selectServiceUid(serviceName);
-        if (uuid == null) {
+        ServiceUid serviceUid = serviceGroupService.selectServiceUid(serviceName);
+        if (serviceUid == null) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(new ServiceInfo(uuid, serviceName, null));
+        return ResponseEntity.ok(new ServiceInfo(serviceUid, serviceName, null));
     }
 
     @DeleteMapping(value = "/service")
@@ -62,9 +62,8 @@ public class ServiceGroupController {
     }
 
     @GetMapping(value = "/service/name")
-    public ResponseEntity<String> getServiceName(@RequestParam("serviceUid") @NotBlank String serviceUidString) {
-        UUID serviceUid = UUID.fromString(serviceUidString);
-        String serviceName = serviceGroupService.selectServiceName(serviceUid);
+    public ResponseEntity<String> getServiceName(@RequestParam("serviceUid") int serviceUid) {
+        String serviceName = serviceGroupService.selectServiceName(new ServiceUid(serviceUid));
         if (serviceName == null) {
             return ResponseEntity.noContent().build();
         }
@@ -72,11 +71,11 @@ public class ServiceGroupController {
     }
 
     @GetMapping(value = "/service/uid")
-    public ResponseEntity<UUID> getServiceUid(@RequestParam("serviceName") @NotBlank String serviceName) {
-        UUID uuid = serviceGroupService.selectServiceUid(serviceName);
-        if (uuid == null) {
+    public ResponseEntity<Integer> getServiceUid(@RequestParam("serviceName") @NotBlank String serviceName) {
+        ServiceUid serviceUid = serviceGroupService.selectServiceUid(serviceName);
+        if (serviceUid == null) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(uuid);
+        return ResponseEntity.ok(serviceUid.getValue());
     }
 }

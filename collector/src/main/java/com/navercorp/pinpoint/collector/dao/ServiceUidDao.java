@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.collector.dao;
 
-import java.util.UUID;
+import com.navercorp.pinpoint.common.server.vo.ServiceUid;
 
 public interface ServiceUidDao {
 
-    UUID selectServiceUid(String serviceName);
+    ServiceUid selectServiceUid(String serviceName);
 }

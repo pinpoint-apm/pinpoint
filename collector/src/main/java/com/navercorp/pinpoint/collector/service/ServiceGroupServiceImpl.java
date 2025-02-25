@@ -1,9 +1,11 @@
 package com.navercorp.pinpoint.collector.service;
 
+import com.navercorp.pinpoint.collector.config.CollectorPinpointIdCacheConfig;
 import com.navercorp.pinpoint.collector.dao.ServiceUidDao;
+import com.navercorp.pinpoint.common.server.vo.ServiceUid;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.Objects;
-import java.util.UUID;
 
 public class ServiceGroupServiceImpl implements ServiceGroupService {
 
@@ -14,7 +16,8 @@ public class ServiceGroupServiceImpl implements ServiceGroupService {
     }
 
     @Override
-    public UUID getServiceUid(String serviceName) {
+    @Cacheable(cacheNames = "collectorServiceUidCache", key = "#serviceName", cacheManager = CollectorPinpointIdCacheConfig.SERVICE_UID_CACHE_NAME, unless = "#result == null")
+    public ServiceUid getServiceUid(String serviceName) {
         Objects.requireNonNull(serviceName, "serviceName");
         return serviceUidDao.selectServiceUid(serviceName);
     }
