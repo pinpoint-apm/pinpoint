@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.AgentEventDao;
-import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
@@ -67,8 +66,6 @@ public class HbaseAgentEventDao implements AgentEventDao {
         if (logger.isDebugEnabled()) {
             logger.debug("insert agent event: {}", agentEventBo.toString());
         }
-        // Assert agentId
-        CollectorUtils.checkAgentId(agentEventBo.getAgentId());
 
         final String agentId = agentEventBo.getAgentId();
         final long eventTimestamp = agentEventBo.getEventTimestamp();

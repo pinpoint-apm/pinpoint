@@ -1,7 +1,6 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.SqlUidMetaDataDao;
-import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
@@ -47,9 +46,6 @@ public class HbaseSqlUidMetaDataDao implements SqlUidMetaDataDao {
         if (logger.isDebugEnabled()) {
             logger.debug("insert:{}", sqlUidMetaData);
         }
-
-        // Assert agentId
-        CollectorUtils.checkAgentId(sqlUidMetaData.getAgentId());
 
         final byte[] rowKey = getDistributedKey(rowKeyEncoder.encodeRowKey(sqlUidMetaData));
         final Put put = new Put(rowKey, true);

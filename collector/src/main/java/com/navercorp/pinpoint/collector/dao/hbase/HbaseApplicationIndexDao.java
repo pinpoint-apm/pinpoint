@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
@@ -56,11 +55,6 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     @Override
     public void insert(final AgentInfoBo agentInfo) {
         Objects.requireNonNull(agentInfo, "agentInfo");
-
-        // Assert agentId
-        CollectorUtils.checkAgentId(agentInfo.getAgentId());
-        // Assert applicationName
-        CollectorUtils.checkApplicationName(agentInfo.getApplicationName());
 
         byte[] rowKey = Bytes.toBytes(agentInfo.getApplicationName());
         final Put put = new Put(rowKey, true);
