@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.name.v4;
 
 import com.navercorp.pinpoint.common.profiler.name.Base64Utils;
-import com.navercorp.pinpoint.grpc.protocol.ProtocolVersion;
 import com.navercorp.pinpoint.profiler.name.ObjectName;
 
 import java.util.Objects;
@@ -46,8 +45,8 @@ public class ObjectNameV4 implements ObjectName {
     }
 
     @Override
-    public ProtocolVersion getVersion() {
-        return ProtocolVersion.V4;
+    public int getVersion() {
+        return VERSION_V4;
     }
 
     public UUID getAgentUId() {

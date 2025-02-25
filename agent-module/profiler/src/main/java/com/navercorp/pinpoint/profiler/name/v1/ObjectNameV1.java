@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.name.v1;
 
-import com.navercorp.pinpoint.grpc.protocol.ProtocolVersion;
 import com.navercorp.pinpoint.profiler.name.ObjectName;
 
 import java.util.Objects;
@@ -36,8 +35,8 @@ public class ObjectNameV1 implements ObjectName {
     }
 
     @Override
-    public ProtocolVersion getVersion() {
-        return ProtocolVersion.V1;
+    public int getVersion() {
+        return VERSION_V1;
     }
 
     @Override
