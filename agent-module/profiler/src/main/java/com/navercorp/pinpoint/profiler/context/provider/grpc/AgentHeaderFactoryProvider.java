@@ -21,7 +21,6 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.grpc.ClientHeaderFactoryV1;
 import com.navercorp.pinpoint.grpc.ClientHeaderFactoryV4;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
-import com.navercorp.pinpoint.grpc.protocol.ProtocolVersion;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.name.ObjectName;
 import com.navercorp.pinpoint.profiler.name.v4.ObjectNameV4;
@@ -43,8 +42,7 @@ public class AgentHeaderFactoryProvider implements Provider<HeaderFactory> {
 
     @Override
     public HeaderFactory get() {
-        ProtocolVersion version = objectName.getVersion();
-        if (version == ProtocolVersion.V4) {
+        if (objectName instanceof ObjectNameV4) {
             return createV4();
         }
         return createV1();

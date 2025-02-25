@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfigLoader;
 import com.navercorp.pinpoint.bootstrap.config.Profiles;
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
-import com.navercorp.pinpoint.grpc.protocol.ProtocolVersion;
 import com.navercorp.pinpoint.profiler.config.AgentSystemConfig;
 import com.navercorp.pinpoint.profiler.config.LogConfig;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
@@ -137,7 +136,7 @@ public class DefaultAgent implements Agent {
         logger.warn("- agentId: {}", objectName.getAgentId());
         logger.warn("- agentName: {}", objectName.getAgentName());
         logger.warn("- applicationName: {}", objectName.getApplicationName());
-        if (objectName.getVersion() == ProtocolVersion.V4) {
+        if (objectName instanceof ObjectNameV4) {
             ObjectNameV4 v4 = (ObjectNameV4) objectName;
             logger.warn("- serviceName: {}", objectName.getServiceName());
             logger.warn("- apikey: {}", MaskUtils.masking(v4.getApiKey(), 2));
