@@ -1,12 +1,12 @@
 package com.navercorp.pinpoint.web.dao;
 
-import java.util.UUID;
+import com.navercorp.pinpoint.common.server.vo.ServiceUid;
 
 public interface ServiceUidDao {
 
-    UUID selectServiceUid(String serviceName);
+    ServiceUid selectServiceUid(String serviceName);
 
-    boolean insertServiceUidIfNotExists(String serviceName, UUID serviceUid);
+    boolean insertServiceUidIfNotExists(String serviceName, ServiceUid serviceUid);
 
     void deleteServiceUid(String serviceName);
 

@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.collector.service;
 
-import java.util.UUID;
+import com.navercorp.pinpoint.common.server.vo.ServiceUid;
 
 public interface ServiceGroupService {
-    UUID getServiceUid(String serviceName);
+    ServiceUid getServiceUid(String serviceName);
 }
