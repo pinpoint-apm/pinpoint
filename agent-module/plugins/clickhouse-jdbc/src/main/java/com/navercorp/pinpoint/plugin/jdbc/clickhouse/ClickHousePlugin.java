@@ -94,7 +94,8 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
 
         // after 0.3.2
         transformTemplate.transform("com.clickhouse.jdbc.internal.ClickHouseConnectionImpl", ConnectionTransform.class, parameters);
-
+        // 0.8.0
+        transformTemplate.transform("com.clickhouse.jdbc.ConnectionImpl", ConnectionTransform.class, parameters);
     }
 
     public static class ConnectionTransform implements TransformCallback {
@@ -167,7 +168,8 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
         transformTemplate.transform("ru.yandex.clickhouse.ClickHouseDriver", DriverTransform.class);
         // after 0.3.2
         transformTemplate.transform("com.clickhouse.jdbc.ClickHouseDriver", DriverTransform.class);
-
+        // 0.8.0
+        transformTemplate.transform("com.clickhouse.jdbc.Driver", DriverTransform.class);
     }
 
     public static class DriverTransform implements TransformCallback {
@@ -198,6 +200,8 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
         transformTemplate.transform("com.clickhouse.jdbc.internal.InputBasedPreparedStatement", PreparedStatementTransform.class, parameters);
         transformTemplate.transform("com.clickhouse.jdbc.internal.TableBasedPreparedStatement", PreparedStatementTransform.class, parameters);
 
+        // 0.8.0
+        transformTemplate.transform("com.clickhouse.jdbc.PreparedStatementImpl", PreparedStatementTransform.class, parameters);
     }
 
     public static class PreparedStatementTransform implements TransformCallback {
@@ -251,7 +255,8 @@ public class ClickHousePlugin implements ProfilerPlugin, TransformTemplateAware 
 
         // after 0.3.2
         transformTemplate.transform("com.clickhouse.jdbc.internal.ClickHouseStatementImpl", StatementTransformer.class);
-
+        // 0.8.0
+        transformTemplate.transform("com.clickhouse.jdbc.StatementImpl", StatementTransformer.class);
     }
 
     public static class StatementTransformer implements TransformCallback {
