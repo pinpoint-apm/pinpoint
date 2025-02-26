@@ -3,6 +3,8 @@ package com.navercorp.pinpoint.web.applicationmap.config;
 
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ApplicationMapInboundMapper;
+import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ApplicationMapOutboundMapper;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.LinkFilter;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.MapStatisticsCalleeMapper;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.MapStatisticsCallerMapper;
@@ -20,18 +22,41 @@ import org.springframework.context.annotation.Configuration;
 public class MapMapperConfiguration {
 
     @Bean
-    public RowMapperFactory<LinkDataMap> mapCallerMapper(ApplicationFactory applicationFactory,
-                                                         @Qualifier("statisticsCallerRowKeyDistributor")
-                                         RowKeyDistributorByHashPrefix rowKeyDistributor) {
+    public RowMapperFactory<LinkDataMap> mapCallerMapper(
+            ApplicationFactory applicationFactory,
+            @Qualifier("statisticsCallerRowKeyDistributor")
+            RowKeyDistributorByHashPrefix rowKeyDistributor
+    ) {
         return (windowFunction) -> new MapStatisticsCallerMapper(applicationFactory, rowKeyDistributor, LinkFilter::skip, windowFunction);
     }
 
     @Bean
-    public RowMapperFactory<LinkDataMap> mapCalleeMapper(ServiceTypeRegistryService registry,
-                                                         ApplicationFactory applicationFactory,
-                                                         @Qualifier("statisticsCalleeRowKeyDistributor")
-                                         RowKeyDistributorByHashPrefix rowKeyDistributor) {
+    public RowMapperFactory<LinkDataMap> mapCalleeMapper(
+            ServiceTypeRegistryService registry,
+            ApplicationFactory applicationFactory,
+            @Qualifier("statisticsCalleeRowKeyDistributor")
+            RowKeyDistributorByHashPrefix rowKeyDistributor
+    ) {
         return (windowFunction) -> new MapStatisticsCalleeMapper(registry, applicationFactory, rowKeyDistributor, LinkFilter::skip, windowFunction);
+    }
+
+    @Bean
+    public RowMapperFactory<LinkDataMap> applicationMapInboundMapper(
+            ServiceTypeRegistryService registry,
+            ApplicationFactory applicationFactory,
+            @Qualifier("applicationMapInboundRowKeyDistributor")
+            RowKeyDistributorByHashPrefix rowKeyDistributor
+    ) {
+        return (windowFunction) -> new ApplicationMapInboundMapper(registry, applicationFactory, rowKeyDistributor, LinkFilter::skip, windowFunction);
+    }
+
+    @Bean
+    public RowMapperFactory<LinkDataMap> applicationMapOutboundMapper(
+            ApplicationFactory applicationFactory,
+            @Qualifier("applicationMapOutboundRowKeyDistributor")
+            RowKeyDistributorByHashPrefix rowKeyDistributor
+    ) {
+        return (windowFunction) -> new ApplicationMapOutboundMapper(applicationFactory, rowKeyDistributor, LinkFilter::skip, windowFunction);
     }
 
     @Bean
