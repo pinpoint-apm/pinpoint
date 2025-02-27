@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.io.request;
 
-import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
 import com.navercorp.pinpoint.io.util.MessageType;
 
@@ -26,13 +25,13 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class DefaultServerRequest<T> extends DefaultAttributeMap implements ServerRequest<T> {
-    private final Header header;
+    private final ServerHeader header;
     private final TransportMetadata transport;
     private final long requestTime;
     private final MessageType messageType;
     private final T data;
 
-    public DefaultServerRequest(Header header, TransportMetadata transport, long requestTime, MessageType messageType, T data) {
+    public DefaultServerRequest(ServerHeader header, TransportMetadata transport, long requestTime, MessageType messageType, T data) {
         this.header = Objects.requireNonNull(header, "header");
         this.transport = Objects.requireNonNull(transport, "transport");
         this.requestTime = requestTime;
@@ -41,7 +40,7 @@ public class DefaultServerRequest<T> extends DefaultAttributeMap implements Serv
     }
 
     @Override
-    public Header getHeader() {
+    public ServerHeader getHeader() {
         return header;
     }
 

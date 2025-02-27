@@ -38,12 +38,11 @@ public class HeaderV1 implements Header {
     private final boolean grpcBuiltInRetry;
     private final Map<String, Object> properties;
 
-    public HeaderV1(String name, String agentId, String agentName, String applicationName,
-                    int serviceType, long agentStartTime,
-                    long socketId, List<Integer> supportCommandCodeList) {
-        this(name, agentId, agentName, applicationName,
+    public static Header simple(String name, String agentId, String agentName, String applicationName,
+                                int serviceType, long agentStartTime) {
+        return new HeaderV1(name, agentId, agentName, applicationName,
                 serviceType, agentStartTime,
-                socketId, supportCommandCodeList,
+                Header.SOCKET_ID_NOT_EXIST, Collections.emptyList(),
                 DEFAULT_GRPC_BUILT_IN_RETRY, Collections.emptyMap());
     }
 

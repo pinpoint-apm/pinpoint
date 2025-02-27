@@ -5,9 +5,9 @@ import com.navercorp.pinpoint.collector.handler.grpc.GrpcMetricHandler;
 import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentStatMapper;
 import com.navercorp.pinpoint.collector.service.AgentStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
-import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
+import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,7 +45,7 @@ public class AgentMetricHandler implements GrpcMetricHandler {
             logger.debug("Handle PAgentStat={}", MessageFormatUtils.debugLog(request.getData()));
         }
         final PAgentStat agentStat = (PAgentStat) request.getData();
-        final Header header = request.getHeader();
+        final ServerHeader header = request.getHeader();
         final AgentStatBo agentStatBo = this.agentStatMapper.map(header, agentStat);
         if (agentStatBo == null) {
             return;

@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcServerResponse;
 import com.navercorp.pinpoint.collector.receiver.grpc.retry.GrpcRetryFriendlyServerResponse;
-import com.navercorp.pinpoint.grpc.Header;
+import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import io.grpc.Status;
@@ -50,7 +50,7 @@ public class SimpleRequestHandlerAdaptor<REQ, RES> {
             final ServerResponse<? extends RES> response = newServerResponse(request, responseObserver);
             this.dispatchHandler.dispatchRequestMessage((ServerRequest<REQ>) request, (ServerResponse<RES>) response);
         } catch (Exception e) {
-            final Header header = request.getHeader();
+            final ServerHeader header = request.getHeader();
             logger.warn("Failed to request. header={}", header, e);
             if (e instanceof StatusException || e instanceof StatusRuntimeException) {
                 responseObserver.onError(e);
@@ -62,7 +62,7 @@ public class SimpleRequestHandlerAdaptor<REQ, RES> {
     }
 
     private ServerResponse<? extends RES> newServerResponse(ServerRequest<? extends REQ> request, StreamObserver<? extends RES> responseObserver) {
-        Header header = request.getHeader();
+        ServerHeader header = request.getHeader();
         if (header.isGrpcBuiltInRetry()) {
             return new GrpcRetryFriendlyServerResponse<>(responseObserver);
         }

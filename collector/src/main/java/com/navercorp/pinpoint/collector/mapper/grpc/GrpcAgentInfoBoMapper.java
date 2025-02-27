@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.collector.mapper.grpc;
 
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
-import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PJvmInfo;
 import com.navercorp.pinpoint.grpc.trace.PServerMetaData;
+import com.navercorp.pinpoint.io.request.ServerHeader;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -39,7 +39,7 @@ public class GrpcAgentInfoBoMapper {
         this.jvmInfoBoMapper = Objects.requireNonNull(jvmInfoBoMapper, "jvmInfoBoMapper");
     }
 
-    public AgentInfoBo map(final PAgentInfo agentInfo, final Header header) {
+    public AgentInfoBo map(final PAgentInfo agentInfo, final ServerHeader header) {
         final String agentId = header.getAgentId();
         final String agentName = header.getAgentName();
         final String applicationName = header.getApplicationName();

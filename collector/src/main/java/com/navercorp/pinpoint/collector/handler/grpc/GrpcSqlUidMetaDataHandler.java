@@ -20,10 +20,10 @@ import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.service.SqlUidMetaDataService;
 import com.navercorp.pinpoint.common.server.bo.SqlUidMetaDataBo;
-import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
+import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.io.util.MessageType;
@@ -55,7 +55,7 @@ public class GrpcSqlUidMetaDataHandler implements RequestResponseHandler<Generat
     @Override
     public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
         final GeneratedMessageV3 data = serverRequest.getData();
-        final Header header = serverRequest.getHeader();
+        final ServerHeader header = serverRequest.getHeader();
         if (data instanceof PSqlUidMetaData sqlUidMetaData) {
             PResult result = handleSqlUidMetaData(header, sqlUidMetaData);
             serverResponse.write(result);
@@ -65,7 +65,7 @@ public class GrpcSqlUidMetaDataHandler implements RequestResponseHandler<Generat
         }
     }
 
-    private PResult handleSqlUidMetaData(Header header, PSqlUidMetaData sqlUidMetaData) {
+    private PResult handleSqlUidMetaData(ServerHeader header, PSqlUidMetaData sqlUidMetaData) {
         if (isDebug) {
             logger.debug("Handle PSqlUidMetaData={}", MessageFormatUtils.debugLog(sqlUidMetaData));
         }
@@ -86,7 +86,7 @@ public class GrpcSqlUidMetaDataHandler implements RequestResponseHandler<Generat
         return newResult(result);
     }
 
-    private static SqlUidMetaDataBo mapSqlUidMetaDataBo(Header agentInfo, PSqlUidMetaData sqlUidMetaData) {
+    private static SqlUidMetaDataBo mapSqlUidMetaDataBo(ServerHeader agentInfo, PSqlUidMetaData sqlUidMetaData) {
         final String agentId = agentInfo.getAgentId();
         final long agentStartTime = agentInfo.getAgentStartTime();
         final String applicationName = agentInfo.getApplicationName();

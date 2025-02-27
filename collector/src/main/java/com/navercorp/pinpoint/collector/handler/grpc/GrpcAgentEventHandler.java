@@ -25,11 +25,11 @@ import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.bo.event.DeadlockEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializerV1;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
+import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import io.grpc.Status;
 import org.apache.logging.log4j.LogManager;
@@ -68,7 +68,7 @@ public class GrpcAgentEventHandler implements SimpleHandler<GeneratedMessageV3> 
     @Override
     public void handleSimple(ServerRequest<GeneratedMessageV3> serverRequest) {
         final GeneratedMessageV3 data = serverRequest.getData();
-        final Header header = serverRequest.getHeader();
+        final ServerHeader header = serverRequest.getHeader();
         if (data instanceof PAgentStat agentStat) {
             handleAgentStat(header, agentStat);
         } else if (data instanceof PAgentStatBatch agentStatBatch) {
@@ -81,7 +81,7 @@ public class GrpcAgentEventHandler implements SimpleHandler<GeneratedMessageV3> 
         }
     }
 
-    private void handleAgentStat(Header header, PAgentStat agentStat) {
+    private void handleAgentStat(ServerHeader header, PAgentStat agentStat) {
         if (logger.isDebugEnabled()) {
             logger.debug("Handle PAgentStat={}", MessageFormatUtils.debugLog(agentStat));
         }
@@ -98,7 +98,7 @@ public class GrpcAgentEventHandler implements SimpleHandler<GeneratedMessageV3> 
         }
     }
 
-    private void handleAgentStatBatch(Header header, PAgentStatBatch agentStatBatch) {
+    private void handleAgentStatBatch(ServerHeader header, PAgentStatBatch agentStatBatch) {
         if (logger.isDebugEnabled()) {
             logger.debug("Handle PAgentStatBatch={}", MessageFormatUtils.debugLog(agentStatBatch));
         }

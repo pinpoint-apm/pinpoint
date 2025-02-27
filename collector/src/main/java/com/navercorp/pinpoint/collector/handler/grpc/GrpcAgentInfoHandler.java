@@ -21,10 +21,10 @@ import com.navercorp.pinpoint.collector.handler.SimpleAndRequestResponseHandler;
 import com.navercorp.pinpoint.collector.mapper.grpc.GrpcAgentInfoBoMapper;
 import com.navercorp.pinpoint.collector.service.AgentInfoService;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
-import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PResult;
+import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.io.util.MessageType;
@@ -61,7 +61,7 @@ public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler<Gen
     @Override
     public void handleSimple(ServerRequest<GeneratedMessageV3> serverRequest) {
         final GeneratedMessageV3 data = serverRequest.getData();
-        final Header header = serverRequest.getHeader();
+        final ServerHeader header = serverRequest.getHeader();
         if (data instanceof PAgentInfo agentInfo) {
             handleAgentInfo(header, agentInfo);
         } else {
@@ -73,7 +73,7 @@ public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler<Gen
     @Override
     public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
         final GeneratedMessageV3 data = serverRequest.getData();
-        final Header header = serverRequest.getHeader();
+        final ServerHeader header = serverRequest.getHeader();
         if (data instanceof PAgentInfo agentInfo) {
             final PResult result = handleAgentInfo(header, agentInfo);
             serverResponse.write(result);
@@ -83,7 +83,7 @@ public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler<Gen
         }
     }
 
-    private PResult handleAgentInfo(Header header, PAgentInfo agentInfo) {
+    private PResult handleAgentInfo(ServerHeader header, PAgentInfo agentInfo) {
         if (isDebug) {
             logger.debug("Handle PAgentInfo={}", MessageFormatUtils.debugLog(agentInfo));
         }

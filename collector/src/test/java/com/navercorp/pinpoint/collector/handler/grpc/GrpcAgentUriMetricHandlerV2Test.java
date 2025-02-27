@@ -33,6 +33,8 @@ import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.grpc.trace.PEachUriStat;
 import com.navercorp.pinpoint.grpc.trace.PUriHistogram;
+import com.navercorp.pinpoint.io.request.GrpcServerHeaderV1;
+import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import io.grpc.Context;
 import io.grpc.StatusRuntimeException;
@@ -86,9 +88,10 @@ public class GrpcAgentUriMetricHandlerV2Test {
         PAgentUriStat pAgentUriStat = createPAgentUriStat();
 
         ServerRequest<GeneratedMessageV3> mockServerRequest = serverRequestMock();
-        Header header = new HeaderV1("name", "agentId", "agentName", "applicationName",
-                ServiceType.UNKNOWN.getCode(), 0, Header.SOCKET_ID_NOT_EXIST, List.of());
-        when(mockServerRequest.getHeader()).thenReturn(header);
+        Header header = HeaderV1.simple("name", "agentId", "agentName", "applicationName",
+                ServiceType.UNKNOWN.getCode(), 0);
+        ServerHeader serverHeader = new GrpcServerHeaderV1(header);
+        when(mockServerRequest.getHeader()).thenReturn(serverHeader);
         when(mockServerRequest.getData()).thenReturn(pAgentUriStat);
 
         GrpcAgentStatHandlerV2 handler = createMockHandler(mockAgentUriStatService, true);

@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
 import com.navercorp.pinpoint.io.request.DefaultServerRequest;
+import com.navercorp.pinpoint.io.request.GrpcServerHeaderV1;
+import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.util.MessageType;
 import io.grpc.Context;
@@ -46,7 +48,8 @@ public class DefaultServerRequestFactory implements ServerRequestFactory {
             throw new IllegalStateException("transportMetadata is null");
         }
         long requestTime = System.currentTimeMillis();
-        return new DefaultServerRequest<>(header, transportMetadata, requestTime, messageType, data);
+        ServerHeader serverHeader = new GrpcServerHeaderV1(header);
+        return new DefaultServerRequest<>(serverHeader, transportMetadata, requestTime, messageType, data);
     }
 
 }

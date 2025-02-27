@@ -20,10 +20,10 @@ import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.service.SqlMetaDataService;
 import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
-import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
+import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.io.util.MessageType;
@@ -67,7 +67,7 @@ public class GrpcSqlMetaDataHandler implements RequestResponseHandler<GeneratedM
         }
     }
 
-    private PResult handleSqlMetaData(Header header, PSqlMetaData sqlMetaData) {
+    private PResult handleSqlMetaData(ServerHeader header, PSqlMetaData sqlMetaData) {
         if (isDebug) {
             logger.debug("Handle PSqlMetaData={}", MessageFormatUtils.debugLog(sqlMetaData));
         }
@@ -88,7 +88,7 @@ public class GrpcSqlMetaDataHandler implements RequestResponseHandler<GeneratedM
         return newResult(result);
     }
 
-    private static SqlMetaDataBo mapSqlMetaDataBo(Header agentInfo, PSqlMetaData sqlMetaData) {
+    private static SqlMetaDataBo mapSqlMetaDataBo(ServerHeader agentInfo, PSqlMetaData sqlMetaData) {
         final String agentId = agentInfo.getAgentId();
         final long agentStartTime = agentInfo.getAgentStartTime();
         final int sqlId = sqlMetaData.getSqlId();
