@@ -31,6 +31,8 @@ public enum HbaseTable {
     SERVICE_NAME("ServiceName"),
     //SERVICE_TAG("ServiceTag"),
     APPLICATION_INDEX("ApplicationIndex"),
+    APPLICATION_UID("ApplicationUid"),
+    APPLICATION_NAME("ApplicationName"),
     APPLICATION_TRACE_INDEX("ApplicationTraceIndex"),
     HOST_APPLICATION_MAP_VER2("HostApplicationMap_Ver2"),
     MAP_STATISTICS_CALLEE_VER2("ApplicationMapStatisticsCallee_Ver2"),

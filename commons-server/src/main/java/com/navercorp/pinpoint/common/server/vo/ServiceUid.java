@@ -2,14 +2,17 @@ package com.navercorp.pinpoint.common.server.vo;
 
 public class ServiceUid {
 
+    // reserve some UIDs
+    // 0 for default serviceUid
+    // -1 for error serviceUid
+    // [-RESERVED_NEGATIVE_UID_COUNT,-1], [1,RESERVED_POSITIVE_UID_COUNT] for future use
+    public static final int RESERVED_POSITIVE_UID_COUNT = 64;
+    public static final int RESERVED_NEGATIVE_UID_COUNT = 64;
+
     public static final int DEFAULT_SERVICE_UID_CODE = 0;
 
-    // reserve 0 for default service uid
     public static final ServiceUid DEFAULT_SERVICE_UID = new ServiceUid(DEFAULT_SERVICE_UID_CODE);
-
-    // reserve -1 ~ -5
     public static final ServiceUid ERROR_SERVICE_UID = new ServiceUid(-1);
-    public static final int RESERVED_NEGATIVE_UID_COUNT = 5;
 
     private final int uid;
 
@@ -17,6 +20,11 @@ public class ServiceUid {
         if (uid == DEFAULT_SERVICE_UID_CODE) {
             return DEFAULT_SERVICE_UID;
         }
+        // bound check
+        if (-RESERVED_NEGATIVE_UID_COUNT <= uid && uid <= RESERVED_POSITIVE_UID_COUNT) {
+            return ERROR_SERVICE_UID;
+        }
+
         return new ServiceUid(uid);
     }
 
@@ -46,7 +54,7 @@ public class ServiceUid {
     @Override
     public String toString() {
         return "ServiceUid{"
-                  + uid +
+                + uid +
                 '}';
     }
 }

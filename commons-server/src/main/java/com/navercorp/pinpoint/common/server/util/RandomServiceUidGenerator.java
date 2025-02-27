@@ -13,11 +13,9 @@ public class RandomServiceUidGenerator implements IdGenerator<ServiceUid> {
 
     @Override
     public ServiceUid generate() {
-        // int [0x00000000 ~ 0xffffffff], random.nextLong [0, 0xffffffffL + 1)
-        //
-        // reserve 0 for default service id
-        // reserve n negative values for error service ids
-        long uidLong = random.nextLong(1, (unsignedIntMax + 1) - ServiceUid.RESERVED_NEGATIVE_UID_COUNT);
+        // ServiceUid range int [0x00000000, 0xffffffff], random.nextLong [0, 0xffffffffL + 1)
+        // remove reserved uid
+        long uidLong = random.nextLong(1 + ServiceUid.RESERVED_POSITIVE_UID_COUNT, (unsignedIntMax + 1) - ServiceUid.RESERVED_NEGATIVE_UID_COUNT);
 
         return ServiceUid.of((int) uidLong);
     }
