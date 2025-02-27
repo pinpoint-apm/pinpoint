@@ -109,7 +109,9 @@ public class HbaseTraceService implements TraceService {
 
         future.whenCompleteAsync((unused, throwable) -> {
             final boolean result = throwable == null;
-            logger.trace("success {}", result);
+            if (logger.isTraceEnabled()) {
+                logger.trace("success {}", result);
+            }
             publisher.publishEvent(event, result);
         }, grpcSpanServerExecutor);
     }
