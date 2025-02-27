@@ -1,7 +1,5 @@
 package com.navercorp.pinpoint.common.server.bo.grpc;
 
-import com.navercorp.pinpoint.grpc.Header;
-
 import java.util.Objects;
 
 public class BindAttribute {
@@ -9,13 +7,6 @@ public class BindAttribute {
     private final String applicationName;
     private final long agentStartTime;
     private final long acceptedTime;
-
-    public static BindAttribute of(Header header, long acceptedTime) {
-        return new BindAttribute(header.getAgentId(),
-                header.getApplicationName(),
-                header.getAgentStartTime(),
-                acceptedTime);
-    }
 
     public BindAttribute(String agentId, String applicationName, long agentStartTime, long acceptedTime) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");

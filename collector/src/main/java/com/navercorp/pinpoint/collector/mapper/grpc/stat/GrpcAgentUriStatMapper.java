@@ -19,10 +19,10 @@ package com.navercorp.pinpoint.collector.mapper.grpc.stat;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.EachUriStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.UriStatHistogram;
-import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.grpc.trace.PEachUriStat;
 import com.navercorp.pinpoint.grpc.trace.PUriHistogram;
+import com.navercorp.pinpoint.io.request.ServerHeader;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -33,7 +33,7 @@ import java.util.List;
 @Component
 public class GrpcAgentUriStatMapper {
 
-    public AgentUriStatBo map(Header header, final PAgentUriStat agentUriStat) {
+    public AgentUriStatBo map(ServerHeader header, final PAgentUriStat agentUriStat) {
         final String agentId = header.getAgentId();
         final String applicationName = header.getApplicationName();
 

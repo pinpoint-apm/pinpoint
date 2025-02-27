@@ -28,11 +28,12 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.grpc.BindAttribute;
 import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanFactory;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.grpc.trace.PTransactionId;
+import com.navercorp.pinpoint.io.request.BindAttributes;
+import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import io.grpc.Status;
 import org.apache.logging.log4j.LogManager;
@@ -73,8 +74,8 @@ public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
     public void handleSimple(ServerRequest<GeneratedMessageV3> serverRequest) {
         final GeneratedMessageV3 data = serverRequest.getData();
         if (data instanceof PSpan span) {
-            final Header header = serverRequest.getHeader();
-            BindAttribute attribute = BindAttribute.of(header, serverRequest.getRequestTime());
+            final ServerHeader header = serverRequest.getHeader();
+            BindAttribute attribute = BindAttributes.of(header, serverRequest.getRequestTime());
             handleSpan(attribute, span);
         } else {
             logger.warn("Invalid request type. serverRequest={}", serverRequest);

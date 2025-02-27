@@ -8,10 +8,10 @@ import com.navercorp.pinpoint.grpc.HeaderV1;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PResult;
+import com.navercorp.pinpoint.io.request.GrpcServerHeaderV1;
+import com.navercorp.pinpoint.io.request.ServerHeader;
 import io.grpc.Context;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
@@ -35,8 +35,9 @@ public class GrpcApiMetaDataHandlerTest {
                 .setLocation("/Users/workspace/pinpoint/@pinpoint-naver-apm/pinpoint-agent-node/samples/express/src/routes/index.js")
                 .build();
 
-        Header header = new HeaderV1("name", "express-node-sample-id", "agentName", "applicationName",
-                0, 1668495162817L, 0, List.of());
+        Header header = HeaderV1.simple("name", "express-node-sample-id", "agentName", "applicationName",
+                0, 1668495162817L);
+        ServerHeader serverHeader = new GrpcServerHeaderV1(header);
         Context headerContext = Context.current().withValue(ServerContext.AGENT_INFO_KEY, header);
         headerContext.run(new Runnable() {
             @Override
@@ -48,7 +49,7 @@ public class GrpcApiMetaDataHandlerTest {
                     return null;
                 }).when(mockedService).insert(any());
 
-                PResult result = dut.handleApiMetaData(header, actualStub);
+                PResult result = dut.handleApiMetaData(serverHeader, actualStub);
                 assertThat(result.getSuccess()).isTrue();
             }
         });

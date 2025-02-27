@@ -62,6 +62,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -326,7 +327,9 @@ public class GrpcCommandServiceTest {
                                 ServiceType.TEST.getCode(),
                                 1234,
                                 0,
-                                List.of(710, 720, 730, 740, 750)
+                                List.of(710, 720, 730, 740, 750),
+                                false,
+                                Map.of()
                         ));
                 return Contexts.interceptCall(nextCtx, call, headers, next);
             }

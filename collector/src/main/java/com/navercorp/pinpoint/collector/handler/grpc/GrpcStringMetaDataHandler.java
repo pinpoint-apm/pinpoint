@@ -20,10 +20,10 @@ import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.service.StringMetaDataService;
 import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
-import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
+import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.io.util.MessageType;
@@ -56,7 +56,7 @@ public class GrpcStringMetaDataHandler implements RequestResponseHandler<Generat
     @Override
     public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
         final GeneratedMessageV3 data = serverRequest.getData();
-        final Header header = serverRequest.getHeader();
+        final ServerHeader header = serverRequest.getHeader();
         if (data instanceof PStringMetaData stringMetaData) {
             PResult result = handleStringMetaData(header, stringMetaData);
             serverResponse.write(result);
@@ -66,7 +66,7 @@ public class GrpcStringMetaDataHandler implements RequestResponseHandler<Generat
         }
     }
 
-    private PResult handleStringMetaData(Header header, final PStringMetaData stringMetaData) {
+    private PResult handleStringMetaData(ServerHeader header, final PStringMetaData stringMetaData) {
         if (logger.isDebugEnabled()) {
             logger.debug("Handle PStringMetaData={}", MessageFormatUtils.debugLog(stringMetaData));
         }

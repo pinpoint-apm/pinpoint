@@ -23,13 +23,13 @@ import com.navercorp.pinpoint.common.server.bo.exception.ExceptionMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.exception.ExceptionWrapperBo;
 import com.navercorp.pinpoint.common.server.bo.exception.StackTraceElementWrapperBo;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PException;
 import com.navercorp.pinpoint.grpc.trace.PExceptionMetaData;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PStackTraceElement;
 import com.navercorp.pinpoint.grpc.trace.PTransactionId;
+import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.io.util.MessageType;
@@ -66,7 +66,7 @@ public class GrpcExceptionMetaDataHandler implements RequestResponseHandler<Gene
     @Override
     public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
         final GeneratedMessageV3 data = serverRequest.getData();
-        final Header header = serverRequest.getHeader();
+        final ServerHeader header = serverRequest.getHeader();
         if (data instanceof PExceptionMetaData exceptionMetaData) {
             PResult result = handleExceptionMetaData(header, exceptionMetaData);
             serverResponse.write(result);
@@ -76,7 +76,7 @@ public class GrpcExceptionMetaDataHandler implements RequestResponseHandler<Gene
         }
     }
 
-    private PResult handleExceptionMetaData(final Header header, final PExceptionMetaData exceptionMetaData) {
+    private PResult handleExceptionMetaData(final ServerHeader header, final PExceptionMetaData exceptionMetaData) {
         if (isDebug) {
             logger.debug("Handle PExceptionMetaData={}", MessageFormatUtils.debugLog(exceptionMetaData));
         }
@@ -101,7 +101,7 @@ public class GrpcExceptionMetaDataHandler implements RequestResponseHandler<Gene
     }
 
     private ExceptionMetaDataBo mapExceptionMetaDataBo(
-            Header agentInfo, PExceptionMetaData exceptionMetaData
+            ServerHeader agentInfo, PExceptionMetaData exceptionMetaData
     ) {
         final String agentId = agentInfo.getAgentId();
         final TransactionId transactionId = newTransactionId(exceptionMetaData.getTransactionId(), agentId);
@@ -116,7 +116,7 @@ public class GrpcExceptionMetaDataHandler implements RequestResponseHandler<Gene
     }
 
     private List<ExceptionWrapperBo> mapExceptionWrapperBo(
-            List<PException> exceptions, final Header header
+            List<PException> exceptions, final ServerHeader header
     ) {
         return exceptions.stream().map(
                 (PException p) -> new ExceptionWrapperBo(
@@ -129,7 +129,7 @@ public class GrpcExceptionMetaDataHandler implements RequestResponseHandler<Gene
         ).collect(Collectors.toList());
     }
 
-    private long getFallbackTime(long actual, PException p, final Header header) {
+    private long getFallbackTime(long actual, PException p, final ServerHeader header) {
         if (actual > 0) {
             return actual;
         }

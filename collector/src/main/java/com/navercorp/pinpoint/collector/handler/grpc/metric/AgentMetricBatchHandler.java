@@ -4,9 +4,9 @@ import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.grpc.GrpcMetricHandler;
 import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentStatBatchMapper;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
-import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
+import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,7 +40,7 @@ public class AgentMetricBatchHandler implements GrpcMetricHandler {
         }
         final PAgentStatBatch agentStatBatch = (PAgentStatBatch) request.getData();
 
-        final Header header = request.getHeader();
+        final ServerHeader header = request.getHeader();
         final AgentStatBo agentStatBo = this.agentStatBatchMapper.map(agentStatBatch, header);
         if (agentStatBo == null) {
             return;
