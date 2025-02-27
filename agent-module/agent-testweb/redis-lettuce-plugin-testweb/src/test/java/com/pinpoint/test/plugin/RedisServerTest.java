@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright 2025 NAVER Corp.
+=======
+ * Copyright 2024 NAVER Corp.
+>>>>>>> 85c4597f44 (init)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +29,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 class RedisServerTest {
     private static GenericContainer<?> redisServer;

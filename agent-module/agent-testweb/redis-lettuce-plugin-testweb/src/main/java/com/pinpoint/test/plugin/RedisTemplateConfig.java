@@ -20,7 +20,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -33,7 +32,9 @@ public class RedisTemplateConfig {
     private static final int PORT1 = 18001;
     private static final int PORT2 = 18002;
     private static final int PORT3 = 18003;
-    private static final int PORT = 32785;
+    private static final String HOST = "localhost";
+    private static final int PORT = 32912;
+
 
     @Bean
     public StringRedisTemplate redisTemplate() {
@@ -44,7 +45,7 @@ public class RedisTemplateConfig {
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory(new RedisStandaloneConfiguration(HOST1, PORT));
+        return new LettuceConnectionFactory(HOST, PORT);
     }
 
     @Bean
@@ -55,6 +56,6 @@ public class RedisTemplateConfig {
 
     @Bean
     public ReactiveRedisConnectionFactory reactiveRedisConnectionFactory() {
-        return new LettuceConnectionFactory(new RedisStandaloneConfiguration(HOST1, PORT));
+        return new LettuceConnectionFactory(HOST, PORT);
     }
 }

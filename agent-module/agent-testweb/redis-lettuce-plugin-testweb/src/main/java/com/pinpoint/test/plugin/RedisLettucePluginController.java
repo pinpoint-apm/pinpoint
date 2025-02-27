@@ -128,6 +128,20 @@ public class RedisLettucePluginController {
         return Flux.just("foo", "bar")
                 .zipWith(Flux.just("bar", "baz"))
                 .flatMap(tuple -> reactiveStringRedisTemplate.opsForValue().set(tuple.getT1(), tuple.getT2()));
+    }
 
+    @GetMapping("/reactive/pub")
+    public Mono<String> reactivePub() {
+        reactiveStringRedisTemplate.convertAndSend("channel-test", "foo").subscribe();
+
+        return Mono.just("OK");
+    }
+
+    @GetMapping("/reactive/sub")
+    public Mono<String> reactiveSub() {
+        reactiveStringRedisTemplate.listenToChannel("channel-test")
+                .doOnNext(message -> System.out.println("Received message: " + message))
+                .subscribe();
+        return Mono.just("OK");
     }
 }
