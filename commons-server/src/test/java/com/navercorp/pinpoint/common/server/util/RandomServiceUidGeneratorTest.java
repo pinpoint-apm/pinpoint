@@ -13,7 +13,7 @@ public class RandomServiceUidGeneratorTest {
         RandomServiceUidGenerator randomServiceUidGenerator = new RandomServiceUidGenerator();
 
         ServiceUid serviceUid = randomServiceUidGenerator.generate();
-        int i = serviceUid.getValue();
+        int i = serviceUid.getUid();
         System.out.println("random generated (int): " + i);
         System.out.println("random generated (hex): " + String.format("0x%08X", i));
     }
@@ -24,7 +24,7 @@ public class RandomServiceUidGeneratorTest {
         long defaultId = 0L;
 
         printLong("default uid 0", defaultId);
-        Assertions.assertThat((int) defaultId).isEqualTo(ServiceUid.DEFAULT_SERVICE_UID.getValue());
+        Assertions.assertThat((int) defaultId).isEqualTo(ServiceUid.DEFAULT_SERVICE_UID.getUid());
     }
 
     @Test

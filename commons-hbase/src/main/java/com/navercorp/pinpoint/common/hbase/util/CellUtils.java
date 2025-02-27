@@ -42,6 +42,11 @@ public final class CellUtils {
         return Bytes.toShort(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
     }
 
+    public static int valueToInt(Cell cell) {
+        Objects.requireNonNull(cell, "cell");
+        return Bytes.toInt(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+    }
+
     public static long valueToLong(Cell cell) {
         Objects.requireNonNull(cell, "cell");
         return Bytes.toLong(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());

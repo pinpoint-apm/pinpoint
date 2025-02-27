@@ -50,7 +50,7 @@ public class HbaseServiceNameDao implements ServiceNameDao {
 
     @Override
     public String selectServiceName(ServiceUid serviceUid) {
-        byte[] rowKey = Bytes.toBytes(serviceUid.getValue());
+        byte[] rowKey = Bytes.toBytes(serviceUid.getUid());
 
         Get get = new Get(rowKey);
         get.addFamily(NAME.getName());
@@ -62,7 +62,7 @@ public class HbaseServiceNameDao implements ServiceNameDao {
 
     @Override
     public boolean insertServiceNameIfNotExists(ServiceUid serviceUid, String serviceName) {
-        byte[] rowKey = Bytes.toBytes(serviceUid.getValue());
+        byte[] rowKey = Bytes.toBytes(serviceUid.getUid());
 
         Put put = new Put(rowKey);
         put.addColumn(NAME.getName(), NAME.getName(), Bytes.toBytes(serviceName));
@@ -78,7 +78,7 @@ public class HbaseServiceNameDao implements ServiceNameDao {
 
     @Override
     public void deleteServiceName(ServiceUid serviceUid) {
-        byte[] rowKey = Bytes.toBytes(serviceUid.getValue());
+        byte[] rowKey = Bytes.toBytes(serviceUid.getUid());
         Delete delete = new Delete(rowKey);
 
         TableName ServiceInfoTableName = tableNameProvider.getTableName(NAME.getTable());

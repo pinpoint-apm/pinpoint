@@ -53,7 +53,7 @@ public class HbaseServiceUidDao implements ServiceUidDao {
         byte[] rowKey = Bytes.toBytes(serviceName);
 
         Put put = new Put(rowKey);
-        put.addColumn(UID.getName(), UID.getName(), Bytes.toBytes(serviceUid.getValue()));
+        put.addColumn(UID.getName(), UID.getName(), Bytes.toBytes(serviceUid.getUid()));
 
         CheckAndMutate.Builder builder = CheckAndMutate.newBuilder(rowKey);
         builder.ifNotExists(UID.getName(), UID.getName());

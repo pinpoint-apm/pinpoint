@@ -3,12 +3,13 @@ package com.navercorp.pinpoint.common.server.util;
 import com.navercorp.pinpoint.common.server.vo.ServiceUid;
 
 import java.security.SecureRandom;
+import java.util.Random;
 
 public class RandomServiceUidGenerator implements IdGenerator<ServiceUid> {
 
     private static final long unsignedIntMax = 0xffffffffL; //((long) Integer.MAX_VALUE << 1) + 1L;
 
-    private final SecureRandom secureRandom = new SecureRandom();
+    private final Random random = new SecureRandom();
 
     @Override
     public ServiceUid generate() {
@@ -16,8 +17,8 @@ public class RandomServiceUidGenerator implements IdGenerator<ServiceUid> {
         //
         // reserve 0 for default service id
         // reserve n negative values for error service ids
-        long uidLong = secureRandom.nextLong(1, (unsignedIntMax + 1) - ServiceUid.RESERVED_NEGATIVE_UID_COUNT);
+        long uidLong = random.nextLong(1, (unsignedIntMax + 1) - ServiceUid.RESERVED_NEGATIVE_UID_COUNT);
 
-        return new ServiceUid((int) uidLong);
+        return ServiceUid.of((int) uidLong);
     }
 }
