@@ -35,6 +35,10 @@
             <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
             <version>${spring-boot.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>

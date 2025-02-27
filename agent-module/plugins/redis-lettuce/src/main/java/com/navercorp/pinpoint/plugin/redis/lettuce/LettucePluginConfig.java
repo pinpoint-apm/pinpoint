@@ -17,25 +17,40 @@ package com.navercorp.pinpoint.plugin.redis.lettuce;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
+import java.util.List;
+
 /**
  * @author jaehong.kim
  */
 public class LettucePluginConfig {
     private final boolean enable;
+    private final boolean tracePubSubListener;
+    private final List<String> redisPubSubListenerBasePackageList;
 
     public LettucePluginConfig(ProfilerConfig src) {
         this.enable = src.readBoolean("profiler.redis.lettuce.enable", true);
+        this.tracePubSubListener = src.readBoolean("profiler.redis.lettuce.trace.pubsub-listener", true);
+        this.redisPubSubListenerBasePackageList = src.readList("profiler.redis.lettuce.pubsub-listener.base-packages");
     }
 
     public boolean isEnable() {
         return enable;
     }
 
+    public boolean isTracePubSubListener() {
+        return tracePubSubListener;
+    }
+
+    public List<String> getRedisPubSubListenerBasePackageList() {
+        return redisPubSubListenerBasePackageList;
+    }
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("LettucePluginConfig{");
-        sb.append("enable=").append(enable);
-        sb.append('}');
-        return sb.toString();
+        return "LettucePluginConfig{" +
+                "enable=" + enable +
+                ", tracePubSubListener=" + tracePubSubListener +
+                ", redisPubSubListenerBasePackageList=" + redisPubSubListenerBasePackageList +
+                '}';
     }
 }
