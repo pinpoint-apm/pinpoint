@@ -86,6 +86,20 @@ public class HbaseColumnFamily {
         }
     }
 
+    public static final ApplicationUid APPLICATION_UID = new ApplicationUid(HbaseTable.APPLICATION_UID, Bytes.toBytes("I"));
+    public static class ApplicationUid extends HbaseColumnFamily {
+        private ApplicationUid(HbaseTable hBaseTable, byte[] columnFamilyName) {
+            super(hBaseTable, columnFamilyName);
+        }
+    }
+
+    public static final ApplicationInfo APPLICATION_NAME = new ApplicationInfo(HbaseTable.APPLICATION_NAME, Bytes.toBytes("N"));
+    public static class ApplicationInfo extends HbaseColumnFamily {
+        private ApplicationInfo(HbaseTable hBaseTable, byte[] columnFamilyName) {
+            super(hBaseTable, columnFamilyName);
+        }
+    }
+
     public static final ApplicationIndex APPLICATION_INDEX_AGENTS = new ApplicationIndex(HbaseTable.APPLICATION_INDEX, Bytes.toBytes("Agents"));
     public static class ApplicationIndex extends HbaseColumnFamily {
         private ApplicationIndex(HbaseTable hBaseTable, byte[] columnFamilyName) {

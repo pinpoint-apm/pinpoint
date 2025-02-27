@@ -10,11 +10,13 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
 
 @Repository
+@ConditionalOnProperty(name = "pinpoint.collector.v4.enable", havingValue = "true")
 public class HbaseServiceUidDao implements ServiceUidDao {
 
     private static final HbaseColumnFamily.ServiceUid UID = HbaseColumnFamily.SERVICE_UID;

@@ -15,6 +15,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.Objects;
 
 // serviceUid -> serviceName
 @Repository
+@ConditionalOnProperty(name = "pinpoint.web.v4.enable", havingValue = "true")
 public class HbaseServiceNameDao implements ServiceNameDao {
 
     private static final HbaseColumnFamily.ServiceName NAME = HbaseColumnFamily.SERVICE_NAME;
