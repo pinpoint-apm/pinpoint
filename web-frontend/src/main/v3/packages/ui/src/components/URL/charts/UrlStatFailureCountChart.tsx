@@ -8,6 +8,8 @@ import { abbreviateNumber, formatNewLinedDateString } from '@pinpoint-fe/ui/src/
 import { isValid } from 'date-fns';
 import { UrlStatChartType as UrlStatChartApi, colors } from '@pinpoint-fe/ui/src/constants';
 import { cn } from '../../../lib';
+import { useAtomValue } from 'jotai';
+import { layoutWithContentSidebarAtom } from '@pinpoint-fe/ui/src/atoms/layoutWithContentSidebar';
 
 export interface UrlStatFailureCountChartProps {
   data: UrlStatChartApi.Response | undefined;
@@ -31,6 +33,7 @@ export const UrlStatFailureCountChart = ({
   className,
   emptyMessage = 'No Data',
 }: UrlStatFailureCountChartProps) => {
+  const sizes = useAtomValue(layoutWithContentSidebarAtom);
   const chartComponent = React.useRef<IChart>(null);
   const yData = data
     ? data.metricValueGroups[0].metricValues.map(({ fieldName, values }) => {
@@ -106,6 +109,9 @@ export const UrlStatFailureCountChart = ({
         value: (v: number) => abbreviateNumber(v, ['', 'K', 'M', 'G']),
       },
     },
+    resize: {
+      timer: false,
+    },
   };
 
   React.useEffect(() => {
@@ -123,6 +129,10 @@ export const UrlStatFailureCountChart = ({
       resizeAfter: true,
     });
   }, [data]);
+
+  React.useEffect(() => {
+    chartComponent?.current?.instance?.resize();
+  }, [sizes]);
 
   return (
     <BillboardJS

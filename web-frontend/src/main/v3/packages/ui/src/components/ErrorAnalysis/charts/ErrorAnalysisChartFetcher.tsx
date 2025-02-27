@@ -7,6 +7,8 @@ import BillboardJS, { IChart } from '@billboard.js/react';
 import { abbreviateNumber, formatNewLinedDateString } from '@pinpoint-fe/ui/src/utils';
 import { isValid } from 'date-fns';
 import { cn } from '../../../lib';
+import { useAtomValue } from 'jotai';
+import { layoutWithContentSidebarAtom } from '@pinpoint-fe/ui/src/atoms/layoutWithContentSidebar';
 
 export interface ErrorAnalysisChartFetcherProps {
   className?: string;
@@ -17,6 +19,7 @@ export const ErrorAnalysisChartFetcher = ({
   className,
   emptyMessage = 'No Data',
 }: ErrorAnalysisChartFetcherProps) => {
+  const sizes = useAtomValue(layoutWithContentSidebarAtom);
   const { data } = useGetErrorAnalysisChartData();
   const chartComponent = React.useRef<IChart>(null);
   const options: ChartOptions = {
@@ -83,7 +86,14 @@ export const ErrorAnalysisChartFetcher = ({
         value: (v: number) => abbreviateNumber(v, ['', 'K', 'M', 'G']),
       },
     },
+    resize: {
+      timer: false,
+    },
   };
+
+  React.useEffect(() => {
+    chartComponent.current?.instance?.resize();
+  }, [sizes]);
 
   React.useEffect(() => {
     const chart = chartComponent.current?.instance;

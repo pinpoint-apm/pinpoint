@@ -8,6 +8,8 @@ import { isValid } from 'date-fns';
 import { UrlStatChartType as UrlStatChartApi, colors } from '@pinpoint-fe/ui/src/constants';
 import { cn } from '../../../lib';
 import { formatNewLinedDateString, numberInDecimal } from '@pinpoint-fe/ui/src/utils';
+import { useAtomValue } from 'jotai';
+import { layoutWithContentSidebarAtom } from '@pinpoint-fe/ui/src/atoms/layoutWithContentSidebar';
 
 export interface UrlStatApdexChartProps {
   data: UrlStatChartApi.Response | undefined;
@@ -22,6 +24,7 @@ export const UrlStatApdexChart = ({
   className,
   emptyMessage = 'No Data',
 }: UrlStatApdexChartProps) => {
+  const sizes = useAtomValue(layoutWithContentSidebarAtom);
   const chartComponent = React.useRef<IChart>(null);
   const yData = data
     ? data.metricValueGroups[0].metricValues.map(({ fieldName, values }) => {
@@ -95,6 +98,9 @@ export const UrlStatApdexChart = ({
         value: (v: number) => `${numberInDecimal(v, 2)}`,
       },
     },
+    resize: {
+      timer: false,
+    },
   };
 
   React.useEffect(() => {
@@ -112,6 +118,10 @@ export const UrlStatApdexChart = ({
       resizeAfter: true,
     });
   }, [data]);
+
+  React.useEffect(() => {
+    chartComponent?.current?.instance?.resize();
+  }, [sizes]);
 
   return (
     <BillboardJS

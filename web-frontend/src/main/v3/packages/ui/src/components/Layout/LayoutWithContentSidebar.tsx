@@ -4,6 +4,8 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '@pinpoint-fe/ui/src/components/ui/resizable';
+import { layoutWithContentSidebarAtom } from '@pinpoint-fe/ui/src/atoms/layoutWithContentSidebar';
+import { useAtom } from 'jotai';
 
 export interface LayoutWithContentSidebarProps {
   children: React.ReactNode[];
@@ -15,11 +17,20 @@ export const LayoutWithContentSidebar = ({
   contentWrapperClassName,
 }: LayoutWithContentSidebarProps) => {
   const [sidebar, content, ...rest] = children;
+  const [sizes, setSizes] = useAtom(layoutWithContentSidebarAtom);
+
+  function handleLayout(sizes: number[]) {
+    setSizes(sizes);
+  }
 
   return (
     <>
-      <ResizablePanelGroup direction="horizontal" className="h-[calc(100%-4rem)]">
-        <ResizablePanel defaultSize={15} minSize={10} maxSize={30}>
+      <ResizablePanelGroup
+        direction="horizontal"
+        className="h-[calc(100%-4rem)]"
+        onLayout={handleLayout}
+      >
+        <ResizablePanel defaultSize={sizes?.[0] || 15} minSize={10} maxSize={30}>
           {sidebar}
         </ResizablePanel>
         <ResizableHandle withHandle />
