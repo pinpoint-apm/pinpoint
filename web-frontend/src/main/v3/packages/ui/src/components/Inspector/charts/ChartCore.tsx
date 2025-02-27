@@ -8,6 +8,8 @@ import BillboardJS, { IChart } from '@billboard.js/react';
 import { cn, DEFAULT_CHART_CONFIG } from '../../../lib';
 import { InspectorAgentChart, InspectorApplicationChart } from '@pinpoint-fe/ui/src/constants';
 import { formatNewLinedDateString } from '@pinpoint-fe/ui/src/utils';
+import { useAtomValue } from 'jotai';
+import { layoutWithContentSidebarAtom } from '@pinpoint-fe/ui/src/atoms/layoutWithContentSidebar';
 
 export interface ChartCoreProps {
   data: InspectorAgentChart.Response | InspectorApplicationChart.Response;
@@ -24,6 +26,7 @@ export const ChartCore = ({
   emptyMessage = 'No Data',
   style,
 }: ChartCoreProps) => {
+  const sizes = useAtomValue(layoutWithContentSidebarAtom);
   const prevData = React.useRef([] as (string | number | null)[][]);
   const chartComponent = React.useRef<IChart>(null);
   const defaultOptions = {
@@ -78,17 +81,15 @@ export const ChartCore = ({
       order: '',
     },
     resize: {
-      auto: false,
+      timer: false,
     },
   };
   const options = deepmerge(defaultOptions, chartOptions);
 
   React.useEffect(() => {
-    window.addEventListener('resize', () => {
-      const chart = chartComponent.current?.instance;
-      chart?.resize();
-    });
-  }, []);
+    const chart = chartComponent.current?.instance;
+    chart?.resize();
+  }, [sizes]);
 
   React.useEffect(() => {
     const chart = chartComponent.current?.instance;

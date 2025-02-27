@@ -8,6 +8,8 @@ import { addCommas, formatNewLinedDateString, numberInInteger } from '@pinpoint-
 import { isValid } from 'date-fns';
 import { UrlStatChartType as UrlStatChartApi, colors } from '@pinpoint-fe/ui/src/constants';
 import { cn } from '../../../lib';
+import { useAtomValue } from 'jotai';
+import { layoutWithContentSidebarAtom } from '@pinpoint-fe/ui/src/atoms/layoutWithContentSidebar';
 
 export interface UrlStatLatencyChartProps {
   data: UrlStatChartApi.Response | undefined;
@@ -22,6 +24,7 @@ export const UrlStatLatencyChart = ({
   className,
   emptyMessage = 'No Data',
 }: UrlStatLatencyChartProps) => {
+  const sizes = useAtomValue(layoutWithContentSidebarAtom);
   const chartComponent = React.useRef<IChart>(null);
   const yData = data
     ? data.metricValueGroups[0].metricValues.map(({ fieldName, values }) => {
@@ -95,6 +98,9 @@ export const UrlStatLatencyChart = ({
         value: (v: number) => `${addCommas(numberInInteger(v))}ms`,
       },
     },
+    resize: {
+      timer: false,
+    },
   };
 
   React.useEffect(() => {
@@ -112,6 +118,10 @@ export const UrlStatLatencyChart = ({
       resizeAfter: true,
     });
   }, [data]);
+
+  React.useEffect(() => {
+    chartComponent?.current?.instance?.resize();
+  }, [sizes]);
 
   return (
     <BillboardJS

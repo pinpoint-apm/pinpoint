@@ -23,6 +23,8 @@ import {
   Separator,
 } from '../../ui';
 import { formatNewLinedDateString, getFormat } from '@pinpoint-fe/ui/src/utils';
+import { useAtomValue } from 'jotai';
+import { layoutWithContentSidebarAtom } from '@pinpoint-fe/ui/src/atoms/layoutWithContentSidebar';
 
 export interface SystemMetricChartFetcherProps {
   chartInfo: SystemMetricMetricInfo.MetricInfoData;
@@ -35,6 +37,7 @@ export const SystemMetricChartFetcher = ({
   className,
   emptyMessage = 'No Data',
 }: SystemMetricChartFetcherProps) => {
+  const sizes = useAtomValue(layoutWithContentSidebarAtom);
   const { metricDefinitionId, tagGroup } = chartInfo;
   const { data: tagData } = useGetSystemMetricTagsData({
     metricDefinitionId: tagGroup ? metricDefinitionId : '',
@@ -102,6 +105,7 @@ export const SystemMetricChartFetcher = ({
     },
     resize: {
       auto: false,
+      timer: false,
     },
     transition: {
       duration: 0,
@@ -120,11 +124,9 @@ export const SystemMetricChartFetcher = ({
   }, [tagData]);
 
   React.useEffect(() => {
-    window.addEventListener('resize', () => {
-      const chart = chartComponent.current?.instance;
-      chart?.resize();
-    });
-  }, []);
+    const chart = chartComponent.current?.instance;
+    chart?.resize();
+  }, [sizes]);
 
   React.useEffect(() => {
     const chart = chartComponent.current?.instance;
