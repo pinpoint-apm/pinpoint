@@ -40,11 +40,14 @@ public class SpringCloudGatewayPluginTestStarter {
     @Bean
     public RouteLocator myRoutes(RouteLocatorBuilder builder, RedisRateLimiter redisRateLimiter) {
         KeyResolver keyResolver = exchange -> Mono.just("test-user");
-        final String httpUri = "http://www.naver.com";
+        final String httpUri = "http://httpbin.org";
         return builder.routes()
                 .route(p -> p
                         .path("/get")
-                        .filters(f -> f.addRequestHeader("Hello", "World"))
+                        .filters(f -> f.addRequestHeader("Hello", "World").requestRateLimiter().configure(config -> {
+                            config.setKeyResolver(keyResolver);
+                            config.setRateLimiter(redisRateLimiter);
+                        }))
                         .uri(httpUri))
                 .route("simple", r -> r.method(HttpMethod.GET).and().path("/simple")
                         .filters(f -> f

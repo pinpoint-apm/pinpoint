@@ -22,31 +22,39 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.InterfaceInternalNameMatcherOperand;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParameters;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParametersBuilder;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.FluxAndMonoOperatorSubscribeInterceptor;
+
+
 import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.AttachEndPointInterceptor;
 import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.LettuceMethodInterceptor;
 import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.RedisClientConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.RedisCluserClientConnectStatefulInterceptor;
 import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.RedisClusterClientConstructorInterceptor;
 
+import com.navercorp.pinpoint.plugin.redis.lettuce.interceptor.RedisPubSubListenerInterceptor;
+
 import java.security.ProtectionDomain;
 
 /**
  * @author jaehong.kim
  */
-public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
+public class LettucePlugin implements ProfilerPlugin, MatchableTransformTemplateAware {
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
-    private TransformTemplate transformTemplate;
+    private MatchableTransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
@@ -66,6 +74,9 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
         // Commands
         addRedisCommands(config);
         addReactive();
+        if (config.isTracePubSubListener()) {
+            addRedisPubSubListener(config);
+        }
     }
 
     private void addRedisClient() {
@@ -139,10 +150,11 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
     private void addStatefulRedisConnection() {
         addStatefulRedisConnection("io.lettuce.core.StatefulRedisConnectionImpl");
         addStatefulRedisConnection("io.lettuce.core.cluster.StatefulRedisClusterConnectionImpl");
-        addStatefulRedisConnection("io.lettuce.core.pubsub.StatefulRedisPubSubConnectionImpl");
-        addStatefulRedisConnection("io.lettuce.core.pubsub.StatefulRedisClusterPubSubConnectionImpl");
         addStatefulRedisConnection("io.lettuce.core.masterslave.StatefulRedisMasterSlaveConnectionImpl");
         addStatefulRedisConnection("io.lettuce.core.sentinel.StatefulRedisSentinelConnectionImpl");
+
+        addStatefulRedisConnection("io.lettuce.core.pubsub.StatefulRedisPubSubConnectionImpl");
+        addStatefulRedisConnection("io.lettuce.core.pubsub.StatefulRedisClusterPubSubConnectionImpl");
     }
 
     private void addStatefulRedisConnection(final String className) {
@@ -233,8 +245,38 @@ public class LettucePlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
+    private void addRedisPubSubListener(LettucePluginConfig config) {
+        final Matcher listenerMatcher = Matchers.newPackageBasedMatcher("io.lettuce.core.pubsub.RedisPubSubReactiveCommandsImpl$", new InterfaceInternalNameMatcherOperand("io.lettuce.core.pubsub.RedisPubSubListener", true));
+        transformTemplate.transform(listenerMatcher, RedisPubSubListenerTransform.class);
+
+        for (String packageName : config.getRedisPubSubListenerBasePackageList()) {
+            Matcher matcher = Matchers.newPackageBasedMatcher(packageName, new InterfaceInternalNameMatcherOperand("io.lettuce.core.pubsub.RedisPubSubListener", true));
+            transformTemplate.transform(matcher, RedisPubSubListenerTransform.class);
+        }
+    }
+
+    public static class RedisPubSubListenerTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+            // void message(K channel, V message);
+            final InstrumentMethod messageMethod1 = target.getDeclaredMethod("message", "java.lang.Object", "java.lang.Object");
+            if (messageMethod1 != null) {
+                messageMethod1.addInterceptor(RedisPubSubListenerInterceptor.class);
+            }
+            // void message(K pattern, K channel, V message);
+            final InstrumentMethod messageMethod2 = target.getDeclaredMethod("message", "java.lang.Object", "java.lang.Object", "java.lang.Object");
+            if (messageMethod2 != null) {
+                messageMethod2.addInterceptor(RedisPubSubListenerInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
     @Override
-    public void setTransformTemplate(TransformTemplate transformTemplate) {
+    public void setTransformTemplate(MatchableTransformTemplate transformTemplate) {
         this.transformTemplate = transformTemplate;
     }
 }
