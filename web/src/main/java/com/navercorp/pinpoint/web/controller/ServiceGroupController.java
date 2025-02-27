@@ -63,7 +63,7 @@ public class ServiceGroupController {
 
     @GetMapping(value = "/service/name")
     public ResponseEntity<String> getServiceName(@RequestParam("serviceUid") int serviceUid) {
-        String serviceName = serviceGroupService.selectServiceName(new ServiceUid(serviceUid));
+        String serviceName = serviceGroupService.selectServiceName(ServiceUid.of(serviceUid));
         if (serviceName == null) {
             return ResponseEntity.noContent().build();
         }
@@ -76,6 +76,6 @@ public class ServiceGroupController {
         if (serviceUid == null) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(serviceUid.getValue());
+        return ResponseEntity.ok(serviceUid.getUid());
     }
 }

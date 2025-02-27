@@ -2,9 +2,10 @@ package com.navercorp.pinpoint.common.server.dao.hbase.mapper;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.server.vo.ServiceUid;
+import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,8 +21,8 @@ public class ServiceUidMapper implements RowMapper<ServiceUid> {
         byte[] family = DESCRIPTOR.getName();
         byte[] qualifier = DESCRIPTOR.getName();
 
-        byte[] serializedServiceUid = result.getValue(family, qualifier);
-        int serviceUid = Bytes.toInt(serializedServiceUid);
-        return new ServiceUid(serviceUid);
+        Cell cell = result.getColumnLatestCell(family, qualifier);
+        int serviceUid = CellUtils.valueToInt(cell);
+        return ServiceUid.of(serviceUid);
     }
 }
