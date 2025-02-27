@@ -29,6 +29,12 @@ create 'HostApplicationMap_Ver2', { NAME => 'M', TTL => 5184000, VERSIONS => 1, 
 #create 'ServiceTag', { NAME => 'T', DATA_BLOCK_ENCODING => 'PREFIX' }
 =end
 
+=begin
+# The two tables below are not currently in use.
+#create 'ApplicationUid', { NAME => 'I', DATA_BLOCK_ENCODING => 'PREFIX' }
+#create 'ApplicationName', { NAME => 'N', DATA_BLOCK_ENCODING => 'PREFIX' }
+=end
+
 list
 
 exit
