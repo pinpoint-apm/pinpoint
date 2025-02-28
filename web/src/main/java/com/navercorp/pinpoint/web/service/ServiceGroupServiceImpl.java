@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.util.IdGenerator;
 import com.navercorp.pinpoint.common.server.vo.ServiceUid;
-import com.navercorp.pinpoint.web.config.WebPinpointIdCacheConfig;
+import com.navercorp.pinpoint.web.config.WebV4CacheConfig;
 import com.navercorp.pinpoint.web.dao.ServiceNameDao;
 import com.navercorp.pinpoint.web.dao.ServiceUidDao;
 import org.apache.logging.log4j.LogManager;
@@ -38,7 +38,7 @@ public class ServiceGroupServiceImpl implements ServiceGroupService {
     }
 
     @Override
-    @Cacheable(cacheNames = "serviceNameCache", key = "#serviceUid", cacheManager = WebPinpointIdCacheConfig.SERVICE_NAME_CACHE_NAME, unless = "#result == null")
+    @Cacheable(cacheNames = "serviceNameCache", key = "#serviceUid", cacheManager = WebV4CacheConfig.SERVICE_NAME_CACHE_NAME, unless = "#result == null")
     public String selectServiceName(ServiceUid serviceUid) {
         if (serviceUid == null) {
             return null;
@@ -47,7 +47,7 @@ public class ServiceGroupServiceImpl implements ServiceGroupService {
     }
 
     @Override
-    @Cacheable(cacheNames = "serviceUidCache", key = "#serviceName", cacheManager = WebPinpointIdCacheConfig.SERVICE_UID_CACHE_NAME, unless = "#result == null")
+    @Cacheable(cacheNames = "serviceUidCache", key = "#serviceName", cacheManager = WebV4CacheConfig.SERVICE_UID_CACHE_NAME, unless = "#result == null")
     public ServiceUid selectServiceUid(String serviceName) {
         return serviceUidDao.selectServiceUid(serviceName);
     }
@@ -100,7 +100,7 @@ public class ServiceGroupServiceImpl implements ServiceGroupService {
     }
 
     @Override
-    @CacheEvict(cacheNames = "serviceUidCache", key = "#serviceName", cacheManager = WebPinpointIdCacheConfig.SERVICE_UID_CACHE_NAME)
+    @CacheEvict(cacheNames = "serviceUidCache", key = "#serviceName", cacheManager = WebV4CacheConfig.SERVICE_UID_CACHE_NAME)
     public void deleteService(String serviceName) {
         ServiceUid serviceUid = serviceUidDao.selectServiceUid(serviceName);
         serviceUidDao.deleteServiceUid(serviceName);

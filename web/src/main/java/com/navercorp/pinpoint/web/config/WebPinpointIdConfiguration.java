@@ -12,18 +12,19 @@ import org.springframework.context.annotation.Import;
 
 @Configuration
 @Import({
-        WebPinpointIdCacheConfig.class,
+        WebApplicationIdCacheConfig.class,
+        WebV4CacheConfig.class,
 })
-@ConditionalOnProperty(name = "pinpoint.web.v4.enable", havingValue = "true")
-public class WebV4Configuration {
+public class WebPinpointIdConfiguration {
 
-    private final Logger logger = LogManager.getLogger(WebV4Configuration.class);
+    private final Logger logger = LogManager.getLogger(WebPinpointIdConfiguration.class);
 
-    public WebV4Configuration() {
-        logger.info("Install {}", WebV4Configuration.class.getSimpleName());
+    public WebPinpointIdConfiguration() {
+        logger.info("Install {}", WebPinpointIdConfiguration.class.getSimpleName());
     }
 
     @Bean
+    @ConditionalOnProperty(name = "pinpoint.web.v4.enable", havingValue = "true")
     public IdGenerator<ServiceUid> serviceUidGenerator() {
         return new RandomServiceUidGenerator();
     }

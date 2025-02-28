@@ -4,6 +4,7 @@ package com.navercorp.pinpoint.collector.config;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
@@ -14,12 +15,13 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableCaching
-public class CollectorPinpointIdCacheConfig {
+@ConditionalOnProperty(value = "pinpoint.collector.v4.enable", havingValue = "true")
+public class CollectorV4CacheConfig {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    public CollectorPinpointIdCacheConfig() {
-        logger.info("Install {}", CollectorPinpointIdCacheConfig.class.getSimpleName());
+    public CollectorV4CacheConfig() {
+        logger.info("Install {}", CollectorV4CacheConfig.class.getSimpleName());
     }
 
     public static final String SERVICE_UID_CACHE_NAME = "collectorServiceUidCache";
