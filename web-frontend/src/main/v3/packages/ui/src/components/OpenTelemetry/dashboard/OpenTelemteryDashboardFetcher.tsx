@@ -117,7 +117,7 @@ export const OpenTelemetryDashboardFetcher = () => {
         h: l?.h,
       };
     });
-    setIsChanged(!isEqual(layoutForCompare, prevLayouts.current?.sm));
+    setIsChanged(!!prevLayouts.current?.sm && !isEqual(layoutForCompare, prevLayouts.current?.sm));
   }, [state]);
 
   React.useEffect(() => {
@@ -230,6 +230,12 @@ export const OpenTelemetryDashboardFetcher = () => {
                       <OpenTelemetryMetric
                         metricDefinition={metric}
                         dashboardId={applicationName}
+                        onDeleted={(deleteMetric) => {
+                          setCurrentDeletingTarget(deleteMetric);
+                        }}
+                        onEdit={(editMetric) => {
+                          setCurrentEditingTarget(editMetric);
+                        }}
                       />
                     </div>
                   );
