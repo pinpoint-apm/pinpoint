@@ -42,7 +42,7 @@ public class SqlCacheServiceTest {
     @BeforeEach
     void setUp() {
         SimpleCache<String, Integer> sqlCache = SimpleCache.newIdCache(100);
-        sut = new SqlCacheService<>(sqlCache, MAX_LENGTH);
+        sut = new SqlCacheService<>(sqlCache, MAX_LENGTH, false);
     }
 
     @Test

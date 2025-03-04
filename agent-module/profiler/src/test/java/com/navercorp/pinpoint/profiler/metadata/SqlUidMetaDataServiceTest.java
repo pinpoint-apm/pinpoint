@@ -27,7 +27,7 @@ class SqlUidMetaDataServiceTest {
     @BeforeEach
     void setUp() {
         UidCache sqlCache = new UidCache(100, new UidGenerator.Murmur(), 1000);
-        SqlCacheService<byte[]> sqlCacheService = new SqlCacheService<>(sqlCache, 1000);
+        SqlCacheService<byte[]> sqlCacheService = new SqlCacheService<>(sqlCache, 1000, false);
         sut = new SqlUidMetaDataService(dataSender, sqlCacheService);
     }
 

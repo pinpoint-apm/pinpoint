@@ -14,8 +14,8 @@ public class SqlCacheService<ID> {
 
     private final int trimSqlLength;
 
-    public SqlCacheService(Cache<String, Result<ID>> sqlCache, int trimSqlLength) {
-        this.cachingSqlNormalizer = new DefaultCachingSqlNormalizer<>(sqlCache);
+    public SqlCacheService(Cache<String, Result<ID>> sqlCache, int trimSqlLength, boolean removeComments) {
+        this.cachingSqlNormalizer = new DefaultCachingSqlNormalizer<>(sqlCache, removeComments);
         this.trimSqlLength = trimSqlLength;
     }
 

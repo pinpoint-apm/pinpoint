@@ -14,9 +14,9 @@ public class DefaultCachingSqlNormalizer<ID> implements CachingSqlNormalizer<Par
     private final Cache<String, Result<ID>> sqlCache;
     private final SqlNormalizer sqlNormalizer;
 
-    public DefaultCachingSqlNormalizer(Cache<String, Result<ID>> sqlCache) {
+    public DefaultCachingSqlNormalizer(Cache<String, Result<ID>> sqlCache, boolean removeComments) {
         this.sqlCache = sqlCache;
-        this.sqlNormalizer = new DefaultSqlNormalizer();
+        this.sqlNormalizer = new DefaultSqlNormalizer(removeComments);
     }
 
     @Override

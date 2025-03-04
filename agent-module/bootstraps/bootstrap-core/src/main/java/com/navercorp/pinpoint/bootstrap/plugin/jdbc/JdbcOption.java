@@ -15,4 +15,6 @@ public interface JdbcOption {
     int getMaxSqlCacheLength();
 
     int getMaxSqlLength();
+
+    boolean isRemoveComments();
 }
