@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
 import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
+import io.r2dbc.spi.Parameter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -65,8 +66,10 @@ public class StatementBindInterceptor implements AroundInterceptor {
             return;
         }
         // nullable
-        final Object object = ArrayArgumentUtils.getArgument(args, 1, Object.class);
-
+        Object object = ArrayArgumentUtils.getArgument(args, 1, Object.class);
+        if (object instanceof Parameter) {
+            object = ((Parameter) object).getValue();
+        }
         Map<Integer, String> bindList = ((BindValueAccessor) target)._$PINPOINT$_getBindValue();
         if (bindList == null) {
             bindList = new HashMap<>();
