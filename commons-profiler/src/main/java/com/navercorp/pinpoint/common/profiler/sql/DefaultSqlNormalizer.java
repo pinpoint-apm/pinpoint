@@ -27,20 +27,24 @@ import java.util.Queue;
  * @author emeroad
  */
 public class DefaultSqlNormalizer implements SqlNormalizer {
-
     public static final char SEPARATOR = ',';
     public static final char SYMBOL_REPLACE = '$';
     public static final char NUMBER_REPLACE = '#';
-
 
     private static final int NEXT_TOKEN_NOT_EXIST = -1;
     private static final int NORMALIZED_SQL_BUFFER = 32;
 
     private static final NormalizedSql NULL_OBJECT = new DefaultNormalizedSql("", "");
 
+    private final boolean removeComments;
+
     public DefaultSqlNormalizer() {
+        this(false);
     }
 
+    public DefaultSqlNormalizer(boolean removeComments) {
+        this.removeComments = removeComments;
+    }
 
     @Override
     public NormalizedSql normalizeSql(final String sql) {
@@ -63,48 +67,70 @@ public class DefaultSqlNormalizer implements SqlNormalizer {
                     final int lookAhead1Char = lookAhead1(sql, i);
                     // multi line comment and oracle hint /*+ */
                     if (lookAhead1Char == '*') {
-                        normalized.append("/*");
-                        i += 2;
-                        for (; i < length; i++) {
-                            char stateCh = sql.charAt(i);
-                            if (stateCh == '*') {
-                                if (lookAhead1(sql, i) == '/') {
-                                    normalized.append("*/");
+                        if (removeComments) {
+                            change = true;
+                            for (i += 2; i < length; i++) {
+                                if (sql.charAt(i) == '*' && lookAhead1(sql, i) == '/') {
                                     i++;
                                     break;
                                 }
                             }
-                            normalized.append(stateCh);
+                        } else {
+                            normalized.append("/*");
+                            for (i += 2; i < length; i++) {
+                                if (sql.charAt(i) == '*' && lookAhead1(sql, i) == '/') {
+                                    normalized.append("*/");
+                                    i++;
+                                    break;
+                                }
+                                normalized.append(sql.charAt(i));
+                            }
                         }
-                        break;
                         // single line comment
                     } else if (lookAhead1Char == '/') {
-                        normalized.append("//");
-                        i += 2;
-                        i = readLine(sql, normalized, i);
-                        break;
-
+                        if (removeComments) {
+                            change = true;
+                            for (i += 2; i < length; i++) {
+                                if (sql.charAt(i) == '\n') {
+                                    normalized.append("\n");
+                                    break;
+                                }
+                            }
+                        } else {
+                            normalized.append("//");
+                            i += 2;
+                            i = readLine(sql, normalized, i);
+                        }
                     } else {
                         // unary operator
                         numberTokenStartEnable = true;
                         normalized.append(ch);
-                        break;
                     }
+                    break;
 //                case '#'
 //                    # is a single line comment in mysql
                 case '-':
                     // single line comment state
                     if (lookAhead1(sql, i) == '-') {
-                        normalized.append("--");
-                        i += 2;
-                        i = readLine(sql, normalized, i);
-                        break;
+                        if (removeComments) {
+                            change = true;
+                            for (i += 2; i < length; i++) {
+                                if (sql.charAt(i) == '\n') {
+                                    normalized.append("\n");
+                                    break;
+                                }
+                            }
+                        } else {
+                            normalized.append("--");
+                            i += 2;
+                            i = readLine(sql, normalized, i);
+                        }
                     } else {
                         // unary operator
                         numberTokenStartEnable = true;
                         normalized.append(ch);
-                        break;
                     }
+                    break;
 
                     // SYMBOL start check
                 case '\'':
