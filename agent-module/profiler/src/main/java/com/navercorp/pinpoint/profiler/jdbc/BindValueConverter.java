@@ -18,16 +18,6 @@ package com.navercorp.pinpoint.profiler.jdbc;
 
 import com.navercorp.pinpoint.common.util.Assert;
 
-import java.io.InputStream;
-import java.io.Reader;
-import java.math.BigDecimal;
-import java.net.URL;
-import java.sql.Array;
-import java.sql.Date;
-import java.sql.Ref;
-import java.sql.SQLXML;
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -162,51 +152,6 @@ public class BindValueConverter {
     }
 
     public String convert(Object value) {
-        if (value == null) {
-            return "null";
-        }
-
-        if (value instanceof Byte) {
-            return simpleTypeConverter.convert(value);
-        } else if (value instanceof Boolean) {
-            return simpleTypeConverter.convert(value);
-        } else if (value instanceof Short) {
-            return simpleTypeConverter.convert(value);
-        } else if (value instanceof Integer) {
-            return simpleTypeConverter.convert(value);
-        } else if (value instanceof Long) {
-            return simpleTypeConverter.convert(value);
-        } else if (value instanceof Float) {
-            return simpleTypeConverter.convert(value);
-        } else if (value instanceof Double) {
-            return simpleTypeConverter.convert(value);
-        } else if (value instanceof BigDecimal) {
-            return simpleTypeConverter.convert(value);
-        } else if (value instanceof String) {
-            // String/NString
-            return simpleTypeConverter.convert(value);
-        } else if (value instanceof Date) {
-            return simpleTypeConverter.convert(value);
-        } else if (value instanceof Time) {
-            return simpleTypeConverter.convert(value);
-        } else if (value instanceof Timestamp) {
-            return simpleTypeConverter.convert(value);
-        } else if (value instanceof URL) {
-            return simpleTypeConverter.convert(value);
-        } else if (value instanceof Ref) {
-            return simpleTypeConverter.convert(value);
-        } else if (value instanceof InputStream) {
-            return classNameConverter.convert(value);
-        } else if (value instanceof Reader) {
-            return classNameConverter.convert(value);
-        } else if (value instanceof Array) {
-            return classNameConverter.convert(value);
-        } else if (value instanceof SQLXML) {
-            return classNameConverter.convert(value);
-        } else if (value instanceof byte[]) {
-            return hexBytesConverter.convert(value);
-        }
         return objectConverter.convert(value);
     }
-
 }
