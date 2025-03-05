@@ -21,9 +21,9 @@ public class UidCachingSqlNormalizer implements CachingSqlNormalizer<ParsingResu
     private final SqlNormalizer sqlNormalizer;
     private final int lengthLimit;
 
-    public UidCachingSqlNormalizer(int cacheSize, int lengthLimit) {
+    public UidCachingSqlNormalizer(int cacheSize, int lengthLimit, boolean removeComments) {
         this.sqlCache = new SimpleCache<>(cacheSize, hashFunction);
-        this.sqlNormalizer = new DefaultSqlNormalizer();
+        this.sqlNormalizer = new DefaultSqlNormalizer(removeComments);
         this.lengthLimit = lengthLimit;
     }
 

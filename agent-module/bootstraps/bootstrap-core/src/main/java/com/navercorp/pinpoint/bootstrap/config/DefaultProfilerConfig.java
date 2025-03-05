@@ -75,6 +75,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private int maxSqlCacheLength = 2048;
     @Value("${profiler.jdbc.maxsqllength}")
     private int maxSqlLength = 65536;
+    @Value("${profiler.jdbc.removecomments}")
+    private boolean removeSqlComments = true;
 
     @Value("${profiler.transport.grpc.stats.logging.period}")
     private String grpcStatLoggingPeriod = "PT1M";
@@ -183,6 +185,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public int getLogDirMaxBackupSize() {
         return logDirMaxBackupSize;
+    }
+
+    @Override
+    public boolean isRemoveSqlComments() {
+        return removeSqlComments;
     }
 
     @Override
@@ -304,6 +311,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
                 ", injectionModuleFactoryClazzName='" + injectionModuleFactoryClazzName + '\'' +
                 ", applicationNamespace='" + applicationNamespace + '\'' +
                 ", agentClassloaderAdditionalLibs='" + agentClassloaderAdditionalLibs + '\'' +
+                ", removeSqlComments=" + removeSqlComments +
                 '}';
     }
 }

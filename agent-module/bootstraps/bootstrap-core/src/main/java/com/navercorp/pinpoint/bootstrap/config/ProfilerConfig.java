@@ -48,6 +48,8 @@ public interface ProfilerConfig {
 
     int getMaxSqlLength();
 
+    boolean isRemoveSqlComments();
+
     String getGrpcStatLoggingPeriod();
 
     @InterfaceAudience.Private
@@ -79,5 +81,4 @@ public interface ProfilerConfig {
     Map<String, String> readPattern(String propertyNamePatternRegex);
 
     int getLogDirMaxBackupSize();
-
 }
