@@ -1,6 +1,8 @@
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.collector.receiver.grpc.cache.SingleEntryUidCacheV1;
+import com.navercorp.pinpoint.collector.receiver.grpc.cache.UidCache;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import io.grpc.Metadata;
@@ -33,6 +35,8 @@ public class ServerCallStream<Req extends GeneratedMessageV3, Res extends Genera
 
     private final ServerStreamDispatch<Req, Res> dispatch;
 
+    private final UidCache cache = new SingleEntryUidCacheV1();
+
     public ServerCallStream(Logger logger,
                             long streamId,
                             ServerCallStreamObserver<Res> responseObserver,
@@ -50,7 +54,11 @@ public class ServerCallStream<Req extends GeneratedMessageV3, Res extends Genera
 
     @Override
     public void onNext(Req req) {
-        dispatch.onNext(req, this);
+        dispatch.onNext(this, req, this);
+    }
+
+    public UidCache getCache() {
+        return cache;
     }
 
     @Override

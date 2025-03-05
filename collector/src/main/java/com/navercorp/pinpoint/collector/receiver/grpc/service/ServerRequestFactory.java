@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
+import com.navercorp.pinpoint.collector.receiver.grpc.cache.UidCache;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.util.MessageType;
 import io.grpc.Context;
@@ -27,5 +28,9 @@ public interface ServerRequestFactory {
 
     <T> ServerRequest<T> newServerRequest(MessageType messageType, T data);
 
+    <T> ServerRequest<T> newServerRequest(UidCache uidCache, MessageType messageType, T data);
+
     <T> ServerRequest<T> newServerRequest(Context context, MessageType messageType, T data);
+
+    <T> ServerRequest<T> newServerRequest(Context context, UidCache uidCache, MessageType messageType, T data);
 }

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.grpc.cache.UidCache;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
@@ -60,24 +61,31 @@ public class StatService extends StatGrpc.StatImplBase {
     @Override
     public StreamObserver<PStatMessage> sendAgentStat(StreamObserver<Empty> responseStream) {
         final ServerCallStreamObserver<Empty> responseObserver = (ServerCallStreamObserver<Empty>) responseStream;
-        return new ServerCallStream<>(logger, serverStreamId.incrementAndGet(), responseObserver, this::messageDispatch, streamCloseOnError, Empty::getDefaultInstance);
+        long streamId = serverStreamId.incrementAndGet();
+        return new ServerCallStream<>(logger, streamId, responseObserver, this::messageDispatch, streamCloseOnError, Empty::getDefaultInstance);
     }
 
-    private void messageDispatch(PStatMessage statMessage, ServerCallStream<PStatMessage, Empty> response) {
+    private void messageDispatch(ServerCallStream<PStatMessage, Empty> call, PStatMessage statMessage, ServerCallStream<PStatMessage, Empty> response) {
         if (isDebug) {
             logger.debug("Send PAgentStat={}", MessageFormatUtils.debugLog(statMessage));
         }
         if (statMessage.hasAgentStat()) {
             PAgentStat agentStat = statMessage.getAgentStat();
-            ServerRequest<PAgentStat> request = this.serverRequestFactory.newServerRequest(MessageType.AGENT_STAT, agentStat);
+
+            UidCache cache = call.getCache();
+            ServerRequest<PAgentStat> request = this.serverRequestFactory.newServerRequest(cache, MessageType.AGENT_STAT, agentStat);
             this.dispatch(request, response);
         } else if (statMessage.hasAgentStatBatch()) {
             PAgentStatBatch agentStatBatch = statMessage.getAgentStatBatch();
-            ServerRequest<PAgentStatBatch> request = this.serverRequestFactory.newServerRequest(MessageType.AGENT_STAT_BATCH, agentStatBatch);
+
+            UidCache cache = call.getCache();
+            ServerRequest<PAgentStatBatch> request = this.serverRequestFactory.newServerRequest(cache, MessageType.AGENT_STAT_BATCH, agentStatBatch);
             this.dispatch(request, response);
         } else if (statMessage.hasAgentUriStat()) {
             PAgentUriStat agentUriStat = statMessage.getAgentUriStat();
-            ServerRequest<PAgentUriStat> request = this.serverRequestFactory.newServerRequest(MessageType.AGENT_URI_STAT, agentUriStat);
+
+            UidCache cache = call.getCache();
+            ServerRequest<PAgentUriStat> request = this.serverRequestFactory.newServerRequest(cache, MessageType.AGENT_URI_STAT, agentUriStat);
             this.dispatch(request, response);
         } else {
             if (logger.isInfoEnabled()) {

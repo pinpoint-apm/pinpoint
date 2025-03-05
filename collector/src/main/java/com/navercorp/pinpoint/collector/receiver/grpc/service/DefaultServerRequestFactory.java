@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
+import com.navercorp.pinpoint.collector.receiver.grpc.cache.UidCache;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
@@ -37,18 +38,29 @@ public class DefaultServerRequestFactory implements ServerRequestFactory {
     @Override
     public <T> ServerRequest<T> newServerRequest(MessageType messageType, T data) {
         Context context = Context.current();
-        return newServerRequest(context, messageType, data);
+        return newServerRequest(context, null, messageType, data);
+    }
+
+    @Override
+    public <T> ServerRequest<T> newServerRequest(UidCache cache, MessageType messageType, T data) {
+        Context context = Context.current();
+        return newServerRequest(context, cache, messageType, data);
     }
 
     @Override
     public <T> ServerRequest<T> newServerRequest(Context context, MessageType messageType, T data) {
+        return newServerRequest(context, null, messageType, data);
+    }
+
+    @Override
+    public <T> ServerRequest<T> newServerRequest(Context context, UidCache cache, MessageType messageType, T data) {
         final Header header = ServerContext.getAgentInfo(context);
         final TransportMetadata transportMetadata = ServerContext.getTransportMetadata(context);
         if (transportMetadata == null) {
             throw new IllegalStateException("transportMetadata is null");
         }
         long requestTime = System.currentTimeMillis();
-        ServerHeader serverHeader = new GrpcServerHeaderV1(header);
+        ServerHeader serverHeader = new GrpcServerHeaderV1(header, cache);
         return new DefaultServerRequest<>(serverHeader, transportMetadata, requestTime, messageType, data);
     }
 
