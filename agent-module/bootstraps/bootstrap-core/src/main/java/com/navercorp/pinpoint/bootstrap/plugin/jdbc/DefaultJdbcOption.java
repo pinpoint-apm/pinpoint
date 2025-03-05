@@ -13,6 +13,8 @@ public class DefaultJdbcOption implements JdbcOption {
     private int maxSqlCacheLength = 2048;
     @Value("${profiler.jdbc.maxsqllength}")
     private int maxSqlLength = 65536;
+    @Value("${profiler.jdbc.removecomments}")
+    private boolean removeComments = true;
 
     public DefaultJdbcOption() {
     }
@@ -22,12 +24,14 @@ public class DefaultJdbcOption implements JdbcOption {
             boolean traceSqlBindValue,
             int maxSqlBindValueSize,
             int maxSqlCacheLength,
-            int maxSqlLength) {
+            int maxSqlLength,
+            boolean removeComments) {
         this.jdbcSqlCacheSize = jdbcSqlCacheSize;
         this.traceSqlBindValue = traceSqlBindValue;
         this.maxSqlBindValueSize = maxSqlBindValueSize;
         this.maxSqlCacheLength = maxSqlCacheLength;
         this.maxSqlLength = maxSqlLength;
+        this.removeComments = removeComments;
     }
 
     @Override
@@ -56,6 +60,11 @@ public class DefaultJdbcOption implements JdbcOption {
     }
 
     @Override
+    public boolean isRemoveComments() {
+        return removeComments;
+    }
+
+    @Override
     public String toString() {
         return "DefaultJdbcOption{" +
                 "jdbcSqlCacheSize=" + jdbcSqlCacheSize +
@@ -63,6 +72,7 @@ public class DefaultJdbcOption implements JdbcOption {
                 ", maxSqlBindValueSize=" + maxSqlBindValueSize +
                 ", maxSqlCacheLength=" + maxSqlCacheLength +
                 ", maxSqlLength=" + maxSqlLength +
+                ", removeComments=" + removeComments +
                 '}';
     }
 }
