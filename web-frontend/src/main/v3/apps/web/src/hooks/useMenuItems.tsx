@@ -9,7 +9,6 @@ import {
   PiTreeStructure,
 } from 'react-icons/pi';
 import { SiOpentelemetry } from 'react-icons/si';
-import { useSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import {
   getServerMapPath,
   getInspectorPath,
@@ -44,13 +43,6 @@ export const useMenuItems = () => {
       hide: !configuration?.showUrlStat,
     },
     {
-      icon: <PiHardDrives />,
-      name: 'Infrastructure',
-      path: APP_PATH.SYSTEM_METRIC,
-      href: getSystemMetricPath(),
-      hide: !configuration?.showSystemMetric,
-    },
-    {
       icon: <PiBugBeetle />,
       name: 'Error Analysis',
       path: APP_PATH.ERROR_ANALYSIS,
@@ -63,6 +55,13 @@ export const useMenuItems = () => {
       path: APP_PATH.OPEN_TELEMETRY_METRIC,
       href: getOpenTelemetryPath(application, searchParameters),
       hide: !configuration?.showOtlpMetric,
+    },
+    {
+      icon: <PiHardDrives />,
+      name: 'Infrastructure',
+      path: APP_PATH.SYSTEM_METRIC,
+      href: getSystemMetricPath(),
+      hide: !configuration?.showSystemMetric,
     },
   ];
 
