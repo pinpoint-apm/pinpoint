@@ -20,6 +20,7 @@ package com.navercorp.pinpoint.common.server.bo;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.profiler.encoding.BitFieldUtils;
 import com.navercorp.pinpoint.common.util.BytesStringStringValue;
 import com.navercorp.pinpoint.common.util.BytesUtils;
@@ -83,9 +84,9 @@ public class AnnotationTranscoder {
                 // need short casting
                 return (short) BytesUtils.bytesToSVar32(data, 0);
             case CODE_FLOAT:
-                return Float.intBitsToFloat(BytesUtils.bytesToInt(data, 0));
+                return Float.intBitsToFloat(ByteArrayUtils.bytesToInt(data, 0));
             case CODE_DOUBLE:
-                return Double.longBitsToDouble(BytesUtils.bytesToLong(data, 0));
+                return Double.longBitsToDouble(ByteArrayUtils.bytesToLong(data, 0));
             case CODE_BYTEARRAY:
                 return data;
             case CODE_NULL:
@@ -182,12 +183,12 @@ public class AnnotationTranscoder {
             }
             case CODE_FLOAT: {
                 final byte[] buffer = new byte[BytesUtils.INT_BYTE_LENGTH];
-                BytesUtils.writeInt(Float.floatToRawIntBits((Float) o), buffer, 0);
+                ByteArrayUtils.writeInt(Float.floatToRawIntBits((Float) o), buffer, 0);
                 return buffer;
             }
             case CODE_DOUBLE: {
                 final byte[] buffer = new byte[BytesUtils.LONG_BYTE_LENGTH];
-                BytesUtils.writeLong(Double.doubleToRawLongBits((Double) o), buffer, 0);
+                ByteArrayUtils.writeLong(Double.doubleToRawLongBits((Double) o), buffer, 0);
                 return buffer;
             }
             case CODE_BYTEARRAY:

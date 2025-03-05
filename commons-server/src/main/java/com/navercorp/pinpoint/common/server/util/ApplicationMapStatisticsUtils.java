@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.server.util;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -89,7 +90,7 @@ public class ApplicationMapStatisticsUtils {
     }
 
     public static short getDestServiceTypeFromColumnName(byte[] bytes) {
-        return BytesUtils.bytesToShort(bytes, 0);
+        return ByteArrayUtils.bytesToShort(bytes, 0);
     }
 
     /**
@@ -101,11 +102,11 @@ public class ApplicationMapStatisticsUtils {
      *         </pre>
      */
     public static short getHistogramSlotFromColumnName(byte[] bytes) {
-        return BytesUtils.bytesToShort(bytes, 2);
+        return ByteArrayUtils.bytesToShort(bytes, 2);
     }
 
     public static String getDestApplicationNameFromColumnName(byte[] bytes) {
-        final short length = BytesUtils.bytesToShort(bytes, 4);
+        final short length = ByteArrayUtils.bytesToShort(bytes, 4);
         return BytesUtils.toStringAndRightTrim(bytes, 6, length);
     }
 
@@ -116,7 +117,7 @@ public class ApplicationMapStatisticsUtils {
     }
 
     public static String getHost(byte[] bytes) {
-        int offset = 6 + BytesUtils.bytesToShort(bytes, 4);
+        int offset = 6 + ByteArrayUtils.bytesToShort(bytes, 4);
 
         if (offset == bytes.length) {
             return null;
@@ -151,7 +152,7 @@ public class ApplicationMapStatisticsUtils {
     public static String getApplicationNameFromRowKey(byte[] bytes, int offset) {
         Objects.requireNonNull(bytes, "bytes");
 
-        short applicationNameLength = BytesUtils.bytesToShort(bytes, offset);
+        short applicationNameLength = ByteArrayUtils.bytesToShort(bytes, offset);
         return BytesUtils.toString(bytes, offset + 2, applicationNameLength); //.trim();
     }
 
@@ -166,14 +167,14 @@ public class ApplicationMapStatisticsUtils {
     public static short getApplicationTypeFromRowKey(byte[] bytes, int offset) {
         Objects.requireNonNull(bytes, "bytes");
 
-        short applicationNameLength = BytesUtils.bytesToShort(bytes, offset);
-        return BytesUtils.bytesToShort(bytes, offset + applicationNameLength + 2);
+        short applicationNameLength = ByteArrayUtils.bytesToShort(bytes, offset);
+        return ByteArrayUtils.bytesToShort(bytes, offset + applicationNameLength + 2);
     }
 
     public static long getTimestampFromRowKey(byte[] bytes) {
         Objects.requireNonNull(bytes, "bytes");
 
-        short applicationNameLength = BytesUtils.bytesToShort(bytes, 0);
-        return TimeUtils.recoveryTimeMillis(BytesUtils.bytesToLong(bytes, applicationNameLength + 4));
+        short applicationNameLength = ByteArrayUtils.bytesToShort(bytes, 0);
+        return TimeUtils.recoveryTimeMillis(ByteArrayUtils.bytesToLong(bytes, applicationNameLength + 4));
     }
 }

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
+import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
@@ -43,7 +44,7 @@ public final class RowKeyUtils {
         }
         byte[] rowKey = new byte[maxFixedLength + LONG_BYTE_LENGTH];
         BytesUtils.writeBytes(rowKey, 0, fixedBytes);
-        BytesUtils.writeLong(l, rowKey, maxFixedLength);
+        ByteArrayUtils.writeLong(l, rowKey, maxFixedLength);
         return rowKey;
     }
 

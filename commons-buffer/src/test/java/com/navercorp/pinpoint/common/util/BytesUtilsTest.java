@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.util;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -40,8 +41,8 @@ public class BytesUtilsTest {
         byte[] bytes = BytesUtils.stringLongLongToBytes("123", strLength, 12345, 54321);
 
         assertEquals("123", BytesUtils.toStringAndRightTrim(bytes, 0, strLength));
-        assertEquals(12345, BytesUtils.bytesToLong(bytes, strLength));
-        assertEquals(54321, BytesUtils.bytesToLong(bytes, strLength + BytesUtils.LONG_BYTE_LENGTH));
+        assertEquals(12345, ByteArrayUtils.bytesToLong(bytes, strLength));
+        assertEquals(54321, ByteArrayUtils.bytesToLong(bytes, strLength + BytesUtils.LONG_BYTE_LENGTH));
     }
 
     @Test
@@ -56,9 +57,9 @@ public class BytesUtilsTest {
         byte[] bytes = BytesUtils.stringLongLongToBytes("123", 10, 1, 2);
         String s = BytesUtils.toStringAndRightTrim(bytes, 0, 10);
         assertEquals("123", s);
-        long l = BytesUtils.bytesToLong(bytes, 10);
+        long l = ByteArrayUtils.bytesToLong(bytes, 10);
         assertEquals(1, l);
-        long l2 = BytesUtils.bytesToLong(bytes, 10 + BytesUtils.LONG_BYTE_LENGTH);
+        long l2 = ByteArrayUtils.bytesToLong(bytes, 10 + BytesUtils.LONG_BYTE_LENGTH);
         assertEquals(2, l2);
     }
 
@@ -79,7 +80,7 @@ public class BytesUtilsTest {
 
     private void checkInt(int i) {
         byte[] bytes = intToByteArray(i);
-        int i2 = BytesUtils.bytesToInt(bytes, 0);
+        int i2 = ByteArrayUtils.bytesToInt(bytes, 0);
         assertEquals(i, i2);
         int i3 = byteArrayToInt(bytes);
         assertEquals(i, i3);
@@ -204,7 +205,7 @@ public class BytesUtilsTest {
         for (int i = 0; i < 12; i++) {
             such_long[i] = (byte) ((i << 4) + i);
         }
-        assertEquals(0x33445566778899AAl, BytesUtils.bytesToLong(such_long, 3));
+        assertEquals(0x33445566778899AAl, ByteArrayUtils.bytesToLong(such_long, 3));
     }
 
     @Test
@@ -215,7 +216,7 @@ public class BytesUtilsTest {
                 such_long[i] = (byte) ((i << 4) + i);
             }
             // overflow!
-            BytesUtils.bytesToLong(such_long, 9);
+            ByteArrayUtils.bytesToLong(such_long, 9);
             // if it does not catch any errors, it means memory leak!
         });
     }
@@ -223,7 +224,7 @@ public class BytesUtilsTest {
     @Test
     public void testWriteLong_npe() {
         Assertions.assertThrows(NullPointerException.class, () -> {
-            BytesUtils.writeLong(1234, null, 0);
+            ByteArrayUtils.writeLong(1234, null, 0);
         });
     }
 
@@ -232,18 +233,18 @@ public class BytesUtilsTest {
 
         byte[] such_long = new byte[13];
         try {
-            BytesUtils.writeLong(1234, such_long, -1);
+            ByteArrayUtils.writeLong(1234, such_long, -1);
             fail("negative offset did not catched");
         } catch (Exception ignored) {
         }
 
         try {
-            BytesUtils.writeLong(2222, such_long, 9);
+            ByteArrayUtils.writeLong(2222, such_long, 9);
             fail("index out of range exception did not catched");
         } catch (Exception ignored) {
         }
 
-        BytesUtils.writeLong(-1l, such_long, 2);
+        ByteArrayUtils.writeLong(-1l, such_long, 2);
         for (int i = 2; i < 10; i++) {
             assertEquals((byte) 0xFF, such_long[i]);
         }

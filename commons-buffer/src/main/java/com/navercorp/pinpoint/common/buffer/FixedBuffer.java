@@ -156,7 +156,7 @@ public class FixedBuffer implements Buffer {
 
     @Override
     public void putInt(final int v) {
-        this.offset = BytesUtils.writeInt(v, buffer, offset);
+        this.offset = ByteArrayUtils.writeInt(v, buffer, offset);
     }
 
 
@@ -182,13 +182,13 @@ public class FixedBuffer implements Buffer {
 
     @Override
     public void putShort(final short v) {
-        this.offset = BytesUtils.writeShort(v, buffer, offset);
+        this.offset = ByteArrayUtils.writeShort(v, buffer, offset);
     }
 
 
     @Override
     public void putLong(final long v) {
-        this.offset = BytesUtils.writeLong(v, buffer, offset);
+        this.offset = ByteArrayUtils.writeLong(v, buffer, offset);
     }
 
 
@@ -257,7 +257,7 @@ public class FixedBuffer implements Buffer {
 
     @Override
     public int readInt() {
-        final int i = BytesUtils.bytesToInt(buffer, offset);
+        final int i = ByteArrayUtils.bytesToInt(buffer, offset);
         this.offset = this.offset + 4;
         return i;
     }
@@ -332,7 +332,7 @@ public class FixedBuffer implements Buffer {
 
     @Override
     public short readShort() {
-        final short i = BytesUtils.bytesToShort(buffer, offset);
+        final short i = ByteArrayUtils.bytesToShort(buffer, offset);
         this.offset = this.offset + 2;
         return i;
     }
@@ -343,7 +343,7 @@ public class FixedBuffer implements Buffer {
 
     @Override
     public long readLong() {
-        final long l = BytesUtils.bytesToLong(buffer, offset);
+        final long l = ByteArrayUtils.bytesToLong(buffer, offset);
         this.offset = this.offset + 8;
         return l;
     }

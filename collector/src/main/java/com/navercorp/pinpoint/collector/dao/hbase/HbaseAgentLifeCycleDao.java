@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.AgentLifeCycleDao;
+import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
@@ -86,9 +87,9 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         byte[] rowKey = new byte[HbaseTableConstants.AGENT_ID_MAX_LEN + BytesUtils.LONG_BYTE_LENGTH + BytesUtils.LONG_BYTE_LENGTH];
         BytesUtils.writeBytes(rowKey, 0, agentIdKey);
         int offset = HbaseTableConstants.AGENT_ID_MAX_LEN;
-        BytesUtils.writeLong(reverseStartTimestamp, rowKey, offset);
+        ByteArrayUtils.writeLong(reverseStartTimestamp, rowKey, offset);
         offset += BytesUtils.LONG_BYTE_LENGTH;
-        BytesUtils.writeLong(reverseEventCounter, rowKey, offset);
+        ByteArrayUtils.writeLong(reverseEventCounter, rowKey, offset);
 
         return rowKey;
     }

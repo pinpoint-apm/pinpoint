@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.server.dao.hbase.mapper;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
@@ -42,7 +43,7 @@ public class AgentInfoBoMapper implements RowMapper<AgentInfoBo> {
     public AgentInfoBo mapRow(Result result, int rowNum) throws Exception {
         byte[] rowKey = result.getRow();
         String agentId = BytesUtils.toStringAndRightTrim(rowKey, 0, PinpointConstants.AGENT_ID_MAX_LEN);
-        long reverseStartTime = BytesUtils.bytesToLong(rowKey, HbaseTableConstants.AGENT_ID_MAX_LEN);
+        long reverseStartTime = ByteArrayUtils.bytesToLong(rowKey, HbaseTableConstants.AGENT_ID_MAX_LEN);
         long startTime = TimeUtils.recoveryTimeMillis(reverseStartTime);
 
         final byte[] serializedAgentInfo = result.getValue(AGENTINFO_INFO.getName(), AGENTINFO_INFO.QUALIFIER_IDENTIFIER);

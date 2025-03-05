@@ -291,7 +291,7 @@ public class FixedBufferTest {
 
     private byte[] intToByteArray(int intValue) {
         byte[] buffer = new byte[4];
-        BytesUtils.writeInt(intValue, buffer, 0);
+        ByteArrayUtils.writeInt(intValue, buffer, 0);
         return buffer;
     }
 
