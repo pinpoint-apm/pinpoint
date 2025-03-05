@@ -1,5 +1,7 @@
 package com.navercorp.pinpoint.io.request;
 
+import com.navercorp.pinpoint.collector.receiver.grpc.cache.UidCache;
+import com.navercorp.pinpoint.common.server.vo.ApplicationUid;
 import com.navercorp.pinpoint.common.server.vo.ServiceUid;
 import com.navercorp.pinpoint.grpc.Header;
 
@@ -9,9 +11,17 @@ import java.util.Objects;
 public class GrpcServerHeaderV1 implements ServerHeader {
 
     private final Header header;
+    private final UidCache cache;
+
+    private volatile ApplicationUid applicationUid;
 
     public GrpcServerHeaderV1(Header header) {
+        this(header, null);
+    }
+
+    public GrpcServerHeaderV1(Header header, UidCache cache) {
         this.header = Objects.requireNonNull(header, "header");
+        this.cache = cache;
     }
 
     @Override
@@ -30,8 +40,41 @@ public class GrpcServerHeaderV1 implements ServerHeader {
     }
 
     @Override
-    public long getApplicationUid() {
-        return -1;
+    public ApplicationUid getApplicationUid() {
+        if (this.applicationUid != null) {
+            return applicationUid;
+        }
+
+        final UidCache cache = this.cache;
+        if (cache != null) {
+            ApplicationUid applicationUid = getApplicationUidFromCache(cache);
+            if (applicationUid != null) {
+                return applicationUid;
+            }
+        }
+        prefetch();
+        return this.applicationUid;
+    }
+
+    private ApplicationUid getApplicationUidFromCache(UidCache cache) {
+        ServiceUid serviceUid = getServiceUid();
+        String applicationName = getApplicationName();
+        return cache.getApplicationUid(serviceUid, applicationName);
+    }
+
+    public void prefetch() {
+        synchronized (this) {
+            if (this.applicationUid != null) {
+                // already fetched
+                return;
+            }
+            else {
+                // fetch serviceUid & applicationUid from server
+                ApplicationUid testUid = ApplicationUid.of(100);
+                this.cache.put(ServiceUid.DEFAULT_SERVICE_UID, getApplicationName(), testUid);
+                this.applicationUid = testUid;
+            }
+        }
     }
 
     @Override
@@ -41,6 +84,13 @@ public class GrpcServerHeaderV1 implements ServerHeader {
 
     @Override
     public ServiceUid getServiceUid() {
+        final UidCache cache = this.cache;
+        if (cache != null) {
+            ServiceUid serviceUid = cache.getServiceUid(getServiceName());
+            if (serviceUid != null) {
+                return serviceUid;
+            }
+        }
         return ServiceUid.DEFAULT_SERVICE_UID;
     }
 

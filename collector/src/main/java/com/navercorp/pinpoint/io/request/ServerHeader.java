@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.io.request;
 
+import com.navercorp.pinpoint.common.server.vo.ApplicationUid;
 import com.navercorp.pinpoint.common.server.vo.ServiceUid;
 
 public interface ServerHeader {
@@ -12,7 +13,7 @@ public interface ServerHeader {
 
     String getApplicationName();
 
-    long getApplicationUid();
+    ApplicationUid getApplicationUid();
 
     // -----------------
 

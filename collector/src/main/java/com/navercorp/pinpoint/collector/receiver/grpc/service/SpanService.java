@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.grpc.cache.UidCache;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
@@ -60,21 +61,26 @@ public class SpanService extends SpanGrpc.SpanImplBase {
     @Override
     public StreamObserver<PSpanMessage> sendSpan(final StreamObserver<Empty> responseStream) {
         final ServerCallStreamObserver<Empty> responseObserver = (ServerCallStreamObserver<Empty>) responseStream;
-        return new ServerCallStream<>(logger, serverStreamId.incrementAndGet(), responseObserver, this::messageDispatch, streamCloseOnError, Empty::getDefaultInstance);
+        long streamId = serverStreamId.incrementAndGet();
+        return new ServerCallStream<>(logger, streamId, responseObserver, this::messageDispatch, streamCloseOnError, Empty::getDefaultInstance);
     }
 
-    private void messageDispatch(PSpanMessage spanMessage, ServerCallStream<PSpanMessage, Empty> responseObserver) {
+    private void messageDispatch(ServerCallStream<PSpanMessage, Empty> call, PSpanMessage spanMessage, ServerCallStream<PSpanMessage, Empty> responseObserver) {
         if (isDebug) {
             logger.debug("Send PSpan={}", MessageFormatUtils.debugLog(spanMessage));
         }
 
         if (spanMessage.hasSpan()) {
             PSpan span = spanMessage.getSpan();
-            ServerRequest<PSpan> request = serverRequestFactory.newServerRequest(MessageType.SPAN, span);
+
+            UidCache cache = call.getCache();
+            ServerRequest<PSpan> request = serverRequestFactory.newServerRequest(cache, MessageType.SPAN, span);
             this.dispatch(request, responseObserver);
         } else if (spanMessage.hasSpanChunk()) {
             PSpanChunk spanChunk = spanMessage.getSpanChunk();
-            ServerRequest<PSpanChunk> request = serverRequestFactory.newServerRequest(MessageType.SPANCHUNK, spanChunk);
+
+            UidCache cache = call.getCache();
+            ServerRequest<PSpanChunk> request = serverRequestFactory.newServerRequest(cache, MessageType.SPANCHUNK, spanChunk);
             this.dispatch(request, responseObserver);
         } else {
             if (logger.isInfoEnabled()) {

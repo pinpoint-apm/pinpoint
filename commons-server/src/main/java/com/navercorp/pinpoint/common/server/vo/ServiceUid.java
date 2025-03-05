@@ -22,7 +22,7 @@ public class ServiceUid {
         }
         // bound check
         if (-RESERVED_NEGATIVE_UID_COUNT <= uid && uid <= RESERVED_POSITIVE_UID_COUNT) {
-            return ERROR_SERVICE_UID;
+            throw new IllegalArgumentException("Range check failed: " + uid + " is invalid");
         }
 
         return new ServiceUid(uid);
