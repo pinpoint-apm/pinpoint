@@ -61,23 +61,9 @@ export const LayoutWithSideNavigation = ({
   topMenuItems,
   bottomMenuItems,
 }: LayoutWithSideNavigationProps) => {
-  const [, setSearchParameters] = useAtom(searchParametersAtom);
   const [, setGlobalSearchOpen] = useAtom(globalSearchDisplayAtom);
   const [collapsed] = useLocalStorage(APP_SETTING_KEYS.SIDE_NAV_BAR_SCALE, false);
-  const { pathname, search } = useLocation();
-  const application = getApplicationTypeAndName(pathname);
-  const searchParameters = Object.fromEntries(new URLSearchParams(search));
-
-  React.useEffect(() => {
-    if (application && searchParameters) {
-      setSearchParameters({ application, searchParameters });
-    }
-  }, [
-    application?.applicationName,
-    application?.serviceType,
-    searchParameters?.to,
-    searchParameters?.from,
-  ]);
+  const { pathname } = useLocation();
 
   const SubMenuItem = ({ item }: MenuItemProps) => {
     const hoverRef = React.useRef<HTMLLIElement>(null);

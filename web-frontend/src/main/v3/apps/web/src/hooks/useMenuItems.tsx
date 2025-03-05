@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { APP_PATH, MenuItemType as MenuItem } from '@pinpoint-fe/ui/src/constants';
-import { configurationAtom } from '@pinpoint-fe/ui/src/atoms';
+import { configurationAtom, searchParametersAtom } from '@pinpoint-fe/ui/src/atoms';
 import {
   PiBugBeetle,
   PiChartBar,
@@ -21,7 +21,7 @@ import {
 
 export const useMenuItems = () => {
   const configuration = useAtomValue(configurationAtom);
-  const { application, searchParameters } = useSearchParameters();
+  const { application, searchParameters } = useAtomValue(searchParametersAtom);
 
   const menuItems: MenuItem[] = [
     {
