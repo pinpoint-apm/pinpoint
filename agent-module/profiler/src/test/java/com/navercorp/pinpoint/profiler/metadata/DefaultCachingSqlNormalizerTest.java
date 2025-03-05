@@ -30,7 +30,7 @@ public class DefaultCachingSqlNormalizerTest {
     @BeforeEach
     void setUp() {
         SimpleCache<String, Integer> sqlCache = SimpleCache.newIdCache(1);
-        normalizer = new DefaultCachingSqlNormalizer<>(sqlCache);
+        normalizer = new DefaultCachingSqlNormalizer<>(sqlCache, false);
     }
 
     @Test
