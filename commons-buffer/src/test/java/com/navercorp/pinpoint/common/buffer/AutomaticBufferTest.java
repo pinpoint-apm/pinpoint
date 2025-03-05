@@ -44,7 +44,7 @@ public class AutomaticBufferTest {
         buffer.putInt(1);
         byte[] buf = buffer.getBuffer();
         assertThat(buf).hasSize(4);
-        Assertions.assertEquals(1, BytesUtils.bytesToInt(buf, 0));
+        Assertions.assertEquals(1, ByteArrayUtils.bytesToInt(buf, 0));
     }
 
 

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.server.util;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.junit.jupiter.api.Assertions;
@@ -40,7 +41,7 @@ public class ApplicationMapStatisticsUtilsTest {
     @Test
     public void testMakeColumnName() throws Exception {
         final byte[] columnNameBytes = ApplicationMapStatisticsUtils.makeColumnName("test", (short) 10);
-        short slotNumber = BytesUtils.bytesToShort(columnNameBytes, 0);
+        short slotNumber = ByteArrayUtils.bytesToShort(columnNameBytes, 0);
         Assertions.assertEquals(slotNumber, 10);
 
         String columnName = BytesUtils.toString(columnNameBytes, BytesUtils.SHORT_BYTE_LENGTH, columnNameBytes.length - BytesUtils.SHORT_BYTE_LENGTH);

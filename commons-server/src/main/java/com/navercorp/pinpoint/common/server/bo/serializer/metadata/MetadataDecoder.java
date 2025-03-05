@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.metadata;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
@@ -21,10 +22,10 @@ public class MetadataDecoder implements RowKeyDecoder<MetaDataRowKey> {
     }
 
     private long readAgentStartTime(byte[] rowKey) {
-        return TimeUtils.recoveryTimeMillis(BytesUtils.bytesToLong(rowKey, PinpointConstants.AGENT_ID_MAX_LEN));
+        return TimeUtils.recoveryTimeMillis(ByteArrayUtils.bytesToLong(rowKey, PinpointConstants.AGENT_ID_MAX_LEN));
     }
 
     private int readId(byte[] rowKey) {
-        return BytesUtils.bytesToInt(rowKey, PinpointConstants.AGENT_ID_MAX_LEN + BytesUtils.LONG_BYTE_LENGTH);
+        return ByteArrayUtils.bytesToInt(rowKey, PinpointConstants.AGENT_ID_MAX_LEN + BytesUtils.LONG_BYTE_LENGTH);
     }
 }

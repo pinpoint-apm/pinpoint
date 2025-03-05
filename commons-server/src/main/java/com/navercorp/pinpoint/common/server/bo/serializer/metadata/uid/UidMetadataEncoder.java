@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.metadata.uid;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
@@ -33,7 +34,7 @@ public class UidMetadataEncoder implements RowKeyEncoder<UidMetaDataRowKey> {
         BytesUtils.writeBytes(buffer, 0, agentBytes);
 
         long reverseCurrentTimeMillis = TimeUtils.reverseTimeMillis(agentStartTime);
-        BytesUtils.writeLong(reverseCurrentTimeMillis, buffer, AGENT_ID_MAX_LEN);
+        ByteArrayUtils.writeLong(reverseCurrentTimeMillis, buffer, AGENT_ID_MAX_LEN);
 
         BytesUtils.writeBytes(buffer, AGENT_ID_MAX_LEN + LONG_BYTE_LENGTH, keyCode);
         return buffer;

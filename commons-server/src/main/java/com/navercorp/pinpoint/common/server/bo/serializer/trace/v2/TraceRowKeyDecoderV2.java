@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
+import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.util.BytesUtils;
@@ -54,8 +55,8 @@ public class TraceRowKeyDecoderV2 implements RowKeyDecoder<TransactionId> {
     private TransactionId readTransactionId(byte[] rowKey, int offset) {
 
         String agentId = BytesUtils.toStringAndRightTrim(rowKey, offset, AGENT_ID_MAX_LEN);
-        long agentStartTime = BytesUtils.bytesToLong(rowKey, offset + AGENT_ID_MAX_LEN);
-        long transactionSequence = BytesUtils.bytesToLong(rowKey, offset + BytesUtils.LONG_BYTE_LENGTH + AGENT_ID_MAX_LEN);
+        long agentStartTime = ByteArrayUtils.bytesToLong(rowKey, offset + AGENT_ID_MAX_LEN);
+        long transactionSequence = ByteArrayUtils.bytesToLong(rowKey, offset + BytesUtils.LONG_BYTE_LENGTH + AGENT_ID_MAX_LEN);
 
         return TransactionId.of(agentId, agentStartTime, transactionSequence);
     }
