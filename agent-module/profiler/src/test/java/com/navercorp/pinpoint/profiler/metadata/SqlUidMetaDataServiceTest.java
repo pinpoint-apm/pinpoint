@@ -28,7 +28,7 @@ class SqlUidMetaDataServiceTest {
 
     @BeforeEach
     void setUp() {
-        UidCachingSqlNormalizer simpleCachingSqlNormalizer = new UidCachingSqlNormalizer(100, LENGTH_LIMIT);
+        UidCachingSqlNormalizer simpleCachingSqlNormalizer = new UidCachingSqlNormalizer(100, LENGTH_LIMIT, false);
         sqlCacheService = new SqlCacheService<>(dataSender, simpleCachingSqlNormalizer, 1000);
         sut = new SqlUidMetaDataService(sqlCacheService);
     }

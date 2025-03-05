@@ -280,6 +280,53 @@ public class DefaultSqlNormalizerTest {
         Assertions.assertEquals(expected, result);
     }
 
+    @Test
+    public void skipComments() {
+        DefaultSqlNormalizer sut = new DefaultSqlNormalizer(true);
+
+        String sql1 = "/** comment ? */ select * from table id = 'foo'";
+        String sql2 = " select * from table id = 'foo'";
+        String result1 = sut.normalizeSql(sql1).getNormalizedSql();
+        String result2 = sut.normalizeSql(sql2).getNormalizedSql();
+        Assertions.assertEquals(result2, result1);
+
+        sql1 = "//comment\nselect * from table id = ?;";
+        sql2 = "\nselect * from table id = ?;";
+        result1 = sut.normalizeSql(sql1).getNormalizedSql();
+        result2 = sut.normalizeSql(sql2).getNormalizedSql();
+        Assertions.assertEquals(result2, result1);
+
+        sql1 = "--comment\nselect * from table id = ?;";
+        sql2 = "\nselect * from table id = ?;";
+        result1 = sut.normalizeSql(sql1).getNormalizedSql();
+        result2 = sut.normalizeSql(sql2).getNormalizedSql();
+        Assertions.assertEquals(result2, result1);
+
+        sql1 = "select */*comment*/ \nfrom table id = ?;";
+        sql2 = "select * \nfrom table id = ?;";
+        result1 = sut.normalizeSql(sql1).getNormalizedSql();
+        result2 = sut.normalizeSql(sql2).getNormalizedSql();
+        Assertions.assertEquals(result2, result1);
+
+        sql1 = "select * from table id = ?; /* This ? comment*/";
+        sql2 = "select * from table id = ?; ";
+        result1 = sut.normalizeSql(sql1).getNormalizedSql();
+        result2 = sut.normalizeSql(sql2).getNormalizedSql();
+        Assertions.assertEquals(result2, result1);
+
+        sql1 = "select * from table id = ?; // This ? comment";
+        sql2 = "select * from table id = ?; ";
+        result1 = sut.normalizeSql(sql1).getNormalizedSql();
+        result2 = sut.normalizeSql(sql2).getNormalizedSql();
+        Assertions.assertEquals(result2, result1);
+
+        sql1 = "select * from table id = ?; -- This ? comment";
+        sql2 = "select * from table id = ?; ";
+        result1 = sut.normalizeSql(sql1).getNormalizedSql();
+        result2 = sut.normalizeSql(sql2).getNormalizedSql();
+        Assertions.assertEquals(result2, result1);
+    }
+
     private void assertCombine(String result, String sql, String outputParams) {
         List<String> output = this.outputParameterParser.parseOutputParameter(outputParams);
 

@@ -60,8 +60,9 @@ public class SqlMetadataServiceProvider implements Provider<SqlMetaDataService> 
 
         if (monitorConfig.isSqlStatEnable()) {
             final int maxSqlCacheLength = profilerConfig.getMaxSqlCacheLength();
+            final boolean removeComments = profilerConfig.isRemoveSqlComments();
 
-            UidCachingSqlNormalizer simpleCachingSqlNormalizer = new UidCachingSqlNormalizer(jdbcSqlCacheSize, maxSqlCacheLength);
+            UidCachingSqlNormalizer simpleCachingSqlNormalizer = new UidCachingSqlNormalizer(jdbcSqlCacheSize, maxSqlCacheLength, removeComments);
             SqlCacheService<byte[]> sqlCacheService = new SqlCacheService<>(enhancedDataSender, simpleCachingSqlNormalizer, maxSqlLength);
             return new SqlUidMetaDataService(sqlCacheService);
         } else {
