@@ -72,7 +72,7 @@ export const TransactionListPage = ({ transactionInfoProps }: TransactionListPag
             <TransactionList params={{ x2: nextX2 }} />
           )}
         </ResizablePanel>
-        <ResizableHandle className="!h-2" withHandle />
+        <ResizableHandle withHandle />
         <ResizablePanel>
           <TransactionInfo {...transactionInfoProps} />
         </ResizablePanel>
