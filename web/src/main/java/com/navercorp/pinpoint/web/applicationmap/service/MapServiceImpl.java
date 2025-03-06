@@ -20,9 +20,11 @@ package com.navercorp.pinpoint.web.applicationmap.service;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.ApplicationMapNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.SimplifiedNodeHistogramFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.ApplicationMapNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseSimplifiedNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerGroupListFactory;
@@ -30,6 +32,7 @@ import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerGroupList
 import com.navercorp.pinpoint.web.applicationmap.appender.server.StatisticsServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.SelfDao;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelector;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorType;
@@ -42,6 +45,7 @@ import com.navercorp.pinpoint.web.vo.SearchOption;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
@@ -62,6 +66,7 @@ public class MapServiceImpl implements MapService {
     private final LinkSelectorFactory linkSelectorFactory;
 
     private final MapResponseDao mapResponseDao;
+    private final SelfDao selfDao;
 
     private final ServerMapDataFilter serverMapDataFilter;
 
@@ -74,14 +79,19 @@ public class MapServiceImpl implements MapService {
     @Value("${web.servermap.build.timeout:600000}")
     private long buildTimeoutMillis;
 
+    @Value("${pinpoint.modules.web.application-based-server-map.enabled:true}")
+    private boolean isApplicationMapEnabled;
+
     public MapServiceImpl(LinkSelectorFactory linkSelectorFactory,
                           MapResponseDao mapResponseDao,
+                          SelfDao selfDao,
                           Optional<ServerMapDataFilter> serverMapDataFilter,
                           ApplicationMapBuilderFactory applicationMapBuilderFactory,
                           LinkDataLimiter linkDataLimiter,
                           ServerInstanceDatasourceService serverInstanceDatasourceService) {
         this.linkSelectorFactory = Objects.requireNonNull(linkSelectorFactory, "linkSelectorFactory");
         this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
+        this.selfDao = Objects.requireNonNull(selfDao, "selfDao");
         this.serverMapDataFilter = Objects.requireNonNull(serverMapDataFilter, "serverMapDataFilter").orElse(null);
         this.applicationMapBuilderFactory = Objects.requireNonNull(applicationMapBuilderFactory, "applicationMapBuilderFactory");
         this.linkDataLimiter = linkDataLimiter;
@@ -146,6 +156,9 @@ public class MapServiceImpl implements MapService {
     }
 
     private NodeHistogramFactory newNodeHistogramFactory(MapServiceOption option) {
+        if (isApplicationMapEnabled) {
+            return new ApplicationMapNodeHistogramFactory(new ApplicationMapNodeHistogramDataSource(selfDao));
+        }
         if (option.isSimpleResponseHistogram()) {
             return new SimplifiedNodeHistogramFactory(new MapResponseSimplifiedNodeHistogramDataSource(mapResponseDao));
         } else {
