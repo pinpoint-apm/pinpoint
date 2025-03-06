@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.collector;
 
 import com.navercorp.pinpoint.collector.config.BatchHbaseClientConfiguration;
 import com.navercorp.pinpoint.collector.config.HbaseAsyncConfiguration;
+import com.navercorp.pinpoint.collector.config.HbasePinpointIdTemplateConfiguration;
 import com.navercorp.pinpoint.collector.config.SchedulerConfiguration;
 import com.navercorp.pinpoint.collector.dao.hbase.encode.ApplicationIndexRowKeyEncoderV1;
 import com.navercorp.pinpoint.collector.dao.hbase.encode.ApplicationIndexRowKeyEncoderV2;
@@ -37,6 +38,7 @@ import org.springframework.context.annotation.PropertySource;
         HbasePutWriterConfiguration.class,
 
         BatchHbaseClientConfiguration.class,
+        HbasePinpointIdTemplateConfiguration.class,
 
         HbaseAsyncConfiguration.class,
         SchedulerConfiguration.class,
