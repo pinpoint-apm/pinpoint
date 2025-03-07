@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.common.server.bo.grpc;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
 import com.navercorp.pinpoint.grpc.trace.PParentInfo;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
@@ -12,7 +13,7 @@ class GrpcSpanBinderTest {
 
     GrpcSpanBinder grpcSpanBinder = new GrpcSpanBinder();
 
-    BindAttribute bindAttribute = new BindAttribute("agentId-1", "appName-1", 1234, System.currentTimeMillis());
+    BindAttribute bindAttribute = new BindAttribute("agentId-1", "appName-1", () -> ApplicationUid.of(100), 1234, System.currentTimeMillis());
 
     @Test
     void bindSpanBo_parentApplicationName_invalid() {

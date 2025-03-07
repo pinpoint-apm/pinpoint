@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.io.request.UidFetcher;
 import io.grpc.stub.ServerCallStreamObserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,6 +14,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,7 +30,9 @@ class ServerCallStreamTest {
 
     @Test
     void onNextError_atomicity() {
-        ServerCallStream<GeneratedMessageV3, GeneratedMessageV3> serverCallStream = new ServerCallStream<>(logger, 1, responseStream, dispatch, StreamCloseOnError.TRUE, Empty::getDefaultInstance);
+        UidFetcher fetcher = mock(UidFetcher.class);
+        ServerCallStream<GeneratedMessageV3, GeneratedMessageV3> serverCallStream
+                = new ServerCallStream<>(logger, 1, fetcher, responseStream, dispatch, StreamCloseOnError.TRUE, Empty::getDefaultInstance);
 
         serverCallStream.onNextError(newError());
         verify(responseStream).onError(any());
@@ -50,7 +54,9 @@ class ServerCallStreamTest {
     void onNextError_streamCancel() {
         when(responseStream.isCancelled()).thenReturn(true);
 
-        ServerCallStream<GeneratedMessageV3, GeneratedMessageV3> serverCallStream = new ServerCallStream<>(logger, 1, responseStream, dispatch, StreamCloseOnError.TRUE, Empty::getDefaultInstance);
+        UidFetcher fetcher = mock(UidFetcher.class);
+        ServerCallStream<GeneratedMessageV3, GeneratedMessageV3> serverCallStream
+                = new ServerCallStream<>(logger, 1, fetcher, responseStream, dispatch, StreamCloseOnError.TRUE, Empty::getDefaultInstance);
 
         serverCallStream.onNextError(newError());
         verify(responseStream).isCancelled();
@@ -62,7 +68,9 @@ class ServerCallStreamTest {
 
     @Test
     void onNextError_StreamCloseOnError() {
-        ServerCallStream<GeneratedMessageV3, GeneratedMessageV3> serverCallStream = new ServerCallStream<>(logger, 1, responseStream, dispatch, StreamCloseOnError.FALSE, Empty::getDefaultInstance);
+        UidFetcher fetcher = mock(UidFetcher.class);
+        ServerCallStream<GeneratedMessageV3, GeneratedMessageV3> serverCallStream
+                = new ServerCallStream<>(logger, 1, fetcher, responseStream, dispatch, StreamCloseOnError.FALSE, Empty::getDefaultInstance);
 
         serverCallStream.onNextError(newError());
         verify(responseStream, never()).isCancelled();
@@ -74,7 +82,9 @@ class ServerCallStreamTest {
 
     @Test
     void onError() {
-        ServerCallStream<GeneratedMessageV3, GeneratedMessageV3> serverCallStream = new ServerCallStream<>(logger, 1, responseStream, dispatch, StreamCloseOnError.FALSE, Empty::getDefaultInstance);
+        UidFetcher fetcher = mock(UidFetcher.class);
+        ServerCallStream<GeneratedMessageV3, GeneratedMessageV3> serverCallStream
+                = new ServerCallStream<>(logger, 1, fetcher, responseStream, dispatch, StreamCloseOnError.FALSE, Empty::getDefaultInstance);
 
         serverCallStream.onError(newError());
         verify(responseStream).onCompleted();

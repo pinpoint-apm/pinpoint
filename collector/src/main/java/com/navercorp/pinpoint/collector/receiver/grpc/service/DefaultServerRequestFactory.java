@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
-import com.navercorp.pinpoint.collector.receiver.grpc.cache.UidCache;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
@@ -24,6 +23,7 @@ import com.navercorp.pinpoint.io.request.DefaultServerRequest;
 import com.navercorp.pinpoint.io.request.GrpcServerHeaderV1;
 import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.UidFetcher;
 import com.navercorp.pinpoint.io.util.MessageType;
 import io.grpc.Context;
 
@@ -42,9 +42,9 @@ public class DefaultServerRequestFactory implements ServerRequestFactory {
     }
 
     @Override
-    public <T> ServerRequest<T> newServerRequest(UidCache cache, MessageType messageType, T data) {
+    public <T> ServerRequest<T> newServerRequest(UidFetcher uidFetcher, MessageType messageType, T data) {
         Context context = Context.current();
-        return newServerRequest(context, cache, messageType, data);
+        return newServerRequest(context, uidFetcher, messageType, data);
     }
 
     @Override
@@ -53,14 +53,14 @@ public class DefaultServerRequestFactory implements ServerRequestFactory {
     }
 
     @Override
-    public <T> ServerRequest<T> newServerRequest(Context context, UidCache cache, MessageType messageType, T data) {
+    public <T> ServerRequest<T> newServerRequest(Context context, UidFetcher uidFetcher, MessageType messageType, T data) {
         final Header header = ServerContext.getAgentInfo(context);
         final TransportMetadata transportMetadata = ServerContext.getTransportMetadata(context);
         if (transportMetadata == null) {
             throw new IllegalStateException("transportMetadata is null");
         }
         long requestTime = System.currentTimeMillis();
-        ServerHeader serverHeader = new GrpcServerHeaderV1(header, cache);
+        ServerHeader serverHeader = new GrpcServerHeaderV1(header, uidFetcher);
         return new DefaultServerRequest<>(serverHeader, transportMetadata, requestTime, messageType, data);
     }
 

@@ -24,11 +24,14 @@ import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerReque
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StatService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamCloseOnError;
+import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
+import com.navercorp.pinpoint.io.request.UidFetcher;
+import com.navercorp.pinpoint.io.request.UidFetcherStreamService;
 import io.github.bucket4j.Bandwidth;
 import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
@@ -40,6 +43,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class StatServerTestMain {
     public static final String IP = "0.0.0.0";
@@ -73,7 +80,14 @@ public class StatServerTestMain {
         RateLimitClientStreamServerInterceptor rateLimit = new RateLimitClientStreamServerInterceptor("test-stat", executor, bandwidth, 1);
         MockDispatchHandler dispatchHandler = new MockDispatchHandler();
         ServerRequestFactory serverRequestFactory = new DefaultServerRequestFactory();
-        StatService statService = new StatService(dispatchHandler, serverRequestFactory, StreamCloseOnError.FALSE);
+
+        UidFetcherStreamService uidFetcherStreamService = mock(UidFetcherStreamService.class);
+        UidFetcher uidFetcher = mock(UidFetcher.class);
+        when(uidFetcherStreamService.newUidFetcher()).thenReturn(uidFetcher);
+        when(uidFetcher.getApplicationId(any(), any())).thenReturn(() -> ApplicationUid.of(100));
+
+
+        StatService statService = new StatService(dispatchHandler, uidFetcherStreamService, serverRequestFactory, StreamCloseOnError.FALSE);
         return ServerInterceptors.intercept(statService, rateLimit);
     }
 

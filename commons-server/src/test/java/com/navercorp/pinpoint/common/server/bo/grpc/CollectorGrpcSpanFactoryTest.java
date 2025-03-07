@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.filter.SequenceSpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
+import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.grpc.trace.PTransactionId;
@@ -41,7 +42,7 @@ public class CollectorGrpcSpanFactoryTest {
     private final BindAttribute attribute = newAttribute();
 
     private BindAttribute newAttribute() {
-        return new BindAttribute("agentId", "applicationName", 88, System.currentTimeMillis());
+        return new BindAttribute("agentId", "applicationName", () -> ApplicationUid.of(100), 88, System.currentTimeMillis());
     }
 
     private final GrpcSpanFactory factory = new CollectorGrpcSpanFactory(binder, filter);
