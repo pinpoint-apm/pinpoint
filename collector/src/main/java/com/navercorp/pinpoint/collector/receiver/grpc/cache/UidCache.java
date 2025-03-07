@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.collector.receiver.grpc.cache;
 
-import com.navercorp.pinpoint.common.server.vo.ApplicationUid;
-import com.navercorp.pinpoint.common.server.vo.ServiceUid;
+import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 
 public interface UidCache {
 

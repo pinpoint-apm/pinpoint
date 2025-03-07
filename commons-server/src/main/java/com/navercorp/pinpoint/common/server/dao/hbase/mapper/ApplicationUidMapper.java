@@ -3,7 +3,7 @@ package com.navercorp.pinpoint.common.server.dao.hbase.mapper;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
-import com.navercorp.pinpoint.common.server.vo.ApplicationUid;
+import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.springframework.stereotype.Component;

@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.server.vo.ApplicationIdentifier;
-import com.navercorp.pinpoint.common.server.vo.ApplicationUid;
-import com.navercorp.pinpoint.common.server.vo.ServiceUid;
+import com.navercorp.pinpoint.common.server.uid.ApplicationIdentifier;
+import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.web.config.WebApplicationIdCacheConfig;
 import com.navercorp.pinpoint.web.dao.ApplicationNameDao;
 import com.navercorp.pinpoint.web.dao.ApplicationUidDao;

@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.common.server.vo;
+package com.navercorp.pinpoint.common.server.uid;
 
 public class ApplicationUid {
 

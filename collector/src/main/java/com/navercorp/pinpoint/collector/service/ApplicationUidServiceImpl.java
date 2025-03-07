@@ -1,10 +1,10 @@
 package com.navercorp.pinpoint.collector.service;
 
-import com.navercorp.pinpoint.collector.dao.ApplicationUidDao;
 import com.navercorp.pinpoint.collector.dao.ApplicationNameDao;
+import com.navercorp.pinpoint.collector.dao.ApplicationUidDao;
+import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.IdGenerator;
-import com.navercorp.pinpoint.common.server.vo.ApplicationUid;
-import com.navercorp.pinpoint.common.server.vo.ServiceUid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;

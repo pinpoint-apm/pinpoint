@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.web.config;
 
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.IdGenerator;
 import com.navercorp.pinpoint.common.server.util.RandomServiceUidGenerator;
-import com.navercorp.pinpoint.common.server.vo.ServiceUid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

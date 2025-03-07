@@ -2,8 +2,8 @@ package com.navercorp.pinpoint.io.request;
 
 import com.navercorp.pinpoint.collector.receiver.grpc.cache.SingleEntryUidCacheV1;
 import com.navercorp.pinpoint.collector.receiver.grpc.cache.UidCache;
-import com.navercorp.pinpoint.common.server.vo.ApplicationUid;
-import com.navercorp.pinpoint.common.server.vo.ServiceUid;
+import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.HeaderV1;
 import org.junit.jupiter.api.Test;
