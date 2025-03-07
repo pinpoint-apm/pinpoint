@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.collector;
 
 
+import com.navercorp.pinpoint.collector.applicationmap.ApplicationMapModule;
 import com.navercorp.pinpoint.collector.config.ClusterModule;
 import com.navercorp.pinpoint.collector.config.CollectorCommonConfiguration;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
@@ -41,6 +42,7 @@ import org.springframework.context.annotation.Import;
         UidModule.class,
 
         CollectorPinpointIdConfiguration.class,
+        ApplicationMapModule.class,
 })
 @ComponentScan(basePackages = {
         "com.navercorp.pinpoint.collector.handler",
