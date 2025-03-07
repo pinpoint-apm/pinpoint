@@ -1,6 +1,6 @@
-package com.navercorp.pinpoint.collector.dao.hbase;
+package com.navercorp.pinpoint.collector.uid.dao.hbase;
 
-import com.navercorp.pinpoint.collector.dao.ServiceUidDao;
+import com.navercorp.pinpoint.collector.uid.dao.ServiceUidDao;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
