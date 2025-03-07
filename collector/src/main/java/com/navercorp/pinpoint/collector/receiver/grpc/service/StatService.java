@@ -19,7 +19,9 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.grpc.cache.SingleEntryUidCacheV1;
 import com.navercorp.pinpoint.collector.receiver.grpc.cache.UidCache;
+import com.navercorp.pinpoint.collector.uid.service.ApplicationUidService;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
@@ -28,6 +30,8 @@ import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.grpc.trace.PStatMessage;
 import com.navercorp.pinpoint.grpc.trace.StatGrpc;
 import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.UidFetcher;
+import com.navercorp.pinpoint.io.request.UidFetcherV1;
 import com.navercorp.pinpoint.io.util.MessageType;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
@@ -47,13 +51,17 @@ public class StatService extends StatGrpc.StatImplBase {
     private final AtomicLong serverStreamId = new AtomicLong();
 
     private final DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler;
+    private final ApplicationUidService applicationUidService;
+
     private final ServerRequestFactory serverRequestFactory;
     private final StreamCloseOnError streamCloseOnError;
 
     public StatService(DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
+                       ApplicationUidService applicationUidService,
                        ServerRequestFactory serverRequestFactory,
                        StreamCloseOnError streamCloseOnError) {
         this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
+        this.applicationUidService = Objects.requireNonNull(applicationUidService, "applicationUidService");
         this.serverRequestFactory = Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
         this.streamCloseOnError = Objects.requireNonNull(streamCloseOnError, "streamCloseOnError");
     }
@@ -62,7 +70,13 @@ public class StatService extends StatGrpc.StatImplBase {
     public StreamObserver<PStatMessage> sendAgentStat(StreamObserver<Empty> responseStream) {
         final ServerCallStreamObserver<Empty> responseObserver = (ServerCallStreamObserver<Empty>) responseStream;
         long streamId = serverStreamId.incrementAndGet();
-        return new ServerCallStream<>(logger, streamId, responseObserver, this::messageDispatch, streamCloseOnError, Empty::getDefaultInstance);
+        UidFetcher fetcher = newUidFetcher();
+        return new ServerCallStream<>(logger, streamId, fetcher, responseObserver, this::messageDispatch, streamCloseOnError, Empty::getDefaultInstance);
+    }
+
+    private UidFetcher newUidFetcher() {
+        UidCache cache = new SingleEntryUidCacheV1();
+        return new UidFetcherV1(cache, applicationUidService);
     }
 
     private void messageDispatch(ServerCallStream<PStatMessage, Empty> call, PStatMessage statMessage, ServerCallStream<PStatMessage, Empty> response) {
@@ -72,20 +86,20 @@ public class StatService extends StatGrpc.StatImplBase {
         if (statMessage.hasAgentStat()) {
             PAgentStat agentStat = statMessage.getAgentStat();
 
-            UidCache cache = call.getCache();
-            ServerRequest<PAgentStat> request = this.serverRequestFactory.newServerRequest(cache, MessageType.AGENT_STAT, agentStat);
+            UidFetcher fetcher = call.getUidFetcher();
+            ServerRequest<PAgentStat> request = this.serverRequestFactory.newServerRequest(fetcher, MessageType.AGENT_STAT, agentStat);
             this.dispatch(request, response);
         } else if (statMessage.hasAgentStatBatch()) {
             PAgentStatBatch agentStatBatch = statMessage.getAgentStatBatch();
 
-            UidCache cache = call.getCache();
-            ServerRequest<PAgentStatBatch> request = this.serverRequestFactory.newServerRequest(cache, MessageType.AGENT_STAT_BATCH, agentStatBatch);
+            UidFetcher fetcher = call.getUidFetcher();
+            ServerRequest<PAgentStatBatch> request = this.serverRequestFactory.newServerRequest(fetcher, MessageType.AGENT_STAT_BATCH, agentStatBatch);
             this.dispatch(request, response);
         } else if (statMessage.hasAgentUriStat()) {
             PAgentUriStat agentUriStat = statMessage.getAgentUriStat();
 
-            UidCache cache = call.getCache();
-            ServerRequest<PAgentUriStat> request = this.serverRequestFactory.newServerRequest(cache, MessageType.AGENT_URI_STAT, agentUriStat);
+            UidFetcher fetcher = call.getUidFetcher();
+            ServerRequest<PAgentUriStat> request = this.serverRequestFactory.newServerRequest(fetcher, MessageType.AGENT_URI_STAT, agentUriStat);
             this.dispatch(request, response);
         } else {
             if (logger.isInfoEnabled()) {
