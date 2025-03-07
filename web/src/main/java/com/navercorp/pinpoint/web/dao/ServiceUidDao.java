@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.web.dao;
 
-import com.navercorp.pinpoint.common.server.vo.ServiceUid;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 
 public interface ServiceUidDao {
 

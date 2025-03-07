@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.common.server.util;
 
-import com.navercorp.pinpoint.common.server.vo.ServiceUid;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.common.server.vo;
+package com.navercorp.pinpoint.common.server.uid;
 
 public class ApplicationIdentifier {
 
@@ -32,7 +32,7 @@ public class ApplicationIdentifier {
     @Override
     public int hashCode() {
         int result = serviceUid;
-        result = 31 * result + (int) (applicationUid ^ (applicationUid >>> 32));
+        result = 31 * result + Long.hashCode(applicationUid);
         return result;
     }
 }

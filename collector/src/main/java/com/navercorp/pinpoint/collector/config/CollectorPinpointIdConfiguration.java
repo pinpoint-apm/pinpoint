@@ -1,9 +1,9 @@
 package com.navercorp.pinpoint.collector.config;
 
 
+import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.util.IdGenerator;
 import com.navercorp.pinpoint.common.server.util.RandomApplicationUidGenerator;
-import com.navercorp.pinpoint.common.server.vo.ApplicationUid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

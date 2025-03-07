@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.server.vo.ServiceUid;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 
 import java.util.List;
 

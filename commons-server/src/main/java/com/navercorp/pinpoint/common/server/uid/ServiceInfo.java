@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.common.server.vo;
+package com.navercorp.pinpoint.common.server.uid;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;

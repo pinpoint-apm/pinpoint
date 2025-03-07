@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.web.dao;
 
-import com.navercorp.pinpoint.common.server.vo.ApplicationUid;
-import com.navercorp.pinpoint.common.server.vo.ServiceUid;
+import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 
 import java.util.List;
 

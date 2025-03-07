@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.collector.dao;
 
-import com.navercorp.pinpoint.common.server.vo.ApplicationUid;
-import com.navercorp.pinpoint.common.server.vo.ServiceUid;
+import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 
 public interface ApplicationNameDao {
 //    String selectApplicationName(ServiceUid serviceUid, ApplicationId applicationId);
