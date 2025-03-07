@@ -23,6 +23,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.List;
+
 /**
  * @author minwoo-jung
  */
@@ -34,8 +36,15 @@ public class UriStatProperties {
     @Value("${web.uristat.api.period.max:28}")
     private int uriStatPeriodMax;
 
+    @Value("${web.uristat.api.period.interval:5m,20m,1h,3h,6h,12h,1d,2d,1w,2w,4w}")
+    private List<String> uriStatPeriodInteval;
+
     public int getUriStatPeriodMax() {
         return uriStatPeriodMax;
+    }
+
+    public List<String> getUriStatPeriodInteval() {
+        return uriStatPeriodInteval;
     }
 
     @PostConstruct
@@ -49,6 +58,7 @@ public class UriStatProperties {
     public String toString() {
         return "UriStatProperties{" +
                 "uriStatPeriodMax=" + uriStatPeriodMax +
+                ", uriStatPeriodInteval=" + uriStatPeriodInteval +
                 '}';
     }
 }

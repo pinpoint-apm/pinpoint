@@ -23,6 +23,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.List;
+
 /**
  * @author HyunGil Jeong
  * @author Jongjin.Bae
@@ -85,8 +87,14 @@ public class ConfigProperties {
     @Value("${web.servermap.api.period.max:2}")
     private int serverMapPeriodMax;
 
-    @Value("${web.inspector.api.period.max:14}")
+    @Value("${web.servermap.api.period.interval:5m,20m,1h,3h,6h,12h,1d,2d}")
+    private List<String> serverMapPeriodInteval;
+
+    @Value("${web.inspector.api.period.max:42}")
     private int inspectorPeriodMax;
+
+    @Value("${web.inspector.api.period.interval:5m,20m,1h,3h,6h,12h,1d,2d,1w,3w,6w}")
+    private List<String> inspectorPeriodInteval;
 
     public String getSecurityGuideUrl() {
         return securityGuideUrl;
@@ -160,8 +168,16 @@ public class ConfigProperties {
         return serverMapPeriodMax;
     }
 
+    public List<String> getServerMapPeriodInteval() {
+        return serverMapPeriodInteval;
+    }
+
     public int getInspectorPeriodMax() {
         return inspectorPeriodMax;
+    }
+
+    public List<String> getInspectorPeriodInteval() {
+        return inspectorPeriodInteval;
     }
 
     @PostConstruct
@@ -187,6 +203,9 @@ public class ConfigProperties {
         sb.append(", webSocketAllowedOrigins=").append(webSocketAllowedOrigins);
         sb.append(", showOtlpMetric=").append(showOtlpMetric);
         sb.append(", serverMapPeriodMax=").append(serverMapPeriodMax);
+        sb.append(", serverMapPeriodInterval=").append(serverMapPeriodInteval);
+        sb.append(", inspectorPeriodMax=").append(inspectorPeriodMax);
+        sb.append(", inspectorPeriodInterval=").append(inspectorPeriodInteval);
         sb.append('}');
         return sb.toString();
     }

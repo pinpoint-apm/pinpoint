@@ -23,6 +23,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.List;
+
 /**
  * @author minwoo-jung
  */
@@ -33,8 +35,15 @@ public class ExceptionTraceProperties {
     @Value("${web.exceptiontrace.api.period.max:7}")
     private int exceptionTracePeriodMax;
 
+    @Value("${web.exceptiontrace.api.period.interval:5m,20m,1h,3h,6h,12h,1d,2d,1w}")
+    private List<String> exceptionTracePeriodInteval;
+
     public int getExceptionTracePeriodMax() {
         return exceptionTracePeriodMax;
+    }
+
+    public List<String> getExceptionTracePeriodInteval() {
+        return exceptionTracePeriodInteval;
     }
 
     @PostConstruct
@@ -47,7 +56,8 @@ public class ExceptionTraceProperties {
     @Override
     public String toString() {
         return "ExceptionTraceProperties{" +
-                "exceptionTracePeriodMax=" + exceptionTracePeriodMax +
+                "exceptionTracePeriodInteval=" + exceptionTracePeriodInteval +
+                ", exceptionTracePeriodMax=" + exceptionTracePeriodMax +
                 '}';
     }
 }

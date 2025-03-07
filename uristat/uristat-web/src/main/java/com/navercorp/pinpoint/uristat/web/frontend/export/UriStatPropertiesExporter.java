@@ -36,5 +36,6 @@ public class UriStatPropertiesExporter implements FrontendConfigExporter {
     @Override
     public void export(Map<String, Object> export) {
         export.put("periodMax.uriStat", uriStatProperties.getUriStatPeriodMax());
+        export.put("periodInterval.uriStat", uriStatProperties.getUriStatPeriodInteval());
     }
 }
