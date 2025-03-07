@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.buffer;
 
+import com.navercorp.pinpoint.common.util.BytesUtils;
+
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.nio.ByteOrder;
@@ -36,7 +38,7 @@ public final class ByteArrayUtils {
         if (buf == null) {
             throw new NullPointerException("buf");
         }
-        checkBounds(buf, offset, LONG_BYTE_LENGTH);
+        BytesUtils.checkBounds(buf, offset, LONG_BYTE_LENGTH);
 
         return (long) BYTE_ARRAY_LONG.get(buf, offset);
     }
@@ -45,7 +47,7 @@ public final class ByteArrayUtils {
         if (buf == null) {
             throw new NullPointerException("buf");
         }
-        checkBounds(buf, offset, LONG_BYTE_LENGTH);
+        BytesUtils.checkBounds(buf, offset, LONG_BYTE_LENGTH);
 
         BYTE_ARRAY_LONG.set(buf, offset, value);
         return offset + LONG_BYTE_LENGTH;
@@ -55,7 +57,7 @@ public final class ByteArrayUtils {
         if (buf == null) {
             throw new NullPointerException("buf");
         }
-        checkBounds(buf, offset, INT_BYTE_LENGTH);
+        BytesUtils.checkBounds(buf, offset, INT_BYTE_LENGTH);
 
         return (int) BYTE_ARRAY_INT.get(buf, offset);
     }
@@ -64,7 +66,8 @@ public final class ByteArrayUtils {
         if (buf == null) {
             throw new NullPointerException("buf");
         }
-        checkBounds(buf, offset, INT_BYTE_LENGTH);
+        BytesUtils.checkBounds(buf, offset, INT_BYTE_LENGTH);
+
         BYTE_ARRAY_INT.set(buf, offset, value);
 
         return offset + INT_BYTE_LENGTH;
@@ -74,7 +77,7 @@ public final class ByteArrayUtils {
         if (buf == null) {
             throw new NullPointerException("buf");
         }
-        checkBounds(buf, offset, SHORT_BYTE_LENGTH);
+        BytesUtils.checkBounds(buf, offset, SHORT_BYTE_LENGTH);
 
         return (short) BYTE_ARRAY_SHORT.get(buf, offset);
     }
@@ -83,22 +86,10 @@ public final class ByteArrayUtils {
         if (buf == null) {
             throw new NullPointerException("buf");
         }
-        checkBounds(buf, offset, SHORT_BYTE_LENGTH);
+        BytesUtils.checkBounds(buf, offset, SHORT_BYTE_LENGTH);
 
         BYTE_ARRAY_SHORT.set(buf, offset, value);
 
         return offset + SHORT_BYTE_LENGTH;
-    }
-
-    static void checkBounds(byte[] bytes, int offset, int length) {
-        if (length < 0) {
-            throw new ArrayIndexOutOfBoundsException(length);
-        }
-        if (offset < 0) {
-            throw new ArrayIndexOutOfBoundsException(offset);
-        }
-        if (offset > bytes.length - length) {
-            throw new ArrayIndexOutOfBoundsException(offset + length);
-        }
     }
 }

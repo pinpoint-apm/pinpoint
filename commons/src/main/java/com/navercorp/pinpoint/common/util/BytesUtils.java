@@ -380,19 +380,36 @@ public final class BytesUtils {
         }
     }
 
-    static void checkBounds(byte[] bytes, final int offset) {
-        checkBounds(bytes, offset, bytes.length - offset);
+    public static void checkBounds(byte[] bytes, final int offset) {
+        final int length = bytes.length;
+        checkFromIndexSize(offset, length - offset, length);
     }
 
-    static void checkBounds(byte[] bytes, int offset, int length) {
+    public static void checkBounds(byte[] bytes, int offset, int length) {
+        checkFromIndexSize(offset, length, bytes.length);
+    }
+
+    /**
+     * Compatibility with Objects.checkFromIndexSize()
+     */
+    static void checkFromIndexSize(int fromIndex, int size, int length) {
+        if ((length | fromIndex | size) < 0) {
+            throwArrayIndexOutOfBoundsException(fromIndex, size, length);
+        }
+        if (fromIndex > length - size) {
+            throw new ArrayIndexOutOfBoundsException("Out of range " + fromIndex + size);
+        }
+    }
+
+    private static void throwArrayIndexOutOfBoundsException(int fromIndex, int size, int length) {
+        if (fromIndex < 0) {
+            throw new ArrayIndexOutOfBoundsException("Negative fromIndex " + fromIndex);
+        }
+        if (size < 0) {
+            throw new ArrayIndexOutOfBoundsException("Negative size " + size);
+        }
         if (length < 0) {
-            throw new ArrayIndexOutOfBoundsException(length);
-        }
-        if (offset < 0) {
-            throw new ArrayIndexOutOfBoundsException(offset);
-        }
-        if (offset > bytes.length - length) {
-            throw new ArrayIndexOutOfBoundsException(offset + length);
+            throw new ArrayIndexOutOfBoundsException("Negative length " + length);
         }
     }
 

@@ -114,4 +114,13 @@ class ByteArrayUtilsTest {
         ByteArrayUtils.writeShort(value, bytes2, 0);
         assertArrayEquals(bytes1, bytes2);
     }
+
+    @Test
+    void boundaryCheck() {
+        byte[] bytes1 = new byte[BytesUtils.SHORT_BYTE_LENGTH];
+
+        Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, ()->{
+            ByteArrayUtils.writeInt(100, bytes1, 1);
+        });
+    }
 }
