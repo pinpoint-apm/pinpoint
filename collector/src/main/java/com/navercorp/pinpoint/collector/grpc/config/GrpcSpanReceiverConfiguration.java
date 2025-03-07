@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.collector.receiver.grpc.service.SpanService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamCloseOnError;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
+import com.navercorp.pinpoint.io.request.UidFetcherStreamService;
 import io.github.bucket4j.Bandwidth;
 import io.grpc.BindableService;
 import io.grpc.ServerInterceptor;
@@ -86,11 +87,12 @@ public class GrpcSpanReceiverConfiguration {
     @Bean
     public ServerServiceDefinition spanServerServiceDefinition(@Qualifier("grpcSpanDispatchHandlerFactoryBean")
                                                                DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
+                                                               UidFetcherStreamService uidFetcherStreamService,
                                                                @Qualifier("spanStreamExecutorInterceptor")
                                                                ServerInterceptor serverInterceptor,
                                                                ServerRequestFactory serverRequestFactory,
                                                                StreamCloseOnError streamCloseOnError) {
-        BindableService spanService = new SpanService(dispatchHandler, serverRequestFactory, streamCloseOnError);
+        BindableService spanService = new SpanService(dispatchHandler, uidFetcherStreamService, serverRequestFactory, streamCloseOnError);
         return ServerInterceptors.intercept(spanService, serverInterceptor);
     }
 

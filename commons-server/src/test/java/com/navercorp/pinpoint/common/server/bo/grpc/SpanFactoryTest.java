@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.SpanFactoryAssert;
 import com.navercorp.pinpoint.common.server.bo.filter.EmptySpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
+import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
@@ -45,7 +46,7 @@ public class SpanFactoryTest {
 
     private final long spanAcceptTime = System.currentTimeMillis();
 
-    private final BindAttribute attribute = new BindAttribute("agentId", "applicationName", 88, spanAcceptTime);
+    private final BindAttribute attribute = new BindAttribute("agentId", "applicationName", () -> ApplicationUid.of(100), 88, spanAcceptTime);
     private final GrpcSpanBinder grpcSpanBinder = new GrpcSpanBinder();
     private final SpanEventFilter filter = new EmptySpanEventFilter();
     private final GrpcSpanFactory grpcSpanFactory = new CollectorGrpcSpanFactory(grpcSpanBinder, filter);

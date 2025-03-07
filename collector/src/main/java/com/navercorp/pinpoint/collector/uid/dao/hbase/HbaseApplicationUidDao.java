@@ -6,6 +6,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTemplate;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.ApplicationUidRowKeyUtils;
@@ -21,6 +22,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 @Repository
 @ConditionalOnProperty(value = "pinpoint.collector.application.uid.enable", havingValue = "true")
@@ -28,17 +30,32 @@ public class HbaseApplicationUidDao implements ApplicationUidDao {
 
     private static final HbaseColumnFamily.ApplicationUid APPLICATION_ID = HbaseColumnFamily.APPLICATION_UID;
 
+    private final HbaseAsyncTemplate asyncOperations;
     private final HbaseOperations hbaseOperations;
     private final TableNameProvider tableNameProvider;
 
     private final RowMapper<ApplicationUid> applicationIdMapper;
 
-    public HbaseApplicationUidDao(@Qualifier("uidHbaseTemplate") HbaseOperations hbaseOperations,
+    public HbaseApplicationUidDao(HbaseAsyncTemplate asyncOperations,
+                                  @Qualifier("uidHbaseTemplate") HbaseOperations hbaseOperations,
                                   TableNameProvider tableNameProvider,
-                                  @Qualifier("applicationUidMapper") RowMapper<ApplicationUid> applicationIdMapper) {
+                                  @Qualifier("applicationUidMapper")
+                                  RowMapper<ApplicationUid> applicationIdMapper) {
+        this.asyncOperations = Objects.requireNonNull(asyncOperations, "asyncOperations");
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.applicationIdMapper = Objects.requireNonNull(applicationIdMapper, "applicationIdMapper");
+    }
+
+
+    public CompletableFuture<ApplicationUid> asyncSelectApplicationUid(ServiceUid serviceUid, String applicationName) {
+        byte[] rowKey = ApplicationUidRowKeyUtils.makeRowKey(serviceUid, applicationName);
+
+        Get get = new Get(rowKey);
+        get.addColumn(APPLICATION_ID.getName(), APPLICATION_ID.getName());
+
+        TableName applicationIdTableName = tableNameProvider.getTableName(APPLICATION_ID.getTable());
+        return asyncOperations.get(applicationIdTableName, get, applicationIdMapper);
     }
 
     @Override

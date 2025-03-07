@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import com.navercorp.pinpoint.collector.receiver.grpc.cache.UidCache;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
@@ -27,6 +26,8 @@ import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.UidFetcher;
+import com.navercorp.pinpoint.io.request.UidFetcherStreamService;
 import com.navercorp.pinpoint.io.util.MessageType;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
@@ -49,11 +50,14 @@ public class SpanService extends SpanGrpc.SpanImplBase {
     private final DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler;
     private final ServerRequestFactory serverRequestFactory;
     private final StreamCloseOnError streamCloseOnError;
+    private final UidFetcherStreamService uidFetcherStreamService;
 
     public SpanService(DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
+                       UidFetcherStreamService uidFetcherStreamService,
                        ServerRequestFactory serverRequestFactory,
                        StreamCloseOnError streamCloseOnError) {
         this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
+        this.uidFetcherStreamService = Objects.requireNonNull(uidFetcherStreamService, "uidFetcherStreamService");
         this.serverRequestFactory = Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
         this.streamCloseOnError = Objects.requireNonNull(streamCloseOnError, "streamCloseOnError");
     }
@@ -62,8 +66,11 @@ public class SpanService extends SpanGrpc.SpanImplBase {
     public StreamObserver<PSpanMessage> sendSpan(final StreamObserver<Empty> responseStream) {
         final ServerCallStreamObserver<Empty> responseObserver = (ServerCallStreamObserver<Empty>) responseStream;
         long streamId = serverStreamId.incrementAndGet();
-        return new ServerCallStream<>(logger, streamId, responseObserver, this::messageDispatch, streamCloseOnError, Empty::getDefaultInstance);
+
+        UidFetcher fetcher = uidFetcherStreamService.newUidFetcher();
+        return new ServerCallStream<>(logger, streamId, fetcher, responseObserver, this::messageDispatch, streamCloseOnError, Empty::getDefaultInstance);
     }
+
 
     private void messageDispatch(ServerCallStream<PSpanMessage, Empty> call, PSpanMessage spanMessage, ServerCallStream<PSpanMessage, Empty> responseObserver) {
         if (isDebug) {
@@ -73,14 +80,14 @@ public class SpanService extends SpanGrpc.SpanImplBase {
         if (spanMessage.hasSpan()) {
             PSpan span = spanMessage.getSpan();
 
-            UidCache cache = call.getCache();
-            ServerRequest<PSpan> request = serverRequestFactory.newServerRequest(cache, MessageType.SPAN, span);
+            UidFetcher fetcher = call.getUidFetcher();
+            ServerRequest<PSpan> request = serverRequestFactory.newServerRequest(fetcher, MessageType.SPAN, span);
             this.dispatch(request, responseObserver);
         } else if (spanMessage.hasSpanChunk()) {
             PSpanChunk spanChunk = spanMessage.getSpanChunk();
 
-            UidCache cache = call.getCache();
-            ServerRequest<PSpanChunk> request = serverRequestFactory.newServerRequest(cache, MessageType.SPANCHUNK, spanChunk);
+            UidFetcher fetcher = call.getUidFetcher();
+            ServerRequest<PSpanChunk> request = serverRequestFactory.newServerRequest(fetcher, MessageType.SPANCHUNK, spanChunk);
             this.dispatch(request, responseObserver);
         } else {
             if (logger.isInfoEnabled()) {
