@@ -2,7 +2,7 @@ import React from 'react';
 import { GoDotFill } from 'react-icons/go';
 import { FaChartLine } from 'react-icons/fa';
 import { GetResponseTimeHistogram, SearchApplication } from '@pinpoint-fe/ui/src/constants';
-import { Button, cn } from '../..';
+import { Button, cn, Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '../..';
 
 export interface ServerListProps {
   className?: string;
@@ -41,41 +41,58 @@ export const ServerList = ({
                   <div className="truncate">{d.groupName}</div>
                 )}
               </div>
-              <ul>
-                {d.instancesList.map((instance) => {
-                  const slow = statistics?.agentHistogram?.[instance.agentId]?.Slow;
-                  const error = statistics?.agentHistogram?.[instance.agentId]?.Error;
+              <TooltipProvider>
+                <ul>
+                  {d.instancesList.map((instance, index) => {
+                    const slow = statistics?.agentHistogram?.[instance.agentId]?.Slow;
+                    const error = statistics?.agentHistogram?.[instance.agentId]?.Error;
 
-                  return (
-                    <li
-                      key={instance.agentId}
-                      className={cn(
-                        'flex items-center h-7 px-2 cursor-pointer rounded text-xs hover:bg-neutral-200 gap-1',
-                        {
-                          'font-semibold bg-neutral-200': instance.agentId === selectedId,
-                        },
-                      )}
-                      onClick={() => onClick?.(instance)}
-                    >
-                      <GoDotFill
-                        className={cn('fill-status-success mr-1', {
-                          'fill-status-warn': !!(slow && slow > 0),
-                          'fill-status-fail': !!(error && error > 0),
-                        })}
-                      />
-                      {itemRenderer
-                        ? itemRenderer(d, instance)
-                        : instance.agentName || instance.agentId}
-                      <Button
-                        className="z-10 h-5 p-1 ml-auto rounded-sm text-xxs"
-                        onClick={() => onClickInspectorLink?.(instance.agentId)}
-                      >
-                        <FaChartLine className="text-white" />
-                      </Button>
-                    </li>
-                  );
-                })}
-              </ul>
+                    return (
+                      <Tooltip key={index}>
+                        <TooltipTrigger asChild>
+                          <li
+                            key={instance.agentId}
+                            className={cn(
+                              'flex items-center h-7 px-2 cursor-pointer rounded text-xs hover:bg-neutral-200 gap-1',
+                              {
+                                'font-semibold bg-neutral-200': instance.agentId === selectedId,
+                              },
+                            )}
+                            onClick={() => onClick?.(instance)}
+                          >
+                            <GoDotFill
+                              className={cn('fill-status-success mr-1', {
+                                'fill-status-warn': !!(slow && slow > 0),
+                                'fill-status-fail': !!(error && error > 0),
+                              })}
+                            />
+                            {itemRenderer
+                              ? itemRenderer(d, instance)
+                              : instance.agentName || instance.agentId}
+                            <Button
+                              className="z-10 h-5 p-1 ml-auto rounded-sm text-xxs"
+                              onClick={() => onClickInspectorLink?.(instance.agentId)}
+                            >
+                              <FaChartLine className="text-white" />
+                            </Button>
+                          </li>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <>
+                            <div>
+                              <span className="text-gray-500">Agent ID:</span> {instance.agentId}
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Agent Name:</span>{' '}
+                              {instance.agentName}
+                            </div>
+                          </>
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  })}
+                </ul>
+              </TooltipProvider>
             </React.Fragment>
           );
         })}
