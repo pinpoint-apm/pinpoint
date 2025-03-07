@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.common.util;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -513,5 +513,14 @@ public class BytesUtilsTest {
         final short maxOver = (short) (Short.MAX_VALUE + 1);
         assertEquals(32768, BytesUtils.shortToUnsignedShort(maxOver));
         assertEquals(65535, BytesUtils.shortToUnsignedShort((short) -1));
+    }
+
+    @Test
+    public void checkBounds() {
+        BytesUtils.checkFromIndexSize(0, 0, 0);
+
+        Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> BytesUtils.checkFromIndexSize(-1, 0, 0));
+        Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> BytesUtils.checkFromIndexSize(0, -1, 0));
+        Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> BytesUtils.checkFromIndexSize(0, 0, -1));
     }
 }

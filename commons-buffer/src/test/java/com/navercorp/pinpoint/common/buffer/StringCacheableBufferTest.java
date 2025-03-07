@@ -4,8 +4,6 @@ import com.navercorp.pinpoint.common.util.LRUCache;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.nio.ByteBuffer;
-
 public class StringCacheableBufferTest {
 
     @Test
@@ -17,7 +15,7 @@ public class StringCacheableBufferTest {
         writer.putPrefixedString("abc");
 
 
-        StringAllocator allocator = new CachedStringAllocator(new LRUCache<ByteBuffer, String>(2));
+        StringAllocator allocator = new CachedStringAllocator(new LRUCache<>(2));
 
         Buffer buffer = new StringCacheableBuffer(writer.getBuffer(), allocator);
         String s1 = buffer.readPrefixedString();
@@ -25,5 +23,23 @@ public class StringCacheableBufferTest {
         String s3 = buffer.readPrefixedString();
 
         Assertions.assertSame(s1, s3);
+    }
+
+    @Test
+    public void boundaryCheck() {
+
+        Buffer writer = new AutomaticBuffer();
+        writer.putPrefixedString("abc");
+        // prefix index
+        writer.putSVInt(10);
+
+
+        StringAllocator allocator = new CachedStringAllocator(new LRUCache<>(2));
+
+        Buffer buffer = new StringCacheableBuffer(writer.getBuffer(), allocator);
+        String s1 = buffer.readPrefixedString();
+        Assertions.assertEquals("abc", s1);
+
+        Assertions.assertThrows(IndexOutOfBoundsException.class, buffer::readPrefixedString);
     }
 }

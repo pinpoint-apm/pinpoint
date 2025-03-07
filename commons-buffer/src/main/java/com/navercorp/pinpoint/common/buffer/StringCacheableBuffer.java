@@ -31,23 +31,11 @@ public class StringCacheableBuffer extends FixedBuffer {
     }
 
     protected String readString(final int size) {
-        checkBounds(buffer, offset, size);
+        Objects.checkFromIndexSize(offset, size, buffer.length);
 
         String newValue = stringAllocator.allocate(buffer, offset, size, Buffer.UTF8_CHARSET);
         this.offset = offset + size;
         return newValue;
-    }
-
-    private void checkBounds(byte[] bytes, int offset, int size) {
-        if (size < 0) {
-            throw new StringIndexOutOfBoundsException(size);
-        }
-        if (offset < 0) {
-            throw new StringIndexOutOfBoundsException(offset);
-        }
-        if (bytes.length < offset + size) {
-            throw new StringIndexOutOfBoundsException(offset + size);
-        }
     }
 
 }
