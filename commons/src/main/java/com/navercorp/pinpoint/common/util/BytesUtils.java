@@ -380,11 +380,11 @@ public final class BytesUtils {
         }
     }
 
-    static void checkBounds(byte[] bytes, final int offset) {
+    public static void checkBounds(byte[] bytes, final int offset) {
         checkBounds(bytes, offset, bytes.length - offset);
     }
 
-    static void checkBounds(byte[] bytes, int offset, int length) {
+    public static void checkBounds(byte[] bytes, int offset, int length) {
         if (length < 0) {
             throw new ArrayIndexOutOfBoundsException(length);
         }
