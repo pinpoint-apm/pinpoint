@@ -23,6 +23,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.List;
+
 /**
  * @author minwoo-jung
  */
@@ -33,8 +35,15 @@ public class OtlpMetricProperties {
     @Value("${web.otlpmetric.api.period.max:28}")
     private int otlpMetricPeriodMax;
 
+    @Value("${web.otlpmetric.api.period.interval:5m,20m,1h,3h,6h,12h,1d,2d,1w,2w,4w}")
+    private List<String> otlpMetricPeriodInteval;
+
     public int getOtlpMetricPeriodMax() {
         return otlpMetricPeriodMax;
+    }
+
+    public List<String> getOtlpMetricPeriodInteval() {
+        return otlpMetricPeriodInteval;
     }
 
     @PostConstruct
@@ -48,6 +57,7 @@ public class OtlpMetricProperties {
     public String toString() {
         return "OtlpMetricProperties{" +
                 "otlpMetricPeriodMax=" + otlpMetricPeriodMax +
+                ", otlpMetricPeriodInteval=" + otlpMetricPeriodInteval +
                 '}';
     }
 }

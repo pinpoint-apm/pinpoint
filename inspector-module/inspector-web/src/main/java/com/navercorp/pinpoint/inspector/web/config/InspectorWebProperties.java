@@ -36,7 +36,7 @@ public class InspectorWebProperties {
     private String agentStatTablePrefix;
     @Value("${pinot.inspector.agent.table.padding.length}")
     private int agentStatTablePaddingLength;
-    @Value("${web.inspector.api.period.max:14}")
+    @Value("${web.inspector.api.period.max:42}")
     private int inspectorPeriodMax;
 
     @PostConstruct
