@@ -1,7 +1,7 @@
-package com.navercorp.pinpoint.collector.service;
+package com.navercorp.pinpoint.collector.uid.service;
 
 import com.navercorp.pinpoint.collector.config.CollectorV4CacheConfig;
-import com.navercorp.pinpoint.collector.dao.ServiceUidDao;
+import com.navercorp.pinpoint.collector.uid.dao.ServiceUidDao;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.annotation.Cacheable;

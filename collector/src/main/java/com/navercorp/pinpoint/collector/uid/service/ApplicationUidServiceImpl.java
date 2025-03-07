@@ -1,7 +1,7 @@
-package com.navercorp.pinpoint.collector.service;
+package com.navercorp.pinpoint.collector.uid.service;
 
 import com.navercorp.pinpoint.collector.dao.ApplicationNameDao;
-import com.navercorp.pinpoint.collector.dao.ApplicationUidDao;
+import com.navercorp.pinpoint.collector.uid.dao.ApplicationUidDao;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.IdGenerator;

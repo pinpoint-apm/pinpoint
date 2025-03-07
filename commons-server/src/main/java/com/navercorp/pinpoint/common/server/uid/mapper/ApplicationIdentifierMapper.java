@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.common.server.dao.hbase.mapper;
+package com.navercorp.pinpoint.common.server.uid.mapper;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
