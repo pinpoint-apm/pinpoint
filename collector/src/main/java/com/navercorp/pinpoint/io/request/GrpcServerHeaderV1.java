@@ -1,17 +1,21 @@
 package com.navercorp.pinpoint.io.request;
 
-import com.navercorp.pinpoint.collector.receiver.grpc.cache.UidCache;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.grpc.Header;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
+
 
 public class GrpcServerHeaderV1 implements ServerHeader {
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Header header;
-    private final UidCache cache;
+    private final UidFetcher uidFetcher;
 
     private volatile ApplicationUid applicationUid;
 
@@ -19,9 +23,9 @@ public class GrpcServerHeaderV1 implements ServerHeader {
         this(header, null);
     }
 
-    public GrpcServerHeaderV1(Header header, UidCache cache) {
+    public GrpcServerHeaderV1(Header header, UidFetcher uidFetcher) {
         this.header = Objects.requireNonNull(header, "header");
-        this.cache = cache;
+        this.uidFetcher = uidFetcher;
     }
 
     @Override
@@ -41,40 +45,24 @@ public class GrpcServerHeaderV1 implements ServerHeader {
 
     @Override
     public ApplicationUid getApplicationUid() {
-        if (this.applicationUid != null) {
-            return applicationUid;
+        final ApplicationUid copy = this.applicationUid;
+        if (copy != null) {
+            if (copy.equals(ApplicationUid.ERROR_APPLICATION_UID)) {
+                throw new RuntimeException("Failed to fetch applicationId. applicationName:" + getApplicationName());
+            }
+            return copy;
         }
 
-        final UidCache cache = this.cache;
-        if (cache != null) {
-            ApplicationUid applicationUid = getApplicationUidFromCache(cache);
+        final UidFetcher fetcher = this.uidFetcher;
+        if (fetcher != null) {
+            String applicationName = getApplicationName();
+            Supplier<ApplicationUid> supplier = fetcher.getApplicationId(ServiceUid.DEFAULT_SERVICE_UID, applicationName);
+            ApplicationUid applicationUid = supplier.get();
             if (applicationUid != null) {
                 return applicationUid;
             }
         }
-        prefetch();
         return this.applicationUid;
-    }
-
-    private ApplicationUid getApplicationUidFromCache(UidCache cache) {
-        ServiceUid serviceUid = getServiceUid();
-        String applicationName = getApplicationName();
-        return cache.getApplicationUid(serviceUid, applicationName);
-    }
-
-    public void prefetch() {
-        synchronized (this) {
-            if (this.applicationUid != null) {
-                // already fetched
-                return;
-            }
-            else {
-                // fetch serviceUid & applicationUid from server
-                ApplicationUid testUid = ApplicationUid.of(100);
-                this.cache.put(ServiceUid.DEFAULT_SERVICE_UID, getApplicationName(), testUid);
-                this.applicationUid = testUid;
-            }
-        }
     }
 
     @Override
@@ -84,13 +72,6 @@ public class GrpcServerHeaderV1 implements ServerHeader {
 
     @Override
     public ServiceUid getServiceUid() {
-        final UidCache cache = this.cache;
-        if (cache != null) {
-            ServiceUid serviceUid = cache.getServiceUid(getServiceName());
-            if (serviceUid != null) {
-                return serviceUid;
-            }
-        }
         return ServiceUid.DEFAULT_SERVICE_UID;
     }
 

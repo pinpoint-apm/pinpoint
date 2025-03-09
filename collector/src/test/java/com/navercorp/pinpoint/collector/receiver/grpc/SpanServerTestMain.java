@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerReque
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.SpanService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamCloseOnError;
+import com.navercorp.pinpoint.collector.uid.service.ApplicationUidService;
+import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.grpc.server.HeaderPropagationInterceptor;
 import com.navercorp.pinpoint.grpc.server.ServerHeaderReaderFactory;
@@ -49,6 +51,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author jaehong.kim
@@ -103,7 +109,11 @@ public class SpanServerTestMain {
 
         MockDispatchHandler dispatchHandler = new MockDispatchHandler();
         ServerRequestFactory serverRequestFactory = new DefaultServerRequestFactory();
-        SpanService spanService = new SpanService(dispatchHandler, serverRequestFactory, StreamCloseOnError.FALSE);
+
+        ApplicationUidService applicationUidService = mock(ApplicationUidService.class);
+        when(applicationUidService.getApplicationId(any(), any())).thenReturn(ApplicationUid.of(100));
+
+        SpanService spanService = new SpanService(dispatchHandler, applicationUidService, serverRequestFactory, StreamCloseOnError.FALSE);
         return ServerInterceptors.intercept(spanService, rateLimit);
     }
 
