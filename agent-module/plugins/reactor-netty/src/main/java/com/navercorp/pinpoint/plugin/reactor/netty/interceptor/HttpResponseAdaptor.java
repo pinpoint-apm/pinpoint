@@ -33,12 +33,16 @@ public class HttpResponseAdaptor implements ResponseAdaptor<HttpServerResponse> 
 
     @Override
     public void setHeader(HttpServerResponse response, String name, String value) {
-        response.header(name, value);
+        if (!response.hasSentHeaders()) {
+            response.header(name, value);
+        }
     }
 
     @Override
     public void addHeader(HttpServerResponse response, String name, String value) {
-        response.addHeader(name, value);
+        if (!response.hasSentHeaders()) {
+            response.addHeader(name, value);
+        }
     }
 
     @Override

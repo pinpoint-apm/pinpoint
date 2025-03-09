@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.RequestId;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -44,6 +45,8 @@ public class DisableChildTrace implements Trace {
 
     private final SpanRecorder spanRecorder;
     private final SpanEventRecorder spanEventRecorder;
+
+    private RequestId requestId;
 
     public DisableChildTrace(final LocalTraceRoot traceRoot, SpanRecorder spanRecorder, SpanEventRecorder spanEventRecorder) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
@@ -112,6 +115,16 @@ public class DisableChildTrace implements Trace {
     @Override
     public TraceId getTraceId() {
         throw new UnsupportedOperationException(UNSUPPORTED_OPERATION);
+    }
+
+    @Override
+    public RequestId getRequestId() {
+        return requestId;
+    }
+
+    @Override
+    public void setRequestId(RequestId id) {
+        this.requestId = id;
     }
 
     @Override

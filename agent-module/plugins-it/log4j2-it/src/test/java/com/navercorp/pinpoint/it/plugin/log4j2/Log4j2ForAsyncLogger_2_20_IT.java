@@ -46,6 +46,7 @@ public class Log4j2ForAsyncLogger_2_20_IT {
         logger.error("for log4j2 plugin async logger test");
         Assertions.assertNotNull(ThreadContext.get("PtxId"), "txId");
         Assertions.assertNotNull(ThreadContext.get("PspanId"), "spanId");
+        Assertions.assertNotNull(ThreadContext.get("PreqId"), "reqId");
     }
 
 }
