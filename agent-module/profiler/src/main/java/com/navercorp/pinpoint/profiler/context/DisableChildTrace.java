@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceBlock;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
@@ -175,6 +176,11 @@ public class DisableChildTrace implements Trace {
             this.scopePool = new DefaultTraceScopePool();
         }
         return scopePool.addBoundary(name);
+    }
+
+    @Override
+    public TraceBlock traceBlockBeginAndGet() {
+        return new DisableTraceBlock(this, spanEventRecorder);
     }
 
     @Override

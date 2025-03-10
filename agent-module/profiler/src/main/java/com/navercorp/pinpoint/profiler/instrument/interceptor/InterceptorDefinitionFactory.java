@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.instrument.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.context.TraceBlock;
 import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor0;
@@ -24,6 +25,15 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor2;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor3;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor4;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor5;
+import com.navercorp.pinpoint.bootstrap.interceptor.BlockApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.BlockAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.BlockAroundInterceptor0;
+import com.navercorp.pinpoint.bootstrap.interceptor.BlockAroundInterceptor1;
+import com.navercorp.pinpoint.bootstrap.interceptor.BlockAroundInterceptor2;
+import com.navercorp.pinpoint.bootstrap.interceptor.BlockAroundInterceptor3;
+import com.navercorp.pinpoint.bootstrap.interceptor.BlockAroundInterceptor4;
+import com.navercorp.pinpoint.bootstrap.interceptor.BlockAroundInterceptor5;
+import com.navercorp.pinpoint.bootstrap.interceptor.BlockStaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.annotation.IgnoreMethod;
@@ -65,18 +75,24 @@ public class InterceptorDefinitionFactory {
         final List<TypeHandler> typeHandlerList = new ArrayList<TypeHandler>();
 
         addTypeHandler(typeHandlerList, AroundInterceptor.class, InterceptorType.ARRAY_ARGS);
-
         addTypeHandler(typeHandlerList, AroundInterceptor0.class, InterceptorType.BASIC);
         addTypeHandler(typeHandlerList, AroundInterceptor1.class, InterceptorType.BASIC);
         addTypeHandler(typeHandlerList, AroundInterceptor2.class, InterceptorType.BASIC);
         addTypeHandler(typeHandlerList, AroundInterceptor3.class, InterceptorType.BASIC);
         addTypeHandler(typeHandlerList, AroundInterceptor4.class, InterceptorType.BASIC);
         addTypeHandler(typeHandlerList, AroundInterceptor5.class, InterceptorType.BASIC);
-
-
         addTypeHandler(typeHandlerList, StaticAroundInterceptor.class, InterceptorType.STATIC);
-
         addTypeHandler(typeHandlerList, ApiIdAwareAroundInterceptor.class, InterceptorType.API_ID_AWARE);
+        // block
+        addTypeHandler(typeHandlerList, BlockAroundInterceptor.class, InterceptorType.ARRAY_ARGS);
+        addTypeHandler(typeHandlerList, BlockAroundInterceptor0.class, InterceptorType.BASIC);
+        addTypeHandler(typeHandlerList, BlockAroundInterceptor1.class, InterceptorType.BASIC);
+        addTypeHandler(typeHandlerList, BlockAroundInterceptor2.class, InterceptorType.BASIC);
+        addTypeHandler(typeHandlerList, BlockAroundInterceptor3.class, InterceptorType.BASIC);
+        addTypeHandler(typeHandlerList, BlockAroundInterceptor4.class, InterceptorType.BASIC);
+        addTypeHandler(typeHandlerList, BlockAroundInterceptor5.class, InterceptorType.BASIC);
+        addTypeHandler(typeHandlerList, BlockStaticAroundInterceptor.class, InterceptorType.STATIC);
+        addTypeHandler(typeHandlerList, BlockApiIdAwareAroundInterceptor.class, InterceptorType.API_ID_AWARE);
 
         return typeHandlerList;
     }
@@ -159,8 +175,7 @@ public class InterceptorDefinitionFactory {
                 throw new RuntimeException(before + " method not found. " + Arrays.toString(beforeParamList));
             }
             final boolean beforeIgnoreMethod = beforeMethod.isAnnotationPresent(IgnoreMethod.class);
-
-
+            final boolean blockType = beforeMethod.getReturnType() == TraceBlock.class;
             final Method afterMethod = searchMethod(targetInterceptorClazz, after, afterParamList);
             if (afterMethod == null) {
                 throw new RuntimeException(after + " method not found. " + Arrays.toString(afterParamList));
@@ -172,11 +187,21 @@ public class InterceptorDefinitionFactory {
                 return new DefaultInterceptorDefinition(interceptorClazz, targetInterceptorClazz, interceptorType, CaptureType.NON, null, null);
             }
             if (beforeIgnoreMethod) {
+                if (blockType) {
+                    throw new RuntimeException(before + " not allowed return. " + Arrays.toString(beforeParamList));
+                }
                 return new DefaultInterceptorDefinition(interceptorClazz, targetInterceptorClazz, interceptorType, CaptureType.AFTER, null, afterMethod);
             }
             if (afterIgnoreMethod) {
+                if (blockType) {
+                    throw new RuntimeException(after + " not allowed return. " + Arrays.toString(afterParamList));
+                }
                 return new DefaultInterceptorDefinition(interceptorClazz, targetInterceptorClazz, interceptorType, CaptureType.BEFORE, beforeMethod, null);
             }
+            if (blockType) {
+                return new DefaultInterceptorDefinition(interceptorClazz, targetInterceptorClazz, interceptorType, CaptureType.BLOCK_AROUND, beforeMethod, afterMethod);
+            }
+
             return new DefaultInterceptorDefinition(interceptorClazz, targetInterceptorClazz, interceptorType, CaptureType.AROUND, beforeMethod, afterMethod);
         }
 

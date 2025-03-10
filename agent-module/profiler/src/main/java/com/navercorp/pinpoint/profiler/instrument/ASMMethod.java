@@ -311,10 +311,10 @@ public class ASMMethod implements InstrumentMethod {
     }
 
     private boolean isBeforeInterceptor(CaptureType captureType) {
-        return CaptureType.BEFORE == captureType || CaptureType.AROUND == captureType;
+        return CaptureType.BEFORE == captureType || CaptureType.AROUND == captureType || CaptureType.BLOCK_AROUND == captureType;
     }
 
     private boolean isAfterInterceptor(CaptureType captureType) {
-        return CaptureType.AFTER == captureType || CaptureType.AROUND == captureType;
+        return CaptureType.AFTER == captureType || CaptureType.AROUND == captureType || CaptureType.BLOCK_AROUND == captureType;
     }
 }
