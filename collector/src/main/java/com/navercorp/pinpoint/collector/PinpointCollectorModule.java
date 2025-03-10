@@ -4,7 +4,6 @@ package com.navercorp.pinpoint.collector;
 import com.navercorp.pinpoint.collector.config.ClusterModule;
 import com.navercorp.pinpoint.collector.config.CollectorCommonConfiguration;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
-import com.navercorp.pinpoint.collector.config.CollectorPinpointIdConfiguration;
 import com.navercorp.pinpoint.collector.grpc.CollectorGrpcConfiguration;
 import com.navercorp.pinpoint.collector.grpc.ssl.GrpcSslModule;
 import com.navercorp.pinpoint.collector.manage.CollectorAdminConfiguration;
@@ -39,8 +38,6 @@ import org.springframework.context.annotation.Import;
         RealtimeCollectorModule.class,
 
         UidModule.class,
-
-        CollectorPinpointIdConfiguration.class,
 })
 @ComponentScan(basePackages = {
         "com.navercorp.pinpoint.collector.handler",
