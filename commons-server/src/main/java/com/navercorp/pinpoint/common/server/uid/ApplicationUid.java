@@ -2,9 +2,8 @@ package com.navercorp.pinpoint.common.server.uid;
 
 public class ApplicationUid {
 
-    // reserve some UIDs
-    // Long.MIN_VALUE for error ApplicationUid
-    // (Long.MIN_VALUE, Long.MIN_VALUE + RESERVED_NEGATIVE_UID_COUNT), (Long.MAX_VALUE - RESERVED_POSITIVE_UID_COUNT, Long.MAX_VALUE] for future use
+    // reserve -64 ~ 64
+    // -1 for error applicationUid
     public static final int RESERVED_POSITIVE_UID_COUNT = 64;
     public static final int RESERVED_NEGATIVE_UID_COUNT = 64;
 
@@ -17,7 +16,7 @@ public class ApplicationUid {
             return ERROR_APPLICATION_UID;
         }
         // bound check
-        if (uid < Long.MIN_VALUE + RESERVED_NEGATIVE_UID_COUNT || Long.MAX_VALUE - RESERVED_POSITIVE_UID_COUNT < uid) {
+        if (-RESERVED_NEGATIVE_UID_COUNT <= uid && uid <= RESERVED_POSITIVE_UID_COUNT) {
             throw new IllegalArgumentException("Range check failed: " + uid + " is invalid");
         }
         return new ApplicationUid(uid);

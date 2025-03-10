@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.collector;
 
 import com.navercorp.pinpoint.collector.config.BatchHbaseClientConfiguration;
 import com.navercorp.pinpoint.collector.config.HbaseAsyncConfiguration;
+import com.navercorp.pinpoint.collector.uid.config.UidHbaseTemplateConfiguration;
 import com.navercorp.pinpoint.collector.config.SchedulerConfiguration;
 import com.navercorp.pinpoint.collector.dao.hbase.encode.ApplicationIndexRowKeyEncoderV1;
 import com.navercorp.pinpoint.collector.dao.hbase.encode.ApplicationIndexRowKeyEncoderV2;
