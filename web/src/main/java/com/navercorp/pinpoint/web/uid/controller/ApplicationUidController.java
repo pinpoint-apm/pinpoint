@@ -54,9 +54,9 @@ public class ApplicationUidController {
 
     @GetMapping(value = "/application/name")
     public ResponseEntity<String> getApplicationName(@RequestParam(value = "serviceUid", required = false, defaultValue = DEFAULT_SERVICE_UID_CODE) int serviceUid,
-                                                     @RequestParam(value = "applicationId") long applicationId) {
+                                                     @RequestParam(value = "applicationUid") long applicationUid) {
         ServiceUid serviceUidObject = ServiceUid.of(serviceUid);
-        ApplicationUid applicationUidObject = ApplicationUid.of(applicationId);
+        ApplicationUid applicationUidObject = ApplicationUid.of(applicationUid);
         String applicationName = applicationUidService.getApplicationName(serviceUidObject, applicationUidObject);
         if (applicationName == null) {
             return ResponseEntity.noContent().build();

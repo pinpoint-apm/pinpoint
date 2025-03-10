@@ -12,6 +12,7 @@ import org.apache.hadoop.hbase.client.CheckAndMutateResult;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
@@ -24,7 +25,8 @@ public class HbaseApplicationNameDao implements ApplicationNameDao {
     private final HbaseOperations hbaseOperations;
     private final TableNameProvider tableNameProvider;
 
-    public HbaseApplicationNameDao(HbaseOperations hbaseOperations, TableNameProvider tableNameProvider) {
+    public HbaseApplicationNameDao(@Qualifier("uidHbaseTemplate") HbaseOperations hbaseOperations,
+                                   TableNameProvider tableNameProvider) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
     }
