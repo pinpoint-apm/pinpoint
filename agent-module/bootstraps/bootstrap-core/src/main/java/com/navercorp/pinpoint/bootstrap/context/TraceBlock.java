@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2024 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,25 +16,10 @@
 
 package com.navercorp.pinpoint.bootstrap.context;
 
-/**
- * @author emeroad
- */
-public interface StackOperation {
-    int DEFAULT_STACKID = -1;
+public interface TraceBlock extends SpanEventRecorder, AutoCloseable {
 
-    int ROOT_STACKID = 0;
+    Trace getTrace();
 
-    SpanEventRecorder traceBlockBegin();
-
-    SpanEventRecorder traceBlockBegin(int stackId);
-
-    void traceBlockEnd();
-
-    void traceBlockEnd(int stackId);
-
-    boolean isRootStack();
-    
-    int getCallStackFrameId();
-
-    TraceBlock traceBlockBeginAndGet();
+    @Override
+    void close();
 }

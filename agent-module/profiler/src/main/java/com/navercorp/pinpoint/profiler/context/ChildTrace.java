@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceBlock;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
@@ -301,11 +302,18 @@ public class ChildTrace implements Trace {
     }
 
     @Override
+
     public TraceScope addBoundaryScope(String name) {
         if (scopePool == null) {
             this.scopePool = new DefaultTraceScopePool();
         }
         return scopePool.addBoundary(name);
+    }
+
+    @Override
+    public TraceBlock traceBlockBeginAndGet() {
+        final SpanEvent spanEvent = traceBlockBegin0(DEFAULT_STACKID);
+        return new DefaultTraceBlock(this, spanEvent, wrappedSpanEventRecorder);
     }
 
     @Override
