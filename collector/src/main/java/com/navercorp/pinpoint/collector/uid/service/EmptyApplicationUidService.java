@@ -2,11 +2,7 @@ package com.navercorp.pinpoint.collector.uid.service;
 
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.stereotype.Service;
 
-@Service
-@ConditionalOnMissingBean(value = ApplicationUidService.class, ignored = EmptyApplicationUidService.class)
 public class EmptyApplicationUidService implements ApplicationUidService {
 
     @Override

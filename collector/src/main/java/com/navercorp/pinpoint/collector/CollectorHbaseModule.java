@@ -54,14 +54,14 @@ public class CollectorHbaseModule {
     @Bean("applicationIndexRowKeyEncoder")
     @ConditionalOnProperty(name = "collector.scatter.serverside-scan", havingValue = "v1")
     public RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoderV1(@Qualifier("applicationTraceIndexDistributor")
-                                                                 AbstractRowKeyDistributor rowKeyDistributor) {
+                                                                         AbstractRowKeyDistributor rowKeyDistributor) {
         return new ApplicationIndexRowKeyEncoderV1(rowKeyDistributor);
     }
 
     @Bean("applicationIndexRowKeyEncoder")
     @ConditionalOnProperty(name = "collector.scatter.serverside-scan", havingValue = "v2", matchIfMissing = true)
     public RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoderV2(@Qualifier("applicationTraceIndexDistributor")
-                                                                 AbstractRowKeyDistributor rowKeyDistributor) {
+                                                                         AbstractRowKeyDistributor rowKeyDistributor) {
         return new ApplicationIndexRowKeyEncoderV2(rowKeyDistributor);
     }
 

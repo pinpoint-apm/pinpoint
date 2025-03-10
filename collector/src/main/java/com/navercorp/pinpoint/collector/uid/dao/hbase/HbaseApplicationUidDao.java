@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.collector.uid.dao.hbase;
 
-import com.navercorp.pinpoint.collector.config.CollectorApplicationIdCacheConfig;
+import com.navercorp.pinpoint.collector.uid.config.ApplicationUidConfig;
 import com.navercorp.pinpoint.collector.uid.dao.ApplicationUidDao;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
@@ -16,12 +16,14 @@ import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
 
 @Repository
+@ConditionalOnProperty(value = "pinpoint.collector.application.uid.enable", havingValue = "true")
 public class HbaseApplicationUidDao implements ApplicationUidDao {
 
     private static final HbaseColumnFamily.ApplicationUid APPLICATION_ID = HbaseColumnFamily.APPLICATION_UID;
@@ -31,7 +33,8 @@ public class HbaseApplicationUidDao implements ApplicationUidDao {
 
     private final RowMapper<ApplicationUid> applicationIdMapper;
 
-    public HbaseApplicationUidDao(HbaseOperations hbaseOperations, TableNameProvider tableNameProvider,
+    public HbaseApplicationUidDao(@Qualifier("uidHbaseTemplate") HbaseOperations hbaseOperations,
+                                  TableNameProvider tableNameProvider,
                                   @Qualifier("applicationUidMapper") RowMapper<ApplicationUid> applicationIdMapper) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
@@ -39,7 +42,7 @@ public class HbaseApplicationUidDao implements ApplicationUidDao {
     }
 
     @Override
-    @Cacheable(cacheNames = "applicationUidCache", key = "{#serviceUid, #applicationName}", cacheManager = CollectorApplicationIdCacheConfig.APPLICATION_UID_CACHE_NAME, unless = "#result == null")
+    @Cacheable(cacheNames = "applicationUidCache", key = "{#serviceUid, #applicationName}", cacheManager = ApplicationUidConfig.APPLICATION_UID_CACHE_NAME, unless = "#result == null")
     public ApplicationUid selectApplicationUid(ServiceUid serviceUid, String applicationName) {
         byte[] rowKey = ApplicationUidRowKeyUtils.makeRowKey(serviceUid, applicationName);
 
@@ -47,9 +50,7 @@ public class HbaseApplicationUidDao implements ApplicationUidDao {
         get.addColumn(APPLICATION_ID.getName(), APPLICATION_ID.getName());
 
         TableName applicationIdTableName = tableNameProvider.getTableName(APPLICATION_ID.getTable());
-        ApplicationUid applicationUid = hbaseOperations.get(applicationIdTableName, get, applicationIdMapper);
-
-        return applicationUid;
+        return hbaseOperations.get(applicationIdTableName, get, applicationIdMapper);
     }
 
     @Override
