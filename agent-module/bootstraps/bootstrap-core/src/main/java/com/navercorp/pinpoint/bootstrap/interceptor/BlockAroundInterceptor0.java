@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,27 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.context;
+package com.navercorp.pinpoint.bootstrap.interceptor;
 
-/**
- * @author emeroad
- */
-public interface StackOperation {
-    int DEFAULT_STACKID = -1;
+import com.navercorp.pinpoint.bootstrap.context.TraceBlock;
 
-    int ROOT_STACKID = 0;
+public interface BlockAroundInterceptor0 extends Interceptor {
 
-    SpanEventRecorder traceBlockBegin();
+    TraceBlock before(Object target);
 
-    SpanEventRecorder traceBlockBegin(int stackId);
-
-    void traceBlockEnd();
-
-    void traceBlockEnd(int stackId);
-
-    boolean isRootStack();
-    
-    int getCallStackFrameId();
-
-    TraceBlock traceBlockBeginAndGet();
+    void after(TraceBlock block, Object target, Object result, Throwable throwable);
 }

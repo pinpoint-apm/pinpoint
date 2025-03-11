@@ -20,10 +20,10 @@ import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventBlockApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
-public class CoreSubscriberRunInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
+public class CoreSubscriberRunInterceptor extends AsyncContextSpanEventBlockApiIdAwareAroundInterceptor {
     private final ServiceType serviceType;
 
     public CoreSubscriberRunInterceptor(TraceContext traceContext, ServiceType serviceType) {
