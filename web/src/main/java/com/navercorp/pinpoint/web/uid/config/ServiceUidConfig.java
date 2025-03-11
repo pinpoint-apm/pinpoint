@@ -1,6 +1,9 @@
-package com.navercorp.pinpoint.web.config;
+package com.navercorp.pinpoint.web.uid.config;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.server.util.IdGenerator;
+import com.navercorp.pinpoint.common.server.util.RandomServiceUidGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -15,12 +18,12 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 @EnableCaching
 @ConditionalOnProperty(name = "pinpoint.web.v4.enable", havingValue = "true")
-public class WebV4CacheConfig {
+public class ServiceUidConfig {
 
-    private final Logger logger = LogManager.getLogger(WebV4CacheConfig.class);
+    private final Logger logger = LogManager.getLogger(ServiceUidConfig.class);
 
-    public WebV4CacheConfig() {
-        logger.info("Install {}", WebV4CacheConfig.class.getSimpleName());
+    public ServiceUidConfig() {
+        logger.info("Install {}", ServiceUidConfig.class.getSimpleName());
     }
 
     public static final String SERVICE_UID_CACHE_NAME = "serviceUidCache";
@@ -44,6 +47,11 @@ public class WebV4CacheConfig {
                 .initialCapacity(10)
                 .maximumSize(200));
         return caffeineCacheManager;
+    }
+
+    @Bean
+    public IdGenerator<ServiceUid> serviceUidGenerator() {
+        return new RandomServiceUidGenerator();
     }
 
 }
