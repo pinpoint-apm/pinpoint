@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.dao;
+package com.navercorp.pinpoint.web.uid.dao;
 
 import com.navercorp.pinpoint.common.server.uid.ApplicationIdentifier;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;

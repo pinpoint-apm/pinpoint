@@ -1,10 +1,10 @@
-package com.navercorp.pinpoint.web.controller;
+package com.navercorp.pinpoint.web.uid.controller;
 
 import com.navercorp.pinpoint.common.server.response.Response;
 import com.navercorp.pinpoint.common.server.response.SimpleResponse;
 import com.navercorp.pinpoint.common.server.uid.ServiceInfo;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.web.service.ServiceGroupService;
+import com.navercorp.pinpoint.web.uid.service.ServiceGroupService;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;

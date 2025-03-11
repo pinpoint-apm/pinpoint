@@ -1,11 +1,11 @@
-package com.navercorp.pinpoint.web.service;
+package com.navercorp.pinpoint.web.uid.service;
 
 import com.navercorp.pinpoint.common.server.uid.ApplicationIdentifier;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.web.config.WebApplicationIdCacheConfig;
-import com.navercorp.pinpoint.web.dao.ApplicationNameDao;
-import com.navercorp.pinpoint.web.dao.ApplicationUidDao;
+import com.navercorp.pinpoint.web.uid.config.ApplicationUidConfig;
+import com.navercorp.pinpoint.web.uid.dao.ApplicationNameDao;
+import com.navercorp.pinpoint.web.uid.dao.ApplicationUidDao;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -48,13 +48,13 @@ public class ApplicationUidServiceImpl implements ApplicationUidService {
     }
 
     @Override
-    @Cacheable(cacheNames = "applicationUidCache", key = "{#serviceUid, #applicationName}", cacheManager = WebApplicationIdCacheConfig.APPLICATION_UID_CACHE_NAME, unless = "#result == null")
+    @Cacheable(cacheNames = "applicationUidCache", key = "{#serviceUid, #applicationName}", cacheManager = ApplicationUidConfig.APPLICATION_UID_CACHE_NAME, unless = "#result == null")
     public ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName) {
         return applicationUidDao.selectApplicationId(serviceUid, applicationName);
     }
 
     @Override
-    @Cacheable(cacheNames = "applicationNameCache", key = "{#serviceUid, #applicationUid}", cacheManager = WebApplicationIdCacheConfig.APPLICATION_NAME_CACHE_NAME, unless = "#result == null")
+    @Cacheable(cacheNames = "applicationNameCache", key = "{#serviceUid, #applicationUid}", cacheManager = ApplicationUidConfig.APPLICATION_NAME_CACHE_NAME, unless = "#result == null")
     public String getApplicationName(ServiceUid serviceUid, ApplicationUid applicationUid) {
         if (applicationUid == null) {
             return null;
@@ -63,7 +63,7 @@ public class ApplicationUidServiceImpl implements ApplicationUidService {
     }
 
     @Override
-    @CacheEvict(cacheNames = "applicationUidCache", key = "{#serviceUid, #applicationName}", cacheManager = WebApplicationIdCacheConfig.APPLICATION_UID_CACHE_NAME)
+    @CacheEvict(cacheNames = "applicationUidCache", key = "{#serviceUid, #applicationName}", cacheManager = ApplicationUidConfig.APPLICATION_UID_CACHE_NAME)
     public void deleteApplication(ServiceUid serviceUid, String applicationName) {
         ApplicationUid applicationUid = getApplicationUid(serviceUid, applicationName);
         applicationUidDao.deleteApplicationId(serviceUid, applicationName);

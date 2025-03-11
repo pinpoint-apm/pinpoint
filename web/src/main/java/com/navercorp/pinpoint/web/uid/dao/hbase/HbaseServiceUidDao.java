@@ -1,11 +1,11 @@
-package com.navercorp.pinpoint.web.dao.hbase;
+package com.navercorp.pinpoint.web.uid.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.web.dao.ServiceUidDao;
+import com.navercorp.pinpoint.web.uid.dao.ServiceUidDao;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.CheckAndMutate;
 import org.apache.hadoop.hbase.client.CheckAndMutateResult;

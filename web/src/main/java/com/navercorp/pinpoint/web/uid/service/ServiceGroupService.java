@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.service;
+package com.navercorp.pinpoint.web.uid.service;
 
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 

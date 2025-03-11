@@ -1,11 +1,11 @@
-package com.navercorp.pinpoint.web.controller;
+package com.navercorp.pinpoint.web.uid.controller;
 
 import com.navercorp.pinpoint.common.server.response.Response;
 import com.navercorp.pinpoint.common.server.response.SimpleResponse;
 import com.navercorp.pinpoint.common.server.uid.ApplicationIdentifier;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.web.service.ApplicationUidService;
+import com.navercorp.pinpoint.web.uid.service.ApplicationUidService;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +43,7 @@ public class ApplicationUidController {
 
     @GetMapping(value = "/application/uid")
     public ResponseEntity<Long> getApplicationUid(@RequestParam(value = "serviceUid", required = false, defaultValue = DEFAULT_SERVICE_UID_CODE) int serviceUid,
-                                           @RequestParam(value = "applicationName") @NotBlank String applicationName) {
+                                                  @RequestParam(value = "applicationName") @NotBlank String applicationName) {
         ServiceUid serviceUidObject = ServiceUid.of(serviceUid);
         ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUidObject, applicationName);
         if (applicationUid == null) {

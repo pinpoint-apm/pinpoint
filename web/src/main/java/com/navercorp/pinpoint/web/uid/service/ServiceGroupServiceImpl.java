@@ -1,10 +1,10 @@
-package com.navercorp.pinpoint.web.service;
+package com.navercorp.pinpoint.web.uid.service;
 
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.IdGenerator;
-import com.navercorp.pinpoint.web.config.WebV4CacheConfig;
-import com.navercorp.pinpoint.web.dao.ServiceNameDao;
-import com.navercorp.pinpoint.web.dao.ServiceUidDao;
+import com.navercorp.pinpoint.web.uid.config.ServiceUidConfig;
+import com.navercorp.pinpoint.web.uid.dao.ServiceNameDao;
+import com.navercorp.pinpoint.web.uid.dao.ServiceUidDao;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -38,7 +38,7 @@ public class ServiceGroupServiceImpl implements ServiceGroupService {
     }
 
     @Override
-    @Cacheable(cacheNames = "serviceNameCache", key = "#serviceUid", cacheManager = WebV4CacheConfig.SERVICE_NAME_CACHE_NAME, unless = "#result == null")
+    @Cacheable(cacheNames = "serviceNameCache", key = "#serviceUid", cacheManager = ServiceUidConfig.SERVICE_NAME_CACHE_NAME, unless = "#result == null")
     public String selectServiceName(ServiceUid serviceUid) {
         if (serviceUid == null) {
             return null;
@@ -47,7 +47,7 @@ public class ServiceGroupServiceImpl implements ServiceGroupService {
     }
 
     @Override
-    @Cacheable(cacheNames = "serviceUidCache", key = "#serviceName", cacheManager = WebV4CacheConfig.SERVICE_UID_CACHE_NAME, unless = "#result == null")
+    @Cacheable(cacheNames = "serviceUidCache", key = "#serviceName", cacheManager = ServiceUidConfig.SERVICE_UID_CACHE_NAME, unless = "#result == null")
     public ServiceUid selectServiceUid(String serviceName) {
         return serviceUidDao.selectServiceUid(serviceName);
     }
@@ -100,7 +100,7 @@ public class ServiceGroupServiceImpl implements ServiceGroupService {
     }
 
     @Override
-    @CacheEvict(cacheNames = "serviceUidCache", key = "#serviceName", cacheManager = WebV4CacheConfig.SERVICE_UID_CACHE_NAME)
+    @CacheEvict(cacheNames = "serviceUidCache", key = "#serviceName", cacheManager = ServiceUidConfig.SERVICE_UID_CACHE_NAME)
     public void deleteService(String serviceName) {
         ServiceUid serviceUid = serviceUidDao.selectServiceUid(serviceName);
         serviceUidDao.deleteServiceUid(serviceName);

@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.config;
+package com.navercorp.pinpoint.web.uid.config;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.apache.logging.log4j.LogManager;
@@ -15,12 +15,12 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 @EnableCaching
 @ConditionalOnProperty(name = "pinpoint.web.application.uid.enable", havingValue = "true")
-public class WebApplicationIdCacheConfig {
+public class ApplicationUidConfig {
 
-    private final Logger logger = LogManager.getLogger(WebApplicationIdCacheConfig.class);
+    private final Logger logger = LogManager.getLogger(ApplicationUidConfig.class);
 
-    public WebApplicationIdCacheConfig() {
-        logger.info("Install {}", WebApplicationIdCacheConfig.class.getSimpleName());
+    public ApplicationUidConfig() {
+        logger.info("Install {}", ApplicationUidConfig.class.getSimpleName());
     }
 
     public static final String APPLICATION_UID_CACHE_NAME = "applicationUidCache";
