@@ -16,7 +16,7 @@
   "tableIndexConfig": {
     "sortedColumn": ["sortKey"],
     "bloomFilterColumns": ["tenantId", "serviceName", "sortKey", "applicationName", "metricName", "fieldName", "version", "primaryTag"],
-    "noDictionaryColumns": ["sumFieldValue", "minFieldValue", "maxFieldValue", "countFieldValue", "roundedEventTime"],
+    "noDictionaryColumns": ["sumFieldValue", "minFieldValue", "maxFieldValue", "countFieldValue"],
     "segmentPartitionConfig": {
       "columnPartitionMap": {
         "sortKey": {
