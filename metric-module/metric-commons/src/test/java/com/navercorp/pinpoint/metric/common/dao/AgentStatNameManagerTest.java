@@ -25,6 +25,9 @@ import org.junit.jupiter.api.Test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -52,16 +55,14 @@ class AgentStatNameManagerTest {
 
     @Test
     public void convertTimeTest() throws ParseException {
+        String SIMPLE_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
+        DateTimeFormatter SIMPLE_DATE_FORMATTER = DateTimeFormatter.ofPattern(SIMPLE_DATE_FORMAT).withZone(ZoneId.systemDefault());
+
         String startTime = "2024-04-01 00:00:00.000";
         String endTime = "2024-04-24 00:00:00.000";
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
-        Date startTimeDate = simpleDateFormat.parse(startTime);
-        long startTimeInMillis = startTimeDate.getTime();
-        logger.info("start time value : " + startTimeInMillis);
-        Date endTimeDate = simpleDateFormat.parse(endTime);
-        long endTimeInMillis = endTimeDate.getTime();
-        logger.info("end time value : " + endTimeInMillis);
+        logger.info("start time value : " + SIMPLE_DATE_FORMATTER.parse(startTime, Instant::from).toEpochMilli());
+        logger.info("end time value : " + SIMPLE_DATE_FORMATTER.parse(endTime, Instant::from).toEpochMilli());
     }
 
 }
