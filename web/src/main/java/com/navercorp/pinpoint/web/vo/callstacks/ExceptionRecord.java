@@ -43,7 +43,7 @@ public class ExceptionRecord extends BaseRecord {
         this.isAuthorized = true;
         this.hasException = !align.isSpan();
         this.agentId = align.getAgentId();
-        this.applicationName = align.getApplicationId();
+        this.applicationName = align.getApplicationName();
         this.applicationServiceType = applicationServiceType;
         this.exceptionChainId = toExceptionChainId(align.getAnnotationBoList());
     }

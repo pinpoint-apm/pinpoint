@@ -66,11 +66,11 @@ public class AlarmServiceImpl implements AlarmService {
     
     @Override
     @Transactional(readOnly = true)
-    public List<Rule> selectRuleByApplicationId(String applicationId) {
-        List<Rule> rules = alarmDao.selectRuleByApplicationId(applicationId);
+    public List<Rule> selectRuleByApplicationName(String applicationName) {
+        List<Rule> rules = alarmDao.selectRuleByApplicationName(applicationName);
         List<Rule> result = new ArrayList<>(rules.size());
         for (Rule rule : rules) {
-            if (rule.getApplicationId().equals(applicationId)) {
+            if (rule.getApplicationName().equals(applicationName)) {
                 result.add(rule);
             }
         }
@@ -79,8 +79,8 @@ public class AlarmServiceImpl implements AlarmService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<String> selectApplicationId() {
-        return alarmDao.selectApplicationId();
+    public List<String> selectApplicationName() {
+        return alarmDao.selectApplicationName();
     }
     
     @Override

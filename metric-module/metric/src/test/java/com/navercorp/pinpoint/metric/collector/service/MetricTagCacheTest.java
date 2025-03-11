@@ -27,7 +27,7 @@ public class MetricTagCacheTest {
         MetricTagDao metricTagDao = mock(MetricTagDao.class);
         MetricTagCache metricTagCache = new MetricTagCache(metricTagDao);
 
-        MetricTagKey metricTagKey = new MetricTagKey("tenantId", "applicationId", "hostName", "metricName", "fieldName", new Date().getTime());
+        MetricTagKey metricTagKey = new MetricTagKey("tenantId", "applicationName", "hostName", "metricName", "fieldName", new Date().getTime());
         when(metricTagDao.selectMetricTag(metricTagKey)).thenReturn(null);
 
         MetricTagCollection metricTagCollection = metricTagCache.getMetricTag(metricTagKey);
@@ -40,8 +40,8 @@ public class MetricTagCacheTest {
         MetricTagDao metricTagDao = mock(MetricTagDao.class);
         MetricTagCache metricTagCache = new MetricTagCache(metricTagDao);
 
-        MetricTagKey metricTagKey = new MetricTagKey("tenantId", "applicationId", "hostName", "metricName", "fieldName", new Date().getTime());
-        MetricTagCollection metricTagCollection = new MetricTagCollection("tenantId", "applicationId", "hostName", "metricName", "fieldName", List.of());
+        MetricTagKey metricTagKey = new MetricTagKey("tenantId", "applicationName", "hostName", "metricName", "fieldName", new Date().getTime());
+        MetricTagCollection metricTagCollection = new MetricTagCollection("tenantId", "applicationName", "hostName", "metricName", "fieldName", List.of());
         when(metricTagDao.selectMetricTag(metricTagKey)).thenReturn(metricTagCollection);
 
         MetricTagCollection returnData = metricTagCache.getMetricTag(metricTagKey);
@@ -54,7 +54,7 @@ public class MetricTagCacheTest {
         MetricTagDao metricTagDao = mock(MetricTagDao.class);
         MetricTagCache metricTagCache = new MetricTagCache(metricTagDao);
 
-        MetricTag metricTag = new MetricTag("tenantId", "applicationId", "hostName", "metricName", "fieldName", List.of(), new Date().getTime());
+        MetricTag metricTag = new MetricTag("tenantId", "applicationName", "hostName", "metricName", "fieldName", List.of(), new Date().getTime());
         metricTagCache.saveMetricTag(metricTag);
 
         verify(metricTagDao).insertMetricTag(metricTag);
@@ -65,8 +65,8 @@ public class MetricTagCacheTest {
         MetricTagDao metricTagDao = mock(MetricTagDao.class);
         MetricTagCache metricTagCache = new MetricTagCache(metricTagDao);
 
-        MetricTagKey metricTagKey = new MetricTagKey("tenantId", "applicationId", "hostName", "metricName", "fieldName", new Date().getTime());
-        MetricTagCollection metricTagCollection = new MetricTagCollection("tenantId", "applicationId", "hostName", "metricName", "fieldName", List.of());
+        MetricTagKey metricTagKey = new MetricTagKey("tenantId", "applicationName", "hostName", "metricName", "fieldName", new Date().getTime());
+        MetricTagCollection metricTagCollection = new MetricTagCollection("tenantId", "applicationName", "hostName", "metricName", "fieldName", List.of());
         MetricTagCollection metricTagCollectionResult = metricTagCache.updateCacheForMetricTag(metricTagKey, metricTagCollection);
 
         Assertions.assertEquals(metricTagCollection, metricTagCollectionResult);

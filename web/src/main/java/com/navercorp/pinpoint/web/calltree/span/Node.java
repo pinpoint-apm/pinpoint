@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,17 +75,15 @@ public class Node {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("{");
-        sb.append("applicationId").append(span.getApplicationId());
-        sb.append(", agentId=").append(span.getAgentId());
-        sb.append(", parentSpanId=").append(span.getParentSpanId());
-        sb.append(", spanId=").append(span.getSpanId());
-        sb.append(", startTime=").append(span.getStartTime());
-        sb.append(", elapsed=").append(span.getElapsed());
-        sb.append(", collectorAcceptTime=").append(span.getCollectorAcceptTime());
-        sb.append(", linked=").append(linked);
-        sb.append('}');
-        return sb.toString();
+        return "Node{" + "applicationName" + span.getApplicationName() +
+                ", agentId=" + span.getAgentId() +
+                ", parentSpanId=" + span.getParentSpanId() +
+                ", spanId=" + span.getSpanId() +
+                ", startTime=" + span.getStartTime() +
+                ", elapsed=" + span.getElapsed() +
+                ", collectorAcceptTime=" + span.getCollectorAcceptTime() +
+                ", linked=" + linked +
+                '}';
     }
 
     private Align newSpanEventAlign(SpanEventBo spanEventBo) {

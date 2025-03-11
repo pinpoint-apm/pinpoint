@@ -20,6 +20,8 @@ package com.navercorp.pinpoint.web.applicationmap.map;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowDownSampler;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -35,8 +37,6 @@ import com.navercorp.pinpoint.web.filter.visitor.SpanReader;
 import com.navercorp.pinpoint.web.filter.visitor.SpanVisitor;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.service.DotExtractor;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowDownSampler;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
@@ -108,7 +108,7 @@ public class FilteredMapBuilder {
 
         for (SpanBo span : transaction) {
             final Application parentApplication = createParentApplication(span, transactionSpanMap, version);
-            final Application spanApplication = this.applicationFactory.createApplication(span.getApplicationId(), span.getApplicationServiceType());
+            final Application spanApplication = this.applicationFactory.createApplication(span.getApplicationName(), span.getApplicationServiceType());
 
             // records the Span's response time statistics
             responseHistogramsBuilder.addHistogram(spanApplication, span, span.getCollectorAcceptTime());
@@ -201,9 +201,9 @@ public class FilteredMapBuilder {
                 // FIXME magic number, remove after front end UI changes and simply use the newer one
                 if (version >= 4) {
                     ServiceType applicationServiceType = this.registry.findServiceType(span.getApplicationServiceType());
-                    applicationName = span.getApplicationId() + "_" + applicationServiceType;
+                    applicationName = span.getApplicationName() + "_" + applicationServiceType;
                 } else {
-                    applicationName = span.getApplicationId();
+                    applicationName = span.getApplicationName();
                 }
                 ServiceType serviceType = this.registry.findServiceType(ServiceType.USER.getCode());
                 return this.applicationFactory.createApplication(applicationName, serviceType);
@@ -225,7 +225,7 @@ public class FilteredMapBuilder {
                     return this.applicationFactory.createApplication(parentApplicationName, parentServiceType);
                 }
             }
-            String parentApplicationName = parentSpan.getApplicationId();
+            String parentApplicationName = parentSpan.getApplicationName();
             short parentServiceType = parentSpan.getApplicationServiceType();
             return this.applicationFactory.createApplication(parentApplicationName, parentServiceType);
         }

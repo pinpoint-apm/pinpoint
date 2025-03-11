@@ -39,7 +39,7 @@ class GrpcSpanBinderTest {
         PSpan span = newSpan(event);
 
         SpanBo spanBo = grpcSpanBinder.newSpanBo(span, bindAttribute);
-        Assertions.assertEquals("validId", spanBo.getParentApplicationId());
+        Assertions.assertEquals("validId", spanBo.getParentApplicationName());
         Assertions.assertEquals(1000, spanBo.getParentApplicationServiceType());
     }
 
@@ -66,7 +66,7 @@ class GrpcSpanBinderTest {
         PSpan span = newSpan(null);
 
         SpanBo spanBo = grpcSpanBinder.newSpanBo(span, bindAttribute);
-        Assertions.assertNull(spanBo.getParentApplicationId());
+        Assertions.assertNull(spanBo.getParentApplicationName());
 
     }
 }

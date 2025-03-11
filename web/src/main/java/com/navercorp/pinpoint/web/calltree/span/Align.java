@@ -70,7 +70,13 @@ public interface Align {
 
     String getAgentName();
 
+    /**
+     * @deprecated Since 3.1.0. Use {@link #getApplicationName()} instead.
+     */
+    @Deprecated
     String getApplicationId();
+
+    String getApplicationName();
 
     Short getApplicationServiceType();
 

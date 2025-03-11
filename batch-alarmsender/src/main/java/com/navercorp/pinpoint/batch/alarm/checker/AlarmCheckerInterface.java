@@ -15,7 +15,7 @@ public interface AlarmCheckerInterface {
     String getRuleId();
     void check();
     RuleInterface getRule();
-    String getEmailMessage(String pinpointUrl, String applicationId, String serviceType, String currentTime);
+    String getEmailMessage(String pinpointUrl, String applicationName, String serviceType, String currentTime);
     List<String> getSmsMessage();
     String getCheckerType();
     CheckerDetectedValue getCheckerDetectedValue();

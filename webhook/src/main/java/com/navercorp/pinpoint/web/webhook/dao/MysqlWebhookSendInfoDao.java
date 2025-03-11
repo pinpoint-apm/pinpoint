@@ -45,8 +45,8 @@ public class MysqlWebhookSendInfoDao implements WebhookSendInfoDao {
     }
 
     @Override
-    public List<WebhookSendInfo> selectWebhookSendInfoByApplicationId(String applicationId) {
-        return sqlSessionTemplate.selectList(NAMESPACE + "selectWebhookSendInfoByApplicationId", applicationId);
+    public List<WebhookSendInfo> selectWebhookSendInfoByApplicationName(String applicationName) {
+        return sqlSessionTemplate.selectList(NAMESPACE + "selectWebhookSendInfoByApplicationName", applicationName);
     }
 
     @Override

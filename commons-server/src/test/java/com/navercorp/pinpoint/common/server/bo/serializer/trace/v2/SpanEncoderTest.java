@@ -136,7 +136,7 @@ public class SpanEncoderTest {
 
         SpanBo decode = (SpanBo) spanDecoder.decode(qualifier, column, decodingContext);
 
-        List<String> notSerializedField = Lists.newArrayList("parentApplicationId", "parentApplicationServiceType");
+        List<String> notSerializedField = Lists.newArrayList("parentApplicationName", "parentApplicationServiceType");
         List<String> excludeField = List.of("annotationBoList", "spanEventBoList");
         notSerializedField.addAll(excludeField);
         Assertions.assertThat(decode)

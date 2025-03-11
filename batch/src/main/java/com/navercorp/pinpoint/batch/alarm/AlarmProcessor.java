@@ -85,7 +85,7 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
     }
 
     private List<AlarmChecker<?>> getAlarmCheckers(Application application) {
-        List<Rule> rules = alarmService.selectRuleByApplicationId(application.getName());
+        List<Rule> rules = alarmService.selectRuleByApplicationName(application.getName());
 
         long now = System.currentTimeMillis();
         Supplier<List<String>> agentIds = getAgentIdsSupplier(application, now);

@@ -48,7 +48,7 @@ public class AlarmMailTemplate {
 
     public String createSubject() {
         RuleInterface rule = checker.getRule();
-        return String.format("[PINPOINT-%s] %s Alarm for %s Service. #%d", batchEnv, rule.getCheckerName(), rule.getApplicationId(), sequenceCount);
+        return String.format("[PINPOINT-%s] %s Alarm for %s Service. #%d", batchEnv, rule.getCheckerName(), rule.getApplicationName(), sequenceCount);
     }
 
     public String getTime() {
@@ -57,30 +57,25 @@ public class AlarmMailTemplate {
         LocalDateTime from = to.minusMinutes(5);
         String fromTime = FORMATTER.format(from);
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("from=");
-        sb.append(fromTime);
-        sb.append("&to=");
-        sb.append(toTime);
-        return sb.toString();
+        return "from=%s&to=%s".formatted(fromTime, toTime);
     }
 
     public String createBody() {
         RuleInterface rule = checker.getRule();
-        return newBody(createSubject(), rule.getCheckerName(), rule.getApplicationId(), rule.getServiceType(), getTime());
+        return newBody(createSubject(), rule.getCheckerName(), rule.getApplicationName(), rule.getServiceType(), getTime());
     }
 
-    private String newBody(String subject, String rule, String applicationId, String serviceType, String currentTime) {
+    private String newBody(String subject, String rule, String applicationName, String serviceType, String currentTime) {
         StringBuilder body = new StringBuilder();
         body.append("<strong>").append(subject).append("</strong>");
         body.append(LINE_FEED);
         body.append(LINE_FEED);
         body.append(String.format("Rule : %s", rule));
         body.append(LINE_FEED);
-        body.append(checker.getEmailMessage(pinpointUrl, applicationId, serviceType, currentTime));
+        body.append(checker.getEmailMessage(pinpointUrl, applicationName, serviceType, currentTime));
         body.append(String.format(LINK_FORMAT, pinpointUrl));
         body.append(LINE_FEED);
-        body.append(String.format(SCATTER_CHART_LINK_FORMAT, pinpointUrl, applicationId, serviceType, currentTime, applicationId));
+        body.append(String.format(SCATTER_CHART_LINK_FORMAT, pinpointUrl, applicationName, serviceType, currentTime, applicationName));
 
         return body.toString();
     }

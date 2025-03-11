@@ -16,7 +16,7 @@ public interface WebhookSendInfoDao {
 
     void updateWebhookSendInfo(WebhookSendInfo webhookSendInfo);
 
-    List<WebhookSendInfo> selectWebhookSendInfoByApplicationId(String applicationId);
+    List<WebhookSendInfo> selectWebhookSendInfoByApplicationName(String applicationName);
 
     List<WebhookSendInfo> selectWebhookSendInfoByServiceName(String serviceName);
 

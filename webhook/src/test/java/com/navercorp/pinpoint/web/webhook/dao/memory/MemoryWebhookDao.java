@@ -57,9 +57,9 @@ public class MemoryWebhookDao implements WebhookDao {
     }
 
     @Override
-    public void deleteWebhookByApplicationId(String applicationId) {
+    public void deleteWebhookByApplicationName(String applicationName) {
         for (Webhook webhook : webhooks.values()) {
-            if (applicationId.equals(webhook.getApplicationId())) {
+            if (applicationName.equals(webhook.getApplicationName())) {
                 webhooks.remove(webhook.getWebhookId());
             }
         }
@@ -75,10 +75,10 @@ public class MemoryWebhookDao implements WebhookDao {
     }
 
     @Override
-    public List<Webhook> selectWebhookByApplicationId(String applicationId) {
+    public List<Webhook> selectWebhookByApplicationName(String applicationName) {
         List<Webhook> selectedWebhooks = new ArrayList<>();
         for (Webhook webhook : webhooks.values()) {
-            if (applicationId.equals(webhook.getApplicationId())) {
+            if (applicationName.equals(webhook.getApplicationName())) {
                 selectedWebhooks.add(webhook);
             }
         }

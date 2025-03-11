@@ -157,9 +157,9 @@ public class WebhookSendInfoServiceImplTest {
             webhookSendInfoService.insertWebhookSendInfo(webhookSendInfo);
         }
 
-        when(webhookDao.selectWebhookByApplicationId("testApp")).thenReturn(webhookList);
+        when(webhookDao.selectWebhookByApplicationName("testApp")).thenReturn(webhookList);
 
-        List<WebhookSendInfo> selectedWebhookSendInfos = webhookSendInfoService.selectWebhookSendInfoByApplicationId("testApp");
+        List<WebhookSendInfo> selectedWebhookSendInfos = webhookSendInfoService.selectWebhookSendInfoByApplicationName("testApp");
 
         assertThat(selectedWebhookSendInfos).hasSize(1);
     }

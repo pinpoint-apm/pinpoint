@@ -78,7 +78,7 @@ public class DeadlockCheckerTest {
         checker.check();
         Assertions.assertTrue(checker.isDetected());
 
-        String emailMessage = checker.getEmailMessage("pinpointUrl", "applicationId", "serviceType", "currentTime");
+        String emailMessage = checker.getEmailMessage("pinpointUrl", "applicationName", "serviceType", "currentTime");
         Assertions.assertTrue(StringUtils.hasLength(emailMessage));
 
         List<String> smsMessage = checker.getSmsMessage();
@@ -99,7 +99,7 @@ public class DeadlockCheckerTest {
         checker.check();
         Assertions.assertFalse(checker.isDetected());
 
-        String emailMessage = checker.getEmailMessage("pinpointUrl", "applicationId", "serviceType", "currentTime");
+        String emailMessage = checker.getEmailMessage("pinpointUrl", "applicationName", "serviceType", "currentTime");
         assertThat(emailMessage).isNullOrEmpty();
 
         List<String> smsMessage = checker.getSmsMessage();

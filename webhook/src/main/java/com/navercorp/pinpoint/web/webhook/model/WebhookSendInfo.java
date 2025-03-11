@@ -39,7 +39,8 @@ public class WebhookSendInfo {
 
     @Override
     public String toString() {
-        return "WebhookSendInfo{" + "webhookSendInfoId='" + webhookSendInfoId + '\'' +
+        return "WebhookSendInfo{" +
+                "webhookSendInfoId='" + webhookSendInfoId + '\'' +
                 "webhookId='" + webhookId + '\'' +
                 "ruleId='" + ruleId + '\'' +
                 '}';

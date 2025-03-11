@@ -15,10 +15,10 @@
  */
 package com.navercorp.pinpoint.web.dao;
 
-import java.util.List;
-
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.vo.UserGroup;
+
+import java.util.List;
 
 /**
  * @author minwoo.jung
@@ -34,9 +34,9 @@ public interface AlarmDao {
 
     List<Rule> selectRuleByUserGroupId(String userGroupId);
     
-    List<Rule> selectRuleByApplicationId(String applicationId);
+    List<Rule> selectRuleByApplicationName(String applicationName);
 
-    List<String> selectApplicationId();
+    List<String> selectApplicationName();
 
     void updateRule(Rule rule);
     

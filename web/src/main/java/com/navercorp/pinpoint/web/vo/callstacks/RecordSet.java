@@ -28,11 +28,12 @@ public class RecordSet {
     private long endTime = -1;
 
     private List<Record> recordList;
-    private String applicationName;
+    private String uri;
     private long beginTimestamp;
 
     private String agentId;
     private String agentName;
+
     private String applicationId;
     
     private boolean loggingTransactionInfo;
@@ -72,16 +73,33 @@ public class RecordSet {
         return endTime != -1;
     }
 
+    public String setUri(String uri) {
+        return this.uri = uri;
+    }
+
+    /**
+     * @deprecated Since 3.1.0. Use {@link #setUri(String)} instead.
+     */
+    @Deprecated
     public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
+        this.setUri(applicationName);
     }
 
     public void setBeginTimestamp(long beginTimestamp) {
         this.beginTimestamp = beginTimestamp;
     }
 
+
+    public String getUri() {
+        return uri;
+    }
+
+    /**
+     * @deprecated Since 3.1.0. Use {@link #getUri()} instead.
+     */
+    @Deprecated
     public String getApplicationName() {
-        return applicationName;
+        return getUri();
     }
 
     public long getBeginTimestamp() {

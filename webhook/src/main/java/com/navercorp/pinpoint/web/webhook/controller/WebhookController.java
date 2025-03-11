@@ -45,7 +45,7 @@ public class WebhookController {
     @PostMapping()
     public WebhookResponse insertWebhook(@RequestBody Webhook webhook) {
 
-        if (!StringUtils.hasText(webhook.getUrl()) || !(StringUtils.hasText(webhook.getApplicationId())
+        if (!StringUtils.hasText(webhook.getUrl()) || !(StringUtils.hasText(webhook.getApplicationName())
                 || StringUtils.hasText(webhook.getServiceName()))) {
             logger.info("Missing arguments: webhook.url, applicationId/serviceName");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing arguments: webhook.url and applicationId/serviceName");
@@ -74,11 +74,11 @@ public class WebhookController {
     }
 
     @GetMapping()
-    public List<Webhook> getWebhook(@RequestParam(value=APPLICATION_ID, required=false) String applicationId,
+    public List<Webhook> getWebhook(@RequestParam(value=APPLICATION_ID, required=false) String applicationName,
                                     @RequestParam(value=SERVICE_NAME, required=false) String serviceName,
                                     @RequestParam(value=ALARM_RULE_ID, required=false) String ruleId) {
 
-        if (!StringUtils.hasText(applicationId) && !StringUtils.hasText(serviceName) && !StringUtils.hasText(ruleId)) {
+        if (!StringUtils.hasText(applicationName) && !StringUtils.hasText(serviceName) && !StringUtils.hasText(ruleId)) {
             logger.info("Missing argument: applicationId/serviceName/ruleId");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing argument: applicationId / serviceName / ruleId");
         }
@@ -87,8 +87,8 @@ public class WebhookController {
             return webhookService.selectWebhookByRuleId(ruleId);
         }
 
-        if (StringUtils.hasText(applicationId)) {
-            return webhookService.selectWebhookByApplicationId(applicationId);
+        if (StringUtils.hasText(applicationName)) {
+            return webhookService.selectWebhookByApplicationName(applicationName);
         }
 
         return webhookService.selectWebhookByServiceName(serviceName);
@@ -98,7 +98,7 @@ public class WebhookController {
     public Response updateWebhook(@RequestBody Webhook webhook) {
 
         if (!StringUtils.hasText(webhook.getWebhookId()) || !StringUtils.hasText(webhook.getUrl()) ||
-                !(StringUtils.hasText(webhook.getApplicationId()) || StringUtils.hasText(webhook.getServiceName()))) {
+                !(StringUtils.hasText(webhook.getApplicationName()) || StringUtils.hasText(webhook.getServiceName()))) {
             logger.info("Missing arguments: webhook.id, webhook.url, applicationId/serviceName");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing arguments: webhook.id, webhook.url, applicationId/serviceName");
         }

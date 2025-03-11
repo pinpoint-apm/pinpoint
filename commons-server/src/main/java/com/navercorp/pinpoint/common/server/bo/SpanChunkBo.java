@@ -32,7 +32,7 @@ public class SpanChunkBo implements BasicSpan {
 
     @NotBlank private String agentId;
     private String agentName;
-    @NotBlank private String applicationId;
+    @NotBlank private String applicationName;
     @PositiveOrZero private long agentStartTime;
 
     private TransactionId transactionId;
@@ -84,13 +84,25 @@ public class SpanChunkBo implements BasicSpan {
         this.agentName = agentName;
     }
 
+    @Deprecated
     @Override
     public String getApplicationId() {
-        return applicationId;
+        return getApplicationName();
     }
 
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
+    @Deprecated
+    public void setApplicationId(String applicationName) {
+        setApplicationName(applicationName);
+    }
+
+
+    @Override
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 
     @Override
@@ -200,7 +212,7 @@ public class SpanChunkBo implements BasicSpan {
                 "version=" + version +
                 ", agentId='" + agentId + '\'' +
                 ", agentName='" + agentName + '\'' +
-                ", applicationId='" + applicationId + '\'' +
+                ", applicationName='" + applicationName + '\'' +
                 ", agentStartTime=" + agentStartTime +
                 ", transactionId=" + transactionId +
                 ", spanId=" + spanId +

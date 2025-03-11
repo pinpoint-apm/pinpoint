@@ -3,7 +3,7 @@ package com.navercorp.pinpoint.batch.alarm.vo;
 public class CheckerResult {
     
     private int historyId;
-    private String applicationId;
+    private String applicationName;
     private String checkerName;
     private String ruleId;
     private boolean detected;
@@ -13,9 +13,9 @@ public class CheckerResult {
     public CheckerResult() {
     }
     
-    public CheckerResult(String ruleId, String applicationId, String checkerName, boolean detected, int sequenceCount, int timingCount) {
+    public CheckerResult(String ruleId, String applicationName, String checkerName, boolean detected, int sequenceCount, int timingCount) {
         this.ruleId = ruleId;
-        this.applicationId = applicationId;
+        this.applicationName = applicationName;
         this.checkerName = checkerName;
         this.detected = detected;
         this.sequenceCount = sequenceCount;
@@ -38,12 +38,28 @@ public class CheckerResult {
         this.historyId = historyId;
     }
 
+    /**
+     * @deprecated Since 3.1.0. Use {@link #getApplicationName()} instead.
+     */
+    @Deprecated
     public String getApplicationId() {
-        return applicationId;
+        return getApplicationName();
     }
-    
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
+
+    /**
+     * @deprecated Since 3.1.0. Use {@link #setApplicationName(String)} instead.
+     */
+    @Deprecated
+    public void setApplicationId(String applicationName) {
+        setApplicationName(applicationName);
+    }
+
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
     
     public String getCheckerName() {

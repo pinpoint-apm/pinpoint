@@ -55,7 +55,7 @@ public class SpanFactoryAssert {
             Assertions.assertEquals(acceptEvent.getRemoteAddr(), spanBo.getRemoteAddr());
 
             PParentInfo parentInfo = acceptEvent.getParentInfo();
-            Assertions.assertEquals(parentInfo.getParentApplicationName(), spanBo.getParentApplicationId());
+            Assertions.assertEquals(parentInfo.getParentApplicationName(), spanBo.getParentApplicationName());
             Assertions.assertEquals(parentInfo.getParentApplicationType(), spanBo.getParentApplicationServiceType());
             Assertions.assertEquals(parentInfo.getAcceptorHost(), spanBo.getAcceptorHost());
         }

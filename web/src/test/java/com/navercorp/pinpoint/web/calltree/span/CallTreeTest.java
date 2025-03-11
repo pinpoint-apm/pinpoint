@@ -387,7 +387,7 @@ public class CallTreeTest {
         spanChunkBo.setSpanId(span.getSpanId());
         spanChunkBo.setAgentId(span.getAgentId());
         spanChunkBo.setAgentName(span.getAgentName());
-        spanChunkBo.setApplicationId(span.getApplicationId());
+        spanChunkBo.setApplicationName(span.getApplicationName());
         spanChunkBo.setServiceType(span.getServiceType());
         spanChunkBo.setApplicationServiceType(span.getApplicationServiceType());
         spanChunkBo.setCollectorAcceptTime(span.getCollectorAcceptTime());

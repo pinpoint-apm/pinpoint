@@ -33,11 +33,11 @@
         WHERE webhook_send_info_id = #{webhookSendInfoId}
     </update>
 
-    <select id="selectWebhookSendInfoByApplicationId" resultType="map">
+    <select id="selectWebhookSendInfoByApplicationName" resultType="map">
         SELECT webhook_send.webhook_send_info_id, webhook_send.webhook_id, webhook_send.rule_id
         FROM webhook_send JOIN webhook
         ON webhook_send.webhook_id = webhook.webhook_id
-        WHERE webhook.application_id=#{applicationId}
+        WHERE webhook.application_id=#{applicationName}
     </select>
 
     <select id="selectWebhookSendInfoByServiceName" resultType="map">

@@ -41,9 +41,9 @@ public class MemoryAlarmDaoTest {
         memoryAlarmDao.insertRule(rule);
         memoryAlarmDao.insertRule(rule2);
 
-        List<Rule> resultRules1 = memoryAlarmDao.selectRuleByApplicationId(applicationId);
+        List<Rule> resultRules1 = memoryAlarmDao.selectRuleByApplicationName(applicationId);
         assertThat(resultRules1).hasSize(2);
-        resultRules1 = memoryAlarmDao.selectRuleByApplicationId("app");
+        resultRules1 = memoryAlarmDao.selectRuleByApplicationName("app");
         assertThat(resultRules1).isEmpty();
 
         List<Rule> resultRules2 = memoryAlarmDao.selectRuleByUserGroupId(groupId);
@@ -53,7 +53,7 @@ public class MemoryAlarmDaoTest {
 
         memoryAlarmDao.deleteRule(rule);
         memoryAlarmDao.deleteRule(rule2);
-        List<Rule> resultRules = memoryAlarmDao.selectRuleByApplicationId(applicationId);
+        List<Rule> resultRules = memoryAlarmDao.selectRuleByApplicationName(applicationId);
         assertThat(resultRules).isEmpty();
     }
 

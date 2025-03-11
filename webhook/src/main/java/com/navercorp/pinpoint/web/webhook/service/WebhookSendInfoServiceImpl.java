@@ -43,8 +43,8 @@ public class WebhookSendInfoServiceImpl implements WebhookSendInfoService{
     }
 
     @Override
-    public List<WebhookSendInfo> selectWebhookSendInfoByApplicationId(String applicationId) {
-        return webhookSendInfoDao.selectWebhookSendInfoByApplicationId(applicationId);
+    public List<WebhookSendInfo> selectWebhookSendInfoByApplicationName(String applicationName) {
+        return webhookSendInfoDao.selectWebhookSendInfoByApplicationName(applicationName);
     }
 
     @Override

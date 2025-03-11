@@ -86,16 +86,16 @@ public class LinkContext {
         return spanContext.findServiceType(serviceType);
     }
 
-    public boolean isToApplicationName(String applicationId, ServiceType serviceType) {
-        return this.toApplicationName.equals(applicationId) && spanContext.includeServiceType(this.toServiceDescList, serviceType);
+    public boolean isToApplicationName(String applicationName, ServiceType serviceType) {
+        return this.toApplicationName.equals(applicationName) && spanContext.includeServiceType(this.toServiceDescList, serviceType);
     }
 
-    public boolean isToApplicationName(String applicationId) {
-        return toApplicationName.equals(applicationId);
+    public boolean isToApplicationName(String applicationName) {
+        return toApplicationName.equals(applicationName);
     }
 
-    public boolean isFromApplicationName(String applicationId) {
-        return fromApplicationName.equals(applicationId);
+    public boolean isFromApplicationName(String applicationName) {
+        return fromApplicationName.equals(applicationName);
     }
 
     @Override

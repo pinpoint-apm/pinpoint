@@ -65,8 +65,8 @@ public class AlarmWriter implements ItemWriter<AppAlarmChecker>, StepExecutionLi
     }
 
     private void execute(AppAlarmChecker checkers) {
-        String applicationId = checkers.getApplicationId();
-        Map<String, CheckerResult> beforeCheckerResults = alarmService.selectBeforeCheckerResults(applicationId);
+        String applicationName = checkers.getApplicationName();
+        Map<String, CheckerResult> beforeCheckerResults = alarmService.selectBeforeCheckerResults(applicationName);
 
         for (AlarmChecker<?> checker : checkers.getChildren()) {
             Rule rule = checker.getRule();
@@ -75,7 +75,7 @@ public class AlarmWriter implements ItemWriter<AppAlarmChecker>, StepExecutionLi
 
             CheckerResult beforeCheckerResult = Objects.requireNonNullElseGet(
                     beforeCheckerResults.get(ruleId),
-                    () -> new CheckerResult(ruleId, applicationId, checkerName, false, 0, 1)
+                    () -> new CheckerResult(ruleId, applicationName, checkerName, false, 0, 1)
             );
 
             if (checker.isDetected()) {
