@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import com.navercorp.pinpoint.profiler.instrument.interceptor.CaptureType;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinition;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -257,6 +258,9 @@ public class ASMMethodNodeAdapter {
 
         final String description = Type.getMethodDescriptor(interceptorDefinition.getBeforeMethod());
         instructions.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, Type.getInternalName(interceptorDefinition.getInterceptorBaseClass()), "before", description, true));
+        if (CaptureType.BLOCK_AROUND == interceptorDefinition.getCaptureType()) {
+            this.methodVariables.storeBlockVar(instructions);
+        }
         this.methodNode.instructions.insertBefore(this.methodVariables.getEnterInsnNode(), instructions);
     }
 

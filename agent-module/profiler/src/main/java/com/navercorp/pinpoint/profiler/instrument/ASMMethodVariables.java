@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistry;
+import com.navercorp.pinpoint.profiler.instrument.interceptor.CaptureType;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinition;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorType;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
@@ -95,6 +96,7 @@ public class ASMMethodVariables {
 
     private int resultVarIndex;
     private int throwableVarIndex;
+    private int blockVarIndex;
 
     public ASMMethodVariables(final String declaringClassInternalName, final MethodNode methodNode) {
         this.declaringClassInternalName = declaringClassInternalName;
@@ -313,6 +315,9 @@ public class ASMMethodVariables {
         this.throwableVarIndex = addInterceptorLocalVariable("_$PINPOINT$_throwable", "Ljava/lang/Throwable;");
         loadNull(instructions);
         storeVar(instructions, this.throwableVarIndex);
+        this.blockVarIndex = addInterceptorLocalVariable("_$PINPOINT$_block", "Lcom/navercorp/pinpoint/bootstrap/context/TraceBlock;");
+        loadNull(instructions);
+        storeVar(instructions, this.blockVarIndex);
     }
 
     private void initArgsVar(final InsnList instructions) {
@@ -432,10 +437,23 @@ public class ASMMethodVariables {
         storeVar(instructions, this.throwableVarIndex);
     }
 
+    public void storeBlockVar(final InsnList instructions) {
+        assertInitializedInterceptorLocalVariables();
+        // object.
+        storeVar(instructions, this.blockVarIndex);
+    }
+
     public void loadInterceptorLocalVariables(final InsnList instructions, final InterceptorDefinition interceptorDefinition, final boolean after) {
         assertInitializedInterceptorLocalVariables();
         loadVar(instructions, this.interceptorVarIndex);
         instructions.add(new TypeInsnNode(Opcodes.CHECKCAST, Type.getInternalName(interceptorDefinition.getInterceptorBaseClass())));
+
+        if (after) {
+            // TraceBlock
+            if (CaptureType.BLOCK_AROUND == interceptorDefinition.getCaptureType()) {
+                loadInterceptorBlockVar(instructions);
+            }
+        }
 
         // target(this) object.
         loadThis(instructions);
@@ -483,6 +501,11 @@ public class ASMMethodVariables {
         assertInitializedInterceptorLocalVariables();
         loadVar(instructions, this.throwableVarIndex);
         instructions.add(new InsnNode(Opcodes.ATHROW));
+    }
+
+    public void loadInterceptorBlockVar(final InsnList instructions) {
+        assertInitializedInterceptorLocalVariables();
+        loadVar(instructions, this.blockVarIndex);
     }
 
     void loadThis(final InsnList instructions) {
