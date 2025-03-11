@@ -86,11 +86,11 @@ public class MemoryAlarmDao implements AlarmDao {
     }
     
     @Override
-    public List<Rule> selectRuleByApplicationId(String applicationId) {
+    public List<Rule> selectRuleByApplicationName(String applicationName) {
         List<Rule> ruleList = new ArrayList<>();
         
         for (Entry<String, Rule> entry : alarmRule.entrySet()) {
-            if (entry.getValue().getApplicationId().equals(applicationId)) {
+            if (entry.getValue().getApplicationName().equals(applicationName)) {
                 ruleList.add(entry.getValue());
             }
         }
@@ -99,11 +99,11 @@ public class MemoryAlarmDao implements AlarmDao {
     }
 
     @Override
-    public List<String> selectApplicationId() {
+    public List<String> selectApplicationName() {
         Set<String> ids = new HashSet<>();
 
         for (Entry<String, Rule> entry : alarmRule.entrySet()) {
-            ids.add(entry.getValue().getApplicationId());
+            ids.add(entry.getValue().getApplicationName());
         }
 
         return new ArrayList<>(ids);

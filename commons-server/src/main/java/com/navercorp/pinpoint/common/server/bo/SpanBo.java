@@ -32,17 +32,22 @@ public class SpanBo implements Event, BasicSpan {
     private byte version = 0;
 
     //  private AgentKeyBo agentKeyBo;
-    @NotBlank private String agentId;
+    @NotBlank
+    private String agentId;
     private String agentName;
-    @NotBlank private String applicationId;
-    @PositiveOrZero private long agentStartTime;
+
+    @NotBlank
+    private String applicationName;
+
+    @PositiveOrZero
+    private long agentStartTime;
 
     private TransactionId transactionId;
 
     private long spanId;
     private long parentSpanId;
 
-    private String parentApplicationId;
+    private String parentApplicationName;
     private short parentApplicationServiceType;
 
     private long startTime;
@@ -128,14 +133,26 @@ public class SpanBo implements Event, BasicSpan {
         this.agentName = agentName;
     }
 
+    @Deprecated
     @Override
     public String getApplicationId() {
-        return applicationId;
+        return getApplicationName();
+    }
+
+    @Deprecated
+    @Override
+    public void setApplicationId(String applicationName) {
+        setApplicationName(applicationName);
     }
 
     @Override
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    @Override
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 
     @Override
@@ -348,12 +365,12 @@ public class SpanBo implements Event, BasicSpan {
         }
     }
 
-    public String getParentApplicationId() {
-        return parentApplicationId;
+    public String getParentApplicationName() {
+        return parentApplicationName;
     }
 
-    public void setParentApplicationId(String parentApplicationId) {
-        this.parentApplicationId = parentApplicationId;
+    public void setParentApplicationName(String parentApplicationName) {
+        this.parentApplicationName = parentApplicationName;
     }
 
     public short getParentApplicationServiceType() {
@@ -383,12 +400,12 @@ public class SpanBo implements Event, BasicSpan {
                 "version=" + version +
                 ", agentId='" + agentId + '\'' +
                 ", agentName='" + agentName + '\'' +
-                ", applicationId='" + applicationId + '\'' +
+                ", applicationName='" + applicationName + '\'' +
                 ", agentStartTime=" + agentStartTime +
                 ", transactionId=" + transactionId +
                 ", spanId=" + spanId +
                 ", parentSpanId=" + parentSpanId +
-                ", parentApplicationId='" + parentApplicationId + '\'' +
+                ", parentApplicationName='" + parentApplicationName + '\'' +
                 ", parentApplicationServiceType=" + parentApplicationServiceType +
                 ", startTime=" + startTime +
                 ", elapsed=" + elapsed +
@@ -428,7 +445,7 @@ public class SpanBo implements Event, BasicSpan {
 
         private long parentSpanId;
 
-        private String parentApplicationId;
+        private String parentApplicationName;
         private short parentApplicationServiceType;
 
         private long startTime;
@@ -498,8 +515,8 @@ public class SpanBo implements Event, BasicSpan {
             return this;
         }
 
-        public Builder setParentApplicationId(String parentApplicationId) {
-            this.parentApplicationId = parentApplicationId;
+        public Builder setParentApplicationId(String parentApplicationName) {
+            this.parentApplicationName = parentApplicationName;
             return this;
         }
 
@@ -603,12 +620,12 @@ public class SpanBo implements Event, BasicSpan {
             result.setVersion(this.version);
             result.setAgentId(this.agentId);
             result.setAgentName(this.agentName);
-            result.setApplicationId(this.applicationId);
+            result.setApplicationName(this.applicationId);
             result.setAgentStartTime(this.agentStartTime);
             result.setTransactionId(this.transactionId);
             result.setSpanId(this.spanId);
             result.setParentSpanId(this.parentSpanId);
-            result.setParentApplicationId(this.parentApplicationId);
+            result.setParentApplicationName(this.parentApplicationName);
             result.setParentApplicationServiceType(this.parentApplicationServiceType);
             result.setStartTime(this.startTime);
             result.setElapsed(this.elapsed);

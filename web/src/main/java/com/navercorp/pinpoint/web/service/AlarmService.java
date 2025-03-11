@@ -31,9 +31,9 @@ public interface AlarmService {
 
     List<Rule> selectRuleByUserGroupId(String userGroupId);
 
-    List<Rule> selectRuleByApplicationId(String applicationId);
+    List<Rule> selectRuleByApplicationName(String applicationName);
 
-    List<String> selectApplicationId();
+    List<String> selectApplicationName();
 
     void updateRule(Rule rule);
 

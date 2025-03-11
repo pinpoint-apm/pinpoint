@@ -81,7 +81,7 @@ public class GrpcSpanBinder {
         final SpanBo spanBo = new SpanBo();
         spanBo.setVersion(pSpan.getVersion());
         spanBo.setAgentId(attribute.getAgentId());
-        spanBo.setApplicationId(attribute.getApplicationName());
+        spanBo.setApplicationName(attribute.getApplicationName());
         spanBo.setAgentStartTime(attribute.getAgentStartTime());
         spanBo.setCollectorAcceptTime(attribute.getAcceptedTime());
 
@@ -140,7 +140,7 @@ public class GrpcSpanBinder {
                         throw new IllegalArgumentException("Invalid parentApplicationName " + parentApplicationName
                                 + " agent:" + attribute.getApplicationName() + "/" + attribute.getAgentId());
                     }
-                    spanBo.setParentApplicationId(parentApplicationName);
+                    spanBo.setParentApplicationName(parentApplicationName);
                     spanBo.setParentApplicationServiceType((short) parentInfo.getParentApplicationType());
                 }
             }
@@ -259,7 +259,7 @@ public class GrpcSpanBinder {
         final SpanChunkBo spanChunkBo = new SpanChunkBo();
         spanChunkBo.setVersion(pSpanChunk.getVersion());
         spanChunkBo.setAgentId(attribute.getAgentId());
-        spanChunkBo.setApplicationId(attribute.getApplicationName());
+        spanChunkBo.setApplicationName(attribute.getApplicationName());
         spanChunkBo.setAgentStartTime(attribute.getAgentStartTime());
         spanChunkBo.setCollectorAcceptTime(attribute.getAcceptedTime());
 

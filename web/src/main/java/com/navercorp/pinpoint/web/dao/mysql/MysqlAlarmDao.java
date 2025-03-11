@@ -15,16 +15,15 @@
  */
 package com.navercorp.pinpoint.web.dao.mysql;
 
-import java.util.List;
-import java.util.Objects;
-
+import com.navercorp.pinpoint.web.alarm.vo.Rule;
+import com.navercorp.pinpoint.web.dao.AlarmDao;
+import com.navercorp.pinpoint.web.vo.UserGroup;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
-import com.navercorp.pinpoint.web.alarm.vo.Rule;
-import com.navercorp.pinpoint.web.dao.AlarmDao;
-import com.navercorp.pinpoint.web.vo.UserGroup;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
@@ -65,13 +64,13 @@ public class MysqlAlarmDao implements AlarmDao {
     }
     
     @Override
-    public List<Rule> selectRuleByApplicationId(String applicationId) {
-        return sqlSessionTemplate.selectList(NAMESPACE + "selectRuleByApplicationId", applicationId);
+    public List<Rule> selectRuleByApplicationName(String applicationName) {
+        return sqlSessionTemplate.selectList(NAMESPACE + "selectRuleByApplicationName", applicationName);
     }
 
     @Override
-    public List<String> selectApplicationId() {
-        return sqlSessionTemplate.selectList(NAMESPACE + "selectApplicationId");
+    public List<String> selectApplicationName() {
+        return sqlSessionTemplate.selectList(NAMESPACE + "selectApplicationName");
     }
 
     @Override

@@ -113,7 +113,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
             for (SpanBo spanBo : trace) {
                 // show application's incoming requests
-                if (applicationName.equals(spanBo.getApplicationId())) {
+                if (applicationName.equals(spanBo.getApplicationName())) {
                     businessTransactions.add(spanBo);
                 }
             }
@@ -139,10 +139,10 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         if (viewPointAlign != null) {
             recordSet.setAgentId(viewPointAlign.getAgentId());
             recordSet.setAgentName(viewPointAlign.getAgentName());
-            recordSet.setApplicationId(viewPointAlign.getApplicationId());
+            recordSet.setApplicationId(viewPointAlign.getApplicationName());
 
-            final String applicationName = getRpcArgument(viewPointAlign);
-            recordSet.setApplicationName(applicationName);
+            final String uri = getRpcArgument(viewPointAlign);
+            recordSet.setUri(uri);
         }
 
         // find the startTime to use as reference

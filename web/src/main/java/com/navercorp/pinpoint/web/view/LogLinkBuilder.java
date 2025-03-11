@@ -15,8 +15,8 @@ public class LogLinkBuilder {
         this.logProperties = Objects.requireNonNull(logProperties, "logProperties");
     }
 
-    public LogLinkView build(TransactionId transactionId, long spanId, String applicationId, long startTime) {
-        String logLinkUrl = buildLogLinkUrl(logProperties.getLogPageUrl(), transactionId, spanId, applicationId, startTime);
+    public LogLinkView build(TransactionId transactionId, long spanId, String applicationName, long startTime) {
+        String logLinkUrl = buildLogLinkUrl(logProperties.getLogPageUrl(), transactionId, spanId, applicationName, startTime);
 
         return new LogLinkView(logProperties.isLogLinkEnable(),
                 logProperties.getLogButtonName(),
@@ -24,11 +24,11 @@ public class LogLinkBuilder {
                 logLinkUrl);
     }
 
-    String buildLogLinkUrl(String logPageUrl, TransactionId txId, long spanId, String applicationId, long startTime) {
+    String buildLogLinkUrl(String logPageUrl, TransactionId txId, long spanId, String applicationName, long startTime) {
         if (StringUtils.isNotEmpty(logPageUrl)) {
             final String parameter = "transactionId=" + txId +
                     "&spanId=" + spanId +
-                    "&applicationName=" + applicationId +
+                    "&applicationName=" + applicationName +
                     "&time=" + startTime;
 
             return logPageUrl + "?" + parameter;

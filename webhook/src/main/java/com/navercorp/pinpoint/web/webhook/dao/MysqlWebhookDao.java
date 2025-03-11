@@ -35,8 +35,8 @@ public class MysqlWebhookDao implements WebhookDao {
     }
 
     @Override
-    public void deleteWebhookByApplicationId(String applicationId) {
-        sqlSessionTemplate.insert(NAMESPACE + "deleteWebhookByApplicationId", applicationId);
+    public void deleteWebhookByApplicationName(String applicationName) {
+        sqlSessionTemplate.insert(NAMESPACE + "deleteWebhookByApplicationName", applicationName);
     }
 
     @Override
@@ -45,8 +45,8 @@ public class MysqlWebhookDao implements WebhookDao {
     }
 
     @Override
-    public List<Webhook> selectWebhookByApplicationId(String applicationId) {
-        return sqlSessionTemplate.selectList(NAMESPACE + "selectWebhookByApplicationId", applicationId);
+    public List<Webhook> selectWebhookByApplicationName(String applicationName) {
+        return sqlSessionTemplate.selectList(NAMESPACE + "selectWebhookByApplicationName", applicationName);
     }
 
     @Override

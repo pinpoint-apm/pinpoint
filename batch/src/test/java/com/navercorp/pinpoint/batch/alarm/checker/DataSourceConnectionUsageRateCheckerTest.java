@@ -29,7 +29,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -50,7 +49,6 @@ public class DataSourceConnectionUsageRateCheckerTest {
     private static final long START_TIME_MILLIS = CURRENT_TIME_MILLIS - INTERVAL_MILLIS;
 
     private static final List<String> mockAgentIds = List.of(AGENT_ID);
-    private final Random random = new Random();
 
     private static final long TIMESTAMP_INTERVAL = 5000L;
 
@@ -74,7 +72,7 @@ public class DataSourceConnectionUsageRateCheckerTest {
         checker.check();
         Assertions.assertTrue(checker.isDetected());
 
-        String emailMessage = checker.getEmailMessage("pinpointUrl", "applicationId", "serviceType", "currentTime");
+        String emailMessage = checker.getEmailMessage("pinpointUrl", "applicationName", "serviceType", "currentTime");
         Assertions.assertTrue(StringUtils.hasLength(emailMessage));
 
         List<String> smsMessage = checker.getSmsMessage();
@@ -98,7 +96,7 @@ public class DataSourceConnectionUsageRateCheckerTest {
         checker.check();
         Assertions.assertFalse(checker.isDetected());
 
-        String emailMessage = checker.getEmailMessage("pinpointUrl", "applicationId", "serviceType", "currentTime");
+        String emailMessage = checker.getEmailMessage("pinpointUrl", "applicationName", "serviceType", "currentTime");
         Assertions.assertTrue(StringUtils.isEmpty(emailMessage));
 
         List<String> smsMessage = checker.getSmsMessage();

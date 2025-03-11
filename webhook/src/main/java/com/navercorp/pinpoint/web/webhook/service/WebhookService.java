@@ -12,11 +12,11 @@ public interface WebhookService {
 
     void updateWebhook(Webhook webhook);
 
-    void deleteWebhookByApplicationId(String applicationId);
+    void deleteWebhookByApplicationName(String applicationName);
 
     void deleteWebhookByServiceName(String serviceName);
 
-    List<Webhook> selectWebhookByApplicationId(String applicationId);
+    List<Webhook> selectWebhookByApplicationName(String applicationName);
 
     List<Webhook> selectWebhookByServiceName(String serviceName);
 

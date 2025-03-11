@@ -25,12 +25,12 @@ import java.util.List;
  */
 public class AppAlarmChecker {
 
-    private final String applicationId;
+    private final String applicationName;
     private final List<AlarmChecker<?>> children;
 
     public AppAlarmChecker(List<AlarmChecker<?>> children) {
         this.children = haveSameApplication(children);
-        this.applicationId = this.children.get(0).getRule().getApplicationId();
+        this.applicationName = this.children.get(0).getRule().getApplicationName();
     }
 
     private List<AlarmChecker<?>> haveSameApplication(List<AlarmChecker<?>> children) {
@@ -38,17 +38,25 @@ public class AppAlarmChecker {
             throw new IllegalArgumentException("children should not be empty");
         }
 
-        final String applicationName = children.get(0).getRule().getApplicationId();
+        final String applicationName = children.get(0).getRule().getApplicationName();
         for (AlarmChecker<?> child : children) {
-            if (!applicationName.equals(child.getRule().getApplicationId())) {
-                throw new IllegalArgumentException("All children should have the same application: " + applicationName + " != " + child.getRule().getApplicationId());
+            if (!applicationName.equals(child.getRule().getApplicationName())) {
+                throw new IllegalArgumentException("All children should have the same application: " + applicationName + " != " + child.getRule().getApplicationName());
             }
         }
         return children;
     }
 
+    /**
+     * @deprecated use {@link #getApplicationName()} instead
+     */
+    @Deprecated
     public String getApplicationId() {
-        return this.applicationId;
+        return getApplicationName();
+    }
+
+    public String getApplicationName() {
+        return this.applicationName;
     }
 
     public List<AlarmChecker<?>> getChildren() {

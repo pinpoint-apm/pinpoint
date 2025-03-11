@@ -27,7 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 public class Rule implements RuleInterface {
 
     private String ruleId;
-    @NotBlank private String applicationId;
+    @NotBlank private String applicationName;
     private String serviceType;
     @NotBlank private String checkerName;
     @NotNull private Integer threshold;
@@ -40,8 +40,8 @@ public class Rule implements RuleInterface {
     public Rule() {
     }
 
-    public Rule(String applicationId, String serviceType, String checkerName, Integer Threshold, String userGroupId, boolean smsSend, boolean emailSend, boolean webhookSend, String notes) {
-        this.applicationId = applicationId;
+    public Rule(String applicationName, String serviceType, String checkerName, Integer Threshold, String userGroupId, boolean smsSend, boolean emailSend, boolean webhookSend, String notes) {
+        this.applicationName = applicationName;
         this.serviceType = serviceType;
         this.checkerName = checkerName;
         this.threshold = Threshold;
@@ -52,12 +52,28 @@ public class Rule implements RuleInterface {
         this.notes = notes;
     }
 
+    /**
+     * @deprecated Since 3.1.0. Use {@link #getApplicationName()} instead
+     */
+    @Deprecated
     public String getApplicationId() {
-        return applicationId;
+        return getApplicationName();
     }
 
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
+    /**
+     * @deprecated Since 3.1.0. Use {@link #getApplicationName()} instead
+     */
+    @Deprecated
+    public void setApplicationId(String applicationName) {
+        setApplicationName(applicationName);
+    }
+
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 
     public String getServiceType() {
@@ -133,7 +149,7 @@ public class Rule implements RuleInterface {
     }
 
     public static boolean isRuleInvalidForPost(Rule rule) {
-        return StringUtils.isEmpty(rule.getApplicationId()) ||
+        return StringUtils.isEmpty(rule.getApplicationName()) ||
                 StringUtils.isEmpty(rule.getCheckerName()) ||
                 StringUtils.isEmpty(rule.getUserGroupId()) ||
                 rule.getThreshold() == null;
@@ -142,7 +158,7 @@ public class Rule implements RuleInterface {
 
     public static boolean isRuleInvalid(Rule rule) {
         return StringUtils.isEmpty(rule.getRuleId()) ||
-                StringUtils.isEmpty(rule.getApplicationId()) ||
+                StringUtils.isEmpty(rule.getApplicationName()) ||
                 StringUtils.isEmpty(rule.getCheckerName()) ||
                 StringUtils.isEmpty(rule.getUserGroupId()) ||
                 rule.getThreshold() == null;
@@ -151,18 +167,16 @@ public class Rule implements RuleInterface {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Rule{");
-        sb.append("ruleId='").append(ruleId).append('\'');
-        sb.append(", applicationId='").append(applicationId).append('\'');
-        sb.append(", serviceType='").append(serviceType).append('\'');
-        sb.append(", checkerName='").append(checkerName).append('\'');
-        sb.append(", threshold=").append(threshold);
-        sb.append(", userGroupId='").append(userGroupId).append('\'');
-        sb.append(", smsSend=").append(smsSend);
-        sb.append(", emailSend=").append(emailSend);
-        sb.append(", webhookSend=").append(webhookSend);
-        sb.append(", notes='").append(notes).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "Rule{" + "ruleId='" + ruleId + '\'' +
+                ", applicationName='" + applicationName + '\'' +
+                ", serviceType='" + serviceType + '\'' +
+                ", checkerName='" + checkerName + '\'' +
+                ", threshold=" + threshold +
+                ", userGroupId='" + userGroupId + '\'' +
+                ", smsSend=" + smsSend +
+                ", emailSend=" + emailSend +
+                ", webhookSend=" + webhookSend +
+                ", notes='" + notes + '\'' +
+                '}';
     }
 }

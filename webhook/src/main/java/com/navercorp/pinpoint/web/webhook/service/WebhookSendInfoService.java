@@ -16,7 +16,7 @@ public interface WebhookSendInfoService {
 
     void deleteWebhookSendInfoByRuleId(String ruleId);
 
-    List<WebhookSendInfo> selectWebhookSendInfoByApplicationId(String applicationId);
+    List<WebhookSendInfo> selectWebhookSendInfoByApplicationName(String applicationName);
 
     List<WebhookSendInfo> selectWebhookSendInfoByServiceName(String serviceName);
 

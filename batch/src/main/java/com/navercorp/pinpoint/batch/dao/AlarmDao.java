@@ -24,7 +24,7 @@ import java.util.List;
  */
 public interface AlarmDao {
 
-    List<CheckerResult> selectBeforeCheckerResultList(String applicationId);
+    List<CheckerResult> selectBeforeCheckerResultList(String applicationName);
 
     void deleteCheckerResult(String ruleId);
 

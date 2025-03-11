@@ -55,7 +55,7 @@ public class WebhookServiceImplTest {
         WebhookDao webhookDao = new MemoryWebhookDao();
         WebhookService webhookService = new WebhookServiceImpl(webhookDao, webhookSendInfoDao);
 
-        Webhook webhook = new Webhook("0", "alias", "url", "applicationId", "groupId");
+        Webhook webhook = new Webhook("0", "alias", "url", "applicationName", "groupId");
         webhookService.insertWebhook(webhook);
 
         Webhook selectedWebhook = webhookDao.selectWebhook("0");
@@ -63,7 +63,7 @@ public class WebhookServiceImplTest {
         assertEquals(webhook.getWebhookId(), selectedWebhook.getWebhookId());
         assertEquals(webhook.getAlias(), selectedWebhook.getAlias());
         assertEquals(webhook.getUrl(), selectedWebhook.getUrl());
-        assertEquals(webhook.getApplicationId(), selectedWebhook.getApplicationId());
+        assertEquals(webhook.getApplicationName(), selectedWebhook.getApplicationName());
         assertEquals(webhook.getServiceName(), selectedWebhook.getServiceName());
 
         webhookService.deleteWebhook(webhook);
@@ -77,10 +77,10 @@ public class WebhookServiceImplTest {
         WebhookDao webhookDao = new MemoryWebhookDao();
         WebhookService webhookService = new WebhookServiceImpl(webhookDao, webhookSendInfoDao);
 
-        Webhook webhook = new Webhook("0", "alias", "url", "applicationId", "groupId");
+        Webhook webhook = new Webhook("0", "alias", "url", "applicationName", "groupId");
         webhookService.insertWebhook(webhook);
 
-        Webhook updateWebhook = new Webhook("0", "alias1", "url1", "applicationId1", "groupId1");
+        Webhook updateWebhook = new Webhook("0", "alias1", "url1", "applicationName1", "groupId1");
         webhookService.updateWebhook(updateWebhook);
 
         Webhook selectedWebhook = webhookDao.selectWebhook("0");
@@ -89,12 +89,12 @@ public class WebhookServiceImplTest {
         assertEquals(updateWebhook.getWebhookId(), selectedWebhook.getWebhookId());
         assertEquals(updateWebhook.getAlias(), selectedWebhook.getAlias());
         assertEquals(updateWebhook.getUrl(), selectedWebhook.getUrl());
-        assertEquals(updateWebhook.getApplicationId(), selectedWebhook.getApplicationId());
+        assertEquals(updateWebhook.getApplicationName(), selectedWebhook.getApplicationName());
         assertEquals(updateWebhook.getServiceName(), selectedWebhook.getServiceName());
     }
 
     @Test
-    public void deleteAndSelectWebhookByApplicationIdTest() {
+    public void deleteAndSelectWebhookByApplicationNameTest() {
         WebhookSendInfoDao webhookSendInfoDao = new MemoryWebhookSendInfoDao(mock(WebhookDao.class));
         WebhookDao webhookDao = new MemoryWebhookDao();
         WebhookService webhookService = new WebhookServiceImpl(webhookDao, webhookSendInfoDao);
@@ -103,12 +103,12 @@ public class WebhookServiceImplTest {
             webhookService.insertWebhook(webhook);
         }
 
-        List<Webhook> selectedWebhooks = webhookService.selectWebhookByApplicationId("testApp");
+        List<Webhook> selectedWebhooks = webhookService.selectWebhookByApplicationName("testApp");
         assertThat(selectedWebhooks).hasSize(2);
 
-        webhookService.deleteWebhookByApplicationId("testApp");
+        webhookService.deleteWebhookByApplicationName("testApp");
 
-        selectedWebhooks = webhookService.selectWebhookByApplicationId("testApp");
+        selectedWebhooks = webhookService.selectWebhookByApplicationName("testApp");
         assertThat(selectedWebhooks).isEmpty();
     }
 

@@ -71,9 +71,18 @@ public class TransactionInfoViewModel {
         this.timeHistogramFormat = timeHistogramFormat;
     }
 
+    /**
+     * @deprecated Since 3.1.0. Use {@link #getUri()} instead.
+     */
+    @Deprecated
     @JsonProperty("applicationName")
     public String getApplicationName() {
-        return recordSet.getApplicationName();
+        return getUri();
+    }
+
+    @JsonProperty("uri")
+    public String getUri() {
+        return recordSet.getUri();
     }
 
     @JsonProperty("transactionId")

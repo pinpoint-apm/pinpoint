@@ -152,9 +152,17 @@ public class SpanEventAlign implements Align {
         return spanBo.getAgentName();
     }
 
+    /**
+     * @deprecated Since 3.1.0. Use {@link #getApplicationName()} instead.
+     */
     @Override
     public String getApplicationId() {
-        return spanBo.getApplicationId();
+        return getApplicationName();
+    }
+
+    @Override
+    public String getApplicationName() {
+        return spanBo.getApplicationName();
     }
 
     @Override

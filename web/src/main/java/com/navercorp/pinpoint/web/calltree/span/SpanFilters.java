@@ -168,17 +168,18 @@ public class SpanFilters {
         };
     }
 
-    public static Predicate<SpanBo> applicationIdFilter(String applicationId) {
-        Objects.requireNonNull(applicationId, "applicationId");
+    public static Predicate<SpanBo> applicationIdFilter(String applicationName) {
+        Objects.requireNonNull(applicationName, "applicationName");
+
         return new Predicate<>() {
             @Override
             public boolean test(SpanBo spanBo) {
-                return applicationId.equals(spanBo.getApplicationId());
+                return applicationName.equals(spanBo.getApplicationName());
             }
 
             @Override
             public String toString() {
-                return "applicationId=" + applicationId;
+                return "applicationName=" + applicationName;
             }
         };
     }

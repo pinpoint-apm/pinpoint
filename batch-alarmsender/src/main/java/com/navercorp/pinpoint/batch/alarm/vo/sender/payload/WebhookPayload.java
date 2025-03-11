@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.batch.alarm.vo.sender.payload;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmCheckerInterface;
-import com.navercorp.pinpoint.batch.alarm.checker.PinotAlarmCheckerInterface;
+import com.navercorp.pinpoint.web.vo.RuleInterface;
 
 /**
  * @author Jongjin.Bae
@@ -28,7 +28,7 @@ public class WebhookPayload {
     
     private final String pinpointUrl;
     private final String batchEnv;
-    private final String applicationId;
+    private final String applicationName;
     private final String serviceType;
     private final String checkerName;
     private final String checkerType;
@@ -43,15 +43,16 @@ public class WebhookPayload {
         this.pinpointUrl = pinpointUrl;
         this.batchEnv = batchEnv;
 
-        this.applicationId = checker.getRule().getApplicationId();
-        this.serviceType = checker.getRule().getServiceType();
-        this.checkerName = checker.getRule().getCheckerName();
+        final RuleInterface rule = checker.getRule();
+        this.applicationName = rule.getApplicationName();
+        this.serviceType = rule.getServiceType();
+        this.checkerName = rule.getCheckerName();
         this.checkerType = checker.getCheckerType();
         this.userGroup = userGroup;
         this.checkerDetectedValue = checker.getCheckerDetectedValue();
         this.unit = checker.getUnit();
-        this.threshold = checker.getRule().getThreshold();
-        this.notes = checker.getRule().getNotes();
+        this.threshold = rule.getThreshold();
+        this.notes = rule.getNotes();
         this.sequenceCount = sequenceCount;
     }
     
@@ -62,9 +63,17 @@ public class WebhookPayload {
     public String getBatchEnv() {
         return batchEnv;
     }
-    
+
+    /**
+     * @deprecated Since 3.1.0. Use {@link #getApplicationName()} instead.
+     */
+    @Deprecated
     public String getApplicationId() {
-        return applicationId;
+        return getApplicationName();
+    }
+
+    public String getApplicationName() {
+        return applicationName;
     }
     
     public String getServiceType() {
@@ -108,7 +117,7 @@ public class WebhookPayload {
         return "WebhookPayload{" +
                 "pinpointUrl='" + pinpointUrl + '\'' +
                 ", batchEnv='" + batchEnv + '\'' +
-                ", applicationId='" + applicationId + '\'' +
+                ", applicationName='" + applicationName + '\'' +
                 ", serviceType='" + serviceType + '\'' +
                 ", checkerName='" + checkerName + '\'' +
                 ", checkerType='" + checkerType + '\'' +

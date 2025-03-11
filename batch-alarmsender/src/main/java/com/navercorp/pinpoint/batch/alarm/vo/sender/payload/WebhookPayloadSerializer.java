@@ -34,7 +34,7 @@ public class WebhookPayloadSerializer extends JsonSerializer<WebhookPayload> {
         
         jgen.writeStringField("pinpointUrl", webhookPayload.getPinpointUrl());
         jgen.writeStringField("batchEnv", webhookPayload.getBatchEnv());
-        jgen.writeStringField("applicationId", webhookPayload.getApplicationId());
+        jgen.writeStringField("applicationId", webhookPayload.getApplicationName());
         jgen.writeStringField("serviceType", webhookPayload.getServiceType());
         jgen.writeObjectField("userGroup", webhookPayload.getUserGroup());
         

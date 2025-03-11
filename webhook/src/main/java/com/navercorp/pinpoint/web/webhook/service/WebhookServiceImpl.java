@@ -37,8 +37,8 @@ public class WebhookServiceImpl implements WebhookService {
     }
 
     @Override
-    public void deleteWebhookByApplicationId(String applicationId) {
-        webhookDao.deleteWebhookByApplicationId(applicationId);
+    public void deleteWebhookByApplicationName(String applicationName) {
+        webhookDao.deleteWebhookByApplicationName(applicationName);
     }
 
     @Override
@@ -47,8 +47,8 @@ public class WebhookServiceImpl implements WebhookService {
     }
 
     @Override
-    public List<Webhook> selectWebhookByApplicationId(String applicationId) {
-        return webhookDao.selectWebhookByApplicationId(applicationId);
+    public List<Webhook> selectWebhookByApplicationName(String applicationName) {
+        return webhookDao.selectWebhookByApplicationName(applicationName);
     }
 
     @Override

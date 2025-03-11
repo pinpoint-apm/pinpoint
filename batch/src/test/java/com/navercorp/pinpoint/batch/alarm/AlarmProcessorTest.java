@@ -61,7 +61,7 @@ public class AlarmProcessorTest {
     public void shouldSkipIfNoRule() {
         Application app = new Application(SERVICE_NAME, ServiceType.STAND_ALONE);
 
-        when(alarmService.selectRuleByApplicationId(SERVICE_NAME)).thenReturn(List.of());
+        when(alarmService.selectRuleByApplicationName(SERVICE_NAME)).thenReturn(List.of());
 
         AlarmProcessor proc = new AlarmProcessor(dataCollectorFactory, alarmService, applicationIndexDao, activeAgentValidator, checkerRegistry);
         AppAlarmChecker checker = proc.process(app);
@@ -77,7 +77,7 @@ public class AlarmProcessorTest {
         Rule rule2 = new Rule(SERVICE_NAME, ServiceType.STAND_ALONE.getName(), CheckerCategory.HEAP_USAGE_RATE.getName(), 90, "testGroup", false, false, false, "");
         Map<String, Long> heapUsageRate = Map.of(agentIds.get(1), 80L, agentIds.get(2), 85L);
 
-        when(alarmService.selectRuleByApplicationId(SERVICE_NAME)).thenReturn(List.of(rule1, rule2));
+        when(alarmService.selectRuleByApplicationName(SERVICE_NAME)).thenReturn(List.of(rule1, rule2));
         when(dataCollectorFactory.createDataCollector(any(), any(), any(), anyLong())).thenReturn(heapDataCollector);
         when(heapDataCollector.getHeapUsageRate()).thenReturn(heapUsageRate);
 
@@ -86,7 +86,7 @@ public class AlarmProcessorTest {
         AppAlarmChecker appChecker = processor.process(application);
 
         // Validations
-        verify(alarmService).selectRuleByApplicationId(SERVICE_NAME);
+        verify(alarmService).selectRuleByApplicationName(SERVICE_NAME);
         verify(dataCollectorFactory).createDataCollector(any(), any(), any(), anyLong());
 
         assertNotNull(appChecker, "processed object is null");

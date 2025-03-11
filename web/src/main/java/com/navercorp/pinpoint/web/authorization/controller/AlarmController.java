@@ -48,8 +48,8 @@ import java.util.Objects;
 @Validated
 public class AlarmController {
 
-    public final static String USER_GROUP_ID = "userGroupId";
-    public final static String APPLICATION_ID = "applicationId";
+    public final static String USER_GROUP_ID_PARAMS = "userGroupId";
+    public final static String APPLICATION_ID_PARAMS = "applicationId";
 
     private final AlarmService alarmService;
 
@@ -75,14 +75,14 @@ public class AlarmController {
         return SimpleResponse.ok();
     }
 
-    @GetMapping(params = USER_GROUP_ID)
-    public List<Rule> getRulesByUserGroup(@RequestParam(value = USER_GROUP_ID) @NotBlank String userGroupId) {
+    @GetMapping(params = USER_GROUP_ID_PARAMS)
+    public List<Rule> getRulesByUserGroup(@RequestParam(value = USER_GROUP_ID_PARAMS) @NotBlank String userGroupId) {
         return alarmService.selectRuleByUserGroupId(userGroupId);
     }
 
-    @GetMapping(params = APPLICATION_ID)
-    public List<Rule> getRulesByApplication(@RequestParam(value = APPLICATION_ID) @NotBlank String applicationId) {
-        return alarmService.selectRuleByApplicationId(applicationId);
+    @GetMapping(params = APPLICATION_ID_PARAMS)
+    public List<Rule> getRulesByApplication(@RequestParam(value = APPLICATION_ID_PARAMS) @NotBlank String applicationName) {
+        return alarmService.selectRuleByApplicationName(applicationName);
     }
 
     @PutMapping

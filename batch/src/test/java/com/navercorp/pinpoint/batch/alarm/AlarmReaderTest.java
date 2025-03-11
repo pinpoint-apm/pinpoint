@@ -58,7 +58,7 @@ public class AlarmReaderTest {
     @Test
     public void pollingTest() {
         when(applicationIndexDao.selectAllApplicationNames()).thenReturn(mockApplications);
-        when(alarmService.selectApplicationId()).thenReturn(applicationIds);
+        when(alarmService.selectApplicationName()).thenReturn(applicationIds);
 
         AlarmReader reader = new AlarmReader(applicationIndexDao, alarmService);
         reader.beforeStep(stepExecution);

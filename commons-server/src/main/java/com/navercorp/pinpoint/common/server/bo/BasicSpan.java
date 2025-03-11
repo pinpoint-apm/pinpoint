@@ -31,8 +31,20 @@ public interface BasicSpan {
     String getAgentName();
     void setAgentName(String agentName);
 
+    /**
+     * @deprecated Since 3.1.0. Use {@link #getApplicationName()} instead
+     */
+    @Deprecated
     String getApplicationId();
-    void  setApplicationId(String applicationId);
+
+    /**
+     * @deprecated Since 3.1.0. Use {@link #setApplicationName(String)} instead
+     */
+    @Deprecated
+    void  setApplicationId(String applicationName);
+
+    String getApplicationName();
+    void setApplicationName(String applicationName);
 
     long getAgentStartTime();
     void setAgentStartTime(long agentStartTime);

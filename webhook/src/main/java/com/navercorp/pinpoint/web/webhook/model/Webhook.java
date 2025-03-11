@@ -1,19 +1,21 @@
 package com.navercorp.pinpoint.web.webhook.model;
 
+import java.util.Objects;
+
 public class Webhook {
     private String webhookId;
     private String alias;
     private String url;
-    private String applicationId;
+    private String applicationName;
     private String serviceName;
 
     public Webhook() {}
 
-    public Webhook(String webhookId, String alias, String url, String applicationId, String serviceName) {
+    public Webhook(String webhookId, String alias, String url, String applicationName, String serviceName) {
         this.webhookId = webhookId;
         this.alias = alias;
         this.url = url;
-        this.applicationId = applicationId;
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.serviceName = serviceName;
     }
 
@@ -41,12 +43,28 @@ public class Webhook {
         this.url = url;
     }
 
+    /**
+     * @deprecated Since 3.1.0. Use {@link #getApplicationName()} instead.
+     */
+    @Deprecated
     public String getApplicationId() {
-        return applicationId;
+        return getApplicationName();
     }
 
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
+    /**
+     * @deprecated Since 3.1.0. Use {@link #setApplicationName(String)} instead.
+     */
+    @Deprecated
+    public void setApplicationId(String applicationName) {
+        this.setApplicationName(applicationName);
+    }
+
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 
     public String getServiceName() {
@@ -59,13 +77,12 @@ public class Webhook {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Webhook{");
-        sb.append("webhookId='").append(webhookId).append('\'');
-        sb.append("alias='").append(alias).append('\'');
-        sb.append("url='").append(url).append('\'');
-        sb.append("applicationId='").append(applicationId).append('\'');
-        sb.append("serviceName='").append(serviceName).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "Webhook{" +
+                "webhookId='" + webhookId + '\'' +
+                "alias='" + alias + '\'' +
+                "url='" + url + '\'' +
+                "applicationName='" + applicationName + '\'' +
+                "serviceName='" + serviceName + '\'' +
+                '}';
     }
 }

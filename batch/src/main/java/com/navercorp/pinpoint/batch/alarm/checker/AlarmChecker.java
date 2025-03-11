@@ -85,18 +85,21 @@ public abstract class AlarmChecker<T> implements AlarmCheckerInterface {
     public void check() {
         dataCollector.collect();
         detected = decideResult(getDetectedValue());
-        logger.info("{} result is {} for application ({}). value is {}. (threshold : {}).", this.getClass().getSimpleName(), detected, rule.getApplicationId(), getDetectedValue(), rule.getThreshold());
+        logger.info("{} result is {} for application ({}). value is {}. (threshold : {}).",
+                this.getClass().getSimpleName(), detected, rule.getApplicationName(), getDetectedValue(), rule.getThreshold());
     }
     
     public List<String> getSmsMessage() {
         List<String> messages = new ArrayList<>();
-        messages.add(String.format("[PINPOINT Alarm - %s] %s is %s%s (Threshold : %s%s)", rule.getApplicationId(), rule.getCheckerName(), getDetectedValue(), unit, rule.getThreshold(), unit));
+        messages.add(String.format("[PINPOINT Alarm - %s] %s is %s%s (Threshold : %s%s)",
+                rule.getApplicationName(), rule.getCheckerName(), getDetectedValue(), unit, rule.getThreshold(), unit));
         return messages;
     }
 
     @Override
-    public String getEmailMessage(String pinpointUrl, String applicationId, String serviceType, String currentTime) {
-        return String.format("%s value is %s%s during the past 5 mins.(Threshold : %s%s)<br>", rule.getCheckerName(), getDetectedValue(), unit, rule.getThreshold(), unit);
+    public String getEmailMessage(String pinpointUrl, String applicationName, String serviceType, String currentTime) {
+        return String.format("%s value is %s%s during the past 5 mins.(Threshold : %s%s)<br>",
+                rule.getCheckerName(), getDetectedValue(), unit, rule.getThreshold(), unit);
     }
     
     protected abstract T getDetectedValue();
@@ -108,10 +111,9 @@ public abstract class AlarmChecker<T> implements AlarmCheckerInterface {
     public abstract String getCheckerType();
 
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AlarmChecker {");
-        sb.append("rule=").append(rule);
-        sb.append('}');
-        return sb.toString();
+        return "AlarmChecker {"
+                + "rule=" + rule +
+                '}';
     }
     
 }

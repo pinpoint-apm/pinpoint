@@ -82,7 +82,7 @@ public class DataSourceConnectionUsageRateChecker extends DataSourceAlarmListVal
     }
 
     @Override
-    public String getEmailMessage(String pinpointUrl, String applicationId, String serviceType, String currentTime) {
+    public String getEmailMessage(String pinpointUrl, String applicationName, String serviceType, String currentTime) {
         StringBuilder contents = new StringBuilder();
         for (Map.Entry<String, List<DataSourceAlarmVO>> detected : detectedAgents.entrySet()) {
             String agentId = detected.getKey();
@@ -92,7 +92,7 @@ public class DataSourceConnectionUsageRateChecker extends DataSourceAlarmListVal
                     contents.append(message);
                 }
             }
-            contents.append(String.format(INSPECTOR_LINK_FORMAT, pinpointUrl, applicationId, serviceType, currentTime, agentId, agentId));
+            contents.append(String.format(INSPECTOR_LINK_FORMAT, pinpointUrl, applicationName, serviceType, currentTime, agentId, agentId));
             contents.append(LINE_FEED);
         }
         return contents.toString();

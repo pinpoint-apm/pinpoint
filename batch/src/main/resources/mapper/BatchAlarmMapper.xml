@@ -6,7 +6,7 @@
     <select id="selectBeforeCheckerResultList" resultType="BatchCheckerResult">
         SELECT *
         FROM alarm_history
-        WHERE application_id = #{applicationId}
+        WHERE application_id = #{applicationName}
     </select>
 
     <delete id="deleteCheckerResult" parameterType="string">
@@ -18,7 +18,7 @@
     <insert id="insertCheckerResult" parameterType="BatchCheckerResult">
         INSERT INTO alarm_history (rule_id, application_id, checker_name, detected, sequence_count, timing_count)
         VALUES
-            (#{ruleId}, #{applicationId}, #{checkerName}, #{detected}, #{sequenceCount}, #{timingCount})
+            (#{ruleId}, #{applicationName}, #{checkerName}, #{detected}, #{sequenceCount}, #{timingCount})
     </insert>
     
 </mapper>

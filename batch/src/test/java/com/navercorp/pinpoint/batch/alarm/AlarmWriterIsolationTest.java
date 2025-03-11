@@ -42,7 +42,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class AlarmWriterIsolationTest {
 
-    private static final String APPLICATION_ID = "testService";
+    private static final String APPLICATION_NAME = "testService";
     private static final String CHECKER_NAME = CheckerCategory.SLOW_COUNT.getName();
     private static final String RULE_ID = "TEST_RULE";
 
@@ -66,7 +66,7 @@ public class AlarmWriterIsolationTest {
     @Test
     public void whenSequenceCountIsLessThanTimingCountDoSendAlarm() {
         // given
-        Rule rule = getRuleStub(APPLICATION_ID, RULE_ID);
+        Rule rule = getRuleStub(APPLICATION_NAME, RULE_ID);
 
         AlarmChecker<Long> checker = getCheckerStub(rule, 1000L);
 
@@ -86,7 +86,7 @@ public class AlarmWriterIsolationTest {
     @Test
     public void whenSequenceCountIsEqualToTimingCountDoNotSendAlarm() {
         //given
-        Rule rule = getRuleStub(APPLICATION_ID, RULE_ID);
+        Rule rule = getRuleStub(APPLICATION_NAME, RULE_ID);
 
         AlarmChecker<Long> checker = getCheckerStub(rule, 1000L);
 
@@ -105,7 +105,7 @@ public class AlarmWriterIsolationTest {
 
     private void mockingAlarmService(CheckerResult beforeCheckerFixture) {
         beforeCheckerResults.put(RULE_ID, beforeCheckerFixture);
-        when(alarmService.selectBeforeCheckerResults(APPLICATION_ID)).thenReturn(beforeCheckerResults);
+        when(alarmService.selectBeforeCheckerResults(APPLICATION_NAME)).thenReturn(beforeCheckerResults);
     }
 
     private void mockingAlarmMessageSender(AlarmChecker<Long> checker) {
@@ -113,14 +113,14 @@ public class AlarmWriterIsolationTest {
         lenient().doNothing().when(alarmMessageSender).sendEmail(checker, 1);
     }
 
-    private Rule getRuleStub(String applicationId, String ruleId) {
-        Rule rule = new Rule(applicationId, "tomcat", CHECKER_NAME, 100, "testGroup", true, true, true, "");
+    private Rule getRuleStub(String applicationName, String ruleId) {
+        Rule rule = new Rule(applicationName, "tomcat", CHECKER_NAME, 100, "testGroup", true, true, true, "");
         rule.setRuleId(ruleId);
         return rule;
     }
 
     private CheckerResult getBeforeCheckerStub(int sequenceCount, int timingCount) {
-        return new CheckerResult(RULE_ID, APPLICATION_ID, CHECKER_NAME, true, sequenceCount, timingCount);
+        return new CheckerResult(RULE_ID, APPLICATION_NAME, CHECKER_NAME, true, sequenceCount, timingCount);
     }
 
     private AlarmChecker<Long> getCheckerStub(Rule rule, Long detectedValue) {

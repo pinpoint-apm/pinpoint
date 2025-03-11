@@ -45,7 +45,7 @@ public class ApplicationIndexRowKeyEncoderV2 implements RowKeyEncoder<SpanBo> {
         // distribute key evenly
         long acceptedTime = span.getCollectorAcceptTime();
         byte fuzzyKey = fuzzyRowKeyFactory.getKey(span.getElapsed());
-        final byte[] appTraceIndexRowKey = newRowKey(span.getApplicationId(), acceptedTime, fuzzyKey);
+        final byte[] appTraceIndexRowKey = newRowKey(span.getApplicationName(), acceptedTime, fuzzyKey);
         return rowKeyDistributor.getDistributedKey(appTraceIndexRowKey);
     }
 

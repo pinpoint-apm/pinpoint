@@ -40,8 +40,14 @@ public class TransactionTimelineInfoViewModel {
         return recordSet.getAgentId();
     }
 
+    @Deprecated
     @JsonProperty("applicationId")
     public String getApplicationId() {
+        return recordSet.getApplicationId();
+    }
+
+    @JsonProperty("applicationName")
+    public String getApplicationName() {
         return recordSet.getApplicationId();
     }
 

@@ -46,7 +46,7 @@ public abstract class AgentChecker<T> extends AlarmChecker<T> {
 
         Map<String, T> agents = getAgentValues();
         
-        for(Entry<String, T> agent : agents.entrySet()) {
+        for (Entry<String, T> agent : agents.entrySet()) {
             if (decideResult(agent.getValue())) {
                 detected = true;
                 detectedAgents.put(agent.getKey(), agent.getValue());
@@ -75,20 +75,22 @@ public abstract class AgentChecker<T> extends AlarmChecker<T> {
     protected static final String LINE_FEED = "<br>";
 
     @Override
-    public String getEmailMessage(String pinpointUrl, String applicationId, String serviceType, String currentTime) {
+    public String getEmailMessage(String pinpointUrl, String applicationName, String serviceType, String currentTime) {
         StringBuilder message = new StringBuilder();
         
         for (Entry<String, T> detected : detectedAgents.entrySet()) {
             String agentId = detected.getKey();
             message.append(String.format(" Value of agent(%s) is %s%s during the past 5 mins.(Threshold : %s%s)", agentId, detected.getValue(), unit, rule.getThreshold(), unit));
-            message.append(String.format(INSPECTOR_LINK_FORMAT, pinpointUrl, applicationId, serviceType, currentTime, agentId, agentId));
+            message.append(String.format(INSPECTOR_LINK_FORMAT, pinpointUrl, applicationName, serviceType, currentTime, agentId, agentId));
             message.append(LINE_FEED);
         }
         
         return message.toString();
     }
     
-    public Map<String, T> getDetectedAgents() { return detectedAgents; }
+    public Map<String, T> getDetectedAgents() {
+        return detectedAgents;
+    }
     
     protected abstract Map<String, T> getAgentValues();
     

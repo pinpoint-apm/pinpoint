@@ -19,35 +19,34 @@ package com.navercorp.pinpoint.metric.common.model;
 
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 
-import java.util.Objects;
-
 /**
  * @author minwoo.jung
  */
 public class MetricTagName {
 
-    private final String applicationId;
+    private final String applicationName;
     private final String metricName;
     private final String fieldName;
 
-    public MetricTagName(String applicationId, String metricName, String fieldName) {
-        this.applicationId = StringPrecondition.requireHasLength(applicationId, "applicationId");
+    public MetricTagName(String applicationName, String metricName, String fieldName) {
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
         this.fieldName = StringPrecondition.requireHasLength(fieldName, "fieldName");
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         MetricTagName that = (MetricTagName) o;
-        return Objects.equals(applicationId, that.applicationId) &&
-                Objects.equals(metricName, that.metricName) &&
-                Objects.equals(fieldName, that.fieldName);
+        return applicationName.equals(that.applicationName) && metricName.equals(that.metricName) && fieldName.equals(that.fieldName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(applicationId, metricName, fieldName);
+        int result = applicationName.hashCode();
+        result = 31 * result + metricName.hashCode();
+        result = 31 * result + fieldName.hashCode();
+        return result;
     }
 }

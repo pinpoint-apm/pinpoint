@@ -80,9 +80,9 @@ public class MemoryWebhookSendInfoDao implements WebhookSendInfoDao {
     }
 
     @Override
-    public List<WebhookSendInfo> selectWebhookSendInfoByApplicationId(String applicationId) {
+    public List<WebhookSendInfo> selectWebhookSendInfoByApplicationName(String applicationName) {
         List<WebhookSendInfo> selectedWebhookSendInfos = new ArrayList<>();
-        List<Webhook> webhooks = webhookDao.selectWebhookByApplicationId(applicationId);
+        List<Webhook> webhooks = webhookDao.selectWebhookByApplicationName(applicationName);
         for (Webhook webhook : webhooks) {
             for (WebhookSendInfo webhookSendInfo : webhookSendInfos.values()) {
                 if (webhook.getWebhookId().equals(webhookSendInfo.getWebhookId())) {
