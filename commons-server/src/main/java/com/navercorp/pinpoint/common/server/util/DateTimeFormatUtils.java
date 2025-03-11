@@ -40,6 +40,10 @@ public class DateTimeFormatUtils {
     public static final String SIMPLE_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final DateTimeFormatter SIMPLE_DATE_FORMATTER = DateTimeFormatter.ofPattern(SIMPLE_DATE_FORMAT).withZone(DEFAULT_ZONE_ID);
 
+    public static final String DATE_FORMAT_YYYYMMDD = "yyyyMMdd";
+    private static final DateTimeFormatter YYYYMMDD_DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT_YYYYMMDD).withZone(DEFAULT_ZONE_ID);
+
+
     public static final String ABSOLUTE_DATE_FORMAT = "HH:mm:ss SSS";
     private static final DateTimeFormatter ABSOLUTE_DATE_FORMATTER = DateTimeFormatter.ofPattern(ABSOLUTE_DATE_FORMAT).withZone(DEFAULT_ZONE_ID);
 
@@ -67,6 +71,10 @@ public class DateTimeFormatUtils {
     public static String formatSimple(TemporalAccessor temporalAccessor) {
         Objects.requireNonNull(temporalAccessor, "temporalAccessor");
         return format0(SIMPLE_DATE_FORMATTER, temporalAccessor);
+    }
+
+    public static String formatSimpleYYYYMMDD(long epochMillis) {
+        return format0(YYYYMMDD_DATE_FORMATTER, toInstant(epochMillis));
     }
 
     public static long parseSimple(String dateSource) throws DateTimeParseException {
