@@ -30,9 +30,11 @@ create 'HostApplicationMap_Ver2', { NAME => 'M', TTL => 5184000, VERSIONS => 1, 
 =end
 
 =begin
-# The two tables below are not currently in use.
+# The tables below are not currently in use.
 #create 'ApplicationUid', { NAME => 'I', DATA_BLOCK_ENCODING => 'PREFIX' }
 #create 'ApplicationName', { NAME => 'N', DATA_BLOCK_ENCODING => 'PREFIX' }
+
+#create 'AgentList', { NAME => 'A', TTL => 5184000, VERSIONS => 1, DATA_BLOCK_ENCODING => 'PREFIX' }
 =end
 
 list

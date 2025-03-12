@@ -17,15 +17,21 @@
 package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.dao.AgentInfoDao;
+import com.navercorp.pinpoint.collector.dao.AgentListDao;
 import com.navercorp.pinpoint.collector.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
+import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * @author emeroad
@@ -40,14 +46,23 @@ public class AgentInfoService {
 
     private final ApplicationIndexDao applicationIndexDao;
 
-    public AgentInfoService(AgentInfoDao agentInfoDao, ApplicationIndexDao applicationIndexDao) {
+    private final AgentListDao agentListDao;
+    private final boolean agentListEnable;
+
+    public AgentInfoService(AgentInfoDao agentInfoDao, ApplicationIndexDao applicationIndexDao, Optional<AgentListDao> agentListDao,
+                            @Value("${pinpoint.collector.uid.agent.list.insert:false}") boolean agentListEnable) {
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
+        this.agentListDao = Objects.requireNonNull(agentListDao, "agentListDao").orElse(null);
+        this.agentListEnable = agentListEnable;
     }
 
-    public void insert(@Valid final AgentInfoBo agentInfoBo) {
+    public void insert(Supplier<ServiceUid> serviceUid, Supplier<ApplicationUid> applicationUid, @Valid final AgentInfoBo agentInfoBo) {
         agentInfoDao.insert(agentInfoBo);
         applicationIndexDao.insert(agentInfoBo);
+        if (agentListEnable && agentListDao != null) {
+            agentListDao.insert(serviceUid.get(), applicationUid.get(), agentInfoBo.getAgentId(), agentInfoBo.getStartTime(), agentInfoBo.getAgentName());
+        }
     }
 
     public AgentInfoBo getSimpleAgentInfo(@NotBlank final String agentId, @PositiveOrZero final long timestamp) {
