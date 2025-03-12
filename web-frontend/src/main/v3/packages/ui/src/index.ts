@@ -8,3 +8,4 @@ export * from './hooks';
 export * from './lib';
 export * from './pages';
 export * from './utils';
+export * from './loader';

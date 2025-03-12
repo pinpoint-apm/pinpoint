@@ -13,8 +13,15 @@ import { useSystemMetricSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { convertParamsToQueryString, getSystemMetricPath } from '@pinpoint-fe/ui/src/utils';
 import { useTranslation } from 'react-i18next';
 import { PiHardDrivesDuotone } from 'react-icons/pi';
+import { Configuration } from '@pinpoint-fe/ui/src/constants';
 
-export const SystemMetricPage = () => {
+export const SystemMetricPage = ({
+  configuration,
+}: {
+  configuration?: Configuration & Record<string, unknown>;
+}) => {
+  const periodMax = configuration?.['periodMax.systemMetric'];
+  const periodInterval = configuration?.['periodInterval.systemMetric'];
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { searchParameters, hostGroupName, hostName } = useSystemMetricSearchParameters();
@@ -53,11 +60,11 @@ export const SystemMetricPage = () => {
               from={searchParameters.from}
               to={searchParameters.to}
               onChange={handleChangeDateRagePicker}
-              maxDateRangeDays={28}
+              maxDateRangeDays={periodMax}
               outOfDateRangeMessage={t('DATE_RANGE_PICKER.MAX_SEARCH_PERIOD', {
-                maxSearchPeriod: 28,
+                maxSearchPeriod: periodMax,
               })}
-              timeUnits={['5m', '20m', '1h', '12h', '1d', '7d', '14d', '28d']}
+              timeUnits={periodInterval}
             />
           )}
         </div>

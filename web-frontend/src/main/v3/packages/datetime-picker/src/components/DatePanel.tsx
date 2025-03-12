@@ -1,6 +1,6 @@
 import React, { HTMLAttributes } from 'react';
 import classNames from 'classnames';
-import { Locale, formatDistance } from 'date-fns';
+import { Locale, formatDistance, differenceInDays } from 'date-fns';
 import { convertToMilliseconds, getFormattedTimeUnit } from '../utils/date';
 import CalendarIcon from '../assets/calendar.svg?react';
 import MoreIcon from '../assets/more.svg?react';
@@ -77,12 +77,23 @@ export const DatePanel = ({
   }, [open]);
 
   const getListItemText = (ms: number) => {
-    if (endDate) {
-      return formatDistance(endDate.getTime() - ms, endDate, {
-        locale,
-        addSuffix: true,
-      });
+    if (!endDate) {
+      return;
     }
+
+    const pastDate = new Date(endDate.getTime() - ms);
+    const diffDays = differenceInDays(endDate, pastDate);
+
+    if (diffDays >= 1) {
+      return locale?.code === 'ko'
+        ? `${diffDays}일 전`
+        : `Past ${diffDays} Day${diffDays > 1 ? 's' : ''}`;
+    }
+
+    return formatDistance(pastDate, endDate, {
+      locale,
+      addSuffix: true,
+    });
   };
 
   const handleClickTimeUnit = (ms: number, text: string, timeUnit: string) => {

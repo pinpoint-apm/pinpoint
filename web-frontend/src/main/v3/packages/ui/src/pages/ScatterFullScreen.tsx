@@ -7,6 +7,7 @@ import {
   getServerMapPath,
 } from '@pinpoint-fe/ui/src/utils';
 import { useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import { Configuration } from '@pinpoint-fe/ui/src/constants';
 import { useNavigate } from 'react-router-dom';
 import {
   ApplicationCombinedList,
@@ -18,7 +19,13 @@ import {
 import { PiTreeStructureDuotone } from 'react-icons/pi';
 import { useTranslation } from 'react-i18next';
 
-export const ScatterFullScreenPage = () => {
+export const ScatterFullScreenPage = ({
+  configuration,
+}: {
+  configuration?: Configuration & Record<string, unknown>;
+}) => {
+  const periodMax = configuration?.[`periodMax.serverMap`];
+  const periodInterval = configuration?.[`periodInterval.serverMap`];
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { dateRange, application, searchParameters } = useServerMapSearchParameters();
@@ -72,10 +79,12 @@ export const ScatterFullScreenPage = () => {
               from={searchParameters.from}
               to={searchParameters.to}
               onChange={handleChangeDateRagePicker}
+              maxDateRangeDays={periodMax}
               outOfDateRangeMessage={t('DATE_RANGE_PICKER.MAX_SEARCH_PERIOD', {
-                maxSearchPeriod: 2,
+                maxSearchPeriod: periodMax,
               })}
               isRealtime={isRealtime}
+              timeUnits={periodInterval}
             />
           )}
         </div>

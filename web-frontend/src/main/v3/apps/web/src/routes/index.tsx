@@ -4,28 +4,32 @@ import ServerMap from '@pinpoint-fe/web/src/pages/ServerMap';
 import Realtime from '@pinpoint-fe/web/src/pages/ServerMap/Realtime';
 import ScatterFullScreen from '@pinpoint-fe/web/src/pages/ScatterFullScreen';
 import {
+  serverMapRouteLoader,
+  realtimeLoader,
+  errorAnalysisRouteLoader,
+  urlStatisticRouteLoader,
+  systemMetricRouteLoader,
+  transactionRouteLoader,
+  transactionDetailRouteLoader,
+  inspectorRouteLoader,
+  threadDumpRouteLoader,
+  handleV2RouteLoader,
+  openTelemetryRouteLoader,
   scatterFullScreenLoader,
   scatterFullScreenRealtimeLoader,
-} from './loader/scatterFullScreen';
-import { serverMapRouteLoader } from './loader/serverMap';
-import { realtimeLoader } from './loader/realtime';
+} from '@pinpoint-fe/ui/src/loader';
+
 import FilteredMap from '@pinpoint-fe/web/src/pages/FilteredMap';
 import { BASE_PATH, APP_PATH } from '@pinpoint-fe/ui/src/constants';
 import NotFound from '@pinpoint-fe/web/src/pages/NotFound';
 import ErrorAnalysis from '@pinpoint-fe/web/src/pages/ErrorAnalysis';
-import { errorAnalysisRouteLoader } from './loader/errorAnalysis';
 import ApiCheck from '@pinpoint-fe/web/src/pages/ApiCheck';
-import { urlStatisticRouteLoader } from './loader/urlStatistic';
 import UrlStatistic from '@pinpoint-fe/web/src/pages/UrlStatistic';
 import SystemMetric from '@pinpoint-fe/web/src/pages/SystemMetric';
-import { systemMetricRouteLoader } from './loader/systemMetric';
 import General from '@pinpoint-fe/web/src/pages/config/General';
 import Experimentals from '@pinpoint-fe/web/src/pages/config/Experimentals';
 import TransactionList from '@pinpoint-fe/web/src/pages/TransactionList';
 import TransactionDetail from '@pinpoint-fe/web/src/pages/TransactionDetail';
-import { transactionRouteLoader } from './loader/transaction';
-import { transactionDetailRouteLoader } from './loader/transactionDetail';
-import { inspectorRouteLoader } from './loader/inspector';
 import Inspector from '@pinpoint-fe/web/src/pages/Inspector';
 import ThreadDump from '@pinpoint-fe/web/src/pages/ThreadDump';
 import OpenTelemetry from '@pinpoint-fe/web/src/pages/OpenTelemetry';
@@ -37,9 +41,6 @@ import Alarm from '@pinpoint-fe/web/src/pages/config/Alarm';
 import Webhook from '@pinpoint-fe/web/src/pages/config/Webhook';
 import AgentManagement from '@pinpoint-fe/web/src/pages/config/AgentManagement';
 import AgentStatistic from '@pinpoint-fe/web/src/pages/config/AgentStatistic';
-import { threadDumpRouteLoader } from './loader/threadDump';
-import { openTelemetryRouteLoader } from './loader/openTelemetry';
-import { handleV2RouteLoader } from './loader/handleV2';
 
 const defaultLoader = () => {
   return redirect('/serverMap');

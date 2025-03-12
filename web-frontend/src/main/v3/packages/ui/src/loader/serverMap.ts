@@ -1,7 +1,9 @@
 import {
+  Configuration,
   SEARCH_PARAMETER_DATE_FORMAT,
   SEARCH_PARAMETER_DATE_FORMAT_WHITE_LIST,
 } from '@pinpoint-fe/ui/src/constants';
+import { getConfiguration } from '@pinpoint-fe/ui/src/hooks';
 import {
   convertParamsToQueryString,
   getApplicationTypeAndName,
@@ -12,8 +14,9 @@ import {
 import { parse, format } from 'date-fns';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 
-export const serverMapRouteLoader = ({ params, request }: LoaderFunctionArgs) => {
+export const serverMapRouteLoader = async ({ params, request }: LoaderFunctionArgs) => {
   const application = getApplicationTypeAndName(params.application!);
+  const configuration = await getConfiguration<Configuration>();
 
   if (application?.applicationName && application.serviceType) {
     const basePath = `/serverMap/${params.application}`;
@@ -24,7 +27,7 @@ export const serverMapRouteLoader = ({ params, request }: LoaderFunctionArgs) =>
     const to = queryParam?.to as string;
 
     const currentDate = new Date();
-    const validationRange = isValidDateRange(2);
+    const validationRange = isValidDateRange(configuration?.['periodMax.serverMap'] || 2);
     const defaultParsedDateRange = getParsedDateRange({ from, to });
     const defaultFormattedDateRange = {
       from: format(defaultParsedDateRange.from, SEARCH_PARAMETER_DATE_FORMAT),

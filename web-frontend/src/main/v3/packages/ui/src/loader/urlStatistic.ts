@@ -1,4 +1,9 @@
-import { APP_PATH, SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/ui/src/constants';
+import {
+  APP_PATH,
+  Configuration,
+  SEARCH_PARAMETER_DATE_FORMAT,
+} from '@pinpoint-fe/ui/src/constants';
+import { getConfiguration } from '@pinpoint-fe/ui/src/hooks';
 import {
   getApplicationTypeAndName,
   getParsedDateRange,
@@ -7,8 +12,9 @@ import {
 import { parse, format } from 'date-fns';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 
-export const urlStatisticRouteLoader = ({ params, request }: LoaderFunctionArgs) => {
+export const urlStatisticRouteLoader = async ({ params, request }: LoaderFunctionArgs) => {
   const application = getApplicationTypeAndName(params.application!);
+  const configuration = await getConfiguration<Configuration>();
 
   if (application?.applicationName && application.serviceType) {
     const basePath = `${APP_PATH.URL_STATISTIC}/${params.application}`;
@@ -23,7 +29,7 @@ export const urlStatisticRouteLoader = ({ params, request }: LoaderFunctionArgs)
       from: parse(from, SEARCH_PARAMETER_DATE_FORMAT, currentDate),
       to: parse(to, SEARCH_PARAMETER_DATE_FORMAT, currentDate),
     };
-    const validateDateRange = isValidDateRange(28);
+    const validateDateRange = isValidDateRange(configuration?.['periodMax.uriStat'] || 28);
     const defaultParsedDateRange = getParsedDateRange({ from, to }, validateDateRange);
     const defaultFormattedDateRange = {
       from: format(defaultParsedDateRange.from, SEARCH_PARAMETER_DATE_FORMAT),

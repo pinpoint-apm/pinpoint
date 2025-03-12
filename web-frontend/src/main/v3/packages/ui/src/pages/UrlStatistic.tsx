@@ -18,6 +18,7 @@ import { PiChartBarDuotone } from 'react-icons/pi';
 // import { ErrorBoundary } from '../../Error/ErrorBoundary';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@pinpoint-fe/ui/src/components';
 import { UrlStatSummary } from '../constants';
+import { Configuration } from '@pinpoint-fe/ui/src/constants';
 
 const TAB_LIST = [
   { id: 'total', display: 'Total Count' },
@@ -29,12 +30,16 @@ const TAB_LIST = [
 type TYPE = UrlStatSummary.Parameters['type'];
 
 export interface UrlStatisticPageProps {
+  configuration?: Configuration & Record<string, unknown>;
   ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
 }
 
 export const UrlStatisticPage = ({
+  configuration,
   ApplicationList = ApplicationCombinedList,
 }: UrlStatisticPageProps) => {
+  const periodMax = configuration?.['periodMax.uriStat'];
+  const periodInterval = configuration?.['periodInterval.uriStat'];
   const navigate = useNavigate();
   const { searchParameters, application, agentId } = useUrlStatSearchParameters();
   const { t } = useTranslation();
@@ -72,11 +77,11 @@ export const UrlStatisticPage = ({
               from={searchParameters.from}
               to={searchParameters.to}
               onChange={handleChangeDateRagePicker}
-              maxDateRangeDays={28}
+              maxDateRangeDays={periodMax}
               outOfDateRangeMessage={t('DATE_RANGE_PICKER.MAX_SEARCH_PERIOD', {
-                maxSearchPeriod: 28,
+                maxSearchPeriod: periodMax,
               })}
-              timeUnits={['5m', '20m', '1h', '12h', '1d', '7d', '14d', '28d']}
+              timeUnits={periodInterval}
             />
           )}
         </div>

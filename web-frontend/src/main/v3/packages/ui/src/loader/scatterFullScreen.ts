@@ -1,4 +1,9 @@
-import { SEARCH_PARAMETER_DATE_FORMAT, APP_PATH } from '@pinpoint-fe/ui/src/constants';
+import {
+  SEARCH_PARAMETER_DATE_FORMAT,
+  APP_PATH,
+  Configuration,
+} from '@pinpoint-fe/ui/src/constants';
+import { getConfiguration } from '@pinpoint-fe/ui/src/hooks';
 import {
   getApplicationTypeAndName,
   getParsedDateRange,
@@ -7,8 +12,10 @@ import {
 import { format, parse } from 'date-fns';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 
-export const scatterFullScreenLoader = ({ params, request }: LoaderFunctionArgs) => {
+export const scatterFullScreenLoader = async ({ params, request }: LoaderFunctionArgs) => {
   const application = getApplicationTypeAndName(params.application);
+  const configuration = await getConfiguration<Configuration>();
+
   if (application?.applicationName && application.serviceType) {
     const basePath = `${APP_PATH.SCATTER_FULL_SCREEN}/${params.application}`;
     const queryParam = Object.fromEntries(new URL(request.url).searchParams);
@@ -33,7 +40,10 @@ export const scatterFullScreenLoader = ({ params, request }: LoaderFunctionArgs)
     if (conditions.length === 0) {
       return redirect(defaultDestination);
     } else if (conditions.includes('from')) {
-      if (conditions.includes('to') && isValidDateRange(2)(parsedDateRange)) {
+      if (
+        conditions.includes('to') &&
+        isValidDateRange(configuration?.['periodMax.serverMap'] || 2)(parsedDateRange)
+      ) {
         return application;
       } else {
         return redirect(defaultDestination);

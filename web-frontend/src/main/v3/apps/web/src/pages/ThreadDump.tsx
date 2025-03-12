@@ -1,4 +1,6 @@
 import { withInitialFetch, ThreadDumpPage } from '@pinpoint-fe/ui';
 import { getLayoutWithSideNavigation } from '@pinpoint-fe/web/src/components/Layout/LayoutWithSideNavigation';
 
-export default withInitialFetch(() => getLayoutWithSideNavigation(<ThreadDumpPage />));
+export default withInitialFetch((props) =>
+  getLayoutWithSideNavigation(<ThreadDumpPage {...props} />),
+);

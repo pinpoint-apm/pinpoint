@@ -16,7 +16,7 @@ export const ApiCheck = ({ children }: ApiCheckProps) => {
     data: configurationData,
     isLoading: isConfigurationLoading,
     error: configurationError,
-  } = useGetConfiguration({ suspense: false });
+  } = useGetConfiguration();
 
   return (
     <div className="flex flex-col gap-4 items-center justify-center p-5 h-[calc(100%-4rem)]">

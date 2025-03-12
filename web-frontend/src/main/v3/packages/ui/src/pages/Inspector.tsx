@@ -18,14 +18,20 @@ import {
 } from '../components';
 import { convertParamsToQueryString, getInspectorPath } from '@pinpoint-fe/ui/src/utils';
 import { PiChartLineDuotone } from 'react-icons/pi';
+import { TimeUnitFormat } from '@pinpoint-fe/datetime-picker';
+import { Configuration } from '@pinpoint-fe/ui/src/constants';
 
 export interface InspectorPageProps {
+  configuration?: Configuration;
   ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
 }
 
 export const InspectorPage = ({
+  configuration,
   ApplicationList = ApplicationCombinedList,
 }: InspectorPageProps) => {
+  const periodMax = configuration?.['periodMax.inspector'];
+  const periodInterval = configuration?.['periodInterval.inspector'];
   const navigate = useNavigate();
   const { searchParameters, application, agentId, version } = useInspectorSearchParameters();
   const { t } = useTranslation();
@@ -71,11 +77,11 @@ export const InspectorPage = ({
               from={searchParameters.from}
               to={searchParameters.to}
               onChange={handleChangeDateRagePicker}
-              maxDateRangeDays={14}
+              maxDateRangeDays={periodMax}
               outOfDateRangeMessage={t('DATE_RANGE_PICKER.MAX_SEARCH_PERIOD', {
-                maxSearchPeriod: 14,
+                maxSearchPeriod: periodMax,
               })}
-              timeUnits={['5m', '20m', '1h', '12h', '1d', '7d', '14d']}
+              timeUnits={periodInterval as TimeUnitFormat[]}
             />
           )}
         </div>
