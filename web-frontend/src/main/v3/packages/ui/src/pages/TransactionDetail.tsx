@@ -32,7 +32,7 @@ export const TransactionDetailPage = ({ transactionInfoProps }: TransactionDetai
           <div className="flex items-center gap-1 ml-4 text-sm font-semibold truncate">
             <div className="truncate">({transactionInfoData.agentId})</div>
             <FaChevronRight className="fill-slate-400 mx-1.5 flex-none" />
-            <div className="truncate">{transactionInfoData.applicationName}</div>
+            <div className="truncate">{transactionInfoData.uri}</div>
             <FaChevronRight className="fill-slate-400 mx-1.5 flex-none" />
             <div className="truncate text-muted-foreground">
               {transactionInfoData.transactionId}

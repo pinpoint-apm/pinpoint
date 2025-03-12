@@ -90,7 +90,7 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
             <div className="truncate">{application?.applicationName}</div>
             <div className="truncate">({data.agentId})</div>
             <FaChevronRight className="fill-slate-400 mx-1.5 flex-none" />
-            <div className="truncate">{data.applicationName}</div>
+            <div className="truncate">{data.uri}</div>
             <FaChevronRight className="fill-slate-400 mx-1.5 flex-none" />
             <div className="truncate text-muted-foreground">{data.transactionId}</div>
             <Button

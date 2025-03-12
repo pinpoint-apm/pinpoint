@@ -24,7 +24,7 @@ export namespace TransactionInfoType {
     loggingTransactionInfo: boolean;
     agentId: string;
     agentName: string;
-    applicationName: string;
+    uri: string;
     applicationId: string;
   }
 
