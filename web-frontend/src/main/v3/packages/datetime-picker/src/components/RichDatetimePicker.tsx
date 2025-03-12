@@ -209,6 +209,7 @@ export const RichDatetimePicker = ({
             startDate={from}
             endDate={to}
             locale={locale}
+            formatTag={formatTag}
             onChange={(dates, text, timeUnit) => {
               setValidInput(true);
               setDisplayInput(text);

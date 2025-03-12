@@ -11,7 +11,7 @@ export const withInitialFetch =
   <P extends object>(WrappedComponent: React.ComponentType<P>) =>
   (props: P) => {
     const navigate = useNavigate();
-    const { data, error } = useGetConfiguration<Configuration>({ suspense: false });
+    const { data, error } = useGetConfiguration<Configuration>();
     const setConfiguration = useSetAtom(configurationAtom);
     const { pathname, search } = useLocation();
     const application = getApplicationTypeAndName(pathname);
@@ -40,5 +40,5 @@ export const withInitialFetch =
       return null;
     }
 
-    return <WrappedComponent {...props} />;
+    return <WrappedComponent {...props} configuration={data} />;
   };

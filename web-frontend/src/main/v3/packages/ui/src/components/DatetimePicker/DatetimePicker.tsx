@@ -3,7 +3,11 @@ import './datetime-picker.css';
 import React from 'react';
 import { subDays, format, subYears } from 'date-fns';
 import { RxChevronLeft, RxChevronRight, RxPlay, RxTrackNext, RxStop } from 'react-icons/rx';
-import { RichDatetimePicker, RichDatetimePickerProps } from '@pinpoint-fe/datetime-picker';
+import {
+  RichDatetimePicker,
+  RichDatetimePickerProps,
+  TimeUnitFormat,
+} from '@pinpoint-fe/datetime-picker';
 import Marquee from 'react-fast-marquee';
 
 import { SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/ui/src/constants';
@@ -16,6 +20,10 @@ import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from
 import { cn } from '../../lib';
 import { useReactToastifyToast } from '../Toast';
 import { useDateFormat, useLanguage, useSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import {
+  convertToMilliseconds,
+  convertToTimeUnit,
+} from '@pinpoint-fe/datetime-picker/src/utils/date';
 
 export type DateState = {
   dates?: {
@@ -31,7 +39,8 @@ export type DateState = {
 
 export type DatetimePickerChangeHandler = (dateState: DateState) => void;
 
-export interface DatetimePickerProps extends Omit<RichDatetimePickerProps, 'onChange'> {
+export interface DatetimePickerProps
+  extends Omit<RichDatetimePickerProps, 'onChange' | 'timeUnits'> {
   className?: string;
   from?: Date | string;
   to?: Date | string;
@@ -40,6 +49,7 @@ export interface DatetimePickerProps extends Omit<RichDatetimePickerProps, 'onCh
   maxDateRangeDays?: number;
   outOfDateRangeMessage?: string;
   onChange?: DatetimePickerChangeHandler;
+  timeUnits?: string[];
 }
 
 const genDateState = (from: number | Date, to: number | Date): DateState => {
@@ -67,6 +77,7 @@ export const DatetimePicker = React.memo(
     to,
     maxDateRangeDays = 2,
     outOfDateRangeMessage = 'Out of date range.',
+    timeUnits,
     onChange,
     ...props
   }: DatetimePickerProps) => {
@@ -165,6 +176,22 @@ export const DatetimePicker = React.memo(
                 }
                 return false;
               }}
+              timeUnits={timeUnits as TimeUnitFormat[]}
+              formatTag={
+                timeUnits
+                  ? (ms) => {
+                      return (
+                        timeUnits?.find((timeUnit) => {
+                          const milliseconds = convertToMilliseconds(
+                            timeUnit as TimeUnitFormat,
+                            '',
+                          );
+                          return ms === milliseconds;
+                        }) || convertToTimeUnit(ms)
+                      );
+                    }
+                  : undefined
+              }
               {...props}
             />
           )}

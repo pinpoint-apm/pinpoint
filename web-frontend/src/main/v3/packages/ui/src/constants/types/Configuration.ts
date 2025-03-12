@@ -21,4 +21,16 @@ export interface Configuration {
   'experimental.enableServerMapRealTime.description': string;
   'experimental.enableServerSideScanForScatter.value': boolean;
   'experimental.sampleScatter.value': boolean;
+  'periodMax.exceptionTrace': number;
+  'periodInterval.exceptionTrace': string[];
+  'periodMax.inspector': number;
+  'periodInterval.inspector': string[];
+  'periodMax.otlpMetric': number;
+  'periodInterval.otlpMetric': string[];
+  'periodMax.serverMap': number;
+  'periodInterval.serverMap': string[];
+  'periodMax.systemMetric': number;
+  'periodInterval.systemMetric': string[];
+  'periodMax.uriStat': number;
+  'periodInterval.uriStat': string[];
 }

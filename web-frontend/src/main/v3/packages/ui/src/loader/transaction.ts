@@ -1,14 +1,23 @@
-import { APP_PATH, SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/ui/src/constants';
-import { isValidDateRange } from '@pinpoint-fe/ui/src/utils';
-import { getParsedDateRange } from '@pinpoint-fe/ui/src/utils';
+import {
+  APP_PATH,
+  Configuration,
+  SEARCH_PARAMETER_DATE_FORMAT,
+} from '@pinpoint-fe/ui/src/constants';
+import { getConfiguration } from '@pinpoint-fe/ui/src/hooks';
+import {
+  getApplicationTypeAndName,
+  getParsedDateRange,
+  isValidDateRange,
+} from '@pinpoint-fe/ui/src/utils';
 import { parse, format } from 'date-fns';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 
-export const systemMetricRouteLoader = ({ params, request }: LoaderFunctionArgs) => {
-  const hostGroup = params.hostGroup || null;
+export const transactionRouteLoader = async ({ params, request }: LoaderFunctionArgs) => {
+  const application = getApplicationTypeAndName(params.application!);
+  const configuration = await getConfiguration<Configuration>();
 
-  if (hostGroup) {
-    const basePath = `${APP_PATH.SYSTEM_METRIC}/${hostGroup}`;
+  if (application?.applicationName && application.serviceType) {
+    const basePath = `${APP_PATH.TRANSACTION_LIST}/${params.application}`;
     const queryParam = Object.fromEntries(new URL(request.url).searchParams);
     const conditions = Object.keys(queryParam);
 
@@ -20,12 +29,12 @@ export const systemMetricRouteLoader = ({ params, request }: LoaderFunctionArgs)
       from: parse(from, SEARCH_PARAMETER_DATE_FORMAT, currentDate),
       to: parse(to, SEARCH_PARAMETER_DATE_FORMAT, currentDate),
     };
-    const defaultParsedDateRange = getParsedDateRange({ from, to });
+    const validateDateRange = isValidDateRange(configuration?.['periodMax.serverMap'] || 2);
+    const defaultParsedDateRange = getParsedDateRange({ from, to }, validateDateRange);
     const defaultFormattedDateRange = {
       from: format(defaultParsedDateRange.from, SEARCH_PARAMETER_DATE_FORMAT),
       to: format(defaultParsedDateRange.to, SEARCH_PARAMETER_DATE_FORMAT),
     };
-    const validateDateRange = isValidDateRange(28);
     const defaultDatesQueryString = new URLSearchParams(defaultFormattedDateRange).toString();
     const defaultDestination = `${basePath}?${defaultDatesQueryString}`;
 
@@ -37,12 +46,12 @@ export const systemMetricRouteLoader = ({ params, request }: LoaderFunctionArgs)
         conditions.includes('to') &&
         validateDateRange(parsedDateRange)
       ) {
-        return hostGroup;
+        return application;
       } else {
         return redirect(defaultDestination);
       }
     }
   }
 
-  return hostGroup;
+  return application;
 };

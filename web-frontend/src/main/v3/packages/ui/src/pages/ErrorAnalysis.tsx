@@ -28,7 +28,7 @@ import {
 } from '@pinpoint-fe/ui/src/utils';
 import { useErrorAnalysisSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { useTranslation } from 'react-i18next';
-import { ErrorAnalysisErrorList, BASE_PATH } from '@pinpoint-fe/ui/src/constants';
+import { ErrorAnalysisErrorList, BASE_PATH, Configuration } from '@pinpoint-fe/ui/src/constants';
 import { format } from 'date-fns';
 import { IoMdClose } from 'react-icons/io';
 import { PiBugBeetleDuotone } from 'react-icons/pi';
@@ -37,12 +37,16 @@ import { FaChevronRight } from 'react-icons/fa6';
 import { ServerIcon } from '../components/Application/ServerIcon';
 
 export interface ErrorAnalysisPageProps {
+  configuration?: Configuration;
   ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
 }
 
 export const ErrorAnalysisPage = ({
+  configuration,
   ApplicationList = ApplicationCombinedList,
 }: ErrorAnalysisPageProps) => {
+  const periodMax = configuration?.['periodMax.exceptionTrace'];
+  const periodInterval = configuration?.['periodInterval.exceptionTrace'];
   const navigate = useNavigate();
 
   const {
@@ -91,11 +95,11 @@ export const ErrorAnalysisPage = ({
               from={searchParameters.from}
               to={searchParameters.to}
               onChange={handleChangeDateRagePicker}
-              maxDateRangeDays={7}
+              maxDateRangeDays={periodMax}
               outOfDateRangeMessage={t('DATE_RANGE_PICKER.MAX_SEARCH_PERIOD', {
-                maxSearchPeriod: 7,
+                maxSearchPeriod: periodMax,
               })}
-              timeUnits={['5m', '20m', '1h', '3h', '6h', '12h', '1d', '2d', '7d']}
+              timeUnits={periodInterval}
             />
           )}
         </div>

@@ -27,6 +27,7 @@ import {
   GetServerMap,
   SCATTER_DATA_TOTAL_KEY,
   BASE_PATH,
+  Configuration,
 } from '@pinpoint-fe/ui/src/constants';
 import {
   ApplicationCombinedList,
@@ -61,9 +62,13 @@ import { getLayoutWithSideNavigation } from '@pinpoint-fe/web/src/components/Lay
 import { Node, Edge } from '@pinpoint-fe/ui/src/utils/helper/serverMap';
 import { PiTreeStructureDuotone } from 'react-icons/pi';
 
-export interface FilteredMapPageProps {}
+export interface FilteredMapPageProps {
+  configuration?: Configuration & Record<string, string>;
+}
 
-export const FilteredMapPage = ({}: FilteredMapPageProps) => {
+export const FilteredMapPage = ({ configuration }: FilteredMapPageProps) => {
+  const periodMax = configuration?.[`periodMax.serverMap`];
+  const periodInterval = configuration?.['periodInterval.serverMap'];
   const containerRef = React.useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { dateRange, application, parsedFilters, parsedHint, searchParameters, search } =
@@ -250,9 +255,11 @@ export const FilteredMapPage = ({}: FilteredMapPageProps) => {
               from={searchParameters.from}
               to={searchParameters.to}
               onChange={handleChangeDateRagePicker}
+              maxDateRangeDays={periodMax}
               outOfDateRangeMessage={t('DATE_RANGE_PICKER.MAX_SEARCH_PERIOD', {
-                maxSearchPeriod: 2,
+                maxSearchPeriod: periodMax,
               })}
+              timeUnits={periodInterval}
             />
           )}
         </div>

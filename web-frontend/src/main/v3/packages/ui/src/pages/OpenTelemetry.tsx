@@ -14,14 +14,19 @@ import {
 import { convertParamsToQueryString, getOpenTelemetryPath } from '@pinpoint-fe/ui/src/utils';
 import { useOpenTelemetrySearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { SiOpentelemetry } from 'react-icons/si';
+import { Configuration } from '@pinpoint-fe/ui/src/constants';
 
 export interface OpenTelemetryPageProps {
+  configuration?: Configuration & Record<string, unknown>;
   ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
 }
 
 export const OpenTelemetryPage = ({
+  configuration,
   ApplicationList = ApplicationCombinedList,
 }: OpenTelemetryPageProps) => {
+  const periodMax = configuration?.['periodMax.otlpMetric'];
+  const periodInterval = configuration?.['periodInterval.otlpMetric'];
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { searchParameters, application, agentId } = useOpenTelemetrySearchParameters();
@@ -62,11 +67,11 @@ export const OpenTelemetryPage = ({
               from={searchParameters.from}
               to={searchParameters.to}
               onChange={handleChangeDateRagePicker}
-              maxDateRangeDays={14}
+              maxDateRangeDays={periodMax}
               outOfDateRangeMessage={t('DATE_RANGE_PICKER.MAX_SEARCH_PERIOD', {
-                maxSearchPeriod: 14,
+                maxSearchPeriod: periodMax,
               })}
-              timeUnits={['5m', '20m', '1h', '12h', '1d', '7d', '14d']}
+              timeUnits={periodInterval}
             />
           )}
         </div>
