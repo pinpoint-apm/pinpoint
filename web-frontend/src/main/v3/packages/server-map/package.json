@@ -19,7 +19,7 @@
     "clean:dist": "rm -rf dist"
   },
   "dependencies": {
-    "cytoscape": "^3.24.0",
+    "cytoscape": "^3.31.1",
     "cytoscape-dagre": "^2.5.0",
     "date-fns": "^2.28.0",
     "lodash": "^4.17.21",
@@ -39,8 +39,8 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^14.2.1",
-    "@types/cytoscape": "^3.19.9",
-    "@types/cytoscape-dagre": "^2.3.0",
+    "@types/cytoscape": "^3.21.9",
+    "@types/cytoscape-dagre": "^2.3.3",
     "@types/jest": "^28.1.4",
     "@types/react": "^18.0.14",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
