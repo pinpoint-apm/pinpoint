@@ -265,7 +265,7 @@ const MethodCell = (props: {
           transactionId: metaData.transactionId,
           exceptionId: rowData.exceptionChainId,
           timestamp: transactionInfo.focusTimestamp,
-          uriTemplate: metaData.applicationName,
+          uriTemplate: metaData.uri,
         }),
         openErrorDetail: true,
       })}`;
