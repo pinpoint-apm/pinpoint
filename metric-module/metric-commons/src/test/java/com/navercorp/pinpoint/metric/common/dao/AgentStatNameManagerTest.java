@@ -17,27 +17,20 @@
 package com.navercorp.pinpoint.metric.common.dao;
 
 import org.apache.kafka.clients.producer.internals.BuiltInPartitioner;
+import org.apache.kafka.common.serialization.Serializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author minwoo-jung
  */
-
-
-@Disabled
 class AgentStatNameManagerTest {
 
     private final Logger logger = LogManager.getLogger(AgentStatNameManagerTest.class.getName());
@@ -45,11 +38,12 @@ class AgentStatNameManagerTest {
     @Test
     public void kafkaPartitionForStringSortKeyTest() {
         int numPartitions = 32;
-        StringSerializer keySerializer = new StringSerializer();
-        byte[] keyBytes = keySerializer.serialize("inspector-stat", "applicationName#AgentId#directBuffer");
-        int partition = BuiltInPartitioner.partitionForKey(keyBytes, numPartitions);
-        logger.info(partition);
+        try (Serializer<String> keySerializer = new StringSerializer()) {
+            byte[] keyBytes = keySerializer.serialize("inspector-stat", "applicationName#AgentId#directBuffer");
+            int partition = BuiltInPartitioner.partitionForKey(keyBytes, numPartitions);
+            logger.debug(partition);
 //        assertEquals(17, partition);
+        }
     }
 
 
@@ -61,8 +55,8 @@ class AgentStatNameManagerTest {
         String startTime = "2024-04-01 00:00:00.000";
         String endTime = "2024-04-24 00:00:00.000";
 
-        logger.info("start time value : " + SIMPLE_DATE_FORMATTER.parse(startTime, Instant::from).toEpochMilli());
-        logger.info("end time value : " + SIMPLE_DATE_FORMATTER.parse(endTime, Instant::from).toEpochMilli());
+        logger.debug("start time value : {}", SIMPLE_DATE_FORMATTER.parse(startTime, Instant::from).toEpochMilli());
+        logger.debug("end time value : {}", SIMPLE_DATE_FORMATTER.parse(endTime, Instant::from).toEpochMilli());
     }
 
 }
