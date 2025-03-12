@@ -16,55 +16,104 @@
 
 package com.navercorp.pinpoint.plugin.reactor.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceBlock;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventApiIdAwareAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.bootstrap.interceptor.BlockApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
+import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorSubscriber;
 import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorSubscriberAccessorUtils;
 import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
 import com.navercorp.pinpoint.plugin.reactor.ReactorPluginConfig;
 
-public class FluxAndMonoSubscribeMethodInterceptor extends SpanEventApiIdAwareAroundInterceptorForPlugin {
+public class FluxAndMonoSubscribeMethodInterceptor implements BlockApiIdAwareAroundInterceptor {
+    private final PluginLogger logger = PluginLogManager.getLogger(getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
 
+    private final TraceContext traceContext;
     private final boolean traceSubscribe;
 
     public FluxAndMonoSubscribeMethodInterceptor(TraceContext traceContext) {
-        super(traceContext);
+        this.traceContext = traceContext;
         final ReactorPluginConfig config = new ReactorPluginConfig(traceContext.getProfilerConfig());
         this.traceSubscribe = config.isTraceSubscribe();
     }
 
-    public Trace currentTrace() {
-        if (traceSubscribe) {
-            return traceContext.currentTraceObject();
-        }
-        return null;
-    }
-
     @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) throws Exception {
-        ReactorSubscriber reactorSubscriber = ReactorSubscriberAccessorUtils.get(args, 0);
-        if (reactorSubscriber == null) {
-            final AsyncContext nextAsyncContext = recorder.recordNextAsyncContext();
+    public TraceBlock before(Object target, int apiId, Object[] args) {
+        if (isDebug) {
+            logger.beforeInterceptor(target, args);
+        }
+
+        if (Boolean.FALSE == traceSubscribe) {
+            return null;
+        }
+
+        final Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
+            return null;
+        }
+
+        if (ReactorSubscriberAccessorUtils.get(args, 0) != null) {
+            // already set reactorSubscriber
+            return null;
+        }
+
+        try {
+            final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(target);
+            if (asyncContext != null) {
+                final ReactorSubscriber reactorSubscriber = new ReactorSubscriber(asyncContext);
+                ReactorSubscriberAccessorUtils.set(reactorSubscriber, args, 0);
+                if (isDebug) {
+                    logger.debug("Pass this to subscribe(args[0]). reactorSubscriber={}", reactorSubscriber);
+                }
+                return null;
+            }
+
+            final TraceBlock traceBlock = trace.traceBlockBeginAndGet();
+            final AsyncContext nextAsyncContext = traceBlock.recordNextAsyncContext();
             // set reactorSubscriber to args[0]
-            reactorSubscriber = new ReactorSubscriber(nextAsyncContext);
+            final ReactorSubscriber reactorSubscriber = new ReactorSubscriber(nextAsyncContext);
             ReactorSubscriberAccessorUtils.set(reactorSubscriber, args, 0);
             if (isDebug) {
                 logger.debug("Set reactorSubscriber to args[0]. reactorSubscriber={}", reactorSubscriber);
             }
-        } else {
-            if (isDebug) {
-                logger.debug("Already set reactorSubscriber to args[0]. reactorSubscriber={}", reactorSubscriber);
+            return traceBlock;
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
             }
         }
+
+        return null;
     }
 
     @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) throws Exception {
-        recorder.recordApiId(apiId);
-        recorder.recordServiceType(ReactorConstants.REACTOR);
-        recorder.recordException(throwable);
+    public void after(TraceBlock block, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
+        if (isDebug) {
+            logger.afterInterceptor(target, args, result, throwable);
+        }
+
+        if (block == null) {
+            return;
+        }
+
+        final Trace trace = block.getTrace();
+        if (trace == null) {
+            return;
+        }
+
+        try (final TraceBlock traceBlock = block) {
+            traceBlock.recordApiId(apiId);
+            traceBlock.recordServiceType(ReactorConstants.REACTOR);
+            traceBlock.recordException(throwable);
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
+            }
+        }
     }
 }
