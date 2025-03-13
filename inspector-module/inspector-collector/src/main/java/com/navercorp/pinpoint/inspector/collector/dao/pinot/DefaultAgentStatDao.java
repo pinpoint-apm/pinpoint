@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.inspector.collector.dao.pinot;
 
-import com.navercorp.pinpoint.metric.common.dao.TopicNameManager;
+import com.navercorp.pinpoint.common.server.metric.dao.TopicNameManager;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.inspector.collector.config.InspectorCollectorProperties;

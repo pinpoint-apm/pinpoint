@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.inspector.web.dao.pinot;
 
-import com.navercorp.pinpoint.metric.common.dao.TableNameManager;
+import com.navercorp.pinpoint.common.server.metric.dao.TableNameManager;
 import com.navercorp.pinpoint.common.model.SortKeyUtils;
 import com.navercorp.pinpoint.common.model.TagInformation;
 import com.navercorp.pinpoint.inspector.web.config.InspectorWebProperties;

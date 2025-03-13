@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.otlp.web.vo;
 
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
-import com.navercorp.pinpoint.metric.common.dao.TableNameManager;
+import com.navercorp.pinpoint.common.server.metric.dao.TableNameManager;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.metric.web.util.TimePrecision;
 import com.navercorp.pinpoint.otlp.common.web.definition.property.AggregationFunction;

@@ -1,0 +1,424 @@
+{
+  "schemaName": "heatmapStatApp",
+  "dimensionFieldSpecs": [
+    {
+      "name": "serviceId",
+      "dataType": "STRING",
+      "defaultNullValue": ""
+    },
+    {
+      "name": "applicationName",
+      "dataType": "STRING"
+    }
+  ],
+  "metricFieldSpecs": [
+    {
+      "name": "suc002",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc004",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc006",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc008",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc010",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc012",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc014",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc016",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc018",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc020",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc022",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc024",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc026",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc028",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc030",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc032",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc034",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc036",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc038",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc040",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc042",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc044",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc046",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc048",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc050",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc052",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc054",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc056",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc058",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc060",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc062",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc064",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc066",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc068",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc070",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc072",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc074",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc076",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc078",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc080",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc082",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc084",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc086",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc088",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc090",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc092",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc094",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc096",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc098",
+      "dataType": "INT"
+    },
+    {
+      "name": "suc100",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal002",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal004",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal006",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal008",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal010",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal012",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal014",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal016",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal018",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal020",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal022",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal024",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal026",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal028",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal030",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal032",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal034",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal036",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal038",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal040",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal042",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal044",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal046",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal048",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal050",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal052",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal054",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal056",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal058",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal060",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal062",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal064",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal066",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal068",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal070",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal072",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal074",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal076",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal078",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal080",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal082",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal084",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal086",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal088",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal090",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal092",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal094",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal096",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal098",
+      "dataType": "INT"
+    },
+    {
+      "name": "fal100",
+      "dataType": "INT"
+    }
+  ],
+  "dateTimeFieldSpecs": [
+    {
+      "name": "roundedEventTime",
+      "dataType": "TIMESTAMP",
+      "format" : "1:MILLISECONDS:EPOCH",
+      "granularity": "1:MILLISECONDS"
+    }
+  ]
+}

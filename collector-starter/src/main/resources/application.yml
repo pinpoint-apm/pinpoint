@@ -19,5 +19,7 @@ pinpoint:
           enabled: true
       otlpmetric:
         enabled: true
+      heatmap:
+        enabled: false
     realtime:
       enabled: true

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.metric.common.dao;
+package com.navercorp.pinpoint.collector.heatmap.dao;
+
+import com.navercorp.pinpoint.collector.heatmap.vo.SpanStat;
 
 /**
  * @author minwoo-jung
  */
-public class TopicNameManager extends TableNameManager {
-
-    public TopicNameManager(String topicPrefix, int paddingLength, int count) {
-        super(topicPrefix, paddingLength, count);
-    }
-
-    public String getTopicName(String applicationName) {
-        return super.getTableName(applicationName);
-    }
-
-    @Override
-    public String getTableName(String applicationName) {
-        throw new UnsupportedOperationException("getTableName method is not supported in this class");
-    }
+public interface HeatmapDao {
+    void insert(SpanStat spanStat);
 }
