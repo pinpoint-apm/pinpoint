@@ -139,7 +139,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         if (viewPointAlign != null) {
             recordSet.setAgentId(viewPointAlign.getAgentId());
             recordSet.setAgentName(viewPointAlign.getAgentName());
-            recordSet.setApplicationId(viewPointAlign.getApplicationName());
+            recordSet.setApplicationName(viewPointAlign.getApplicationName());
 
             final String uri = getRpcArgument(viewPointAlign);
             recordSet.setUri(uri);
