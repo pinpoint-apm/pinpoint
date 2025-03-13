@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.otlp.collector.dao;
 
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
-import com.navercorp.pinpoint.metric.common.dao.TopicNameManager;
+import com.navercorp.pinpoint.common.server.metric.dao.TopicNameManager;
 import com.navercorp.pinpoint.otlp.collector.config.OtlpMetricCollectorProperties;
 import com.navercorp.pinpoint.otlp.collector.model.PinotOtlpMetricDoubleData;
 import com.navercorp.pinpoint.otlp.collector.model.PinotOtlpMetricLongData;

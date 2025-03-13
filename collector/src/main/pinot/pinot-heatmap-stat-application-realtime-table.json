@@ -1,0 +1,462 @@
+{
+  "tableName": "heatmapStatApp",
+  "tableType": "REALTIME",
+  "query" : {
+    "disableGroovy": false
+  },
+  "segmentsConfig": {
+    "timeColumnName": "roundedEventTime",
+    "timeType": "MILLISECONDS",
+    "schemaName": "heatmapStatApp",
+    "replicasPerPartition": "3",
+    "retentionTimeUnit": "DAYS",
+    "retentionTimeValue": "7"
+  },
+  "tenants": {},
+  "tableIndexConfig": {
+    "sortedColumn": ["applicationName"],
+    "bloomFilterColumns": ["serviceId", "applicationName"],
+    "noDictionaryColumns": ["suc002", "suc004", "suc006", "suc008", "suc010", "suc012", "suc014", "suc016", "suc018", "suc020", "suc022", "suc024", "suc026", "suc028", "suc030", "suc032", "suc034", "suc036", "suc038", "suc040", "suc042", "suc044", "suc046", "suc048", "suc050", "suc052", "suc054", "suc056", "suc058", "suc060", "suc062", "suc064", "suc066", "suc068", "suc070", "suc072", "suc074", "suc076", "suc078", "suc080", "suc082", "suc084", "suc086", "suc088", "suc090", "suc092", "suc094", "suc096", "suc098", "suc100", "fal002", "fal004", "fal006", "fal008", "fal010", "fal012", "fal014", "fal016", "fal018", "fal020", "fal022", "fal024", "fal026", "fal028", "fal030", "fal032", "fal034", "fal036", "fal038", "fal040", "fal042", "fal044", "fal046", "fal048", "fal050", "fal052", "fal054", "fal056", "fal058", "fal060", "fal062", "fal064", "fal066", "fal068", "fal070", "fal072", "fal074", "fal076", "fal078", "fal080", "fal082", "fal084", "fal086", "fal088", "fal090", "fal092", "fal094", "fal096", "fal098", "fal100"],
+    "segmentPartitionConfig": {
+      "columnPartitionMap": {
+        "applicationName": {
+          "functionName": "Murmur",
+          "numPartitions": 2
+        }
+      }
+    },
+    "loadMode": "MMAP",
+    "nullHandlingEnabled": true,
+    "streamConfigs": {
+      "streamType": "kafka",
+      "stream.kafka.consumer.type": "lowlevel",
+      "stream.kafka.topic.name": "heatmap-stat-00",
+      "stream.kafka.decoder.class.name": "org.apache.pinot.plugin.stream.kafka.KafkaJSONMessageDecoder",
+      "stream.kafka.consumer.factory.class.name": "org.apache.pinot.plugin.stream.kafka20.KafkaConsumerFactory",
+      "stream.kafka.broker.list": "localhost:19092",
+      "realtime.segment.flush.threshold.rows": "0",
+      "realtime.segment.flush.threshold.time": "24h",
+      "realtime.segment.flush.threshold.segment.size": "64M",
+      "stream.kafka.consumer.prop.auto.offset.reset": "smallest"
+    }
+  },
+  "ingestionConfig": {
+    "transformConfigs": [
+      {
+        "columnName": "roundedEventTime",
+        "transformFunction": "DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '10:SECONDS')"
+      }
+    ],
+    "aggregationConfigs": [
+      {
+        "columnName": "suc002",
+        "aggregationFunction": "SUM(suc002)"
+      },
+      {
+        "columnName": "suc004",
+        "aggregationFunction": "SUM(suc004)"
+      },
+      {
+        "columnName": "suc006",
+        "aggregationFunction": "SUM(suc006)"
+      },
+      {
+        "columnName": "suc008",
+        "aggregationFunction": "SUM(suc008)"
+      },
+      {
+        "columnName": "suc010",
+        "aggregationFunction": "SUM(suc010)"
+      },
+      {
+        "columnName": "suc012",
+        "aggregationFunction": "SUM(suc012)"
+      },
+      {
+        "columnName": "suc014",
+        "aggregationFunction": "SUM(suc014)"
+      },
+      {
+        "columnName": "suc016",
+        "aggregationFunction": "SUM(suc016)"
+      },
+      {
+        "columnName": "suc018",
+        "aggregationFunction": "SUM(suc018)"
+      },
+      {
+        "columnName": "suc020",
+        "aggregationFunction": "SUM(suc020)"
+      },
+      {
+        "columnName": "suc022",
+        "aggregationFunction": "SUM(suc022)"
+      },
+      {
+        "columnName": "suc024",
+        "aggregationFunction": "SUM(suc024)"
+      },
+      {
+        "columnName": "suc026",
+        "aggregationFunction": "SUM(suc026)"
+      },
+      {
+        "columnName": "suc028",
+        "aggregationFunction": "SUM(suc028)"
+      },
+      {
+        "columnName": "suc030",
+        "aggregationFunction": "SUM(suc030)"
+      },
+      {
+        "columnName": "suc032",
+        "aggregationFunction": "SUM(suc032)"
+      },
+      {
+        "columnName": "suc034",
+        "aggregationFunction": "SUM(suc034)"
+      },
+      {
+        "columnName": "suc036",
+        "aggregationFunction": "SUM(suc036)"
+      },
+      {
+        "columnName": "suc038",
+        "aggregationFunction": "SUM(suc038)"
+      },
+      {
+        "columnName": "suc040",
+        "aggregationFunction": "SUM(suc040)"
+      },
+      {
+        "columnName": "suc042",
+        "aggregationFunction": "SUM(suc042)"
+      },
+      {
+        "columnName": "suc044",
+        "aggregationFunction": "SUM(suc044)"
+      },
+      {
+        "columnName": "suc046",
+        "aggregationFunction": "SUM(suc046)"
+      },
+      {
+        "columnName": "suc048",
+        "aggregationFunction": "SUM(suc048)"
+      },
+      {
+        "columnName": "suc050",
+        "aggregationFunction": "SUM(suc050)"
+      },
+      {
+        "columnName": "suc052",
+        "aggregationFunction": "SUM(suc052)"
+      },
+      {
+        "columnName": "suc054",
+        "aggregationFunction": "SUM(suc054)"
+      },
+      {
+        "columnName": "suc056",
+        "aggregationFunction": "SUM(suc056)"
+      },
+      {
+        "columnName": "suc058",
+        "aggregationFunction": "SUM(suc058)"
+      },
+      {
+        "columnName": "suc060",
+        "aggregationFunction": "SUM(suc060)"
+      },
+      {
+        "columnName": "suc062",
+        "aggregationFunction": "SUM(suc062)"
+      },
+      {
+        "columnName": "suc064",
+        "aggregationFunction": "SUM(suc064)"
+      },
+      {
+        "columnName": "suc066",
+        "aggregationFunction": "SUM(suc066)"
+      },
+      {
+        "columnName": "suc068",
+        "aggregationFunction": "SUM(suc068)"
+      },
+      {
+        "columnName": "suc070",
+        "aggregationFunction": "SUM(suc070)"
+      },
+      {
+        "columnName": "suc072",
+        "aggregationFunction": "SUM(suc072)"
+      },
+      {
+        "columnName": "suc074",
+        "aggregationFunction": "SUM(suc074)"
+      },
+      {
+        "columnName": "suc076",
+        "aggregationFunction": "SUM(suc076)"
+      },
+      {
+        "columnName": "suc078",
+        "aggregationFunction": "SUM(suc078)"
+      },
+      {
+        "columnName": "suc080",
+        "aggregationFunction": "SUM(suc080)"
+      },
+      {
+        "columnName": "suc082",
+        "aggregationFunction": "SUM(suc082)"
+      },
+      {
+        "columnName": "suc084",
+        "aggregationFunction": "SUM(suc084)"
+      },
+      {
+        "columnName": "suc086",
+        "aggregationFunction": "SUM(suc086)"
+      },
+      {
+        "columnName": "suc088",
+        "aggregationFunction": "SUM(suc088)"
+      },
+      {
+        "columnName": "suc090",
+        "aggregationFunction": "SUM(suc090)"
+      },
+      {
+        "columnName": "suc092",
+        "aggregationFunction": "SUM(suc092)"
+      },
+      {
+        "columnName": "suc094",
+        "aggregationFunction": "SUM(suc094)"
+      },
+      {
+        "columnName": "suc096",
+        "aggregationFunction": "SUM(suc096)"
+      },
+      {
+        "columnName": "suc098",
+        "aggregationFunction": "SUM(suc098)"
+      },
+      {
+        "columnName": "suc100",
+        "aggregationFunction": "SUM(suc100)"
+      },
+      {
+        "columnName": "fal002",
+        "aggregationFunction": "SUM(fal002)"
+      },
+      {
+        "columnName": "fal004",
+        "aggregationFunction": "SUM(fal004)"
+      },
+      {
+        "columnName": "fal006",
+        "aggregationFunction": "SUM(fal006)"
+      },
+      {
+        "columnName": "fal008",
+        "aggregationFunction": "SUM(fal008)"
+      },
+      {
+        "columnName": "fal010",
+        "aggregationFunction": "SUM(fal010)"
+      },
+      {
+        "columnName": "fal012",
+        "aggregationFunction": "SUM(fal012)"
+      },
+      {
+        "columnName": "fal014",
+        "aggregationFunction": "SUM(fal014)"
+      },
+      {
+        "columnName": "fal016",
+        "aggregationFunction": "SUM(fal016)"
+      },
+      {
+        "columnName": "fal018",
+        "aggregationFunction": "SUM(fal018)"
+      },
+      {
+        "columnName": "fal020",
+        "aggregationFunction": "SUM(fal020)"
+      },
+      {
+        "columnName": "fal022",
+        "aggregationFunction": "SUM(fal022)"
+      },
+      {
+        "columnName": "fal024",
+        "aggregationFunction": "SUM(fal024)"
+      },
+      {
+        "columnName": "fal026",
+        "aggregationFunction": "SUM(fal026)"
+      },
+      {
+        "columnName": "fal028",
+        "aggregationFunction": "SUM(fal028)"
+      },
+      {
+        "columnName": "fal030",
+        "aggregationFunction": "SUM(fal030)"
+      },
+      {
+        "columnName": "fal032",
+        "aggregationFunction": "SUM(fal032)"
+      },
+      {
+        "columnName": "fal034",
+        "aggregationFunction": "SUM(fal034)"
+      },
+      {
+        "columnName": "fal036",
+        "aggregationFunction": "SUM(fal036)"
+      },
+      {
+        "columnName": "fal038",
+        "aggregationFunction": "SUM(fal038)"
+      },
+      {
+        "columnName": "fal040",
+        "aggregationFunction": "SUM(fal040)"
+      },
+      {
+        "columnName": "fal042",
+        "aggregationFunction": "SUM(fal042)"
+      },
+      {
+        "columnName": "fal044",
+        "aggregationFunction": "SUM(fal044)"
+      },
+      {
+        "columnName": "fal046",
+        "aggregationFunction": "SUM(fal046)"
+      },
+      {
+        "columnName": "fal048",
+        "aggregationFunction": "SUM(fal048)"
+      },
+      {
+        "columnName": "fal050",
+        "aggregationFunction": "SUM(fal050)"
+      },
+      {
+        "columnName": "fal052",
+        "aggregationFunction": "SUM(fal052)"
+      },
+      {
+        "columnName": "fal054",
+        "aggregationFunction": "SUM(fal054)"
+      },
+      {
+        "columnName": "fal056",
+        "aggregationFunction": "SUM(fal056)"
+      },
+      {
+        "columnName": "fal058",
+        "aggregationFunction": "SUM(fal058)"
+      },
+      {
+        "columnName": "fal060",
+        "aggregationFunction": "SUM(fal060)"
+      },
+      {
+        "columnName": "fal062",
+        "aggregationFunction": "SUM(fal062)"
+      },
+      {
+        "columnName": "fal064",
+        "aggregationFunction": "SUM(fal064)"
+      },
+      {
+        "columnName": "fal066",
+        "aggregationFunction": "SUM(fal066)"
+      },
+      {
+        "columnName": "fal068",
+        "aggregationFunction": "SUM(fal068)"
+      },
+      {
+        "columnName": "fal070",
+        "aggregationFunction": "SUM(fal070)"
+      },
+      {
+        "columnName": "fal072",
+        "aggregationFunction": "SUM(fal072)"
+      },
+      {
+        "columnName": "fal074",
+        "aggregationFunction": "SUM(fal074)"
+      },
+      {
+        "columnName": "fal076",
+        "aggregationFunction": "SUM(fal076)"
+      },
+      {
+        "columnName": "fal078",
+        "aggregationFunction": "SUM(fal078)"
+      },
+      {
+        "columnName": "fal080",
+        "aggregationFunction": "SUM(fal080)"
+      },
+      {
+        "columnName": "fal082",
+        "aggregationFunction": "SUM(fal082)"
+      },
+      {
+        "columnName": "fal084",
+        "aggregationFunction": "SUM(fal084)"
+      },
+      {
+        "columnName": "fal086",
+        "aggregationFunction": "SUM(fal086)"
+      },
+      {
+        "columnName": "fal088",
+        "aggregationFunction": "SUM(fal088)"
+      },
+      {
+        "columnName": "fal090",
+        "aggregationFunction": "SUM(fal090)"
+      },
+      {
+        "columnName": "fal092",
+        "aggregationFunction": "SUM(fal092)"
+      },
+      {
+        "columnName": "fal094",
+        "aggregationFunction": "SUM(fal094)"
+      },
+      {
+        "columnName": "fal096",
+        "aggregationFunction": "SUM(fal096)"
+      },
+      {
+        "columnName": "fal098",
+        "aggregationFunction": "SUM(fal098)"
+      },
+      {
+        "columnName": "fal100",
+        "aggregationFunction": "SUM(fal100)"
+      }
+    ]
+  },
+  "metadata": {
+    "customConfigs": {}
+  },
+  "routing": {
+    "segmentPrunerTypes": [
+      "time",
+      "partition"
+    ]
+  }
+}

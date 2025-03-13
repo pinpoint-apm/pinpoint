@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.batch.alarm.vo.AgentFieldUsage;
 import com.navercorp.pinpoint.batch.alarm.vo.AgentUsage;
 import com.navercorp.pinpoint.batch.alarm.vo.AgentUsageCount;
 import com.navercorp.pinpoint.batch.common.BatchProperties;
-import com.navercorp.pinpoint.metric.common.dao.TableNameManager;
+import com.navercorp.pinpoint.common.server.metric.dao.TableNameManager;
 import com.navercorp.pinpoint.common.model.TagInformation;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.metric.common.model.Tag;
