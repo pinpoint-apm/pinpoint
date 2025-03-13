@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.web.webhook.model;
 
-import java.util.Objects;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 
 public class Webhook {
     private String webhookId;
@@ -15,7 +15,7 @@ public class Webhook {
         this.webhookId = webhookId;
         this.alias = alias;
         this.url = url;
-        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.serviceName = serviceName;
     }
 
@@ -64,7 +64,7 @@ public class Webhook {
     }
 
     public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
     }
 
     public String getServiceName() {
