@@ -43,12 +43,12 @@ public class TransactionTimelineInfoViewModel {
     @Deprecated
     @JsonProperty("applicationId")
     public String getApplicationId() {
-        return recordSet.getApplicationId();
+        return getApplicationName();
     }
 
     @JsonProperty("applicationName")
     public String getApplicationName() {
-        return recordSet.getApplicationId();
+        return recordSet.getApplicationName();
     }
 
     @JsonProperty("traceViewerDataURL")

@@ -71,15 +71,6 @@ public class TransactionInfoViewModel {
         this.timeHistogramFormat = timeHistogramFormat;
     }
 
-    /**
-     * @deprecated Since 3.1.0. Use {@link #getUri()} instead.
-     */
-    @Deprecated
-    @JsonProperty("applicationName")
-    public String getApplicationName() {
-        return getUri();
-    }
-
     @JsonProperty("uri")
     public String getUri() {
         return recordSet.getUri();
@@ -105,9 +96,18 @@ public class TransactionInfoViewModel {
         return recordSet.getAgentName();
     }
 
+    /**
+     * @deprecated Since 3.1.0. Use {@link #getApplicationName()} instead.
+     */
+    @Deprecated
     @JsonProperty("applicationId")
     public String getApplicationId() {
-        return recordSet.getApplicationId();
+        return getApplicationName();
+    }
+
+    @JsonProperty("applicationName")
+    public String getApplicationName() {
+        return recordSet.getApplicationName();
     }
 
     @JsonProperty("callStackStart")

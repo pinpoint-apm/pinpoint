@@ -143,7 +143,7 @@ public class BusinessTransactionController {
         final LogLinkView logLinkView = logLinkBuilder.build(
                 transactionId,
                 spanId,
-                recordSet.getApplicationId(),
+                recordSet.getApplicationName(),
                 recordSet.getStartTime()
         );
 

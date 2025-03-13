@@ -77,7 +77,7 @@ public class TraceViewerDataViewModel {
 
         for (Record record : recordSet.getRecordList()) {
             if (record.getElapsed() != 0) {
-                boolean isRecordHighlighted = StringUtils.equals(recordSet.getApplicationId(), record.getApplicationName());
+                boolean isRecordHighlighted = StringUtils.equals(recordSet.getApplicationName(), record.getApplicationName());
                 boolean isApplicationNameChanged = !previousAppName.equals(record.getApplicationName());
 
                 if (recordTraces.isEmpty()) {

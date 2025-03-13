@@ -34,7 +34,7 @@ public class RecordSet {
     private String agentId;
     private String agentName;
 
-    private String applicationId;
+    private String applicationName;
     
     private boolean loggingTransactionInfo;
 
@@ -73,16 +73,8 @@ public class RecordSet {
         return endTime != -1;
     }
 
-    public String setUri(String uri) {
-        return this.uri = uri;
-    }
-
-    /**
-     * @deprecated Since 3.1.0. Use {@link #setUri(String)} instead.
-     */
-    @Deprecated
-    public void setApplicationName(String applicationName) {
-        this.setUri(applicationName);
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 
     public void setBeginTimestamp(long beginTimestamp) {
@@ -92,14 +84,6 @@ public class RecordSet {
 
     public String getUri() {
         return uri;
-    }
-
-    /**
-     * @deprecated Since 3.1.0. Use {@link #getUri()} instead.
-     */
-    @Deprecated
-    public String getApplicationName() {
-        return getUri();
     }
 
     public long getBeginTimestamp() {
@@ -122,12 +106,28 @@ public class RecordSet {
         this.agentName = agentName;
     }
 
+    /**
+     * @deprecated Since 3.1.0. Use {@link #getApplicationName()} instead.
+     */
+    @Deprecated
     public String getApplicationId() {
-        return applicationId;
+        return getApplicationName();
     }
 
+    /**
+     * @deprecated Since 3.1.0. Use {@link #setApplicationName(String)} instead.
+     */
+    @Deprecated
     public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
+        this.setApplicationName(applicationId);
+    }
+
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
     
     public boolean isLoggingTransactionInfo() {
