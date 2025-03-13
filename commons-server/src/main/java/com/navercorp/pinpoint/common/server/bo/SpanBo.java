@@ -430,13 +430,17 @@ public class SpanBo implements Event, BasicSpan {
                 '}';
     }
 
+    public static Builder newBuilder(long spanId) {
+        return new Builder(spanId);
+    }
+
     public static class Builder {
 
         private int version = 0;
 
         private String agentId;
         private String agentName;
-        private String applicationId;
+        private String applicationName;
         private long agentStartTime;
 
         private TransactionId transactionId;
@@ -476,7 +480,7 @@ public class SpanBo implements Event, BasicSpan {
 
         private byte loggingTransactionInfo; //optional
 
-        public Builder(long spanId) {
+        Builder(long spanId) {
             this.spanId = spanId;
         }
 
@@ -495,8 +499,16 @@ public class SpanBo implements Event, BasicSpan {
             return this;
         }
 
-        public Builder setApplicationId(String applicationId) {
-            this.applicationId = applicationId;
+        /**
+         * @deprecated 3.1.0 Use {@link #setApplicationName(String)} instead.
+         */
+        @Deprecated
+        public Builder setApplicationId(String applicationName) {
+            return setApplicationName(applicationName);
+        }
+
+        public Builder setApplicationName(String applicationName) {
+            this.applicationName = applicationName;
             return this;
         }
 
@@ -620,7 +632,7 @@ public class SpanBo implements Event, BasicSpan {
             result.setVersion(this.version);
             result.setAgentId(this.agentId);
             result.setAgentName(this.agentName);
-            result.setApplicationName(this.applicationId);
+            result.setApplicationName(this.applicationName);
             result.setAgentStartTime(this.agentStartTime);
             result.setTransactionId(this.transactionId);
             result.setSpanId(this.spanId);
