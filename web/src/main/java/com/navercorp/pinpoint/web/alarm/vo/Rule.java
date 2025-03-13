@@ -16,10 +16,13 @@
 
 package com.navercorp.pinpoint.web.alarm.vo;
 
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.web.vo.RuleInterface;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
@@ -41,8 +44,8 @@ public class Rule implements RuleInterface {
     }
 
     public Rule(String applicationName, String serviceType, String checkerName, Integer Threshold, String userGroupId, boolean smsSend, boolean emailSend, boolean webhookSend, String notes) {
-        this.applicationName = applicationName;
-        this.serviceType = serviceType;
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
+        this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
         this.checkerName = checkerName;
         this.threshold = Threshold;
         this.userGroupId = userGroupId;
@@ -73,7 +76,7 @@ public class Rule implements RuleInterface {
     }
 
     public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
     }
 
     public String getServiceType() {
@@ -81,7 +84,7 @@ public class Rule implements RuleInterface {
     }
 
     public void setServiceType(String serviceType) {
-        this.serviceType = serviceType;
+        this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
     }
     
     public String getCheckerName() {

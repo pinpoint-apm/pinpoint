@@ -59,6 +59,7 @@ public class ServerGroupListTest {
     public static AgentAndStatus createAgentInfo(String agentId, String hostName) {
         AgentInfoBo.Builder agentInfoBuilder = new AgentInfoBo.Builder();
         agentInfoBuilder.setAgentId(agentId);
+        agentInfoBuilder.setApplicationName("TestApp");
 
         ServiceType serviceType = ServiceType.TEST_STAND_ALONE;
         agentInfoBuilder.setServiceTypeCode(serviceType.getCode());

@@ -81,7 +81,7 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
     @Override
     public OtlpChartView getMetricChartData(String tenantId, String serviceName, String applicationName, String agentId, String metricGroupName, String metricName, String tag, long from, long to) {
         List<FieldAttribute> fields = otlpMetricDao.getFields(serviceName, applicationName, agentId, metricGroupName, metricName, tag);
-        if (fields.size() == 0) {
+        if (fields.isEmpty()) {
             return EMPTY_CHART;
         }
 
@@ -140,7 +140,7 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
     public MetricData getMetricData(String tenantId, String serviceName, String applicationName, String agentId, String metricGroupName, String metricName, PrimaryForFieldAndTagRelation primaryForFieldAndTagRelation, List<String> tagGroupList, List<String> fieldNameList, ChartType chartType, AggregationFunction aggregationFunction, TimeWindow timeWindow) {
         List<FieldAttribute> fields = otlpMetricDao.getFields(serviceName, applicationName, agentId, metricGroupName, metricName, tagGroupList, fieldNameList);
 
-        if(fields.size() == 0) {
+        if (fields.isEmpty()) {
             return createEmptyMetricData(timeWindow, chartType);
         }
 

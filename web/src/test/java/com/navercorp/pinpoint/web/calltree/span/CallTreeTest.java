@@ -357,6 +357,8 @@ public class CallTreeTest {
         SpanBo span = new SpanBo();
         span.setStartTime(startTime);
         span.setElapsed(elapsed);
+        span.setAgentId("agentId");
+        span.setApplicationName("applicationId");
 
         return new SpanAlign(span);
     }
@@ -366,7 +368,10 @@ public class CallTreeTest {
     }
 
     private Align makeSpanAlign(final boolean async, final short sequence, final int nextAsyncId, final int asyncId) {
-        return makeSpanAlign(new SpanBo(), async, sequence, nextAsyncId, asyncId, -1, -1);
+        SpanBo span = new SpanBo();
+        span.setAgentId("agentId");
+        span.setApplicationName("applicationName");
+        return makeSpanAlign(span, async, sequence, nextAsyncId, asyncId, -1, -1);
     }
 
     private Align makeSpanAlign(SpanBo span, final boolean async, final short sequence, int nextAsyncId, final int asyncId, int startElapsed, int endElapsed) {

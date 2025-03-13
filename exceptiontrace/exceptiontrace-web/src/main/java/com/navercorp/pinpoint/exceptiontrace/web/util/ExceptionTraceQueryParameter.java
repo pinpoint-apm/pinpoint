@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.exceptiontrace.web.util;
 
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
@@ -113,7 +114,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         }
 
         public Builder setApplicationName(String applicationName) {
-            this.applicationName = applicationName;
+            this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
             return self();
         }
 

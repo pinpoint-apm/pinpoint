@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.collector.model;
 
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.otlp.common.model.MetricType;
 import io.opentelemetry.proto.metrics.v1.AggregationTemporality;
 import jakarta.validation.constraints.NotBlank;
@@ -105,7 +106,7 @@ public class OtlpMetricData {
         private MetricType metricType = MetricType.GAUGE;
         private AggregationTemporality aggreTemporality = AggregationTemporality.AGGREGATION_TEMPORALITY_UNSPECIFIED;
 
-        private List<OtlpMetricDataPoint> value = new ArrayList<>();
+        private final List<OtlpMetricDataPoint> value = new ArrayList<>();
 
         public OtlpMetricData build() {
             return new OtlpMetricData(this);
@@ -144,7 +145,7 @@ public class OtlpMetricData {
         }
 
         public void setAgentId(String agentId) {
-            this.agentId = agentId;
+            this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         }
 
         public void setVersion(String version) {
@@ -154,18 +155,17 @@ public class OtlpMetricData {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("OtlpMetricData{");
-        sb.append("tenantId='").append(tenantId).append('\'');
-        sb.append(", serviceName='").append(serviceName).append('\'');
-        sb.append(", agentId='").append(agentId).append('\'');
-        sb.append(", metricGroupName='").append(metricGroupName).append('\'');
-        sb.append(", metricName='").append(metricName).append('\'');
-        sb.append(", unit='").append(unit).append('\'');
-        sb.append(", metricType='").append(metricType).append('\'');
-        sb.append(", aggreTemporality='").append(aggreTemporality).append('\'');
-        sb.append(", value=").append(value).append('\'');
-        sb.append(", version=").append(version).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "OtlpMetricData{" +
+                "tenantId='" + tenantId + '\'' +
+                ", serviceName='" + serviceName + '\'' +
+                ", agentId='" + agentId + '\'' +
+                ", metricGroupName='" + metricGroupName + '\'' +
+                ", metricName='" + metricName + '\'' +
+                ", unit='" + unit + '\'' +
+                ", metricType='" + metricType + '\'' +
+                ", aggreTemporality='" + aggreTemporality + '\'' +
+                ", value=" + value + '\'' +
+                ", version=" + version + '\'' +
+                '}';
     }
 }

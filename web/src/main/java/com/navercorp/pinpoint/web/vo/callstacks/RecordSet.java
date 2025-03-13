@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.vo.callstacks;
 
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+
 import java.util.List;
 
 /**
@@ -95,7 +97,7 @@ public class RecordSet {
     }
 
     public void setAgentId(String agentId) {
-        this.agentId = agentId;
+        this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
     }
 
     public String getAgentName() {
@@ -127,7 +129,7 @@ public class RecordSet {
     }
 
     public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
     }
     
     public boolean isLoggingTransactionInfo() {

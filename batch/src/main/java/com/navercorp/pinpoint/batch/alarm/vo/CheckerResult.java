@@ -1,5 +1,7 @@
 package com.navercorp.pinpoint.batch.alarm.vo;
 
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+
 public class CheckerResult {
     
     private int historyId;
@@ -15,7 +17,7 @@ public class CheckerResult {
     
     public CheckerResult(String ruleId, String applicationName, String checkerName, boolean detected, int sequenceCount, int timingCount) {
         this.ruleId = ruleId;
-        this.applicationName = applicationName;
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.checkerName = checkerName;
         this.detected = detected;
         this.sequenceCount = sequenceCount;
@@ -59,7 +61,7 @@ public class CheckerResult {
     }
 
     public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
     }
     
     public String getCheckerName() {

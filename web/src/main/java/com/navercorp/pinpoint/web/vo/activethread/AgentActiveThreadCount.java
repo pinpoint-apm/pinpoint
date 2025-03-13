@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.vo.activethread;
 
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -52,13 +54,12 @@ public class AgentActiveThreadCount {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentActiveThreadCount{");
-        sb.append("agentId='").append(agentId).append('\'');
-        sb.append(", activeThreadCountList=").append(activeThreadCountList);
-        sb.append(", code=").append(status.code);
-        sb.append(", codeMessage='").append(status.codeMessage).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "AgentActiveThreadCount{" +
+                "agentId='" + agentId + '\'' +
+                ", activeThreadCountList=" + activeThreadCountList +
+                ", code=" + status.code +
+                ", codeMessage='" + status.codeMessage + '\'' +
+                '}';
     }
 
     static class Builder {
@@ -74,7 +75,7 @@ public class AgentActiveThreadCount {
         }
 
         Builder setAgentId(String agentId) {
-            this.agentId = agentId;
+            this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
             return this;
         }
 

@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.exceptiontrace.web.view;
 
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.exceptiontrace.common.model.StackTraceElementWrapper;
 
 import java.util.List;
@@ -91,7 +92,7 @@ public class ExceptionDetailView {
     }
 
     public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
     }
 
     public String getAgentId() {
@@ -99,7 +100,7 @@ public class ExceptionDetailView {
     }
 
     public void setAgentId(String agentId) {
-        this.agentId = agentId;
+        this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
     }
 
     public String getUriTemplate() {

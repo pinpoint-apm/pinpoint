@@ -3,8 +3,8 @@ package com.navercorp.pinpoint.otlp.web.vo;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
-import com.navercorp.pinpoint.otlp.common.web.definition.property.AggregationFunction;
 import com.navercorp.pinpoint.otlp.common.model.DataType;
+import com.navercorp.pinpoint.otlp.common.web.definition.property.AggregationFunction;
 
 import java.security.InvalidParameterException;
 import java.util.Arrays;
