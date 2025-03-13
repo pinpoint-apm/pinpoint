@@ -1,6 +1,6 @@
-package com.navercorp.pinpoint.collector.dao.hbase;
+package com.navercorp.pinpoint.collector.uid.dao.hbase;
 
-import com.navercorp.pinpoint.collector.dao.ApplicationNameDao;
+import com.navercorp.pinpoint.collector.uid.dao.ApplicationNameDao;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
@@ -13,11 +13,13 @@ import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
 
 @Repository
+@ConditionalOnProperty(value = "pinpoint.collector.application.uid.enable", havingValue = "true")
 public class HbaseApplicationNameDao implements ApplicationNameDao {
 
     private static final HbaseColumnFamily.ApplicationInfo NAME = HbaseColumnFamily.APPLICATION_NAME;

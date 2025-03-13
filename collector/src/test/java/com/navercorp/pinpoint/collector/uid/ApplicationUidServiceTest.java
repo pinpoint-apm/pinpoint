@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.collector.uid;
 
-import com.navercorp.pinpoint.collector.dao.ApplicationNameDao;
+import com.navercorp.pinpoint.collector.uid.dao.ApplicationNameDao;
 import com.navercorp.pinpoint.collector.uid.dao.ApplicationUidDao;
 import com.navercorp.pinpoint.collector.uid.service.ApplicationUidService;
 import com.navercorp.pinpoint.collector.uid.service.ApplicationUidServiceImpl;
