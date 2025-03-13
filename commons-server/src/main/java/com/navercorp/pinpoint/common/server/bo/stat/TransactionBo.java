@@ -19,14 +19,10 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 /**
  * @author HyunGil Jeong
  */
-public class TransactionBo implements AgentStatDataPoint {
+public class TransactionBo extends AgentStatDataBasePoint {
 
     public static final long UNCOLLECTED_VALUE = -1;
 
-    private String applicationName;
-    private String agentId;
-    private long startTimestamp;
-    private long timestamp;
     private long collectInterval = UNCOLLECTED_VALUE;
     private long sampledNewCount = UNCOLLECTED_VALUE;
     private long sampledContinuationCount = UNCOLLECTED_VALUE;
@@ -36,48 +32,8 @@ public class TransactionBo implements AgentStatDataPoint {
     private long skippedContinuationCount = UNCOLLECTED_VALUE;
 
     @Override
-    public String getAgentId() {
-        return agentId;
-    }
-
-    @Override
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    @Override
-    public long getStartTimestamp() {
-        return startTimestamp;
-    }
-
-    @Override
-    public void setStartTimestamp(long startTimestamp) {
-        this.startTimestamp = startTimestamp;
-    }
-
-    @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    @Override
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    @Override
     public AgentStatType getAgentStatType() {
         return AgentStatType.TRANSACTION;
-    }
-
-    @Override
-    public String getApplicationName() {
-        return this.applicationName;
-    }
-
-    @Override
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
     }
 
     public long getCollectInterval() {
@@ -159,15 +115,15 @@ public class TransactionBo implements AgentStatDataPoint {
     @Override
     public int hashCode() {
         int result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
-        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
-        result = 31 * result + (int) (collectInterval ^ (collectInterval >>> 32));
-        result = 31 * result + (int) (sampledNewCount ^ (sampledNewCount >>> 32));
-        result = 31 * result + (int) (sampledContinuationCount ^ (sampledContinuationCount >>> 32));
-        result = 31 * result + (int) (unsampledNewCount ^ (unsampledNewCount >>> 32));
-        result = 31 * result + (int) (unsampledContinuationCount ^ (unsampledContinuationCount >>> 32));
-        result = 31 * result + (int) (skippedNewSkipCount ^ (skippedNewSkipCount >>> 32));
-        result = 31 * result + (int) (skippedContinuationCount ^ (skippedContinuationCount >>> 32));
+        result = 31 * result + Long.hashCode(startTimestamp);
+        result = 31 * result + Long.hashCode(timestamp);
+        result = 31 * result + Long.hashCode(collectInterval);
+        result = 31 * result + Long.hashCode(sampledNewCount);
+        result = 31 * result + Long.hashCode(sampledContinuationCount);
+        result = 31 * result + Long.hashCode(unsampledNewCount);
+        result = 31 * result + Long.hashCode(unsampledContinuationCount);
+        result = 31 * result + Long.hashCode(skippedNewSkipCount);
+        result = 31 * result + Long.hashCode(skippedContinuationCount);
         return result;
     }
 

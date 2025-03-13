@@ -16,49 +16,23 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat;
 
-public class TotalThreadCountBo implements AgentStatDataPoint {
+public class TotalThreadCountBo extends AgentStatDataBasePoint {
     public static final long UNCOLLECTED_VALUE = -1L;
 
-    private String applicationName;
-    private String agentId;
-    private long startTimestamp;
-    private long timestamp;
     private long totalThreadCount = UNCOLLECTED_VALUE;
 
     @Override
-    public String getAgentId() { return agentId; }
-
-    @Override
-    public void setAgentId(String agentId) { this.agentId = agentId; }
-
-    @Override
-    public long getStartTimestamp() { return startTimestamp; }
-
-    @Override
-    public void setStartTimestamp(long startTimestamp) { this.startTimestamp = startTimestamp; }
-
-    @Override
-    public long getTimestamp() { return timestamp; }
-
-    @Override
-    public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
-
-    @Override
-    public AgentStatType getAgentStatType() { return AgentStatType.TOTAL_THREAD; }
-
-    @Override
-    public String getApplicationName() {
-        return this.applicationName;
+    public AgentStatType getAgentStatType() {
+        return AgentStatType.TOTAL_THREAD;
     }
 
-    @Override
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
+    public long getTotalThreadCount() {
+        return totalThreadCount;
     }
 
-    public long getTotalThreadCount() { return totalThreadCount; }
-
-    public void setTotalThreadCount(long totalThreadCount) { this.totalThreadCount = totalThreadCount; }
+    public void setTotalThreadCount(long totalThreadCount) {
+        this.totalThreadCount = totalThreadCount;
+    }
 
     @Override
     public String toString() {

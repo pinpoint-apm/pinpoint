@@ -19,15 +19,11 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 /**
  * @author HyunGil Jeong
  */
-public class JvmGcDetailedBo implements AgentStatDataPoint {
+public class JvmGcDetailedBo extends AgentStatDataBasePoint {
 
     public static final long UNCOLLECTED_VALUE = -1;
     public static final double UNCOLLECTED_PERCENTAGE = -1;
 
-    private String applicationName;
-    private String agentId;
-    private long startTimestamp;
-    private long timestamp;
     private long gcNewCount = UNCOLLECTED_VALUE;
     private long gcNewTime = UNCOLLECTED_VALUE;
     private double codeCacheUsed = UNCOLLECTED_PERCENTAGE;
@@ -38,48 +34,8 @@ public class JvmGcDetailedBo implements AgentStatDataPoint {
     private double metaspaceUsed = UNCOLLECTED_PERCENTAGE;
 
     @Override
-    public String getAgentId() {
-        return agentId;
-    }
-
-    @Override
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    @Override
-    public long getStartTimestamp() {
-        return startTimestamp;
-    }
-
-    @Override
-    public void setStartTimestamp(long startTimestamp) {
-        this.startTimestamp = startTimestamp;
-    }
-
-    @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    @Override
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    @Override
     public AgentStatType getAgentStatType() {
         return AgentStatType.JVM_GC_DETAILED;
-    }
-
-    @Override
-    public String getApplicationName() {
-        return this.applicationName;
-    }
-
-    @Override
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
     }
 
     public long getGcNewCount() {
@@ -170,24 +126,17 @@ public class JvmGcDetailedBo implements AgentStatDataPoint {
     @Override
     public int hashCode() {
         int result;
-        long temp;
         result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
-        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
-        result = 31 * result + (int) (gcNewCount ^ (gcNewCount >>> 32));
-        result = 31 * result + (int) (gcNewTime ^ (gcNewTime >>> 32));
-        temp = Double.doubleToLongBits(codeCacheUsed);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(newGenUsed);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(oldGenUsed);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(survivorSpaceUsed);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(permGenUsed);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(metaspaceUsed);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + Long.hashCode(startTimestamp);
+        result = 31 * result + Long.hashCode(timestamp);
+        result = 31 * result + Long.hashCode(gcNewCount);
+        result = 31 * result + Long.hashCode(gcNewTime);
+        result = 31 * result + Double.hashCode(codeCacheUsed);
+        result = 31 * result + Double.hashCode(newGenUsed);
+        result = 31 * result + Double.hashCode(oldGenUsed);
+        result = 31 * result + Double.hashCode(survivorSpaceUsed);
+        result = 31 * result + Double.hashCode(permGenUsed);
+        result = 31 * result + Double.hashCode(metaspaceUsed);
         return result;
     }
 

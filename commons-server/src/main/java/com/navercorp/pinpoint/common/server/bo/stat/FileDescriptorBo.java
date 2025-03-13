@@ -19,60 +19,16 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 /**
  * @author Roy Kim
  */
-public class FileDescriptorBo implements AgentStatDataPoint {
+public class FileDescriptorBo extends AgentStatDataBasePoint {
 
     public static final long UNCOLLECTED_VALUE = -1;
 
-    private String applicationName;
-    private String agentId;
-    private long startTimestamp;
-    private long timestamp;
-
     private long openFileDescriptorCount = UNCOLLECTED_VALUE;
 
-    @Override
-    public String getAgentId() {
-        return agentId;
-    }
-
-    @Override
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    @Override
-    public long getStartTimestamp() {
-        return startTimestamp;
-    }
-
-    @Override
-    public void setStartTimestamp(long startTimestamp) {
-        this.startTimestamp = startTimestamp;
-    }
-
-    @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    @Override
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
 
     @Override
     public AgentStatType getAgentStatType() {
         return AgentStatType.FILE_DESCRIPTOR;
-    }
-
-    @Override
-    public String getApplicationName() {
-        return this.applicationName;
-    }
-
-    @Override
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
     }
 
     public long getOpenFileDescriptorCount() {
@@ -102,9 +58,9 @@ public class FileDescriptorBo implements AgentStatDataPoint {
     public int hashCode() {
         int result;
         result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
-        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
-        result = 31 * result + (int) (openFileDescriptorCount ^ (openFileDescriptorCount >>> 32));
+        result = 31 * result + Long.hashCode(startTimestamp);
+        result = 31 * result + Long.hashCode(timestamp);
+        result = 31 * result + Long.hashCode(openFileDescriptorCount);
         return result;
     }
 

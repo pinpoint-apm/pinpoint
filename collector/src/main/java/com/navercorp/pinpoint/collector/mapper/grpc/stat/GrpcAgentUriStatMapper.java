@@ -40,7 +40,7 @@ public class GrpcAgentUriStatMapper {
         int bucketVersion = agentUriStat.getBucketVersion();
 
         AgentUriStatBo agentUriStatBo = new AgentUriStatBo();
-        agentUriStatBo.setServiceName("");                        // TODO: add serviceName when available
+        agentUriStatBo.setServiceName("DEFAULT");                        // TODO: add serviceName when available
         agentUriStatBo.setApplicationName(applicationName);
         agentUriStatBo.setAgentId(agentId);
         agentUriStatBo.setBucketVersion((byte) bucketVersion);

@@ -20,59 +20,16 @@ package com.navercorp.pinpoint.common.server.bo.stat;
  * @author Taejin Koo
  * @author jaehong.kim - Remove TThreadDump List
  */
-public class DeadlockThreadCountBo implements AgentWarningStatDataPoint {
+public class DeadlockThreadCountBo extends AgentStatDataBasePoint implements AgentWarningStatDataPoint {
 
     public static final int UNCOLLECTED_INT_VALUE = -1;
 
-    private String applicationName;
-    private String agentId;
-    private long startTimestamp;
-    private long timestamp;
     private int deadlockedThreadCount = UNCOLLECTED_INT_VALUE;
 
-    @Override
-    public String getAgentId() {
-        return agentId;
-    }
-
-    @Override
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    @Override
-    public long getStartTimestamp() {
-        return startTimestamp;
-    }
-
-    @Override
-    public void setStartTimestamp(long startTimestamp) {
-        this.startTimestamp = startTimestamp;
-    }
-
-    @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    @Override
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
 
     @Override
     public AgentStatType getAgentStatType() {
         return AgentStatType.DEADLOCK;
-    }
-
-    @Override
-    public String getApplicationName() {
-        return this.applicationName;
-    }
-
-    @Override
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
     }
 
     public int getDeadlockedThreadCount() {

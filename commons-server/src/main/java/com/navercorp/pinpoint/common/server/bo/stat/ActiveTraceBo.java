@@ -20,47 +20,13 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 /**
  * @author HyunGil Jeong
  */
-public class ActiveTraceBo implements AgentStatDataPoint {
+public class ActiveTraceBo extends AgentStatDataBasePoint {
 
     public static final int UNCOLLECTED_ACTIVE_TRACE_COUNT = -1;
 
-    private String applicationName;
-    private String agentId;
-    private long startTimestamp;
-    private long timestamp;
     private short version = 0;
     private int histogramSchemaType;
     private ActiveTraceHistogram activeTraceHistogram;
-
-    @Override
-    public String getAgentId() {
-        return agentId;
-    }
-
-    @Override
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    @Override
-    public long getStartTimestamp() {
-        return startTimestamp;
-    }
-
-    @Override
-    public void setStartTimestamp(long startTimestamp) {
-        this.startTimestamp = startTimestamp;
-    }
-
-    @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    @Override
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
 
     @Override
     public AgentStatType getAgentStatType() {
@@ -109,8 +75,8 @@ public class ActiveTraceBo implements AgentStatDataPoint {
     @Override
     public int hashCode() {
         int result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
-        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        result = 31 * result + Long.hashCode(startTimestamp);
+        result = 31 * result + Long.hashCode(timestamp);
         result = 31 * result + (int) version;
         result = 31 * result + histogramSchemaType;
         result = 31 * result + (activeTraceHistogram != null ? activeTraceHistogram.hashCode() : 0);
@@ -129,13 +95,4 @@ public class ActiveTraceBo implements AgentStatDataPoint {
                 '}';
     }
 
-    @Override
-    public String getApplicationName() {
-        return applicationName;
-    }
-
-    @Override
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
-    }
 }

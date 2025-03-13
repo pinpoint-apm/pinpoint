@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat;
 
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +40,7 @@ public class DataSourceListBo implements AgentStatDataPointList<DataSourceBo> {
 
     @Override
     public void setAgentId(String agentId) {
-        this.agentId = agentId;
+        this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
     }
 
     @Override
@@ -109,17 +111,17 @@ public class DataSourceListBo implements AgentStatDataPointList<DataSourceBo> {
 
         if (startTimestamp != that.startTimestamp) return false;
         if (timestamp != that.timestamp) return false;
-        if (dataSourceBoList != null ? !dataSourceBoList.equals(that.dataSourceBoList) : that.dataSourceBoList != null) return false;
+        if (!dataSourceBoList.equals(that.dataSourceBoList)) return false;
         return agentId != null ? agentId.equals(that.agentId) : that.agentId == null;
 
     }
 
     @Override
     public int hashCode() {
-        int result = dataSourceBoList != null ? dataSourceBoList.hashCode() : 0;
+        int result = dataSourceBoList.hashCode();
         result = 31 * result + (agentId != null ? agentId.hashCode() : 0);
-        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
-        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        result = 31 * result + Long.hashCode(startTimestamp);
+        result = 31 * result + Long.hashCode(timestamp);
         return result;
     }
 

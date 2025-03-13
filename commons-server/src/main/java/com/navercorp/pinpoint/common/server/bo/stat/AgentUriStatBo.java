@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat;
 
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import jakarta.validation.constraints.NotBlank;
 
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public class AgentUriStatBo {
     }
 
     public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
+        this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
     }
 
     public String getApplicationName() {
@@ -45,7 +46,7 @@ public class AgentUriStatBo {
     }
 
     public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
     }
 
     public String getAgentId() {
@@ -53,7 +54,7 @@ public class AgentUriStatBo {
     }
 
     public void setAgentId(String agentId) {
-        this.agentId = agentId;
+        this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
     }
 
     public byte getBucketVersion() {
