@@ -211,6 +211,10 @@ public class SpanEventBo implements Event {
                 '}';
     }
 
+    public static Builder newBuilder() {
+        return new Builder();
+    }
+
     public static class Builder {
         private int version = 0;
 
@@ -232,6 +236,9 @@ public class SpanEventBo implements Event {
         private long nextSpanId = -1;
 
         private int nextAsyncId = -1;
+
+        Builder() {
+        }
 
         public Builder setVersion(int version) {
             this.version = version;
