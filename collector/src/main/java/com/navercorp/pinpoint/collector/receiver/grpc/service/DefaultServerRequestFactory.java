@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.io.request.GrpcServerHeaderV1;
 import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.UidFetcher;
+import com.navercorp.pinpoint.io.request.UidFetchers;
 import com.navercorp.pinpoint.io.util.MessageType;
 import io.grpc.Context;
 
@@ -38,7 +39,7 @@ public class DefaultServerRequestFactory implements ServerRequestFactory {
     @Override
     public <T> ServerRequest<T> newServerRequest(MessageType messageType, T data) {
         Context context = Context.current();
-        return newServerRequest(context, null, messageType, data);
+        return newServerRequest(context, UidFetchers.empty(), messageType, data);
     }
 
     @Override
@@ -49,7 +50,7 @@ public class DefaultServerRequestFactory implements ServerRequestFactory {
 
     @Override
     public <T> ServerRequest<T> newServerRequest(Context context, MessageType messageType, T data) {
-        return newServerRequest(context, null, messageType, data);
+        return newServerRequest(context, UidFetchers.empty(), messageType, data);
     }
 
     @Override
