@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import jakarta.validation.constraints.NotBlank;
 
 /**
@@ -52,9 +53,9 @@ public class AgentInfoBo {
         this.hostName = builder.hostName;
         this.ip = builder.ip;
         this.ports = builder.ports;
-        this.agentId = builder.agentId;
+        this.agentId = StringPrecondition.requireHasLength(builder.agentId, "agentId");
         this.agentName = builder.agentName;
-        this.applicationName = builder.applicationName;
+        this.applicationName = StringPrecondition.requireHasLength(builder.applicationName, "applicationName");
         this.serviceTypeCode = builder.serviceTypeCode;
         this.pid = builder.pid;
         this.vmVersion = builder.vmVersion;
@@ -238,7 +239,7 @@ public class AgentInfoBo {
         }
 
         public void setAgentId(String agentId) {
-            this.agentId = agentId;
+            this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         }
 
         public void setAgentName(String agentName) {
@@ -246,7 +247,7 @@ public class AgentInfoBo {
         }
 
         public void setApplicationName(String applicationName) {
-            this.applicationName = applicationName;
+            this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         }
 
         public void setServiceTypeCode(int serviceTypeCode) {
@@ -300,12 +301,13 @@ public class AgentInfoBo {
                 this.ip = "";
             if (this.ports == null)
                 this.ports = "";
-            if (this.agentId == null)
-                this.agentId = "";
-            if (this.agentName == null)
+
+            StringPrecondition.requireHasLength(this.agentId, "agentId");
+            if (this.agentName == null) {
                 this.agentName = "";
-            if (this.applicationName == null)
-                this.applicationName = "";
+            }
+            StringPrecondition.requireHasLength(this.applicationName, "applicationName");
+
             if (this.vmVersion == null)
                 this.vmVersion = "";
             if (this.agentVersion == null) {

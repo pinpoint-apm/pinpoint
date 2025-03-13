@@ -39,13 +39,15 @@ public class CheckerCategoryTest {
     @Autowired
     CheckerRegistry registry;
 
+    String applicationName = "appName";
+
     @Test
     public void configuration() {
         AlarmCheckerFactory checkerFactory = registry.getCheckerFactory(CheckerCategory.SLOW_COUNT);
 
-        Rule rule = new Rule(null, "", CheckerCategory.SLOW_COUNT.getName(), 75, "testGroup", false, false, false, "");
+        Rule rule = new Rule(applicationName, "", CheckerCategory.SLOW_COUNT.getName(), 75, "testGroup", false, false, false, "");
         SlowCountChecker checker = (SlowCountChecker) checkerFactory.createChecker(null, rule);
-        rule = new Rule(null, "", CheckerCategory.SLOW_COUNT.getName(), 63, "testGroup", false, false, false, "");
+        rule = new Rule(applicationName, "", CheckerCategory.SLOW_COUNT.getName(), 63, "testGroup", false, false, false, "");
         SlowCountChecker checker2 = (SlowCountChecker) checkerFactory.createChecker(null, rule);
 
         assertNotSame(checker, checker2);

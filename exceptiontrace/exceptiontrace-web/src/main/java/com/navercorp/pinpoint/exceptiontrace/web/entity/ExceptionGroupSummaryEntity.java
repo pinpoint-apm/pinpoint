@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.exceptiontrace.web.entity;
 
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+
 /**
  * @author intr3p1d
  */
@@ -105,7 +107,7 @@ public class ExceptionGroupSummaryEntity extends GroupedFieldNameEntity {
     }
 
     public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
     }
 
     public String getAgentId() {
@@ -113,7 +115,7 @@ public class ExceptionGroupSummaryEntity extends GroupedFieldNameEntity {
     }
 
     public void setAgentId(String agentId) {
-        this.agentId = agentId;
+        this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
     }
 
     public String getTransactionId() {

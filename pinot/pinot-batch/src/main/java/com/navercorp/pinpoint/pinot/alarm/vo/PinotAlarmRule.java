@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.pinot.alarm.vo;
 
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+
 import java.math.BigDecimal;
 
 public class PinotAlarmRule {
@@ -41,7 +43,7 @@ public class PinotAlarmRule {
                           String checkerName, String target, String condition, BigDecimal threshold, String baseline,
                           String userGroupId, boolean smsSend, boolean emailSend, boolean webhookSend, String notes) {
         this.serviceName = serviceName;
-        this.applicationName = applicationName;
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.categoryName = categoryName;
         this.checkerName = checkerName;
         this.target = target;
@@ -72,7 +74,7 @@ public class PinotAlarmRule {
     }
 
     public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
     }
 
     public String getApplicationName() {
@@ -169,21 +171,20 @@ public class PinotAlarmRule {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Rule{");
-        sb.append("ruleId='").append(id).append('\'');
-        sb.append(", serviceName='").append(serviceName).append('\'');
-        sb.append(", applicationName='").append(applicationName).append('\'');
-        sb.append(", categoryName='").append(categoryName).append('\'');
-        sb.append(", checkerName='").append(checkerName).append('\'');
-        sb.append(", target='").append(target).append('\'');
-        sb.append(", condition='").append(condition).append('\'');
-        sb.append(", threshold=").append(threshold);
-        sb.append(", userGroupId='").append(userGroupId).append('\'');
-        sb.append(", smsSend=").append(smsSend);
-        sb.append(", emailSend=").append(emailSend);
-        sb.append(", webhookSend=").append(webhookSend);
-        sb.append(", notes='").append(notes).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "Rule{" +
+                "ruleId='" + id + '\'' +
+                ", serviceName='" + serviceName + '\'' +
+                ", applicationName='" + applicationName + '\'' +
+                ", categoryName='" + categoryName + '\'' +
+                ", checkerName='" + checkerName + '\'' +
+                ", target='" + target + '\'' +
+                ", condition='" + condition + '\'' +
+                ", threshold=" + threshold +
+                ", userGroupId='" + userGroupId + '\'' +
+                ", smsSend=" + smsSend +
+                ", emailSend=" + emailSend +
+                ", webhookSend=" + webhookSend +
+                ", notes='" + notes + '\'' +
+                '}';
     }
 }

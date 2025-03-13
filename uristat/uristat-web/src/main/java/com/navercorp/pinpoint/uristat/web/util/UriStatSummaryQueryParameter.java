@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.uristat.web.util;
 
 import com.navercorp.pinpoint.common.server.util.EnumGetter;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
@@ -33,6 +34,10 @@ public class UriStatSummaryQueryParameter extends QueryParameter {
     private final String isDesc;
     private final long tenTimesLimit;
 
+    /**
+     * @deprecated Since 3.1.0
+     */
+    @Deprecated
     public String getTenantId() {
         return tenantId;
     }
@@ -111,7 +116,7 @@ public class UriStatSummaryQueryParameter extends QueryParameter {
         super(builder.getRange(), builder.getTimePrecision(), builder.getLimit());
         this.tenantId = builder.tenantId;
         this.serviceName = builder.serviceName;
-        this.applicationName = builder.applicationName;
+        this.applicationName = StringPrecondition.requireHasLength(builder.applicationName, "applicationName");
         this.agentId = builder.agentId;
         this.orderBy = builder.orderBy;
         this.isDesc = builder.isDesc;
@@ -131,6 +136,10 @@ public class UriStatSummaryQueryParameter extends QueryParameter {
             return this;
         }
 
+        /**
+         * @deprecated Since 3.1.0
+         */
+        @Deprecated
         public Builder setTenantId(String tenantId) {
             this.tenantId = tenantId;
             return self();
@@ -141,7 +150,7 @@ public class UriStatSummaryQueryParameter extends QueryParameter {
         }
 
         public Builder setApplicationName(String applicationName) {
-            this.applicationName = applicationName;
+            this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
             return self();
         }
 
