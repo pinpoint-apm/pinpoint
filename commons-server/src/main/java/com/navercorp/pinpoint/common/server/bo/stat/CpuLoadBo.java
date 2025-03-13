@@ -19,61 +19,17 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 /**
  * @author HyunGil Jeong
  */
-public class CpuLoadBo implements AgentStatDataPoint {
+public class CpuLoadBo extends AgentStatDataBasePoint {
 
     public static final double UNCOLLECTED_VALUE = -1;
 
-    private String applicationName;
-    private String agentId;
-    private long startTimestamp;
-    private long timestamp;
     private double jvmCpuLoad = UNCOLLECTED_VALUE;
     private double systemCpuLoad = UNCOLLECTED_VALUE;
 
 
     @Override
-    public String getAgentId() {
-        return agentId;
-    }
-
-    @Override
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    @Override
-    public long getStartTimestamp() {
-        return startTimestamp;
-    }
-
-    @Override
-    public void setStartTimestamp(long startTimestamp) {
-        this.startTimestamp = startTimestamp;
-    }
-
-    @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    @Override
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    @Override
     public AgentStatType getAgentStatType() {
         return AgentStatType.CPU_LOAD;
-    }
-
-    @Override
-    public String getApplicationName() {
-        return this.applicationName;
-    }
-
-    @Override
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
     }
 
     public double getJvmCpuLoad() {
@@ -110,14 +66,11 @@ public class CpuLoadBo implements AgentStatDataPoint {
     @Override
     public int hashCode() {
         int result;
-        long temp;
         result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
-        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
-        temp = Double.doubleToLongBits(jvmCpuLoad);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(systemCpuLoad);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + Long.hashCode(startTimestamp);
+        result = 31 * result + Long.hashCode(timestamp);
+        result = 31 * result + Double.hashCode(jvmCpuLoad);
+        result = 31 * result + Double.hashCode(systemCpuLoad);
         return result;
     }
 

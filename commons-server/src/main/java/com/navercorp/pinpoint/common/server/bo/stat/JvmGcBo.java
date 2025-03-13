@@ -21,14 +21,10 @@ import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 /**
  * @author HyunGil Jeong
  */
-public class JvmGcBo implements AgentStatDataPoint {
+public class JvmGcBo extends AgentStatDataBasePoint {
 
     public static final long UNCOLLECTED_VALUE = -1;
 
-    private String applicationName;
-    private String agentId;
-    private long startTimestamp;
-    private long timestamp;
     private JvmGcType gcType = JvmGcType.UNKNOWN;
     private long heapUsed = UNCOLLECTED_VALUE;
     private long heapMax = UNCOLLECTED_VALUE;
@@ -37,49 +33,10 @@ public class JvmGcBo implements AgentStatDataPoint {
     private long gcOldCount = UNCOLLECTED_VALUE;
     private long gcOldTime = UNCOLLECTED_VALUE;
 
-    @Override
-    public String getAgentId() {
-        return agentId;
-    }
-
-    @Override
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    @Override
-    public long getStartTimestamp() {
-        return startTimestamp;
-    }
-
-    @Override
-    public void setStartTimestamp(long startTimestamp) {
-        this.startTimestamp = startTimestamp;
-    }
-
-    @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    @Override
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
 
     @Override
     public AgentStatType getAgentStatType() {
         return AgentStatType.JVM_GC;
-    }
-
-    @Override
-    public String getApplicationName() {
-        return this.applicationName;
-    }
-
-    @Override
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
     }
 
     public JvmGcType getGcType() {
@@ -161,15 +118,15 @@ public class JvmGcBo implements AgentStatDataPoint {
     @Override
     public int hashCode() {
         int result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
-        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        result = 31 * result + Long.hashCode(startTimestamp);
+        result = 31 * result + Long.hashCode(timestamp);
         result = 31 * result + (gcType != null ? gcType.hashCode() : 0);
-        result = 31 * result + (int) (heapUsed ^ (heapUsed >>> 32));
-        result = 31 * result + (int) (heapMax ^ (heapMax >>> 32));
-        result = 31 * result + (int) (nonHeapUsed ^ (nonHeapUsed >>> 32));
-        result = 31 * result + (int) (nonHeapMax ^ (nonHeapMax >>> 32));
-        result = 31 * result + (int) (gcOldCount ^ (gcOldCount >>> 32));
-        result = 31 * result + (int) (gcOldTime ^ (gcOldTime >>> 32));
+        result = 31 * result + Long.hashCode(heapUsed);
+        result = 31 * result + Long.hashCode(heapMax);
+        result = 31 * result + Long.hashCode(nonHeapUsed);
+        result = 31 * result + Long.hashCode(nonHeapMax);
+        result = 31 * result + Long.hashCode(gcOldCount);
+        result = 31 * result + Long.hashCode(gcOldTime);
         return result;
     }
 

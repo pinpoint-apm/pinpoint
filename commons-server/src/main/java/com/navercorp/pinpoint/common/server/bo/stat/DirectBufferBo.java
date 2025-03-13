@@ -19,14 +19,10 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 /**
  * @author Roy Kim
  */
-public class DirectBufferBo implements AgentStatDataPoint {
+public class DirectBufferBo extends AgentStatDataBasePoint {
 
     public static final long UNCOLLECTED_VALUE = -1;
 
-    private String applicationName;
-    private String agentId;
-    private long startTimestamp;
-    private long timestamp;
 
     private long directCount = UNCOLLECTED_VALUE;
     private long directMemoryUsed = UNCOLLECTED_VALUE;
@@ -34,48 +30,8 @@ public class DirectBufferBo implements AgentStatDataPoint {
     private long mappedMemoryUsed = UNCOLLECTED_VALUE;
 
     @Override
-    public String getAgentId() {
-        return agentId;
-    }
-
-    @Override
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    @Override
-    public long getStartTimestamp() {
-        return startTimestamp;
-    }
-
-    @Override
-    public void setStartTimestamp(long startTimestamp) {
-        this.startTimestamp = startTimestamp;
-    }
-
-    @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    @Override
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    @Override
     public AgentStatType getAgentStatType() {
         return AgentStatType.DIRECT_BUFFER;
-    }
-
-    @Override
-    public String getApplicationName() {
-        return this.applicationName;
-    }
-
-    @Override
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
     }
 
     public long getDirectCount() {
@@ -131,12 +87,12 @@ public class DirectBufferBo implements AgentStatDataPoint {
     public int hashCode() {
         int result;
         result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
-        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
-        result = 31 * result + (int) (directCount ^ (directCount >>> 32));
-        result = 31 * result + (int) (directMemoryUsed ^ (directMemoryUsed >>> 32));
-        result = 31 * result + (int) (mappedCount ^ (mappedCount >>> 32));
-        result = 31 * result + (int) (mappedMemoryUsed ^ (mappedMemoryUsed >>> 32));
+        result = 31 * result + Long.hashCode(startTimestamp);
+        result = 31 * result + Long.hashCode(timestamp);
+        result = 31 * result + Long.hashCode(directCount);
+        result = 31 * result + Long.hashCode(directMemoryUsed);
+        result = 31 * result + Long.hashCode(mappedCount);
+        result = 31 * result + Long.hashCode(mappedMemoryUsed);
         return result;
     }
 

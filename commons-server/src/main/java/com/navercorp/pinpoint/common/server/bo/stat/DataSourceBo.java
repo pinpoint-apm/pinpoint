@@ -21,16 +21,11 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 /**
  * @author Taejin Koo
  */
-public class DataSourceBo implements AgentStatDataPoint {
+public class DataSourceBo extends AgentStatDataBasePoint {
 
     public static final int UNCOLLECTED_INT_VALUE = -1;
     public static final String UNCOLLECTED_STRING_VALUE = "";
     public static final ServiceType UNCOLLECTED_SERVICE_TYPE_VALUE = ServiceType.UNKNOWN;
-
-    private String applicationName;
-    private String agentId;
-    private long startTimestamp;
-    private long timestamp;
 
     private int id = UNCOLLECTED_INT_VALUE;
     private short serviceTypeCode = UNCOLLECTED_SERVICE_TYPE_VALUE.getCode();
@@ -39,49 +34,10 @@ public class DataSourceBo implements AgentStatDataPoint {
     private int activeConnectionSize = UNCOLLECTED_INT_VALUE;
     private int maxConnectionSize = UNCOLLECTED_INT_VALUE;
 
-    @Override
-    public String getAgentId() {
-        return agentId;
-    }
-
-    @Override
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    @Override
-    public long getStartTimestamp() {
-        return startTimestamp;
-    }
-
-    @Override
-    public void setStartTimestamp(long startTimestamp) {
-        this.startTimestamp = startTimestamp;
-    }
-
-    @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    @Override
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
 
     @Override
     public AgentStatType getAgentStatType() {
         return AgentStatType.DATASOURCE;
-    }
-
-    @Override
-    public String getApplicationName() {
-        return this.applicationName;
-    }
-
-    @Override
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
     }
 
     public int getId() {
@@ -154,8 +110,8 @@ public class DataSourceBo implements AgentStatDataPoint {
     @Override
     public int hashCode() {
         int result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
-        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        result = 31 * result + Long.hashCode(startTimestamp);
+        result = 31 * result + Long.hashCode(timestamp);
         result = 31 * result + id;
         result = 31 * result + (int) serviceTypeCode;
         result = 31 * result + (databaseName != null ? databaseName.hashCode() : 0);
