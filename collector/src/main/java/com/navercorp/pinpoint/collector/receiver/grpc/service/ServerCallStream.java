@@ -69,7 +69,11 @@ public class ServerCallStream<Req extends GeneratedMessageV3, Res extends Genera
         Metadata metadata = Status.trailersFromThrowable(throwable);
         if (logger.isInfoEnabled()) {
             Header header = ServerContext.getAgentInfo();
-            logger.info("onError: Failed to span streamId={}, {} {} {}", streamId, header, status, metadata);
+            if (status.getCode() == Status.CANCELLED.getCode()) {
+                logger.info("Cancelled: streamId={}, applicationName={}, agentId={}, status={}, metadata={}", streamId, header.getApplicationName(), header.getAgentId(), status, metadata);
+            } else {
+                logger.info("onError: Failed to span streamId={}, header={}, status={}, metadata={}", streamId, header, status, metadata);
+            }
         }
 
         responseCompleted();
