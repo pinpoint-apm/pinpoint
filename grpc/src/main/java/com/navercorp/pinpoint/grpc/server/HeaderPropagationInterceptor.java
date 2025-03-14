@@ -58,7 +58,7 @@ public class HeaderPropagationInterceptor implements ServerInterceptor {
         } catch (Exception e) {
             if (throttledLogger.isInfoEnabled()) {
                 throttledLogger.info("Header extract fail cause={}, method={} headers={}, attr={}",
-                        e.getMessage(), call.getMethodDescriptor().getFullMethodName(), headers, call.getAttributes(), e);
+                        e.getMessage(), call.getMethodDescriptor().getFullMethodName(), headers, call.getAttributes());
             }
             call.close(Status.INVALID_ARGUMENT.withDescription(e.getMessage()), new Metadata());
             return new ServerCall.Listener<ReqT>() {
@@ -71,8 +71,7 @@ public class HeaderPropagationInterceptor implements ServerInterceptor {
             logger.debug("headerPropagation method={}, headers={}, attr={}", call.getMethodDescriptor().getFullMethodName(), headers, call.getAttributes());
         }
 
-        ServerCall.Listener<ReqT> contextPropagateInterceptor = Contexts.interceptCall(newContext, call, headers, next);
-        return contextPropagateInterceptor;
+        return Contexts.interceptCall(newContext, call, headers, next);
     }
 
     @Override

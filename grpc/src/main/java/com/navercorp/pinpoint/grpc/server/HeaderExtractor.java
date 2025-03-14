@@ -6,7 +6,6 @@ import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.Header;
 import io.grpc.Metadata;
-import io.grpc.Status;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +17,7 @@ public class HeaderExtractor {
     public long getTime(Metadata headers, Metadata.Key<String> timeKey) {
         final String timeStr = headers.get(timeKey);
         if (timeStr == null) {
-            throw Status.INVALID_ARGUMENT.withDescription(timeKey.name() + " header is missing").asRuntimeException();
+            throw new InvalidGrpcHeaderException(timeKey, timeKey.name() + " header is missing");
         }
         try {
             // check number format
@@ -31,7 +30,7 @@ public class HeaderExtractor {
     public String getId(Metadata headers, Metadata.Key<String> idKey) {
         final String id = headers.get(idKey);
         if (id == null) {
-            throw Status.INVALID_ARGUMENT.withDescription(idKey.name() + " header is missing").asRuntimeException();
+            throw new InvalidGrpcHeaderException(idKey, idKey.name() + " header is missing");
         }
         return validateId(id, idKey);
     }
@@ -41,10 +40,10 @@ public class HeaderExtractor {
         if (!StringUtils.isEmpty(name)) {
             final IdValidateUtils.CheckResult result = IdValidateUtils.checkId(name, nameMaxLength);
             if (result == IdValidateUtils.CheckResult.FAIL_PATTERN) {
-                throw Status.INVALID_ARGUMENT.withDescription("invalid " + idKey.name()).asRuntimeException();
+                throw new InvalidGrpcHeaderException(idKey, "Invalid " + idKey.name());
             }
             if (result == IdValidateUtils.CheckResult.FAIL_LENGTH) {
-                throw Status.INVALID_ARGUMENT.withDescription("invalid " + idKey.name() + ".length").asRuntimeException();
+                throw new InvalidGrpcHeaderException(idKey, "Invalid " + idKey.name() + ".length");
             }
         }
         return name;
@@ -97,7 +96,7 @@ public class HeaderExtractor {
 
     String validateId(String id, Metadata.Key<?> key) {
         if (!IdValidateUtils.validateId(id)) {
-            throw Status.INVALID_ARGUMENT.withDescription("invalid " + key.name()).asRuntimeException();
+            throw new InvalidGrpcHeaderException(key, "Invalid " + key.name());
         }
         return id;
     }
