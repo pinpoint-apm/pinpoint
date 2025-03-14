@@ -50,7 +50,7 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
     setTransactionInfo(data);
     // transaction 검색으로 들어온 경우 redirect
     if (data && data.spanId === -1 && !application) {
-      const applicationName = data.applicationId;
+      const applicationName = data.applicationName;
       const serviceType = data.applicationMapData.nodeDataArray.find(
         (node) => node.applicationName === applicationName,
       )?.serviceType;

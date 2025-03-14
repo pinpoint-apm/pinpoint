@@ -25,7 +25,7 @@ export namespace TransactionInfoType {
     agentId: string;
     agentName: string;
     uri: string;
-    applicationId: string;
+    applicationName: string;
   }
 
   export interface CallStackIndex {
