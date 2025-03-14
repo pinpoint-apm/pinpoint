@@ -16,9 +16,10 @@
 
 package com.navercorp.pinpoint.inspector.collector.dao.pinot;
 
-import com.navercorp.pinpoint.common.server.metric.dao.TopicNameManager;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
-import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
+import com.navercorp.pinpoint.common.server.bo.stat.DataPoint;
+import com.navercorp.pinpoint.common.server.bo.stat.StatDataPoint;
+import com.navercorp.pinpoint.common.server.metric.dao.TopicNameManager;
 import com.navercorp.pinpoint.inspector.collector.config.InspectorCollectorProperties;
 import com.navercorp.pinpoint.inspector.collector.dao.AgentStatDao;
 import com.navercorp.pinpoint.inspector.collector.model.kafka.AgentStat;
@@ -39,7 +40,7 @@ import java.util.function.Function;
 /**
  * @author minwoo.jung
  */
-public class DefaultAgentStatDao <T extends AgentStatDataPoint> implements AgentStatDao<T> {
+public class DefaultAgentStatDao <T extends StatDataPoint> implements AgentStatDao<T> {
 
     private final Logger logger = LogManager.getLogger(DefaultAgentStatDao.class.getName());
 
@@ -52,8 +53,7 @@ public class DefaultAgentStatDao <T extends AgentStatDataPoint> implements Agent
     private final TenantProvider tenantProvider;
     private final TopicNameManager topicNameManager;
 
-    public DefaultAgentStatDao(Function<AgentStatBo,
-                               List<T>> dataPointFunction,
+    public DefaultAgentStatDao(Function<AgentStatBo, List<T>> dataPointFunction,
                                KafkaTemplate<String, AgentStat> kafkaAgentStatTemplate,
                                KafkaTemplate<String, ApplicationStat> kafkaApplicationStatTemplate,
                                BiFunction<List<T>, String, List<AgentStat>> convertToKafkaAgentStatModelFunction,
@@ -97,14 +97,16 @@ public class DefaultAgentStatDao <T extends AgentStatDataPoint> implements Agent
         }
 
         T agentStat = agentStatData.get(0);
-        Instant collectedTime = Instant.ofEpochMilli(agentStat.getTimestamp());
+        DataPoint point = agentStat.getDataPoint();
+        Instant collectedTime = Instant.ofEpochMilli(point.getTimestamp());
         Instant validTime = Instant.now().minus(Duration.ofMinutes(10));
 
         if (validTime.isBefore(collectedTime)) {
             return true;
         }
 
-        logger.info("AgentStat data is invalid. applicationName: {}, agentId: {}, time: {}", agentStat.getApplicationName(), agentStat.getAgentId(), new Date(agentStat.getTimestamp()));
+        logger.info("AgentStat data is invalid. applicationName: {}, agentId: {}, time: {}",
+                point.getApplicationName(), point.getAgentId(), new Date(point.getTimestamp()));
         return false;
     }
 

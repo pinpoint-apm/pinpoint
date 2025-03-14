@@ -16,26 +16,34 @@
 
 package com.navercorp.pinpoint.common.model;
 
+import com.navercorp.pinpoint.common.server.bo.stat.DataPoint;
+import com.navercorp.pinpoint.common.server.bo.stat.StatDataPoint;
+
+import java.util.Objects;
+
 /**
  * @author minwoo-jung
  */
 public final class SortKeyUtils {
 
+    public static String generateKeyForAgentStat(StatDataPoint statDataPoint) {
+        Objects.requireNonNull(statDataPoint, "statDataPoint");
+        DataPoint point = statDataPoint.getDataPoint();
+        String metricName = statDataPoint.getAgentStatType().getChartType();
+        return generateKeyForAgentStat(point.getApplicationName(), point.getAgentId(), metricName);
+    }
+
     public static String generateKeyForAgentStat(String applicationName, String agentId, String metricName) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(applicationName);
-        sb.append("#");
-        sb.append(agentId);
-        sb.append("#");
-        sb.append(metricName);
-        return sb.toString();
+        return applicationName +
+                "#" +
+                agentId +
+                "#" +
+                metricName;
     }
 
     public static String generateKeyForApplicationStat(String applicationName, String metricName) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(applicationName);
-        sb.append("#");
-        sb.append(metricName);
-        return sb.toString();
+        return applicationName +
+                "#" +
+                metricName;
     }
 }

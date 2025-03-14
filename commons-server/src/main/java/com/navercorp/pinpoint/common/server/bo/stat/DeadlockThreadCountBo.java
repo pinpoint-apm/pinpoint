@@ -20,11 +20,15 @@ package com.navercorp.pinpoint.common.server.bo.stat;
  * @author Taejin Koo
  * @author jaehong.kim - Remove TThreadDump List
  */
-public class DeadlockThreadCountBo extends AgentStatDataBasePoint implements AgentWarningStatDataPoint {
+public class DeadlockThreadCountBo extends AbstractStatDataPoint {
 
     public static final int UNCOLLECTED_INT_VALUE = -1;
 
     private int deadlockedThreadCount = UNCOLLECTED_INT_VALUE;
+
+    public DeadlockThreadCountBo(DataPoint point) {
+        super(point);
+    }
 
 
     @Override
@@ -43,9 +47,7 @@ public class DeadlockThreadCountBo extends AgentStatDataBasePoint implements Age
     @Override
     public String toString() {
         return "DeadlockThreadCountBo{" +
-                "agentId='" + agentId + '\'' +
-                ", startTimestamp=" + startTimestamp +
-                ", timestamp=" + timestamp +
+                "point=" + point +
                 ", deadlockedThreadCount=" + deadlockedThreadCount +
                 '}';
     }

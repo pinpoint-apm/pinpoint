@@ -19,11 +19,15 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 /**
  * @author Roy Kim
  */
-public class FileDescriptorBo extends AgentStatDataBasePoint {
+public class FileDescriptorBo extends AbstractStatDataPoint {
 
     public static final long UNCOLLECTED_VALUE = -1;
 
     private long openFileDescriptorCount = UNCOLLECTED_VALUE;
+
+    public FileDescriptorBo(DataPoint point) {
+        super(point);
+    }
 
 
     @Override
@@ -41,35 +45,9 @@ public class FileDescriptorBo extends AgentStatDataBasePoint {
 
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        FileDescriptorBo fileDescriptorBo = (FileDescriptorBo) o;
-
-        if (startTimestamp != fileDescriptorBo.startTimestamp) return false;
-        if (timestamp != fileDescriptorBo.timestamp) return false;
-        if (openFileDescriptorCount != fileDescriptorBo.openFileDescriptorCount) return false;
-        return agentId != null ? agentId.equals(fileDescriptorBo.agentId) : fileDescriptorBo.agentId == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result;
-        result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + Long.hashCode(startTimestamp);
-        result = 31 * result + Long.hashCode(timestamp);
-        result = 31 * result + Long.hashCode(openFileDescriptorCount);
-        return result;
-    }
-
-    @Override
     public String toString() {
         return "FileDescriptorBo{" +
-                "agentId='" + agentId + '\'' +
-                ", startTimestamp=" + startTimestamp +
-                ", timestamp=" + timestamp +
+                ", point=" + point +
                 ", openFileDescriptorCount=" + openFileDescriptorCount +
                 '}';
     }

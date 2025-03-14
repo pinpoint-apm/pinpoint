@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.test.util;
 
+import com.navercorp.pinpoint.common.server.bo.stat.DataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 
 import java.util.ArrayList;
@@ -41,7 +42,8 @@ public class DataSourceTestUtils {
     }
 
     private static DataSourceBo createDataSourceBo(int id, int maxConnectionSize) {
-        DataSourceBo dataSourceBo = new DataSourceBo();
+        DataPoint point = DataPoint.of("agentId", "appName", 0, 1);
+        DataSourceBo dataSourceBo = new DataSourceBo(point);
         dataSourceBo.setId(id);
         dataSourceBo.setActiveConnectionSize(random.nextInt(1, maxConnectionSize));
         dataSourceBo.setMaxConnectionSize(maxConnectionSize);

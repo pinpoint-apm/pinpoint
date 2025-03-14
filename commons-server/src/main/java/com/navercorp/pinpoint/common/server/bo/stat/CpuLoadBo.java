@@ -19,13 +19,16 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 /**
  * @author HyunGil Jeong
  */
-public class CpuLoadBo extends AgentStatDataBasePoint {
+public class CpuLoadBo extends AbstractStatDataPoint {
 
     public static final double UNCOLLECTED_VALUE = -1;
 
     private double jvmCpuLoad = UNCOLLECTED_VALUE;
     private double systemCpuLoad = UNCOLLECTED_VALUE;
 
+    public CpuLoadBo(DataPoint point) {
+        super(point);
+    }
 
     @Override
     public AgentStatType getAgentStatType() {
@@ -49,37 +52,9 @@ public class CpuLoadBo extends AgentStatDataBasePoint {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        CpuLoadBo cpuLoadBo = (CpuLoadBo) o;
-
-        if (startTimestamp != cpuLoadBo.startTimestamp) return false;
-        if (timestamp != cpuLoadBo.timestamp) return false;
-        if (Double.compare(cpuLoadBo.jvmCpuLoad, jvmCpuLoad) != 0) return false;
-        if (Double.compare(cpuLoadBo.systemCpuLoad, systemCpuLoad) != 0) return false;
-        return agentId != null ? agentId.equals(cpuLoadBo.agentId) : cpuLoadBo.agentId == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result;
-        result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + Long.hashCode(startTimestamp);
-        result = 31 * result + Long.hashCode(timestamp);
-        result = 31 * result + Double.hashCode(jvmCpuLoad);
-        result = 31 * result + Double.hashCode(systemCpuLoad);
-        return result;
-    }
-
-    @Override
     public String toString() {
         return "CpuLoadBo{" +
-                "agentId='" + agentId + '\'' +
-                ", startTimestamp=" + startTimestamp +
-                ", timestamp=" + timestamp +
+                "point=" + point +
                 ", jvmCpuLoad=" + jvmCpuLoad +
                 ", systemCpuLoad=" + systemCpuLoad +
                 '}';

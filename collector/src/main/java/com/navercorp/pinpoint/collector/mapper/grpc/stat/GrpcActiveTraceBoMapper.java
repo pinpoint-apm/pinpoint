@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.mapper.grpc.stat;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceHistogram;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataPoint;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.trace.PActiveTrace;
 import com.navercorp.pinpoint.grpc.trace.PActiveTraceHistogram;
@@ -33,10 +34,10 @@ import java.util.List;
 @Component
 public class GrpcActiveTraceBoMapper implements GrpcStatMapper {
 
-    public ActiveTraceBo map(final PActiveTrace activeTrace) {
+    public ActiveTraceBo map(DataPoint point, final PActiveTrace activeTrace) {
         final PActiveTraceHistogram histogram = activeTrace.getHistogram();
         final ActiveTraceHistogram activeTraceHistogram = createActiveTraceCountMap(histogram.getActiveTraceCountList());
-        final ActiveTraceBo activeTraceBo = new ActiveTraceBo();
+        final ActiveTraceBo activeTraceBo = new ActiveTraceBo(point);
         activeTraceBo.setVersion((short) histogram.getVersion());
         activeTraceBo.setHistogramSchemaType(histogram.getHistogramSchemaType());
         activeTraceBo.setActiveTraceHistogram(activeTraceHistogram);
@@ -64,7 +65,8 @@ public class GrpcActiveTraceBoMapper implements GrpcStatMapper {
         if (agentStat.hasActiveTrace()) {
             final PActiveTrace activeTrace = agentStat.getActiveTrace();
             if (activeTrace.hasHistogram()) {
-                final ActiveTraceBo activeTraceBo = this.map(activeTrace);
+                DataPoint point = builder.getDataPoint();
+                final ActiveTraceBo activeTraceBo = this.map(point, activeTrace);
                 builder.addActiveTrace(activeTraceBo);
             }
         }

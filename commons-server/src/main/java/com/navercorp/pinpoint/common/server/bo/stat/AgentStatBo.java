@@ -140,9 +140,9 @@ public class AgentStatBo {
         private final String agentId;
         private final long startTimestamp;
 
-        private final List<AgentStatDataPoint> statList = new ArrayList<>();
+        private final List<StatDataPoint> statList = new ArrayList<>();
 
-        public Builder(String applicationName, String agentId, long startTimestamp) {
+        Builder(String applicationName, String agentId, long startTimestamp) {
             this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
             this.agentId = Objects.requireNonNull(agentId, "agentId");
             this.startTimestamp = startTimestamp;
@@ -153,100 +153,83 @@ public class AgentStatBo {
         }
 
         public class StatBuilder {
-            private final long timestamp;
+            private final DataPoint dataPoint;
 
             public StatBuilder(long timestamp) {
-                this.timestamp = timestamp;
+                this.dataPoint = DataPoint.of(agentId, applicationName, startTimestamp, timestamp);
             }
 
-            private void setBaseData(AgentStatDataPoint agentStatDataPoint) {
-                agentStatDataPoint.setApplicationName(applicationName);
-                agentStatDataPoint.setAgentId(agentId);
-                agentStatDataPoint.setStartTimestamp(startTimestamp);
-                agentStatDataPoint.setTimestamp(this.timestamp);
+            public DataPoint getDataPoint() {
+                return dataPoint;
             }
+
 
             public void addJvmGc(JvmGcBo jvmGc) {
                 Objects.requireNonNull(jvmGc, "jvmGc");
-                setBaseData(jvmGc);
                 statList.add(jvmGc);
             }
 
             public void addJvmGcDetailed(JvmGcDetailedBo jvmGcDetailed) {
                 Objects.requireNonNull(jvmGcDetailed, "jvmGcDetailed");
-                setBaseData(jvmGcDetailed);
                 statList.add(jvmGcDetailed);
             }
 
 
             public void addCpuLoad(CpuLoadBo cpuLoad) {
                 Objects.requireNonNull(cpuLoad, "cpuLoad");
-                setBaseData(cpuLoad);
                 statList.add(cpuLoad);
             }
 
 
             public void addTransaction(TransactionBo transaction) {
                 Objects.requireNonNull(transaction, "transaction");
-                setBaseData(transaction);
                 statList.add(transaction);
             }
 
 
             public void addActiveTrace(ActiveTraceBo activeTrace) {
                 Objects.requireNonNull(activeTrace, "activeTrace");
-                setBaseData(activeTrace);
                 statList.add(activeTrace);
             }
 
             public void addDataSourceList(DataSourceListBo dataSourceList) {
                 Objects.requireNonNull(dataSourceList, "dataSourceList");
-                setBaseData(dataSourceList);
-                for (DataSourceBo dataSourceBo : dataSourceList.getList()) {
-                    setBaseData(dataSourceBo);
-                }
                 statList.add(dataSourceList);
             }
 
 
             public void addResponseTime(ResponseTimeBo responseTime) {
                 Objects.requireNonNull(responseTime, "responseTime");
-                setBaseData(responseTime);
                 statList.add(responseTime);
             }
 
 
             public void addDeadlockThreadCount(DeadlockThreadCountBo deadlockThreadCount) {
                 Objects.requireNonNull(deadlockThreadCount, "deadlockThreadCount");
-                setBaseData(deadlockThreadCount);
                 statList.add(deadlockThreadCount);
             }
 
 
             public void addFileDescriptor(FileDescriptorBo fileDescriptor) {
                 Objects.requireNonNull(fileDescriptor, "fileDescriptor");
-                setBaseData(fileDescriptor);
                 statList.add(fileDescriptor);
             }
 
 
             public void addDirectBuffer(DirectBufferBo directBuffer) {
                 Objects.requireNonNull(directBuffer, "directBuffer");
-                setBaseData(directBuffer);
                 statList.add(directBuffer);
             }
 
 
             public void addTotalThreadCount(TotalThreadCountBo totalThreadCount) {
                 Objects.requireNonNull(totalThreadCount, "totalThreadCount");
-                setBaseData(totalThreadCount);
                 statList.add(totalThreadCount);
             }
 
 
             public void addLoadedClass(LoadedClassBo loadedClass) {
                 Objects.requireNonNull(loadedClass, "loadedClass");
-                setBaseData(loadedClass);
                 statList.add(loadedClass);
             }
 

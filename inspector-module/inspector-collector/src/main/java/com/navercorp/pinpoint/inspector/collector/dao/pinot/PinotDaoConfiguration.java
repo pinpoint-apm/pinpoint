@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.inspector.collector.dao.pinot;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
-import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
+import com.navercorp.pinpoint.common.server.bo.stat.StatDataPoint;
 import com.navercorp.pinpoint.inspector.collector.config.InspectorCollectorProperties;
 import com.navercorp.pinpoint.inspector.collector.dao.AgentStatDao;
 import com.navercorp.pinpoint.inspector.collector.model.kafka.AgentStat;
@@ -52,7 +52,7 @@ public class PinotDaoConfiguration {
         this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
     }
 
-    private <T extends AgentStatDataPoint> AgentStatDao<T> newAgentStatDao(Function<AgentStatBo, List<T>> dataPointFunction, BiFunction<List<T>, String, List<AgentStat>> convertToAgentStat, Function<List<AgentStat>, List<ApplicationStat>> convertToKafkaApplicationStat) {
+    private <T extends StatDataPoint> AgentStatDao<T> newAgentStatDao(Function<AgentStatBo, List<T>> dataPointFunction, BiFunction<List<T>, String, List<AgentStat>> convertToAgentStat, Function<List<AgentStat>, List<ApplicationStat>> convertToKafkaApplicationStat) {
         return new DefaultAgentStatDao(dataPointFunction, kafkaAgentStatTemplate, kafkaApplicationStatTemplate, convertToAgentStat, convertToKafkaApplicationStat, inspectorCollectorProperties, tenantProvider);
     }
 

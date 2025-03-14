@@ -16,10 +16,14 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat;
 
-public class TotalThreadCountBo extends AgentStatDataBasePoint {
+public class TotalThreadCountBo extends AbstractStatDataPoint {
     public static final long UNCOLLECTED_VALUE = -1L;
 
     private long totalThreadCount = UNCOLLECTED_VALUE;
+
+    public TotalThreadCountBo(DataPoint point) {
+        super(point);
+    }
 
     @Override
     public AgentStatType getAgentStatType() {
@@ -37,9 +41,7 @@ public class TotalThreadCountBo extends AgentStatDataBasePoint {
     @Override
     public String toString() {
         return "TotalThreadCountBo{" +
-                "agentId='" + agentId + '\'' +
-                ", startTimestamp=" + startTimestamp +
-                ", timestamp=" + timestamp +
+                ", point=" + point +
                 ", totalThreadCount=" + totalThreadCount +
                 '}';
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2016 Naver Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,17 @@
 package com.navercorp.pinpoint.common.server.bo.stat;
 
 /**
- * @author Taejin Koo
+ * @author HyunGil Jeong
  */
-public interface AgentWarningStatDataPoint extends AgentStatDataPoint {
+public interface DataPoint {
+    String getAgentId();
+
+    String getApplicationName();
+
+    long getStartTimestamp();
+    long getTimestamp();
+
+    static DataPoint of(String agentId, String applicationName, long startTimestamp, long timestamp) {
+        return new DefaultDataPoint(agentId, applicationName, startTimestamp, timestamp);
+    }
 }

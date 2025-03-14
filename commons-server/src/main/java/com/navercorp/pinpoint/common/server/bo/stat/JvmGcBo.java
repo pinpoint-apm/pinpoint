@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 /**
  * @author HyunGil Jeong
  */
-public class JvmGcBo extends AgentStatDataBasePoint {
+public class JvmGcBo extends AbstractStatDataPoint {
 
     public static final long UNCOLLECTED_VALUE = -1;
 
@@ -32,6 +32,10 @@ public class JvmGcBo extends AgentStatDataBasePoint {
     private long nonHeapMax = UNCOLLECTED_VALUE;
     private long gcOldCount = UNCOLLECTED_VALUE;
     private long gcOldTime = UNCOLLECTED_VALUE;
+
+    public JvmGcBo(DataPoint point) {
+        super(point);
+    }
 
 
     @Override
@@ -95,47 +99,11 @@ public class JvmGcBo extends AgentStatDataBasePoint {
         this.gcOldTime = gcOldTime;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        JvmGcBo jvmGcBo = (JvmGcBo) o;
-
-        if (startTimestamp != jvmGcBo.startTimestamp) return false;
-        if (timestamp != jvmGcBo.timestamp) return false;
-        if (heapUsed != jvmGcBo.heapUsed) return false;
-        if (heapMax != jvmGcBo.heapMax) return false;
-        if (nonHeapUsed != jvmGcBo.nonHeapUsed) return false;
-        if (nonHeapMax != jvmGcBo.nonHeapMax) return false;
-        if (gcOldCount != jvmGcBo.gcOldCount) return false;
-        if (gcOldTime != jvmGcBo.gcOldTime) return false;
-        if (agentId != null ? !agentId.equals(jvmGcBo.agentId) : jvmGcBo.agentId != null) return false;
-        return gcType == jvmGcBo.gcType;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + Long.hashCode(startTimestamp);
-        result = 31 * result + Long.hashCode(timestamp);
-        result = 31 * result + (gcType != null ? gcType.hashCode() : 0);
-        result = 31 * result + Long.hashCode(heapUsed);
-        result = 31 * result + Long.hashCode(heapMax);
-        result = 31 * result + Long.hashCode(nonHeapUsed);
-        result = 31 * result + Long.hashCode(nonHeapMax);
-        result = 31 * result + Long.hashCode(gcOldCount);
-        result = 31 * result + Long.hashCode(gcOldTime);
-        return result;
-    }
 
     @Override
     public String toString() {
         return "JvmGcBo{" +
-                "agentId='" + agentId + '\'' +
-                ", startTimestamp=" + startTimestamp +
-                ", timestamp=" + timestamp +
+                "point=" + point +
                 ", gcType=" + gcType +
                 ", heapUsed=" + heapUsed +
                 ", heapMax=" + heapMax +

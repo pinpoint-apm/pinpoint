@@ -16,66 +16,23 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat;
 
-import com.navercorp.pinpoint.common.server.util.StringPrecondition;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Taejin Koo
  */
-public class DataSourceListBo implements AgentStatDataPointList<DataSourceBo> {
+public class DataSourceListBo extends AbstractStatDataPoint implements AgentStatDataPointList<DataSourceBo>  {
 
     private final List<DataSourceBo> dataSourceBoList = new ArrayList<>();
 
-    private String applicationName;
-    private String agentId;
-    private long startTimestamp;
-    private long timestamp;
-
-    @Override
-    public String getAgentId() {
-        return agentId;
-    }
-
-    @Override
-    public void setAgentId(String agentId) {
-        this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
-    }
-
-    @Override
-    public long getStartTimestamp() {
-        return startTimestamp;
-    }
-
-    @Override
-    public void setStartTimestamp(long startTimestamp) {
-        this.startTimestamp = startTimestamp;
-    }
-
-    @Override
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    @Override
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
+    public DataSourceListBo(DataPoint point) {
+        super(point);
     }
 
     @Override
     public AgentStatType getAgentStatType() {
         return AgentStatType.DATASOURCE;
-    }
-
-    @Override
-    public String getApplicationName() {
-        return this.applicationName;
-    }
-
-    @Override
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
     }
 
     @Override
@@ -90,10 +47,6 @@ public class DataSourceListBo implements AgentStatDataPointList<DataSourceBo> {
 
     @Override
     public int size() {
-        if (dataSourceBoList == null) {
-            return 0;
-        }
-
         return dataSourceBoList.size();
     }
 
@@ -102,36 +55,12 @@ public class DataSourceListBo implements AgentStatDataPointList<DataSourceBo> {
         return new ArrayList<>(dataSourceBoList);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        DataSourceListBo that = (DataSourceListBo) o;
-
-        if (startTimestamp != that.startTimestamp) return false;
-        if (timestamp != that.timestamp) return false;
-        if (!dataSourceBoList.equals(that.dataSourceBoList)) return false;
-        return agentId != null ? agentId.equals(that.agentId) : that.agentId == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = dataSourceBoList.hashCode();
-        result = 31 * result + (agentId != null ? agentId.hashCode() : 0);
-        result = 31 * result + Long.hashCode(startTimestamp);
-        result = 31 * result + Long.hashCode(timestamp);
-        return result;
-    }
 
     @Override
     public String toString() {
         return "DataSourceListBo{" +
                 "dataSourceBoList=" + dataSourceBoList +
-                ", agentId='" + agentId + '\'' +
-                ", startTimestamp=" + startTimestamp +
-                ", timestamp=" + timestamp +
+                ", point=" + point +
                 '}';
     }
 }

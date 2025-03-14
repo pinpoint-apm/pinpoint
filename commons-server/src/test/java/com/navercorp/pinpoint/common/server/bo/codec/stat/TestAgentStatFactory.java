@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceHistogram;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
@@ -96,11 +97,10 @@ public class TestAgentStatFactory {
                 5000L,
                 numValues);
         for (int i = 0; i < numValues; i++) {
-            JvmGcBo jvmGcBo = new JvmGcBo();
-            jvmGcBo.setAgentId(agentId);
-            jvmGcBo.setStartTimestamp(startTimestamps.get(i));
+            DataPoint point = newPoint(agentId, startTimestamps.get(i), timestamps.get(i));
+
+            JvmGcBo jvmGcBo = new JvmGcBo(point);
             jvmGcBo.setGcType(JvmGcType.CMS);
-            jvmGcBo.setTimestamp(timestamps.get(i));
             jvmGcBo.setHeapUsed(heapUseds.get(i));
             jvmGcBo.setHeapMax(heapMaxes.get(i));
             jvmGcBo.setNonHeapUsed(nonHeapUseds.get(i));
@@ -110,6 +110,10 @@ public class TestAgentStatFactory {
             jvmGcBos.add(jvmGcBo);
         }
         return jvmGcBos;
+    }
+
+    private static DataPoint newPoint(String agentId, long startTimestamps, long timestamps) {
+        return DataPoint.of(agentId, "appName", startTimestamps, timestamps);
     }
 
     public static List<JvmGcDetailedBo> createJvmGcDetailedBos(String agentId, long startTimestamp, long initialTimestamp) {
@@ -140,10 +144,9 @@ public class TestAgentStatFactory {
         List<Double> permGenUseds = createRandomPercentageValues(numValues);
         List<Double> metaspaceUseds = createRandomPercentageValues(numValues);
         for (int i = 0; i < numValues; i++) {
-            JvmGcDetailedBo jvmGcDetailedBo = new JvmGcDetailedBo();
-            jvmGcDetailedBo.setAgentId(agentId);
-            jvmGcDetailedBo.setStartTimestamp(startTimestamps.get(i));
-            jvmGcDetailedBo.setTimestamp(timestamps.get(i));
+            DataPoint point = newPoint(agentId, startTimestamps.get(i), timestamps.get(i));
+
+            JvmGcDetailedBo jvmGcDetailedBo = new JvmGcDetailedBo(point);
             jvmGcDetailedBo.setGcNewCount(gcNewCounts.get(i));
             jvmGcDetailedBo.setGcNewTime(gcNewTimes.get(i));
             jvmGcDetailedBo.setCodeCacheUsed(codeCacheUseds.get(i));
@@ -169,10 +172,9 @@ public class TestAgentStatFactory {
         List<Double> jvmCpuLoads = createRandomPercentageValues(numValues);
         List<Double> systemCpuLoads = createRandomPercentageValues(numValues);
         for (int i = 0; i < numValues; i++) {
-            CpuLoadBo cpuLoadBo = new CpuLoadBo();
-            cpuLoadBo.setStartTimestamp(startTimestamps.get(i));
-            cpuLoadBo.setAgentId(agentId);
-            cpuLoadBo.setTimestamp(timestamps.get(i));
+            DataPoint point = newPoint(agentId, startTimestamps.get(i), timestamps.get(i));
+
+            CpuLoadBo cpuLoadBo = new CpuLoadBo(point);
             cpuLoadBo.setJvmCpuLoad(jvmCpuLoads.get(i));
             cpuLoadBo.setSystemCpuLoad(systemCpuLoads.get(i));
             cpuLoadBos.add(cpuLoadBo);
@@ -232,10 +234,9 @@ public class TestAgentStatFactory {
                 100L,
                 numValues);
         for (int i = 0; i < numValues; i++) {
-            TransactionBo transactionBo = new TransactionBo();
-            transactionBo.setAgentId(agentId);
-            transactionBo.setStartTimestamp(startTimestamps.get(i));
-            transactionBo.setTimestamp(timestamps.get(i));
+            DataPoint point = newPoint(agentId, startTimestamps.get(i), timestamps.get(i));
+
+            TransactionBo transactionBo = new TransactionBo(point);
             transactionBo.setCollectInterval(collectIntervals.get(i));
             transactionBo.setSampledNewCount(sampledNewCounts.get(i));
             transactionBo.setSampledContinuationCount(sampledContinuationCounts.get(i));
@@ -263,10 +264,9 @@ public class TestAgentStatFactory {
         List<Integer> verySlowTraceCounts = TestAgentStatDataPointFactory.INTEGER.createRandomValues(0, 1000, numValues);
         int histogramSchemaType = 1;
         for (int i = 0; i < numValues; i++) {
-            ActiveTraceBo activeTraceBo = new ActiveTraceBo();
-            activeTraceBo.setAgentId(agentId);
-            activeTraceBo.setStartTimestamp(startTimestamps.get(i));
-            activeTraceBo.setTimestamp(timestamps.get(i));
+            DataPoint point = newPoint(agentId, startTimestamps.get(i), timestamps.get(i));
+
+            ActiveTraceBo activeTraceBo = new ActiveTraceBo(point);
             activeTraceBo.setHistogramSchemaType(histogramSchemaType);
             if (RANDOM.nextInt(5) > 0) {
                 ActiveTraceHistogram activeTraceHistogram = newActiveTraceHistogram(fastTraceCounts, normalTraceCounts, slowTraceCounts, verySlowTraceCounts, i);
@@ -298,10 +298,9 @@ public class TestAgentStatFactory {
         List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
         List<Long> avgs = TestAgentStatDataPointFactory.LONG.createRandomValues(0L, 1000L, numValues);
         for (int i = 0; i < numValues; i++) {
-            ResponseTimeBo responseTimeBo = new ResponseTimeBo();
-            responseTimeBo.setAgentId(agentId);
-            responseTimeBo.setStartTimestamp(startTimestamps.get(i));
-            responseTimeBo.setTimestamp(timestamps.get(i));
+            DataPoint point = newPoint(agentId, startTimestamps.get(i), timestamps.get(i));
+
+            ResponseTimeBo responseTimeBo = new ResponseTimeBo(point);
             responseTimeBo.setAvg(avgs.get(i));
             responseTimeBos.add(responseTimeBo);
         }
@@ -319,10 +318,9 @@ public class TestAgentStatFactory {
         List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
         List<Integer> deadlockCounts = TestAgentStatDataPointFactory.INTEGER.createRandomValues(0, 1000, numValues);
         for (int i = 0; i < numValues; i++) {
-            DeadlockThreadCountBo deadlockThreadCountBo = new DeadlockThreadCountBo();
-            deadlockThreadCountBo.setAgentId(agentId);
-            deadlockThreadCountBo.setStartTimestamp(startTimestamps.get(i));
-            deadlockThreadCountBo.setTimestamp(timestamps.get(i));
+            DataPoint point = newPoint(agentId, startTimestamps.get(i), timestamps.get(i));
+
+            DeadlockThreadCountBo deadlockThreadCountBo = new DeadlockThreadCountBo(point);
             deadlockThreadCountBo.setDeadlockedThreadCount(deadlockCounts.get(i));
 
             deadlockThreadCountBos.add(deadlockThreadCountBo);
@@ -350,19 +348,12 @@ public class TestAgentStatFactory {
     }
 
     private static DataSourceListBo createDataSourceListBo(String agentId, long startTimestamp, long initialTimestamp, int id, int maxConnectionSize, int numValues) {
-        DataSourceListBo dataSourceListBo = new DataSourceListBo();
-        dataSourceListBo.setAgentId(agentId);
-        dataSourceListBo.setStartTimestamp(startTimestamp);
-        dataSourceListBo.setTimestamp(initialTimestamp);
+        DataPoint point = newPoint(agentId, startTimestamp, initialTimestamp);
 
-        List<Long> startTimestamps = createStartTimestamps(startTimestamp, numValues);
-        List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
+        DataSourceListBo dataSourceListBo = new DataSourceListBo(point);
 
         for (int i = 0; i < numValues; i++) {
-            DataSourceBo dataSourceBo = new DataSourceBo();
-            dataSourceBo.setAgentId(agentId);
-            dataSourceBo.setStartTimestamp(startTimestamps.get(i));
-            dataSourceBo.setTimestamp(timestamps.get(i));
+            DataSourceBo dataSourceBo = new DataSourceBo(point);
 
             dataSourceBo.setId(id);
             dataSourceBo.setServiceTypeCode(ServiceType.UNKNOWN.getCode());
@@ -388,10 +379,9 @@ public class TestAgentStatFactory {
         List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
         List<Long> openFileDescriptors = TestAgentStatDataPointFactory.LONG.createRandomValues(1L, 10000L, numValues);
         for (int i = 0; i < numValues; i++) {
-            FileDescriptorBo fileDescriptorBo = new FileDescriptorBo();
-            fileDescriptorBo.setStartTimestamp(startTimestamps.get(i));
-            fileDescriptorBo.setAgentId(agentId);
-            fileDescriptorBo.setTimestamp(timestamps.get(i));
+            DataPoint point = newPoint(agentId, startTimestamps.get(i), timestamps.get(i));
+
+            FileDescriptorBo fileDescriptorBo = new FileDescriptorBo(point);
             fileDescriptorBo.setOpenFileDescriptorCount(openFileDescriptors.get(i));
             fileDescriptorBos.add(fileDescriptorBo);
         }
@@ -413,10 +403,9 @@ public class TestAgentStatFactory {
         List<Long> directBuffers4 = TestAgentStatDataPointFactory.LONG.createRandomValues(1L, 10000L, numValues);
 
         for (int i = 0; i < numValues; i++) {
-            DirectBufferBo directBufferBo = new DirectBufferBo();
-            directBufferBo.setStartTimestamp(startTimestamps.get(i));
-            directBufferBo.setAgentId(agentId);
-            directBufferBo.setTimestamp(timestamps.get(i));
+            DataPoint point = newPoint(agentId, startTimestamps.get(i), timestamps.get(i));
+
+            DirectBufferBo directBufferBo = new DirectBufferBo(point);
             directBufferBo.setDirectCount(directBuffers1.get(i));
             directBufferBo.setDirectMemoryUsed(directBuffers2.get(i));
             directBufferBo.setMappedCount(directBuffers3.get(i));
@@ -439,10 +428,9 @@ public class TestAgentStatFactory {
 
         List<Integer> totalThreadCounts = TestAgentStatDataPointFactory.INTEGER.createRandomValues(0, 1000, numValues);
         for (int i = 0; i < numValues; i++) {
-            TotalThreadCountBo totalThreadCountBo = new TotalThreadCountBo();
-            totalThreadCountBo.setAgentId(agentId);
-            totalThreadCountBo.setStartTimestamp(startTimestamps.get(i));
-            totalThreadCountBo.setTimestamp(timestamps.get(i));
+            DataPoint point = newPoint(agentId, startTimestamps.get(i), timestamps.get(i));
+
+            TotalThreadCountBo totalThreadCountBo = new TotalThreadCountBo(point);
             totalThreadCountBo.setTotalThreadCount(totalThreadCounts.get(i));
 
             totalThreadCountBos.add(totalThreadCountBo);
@@ -463,10 +451,9 @@ public class TestAgentStatFactory {
         List<Integer> loadedClassCounts = TestAgentStatDataPointFactory.INTEGER.createRandomValues(0, 1000, numValues);
         List<Integer> unloadedClassCounts = TestAgentStatDataPointFactory.INTEGER.createRandomValues(0, 1000, numValues);
         for (int i = 0; i < numValues; i++) {
-            LoadedClassBo loadedClassBo = new LoadedClassBo();
-            loadedClassBo.setAgentId(agentId);
-            loadedClassBo.setStartTimestamp(startTimestamps.get(i));
-            loadedClassBo.setTimestamp(timestamps.get(i));
+            DataPoint point = newPoint(agentId, startTimestamps.get(i), timestamps.get(i));
+
+            LoadedClassBo loadedClassBo = new LoadedClassBo(point);
             loadedClassBo.setLoadedClassCount(loadedClassCounts.get(i));
             loadedClassBo.setUnloadedClassCount(unloadedClassCounts.get(i));
 
@@ -534,12 +521,10 @@ public class TestAgentStatFactory {
         long max = 0;
         int histogramSize = UriStatHistogramBucket.values().length;
         int[] histogramBucket = new int[histogramSize];
-        for (int i = 0; i < elapsedTimes.length; i++) {
+        for (int elapsedTime : elapsedTimes) {
             if (RANDOM.nextInt(0, sample) != 0) {
                 continue;
             }
-
-            long elapsedTime = elapsedTimes[i];
 
             totalElapsed += elapsedTime;
             max = Math.max(max, elapsedTime);

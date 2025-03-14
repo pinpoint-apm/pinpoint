@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.mapper.grpc.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataPoint;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PCpuLoad;
 import org.springframework.stereotype.Component;
@@ -28,8 +29,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class GrpcCpuLoadBoMapper implements GrpcStatMapper {
 
-    public CpuLoadBo map(final PCpuLoad cpuLoad) {
-        final CpuLoadBo cpuLoadBo = new CpuLoadBo();
+    public CpuLoadBo map(DataPoint dataPoint, final PCpuLoad cpuLoad) {
+        final CpuLoadBo cpuLoadBo = new CpuLoadBo(dataPoint);
         cpuLoadBo.setJvmCpuLoad(cpuLoad.getJvmCpuLoad());
         cpuLoadBo.setSystemCpuLoad(cpuLoad.getSystemCpuLoad());
         return cpuLoadBo;
@@ -40,7 +41,8 @@ public class GrpcCpuLoadBoMapper implements GrpcStatMapper {
         // cpuLoad
         if (agentStat.hasCpuLoad()) {
             final PCpuLoad cpuLoad = agentStat.getCpuLoad();
-            final CpuLoadBo cpuLoadBo = this.map(cpuLoad);
+            DataPoint point = builder.getDataPoint();
+            final CpuLoadBo cpuLoadBo = this.map(point, cpuLoad);
             builder.addCpuLoad(cpuLoadBo);
         }
     }

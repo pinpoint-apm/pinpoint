@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.mapper.grpc.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PTransaction;
@@ -26,10 +27,10 @@ import org.springframework.stereotype.Component;
  * @author HyunGil Jeong
  */
 @Component
-public class GrpcTransactionBoMapper implements GrpcStatMapper{
+public class GrpcTransactionBoMapper implements GrpcStatMapper {
 
-    public TransactionBo map(final PTransaction tTransaction) {
-        final TransactionBo transaction = new TransactionBo();
+    public TransactionBo map(DataPoint point, final PTransaction tTransaction) {
+        final TransactionBo transaction = new TransactionBo(point);
         transaction.setSampledNewCount(tTransaction.getSampledNewCount());
         transaction.setSampledContinuationCount(tTransaction.getSampledContinuationCount());
         transaction.setUnsampledNewCount(tTransaction.getUnsampledNewCount());
@@ -43,8 +44,9 @@ public class GrpcTransactionBoMapper implements GrpcStatMapper{
     public void map(AgentStatBo.Builder.StatBuilder builder, PAgentStat agentStat) {
         // transaction
         if (agentStat.hasTransaction()) {
+            DataPoint point = builder.getDataPoint();
             final PTransaction transaction = agentStat.getTransaction();
-            final TransactionBo transactionBo = this.map(transaction);
+            final TransactionBo transactionBo = this.map(point, transaction);
             transactionBo.setCollectInterval(agentStat.getCollectInterval());
             builder.addTransaction(transactionBo);
         }
