@@ -29,7 +29,8 @@ import java.util.List;
  */
 public class AgentStat {
 
-    private static final List<Tag> EMPTY_TAGS = Collections.emptyList();
+    static final List<Tag> EMPTY_TAGS = Collections.emptyList();
+
     private final String tenantId;
     private final String sortKey;
     private final String applicationName;

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.mapper.grpc.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PJvmGc;
@@ -29,8 +30,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class GrpcJvmGcDetailedBoMapper implements GrpcStatMapper {
 
-    public JvmGcDetailedBo map(final PJvmGcDetailed jvmGcDetailed) {
-        final JvmGcDetailedBo jvmGcDetailedBo = new JvmGcDetailedBo();
+    public JvmGcDetailedBo map(DataPoint point, final PJvmGcDetailed jvmGcDetailed) {
+        final JvmGcDetailedBo jvmGcDetailedBo = new JvmGcDetailedBo(point);
         jvmGcDetailedBo.setGcNewCount(jvmGcDetailed.getJvmGcNewCount());
         jvmGcDetailedBo.setGcNewTime(jvmGcDetailed.getJvmGcNewTime());
         jvmGcDetailedBo.setCodeCacheUsed(jvmGcDetailed.getJvmPoolCodeCacheUsed());
@@ -51,7 +52,8 @@ public class GrpcJvmGcDetailedBoMapper implements GrpcStatMapper {
             // jvmGcDetailed
             if (jvmGc.hasJvmGcDetailed()) {
                 final PJvmGcDetailed jvmGcDetailed = jvmGc.getJvmGcDetailed();
-                final JvmGcDetailedBo jvmGcDetailedBo = this.map(jvmGcDetailed);
+                DataPoint point = builder.getDataPoint();
+                final JvmGcDetailedBo jvmGcDetailedBo = this.map(point, jvmGcDetailed);
                 builder.addJvmGcDetailed(jvmGcDetailedBo);
             }
         }

@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.inspector.collector.dao;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
-import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
+import com.navercorp.pinpoint.common.server.bo.stat.StatDataPoint;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -26,7 +26,7 @@ import java.util.List;
  * @author minwoo.jung
  */
 @Repository
-public interface AgentStatDao<T extends AgentStatDataPoint> {
+public interface AgentStatDao<T extends StatDataPoint> {
     void insert(String applicationName, String agentId, List<T> agentStatDataPoints);
 
     void dispatch(AgentStatBo agentStatBo);

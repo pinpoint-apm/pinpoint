@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.model.SortKeyUtils;
  */
 public class ApplicationStat {
 
-    private static String NULL_STRING = "null";
+    private static final String NULL_STRING = "null";
 
     private final String tenantId;
 

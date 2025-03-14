@@ -20,13 +20,17 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 /**
  * @author HyunGil Jeong
  */
-public class ActiveTraceBo extends AgentStatDataBasePoint {
+public class ActiveTraceBo extends AbstractStatDataPoint {
 
     public static final int UNCOLLECTED_ACTIVE_TRACE_COUNT = -1;
 
     private short version = 0;
     private int histogramSchemaType;
     private ActiveTraceHistogram activeTraceHistogram;
+
+    public ActiveTraceBo(DataPoint point) {
+        super(point);
+    }
 
     @Override
     public AgentStatType getAgentStatType() {
@@ -58,37 +62,9 @@ public class ActiveTraceBo extends AgentStatDataBasePoint {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ActiveTraceBo that = (ActiveTraceBo) o;
-
-        if (startTimestamp != that.startTimestamp) return false;
-        if (timestamp != that.timestamp) return false;
-        if (version != that.version) return false;
-        if (histogramSchemaType != that.histogramSchemaType) return false;
-        if (agentId != null ? !agentId.equals(that.agentId) : that.agentId != null) return false;
-        return activeTraceHistogram != null ? activeTraceHistogram.equals(that.activeTraceHistogram) : that.activeTraceHistogram == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + Long.hashCode(startTimestamp);
-        result = 31 * result + Long.hashCode(timestamp);
-        result = 31 * result + (int) version;
-        result = 31 * result + histogramSchemaType;
-        result = 31 * result + (activeTraceHistogram != null ? activeTraceHistogram.hashCode() : 0);
-        return result;
-    }
-
-    @Override
     public String toString() {
         return "ActiveTraceBo{" +
-                "agentId='" + agentId + '\'' +
-                ", startTimestamp=" + startTimestamp +
-                ", timestamp=" + timestamp +
+                "point=" + point +
                 ", version=" + version +
                 ", histogramSchemaType=" + histogramSchemaType +
                 ", activeTraceHistogram=" + activeTraceHistogram +

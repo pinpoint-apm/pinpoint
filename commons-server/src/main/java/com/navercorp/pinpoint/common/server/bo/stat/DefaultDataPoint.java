@@ -4,11 +4,19 @@ import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 
 import java.util.Objects;
 
-public abstract class AgentStatDataBasePoint implements AgentStatDataPoint {
-    protected String agentId;
-    protected String applicationName;
-    protected long startTimestamp;
-    protected long timestamp;
+public class DefaultDataPoint implements DataPoint {
+
+    private final String agentId;
+    private final String applicationName;
+    private final long startTimestamp;
+    private final long timestamp;
+
+    DefaultDataPoint(String agentId, String applicationName, long startTimestamp, long timestamp) {
+        this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
+        this.startTimestamp = startTimestamp;
+        this.timestamp = timestamp;
+    }
 
     @Override
     public String getAgentId() {
@@ -16,28 +24,14 @@ public abstract class AgentStatDataBasePoint implements AgentStatDataPoint {
     }
 
     @Override
-    public void setAgentId(String agentId) {
-        this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
-    }
-
-    @Override
     public long getStartTimestamp() {
         return startTimestamp;
     }
 
-    @Override
-    public void setStartTimestamp(long startTimestamp) {
-        this.startTimestamp = startTimestamp;
-    }
 
     @Override
     public long getTimestamp() {
         return timestamp;
-    }
-
-    @Override
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
     }
 
     @Override
@@ -46,15 +40,10 @@ public abstract class AgentStatDataBasePoint implements AgentStatDataPoint {
     }
 
     @Override
-    public void setApplicationName(String applicationName) {
-        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
 
-        AgentStatDataBasePoint that = (AgentStatDataBasePoint) o;
+        DefaultDataPoint that = (DefaultDataPoint) o;
         return startTimestamp == that.startTimestamp && timestamp == that.timestamp && Objects.equals(agentId, that.agentId) && Objects.equals(applicationName, that.applicationName);
     }
 

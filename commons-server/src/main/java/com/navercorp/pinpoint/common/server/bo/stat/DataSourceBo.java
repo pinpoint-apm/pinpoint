@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 /**
  * @author Taejin Koo
  */
-public class DataSourceBo extends AgentStatDataBasePoint {
+public class DataSourceBo extends AbstractStatDataPoint {
 
     public static final int UNCOLLECTED_INT_VALUE = -1;
     public static final String UNCOLLECTED_STRING_VALUE = "";
@@ -34,6 +34,9 @@ public class DataSourceBo extends AgentStatDataBasePoint {
     private int activeConnectionSize = UNCOLLECTED_INT_VALUE;
     private int maxConnectionSize = UNCOLLECTED_INT_VALUE;
 
+    public DataSourceBo(DataPoint point) {
+        super(point);
+    }
 
     @Override
     public AgentStatType getAgentStatType() {
@@ -88,45 +91,11 @@ public class DataSourceBo extends AgentStatDataBasePoint {
         this.maxConnectionSize = maxConnectionSize;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        DataSourceBo that = (DataSourceBo) o;
-
-        if (startTimestamp != that.startTimestamp) return false;
-        if (timestamp != that.timestamp) return false;
-        if (id != that.id) return false;
-        if (serviceTypeCode != that.serviceTypeCode) return false;
-        if (activeConnectionSize != that.activeConnectionSize) return false;
-        if (maxConnectionSize != that.maxConnectionSize) return false;
-        if (agentId != null ? !agentId.equals(that.agentId) : that.agentId != null) return false;
-        if (databaseName != null ? !databaseName.equals(that.databaseName) : that.databaseName != null) return false;
-        return jdbcUrl != null ? jdbcUrl.equals(that.jdbcUrl) : that.jdbcUrl == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + Long.hashCode(startTimestamp);
-        result = 31 * result + Long.hashCode(timestamp);
-        result = 31 * result + id;
-        result = 31 * result + (int) serviceTypeCode;
-        result = 31 * result + (databaseName != null ? databaseName.hashCode() : 0);
-        result = 31 * result + (jdbcUrl != null ? jdbcUrl.hashCode() : 0);
-        result = 31 * result + activeConnectionSize;
-        result = 31 * result + maxConnectionSize;
-        return result;
-    }
 
     @Override
     public String toString() {
         return "DataSourceBo{" +
-                "agentId='" + agentId + '\'' +
-                ", startTimestamp=" + startTimestamp +
-                ", timestamp=" + timestamp +
+                "point=" + point +
                 ", id=" + id +
                 ", serviceTypeCode=" + serviceTypeCode +
                 ", databaseName='" + databaseName + '\'' +

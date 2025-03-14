@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 /**
  * @author Roy Kim
  */
-public class DirectBufferBo extends AgentStatDataBasePoint {
+public class DirectBufferBo extends AbstractStatDataPoint {
 
     public static final long UNCOLLECTED_VALUE = -1;
 
@@ -28,6 +28,10 @@ public class DirectBufferBo extends AgentStatDataBasePoint {
     private long directMemoryUsed = UNCOLLECTED_VALUE;
     private long mappedCount = UNCOLLECTED_VALUE;
     private long mappedMemoryUsed = UNCOLLECTED_VALUE;
+
+    public DirectBufferBo(DataPoint point) {
+        super(point);
+    }
 
     @Override
     public AgentStatType getAgentStatType() {
@@ -67,41 +71,9 @@ public class DirectBufferBo extends AgentStatDataBasePoint {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        DirectBufferBo directBufferBo = (DirectBufferBo) o;
-
-        if (startTimestamp != directBufferBo.startTimestamp) return false;
-        if (timestamp != directBufferBo.timestamp) return false;
-        if (directCount != directBufferBo.directCount) return false;
-        if (directMemoryUsed != directBufferBo.directMemoryUsed) return false;
-        if (mappedCount != directBufferBo.mappedCount) return false;
-        if (mappedMemoryUsed != directBufferBo.mappedMemoryUsed) return false;
-        return agentId != null ? agentId.equals(directBufferBo.agentId) : directBufferBo.agentId == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result;
-        result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + Long.hashCode(startTimestamp);
-        result = 31 * result + Long.hashCode(timestamp);
-        result = 31 * result + Long.hashCode(directCount);
-        result = 31 * result + Long.hashCode(directMemoryUsed);
-        result = 31 * result + Long.hashCode(mappedCount);
-        result = 31 * result + Long.hashCode(mappedMemoryUsed);
-        return result;
-    }
-
-    @Override
     public String toString() {
         return "DirectBufferBo{" +
-                "agentId='" + agentId + '\'' +
-                ", startTimestamp=" + startTimestamp +
-                ", timestamp=" + timestamp +
+                "point=" + point +
                 ", directCount=" + directCount +
                 ", directMemoryUsed=" + directMemoryUsed +
                 ", mappedCount=" + mappedCount +

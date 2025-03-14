@@ -19,12 +19,16 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 /**
  * @author Taejin Koo
  */
-public class ResponseTimeBo extends AgentStatDataBasePoint {
+public class ResponseTimeBo extends AbstractStatDataPoint {
 
     public static final long UNCOLLECTED_VALUE = -1;
 
     private long avg = 0;
     private long max = 0;
+
+    public ResponseTimeBo(DataPoint point) {
+        super(point);
+    }
 
     @Override
     public AgentStatType getAgentStatType() {
@@ -47,29 +51,5 @@ public class ResponseTimeBo extends AgentStatDataBasePoint {
         this.max = max;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ResponseTimeBo that = (ResponseTimeBo) o;
-
-        if (startTimestamp != that.startTimestamp) return false;
-        if (timestamp != that.timestamp) return false;
-        if (avg != that.avg) return false;
-        if (max != that.max) return false;
-        return agentId != null ? agentId.equals(that.agentId) : that.agentId == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + Long.hashCode(startTimestamp);
-        result = 31 * result + Long.hashCode(timestamp);
-        result = 31 * result + Long.hashCode(avg);
-        result = 31 * result + Long.hashCode(max);
-        return result;
-    }
 
 }

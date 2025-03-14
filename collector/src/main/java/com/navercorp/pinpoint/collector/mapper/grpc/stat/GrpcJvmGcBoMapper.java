@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.mapper.grpc.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PJvmGc;
@@ -36,8 +37,8 @@ public class GrpcJvmGcBoMapper implements GrpcStatMapper {
         this.jvmGcTypeMapper = Objects.requireNonNull(jvmGcTypeMapper, "jvmGcTypeMapper");
     }
 
-    public JvmGcBo map(final PJvmGc jvmGc) {
-        final JvmGcBo jvmGcBo = new JvmGcBo();
+    public JvmGcBo map(DataPoint point, final PJvmGc jvmGc) {
+        final JvmGcBo jvmGcBo = new JvmGcBo(point);
         jvmGcBo.setGcType(this.jvmGcTypeMapper.map(jvmGc.getType()));
         jvmGcBo.setHeapUsed(jvmGc.getJvmMemoryHeapUsed());
         jvmGcBo.setHeapMax(jvmGc.getJvmMemoryHeapMax());
@@ -53,7 +54,8 @@ public class GrpcJvmGcBoMapper implements GrpcStatMapper {
         // jvmGc
         if (agentStat.hasGc()) {
             final PJvmGc jvmGc = agentStat.getGc();
-            final JvmGcBo jvmGcBo = this.map(jvmGc);
+            DataPoint point = builder.getDataPoint();
+            final JvmGcBo jvmGcBo = this.map(point, jvmGc);
             builder.addJvmGc(jvmGcBo);
         }
     }

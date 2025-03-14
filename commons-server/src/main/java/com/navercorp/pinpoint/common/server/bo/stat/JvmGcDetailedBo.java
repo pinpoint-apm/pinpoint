@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 /**
  * @author HyunGil Jeong
  */
-public class JvmGcDetailedBo extends AgentStatDataBasePoint {
+public class JvmGcDetailedBo extends AbstractStatDataPoint {
 
     public static final long UNCOLLECTED_VALUE = -1;
     public static final double UNCOLLECTED_PERCENTAGE = -1;
@@ -32,6 +32,10 @@ public class JvmGcDetailedBo extends AgentStatDataBasePoint {
     private double survivorSpaceUsed = UNCOLLECTED_PERCENTAGE;
     private double permGenUsed = UNCOLLECTED_PERCENTAGE;
     private double metaspaceUsed = UNCOLLECTED_PERCENTAGE;
+
+    public JvmGcDetailedBo(DataPoint point) {
+        super(point);
+    }
 
     @Override
     public AgentStatType getAgentStatType() {
@@ -103,49 +107,9 @@ public class JvmGcDetailedBo extends AgentStatDataBasePoint {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        JvmGcDetailedBo that = (JvmGcDetailedBo) o;
-
-        if (startTimestamp != that.startTimestamp) return false;
-        if (timestamp != that.timestamp) return false;
-        if (gcNewCount != that.gcNewCount) return false;
-        if (gcNewTime != that.gcNewTime) return false;
-        if (Double.compare(that.codeCacheUsed, codeCacheUsed) != 0) return false;
-        if (Double.compare(that.newGenUsed, newGenUsed) != 0) return false;
-        if (Double.compare(that.oldGenUsed, oldGenUsed) != 0) return false;
-        if (Double.compare(that.survivorSpaceUsed, survivorSpaceUsed) != 0) return false;
-        if (Double.compare(that.permGenUsed, permGenUsed) != 0) return false;
-        if (Double.compare(that.metaspaceUsed, metaspaceUsed) != 0) return false;
-        return agentId != null ? agentId.equals(that.agentId) : that.agentId == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result;
-        result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + Long.hashCode(startTimestamp);
-        result = 31 * result + Long.hashCode(timestamp);
-        result = 31 * result + Long.hashCode(gcNewCount);
-        result = 31 * result + Long.hashCode(gcNewTime);
-        result = 31 * result + Double.hashCode(codeCacheUsed);
-        result = 31 * result + Double.hashCode(newGenUsed);
-        result = 31 * result + Double.hashCode(oldGenUsed);
-        result = 31 * result + Double.hashCode(survivorSpaceUsed);
-        result = 31 * result + Double.hashCode(permGenUsed);
-        result = 31 * result + Double.hashCode(metaspaceUsed);
-        return result;
-    }
-
-    @Override
     public String toString() {
         return "JvmGcDetailedBo{" +
-                "agentId='" + agentId + '\'' +
-                ", startTimestamp=" + startTimestamp +
-                ", timestamp=" + timestamp +
+                "point=" + point +
                 ", gcNewCount=" + gcNewCount +
                 ", gcNewTime=" + gcNewTime +
                 ", codeCacheUsed=" + codeCacheUsed +

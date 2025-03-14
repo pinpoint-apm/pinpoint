@@ -16,11 +16,15 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat;
 
-public class LoadedClassBo extends AgentStatDataBasePoint {
+public class LoadedClassBo extends AbstractStatDataPoint {
     public static final long UNCOLLECTED_VALUE = -1L;
 
     private long loadedClassCount = UNCOLLECTED_VALUE;
     private long unloadedClassCount = UNCOLLECTED_VALUE;
+
+    public LoadedClassBo(DataPoint point) {
+        super(point);
+    }
 
     @Override
     public AgentStatType getAgentStatType() {
@@ -43,36 +47,11 @@ public class LoadedClassBo extends AgentStatDataBasePoint {
         this.unloadedClassCount = unloadedClassCount;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
 
-        LoadedClassBo loadedClassBo = (LoadedClassBo) o;
-
-        if (startTimestamp != loadedClassBo.startTimestamp) return false;
-        if (timestamp != loadedClassBo.timestamp) return false;
-        if (loadedClassCount != loadedClassBo.loadedClassCount) return false;
-        if (unloadedClassCount != loadedClassBo.unloadedClassCount) return false;
-        return agentId != null ? agentId.equals(loadedClassBo.agentId) : loadedClassBo.agentId == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result;
-        result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + Long.hashCode(startTimestamp);
-        result = 31 * result + Long.hashCode(timestamp);
-        result = 31 * result + Long.hashCode(loadedClassCount);
-        result = 31 * result + Long.hashCode(unloadedClassCount);
-        return result;
-    }
     @Override
     public String toString() {
         return "LoadedClassBo{" +
-                "agentId='" + agentId + '\'' +
-                ", startTimestamp=" + startTimestamp +
-                ", timestamp=" + timestamp +
+                ", point=" + point +
                 ", loadedClassCount=" + loadedClassCount +
                 ", unloadedClassCount=" + unloadedClassCount +
                 '}';

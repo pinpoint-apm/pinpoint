@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.mapper.grpc.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
@@ -30,8 +31,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class GrpcDataSourceBoMapper implements GrpcStatMapper {
 
-    public DataSourceBo map(final PDataSource dataSource) {
-        final DataSourceBo dataSourceBo = new DataSourceBo();
+    public DataSourceBo map(DataPoint point, final PDataSource dataSource) {
+        final DataSourceBo dataSourceBo = new DataSourceBo(point);
         dataSourceBo.setId(dataSource.getId());
         dataSourceBo.setServiceTypeCode((short) dataSource.getServiceTypeCode());
         dataSourceBo.setDatabaseName(dataSource.getDatabaseName());
@@ -45,10 +46,11 @@ public class GrpcDataSourceBoMapper implements GrpcStatMapper {
     public void map(AgentStatBo.Builder.StatBuilder builder, PAgentStat agentStat) {
         // datasource
         if (agentStat.hasDataSourceList()) {
+            DataPoint point = builder.getDataPoint();
             final PDataSourceList dataSourceList = agentStat.getDataSourceList();
-            final DataSourceListBo dataSourceListBo = new DataSourceListBo();
+            final DataSourceListBo dataSourceListBo = new DataSourceListBo(point);
             for (PDataSource dataSource : dataSourceList.getDataSourceList()) {
-                final DataSourceBo dataSourceBo = this.map(dataSource);
+                final DataSourceBo dataSourceBo = this.map(point, dataSource);
                 dataSourceListBo.add(dataSourceBo);
             }
             builder.addDataSourceList(dataSourceListBo);

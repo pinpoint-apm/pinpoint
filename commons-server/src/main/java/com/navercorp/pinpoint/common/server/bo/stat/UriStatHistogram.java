@@ -70,8 +70,8 @@ public class UriStatHistogram {
     @Override
     public int hashCode() {
         int result;
-        result = (int) (total ^ (total >>> 32));
-        result = 31 * result + (int) (max ^ (max >>> 32));
+        result = Long.hashCode(total);
+        result = 31 * result + Long.hashCode(max);
         result = 31 * result + Arrays.hashCode(timestampHistogram);
         return result;
     }
