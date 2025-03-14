@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -59,7 +60,7 @@ public class WebSocketSessionContext {
     }
 
     public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
     }
 
     @Override

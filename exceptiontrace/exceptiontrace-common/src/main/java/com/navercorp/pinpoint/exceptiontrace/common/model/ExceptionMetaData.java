@@ -20,9 +20,7 @@ import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.exceptiontrace.common.util.HashUtils;
 
-
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author intr3p1d
@@ -164,7 +162,7 @@ public class ExceptionMetaData {
     }
 
     public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
     }
 
     public String getAgentId() {
@@ -172,7 +170,7 @@ public class ExceptionMetaData {
     }
 
     public void setAgentId(String agentId) {
-        this.agentId = agentId;
+        this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
     }
 
     public String getUriTemplate() {

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 
@@ -120,7 +121,7 @@ public class SpanBo implements Event, BasicSpan {
 
     @Override
     public void setAgentId(String agentId) {
-        this.agentId = agentId;
+        this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
     }
 
     @Override
@@ -152,7 +153,7 @@ public class SpanBo implements Event, BasicSpan {
 
     @Override
     public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
     }
 
     @Override
@@ -490,7 +491,7 @@ public class SpanBo implements Event, BasicSpan {
         }
 
         public Builder setAgentId(String agentId) {
-            this.agentId = agentId;
+            this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
             return this;
         }
 
@@ -508,7 +509,7 @@ public class SpanBo implements Event, BasicSpan {
         }
 
         public Builder setApplicationName(String applicationName) {
-            this.applicationName = applicationName;
+            this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
             return this;
         }
 
@@ -630,9 +631,9 @@ public class SpanBo implements Event, BasicSpan {
         public SpanBo build() {
             SpanBo result = new SpanBo();
             result.setVersion(this.version);
-            result.setAgentId(this.agentId);
+            result.setAgentId(StringPrecondition.requireHasLength(this.agentId, "agentId"));
             result.setAgentName(this.agentName);
-            result.setApplicationName(this.applicationName);
+            result.setApplicationName(StringPrecondition.requireHasLength(this.applicationName, "applicationName"));
             result.setAgentStartTime(this.agentStartTime);
             result.setTransactionId(this.transactionId);
             result.setSpanId(this.spanId);

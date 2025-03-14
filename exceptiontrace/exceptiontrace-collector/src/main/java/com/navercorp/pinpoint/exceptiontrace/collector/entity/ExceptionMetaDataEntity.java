@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.exceptiontrace.collector.entity;
 
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+
 import java.util.List;
 
 /**
@@ -99,7 +101,7 @@ public class ExceptionMetaDataEntity {
     }
 
     public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
     }
 
     public String getAgentId() {
@@ -107,7 +109,7 @@ public class ExceptionMetaDataEntity {
     }
 
     public void setAgentId(String agentId) {
-        this.agentId = agentId;
+        this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
     }
 
     public String getUriTemplate() {

@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.realtime.dto;
 
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+
 import java.util.Objects;
 
 /**
@@ -40,7 +42,7 @@ public class ATCDemand implements RealtimeDemand {
     }
 
     public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
     }
 
     public String getAgentId() {
@@ -48,7 +50,7 @@ public class ATCDemand implements RealtimeDemand {
     }
 
     public void setAgentId(String agentId) {
-        this.agentId = agentId;
+        this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
     }
 
     public long getStartTimestamp() {

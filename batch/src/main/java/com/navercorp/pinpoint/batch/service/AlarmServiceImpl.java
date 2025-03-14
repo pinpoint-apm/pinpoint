@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.batch.service;
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.batch.alarm.vo.CheckerResult;
 import com.navercorp.pinpoint.batch.dao.AlarmDao;
+import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,7 +65,8 @@ public class AlarmServiceImpl implements AlarmService {
             beforeCheckerResult.increseCount();
             alarmDao.insertCheckerResult(beforeCheckerResult);
         } else {
-            CheckerResult checkerResult = new CheckerResult(checker.getRule().getRuleId(), checker.getRule().getApplicationName(), checker.getRule().getCheckerName(), false, 0, 1);
+            final Rule rule = checker.getRule();
+            CheckerResult checkerResult = new CheckerResult(rule.getRuleId(), rule.getApplicationName(), rule.getCheckerName(), false, 0, 1);
             alarmDao.insertCheckerResult(checkerResult);
         }
         
