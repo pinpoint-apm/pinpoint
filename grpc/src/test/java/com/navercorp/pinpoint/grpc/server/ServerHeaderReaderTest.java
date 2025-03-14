@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.HeaderReader;
 import io.grpc.Metadata;
-import io.grpc.StatusRuntimeException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -53,7 +52,7 @@ public class ServerHeaderReaderTest {
 
     @Test
     public void extract_fail_agentId() {
-        Assertions.assertThrows(StatusRuntimeException.class, () -> {
+        Assertions.assertThrows(InvalidGrpcHeaderException.class, () -> {
             Metadata metadata = newMetadata();
             metadata.put(Header.AGENT_ID_KEY, "!!agentId");
             reader.extract(metadata);
@@ -62,7 +61,7 @@ public class ServerHeaderReaderTest {
 
     @Test
     public void extract_fail_agentName() {
-        Assertions.assertThrows(StatusRuntimeException.class, () -> {
+        Assertions.assertThrows(InvalidGrpcHeaderException.class, () -> {
             Metadata metadata = newMetadata();
             metadata.put(Header.AGENT_NAME_KEY, "!!agentName");
             reader.extract(metadata);
@@ -79,7 +78,7 @@ public class ServerHeaderReaderTest {
 
     @Test
     public void extract_fail_applicationName() {
-        Assertions.assertThrows(StatusRuntimeException.class, () -> {
+        Assertions.assertThrows(InvalidGrpcHeaderException.class, () -> {
             Metadata metadata = newMetadata();
             metadata.put(Header.APPLICATION_NAME_KEY, "!!applicationName");
             reader.extract(metadata);

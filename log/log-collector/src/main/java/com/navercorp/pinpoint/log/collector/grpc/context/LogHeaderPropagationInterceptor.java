@@ -55,7 +55,7 @@ public class LogHeaderPropagationInterceptor implements ServerInterceptor {
         } catch (Exception e) {
             if (logger.isInfoEnabled()) {
                 logger.info("Header extract fail cause={}, method={} headers={}, attr={}",
-                        e.getMessage(), call.getMethodDescriptor().getFullMethodName(), headers, call.getAttributes(), e);
+                        e.getMessage(), call.getMethodDescriptor().getFullMethodName(), headers, call.getAttributes());
             }
             call.close(Status.INVALID_ARGUMENT.withDescription(e.getMessage()), new Metadata());
             return new ServerCall.Listener<>() {
