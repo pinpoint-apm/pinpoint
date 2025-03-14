@@ -123,7 +123,7 @@ public class AgentService extends AgentGrpc.AgentImplBase {
                 final Status status = Status.fromThrowable(t);
                 final Metadata metadata = Status.trailersFromThrowable(t);
                 if (thLogger.isInfoEnabled()) {
-                    thLogger.info("Failed to ping stream, id={}, {} metadata:{}", pingSession.getTransportId(), status, metadata);
+                    thLogger.info("Failed to ping stream, transportId={}, header={}, status={}, metadata={}", pingSession.getTransportId(), header, status, metadata);
                 }
                 // responseObserver.onCompleted();
                 disconnect(pingSession);
