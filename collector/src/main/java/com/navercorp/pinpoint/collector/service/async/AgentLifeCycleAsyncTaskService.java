@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.collector.service.async;
 
+import com.navercorp.pinpoint.collector.applicationmap.service.StatisticsService;
 import com.navercorp.pinpoint.collector.config.CollectorProperties;
 import com.navercorp.pinpoint.collector.service.AgentLifeCycleService;
-import com.navercorp.pinpoint.collector.service.StatisticsService;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.trace.ServiceType;

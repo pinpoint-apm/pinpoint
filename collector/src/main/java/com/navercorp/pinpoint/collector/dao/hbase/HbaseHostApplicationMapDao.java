@@ -110,7 +110,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     }
 
     private byte[] createColumnName(String host, String bindApplicationName, short bindServiceType) {
-        Buffer buffer = new AutomaticBuffer();
+        Buffer buffer = new AutomaticBuffer(64);
         buffer.putPrefixedString(host);
         buffer.putPrefixedString(bindApplicationName);
         buffer.putShort(bindServiceType);
