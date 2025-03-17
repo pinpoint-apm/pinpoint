@@ -312,6 +312,20 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
         return casResult;
     }
 
+    @Override
+    public CompletableFuture<CheckAndMutateResult> checkAndMutate(TableName tableName, CheckAndMutate checkAndMutate) {
+        Objects.requireNonNull(tableName, "tableName");
+        Objects.requireNonNull(checkAndMutate, "checkAndMutate");
+
+        CompletableFuture<CheckAndMutateResult> futures = execute(tableName, new AsyncTableCallback<>() {
+            @Override
+            public CompletableFuture<CheckAndMutateResult> doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
+                return table.checkAndMutate(checkAndMutate);
+            }
+        });
+        futureDecorator.apply(futures, tableName, MutationType.CHECK_AND_MUTATE);
+        return futures;
+    }
 
     @Override
     public List<CompletableFuture<CheckAndMutateResult>> checkAndMutate(TableName tableName, List<CheckAndMutate> checkAndMutates) {
