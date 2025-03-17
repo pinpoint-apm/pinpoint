@@ -58,5 +58,7 @@ public interface AsyncHbaseOperations {
 
     CompletableFuture<CasResult> maxColumnValue(TableName tableName, CheckAndMax max);
 
+    CompletableFuture<CheckAndMutateResult> checkAndMutate(TableName tableName, CheckAndMutate checkAndMutate);
+
     List<CompletableFuture<CheckAndMutateResult>> checkAndMutate(TableName tableName, List<CheckAndMutate> checkAndMutates);
 }

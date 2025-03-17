@@ -6,7 +6,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTemplate;
+import com.navercorp.pinpoint.common.hbase.async.AsyncHbaseOperations;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.ApplicationUidRowKeyUtils;
@@ -30,48 +30,66 @@ public class HbaseApplicationUidDao implements ApplicationUidDao {
 
     private static final HbaseColumnFamily.ApplicationUid APPLICATION_ID = HbaseColumnFamily.APPLICATION_UID;
 
-    private final HbaseAsyncTemplate asyncOperations;
     private final HbaseOperations hbaseOperations;
+    private final AsyncHbaseOperations asyncHbaseOperations;
     private final TableNameProvider tableNameProvider;
 
     private final RowMapper<ApplicationUid> applicationIdMapper;
 
-    public HbaseApplicationUidDao(HbaseAsyncTemplate asyncOperations,
-                                  @Qualifier("uidHbaseTemplate") HbaseOperations hbaseOperations,
+    public HbaseApplicationUidDao(@Qualifier("uidHbaseTemplate") HbaseOperations hbaseOperations,
+                                  @Qualifier("uidAsyncTemplate") AsyncHbaseOperations asyncHbaseOperations,
                                   TableNameProvider tableNameProvider,
-                                  @Qualifier("applicationUidMapper")
-                                  RowMapper<ApplicationUid> applicationIdMapper) {
-        this.asyncOperations = Objects.requireNonNull(asyncOperations, "asyncOperations");
+                                  @Qualifier("applicationUidMapper") RowMapper<ApplicationUid> applicationIdMapper) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
+        this.asyncHbaseOperations = Objects.requireNonNull(asyncHbaseOperations, "asyncHbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.applicationIdMapper = Objects.requireNonNull(applicationIdMapper, "applicationIdMapper");
-    }
-
-
-    public CompletableFuture<ApplicationUid> asyncSelectApplicationUid(ServiceUid serviceUid, String applicationName) {
-        byte[] rowKey = ApplicationUidRowKeyUtils.makeRowKey(serviceUid, applicationName);
-
-        Get get = new Get(rowKey);
-        get.addColumn(APPLICATION_ID.getName(), APPLICATION_ID.getName());
-
-        TableName applicationIdTableName = tableNameProvider.getTableName(APPLICATION_ID.getTable());
-        return asyncOperations.get(applicationIdTableName, get, applicationIdMapper);
     }
 
     @Override
     @Cacheable(cacheNames = "applicationUidCache", key = "{#serviceUid, #applicationName}", cacheManager = ApplicationUidConfig.APPLICATION_UID_CACHE_NAME, unless = "#result == null")
     public ApplicationUid selectApplicationUid(ServiceUid serviceUid, String applicationName) {
-        byte[] rowKey = ApplicationUidRowKeyUtils.makeRowKey(serviceUid, applicationName);
-
-        Get get = new Get(rowKey);
-        get.addColumn(APPLICATION_ID.getName(), APPLICATION_ID.getName());
+        Get get = createGet(serviceUid, applicationName);
 
         TableName applicationIdTableName = tableNameProvider.getTableName(APPLICATION_ID.getTable());
         return hbaseOperations.get(applicationIdTableName, get, applicationIdMapper);
     }
 
     @Override
+    public CompletableFuture<ApplicationUid> asyncSelectApplicationUid(ServiceUid serviceUid, String applicationName) {
+        Get get = createGet(serviceUid, applicationName);
+
+        TableName applicationIdTableName = tableNameProvider.getTableName(APPLICATION_ID.getTable());
+        return asyncHbaseOperations.get(applicationIdTableName, get, applicationIdMapper);
+    }
+
+    private Get createGet(ServiceUid serviceUid, String applicationName) {
+        byte[] rowKey = ApplicationUidRowKeyUtils.makeRowKey(serviceUid, applicationName);
+
+        Get get = new Get(rowKey);
+        get.addColumn(APPLICATION_ID.getName(), APPLICATION_ID.getName());
+        return get;
+    }
+
+    @Override
     public boolean insertApplicationUidIfNotExists(ServiceUid serviceUid, String applicationName, ApplicationUid applicationUid) {
+        CheckAndMutate checkAndMutate = createCheckAndPut(serviceUid, applicationName, applicationUid);
+
+        TableName applicationIdTableName = tableNameProvider.getTableName(APPLICATION_ID.getTable());
+        CheckAndMutateResult checkAndMutateResult = hbaseOperations.checkAndMutate(applicationIdTableName, checkAndMutate);
+        return checkAndMutateResult.isSuccess();
+    }
+
+    @Override
+    public CompletableFuture<Boolean> asyncInsertApplicationUidIfNotExists(ServiceUid serviceUid, String applicationName, ApplicationUid applicationUid) {
+        CheckAndMutate checkAndMutate = createCheckAndPut(serviceUid, applicationName, applicationUid);
+
+        TableName applicationIdTableName = tableNameProvider.getTableName(APPLICATION_ID.getTable());
+        return asyncHbaseOperations.checkAndMutate(applicationIdTableName, checkAndMutate)
+                .thenApply(CheckAndMutateResult::isSuccess);
+    }
+
+    private CheckAndMutate createCheckAndPut(ServiceUid serviceUid, String applicationName, ApplicationUid applicationUid) {
         byte[] rowKey = ApplicationUidRowKeyUtils.makeRowKey(serviceUid, applicationName);
 
         Put put = new Put(rowKey);
@@ -79,10 +97,6 @@ public class HbaseApplicationUidDao implements ApplicationUidDao {
 
         CheckAndMutate.Builder builder = CheckAndMutate.newBuilder(rowKey);
         builder.ifNotExists(APPLICATION_ID.getName(), APPLICATION_ID.getName());
-        CheckAndMutate checkAndMutate = builder.build(put);
-
-        TableName applicationIdTableName = tableNameProvider.getTableName(APPLICATION_ID.getTable());
-        CheckAndMutateResult checkAndMutateResult = hbaseOperations.checkAndMutate(applicationIdTableName, checkAndMutate);
-        return checkAndMutateResult.isSuccess();
+        return builder.build(put);
     }
 }

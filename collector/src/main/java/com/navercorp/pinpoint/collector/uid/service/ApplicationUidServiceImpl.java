@@ -57,7 +57,7 @@ public class ApplicationUidServiceImpl implements ApplicationUidService {
 
     private ApplicationUid tryInsertApplicationId(ServiceUid serviceUid, String applicationName) {
         // 1. insert (id -> name)
-        ApplicationUid newApplicationUid = InsertApplicationNameWithRetries(serviceUid, applicationName, 3);
+        ApplicationUid newApplicationUid = insertApplicationNameWithRetries(serviceUid, applicationName, 3);
         if (newApplicationUid != null) {
             logger.debug("saved (id:{} -> name:{})", newApplicationUid, applicationName);
         } else {
@@ -68,20 +68,20 @@ public class ApplicationUidServiceImpl implements ApplicationUidService {
         try {
             boolean idInsertResult = applicationUidDao.insertApplicationUidIfNotExists(serviceUid, applicationName, newApplicationUid);
             if (idInsertResult) {
-                logger.info("saved ({}, name:{} -> id:{})", serviceUid, applicationName, newApplicationUid);
+                logger.info("saved ({}, name:{} -> {})", serviceUid, applicationName, newApplicationUid);
                 return newApplicationUid;
             } else {
-                logger.debug("Failed to save. already existing serviceName (name:{} -> id:{})", applicationName, newApplicationUid);
+                logger.debug("Failed to save. already existing application (name:{} -> {})", applicationName, newApplicationUid);
                 applicationNameDao.deleteApplicationName(serviceUid, newApplicationUid);
             }
         } catch (Exception e) {
-            logger.warn("Failed to save ({}, name:{} -> id:{})", serviceUid, applicationName, newApplicationUid, e);
+            logger.error("Failed to save ({}, name:{} -> {})", serviceUid, applicationName, newApplicationUid, e);
             applicationNameDao.deleteApplicationName(serviceUid, newApplicationUid);
         }
         return null;
     }
 
-    private ApplicationUid InsertApplicationNameWithRetries(ServiceUid serviceUid, String applicationName, int maxRetries) {
+    private ApplicationUid insertApplicationNameWithRetries(ServiceUid serviceUid, String applicationName, int maxRetries) {
         for (int i = 0; i < maxRetries; i++) {
             ApplicationUid newApplicationUid = applicationIdGenerator.generate();
             boolean nameInsertResult = applicationNameDao.insertApplicationNameIfNotExists(serviceUid, newApplicationUid, applicationName);
