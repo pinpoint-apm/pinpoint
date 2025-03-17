@@ -262,16 +262,6 @@ public class BulkIncrementerTestClazz {
         }
 
         @Override
-        public long getCallCount() {
-            return count;
-        }
-
-        @Override
-        public void setCallCount(long callCount) {
-            this.count = callCount;
-        }
-
-        @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
@@ -320,18 +310,14 @@ public class BulkIncrementerTestClazz {
 
     static class Flusher implements Callable<Map<TableName, List<Increment>>> {
 
-        private final Logger logger = LogManager.getLogger(this.getClass());
-
         private final BulkIncrementer bulkIncrementer;
         private final RowKeyDistributorByHashPrefix rowKeyDistributor;
         private final CountDownLatch awaitLatch;
-        private final CountDownLatch completeLatch;
 
-        Flusher(BulkIncrementer bulkIncrementer, RowKeyDistributorByHashPrefix rowKeyDistributor, CountDownLatch awaitLatch, CountDownLatch completeLatch) {
+        Flusher(BulkIncrementer bulkIncrementer, RowKeyDistributorByHashPrefix rowKeyDistributor, CountDownLatch awaitLatch) {
             this.bulkIncrementer = bulkIncrementer;
             this.rowKeyDistributor = rowKeyDistributor;
             this.awaitLatch = awaitLatch;
-            this.completeLatch = completeLatch;
         }
 
         private void flushToMap(Map<TableName, List<Increment>> resultMap) {
@@ -354,8 +340,6 @@ public class BulkIncrementerTestClazz {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return Collections.emptyMap();
-            } finally {
-                completeLatch.countDown();
             }
             return resultMap;
         }

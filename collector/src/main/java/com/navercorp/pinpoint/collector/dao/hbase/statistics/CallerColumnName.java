@@ -30,24 +30,11 @@ public class CallerColumnName implements ColumnName {
     private final String callHost;
     private final short columnSlotNumber;
 
-    // WARNING - cached hash value should not be included for equals/hashCode
-    private int hash;
-
-    private long callCount;
-
     public CallerColumnName(short callerServiceType, String callerApplicationName, String callHost, short columnSlotNumber) {
         this.callerServiceType = callerServiceType;
         this.callerApplicationName = Objects.requireNonNull(callerApplicationName, "callerApplicationName");
         this.callHost = Objects.requireNonNull(callHost, "callHost");
         this.columnSlotNumber = columnSlotNumber;
-    }
-
-    public long getCallCount() {
-        return callCount;
-    }
-
-    public void setCallCount(long callCount) {
-        this.callCount = callCount;
     }
 
     public byte[] getColumnName() {
@@ -56,42 +43,31 @@ public class CallerColumnName implements ColumnName {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         CallerColumnName that = (CallerColumnName) o;
-
-        if (callerServiceType != that.callerServiceType) return false;
-        if (columnSlotNumber != that.columnSlotNumber) return false;
-        if (callerApplicationName != null ? !callerApplicationName.equals(that.callerApplicationName) : that.callerApplicationName != null) return false;
-        if (callHost != null ? !callHost.equals(that.callHost) : that.callHost != null) return false;
-
-        return true;
+        return callerServiceType == that.callerServiceType
+                && columnSlotNumber == that.columnSlotNumber
+                && callerApplicationName.equals(that.callerApplicationName)
+                && callHost.equals(that.callHost);
     }
 
     @Override
     public int hashCode() {
-        // take care when modifying this method - contains hashCodes for hbasekeys 
-        if (hash != 0) {
-            return hash;
-        }
-        int result = (int) callerServiceType;
-        result = 31 * result + (callerApplicationName != null ? callerApplicationName.hashCode() : 0);
-        result = 31 * result + (callHost != null ? callHost.hashCode() : 0);
-        result = 31 * result + (int) columnSlotNumber;
-        hash = result;
+        int result = callerServiceType;
+        result = 31 * result + callerApplicationName.hashCode();
+        result = 31 * result + callHost.hashCode();
+        result = 31 * result + columnSlotNumber;
         return result;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("CallerColumnName{");
-        sb.append("callerServiceType=").append(callerServiceType);
-        sb.append(", callerApplicationName='").append(callerApplicationName).append('\'');
-        sb.append(", callHost='").append(callHost).append('\'');
-        sb.append(", columnSlotNumber=").append(columnSlotNumber);
-        sb.append(", callCount=").append(callCount);
-        sb.append('}');
-        return sb.toString();
+        return "CallerColumnName{" +
+                "callerServiceType=" + callerServiceType +
+                ", callerApplicationName='" + callerApplicationName + '\'' +
+                ", callHost='" + callHost + '\'' +
+                ", columnSlotNumber=" + columnSlotNumber +
+                '}';
     }
 }
