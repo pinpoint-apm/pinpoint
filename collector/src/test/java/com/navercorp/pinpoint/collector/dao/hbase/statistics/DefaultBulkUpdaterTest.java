@@ -151,10 +151,10 @@ public class DefaultBulkUpdaterTest {
         final int numIncrementers = 16;
         List<List<BulkIncrementerTestClazz.TestData>> testDataPartitions = ListUtils.partition(testDatas, testDatas.size() / (numIncrementers - 1));
         final CountDownLatch completeLatch = new CountDownLatch(testDataPartitions.size());
-        final CountDownLatch flusherLatch = new CountDownLatch(1);
 
-        FutureTask<Map<TableName, List<Increment>>> flushTask = new FutureTask<>(new Flusher(bulkIncrementer, rowKeyDistributor, completeLatch, flusherLatch));
-        new Thread(flushTask, "Flusher").start();
+        FutureTask<Map<TableName, List<Increment>>> flushTask = new FutureTask<>(new Flusher(bulkIncrementer, rowKeyDistributor, completeLatch));
+        Thread flusher = new Thread(flushTask, "Flusher");
+        flusher.start();
 
         int counter = 0;
         for (List<TestData> testDataPartition : testDataPartitions) {
@@ -162,7 +162,7 @@ public class DefaultBulkUpdaterTest {
             new Thread(incrementer, "Incrementer-" + counter++).start();
         }
 
-        flusherLatch.await(30L, TimeUnit.SECONDS);
+        ThreadUtils.awaitTermination(flusher, TimeUnit.SECONDS.toMillis(5L));
 
         // Then
         Map<TableName, List<Increment>> incrementMap = flushTask.get(5L, TimeUnit.SECONDS);
@@ -192,10 +192,10 @@ public class DefaultBulkUpdaterTest {
         final int numIncrementers = 16;
         List<List<TestData>> testDataPartitions = ListUtils.partition(testDatas, testDatas.size() / (numIncrementers - 1));
         final CountDownLatch incrementorLatch = new CountDownLatch(testDataPartitions.size());
-        final CountDownLatch flusherLatch = new CountDownLatch(1);
 
-        FutureTask<Map<TableName, List<Increment>>> flushTask = new FutureTask<>(new Flusher(bulkIncrementer, rowKeyDistributor, incrementorLatch, flusherLatch));
-        new Thread(flushTask, "Flusher").start();
+        FutureTask<Map<TableName, List<Increment>>> flushTask = new FutureTask<>(new Flusher(bulkIncrementer, rowKeyDistributor, incrementorLatch));
+        Thread flusher = new Thread(flushTask, "Flusher");
+        flusher.start();
 
         int counter = 0;
         for (List<TestData> testDataPartition : testDataPartitions) {
@@ -203,7 +203,7 @@ public class DefaultBulkUpdaterTest {
             new Thread(incrementer, "Incrementer-" + counter++).start();
         }
 
-        flusherLatch.await(30L, TimeUnit.SECONDS);
+        ThreadUtils.awaitTermination(flusher, TimeUnit.SECONDS.toMillis(5L));
 
         // Then
         Map<TableName, List<Increment>> incrementMap = flushTask.get(5L, TimeUnit.SECONDS);

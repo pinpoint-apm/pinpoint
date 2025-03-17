@@ -28,22 +28,9 @@ public class ResponseColumnName implements ColumnName {
     private final String agentId;
     private final short columnSlotNumber;
 
- // WARNING - cached hash value should not be included for equals/hashCode
-    private int hash;
-
-    private long callCount;
-
     public ResponseColumnName(String agentId, short columnSlotNumber) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.columnSlotNumber = columnSlotNumber;
-    }
-
-    public long getCallCount() {
-        return callCount;
-    }
-
-    public void setCallCount(long callCount) {
-        this.callCount = callCount;
     }
 
     public byte[] getColumnName() {
@@ -52,26 +39,16 @@ public class ResponseColumnName implements ColumnName {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         ResponseColumnName that = (ResponseColumnName) o;
-
-        if (columnSlotNumber != that.columnSlotNumber) return false;
-        if (!agentId.equals(that.agentId)) return false;
-
-        return true;
+        return columnSlotNumber == that.columnSlotNumber && agentId.equals(that.agentId);
     }
 
     @Override
     public int hashCode() {
-        // take care when modifying this method - contains hashCodes for hbasekeys
-        if (hash != 0) {
-            return hash;
-        }
         int result = agentId.hashCode();
-        result = 31 * result + (int) columnSlotNumber;
-        hash = result;
+        result = 31 * result + columnSlotNumber;
         return result;
     }
 
@@ -80,7 +57,6 @@ public class ResponseColumnName implements ColumnName {
         return "ResponseColumnName{" +
                 "agentId='" + agentId + '\'' +
                 ", columnSlotNumber=" + columnSlotNumber +
-                ", callCount=" + callCount +
                 '}';
     }
 }

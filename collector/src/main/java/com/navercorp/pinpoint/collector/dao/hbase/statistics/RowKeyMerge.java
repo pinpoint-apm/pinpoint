@@ -55,12 +55,12 @@ public class RowKeyMerge {
         }
 
         final Map<TableName, List<Increment>> tableIncrementMap = new HashMap<>();
-        final Map<TableName, Map<RowKey, List<ColumnName>>> tableRowKeyMap = mergeRowKeys(data);
+        final Map<TableName, Map<RowKey, List<ColumnCallCount>>> tableRowKeyMap = mergeRowKeys(data);
 
-        for (Map.Entry<TableName, Map<RowKey, List<ColumnName>>> tableRowKeys : tableRowKeyMap.entrySet()) {
+        for (Map.Entry<TableName, Map<RowKey, List<ColumnCallCount>>> tableRowKeys : tableRowKeyMap.entrySet()) {
             final TableName tableName = tableRowKeys.getKey();
             final List<Increment> incrementList = new ArrayList<>();
-            for (Map.Entry<RowKey, List<ColumnName>> rowKeyEntry : tableRowKeys.getValue().entrySet()) {
+            for (Map.Entry<RowKey, List<ColumnCallCount>> rowKeyEntry : tableRowKeys.getValue().entrySet()) {
                 Increment increment = createIncrement(rowKeyEntry, rowKeyDistributorByHashPrefix);
                 incrementList.add(increment);
 
@@ -71,15 +71,14 @@ public class RowKeyMerge {
         return tableIncrementMap;
     }
 
-    private Increment createIncrement(Map.Entry<RowKey, List<ColumnName>> rowKeyEntry, RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+    private Increment createIncrement(Map.Entry<RowKey, List<ColumnCallCount>> rowKeyEntry, RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         RowKey rowKey = rowKeyEntry.getKey();
         byte[] key = getRowKey(rowKey, rowKeyDistributorByHashPrefix);
         final Increment increment = new Increment(key);
         increment.setReturnResults(false);
-        for (ColumnName columnName : rowKeyEntry.getValue()) {
-            increment.addColumn(family, columnName.getColumnName(), columnName.getCallCount());
+        for (ColumnCallCount columnName : rowKeyEntry.getValue()) {
+            increment.addColumn(family, columnName.columnName(), columnName.callCount());
         }
-
 
         logger.trace("create increment row:{}, column:{}", rowKey, rowKeyEntry.getValue());
         return increment;
@@ -93,22 +92,26 @@ public class RowKeyMerge {
         }
     }
 
-    private Map<TableName, Map<RowKey, List<ColumnName>>> mergeRowKeys(Map<RowInfo, Long> data) {
-        final Map<TableName, Map<RowKey, List<ColumnName>>> tables = new HashMap<>();
+    private Map<TableName, Map<RowKey, List<ColumnCallCount>>> mergeRowKeys(Map<RowInfo, Long> data) {
+        final Map<TableName, Map<RowKey, List<ColumnCallCount>>> tables = new HashMap<>();
 
         for (Map.Entry<RowInfo, Long> entry : data.entrySet()) {
             final RowInfo rowInfo = entry.getKey();
             // write callCount to columnName and throw away
-            long callCount = entry.getValue();
-            rowInfo.getColumnName().setCallCount(callCount);
+            final long callCount = entry.getValue();
 
             final TableName tableName = rowInfo.getTableName();
             final RowKey rowKey = rowInfo.getRowKey();
 
-            Map<RowKey, List<ColumnName>> rows = tables.computeIfAbsent(tableName, k -> new HashMap<>());
-            List<ColumnName> columnNames = rows.computeIfAbsent(rowKey, k -> new ArrayList<>());
-            columnNames.add(rowInfo.getColumnName());
+            Map<RowKey, List<ColumnCallCount>> rows = tables.computeIfAbsent(tableName, k -> new HashMap<>());
+            List<ColumnCallCount> columnNames = rows.computeIfAbsent(rowKey, k -> new ArrayList<>());
+
+            ColumnCallCount columnCallCount = new ColumnCallCount(rowInfo.getColumnName().getColumnName(), callCount);
+            columnNames.add(columnCallCount);
         }
         return tables;
+    }
+
+    record ColumnCallCount(byte[] columnName, long callCount) {
     }
 }
