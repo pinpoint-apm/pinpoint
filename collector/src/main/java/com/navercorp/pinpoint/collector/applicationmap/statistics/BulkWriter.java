@@ -8,7 +8,7 @@ public interface BulkWriter {
 
     void increment(RowKey rowKey, ColumnName columnName, long addition);
 
-    void updateMax(RowKey rowKey, ColumnName columnName, long value);
+    void updateMax(RowKey rowKey, ColumnName columnName, long max);
 
     void flushLink();
 

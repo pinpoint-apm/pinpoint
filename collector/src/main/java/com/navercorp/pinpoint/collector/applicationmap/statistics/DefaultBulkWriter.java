@@ -68,9 +68,9 @@ public class DefaultBulkWriter implements BulkWriter {
     }
 
     @Override
-    public void updateMax(RowKey rowKey, ColumnName columnName, long value) {
+    public void updateMax(RowKey rowKey, ColumnName columnName, long max) {
         TableName tableName = tableNameProvider.getTableName(tableDescriptor.getTable());
-        this.bulkUpdater.updateMax(tableName, rowKey, columnName, value);
+        this.bulkUpdater.updateMax(tableName, rowKey, columnName, max);
     }
 
     @Override

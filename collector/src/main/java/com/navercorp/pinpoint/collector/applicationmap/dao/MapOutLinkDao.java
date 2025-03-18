@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * @author netspider
  * @author emeroad
  */
-public interface MapStatisticsCalleeDao extends CachedStatisticsDao {
-    void update(long requestTime, String calleeApplicationName, ServiceType calleeServiceType,
-                String callerApplicationName, ServiceType callerServiceType, String callerHost, int elapsed, boolean isError);
+public interface MapOutLinkDao extends CachedStatisticsDao {
+    void outLink(long requestTime, String outApplicationName, ServiceType outServiceType, String outAgentId,
+                 String inApplicationName, ServiceType inServiceType, String inHost, int elapsed, boolean isError);
 }

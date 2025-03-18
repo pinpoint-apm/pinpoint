@@ -58,14 +58,14 @@ public class SyncWriter implements BulkWriter {
     }
 
     @Override
-    public void updateMax(RowKey rowKey, ColumnName columnName, long value) {
+    public void updateMax(RowKey rowKey, ColumnName columnName, long max) {
 
         Objects.requireNonNull(rowKey, "rowKey");
         Objects.requireNonNull(columnName, "columnName");
 
         TableName tableName = tableNameProvider.getTableName(this.tableDescriptor.getTable());
         final byte[] rowKeyBytes = getDistributedKey(rowKey.getRowKey());
-        CheckAndMax checkAndMax = new CheckAndMax(rowKeyBytes, getColumnFamilyName(), columnName.getColumnName(), value);
+        CheckAndMax checkAndMax = new CheckAndMax(rowKeyBytes, getColumnFamilyName(), columnName.getColumnName(), max);
         this.hbaseTemplate.maxColumnValue(tableName, checkAndMax);
     }
 
