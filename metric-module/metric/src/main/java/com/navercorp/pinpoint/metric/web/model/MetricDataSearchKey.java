@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.metric.web.model;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
-import com.navercorp.pinpoint.metric.web.util.TimePrecision;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;

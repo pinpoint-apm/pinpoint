@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.metric.web.util;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
 
 public abstract class QueryParameter {
     protected static final int TAG_SET_COUNT = 10;

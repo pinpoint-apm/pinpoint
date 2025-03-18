@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.uristat.web.util;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
-import com.navercorp.pinpoint.metric.web.util.TimePrecision;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
 
 import java.util.concurrent.TimeUnit;
 

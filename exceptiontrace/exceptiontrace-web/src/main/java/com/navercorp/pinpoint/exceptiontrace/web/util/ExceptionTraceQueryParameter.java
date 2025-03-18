@@ -17,10 +17,8 @@
 package com.navercorp.pinpoint.exceptiontrace.web.util;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.exceptiontrace.web.ExceptionTraceWebConfig;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
-import com.navercorp.pinpoint.metric.web.util.TimePrecision;
-import org.springframework.beans.factory.annotation.Value;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
@@ -28,7 +26,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * @author intr3p1d

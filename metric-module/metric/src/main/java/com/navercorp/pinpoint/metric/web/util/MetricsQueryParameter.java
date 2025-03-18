@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.metric.web.util;
 
+import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 
 import java.util.List;
