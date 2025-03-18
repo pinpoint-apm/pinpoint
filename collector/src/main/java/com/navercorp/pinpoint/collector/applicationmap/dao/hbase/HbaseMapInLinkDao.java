@@ -17,16 +17,15 @@
 package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 
 import com.navercorp.pinpoint.collector.applicationmap.config.MapLinkConfiguration;
-import com.navercorp.pinpoint.collector.applicationmap.dao.MapStatisticsCalleeDao;
+import com.navercorp.pinpoint.collector.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
-import com.navercorp.pinpoint.collector.applicationmap.statistics.CallRowKey;
-import com.navercorp.pinpoint.collector.applicationmap.statistics.CallerColumnName;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
+import com.navercorp.pinpoint.collector.applicationmap.statistics.LinkRowKey;
+import com.navercorp.pinpoint.collector.applicationmap.statistics.OutLinkColumnName;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.collector.dao.hbase.IgnoreStatFilter;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
-import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -44,7 +43,7 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
+public class HbaseMapInLinkDao implements MapInLinkDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -55,10 +54,10 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
     private final BulkWriter bulkWriter;
     private final MapLinkConfiguration mapLinkConfiguration;
 
-    public HbaseMapStatisticsCalleeDao(MapLinkConfiguration mapLinkConfiguration,
-                                       IgnoreStatFilter ignoreStatFilter,
-                                       TimeSlot timeSlot,
-                                       @Qualifier("calleeBulkWriter") BulkWriter bulkWriter) {
+    public HbaseMapInLinkDao(MapLinkConfiguration mapLinkConfiguration,
+                             IgnoreStatFilter ignoreStatFilter,
+                             TimeSlot timeSlot,
+                             @Qualifier("inLinkBulkWriter") BulkWriter bulkWriter) {
         this.mapLinkConfiguration = Objects.requireNonNull(mapLinkConfiguration, "mapLinkConfiguration");
         this.ignoreStatFilter = Objects.requireNonNull(ignoreStatFilter, "ignoreStatFilter");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
@@ -68,44 +67,42 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
 
     @Override
-    public void update(long requestTime, String calleeApplicationName, ServiceType calleeServiceType,
-                       String callerApplicationName, ServiceType callerServiceType, String callerHost, int elapsed, boolean isError) {
-        Objects.requireNonNull(calleeApplicationName, "calleeApplicationName");
-        Objects.requireNonNull(callerApplicationName, "callerApplicationName");
+    public void inLink(long requestTime, String inApplicationName, ServiceType inServiceType,
+                       String outApplicationName, ServiceType outServiceType, String outHost, int elapsed, boolean isError) {
+        Objects.requireNonNull(inApplicationName, "inApplicationName");
+        Objects.requireNonNull(outApplicationName, "outApplicationName");
 
         if (logger.isDebugEnabled()) {
-            logger.debug("[Callee] {} ({}) <- {} ({})[{}]",
-                    calleeApplicationName, calleeServiceType, callerApplicationName, callerServiceType, callerHost);
+            logger.debug("[InLink] {} ({}) <- {} ({})[{}]",
+                    inApplicationName, inServiceType, outApplicationName, outServiceType, outHost);
         }
 
         // there may be no endpoint in case of httpclient
-        callerHost = StringUtils.defaultString(callerHost);
+        outHost = StringUtils.defaultString(outHost);
 
         // TODO callee, caller parameter normalization
-        if (ignoreStatFilter.filter(calleeServiceType, callerHost)) {
-            logger.debug("[Ignore-Callee] {} ({}) <- {} ({})[{}]",
-                    calleeApplicationName, calleeServiceType, callerApplicationName, callerServiceType, callerHost);
+        if (ignoreStatFilter.filter(inServiceType, outHost)) {
+            logger.debug("[Ignore-InLink] {} ({}) <- {} ({})[{}]",
+                    inApplicationName, inServiceType, outApplicationName, outServiceType, outHost);
             return;
         }
 
         // make row key. rowkey is me
         final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
-        final RowKey calleeRowKey = new CallRowKey(calleeApplicationName, calleeServiceType.getCode(), rowTimeSlot);
+        final RowKey inLinkRowKey = LinkRowKey.of(inApplicationName, inServiceType, rowTimeSlot);
 
-        final short callerSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(calleeServiceType, elapsed, isError);
+        final short outSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(inServiceType, elapsed, isError);
 
-        HistogramSchema histogramSchema = calleeServiceType.getHistogramSchema();
-
-        final ColumnName callerColumnName = new CallerColumnName(callerServiceType.getCode(), callerApplicationName, callerHost, callerSlotNumber);
-        this.bulkWriter.increment(calleeRowKey, callerColumnName);
+        final ColumnName outLink = OutLinkColumnName.histogram(outApplicationName, outServiceType, outHost, outSlotNumber);
+        this.bulkWriter.increment(inLinkRowKey, outLink);
 
         if (mapLinkConfiguration.isEnableAvg()) {
-            final ColumnName sumColumnName = new CallerColumnName(callerServiceType.getCode(), callerApplicationName, callerHost, histogramSchema.getSumStatSlot().getSlotTime());
-            this.bulkWriter.increment(calleeRowKey, sumColumnName, elapsed);
+            final ColumnName sumOutLink = OutLinkColumnName.sum(outApplicationName, outServiceType, outHost, inServiceType);
+            this.bulkWriter.increment(inLinkRowKey, sumOutLink, elapsed);
         }
         if (mapLinkConfiguration.isEnableMax()) {
-            final ColumnName maxColumnName = new CallerColumnName(callerServiceType.getCode(), callerApplicationName, callerHost, histogramSchema.getMaxStatSlot().getSlotTime());
-            this.bulkWriter.updateMax(calleeRowKey, maxColumnName, elapsed);
+            final ColumnName maxOutLink = OutLinkColumnName.max(outApplicationName, outServiceType, outHost, inServiceType);
+            this.bulkWriter.updateMax(inLinkRowKey, maxOutLink, elapsed);
         }
     }
 

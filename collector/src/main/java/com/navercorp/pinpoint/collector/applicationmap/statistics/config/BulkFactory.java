@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.collector.applicationmap.statistics.config;
 
+import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HbaseMapInLinkDao;
+import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HbaseMapOutLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HbaseMapResponseTimeDao;
-import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HbaseMapStatisticsCalleeDao;
-import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HbaseMapStatisticsCallerDao;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkIncrementer;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkUpdater;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
@@ -74,7 +74,7 @@ public class BulkFactory {
     }
 
     @Bean
-    public BulkIncrementer callerBulkIncrementer() {
+    public BulkIncrementer outLinkBulkIncrementer() {
         String reporterName = "callerBulkIncrementerReporter";
         HbaseColumnFamily hbaseColumnFamily = HbaseColumnFamily.MAP_STATISTICS_CALLER_VER2_COUNTER;
         int limitSize = bulkConfiguration.getCallerLimitSize();
@@ -83,26 +83,26 @@ public class BulkFactory {
     }
 
     @Bean
-    public BulkUpdater callerBulkUpdater() {
+    public BulkUpdater outLinkBulkUpdater() {
         String reporterName = "callerBulkUpdaterReporter";
         return getBulkUpdater(reporterName);
     }
 
 
     @Bean
-    public BulkWriter callerBulkWriter(HbaseOperations hbaseTemplate,
-                                       HbaseAsyncTemplate asyncTemplate,
-                                       TableNameProvider tableNameProvider,
-                                       @Qualifier("statisticsCallerRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
-                                       @Qualifier("callerBulkIncrementer") BulkIncrementer bulkIncrementer,
-                                       @Qualifier("callerBulkUpdater") BulkUpdater bulkUpdater) {
-        String loggerName = newBulkWriterName(HbaseMapStatisticsCallerDao.class.getName());
+    public BulkWriter outLinkBulkWriter(HbaseOperations hbaseTemplate,
+                                        HbaseAsyncTemplate asyncTemplate,
+                                        TableNameProvider tableNameProvider,
+                                        @Qualifier("statisticsCallerRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
+                                        @Qualifier("outLinkBulkIncrementer") BulkIncrementer bulkIncrementer,
+                                        @Qualifier("outLinkBulkUpdater") BulkUpdater bulkUpdater) {
+        String loggerName = newBulkWriterName(HbaseMapOutLinkDao.class.getName());
         return newBulkWriter(loggerName, hbaseTemplate, asyncTemplate, HbaseColumnFamily.MAP_STATISTICS_CALLEE_VER2_COUNTER, tableNameProvider, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
     }
 
 
     @Bean
-    public BulkIncrementer calleeBulkIncrementer() {
+    public BulkIncrementer inLinkBulkIncrementer() {
         String reporterName = "calleeBulkIncrementerReporter";
         HbaseColumnFamily hbaseColumnFamily = HbaseColumnFamily.MAP_STATISTICS_CALLEE_VER2_COUNTER;
         int limitSize = bulkConfiguration.getCalleeLimitSize();
@@ -112,19 +112,19 @@ public class BulkFactory {
 
 
     @Bean
-    public BulkUpdater calleeBulkUpdater() {
+    public BulkUpdater inLinkBulkUpdater() {
         String reporterName = "calleeBulkUpdaterReporter";
         return getBulkUpdater(reporterName);
     }
 
     @Bean
-    public BulkWriter calleeBulkWriter(HbaseOperations hbaseTemplate,
+    public BulkWriter inLinkBulkWriter(HbaseOperations hbaseTemplate,
                                        HbaseAsyncTemplate asyncTemplate,
                                        TableNameProvider tableNameProvider,
                                        @Qualifier("statisticsCalleeRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
-                                       @Qualifier("calleeBulkIncrementer") BulkIncrementer bulkIncrementer,
-                                       @Qualifier("calleeBulkUpdater") BulkUpdater bulkUpdater) {
-        String loggerName = newBulkWriterName(HbaseMapStatisticsCalleeDao.class.getName());
+                                       @Qualifier("inLinkBulkIncrementer") BulkIncrementer bulkIncrementer,
+                                       @Qualifier("inLinkBulkUpdater") BulkUpdater bulkUpdater) {
+        String loggerName = newBulkWriterName(HbaseMapInLinkDao.class.getName());
         return newBulkWriter(loggerName, hbaseTemplate, asyncTemplate, HbaseColumnFamily.MAP_STATISTICS_CALLER_VER2_COUNTER, tableNameProvider, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
     }
 

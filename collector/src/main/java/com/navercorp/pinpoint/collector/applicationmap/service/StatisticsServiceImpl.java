@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.service;
 
+import com.navercorp.pinpoint.collector.applicationmap.dao.MapInLinkDao;
+import com.navercorp.pinpoint.collector.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapResponseTimeDao;
-import com.navercorp.pinpoint.collector.applicationmap.dao.MapStatisticsCalleeDao;
-import com.navercorp.pinpoint.collector.applicationmap.dao.MapStatisticsCallerDao;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.validation.annotation.Validated;
@@ -31,71 +31,43 @@ import java.util.Objects;
  */
 @Validated
 public class StatisticsServiceImpl implements StatisticsService {
-    private final MapStatisticsCalleeDao mapStatisticsCalleeDao;
-    private final MapStatisticsCallerDao mapStatisticsCallerDao;
-    private final MapResponseTimeDao mapResponseTimeDao;
+    private final MapInLinkDao inLinkDao;
+    private final MapOutLinkDao outLinkDao;
+    private final MapResponseTimeDao responseTimeDao;
 
-    public StatisticsServiceImpl(MapStatisticsCalleeDao mapStatisticsCalleeDao, MapStatisticsCallerDao mapStatisticsCallerDao, MapResponseTimeDao mapResponseTimeDao) {
-        this.mapStatisticsCalleeDao = Objects.requireNonNull(mapStatisticsCalleeDao, "mapStatisticsCalleeDao");
-        this.mapStatisticsCallerDao = Objects.requireNonNull(mapStatisticsCallerDao, "mapStatisticsCallerDao");
-        this.mapResponseTimeDao = Objects.requireNonNull(mapResponseTimeDao, "mapResponseTimeDao");
+    public StatisticsServiceImpl(MapInLinkDao inLinkDao, MapOutLinkDao outLinkDao, MapResponseTimeDao responseTimeDao) {
+        this.inLinkDao = Objects.requireNonNull(inLinkDao, "inLinkDao");
+        this.outLinkDao = Objects.requireNonNull(outLinkDao, "outLinkDao");
+        this.responseTimeDao = Objects.requireNonNull(responseTimeDao, "responseTimeDao");
     }
 
-    /**
-     * Calling MySQL from Tomcat generates the following message for the caller(Tomcat) :<br/>
-     * emeroad-app (TOMCAT) -> MySQL_DB_ID (MYSQL)[10.25.141.69:3306] <br/>
-     * <br/>
-     * The following message is generated for the callee(MySQL) :<br/>
-     * MySQL (MYSQL) <- emeroad-app (TOMCAT)[localhost:8080]
-     *
-     * @param callerApplicationName callerApplicationName
-     * @param callerServiceType     callerServiceType
-     * @param calleeApplicationName calleeApplicationName
-     * @param calleeServiceType     calleeServiceType
-     * @param calleeHost            calleeHost
-     * @param elapsed               elapsed
-     * @param isError               isError
-     */
     @Override
-    public void updateCaller(
+    public void updateOutLink(
             long requestTime,
-            @NotBlank String callerApplicationName,
-            ServiceType callerServiceType,
-            @NotBlank String callerAgentId,
-            @NotBlank String calleeApplicationName,
-            ServiceType calleeServiceType,
-            String calleeHost,
+            @NotBlank String outApplicationName,
+            ServiceType outServiceType,
+            @NotBlank String outAgentId,
+            @NotBlank String inApplicationName,
+            ServiceType inServiceType,
+            String inHost,
             int elapsed, boolean isError
     ) {
-        mapStatisticsCallerDao.update(requestTime, callerApplicationName, callerServiceType, callerAgentId, calleeApplicationName, calleeServiceType, calleeHost, elapsed, isError);
+        outLinkDao.outLink(requestTime, outApplicationName, outServiceType, outAgentId,
+                inApplicationName, inServiceType, inHost, elapsed, isError);
     }
 
-    /**
-     * Calling MySQL from Tomcat generates the following message for the callee(MySQL) :<br/>
-     * MySQL_DB_ID (MYSQL) <- emeroad-app (TOMCAT)[localhost:8080] <br/>
-     * <br/><br/>
-     * The following message is generated for the caller(Tomcat) :<br/>
-     * emeroad-app (TOMCAT) -> MySQL (MYSQL)[10.25.141.69:3306]
-     *
-     * @param calleeApplicationName calleeApplicationName
-     * @param calleeServiceType     calleeServiceType
-     * @param callerApplicationName callerApplicationName
-     * @param callerServiceType     callerServiceType
-     * @param callerHost            callerHost
-     * @param elapsed               elapsed
-     * @param isError               isError
-     */
     @Override
-    public void updateCallee(
+    public void updateInLink(
             long requestTime,
-            @NotBlank String calleeApplicationName,
-            ServiceType calleeServiceType,
-            @NotBlank String callerApplicationName,
-            ServiceType callerServiceType,
-            String callerHost,
+            @NotBlank String inApplicationName,
+            ServiceType inServiceType,
+            @NotBlank String outApplicationName,
+            ServiceType outServiceType,
+            String outHost,
             int elapsed, boolean isError
     ) {
-        mapStatisticsCalleeDao.update(requestTime, calleeApplicationName, calleeServiceType, callerApplicationName, callerServiceType, callerHost, elapsed, isError);
+        inLinkDao.inLink(requestTime, inApplicationName, inServiceType,
+                outApplicationName, outServiceType, outHost, elapsed, isError);
     }
 
     @Override
@@ -106,16 +78,16 @@ public class StatisticsServiceImpl implements StatisticsService {
             String agentId,
             int elapsed, boolean isError
     ) {
-        mapResponseTimeDao.received(requestTime, applicationName, serviceType, agentId, elapsed, isError);
+        responseTimeDao.received(requestTime, applicationName, serviceType, agentId, elapsed, isError);
     }
 
     @Override
     public void updateAgentState(
             long requestTime,
-            @NotBlank final String callerApplicationName,
-            final ServiceType callerServiceType,
-            @NotBlank final String callerAgentId
+            @NotBlank final String outApplicationName,
+            final ServiceType outServiceType,
+            @NotBlank final String outAgentId
     ) {
-        mapResponseTimeDao.updatePing(requestTime, callerApplicationName, callerServiceType, callerAgentId, 0, false);
+        responseTimeDao.updatePing(requestTime, outApplicationName, outServiceType, outAgentId, 0, false);
     }
 }

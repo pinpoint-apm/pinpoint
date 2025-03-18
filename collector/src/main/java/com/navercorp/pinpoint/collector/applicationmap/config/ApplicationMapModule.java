@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.collector.applicationmap.config;
 
+import com.navercorp.pinpoint.collector.applicationmap.dao.MapInLinkDao;
+import com.navercorp.pinpoint.collector.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapResponseTimeDao;
-import com.navercorp.pinpoint.collector.applicationmap.dao.MapStatisticsCalleeDao;
-import com.navercorp.pinpoint.collector.applicationmap.dao.MapStatisticsCallerDao;
 import com.navercorp.pinpoint.collector.applicationmap.service.StatisticsService;
 import com.navercorp.pinpoint.collector.applicationmap.service.StatisticsServiceImpl;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.config.BulkConfiguration;
@@ -36,9 +36,9 @@ public class ApplicationMapModule {
 
     @Bean
     @Validated
-    public StatisticsService statisticsService(MapStatisticsCalleeDao mapStatisticsCalleeDao,
-                                               MapStatisticsCallerDao mapStatisticsCallerDao,
-                                               MapResponseTimeDao mapResponseTimeDao) {
-        return new StatisticsServiceImpl(mapStatisticsCalleeDao, mapStatisticsCallerDao, mapResponseTimeDao);
+    public StatisticsService statisticsService(MapInLinkDao inLinkDao,
+                                               MapOutLinkDao outLinkDao,
+                                               MapResponseTimeDao responseTimeDao) {
+        return new StatisticsServiceImpl(inLinkDao, outLinkDao, responseTimeDao);
     }
 }

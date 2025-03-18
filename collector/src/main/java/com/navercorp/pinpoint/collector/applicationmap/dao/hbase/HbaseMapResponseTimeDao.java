@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 import com.navercorp.pinpoint.collector.applicationmap.config.MapLinkConfiguration;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapResponseTimeDao;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
-import com.navercorp.pinpoint.collector.applicationmap.statistics.CallRowKey;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
+import com.navercorp.pinpoint.collector.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ResponseColumnName;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
@@ -67,12 +67,12 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         Objects.requireNonNull(agentId, "agentId");
 
         if (logger.isDebugEnabled()) {
-            logger.debug("[Received] {} ({})[{}]", applicationName, applicationServiceType, agentId);
+            logger.debug("[Self] {} ({})[{}]", applicationName, applicationServiceType, agentId);
         }
 
         // make row key. rowkey is me
         final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
-        final RowKey selfRowKey = new CallRowKey(applicationName, applicationServiceType.getCode(), rowTimeSlot);
+        final RowKey selfRowKey = LinkRowKey.of(applicationName, applicationServiceType, rowTimeSlot);
 
         final short slotNumber = ApplicationMapStatisticsUtils.getSlotNumber(applicationServiceType, elapsed, isError);
         final ColumnName selfColumnName = new ResponseColumnName(agentId, slotNumber);
@@ -96,12 +96,12 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         Objects.requireNonNull(agentId, "agentId");
 
         if (logger.isDebugEnabled()) {
-            logger.debug("[Received] {} ({})[{}]", applicationName, applicationServiceType, agentId);
+            logger.debug("[Self] {} ({})[{}]", applicationName, applicationServiceType, agentId);
         }
 
         // make row key. rowkey is me
         final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
-        final RowKey selfRowKey = new CallRowKey(applicationName, applicationServiceType.getCode(), rowTimeSlot);
+        final RowKey selfRowKey = LinkRowKey.of(applicationName, applicationServiceType, rowTimeSlot);
 
         final short slotNumber = ApplicationMapStatisticsUtils.getPingSlotNumber(applicationServiceType, elapsed, isError);
         final ColumnName selfColumnName = new ResponseColumnName(agentId, slotNumber);
