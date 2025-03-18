@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.batch.alarm.checker;
 
-import com.navercorp.pinpoint.batch.alarm.collector.MapStatisticsCallerDataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.MapOutLinkDataCollector;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapStatisticsCallerDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
@@ -43,14 +43,14 @@ public class ErrorRateToCalleCheckerTest {
     private static final String TO_SERVICE_NAME = "to_local_service";
     private static final String SERVICE_TYPE = "tomcat";
 
-    public static MapStatisticsCallerDao dao;
+    public static MapOutLinkDao dao;
 
     @BeforeAll
     public static void before() {
-        dao = new MapStatisticsCallerDao() {
+        dao = new MapOutLinkDao() {
 
             @Override
-            public LinkDataMap selectCaller(Application callerApplication, Range range, boolean timeAggregated) {
+            public LinkDataMap selectOutLink(Application outApplication, Range range, boolean timeAggregated) {
                 long timeStamp = 1409814914298L;
                 LinkDataMap linkDataMap = new LinkDataMap();
                 Application fromApplication = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
@@ -85,7 +85,7 @@ public class ErrorRateToCalleCheckerTest {
     @Test
     public void checkTest() {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
-        MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
+        MapOutLinkDataCollector dataCollector = new MapOutLinkDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
         Rule rule = new Rule(FROM_SERVICE_NAME, SERVICE_TYPE, CheckerCategory.ERROR_RATE_TO_CALLEE.getName(), 50, "testGroup", false, false, false, TO_SERVICE_NAME + 1);
         ErrorRateToCalleeChecker checker = new ErrorRateToCalleeChecker(dataCollector, rule);
 
@@ -96,7 +96,7 @@ public class ErrorRateToCalleCheckerTest {
     @Test
     public void checkTest2() {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
-        MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
+        MapOutLinkDataCollector dataCollector = new MapOutLinkDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
         Rule rule = new Rule(FROM_SERVICE_NAME, SERVICE_TYPE, CheckerCategory.ERROR_RATE_TO_CALLEE.getName(), 51, "testGroup", false, false, false, TO_SERVICE_NAME + 1);
         ErrorRateToCalleeChecker checker = new ErrorRateToCalleeChecker(dataCollector, rule);
 
@@ -107,7 +107,7 @@ public class ErrorRateToCalleCheckerTest {
     @Test
     public void checkTest3() {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
-        MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
+        MapOutLinkDataCollector dataCollector = new MapOutLinkDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
         Rule rule = new Rule(FROM_SERVICE_NAME, SERVICE_TYPE, CheckerCategory.ERROR_RATE_TO_CALLEE.getName(), 50, "testGroup", false, false, false, TO_SERVICE_NAME + 2);
         ErrorRateToCalleeChecker checker = new ErrorRateToCalleeChecker(dataCollector, rule);
 

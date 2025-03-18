@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.web.vo.Application;
  * @author netspider
  * 
  */
-public interface MapStatisticsCallerDao {
-   LinkDataMap selectCaller(Application callerApplication, Range range, boolean timeAggregated);
+public interface MapOutLinkDao {
+   LinkDataMap selectOutLink(Application outApplication, Range range, boolean timeAggregated);
 
 }

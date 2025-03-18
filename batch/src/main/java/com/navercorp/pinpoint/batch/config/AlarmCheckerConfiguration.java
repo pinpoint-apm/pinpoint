@@ -39,7 +39,7 @@ import com.navercorp.pinpoint.batch.alarm.checker.SystemCpuUsageRateChecker;
 import com.navercorp.pinpoint.batch.alarm.checker.TotalCountToCalleeChecker;
 import com.navercorp.pinpoint.batch.alarm.collector.AgentEventDataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
-import com.navercorp.pinpoint.batch.alarm.collector.MapStatisticsCallerDataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.MapOutLinkDataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.ResponseTimeDataCollector;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
@@ -167,7 +167,7 @@ public class AlarmCheckerConfiguration {
         return new AlarmCheckerFactory() {
             @Override
             public AlarmChecker<?> createChecker(DataCollector dataCollector, Rule rule) {
-                return new SlowCountToCalleeChecker((MapStatisticsCallerDataCollector) dataCollector, rule);
+                return new SlowCountToCalleeChecker((MapOutLinkDataCollector) dataCollector, rule);
             }
 
             @Override
@@ -199,7 +199,7 @@ public class AlarmCheckerConfiguration {
         return new AlarmCheckerFactory() {
             @Override
             public AlarmChecker<?> createChecker(DataCollector dataCollector, Rule rule) {
-                return new ErrorCountToCalleeChecker((MapStatisticsCallerDataCollector) dataCollector, rule);
+                return new ErrorCountToCalleeChecker((MapOutLinkDataCollector) dataCollector, rule);
             }
 
             @Override
@@ -230,7 +230,7 @@ public class AlarmCheckerConfiguration {
         return new AlarmCheckerFactory() {
             @Override
             public AlarmChecker<?> createChecker(DataCollector dataCollector, Rule rule) {
-                return new TotalCountToCalleeChecker((MapStatisticsCallerDataCollector) dataCollector, rule);
+                return new TotalCountToCalleeChecker((MapOutLinkDataCollector) dataCollector, rule);
             }
 
             @Override

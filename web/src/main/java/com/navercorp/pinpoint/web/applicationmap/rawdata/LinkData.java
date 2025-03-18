@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
 
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowFunction;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.Objects;
@@ -56,10 +56,10 @@ public class LinkData {
      * @param slot
      * @param count
      */
-    public void addLinkData(String callerAgentId, ServiceType callerServiceTypeCode, String hostname, ServiceType serviceTypeCode, long timestamp, short slot, long count) {
+    public void addLinkData(String outAgentId, ServiceType outServiceTypeCode, String hostname, ServiceType serviceTypeCode, long timestamp, short slot, long count) {
         Objects.requireNonNull(hostname, "hostname");
 
-        this.linkCallDataMap.addCallData(callerAgentId, callerServiceTypeCode, hostname, serviceTypeCode, timestamp, slot, count);
+        this.linkCallDataMap.addCallData(outAgentId, outServiceTypeCode, hostname, serviceTypeCode, timestamp, slot, count);
     }
 
     public void resetLinkData() {

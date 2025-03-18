@@ -23,16 +23,16 @@ import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapStatisticsCallerDao;
-import com.navercorp.pinpoint.web.applicationmap.dao.mapper.MapStatisticsTimeWindowReducer;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowDownSampler;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowFunction;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapOutLinkDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.mapper.LinkTimeWindowReducer;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.RowMapperFactory;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMapUtils;
 import com.navercorp.pinpoint.web.mapper.RowMapReduceResultExtractor;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowDownSampler;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowFunction;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
@@ -49,7 +49,7 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
+public class HbaseMapOutLinkDao implements MapOutLinkDao {
 
     private static final int MAP_STATISTICS_CALLEE_VER2_NUM_PARTITIONS = 32;
 
@@ -60,36 +60,36 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
     private final HbaseOperations hbaseTemplate;
     private final TableNameProvider tableNameProvider;
 
-    private final RowMapperFactory<LinkDataMap> callerMapperFactory;
+    private final RowMapperFactory<LinkDataMap> outMapperFactory;
 
     private final MapScanFactory scanFactory;
 
     private final RowKeyDistributorByHashPrefix rowKeyDistributor;
 
-    public HbaseMapStatisticsCallerDao(
+    public HbaseMapOutLinkDao(
             HbaseOperations hbaseTemplate,
             TableNameProvider tableNameProvider,
-            RowMapperFactory<LinkDataMap> callerMapperFactory,
+            RowMapperFactory<LinkDataMap> outMapperFactory,
             MapScanFactory scanFactory,
             RowKeyDistributorByHashPrefix rowKeyDistributor) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
-        this.callerMapperFactory = Objects.requireNonNull(callerMapperFactory, "callerMapperFactory");
+        this.outMapperFactory = Objects.requireNonNull(outMapperFactory, "outMapperFactory");
         this.scanFactory = Objects.requireNonNull(scanFactory, "scanFactory");
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
     }
 
     @Override
-    public LinkDataMap selectCaller(Application callerApplication, Range range, boolean timeAggregated) {
+    public LinkDataMap selectOutLink(Application outApplication, Range range, boolean timeAggregated) {
 
         final TimeWindow timeWindow = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
 
         TimeWindowFunction mapperWindow = newTimeWindow(timeAggregated);
-        RowMapper<LinkDataMap> rowMapper = this.callerMapperFactory.newMapper(mapperWindow);
+        RowMapper<LinkDataMap> rowMapper = this.outMapperFactory.newMapper(mapperWindow);
 
-        ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(rowMapper, new MapStatisticsTimeWindowReducer(timeWindow));
+        ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(rowMapper, new LinkTimeWindowReducer(timeWindow));
 
-        final Scan scan = scanFactory.createScan("MapCallerScan", callerApplication, range, DESCRIPTOR.getName());
+        final Scan scan = scanFactory.createScan("MapOutLinkScan", outApplication, range, DESCRIPTOR.getName());
         return selectOutLink(scan, DESCRIPTOR.getTable(), resultExtractor, MAP_STATISTICS_CALLEE_VER2_NUM_PARTITIONS);
     }
 
@@ -102,9 +102,11 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
 
     private LinkDataMap selectOutLink(Scan scan, HbaseTable table, ResultsExtractor<LinkDataMap> resultExtractor, int parallel) {
-        TableName calleeTableName = tableNameProvider.getTableName(table);
-        LinkDataMap linkDataMap = this.hbaseTemplate.findParallel(calleeTableName, scan, rowKeyDistributor, resultExtractor, parallel);
-        logger.debug("{} {} data: {}", LinkDirection.OUT_LINK, calleeTableName.getNameAsString(), linkDataMap);
+        TableName outLinkTableName = tableNameProvider.getTableName(table);
+        LinkDataMap linkDataMap = this.hbaseTemplate.findParallel(outLinkTableName, scan, rowKeyDistributor, resultExtractor, parallel);
+        if (logger.isDebugEnabled()) {
+            logger.debug("{} {} data: {}", LinkDirection.OUT_LINK, outLinkTableName.getNameAsString(), linkDataMap);
+        }
         if (LinkDataMapUtils.hasLength(linkDataMap)) {
             return linkDataMap;
         }

@@ -65,8 +65,8 @@ public class VirtualLinkHandler {
         } else {
             logger.info("unpopulated emulated nodes : {}", unpopulatedEmulatedNodes);
             for (Application unpopulatedEmulatedNode : unpopulatedEmulatedNodes) {
-                for (LinkData emulatedNodeCalleeLinkData : getEmulatedNodeCalleeLinkData(linkVisitChecker, unpopulatedEmulatedNode, range)) {
-                    linkDataDuplexMap.addTargetLinkData(emulatedNodeCalleeLinkData);
+                for (LinkData emulatedNodeInLinkData : getEmulatedNodeInLinkData(linkVisitChecker, unpopulatedEmulatedNode, range)) {
+                    linkDataDuplexMap.addTargetLinkData(emulatedNodeInLinkData);
                 }
             }
         }
@@ -86,28 +86,28 @@ public class VirtualLinkHandler {
         return new ArrayList<>(unpopulatedEmulatedNodes);
     }
 
-    private Collection<LinkData> getEmulatedNodeCalleeLinkData(LinkVisitChecker linkVisitChecker, Application emulatedNode, Range range) {
-        LinkDataMap calleeLinkDataMap = linkDataMapService.selectCalleeLinkDataMap(emulatedNode, range, false);
-        logger.debug("emulated node [{}] callee LinkDataMap:{}", emulatedNode, calleeLinkDataMap);
+    private Collection<LinkData> getEmulatedNodeInLinkData(LinkVisitChecker linkVisitChecker, Application emulatedNode, Range range) {
+        LinkDataMap inLinkDataMap = linkDataMapService.selectInLinkDataMap(emulatedNode, range, false);
+        logger.debug("emulated node [{}] in LinkDataMap:{}", emulatedNode, inLinkDataMap);
 
-        LinkDataMap filteredCalleeLinkDataMap = new LinkDataMap();
-        for (LinkData calleeLinkData : calleeLinkDataMap.getLinkDataList()) {
-            Application fromApplication = calleeLinkData.getFromApplication();
+        LinkDataMap filteredInLinkDataMap = new LinkDataMap();
+        for (LinkData inLinkData : inLinkDataMap.getLinkDataList()) {
+            Application fromApplication = inLinkData.getFromApplication();
             // filter callee link data from non-WAS nodes
             if (!fromApplication.getServiceType().isWas()) {
-                logger.trace("filtered {} as {} is not a WAS node", calleeLinkData, fromApplication);
+                logger.trace("filtered {} as {} is not a WAS node", inLinkData, fromApplication);
                 continue;
             }
             // filter callee link data from nodes that haven't been visited as we don't need them
             if (!linkVisitChecker.isVisitedOut(fromApplication)) {
-                logger.trace("filtered {} as {} is not in scope of the current server map", calleeLinkData, fromApplication);
+                logger.trace("filtered {} as {} is not in scope of the current server map", inLinkData, fromApplication);
                 continue;
             }
-            logger.debug("emulated node [{}] callee LinkData:{}", emulatedNode, calleeLinkData);
-            filteredCalleeLinkDataMap.addLinkData(calleeLinkData);
+            logger.debug("emulated node [{}] inLink LinkData:{}", emulatedNode, inLinkData);
+            filteredInLinkDataMap.addLinkData(inLinkData);
         }
-        logger.debug("emulated node [{}] filtered callee LinkDataMap:{}", emulatedNode, filteredCalleeLinkDataMap);
-        return filteredCalleeLinkDataMap.getLinkDataList();
+        logger.debug("emulated node [{}] filtered inLink LinkDataMap:{}", emulatedNode, filteredInLinkDataMap);
+        return filteredInLinkDataMap.getLinkDataList();
     }
 
     private void fillEmulationLink(LinkDataDuplexMap linkDataDuplexMap, Set<LinkData> emulationLinkMarker) {

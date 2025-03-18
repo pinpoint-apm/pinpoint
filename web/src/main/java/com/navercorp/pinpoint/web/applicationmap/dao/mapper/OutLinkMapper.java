@@ -21,11 +21,11 @@ import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowFunction;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowFunction;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.commons.lang3.StringUtils;
@@ -41,7 +41,7 @@ import java.util.Objects;
  *
  * @author netspider
  */
-public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
+public class OutLinkMapper implements RowMapper<LinkDataMap> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -54,10 +54,10 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
     private final TimeWindowFunction timeWindowFunction;
 
 
-    public MapStatisticsCallerMapper(ApplicationFactory applicationFactory,
-                                     RowKeyDistributorByHashPrefix rowKeyDistributor,
-                                     LinkFilter filter,
-                                     TimeWindowFunction timeWindowFunction) {
+    public OutLinkMapper(ApplicationFactory applicationFactory,
+                         RowKeyDistributorByHashPrefix rowKeyDistributor,
+                         LinkFilter filter,
+                         TimeWindowFunction timeWindowFunction) {
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
 
@@ -75,51 +75,52 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
         final byte[] rowKey = getOriginalKey(result.getRow());
 
         final Buffer row = new FixedBuffer(rowKey);
-        final Application out = readCallerApplication(row);
+        final Application outApplication = readOutApplication(row);
         final long timestamp = timeWindowFunction.refineTimestamp(TimeUtils.recoveryTimeMillis(row.readLong()));
 
         // key is destApplicationName.
         final LinkDataMap linkDataMap = new LinkDataMap();
         for (Cell cell : result.rawCells()) {
             final Buffer buffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
-            final Application callee = readOutApplication(buffer);
-            if (filter.filter(callee)) {
+            final Application inApplication = readInApplication(buffer);
+            if (filter.filter(inApplication)) {
                 continue;
             }
 
-            String calleeHost = buffer.readPrefixedString();
+            String inHost = buffer.readPrefixedString();
             short histogramSlot = buffer.readShort();
 
             boolean isError = histogramSlot == (short) -1;
 
-            String callerAgentId = buffer.readPrefixedString();
+            String outAgentId = buffer.readPrefixedString();
 
             long requestCount = CellUtils.valueToLong(cell);
             if (logger.isDebugEnabled()) {
-                logger.debug("    Fetched {}.(New) {} {} -> {} (slot:{}/{}) calleeHost:{}", LinkDirection.OUT_LINK, out, callerAgentId, callee, histogramSlot, requestCount, calleeHost);
+                logger.debug("    Fetched {}.(New) {} {} -> {} (slot:{}/{}) inHost:{}",
+                        LinkDirection.OUT_LINK, outApplication, outAgentId, inApplication, histogramSlot, requestCount, inHost);
             }
 
             final short slotTime = (isError) ? (short) -1 : histogramSlot;
-            if (StringUtils.isEmpty(calleeHost)) {
-                calleeHost = callee.getName();
+            if (StringUtils.isEmpty(inHost)) {
+                inHost = inApplication.getName();
             }
-            linkDataMap.addLinkData(out, callerAgentId, callee, calleeHost, timestamp, slotTime, requestCount);
+            linkDataMap.addLinkData(outApplication, outAgentId, inApplication, inHost, timestamp, slotTime, requestCount);
         }
 
         return linkDataMap;
     }
 
 
-    private Application readOutApplication(Buffer buffer) {
-        short calleeServiceType = buffer.readShort();
-        String calleeApplicationName = buffer.readPrefixedString();
-        return applicationFactory.createApplication(calleeApplicationName, calleeServiceType);
+    private Application readInApplication(Buffer buffer) {
+        short inServiceType = buffer.readShort();
+        String inApplicationName = buffer.readPrefixedString();
+        return applicationFactory.createApplication(inApplicationName, inServiceType);
     }
 
-    private Application readCallerApplication(Buffer row) {
-        String ApplicationName = row.read2PrefixedString();
-        short callerServiceType = row.readShort();
-        return this.applicationFactory.createApplication(ApplicationName, callerServiceType);
+    private Application readOutApplication(Buffer row) {
+        String applicationName = row.read2PrefixedString();
+        short outServiceType = row.readShort();
+        return this.applicationFactory.createApplication(applicationName, outServiceType);
     }
 
     private byte[] getOriginalKey(byte[] rowKey) {

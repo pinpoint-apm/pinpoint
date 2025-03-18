@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.batch.alarm.checker;
 
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
-import com.navercorp.pinpoint.batch.alarm.collector.MapStatisticsCallerDataCollector;
-import com.navercorp.pinpoint.batch.alarm.collector.MapStatisticsCallerDataCollector.DataCategory;
+import com.navercorp.pinpoint.batch.alarm.collector.MapOutLinkDataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.MapOutLinkDataCollector.DataCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 /**
@@ -33,7 +33,7 @@ public class SlowRateToCalleeChecker extends LongValueAlarmChecker {
     @Override
     protected Long getDetectedValue() {
         String calleName = rule.getNotes();
-        return ((MapStatisticsCallerDataCollector)dataCollector).getCountRate(calleName, DataCategory.SLOW_RATE);
+        return ((MapOutLinkDataCollector)dataCollector).getCountRate(calleName, DataCategory.SLOW_RATE);
     }
     
     @Override

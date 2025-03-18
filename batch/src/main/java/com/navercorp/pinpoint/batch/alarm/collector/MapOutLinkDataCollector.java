@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.batch.alarm.collector;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapStatisticsCallerDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
@@ -33,19 +33,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author minwoo.jung
  */
-public class MapStatisticsCallerDataCollector extends DataCollector {
+public class MapOutLinkDataCollector extends DataCollector {
 
     private final Application application;
-    private final MapStatisticsCallerDao mapStatisticsCallerDao;
+    private final MapOutLinkDao mapOutLinkDao;
     private final long timeSlotEndTime;
     private final long slotInterval;
-    private final Map<String, LinkCallData> calleeStatMap = new HashMap<>();
+    private final Map<String, LinkCallData> inLinkStatMap = new HashMap<>();
     private final AtomicBoolean init = new AtomicBoolean(false); // need to consider a trace condition when checkers start simultaneously.
 
-    public MapStatisticsCallerDataCollector(DataCollectorCategory category, Application application, MapStatisticsCallerDao mapStatisticsCallerDao, long timeSlotEndTime, long slotInterval) {
+    public MapOutLinkDataCollector(DataCollectorCategory category, Application application, MapOutLinkDao mapOutLinkDao, long timeSlotEndTime, long slotInterval) {
         super(category);
         this.application = application;
-        this.mapStatisticsCallerDao = mapStatisticsCallerDao;
+        this.mapOutLinkDao = mapOutLinkDao;
         this.timeSlotEndTime = timeSlotEndTime;
         this.slotInterval = slotInterval;
     }
@@ -56,21 +56,21 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
             return;
         }
 
-        LinkDataMap callerDataMap = mapStatisticsCallerDao.selectCaller(application, Range.between(timeSlotEndTime - slotInterval, timeSlotEndTime), false);
+        LinkDataMap outLinkDataMap = mapOutLinkDao.selectOutLink(application, Range.between(timeSlotEndTime - slotInterval, timeSlotEndTime), false);
 
-        for (LinkData linkData : callerDataMap.getLinkDataList()) {
+        for (LinkData linkData : outLinkDataMap.getLinkDataList()) {
             LinkCallDataMap linkCallDataMap = linkData.getLinkCallDataMap();
 
             for (LinkCallData linkCallData : linkCallDataMap.getLinkDataList()) {
-                calleeStatMap.put(linkCallData.getTarget().getName(), linkCallData);
+                inLinkStatMap.put(linkCallData.getTarget().getName(), linkCallData);
             }
         }
 
         init.set(true);
     }
 
-    public long getCount(String calleName, DataCategory dataCategory) {
-        final LinkCallData linkCallData = calleeStatMap.get(calleName);
+    public long getCount(String inLinkName, DataCategory dataCategory) {
+        final LinkCallData linkCallData = inLinkStatMap.get(inLinkName);
         if (linkCallData == null) {
             return 0;
         }
@@ -102,8 +102,8 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
 
     }
 
-    public long getCountRate(String calleName, DataCategory dataCategory) {
-        final LinkCallData linkCallData = calleeStatMap.get(calleName);
+    public long getCountRate(String inLinkName, DataCategory dataCategory) {
+        final LinkCallData linkCallData = inLinkStatMap.get(inLinkName);
         if (linkCallData == null) {
             return 0;
         }

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.batch.alarm;
 
 import com.navercorp.pinpoint.batch.alarm.collector.AgentEventDataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
-import com.navercorp.pinpoint.batch.alarm.collector.MapStatisticsCallerDataCollector;
+import com.navercorp.pinpoint.batch.alarm.collector.MapOutLinkDataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.ResponseTimeDataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.pinot.DataSourceDataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.pinot.FileDescriptorDataCollector;
@@ -28,8 +28,8 @@ import com.navercorp.pinpoint.batch.alarm.collector.pinot.SystemCpuDataCollector
 import com.navercorp.pinpoint.batch.alarm.dao.AlarmDao;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapStatisticsCallerDao;
 import com.navercorp.pinpoint.web.dao.AgentEventDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.springframework.stereotype.Component;
@@ -50,17 +50,17 @@ public class DataCollectorFactory {
 
     private final AgentEventDao agentEventDao;
 
-    private final MapStatisticsCallerDao callerDao;
+    private final MapOutLinkDao outLinkDao;
 
     private final AlarmDao alarmDao;
     
     public DataCollectorFactory(MapResponseDao mapResponseDao,
                                 AgentEventDao agentEventDao,
-                                MapStatisticsCallerDao callerDao,
+                                MapOutLinkDao outLinkDao,
                                 AlarmDao alarmDao) {
         this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
         this.agentEventDao = Objects.requireNonNull(agentEventDao, "agentEventDao");
-        this.callerDao = Objects.requireNonNull(callerDao, "callerDao");
+        this.outLinkDao = Objects.requireNonNull(outLinkDao, "outLinkDao");
         this.alarmDao = Objects.requireNonNull(alarmDao, "alarmDao");
     }
 
@@ -71,7 +71,7 @@ public class DataCollectorFactory {
             case AGENT_EVENT ->
                     new AgentEventDataCollector(DataCollectorCategory.AGENT_EVENT, agentEventDao, agentIds.get(), timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
             case CALLER_STAT ->
-                    new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, callerDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+                    new MapOutLinkDataCollector(DataCollectorCategory.CALLER_STAT, application, outLinkDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
             case DATA_SOURCE_STAT ->
                     new DataSourceDataCollector(DataCollectorCategory.DATA_SOURCE_STAT, alarmDao, application, agentIds.get(), timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
             case FILE_DESCRIPTOR ->

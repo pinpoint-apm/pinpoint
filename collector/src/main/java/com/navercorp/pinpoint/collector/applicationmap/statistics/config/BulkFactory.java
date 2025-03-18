@@ -93,7 +93,7 @@ public class BulkFactory {
     public BulkWriter outLinkBulkWriter(HbaseOperations hbaseTemplate,
                                         HbaseAsyncTemplate asyncTemplate,
                                         TableNameProvider tableNameProvider,
-                                        @Qualifier("statisticsCallerRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
+                                        @Qualifier("mapOutLinkRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
                                         @Qualifier("outLinkBulkIncrementer") BulkIncrementer bulkIncrementer,
                                         @Qualifier("outLinkBulkUpdater") BulkUpdater bulkUpdater) {
         String loggerName = newBulkWriterName(HbaseMapOutLinkDao.class.getName());
@@ -121,7 +121,7 @@ public class BulkFactory {
     public BulkWriter inLinkBulkWriter(HbaseOperations hbaseTemplate,
                                        HbaseAsyncTemplate asyncTemplate,
                                        TableNameProvider tableNameProvider,
-                                       @Qualifier("statisticsCalleeRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
+                                       @Qualifier("mapInLinkRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
                                        @Qualifier("inLinkBulkIncrementer") BulkIncrementer bulkIncrementer,
                                        @Qualifier("inLinkBulkUpdater") BulkUpdater bulkUpdater) {
         String loggerName = newBulkWriterName(HbaseMapInLinkDao.class.getName());
@@ -147,7 +147,7 @@ public class BulkFactory {
     public BulkWriter selfBulkWriter(HbaseOperations hbaseTemplate,
                                      HbaseAsyncTemplate asyncTemplate,
                                      TableNameProvider tableNameProvider,
-                                     @Qualifier("statisticsSelfRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
+                                     @Qualifier("mapSelfRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
                                      @Qualifier("selfBulkIncrementer") BulkIncrementer bulkIncrementer,
                                      @Qualifier("selfBulkUpdater") BulkUpdater bulkUpdater) {
         String loggerName = newBulkWriterName(HbaseMapResponseTimeDao.class.getName());
