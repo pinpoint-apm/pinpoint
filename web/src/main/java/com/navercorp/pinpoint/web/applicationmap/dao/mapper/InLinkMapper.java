@@ -21,13 +21,13 @@ import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowFunction;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.commons.lang3.StringUtils;
@@ -45,7 +45,7 @@ import java.util.Objects;
  * @author netspider
  * 
  */
-public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
+public class InLinkMapper implements RowMapper<LinkDataMap> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -61,11 +61,11 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
     private final TimeWindowFunction timeWindowFunction;
 
 
-    public MapStatisticsCalleeMapper(ServiceTypeRegistryService registry,
-                                     ApplicationFactory applicationFactory,
-                                     RowKeyDistributorByHashPrefix rowKeyDistributor,
-                                     LinkFilter filter,
-                                     TimeWindowFunction timeWindowFunction) {
+    public InLinkMapper(ServiceTypeRegistryService registry,
+                        ApplicationFactory applicationFactory,
+                        RowKeyDistributorByHashPrefix rowKeyDistributor,
+                        LinkFilter filter,
+                        TimeWindowFunction timeWindowFunction) {
         this.registry = Objects.requireNonNull(registry, "registry");
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
@@ -84,14 +84,14 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
         final byte[] rowKey = getOriginalKey(result.getRow());
 
         final Buffer row = new FixedBuffer(rowKey);
-        final Application calleeApplication = readCalleeApplication(row);
+        final Application inApplication = readInApplication(row);
         final long timestamp = timeWindowFunction.refineTimestamp(TimeUtils.recoveryTimeMillis(row.readLong()));
 
         final LinkDataMap linkDataMap = new LinkDataMap(timeWindowFunction);
         for (Cell cell : result.rawCells()) {
 
             final byte[] qualifier = CellUtil.cloneQualifier(cell);
-            final Application in = readInApplication(qualifier, calleeApplication.getServiceType());
+            final Application in = readOutApplication(qualifier, inApplication.getServiceType());
             if (filter.filter(in)) {
                 continue;
             }
@@ -99,21 +99,22 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
             long requestCount = CellUtils.valueToLong(cell);
             short histogramSlot = ApplicationMapStatisticsUtils.getHistogramSlotFromColumnName(qualifier);
 
-            String callerHost = ApplicationMapStatisticsUtils.getHost(qualifier);
-            // There may be no callerHost for virtual queue nodes from user-defined entry points.
-            // Terminal nodes, such as httpclient will not have callerHost set as well, but since they're terminal
+            String outHost = ApplicationMapStatisticsUtils.getHost(qualifier);
+            // There may be no outHost for virtual queue nodes from user-defined entry points.
+            // Terminal nodes, such as httpclient will not have outHost set as well, but since they're terminal
             // nodes, they would not have reached here in the first place.
-            if (calleeApplication.getServiceType().isQueue()) {
-                callerHost = StringUtils.defaultString(callerHost);
+            if (inApplication.getServiceType().isQueue()) {
+                outHost = StringUtils.defaultString(outHost);
             }
             boolean isError = histogramSlot == (short) -1;
 
             if (logger.isDebugEnabled()) {
-                logger.debug("    Fetched {}. {} callerHost:{} -> {} (slot:{}/{}),  ", LinkDirection.IN_LINK, in, callerHost, calleeApplication, histogramSlot, requestCount);
+                logger.debug("    Fetched {}. {} outHost:{} -> {} (slot:{}/{}),  ",
+                        LinkDirection.IN_LINK, in, outHost, inApplication, histogramSlot, requestCount);
             }
 
             final short slotTime = (isError) ? (short) -1 : histogramSlot;
-            linkDataMap.addLinkData(in, in.getName(), calleeApplication, callerHost, timestamp, slotTime, requestCount);
+            linkDataMap.addLinkData(in, in.getName(), inApplication, outHost, timestamp, slotTime, requestCount);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("    Fetched {}. statistics:{}", LinkDirection.IN_LINK, linkDataMap);
@@ -123,24 +124,24 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
         return linkDataMap;
     }
 
-    private Application readInApplication(byte[] qualifier, ServiceType calleeServiceType) {
-        short callerServiceType = ApplicationMapStatisticsUtils.getDestServiceTypeFromColumnName(qualifier);
+    private Application readOutApplication(byte[] qualifier, ServiceType outServiceType) {
+        short outServiceTypeCode = ApplicationMapStatisticsUtils.getDestServiceTypeFromColumnName(qualifier);
         // Caller may be a user node, and user nodes may call nodes with the same application name but different service type.
         // To distinguish between these user nodes, append callee's service type to the application name.
-        String callerApplicationName;
-        if (registry.findServiceType(callerServiceType).isUser()) {
-            callerApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnNameForUser(qualifier, calleeServiceType);
+        String outApplicationName;
+        if (registry.findServiceType(outServiceTypeCode).isUser()) {
+            outApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnNameForUser(qualifier, outServiceType);
         } else {
-            callerApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
+            outApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
         }
-        return this.applicationFactory.createApplication(callerApplicationName, callerServiceType);
+        return this.applicationFactory.createApplication(outApplicationName, outServiceTypeCode);
     }
 
-    private Application readCalleeApplication(Buffer row) {
-        String calleeApplicationName = row.read2PrefixedString();
-        short calleeServiceType = row.readShort();
+    private Application readInApplication(Buffer row) {
+        String inApplicationName = row.read2PrefixedString();
+        short inServiceType = row.readShort();
 
-        return this.applicationFactory.createApplication(calleeApplicationName, calleeServiceType);
+        return this.applicationFactory.createApplication(inApplicationName, inServiceType);
     }
 
     private byte[] getOriginalKey(byte[] rowKey) {

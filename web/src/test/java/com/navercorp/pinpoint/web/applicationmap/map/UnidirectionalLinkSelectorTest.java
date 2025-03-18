@@ -76,7 +76,7 @@ public class UnidirectionalLinkSelectorTest extends LinkSelectorTestBase {
         LinkDataMap link_OUT_IN_to_OUT = new LinkDataMap();
         link_OUT_IN_to_OUT.addLinkData(APP_OUT_IN, "agentOutIn", APP_OUT, "agentOut", 1000, ServiceType.STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount);
 
-        when(linkDataMapService.selectCallerLinkDataMap(any(Application.class), any(Range.class), anyBoolean())).thenAnswer(new Answer<LinkDataMap>() {
+        when(linkDataMapService.selectOutLinkDataMap(any(Application.class), any(Range.class), anyBoolean())).thenAnswer(new Answer<LinkDataMap>() {
             @Override
             public LinkDataMap answer(InvocationOnMock invocation) throws Throwable {
                 Application callerApplication = invocation.getArgument(0);
@@ -97,7 +97,7 @@ public class UnidirectionalLinkSelectorTest extends LinkSelectorTestBase {
                 return newEmptyLinkDataMap();
             }
         });
-        when(linkDataMapService.selectCalleeLinkDataMap(any(Application.class), any(Range.class), anyBoolean())).thenAnswer(new Answer<LinkDataMap>() {
+        when(linkDataMapService.selectInLinkDataMap(any(Application.class), any(Range.class), anyBoolean())).thenAnswer(new Answer<LinkDataMap>() {
             @Override
             public LinkDataMap answer(InvocationOnMock invocation) throws Throwable {
                 Application calleeApplication = invocation.getArgument(0);

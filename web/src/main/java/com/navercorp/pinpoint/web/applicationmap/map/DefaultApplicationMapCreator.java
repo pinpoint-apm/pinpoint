@@ -57,7 +57,7 @@ public class DefaultApplicationMapCreator implements ApplicationMapCreator {
         LinkDataDuplexMap searchResult = new LinkDataDuplexMap();
 
         if (linkSelectContext.checkNextOut(application)) {
-            final LinkDataMap outLinkDataMap = linkDataMapService.selectCallerLinkDataMap(application, range, linkSelectContext.isTimeAggregated());
+            final LinkDataMap outLinkDataMap = linkDataMapService.selectOutLinkDataMap(application, range, linkSelectContext.isTimeAggregated());
             logger.debug("Found {}. node={}, depth={}, count={}", LinkDirection.OUT_LINK, application, linkSelectContext.getOutDepth(), outLinkDataMap.size());
 
             final LinkDataMap processedOutLinkDataMap = outLinkDataMapProcessor.processLinkDataMap(LinkDirection.OUT_LINK, outLinkDataMap, range);
@@ -75,7 +75,7 @@ public class DefaultApplicationMapCreator implements ApplicationMapCreator {
         }
 
         if (linkSelectContext.checkNextIn(application)) {
-            final LinkDataMap inLinkDataMap = linkDataMapService.selectCalleeLinkDataMap(application, range, linkSelectContext.isTimeAggregated());
+            final LinkDataMap inLinkDataMap = linkDataMapService.selectInLinkDataMap(application, range, linkSelectContext.isTimeAggregated());
             logger.debug("Found {}. node={}, depth={}, count={}", LinkDirection.IN_LINK, application, linkSelectContext.getInDepth(), inLinkDataMap.size());
 
             final LinkDataMap processedInLinkDataMap = inLinkDataMapProcessor.processLinkDataMap(LinkDirection.IN_LINK, inLinkDataMap, range);

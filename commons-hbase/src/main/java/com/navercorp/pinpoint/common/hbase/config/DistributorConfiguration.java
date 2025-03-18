@@ -63,19 +63,19 @@ public class DistributorConfiguration {
     }
 
     @Bean
-    public RowKeyDistributorByHashPrefix statisticsCalleeRowKeyDistributor() {
+    public RowKeyDistributorByHashPrefix mapInLinkRowKeyDistributor() {
         RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 36, 32);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
     @Bean
-    public RowKeyDistributorByHashPrefix statisticsCallerRowKeyDistributor() {
+    public RowKeyDistributorByHashPrefix mapOutLinkRowKeyDistributor() {
         RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 36, 32);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
     @Bean
-    public RowKeyDistributorByHashPrefix statisticsSelfRowKeyDistributor() {
+    public RowKeyDistributorByHashPrefix mapSelfRowKeyDistributor() {
         RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 32, 8);
         return new RowKeyDistributorByHashPrefix(hasher);
     }

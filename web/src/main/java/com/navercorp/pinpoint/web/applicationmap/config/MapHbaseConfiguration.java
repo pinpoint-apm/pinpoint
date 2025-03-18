@@ -32,12 +32,12 @@ import com.navercorp.pinpoint.common.hbase.scan.ResultScannerFactory;
 import com.navercorp.pinpoint.common.hbase.util.ScanMetricReporter;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapInLinkDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapStatisticsCalleeDao;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapStatisticsCallerDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapInLinkDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapOutLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapResponseTimeDao;
-import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapStatisticsCalleeDao;
-import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapStatisticsCallerDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.MapScanFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.RowMapperFactory;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
@@ -107,7 +107,7 @@ public class MapHbaseConfiguration {
 
     @Bean
     public HbaseAsyncTemplate mapHbaseAsyncTemplate(@Qualifier("mapHbaseAsyncTableFactory")
-                                                        AsyncTableFactory tableFactory,
+                                                    AsyncTableFactory tableFactory,
                                                     ScanMetricReporter scanMetricReporter,
                                                     ResultScannerFactory resultScannerFactory) {
         return config.asyncTemplate(tableFactory, scanMetricReporter, resultScannerFactory);
@@ -130,39 +130,39 @@ public class MapHbaseConfiguration {
     }
 
     @Bean
-    public MapResponseDao hbaseMapResponseTimeDao(@Qualifier("mapHbaseTemplate")
+    public MapResponseDao mapResponseDao(@Qualifier("mapHbaseTemplate")
                                                   HbaseTemplate hbaseTemplate,
-                                                  TableNameProvider tableNameProvider,
-                                                  @Qualifier("responseTimeMapper")
+                                         TableNameProvider tableNameProvider,
+                                         @Qualifier("responseTimeMapper")
                                                   RowMapper<ResponseTime> responseTimeMapper,
-                                                  MapScanFactory mapScanFactory,
-                                                  @Qualifier("statisticsSelfRowKeyDistributor")
+                                         MapScanFactory mapScanFactory,
+                                         @Qualifier("mapSelfRowKeyDistributor")
                                                   RowKeyDistributorByHashPrefix rowKeyDistributor) {
         return new HbaseMapResponseTimeDao(hbaseTemplate, tableNameProvider, responseTimeMapper, mapScanFactory, rowKeyDistributor);
     }
 
     @Bean
-    public MapStatisticsCalleeDao hbaseMapStatisticsCalleeDao(@Qualifier("mapHbaseTemplate")
-                                                              HbaseTemplate hbaseTemplate,
-                                                              TableNameProvider tableNameProvider,
-                                                              @Qualifier("mapCalleeMapper")
-                                                              RowMapperFactory<LinkDataMap> calleeMapper,
-                                                              MapScanFactory mapScanFactory,
-                                                              @Qualifier("statisticsCalleeRowKeyDistributor")
-                                                              RowKeyDistributorByHashPrefix rowKeyDistributor) {
-        return new HbaseMapStatisticsCalleeDao(hbaseTemplate, tableNameProvider, calleeMapper, mapScanFactory, rowKeyDistributor);
+    public MapInLinkDao mapInLinkDao(@Qualifier("mapHbaseTemplate")
+                                     HbaseTemplate hbaseTemplate,
+                                     TableNameProvider tableNameProvider,
+                                     @Qualifier("mapInLinkMapper")
+                                     RowMapperFactory<LinkDataMap> inLinkMapper,
+                                     MapScanFactory mapScanFactory,
+                                     @Qualifier("mapInLinkRowKeyDistributor")
+                                     RowKeyDistributorByHashPrefix rowKeyDistributor) {
+        return new HbaseMapInLinkDao(hbaseTemplate, tableNameProvider, inLinkMapper, mapScanFactory, rowKeyDistributor);
     }
 
     @Bean
-    public MapStatisticsCallerDao hbaseMapStatisticsCallerDao(@Qualifier("mapHbaseTemplate")
-                                                              HbaseTemplate hbaseTemplate,
-                                                              TableNameProvider tableNameProvider,
-                                                              @Qualifier("mapCallerMapper")
-                                                              RowMapperFactory<LinkDataMap> callerMapper,
-                                                              MapScanFactory mapScanFactory,
-                                                              @Qualifier("statisticsCallerRowKeyDistributor")
-                                                              RowKeyDistributorByHashPrefix rowKeyDistributor) {
-        return new HbaseMapStatisticsCallerDao(hbaseTemplate, tableNameProvider, callerMapper, mapScanFactory, rowKeyDistributor);
+    public MapOutLinkDao mapOutLinkDao(@Qualifier("mapHbaseTemplate")
+                                       HbaseTemplate hbaseTemplate,
+                                       TableNameProvider tableNameProvider,
+                                       @Qualifier("mapOutLinkMapper")
+                                       RowMapperFactory<LinkDataMap> outLinkMapper,
+                                       MapScanFactory mapScanFactory,
+                                       @Qualifier("mapOutLinkRowKeyDistributor")
+                                       RowKeyDistributorByHashPrefix rowKeyDistributor) {
+        return new HbaseMapOutLinkDao(hbaseTemplate, tableNameProvider, outLinkMapper, mapScanFactory, rowKeyDistributor);
     }
 }
 

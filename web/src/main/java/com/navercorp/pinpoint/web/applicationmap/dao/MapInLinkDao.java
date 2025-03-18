@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.web.vo.Application;
  * @author netspider
  * 
  */
-public interface MapStatisticsCalleeDao {
-    LinkDataMap selectCallee(Application calleeApplication, Range range, boolean timeAggregated);
+public interface MapInLinkDao {
+    LinkDataMap selectInLink(Application inApplication, Range range, boolean timeAggregated);
 
 }
