@@ -99,6 +99,10 @@
             <artifactId>pinpoint-batch-alarmsender</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-pinot-datasource</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>

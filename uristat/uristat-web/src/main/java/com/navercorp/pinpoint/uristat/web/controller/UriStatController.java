@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
-import com.navercorp.pinpoint.metric.web.util.TimePrecision;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import com.navercorp.pinpoint.uristat.web.chart.UriStatChartType;
 import com.navercorp.pinpoint.uristat.web.chart.UriStatChartTypeFactory;

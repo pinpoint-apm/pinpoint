@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
 import com.navercorp.pinpoint.metric.common.model.Tag;
-import com.navercorp.pinpoint.metric.web.util.TimePrecision;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
 
 import java.util.Collections;
 import java.util.List;

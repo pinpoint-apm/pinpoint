@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionDetailView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionGroupSummaryView;
-import com.navercorp.pinpoint.metric.web.util.TimePrecision;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;

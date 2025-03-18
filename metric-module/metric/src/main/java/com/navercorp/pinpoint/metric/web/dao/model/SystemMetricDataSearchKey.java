@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
-import com.navercorp.pinpoint.metric.web.util.TimePrecision;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
 
 import java.util.List;
 import java.util.Objects;
