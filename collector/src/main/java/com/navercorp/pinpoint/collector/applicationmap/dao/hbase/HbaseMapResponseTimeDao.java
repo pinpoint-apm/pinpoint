@@ -103,7 +103,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
         final RowKey selfRowKey = LinkRowKey.of(applicationName, applicationServiceType, rowTimeSlot);
 
-        final short slotNumber = ApplicationMapStatisticsUtils.getPingSlotNumber(applicationServiceType, elapsed, isError);
+        final short slotNumber = ApplicationMapStatisticsUtils.getPingSlotNumber(applicationServiceType);
         final ColumnName selfColumnName = new ResponseColumnName(agentId, slotNumber);
         this.bulkWriter.increment(selfRowKey, selfColumnName);
     }

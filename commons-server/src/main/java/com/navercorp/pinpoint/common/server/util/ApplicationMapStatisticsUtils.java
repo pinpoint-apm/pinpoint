@@ -56,11 +56,20 @@ public class ApplicationMapStatisticsUtils {
     }
 
     public static short getSlotNumber(ServiceType serviceType, int elapsed, boolean isError) {
-        return findResponseHistogramSlotNo(serviceType, elapsed, isError, false);
+        return findResponseHistogramSlotNo(serviceType, elapsed, isError);
     }
 
+    /**
+     * @deprecated Since 3.1.0. Use {@link #getPingSlotNumber(ServiceType)} instead.
+     */
+    @Deprecated
     public static short getPingSlotNumber(ServiceType serviceType, int elapsed, boolean isError) {
-        return findResponseHistogramSlotNo(serviceType, elapsed, isError, true);
+        return getPingSlotNumber(serviceType);
+    }
+
+    public static short getPingSlotNumber(ServiceType serviceType) {
+        final HistogramSchema histogramSchema = serviceType.getHistogramSchema();
+        return histogramSchema.getPingSlot().getSlotTime();
     }
 
     public static byte[] makeColumnName(String agentId, short columnSlotNumber) {
@@ -78,13 +87,10 @@ public class ApplicationMapStatisticsUtils {
     }
 
 
-    private static short findResponseHistogramSlotNo(ServiceType serviceType, int elapsed, boolean isError, boolean isPing) {
+    private static short findResponseHistogramSlotNo(ServiceType serviceType, int elapsed, boolean isError) {
         Objects.requireNonNull(serviceType, "serviceType");
 
         final HistogramSchema histogramSchema = serviceType.getHistogramSchema();
-        if (isPing) {
-            return histogramSchema.getPingSlot().getSlotTime();
-        }
         final HistogramSlot histogramSlot = histogramSchema.findHistogramSlot(elapsed, isError);
         return histogramSlot.getSlotTime();
     }
