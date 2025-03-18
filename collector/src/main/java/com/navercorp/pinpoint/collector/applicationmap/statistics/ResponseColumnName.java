@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.Objects;
 
@@ -27,6 +28,20 @@ public class ResponseColumnName implements ColumnName {
 
     private final String agentId;
     private final short columnSlotNumber;
+
+    public static ColumnName histogram(String agentId, short columnSlotNumber) {
+        return new ResponseColumnName(agentId, columnSlotNumber);
+    }
+
+    public static ColumnName sum(String agentId, ServiceType serviceType) {
+        short slotTime = serviceType.getHistogramSchema().getSumStatSlot().getSlotTime();
+        return new ResponseColumnName(agentId, slotTime);
+    }
+
+    public static ColumnName max(String agentId, ServiceType serviceType) {
+        short slotTime = serviceType.getHistogramSchema().getMaxStatSlot().getSlotTime();
+        return new ResponseColumnName(agentId, slotTime);
+    }
 
     public ResponseColumnName(String agentId, short columnSlotNumber) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");

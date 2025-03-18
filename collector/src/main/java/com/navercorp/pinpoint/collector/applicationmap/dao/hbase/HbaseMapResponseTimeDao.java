@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.collector.applicationmap.statistics.ResponseColumn
 import com.navercorp.pinpoint.collector.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
-import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -75,17 +74,16 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         final RowKey selfRowKey = LinkRowKey.of(applicationName, applicationServiceType, rowTimeSlot);
 
         final short slotNumber = ApplicationMapStatisticsUtils.getSlotNumber(applicationServiceType, elapsed, isError);
-        final ColumnName selfColumnName = new ResponseColumnName(agentId, slotNumber);
+        final ColumnName selfColumnName = ResponseColumnName.histogram(agentId, slotNumber);
         this.bulkWriter.increment(selfRowKey, selfColumnName);
 
-        HistogramSchema histogramSchema = applicationServiceType.getHistogramSchema();
         if (mapLinkConfiguration.isEnableAvg()) {
-            final ColumnName sumColumnName = new ResponseColumnName(agentId, histogramSchema.getSumStatSlot().getSlotTime());
+            final ColumnName sumColumnName = ResponseColumnName.sum(agentId, applicationServiceType);
             this.bulkWriter.increment(selfRowKey, sumColumnName, elapsed);
         }
 
-        final ColumnName maxColumnName = new ResponseColumnName(agentId, histogramSchema.getMaxStatSlot().getSlotTime());
         if (mapLinkConfiguration.isEnableMax()) {
+            final ColumnName maxColumnName = ResponseColumnName.max(agentId, applicationServiceType);
             this.bulkWriter.updateMax(selfRowKey, maxColumnName, elapsed);
         }
     }
@@ -104,7 +102,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         final RowKey selfRowKey = LinkRowKey.of(applicationName, applicationServiceType, rowTimeSlot);
 
         final short slotNumber = ApplicationMapStatisticsUtils.getPingSlotNumber(applicationServiceType);
-        final ColumnName selfColumnName = new ResponseColumnName(agentId, slotNumber);
+        final ColumnName selfColumnName = ResponseColumnName.histogram(agentId, slotNumber);
         this.bulkWriter.increment(selfRowKey, selfColumnName);
     }
 
