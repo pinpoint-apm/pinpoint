@@ -47,7 +47,6 @@ public class HeapDataCollector extends DataCollector implements HeapDataGetter {
 
     public HeapDataCollector(DataCollectorCategory dataCollectorCategory, AlarmDao alarmDao, Application application, long timeSlotEndTime, long slotInterval) {
         super(dataCollectorCategory);
-        Objects.requireNonNull(dataCollectorCategory, "dataCollectorCategory");
         this.alarmDao = Objects.requireNonNull(alarmDao, "alarmDao");
         this.application = Objects.requireNonNull(application, "application");
         this.timeSlotEndTime = timeSlotEndTime;

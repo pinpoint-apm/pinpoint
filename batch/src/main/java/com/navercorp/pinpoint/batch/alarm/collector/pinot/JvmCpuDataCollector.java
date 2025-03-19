@@ -46,7 +46,6 @@ public class JvmCpuDataCollector extends DataCollector implements JvmCpuDataGett
 
     public JvmCpuDataCollector(DataCollectorCategory dataCollectorCategory, AlarmDao alarmDao, Application application, long timeSlotEndTime, long slotInterval) {
         super(dataCollectorCategory);
-        Objects.requireNonNull(dataCollectorCategory, "dataCollectorCategory");
         this.alarmDao = Objects.requireNonNull(alarmDao, "alarmDao");
         this.application = Objects.requireNonNull(application, "application");
         this.timeSlotEndTime = timeSlotEndTime;

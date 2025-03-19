@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.web.vo.ResponseTime;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -46,10 +47,13 @@ public class ResponseTimeDataCollector extends DataCollector {
     private long slowRate = 0;
     private long errorRate = 0;
 
-    public ResponseTimeDataCollector(DataCollectorCategory category, Application application, MapResponseDao responseDAO, long timeSlotEndTime, long slotInterval) {
+    public ResponseTimeDataCollector(DataCollectorCategory category,
+                                     Application application,
+                                     MapResponseDao responseDao,
+                                     long timeSlotEndTime, long slotInterval) {
         super(category);
-        this.application = application;
-        this.responseDao = responseDAO;
+        this.application = Objects.requireNonNull(application, "application");
+        this.responseDao = Objects.requireNonNull(responseDao, "responseDao");
         this.timeSlotEndTime = timeSlotEndTime;
         this.slotInterval = slotInterval;
     }

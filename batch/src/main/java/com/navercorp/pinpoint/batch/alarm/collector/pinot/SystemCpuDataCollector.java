@@ -44,7 +44,6 @@ public class SystemCpuDataCollector extends DataCollector implements SystemCpuDa
 
     public SystemCpuDataCollector(DataCollectorCategory dataCollectorCategory, AlarmDao alarmDao, Application application, long timeSlotEndTime, long slotInterval) {
         super(dataCollectorCategory);
-        Objects.requireNonNull(dataCollectorCategory, "dataCollectorCategory");
         this.alarmDao = Objects.requireNonNull(alarmDao, "alarmDao");
         this.application = Objects.requireNonNull(application, "application");
         this.timeSlotEndTime = timeSlotEndTime;

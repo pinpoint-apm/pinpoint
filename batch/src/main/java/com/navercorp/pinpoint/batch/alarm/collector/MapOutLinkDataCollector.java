@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -42,10 +43,12 @@ public class MapOutLinkDataCollector extends DataCollector {
     private final Map<String, LinkCallData> inLinkStatMap = new HashMap<>();
     private final AtomicBoolean init = new AtomicBoolean(false); // need to consider a trace condition when checkers start simultaneously.
 
-    public MapOutLinkDataCollector(DataCollectorCategory category, Application application, MapOutLinkDao mapOutLinkDao, long timeSlotEndTime, long slotInterval) {
+    public MapOutLinkDataCollector(DataCollectorCategory category,
+                                   Application application,
+                                   MapOutLinkDao mapOutLinkDao, long timeSlotEndTime, long slotInterval) {
         super(category);
-        this.application = application;
-        this.mapOutLinkDao = mapOutLinkDao;
+        this.application = Objects.requireNonNull(application, "application");
+        this.mapOutLinkDao = Objects.requireNonNull(mapOutLinkDao, "mapOutLinkDao");
         this.timeSlotEndTime = timeSlotEndTime;
         this.slotInterval = slotInterval;
     }
@@ -56,7 +59,8 @@ public class MapOutLinkDataCollector extends DataCollector {
             return;
         }
 
-        LinkDataMap outLinkDataMap = mapOutLinkDao.selectOutLink(application, Range.between(timeSlotEndTime - slotInterval, timeSlotEndTime), false);
+        Range between = Range.between(timeSlotEndTime - slotInterval, timeSlotEndTime);
+        LinkDataMap outLinkDataMap = mapOutLinkDao.selectOutLink(application, between, false);
 
         for (LinkData linkData : outLinkDataMap.getLinkDataList()) {
             LinkCallDataMap linkCallDataMap = linkData.getLinkCallDataMap();
