@@ -96,15 +96,6 @@ public class TransactionInfoViewModel {
         return recordSet.getAgentName();
     }
 
-    /**
-     * @deprecated Since 3.1.0. Use {@link #getApplicationName()} instead.
-     */
-    @Deprecated
-    @JsonProperty("applicationId")
-    public String getApplicationId() {
-        return getApplicationName();
-    }
-
     @JsonProperty("applicationName")
     public String getApplicationName() {
         return recordSet.getApplicationName();
