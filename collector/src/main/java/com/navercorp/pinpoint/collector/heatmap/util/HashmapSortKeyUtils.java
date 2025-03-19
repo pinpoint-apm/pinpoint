@@ -14,13 +14,26 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.heatmap.dao;
-
-import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapStat;
+package com.navercorp.pinpoint.collector.heatmap.util;
 
 /**
  * @author minwoo-jung
  */
-public interface HeatmapDao {
-    void insert(HeatmapStat heatmapStat);
+public class HashmapSortKeyUtils {
+
+    private static String generateKeySuccessKey(String applicationName) {
+        return applicationName + "#suc";
+    }
+
+    private static String generateFailKey(String applicationName) {
+        return applicationName + "#fal";
+    }
+
+    public static String generateKey(String applicationName, boolean isSuccess) {
+        if (isSuccess) {
+            return generateKeySuccessKey(applicationName);
+        } else {
+            return generateFailKey(applicationName);
+        }
+    }
 }
