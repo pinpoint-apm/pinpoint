@@ -90,8 +90,6 @@ public class OutLinkMapper implements RowMapper<LinkDataMap> {
             String inHost = buffer.readPrefixedString();
             short histogramSlot = buffer.readShort();
 
-            boolean isError = histogramSlot == (short) -1;
-
             String outAgentId = buffer.readPrefixedString();
 
             long requestCount = CellUtils.valueToLong(cell);
@@ -100,11 +98,10 @@ public class OutLinkMapper implements RowMapper<LinkDataMap> {
                         LinkDirection.OUT_LINK, outApplication, outAgentId, inApplication, histogramSlot, requestCount, inHost);
             }
 
-            final short slotTime = (isError) ? (short) -1 : histogramSlot;
             if (StringUtils.isEmpty(inHost)) {
                 inHost = inApplication.getName();
             }
-            linkDataMap.addLinkData(outApplication, outAgentId, inApplication, inHost, timestamp, slotTime, requestCount);
+            linkDataMap.addLinkData(outApplication, outAgentId, inApplication, inHost, timestamp, histogramSlot, requestCount);
         }
 
         return linkDataMap;
