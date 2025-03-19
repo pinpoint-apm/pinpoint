@@ -54,7 +54,6 @@ public class AgentEventDataCollector extends DataCollector {
             long slotInterval
     ) {
         super(dataCollectorCategory);
-
         this.agentEventDao = agentEventDao;
         this.agentIds = agentIds;
         this.timeSlotEndTime = timeSlotEndTime;

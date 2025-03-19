@@ -44,7 +44,6 @@ public class FileDescriptorDataCollector extends DataCollector implements FileDe
 
     public FileDescriptorDataCollector(DataCollectorCategory dataCollectorCategory, AlarmDao alarmDao, Application application, long timeSlotEndTime, long slotInterval) {
         super(dataCollectorCategory);
-        Objects.requireNonNull(dataCollectorCategory, "dataCollectorCategory");
         this.alarmDao = Objects.requireNonNull(alarmDao, "alarmDao");
         this.application = Objects.requireNonNull(application, "application");
         this.timeSlotEndTime = timeSlotEndTime;

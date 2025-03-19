@@ -63,7 +63,6 @@ public class DataSourceDataCollector extends DataCollector implements DataSource
 
     public DataSourceDataCollector(DataCollectorCategory dataCollectorCategory, AlarmDao alarmDao, Application application, List<String> agentIds, long timeSlotEndTime, long slotInterval) {
         super(dataCollectorCategory);
-        Objects.requireNonNull(dataCollectorCategory, "dataCollectorCategory");
         this.alarmDao = Objects.requireNonNull(alarmDao, "alarmDao");
         this.application = Objects.requireNonNull(application, "application");
         this.agentIds = Objects.requireNonNull(agentIds, "agentIds");
