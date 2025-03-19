@@ -29,15 +29,15 @@ public class HeatmapStat {
     private final String applicationName;
     private final String agentId;
     private final String sortKey;
-    private final long startTime;
-    private final int elapsed;
+    private final long eventTime;
+    private final int elapsedTime;
     private final Boolean isSuccess;
 
-    public HeatmapStat(String applicationName, String agentId, long startTime, int elapsed, int errCode) {
+    public HeatmapStat(String applicationName, String agentId, long eventTime, int elapsedTime, int errCode) {
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
-        this.startTime = startTime;
-        this.elapsed = (elapsed / 200) * 200;
+        this.eventTime = eventTime;
+        this.elapsedTime = ((elapsedTime / 200) + 1) * 200;
         this.isSuccess = errCode == 0;
         this.sortKey = HashmapSortKeyUtils.generateKey(applicationName, isSuccess);
 
@@ -50,12 +50,12 @@ public class HeatmapStat {
         return agentId;
     }
 
-    public long getStartTime() {
-        return startTime;
+    public long getEventTime() {
+        return eventTime;
     }
 
-    public int getElapsed() {
-        return elapsed;
+    public int getElapsedTime() {
+        return elapsedTime;
     }
 
     public String getSortKey() {
@@ -67,4 +67,15 @@ public class HeatmapStat {
         return isSuccess;
     }
 
+    @Override
+    public String toString() {
+        return "HeatmapStat{" +
+                "applicationName='" + applicationName + '\'' +
+                ", agentId='" + agentId + '\'' +
+                ", sortKey='" + sortKey + '\'' +
+                ", eventTime=" + eventTime +
+                ", elapsedTime=" + elapsedTime +
+                ", isSuccess=" + isSuccess +
+                '}';
+    }
 }

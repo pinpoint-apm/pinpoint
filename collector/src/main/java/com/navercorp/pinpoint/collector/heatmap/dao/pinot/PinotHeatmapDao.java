@@ -45,6 +45,10 @@ public class PinotHeatmapDao implements HeatmapDao {
 
     @Override
     public void insert(HeatmapStat heatmapStat) {
+        if (heatmapStat.getElapsedTime() < 0) {
+            logger.warn("elapsedTime is negative. {}", heatmapStat);
+            return;
+        }
         String topic = topicNameManager.getTopicName(heatmapStat.getApplicationName());
         kafkaHeatmapStatTemplate.send(topic, heatmapStat.getApplicationName(), heatmapStat);
     }
