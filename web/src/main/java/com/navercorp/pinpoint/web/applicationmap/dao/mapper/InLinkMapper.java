@@ -106,15 +106,13 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
             if (inApplication.getServiceType().isQueue()) {
                 outHost = StringUtils.defaultString(outHost);
             }
-            boolean isError = histogramSlot == (short) -1;
 
             if (logger.isDebugEnabled()) {
                 logger.debug("    Fetched {}. {} outHost:{} -> {} (slot:{}/{}),  ",
                         LinkDirection.IN_LINK, in, outHost, inApplication, histogramSlot, requestCount);
             }
 
-            final short slotTime = (isError) ? (short) -1 : histogramSlot;
-            linkDataMap.addLinkData(in, in.getName(), inApplication, outHost, timestamp, slotTime, requestCount);
+            linkDataMap.addLinkData(in, in.getName(), inApplication, outHost, timestamp, histogramSlot, requestCount);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("    Fetched {}. statistics:{}", LinkDirection.IN_LINK, linkDataMap);
