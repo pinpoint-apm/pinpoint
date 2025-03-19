@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.collector.heatmap.service;
 
 import com.navercorp.pinpoint.collector.heatmap.dao.HeatmapDao;
-import com.navercorp.pinpoint.collector.heatmap.vo.SpanStat;
+import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapStat;
 import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -43,7 +43,7 @@ public class HeatmapService implements TraceService {
 
     @Override
     public void insertSpan(SpanBo spanBo) {
-        SpanStat spanStat = new SpanStat(spanBo.getApplicationId(), spanBo.getAgentId(), spanBo.getStartTime(), spanBo.getElapsed(), spanBo.getErrCode());
-        heatmapDao.insert(spanStat);
+        HeatmapStat heatmapStat = new HeatmapStat(spanBo.getApplicationId(), spanBo.getAgentId(), spanBo.getStartTime(), spanBo.getElapsed(), spanBo.getErrCode());
+        heatmapDao.insert(heatmapStat);
     }
 }

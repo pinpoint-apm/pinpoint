@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.collector.heatmap.dao.pinot;
 import com.navercorp.pinpoint.collector.heatmap.config.HeatmapProperties;
 import com.navercorp.pinpoint.collector.heatmap.dao.HeatmapDao;
 import com.navercorp.pinpoint.collector.heatmap.vo.HeatmapStat;
-import com.navercorp.pinpoint.collector.heatmap.vo.SpanStat;
 import com.navercorp.pinpoint.common.server.metric.dao.TopicNameManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,12 +40,12 @@ public class PinotHeatmapDao implements HeatmapDao {
     public PinotHeatmapDao(KafkaTemplate<String, HeatmapStat> kafkaHeatmapStatTemplate, HeatmapProperties heatmapProperties) {
         this.kafkaHeatmapStatTemplate = Objects.requireNonNull(kafkaHeatmapStatTemplate, "kafkaHeatmapStatTemplate");
         this.topicNameManager = new TopicNameManager(heatmapProperties.getHeatmapTopicPrefix(), heatmapProperties.getHeatMapTopicPaddingLength(), heatmapProperties.getHeatmapTopicCount());
+
     }
 
     @Override
-    public void insert(SpanStat spanStat) {
-        HeatmapStat heatmapStat = new HeatmapStat(spanStat);
-        String topic = topicNameManager.getTopicName(spanStat.getApplicationName());
+    public void insert(HeatmapStat heatmapStat) {
+        String topic = topicNameManager.getTopicName(heatmapStat.getApplicationName());
         kafkaHeatmapStatTemplate.send(topic, heatmapStat.getApplicationName(), heatmapStat);
     }
 }
