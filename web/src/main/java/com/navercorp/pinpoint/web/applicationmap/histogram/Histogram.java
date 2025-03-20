@@ -44,11 +44,15 @@ public class Histogram implements StatisticsHistogram {
     private long normalCount;
     private long slowCount;
     private long verySlowCount;
+
+    @Deprecated
     private long errorCount; // for backward compatibility.
+
     private long fastErrorCount;
     private long normalErrorCount;
     private long slowErrorCount;
     private long verySlowErrorCount;
+
     private long sumElapsed;
     private long maxElapsed;
 
@@ -135,7 +139,7 @@ public class Histogram implements StatisticsHistogram {
         }
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("slot not found slotTime=" + slotTime + ", count=" + count + ", schema=" + schema);
+            LOGGER.debug("slot not found slotTime={} count={}, schema={}", slotTime, count, schema);
         }
     }
 
@@ -152,6 +156,7 @@ public class Histogram implements StatisticsHistogram {
         return errorCount + fastErrorCount + normalErrorCount + slowErrorCount + verySlowErrorCount;
     }
 
+    @Deprecated
     public long getErrorCount() {
         return errorCount;
     }
@@ -231,7 +236,6 @@ public class Histogram implements StatisticsHistogram {
             case SUM_STAT -> sumElapsed;
             case MAX_STAT -> maxElapsed;
             case PING -> pingCount;
-            default -> throw new IllegalArgumentException("slotType:" + slotType);
         };
     }
 

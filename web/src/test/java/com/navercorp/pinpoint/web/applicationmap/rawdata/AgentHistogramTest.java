@@ -46,14 +46,14 @@ public class AgentHistogramTest {
         agentHistogram.addTimeHistogram(histogram);
 
         AgentHistogram copy = new AgentHistogram(agentHistogram);
-        Assertions.assertEquals(copy.getHistogram().getTotalErrorCount(), 1);
+        Assertions.assertEquals(1, copy.getHistogram().getTotalErrorCount());
 
         TimeHistogram histogram2 = new TimeHistogram(ServiceType.STAND_ALONE, 0);
         histogram2.addCallCount(ServiceType.STAND_ALONE.getHistogramSchema().getFastErrorSlot().getSlotTime(), 2);
         agentHistogram.addTimeHistogram(histogram2);
-        Assertions.assertEquals(agentHistogram.getHistogram().getTotalErrorCount(), 3);
+        Assertions.assertEquals(3, agentHistogram.getHistogram().getTotalErrorCount());
 
-        Assertions.assertEquals(copy.getHistogram().getTotalErrorCount(), 1);
+        Assertions.assertEquals(1, copy.getHistogram().getTotalErrorCount());
 
     }
 
@@ -67,12 +67,12 @@ public class AgentHistogramTest {
 
         AgentHistogram copy = new AgentHistogram(agentHistogram);
         logger.debug(copy.getHistogram().toString());
-        Assertions.assertEquals(copy.getHistogram().getTotalErrorCount(), 1);
+        Assertions.assertEquals(1, copy.getHistogram().getTotalErrorCount());
 
         TimeHistogram histogram2 = new TimeHistogram(ServiceType.STAND_ALONE, 0);
         histogram2.addCallCount(ServiceType.STAND_ALONE.getHistogramSchema().getFastErrorSlot().getSlotTime(), 2);
         agentHistogram.addTimeHistogram(histogram2);
-        Assertions.assertEquals(agentHistogram.getHistogram().getTotalErrorCount(), 3);
+        Assertions.assertEquals(3, agentHistogram.getHistogram().getTotalErrorCount());
 
         String callJson = mapper.writeValueAsString(agentHistogram);
         String before = originalJson(agentHistogram);

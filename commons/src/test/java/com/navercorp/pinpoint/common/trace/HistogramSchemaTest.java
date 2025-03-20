@@ -27,9 +27,9 @@ public class HistogramSchemaTest {
     @Test
     public void testFindHistogramSlot() {
         HistogramSchema histogramSchema = ServiceType.STAND_ALONE.getHistogramSchema();
-        Assertions.assertEquals(histogramSchema.findHistogramSlot(999, false).getSlotTime(), 1000);
-        Assertions.assertEquals(histogramSchema.findHistogramSlot(1000, false).getSlotTime(), 1000);
-        Assertions.assertEquals(histogramSchema.findHistogramSlot(1111, false).getSlotTime(), 3000);
+        Assertions.assertEquals(1000, histogramSchema.findHistogramSlot(999, false).getSlotTime());
+        Assertions.assertEquals(1000, histogramSchema.findHistogramSlot(1000, false).getSlotTime());
+        Assertions.assertEquals(3000, histogramSchema.findHistogramSlot(1111, false).getSlotTime());
     }
 
 }
