@@ -5,33 +5,40 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
+import java.util.Collection;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 public class FeatureFlagServiceFactory {
     private static final Logger logger = LogManager.getLogger(FeatureFlagServiceFactory.class);
 
-    private final FeatureFlagProperties properties;
+    private final Map<String, FeatureFlagProperties.FeatureSpec> featureMap;
 
     public FeatureFlagServiceFactory(FeatureFlagProperties properties) {
-        this.properties = Objects.requireNonNull(properties);
-        logProperties(properties);
+        this.featureMap = properties.stream()
+                .collect(Collectors.toMap(FeatureFlagProperties.FeatureSpec::name, Function.identity(), (a, b) -> {
+                    logger.warn("Duplicate feature spec found: {}", a.name());
+                    return b;
+                }));
+        logSpecs(featureMap.values());
     }
 
-    private static void logProperties(FeatureFlagProperties properties) {
-        properties.forEach((feature, config) -> {
-            logger.info("feature={}: enabled={}, enabledFor={}, disabledFor={}", feature, config.enabled(), config.enabledFor(), config.disabledFor());
-            if (config.enabled() != null && (config.enabledFor() != null || config.disabledFor() != null)) {
-                logger.warn("feature={}: enabled and application specific list is set at the same time", feature);
+    private static void logSpecs(Collection<FeatureFlagProperties.FeatureSpec> specList) {
+        for (FeatureFlagProperties.FeatureSpec feature : specList) {
+            logger.info(feature);
+            if (feature.enabled() != null && (feature.enabledFor() != null || feature.disabledFor() != null)) {
+                logger.warn("{}: enabled and application specific list is set at the same time", feature.name());
             }
-            if (config.enabledFor() != null && config.disabledFor() != null) {
-                logger.warn("feature={}: enabledFor and disabledFor are set at the same time", feature);
+            if (feature.enabledFor() != null && feature.disabledFor() != null) {
+                logger.warn("{}: enabledFor and disabledFor are set at the same time", feature.name());
             }
-        });
+        }
     }
 
     public FeatureFlagService get(String featureName) {
-        FeatureFlagProperties.Feature feature = properties.get(featureName);
+        FeatureFlagProperties.FeatureSpec feature = featureMap.get(featureName);
         if (feature == null) {
             return new EnabledFeatureFlagService();
         }
