@@ -88,13 +88,13 @@ public class HistogramTest {
 
 
         Histogram copy = new Histogram(ServiceType.STAND_ALONE);
-        Assertions.assertEquals(copy.getFastCount(), 0);
+        Assertions.assertEquals(0, copy.getFastCount());
         copy.add(original);
         Assertions.assertEquals(original.getFastCount(), copy.getFastCount());
 
         copy.addCallCount((short) 1000, 100);
-        Assertions.assertEquals(original.getFastCount(), 100);
-        Assertions.assertEquals(copy.getFastCount(), 200);
+        Assertions.assertEquals(100, original.getFastCount());
+        Assertions.assertEquals(200, copy.getFastCount());
 
     }
 
@@ -107,7 +107,7 @@ public class HistogramTest {
         String json = objectMapper.writeValueAsString(original);
         Map<String, Object> map = objectMapper.readValue(json, TypeRef.map());
 
-        Assertions.assertEquals(map.get(schema.getFastSlot().getSlotName()), 100);
-        Assertions.assertEquals(map.get(schema.getErrorSlot().getSlotName()), 0);
+        Assertions.assertEquals(100, map.get(schema.getFastSlot().getSlotName()));
+        Assertions.assertEquals(0, map.get(schema.getErrorSlot().getSlotName()));
     }
 }

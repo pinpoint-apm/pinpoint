@@ -21,6 +21,7 @@ package com.navercorp.pinpoint.common.trace;
  * @author jaehong.kim
  */
 public interface HistogramSchema {
+    Schema getSchema();
 
     int getTypeCode();
 
