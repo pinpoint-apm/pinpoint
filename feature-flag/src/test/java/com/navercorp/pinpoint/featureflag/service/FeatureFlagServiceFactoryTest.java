@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class FeatureFlagServiceFactoryTest {
     static FeatureFlagService buildService(Boolean enabled, List<String> enabledFor, List<String> disabledFor) {
         FeatureFlagProperties properties = new FeatureFlagProperties();
-        properties.put("feature", new FeatureFlagProperties.Feature(enabled, enabledFor, disabledFor));
+        properties.add(new FeatureFlagProperties.FeatureSpec("feature", enabled, enabledFor, disabledFor));
         FeatureFlagServiceFactory factory = new FeatureFlagServiceFactory(properties);
         return factory.get("feature");
     }
