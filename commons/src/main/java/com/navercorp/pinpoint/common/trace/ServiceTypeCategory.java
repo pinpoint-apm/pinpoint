@@ -23,35 +23,35 @@ import java.util.Set;
  *
  */
 public enum ServiceTypeCategory {
-    UNDEFINED_CATEGORY((short)-1, (short)-1),
-    PINPOINT_INTERNAL((short)0, (short)999),
-    SERVER((short)1000, (short)1999),
-    DATABASE((short)2000, (short)2999),
-    LIBRARY((short)5000, (short)7999),
-    CACHE_LIBRARY((short)8000, (short)8299, BaseHistogramSchema.FAST_SCHEMA),
-    MESSAGE_BROKER((short)8300, (short)8799),
-    HBASE((short)8800, (short)8899),
-    CACHE_LIBRARY_SANDBOX((short)8900, (short)8999, BaseHistogramSchema.FAST_SCHEMA),
-    RPC((short)9000, (short)9999);
+    UNDEFINED_CATEGORY(-1, -1),
+    PINPOINT_INTERNAL(0, 999),
+    SERVER(1000, 1999),
+    DATABASE(2000, 2999),
+    LIBRARY(5000, 7999),
+    CACHE_LIBRARY(8000, 8299, BaseHistogramSchema.FAST_SCHEMA),
+    MESSAGE_BROKER(8300, 8799),
+    HBASE(8800, 8899),
+    CACHE_LIBRARY_SANDBOX(8900, 8999, BaseHistogramSchema.FAST_SCHEMA),
+    RPC(9000, 9999);
 
 
-    private final short minCode;
-    private final short maxCode;
+    private final int minCode;
+    private final int maxCode;
     private final HistogramSchema histogramSchema;
 
     private static final Set<ServiceTypeCategory> SERVICE_TYPE_CATEGORIES = EnumSet.allOf(ServiceTypeCategory.class);
 
-    ServiceTypeCategory(short minCode, short maxCode) {
+    ServiceTypeCategory(int minCode, int maxCode) {
         this(minCode, maxCode, BaseHistogramSchema.NORMAL_SCHEMA);
     }
 
-    ServiceTypeCategory(short minCode, short maxCode, HistogramSchema histogramSchema) {
+    ServiceTypeCategory(int minCode, int maxCode, HistogramSchema histogramSchema) {
         this.minCode = minCode;
         this.maxCode = maxCode;
         this.histogramSchema = Objects.requireNonNull(histogramSchema, "histogramSchema");
     }
 
-    public boolean contains(short code) {
+    public boolean contains(int code) {
         return minCode <= code && code <= maxCode;
     }
 
@@ -63,12 +63,12 @@ public enum ServiceTypeCategory {
         return histogramSchema;
     }
 
-    public static ServiceTypeCategory findCategory(short code) {
+    public static ServiceTypeCategory findCategory(int code) {
         for (ServiceTypeCategory serviceTypeCategory : SERVICE_TYPE_CATEGORIES) {
             if (serviceTypeCategory.contains(code)) {
                 return serviceTypeCategory;
             }
         }
-        throw new IllegalStateException("Unknown Category code:" + code);
+        throw new IllegalArgumentException("Unknown Category code:" + code);
     }
 }
