@@ -71,7 +71,7 @@ public class LinkFilterTest {
         FilterHint hint = new FilterHint(Collections.emptyList());
 
         LinkFilter linkFilter = newLinkFilter(descriptor, hint);
-        logger.debug(linkFilter.toString());
+        logger.debug("{}", linkFilter);
 
         SpanBo fromSpanBo = new SpanBo();
         fromSpanBo.setApplicationName("APP_A");
@@ -111,7 +111,7 @@ public class LinkFilterTest {
         FilterHint hint = new FilterHint(Collections.emptyList());
 
         LinkFilter linkFilter = newLinkFilter(descriptor, hint);
-        logger.debug(linkFilter.toString());
+        logger.debug("{}", linkFilter);
 
         SpanBo fromSpanBo = new SpanBo();
         fromSpanBo.setApplicationName("APP_A");
@@ -150,7 +150,7 @@ public class LinkFilterTest {
         FilterHint hint = new FilterHint(Collections.emptyList());
 
         LinkFilter linkFilter = newLinkFilter(descriptor, hint);
-        logger.debug(linkFilter.toString());
+        logger.debug("{}", linkFilter);
 
         SpanBo user_appA = new SpanBo();
         user_appA.setSpanId(1);
@@ -197,7 +197,7 @@ public class LinkFilterTest {
         FilterHint hint = new FilterHint(Collections.emptyList());
 
         LinkFilter linkFilter = newLinkFilter(descriptor, hint);
-        logger.debug(linkFilter.toString());
+        logger.debug("{}", linkFilter);
 
         // Reject - no rpc span event
         SpanBo spanBo = new SpanBo();
@@ -231,7 +231,7 @@ public class LinkFilterTest {
         FilterHint hint = new FilterHint(Collections.emptyList());
 
         LinkFilter linkFilter = newLinkFilter(descriptor, hint);
-        logger.debug(linkFilter.toString());
+        logger.debug("{}", linkFilter);
 
         // Accept - perfect match
         SpanBo user_appA = new SpanBo();
@@ -261,7 +261,7 @@ public class LinkFilterTest {
         FilterHint hint = new FilterHint(Collections.emptyList());
 
         LinkFilter linkFilter = newLinkFilter(descriptor, hint);
-        logger.debug(linkFilter.toString());
+        logger.debug("{}", linkFilter);
 
         // Reject - fromNode different
         SpanBo user_appC = new SpanBo();
@@ -369,7 +369,7 @@ public class LinkFilterTest {
         FilterHint hint = new FilterHint(Collections.emptyList());
 
         LinkFilter linkFilter = newLinkFilter(descriptor, hint);
-        logger.debug(linkFilter.toString());
+        logger.debug("{}", linkFilter);
 
         SpanBo matchingSpan = new SpanBo();
         matchingSpan.setApplicationName("APP_A");
@@ -416,7 +416,7 @@ public class LinkFilterTest {
         FilterHint hint = new FilterHint(Collections.emptyList());
 
         LinkFilter linkFilter = newLinkFilter(descriptor, hint);
-        logger.debug(linkFilter.toString());
+        logger.debug("{}", linkFilter);
 
         SpanBo matchingSpan = new SpanBo();
         matchingSpan.setApplicationName("APP_A");
@@ -463,7 +463,7 @@ public class LinkFilterTest {
         FilterHint hint = new FilterHint(Collections.emptyList());
 
         LinkFilter linkFilter = newLinkFilter(descriptor, hint);
-        logger.debug(linkFilter.toString());
+        logger.debug("{}", linkFilter);
 
         SpanBo matchingSpan = new SpanBo();
         matchingSpan.setApplicationName("APP_A");

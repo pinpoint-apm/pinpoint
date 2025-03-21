@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.util;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
+import com.navercorp.pinpoint.common.trace.ServiceTypeBuilder;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.apache.logging.log4j.LogManager;
@@ -26,9 +26,8 @@ import org.apache.logging.log4j.Logger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -37,52 +36,41 @@ public class ServiceTypeRegistryMockFactory {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final Map<Short, ServiceType> serviceTypeMap = new HashMap<>();
+    private final Map<Integer, ServiceType> serviceTypeMap = new HashMap<>();
+
+    public void addServiceTypeMock(ServiceType serviceType) {
+        Objects.requireNonNull(serviceType, "serviceType");
+        this.serviceTypeMap.put((int) serviceType.getCode(), serviceType);
+    }
 
     public void addServiceTypeMock(short typeCode, String typeName, ServiceTypeProperty... serviceTypeProperties) {
         // setup serviceType
-        ServiceType mockServiceType = mock(ServiceType.class);
-        when(mockServiceType.getCode()).thenReturn(typeCode);
-        when(mockServiceType.getName()).thenReturn(typeName);
-        when(mockServiceType.getDesc()).thenReturn(typeName);
-        when(mockServiceType.getHistogramSchema()).thenReturn(ServiceTypeCategory.findCategory(typeCode).getHistogramSchema());
-
-        if (ServiceType.USER.getName().equals(typeName)) {
-            when(mockServiceType.isUser()).thenReturn(true);
-        }
-        if (ServiceType.UNKNOWN.getName().equals(typeName)) {
-            when(mockServiceType.isUnknown()).thenReturn(true);
-        }
-        if (ServiceTypeCategory.SERVER.contains(typeCode)) {
-            when(mockServiceType.isWas()).thenReturn(true);
-        }
-        if (ServiceTypeCategory.RPC.contains(typeCode)) {
-            when(mockServiceType.isRpcClient()).thenReturn(true);
-        }
-
+        ServiceTypeBuilder builder = new ServiceTypeBuilder(typeCode, typeName, typeName);
         for (ServiceTypeProperty serviceTypeProperty : serviceTypeProperties) {
             switch (serviceTypeProperty) {
                 case TERMINAL:
-                    when(mockServiceType.isTerminal()).thenReturn(true);
+                    builder.terminal(true);
                     break;
                 case QUEUE:
-                    when(mockServiceType.isQueue()).thenReturn(true);
+                    builder.queue(true);
                     break;
                 case RECORD_STATISTICS:
-                    when(mockServiceType.isRecordStatistics()).thenReturn(true);
+                    builder.recordStatistics(true);
                     break;
                 case INCLUDE_DESTINATION_ID:
-                    when(mockServiceType.isIncludeDestinationId()).thenReturn(true);
+                    builder.includeDestinationId(true);
                     break;
                 case ALIAS:
-                    when(mockServiceType.isAlias()).thenReturn(true);
+                    builder.alias(true);
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown serviceTypeProperty : " + serviceTypeProperty);
             }
         }
 
-        this.serviceTypeMap.put(typeCode, mockServiceType);
+        ServiceType serviceType = builder.build();
+
+        this.serviceTypeMap.put((int) serviceType.getCode(), serviceType);
     }
 
     public ServiceType getServiceTypeMock(short typeCode) {
@@ -92,16 +80,28 @@ public class ServiceTypeRegistryMockFactory {
 
     public ServiceTypeRegistryService createMockServiceTypeRegistryService() {
 
-        final ServiceTypeRegistryService serviceTypeRegistryService = mock(ServiceTypeRegistryService.class);
-        for (ServiceType serviceType : serviceTypeMap.values()) {
-            // setup serviceRegistry
-            final String serviceTypeName = serviceType.getName();
-            final short serviceTypeCode = serviceType.getCode();
-            when(serviceTypeRegistryService.findServiceTypeByName(serviceTypeName)).thenReturn(serviceType);
-            when(serviceTypeRegistryService.findServiceType(serviceTypeCode)).thenReturn(serviceType);
-            when(serviceTypeRegistryService.findDesc(serviceTypeName)).thenReturn(List.of(serviceType));
-        }
+        return new ServiceTypeRegistryService() {
+            @Override
+            public ServiceType findServiceType(short serviceType) {
+                return serviceTypeMap.get((int) serviceType);
+            }
 
-        return serviceTypeRegistryService;
+            @Override
+            public ServiceType findServiceTypeByName(String typeName) {
+                for (ServiceType serviceType : serviceTypeMap.values()) {
+                    if (serviceType.getName().equals(typeName)) {
+                        return serviceType;
+                    }
+                }
+                throw new IllegalArgumentException("not found");
+            }
+
+            @Override
+            public List<ServiceType> findDesc(String desc) {
+                return serviceTypeMap.values().stream()
+                        .filter(serviceType -> serviceType.getDesc().equals(desc))
+                        .collect(Collectors.toList());
+            }
+        };
     }
 }

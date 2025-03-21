@@ -61,9 +61,9 @@ public class TestTraceUtils {
     public static ServiceTypeRegistryService mockServiceTypeRegistryService() {
 
         ServiceTypeRegistryMockFactory mockFactory = new ServiceTypeRegistryMockFactory();
-        mockFactory.addServiceTypeMock(UNKNOWN_TYPE_CODE, UNKNOWN_TYPE_NAME, RECORD_STATISTICS);
-        mockFactory.addServiceTypeMock(USER_TYPE_CODE, USER_TYPE_NAME, RECORD_STATISTICS);
-        mockFactory.addServiceTypeMock(TEST_STAND_ALONE_TYPE_CODE, TEST_STAND_ALONE_TYPE_NAME, RECORD_STATISTICS);
+        mockFactory.addServiceTypeMock(ServiceType.UNKNOWN);
+        mockFactory.addServiceTypeMock(ServiceType.USER);
+        mockFactory.addServiceTypeMock(ServiceType.TEST_STAND_ALONE);
         mockFactory.addServiceTypeMock(TOMCAT_TYPE_CODE, TOMCAT_TYPE_NAME, RECORD_STATISTICS);
         mockFactory.addServiceTypeMock(RPC_TYPE_CODE, RPC_TYPE_NAME, RECORD_STATISTICS);
         mockFactory.addServiceTypeMock(BACKEND_TYPE_CODE, BACKEND_TYPE_NAME, TERMINAL, INCLUDE_DESTINATION_ID, RECORD_STATISTICS);
@@ -165,8 +165,8 @@ public class TestTraceUtils {
                 spanId = random.nextLong();
             }
             spanBo.setSpanId(spanId);
-            spanBo.setServiceType(TEST_STAND_ALONE_TYPE_CODE);
-            spanBo.setApplicationServiceType(TEST_STAND_ALONE_TYPE_CODE);
+            spanBo.setServiceType(ServiceType.TEST_STAND_ALONE.getCode());
+            spanBo.setApplicationServiceType(ServiceType.TEST_STAND_ALONE.getCode());
             spanBo.setStartTime(startTime);
             spanBo.setCollectorAcceptTime(collectorAcceptTime);
             spanBo.setElapsed(elapsed);
