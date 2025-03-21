@@ -26,7 +26,8 @@ public enum TimeSeriesLabel {
     MAIN_SERVICE_TYPE("mainServiceType"),
     SUB_SERVICE_ID("subServiceId"),
     SUB_APPLICATION_NAME("subApplicationName"),
-    SUB_SERVICE_TYPE_SLOT("subServiceTypeSlot");
+    SUB_SERVICE_TYPE_SLOT("subServiceTypeSlot"),
+    SUB_SLOT_NUMBER("subSlotNumber");
 
     private final String label;
 

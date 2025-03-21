@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.collector.applicationmap.redis.schema.ApplicationM
 import com.navercorp.pinpoint.collector.applicationmap.redis.schema.TimeSeriesKey;
 import com.navercorp.pinpoint.collector.applicationmap.redis.schema.TimeSeriesValue;
 import com.navercorp.pinpoint.collector.dao.hbase.IgnoreStatFilter;
-import com.navercorp.pinpoint.collector.dao.hbase.statistics.MapLinkConfiguration;
+import com.navercorp.pinpoint.collector.applicationmap.config.MapLinkConfiguration;
 import com.navercorp.pinpoint.collector.applicationmap.redis.statistics.RedisBulkWriter;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;

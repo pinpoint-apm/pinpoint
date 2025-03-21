@@ -54,7 +54,7 @@ public class TimeSeriesKey {
         this.subServiceId = new LabelToKey(TimeSeriesLabel.SUB_SERVICE_ID, String.valueOf(subServiceId));
         this.subApplicationName = new LabelToKey(TimeSeriesLabel.SUB_APPLICATION_NAME, subApplicationName);
         this.subServiceType = new LabelToKey(TimeSeriesLabel.SUB_SERVICE_TYPE_SLOT, String.valueOf(subServiceType));
-        this.slotNumber = new LabelToKey(TimeSeriesLabel.SUB_SERVICE_TYPE_SLOT, String.valueOf(slotNumber));
+        this.slotNumber = new LabelToKey(TimeSeriesLabel.SUB_SLOT_NUMBER, String.valueOf(slotNumber));
     }
 
     public String getKey() {

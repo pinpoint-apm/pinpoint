@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowFunction;
 import com.navercorp.pinpoint.web.applicationmap.dao.OutboundDao;
-import com.navercorp.pinpoint.web.applicationmap.dao.mapper.MapStatisticsTimeWindowReducer;
+import com.navercorp.pinpoint.web.applicationmap.dao.mapper.LinkTimeWindowReducer;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.RowMapperFactory;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
@@ -88,7 +88,7 @@ public class HbaseOutboundDao implements OutboundDao {
 
         TimeWindowFunction mapperWindow = newTimeWindow(timeAggregated);
         RowMapper<LinkDataMap> rowMapper = this.mapperFactory.newMapper(mapperWindow);
-        ResultsExtractor<LinkDataMap> resultsExtractor = new RowMapReduceResultExtractor<>(rowMapper, new MapStatisticsTimeWindowReducer(timeWindow));
+        ResultsExtractor<LinkDataMap> resultsExtractor = new RowMapReduceResultExtractor<>(rowMapper, new LinkTimeWindowReducer(timeWindow));
 
         // find distributed key.
         final Scan scan = scanFactory.createScan("MapOutboundScan", callerApplication, range, DESCRIPTOR.getName());

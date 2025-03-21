@@ -33,10 +33,13 @@ public class RedisBulkFactory {
     public RedisBulkFactory() {
     }
 
-
-    private RedisBulkWriter newRedisBulkWriter() {
+    @Bean
+    public RedisClient redisClient() {
         RedisURI redisURI = RedisURI.create("redis://localhost:6379");
-        RedisClient client = RedisClient.create(redisURI);
+        return RedisClient.create(redisURI);
+    }
+
+    private RedisBulkWriter newRedisBulkWriter(RedisClient client) {
         AsyncConnection<String, String> connection = new SimpleAsyncConnection<>(client.connect());
         RedisTimeseriesAsyncCommands commands = new RedisTimeseriesAsyncCommandsImpl(connection);
         return new RedisBulkWriter(commands);
