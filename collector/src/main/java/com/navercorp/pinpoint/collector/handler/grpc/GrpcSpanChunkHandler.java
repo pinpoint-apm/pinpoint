@@ -46,7 +46,11 @@ public class GrpcSpanChunkHandler implements SimpleHandler<GeneratedMessageV3> {
 
     private final Sampler<BasicSpan> sampler;
 
-    public GrpcSpanChunkHandler(TraceService[] traceServices, GrpcSpanFactory spanFactory, SpanSamplerFactory spanSamplerFactory) {
+    public GrpcSpanChunkHandler(
+            TraceService[] traceServices,
+            GrpcSpanFactory spanFactory,
+            SpanSamplerFactory spanSamplerFactory
+    ) {
         this.traceServices = Objects.requireNonNull(traceServices, "traceServices");
         this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory");
         this.sampler = spanSamplerFactory.createBasicSpanSampler();
