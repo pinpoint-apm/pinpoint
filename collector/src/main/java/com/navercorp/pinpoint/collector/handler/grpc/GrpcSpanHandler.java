@@ -62,7 +62,11 @@ public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
 
     private final Sampler<BasicSpan> sampler;
 
-    public GrpcSpanHandler(TraceService[] traceServices, GrpcSpanFactory spanFactory, SpanSamplerFactory spanSamplerFactory) {
+    public GrpcSpanHandler(
+            TraceService[] traceServices,
+            GrpcSpanFactory spanFactory,
+            SpanSamplerFactory spanSamplerFactory
+    ) {
         this.traceServices = Objects.requireNonNull(traceServices, "traceServices");
         this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory");
         this.sampler = spanSamplerFactory.createBasicSpanSampler();

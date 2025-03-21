@@ -23,6 +23,13 @@ import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ResponseColumnName;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.RowKey;
+import com.navercorp.pinpoint.collector.dao.MapResponseTimeDao;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.CallRowKey;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.ColumnName;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkWriter;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.MapLinkConfiguration;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.ResponseColumnName;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -48,15 +55,15 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 
 
     private final TimeSlot timeSlot;
-    private final BulkWriter bulkWriter;
+    private final BulkWriter<RowKey, ColumnName> bulkWriter;
     private final MapLinkConfiguration mapLinkConfiguration;
 
     public HbaseMapResponseTimeDao(MapLinkConfiguration mapLinkConfiguration,
                                    TimeSlot timeSlot,
-                                   @Qualifier("selfBulkWriter") BulkWriter bulkWriter) {
+                                   @Qualifier("selfBulkWriter") BulkWriter<RowKey, ColumnName> bulkWriter) {
         this.mapLinkConfiguration = Objects.requireNonNull(mapLinkConfiguration, "mapLinkConfiguration");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
-        this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWrtier");
+        this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWriter");
     }
 
 

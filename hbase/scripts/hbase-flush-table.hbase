@@ -16,6 +16,10 @@ flush 'ApplicationMapStatisticsCaller_Ver2'
 flush 'ApplicationMapStatisticsCallee_Ver2'
 flush 'ApplicationMapStatisticsSelf_Ver2'
 
+flush 'ApplicationMapOutbound'
+flush 'ApplicationMapInbound'
+flush 'ApplicationMapSelf'
+
 flush 'HostApplicationMap_Ver2'
 
 exit

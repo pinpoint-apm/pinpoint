@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.ApplicationMapNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerGroupListFactory;
@@ -28,6 +29,7 @@ import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerGroupList
 import com.navercorp.pinpoint.web.applicationmap.appender.server.StatisticsServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.SelfDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
@@ -53,6 +55,7 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -73,14 +76,19 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     private final ServerInstanceDatasourceService serverInstanceDatasourceService;
 
     private final MapResponseDao mapResponseDao;
+    private final SelfDao selfDao;
 
+    @Value("${pinpoint.modules.web.application-based-server-map.enabled:true}")
+    private boolean isApplicationMapEnabled;
 
     public ResponseTimeHistogramServiceImpl(LinkSelectorFactory linkSelectorFactory,
                                             ServerInstanceDatasourceService serverInstanceDatasourceService,
-                                            MapResponseDao mapResponseDao) {
+                                            MapResponseDao mapResponseDao,
+                                            SelfDao selfDao) {
         this.linkSelectorFactory = Objects.requireNonNull(linkSelectorFactory, "linkSelectorFactory");
         this.serverInstanceDatasourceService = Objects.requireNonNull(serverInstanceDatasourceService, "serverInstanceDatasourceService");
         this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
+        this.selfDao = Objects.requireNonNull(selfDao, "selfDao");
     }
 
     private ServerGroupListFactory createServerGroupListFactory(boolean isUseStatisticsAgentState) {
@@ -92,12 +100,21 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     }
 
     private NodeHistogramFactory createNodeHistogramFactory() {
+        if (isApplicationMapEnabled) {
+            WasNodeHistogramDataSource wasNodeHistogramDataSource = new ApplicationMapNodeHistogramDataSource(selfDao);
+            return new DefaultNodeHistogramFactory(wasNodeHistogramDataSource);
+        }
         WasNodeHistogramDataSource wasNodeHistogramDataSource = new MapResponseNodeHistogramDataSource(mapResponseDao);
         return new DefaultNodeHistogramFactory(wasNodeHistogramDataSource);
     }
 
     @Override
     public AgentHistogramList selectResponseTimeHistogramData(Application application, Range range) {
+        if (isApplicationMapEnabled) {
+            List<ResponseTime> responseTimes = selfDao.selectResponseTime(application, range);
+            return new AgentHistogramList(application, responseTimes);
+        }
+
         List<ResponseTime> responseTimes = mapResponseDao.selectResponseTime(application, range);
         return new AgentHistogramList(application, responseTimes);
     }
