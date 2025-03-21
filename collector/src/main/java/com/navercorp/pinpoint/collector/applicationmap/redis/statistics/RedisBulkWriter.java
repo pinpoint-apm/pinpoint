@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.collector.applicationmap.redis.statistics;
 
-import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkWriter;
+import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.applicationmap.redis.schema.TimeSeriesKey;
 import com.navercorp.pinpoint.collector.applicationmap.redis.schema.TimeSeriesValue;
 import com.navercorp.pinpoint.redis.timeseries.RedisTimeseriesAsyncCommands;

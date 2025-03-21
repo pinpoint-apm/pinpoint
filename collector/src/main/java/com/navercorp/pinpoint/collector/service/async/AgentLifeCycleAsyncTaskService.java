@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.service.async;
 
+import com.navercorp.pinpoint.collector.applicationmap.service.ApplicationMapService;
 import com.navercorp.pinpoint.collector.applicationmap.service.StatisticsService;
 import com.navercorp.pinpoint.collector.config.CollectorProperties;
 import com.navercorp.pinpoint.collector.service.AgentLifeCycleService;

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.InboundDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.OutboundDao;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
+import com.navercorp.pinpoint.web.calltree.span.Link;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,9 @@ public class LinkDataMapServiceImpl implements LinkDataMapService {
 
     private final MapInLinkDao mapInLinkDao;
 
+    private final InboundDao inboundDao;
+    private final OutboundDao outboundDao;
+
     public LinkDataMapServiceImpl(MapOutLinkDao mapOutLinkDao, MapInLinkDao mapInLinkDao,
             OutboundDao outboundDao, InboundDao inboundDao) {
         this.mapOutLinkDao = Objects.requireNonNull(mapOutLinkDao, "mapOutLinkDao");
@@ -51,19 +55,18 @@ public class LinkDataMapServiceImpl implements LinkDataMapService {
 
     @Override
     public LinkDataMap selectOutLinkDataMap(Application outApplication, Range range, boolean timeAggregated) {
-        LinkDataMap linkDataMap = mapStatisticsCallerDao.selectCaller(application, range, timeAggregated);
-        LinkDataMap linkDataMap1 = outboundDao.selectOutboud(application, range, timeAggregated);
-
-            return linkDataMap1;
+        LinkDataMap linkDataMap = mapOutLinkDao.selectOutLink(outApplication, range, timeAggregated);
+        LinkDataMap linkDataMap1 = outboundDao.selectOutboud(outApplication, range, timeAggregated);
         if (isApplicationMapEnabled) {
+            return linkDataMap1;
         }
         return linkDataMap;
     }
 
     @Override
     public LinkDataMap selectInLinkDataMap(Application inApplication, Range range, boolean timeAggregated) {
-        LinkDataMap linkDataMap = mapStatisticsCalleeDao.selectCallee(application, range, timeAggregated);
-        LinkDataMap linkDataMap1 = inboundDao.selectInbound(application, range, timeAggregated);
+        LinkDataMap linkDataMap = mapInLinkDao.selectInLink(inApplication, range, timeAggregated);
+        LinkDataMap linkDataMap1 = inboundDao.selectInbound(inApplication, range, timeAggregated);
         if (isApplicationMapEnabled) {
             return linkDataMap1;
         }

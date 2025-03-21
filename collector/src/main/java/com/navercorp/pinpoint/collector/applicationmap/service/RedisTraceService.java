@@ -136,8 +136,8 @@ public class RedisTraceService implements TraceService {
 
         // save statistics info only when parentApplicationContext exists
         // when drawing server map based on statistics info, you must know the application name of the previous node.
-        if (span.getParentApplicationId() != null) {
-            String parentApplicationName = span.getParentApplicationId();
+        if (span.getParentApplicationName() != null) {
+            String parentApplicationName = span.getParentApplicationName();
             logger.debug("Received parent application name. {}", parentApplicationName);
 
             ServiceType parentApplicationType = registry.findServiceType(span.getParentApplicationServiceType());
