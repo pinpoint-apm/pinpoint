@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 
@@ -354,7 +355,7 @@ public class SpanBo implements Event, BasicSpan {
     }
 
     public boolean hasApplicationServiceType() {
-        return ServiceTypeUtils.hasServiceType(applicationServiceType);
+        return applicationServiceType != 0 && applicationServiceType != ServiceType.UNDEFINED.getCode();
     }
 
     public int getApplicationServiceType() {

@@ -37,7 +37,7 @@ public class CallTreeTest {
     private static final boolean ASYNC = true;
 
     private final SpanCallTree callTree = new SpanCallTree(makeSpanAlign());
-    private final List<String> expectResult = new ArrayList<String>();
+    private final List<String> expectResult = new ArrayList<>();
 
     @Test
     public void add() {
@@ -388,7 +388,6 @@ public class CallTreeTest {
         spanChunkBo.setAgentId(span.getAgentId());
         spanChunkBo.setAgentName(span.getAgentName());
         spanChunkBo.setApplicationName(span.getApplicationName());
-        spanChunkBo.setServiceType(span.getServiceType());
         spanChunkBo.setApplicationServiceType(span.getApplicationServiceType());
         spanChunkBo.setCollectorAcceptTime(span.getCollectorAcceptTime());
         spanChunkBo.setEndPoint(span.getEndPoint());
