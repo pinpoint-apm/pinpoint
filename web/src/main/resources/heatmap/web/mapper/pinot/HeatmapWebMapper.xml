@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navercorp.pinpoint.web.heatmap.dao.pinot.PinotHeatmapChartDao">
+
+    <resultMap id="HeatmapCellMap" type="HeatmapCell">
+        <constructor>
+            <arg column="aggregatedTime" javaType="_long"/>
+            <arg column="bucketElapsedTime" javaType="_double"/>
+            <arg column="count" javaType="_double"/>
+        </constructor>
+    </resultMap>
+
+    <select id="selectHeatmapApp" parameterType="HeatmapSearchKey" resultMap="HeatmapCellMap">
+        SELECT
+            DATETIME_CONVERT(roundedEventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH','#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime,
+            CASE
+                WHEN elapsedTime >= 1000 THEN 1000
+                ELSE (((elapsedTime / 200) + 1) * 200)
+            END AS bucketElapsedTime,
+            SUM(countValue) AS count
+        FROM heatmapStatApp
+        WHERE
+            sortKey = #{sortKey}
+            AND roundedEventTime BETWEEN #{range.from} AND #{range.to}
+        GROUP BY aggregatedTime, bucketElapsedTime
+        ORDER BY aggregatedTime ASC
+        LIMIT ${limit}
+    </select>
+
+</mapper>

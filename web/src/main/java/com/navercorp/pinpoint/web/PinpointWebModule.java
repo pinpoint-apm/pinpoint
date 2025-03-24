@@ -11,6 +11,7 @@ import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.config.LogProperties;
 import com.navercorp.pinpoint.web.config.ScatterChartProperties;
 import com.navercorp.pinpoint.web.config.WebMysqlDaoConfiguration;
+import com.navercorp.pinpoint.web.heatmap.HeatmapWebModule;
 import com.navercorp.pinpoint.web.uid.UidModule;
 import com.navercorp.pinpoint.web.frontend.FrontendConfigExportConfiguration;
 import com.navercorp.pinpoint.web.install.InstallModule;
@@ -52,6 +53,7 @@ import org.springframework.core.env.StandardEnvironment;
         QueryServiceConfiguration.class,
 
         UidModule.class,
+        HeatmapWebModule.class
 })
 @ComponentScan(basePackages = {
         "com.navercorp.pinpoint.web.mapper",
