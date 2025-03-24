@@ -23,7 +23,7 @@ import java.util.List;
  */
 public interface Event {
 
-    short getServiceType();
+    int getServiceType();
 
     List<AnnotationBo> getAnnotationBoList();
 }

@@ -102,7 +102,7 @@ class DefaultServiceType implements ServiceType {
 
     @Override
     public boolean isInternalMethod() {
-        return this == INTERNAL_METHOD;
+        return this.code == INTERNAL_METHOD.getCode();
     }
 
     @Override
@@ -118,13 +118,13 @@ class DefaultServiceType implements ServiceType {
 
     @Override
     public boolean isUnknown() {
-        return this == ServiceType.UNKNOWN; // || this == ServiceType.UNKNOWN_CLOUD;
+        return this.code == ServiceType.UNKNOWN.getCode(); // || this == ServiceType.UNKNOWN_CLOUD;
     }
 
     // return true when the service type is USER or can not be identified
     @Override
     public boolean isUser() {
-        return this == ServiceType.USER;
+        return this.code == ServiceType.USER.getCode();
     }
 
     @Override

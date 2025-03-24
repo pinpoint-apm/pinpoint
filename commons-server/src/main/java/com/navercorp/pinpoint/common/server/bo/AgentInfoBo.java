@@ -32,7 +32,7 @@ public class AgentInfoBo {
     @NotBlank private final String agentId;
     private final String agentName;
     @NotBlank private final String applicationName;
-    private final short serviceTypeCode;
+    private final int serviceTypeCode;
     private final int pid;
     private final String vmVersion;
     private final String agentVersion;
@@ -107,10 +107,9 @@ public class AgentInfoBo {
         return pid;
     }
 
-    public short getServiceTypeCode() {
+    public int getServiceTypeCode() {
         return serviceTypeCode;
     }
-
 
     public String getVmVersion() {
         return vmVersion;
@@ -138,7 +137,7 @@ public class AgentInfoBo {
         buffer.putPrefixedString(this.getIp());
         buffer.putPrefixedString(this.getPorts());
         buffer.putPrefixedString(this.getApplicationName());
-        buffer.putShort(this.getServiceTypeCode());
+        buffer.putShort((short) this.getServiceTypeCode());
         buffer.putInt(this.getPid());
         buffer.putPrefixedString(this.getAgentVersion());
 
@@ -208,7 +207,7 @@ public class AgentInfoBo {
         private String agentId;
         private String agentName;
         private String applicationName;
-        private short serviceTypeCode;
+        private int serviceTypeCode;
         private int pid;
         private String vmVersion;
         private String agentVersion;
@@ -250,12 +249,12 @@ public class AgentInfoBo {
             this.applicationName = applicationName;
         }
 
-        public void setServiceTypeCode(short serviceTypeCode) {
+        public void setServiceTypeCode(int serviceTypeCode) {
             this.serviceTypeCode = serviceTypeCode;
         }
 
         public short getServiceTypeCode() {
-            return serviceTypeCode;
+            return (short) serviceTypeCode;
         }
 
         public void setPid(int pid) {

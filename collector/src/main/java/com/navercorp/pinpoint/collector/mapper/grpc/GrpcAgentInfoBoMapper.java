@@ -48,7 +48,7 @@ public class GrpcAgentInfoBoMapper {
         final String hostName = agentInfo.getHostname();
         final String ip = agentInfo.getIp();
         final String ports = agentInfo.getPorts();
-        final short serviceType = (short) agentInfo.getServiceType();
+        final int serviceType = agentInfo.getServiceType();
         final int pid = agentInfo.getPid();
         final String vmVersion = agentInfo.getVmVersion();
         final String agentVersion = agentInfo.getAgentVersion();

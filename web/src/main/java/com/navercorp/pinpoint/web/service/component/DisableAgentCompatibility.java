@@ -1,15 +1,13 @@
 package com.navercorp.pinpoint.web.service.component;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
-
 public class DisableAgentCompatibility implements LegacyAgentCompatibility {
     @Override
-    public boolean isLegacyAgent(short serviceType) {
+    public boolean isLegacyAgent(int serviceType) {
         return false;
     }
 
     @Override
-    public boolean isLegacyAgent(short serviceType, String version) {
+    public boolean isLegacyAgent(int serviceType, String version) {
         return false;
     }
 }

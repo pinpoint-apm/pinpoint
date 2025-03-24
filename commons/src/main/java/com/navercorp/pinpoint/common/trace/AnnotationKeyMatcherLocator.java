@@ -21,5 +21,5 @@ package com.navercorp.pinpoint.common.trace;
  */
 public interface AnnotationKeyMatcherLocator {
 
-    AnnotationKeyMatcher findAnnotationKeyMatcher(short serviceType);
+    AnnotationKeyMatcher findAnnotationKeyMatcher(int serviceType);
 }

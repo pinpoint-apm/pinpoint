@@ -38,7 +38,7 @@ public class AnnotationKeyMatcherRegistry implements AnnotationKeyMatcherLocator
         this.annotationMatcherMap = Objects.requireNonNull(annotationMatcherMap, "annotationMatcherMap");
     }
 
-    public AnnotationKeyMatcher findAnnotationKeyMatcher(short serviceType) {
+    public AnnotationKeyMatcher findAnnotationKeyMatcher(int serviceType) {
         return annotationMatcherMap.get(serviceType);
     }
 

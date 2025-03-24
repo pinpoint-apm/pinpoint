@@ -23,7 +23,7 @@ import java.util.List;
  */
 public interface ServiceTypeLocator {
 
-    ServiceType findServiceType(short code);
+    ServiceType findServiceType(int code);
 
     ServiceType findServiceTypeByName(String name);
 

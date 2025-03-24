@@ -37,7 +37,7 @@ public class DefaultAnnotationKeyMatcherService implements AnnotationKeyMatcherS
     }
 
     @Override
-    public AnnotationKeyMatcher findAnnotationKeyMatcher(short serviceType) {
+    public AnnotationKeyMatcher findAnnotationKeyMatcher(int serviceType) {
         return annotationKeyMatcherLocator.findAnnotationKeyMatcher(serviceType);
     }
 }

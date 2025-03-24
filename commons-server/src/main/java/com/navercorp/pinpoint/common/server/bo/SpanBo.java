@@ -54,7 +54,7 @@ public class SpanBo implements Event, BasicSpan {
     private int elapsed;
 
     private String rpc;
-    private short serviceType;
+    private int serviceType;
     private String endPoint;
     private int apiId;
 
@@ -72,7 +72,7 @@ public class SpanBo implements Event, BasicSpan {
     private String exceptionMessage;
     private String exceptionClass;
 
-    private Short applicationServiceType;
+    private int applicationServiceType;
 
     private String acceptorHost;
     private String remoteAddr; // optional
@@ -278,11 +278,11 @@ public class SpanBo implements Event, BasicSpan {
         this.spanChunkBoList.add(asyncSpanBo);
     }
 
-    public short getServiceType() {
+    public int getServiceType() {
         return serviceType;
     }
 
-    public void setServiceType(short serviceType) {
+    public void setServiceType(int serviceType) {
         this.serviceType = serviceType;
     }
 
@@ -349,15 +349,15 @@ public class SpanBo implements Event, BasicSpan {
         this.exceptionClass = exceptionClass;
     }
 
-    public void setApplicationServiceType(Short applicationServiceType) {
+    public void setApplicationServiceType(int applicationServiceType) {
         this.applicationServiceType = applicationServiceType;
     }
 
     public boolean hasApplicationServiceType() {
-        return applicationServiceType != null;
+        return ServiceTypeUtils.hasServiceType(applicationServiceType);
     }
 
-    public short getApplicationServiceType() {
+    public int getApplicationServiceType() {
         if (hasApplicationServiceType()) {
             return this.applicationServiceType;
         } else {
@@ -456,7 +456,7 @@ public class SpanBo implements Event, BasicSpan {
         private int elapsed;
 
         private String rpc;
-        private short serviceType;
+        private int serviceType;
         private String endPoint;
         private int apiId;
 
@@ -473,7 +473,7 @@ public class SpanBo implements Event, BasicSpan {
         private String exceptionMessage;
         private String exceptionClass;
 
-        private Short applicationServiceType;
+        private int applicationServiceType;
 
         private String acceptorHost;
         private String remoteAddr; // optional
@@ -552,7 +552,7 @@ public class SpanBo implements Event, BasicSpan {
             return this;
         }
 
-        public Builder setServiceType(short serviceType) {
+        public Builder setServiceType(int serviceType) {
             this.serviceType = serviceType;
             return this;
         }
@@ -597,7 +597,7 @@ public class SpanBo implements Event, BasicSpan {
             return this;
         }
 
-        public Builder setApplicationServiceType(Short applicationServiceType) {
+        public Builder setApplicationServiceType(int applicationServiceType) {
             this.applicationServiceType = applicationServiceType;
             return this;
         }

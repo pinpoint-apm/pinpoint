@@ -24,7 +24,7 @@ import java.util.List;
  * @author emeroad
  */
 public interface ServiceTypeRegistryService {
-    ServiceType findServiceType(short serviceType);
+    ServiceType findServiceType(int serviceType);
 
     ServiceType findServiceTypeByName(String typeName);
 

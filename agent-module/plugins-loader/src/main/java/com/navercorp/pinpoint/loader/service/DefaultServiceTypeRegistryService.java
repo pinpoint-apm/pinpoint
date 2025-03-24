@@ -36,7 +36,7 @@ public class DefaultServiceTypeRegistryService implements ServiceTypeRegistrySer
     }
 
     @Override
-    public ServiceType findServiceType(short serviceType) {
+    public ServiceType findServiceType(int serviceType) {
         return serviceTypeLocator.findServiceType(serviceType);
     }
 

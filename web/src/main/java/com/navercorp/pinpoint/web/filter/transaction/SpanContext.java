@@ -69,7 +69,7 @@ public class SpanContext {
         return Filter.REJECT;
     }
 
-    public ServiceType findServiceType(short serviceType) {
+    public ServiceType findServiceType(int serviceType) {
         return serviceTypeRegistryService.findServiceType(serviceType);
     }
 }

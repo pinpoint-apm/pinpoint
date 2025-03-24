@@ -221,12 +221,12 @@ public class FilteredMapBuilder {
                     if (parentApplicationName == null) {
                         parentApplicationName = span.getRemoteAddr();
                     }
-                    short parentServiceType = span.getServiceType();
+                    int parentServiceType = span.getServiceType();
                     return this.applicationFactory.createApplication(parentApplicationName, parentServiceType);
                 }
             }
             String parentApplicationName = parentSpan.getApplicationName();
-            short parentServiceType = parentSpan.getApplicationServiceType();
+            int parentServiceType = parentSpan.getApplicationServiceType();
             return this.applicationFactory.createApplication(parentApplicationName, parentServiceType);
         }
     }

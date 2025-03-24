@@ -97,7 +97,7 @@ public class GrpcSpanBinder {
         spanBo.setStartTime(pSpan.getStartTime());
         spanBo.setElapsed(pSpan.getElapsed());
 
-        spanBo.setServiceType((short) pSpan.getServiceType());
+        spanBo.setServiceType(pSpan.getServiceType());
 
         spanBo.setFlag((short) pSpan.getFlag());
         spanBo.setApiId(pSpan.getApiId());
@@ -106,7 +106,7 @@ public class GrpcSpanBinder {
 
         spanBo.setLoggingTransactionInfo((byte) pSpan.getLoggingTransactionInfo());
 
-        spanBo.setApplicationServiceType((short) pSpan.getApplicationServiceType());
+        spanBo.setApplicationServiceType(pSpan.getApplicationServiceType());
 
         if (pSpan.hasAcceptEvent()) {
             final PAcceptEvent acceptEvent = pSpan.getAcceptEvent();

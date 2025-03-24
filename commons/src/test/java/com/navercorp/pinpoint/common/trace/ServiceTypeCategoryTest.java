@@ -23,5 +23,10 @@ class ServiceTypeCategoryTest {
     @Test
     void findCategory_error() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> ServiceTypeCategory.findCategory(-1000));
+
+        System.out.println(Byte.toUnsignedInt((byte)1));
+        System.out.println(Byte.toUnsignedInt((byte)-1));
+        System.out.println(Byte.toUnsignedInt(Byte.MAX_VALUE));
+        System.out.println(Byte.toUnsignedInt(Byte.MIN_VALUE));
     }
 }

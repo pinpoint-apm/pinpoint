@@ -62,7 +62,7 @@ public class ServiceTypeRegistry implements ServiceTypeLocator {
     }
 
     @Override
-    public ServiceType findServiceType(short code) {
+    public ServiceType findServiceType(int code) {
         final ServiceType serviceType = this.codeLookupTable.get(code);
         if (serviceType == null) {
             return ServiceType.UNDEFINED;

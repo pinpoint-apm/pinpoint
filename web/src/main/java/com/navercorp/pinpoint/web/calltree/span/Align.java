@@ -78,11 +78,11 @@ public interface Align {
 
     String getApplicationName();
 
-    Short getApplicationServiceType();
+    int getApplicationServiceType();
 
     long getAgentStartTime();
 
-    short getServiceType();
+    int getServiceType();
 
     String getTransactionId();
 

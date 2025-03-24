@@ -38,7 +38,7 @@ public class SpanAlignerTest {
     @BeforeEach
     public void setUp() throws Exception {
         serviceTypeRegistryService = Mockito.mock(ServiceTypeRegistryService.class);
-        Mockito.when(serviceTypeRegistryService.findServiceType(Mockito.anyShort())).thenReturn(ServiceType.UNKNOWN);
+        Mockito.when(serviceTypeRegistryService.findServiceType(Mockito.anyInt())).thenReturn(ServiceType.UNKNOWN);
     }
 
     @Test

@@ -6,11 +6,11 @@ import org.semver4j.Semver;
 import java.util.List;
 
 public class LegacyAgent {
-    private final short[] serviceTypes;
+    private final int[] serviceTypes;
     private final Semver legacySemver;
 
-    public LegacyAgent(List<Short> serviceType, String legacySemver) {
-        this.serviceTypes = ArrayUtils.toPrimitive(serviceType.toArray(new Short[0]));
+    public LegacyAgent(List<Integer> serviceType, String legacySemver) {
+        this.serviceTypes = ArrayUtils.toPrimitive(serviceType.toArray(new Integer[0]));
         this.legacySemver = parse(legacySemver);
     }
 
@@ -21,7 +21,7 @@ public class LegacyAgent {
         return Semver.parse(legacySemver);
     }
 
-    public boolean isLegacyType(short serviceTypeCode) {
+    public boolean isLegacyType(int serviceTypeCode) {
         return ArrayUtils.contains(serviceTypes, serviceTypeCode);
     }
 

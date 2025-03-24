@@ -82,7 +82,7 @@ public class LinkContext {
         return node;
     }
 
-    public ServiceType findServiceType(short serviceType) {
+    public ServiceType findServiceType(int serviceType) {
         return spanContext.findServiceType(serviceType);
     }
 

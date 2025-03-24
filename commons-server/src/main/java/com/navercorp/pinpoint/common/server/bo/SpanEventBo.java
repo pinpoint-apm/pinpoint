@@ -35,7 +35,7 @@ public class SpanEventBo implements Event {
     private int endElapsed;
 
     // private String rpc;
-    private short serviceType;
+    private int serviceType;
 
     private String destinationId;
     private String endPoint;
@@ -92,11 +92,11 @@ public class SpanEventBo implements Event {
         this.endElapsed = endElapsed;
     }
 
-    public short getServiceType() {
+    public int getServiceType() {
         return serviceType;
     }
 
-    public void setServiceType(short serviceType) {
+    public void setServiceType(int serviceType) {
         this.serviceType = serviceType;
     }
 

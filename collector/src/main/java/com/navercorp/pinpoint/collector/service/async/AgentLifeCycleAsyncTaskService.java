@@ -81,7 +81,7 @@ public class AgentLifeCycleAsyncTaskService {
     }
 
     private void updateAgentState(int serviceTypeCode, long eventTimestamp, String applicationName, String agentId) {
-        final ServiceType serviceType = registry.findServiceType((short) serviceTypeCode);
+        final ServiceType serviceType = registry.findServiceType(serviceTypeCode);
         if (isUpdateAgentState(serviceType)) {
             statisticsService.updateAgentState(eventTimestamp, applicationName, serviceType, agentId);
         }
