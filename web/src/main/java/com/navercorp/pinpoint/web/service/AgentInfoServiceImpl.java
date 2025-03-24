@@ -17,7 +17,6 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.server.util.time.DateTimeUtils;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentInfoQuery;
@@ -31,10 +30,7 @@ import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
-import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
-import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilters;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
-import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentAndStatus;
@@ -46,19 +42,13 @@ import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineBuild
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegment;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByApplication;
-import com.navercorp.pinpoint.web.vo.tree.AgentsMapByHost;
 import com.navercorp.pinpoint.web.vo.tree.ApplicationAgentHostList;
-import com.navercorp.pinpoint.web.vo.tree.SortByAgentInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
-import java.time.Duration;
 import java.time.Instant;
-import java.time.Period;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -145,107 +135,6 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public AgentsMapByHost getAgentsListByApplicationName(AgentStatusFilter agentStatusFilter,
-                                                          String applicationName,
-                                                          Range range,
-                                                          SortByAgentInfo.Rules sortBy) {
-        return getAgentsListByApplicationName(agentStatusFilter, AgentInfoFilters.acceptAll(), applicationName, range, sortBy);
-    }
-
-    @Override
-    public AgentsMapByHost getAgentsListByApplicationName(AgentStatusFilter agentStatusFilter,
-                                                          AgentInfoFilter agentInfoPredicate,
-                                                          String applicationName,
-                                                          Range range,
-                                                          SortByAgentInfo.Rules sortBy) {
-        Objects.requireNonNull(agentStatusFilter, "agentStatusFilter");
-        Objects.requireNonNull(agentInfoPredicate, "agentInfoPredicate");
-        Objects.requireNonNull(applicationName, "applicationName");
-
-        Set<AgentAndStatus> agentInfoAndStatuses = getAgentsByApplicationName(applicationName, range.getTo());
-        if (agentInfoAndStatuses.isEmpty()) {
-            logger.warn("agent list is empty for application:{}", applicationName);
-        }
-
-        AgentsMapByHost agentsMapByHost = AgentsMapByHost.newAgentsMapByHost(
-                agentAndStatus -> isActiveAgentPredicate(agentAndStatus, agentInfoPredicate, agentStatusFilter, range),
-                SortByAgentInfo.comparing(AgentStatusAndLink::getAgentInfo, sortBy.getRule()),
-                hyperLinkFactory,
-                agentInfoAndStatuses
-        );
-
-        final int totalAgentCount = agentsMapByHost.size();
-        if (logger.isInfoEnabled()) {
-            logger.info("getAgentsMapByHostname size:{}", totalAgentCount);
-        }
-        if (logger.isDebugEnabled()) {
-            logger.debug("getAgentsMapByHostname size:{} data:{}", totalAgentCount, agentsMapByHost);
-        }
-        return agentsMapByHost;
-    }
-
-    private boolean isActiveAgentPredicate(AgentAndStatus agentAndStatus,
-                                           AgentInfoFilter agentInfoPredicate,
-                                           Predicate<AgentStatus> agentStatusFilter,
-                                           Range range) {
-        logger.trace("isActiveAgentPredicate {}", agentAndStatus);
-        AgentInfo agentInfo = agentAndStatus.getAgentInfo();
-        if (agentInfoPredicate.test(agentInfo)) {
-            logger.trace("agentInfoPredicate=true {}", agentAndStatus);
-        }
-        if (agentStatusFilter.test(agentAndStatus.getStatus())) {
-            logger.trace("agentStatusFilter=true {}", agentAndStatus);
-            return true;
-        }
-        Application agent = new Application(agentInfo.getAgentId(), agentInfo.getServiceType());
-        String agentVersion = agentInfo.getAgentVersion();
-        if (activeAgentValidator.isActiveAgent(agent, agentVersion, range)) {
-            return true;
-        }
-        logger.trace("isActiveAgentPredicate=false {}", agentAndStatus);
-        return false;
-    }
-
-
-    @Deprecated
-    @Override
-    public ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, Period durationDays) {
-        if (offset <= 0) {
-            throw new IllegalArgumentException("offset must be greater than 0");
-        }
-        if (limit <= 0) {
-            throw new IllegalArgumentException("limit must be greater than 0");
-        }
-        Objects.requireNonNull(durationDays, "durationDays");
-
-        return getApplicationAgentHostList0(offset, limit, durationDays);
-    }
-
-    @Deprecated
-    private ApplicationAgentHostList getApplicationAgentHostList0(int offset, int limit, Period durationDays) {
-        List<String> applicationNameList = getApplicationNameList(applicationIndexDao.selectAllApplicationNames());
-        if (offset > applicationNameList.size()) {
-            ApplicationAgentHostList.Builder builder = newBuilder(offset, offset, applicationNameList.size());
-            return builder.build();
-        }
-
-        final long timeStamp = System.currentTimeMillis();
-
-        final int startIndex = offset - 1;
-        final int endIndex = Math.min(startIndex + limit, applicationNameList.size());
-
-        ApplicationAgentHostList.Builder builder = newBuilder(offset, endIndex, applicationNameList.size());
-        for (int i = startIndex; i < endIndex; i++) {
-            String applicationName = applicationNameList.get(i);
-
-            List<String> agentIdList = getAgentIdList(applicationName, durationDays);
-            List<AgentInfo> agentInfoList = this.agentInfoDao.getSimpleAgentInfos(agentIdList, timeStamp);
-            builder.addAgentInfo(applicationName, agentInfoList);
-        }
-        return builder.build();
-    }
-
-    @Override
     public ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationHours, List<Application> applicationList, Predicate<AgentInfo> agentInfoFilter) {
         List<String> applicationNameList = getApplicationNameList(applicationList);
         return getApplicationAgentHostList2(offset, limit, durationHours, applicationNameList, agentInfoFilter);
@@ -285,43 +174,6 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     private ApplicationAgentHostList.Builder newBuilder(int offset, int endIndex, int totalApplications) {
         return ApplicationAgentHostList.newBuilder(offset, endIndex, totalApplications);
-    }
-
-    @Deprecated
-    private List<String> getAgentIdList(String applicationName, Period durationDays) {
-        List<String> agentIds = this.applicationIndexDao.selectAgentIds(applicationName);
-        if (CollectionUtils.isEmpty(agentIds)) {
-            return Collections.emptyList();
-        }
-        if (durationDays.isNegative()) {
-            return agentIds;
-        }
-
-        Instant now = DateTimeUtils.epochMilli();
-        Instant before = now.minus(Duration.ofHours(1));
-        Range fastRange = Range.between(before, now);
-
-        Instant queryFrom = now.minus(durationDays);
-        Instant queryTo = before.plusMillis(1);
-        Range queryRange = Range.between(queryFrom, queryTo);
-
-        List<String> activeAgentIdList = new ArrayList<>();
-        for (String agentId : agentIds) {
-            // FIXME This needs to be done with a more accurate information.
-            // If at any time a non-java agent is introduced, or an agent that does not collect jvm data,
-            // this will fail
-            boolean dataExists = activeAgentValidator.isActiveAgent(agentId, fastRange);
-            if (dataExists) {
-                activeAgentIdList.add(agentId);
-                continue;
-            }
-
-            dataExists = activeAgentValidator.isActiveAgent(agentId, queryRange);
-            if (dataExists) {
-                activeAgentIdList.add(agentId);
-            }
-        }
-        return activeAgentIdList;
     }
 
     private List<String> getApplicationNameList(List<Application> applications) {
