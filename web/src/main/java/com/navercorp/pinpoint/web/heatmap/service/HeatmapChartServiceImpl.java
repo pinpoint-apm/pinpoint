@@ -16,19 +16,24 @@
 
 package com.navercorp.pinpoint.web.heatmap.service;
 
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.web.heatmap.dao.HeatmapChartDao;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatmapSearchKey;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
 /**
  * @author minwoo-jung
  */
+@Service
 public class HeatmapChartServiceImpl implements HeatmapChartService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
+    private final String POSTFIX_SORT_KEY_SUCCESS = "#suc";
+    private final String POSTFIX_SORT_KEY_FAIL = "#fal";
 
     private final HeatmapChartDao heatmapChartDao;
 
@@ -37,7 +42,8 @@ public class HeatmapChartServiceImpl implements HeatmapChartService {
     }
 
     @Override
-    public void getHeatmapAppData(HeatmapSearchKey heatmapSearchKey) {
+    public void getHeatmapAppData(String applicationName, TimeWindow timeWindow) {
+        HeatmapSearchKey heatmapSearchKey = new HeatmapSearchKey(applicationName+ POSTFIX_SORT_KEY_SUCCESS, timeWindow);
         heatmapChartDao.getHeatmapAppData(heatmapSearchKey);
     }
 }

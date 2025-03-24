@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
+import com.navercorp.pinpoint.web.heatmap.service.EmptyHeatmapService;
 import com.navercorp.pinpoint.web.heatmap.service.HeatmapChartService;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatmapSearchKey;
 import jakarta.validation.constraints.NotBlank;
@@ -32,37 +33,33 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author minwoo-jung
  */
 
-//@RestController
-//@RequestMapping("/api")
-//@Validated
+@RestController
+@RequestMapping("/api")
+@Validated
 public class HeatmapChartController {
 
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(10000L, 30);
-    private final TenantProvider tenantProvider;
     private final HeatmapChartService heatmapChartService;
 
-    public HeatmapChartController(HeatmapChartService heatmapChartService, TenantProvider tenantProvider) {
-        this.heatmapChartService = Objects.requireNonNull(heatmapChartService, "heatmapChartService");
-        this.tenantProvider = Objects.requireNonNull(tenantProvider, "tenantProvider");
+    public HeatmapChartController(Optional<HeatmapChartService> heatmapChartService, TenantProvider tenantProvider) {
+        this.heatmapChartService = heatmapChartService.orElseGet(EmptyHeatmapService::new);
         //TODO : (minwoo) need to set rangeValidator
     }
 
     @GetMapping(value = "/getHeatmapAppData")
-    public void getHeatmapAppData(@RequestParam("application") @NotBlank String applicationName,
+    public void getHeatmapAppData(@RequestParam("applicationName") @NotBlank String applicationName,
                                       @RequestParam("from") @PositiveOrZero long from,
                                       @RequestParam("to") @PositiveOrZero long to) {
         Range range = Range.between(from, to);
         TimeWindow timeWindow = getTimeWindow(range);
-        String tenantId = tenantProvider.getTenantId();
 //        HeatmapChartData heatmapChartData = heatmapChartService.getHeatmapData(applicationName, from, to);
-
-        HeatmapSearchKey heatmapSearchKey = new HeatmapSearchKey(tenantId, applicationName, timeWindow);
-        heatmapChartService.getHeatmapAppData(heatmapSearchKey);
+        heatmapChartService.getHeatmapAppData(applicationName, timeWindow);
         //        return new HeatmapView(heatmapChartData);
 
     }

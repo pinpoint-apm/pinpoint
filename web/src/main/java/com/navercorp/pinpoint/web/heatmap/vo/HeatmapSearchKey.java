@@ -28,19 +28,33 @@ import java.util.concurrent.TimeUnit;
  * @author minwoo-jung
  */
 public class HeatmapSearchKey {
-    private final String tenantId;
-    private final String applicationName;
+    private final String sortKey;
+
     private final Range range;
     private final TimePrecision timePrecision;
     private final long limit;
 
-    public HeatmapSearchKey(String tenantId, String applicationName, TimeWindow timeWindow) {
-        this.tenantId = StringPrecondition.requireHasLength(tenantId, "tenantId");
-        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
-
+    public HeatmapSearchKey(String sortKey, TimeWindow timeWindow) {
+        this.sortKey = StringPrecondition.requireHasLength(sortKey, "applicationName");
         Objects.requireNonNull(timeWindow, "timeWindow");
         this.range = timeWindow.getWindowRange();
         this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize());
         this.limit = timeWindow.getWindowRangeCount();
+    }
+
+    public String getSortKey() {
+        return sortKey;
+    }
+
+    public Range getRange() {
+        return range;
+    }
+
+    public TimePrecision getTimePrecision() {
+        return timePrecision;
+    }
+
+    public long getLimit() {
+        return limit;
     }
 }

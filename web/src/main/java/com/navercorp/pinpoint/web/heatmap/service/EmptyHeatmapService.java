@@ -21,7 +21,10 @@ import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 /**
  * @author minwoo-jung
  */
-public interface HeatmapChartService {
+public class EmptyHeatmapService implements HeatmapChartService {
 
-    void getHeatmapAppData(String applicationName, TimeWindow timeWindow);
+    @Override
+    public void getHeatmapAppData(String applicationName, TimeWindow timeWindow) {
+        throw new UnsupportedOperationException();
+    }
 }

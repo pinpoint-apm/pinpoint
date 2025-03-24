@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.heatmap.service;
+package com.navercorp.pinpoint.web.heatmap.config;
 
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 
 /**
  * @author minwoo-jung
  */
-public interface HeatmapChartService {
+@PropertySources({
+        @PropertySource(name = "HeatmapPropertySources-WEB", value = { HeatmapPropertySources.WEB_CONFIG}),
+})
+public class HeatmapPropertySources {
 
-    void getHeatmapAppData(String applicationName, TimeWindow timeWindow);
+    public static final String WEB_CONFIG = "classpath:heatmap/web/profiles/${pinpoint.profiles.active:release}/heatmap-web.properties";
 }
