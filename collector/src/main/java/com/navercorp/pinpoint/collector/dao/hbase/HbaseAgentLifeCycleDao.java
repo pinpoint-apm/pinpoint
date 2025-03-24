@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.ValueMapper;
 import com.navercorp.pinpoint.common.hbase.util.Puts;
@@ -44,7 +44,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final HbaseColumnFamily.AgentLifeCycleStatus DESCRIPTOR = HbaseColumnFamily.AGENT_LIFECYCLE_STATUS;
+    private static final HbaseTables.AgentLifeCycleStatus DESCRIPTOR = HbaseTables.AGENT_LIFECYCLE_STATUS;
 
     private final HbaseOperations hbaseTemplate;
 

@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.LimitEventHandler;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
@@ -69,8 +69,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final HbaseColumnFamily.ApplicationTraceIndexTrace INDEX = HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE;
-    private static final HbaseColumnFamily.ApplicationTraceIndexTrace META = HbaseColumnFamily.APPLICATION_TRACE_INDEX_META;
+    private static final HbaseTables.ApplicationTraceIndexTrace INDEX = HbaseTables.APPLICATION_TRACE_INDEX_TRACE;
+    private static final HbaseTables.ApplicationTraceIndexTrace META = HbaseTables.APPLICATION_TRACE_INDEX_META;
 
     private final ScatterChartProperties scatterChartProperties;
 
@@ -172,7 +172,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
                 return;
             }
 
-            final Cell last = CellUtils.lastCell(lastResult.rawCells(), HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE.getName());
+            final Cell last = CellUtils.lastCell(lastResult.rawCells(), HbaseTables.APPLICATION_TRACE_INDEX_TRACE.getName());
             byte[] row = CellUtil.cloneRow(last);
             byte[] originalRow = traceIdRowKeyDistributor.getOriginalKey(row);
             long reverseStartTime = ByteArrayUtils.bytesToLong(originalRow, PinpointConstants.APPLICATION_NAME_MAX_LEN);

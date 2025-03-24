@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
@@ -42,7 +42,7 @@ import java.util.Objects;
 @Component
 public class SqlMetaDataMapper implements RowMapper<List<SqlMetaDataBo>> {
 
-    private final static byte[] SQL_METADATA_CQ = HbaseColumnFamily.SQL_METADATA_VER2_SQL.QUALIFIER_SQLSTATEMENT;
+    private final static byte[] SQL_METADATA_CQ = HbaseTables.SQL_METADATA_VER2_SQL.QUALIFIER_SQLSTATEMENT;
 
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 

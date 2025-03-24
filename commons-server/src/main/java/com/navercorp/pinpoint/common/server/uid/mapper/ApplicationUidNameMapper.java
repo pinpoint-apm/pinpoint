@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.common.server.uid.mapper;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import org.apache.hadoop.hbase.Cell;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ApplicationUidNameMapper implements RowMapper<String> {
 
-    private static final HbaseColumnFamily.ApplicationInfo DESCRIPTOR = HbaseColumnFamily.APPLICATION_NAME;
+    private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.APPLICATION_NAME;
 
     @Override
     public String mapRow(Result result, int rowNum) throws Exception {

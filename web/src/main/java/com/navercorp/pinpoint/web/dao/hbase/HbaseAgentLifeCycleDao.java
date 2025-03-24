@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
@@ -52,7 +52,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
     private static final int SCANNER_CACHING = 32;
     private static final long MAX_RESULT_SIZE = DataSize.ofKilobytes(4).toBytes();
 
-    private static final HbaseColumnFamily.AgentLifeCycleStatus DESCRIPTOR = HbaseColumnFamily.AGENT_LIFECYCLE_STATUS;
+    private static final HbaseTables.AgentLifeCycleStatus DESCRIPTOR = HbaseTables.AGENT_LIFECYCLE_STATUS;
 
     private final HbaseOperations hbaseOperations;
     private final TableNameProvider tableNameProvider;

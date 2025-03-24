@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
@@ -41,8 +41,8 @@ import java.util.stream.Collectors;
 @Component
 public class TraceIndexMetaScatterMapper implements RowMapper<List<DotMetaData>> {
 
-    private static final HbaseColumnFamily.ApplicationTraceIndexTrace INDEX = HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE;
-    private static final HbaseColumnFamily.ApplicationTraceIndexTrace META = HbaseColumnFamily.APPLICATION_TRACE_INDEX_META;
+    private static final HbaseTables.ApplicationTraceIndexTrace INDEX = HbaseTables.APPLICATION_TRACE_INDEX_TRACE;
+    private static final HbaseTables.ApplicationTraceIndexTrace META = HbaseTables.APPLICATION_TRACE_INDEX_META;
 
     // @Nullable
     private final Predicate<Dot> filter;

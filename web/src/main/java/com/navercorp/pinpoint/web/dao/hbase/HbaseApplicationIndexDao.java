@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -47,7 +48,7 @@ import java.util.Objects;
 @Repository
 public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 
-    private static final HbaseColumnFamily.ApplicationIndex DESCRIPTOR = HbaseColumnFamily.APPLICATION_INDEX_AGENTS;
+    private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.APPLICATION_INDEX_AGENTS;
 
     private final HbaseOperations hbaseOperations;
     private final TableNameProvider tableNameProvider;

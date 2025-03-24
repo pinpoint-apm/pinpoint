@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
@@ -45,7 +45,7 @@ import java.util.Objects;
 public class HbaseApiMetaDataDao implements ApiMetaDataDao {
     static final String SPEL_KEY = "#agentId.toString() + '.' + #time.toString() + '.' + #apiId.toString()";
 
-    private static final HbaseColumnFamily.ApiMetadata DESCRIPTOR = HbaseColumnFamily.API_METADATA_API;
+    private static final HbaseTables.ApiMetadata DESCRIPTOR = HbaseTables.API_METADATA_API;
 
     private final HbaseOperations hbaseOperations;
     private final TableNameProvider tableNameProvider;

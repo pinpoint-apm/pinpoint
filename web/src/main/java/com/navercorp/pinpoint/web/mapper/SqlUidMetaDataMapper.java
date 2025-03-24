@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.web.mapper;
 
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.SqlUidMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
@@ -20,7 +20,7 @@ import java.util.Objects;
 
 @Component
 public class SqlUidMetaDataMapper implements RowMapper<List<SqlUidMetaDataBo>> {
-    private final static String SQL_UID_METADATA_CF_SQL_QUALI_SQLSTATEMENT = Bytes.toString(HbaseColumnFamily.SQL_UID_METADATA_SQL.QUALIFIER_SQLSTATEMENT);
+    private final static String SQL_UID_METADATA_CF_SQL_QUALI_SQLSTATEMENT = Bytes.toString(HbaseTables.SQL_UID_METADATA_SQL.QUALIFIER_SQLSTATEMENT);
 
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 

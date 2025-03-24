@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.util.Puts;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
@@ -46,7 +47,7 @@ import java.util.Objects;
 public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private static final HbaseColumnFamily.HostStatMap DESCRIPTOR = HbaseColumnFamily.HOST_APPLICATION_MAP_VER2_MAP;
+    private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.HOST_APPLICATION_MAP_VER2_MAP;
 
     private final HbaseOperations hbaseTemplate;
 

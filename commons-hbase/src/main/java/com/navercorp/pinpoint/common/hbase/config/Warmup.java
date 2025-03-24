@@ -38,7 +38,7 @@ public class Warmup implements Consumer<Connection> {
 
     private final TableNameProvider tableNameProvider;
 
-    private List<HbaseTable> warmUpExclusive = List.of(HbaseTable.AGENT_URI_STAT);
+    private List<HbaseTable> warmUpExclusive;
 
     public Warmup(TableNameProvider tableNameProvider) {
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");

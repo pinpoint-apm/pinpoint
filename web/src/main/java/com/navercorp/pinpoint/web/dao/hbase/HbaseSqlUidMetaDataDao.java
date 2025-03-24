@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.SqlUidMetaDataBo;
@@ -21,7 +21,7 @@ import java.util.Objects;
 
 @Repository
 public class HbaseSqlUidMetaDataDao implements SqlUidMetaDataDao {
-    private final HbaseColumnFamily.SqlUidMetaData DESCRIPTOR = HbaseColumnFamily.SQL_UID_METADATA_SQL;
+    private final HbaseTables.SqlUidMetaData DESCRIPTOR = HbaseTables.SQL_UID_METADATA_SQL;
 
     private final HbaseOperations hbaseOperations;
     private final TableNameProvider tableNameProvider;

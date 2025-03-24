@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 import com.navercorp.pinpoint.collector.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import org.apache.hadoop.hbase.TableName;
@@ -41,7 +42,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final HbaseColumnFamily.ApplicationIndex DESCRIPTOR = HbaseColumnFamily.APPLICATION_INDEX_AGENTS;
+    private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.APPLICATION_INDEX_AGENTS;
 
     private final HbaseOperations hbaseTemplate;
 

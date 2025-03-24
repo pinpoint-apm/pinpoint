@@ -39,7 +39,7 @@ public class AsyncWarmup implements Consumer<AsyncConnection> {
 
     private final TableNameProvider tableNameProvider;
 
-    private List<HbaseTable> warmUpExclusive = List.of(HbaseTable.AGENT_URI_STAT);
+    private List<HbaseTable> warmUpExclusive;
 
     public AsyncWarmup(TableNameProvider tableNameProvider) {
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");

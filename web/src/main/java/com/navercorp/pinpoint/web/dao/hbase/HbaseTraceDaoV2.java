@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
@@ -64,7 +65,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final HbaseColumnFamily.Trace DESCRIPTOR = HbaseColumnFamily.TRACE_V2_SPAN;
+    private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.TRACE_V2_SPAN;
 
     private final HbaseOperations template2;
     private final TableNameProvider tableNameProvider;

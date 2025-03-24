@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.common.server.dao.hbase.mapper;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.common.util.TimeUtils;
 import org.apache.hadoop.hbase.client.Result;
 import org.springframework.stereotype.Component;
 
-import static com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.AGENTINFO_INFO;
+import static com.navercorp.pinpoint.common.hbase.HbaseTables.AGENTINFO_INFO;
 
 
 /**

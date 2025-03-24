@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.dao.hbase;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTable;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
@@ -54,7 +55,7 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final HbaseColumnFamily.CallerStatMap DESCRIPTOR = HbaseColumnFamily.MAP_STATISTICS_CALLER_VER2_COUNTER;
+    private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.MAP_STATISTICS_CALLER_VER2_COUNTER;
 
     private final HbaseOperations hbaseTemplate;
     private final TableNameProvider tableNameProvider;

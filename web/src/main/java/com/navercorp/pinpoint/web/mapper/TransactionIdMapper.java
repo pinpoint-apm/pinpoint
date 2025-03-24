@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import org.apache.hadoop.hbase.Cell;
@@ -50,7 +50,7 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
         Cell[] rawCells = result.rawCells();
         List<TransactionId> traceIdList = new ArrayList<>(rawCells.length);
         for (Cell cell : rawCells) {
-            if (CellUtil.matchingFamily(cell, HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE.getName())) {
+            if (CellUtil.matchingFamily(cell, HbaseTables.APPLICATION_TRACE_INDEX_TRACE.getName())) {
                 final byte[] qualifierArray = cell.getQualifierArray();
                 final int qualifierOffset = cell.getQualifierOffset();
                 final int qualifierLength = cell.getQualifierLength();

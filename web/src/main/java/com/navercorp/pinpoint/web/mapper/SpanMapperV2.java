@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.buffer.CachedStringAllocator;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.buffer.StringAllocator;
 import com.navercorp.pinpoint.common.buffer.StringCacheableBuffer;
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
@@ -111,7 +111,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         for (Cell cell : rawCells) {
             SpanDecoder spanDecoder = null;
             // only if family name is "span"
-            if (CellUtil.matchingFamily(cell, HbaseColumnFamily.TRACE_V2_SPAN.getName())) {
+            if (CellUtil.matchingFamily(cell, HbaseTables.TRACE_V2_SPAN.getName())) {
 
                 decodingContext.setCollectorAcceptedTime(cell.getTimestamp());
 

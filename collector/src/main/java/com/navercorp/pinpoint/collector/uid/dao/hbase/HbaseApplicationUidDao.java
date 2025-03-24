@@ -4,6 +4,7 @@ import com.navercorp.pinpoint.collector.uid.config.ApplicationUidConfig;
 import com.navercorp.pinpoint.collector.uid.dao.ApplicationUidDao;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.AsyncHbaseOperations;
@@ -28,7 +29,7 @@ import java.util.concurrent.CompletableFuture;
 @ConditionalOnProperty(value = "pinpoint.collector.application.uid.enable", havingValue = "true")
 public class HbaseApplicationUidDao implements ApplicationUidDao {
 
-    private static final HbaseColumnFamily.ApplicationUid APPLICATION_ID = HbaseColumnFamily.APPLICATION_UID;
+    private static final HbaseColumnFamily APPLICATION_ID = HbaseTables.APPLICATION_UID;
 
     private final HbaseOperations hbaseOperations;
     private final AsyncHbaseOperations asyncHbaseOperations;

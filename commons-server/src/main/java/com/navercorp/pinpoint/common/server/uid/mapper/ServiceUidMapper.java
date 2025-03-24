@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.common.server.uid.mapper;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ServiceUidMapper implements RowMapper<ServiceUid> {
 
-    private static final HbaseColumnFamily.ServiceUid DESCRIPTOR = HbaseColumnFamily.SERVICE_UID;
+    private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.SERVICE_UID;
 
     @Override
     public ServiceUid mapRow(Result result, int rowNum) throws Exception {

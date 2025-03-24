@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.web.uid.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
@@ -26,7 +27,7 @@ import java.util.Objects;
 @ConditionalOnProperty(name = "pinpoint.web.v4.enable", havingValue = "true")
 public class HbaseServiceNameDao implements ServiceNameDao {
 
-    private static final HbaseColumnFamily.ServiceName NAME = HbaseColumnFamily.SERVICE_NAME;
+    private static final HbaseColumnFamily NAME = HbaseTables.SERVICE_NAME;
 
     private final HbaseOperations hbaseOperations;
     private final TableNameProvider tableNameProvider;
