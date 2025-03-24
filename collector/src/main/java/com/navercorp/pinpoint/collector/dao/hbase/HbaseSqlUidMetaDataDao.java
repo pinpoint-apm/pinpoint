@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.SqlUidMetaDataDao;
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.SqlUidMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
@@ -21,7 +21,7 @@ import java.util.Objects;
 
 @Repository
 public class HbaseSqlUidMetaDataDao implements SqlUidMetaDataDao {
-    private static final HbaseColumnFamily.SqlUidMetaData descriptor = HbaseColumnFamily.SQL_UID_METADATA_SQL;
+    private static final HbaseTables.SqlUidMetaData descriptor = HbaseTables.SQL_UID_METADATA_SQL;
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 

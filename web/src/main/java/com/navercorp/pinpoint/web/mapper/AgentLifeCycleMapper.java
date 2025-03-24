@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
@@ -27,7 +27,7 @@ import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.springframework.stereotype.Component;
 
-import static com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.AGENT_LIFECYCLE_STATUS;
+import static com.navercorp.pinpoint.common.hbase.HbaseTables.AGENT_LIFECYCLE_STATUS;
 
 /**
  * @author HyunGil Jeong
@@ -41,7 +41,7 @@ public class AgentLifeCycleMapper implements RowMapper<AgentLifeCycleBo> {
             return null;
         }
 
-        Cell valueCell = result.getColumnLatestCell(AGENT_LIFECYCLE_STATUS.getName(), HbaseColumnFamily.AGENT_LIFECYCLE_STATUS.QUALIFIER_STATES);
+        Cell valueCell = result.getColumnLatestCell(AGENT_LIFECYCLE_STATUS.getName(), HbaseTables.AGENT_LIFECYCLE_STATUS.QUALIFIER_STATES);
         
         return createAgentLifeCycleBo(valueCell);
     }

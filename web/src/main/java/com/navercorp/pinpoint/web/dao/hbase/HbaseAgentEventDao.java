@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
@@ -53,7 +54,7 @@ public class HbaseAgentEventDao implements AgentEventDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final HbaseColumnFamily.AgentEvent DESCRIPTOR = HbaseColumnFamily.AGENT_EVENT_EVENTS;
+    private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.AGENT_EVENT_EVENTS;
 
     private final HbaseOperations hbaseOperations;
 

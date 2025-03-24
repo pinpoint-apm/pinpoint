@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.web.uid.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.uid.ApplicationIdentifier;
@@ -23,7 +24,7 @@ import java.util.List;
 @ConditionalOnProperty(name = "pinpoint.web.application.uid.enable", havingValue = "true")
 public class HbaseApplicationUidDao implements ApplicationUidDao {
 
-    private final HbaseColumnFamily.ApplicationUid ID = HbaseColumnFamily.APPLICATION_UID;
+    private final HbaseColumnFamily ID = HbaseTables.APPLICATION_UID;
 
     private final HbaseOperations hbaseOperations;
     private final TableNameProvider tableNameProvider;

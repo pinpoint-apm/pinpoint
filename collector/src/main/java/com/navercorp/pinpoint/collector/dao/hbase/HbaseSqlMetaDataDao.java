@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.SqlMetaDataDao;
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
@@ -43,7 +43,7 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final HbaseColumnFamily.SqlMetadataV2 descriptor = HbaseColumnFamily.SQL_METADATA_VER2_SQL;
+    private static final HbaseTables.SqlMetadataV2 descriptor = HbaseTables.SQL_METADATA_VER2_SQL;
 
     private final HbaseOperations hbaseTemplate;
     private final TableNameProvider tableNameProvider;

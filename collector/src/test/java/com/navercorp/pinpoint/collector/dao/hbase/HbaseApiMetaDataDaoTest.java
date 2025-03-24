@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.config.DistributorConfiguration;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
@@ -31,7 +31,7 @@ public class HbaseApiMetaDataDaoTest {
 
         doAnswer((invocation) -> {
             Put actual = invocation.getArgument(1);
-            List<Cell> actualCells = actual.get(HbaseColumnFamily.API_METADATA_API.getName(), HbaseColumnFamily.API_METADATA_API.QUALIFIER_SIGNATURE);
+            List<Cell> actualCells = actual.get(HbaseTables.API_METADATA_API.getName(), HbaseTables.API_METADATA_API.QUALIFIER_SIGNATURE);
             assertThat(actualCells).hasSize(1);
             return null;
         }).when(mockedHbaseTemplate).put(any(), any(Put.class));

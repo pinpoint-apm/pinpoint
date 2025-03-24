@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.collector.uid.dao.hbase;
 import com.navercorp.pinpoint.collector.uid.dao.ApplicationNameDao;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.AsyncHbaseOperations;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
@@ -24,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
 @ConditionalOnProperty(value = "pinpoint.collector.application.uid.enable", havingValue = "true")
 public class HbaseApplicationNameDao implements ApplicationNameDao {
 
-    private static final HbaseColumnFamily.ApplicationInfo NAME = HbaseColumnFamily.APPLICATION_NAME;
+    private static final HbaseColumnFamily NAME = HbaseTables.APPLICATION_NAME;
 
     private final HbaseOperations hbaseOperations;
     private final AsyncHbaseOperations asyncHbaseOperations;

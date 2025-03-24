@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
@@ -48,7 +48,7 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
 
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
-    private final HbaseColumnFamily.StringMetadataStr DESCRIPTOR = HbaseColumnFamily.STRING_METADATA_STR;
+    private final HbaseTables.StringMetadataStr DESCRIPTOR = HbaseTables.STRING_METADATA_STR;
 
     private final RowKeyEncoder<MetaDataRowKey> rowKeyEncoder = new MetadataEncoder();
 

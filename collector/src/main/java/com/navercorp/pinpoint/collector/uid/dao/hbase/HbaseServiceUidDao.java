@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.collector.uid.dao.hbase;
 import com.navercorp.pinpoint.collector.uid.dao.ServiceUidDao;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
@@ -19,7 +20,7 @@ import java.util.Objects;
 @ConditionalOnProperty(name = "pinpoint.collector.v4.enable", havingValue = "true")
 public class HbaseServiceUidDao implements ServiceUidDao {
 
-    private static final HbaseColumnFamily.ServiceUid UID = HbaseColumnFamily.SERVICE_UID;
+    private static final HbaseColumnFamily UID = HbaseTables.SERVICE_UID;
 
     private final HbaseOperations hbaseOperations;
     private final TableNameProvider tableNameProvider;

@@ -1,14 +1,14 @@
 package com.navercorp.pinpoint.common.server.scatter;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FuzzyRowFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Pair;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,7 +19,7 @@ public class FuzzyRowKeyBuilder {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final int MASK_SIZE = 1; // one byte
-    private static final int HBASE_SALT_KEY_SIZE = HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE.ROW_DISTRIBUTE_SIZE; // one byte
+    private static final int HBASE_SALT_KEY_SIZE = HbaseTables.ApplicationTraceIndexTrace.ROW_DISTRIBUTE_SIZE; // one byte
 
     private static final byte[] FuzzyRowKeyMask = newFuzzyRowKey();
     private static final byte[] FuzzyInfoMask = newFuzzyInfo();

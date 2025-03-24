@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.AgentInfoDao;
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
@@ -44,7 +44,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     private static final int SCANNER_CACHING = 1;
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private static final HbaseColumnFamily.AgentInfo DESCRIPTOR = HbaseColumnFamily.AGENTINFO_INFO;
+    private static final HbaseTables.AgentInfo DESCRIPTOR = HbaseTables.AGENTINFO_INFO;
 
     private final HbaseOperations hbaseTemplate;
     private final TableNameProvider tableNameProvider;

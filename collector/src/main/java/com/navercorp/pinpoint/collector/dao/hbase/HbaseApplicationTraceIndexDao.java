@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
@@ -47,8 +47,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final HbaseColumnFamily.ApplicationTraceIndexTrace INDEX = HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE;
-    private static final HbaseColumnFamily.ApplicationTraceIndexTrace META = HbaseColumnFamily.APPLICATION_TRACE_INDEX_META;
+    private static final HbaseTables.ApplicationTraceIndexTrace INDEX = HbaseTables.APPLICATION_TRACE_INDEX_TRACE;
+    private static final HbaseTables.ApplicationTraceIndexTrace META = HbaseTables.APPLICATION_TRACE_INDEX_META;
 
     private final HbasePutWriter putWriter;
     private final TableNameProvider tableNameProvider;

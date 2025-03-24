@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -64,7 +64,7 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
 
         ResponseTime responseTime = createResponseTime(rowKey);
         for (Cell cell : result.rawCells()) {
-            if (CellUtil.matchingFamily(cell, HbaseColumnFamily.MAP_STATISTICS_SELF_VER2_COUNTER.getName())) {
+            if (CellUtil.matchingFamily(cell, HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER.getName())) {
                 recordColumn(responseTime, cell);
             }
 

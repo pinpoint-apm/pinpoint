@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.util.time.Range;
@@ -46,7 +47,7 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final HbaseColumnFamily.SelfStatMap DESCRIPTOR = HbaseColumnFamily.MAP_STATISTICS_SELF_VER2_COUNTER;
+    private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER;
 
     private final RowMapper<ResponseTime> responseTimeMapper;
 

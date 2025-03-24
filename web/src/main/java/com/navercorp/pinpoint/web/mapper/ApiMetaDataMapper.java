@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
@@ -46,7 +46,7 @@ import java.util.Objects;
 @Component
 public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
 
-    private final static byte[] API_METADATA_CQ = HbaseColumnFamily.API_METADATA_API.QUALIFIER_SIGNATURE;
+    private final static byte[] API_METADATA_CQ = HbaseTables.API_METADATA_API.QUALIFIER_SIGNATURE;
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 

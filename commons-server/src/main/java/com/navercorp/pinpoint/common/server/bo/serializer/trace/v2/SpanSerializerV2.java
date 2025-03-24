@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.HbaseSerializer;
 import com.navercorp.pinpoint.common.server.bo.serializer.SerializationContext;
@@ -31,7 +31,7 @@ public class SpanSerializerV2 implements HbaseSerializer<SpanBo, Put> {
         ByteBuffer columnValue = spanEncoder.encodeSpanColumnValue(encodingContext);
 
         long acceptedTime = put.getTimestamp();
-        put.addColumn(HbaseColumnFamily.TRACE_V2_SPAN.getName(), qualifier, acceptedTime, columnValue);
+        put.addColumn(HbaseTables.TRACE_V2_SPAN.getName(), qualifier, acceptedTime, columnValue);
     }
 
 
