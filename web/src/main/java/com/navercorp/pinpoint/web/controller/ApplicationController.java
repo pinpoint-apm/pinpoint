@@ -31,7 +31,6 @@ import com.navercorp.pinpoint.web.vo.tree.ApplicationAgentHostList;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
-import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,7 +39,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.Period;
 import java.util.List;
 import java.util.Objects;
 
@@ -69,20 +67,6 @@ public class ApplicationController {
         this.applicationService = Objects.requireNonNull(applicationService, "applicationService");
         this.commonService = Objects.requireNonNull(commonService, "commonService");
         this.cacheService = Objects.requireNonNull(cacheService, "cacheService");
-    }
-
-    @GetMapping(value = "/getApplicationHostInfoV1")
-    public ApplicationAgentHostList getApplicationHostInfoV1(
-            @RequestParam(value = "offset", required = false, defaultValue = "1") @Positive int offset,
-            @RequestParam(value = "limit", required = false, defaultValue = "100") @Positive int limit,
-            @RequestParam(value = "durationDays", required = false) @PositiveOrZero Integer durationDays
-    ) {
-        int maxLimit = Math.min(MAX_PAGING_LIMIT, limit);
-        durationDays = ObjectUtils.defaultIfNull(durationDays, AgentInfoService.NO_DURATION);
-        durationDays = Math.min(MAX_DURATION_DAYS, durationDays);
-
-        Period durationDaysPeriod = Period.ofDays(durationDays);
-        return agentInfoService.getApplicationAgentHostList(offset, maxLimit, durationDaysPeriod);
     }
 
     @GetMapping(value = "/getApplicationHostInfo", params = "durationHours")
