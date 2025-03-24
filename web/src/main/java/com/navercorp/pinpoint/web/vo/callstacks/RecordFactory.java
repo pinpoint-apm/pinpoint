@@ -120,7 +120,7 @@ public class RecordFactory {
         return this.annotationRecordFormatter.formatArguments(key, displayArgument, align);
     }
 
-    private AnnotationBo getDisplayArgument0(final short serviceType, final List<AnnotationBo> annotationBoList) {
+    private AnnotationBo getDisplayArgument0(final int serviceType, final List<AnnotationBo> annotationBoList) {
         if (annotationBoList == null) {
             return null;
         }

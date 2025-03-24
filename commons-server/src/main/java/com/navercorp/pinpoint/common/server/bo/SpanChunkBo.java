@@ -41,8 +41,8 @@ public class SpanChunkBo implements BasicSpan {
     private String endPoint;
 
     @Deprecated
-    private short serviceType;
-    private Short applicationServiceType;
+    private int serviceType;
+    private int applicationServiceType;
 
     private final List<SpanEventBo> spanEventBoList = new ArrayList<>();
 
@@ -157,25 +157,25 @@ public class SpanChunkBo implements BasicSpan {
         this.collectorAcceptTime = collectorAcceptTime;
     }
 
-    public void setApplicationServiceType(Short applicationServiceType) {
+    public void setApplicationServiceType(int applicationServiceType) {
         this.applicationServiceType  = applicationServiceType;
     }
 
     @Deprecated
-    public short getServiceType() {
+    public int getServiceType() {
         return serviceType;
     }
 
     @Deprecated
-    public void setServiceType(short serviceType) {
+    public void setServiceType(int serviceType) {
         this.serviceType = serviceType;
     }
 
     public boolean hasApplicationServiceType() {
-        return applicationServiceType != null;
+        return ServiceTypeUtils.hasServiceType(applicationServiceType);
     }
 
-    public short getApplicationServiceType() {
+    public int getApplicationServiceType() {
         if (hasApplicationServiceType()) {
             return this.applicationServiceType;
         } else {

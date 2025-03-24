@@ -37,7 +37,7 @@ public class DefaultApplicationFactory implements ApplicationFactory {
     }
 
     @Override
-    public Application createApplication(String applicationName, short serviceTypeCode) {
+    public Application createApplication(String applicationName, int serviceTypeCode) {
         Objects.requireNonNull(applicationName, "applicationName");
 
         final ServiceType serviceType = registry.findServiceType(serviceTypeCode);

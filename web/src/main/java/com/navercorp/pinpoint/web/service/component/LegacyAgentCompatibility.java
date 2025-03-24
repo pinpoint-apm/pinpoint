@@ -1,9 +1,7 @@
 package com.navercorp.pinpoint.web.service.component;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
-
 public interface LegacyAgentCompatibility {
-    boolean isLegacyAgent(short serviceType);
+    boolean isLegacyAgent(int serviceType);
 
-    boolean isLegacyAgent(short serviceType, String version);
+    boolean isLegacyAgent(int serviceType, String version);
 }

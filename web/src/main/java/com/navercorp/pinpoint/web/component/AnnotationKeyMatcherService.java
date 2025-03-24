@@ -23,5 +23,5 @@ import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
  * @author emeroad
  */
 public interface AnnotationKeyMatcherService {
-    AnnotationKeyMatcher findAnnotationKeyMatcher(short serviceType);
+    AnnotationKeyMatcher findAnnotationKeyMatcher(int serviceType);
 }

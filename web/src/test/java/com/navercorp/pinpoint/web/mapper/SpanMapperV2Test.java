@@ -69,26 +69,26 @@ public class SpanMapperV2Test {
 
 
         // span
-        Assertions.assertEquals(readSpan.getServiceType(), 1000);
+        Assertions.assertEquals(1000, readSpan.getServiceType());
         Assertions.assertTrue(readSpan.hasException());
-        Assertions.assertEquals(readSpan.getExceptionId(), 1);
-        Assertions.assertEquals(readSpan.getExceptionMessage(), "spanException");
+        Assertions.assertEquals(1, readSpan.getExceptionId());
+        Assertions.assertEquals("spanException", readSpan.getExceptionMessage());
 
         List<SpanEventBo> spanEventBoList = readSpan.getSpanEventBoList();
         SpanEventBo readFirst = spanEventBoList.get(0);
         SpanEventBo readNext = spanEventBoList.get(1);
 
-        Assertions.assertEquals(readFirst.getEndElapsed(), 100);
-        Assertions.assertEquals(readNext.getEndElapsed(), 200);
+        Assertions.assertEquals(100, readFirst.getEndElapsed());
+        Assertions.assertEquals(200, readNext.getEndElapsed());
 
-        Assertions.assertEquals(readFirst.getExceptionId(), 2);
+        Assertions.assertEquals(2, readFirst.getExceptionId());
         Assertions.assertFalse(readNext.hasException());
 
-        Assertions.assertEquals(readFirst.getServiceType(), 1003);
-        Assertions.assertEquals(readNext.getServiceType(), 2003);
+        Assertions.assertEquals(1003, readFirst.getServiceType());
+        Assertions.assertEquals(2003, readNext.getServiceType());
 
-        Assertions.assertEquals(readFirst.getSequence(), 0);
-        Assertions.assertEquals(readNext.getSequence(), 1);
+        Assertions.assertEquals(0, readFirst.getSequence());
+        Assertions.assertEquals(1, readNext.getSequence());
 
     }
 

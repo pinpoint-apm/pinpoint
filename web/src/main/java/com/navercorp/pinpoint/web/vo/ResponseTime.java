@@ -50,7 +50,7 @@ public class ResponseTime {
         return applicationName;
     }
 
-    public short getApplicationServiceType() {
+    public int getApplicationServiceType() {
         return applicationServiceType.getCode();
     }
 

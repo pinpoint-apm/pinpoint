@@ -95,7 +95,7 @@ public class HbaseTraceService implements TraceService {
     }
 
     private ServiceType getApplicationServiceType(SpanChunkBo spanChunk) {
-        final short applicationServiceTypeCode = spanChunk.getApplicationServiceType();
+        final int applicationServiceTypeCode = spanChunk.getApplicationServiceType();
         return registry.findServiceType(applicationServiceTypeCode);
     }
 
@@ -128,7 +128,7 @@ public class HbaseTraceService implements TraceService {
             logger.debug("destinationId is null. spanEvent:{}", spanEvent);
             return;
         }
-        hostApplicationMapDao.insert(requestTime, endPoint, destinationId, spanEvent.getServiceType(),
+        hostApplicationMapDao.insert(requestTime, endPoint, destinationId, (short) spanEvent.getServiceType(),
                 applicationName, serviceType.getCode());
     }
 
@@ -158,7 +158,7 @@ public class HbaseTraceService implements TraceService {
 
     private ServiceType getApplicationServiceType(SpanBo span) {
         // Check if applicationServiceType is set. If not, use span's service type.
-        final short applicationServiceTypeCode = span.getApplicationServiceType();
+        final int applicationServiceTypeCode = span.getApplicationServiceType();
         return registry.findServiceType(applicationServiceTypeCode);
     }
 

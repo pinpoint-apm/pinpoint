@@ -59,7 +59,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
         byte[] rowKey = Bytes.toBytes(agentInfo.getApplicationName());
         final Put put = new Put(rowKey, true);
         final byte[] qualifier = Bytes.toBytes(agentInfo.getAgentId());
-        final byte[] value = Bytes.toBytes(agentInfo.getServiceTypeCode());
+        final byte[] value = Bytes.toBytes((short) agentInfo.getServiceTypeCode());
         put.addColumn(DESCRIPTOR.getName(), qualifier, value);
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());

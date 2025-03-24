@@ -79,7 +79,7 @@ public class LinkedCallTree implements CallTree {
         return prevSibling;
     }
 
-    private SpanAlign createMultiChildSpanAlign(short serviceType, long startTime) {
+    private SpanAlign createMultiChildSpanAlign(int serviceType, long startTime) {
         SpanBo spanBo = new SpanBo();
         spanBo.setTransactionId(TransactionId.of("UNKNOWN", 0, 0));
         spanBo.setServiceType(serviceType);

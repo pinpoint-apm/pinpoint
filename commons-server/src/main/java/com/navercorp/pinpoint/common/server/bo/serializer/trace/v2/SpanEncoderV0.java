@@ -141,14 +141,14 @@ public class SpanEncoderV0 implements SpanEncoder {
         buffer.putByte(bitField.getBitField());
 
 
-        final short serviceType = span.getServiceType();
+        final short serviceType = (short) span.getServiceType();
         buffer.putShort(serviceType);
 
         switch (bitField.getApplicationServiceTypeEncodingStrategy()) {
             case PREV_EQUALS:
                 break;
             case RAW:
-                buffer.putShort(span.getApplicationServiceType());
+                buffer.putShort((short) span.getApplicationServiceType());
                 break;
             default:
                 throw new IllegalStateException("applicationServiceType");
@@ -219,7 +219,7 @@ public class SpanEncoderV0 implements SpanEncoder {
 
         buffer.putShort(spanEventBo.getSequence());
         buffer.putSVInt(spanEventBo.getDepth());
-        buffer.putShort(spanEventBo.getServiceType());
+        buffer.putShort((short) spanEventBo.getServiceType());
 
         if (bitField.isSetEndPoint()) {
             buffer.putPrefixedString(spanEventBo.getEndPoint());
@@ -298,7 +298,7 @@ public class SpanEncoderV0 implements SpanEncoder {
 
         switch (bitField.getServiceTypeEncodingStrategy()) {
             case RAW:
-                buffer.putShort(spanEventBo.getServiceType());
+                buffer.putShort((short) spanEventBo.getServiceType());
                 break;
             case PREV_EQUALS:
                 // skip bitfield

@@ -73,7 +73,7 @@ public class ServiceTypeRegistryMockFactory {
         this.serviceTypeMap.put((int) serviceType.getCode(), serviceType);
     }
 
-    public ServiceType getServiceTypeMock(short typeCode) {
+    public ServiceType getServiceTypeMock(int typeCode) {
         return this.serviceTypeMap.get(typeCode);
     }
 
@@ -82,8 +82,8 @@ public class ServiceTypeRegistryMockFactory {
 
         return new ServiceTypeRegistryService() {
             @Override
-            public ServiceType findServiceType(short serviceType) {
-                return serviceTypeMap.get((int) serviceType);
+            public ServiceType findServiceType(int serviceType) {
+                return serviceTypeMap.get(serviceType);
             }
 
             @Override

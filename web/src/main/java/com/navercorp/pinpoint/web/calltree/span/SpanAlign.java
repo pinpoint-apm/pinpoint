@@ -203,7 +203,7 @@ public class SpanAlign implements Align {
     }
 
     @Override
-    public Short getApplicationServiceType() {
+    public int getApplicationServiceType() {
         return spanBo.getApplicationServiceType();
     }
 
@@ -213,7 +213,7 @@ public class SpanAlign implements Align {
     }
 
     @Override
-    public short getServiceType() {
+    public int getServiceType() {
         return spanBo.getServiceType();
     }
 

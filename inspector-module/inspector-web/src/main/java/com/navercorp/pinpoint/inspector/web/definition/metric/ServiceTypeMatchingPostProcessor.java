@@ -68,7 +68,7 @@ public class ServiceTypeMatchingPostProcessor implements MetricPostProcessor {
 
         for (Tag tag : tagList) {
             if (tag.getName().equals(SERVICE_TYPE_CODE)) {
-                short serviceTypeCode = Short.parseShort(tag.getValue());
+                int serviceTypeCode = Integer.parseInt(tag.getValue());
                 String serviceTypeName = serviceTypeRegistryService.findServiceType(serviceTypeCode).getName();
                 newTagList.add(new Tag(SERVICE_TYPE, serviceTypeName));
             } else {

@@ -75,8 +75,8 @@ import java.util.concurrent.Executors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyShort;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.lenient;
@@ -119,7 +119,7 @@ public class FilteredMapServiceImplTest {
 
     @BeforeEach
     public void init() {
-        when(applicationFactory.createApplication(anyString(), anyShort()))
+        when(applicationFactory.createApplication(anyString(), anyInt()))
                 .thenAnswer(invocation -> {
                     String applicationName = invocation.getArgument(0);
                     ServiceType serviceType = registry.findServiceType(invocation.getArgument(1));

@@ -41,6 +41,7 @@ public class LinkFilterTest {
     private static final String RPC_ANNOTATION_NAME = "rpc.url";
 
     private final Logger logger = LogManager.getLogger(this.getClass());
+
     private final ServiceTypeRegistryService serviceTypeRegistryService = TestTraceUtils.mockServiceTypeRegistryService();
     private final AnnotationKeyRegistryService annotationKeyRegistryService = mockAnnotationKeyRegistryService();
 
@@ -58,7 +59,7 @@ public class LinkFilterTest {
     @Test
     public void fromToFilterTest() {
         ServiceType tomcat = serviceTypeRegistryService.findServiceTypeByName(TOMCAT_TYPE_NAME);
-        final short tomcatServiceType = tomcat.getCode();
+        final int tomcatServiceType = tomcat.getCode();
 
         FilterDescriptor.FromNode fromNode = new FilterDescriptor.FromNode("APP_A", tomcat.getName(), null);
         FilterDescriptor.ToNode toNode = new FilterDescriptor.ToNode("APP_B", tomcat.getName(), null);
@@ -99,7 +100,7 @@ public class LinkFilterTest {
     @Test
     public void fromToFilterAgentTest() {
         final ServiceType tomcat = serviceTypeRegistryService.findServiceTypeByName(TOMCAT_TYPE_NAME);
-        final short tomcatServiceType = tomcat.getCode();
+        final int tomcatServiceType = tomcat.getCode();
 
         FilterDescriptor.FromNode fromNode = new FilterDescriptor.FromNode("APP_A", tomcat.getName(), "AGENT_A");
         FilterDescriptor.ToNode toNode = new FilterDescriptor.ToNode("APP_B", tomcat.getName(), "AGENT_B");
