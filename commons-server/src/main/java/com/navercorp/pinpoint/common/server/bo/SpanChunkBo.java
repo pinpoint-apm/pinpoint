@@ -40,8 +40,6 @@ public class SpanChunkBo implements BasicSpan {
     private long spanId;
     private String endPoint;
 
-    @Deprecated
-    private int serviceType;
     private int applicationServiceType;
 
     private final List<SpanEventBo> spanEventBoList = new ArrayList<>();
@@ -161,26 +159,8 @@ public class SpanChunkBo implements BasicSpan {
         this.applicationServiceType  = applicationServiceType;
     }
 
-    @Deprecated
-    public int getServiceType() {
-        return serviceType;
-    }
-
-    @Deprecated
-    public void setServiceType(int serviceType) {
-        this.serviceType = serviceType;
-    }
-
-    public boolean hasApplicationServiceType() {
-        return ServiceTypeUtils.hasServiceType(applicationServiceType);
-    }
-
     public int getApplicationServiceType() {
-        if (hasApplicationServiceType()) {
-            return this.applicationServiceType;
-        } else {
-            return this.serviceType;
-        }
+        return this.applicationServiceType;
     }
 
     public List<SpanEventBo> getSpanEventBoList() {
@@ -217,7 +197,6 @@ public class SpanChunkBo implements BasicSpan {
                 ", transactionId=" + transactionId +
                 ", spanId=" + spanId +
                 ", endPoint='" + endPoint + '\'' +
-                ", serviceType=" + serviceType +
                 ", applicationServiceType=" + applicationServiceType +
                 ", spanEventBoList=" + spanEventBoList +
                 ", collectorAcceptTime=" + collectorAcceptTime +
