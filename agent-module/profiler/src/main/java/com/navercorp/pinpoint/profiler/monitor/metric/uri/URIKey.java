@@ -36,7 +36,7 @@ public class URIKey {
     @Override
     public int hashCode() {
         int result = uri != null ? uri.hashCode() : 0;
-        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        result = 31 * result + Long.hashCode(timestamp);
         return result;
     }
 

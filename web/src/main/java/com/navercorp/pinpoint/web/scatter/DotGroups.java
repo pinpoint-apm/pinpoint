@@ -117,7 +117,7 @@ public class DotGroups {
 
     @Override
     public int hashCode() {
-        return (int) (xCoordinates ^ (xCoordinates >>> 32));
+        return Long.hashCode(xCoordinates);
     }
 
     @Override

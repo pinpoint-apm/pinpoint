@@ -50,9 +50,8 @@ public class FilterChain<T> implements Filter<T> {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("FilterChain{");
-        sb.append("filters=").append(Arrays.toString(filters));
-        sb.append('}');
-        return sb.toString();
+        return "FilterChain{" +
+                "filters=" + Arrays.toString(filters) +
+                '}';
     }
 }

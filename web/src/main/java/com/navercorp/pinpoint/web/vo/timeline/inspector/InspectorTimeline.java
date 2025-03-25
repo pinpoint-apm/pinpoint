@@ -58,10 +58,9 @@ public class InspectorTimeline {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("InspectorTimeline{");
-        sb.append("agentStatusTimeline=").append(agentStatusTimeline);
-        sb.append(", agentEventTimeline=").append(agentEventTimeline);
-        sb.append('}');
-        return sb.toString();
+        return "InspectorTimeline{" +
+                "agentStatusTimeline=" + agentStatusTimeline +
+                ", agentEventTimeline=" + agentEventTimeline +
+                '}';
     }
 }

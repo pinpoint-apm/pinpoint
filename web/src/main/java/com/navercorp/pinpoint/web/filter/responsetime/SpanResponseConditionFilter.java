@@ -79,10 +79,9 @@ public class SpanResponseConditionFilter implements Filter<SpanBo> {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("SpanResponseConditionFilter{");
-        sb.append("responseTimeFilter=").append(responseTimeFilter);
-        sb.append(", executionErrorFilter=").append(executionErrorFilter);
-        sb.append('}');
-        return sb.toString();
+        return "SpanResponseConditionFilter{" +
+                "responseTimeFilter=" + responseTimeFilter +
+                ", executionErrorFilter=" + executionErrorFilter +
+                '}';
     }
 }

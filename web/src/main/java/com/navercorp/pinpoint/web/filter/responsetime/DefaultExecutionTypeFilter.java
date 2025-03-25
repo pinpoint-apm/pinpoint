@@ -72,9 +72,8 @@ public class DefaultExecutionTypeFilter implements ExecutionTypeFilter {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DefaultExecutionErrorFilter{");
-        sb.append("executionType=").append(executionType);
-        sb.append('}');
-        return sb.toString();
+        return "DefaultExecutionErrorFilter{" +
+                "executionType=" + executionType +
+                '}';
     }
 }

@@ -67,11 +67,10 @@ public class ChangeSet {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ChangeSet{");
-        sb.append("id='").append(id).append('\'');
-        sb.append(", value='").append(value).append('\'');
-        sb.append(", tableChanges=").append(tableChanges);
-        sb.append('}');
-        return sb.toString();
+        return "ChangeSet{" +
+                "id='" + id + '\'' +
+                ", value='" + value + '\'' +
+                ", tableChanges=" + tableChanges +
+                '}';
     }
 }

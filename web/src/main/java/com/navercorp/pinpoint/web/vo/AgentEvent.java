@@ -116,8 +116,8 @@ public class AgentEvent {
     @Override
     public int hashCode() {
         int result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + (int) (eventTimestamp ^ (eventTimestamp >>> 32));
-        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
+        result = 31 * result + Long.hashCode(eventTimestamp);
+        result = 31 * result + Long.hashCode(startTimestamp);
         result = 31 * result + (eventType != null ? eventType.hashCode() : 0);
         return result;
     }

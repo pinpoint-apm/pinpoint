@@ -21,9 +21,8 @@ public class DefaultAgentFilter implements AgentFilter {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DefaultAgentFilter{");
-        sb.append("agentId='").append(agentId).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "DefaultAgentFilter{" +
+                "agentId='" + agentId + '\'' +
+                '}';
     }
 }

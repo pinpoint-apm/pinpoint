@@ -76,7 +76,7 @@ public class EachUriStatBo {
         int result = uri != null ? uri.hashCode() : 0;
         result = 31 * result + (totalHistogram != null ? totalHistogram.hashCode() : 0);
         result = 31 * result + (failedHistogram != null ? failedHistogram.hashCode() : 0);
-        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        result = 31 * result + Long.hashCode(timestamp);
         return result;
     }
 

@@ -52,10 +52,9 @@ public class RpcHint {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("RpcHint{");
-        sb.append("applicationName='").append(applicationName).append('\'');
-        sb.append(", rpcTypeList=").append(rpcTypeList);
-        sb.append('}');
-        return sb.toString();
+        return "RpcHint{" +
+                "applicationName='" + applicationName + '\'' +
+                ", rpcTypeList=" + rpcTypeList +
+                '}';
     }
 }

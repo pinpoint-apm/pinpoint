@@ -44,10 +44,9 @@ public class CidrAddressFilter {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("CidrAddressFilter{");
-        sb.append("address='").append(ipAddress).append('/').append(cidrPrefix);
-        sb.append('}');
-        return sb.toString();
+        return "CidrAddressFilter{" +
+                "address='" + ipAddress + '/' + cidrPrefix +
+                '}';
     }
 
 }

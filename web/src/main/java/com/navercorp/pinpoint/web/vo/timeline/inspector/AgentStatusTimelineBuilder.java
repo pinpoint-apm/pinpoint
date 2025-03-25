@@ -356,12 +356,11 @@ public class AgentStatusTimelineBuilder {
 
         @Override
         public String toString() {
-            final StringBuilder sb = new StringBuilder("AgentLifeCycle{");
-            sb.append("startTimestamp=").append(startTimestamp);
-            sb.append(", endTimestamp=").append(endTimestamp);
-            sb.append(", endState=").append(endState);
-            sb.append('}');
-            return sb.toString();
+            return "AgentLifeCycle{" +
+                    "startTimestamp=" + startTimestamp +
+                    ", endTimestamp=" + endTimestamp +
+                    ", endState=" + endState +
+                    '}';
         }
     }
 

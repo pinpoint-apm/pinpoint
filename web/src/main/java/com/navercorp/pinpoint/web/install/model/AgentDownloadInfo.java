@@ -69,11 +69,10 @@ public class AgentDownloadInfo {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentDownloadInfo{");
-        sb.append("version='").append(version).append('\'');
-        sb.append(", downloadUrl='").append(downloadUrl).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "AgentDownloadInfo{" +
+                "version='" + version + '\'' +
+                ", downloadUrl='" + downloadUrl + '\'' +
+                '}';
     }
 
 }

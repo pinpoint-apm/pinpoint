@@ -53,17 +53,16 @@ public class SystemMetricPoint <Y extends Number> implements Point {
 
     @Override
     public int hashCode() {
-        int result = (int) (xVal ^ (xVal >>> 32));
+        int result = Long.hashCode(xVal);
         result = 31 * result + (yVal != null ? yVal.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("SystemMetricPoint{");
-        sb.append("xVal=").append(xVal);
-        sb.append(", yVal=").append(yVal);
-        sb.append('}');
-        return sb.toString();
+        return "SystemMetricPoint{" +
+                "xVal=" + xVal +
+                ", yVal=" + yVal +
+                '}';
     }
 }

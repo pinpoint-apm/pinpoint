@@ -74,10 +74,8 @@ public class TelegrafMetric {
         @Override
         public int hashCode() {
             int result;
-            long temp;
             result = name.hashCode();
-            temp = Double.doubleToLongBits(value);
-            result = 31 * result + (int) (temp ^ (temp >>> 32));
+            result = 31 * result + Double.hashCode(value);
             return result;
         }
     }

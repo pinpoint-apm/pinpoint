@@ -64,10 +64,9 @@ public class AcceptApplication {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AcceptApplication{");
-        sb.append("host='").append(host).append('\'');
-        sb.append(", application=").append(application);
-        sb.append('}');
-        return sb.toString();
+        return "AcceptApplication{" +
+                "host='" + host + '\'' +
+                ", application=" + application +
+                '}';
     }
 }

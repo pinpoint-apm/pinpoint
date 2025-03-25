@@ -90,10 +90,9 @@ public class CreateTableChange extends TableChange {
 
             @Override
             public String toString() {
-                final StringBuilder sb = new StringBuilder("Manual{");
-                sb.append("splitKeys=").append(splitKeys);
-                sb.append('}');
-                return sb.toString();
+                return "Manual{" +
+                        "splitKeys=" + splitKeys +
+                        '}';
             }
         }
 
@@ -143,10 +142,9 @@ public class CreateTableChange extends TableChange {
 
             @Override
             public String toString() {
-                final StringBuilder sb = new StringBuilder("Auto{");
-                sb.append("numRegions=").append(numRegions);
-                sb.append('}');
-                return sb.toString();
+                return "Auto{" +
+                        "numRegions=" + numRegions +
+                        '}';
             }
         }
     }
@@ -177,12 +175,11 @@ public class CreateTableChange extends TableChange {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("CreateTableChange{");
-        sb.append("name='").append(getName()).append('\'');
-        sb.append(", columnFamilyChanges=").append(getColumnFamilyChanges());
-        sb.append(", configuration=").append(getTableConfiguration());
-        sb.append(", splitOption=").append(splitOption);
-        sb.append('}');
-        return sb.toString();
+        return "CreateTableChange{" +
+                "name='" + getName() + '\'' +
+                ", columnFamilyChanges=" + getColumnFamilyChanges() +
+                ", configuration=" + getTableConfiguration() +
+                ", splitOption=" + splitOption +
+                '}';
     }
 }

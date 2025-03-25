@@ -60,10 +60,9 @@ public class AgentFilterFactory {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentFilterFactory{");
-        sb.append("fromAgent='").append(fromAgent).append('\'');
-        sb.append(", toAgent='").append(toAgent).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "AgentFilterFactory{" +
+                "fromAgent='" + fromAgent + '\'' +
+                ", toAgent='" + toAgent + '\'' +
+                '}';
     }
 }
