@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.inspector.web.model;
 
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -54,7 +54,7 @@ public class InspectorDataSearchKey {
 
         Objects.requireNonNull(timeWindow, "timeWindow");
         this.range = timeWindow.getWindowRange();
-        this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize());
+        this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, timeWindow.getWindowSlotSize());
         this.limit = timeWindow.getWindowRangeCount();
     }
 

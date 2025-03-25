@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.exceptiontrace.web.controller;
 import com.navercorp.pinpoint.common.server.util.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
@@ -33,7 +34,6 @@ import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionDetailView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionGroupSummaryView;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -64,6 +64,7 @@ public class ExceptionTraceController {
     private static final TimePrecision DETAILED_TIME_PRECISION = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, 1);
     private static final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(30000L, 200);
     private static final TimeWindowSampler ROUGH_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(30000L, 10);
+
     private final Logger logger = LogManager.getLogger(this.getClass());
 
 
@@ -163,7 +164,7 @@ public class ExceptionTraceController {
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
                 .setRange(Range.between(from, to))
-                .setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize()))
+                .setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, timeWindow.getWindowSlotSize()))
                 .setTimeWindowRangeCount(timeWindow.getWindowRangeCount())
                 .addAllGroupByList(groupByList)
                 .build();
@@ -195,7 +196,7 @@ public class ExceptionTraceController {
                 .setApplicationName(applicationName)
                 .setAgentId(agentId)
                 .setRange(timeWindow.getWindowRange())
-                .setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize()))
+                .setTimePrecision(TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, timeWindow.getWindowSlotSize()))
                 .setTimeWindowRangeCount(timeWindow.getWindowRangeCount())
                 .addAllGroupByList(groupByList)
                 .build();

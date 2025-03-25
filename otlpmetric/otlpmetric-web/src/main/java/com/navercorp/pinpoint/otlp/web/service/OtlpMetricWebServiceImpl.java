@@ -1,10 +1,10 @@
 package com.navercorp.pinpoint.otlp.web.service;
 
+import com.navercorp.pinpoint.common.server.metric.dao.TableNameManager;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
-import com.navercorp.pinpoint.common.server.metric.dao.TableNameManager;
 import com.navercorp.pinpoint.metric.common.util.TimeUtils;
 import com.navercorp.pinpoint.otlp.common.model.MetricPoint;
 import com.navercorp.pinpoint.otlp.common.model.MetricType;
@@ -79,7 +79,10 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
 
     @Deprecated
     @Override
-    public OtlpChartView getMetricChartData(String tenantId, String serviceName, String applicationName, String agentId, String metricGroupName, String metricName, String tag, long from, long to) {
+    public OtlpChartView getMetricChartData(String tenantId,
+                                            String serviceName, String applicationName,
+                                            String agentId, String metricGroupName,
+                                            String metricName, String tag, long from, long to) {
         List<FieldAttribute> fields = otlpMetricDao.getFields(serviceName, applicationName, agentId, metricGroupName, metricName, tag);
         if (fields.isEmpty()) {
             return EMPTY_CHART;

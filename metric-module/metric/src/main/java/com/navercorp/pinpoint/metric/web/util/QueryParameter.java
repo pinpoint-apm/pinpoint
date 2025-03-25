@@ -43,10 +43,10 @@ public abstract class QueryParameter {
         return limit;
     }
 
-    public static abstract class Builder<S extends Builder> {
+    public static abstract class Builder<S extends Builder<S>> {
         protected Range range;
         protected TimePrecision timePrecision;
-        protected int timeSize = 10000;
+        protected long timeSize = 10000;
         protected long limit;
 
         protected abstract S self();
@@ -61,7 +61,7 @@ public abstract class QueryParameter {
             return self();
         }
 
-        public S setTimeSize(int timeSize) {
+        public S setTimeSize(long timeSize) {
             this.timeSize = timeSize;
             return self();
         }

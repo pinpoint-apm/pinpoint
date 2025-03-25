@@ -16,6 +16,9 @@
 package com.navercorp.pinpoint.inspector.web.service;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.inspector.web.definition.Mappings;
 import com.navercorp.pinpoint.inspector.web.definition.MetricDefinition;
 import com.navercorp.pinpoint.inspector.web.definition.YMLInspectorManager;
@@ -25,9 +28,6 @@ import com.navercorp.pinpoint.inspector.web.model.InspectorMetricValue;
 import com.navercorp.pinpoint.metric.common.model.TagUtils;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.ApdexScoreService;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
@@ -35,7 +35,6 @@ import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentApdexScoreChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationApdexScoreChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationStatPoint;
-import com.navercorp.pinpoint.web.vo.stat.chart.application.DefaultStatChartGroup;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -58,12 +57,15 @@ public class DefaultApdexStatService implements ApdexStatService {
 
     private final ApplicationFactory applicationFactory;
 
-    private ApdexScoreService apdexScoreService;
+    private final ApdexScoreService apdexScoreService;
 
     private final YMLInspectorManager agentYmlInspectorManager;
     private final YMLInspectorManager appYmlInspectorManager;
 
-    public DefaultApdexStatService(ApplicationFactory applicationFactory, ApdexScoreService apdexScoreService, @Qualifier("agentInspectorDefinition") Mappings agentInspectorDefinition,  @Qualifier("applicationInspectorDefinition") Mappings applicationInspectorDefinition) {
+    public DefaultApdexStatService(ApplicationFactory applicationFactory,
+                                   ApdexScoreService apdexScoreService,
+                                   @Qualifier("agentInspectorDefinition") Mappings agentInspectorDefinition,
+                                   @Qualifier("applicationInspectorDefinition") Mappings applicationInspectorDefinition) {
         Objects.requireNonNull(agentInspectorDefinition, "agentInspectorDefinition");
         this.agentYmlInspectorManager = new YMLInspectorManager(agentInspectorDefinition);
         Objects.requireNonNull(applicationInspectorDefinition, "applicationInspectorDefinition");
@@ -97,7 +99,7 @@ public class DefaultApdexStatService implements ApdexStatService {
     }
 
     private InspectorMetricData convertToInspectorMetricData(MetricDefinition metricDefinition, ApplicationApdexScoreChart applicationApdexScoreChart) {
-        DefaultStatChartGroup<ApplicationStatPoint<Double>> statChartGroup = (DefaultStatChartGroup)applicationApdexScoreChart.getCharts();
+        StatChartGroup<ApplicationStatPoint<Double>> statChartGroup = applicationApdexScoreChart.getCharts();
         Map<StatChartGroup.ChartType, Chart<ApplicationStatPoint<Double>>> chartDatas = statChartGroup.getCharts();
         Collection<Chart<ApplicationStatPoint<Double>>> values = chartDatas.values();
         List<Double> avgValueList = new ArrayList<>(values.size());
@@ -125,7 +127,7 @@ public class DefaultApdexStatService implements ApdexStatService {
     }
 
     private InspectorMetricData convertToInspectorMetricData(MetricDefinition metricDefinition, AgentApdexScoreChart agentApdexScoreChart) {
-        DefaultStatChartGroup<AgentStatPoint<Double>> statChartGroup = (DefaultStatChartGroup)agentApdexScoreChart.getCharts();
+        StatChartGroup<AgentStatPoint<Double>> statChartGroup = agentApdexScoreChart.getCharts();
         Map<StatChartGroup.ChartType, Chart<AgentStatPoint<Double>>> chartDatas = statChartGroup.getCharts();
         Collection<Chart<AgentStatPoint<Double>>> values = chartDatas.values();
         List<Double> avgValueList = new ArrayList<>(values.size());

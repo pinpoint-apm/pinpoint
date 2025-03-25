@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.inspector.web.service;
 
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.inspector.web.dao.ApplicationStatDao;
 import com.navercorp.pinpoint.inspector.web.definition.AggregationFunction;
 import com.navercorp.pinpoint.inspector.web.definition.Mappings;
@@ -14,7 +15,6 @@ import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricGroupData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricValue;
 import com.navercorp.pinpoint.metric.common.model.Tag;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMaxMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.MinMaxMetricPoint;
@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,13 +45,14 @@ public class DefaultApplicationStatService implements ApplicationStatService {
     private static final String MIN = "MIN";
     private static final String AVG = "AVG";
     private static final String MAX = "MAX";
+
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final YMLInspectorManager ymlInspectorManager;
     private final MetricProcessorManager metricProcessorManager;
     private final ApplicationStatDao applicationStatDao;
 
-    public DefaultApplicationStatService(@Qualifier("pinotApplicationStatDao")ApplicationStatDao applicationStatDao, @Qualifier("applicationInspectorDefinition") Mappings applicationInspectorDefinition, MetricProcessorManager metricProcessorManager) {
+    public DefaultApplicationStatService(@Qualifier("pinotApplicationStatDao") ApplicationStatDao applicationStatDao, @Qualifier("applicationInspectorDefinition") Mappings applicationInspectorDefinition, MetricProcessorManager metricProcessorManager) {
         this.applicationStatDao = Objects.requireNonNull(applicationStatDao, "applicationStatDao");
         Objects.requireNonNull(applicationInspectorDefinition, "applicationInspectorDefinition");
         this.ymlInspectorManager = new YMLInspectorManager(applicationInspectorDefinition);
@@ -61,23 +63,23 @@ public class DefaultApplicationStatService implements ApplicationStatService {
     public InspectorMetricData selectApplicationStat(InspectorDataSearchKey inspectorDataSearchKey, TimeWindow timeWindow) {
         MetricDefinition metricDefinition = ymlInspectorManager.findElementOfBasicGroup(inspectorDataSearchKey.getMetricDefinitionId());
 
-        List<QueryResult> queryResults =  selectAll2(inspectorDataSearchKey, metricDefinition);
+        List<QueryResult> queryResults = selectAll2(inspectorDataSearchKey, metricDefinition);
         List<InspectorMetricValue> metricValueList = new ArrayList<>(queryResults.size());
 
         try {
             for (QueryResult result : queryResults) {
                 Class<?> resultType = result.resultType();
                 if (resultType.equals(AvgMinMaxMetricPoint.class)) {
-                    List<AvgMinMaxMetricPoint<Double>> doubleList = (List<AvgMinMaxMetricPoint<Double>>) result.future().get();
+                    List<AvgMinMaxMetricPoint<Double>> doubleList = (List<AvgMinMaxMetricPoint<Double>>) await(result.future());
                     metricValueList.addAll(splitAvgMinMax(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
                 } else if (resultType.equals(AvgMinMetricPoint.class)) {
-                    List<AvgMinMetricPoint<Double>> doubleList = (List<AvgMinMetricPoint<Double>>) result.future().get();
+                    List<AvgMinMetricPoint<Double>> doubleList = (List<AvgMinMetricPoint<Double>>) await(result.future());
                     metricValueList.addAll(splitAvgMin(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
-                }else if (resultType.equals(MinMaxMetricPoint.class)) {
-                    List<MinMaxMetricPoint<Double>> doubleList = (List<MinMaxMetricPoint<Double>>) result.future().get();
+                } else if (resultType.equals(MinMaxMetricPoint.class)) {
+                    List<MinMaxMetricPoint<Double>> doubleList = (List<MinMaxMetricPoint<Double>>) await(result.future());
                     metricValueList.addAll(splitMinMax(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
                 } else if (resultType.equals(SystemMetricPoint.class)) {
-                    List<SystemMetricPoint<Double>> doubleList = (List<SystemMetricPoint<Double>>) result.future().get();
+                    List<SystemMetricPoint<Double>> doubleList = (List<SystemMetricPoint<Double>>) await(result.future());
                     metricValueList.add(createInspectorMetricValue(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
                 } else {
                     throw new RuntimeException("not support result type : " + result.resultType());
@@ -91,6 +93,17 @@ public class DefaultApplicationStatService implements ApplicationStatService {
         processedMetricValueList = sortingMetricValueList(processedMetricValueList);
         List<Long> timeStampList = TimeUtils.createTimeStampList(timeWindow);
         return new InspectorMetricData(metricDefinition.getTitle(), timeStampList, processedMetricValueList);
+    }
+
+    private List<? extends Point> await(CompletableFuture<? extends List<? extends Point>> future) {
+        try {
+            return future.get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e.getCause());
+        }
     }
 
     private List<InspectorMetricValue> sortingMetricValueList(List<InspectorMetricValue> processedMetricValueList) {
@@ -120,49 +133,46 @@ public class DefaultApplicationStatService implements ApplicationStatService {
         MetricDefinition metricDefinition = ymlInspectorManager.findElementOfBasicGroup(inspectorDataSearchKey.getMetricDefinitionId());
         MetricDefinition newMetricDefinition = preProcess(inspectorDataSearchKey, metricDefinition);
 
-        List<QueryResult> queryResults =  selectAll2(inspectorDataSearchKey, newMetricDefinition);
+        List<QueryResult> queryResults = selectAll2(inspectorDataSearchKey, newMetricDefinition);
         List<InspectorMetricValue> metricValueList = new ArrayList<>(newMetricDefinition.getFields().size());
 
-        try {
-            for (QueryResult result : queryResults) {
-                Class<?> resultType = result.resultType();
-                if (resultType.equals(AvgMinMaxMetricPoint.class)) {
-                    List<AvgMinMaxMetricPoint<Double>> doubleList = (List<AvgMinMaxMetricPoint<Double>>) result.future().get();
-                    metricValueList.addAll(splitAvgMinMax(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
-                } else if (resultType.equals(AvgMinMetricPoint.class)) {
-                    List<AvgMinMetricPoint<Double>> doubleList = (List<AvgMinMetricPoint<Double>>) result.future().get();
-                    metricValueList.addAll(splitAvgMin(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
-                }else if (resultType.equals(MinMaxMetricPoint.class)) {
-                    List<MinMaxMetricPoint<Double>> doubleList = (List<MinMaxMetricPoint<Double>>) result.future().get();
-                    metricValueList.addAll(splitMinMax(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
-                } else if (resultType.equals(SystemMetricPoint.class)) {
-                    List<SystemMetricPoint<Double>> doubleList = (List<SystemMetricPoint<Double>>) result.future().get();
-                    metricValueList.add(createInspectorMetricValue(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
-                } else {
-                    throw new RuntimeException("not support result type : " + result.resultType());
-                }
+        for (QueryResult result : queryResults) {
+            Class<?> resultType = result.resultType();
+            if (resultType.equals(AvgMinMaxMetricPoint.class)) {
+                List<AvgMinMaxMetricPoint<Double>> doubleList = (List<AvgMinMaxMetricPoint<Double>>) await(result.future());
+                metricValueList.addAll(splitAvgMinMax(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
+            } else if (resultType.equals(AvgMinMetricPoint.class)) {
+                List<AvgMinMetricPoint<Double>> doubleList = (List<AvgMinMetricPoint<Double>>) await(result.future());
+                metricValueList.addAll(splitAvgMin(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
+            } else if (resultType.equals(MinMaxMetricPoint.class)) {
+                List<MinMaxMetricPoint<Double>> doubleList = (List<MinMaxMetricPoint<Double>>) await(result.future());
+                metricValueList.addAll(splitMinMax(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
+            } else if (resultType.equals(SystemMetricPoint.class)) {
+                List<SystemMetricPoint<Double>> doubleList = (List<SystemMetricPoint<Double>>) await(result.future());
+                metricValueList.add(createInspectorMetricValue(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
+            } else {
+                throw new RuntimeException("not support result type : " + result.resultType());
             }
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
         }
+
 
         List<InspectorMetricValue> processedMetricValueList = postprocessMetricData(newMetricDefinition, metricValueList);
         List<Long> timeStampList = TimeUtils.createTimeStampList(timeWindow);
-        Map<List<Tag>,List<InspectorMetricValue>> metricValueGroups = groupingMetricValue(processedMetricValueList, metricDefinition);
+        Map<List<Tag>, List<InspectorMetricValue>> metricValueGroups = groupingMetricValue(processedMetricValueList, metricDefinition);
         metricValueGroups = sortingMetricValueGroups(metricValueGroups);
         return new InspectorMetricGroupData(metricDefinition.getTitle(), timeStampList, metricValueGroups);
     }
 
     private Map<List<Tag>, List<InspectorMetricValue>> sortingMetricValueGroups(Map<List<Tag>, List<InspectorMetricValue>> metricValueGroups) {
         return metricValueGroups.entrySet().stream()
-                                            .collect(Collectors.toMap(
-                                                                        Map.Entry::getKey,
-                                                                        entry -> sortingMetricValueList(entry.getValue())
-                                                                    )
-                                            );
+                .collect(Collectors.toMap(
+                                Map.Entry::getKey,
+                                entry -> sortingMetricValueList(entry.getValue())
+                        )
+                );
     }
 
-    private Map<List<Tag>,List<InspectorMetricValue>> groupingMetricValue(List<InspectorMetricValue> processedMetricValueList, MetricDefinition metricDefinition) {
+    private Map<List<Tag>, List<InspectorMetricValue>> groupingMetricValue(List<InspectorMetricValue> processedMetricValueList, MetricDefinition metricDefinition) {
         switch (metricDefinition.getGroupingRule()) {
             case TAG:
                 return processedMetricValueList.stream().collect(Collectors.groupingBy(InspectorMetricValue::getTagList));
@@ -285,7 +295,8 @@ public class DefaultApplicationStatService implements ApplicationStatService {
     }
 
     // TODO : (minwoo) It seems that this can also be integrated into one with the com.navercorp.pinpoint.inspector.web.service.DefaultAgentStatService.QueryResult.
-    private record QueryResult(CompletableFuture<? extends List<? extends Point>> future, Field field, Class<?> resultType) {
+    private record QueryResult(CompletableFuture<? extends List<? extends Point>> future, Field field,
+                               Class<?> resultType) {
 
     }
 }

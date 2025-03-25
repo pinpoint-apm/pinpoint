@@ -42,7 +42,7 @@ public class HeatmapSearchKey {
         this.sortKey = StringPrecondition.requireHasLength(sortKey, "applicationName");
         Objects.requireNonNull(timeWindow, "timeWindow");
         this.range = timeWindow.getWindowRange();
-        this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize());
+        this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, timeWindow.getWindowSlotSize());
         this.limit = timeWindow.getWindowRangeCount() * yAxisCellMaxCount;
 
         this.elapsedTimeInterval = elapsedTimeInterval;

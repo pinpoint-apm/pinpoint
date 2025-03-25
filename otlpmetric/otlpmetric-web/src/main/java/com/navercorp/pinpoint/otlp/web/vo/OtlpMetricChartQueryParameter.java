@@ -1,13 +1,12 @@
 package com.navercorp.pinpoint.otlp.web.vo;
 
+import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
 import com.navercorp.pinpoint.otlp.common.model.DataType;
 import com.navercorp.pinpoint.otlp.common.web.definition.property.AggregationFunction;
 
 import java.security.InvalidParameterException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -51,7 +50,7 @@ public class OtlpMetricChartQueryParameter extends QueryParameter {
         private String metricGroupName;
         private String metricName;
         private String fieldName;
-        private List<String> tags = Arrays.asList();
+        private List<String> tags = List.of();
         private String version;
         private AggregationFunction aggregationFunction;
         private int dataType;
@@ -121,8 +120,8 @@ public class OtlpMetricChartQueryParameter extends QueryParameter {
         public Builder setTimeWindow(TimeWindow timeWindow) {
             this.timeWindow = timeWindow;
             this.range = timeWindow.getWindowRange();
-            this.timeSize = (int) timeWindow.getWindowSlotSize();
-            this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize());
+            this.timeSize = timeWindow.getWindowSlotSize();
+            this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, timeWindow.getWindowSlotSize());
             this.limit = timeWindow.getWindowRangeCount();
             return self();
         }
