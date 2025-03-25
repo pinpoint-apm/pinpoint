@@ -45,10 +45,9 @@ public class XmlHbaseSchemaParseResult {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("XmlHbaseSchemaParseResult{");
-        sb.append("includeFiles=").append(includeFiles);
-        sb.append(", changeSets=").append(changeSets);
-        sb.append('}');
-        return sb.toString();
+        return "XmlHbaseSchemaParseResult{" +
+                "includeFiles=" + includeFiles +
+                ", changeSets=" + changeSets +
+                '}';
     }
 }

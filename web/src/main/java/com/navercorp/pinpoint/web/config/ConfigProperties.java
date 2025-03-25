@@ -189,25 +189,24 @@ public class ConfigProperties {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ConfigProperties{");
-        sb.append("sendUsage=").append(sendUsage);
-        sb.append(", editUserInfo=").append(editUserInfo);
-        sb.append(", showActiveThread=").append(showActiveThread);
-        sb.append(", showActiveThreadDump=").append(showActiveThreadDump);
-        sb.append(", enableActiveThreadDump=").append(enableActiveThreadDump);
-        sb.append(", enableServerMapRealTime=").append(enableServerMapRealTime);
-        sb.append(", openSource=").append(openSource);
-        sb.append(", securityGuideUrl='").append(securityGuideUrl).append('\'');
-        sb.append(", showApplicationStat=").append(showApplicationStat);
-        sb.append(", showStackTraceOnError=").append(showStackTraceOnError);
-        sb.append(", webSocketAllowedOrigins=").append(webSocketAllowedOrigins);
-        sb.append(", showOtlpMetric=").append(showOtlpMetric);
-        sb.append(", serverMapPeriodMax=").append(serverMapPeriodMax);
-        sb.append(", serverMapPeriodInterval=").append(serverMapPeriodInteval);
-        sb.append(", inspectorPeriodMax=").append(inspectorPeriodMax);
-        sb.append(", inspectorPeriodInterval=").append(inspectorPeriodInteval);
-        sb.append('}');
-        return sb.toString();
+        return "ConfigProperties{" +
+                "sendUsage=" + sendUsage +
+                ", editUserInfo=" + editUserInfo +
+                ", showActiveThread=" + showActiveThread +
+                ", showActiveThreadDump=" + showActiveThreadDump +
+                ", enableActiveThreadDump=" + enableActiveThreadDump +
+                ", enableServerMapRealTime=" + enableServerMapRealTime +
+                ", openSource=" + openSource +
+                ", securityGuideUrl='" + securityGuideUrl + '\'' +
+                ", showApplicationStat=" + showApplicationStat +
+                ", showStackTraceOnError=" + showStackTraceOnError +
+                ", webSocketAllowedOrigins=" + webSocketAllowedOrigins +
+                ", showOtlpMetric=" + showOtlpMetric +
+                ", serverMapPeriodMax=" + serverMapPeriodMax +
+                ", serverMapPeriodInterval=" + serverMapPeriodInteval +
+                ", inspectorPeriodMax=" + inspectorPeriodMax +
+                ", inspectorPeriodInterval=" + inspectorPeriodInteval +
+                '}';
     }
 
 }

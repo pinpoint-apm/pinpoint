@@ -32,10 +32,9 @@ public class CreateColumnFamilyChange extends ColumnFamilyChange {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("CreateColumnFamilyChange{");
-        sb.append("name='").append(getName()).append('\'');
-        sb.append(", configuration=").append(getColumnFamilyConfiguration());
-        sb.append('}');
-        return sb.toString();
+        return "CreateColumnFamilyChange{" +
+                "name='" + getName() + '\'' +
+                ", configuration=" + getColumnFamilyConfiguration() +
+                '}';
     }
 }

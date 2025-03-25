@@ -42,11 +42,10 @@ public class ModifyTableChange extends TableChange {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ModifyTableChange{");
-        sb.append("name='").append(getName()).append('\'');
-        sb.append(", configuration=").append(getTableConfiguration());
-        sb.append(", columnFamilyChanges=").append(getColumnFamilyChanges());
-        sb.append('}');
-        return sb.toString();
+        return "ModifyTableChange{" +
+                "name='" + getName() + '\'' +
+                ", configuration=" + getTableConfiguration() +
+                ", columnFamilyChanges=" + getColumnFamilyChanges() +
+                '}';
     }
 }

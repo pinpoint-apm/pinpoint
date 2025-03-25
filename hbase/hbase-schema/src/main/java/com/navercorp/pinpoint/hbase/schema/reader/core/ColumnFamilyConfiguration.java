@@ -199,17 +199,16 @@ public class ColumnFamilyConfiguration {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ColumnFamilyConfiguration{");
-        sb.append("blockCacheEnabled=").append(blockCacheEnabled);
-        sb.append(", replicationScope=").append(replicationScope);
-        sb.append(", inMemory=").append(inMemory);
-        sb.append(", timeToLive=").append(timeToLive);
-        sb.append(", dataBlockEncoding=").append(dataBlockEncoding);
-        sb.append(", blockSize=").append(blockSize);
-        sb.append(", maxVersions=").append(maxVersions);
-        sb.append(", minVersions=").append(minVersions);
-        sb.append(", bloomFilter=").append(bloomFilter);
-        sb.append('}');
-        return sb.toString();
+        return "ColumnFamilyConfiguration{" +
+                "blockCacheEnabled=" + blockCacheEnabled +
+                ", replicationScope=" + replicationScope +
+                ", inMemory=" + inMemory +
+                ", timeToLive=" + timeToLive +
+                ", dataBlockEncoding=" + dataBlockEncoding +
+                ", blockSize=" + blockSize +
+                ", maxVersions=" + maxVersions +
+                ", minVersions=" + minVersions +
+                ", bloomFilter=" + bloomFilter +
+                '}';
     }
 }

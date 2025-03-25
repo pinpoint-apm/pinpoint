@@ -65,19 +65,18 @@ public class AgentEventTimelineSegment implements TimelineSegment<AgentEventMark
 
     @Override
     public int hashCode() {
-        int result = (int) (startTimestamp ^ (startTimestamp >>> 32));
-        result = 31 * result + (int) (endTimestamp ^ (endTimestamp >>> 32));
+        int result = Long.hashCode(startTimestamp);
+        result = 31 * result + Long.hashCode(endTimestamp);
         result = 31 * result + (agentEventMarker != null ? agentEventMarker.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentEventTimelineSegment{");
-        sb.append("startTimestamp=").append(startTimestamp);
-        sb.append(", endTimestamp=").append(endTimestamp);
-        sb.append(", agentEventMarker=").append(agentEventMarker);
-        sb.append('}');
-        return sb.toString();
+        return "AgentEventTimelineSegment{" +
+                "startTimestamp=" + startTimestamp +
+                ", endTimestamp=" + endTimestamp +
+                ", agentEventMarker=" + agentEventMarker +
+                '}';
     }
 }

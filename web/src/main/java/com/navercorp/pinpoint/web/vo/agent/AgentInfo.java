@@ -170,27 +170,26 @@ public class AgentInfo {
     @Override
     public int hashCode() {
         int result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
+        result = 31 * result + Long.hashCode(startTimestamp);
         return result;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentInfo{");
-        sb.append("applicationName='").append(applicationName).append('\'');
-        sb.append(", agentId='").append(agentId).append('\'');
-        sb.append(", agentName='").append(agentName).append('\'');
-        sb.append(", startTimestamp=").append(startTimestamp);
-        sb.append(", hostName='").append(hostName).append('\'');
-        sb.append(", ip='").append(ip).append('\'');
-        sb.append(", ports='").append(ports).append('\'');
-        sb.append(", serviceType=").append(serviceType);
-        sb.append(", pid=").append(pid);
-        sb.append(", vmVersion='").append(vmVersion).append('\'');
-        sb.append(", agentVersion='").append(agentVersion).append('\'');
-        sb.append(", container=").append(container);
-        sb.append('}');
-        return sb.toString();
+        return "AgentInfo{" +
+                "applicationName='" + applicationName + '\'' +
+                ", agentId='" + agentId + '\'' +
+                ", agentName='" + agentName + '\'' +
+                ", startTimestamp=" + startTimestamp +
+                ", hostName='" + hostName + '\'' +
+                ", ip='" + ip + '\'' +
+                ", ports='" + ports + '\'' +
+                ", serviceType=" + serviceType +
+                ", pid=" + pid +
+                ", vmVersion='" + vmVersion + '\'' +
+                ", agentVersion='" + agentVersion + '\'' +
+                ", container=" + container +
+                '}';
     }
 
 

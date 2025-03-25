@@ -112,8 +112,8 @@ public class ExceptionWrapper {
         int result = exceptionClassName.hashCode();
         result = 31 * result + exceptionMessage.hashCode();
         result = 31 * result + Arrays.hashCode(stackTraceElements);
-        result = 31 * result + (int) (startTime ^ (startTime >>> 32));
-        result = 31 * result + (int) (exceptionId ^ (exceptionId >>> 32));
+        result = 31 * result + Long.hashCode(startTime);
+        result = 31 * result + Long.hashCode(exceptionId);
         result = 31 * result + exceptionDepth;
         return result;
     }

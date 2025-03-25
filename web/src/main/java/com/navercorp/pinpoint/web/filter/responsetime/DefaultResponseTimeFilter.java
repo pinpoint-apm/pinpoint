@@ -24,10 +24,9 @@ public class DefaultResponseTimeFilter implements ResponseTimeFilter {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DefaultResponseTimeFilter{");
-        sb.append("fromResponseTime=").append(fromResponseTime);
-        sb.append(", toResponseTime=").append(toResponseTime);
-        sb.append('}');
-        return sb.toString();
+        return "DefaultResponseTimeFilter{" +
+                "fromResponseTime=" + fromResponseTime +
+                ", toResponseTime=" + toResponseTime +
+                '}';
     }
 }

@@ -70,7 +70,7 @@ public class DotAgentInfo {
     public int hashCode() {
         int result = agentId != null ? agentId.hashCode() : 0;
         result = 31 * result + (transactionAgentId != null ? transactionAgentId.hashCode() : 0);
-        result = 31 * result + (int) (transactionAgentStartTime ^ (transactionAgentStartTime >>> 32));
+        result = 31 * result + Long.hashCode(transactionAgentStartTime);
         return result;
     }
 

@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.metric.web.model.chart;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.metric.common.model.chart.Point;
 
-
 import java.util.List;
 import java.util.Objects;
 
@@ -102,7 +101,7 @@ public class AgentStatPoint<Y extends Number> implements Point {
 
     @Override
     public int hashCode() {
-        int result = (int) (xVal ^ (xVal >>> 32));
+        int result = Long.hashCode(xVal);
         result = 31 * result + (minYVal != null ? minYVal.hashCode() : 0);
         result = 31 * result + (maxYVal != null ? maxYVal.hashCode() : 0);
         result = 31 * result + (avgYVal != null ? avgYVal.hashCode() : 0);
@@ -112,13 +111,12 @@ public class AgentStatPoint<Y extends Number> implements Point {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentStatPoint{");
-        sb.append("xVal=").append(xVal);
-        sb.append(", minYVal=").append(minYVal);
-        sb.append(", maxYVal=").append(maxYVal);
-        sb.append(", avgYVal=").append(avgYVal);
-        sb.append(", sumYVal=").append(sumYVal);
-        sb.append('}');
-        return sb.toString();
+        return "AgentStatPoint{" +
+                "xVal=" + xVal +
+                ", minYVal=" + minYVal +
+                ", maxYVal=" + maxYVal +
+                ", avgYVal=" + avgYVal +
+                ", sumYVal=" + sumYVal +
+                '}';
     }
 }

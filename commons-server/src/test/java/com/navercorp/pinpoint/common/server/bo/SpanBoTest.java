@@ -4,7 +4,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class SpanBoTes {
+class SpanBoTest {
 
     @Test
     void hasApplicationServiceType() {

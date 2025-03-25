@@ -167,7 +167,8 @@ public class Rule implements RuleInterface {
 
     @Override
     public String toString() {
-        return "Rule{" + "ruleId='" + ruleId + '\'' +
+        return "Rule{" +
+                "ruleId='" + ruleId + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", serviceType='" + serviceType + '\'' +
                 ", checkerName='" + checkerName + '\'' +

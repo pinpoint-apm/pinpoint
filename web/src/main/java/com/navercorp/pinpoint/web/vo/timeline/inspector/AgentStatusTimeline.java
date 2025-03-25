@@ -63,11 +63,10 @@ public class AgentStatusTimeline implements Timeline<AgentStatusTimelineSegment>
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentStatusTimeline{");
-        sb.append("timelineSegments=").append(timelineSegments);
-        sb.append(", includeWarning=").append(includeWarning);
-        sb.append('}');
-        return sb.toString();
+        return "AgentStatusTimeline{" +
+                "timelineSegments=" + timelineSegments +
+                ", includeWarning=" + includeWarning +
+                '}';
     }
 
 }

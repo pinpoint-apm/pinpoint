@@ -75,11 +75,10 @@ public class AgentEventMarker {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentEventMarker{");
-        sb.append("typeCounts=").append(typeCounts);
-        sb.append(", totalCount=").append(totalCount);
-        sb.append('}');
-        return sb.toString();
+        return "AgentEventMarker{" +
+                "typeCounts=" + typeCounts +
+                ", totalCount=" + totalCount +
+                '}';
     }
 
 }

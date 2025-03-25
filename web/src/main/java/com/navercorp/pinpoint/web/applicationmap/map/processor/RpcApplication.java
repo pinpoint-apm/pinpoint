@@ -63,10 +63,9 @@ class RpcApplication {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("RpcApplication{");
-        sb.append("host='").append(host).append('\'');
-        sb.append(", application=").append(application);
-        sb.append('}');
-        return sb.toString();
+        return "RpcApplication{" +
+                "host='" + host + '\'' +
+                ", application=" + application +
+                '}';
     }
 }

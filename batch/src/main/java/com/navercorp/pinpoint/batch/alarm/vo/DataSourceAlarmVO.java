@@ -86,12 +86,11 @@ public class DataSourceAlarmVO {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DataSourceAlarmVO{");
-        sb.append("id=").append(id);
-        sb.append(", databaseName='").append(databaseName).append('\'');
-        sb.append(", activeConnectionAvg=").append(activeConnectionAvg);
-        sb.append(", maxConnectionAvg=").append(maxConnectionAvg);
-        sb.append('}');
-        return sb.toString();
+        return "DataSourceAlarmVO{" +
+                "id=" + id +
+                ", databaseName='" + databaseName + '\'' +
+                ", activeConnectionAvg=" + activeConnectionAvg +
+                ", maxConnectionAvg=" + maxConnectionAvg +
+                '}';
     }
 }

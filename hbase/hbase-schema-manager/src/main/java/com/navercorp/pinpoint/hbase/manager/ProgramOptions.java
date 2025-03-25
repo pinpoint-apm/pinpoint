@@ -78,10 +78,9 @@ public class ProgramOptions {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ProgramOptions{");
-        sb.append("namespace='").append(namespace).append('\'');
-        sb.append(", compression='").append(compression).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "ProgramOptions{" +
+                "namespace='" + namespace + '\'' +
+                ", compression='" + compression + '\'' +
+                '}';
     }
 }

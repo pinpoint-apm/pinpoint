@@ -68,19 +68,18 @@ public class AgentStatusTimelineSegment implements TimelineSegment<AgentState> {
 
     @Override
     public int hashCode() {
-        int result = (int) (startTimestamp ^ (startTimestamp >>> 32));
-        result = 31 * result + (int) (endTimestamp ^ (endTimestamp >>> 32));
+        int result = Long.hashCode(startTimestamp);
+        result = 31 * result + Long.hashCode(endTimestamp);
         result = 31 * result + (value != null ? value.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Segment{");
-        sb.append("startTimestamp=").append(startTimestamp);
-        sb.append(", endTimestamp=").append(endTimestamp);
-        sb.append(", value=").append(value);
-        sb.append('}');
-        return sb.toString();
+        return "Segment{" +
+                "startTimestamp=" + startTimestamp +
+                ", endTimestamp=" + endTimestamp +
+                ", value=" + value +
+                '}';
     }
 }

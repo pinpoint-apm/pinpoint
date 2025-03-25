@@ -53,12 +53,11 @@ public class MultipleAddress implements Address {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("MultiAddressProvider{");
-        sb.append("index=").append(index);
-        sb.append(", addresses=").append(hostList);
-        sb.append(", port=").append(port);
-        sb.append('}');
-        return sb.toString();
+        return "MultiAddressProvider{" +
+                "index=" + index +
+                ", addresses=" + hostList +
+                ", port=" + port +
+                '}';
     }
 
 }

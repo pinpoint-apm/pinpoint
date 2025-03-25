@@ -51,10 +51,9 @@ public class AgentEventTimeline implements Timeline<AgentEventTimelineSegment> {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentEventTimeline{");
-        sb.append("timelineSegments=").append(timelineSegments);
-        sb.append('}');
-        return sb.toString();
+        return "AgentEventTimeline{" +
+                "timelineSegments=" + timelineSegments +
+                '}';
     }
 
 }

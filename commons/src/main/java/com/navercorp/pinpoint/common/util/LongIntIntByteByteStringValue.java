@@ -78,7 +78,7 @@ public class LongIntIntByteByteStringValue implements DataType {
 
     @Override
     public int hashCode() {
-        int result = (int) (longValue ^ (longValue >>> 32));
+        int result = Long.hashCode(longValue);
         result = 31 * result + intValue1;
         result = 31 * result + intValue2;
         result = 31 * result + (int) byteValue1;

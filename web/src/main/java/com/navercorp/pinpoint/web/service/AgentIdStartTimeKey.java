@@ -32,7 +32,7 @@ public class AgentIdStartTimeKey {
     @Override
     public int hashCode() {
         int result = agentId != null ? agentId.hashCode() : 0;
-        result = 31 * result + (int) (agentStartTime ^ (agentStartTime >>> 32));
+        result = 31 * result + Long.hashCode(agentStartTime);
         return result;
     }
 

@@ -47,9 +47,8 @@ public class Chart<P extends Point> {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Chart{");
-        sb.append("points=").append(points);
-        sb.append('}');
-        return sb.toString();
+        return "Chart{" +
+                "points=" + points +
+                '}';
     }
 }

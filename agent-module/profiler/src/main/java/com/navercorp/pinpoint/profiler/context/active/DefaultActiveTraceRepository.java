@@ -202,7 +202,7 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
 
         @Override
         public int hashCode() {
-            return (int) (id ^ (id >>> 32));
+            return Long.hashCode(id);
         }
 
         @Override

@@ -99,9 +99,8 @@ public class FilterHint {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("FilterHint{");
-        sb.append("rpcHintList=").append(rpcHintList);
-        sb.append('}');
-        return sb.toString();
+        return "FilterHint{" +
+                "rpcHintList=" + rpcHintList +
+                '}';
     }
 }

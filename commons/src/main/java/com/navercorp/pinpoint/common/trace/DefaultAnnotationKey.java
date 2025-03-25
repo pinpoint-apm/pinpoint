@@ -78,10 +78,9 @@ public class DefaultAnnotationKey implements AnnotationKey {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AnnotationKey{");
-        sb.append("code=").append(code);
-        sb.append(", name='").append(name);
-        sb.append('}');
-        return sb.toString();
+        return "AnnotationKey{" +
+                "code=" + code +
+                ", name='" + name +
+                '}';
     }
 }

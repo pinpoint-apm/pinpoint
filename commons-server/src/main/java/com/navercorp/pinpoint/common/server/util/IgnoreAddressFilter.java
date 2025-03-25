@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -98,11 +98,10 @@ public class IgnoreAddressFilter implements AddressFilter {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("IgnoreAddressFilter{");
-        sb.append("ignoreAddressList=").append(Arrays.toString(ignoreAddressList));
-        sb.append(", cidrAddressFilterList=").append(cidrAddressFilterList);
-        sb.append('}');
-        return sb.toString();
+        return "IgnoreAddressFilter{" +
+                "ignoreAddressList=" + Arrays.toString(ignoreAddressList) +
+                ", cidrAddressFilterList=" + cidrAddressFilterList +
+                '}';
     }
 
 }
