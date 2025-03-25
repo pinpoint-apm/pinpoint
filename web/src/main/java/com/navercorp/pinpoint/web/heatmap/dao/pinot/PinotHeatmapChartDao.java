@@ -48,10 +48,7 @@ public class PinotHeatmapChartDao implements HeatmapChartDao {
     }
 
     @Override
-    public void getHeatmapAppData(HeatmapSearchKey heatmapSearchKey) {
-        List<HeatmapCell> heatmapCellList = syncTemplate.selectList(NAMESPACE + "selectHeatmapApp", heatmapSearchKey);
-        for (HeatmapCell heatmapCell : heatmapCellList) {
-            logger.info(heatmapCell);
-        }
+    public List<HeatmapCell> getHeatmapAppData(HeatmapSearchKey heatmapSearchKey) {
+        return syncTemplate.selectList(NAMESPACE + "selectHeatmapApp", heatmapSearchKey);
     }
 }
