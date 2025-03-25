@@ -16,11 +16,14 @@
 
 package com.navercorp.pinpoint.web.heatmap.dao;
 
+import com.navercorp.pinpoint.web.heatmap.vo.HeatmapCell;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatmapSearchKey;
+
+import java.util.List;
 
 /**
  * @author minwoo-jung
  */
 public interface HeatmapChartDao {
-    void getHeatmapAppData(HeatmapSearchKey heatmapSearchKey);
+    List<HeatmapCell> getHeatmapAppData(HeatmapSearchKey heatmapSearchKey);
 }

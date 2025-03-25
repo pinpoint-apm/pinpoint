@@ -15,8 +15,8 @@
         SELECT
             DATETIME_CONVERT(roundedEventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH','#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime,
             CASE
-                WHEN elapsedTime >= 1000 THEN 1000
-                ELSE (((elapsedTime / 200) + 1) * 200)
+                WHEN elapsedTime >= #{maxYAsix} THEN #{maxYAsix}
+                ELSE (((elapsedTime / #{elapsedTimeInterval} ) + 1) * #{elapsedTimeInterval})
             END AS bucketElapsedTime,
             SUM(countValue) AS count
         FROM heatmapStatApp

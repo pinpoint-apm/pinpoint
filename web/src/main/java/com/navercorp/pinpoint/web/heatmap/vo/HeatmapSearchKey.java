@@ -34,12 +34,20 @@ public class HeatmapSearchKey {
     private final TimePrecision timePrecision;
     private final long limit;
 
-    public HeatmapSearchKey(String sortKey, TimeWindow timeWindow) {
+    private final int maxYAsix;
+
+    private final int minYAsix;
+    private final int elapsedTimeInterval;
+    public HeatmapSearchKey(String sortKey, TimeWindow timeWindow, int elapsedTimeInterval, int minYAxis, int maxYAxis, int yAxisCellMaxCount) {
         this.sortKey = StringPrecondition.requireHasLength(sortKey, "applicationName");
         Objects.requireNonNull(timeWindow, "timeWindow");
         this.range = timeWindow.getWindowRange();
         this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize());
-        this.limit = timeWindow.getWindowRangeCount();
+        this.limit = timeWindow.getWindowRangeCount() * yAxisCellMaxCount;
+
+        this.elapsedTimeInterval = elapsedTimeInterval;
+        this.minYAsix = minYAxis;
+        this.maxYAsix = maxYAxis;
     }
 
     public String getSortKey() {
@@ -56,5 +64,17 @@ public class HeatmapSearchKey {
 
     public long getLimit() {
         return limit;
+    }
+
+    public int getMaxYAsix() {
+        return maxYAsix;
+    }
+
+    public int getMinYAsix() {
+        return minYAsix;
+    }
+
+    public int getElapsedTimeInterval() {
+        return elapsedTimeInterval;
     }
 }

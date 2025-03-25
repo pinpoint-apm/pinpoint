@@ -18,11 +18,13 @@ package com.navercorp.pinpoint.web.heatmap.service;
 
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.web.heatmap.dao.HeatmapChartDao;
+import com.navercorp.pinpoint.web.heatmap.vo.HeatmapCell;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatmapSearchKey;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -36,14 +38,30 @@ public class HeatmapChartServiceImpl implements HeatmapChartService {
     private final String POSTFIX_SORT_KEY_FAIL = "#fal";
 
     private final HeatmapChartDao heatmapChartDao;
+    private final int yAxisCellMaxCount;
+    private final int minIntervalForElapsedTime;
 
     public HeatmapChartServiceImpl(HeatmapChartDao heatmapChartDao) {
         this.heatmapChartDao = Objects.requireNonNull(heatmapChartDao,"heatmapChartDao");
+        this.yAxisCellMaxCount = 50;
+        this.minIntervalForElapsedTime = 200;
     }
 
     @Override
-    public void getHeatmapAppData(String applicationName, TimeWindow timeWindow) {
-        HeatmapSearchKey heatmapSearchKey = new HeatmapSearchKey(applicationName+ POSTFIX_SORT_KEY_SUCCESS, timeWindow);
-        heatmapChartDao.getHeatmapAppData(heatmapSearchKey);
+    public void getHeatmapAppData(String applicationName, TimeWindow timeWindow, int minYAxis, int maxYAxis) {
+        int elapsedTimeInterval = calculateTimeInterval(minYAxis, maxYAxis);
+        HeatmapSearchKey heatmapSearchKey = new HeatmapSearchKey(applicationName + POSTFIX_SORT_KEY_SUCCESS, timeWindow, elapsedTimeInterval, minYAxis, maxYAxis, yAxisCellMaxCount);
+        List<HeatmapCell> heatmapAppData = heatmapChartDao.getHeatmapAppData(heatmapSearchKey);
+    }
+
+
+    public int calculateTimeInterval(int min, int max) {
+        int range = max - min;
+        if (range <= (yAxisCellMaxCount * minIntervalForElapsedTime)) {
+            return minIntervalForElapsedTime;
+        }
+        int interval = (max - min) / (yAxisCellMaxCount);
+
+        return interval;
     }
 }

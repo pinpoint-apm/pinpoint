@@ -23,5 +23,5 @@ import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
  */
 public interface HeatmapChartService {
 
-    void getHeatmapAppData(String applicationName, TimeWindow timeWindow);
+    void getHeatmapAppData(String applicationName, TimeWindow timeWindow, int minYAxis, int maxYAxis);
 }

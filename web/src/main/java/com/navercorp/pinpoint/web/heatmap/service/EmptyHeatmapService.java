@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 public class EmptyHeatmapService implements HeatmapChartService {
 
     @Override
-    public void getHeatmapAppData(String applicationName, TimeWindow timeWindow) {
+    public void getHeatmapAppData(String applicationName, TimeWindow timeWindow, int minYAxis, int maxYAxis) {
         throw new UnsupportedOperationException();
     }
 }

@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentri
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import com.navercorp.pinpoint.web.heatmap.service.EmptyHeatmapService;
 import com.navercorp.pinpoint.web.heatmap.service.HeatmapChartService;
-import com.navercorp.pinpoint.web.heatmap.vo.HeatmapSearchKey;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.validation.annotation.Validated;
@@ -32,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -44,7 +42,8 @@ import java.util.Optional;
 @Validated
 public class HeatmapChartController {
 
-    private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(10000L, 30);
+    private final int MAX_TIMESLOT_COUNT = 30;
+    private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(10000L, MAX_TIMESLOT_COUNT);
     private final HeatmapChartService heatmapChartService;
 
     public HeatmapChartController(Optional<HeatmapChartService> heatmapChartService, TenantProvider tenantProvider) {
@@ -54,12 +53,14 @@ public class HeatmapChartController {
 
     @GetMapping(value = "/getHeatmapAppData")
     public void getHeatmapAppData(@RequestParam("applicationName") @NotBlank String applicationName,
-                                      @RequestParam("from") @PositiveOrZero long from,
-                                      @RequestParam("to") @PositiveOrZero long to) {
+                                  @RequestParam("from") @PositiveOrZero long from,
+                                  @RequestParam("to") @PositiveOrZero long to,
+                                  @RequestParam("minYAxis") @PositiveOrZero int minYAxis,
+                                  @RequestParam("maxYAxis") @PositiveOrZero int maxYAxis) {
         Range range = Range.between(from, to);
         TimeWindow timeWindow = getTimeWindow(range);
 //        HeatmapChartData heatmapChartData = heatmapChartService.getHeatmapData(applicationName, from, to);
-        heatmapChartService.getHeatmapAppData(applicationName, timeWindow);
+        heatmapChartService.getHeatmapAppData(applicationName, timeWindow, minYAxis, maxYAxis);
         //        return new HeatmapView(heatmapChartData);
 
     }
