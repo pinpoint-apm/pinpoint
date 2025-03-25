@@ -21,28 +21,27 @@ Configuration:
         value: "${simple_message_pattern}"
 
     Select:
-      - SystemPropertyArbiter:
-          propertyName: "pinpoint.profiler.profiles.active"
+      SystemPropertyArbiter:
+        - propertyName: "pinpoint.profiler.profiles.active"
           propertyValue: "local"
           Property:
             - name: "default-rollover-strategy-max"
               value: "5"
             - name: "logger-level"
               value: "DEBUG"
-      - SystemPropertyArbiter:
-          propertyName: "pinpoint.profiler.profiles.active"
+        - propertyName: "pinpoint.profiler.profiles.active"
           propertyValue: "release"
           Property:
             - name: "default-rollover-strategy-max"
               value: "10"
             - name: "logger-level"
               value: "INFO"
-      - DefaultArbiter:
-          Property:
-            - name: "default-rollover-strategy-max"
-              value: "5"
-            - name: "logger-level"
-              value: "DEBUG"
+      DefaultArbiter:
+        Property:
+          - name: "default-rollover-strategy-max"
+            value: "5"
+          - name: "logger-level"
+            value: "DEBUG"
 
   Appenders:
     Console:
