@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.otlp.web.vo;
 
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.server.metric.dao.TableNameManager;
-import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
 import com.navercorp.pinpoint.otlp.common.model.DataType;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.otlp.common.web.definition.property.AggregationFunction;
 
 import java.security.InvalidParameterException;
@@ -163,8 +163,8 @@ public class OtlpMetricDataQueryParameter extends QueryParameter {
         public Builder setTimeWindow(TimeWindow timeWindow) {
             this.timeWindow = timeWindow;
             this.range = timeWindow.getWindowRange();
-            this.timeSize = (int) timeWindow.getWindowSlotSize();
-            this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize());
+            this.timeSize = timeWindow.getWindowSlotSize();
+            this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, timeWindow.getWindowSlotSize());
             this.limit = timeWindow.getWindowRangeCount();
             return self();
         }

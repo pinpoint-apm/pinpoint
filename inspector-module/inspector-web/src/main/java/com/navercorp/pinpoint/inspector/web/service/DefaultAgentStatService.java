@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.inspector.web.service;
 
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.inspector.web.dao.AgentStatDao;
 import com.navercorp.pinpoint.inspector.web.definition.AggregationFunction;
 import com.navercorp.pinpoint.inspector.web.definition.Mappings;
@@ -32,7 +33,6 @@ import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricGroupData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricValue;
 import com.navercorp.pinpoint.metric.common.model.Tag;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 import com.navercorp.pinpoint.metric.common.util.DoubleUncollectedDataCreator;
 import com.navercorp.pinpoint.metric.common.util.TimeSeriesBuilder;
@@ -106,8 +106,7 @@ public class DefaultAgentStatService implements AgentStatService {
             CompletableFuture<List<SystemMetricPoint<Double>>> future = queryResult.future();
             List<SystemMetricPoint<Double>> doubleList = future.get();
 
-            List<SystemMetricPoint<Double>> postProcessedDataList = postprocessFieldData(queryResult.field(), doubleList);
-            return postProcessedDataList;
+            return postprocessFieldData(queryResult.field(), doubleList);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
+import org.springframework.util.Assert;
+
 /**
  * @author emeroad
  */
@@ -30,6 +32,7 @@ public class DefaultTimeSlot implements TimeSlot {
     }
 
     public DefaultTimeSlot(long resolution) {
+        Assert.isTrue(resolution > 0, "timeSize must be greater than 0");
         this.resolution = resolution;
     }
 
