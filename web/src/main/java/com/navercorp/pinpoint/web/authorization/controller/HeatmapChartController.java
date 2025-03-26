@@ -46,7 +46,7 @@ public class HeatmapChartController {
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(10000L, MAX_TIMESLOT_COUNT);
     private final HeatmapChartService heatmapChartService;
 
-    public HeatmapChartController(Optional<HeatmapChartService> heatmapChartService, TenantProvider tenantProvider) {
+    public HeatmapChartController(Optional<HeatmapChartService> heatmapChartService) {
         this.heatmapChartService = heatmapChartService.orElseGet(EmptyHeatmapService::new);
         //TODO : (minwoo) need to set rangeValidator
     }
