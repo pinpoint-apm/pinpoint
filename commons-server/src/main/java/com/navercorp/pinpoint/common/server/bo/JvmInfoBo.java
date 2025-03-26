@@ -51,7 +51,11 @@ public class JvmInfoBo {
     }
 
     public int getVersion() {
-        return version & 0xFF;
+        return Byte.toUnsignedInt(version);
+    }
+
+    public byte getRawVersion() {
+        return version;
     }
 
     public String getJvmVersion() {
