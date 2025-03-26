@@ -6,5 +6,6 @@ export * from './useHeightToBottom';
 export * from './useLanguage';
 export * from './useLocalStorage';
 export * from './useServerMapLinkedData';
+export * from './useStoragedAxisY';
 export * from './useTabFocus';
 // export * from './useSearchParameters';

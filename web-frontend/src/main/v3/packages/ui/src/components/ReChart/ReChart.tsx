@@ -18,7 +18,7 @@ export interface ReChartProps {
   yAxisTickFormatter?: (value: any) => string;
 }
 
-function defaultTickFormatter(value: number) {
+export function defaultTickFormatter(value: number) {
   if (isToday(value)) {
     return format(value, 'HH:mm:ss');
   }
