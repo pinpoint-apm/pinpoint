@@ -50,18 +50,40 @@ public class HeatmapChartServiceImpl implements HeatmapChartService {
     @Override
     public void getHeatmapAppData(String applicationName, TimeWindow timeWindow, int minYAxis, int maxYAxis) {
         int elapsedTimeInterval = calculateTimeInterval(minYAxis, maxYAxis);
-        HeatmapSearchKey heatmapSearchKey = new HeatmapSearchKey(applicationName + POSTFIX_SORT_KEY_SUCCESS, timeWindow, elapsedTimeInterval, minYAxis, maxYAxis, yAxisCellMaxCount);
+        int largestMultiple = findLargestMultipleBelow(maxYAxis, elapsedTimeInterval);
+        HeatmapSearchKey heatmapSearchKey = new HeatmapSearchKey(applicationName + POSTFIX_SORT_KEY_SUCCESS, timeWindow, elapsedTimeInterval, minYAxis, maxYAxis, largestMultiple, yAxisCellMaxCount);
+
+        long startTime = System.currentTimeMillis();
+
         List<HeatmapCell> heatmapAppData = heatmapChartDao.getHeatmapAppData(heatmapSearchKey);
+
+        long executionTime = System.currentTimeMillis() - startTime;
+        logger.debug("==== getHeatmapAppData execution time: {}ms", executionTime);
+
+        for (HeatmapCell heatmapCell : heatmapAppData) {
+            logger.debug("heatmapCell: {}", heatmapCell);
+        }
     }
 
-
-    public int calculateTimeInterval(int min, int max) {
+    protected int calculateTimeInterval(int min, int max) {
         int range = max - min;
         if (range <= (yAxisCellMaxCount * minIntervalForElapsedTime)) {
             return minIntervalForElapsedTime;
         }
-        int interval = (max - min) / (yAxisCellMaxCount);
 
-        return interval;
+        if (min == 0) {
+            return range / (yAxisCellMaxCount);
+        } else {
+            return range / (yAxisCellMaxCount - 1);
+        }
+    }
+
+    protected int findLargestMultipleBelow(int upperBound, int interval) {
+        if (interval <= 0) {
+            throw new IllegalArgumentException("interval must be greater than 0");
+        }
+
+        int largestDivisible = (upperBound - 1) / interval * interval;
+        return largestDivisible;
     }
 }

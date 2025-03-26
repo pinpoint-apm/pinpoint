@@ -50,6 +50,8 @@ class HeatmapChartServiceImplTest {
 
         assertEquals(200, heatmapChartService.calculateTimeInterval(0, 9000));
         assertEquals(300, heatmapChartService.calculateTimeInterval(0, 15000));
+        assertEquals(200, heatmapChartService.calculateTimeInterval(10000, 15000));
+        assertEquals(6020, heatmapChartService.calculateTimeInterval(10000, 305000));
 
         int min = 0;
         int max = 133333;
@@ -88,4 +90,13 @@ class HeatmapChartServiceImplTest {
         elapsedTime = 666;
         assertEquals(900, (((elapsedTime / timeInterval) + 1) * timeInterval));
     }
+
+    @Test
+    public void findLargestMultipleBelowTest() {
+        assertEquals(9800, heatmapChartService.findLargestMultipleBelow(10000, 200));
+        assertEquals(19600, heatmapChartService.findLargestMultipleBelow(20000, 400));
+        assertEquals(29925, heatmapChartService.findLargestMultipleBelow(30000, 315));
+    }
+
+
 }
