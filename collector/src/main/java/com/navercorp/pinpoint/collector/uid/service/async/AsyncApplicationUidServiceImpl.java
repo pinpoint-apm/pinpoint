@@ -31,11 +31,14 @@ public class AsyncApplicationUidServiceImpl implements AsyncApplicationUidServic
 
     @Override
     public CompletableFuture<ApplicationUid> getApplicationId(ServiceUid serviceUid, String applicationName) {
+        Objects.requireNonNull(serviceUid, "serviceUid");
+        Objects.requireNonNull(applicationName, "applicationName");
         return applicationUidDao.asyncSelectApplicationUid(serviceUid, applicationName);
     }
 
     @Override
     public CompletableFuture<ApplicationUid> getOrCreateApplicationId(ServiceUid serviceUid, String applicationName) {
+        Objects.requireNonNull(serviceUid, "serviceUid");
         Objects.requireNonNull(applicationName, "applicationName");
 
         return getApplicationId(serviceUid, applicationName)

@@ -5,7 +5,6 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.server.uid.ApplicationIdentifier;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.ApplicationUidRowKeyUtils;
@@ -19,60 +18,60 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 @ConditionalOnProperty(name = "pinpoint.web.application.uid.enable", havingValue = "true")
 public class HbaseApplicationUidDao implements ApplicationUidDao {
 
-    private final HbaseColumnFamily ID = HbaseTables.APPLICATION_UID;
+    private final HbaseColumnFamily UID = HbaseTables.APPLICATION_UID;
 
     private final HbaseOperations hbaseOperations;
     private final TableNameProvider tableNameProvider;
 
-    private final RowMapper<ApplicationIdentifier> applicationIdentifierMapper;
-    private final RowMapper<ApplicationUid> applicationIdMapper;
+    private final RowMapper<ApplicationUid> applicationUidMapper;
+    private final RowMapper<String> applicationUidNameMapper;
 
     public HbaseApplicationUidDao(HbaseOperations hbaseOperations, TableNameProvider tableNameProvider,
-                                  @Qualifier("applicationIdentifierMapper") RowMapper<ApplicationIdentifier> applicationIdentifierMapper,
-                                  @Qualifier("applicationUidMapper") RowMapper<ApplicationUid> applicationIdMapper) {
-        this.hbaseOperations = hbaseOperations;
-        this.tableNameProvider = tableNameProvider;
-        this.applicationIdentifierMapper = applicationIdentifierMapper;
-        this.applicationIdMapper = applicationIdMapper;
+                                  @Qualifier("applicationUidMapper") RowMapper<ApplicationUid> applicationUidMapper,
+                                  @Qualifier("applicationUidNameMapper") RowMapper<String> applicationUidNameMapper) {
+        this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
+        this.applicationUidMapper = Objects.requireNonNull(applicationUidMapper, "applicationUidMapper");
+        this.applicationUidNameMapper = Objects.requireNonNull(applicationUidNameMapper, "applicationUidNameMapper");
     }
 
     @Override
-    public List<ApplicationIdentifier> selectApplicationIds(String applicationName) {
-        byte[] rowKeyPrefix = ApplicationUidRowKeyUtils.makeRowKey(applicationName);
+    public List<String> selectApplicationUidRows(ServiceUid serviceUid) {
+        byte[] rowKeyPrefix = ApplicationUidRowKeyUtils.makeRowKey(serviceUid);
 
         Scan scan = new Scan();
         scan.setCaching(30);
         scan.setStartStopRowForPrefixScan(rowKeyPrefix);
-        scan.addColumn(ID.getName(), ID.getName());
+        scan.addColumn(UID.getName(), UID.getName());
 
-        TableName applicationIdTableName = tableNameProvider.getTableName(ID.getTable());
-        return hbaseOperations.find(applicationIdTableName, scan, applicationIdentifierMapper);
+        TableName applicationIdTableName = tableNameProvider.getTableName(UID.getTable());
+        return hbaseOperations.find(applicationIdTableName, scan, applicationUidNameMapper);
     }
 
     @Override
-    public ApplicationUid selectApplicationId(ServiceUid serviceUid, String applicationName) {
+    public ApplicationUid selectApplication(ServiceUid serviceUid, String applicationName) {
         byte[] rowKey = ApplicationUidRowKeyUtils.makeRowKey(serviceUid, applicationName);
 
         Get get = new Get(rowKey);
-        get.addColumn(ID.getName(), ID.getName());
+        get.addColumn(UID.getName(), UID.getName());
 
-        TableName applicationIdTableName = tableNameProvider.getTableName(ID.getTable());
-        return hbaseOperations.get(applicationIdTableName, get, applicationIdMapper);
+        TableName applicationIdTableName = tableNameProvider.getTableName(UID.getTable());
+        return hbaseOperations.get(applicationIdTableName, get, applicationUidMapper);
     }
 
     @Override
-    public void deleteApplicationId(ServiceUid serviceUid, String applicationName) {
+    public void deleteApplicationUid(ServiceUid serviceUid, String applicationName) {
         byte[] rowKey = ApplicationUidRowKeyUtils.makeRowKey(serviceUid, applicationName);
 
         Delete delete = new Delete(rowKey);
-        delete.addColumn(ID.getName(), ID.getName());
 
-        TableName applicationIdTableName = tableNameProvider.getTableName(ID.getTable());
+        TableName applicationIdTableName = tableNameProvider.getTableName(UID.getTable());
         hbaseOperations.delete(applicationIdTableName, delete);
     }
 }

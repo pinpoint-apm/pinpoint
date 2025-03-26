@@ -29,22 +29,22 @@ import java.util.concurrent.CompletableFuture;
 @ConditionalOnProperty(value = "pinpoint.collector.application.uid.enable", havingValue = "true")
 public class HbaseApplicationUidDao implements ApplicationUidDao {
 
-    private static final HbaseColumnFamily APPLICATION_ID = HbaseTables.APPLICATION_UID;
+    private static final HbaseColumnFamily UID = HbaseTables.APPLICATION_UID;
 
     private final HbaseOperations hbaseOperations;
     private final AsyncHbaseOperations asyncHbaseOperations;
     private final TableNameProvider tableNameProvider;
 
-    private final RowMapper<ApplicationUid> applicationIdMapper;
+    private final RowMapper<ApplicationUid> applicationUidValueMapper;
 
     public HbaseApplicationUidDao(@Qualifier("uidHbaseTemplate") HbaseOperations hbaseOperations,
                                   @Qualifier("uidAsyncTemplate") AsyncHbaseOperations asyncHbaseOperations,
                                   TableNameProvider tableNameProvider,
-                                  @Qualifier("applicationUidMapper") RowMapper<ApplicationUid> applicationIdMapper) {
+                                  @Qualifier("applicationUidMapper") RowMapper<ApplicationUid> applicationUidValueMapper) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.asyncHbaseOperations = Objects.requireNonNull(asyncHbaseOperations, "asyncHbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
-        this.applicationIdMapper = Objects.requireNonNull(applicationIdMapper, "applicationIdMapper");
+        this.applicationUidValueMapper = Objects.requireNonNull(applicationUidValueMapper, "applicationUidValueMapper");
     }
 
     @Override
@@ -52,23 +52,23 @@ public class HbaseApplicationUidDao implements ApplicationUidDao {
     public ApplicationUid selectApplicationUid(ServiceUid serviceUid, String applicationName) {
         Get get = createGet(serviceUid, applicationName);
 
-        TableName applicationIdTableName = tableNameProvider.getTableName(APPLICATION_ID.getTable());
-        return hbaseOperations.get(applicationIdTableName, get, applicationIdMapper);
+        TableName applicationIdTableName = tableNameProvider.getTableName(UID.getTable());
+        return hbaseOperations.get(applicationIdTableName, get, applicationUidValueMapper);
     }
 
     @Override
     public CompletableFuture<ApplicationUid> asyncSelectApplicationUid(ServiceUid serviceUid, String applicationName) {
         Get get = createGet(serviceUid, applicationName);
 
-        TableName applicationIdTableName = tableNameProvider.getTableName(APPLICATION_ID.getTable());
-        return asyncHbaseOperations.get(applicationIdTableName, get, applicationIdMapper);
+        TableName applicationIdTableName = tableNameProvider.getTableName(UID.getTable());
+        return asyncHbaseOperations.get(applicationIdTableName, get, applicationUidValueMapper);
     }
 
     private Get createGet(ServiceUid serviceUid, String applicationName) {
         byte[] rowKey = ApplicationUidRowKeyUtils.makeRowKey(serviceUid, applicationName);
 
         Get get = new Get(rowKey);
-        get.addColumn(APPLICATION_ID.getName(), APPLICATION_ID.getName());
+        get.addColumn(UID.getName(), UID.getName());
         return get;
     }
 
@@ -76,7 +76,7 @@ public class HbaseApplicationUidDao implements ApplicationUidDao {
     public boolean insertApplicationUidIfNotExists(ServiceUid serviceUid, String applicationName, ApplicationUid applicationUid) {
         CheckAndMutate checkAndMutate = createCheckAndPut(serviceUid, applicationName, applicationUid);
 
-        TableName applicationIdTableName = tableNameProvider.getTableName(APPLICATION_ID.getTable());
+        TableName applicationIdTableName = tableNameProvider.getTableName(UID.getTable());
         CheckAndMutateResult checkAndMutateResult = hbaseOperations.checkAndMutate(applicationIdTableName, checkAndMutate);
         return checkAndMutateResult.isSuccess();
     }
@@ -85,7 +85,7 @@ public class HbaseApplicationUidDao implements ApplicationUidDao {
     public CompletableFuture<Boolean> asyncInsertApplicationUidIfNotExists(ServiceUid serviceUid, String applicationName, ApplicationUid applicationUid) {
         CheckAndMutate checkAndMutate = createCheckAndPut(serviceUid, applicationName, applicationUid);
 
-        TableName applicationIdTableName = tableNameProvider.getTableName(APPLICATION_ID.getTable());
+        TableName applicationIdTableName = tableNameProvider.getTableName(UID.getTable());
         return asyncHbaseOperations.checkAndMutate(applicationIdTableName, checkAndMutate)
                 .thenApply(CheckAndMutateResult::isSuccess);
     }
@@ -94,10 +94,10 @@ public class HbaseApplicationUidDao implements ApplicationUidDao {
         byte[] rowKey = ApplicationUidRowKeyUtils.makeRowKey(serviceUid, applicationName);
 
         Put put = new Put(rowKey);
-        put.addColumn(APPLICATION_ID.getName(), APPLICATION_ID.getName(), Bytes.toBytes(applicationUid.getUid()));
+        put.addColumn(UID.getName(), UID.getName(), Bytes.toBytes(applicationUid.getUid()));
 
         CheckAndMutate.Builder builder = CheckAndMutate.newBuilder(rowKey);
-        builder.ifNotExists(APPLICATION_ID.getName(), APPLICATION_ID.getName());
+        builder.ifNotExists(UID.getName(), UID.getName());
         return builder.build(put);
     }
 }

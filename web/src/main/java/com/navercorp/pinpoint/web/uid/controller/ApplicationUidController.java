@@ -2,7 +2,6 @@ package com.navercorp.pinpoint.web.uid.controller;
 
 import com.navercorp.pinpoint.common.server.response.Response;
 import com.navercorp.pinpoint.common.server.response.SimpleResponse;
-import com.navercorp.pinpoint.common.server.uid.ApplicationIdentifier;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.web.uid.service.ApplicationUidService;
@@ -34,11 +33,6 @@ public class ApplicationUidController {
     public List<String> getApplications(@RequestParam(value = "serviceUid", required = false, defaultValue = DEFAULT_SERVICE_UID_CODE) int serviceUid) {
         ServiceUid serviceUidObject = ServiceUid.of(serviceUid);
         return applicationUidService.getApplicationNames(serviceUidObject);
-    }
-
-    @GetMapping(value = "/application/uids")
-    public List<ApplicationIdentifier> getApplicationIds(@RequestParam(value = "applicationName") @NotBlank String applicationName) {
-        return applicationUidService.getApplicationIds(applicationName);
     }
 
     @GetMapping(value = "/application/uid")

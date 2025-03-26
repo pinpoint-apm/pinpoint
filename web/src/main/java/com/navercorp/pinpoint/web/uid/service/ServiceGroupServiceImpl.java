@@ -34,26 +34,27 @@ public class ServiceGroupServiceImpl implements ServiceGroupService {
 
     @Override
     public List<String> selectAllServiceNames() {
-        return serviceNameDao.selectAllServiceNames();
+        return serviceUidDao.selectAllServiceNames();
     }
 
     @Override
     @Cacheable(cacheNames = "serviceNameCache", key = "#serviceUid", cacheManager = ServiceUidConfig.SERVICE_NAME_CACHE_NAME, unless = "#result == null")
     public String selectServiceName(ServiceUid serviceUid) {
-        if (serviceUid == null) {
-            return null;
-        }
+        Objects.requireNonNull(serviceUid, "serviceUid");
         return serviceNameDao.selectServiceName(serviceUid);
     }
 
     @Override
     @Cacheable(cacheNames = "serviceUidCache", key = "#serviceName", cacheManager = ServiceUidConfig.SERVICE_UID_CACHE_NAME, unless = "#result == null")
     public ServiceUid selectServiceUid(String serviceName) {
+        Objects.requireNonNull(serviceName, "serviceName");
         return serviceUidDao.selectServiceUid(serviceName);
     }
 
     @Override
     public void createService(String serviceName) {
+        Objects.requireNonNull(serviceName, "serviceName");
+
         ServiceUid serviceUid = serviceUidDao.selectServiceUid(serviceName);
         if (serviceUid != null) {
             throw new IllegalStateException("already existing serviceName: " + serviceName);
@@ -64,11 +65,10 @@ public class ServiceGroupServiceImpl implements ServiceGroupService {
     private void createNewService(String serviceName) {
         // 1. insert (id -> name)
         ServiceUid newServiceUid = insertServiceNameWithRetries(serviceName, 3);
-        if (newServiceUid != null) {
-            logger.info("saved (id:{} -> name:{})", newServiceUid, serviceName);
-        } else {
+        if (newServiceUid == null) {
             throw new IllegalStateException("serviceUid collision try again");
         }
+        logger.info("saved (id:{} -> name:{})", newServiceUid, serviceName);
 
         // 2. insert (name -> id)
         try {
@@ -102,6 +102,8 @@ public class ServiceGroupServiceImpl implements ServiceGroupService {
     @Override
     @CacheEvict(cacheNames = "serviceUidCache", key = "#serviceName", cacheManager = ServiceUidConfig.SERVICE_UID_CACHE_NAME)
     public void deleteService(String serviceName) {
+        Objects.requireNonNull(serviceName, "serviceName");
+
         ServiceUid serviceUid = serviceUidDao.selectServiceUid(serviceName);
         serviceUidDao.deleteServiceUid(serviceName);
         logger.info("deleted (name:{} -> id:{})", serviceName, serviceUid);
