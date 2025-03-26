@@ -23,32 +23,40 @@ import java.util.Set;
  *
  */
 public enum ServiceTypeCategory {
-    UNDEFINED_CATEGORY(-1, -1),
-    PINPOINT_INTERNAL(0, 999),
-    SERVER(1000, 1999),
-    DATABASE(2000, 2999),
-    LIBRARY(5000, 7999),
-    CACHE_LIBRARY(8000, 8299, BaseHistogramSchema.FAST_SCHEMA),
-    MESSAGE_BROKER(8300, 8799),
-    HBASE(8800, 8899),
-    CACHE_LIBRARY_SANDBOX(8900, 8999, BaseHistogramSchema.FAST_SCHEMA),
-    RPC(9000, 9999);
+    UNDEFINED_CATEGORY(-1, -1, NodeCategory.UNDEFINED),
+    PINPOINT_INTERNAL(0, 999, NodeCategory.UNDEFINED),
+    SERVER(1000, 1999, NodeCategory.SERVER),
+    DATABASE(2000, 2999, NodeCategory.DATABASE),
+    LIBRARY(5000, 7999, NodeCategory.UNDEFINED),
+    CACHE_LIBRARY(8000, 8299, NodeCategory.CACHE, BaseHistogramSchema.FAST_SCHEMA),
+    MESSAGE_BROKER(8300, 8799, NodeCategory.MESSAGE_BROKER),
+    HBASE(8800, 8899, NodeCategory.DATABASE),
+    CACHE_LIBRARY_SANDBOX(8900, 8999, NodeCategory.UNDEFINED, BaseHistogramSchema.FAST_SCHEMA),
+    RPC(9000, 9999, NodeCategory.UNKNOWN);
 
 
     private final int minCode;
     private final int maxCode;
+
+    private final NodeCategory nodeCategory;
+
     private final HistogramSchema histogramSchema;
 
     private static final Set<ServiceTypeCategory> SERVICE_TYPE_CATEGORIES = EnumSet.allOf(ServiceTypeCategory.class);
 
-    ServiceTypeCategory(int minCode, int maxCode) {
-        this(minCode, maxCode, BaseHistogramSchema.NORMAL_SCHEMA);
+    ServiceTypeCategory(int minCode, int maxCode, NodeCategory nodeCategory) {
+        this(minCode, maxCode, nodeCategory, BaseHistogramSchema.NORMAL_SCHEMA);
     }
 
-    ServiceTypeCategory(int minCode, int maxCode, HistogramSchema histogramSchema) {
+    ServiceTypeCategory(int minCode, int maxCode, NodeCategory nodeCategory, HistogramSchema histogramSchema) {
         this.minCode = minCode;
         this.maxCode = maxCode;
+        this.nodeCategory = nodeCategory;
         this.histogramSchema = Objects.requireNonNull(histogramSchema, "histogramSchema");
+    }
+
+    public NodeCategory nodeCategory() {
+        return nodeCategory;
     }
 
     public boolean contains(int code) {
