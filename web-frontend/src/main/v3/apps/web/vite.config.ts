@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import { compression } from 'vite-plugin-compression2';
 import svgr from 'vite-plugin-svgr';
+// import { visualizer } from 'rollup-plugin-visualizer';
 // import react from '@vitejs/plugin-react';
 
 // import { BASE_PATH } from '@pinpoint-fe/ui/src/constants'; // TODO: import from ui
@@ -39,6 +40,7 @@ export default defineConfig({
       exclude: [/\.(br)$/, /\.(gz)$/],
       // deleteOriginalAssets: true,
     }),
+    // visualizer({ open: true }),
   ],
   base: basePath,
 });
