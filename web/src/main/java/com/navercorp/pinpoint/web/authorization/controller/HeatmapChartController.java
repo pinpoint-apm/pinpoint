@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import com.navercorp.pinpoint.web.heatmap.service.EmptyHeatmapService;
 import com.navercorp.pinpoint.web.heatmap.service.HeatmapChartService;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -56,7 +57,7 @@ public class HeatmapChartController {
                                   @RequestParam("from") @PositiveOrZero long from,
                                   @RequestParam("to") @PositiveOrZero long to,
                                   @RequestParam("minYAxis") @PositiveOrZero int minYAxis,
-                                  @RequestParam("maxYAxis") @PositiveOrZero int maxYAxis) {
+                                  @RequestParam("maxYAxis") @Positive int maxYAxis) {
         Range range = Range.between(from, to);
         TimeWindow timeWindow = getTimeWindow(range);
 //        HeatmapChartData heatmapChartData = heatmapChartService.getHeatmapData(applicationName, from, to);

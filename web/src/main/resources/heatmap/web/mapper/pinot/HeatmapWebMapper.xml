@@ -15,7 +15,10 @@
         SELECT
             DATETIME_CONVERT(roundedEventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH','#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime,
             CASE
-                WHEN elapsedTime >= #{maxYAsix} THEN #{maxYAsix}
+                WHEN elapsedTime >= #{largestMultiple} THEN #{maxYAsix}
+                <if test="minYAsix != 0">
+                    WHEN elapsedTime <![CDATA[ < ]]> #{minYAsix} THEN #{minYAsix}
+                </if>
                 ELSE (((elapsedTime / #{elapsedTimeInterval} ) + 1) * #{elapsedTimeInterval})
             END AS bucketElapsedTime,
             SUM(countValue) AS count
