@@ -187,6 +187,9 @@ public class MySqlPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("com.mysql.jdbc.NonRegisteringDriver", DriverTransform.class);
         // 6.x+
         transformTemplate.transform("com.mysql.cj.jdbc.NonRegisteringDriver", DriverTransform.class);
+        // aws-mysql
+        transformTemplate.transform("software.aws.rds.jdbc.mysql.Driver", DriverTransform.class);
+        transformTemplate.transform("software.amazon.jdbc.Driver", DriverTransform.class);        
     }
 
     public static class DriverTransform implements TransformCallback {
