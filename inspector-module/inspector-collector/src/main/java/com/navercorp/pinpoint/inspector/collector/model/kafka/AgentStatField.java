@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.inspector.collector.model.kafka;
 
+import com.navercorp.pinpoint.common.server.util.ByteUtils;
+
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -88,10 +90,7 @@ public enum AgentStatField {
     private static final Set<AgentStatField> AGENT_STAT_TYPES = EnumSet.allOf(AgentStatField.class);
 
     AgentStatField(int typeCode, String metricName, String fieldName) {
-        if (typeCode < 0 || typeCode > 255) {
-            throw new IllegalArgumentException("type code out of range (0~255)");
-        }
-        this.typeCode = (byte) (typeCode & 0xFF);
+        this.typeCode = ByteUtils.toUnsignedByte(typeCode);
         this.metricName = metricName;
         this.fieldName = fieldName;
     }

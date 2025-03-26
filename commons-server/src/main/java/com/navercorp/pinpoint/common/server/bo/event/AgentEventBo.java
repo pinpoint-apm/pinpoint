@@ -17,10 +17,13 @@
 package com.navercorp.pinpoint.common.server.bo.event;
 
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
+import com.navercorp.pinpoint.common.server.util.ByteUtils;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -43,33 +46,21 @@ public class AgentEventBo {
     }
 
     public AgentEventBo(int version, String agentId, long startTimestamp, long eventTimestamp, AgentEventType eventType) {
-        if (version < 0 || version > 255) {
-            throw new IllegalArgumentException("version out of range (0~255)");
-        }
-        if (agentId == null) {
-            throw new IllegalArgumentException("agentId cannot be null");
-        }
-        if (agentId.isEmpty()) {
-            throw new IllegalArgumentException("agentId cannot be empty");
-        }
+        this.version = ByteUtils.toUnsignedByte(version);
+        this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         if (startTimestamp < 0) {
             throw new IllegalArgumentException("startTimestamp cannot be less than 0");
         }
         if (eventTimestamp < 0) {
             throw new IllegalArgumentException("eventTimestamp cannot be less than 0");
         }
-        if (eventType == null) {
-            throw new IllegalArgumentException("agentEventType cannot be null");
-        }
-        this.version = (byte) (version & 0xFF);
-        this.agentId = agentId;
         this.startTimestamp = startTimestamp;
         this.eventTimestamp = eventTimestamp;
-        this.eventType = eventType;
+        this.eventType = Objects.requireNonNull(eventType, "eventType");
     }
 
     public int getVersion() {
-        return this.version & 0xFF;
+        return Byte.toUnsignedInt(this.version);
     }
 
     public String getAgentId() {

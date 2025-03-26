@@ -17,8 +17,12 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.common.server.util.ByteUtils;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
+
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -39,15 +43,8 @@ public class AgentLifeCycleBo {
     }
 
     public AgentLifeCycleBo(int version, String agentId, long startTimestamp, long eventTimestamp, long eventIdentifier, AgentLifeCycleState agentLifeCycleState) {
-        if (version < 0 || version > 255) {
-            throw new IllegalArgumentException("version out of range (0~255)");
-        }
-        if (agentId == null) {
-            throw new IllegalArgumentException("agentId cannot be null");
-        }
-        if (agentId.isEmpty()) {
-            throw new IllegalArgumentException("agentId cannot be empty");
-        }
+        this.version = ByteUtils.toUnsignedByte(version);
+        this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         if (startTimestamp < 0) {
             throw new IllegalArgumentException("startTimestamp cannot be less than 0");
         }
@@ -57,19 +54,14 @@ public class AgentLifeCycleBo {
         if (eventIdentifier < 0) {
             throw new IllegalArgumentException("eventIdentifier cannot be less than 0");
         }
-        if (agentLifeCycleState == null) {
-            throw new IllegalArgumentException("agentLifeCycleState cannot be null");
-        }
-        this.version = (byte)(version & 0xFF);
-        this.agentId = agentId;
         this.startTimestamp = startTimestamp;
         this.eventTimestamp = eventTimestamp;
         this.eventIdentifier = eventIdentifier;
-        this.agentLifeCycleState = agentLifeCycleState;
+        this.agentLifeCycleState = Objects.requireNonNull(agentLifeCycleState, "agentLifeCycleState");
     }
 
     public int getVersion() {
-        return this.version & 0xFF;
+        return Byte.toUnsignedInt(this.version);
     }
 
     public String getAgentId() {

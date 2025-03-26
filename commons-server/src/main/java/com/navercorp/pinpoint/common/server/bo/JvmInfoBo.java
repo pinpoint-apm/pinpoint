@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.server.bo;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.server.util.ByteUtils;
 
 import java.util.Objects;
 
@@ -32,25 +33,21 @@ public class JvmInfoBo {
     private final String gcTypeName;
 
     public JvmInfoBo(int version, String jvmVersion, String gcTypeName) {
-        if (version < 0 || version > 255) {
-            throw new IllegalArgumentException("version out of range (0~255)");
-        }
-        this.version = (byte) (version & 0xFF);
+        this.version = ByteUtils.toUnsignedByte(version);
+
         this.jvmVersion = Objects.requireNonNull(jvmVersion, "jvmVersion");
         this.gcTypeName = Objects.requireNonNull(gcTypeName, "gcTypeName");
     }
 
-    public JvmInfoBo(byte[] serializedJvmInfoBo) {
+    public static JvmInfoBo readJvmInfo(byte[] serializedJvmInfoBo) {
         final Buffer buffer = new FixedBuffer(serializedJvmInfoBo);
-        this.version = buffer.readByte();
-        int version = this.version & 0xFF;
+        final int version = ByteUtils.toUnsignedByte(buffer.readByte());
         if (version == 0) {
-            this.jvmVersion = buffer.readPrefixedString();
-            this.gcTypeName = buffer.readPrefixedString();
-        } else {
-            this.jvmVersion = "";
-            this.gcTypeName = "";
+            String jvmVersion = buffer.readPrefixedString();
+            String gcTypeName = buffer.readPrefixedString();
+            return new JvmInfoBo(version, jvmVersion, gcTypeName);
         }
+        return new JvmInfoBo(version, "", "");
     }
 
     public int getVersion() {
@@ -70,14 +67,10 @@ public class JvmInfoBo {
     public byte[] writeValue() {
         final Buffer buffer = new AutomaticBuffer();
         buffer.putByte(this.version);
-        int version = this.version & 0xFF;
-        switch (version) {
-            case 0:
-                buffer.putPrefixedString(this.jvmVersion);
-                buffer.putPrefixedString(this.gcTypeName);
-                break;
-            default:
-                break;
+        final int version = this.version & 0xFF;
+        if (version == 0) {
+            buffer.putPrefixedString(this.jvmVersion);
+            buffer.putPrefixedString(this.gcTypeName);
         }
         return buffer.getBuffer();
     }
