@@ -33,10 +33,7 @@ public class ServiceGroupController {
 
     @GetMapping(value = "/serviceNames")
     public List<String> getAllServiceNames() {
-        List<String> serviceNames = serviceGroupService.selectAllServiceNames();
-        return serviceNames.stream()
-                .sorted()
-                .toList();
+        return serviceGroupService.selectAllServiceNames();
     }
 
     @PostMapping(value = "/service")

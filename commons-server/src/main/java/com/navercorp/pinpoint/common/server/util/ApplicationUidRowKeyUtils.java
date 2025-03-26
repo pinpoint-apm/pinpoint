@@ -1,32 +1,35 @@
 package com.navercorp.pinpoint.common.server.util;
 
-import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
-import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
+import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import org.apache.hadoop.hbase.util.Bytes;
 
 public class ApplicationUidRowKeyUtils {
 
+    public static byte[] makeRowKey(ServiceUid serviceUid) {
+        byte[] rowKey = new byte[ByteArrayUtils.INT_BYTE_LENGTH];
+        ByteArrayUtils.writeInt(serviceUid.getUid(), rowKey, 0);
+        return rowKey;
+    }
+
     public static byte[] makeRowKey(ServiceUid serviceUid, String applicationName) {
-        final byte[] serviceUidBytes = Bytes.toBytes(serviceUid.getUid());
         final byte[] applicationNameBytes = BytesUtils.toBytes(applicationName);
-
-        final Buffer buffer = new AutomaticBuffer(2 + applicationNameBytes.length + 8);
-        buffer.put2PrefixedString(applicationName);
-        buffer.putBytes(serviceUidBytes);
-        return buffer.getBuffer();
+        byte[] rowKey = new byte[ByteArrayUtils.INT_BYTE_LENGTH + applicationNameBytes.length];
+        ByteArrayUtils.writeInt(serviceUid.getUid(), rowKey, 0);
+        BytesUtils.writeBytes(rowKey, ByteArrayUtils.INT_BYTE_LENGTH, applicationNameBytes);
+        return rowKey;
     }
 
-    public static byte[] makeRowKey(String applicationName) {
-        Buffer buffer = new AutomaticBuffer();
-        buffer.put2PrefixedString(applicationName);
-        return buffer.getBuffer();
+    public static String getApplicationName(byte[] rowKey) {
+        return BytesUtils.toString(rowKey, ByteArrayUtils.INT_BYTE_LENGTH, rowKey.length - ByteArrayUtils.INT_BYTE_LENGTH);
     }
 
-    public static int getServiceUidFromRowKey(byte[] rowKey) {
-        short applicationNameLength = Bytes.toShort(rowKey, 0);
-        return Bytes.toInt(rowKey, 2 + applicationNameLength);
+    public static byte[] makeRowKey(ServiceUid serviceUid, ApplicationUid applicationUid) {
+        byte[] rowKey = new byte[ByteArrayUtils.INT_BYTE_LENGTH + ByteArrayUtils.LONG_BYTE_LENGTH];
+        ByteArrayUtils.writeInt(serviceUid.getUid(), rowKey, 0);
+        ByteArrayUtils.writeLong(applicationUid.getUid(), rowKey, ByteArrayUtils.INT_BYTE_LENGTH);
+        return rowKey;
     }
 
 }

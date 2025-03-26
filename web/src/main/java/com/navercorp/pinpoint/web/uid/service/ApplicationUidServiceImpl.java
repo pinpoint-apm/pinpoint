@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.web.uid.service;
 
-import com.navercorp.pinpoint.common.server.uid.ApplicationIdentifier;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.web.uid.config.ApplicationUidConfig;
@@ -31,42 +30,35 @@ public class ApplicationUidServiceImpl implements ApplicationUidService {
     }
 
     @Override
-    public List<ApplicationIdentifier> getApplicationIds(String applicationName) {
-        List<ApplicationIdentifier> applicationIdentifiers = applicationUidDao.selectApplicationIds(applicationName);
-        return applicationIdentifiers.stream()
-                .filter(Objects::nonNull)
-                .toList();
-    }
-
-    @Override
     public List<String> getApplicationNames(ServiceUid serviceUid) {
-        List<String> names = applicationNameDao.selectApplicationNames(serviceUid);
-        return names.stream()
-                .filter(Objects::nonNull)
-                .sorted()
-                .toList();
+        Objects.requireNonNull(serviceUid, "serviceUid");
+        return applicationUidDao.selectApplicationUidRows(serviceUid);
     }
 
     @Override
     @Cacheable(cacheNames = "applicationUidCache", key = "{#serviceUid, #applicationName}", cacheManager = ApplicationUidConfig.APPLICATION_UID_CACHE_NAME, unless = "#result == null")
     public ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName) {
-        return applicationUidDao.selectApplicationId(serviceUid, applicationName);
+        Objects.requireNonNull(serviceUid, "serviceUid");
+        Objects.requireNonNull(applicationName, "applicationName");
+        return applicationUidDao.selectApplication(serviceUid, applicationName);
     }
 
     @Override
     @Cacheable(cacheNames = "applicationNameCache", key = "{#serviceUid, #applicationUid}", cacheManager = ApplicationUidConfig.APPLICATION_NAME_CACHE_NAME, unless = "#result == null")
     public String getApplicationName(ServiceUid serviceUid, ApplicationUid applicationUid) {
-        if (applicationUid == null) {
-            return null;
-        }
+        Objects.requireNonNull(serviceUid, "serviceUid");
+        Objects.requireNonNull(applicationUid, "applicationUid");
         return applicationNameDao.selectApplicationName(serviceUid, applicationUid);
     }
 
     @Override
     @CacheEvict(cacheNames = "applicationUidCache", key = "{#serviceUid, #applicationName}", cacheManager = ApplicationUidConfig.APPLICATION_UID_CACHE_NAME)
     public void deleteApplication(ServiceUid serviceUid, String applicationName) {
+        Objects.requireNonNull(serviceUid, "serviceUid");
+        Objects.requireNonNull(applicationName, "applicationName");
+
         ApplicationUid applicationUid = getApplicationUid(serviceUid, applicationName);
-        applicationUidDao.deleteApplicationId(serviceUid, applicationName);
+        applicationUidDao.deleteApplicationUid(serviceUid, applicationName);
         logger.info("deleted (serviceUid:{}, name:{} -> id:{})", serviceUid, applicationName, applicationUid);
         if (applicationUid != null) {
             applicationNameDao.deleteApplicationName(serviceUid, applicationUid);

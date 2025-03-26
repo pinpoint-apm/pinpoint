@@ -13,13 +13,11 @@ import org.apache.hadoop.hbase.client.CheckAndMutateResult;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Objects;
 
 // serviceUid -> serviceName
@@ -39,16 +37,6 @@ public class HbaseServiceNameDao implements ServiceNameDao {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.serviceNameMapper = Objects.requireNonNull(serviceNameMapper, "serviceNameMapper");
-    }
-
-    @Override
-    public List<String> selectAllServiceNames() {
-        Scan scan = new Scan();
-        scan.addFamily(NAME.getName());
-        scan.setCaching(20);
-
-        TableName serviceInfoTableName = tableNameProvider.getTableName(NAME.getTable());
-        return hbaseOperations.find(serviceInfoTableName, scan, serviceNameMapper);
     }
 
     @Override

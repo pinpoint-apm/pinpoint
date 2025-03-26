@@ -13,11 +13,13 @@ import org.apache.hadoop.hbase.client.CheckAndMutateResult;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Objects;
 
 // serviceName -> serviceUid
@@ -31,14 +33,26 @@ public class HbaseServiceUidDao implements ServiceUidDao {
     private final TableNameProvider tableNameProvider;
 
     private final RowMapper<ServiceUid> serviceUidMapper;
+    private final RowMapper<String> serviceUidNameMapper;
 
     public HbaseServiceUidDao(HbaseOperations hbaseOperations, TableNameProvider tableNameProvider,
-                              @Qualifier("serviceUidMapper") RowMapper<ServiceUid> serviceUidMapper) {
+                              @Qualifier("serviceUidMapper") RowMapper<ServiceUid> serviceUidMapper,
+                              @Qualifier("serviceUidNameMapper") RowMapper<String> serviceUidNameMapper) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.serviceUidMapper = Objects.requireNonNull(serviceUidMapper, "serviceUidMapper");
+        this.serviceUidNameMapper = Objects.requireNonNull(serviceUidNameMapper, "serviceUidNameMapper");
     }
 
+    @Override
+    public List<String> selectAllServiceNames() {
+        Scan scan = new Scan();
+        scan.setCaching(20);
+        scan.addColumn(UID.getName(), UID.getName());
+
+        TableName serviceInfoTableName = tableNameProvider.getTableName(UID.getTable());
+        return hbaseOperations.find(serviceInfoTableName, scan, serviceUidNameMapper);
+    }
 
     @Override
     public ServiceUid selectServiceUid(String serviceName) {

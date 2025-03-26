@@ -32,15 +32,16 @@ public class ApplicationUidServiceImpl implements ApplicationUidService {
 
     @Override
     public ApplicationUid getApplicationId(ServiceUid serviceUid, String applicationName) {
-        if (applicationName == null) {
-            return null;
-        }
+        Objects.requireNonNull(serviceUid, "serviceUid");
+        Objects.requireNonNull(applicationName, "applicationName");
         return applicationUidDao.selectApplicationUid(serviceUid, applicationName);
     }
 
     @Override
     public ApplicationUid getOrCreateApplicationId(ServiceUid serviceUid, String applicationName) {
+        Objects.requireNonNull(serviceUid, "serviceUid");
         Objects.requireNonNull(applicationName, "applicationName");
+
         ApplicationUid applicationUid = getApplicationId(serviceUid, applicationName);
         if (applicationUid != null) {
             return applicationUid;
@@ -58,11 +59,10 @@ public class ApplicationUidServiceImpl implements ApplicationUidService {
     private ApplicationUid tryInsertApplicationId(ServiceUid serviceUid, String applicationName) {
         // 1. insert (id -> name)
         ApplicationUid newApplicationUid = insertApplicationNameWithRetries(serviceUid, applicationName, 3);
-        if (newApplicationUid != null) {
-            logger.debug("saved (id:{} -> name:{})", newApplicationUid, applicationName);
-        } else {
+        if (newApplicationUid == null) {
             return null;
         }
+        logger.debug("saved (id:{} -> name:{})", newApplicationUid, applicationName);
 
         // 2. insert (name -> id)
         try {

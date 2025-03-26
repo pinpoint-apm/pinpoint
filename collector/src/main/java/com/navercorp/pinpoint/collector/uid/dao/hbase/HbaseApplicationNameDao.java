@@ -8,6 +8,7 @@ import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.AsyncHbaseOperations;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.server.util.ApplicationUidRowKeyUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.CheckAndMutate;
 import org.apache.hadoop.hbase.client.CheckAndMutateResult;
@@ -58,7 +59,7 @@ public class HbaseApplicationNameDao implements ApplicationNameDao {
     }
 
     private CheckAndMutate createCheckAndMutate(ServiceUid serviceUid, ApplicationUid applicationUid, String applicationName) {
-        byte[] rowKey = createRowKey(serviceUid, applicationUid);
+        byte[] rowKey = ApplicationUidRowKeyUtils.makeRowKey(serviceUid, applicationUid);
 
         Put put = new Put(rowKey);
         put.addColumn(NAME.getName(), NAME.getName(), Bytes.toBytes(applicationName));
@@ -85,17 +86,9 @@ public class HbaseApplicationNameDao implements ApplicationNameDao {
     }
 
     private Delete createDelete(ServiceUid serviceUid, ApplicationUid applicationUid) {
-        byte[] rowKey = createRowKey(serviceUid, applicationUid);
+        byte[] rowKey = ApplicationUidRowKeyUtils.makeRowKey(serviceUid, applicationUid);
 
         Delete delete = new Delete(rowKey);
-        delete.addColumn(NAME.getName(), NAME.getName());
         return delete;
-    }
-
-    private byte[] createRowKey(ServiceUid serviceUid, ApplicationUid applicationUid) {
-        byte[] rowKey = new byte[Bytes.SIZEOF_INT + Bytes.SIZEOF_LONG];
-        Bytes.putInt(rowKey, 0, serviceUid.getUid());
-        Bytes.putLong(rowKey, Bytes.SIZEOF_INT, applicationUid.getUid());
-        return rowKey;
     }
 }
