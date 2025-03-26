@@ -58,7 +58,7 @@ public class AgentInfoBoMapper implements RowMapper<AgentInfoBo> {
 
         final byte[] serializedJvmInfo = result.getValue(AGENTINFO_INFO.getName(), AGENTINFO_INFO.QUALIFIER_JVM);
         if (serializedJvmInfo != null) {
-            agentInfoBoBuilder.setJvmInfo(new JvmInfoBo(serializedJvmInfo));
+            agentInfoBoBuilder.setJvmInfo(JvmInfoBo.readJvmInfo(serializedJvmInfo));
         }
         return agentInfoBoBuilder.build();
     }

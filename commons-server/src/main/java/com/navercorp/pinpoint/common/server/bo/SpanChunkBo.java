@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.util.ByteUtils;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -56,13 +57,11 @@ public class SpanChunkBo implements BasicSpan {
 
     @Override
     public int getVersion() {
-        return version & 0xFF;
+        return Byte.toUnsignedInt(version);
     }
 
     public void setVersion(int version) {
-        SpanBo.checkVersion(version);
-        // check range
-        this.version = (byte) (version & 0xFF);
+        this.version = ByteUtils.toUnsignedByte(version);
     }
 
     @Override

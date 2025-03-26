@@ -17,8 +17,9 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.server.util.ByteUtils;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 
@@ -87,7 +88,7 @@ public class SpanBo implements Event, BasicSpan {
 
     @Override
     public int getVersion() {
-        return version & 0xFF;
+        return Byte.toUnsignedInt(version);
     }
 
     public byte getRawVersion() {
@@ -95,15 +96,7 @@ public class SpanBo implements Event, BasicSpan {
     }
 
     public void setVersion(int version) {
-        checkVersion(version);
-        // check range
-        this.version = (byte) (version & 0xFF);
-    }
-
-    static void checkVersion(int version) {
-        if (version < 0 || version > 255) {
-            throw new IllegalArgumentException("out of range (0~255)");
-        }
+        this.version = ByteUtils.toUnsignedByte(version);
     }
 
     @Override

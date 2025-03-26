@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat;
 
+import com.navercorp.pinpoint.common.server.util.ByteUtils;
+
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -46,16 +48,13 @@ public enum AgentStatType {
     private static final Set<AgentStatType> AGENT_STAT_TYPES = EnumSet.allOf(AgentStatType.class);
 
     AgentStatType(int typeCode, String name, String chartType) {
-        if (typeCode < 0 || typeCode > 255) {
-            throw new IllegalArgumentException("type code out of range (0~255)");
-        }
-        this.typeCode = (byte) (typeCode & 0xFF);
+        this.typeCode = ByteUtils.toUnsignedByte(typeCode);
         this.name = name;
         this.chartType = chartType;
     }
 
     public int getTypeCode() {
-        return this.typeCode & 0xFF;
+        return Byte.toUnsignedInt(this.typeCode);
     }
 
     public byte getRawTypeCode() {
