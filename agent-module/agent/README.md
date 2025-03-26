@@ -9,7 +9,7 @@
 ## Dynamic logging options
 Set the JVM option in -D format.
 
-### log file size
+### Log file size
 Both pinpoint.log and pinpoint_stat.log apply.
 
 **-Dpinpoint.logging.file.size**
@@ -20,16 +20,16 @@ Both pinpoint.log and pinpoint_stat.log apply.
 
 e.g. `-Dpinpoint.logging.file.size=25m`
 
-### log file last modified
+### Log file last modified
 Both pinpoint.log and pinpoint_stat.log apply.
 
 **-Dpinpoint.logging.file.lastmodified**
 * 3d
 * 7d - default
 
-e.g. '-Dpinpoint.logging.file.lastmodified=3d`
+e.g. `-Dpinpoint.logging.file.lastmodified=3d`
 
-### log file backup count
+### Log file backup count
 Both pinpoint.log and pinpoint_stat.log apply.
 
 **-Dpinpoint.logging.file.rollover-strategy-max**
@@ -39,7 +39,7 @@ Both pinpoint.log and pinpoint_stat.log apply.
 
 e.g. `-Dpinpoint.logging.file.rollover-strategy-max=10`
 
-### log level
+### Log level
 pinpoint.log apply
 
 **-Dpinpoint.logging.level**
