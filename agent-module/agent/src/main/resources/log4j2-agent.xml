@@ -2,35 +2,75 @@
 <Configuration status="INFO">
     <Properties>
         <Property name="logging_dir">${sys:pinpoint.log}/${sys:pinpoint.agentId}/</Property>
-
         <Property name="rolling-date-format">%d{yyyy-MM-dd}</Property>
-
-        <Property name="backupsize">100m</Property>
-        <Property name="lastmodified">7d</Property>
-
         <!-- message_pattern -->
-        <Property name="line_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.}:%-3L -- %msg%n</Property>
+        <Property name="line_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.}:%-3L --%msg%n</Property>
         <Property name="simple_message_pattern">%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.} -- %msg%n</Property>
         <Property name="console_message_pattern">${simple_message_pattern}</Property>
         <Property name="file_message_pattern">${simple_message_pattern}</Property>
-
         <Select>
-            <SystemPropertyArbiter propertyName="pinpoint.profiler.profiles.active" propertyValue="local">
+            <SystemPropertyArbiter propertyName="pinpoint.logging.file.size" propertyValue="25m">
+                <Property name="backupsize">25m</Property>
+            </SystemPropertyArbiter>
+            <SystemPropertyArbiter propertyName="pinpoint.logging.file.size" propertyValue="50m">
+                <Property name="backupsize">50m</Property>
+            </SystemPropertyArbiter>
+            <SystemPropertyArbiter propertyName="pinpoint.logging.file.size" propertyValue="100m">
+                <Property name="backupsize">100m</Property>
+            </SystemPropertyArbiter>
+            <SystemPropertyArbiter propertyName="pinpoint.logging.file.size" propertyValue="500m">
+                <Property name="backupsize">500m</Property>
+            </SystemPropertyArbiter>
+            <DefaultArbiter>
+                <Property name="backupsize">100m</Property>
+            </DefaultArbiter>
+        </Select>
+        <Select>
+            <SystemPropertyArbiter propertyName="pinpoint.logging.file.lastmodified" propertyValue="3d">
+                <Property name="lastmodified">3d</Property>
+            </SystemPropertyArbiter>
+            <SystemPropertyArbiter propertyName="pinpoint.logging.file.lastmodified" propertyValue="7d">
+                <Property name="lastmodified">7d</Property>
+            </SystemPropertyArbiter>
+            <DefaultArbiter>
+                <Property name="lastmodified">7d</Property>
+            </DefaultArbiter>
+        </Select>
+        <Select>
+            <SystemPropertyArbiter propertyName="pinpoint.logging.file.rollover-strategy-max" propertyValue="1">
+                <Property name="default-rollover-strategy-max">1</Property>
+            </SystemPropertyArbiter>
+            <SystemPropertyArbiter propertyName="pinpoint.logging.file.rollover-strategy-max" propertyValue="5">
                 <Property name="default-rollover-strategy-max">5</Property>
-                <Property name="logger-level">DEBUG</Property>
             </SystemPropertyArbiter>
-            <SystemPropertyArbiter propertyName="pinpoint.profiler.profiles.active" propertyValue="release">
+            <SystemPropertyArbiter propertyName="pinpoint.logging.file.rollover-strategy-max" propertyValue="10">
                 <Property name="default-rollover-strategy-max">10</Property>
-                <Property name="logger-level">INFO</Property>
             </SystemPropertyArbiter>
-
             <DefaultArbiter>
                 <Property name="default-rollover-strategy-max">5</Property>
-                <Property name="logger-level">DEBUG</Property>
+            </DefaultArbiter>
+        </Select>
+        <Select>
+            <SystemPropertyArbiter propertyName="pinpoint.logging.level" propertyValue="DEBUG">
+                <Property name="logger.com.navercorp.pinpoint.level">DEBUG</Property>
+            </SystemPropertyArbiter>
+            <SystemPropertyArbiter propertyName="pinpoint.logging.level" propertyValue="INFO">
+                <Property name="logger.com.navercorp.pinpoint.level">INFO</Property>
+            </SystemPropertyArbiter>
+            <SystemPropertyArbiter propertyName="pinpoint.logging.level" propertyValue="WARN">
+                <Property name="logger.com.navercorp.pinpoint.level">WARN</Property>
+            </SystemPropertyArbiter>
+            <SystemPropertyArbiter propertyName="pinpoint.logging.level" propertyValue="ERROR">
+                <Property name="logger.com.navercorp.pinpoint.level">ERROR</Property>
+            </SystemPropertyArbiter>
+            <SystemPropertyArbiter propertyName="pinpoint.logging.level" propertyValue="FATAL">
+                <Property name="logger.com.navercorp.pinpoint.level">FATAL</Property>
+            </SystemPropertyArbiter>
+            <DefaultArbiter>
+                <Property name="logger.com.navercorp.pinpoint.level">INFO</Property>
             </DefaultArbiter>
         </Select>
     </Properties>
-
     <Appenders>
         <Console name="console" target="system_out">
             <PatternLayout>
@@ -42,13 +82,11 @@
                 <SystemPropertyArbiter propertyName="pinpoint.profiler.profiles.active" propertyValue="release">
                     <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
                 </SystemPropertyArbiter>
-
                 <DefaultArbiter>
                     <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
                 </DefaultArbiter>
             </Select>
         </Console>
-
         <RollingFile name="rollingFile" filename="${logging_dir}/pinpoint.log"
                      filepattern="${logging_dir}/pinpoint-${rolling-date-format}-%i.log">
             <PatternLayout>
@@ -56,7 +94,7 @@
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
-                <SizeBasedTriggeringPolicy size="${backupsize}" />
+                <SizeBasedTriggeringPolicy size="${backupsize}"/>
             </Policies>
             <DefaultRolloverStrategy max="${default-rollover-strategy-max}">
                 <Delete basePath="${logging_dir}/" maxDepth="1">
@@ -65,7 +103,6 @@
                 </Delete>
             </DefaultRolloverStrategy>
         </RollingFile>
-
         <RollingFile name="statRollingFile" filename="${logging_dir}/pinpoint_stat.log"
                      filepattern="${logging_dir}/pinpoint_stat-${rolling-date-format}-%i.log">
             <PatternLayout>
@@ -73,7 +110,7 @@
             </PatternLayout>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
-                <SizeBasedTriggeringPolicy size="${backupsize}" />
+                <SizeBasedTriggeringPolicy size="${backupsize}"/>
             </Policies>
             <DefaultRolloverStrategy max="${default-rollover-strategy-max}">
                 <Delete basePath="${logging_dir}/" maxDepth="1">
@@ -83,34 +120,18 @@
             </DefaultRolloverStrategy>
         </RollingFile>
     </Appenders>
-
     <Loggers>
         <Logger name="com.navercorp.pinpoint.metric" level="INFO" additivity="false">
             <AppenderRef ref="statRollingFile"/>
-            <!--<AppenderRef ref="console"/>-->
-            <!--<AppenderRef ref="rollingFile"/>-->
         </Logger>
-
-        <Logger name="com.navercorp.pinpoint" level="${logger-level}" additivity="false">
+        <Logger name="com.navercorp.pinpoint" level="${logger.com.navercorp.pinpoint.level}" additivity="false">
             <AppenderRef ref="console"/>
             <AppenderRef ref="rollingFile"/>
         </Logger>
-
-        <Logger name="io.grpc" level="${logger-level}" additivity="false">
-            <Select>
-                <SystemPropertyArbiter propertyName="pinpoint.profiler.profiles.active" propertyValue="local">
-                    <AppenderRef ref="console"/>
-                </SystemPropertyArbiter>
-                <SystemPropertyArbiter propertyName="pinpoint.profiler.profiles.active" propertyValue="release">
-                </SystemPropertyArbiter>
-
-                <DefaultArbiter>
-                    <AppenderRef ref="console"/>
-                </DefaultArbiter>
-            </Select>
+        <Logger name="io.grpc" level="INFO" additivity="false">
+            <AppenderRef ref="console"/>
             <AppenderRef ref="rollingFile"/>
         </Logger>
-
         <Logger name="io.grpc.Context" level="INFO" additivity="false">
             <AppenderRef ref="console"/>
             <AppenderRef ref="rollingFile"/>
@@ -119,7 +140,6 @@
             <AppenderRef ref="console"/>
             <AppenderRef ref="rollingFile"/>
         </Logger>
-
         <Root level="INFO">
             <AppenderRef ref="console"/>
             <AppenderRef ref="rollingFile"/>

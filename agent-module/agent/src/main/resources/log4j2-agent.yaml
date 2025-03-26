@@ -1,16 +1,11 @@
 Configuration:
   status: INFO
-
   Properties:
     Property:
       - name: "logging_dir"
         value: "${sys:pinpoint.log}/${sys:pinpoint.agentId}/"
       - name: "rolling-date-format"
         value: "%d{yyyy-MM-dd}"
-      - name: "backupsize"
-        value: "100m"
-      - name: "lastmodified"
-        value: "7d"
       - name: "line_message_pattern"
         value: "%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.}:%-3L -- %msg%n"
       - name: "simple_message_pattern"
@@ -19,30 +14,97 @@ Configuration:
         value: "${simple_message_pattern}"
       - name: "file_message_pattern"
         value: "${simple_message_pattern}"
-
     Select:
-      SystemPropertyArbiter:
-        - propertyName: "pinpoint.profiler.profiles.active"
-          propertyValue: "local"
+      - SystemPropertyArbiter:
+          - propertyName: "pinpoint.logging.file.size"
+            propertyValue: "25m"
+            Property:
+              name: "backupsize"
+              value: "25m"
+          - propertyName: "pinpoint.logging.file.size"
+            propertyValue: "50m"
+            Property:
+              name: "backupsize"
+              value: "50m"
+          - propertyName: "pinpoint.logging.file.size"
+            propertyValue: "100m"
+            Property:
+              name: "backupsize"
+              value: "100m"
+          - propertyName: "pinpoint.logging.file.size"
+            propertyValue: "500m"
+            Property:
+              name: "backupsize"
+              value: "500m"
+        DefaultArbiter:
           Property:
-            - name: "default-rollover-strategy-max"
+            name: "backupsize"
+            value: "100m"
+      - SystemPropertyArbiter:
+          - propertyName: "pinpoint.logging.file.lastmodified"
+            propertyValue: "3d"
+            Property:
+              name: "lastmodified"
+              value: "3d"
+          - propertyName: "pinpoint.logging.file.lastmodified"
+            propertyValue: "7d"
+            Property:
+              name: "lastmodified"
+              value: "7d"
+        DefaultArbiter:
+          Property:
+            name: "lastmodified"
+            value: "7d"
+      - SystemPropertyArbiter:
+          - propertyName: "pinpoint.logging.file.rollover-strategy-max"
+            propertyValue: "1"
+            Property:
+              name: "default-rollover-strategy-max"
+              value: "1"
+          - propertyName: "pinpoint.logging.file.rollover-strategy-max"
+            propertyValue: "5"
+            Property:
+              name: "default-rollover-strategy-max"
               value: "5"
-            - name: "logger-level"
-              value: "DEBUG"
-        - propertyName: "pinpoint.profiler.profiles.active"
-          propertyValue: "release"
-          Property:
-            - name: "default-rollover-strategy-max"
+          - propertyName: "pinpoint.logging.file.rollover-strategy-max"
+            propertyValue: "10"
+            Property:
+              name: "default-rollover-strategy-max"
               value: "10"
-            - name: "logger-level"
-              value: "INFO"
-      DefaultArbiter:
-        Property:
-          - name: "default-rollover-strategy-max"
+        DefaultArbiter:
+          Property:
+            name: "default-rollover-strategy-max"
             value: "5"
-          - name: "logger-level"
-            value: "DEBUG"
-
+      - SystemPropertyArbiter:
+          - propertyName: "pinpoint.logging.level"
+            propertyValue: "DEBUG"
+            Property:
+              name: "logger.com.navercorp.pinpoint.level"
+              value: "DEBUG"
+          - propertyName: "pinpoint.logging.level"
+            propertyValue: "INFO"
+            Property:
+              name: "logger.com.navercorp.pinpoint.level"
+              value: "INFO"
+          - propertyName: "pinpoint.logging.level"
+            propertyValue: "WARN"
+            Property:
+              name: "logger.com.navercorp.pinpoint.level"
+              value: "WARN"
+          - propertyName: "pinpoint.logging.level"
+            propertyValue: "ERROR"
+            Property:
+              name: "logger.com.navercorp.pinpoint.level"
+              value: "ERROR"
+          - propertyName: "pinpoint.logging.level"
+            propertyValue: "FATAL"
+            Property:
+              name: "logger.com.navercorp.pinpoint.level"
+              value: "FATAL"
+        DefaultArbiter:
+          Property:
+            name: "logger.com.navercorp.pinpoint.level"
+            value: "INFO"
   Appenders:
     Console:
       name: console
@@ -50,21 +112,20 @@ Configuration:
       PatternLayout:
         pattern: ${console_message_pattern}
       Select:
-        - SystemPropertyArbiter:
-            propertyName: "pinpoint.profiler.profiles.active"
+        SystemPropertyArbiter:
+          - propertyName: "pinpoint.profiler.profiles.active"
             propertyValue: "local"
-        - SystemPropertyArbiter:
-            propertyName: "pinpoint.profiler.profiles.active"
+          - propertyName: "pinpoint.profiler.profiles.active"
             propertyValue: "release"
             ThresholdFilter:
               level: WARN
               onMatch: ACCEPT
               onMismatch: DENY
-        - DefaultArbiter:
-            ThresholdFilter:
-              level: WARN
-              onMatch: ACCEPT
-              onMismatch: DENY
+        DefaultArbiter:
+          ThresholdFilter:
+            level: WARN
+            onMatch: ACCEPT
+            onMismatch: DENY
     RollingFile:
       - name: rollingFile
         fileName: ${logging_dir}/pinpoint.log
@@ -106,7 +167,6 @@ Configuration:
               glob: "pinpoint_stat-*.log"
             IfLastModified:
               age: ${lastmodified}
-
   Loggers:
     Logger:
       - name: com.navercorp.pinpoint.metric
@@ -115,27 +175,16 @@ Configuration:
         AppenderRef:
           - ref: statRollingFile
       - name: com.navercorp.pinpoint
-        level: ${logger-level}
+        level: ${logger.com.navercorp.pinpoint.level}
         additivity: false
         AppenderRef:
           - ref: console
           - ref: rollingFile
       - name: io.grpc
-        level: ${logger-level}
+        level: ${logger.com.navercorp.pinpoint.level}
         additivity: false
-        Select:
-          - SystemPropertyArbiter:
-              propertyName: "pinpoint.profiler.profiles.active"
-              propertyValue: "local"
-              AppenderRef:
-                - ref: console
-          - SystemPropertyArbiter:
-              propertyName: "pinpoint.profiler.profiles.active"
-              propertyValue: "release"
-          - DefaultArbiter:
-              AppenderRef:
-                - ref: console
         AppenderRef:
+          - ref: console
           - ref: rollingFile
       - name: io.grpc.Context
         level: INFO
@@ -149,7 +198,6 @@ Configuration:
         AppenderRef:
           - ref: console
           - ref: rollingFile
-
     Root:
       level: INFO
       AppenderRef:
