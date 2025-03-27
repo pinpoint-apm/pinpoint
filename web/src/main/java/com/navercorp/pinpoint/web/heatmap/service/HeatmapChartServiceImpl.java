@@ -50,7 +50,7 @@ public class HeatmapChartServiceImpl implements HeatmapChartService {
     @Override
     public void getHeatmapAppData(String applicationName, TimeWindow timeWindow, int minYAxis, int maxYAxis) {
         int elapsedTimeInterval = calculateTimeInterval(minYAxis, maxYAxis);
-        int largestMultiple = findLargestMultipleBelow(maxYAxis, elapsedTimeInterval);
+        int largestMultiple = findLargestMultipleBelow(maxYAxis, minYAxis, elapsedTimeInterval);
         HeatmapSearchKey heatmapSearchKey = new HeatmapSearchKey(applicationName + POSTFIX_SORT_KEY_SUCCESS, timeWindow, elapsedTimeInterval, minYAxis, maxYAxis, largestMultiple, yAxisCellMaxCount);
 
         long startTime = System.currentTimeMillis();
@@ -78,12 +78,16 @@ public class HeatmapChartServiceImpl implements HeatmapChartService {
         }
     }
 
-    protected int findLargestMultipleBelow(int upperBound, int interval) {
+    protected int findLargestMultipleBelow(int upperBound, int startValue, int interval) {
         if (interval <= 0) {
             throw new IllegalArgumentException("interval must be greater than 0");
         }
 
-        int largestDivisible = (upperBound - 1) / interval * interval;
+        int largestDivisible = startValue + ((upperBound - startValue - 1) / interval) * interval;
         return largestDivisible;
+    }
+
+    public static class ElapsedTimeBucketInfo {
+        
     }
 }

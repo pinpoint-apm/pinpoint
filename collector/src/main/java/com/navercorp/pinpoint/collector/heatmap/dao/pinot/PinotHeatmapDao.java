@@ -40,7 +40,6 @@ public class PinotHeatmapDao implements HeatmapDao {
     public PinotHeatmapDao(KafkaTemplate<String, HeatmapStat> kafkaHeatmapStatTemplate, HeatmapProperties heatmapProperties) {
         this.kafkaHeatmapStatTemplate = Objects.requireNonNull(kafkaHeatmapStatTemplate, "kafkaHeatmapStatTemplate");
         this.topicNameManager = new TopicNameManager(heatmapProperties.getHeatmapTopicPrefix(), heatmapProperties.getHeatMapTopicPaddingLength(), heatmapProperties.getHeatmapTopicCount());
-
     }
 
     @Override

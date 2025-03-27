@@ -15,11 +15,9 @@
         SELECT
             DATETIME_CONVERT(roundedEventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH','#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS aggregatedTime,
             CASE
-                WHEN elapsedTime >= #{largestMultiple} THEN #{maxYAsix}
-                <if test="minYAsix != 0">
-                    WHEN elapsedTime <![CDATA[ < ]]> #{minYAsix} THEN #{minYAsix}
-                </if>
-                ELSE (((elapsedTime / #{elapsedTimeInterval} ) + 1) * #{elapsedTimeInterval})
+                WHEN elapsedTime > #{largestMultiple} THEN #{maxYAsix}
+                WHEN elapsedTime <![CDATA[ <= ]]> #{minYAsix} THEN #{minYAsix}
+                ELSE (ROUND(elapsedTime - #{minYAsix} + #{elapsedTimeInterval} - 1, #{elapsedTimeInterval}) + #{minYAsix})
             END AS bucketElapsedTime,
             SUM(countValue) AS count
         FROM heatmapStatApp
