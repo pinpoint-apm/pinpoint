@@ -73,10 +73,8 @@ public class ApplicationMapStatisticsUtils {
     }
 
     public static byte[] makeColumnName(String agentId, short columnSlotNumber) {
-        if (agentId == null) {
-            // null check ??
-            agentId = "";
-        }
+        Objects.requireNonNull(agentId, "agentId");
+
         final Buffer buffer = new AutomaticBuffer(agentId.length() + BytesUtils.SHORT_BYTE_LENGTH);
         buffer.putShort(columnSlotNumber);
 
