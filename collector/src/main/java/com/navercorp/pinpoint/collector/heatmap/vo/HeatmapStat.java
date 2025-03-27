@@ -37,7 +37,7 @@ public class HeatmapStat {
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.eventTime = eventTime;
-        this.elapsedTime = ((elapsedTime / 200) + 1) * 200;
+        this.elapsedTime = (((elapsedTime - 1) / 200) + 1) * 200;
         this.isSuccess = errCode == 0;
         this.sortKey = HashmapSortKeyUtils.generateKey(applicationName, isSuccess);
 
