@@ -94,7 +94,7 @@ Java version required to run Pinpoint:
 | 2.4.x            | 7-18  | 11        | 11  | 11    |
 | 2.5.x            | 8-19  | 11        | 11  | 11    |
 | 3.0.x            | 8-21  | 17        | 17  | 17    |
-| 3.1.x            | 8-21  | 17        | 17  | 17    |
+| 3.1.x            | 8-24  | 17        | 17  | 17    |
 
 <!-- </compatibilityJava.md> -->
 HBase compatibility table:
