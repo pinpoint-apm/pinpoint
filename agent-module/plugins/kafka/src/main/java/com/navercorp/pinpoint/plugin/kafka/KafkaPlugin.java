@@ -47,6 +47,7 @@ import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerPollInterceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerRecordEntryPointInterceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerRecordsInterceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.FetchResponseInterceptor;
+import com.navercorp.pinpoint.plugin.kafka.interceptor.ListenerConsumerInvokeErrorHandlerInterceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.NetworkClientPollInterceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.ProcessInterceptor;
 import com.navercorp.pinpoint.plugin.kafka.interceptor.ProducerAddHeaderInterceptor;
@@ -104,6 +105,11 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
             transformTemplate.transform("org.apache.kafka.common.requests.FetchResponse", FetchResponseTransform.class);
 
             if (config.isSpringConsumerEnable()) {
+                if(config.isKafkaMessageListenerContainerEnable()) {
+                    // KafkaMessageListenerContainer$ListenerConsumer
+                    transformTemplate.transform("org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer", ListenerConsumerTransform.class);
+                }
+
                 transformTemplate.transform("org.springframework.kafka.listener.adapter.RecordMessagingMessageListenerAdapter", AcknowledgingConsumerAwareMessageListenerTransform.class);
                 transformTemplate.transform("org.springframework.kafka.listener.adapter.BatchMessagingMessageListenerAdapter", BatchMessagingMessageListenerAdapterTransform.class);
 
@@ -347,6 +353,34 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
 
     }
+
+    public static class ListenerConsumerTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            final InstrumentMethod doInvokeRecordListenerMethod = target.getDeclaredMethod("doInvokeRecordListener", "org.apache.kafka.clients.consumer.ConsumerRecord", "java.util.Iterator");
+            if (doInvokeRecordListenerMethod != null) {
+                doInvokeRecordListenerMethod.addScopedInterceptor(ConsumerRecordEntryPointInterceptor.class, va(0), KafkaConstants.SCOPE, ExecutionPolicy.BOUNDARY);
+            }
+            final InstrumentMethod invokeErrorHandlerMethod = target.getDeclaredMethod("invokeErrorHandler", "org.apache.kafka.clients.consumer.ConsumerRecord", "java.util.Iterator", "java.lang.RuntimeException");
+            if (invokeErrorHandlerMethod != null) {
+                invokeErrorHandlerMethod.addInterceptor(ListenerConsumerInvokeErrorHandlerInterceptor.class);
+            }
+            final InstrumentMethod doInvokeBatchListenerMethod = target.getDeclaredMethod("doInvokeBatchListener", "org.apache.kafka.clients.consumer.ConsumerRecord", "java.util.List");
+            if (doInvokeBatchListenerMethod != null) {
+                doInvokeBatchListenerMethod.addScopedInterceptor(ConsumerMultiRecordEntryPointInterceptor.class, va(1), KafkaConstants.SCOPE, ExecutionPolicy.BOUNDARY);
+            }
+            final InstrumentMethod invokeBatchErrorHandlerMethod = target.getDeclaredMethod("invokeBatchErrorHandler", "org.apache.kafka.clients.consumer.ConsumerRecord", "java.util.List", "java.lang.RuntimeException");
+            if (invokeBatchErrorHandlerMethod != null) {
+                invokeBatchErrorHandlerMethod.addInterceptor(ListenerConsumerInvokeErrorHandlerInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
 
     public static class AcknowledgingConsumerAwareMessageListenerTransform implements TransformCallback {
 
