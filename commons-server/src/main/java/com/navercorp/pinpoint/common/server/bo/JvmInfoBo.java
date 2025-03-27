@@ -41,7 +41,7 @@ public class JvmInfoBo {
 
     public static JvmInfoBo readJvmInfo(byte[] serializedJvmInfoBo) {
         final Buffer buffer = new FixedBuffer(serializedJvmInfoBo);
-        final int version = ByteUtils.toUnsignedByte(buffer.readByte());
+        final int version = Byte.toUnsignedInt(buffer.readByte());
         if (version == 0) {
             String jvmVersion = buffer.readPrefixedString();
             String gcTypeName = buffer.readPrefixedString();
