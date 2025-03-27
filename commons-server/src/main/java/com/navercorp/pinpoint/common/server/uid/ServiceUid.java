@@ -16,10 +16,10 @@ public class ServiceUid {
     private final int uid;
 
     public static ServiceUid of(int uid) {
-        if (uid == DEFAULT_SERVICE_UID_CODE) {
+        if (uid == DEFAULT_SERVICE_UID.getUid()) {
             return DEFAULT_SERVICE_UID;
         }
-        if (uid == -1) {
+        if (uid == ERROR_SERVICE_UID.getUid()) {
             return ERROR_SERVICE_UID;
         }
         // bound check
