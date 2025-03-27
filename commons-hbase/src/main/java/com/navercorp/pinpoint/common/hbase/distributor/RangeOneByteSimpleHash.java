@@ -56,7 +56,7 @@ public class RangeOneByteSimpleHash implements RowKeyDistributorByHashPrefix.Has
 
     @Override
     public byte[] getHashPrefix(byte[] originalKey) {
-        long hash = MathUtils.fastAbs(hashBytes(originalKey));
+        int hash = MathUtils.fastAbs(hashBytes(originalKey));
         return new byte[] {(byte) (hash % mod)};
     }
 
