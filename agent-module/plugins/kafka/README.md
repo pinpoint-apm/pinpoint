@@ -15,6 +15,12 @@ To enable Kafka Consumer, set the following option in *pinpoint.config*:
 ```
 # Setting when using spring-kafka (In this case, you can leave profiler.kafka.consumer.entryPoint option to empty.)
 profiler.springkafka.consumer.enable=true
+
+# Use spring-kafka's KafkaMessageListenerContainer entry point.
+# Used to widen tracking
+profiler.springkafka.container.enable=false
+# Set whether to treat exceptions as errors when using the KafkaMessageListenerContainer entry point.
+profiler.springkafka.container.mark.error=false
 ```
 
 #### to use consumer  exclusively
