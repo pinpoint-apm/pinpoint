@@ -17,16 +17,16 @@ class ChartGroupBuilderTest {
 
     @Test
     void build() {
-        ChartGroupBuilder<SampledApdexScore, AgentStatPoint<Double>> builder = new ChartGroupBuilder<>(SampledApdexScore.UNCOLLECTED_POINT_CREATOR);
+        ChartGroupBuilder<SampledApdexScore, AgentStatPoint> builder = new ChartGroupBuilder<>(SampledApdexScore.UNCOLLECTED_POINT_CREATOR);
 
         builder.addPointFunction(AgentApdexScoreChart.ApdexScoreChartType.APDEX_SCORE, SampledApdexScore::getApdexScore);
 
         TimeWindow timeWindow = new TimeWindow(Range.between(0, 1000), new FixedTimeWindowSampler(1000));
-        AgentStatPoint<Double> point1 = new AgentStatPoint<>(0, (double)100);
-        AgentStatPoint<Double> point2 = new AgentStatPoint<>(1000, (double)200);
-        StatChartGroup<AgentStatPoint<Double>> chart = builder.build(timeWindow, List.of(new SampledApdexScore(point1), new SampledApdexScore(point2)));
+        AgentStatPoint point1 = new AgentStatPoint(0, 100);
+        AgentStatPoint point2 = new AgentStatPoint(1000, 200);
+        StatChartGroup<AgentStatPoint> chart = builder.build(timeWindow, List.of(new SampledApdexScore(point1), new SampledApdexScore(point2)));
 
-        Chart<AgentStatPoint<Double>> points = chart.getCharts().get(AgentApdexScoreChart.ApdexScoreChartType.APDEX_SCORE);
+        Chart<AgentStatPoint> points = chart.getCharts().get(AgentApdexScoreChart.ApdexScoreChartType.APDEX_SCORE);
         assertThat(points.getPoints())
                 .hasSize(2)
                 .containsExactly(point1, point2);

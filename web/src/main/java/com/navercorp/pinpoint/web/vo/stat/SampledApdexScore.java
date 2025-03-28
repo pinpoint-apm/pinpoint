@@ -9,15 +9,15 @@ import java.util.Objects;
 public class SampledApdexScore implements SampledAgentStatDataPoint {
 
     public static final Double UNCOLLECTED_SCORE = -1D;
-    public static final Point.UncollectedPointCreator<AgentStatPoint<Double>> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createDoublePointCreator(UNCOLLECTED_SCORE);
+    public static final Point.UncollectedPointCreator<AgentStatPoint> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createDoublePointCreator(UNCOLLECTED_SCORE);
 
-    private final AgentStatPoint<Double> apdexScore;
+    private final AgentStatPoint apdexScore;
 
-    public SampledApdexScore(AgentStatPoint<Double> apdexScore) {
+    public SampledApdexScore(AgentStatPoint apdexScore) {
         this.apdexScore = Objects.requireNonNull(apdexScore, "apdexScore");
     }
 
-    public AgentStatPoint<Double> getApdexScore() {
+    public AgentStatPoint getApdexScore() {
         return apdexScore;
     }
 
