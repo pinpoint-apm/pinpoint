@@ -66,9 +66,9 @@ public class ChartGroupBuilder<T, P extends Point> {
     }
 
     record ChartTransform<T, P>(ChartType chartType, Function<T, P> function) {
-        public ChartTransform(ChartType chartType, Function<T, P> function) {
-            this.chartType = Objects.requireNonNull(chartType, "chartType");
-            this.function = Objects.requireNonNull(function, "function");
+        public ChartTransform {
+            Objects.requireNonNull(chartType, "chartType");
+            Objects.requireNonNull(function, "function");
         }
     }
 }
