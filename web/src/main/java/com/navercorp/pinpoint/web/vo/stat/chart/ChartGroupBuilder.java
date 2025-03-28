@@ -7,6 +7,7 @@ import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.DefaultStatChartGroup;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -17,7 +18,7 @@ import static com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup.ChartType;
 public class ChartGroupBuilder<T, P extends Point> {
 
     private final TimeSeriesChartBuilder<P> builder;
-    private final List<Map.Entry<ChartType, Function<T, P>>> pointFunctions = new ArrayList<>();
+    private final List<ChartTransform<T, P>> pointFunctions = new ArrayList<>();
 
     public ChartGroupBuilder(Point.UncollectedPointCreator<P> uncollectedPoint) {
         Objects.requireNonNull(uncollectedPoint, "uncollectedPoint");
@@ -40,27 +41,34 @@ public class ChartGroupBuilder<T, P extends Point> {
     }
 
 
-    private Map<ChartType, Chart<P>> build(TimeWindow timeWindow, List<T> cpuLoadList, List<Map.Entry<ChartType, Function<T, P>>> entries) {
+    private Map<ChartType, Chart<P>> build(TimeWindow timeWindow, List<T> cpuLoadList, List<ChartTransform<T, P>> entries) {
         Objects.requireNonNull(entries, "entries");
-        @SuppressWarnings("unchecked")
-        Map.Entry<ChartType, Chart<P>>[] charts = new Map.Entry[entries.size()];
-        int i = 0;
-        for (Map.Entry<ChartType, Function<T, P>> entry : entries) {
-            final ChartType chartType = entry.getKey();
-            final Function<T, P> pointFunction = entry.getValue();
+
+        Map<ChartType, Chart<P>> charts = new HashMap<>(entries.size());
+        for (ChartTransform<T, P> transform : entries) {
+            final ChartType chartType = transform.chartType();
+            final Function<T, P> pointFunction = transform.function();
 
             Chart<P> chart = builder.build(timeWindow, cpuLoadList, pointFunction);
-
-            charts[i++] = Map.entry(chartType, chart);
+            Chart<P> exist = charts.put(chartType, chart);
+            if (exist != null) {
+                throw new IllegalStateException("duplicated chartType:" + chartType);
+            }
         }
-        return Map.ofEntries(charts);
+        return charts;
     }
 
     public void addPointFunction(ChartType chartType, Function<T, P> function) {
         Objects.requireNonNull(chartType, "chartType");
         Objects.requireNonNull(function, "function");
 
-        this.pointFunctions.add(Map.entry(chartType, function));
+        this.pointFunctions.add(new ChartTransform<>(chartType, function));
     }
 
+    record ChartTransform<T, P>(ChartType chartType, Function<T, P> function) {
+        public ChartTransform(ChartType chartType, Function<T, P> function) {
+            this.chartType = Objects.requireNonNull(chartType, "chartType");
+            this.function = Objects.requireNonNull(function, "function");
+        }
+    }
 }
