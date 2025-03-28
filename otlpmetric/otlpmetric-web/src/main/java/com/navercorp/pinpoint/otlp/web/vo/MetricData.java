@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class MetricData {
     private final static String EMPTY_MESSAEG = "";
-    private List<Long> timestampList;
+    private final List<Long> timestampList;
     private final ChartType chartType;
     private final String unit;
     private final List<MetricValue> metricValueList;

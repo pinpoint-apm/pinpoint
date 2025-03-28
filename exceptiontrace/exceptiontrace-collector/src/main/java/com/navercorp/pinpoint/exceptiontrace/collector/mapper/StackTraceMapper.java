@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.exceptiontrace.collector.mapper;
 
 import com.navercorp.pinpoint.common.server.mapper.MapStructUtils;
+import com.navercorp.pinpoint.common.server.util.array.IntArray;
 import com.navercorp.pinpoint.exceptiontrace.common.model.StackTraceElementWrapper;
 import org.mapstruct.Qualifier;
 import org.springframework.stereotype.Component;
@@ -80,9 +81,7 @@ public class StackTraceMapper {
 
     @StackTraceToLineNumbers
     public List<Integer> stackTraceToLineNumber(List<StackTraceElementWrapper> lineNumbers) {
-        return lineNumbers.stream()
-                .map(StackTraceElementWrapper::getLineNumber)
-                .collect(Collectors.toList());
+        return IntArray.asList(lineNumbers, StackTraceElementWrapper::getLineNumber);
     }
 
     @StackTraceToMethodNames

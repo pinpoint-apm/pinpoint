@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.inspector.web.service;
 
+import com.navercorp.pinpoint.common.server.util.array.DoubleArray;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.inspector.web.dao.AgentStatDao;
 import com.navercorp.pinpoint.inspector.web.definition.AggregationFunction;
@@ -168,9 +169,7 @@ public class DefaultAgentStatService implements AgentStatService {
         TimeSeriesBuilder<Double> builder = new TimeSeriesBuilder<>(timeWindow, uncollectedDataCreator);
         List<SystemMetricPoint<Double>> filledSystemMetricDataList = builder.build(postProcessedDataList);
 
-        List<Double> valueList = filledSystemMetricDataList.stream()
-                .map(SystemMetricPoint::getYVal)
-                .collect(Collectors.toList());
+        List<Double> valueList = DoubleArray.asList(filledSystemMetricDataList, SystemMetricPoint::getYVal);
 
         return new InspectorMetricValue(field.getFieldAlias(), field.getTags(), field.getChartType(), field.getUnit(), valueList);
     }

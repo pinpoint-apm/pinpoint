@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.inspector.web.definition.metric;
 
+import com.navercorp.pinpoint.common.server.util.array.DoubleArray;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricValue;
 import com.navercorp.pinpoint.metric.common.util.DoubleUncollectedDataCreator;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,9 +45,8 @@ public class PercentageScalePostProcessor implements MetricPostProcessor {
     }
 
     private InspectorMetricValue processInspectorMetric(InspectorMetricValue inspectorMetric) {
-        List<Double> scaledValues = inspectorMetric.getValueList().stream()
-                .map(this::scaleToPercentage)
-                .collect(Collectors.toList());
+        List<Double> valueList = inspectorMetric.getValueList();
+        List<Double> scaledValues = DoubleArray.asList(valueList, this::scaleToPercentage);
 
         return new InspectorMetricValue(
                 inspectorMetric.getFieldName(),

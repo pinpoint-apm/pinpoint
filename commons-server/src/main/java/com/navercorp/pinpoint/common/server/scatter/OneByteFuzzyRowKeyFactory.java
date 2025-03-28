@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.common.server.scatter;
 
 
+import com.google.common.primitives.Longs;
 import com.navercorp.pinpoint.common.server.util.pair.LongPair;
 import org.springframework.util.backoff.BackOffExecution;
 import org.springframework.util.backoff.ExponentialBackOff;
@@ -28,17 +29,9 @@ public class OneByteFuzzyRowKeyFactory implements FuzzyRowKeyFactory<Byte> {
                 break;
             }
         }
-        return toLongArray(backOffTimeList);
+        return Longs.toArray(backOffTimeList);
     }
 
-    private long[] toLongArray(List<Long> list) {
-        long[] buffer = new long[list.size()];
-        for (int i = 0; i < list.size(); i++) {
-            long time = list.get(i);
-            buffer[i] = time;
-        }
-        return buffer;
-    }
 
     @Override
     public Byte getKey(long timeStamp) {
