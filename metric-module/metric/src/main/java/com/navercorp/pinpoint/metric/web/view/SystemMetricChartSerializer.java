@@ -19,10 +19,10 @@ package com.navercorp.pinpoint.metric.web.view;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
-import com.navercorp.pinpoint.metric.web.model.chart.Chart;
+import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.chart.Point;
+import com.navercorp.pinpoint.metric.web.model.chart.Chart;
 import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricChart;
 
 import java.io.IOException;
@@ -51,7 +51,7 @@ public class SystemMetricChartSerializer extends JsonSerializer<SystemMetricChar
     }
 
     private void writeTimestamp(JsonGenerator jgen, TimeWindow timeWindow) throws IOException {
-        List<Long> timestamps = new ArrayList<>((int) timeWindow.getWindowRangeCount());
+        List<Long> timestamps = new ArrayList<>(timeWindow.getWindowRangeCount());
         for (Long timestamp : timeWindow) {
             timestamps.add(timestamp);
         }
