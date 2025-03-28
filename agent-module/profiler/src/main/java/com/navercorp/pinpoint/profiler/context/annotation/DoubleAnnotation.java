@@ -40,6 +40,10 @@ public class DoubleAnnotation implements Annotation<Double> {
         return value;
     }
 
+    public double getDoubleValue() {
+        return value;
+    }
+
     @Override
     public String toString() {
         return "DoubleAnnotation{" +

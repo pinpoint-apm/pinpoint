@@ -177,11 +177,11 @@ public interface AnnotationValueMapper {
     PAnnotationValue mapNonNull(Annotation<?> annotation);
 
     @InheritConfiguration(name = "dummyForIgnoreMapping")
-    @Mapping(source = "value", target = "boolValue")
+    @Mapping(source = "booleanValue", target = "boolValue")
     PAnnotationValue map(BooleanAnnotation annotation);
 
     @InheritConfiguration(name = "dummyForIgnoreMapping")
-    @Mapping(source = "value", target = "byteValue")
+    @Mapping(source = "byteValue", target = "byteValue")
     PAnnotationValue map(ByteAnnotation annotation);
 
     @InheritConfiguration(name = "dummyForIgnoreMapping")
@@ -194,15 +194,15 @@ public interface AnnotationValueMapper {
     }
 
     @InheritConfiguration(name = "dummyForIgnoreMapping")
-    @Mapping(source = "value", target = "doubleValue")
+    @Mapping(source = "doubleValue", target = "doubleValue")
     PAnnotationValue map(DoubleAnnotation annotation);
 
     @InheritConfiguration(name = "dummyForIgnoreMapping")
-    @Mapping(source = "value", target = "intValue")
+    @Mapping(source = "intValue", target = "intValue")
     PAnnotationValue map(IntAnnotation annotation);
 
     @InheritConfiguration(name = "dummyForIgnoreMapping")
-    @Mapping(source = "value", target = "longValue")
+    @Mapping(source = "longValue", target = "longValue")
     PAnnotationValue map(LongAnnotation annotation);
 
     @InheritConfiguration(name = "dummyForIgnoreMapping")
@@ -215,7 +215,7 @@ public interface AnnotationValueMapper {
     }
 
     @InheritConfiguration(name = "dummyForIgnoreMapping")
-    @Mapping(source = "value", target = "shortValue")
+    @Mapping(source = "shortValue", target = "shortValue")
     PAnnotationValue map(ShortAnnotation annotation);
 
     @InheritConfiguration(name = "dummyForIgnoreMapping")

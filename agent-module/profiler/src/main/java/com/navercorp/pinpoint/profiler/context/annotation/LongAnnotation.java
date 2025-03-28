@@ -40,6 +40,10 @@ public class LongAnnotation implements Annotation<Long> {
         return value;
     }
 
+    public long getLongValue() {
+        return value;
+    }
+
     @Override
     public String toString() {
         return "LongAnnotation{" +
