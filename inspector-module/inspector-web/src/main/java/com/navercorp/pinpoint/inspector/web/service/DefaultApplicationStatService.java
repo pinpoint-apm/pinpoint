@@ -1,5 +1,7 @@
 package com.navercorp.pinpoint.inspector.web.service;
 
+import com.google.common.primitives.Doubles;
+import com.navercorp.pinpoint.common.server.util.array.DoubleArray;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.inspector.web.dao.ApplicationStatDao;
 import com.navercorp.pinpoint.inspector.web.definition.AggregationFunction;
@@ -196,69 +198,79 @@ public class DefaultApplicationStatService implements ApplicationStatService {
         TimeSeriesBuilder<Double> builder = new TimeSeriesBuilder<>(timeWindow, uncollectedDataCreator);
         List<SystemMetricPoint<Double>> filledSystemMetricDataList = builder.build(sampledSystemMetricDataList);
 
-        List<Double> valueList = filledSystemMetricDataList.stream()
-                .map(SystemMetricPoint::getYVal)
-                .collect(Collectors.toList());
+        List<Double> valueList = DoubleArray.asList(filledSystemMetricDataList, SystemMetricPoint::getYVal);
 
-        return new InspectorMetricValue(field.getFieldAlias(), field.getTags(), field.getChartType(), field.getUnit(), valueList);
+        return newInspectorMetric(field.getFieldAlias(), field, valueList);
     }
 
     private List<InspectorMetricValue> splitMinMax(TimeWindow timeWindow, Field field, List<MinMaxMetricPoint<Double>> doubleList, UncollectedDataCreator<Double> uncollectedDataCreator) {
         TimeSeriesBuilder<Double> builder = new TimeSeriesBuilder<>(timeWindow, uncollectedDataCreator);
         List<MinMaxMetricPoint<Double>> filledSystemMetricDataList = builder.buildForMinMaxMetricPointList(doubleList);
 
-        List<Double> minValueList = new ArrayList<>(filledSystemMetricDataList.size());
-        List<Double> maxValueList = new ArrayList<>(filledSystemMetricDataList.size());
+        final int size = filledSystemMetricDataList.size();
+        double[] minValueList = new double[size];
+        double[] maxValueList = new double[size];
 
+        int i = 0;
         for (MinMaxMetricPoint<Double> avgMinMaxMetricPoint : filledSystemMetricDataList) {
-            minValueList.add(avgMinMaxMetricPoint.getMinValue());
-            maxValueList.add(avgMinMaxMetricPoint.getMaxValue());
+            minValueList[i] = avgMinMaxMetricPoint.getMinValue();
+            maxValueList[i] = avgMinMaxMetricPoint.getMaxValue();
+            i++;
         }
 
-        List<InspectorMetricValue> inspectorMetricValueList = new ArrayList<>(2);
-        inspectorMetricValueList.add(new InspectorMetricValue(MIN, field.getTags(), field.getChartType(), field.getUnit(), minValueList));
-        inspectorMetricValueList.add(new InspectorMetricValue(MAX, field.getTags(), field.getChartType(), field.getUnit(), maxValueList));
-        return inspectorMetricValueList;
+        return List.of(
+                newInspectorMetric(MIN, field, Doubles.asList(minValueList)),
+                newInspectorMetric(MAX, field, Doubles.asList(maxValueList))
+        );
     }
 
     private Collection<InspectorMetricValue> splitAvgMin(TimeWindow timeWindow, Field field, List<AvgMinMetricPoint<Double>> doubleList, UncollectedDataCreator<Double> uncollectedDataCreator) {
         TimeSeriesBuilder<Double> builder = new TimeSeriesBuilder<>(timeWindow, uncollectedDataCreator);
         List<AvgMinMetricPoint<Double>> filledSystemMetricDataList = builder.buildForAvgMinMetricPointList(doubleList);
 
-        List<Double> avgValueList = new ArrayList<>(filledSystemMetricDataList.size());
-        List<Double> minValueList = new ArrayList<>(filledSystemMetricDataList.size());
+        final int size = filledSystemMetricDataList.size();
+        final double[] avgValueList = new double[size];
+        final double[] minValueList = new double[size];
 
+        int i =0;
         for (AvgMinMetricPoint<Double> avgMinMetricPoint : filledSystemMetricDataList) {
-            avgValueList.add(avgMinMetricPoint.getAvgValue());
-            minValueList.add(avgMinMetricPoint.getMinValue());
-
+            avgValueList[i] = avgMinMetricPoint.getAvgValue();
+            minValueList[i] = avgMinMetricPoint.getMinValue();
+            i++;
         }
 
-        List<InspectorMetricValue> inspectorMetricValueList = new ArrayList<>(2);
-        inspectorMetricValueList.add(new InspectorMetricValue(MIN, field.getTags(), field.getChartType(), field.getUnit(), minValueList));
-        inspectorMetricValueList.add(new InspectorMetricValue(AVG, field.getTags(), field.getChartType(), field.getUnit(), avgValueList));
-        return inspectorMetricValueList;
+        return List.of(
+                newInspectorMetric(MIN, field, Doubles.asList(minValueList)),
+                newInspectorMetric(AVG, field, Doubles.asList(avgValueList))
+        );
+    }
+
+    private InspectorMetricValue newInspectorMetric(String fieldName, Field field, List<Double> minValueList) {
+        return new InspectorMetricValue(fieldName, field.getTags(), field.getChartType(), field.getUnit(), minValueList);
     }
 
     private List<InspectorMetricValue> splitAvgMinMax(TimeWindow timeWindow, Field field, List<AvgMinMaxMetricPoint<Double>> doubleList, UncollectedDataCreator<Double> uncollectedDataCreator) {
         TimeSeriesBuilder<Double> builder = new TimeSeriesBuilder<>(timeWindow, uncollectedDataCreator);
         List<AvgMinMaxMetricPoint<Double>> filledSystemMetricDataList = builder.buildForAvgMinMaxMetricPointList(doubleList);
 
-        List<Double> avgValueList = new ArrayList<>(filledSystemMetricDataList.size());
-        List<Double> minValueList = new ArrayList<>(filledSystemMetricDataList.size());
-        List<Double> maxValueList = new ArrayList<>(filledSystemMetricDataList.size());
+        final int size = filledSystemMetricDataList.size();
+        final double[] avgValueList = new double[size];
+        final double[] minValueList = new double[size];
+        final double[] maxValueList = new double[size];
 
+        int i = 0;
         for (AvgMinMaxMetricPoint<Double> avgMinMaxMetricPoint : filledSystemMetricDataList) {
-            avgValueList.add(avgMinMaxMetricPoint.getAvgValue());
-            minValueList.add(avgMinMaxMetricPoint.getMinValue());
-            maxValueList.add(avgMinMaxMetricPoint.getMaxValue());
+            avgValueList[i] = avgMinMaxMetricPoint.getAvgValue();
+            minValueList[i] = avgMinMaxMetricPoint.getMinValue();
+            maxValueList[i] = avgMinMaxMetricPoint.getMaxValue();
+            i++;
         }
 
-        List<InspectorMetricValue> inspectorMetricValueList = new ArrayList<>(3);
-        inspectorMetricValueList.add(new InspectorMetricValue(MIN, field.getTags(), field.getChartType(), field.getUnit(), minValueList));
-        inspectorMetricValueList.add(new InspectorMetricValue(AVG, field.getTags(), field.getChartType(), field.getUnit(), avgValueList));
-        inspectorMetricValueList.add(new InspectorMetricValue(MAX, field.getTags(), field.getChartType(), field.getUnit(), maxValueList));
-        return inspectorMetricValueList;
+        return List.of(
+                newInspectorMetric(MIN, field, Doubles.asList(minValueList)),
+                newInspectorMetric(AVG, field, Doubles.asList(avgValueList)),
+                newInspectorMetric(MAX, field, Doubles.asList(maxValueList))
+        );
     }
 
     private List<QueryResult> selectAll2(InspectorDataSearchKey inspectorDataSearchKey, MetricDefinition metricDefinition) {

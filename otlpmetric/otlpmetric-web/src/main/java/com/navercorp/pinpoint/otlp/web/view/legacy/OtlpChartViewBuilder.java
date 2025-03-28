@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.otlp.web.view.legacy;
 
-import com.navercorp.pinpoint.otlp.common.web.definition.property.ChartType;
 import com.navercorp.pinpoint.otlp.common.model.MetricType;
+import com.navercorp.pinpoint.otlp.common.web.definition.property.ChartType;
 import com.navercorp.pinpoint.otlp.web.view.OtlpParsingException;
 import com.navercorp.pinpoint.otlp.web.vo.FieldAttribute;
 import com.navercorp.pinpoint.otlp.web.vo.OtlpMetricChartResult;

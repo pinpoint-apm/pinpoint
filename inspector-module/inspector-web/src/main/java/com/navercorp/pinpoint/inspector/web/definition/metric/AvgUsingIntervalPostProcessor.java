@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.inspector.web.definition.metric;
 
+import com.google.common.primitives.Doubles;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricValue;
 import org.apache.commons.math3.util.Precision;
 import org.springframework.stereotype.Component;
@@ -54,17 +55,17 @@ public class AvgUsingIntervalPostProcessor implements MetricPostProcessor {
 
     private void addTotalMetricValue(List<InspectorMetricValue> processedMetricValueList, int metricValueSize) {
 
-        List<Double> totalValueList = new ArrayList<>(metricValueSize);
+        double[] totalValueList = new double[metricValueSize];
         for (int i = 0; i < metricValueSize; i++) {
             double total = 0;
             for (InspectorMetricValue metricValue : processedMetricValueList) {
                 total += metricValue.getValueList().get(i);
             }
             total = Precision.round(total, NUM_DECIMAL_PLACES);
-            totalValueList.add(total);
+            totalValueList[i] = total;
         }
 
-        processedMetricValueList.add(new InspectorMetricValue("totalCount", Collections.emptyList(), "tooltip", "count", totalValueList));
+        processedMetricValueList.add(new InspectorMetricValue("totalCount", Collections.emptyList(), "tooltip", "count", Doubles.asList(totalValueList)));
     }
 
     private void calculateAvg(InspectorMetricValue collectInterval, List<InspectorMetricValue> metricCountList, List<InspectorMetricValue> processedMetricValueList) {
@@ -77,16 +78,16 @@ public class AvgUsingIntervalPostProcessor implements MetricPostProcessor {
     protected List<Double> calculateAvg(InspectorMetricValue collectInterval, InspectorMetricValue metricCount) {
         List<Double> valueList = metricCount.getValueList();
         List<Double> commitIntervalList = collectInterval.getValueList();
-        List<Double> avgList = new ArrayList<>(valueList.size());
+        double[] avgList = new double[valueList.size()];
         for (int i = 0; i < valueList.size(); i++) {
             if (commitIntervalList.get(i) < 0) {
-                avgList.add(i, -1.0);
+                avgList[i] = -1.0;
                 continue;
             }
-            avgList.add(calculateTps(valueList.get(i), commitIntervalList.get(i)));
+            avgList[i] = calculateTps(valueList.get(i), commitIntervalList.get(i));
         }
 
-        return avgList;
+        return Doubles.asList(avgList);
     }
 
     private double calculateTps(double count, double intervalMs) {

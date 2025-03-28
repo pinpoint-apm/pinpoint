@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.inspector.web.service;
 
+import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Longs;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
@@ -38,11 +40,12 @@ import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationStatPoint
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.ToIntFunction;
 
 /**
  * @author minwoo-jung
@@ -102,50 +105,74 @@ public class DefaultApdexStatService implements ApdexStatService {
         StatChartGroup<ApplicationStatPoint<Double>> statChartGroup = applicationApdexScoreChart.getCharts();
         Map<StatChartGroup.ChartType, Chart<ApplicationStatPoint<Double>>> chartDatas = statChartGroup.getCharts();
         Collection<Chart<ApplicationStatPoint<Double>>> values = chartDatas.values();
-        List<Double> avgValueList = new ArrayList<>(values.size());
-        List<Double> minValueList = new ArrayList<>(values.size());
-        List<Double> maxValueList = new ArrayList<>(values.size());
-        List<Long> timestampList = new ArrayList<>(values.size());
 
+        final int size = getFirstChartSize(values, (c) -> c.getPoints().size());
+        if (size  == 0) {
+            return new InspectorMetricData(metricDefinition.getTitle(), List.of(), List.of());
+        }
+        final double[] avgValueList = new double[size];
+        final double[] minValueList = new double[size];
+        final double[] maxValueList = new double[size];
+        final long[] timestampList = new long[size];
+
+        int i = 0;
         for (Chart<ApplicationStatPoint<Double>> chartData : values) {
             List<ApplicationStatPoint<Double>> points = chartData.getPoints();
             for (ApplicationStatPoint<Double> point : points) {
-                timestampList.add(point.getXVal());
-                avgValueList.add(point.getYValForAvg());
-                minValueList.add(point.getYValForMin());
-                maxValueList.add(point.getYValForMax());
+                timestampList[i] = point.getXVal();
+                avgValueList[i] = point.getYValForAvg();
+                minValueList[i] = point.getYValForMin();
+                maxValueList[i] = point.getYValForMax();
+                i++;
             }
         }
 
         Field field = metricDefinition.getFields().get(0);
-        List<InspectorMetricValue> metricValueList = new ArrayList<>(3);
-        metricValueList.add(new InspectorMetricValue(MIN, field.getTags(), field.getChartType(), field.getUnit(), minValueList));
-        metricValueList.add(new InspectorMetricValue(AVG, field.getTags(), field.getChartType(), field.getUnit(), avgValueList));
-        metricValueList.add(new InspectorMetricValue(MAX, field.getTags(), field.getChartType(), field.getUnit(), maxValueList));
+        List<InspectorMetricValue> metricValueList = List.of(
+            new InspectorMetricValue(MIN, field.getTags(), field.getChartType(), field.getUnit(), Doubles.asList(minValueList)),
+            new InspectorMetricValue(AVG, field.getTags(), field.getChartType(), field.getUnit(), Doubles.asList(avgValueList)),
+            new InspectorMetricValue(MAX, field.getTags(), field.getChartType(), field.getUnit(), Doubles.asList(maxValueList))
+        );
 
-        return new InspectorMetricData(metricDefinition.getTitle(), timestampList, metricValueList);
+        return new InspectorMetricData(metricDefinition.getTitle(), Longs.asList(timestampList), metricValueList);
+    }
+
+    private <T> int getFirstChartSize(Collection<T> values, ToIntFunction<T> function) {
+        Iterator<T> iterator = values.iterator();
+        if (iterator.hasNext()) {
+            T element = iterator.next();
+            return function.applyAsInt(element);
+        } else {
+            return 0;
+        }
     }
 
     private InspectorMetricData convertToInspectorMetricData(MetricDefinition metricDefinition, AgentApdexScoreChart agentApdexScoreChart) {
         StatChartGroup<AgentStatPoint<Double>> statChartGroup = agentApdexScoreChart.getCharts();
         Map<StatChartGroup.ChartType, Chart<AgentStatPoint<Double>>> chartDatas = statChartGroup.getCharts();
         Collection<Chart<AgentStatPoint<Double>>> values = chartDatas.values();
-        List<Double> avgValueList = new ArrayList<>(values.size());
-        List<Long> timestampList = new ArrayList<>(values.size());
 
+        final int size = getFirstChartSize(values, (c) -> c.getPoints().size());
+        if (size  == 0) {
+            return new InspectorMetricData(metricDefinition.getTitle(), List.of(), List.of());
+        }
+        final double[] avgValueList = new double[size];
+        final long[] timestampList = new long[size];
+
+        int i = 0;
         for (Chart<AgentStatPoint<Double>> chartData : values) {
             List<AgentStatPoint<Double>> points = chartData.getPoints();
             for (AgentStatPoint<Double> point : points) {
-                timestampList.add(point.getXVal());
-                avgValueList.add(point.getAvgYVal());
+                timestampList[i] = point.getXVal();
+                avgValueList[i] = point.getAvgYVal();
+                i++;
             }
         }
 
-        List<InspectorMetricValue> metricValueList = new ArrayList<>(1);
         Field field = metricDefinition.getFields().get(0);
-        InspectorMetricValue apdexMetricValue = new InspectorMetricValue(field.getFieldAlias(), TagUtils.defaultTags(null), field.getChartType(), field.getUnit(), avgValueList);
-        metricValueList.add(apdexMetricValue);
+        InspectorMetricValue apdexMetricValue = new InspectorMetricValue(field.getFieldAlias(), TagUtils.defaultTags(null), field.getChartType(), field.getUnit(), Doubles.asList(avgValueList));
+        List<InspectorMetricValue> metricValueList = List.of(apdexMetricValue);
 
-        return new InspectorMetricData(metricDefinition.getTitle(), timestampList, metricValueList);
+        return new InspectorMetricData(metricDefinition.getTitle(), Longs.asList(timestampList), metricValueList);
     }
 }

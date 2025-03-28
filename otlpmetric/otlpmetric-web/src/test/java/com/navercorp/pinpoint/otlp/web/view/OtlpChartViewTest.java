@@ -1,9 +1,9 @@
 package com.navercorp.pinpoint.otlp.web.view;
 
-import com.navercorp.pinpoint.otlp.common.web.definition.property.AggregationFunction;
 import com.navercorp.pinpoint.otlp.common.model.AggreTemporality;
 import com.navercorp.pinpoint.otlp.common.model.DataType;
 import com.navercorp.pinpoint.otlp.common.model.MetricType;
+import com.navercorp.pinpoint.otlp.common.web.definition.property.AggregationFunction;
 import com.navercorp.pinpoint.otlp.web.view.legacy.OtlpChartView;
 import com.navercorp.pinpoint.otlp.web.view.legacy.OtlpChartViewBuilder;
 import com.navercorp.pinpoint.otlp.web.vo.FieldAttribute;
@@ -14,7 +14,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class OtlpChartViewTest {
 
@@ -28,7 +29,7 @@ public class OtlpChartViewTest {
     @Test
     public void shiftFillEmptyValueShouldAddTimestampAndValue() {
         FieldAttribute fieldAttribute = new FieldAttribute("test", MetricType.GAUGE, DataType.DOUBLE, AggregationFunction.AVG, AggreTemporality.DELTA, "description", "unit", "version");
-        List<OtlpMetricChartResult> dataPoints = Arrays.asList(new OtlpMetricChartResult(123456789L, "", 100));
+        List<OtlpMetricChartResult> dataPoints = List.of(new OtlpMetricChartResult(123456789L, "", 100));
 
         otlpChartViewBuilder.add(fieldAttribute, dataPoints);
         otlpChartViewBuilder.shiftFillEmptyValue(0, 123456789L);
@@ -46,11 +47,11 @@ public class OtlpChartViewTest {
     @Test
     public void addShouldAddFieldData() {
         FieldAttribute fieldAttribute = new FieldAttribute("test", MetricType.GAUGE, DataType.DOUBLE, AggregationFunction.AVG, AggreTemporality.DELTA, "description", "unit", "version");
-        List<OtlpMetricChartResult> dataPoints1 = Arrays.asList(new OtlpMetricChartResult(123456789L, "", 100));
+        List<OtlpMetricChartResult> dataPoints1 = List.of(new OtlpMetricChartResult(123456789L, "", 100));
         otlpChartViewBuilder.add(fieldAttribute, dataPoints1);
         assertEquals(1, otlpChartViewBuilder.getFields().size());
 
-        List<OtlpMetricChartResult> dataPoints2 = Arrays.asList(new OtlpMetricChartResult(123456789L, "", 100));
+        List<OtlpMetricChartResult> dataPoints2 = List.of(new OtlpMetricChartResult(123456789L, "", 100));
         otlpChartViewBuilder.add(fieldAttribute, dataPoints2);
         assertEquals(2, otlpChartViewBuilder.getFields().size());
     }
