@@ -40,6 +40,10 @@ public class ByteAnnotation implements Annotation<Byte> {
         return value;
     }
 
+    public byte getByteValue() {
+        return value;
+    }
+
 
     @Override
     public String toString() {

@@ -40,6 +40,10 @@ public class IntAnnotation implements Annotation<Integer> {
         return value;
     }
 
+    public int getIntValue() {
+        return value;
+    }
+
     @Override
     public String toString() {
         return "IntAnnotation{" +

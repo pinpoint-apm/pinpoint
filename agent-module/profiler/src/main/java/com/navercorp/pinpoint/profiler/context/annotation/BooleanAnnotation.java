@@ -40,6 +40,10 @@ public class BooleanAnnotation implements Annotation<Boolean> {
         return value;
     }
 
+    public boolean getBooleanValue() {
+        return value;
+    }
+
     @Override
     public String toString() {
         return "BooleanAnnotation{" +

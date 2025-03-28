@@ -40,6 +40,10 @@ public class ShortAnnotation implements Annotation<Short> {
         return value;
     }
 
+    public short getShortValue() {
+        return value;
+    }
+
     @Override
     public String toString() {
         return "ShortAnnotation{" +
