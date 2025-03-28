@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
-import com.navercorp.pinpoint.profiler.context.grpc.config.SpanUriGetter;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.SpanMessageMapper;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
 import com.navercorp.pinpoint.profiler.name.ObjectName;
@@ -40,18 +39,16 @@ public class GrpcSpanMessageConverterProvider implements Provider<MessageConvert
     private final ObjectName objectName;
     private final short applicationServiceTypeCode;
     private final SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanPostProcessor;
-    private final SpanUriGetter spanUriGetter;
     private final SpanMessageMapper mapper;
 
     @Inject
-    public GrpcSpanMessageConverterProvider(ObjectName objectName, @ApplicationServerType ServiceType applicationServiceType,
+    public GrpcSpanMessageConverterProvider(ObjectName objectName,
+                                            @ApplicationServerType ServiceType applicationServiceType,
                                             SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanPostProcessor,
-                                            SpanUriGetter spanUriGetter,
                                             SpanMessageMapper spanMessageMapper) {
         this.objectName = Objects.requireNonNull(objectName, "objectName");
         this.applicationServiceTypeCode = applicationServiceType.getCode();
         this.spanPostProcessor = Objects.requireNonNull(spanPostProcessor, "spanPostProcessor");
-        this.spanUriGetter = Objects.requireNonNull(spanUriGetter, "spanUriGetter");
         this.mapper = Objects.requireNonNull(spanMessageMapper, "spanMessageMapper");
     }
 
