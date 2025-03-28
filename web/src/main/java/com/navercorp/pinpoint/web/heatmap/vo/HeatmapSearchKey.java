@@ -40,12 +40,13 @@ public class HeatmapSearchKey {
     private final int elapsedTimeInterval;
     private final int largestMultiple;
 
-    public HeatmapSearchKey(String sortKey, TimeWindow timeWindow, int elapsedTimeInterval, int minYAxis, int maxYAxis, int largestMultiple, int yAxisCellMaxCount) {
+    public HeatmapSearchKey(String sortKey, TimeWindow timeWindow, int elapsedTimeInterval, int minYAxis, int maxYAxis,
+                            int largestMultiple, int yAxisCellCount) {
         this.sortKey = StringPrecondition.requireHasLength(sortKey, "applicationName");
         Objects.requireNonNull(timeWindow, "timeWindow");
         this.range = timeWindow.getWindowRange();
         this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, timeWindow.getWindowSlotSize());
-        this.limit = timeWindow.getWindowRangeCount() * yAxisCellMaxCount;
+        this.limit = timeWindow.getWindowRangeCount() * yAxisCellCount;
 
         this.elapsedTimeInterval = elapsedTimeInterval;
         this.minYAsix = minYAxis;

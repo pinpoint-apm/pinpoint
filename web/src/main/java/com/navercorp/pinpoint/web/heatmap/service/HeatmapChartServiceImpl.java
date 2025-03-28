@@ -18,12 +18,16 @@ package com.navercorp.pinpoint.web.heatmap.service;
 
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.web.heatmap.dao.HeatmapChartDao;
+import com.navercorp.pinpoint.web.heatmap.util.TimeSeriesBuilder;
+import com.navercorp.pinpoint.web.heatmap.vo.ElapsedTimeBucketInfo;
+import com.navercorp.pinpoint.web.heatmap.vo.HeatMapData;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatmapCell;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatmapSearchKey;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,60 +38,100 @@ import java.util.Objects;
 public class HeatmapChartServiceImpl implements HeatmapChartService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
+
     private final String POSTFIX_SORT_KEY_SUCCESS = "#suc";
     private final String POSTFIX_SORT_KEY_FAIL = "#fal";
 
+    private final int YAXIS_CELL_MAXCOUNT = 50;
+    private final int MIN_INTERVAL_FOR_ELAPSED_TIME = 200;
+
     private final HeatmapChartDao heatmapChartDao;
-    private final int yAxisCellMaxCount;
-    private final int minIntervalForElapsedTime;
 
     public HeatmapChartServiceImpl(HeatmapChartDao heatmapChartDao) {
         this.heatmapChartDao = Objects.requireNonNull(heatmapChartDao,"heatmapChartDao");
-        this.yAxisCellMaxCount = 50;
-        this.minIntervalForElapsedTime = 200;
     }
 
     @Override
     public void getHeatmapAppData(String applicationName, TimeWindow timeWindow, int minYAxis, int maxYAxis) {
-        int elapsedTimeInterval = calculateTimeInterval(minYAxis, maxYAxis);
-        int largestMultiple = findLargestMultipleBelow(maxYAxis, minYAxis, elapsedTimeInterval);
-        HeatmapSearchKey heatmapSearchKey = new HeatmapSearchKey(applicationName + POSTFIX_SORT_KEY_SUCCESS, timeWindow, elapsedTimeInterval, minYAxis, maxYAxis, largestMultiple, yAxisCellMaxCount);
+        ElapsedTimeBucketInfo elapsedTimeBucketInfo = createElapsedTimeBucketInfo(minYAxis, maxYAxis);
+        HeatmapSearchKey heatmapSearchKey = new HeatmapSearchKey(applicationName + POSTFIX_SORT_KEY_SUCCESS,
+                                                                 timeWindow,
+                                                                 elapsedTimeBucketInfo.getTimeInterval(),
+                                                                 elapsedTimeBucketInfo.getMin(),
+                                                                 elapsedTimeBucketInfo.getMax(),
+                                                                 elapsedTimeBucketInfo.findLargestMultipleBelow(),
+                                                                 elapsedTimeBucketInfo.getBucketList().size());
 
         long startTime = System.currentTimeMillis();
-
-        List<HeatmapCell> heatmapAppData = heatmapChartDao.getHeatmapAppData(heatmapSearchKey);
-
+        List<HeatmapCell> successHeatmapAppData = heatmapChartDao.getHeatmapAppData(heatmapSearchKey);
+        //TODO : (minwoo) remove log for performance
         long executionTime = System.currentTimeMillis() - startTime;
-        logger.debug("==== getHeatmapAppData execution time: {}ms", executionTime);
+        logger.debug("==== successHeatmapAppData execution time: {}ms", executionTime);
 
-        for (HeatmapCell heatmapCell : heatmapAppData) {
+        logger.debug("heatmapCell size: {}", successHeatmapAppData.size());
+        for (HeatmapCell heatmapCell : successHeatmapAppData) {
             logger.debug("heatmapCell: {}", heatmapCell);
         }
+
+        heatmapSearchKey = new HeatmapSearchKey(applicationName + POSTFIX_SORT_KEY_FAIL,
+                timeWindow,
+                elapsedTimeBucketInfo.getTimeInterval(),
+                elapsedTimeBucketInfo.getMin(),
+                elapsedTimeBucketInfo.getMax(),
+                elapsedTimeBucketInfo.findLargestMultipleBelow(),
+                elapsedTimeBucketInfo.getBucketList().size());
+
+        startTime = System.currentTimeMillis();
+        List<HeatmapCell> failHeatmapAppData = heatmapChartDao.getHeatmapAppData(heatmapSearchKey);
+        executionTime = System.currentTimeMillis() - startTime;
+        logger.debug("==== failHeatmapAppData execution time: {}ms", executionTime);
+
+        logger.debug("heatmapCell size: {}", failHeatmapAppData.size());
+        for (HeatmapCell heatmapCell : failHeatmapAppData) {
+            logger.debug("heatmapCell: {}", heatmapCell);
+        }
+
+        HeatMapData heatmapData = createHeatmapData(timeWindow, successHeatmapAppData, failHeatmapAppData, elapsedTimeBucketInfo);
+        System.out.println(heatmapData.prettyToString());
+    }
+
+    private HeatMapData createHeatmapData(TimeWindow timeWindow, List<HeatmapCell> successHeatmapAppData, List<HeatmapCell> failHeatmapAppData, ElapsedTimeBucketInfo elapsedTimeBucketInfo) {
+        TimeSeriesBuilder timeSeriesBuilder = new TimeSeriesBuilder(successHeatmapAppData, failHeatmapAppData, timeWindow, elapsedTimeBucketInfo.getBucketList());
+        return timeSeriesBuilder.createHeatMapData();
+    }
+
+    protected ElapsedTimeBucketInfo createElapsedTimeBucketInfo(int min, int max) {
+        int timeInterval = calculateTimeInterval(min, max);
+
+        List<Integer> bucketList = new ArrayList<Integer>();
+
+        int value;
+        if (min == 0) {
+            value = timeInterval;
+        } else {
+            value = min;
+        }
+
+        while (value < max) {
+            bucketList.add(value);
+            value += timeInterval;
+        }
+
+        bucketList.add(max);
+
+        return new ElapsedTimeBucketInfo(bucketList, timeInterval);
     }
 
     protected int calculateTimeInterval(int min, int max) {
         int range = max - min;
-        if (range <= (yAxisCellMaxCount * minIntervalForElapsedTime)) {
-            return minIntervalForElapsedTime;
+        if (range <= (YAXIS_CELL_MAXCOUNT * MIN_INTERVAL_FOR_ELAPSED_TIME)) {
+            return MIN_INTERVAL_FOR_ELAPSED_TIME;
         }
 
         if (min == 0) {
-            return range / (yAxisCellMaxCount);
+            return range / (YAXIS_CELL_MAXCOUNT);
         } else {
-            return range / (yAxisCellMaxCount - 1);
+            return range / (YAXIS_CELL_MAXCOUNT - 1);
         }
-    }
-
-    protected int findLargestMultipleBelow(int upperBound, int startValue, int interval) {
-        if (interval <= 0) {
-            throw new IllegalArgumentException("interval must be greater than 0");
-        }
-
-        int largestDivisible = startValue + ((upperBound - startValue - 1) / interval) * interval;
-        return largestDivisible;
-    }
-
-    public static class ElapsedTimeBucketInfo {
-        
     }
 }
