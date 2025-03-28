@@ -36,10 +36,7 @@ public class TimeSeriesChartBuilder<P extends Point> {
     private final Point.UncollectedPointCreator<P> uncollectedPointCreator;
 
     public TimeSeriesChartBuilder(TimeWindow timeWindow, Point.UncollectedPointCreator<P> uncollectedPointCreator) {
-        if (timeWindow.getWindowRangeCount() > Integer.MAX_VALUE) {
-            throw new IllegalArgumentException("range yields too many timeslots");
-        }
-        this.timeWindow = timeWindow;
+        this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
         this.uncollectedPointCreator = Objects.requireNonNull(uncollectedPointCreator, "uncollectedPointCreator");
     }
 
@@ -48,9 +45,10 @@ public class TimeSeriesChartBuilder<P extends Point> {
             return new Chart<>(Collections.emptyList());
         }
         List<P> points = createInitialPoints();
+        final int windowRangeCount = timeWindow.getWindowRangeCount();
         for (P sampledPoint : sampledPoints) {
             int timeslotIndex = this.timeWindow.getWindowIndex(sampledPoint.getXVal());
-            if (timeslotIndex < 0 || timeslotIndex >= timeWindow.getWindowRangeCount()) {
+            if (timeslotIndex < 0 || timeslotIndex >= windowRangeCount) {
                 continue;
             }
             points.set(timeslotIndex, sampledPoint);
@@ -79,7 +77,7 @@ public class TimeSeriesChartBuilder<P extends Point> {
     }
 
     private List<P> createInitialPoints() {
-        int numTimeslots = (int) this.timeWindow.getWindowRangeCount();
+        final int numTimeslots = this.timeWindow.getWindowRangeCount();
         List<P> points = new ArrayList<>(numTimeslots);
         for (long timestamp : this.timeWindow) {
             points.add(uncollectedPointCreator.createUnCollectedPoint(timestamp));

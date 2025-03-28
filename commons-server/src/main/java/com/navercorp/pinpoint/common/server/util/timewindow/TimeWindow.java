@@ -36,6 +36,8 @@ public class TimeWindow implements Iterable<Long>, TimeWindowFunction {
 
     private final Range windowRange;
 
+    private final int windowRangeCount;
+
     public TimeWindow(Range range) {
         this(range, TimeWindowDownSampler.SAMPLER);
     }
@@ -45,6 +47,15 @@ public class TimeWindow implements Iterable<Long>, TimeWindowFunction {
         Objects.requireNonNull(sampler, "sampler");
         this.windowSlotSize = sampler.getWindowSize(range);
         this.windowRange = createWindowRange();
+        this.windowRangeCount = computeWindowRangeCount(windowRange.durationMillis(), windowSlotSize);
+    }
+
+    /**
+     * @throws ArithmeticException if the {@code count} overflows an int
+     */
+    private static int computeWindowRangeCount(long duration, long slotSize) {
+        long count = (duration / slotSize) + 1;
+        return Math.toIntExact(count);
     }
 
     public Iterator<Long> iterator() {
@@ -70,8 +81,8 @@ public class TimeWindow implements Iterable<Long>, TimeWindowFunction {
         return windowSlotSize;
     }
 
-    public long getWindowRangeCount() {
-        return (windowRange.durationMillis() / windowSlotSize) + 1;
+    public int getWindowRangeCount() {
+        return windowRangeCount;
     }
 
     public Range getWindowSlotRange() {
@@ -94,17 +105,16 @@ public class TimeWindow implements Iterable<Long>, TimeWindowFunction {
     private class Itr implements Iterator<Long> {
 
         private long cursor;
+        private final long end;
 
         public Itr() {
             this.cursor = windowRange.getFrom();
+            this.end = windowRange.getTo();
         }
 
         @Override
         public boolean hasNext() {
-            if (cursor > windowRange.getTo()) {
-                return false;
-            }
-            return true;
+            return cursor <= end;
         }
 
         @Override

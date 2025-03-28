@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.util.timewindow;
 
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.google.common.collect.ImmutableList;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,43 +38,34 @@ public class TimeWindowTest {
         TimeWindow window = new TimeWindow(Range.between(0L, 1000));
         logger.debug("{}", window.getWindowRange());
         Iterator<Long> iterator = window.iterator();
-        Assertions.assertEquals(iterator.next(), (Long)0L);
+        Assertions.assertEquals(0L, iterator.next());
 
-        Assertions.assertThrows(Exception.class, () -> {
-            iterator.next();
-        });
+        Assertions.assertThrows(Exception.class, iterator::next);
 
         TimeWindow window2 = new TimeWindow(Range.between(0L, TimeUnit.MINUTES.toMillis(1)));
         logger.debug("{}", window2.getWindowRange());
         Iterator<Long> iterator2 = window2.iterator();
-        Assertions.assertEquals(iterator2.next(), (Long)0L);
-        Assertions.assertEquals(iterator2.next(), (Long)(1000*60L));
-        Assertions.assertThrows(Exception.class, () -> {
-            iterator2.next();
-        });
+        Assertions.assertEquals(0L, iterator2.next());
+        Assertions.assertEquals(1000*60L, iterator2.next());
+        Assertions.assertThrows(Exception.class, iterator2::next);
     }
 
     @Test
     public void testGetNextWindow() {
         Range range = Range.between(0L, TimeUnit.MINUTES.toMillis(1));
         TimeWindow window = new TimeWindow(range);
-        int i = 0;
-        for (Long aLong : window) {
-            i++;
-        }
-        Assertions.assertEquals(i, 2);
+        ImmutableList<Long> longs = ImmutableList.copyOf(window.iterator());
+        Assertions.assertEquals(2, longs.size());
+        Assertions.assertEquals(2, window.getWindowRangeCount());
     }
 
     @Test
     public void testGetNextWindow2() {
         Range range = Range.between(1L, TimeUnit.MINUTES.toMillis(1));
         TimeWindow window = new TimeWindow(range);
-        int i = 0;
-        for (Long aLong : window) {
-            logger.debug("{}", aLong);
-            i++;
-        }
-        Assertions.assertEquals(i, 2);
+        ImmutableList<Long> longs = ImmutableList.copyOf(window.iterator());
+        Assertions.assertEquals(2, longs.size());
+        Assertions.assertEquals(2, window.getWindowRangeCount());
     }
 
     @Test
@@ -103,8 +94,8 @@ public class TimeWindowTest {
         Range windowRange = window.getWindowRange();
         // 1 should be replace by 0.
         logger.debug("{}", windowRange);
-        Assertions.assertEquals(windowRange.getFrom(), 0);
-        Assertions.assertEquals(windowRange.getTo(), TimeUnit.MINUTES.toMillis(1));
+        Assertions.assertEquals(0, windowRange.getFrom());
+        Assertions.assertEquals(TimeUnit.MINUTES.toMillis(1), windowRange.getTo());
 
     }
 
@@ -112,7 +103,7 @@ public class TimeWindowTest {
     public void testGetWindowRangeLength() {
         Range range = Range.between(1L, 2L);
         TimeWindow window = new TimeWindow(range);
-        long windowRangeLength = window.getWindowRangeCount();
+        int windowRangeLength = window.getWindowRangeCount();
         logger.debug("{}", windowRangeLength);
         Assertions.assertEquals(1, windowRangeLength);
 
@@ -122,7 +113,7 @@ public class TimeWindowTest {
     public void testGetWindowRangeLength2() {
         Range range = Range.between(1L, 1000*60L + 1);
         TimeWindow window = new TimeWindow(range);
-        long windowRangeLength = window.getWindowRangeCount();
+        int windowRangeLength = window.getWindowRangeCount();
         logger.debug("{}", windowRangeLength);
         Assertions.assertEquals(2, windowRangeLength);
     }

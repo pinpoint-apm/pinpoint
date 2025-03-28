@@ -27,7 +27,7 @@ import java.util.List;
 public class TimeUtils {
 
     public static List<Long> createTimeStampList(TimeWindow timeWindow) {
-        List<Long> timestampList = new ArrayList<>((int) timeWindow.getWindowRangeCount());
+        List<Long> timestampList = new ArrayList<>(timeWindow.getWindowRangeCount());
 
         for (Long timestamp : timeWindow) {
             timestampList.add(timestamp);

@@ -38,10 +38,10 @@ public class TimeSeriesBuilder<T extends Number> {
 
     public List<MetricPoint<T>> build(List<MetricPoint<T>> metricDataList) {
         List<MetricPoint<T>> filledMetricPointList = createInitialPoints();
-
+        final int windowRangeCount = timeWindow.getWindowRangeCount();
         for (MetricPoint<T> metricPoint : metricDataList) {
             int timeslotIndex = this.timeWindow.getWindowIndex(metricPoint.getXVal());
-            if (timeslotIndex < 0 || timeslotIndex >= timeWindow.getWindowRangeCount()) {
+            if (timeslotIndex < 0 || timeslotIndex >= windowRangeCount) {
                 continue;
             }
             filledMetricPointList.set(timeslotIndex, metricPoint);
@@ -51,7 +51,7 @@ public class TimeSeriesBuilder<T extends Number> {
     }
 
     private List<MetricPoint<T>> createInitialPoints() {
-        int numTimeslots = (int) this.timeWindow.getWindowRangeCount();
+        int numTimeslots = Math.toIntExact(this.timeWindow.getWindowRangeCount());
         List<MetricPoint<T>> pointList = new ArrayList<>(numTimeslots);
 
         for (long timestamp : this.timeWindow) {

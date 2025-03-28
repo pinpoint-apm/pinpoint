@@ -44,9 +44,10 @@ public class TimeSeriesBuilder<T extends Number> {
     public List<MinMaxMetricPoint<T>> buildForMinMaxMetricPointList(List<MinMaxMetricPoint<T>> minMaxMetricDataList) {
         List<MinMaxMetricPoint<T>> filledMinMaxMetricPointList = createInitialMinMaxMetricPoint();
 
+        final int windowRangeCount = timeWindow.getWindowRangeCount();
         for (MinMaxMetricPoint<T> minMaxMetricPoint : minMaxMetricDataList) {
             int timeslotIndex = this.timeWindow.getWindowIndex(minMaxMetricPoint.getXVal());
-            if (timeslotIndex < 0 || timeslotIndex >= timeWindow.getWindowRangeCount()) {
+            if (timeslotIndex < 0 || timeslotIndex >= windowRangeCount) {
                 continue;
             }
             filledMinMaxMetricPointList.set(timeslotIndex, minMaxMetricPoint);
@@ -58,9 +59,10 @@ public class TimeSeriesBuilder<T extends Number> {
     public List<AvgMinMetricPoint<T>> buildForAvgMinMetricPointList(List<AvgMinMetricPoint<T>> avgMinMetricDataList) {
         List<AvgMinMetricPoint<T>> filledAvgMinMetricPointList = createInitialAvgMinMetricPoint();
 
+        final int windowRangeCount = timeWindow.getWindowRangeCount();
         for (AvgMinMetricPoint<T> avgMinMetricPoint : avgMinMetricDataList) {
             int timeslotIndex = this.timeWindow.getWindowIndex(avgMinMetricPoint.getXVal());
-            if (timeslotIndex < 0 || timeslotIndex >= timeWindow.getWindowRangeCount()) {
+            if (timeslotIndex < 0 || timeslotIndex >= windowRangeCount) {
                 continue;
             }
             filledAvgMinMetricPointList.set(timeslotIndex, avgMinMetricPoint);
@@ -70,7 +72,7 @@ public class TimeSeriesBuilder<T extends Number> {
     }
 
     private List<AvgMinMetricPoint<T>> createInitialAvgMinMetricPoint() {
-        int numTimeslots = (int) this.timeWindow.getWindowRangeCount();
+        int numTimeslots = this.timeWindow.getWindowRangeCount();
         List<AvgMinMetricPoint<T>> pointList = new ArrayList<>(numTimeslots);
 
         for (long timestamp : this.timeWindow) {
@@ -81,7 +83,7 @@ public class TimeSeriesBuilder<T extends Number> {
     }
 
     private List<MinMaxMetricPoint<T>> createInitialMinMaxMetricPoint() {
-        int numTimeslots = (int) this.timeWindow.getWindowRangeCount();
+        int numTimeslots = this.timeWindow.getWindowRangeCount();
         List<MinMaxMetricPoint<T>> pointList = new ArrayList<>(numTimeslots);
 
         for (long timestamp : this.timeWindow) {
@@ -94,9 +96,10 @@ public class TimeSeriesBuilder<T extends Number> {
     public List<AvgMinMaxMetricPoint<T>> buildForAvgMinMaxMetricPointList(List<AvgMinMaxMetricPoint<T>> avgMinMaxMetricDataList) {
         List<AvgMinMaxMetricPoint<T>> filledAvgMinMaxMetricPointList = createInitialAvgMinMaxMetricPoint();
 
+        final int windowRangeCount = timeWindow.getWindowRangeCount();
         for (AvgMinMaxMetricPoint<T> avgMinMaxMetricPoint : avgMinMaxMetricDataList) {
             int timeslotIndex = this.timeWindow.getWindowIndex(avgMinMaxMetricPoint.getXVal());
-            if (timeslotIndex < 0 || timeslotIndex >= timeWindow.getWindowRangeCount()) {
+            if (timeslotIndex < 0 || timeslotIndex >= windowRangeCount) {
                 continue;
             }
             filledAvgMinMaxMetricPointList.set(timeslotIndex, avgMinMaxMetricPoint);
@@ -106,7 +109,7 @@ public class TimeSeriesBuilder<T extends Number> {
     }
 
     private List<AvgMinMaxMetricPoint<T>> createInitialAvgMinMaxMetricPoint() {
-        int numTimeslots = (int) this.timeWindow.getWindowRangeCount();
+        int numTimeslots = this.timeWindow.getWindowRangeCount();
         List<AvgMinMaxMetricPoint<T>> pointList = new ArrayList<>(numTimeslots);
 
         for (long timestamp : this.timeWindow) {
@@ -119,9 +122,10 @@ public class TimeSeriesBuilder<T extends Number> {
     public List<SystemMetricPoint<T>> build(List<SystemMetricPoint<T>> systemMetricDataList) {
         List<SystemMetricPoint<T>> filledSystemMetricPointList = createInitialPoints();
 
+        final int windowRangeCount = timeWindow.getWindowRangeCount();
         for (SystemMetricPoint<T> systemMetricPoint : systemMetricDataList) {
             int timeslotIndex = this.timeWindow.getWindowIndex(systemMetricPoint.getXVal());
-            if (timeslotIndex < 0 || timeslotIndex >= timeWindow.getWindowRangeCount()) {
+            if (timeslotIndex < 0 || timeslotIndex >= windowRangeCount) {
                 continue;
             }
             filledSystemMetricPointList.set(timeslotIndex, systemMetricPoint);
@@ -131,7 +135,7 @@ public class TimeSeriesBuilder<T extends Number> {
     }
 
     private List<SystemMetricPoint<T>> createInitialPoints() {
-        int numTimeslots = (int) this.timeWindow.getWindowRangeCount();
+        int numTimeslots = this.timeWindow.getWindowRangeCount();
         List<SystemMetricPoint<T>> pointList = new ArrayList<>(numTimeslots);
 
         for (long timestamp : this.timeWindow) {

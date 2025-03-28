@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.metric.web.model;
 
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +46,7 @@ public class MetricDataSearchKey {
         this.metricDefinitionId = StringPrecondition.requireHasLength(metricDefinitionId, "metricDefinitionId");
         Objects.requireNonNull(timeWindow, "timeWindow");
         this.range = timeWindow.getWindowRange();
-        this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, (int) timeWindow.getWindowSlotSize());
+        this.timePrecision = TimePrecision.newTimePrecision(TimeUnit.MILLISECONDS, timeWindow.getWindowSlotSize());
         this.limit = timeWindow.getWindowRangeCount();
     }
 

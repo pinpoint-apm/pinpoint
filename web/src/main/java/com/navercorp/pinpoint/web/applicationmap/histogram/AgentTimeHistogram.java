@@ -128,7 +128,7 @@ public class AgentTimeHistogram {
     }
 
     public List<DoubleApplicationStatPoint> getApplicationApdexScoreList(TimeWindow window) {
-        int size = (int) window.getWindowRangeCount();
+        int size = window.getWindowRangeCount();
         List<Double> min = fillList(size, DEFAULT_MIN_APDEX_SCORE);
         List<String> minAgentId = fillList(size, DEFAULT_AGENT_ID);
         List<Double> max = fillList(size, DEFAULT_MAX_APDEX_SCORE);
