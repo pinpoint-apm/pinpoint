@@ -16,40 +16,19 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.web.view.AgentStatPointSerializer;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 
 /**
  * @author HyunGil Jeong
  */
-@JsonSerialize(using = AgentStatPointSerializer.class)
-public class AgentStatPoint<Y extends Number> implements Point {
+public class AgentStatPoint implements Point {
 
     private final long xVal;
-    private final Y minYVal;
-    private final Y maxYVal;
-    private final Double avgYVal;
-    private final Y sumYVal;
+    private final double yVal;
 
-    public AgentStatPoint(long xVal, Y yVal) {
+    public AgentStatPoint(long xVal, double yVal) {
         this.xVal = xVal;
-        this.minYVal = yVal;
-        this.maxYVal = yVal;
-        if (yVal == null) {
-            this.avgYVal = null;
-        } else {
-            this.avgYVal = yVal.doubleValue();
-        }
-        this.sumYVal = yVal;
-    }
-
-    public AgentStatPoint(long xVal, Y minYVal, Y maxYVal, Double avgYVal, Y sumYVal) {
-        this.xVal = xVal;
-        this.minYVal = minYVal;
-        this.maxYVal = maxYVal;
-        this.avgYVal = avgYVal;
-        this.sumYVal = sumYVal;
+        this.yVal = yVal;
     }
 
     @Override
@@ -57,54 +36,30 @@ public class AgentStatPoint<Y extends Number> implements Point {
         return xVal;
     }
 
-    public Y getMinYVal() {
-        return minYVal;
-    }
 
-    public Y getMaxYVal() {
-        return maxYVal;
-    }
-
-    public Double getAvgYVal() {
-        return avgYVal;
-    }
-
-    public Y getSumYVal() {
-        return sumYVal;
+    public double getYVal() {
+        return yVal;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AgentStatPoint<?> that = (AgentStatPoint<?>) o;
-
-        if (xVal != that.xVal) return false;
-        if (minYVal != null ? !minYVal.equals(that.minYVal) : that.minYVal != null) return false;
-        if (maxYVal != null ? !maxYVal.equals(that.maxYVal) : that.maxYVal != null) return false;
-        if (avgYVal != null ? !avgYVal.equals(that.avgYVal) : that.avgYVal != null) return false;
-        return sumYVal != null ? sumYVal.equals(that.sumYVal) : that.sumYVal == null;
+        AgentStatPoint that = (AgentStatPoint) o;
+        return xVal == that.xVal && Double.compare(yVal, that.yVal) == 0;
     }
 
     @Override
     public int hashCode() {
         int result = Long.hashCode(xVal);
-        result = 31 * result + (minYVal != null ? minYVal.hashCode() : 0);
-        result = 31 * result + (maxYVal != null ? maxYVal.hashCode() : 0);
-        result = 31 * result + (avgYVal != null ? avgYVal.hashCode() : 0);
-        result = 31 * result + (sumYVal != null ? sumYVal.hashCode() : 0);
+        result = 31 * result + Double.hashCode(yVal);
         return result;
     }
 
     @Override
     public String toString() {
         return "AgentStatPoint{" +
-                "xVal=" + xVal +
-                ", minYVal=" + minYVal +
-                ", maxYVal=" + maxYVal +
-                ", avgYVal=" + avgYVal +
-                ", sumYVal=" + sumYVal +
+                 xVal + "=" + yVal +
                 '}';
     }
 }

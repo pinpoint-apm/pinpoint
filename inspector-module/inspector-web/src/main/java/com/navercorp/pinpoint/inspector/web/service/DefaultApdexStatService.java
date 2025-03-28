@@ -102,9 +102,9 @@ public class DefaultApdexStatService implements ApdexStatService {
     }
 
     private InspectorMetricData convertToInspectorMetricData(MetricDefinition metricDefinition, ApplicationApdexScoreChart applicationApdexScoreChart) {
-        StatChartGroup<ApplicationStatPoint<Double>> statChartGroup = applicationApdexScoreChart.getCharts();
-        Map<StatChartGroup.ChartType, Chart<ApplicationStatPoint<Double>>> chartDatas = statChartGroup.getCharts();
-        Collection<Chart<ApplicationStatPoint<Double>>> values = chartDatas.values();
+        StatChartGroup<ApplicationStatPoint> statChartGroup = applicationApdexScoreChart.getCharts();
+        Map<StatChartGroup.ChartType, Chart<ApplicationStatPoint>> chartDatas = statChartGroup.getCharts();
+        Collection<Chart<ApplicationStatPoint>> values = chartDatas.values();
 
         final int size = getFirstChartSize(values, (c) -> c.getPoints().size());
         if (size  == 0) {
@@ -116,9 +116,9 @@ public class DefaultApdexStatService implements ApdexStatService {
         final long[] timestampList = new long[size];
 
         int i = 0;
-        for (Chart<ApplicationStatPoint<Double>> chartData : values) {
-            List<ApplicationStatPoint<Double>> points = chartData.getPoints();
-            for (ApplicationStatPoint<Double> point : points) {
+        for (Chart<ApplicationStatPoint> chartData : values) {
+            List<ApplicationStatPoint> points = chartData.getPoints();
+            for (ApplicationStatPoint point : points) {
                 timestampList[i] = point.getXVal();
                 avgValueList[i] = point.getYValForAvg();
                 minValueList[i] = point.getYValForMin();
@@ -148,9 +148,9 @@ public class DefaultApdexStatService implements ApdexStatService {
     }
 
     private InspectorMetricData convertToInspectorMetricData(MetricDefinition metricDefinition, AgentApdexScoreChart agentApdexScoreChart) {
-        StatChartGroup<AgentStatPoint<Double>> statChartGroup = agentApdexScoreChart.getCharts();
-        Map<StatChartGroup.ChartType, Chart<AgentStatPoint<Double>>> chartDatas = statChartGroup.getCharts();
-        Collection<Chart<AgentStatPoint<Double>>> values = chartDatas.values();
+        StatChartGroup<AgentStatPoint> statChartGroup = agentApdexScoreChart.getCharts();
+        Map<StatChartGroup.ChartType, Chart<AgentStatPoint>> chartDatas = statChartGroup.getCharts();
+        Collection<Chart<AgentStatPoint>> values = chartDatas.values();
 
         final int size = getFirstChartSize(values, (c) -> c.getPoints().size());
         if (size  == 0) {
@@ -160,11 +160,11 @@ public class DefaultApdexStatService implements ApdexStatService {
         final long[] timestampList = new long[size];
 
         int i = 0;
-        for (Chart<AgentStatPoint<Double>> chartData : values) {
-            List<AgentStatPoint<Double>> points = chartData.getPoints();
-            for (AgentStatPoint<Double> point : points) {
+        for (Chart<AgentStatPoint> chartData : values) {
+            List<AgentStatPoint> points = chartData.getPoints();
+            for (AgentStatPoint point : points) {
                 timestampList[i] = point.getXVal();
-                avgValueList[i] = point.getAvgYVal();
+                avgValueList[i] = point.getYVal();
                 i++;
             }
         }

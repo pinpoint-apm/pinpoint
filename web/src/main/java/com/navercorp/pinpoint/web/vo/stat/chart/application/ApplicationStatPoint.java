@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 
 import java.util.Objects;
@@ -23,16 +24,16 @@ import java.util.Objects;
 /**
  * @author Taejin Koo
  */
-public abstract class ApplicationStatPoint<Y extends Number> implements Point {
+public class ApplicationStatPoint implements Point {
 
     private final long xVal;
-    private final Y yValForMin;
+    private final double yValForMin;
     private final String agentIdForMin;
-    private final Y yValForMax;
+    private final double yValForMax;
     private final String agentIdForMax;
-    private final Y yValForAvg;
+    private final double yValForAvg;
 
-    public ApplicationStatPoint(long xVal, Y yValForMin, String agentIdForMin, Y yValForMax, String agentIdForMax, Y yValForAvg) {
+    public ApplicationStatPoint(long xVal, double yValForMin, String agentIdForMin, double yValForMax, String agentIdForMax, double yValForAvg) {
         this.xVal = xVal;
 
         this.yValForMin = yValForMin;
@@ -50,7 +51,7 @@ public abstract class ApplicationStatPoint<Y extends Number> implements Point {
         return xVal;
     }
 
-    public Y getYValForMin() {
+    public double getYValForMin() {
         return yValForMin;
     }
 
@@ -58,7 +59,7 @@ public abstract class ApplicationStatPoint<Y extends Number> implements Point {
         return agentIdForMin;
     }
 
-    public Y getYValForMax() {
+    public double getYValForMax() {
         return yValForMax;
     }
 
@@ -66,7 +67,7 @@ public abstract class ApplicationStatPoint<Y extends Number> implements Point {
         return agentIdForMax;
     }
 
-    public Y getYValForAvg() {
+    public double getYValForAvg() {
         return yValForAvg;
     }
 
@@ -81,5 +82,29 @@ public abstract class ApplicationStatPoint<Y extends Number> implements Point {
                 ", yValForAvg=" + yValForAvg +
                 '}';
     }
+
+    public static final double UNCOLLECTED_VALUE = -1L;
+
+    public static class UncollectedCreator implements UncollectedPointCreator<ApplicationStatPoint> {
+
+        private final double uncollectedValue;
+
+        public UncollectedCreator() {
+            this(UNCOLLECTED_VALUE);
+        }
+
+        public UncollectedCreator(double uncollectedValue) {
+            this.uncollectedValue = uncollectedValue;
+        }
+
+        @Override
+        public ApplicationStatPoint createUnCollectedPoint(long xVal) {
+            return new ApplicationStatPoint(xVal, uncollectedValue,
+                    JoinStatBo.UNKNOWN_AGENT, uncollectedValue,
+                    JoinStatBo.UNKNOWN_AGENT, uncollectedValue);
+        }
+
+    }
+
 
 }

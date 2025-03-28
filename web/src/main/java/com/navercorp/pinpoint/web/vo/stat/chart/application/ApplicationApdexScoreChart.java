@@ -7,28 +7,28 @@ import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
 import java.util.List;
 
-public class ApplicationApdexScoreChart extends DefaultApplicationChart<DoubleApplicationStatPoint, Double> {
+public class ApplicationApdexScoreChart extends DefaultApplicationChart<ApplicationStatPoint> {
 
-    private static final Point.UncollectedPointCreator<ApplicationStatPoint<Double>> UNCOLLECTED_POINT
-            = new DoubleApplicationStatPoint.UncollectedCreator(-1D);
+    private static final Point.UncollectedPointCreator<ApplicationStatPoint> UNCOLLECTED_POINT
+            = new ApplicationStatPoint.UncollectedCreator(-1D);
 
     public enum ApdexScoreChartType implements StatChartGroup.ApplicationChartType {
         APDEX_SCORE
     }
 
-    private static final ChartGroupBuilder<DoubleApplicationStatPoint, ApplicationStatPoint<Double>> BUILDER = newChartBuilder();
+    private static final ChartGroupBuilder<ApplicationStatPoint, ApplicationStatPoint> BUILDER = newChartBuilder();
 
-    static ChartGroupBuilder<DoubleApplicationStatPoint, ApplicationStatPoint<Double>> newChartBuilder() {
-        ChartGroupBuilder<DoubleApplicationStatPoint, ApplicationStatPoint<Double>> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
+    static ChartGroupBuilder<ApplicationStatPoint, ApplicationStatPoint> newChartBuilder() {
+        ChartGroupBuilder<ApplicationStatPoint, ApplicationStatPoint> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
         builder.addPointFunction(ApdexScoreChartType.APDEX_SCORE, ApplicationApdexScoreChart::newApdexScorePoint);
         return builder;
     }
 
-    public ApplicationApdexScoreChart(TimeWindow timeWindow, List<DoubleApplicationStatPoint> statList) {
+    public ApplicationApdexScoreChart(TimeWindow timeWindow, List<ApplicationStatPoint> statList) {
         super(timeWindow, statList, BUILDER);
     }
 
-    private static ApplicationStatPoint<Double> newApdexScorePoint(DoubleApplicationStatPoint apdexScore) {
+    private static ApplicationStatPoint newApdexScorePoint(ApplicationStatPoint apdexScore) {
         return apdexScore;
     }
 }

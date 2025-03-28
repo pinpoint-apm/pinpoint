@@ -20,7 +20,7 @@ public class ApdexScore {
     public record ApdexFormula(long satisfiedCount, long toleratingCount, long totalSamples) {
     }
 
-    public static double toDoubleFromHistogram(Histogram histogram) {
+    public static double calculateApdexScore(Histogram histogram) {
         Objects.requireNonNull(histogram, "histogram");
         final long satisfiedCount = histogram.getFastCount();
         final long toleratingCount = histogram.getNormalCount();

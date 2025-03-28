@@ -23,31 +23,8 @@ import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
  */
 public class UncollectedPointCreatorFactory {
 
-    public static Point.UncollectedPointCreator<AgentStatPoint<Integer>> createIntPointCreator(int uncollectedValue) {
-        return new Point.UncollectedPointCreator<AgentStatPoint<Integer>>() {
-            @Override
-            public AgentStatPoint<Integer> createUnCollectedPoint(long xVal) {
-                return new AgentStatPoint<>(xVal, uncollectedValue);
-            }
-        };
-    }
-
-    public static Point.UncollectedPointCreator<AgentStatPoint<Long>> createLongPointCreator(long uncollectedValue) {
-        return new Point.UncollectedPointCreator<AgentStatPoint<Long>>() {
-            @Override
-            public AgentStatPoint<Long> createUnCollectedPoint(long xVal) {
-                return new AgentStatPoint<>(xVal, uncollectedValue);
-            }
-        };
-    }
-
-    public static Point.UncollectedPointCreator<AgentStatPoint<Double>> createDoublePointCreator(double uncollectedValue) {
-        return new Point.UncollectedPointCreator<AgentStatPoint<Double>>() {
-            @Override
-            public AgentStatPoint<Double> createUnCollectedPoint(long xVal) {
-                return new AgentStatPoint<>(xVal, uncollectedValue);
-            }
-        };
+    public static Point.UncollectedPointCreator<AgentStatPoint> createDoublePointCreator(double uncollectedValue) {
+        return xVal -> new AgentStatPoint(xVal, uncollectedValue);
     }
 
 }
