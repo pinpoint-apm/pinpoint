@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import com.navercorp.pinpoint.web.vo.stat.SampledApdexScore;
-import com.navercorp.pinpoint.web.vo.stat.chart.application.DoubleApplicationStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationStatPoint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
@@ -95,13 +95,13 @@ public class AgentTimeHistogramTest {
         List<ResponseTime> responseHistogramList = createResponseTime(app, "test5", "test6");
         AgentTimeHistogram histogram = builder.build(responseHistogramList);
 
-        List<DoubleApplicationStatPoint> applicationStatPointList = histogram.getApplicationApdexScoreList(timeWindow);
+        List<ApplicationStatPoint> applicationStatPointList = histogram.getApplicationApdexScoreList(timeWindow);
         assertThat(applicationStatPointList).hasSize(2);
         assertThat(applicationStatPointList.get(0))
-                .extracting(DoubleApplicationStatPoint::getXVal, DoubleApplicationStatPoint::getYValForAvg)
+                .extracting(ApplicationStatPoint::getXVal, ApplicationStatPoint::getYValForAvg)
                 .containsExactly(0L, 1.0);
         assertThat(applicationStatPointList.get(1))
-                .extracting(DoubleApplicationStatPoint::getXVal, DoubleApplicationStatPoint::getYValForAvg)
+                .extracting(ApplicationStatPoint::getXVal, ApplicationStatPoint::getYValForAvg)
                 .containsExactly(1000L * 60, 0.5);
     }
 
