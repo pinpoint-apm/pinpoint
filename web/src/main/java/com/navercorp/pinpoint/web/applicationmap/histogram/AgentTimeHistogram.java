@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
 import com.google.common.collect.Ordering;
+import com.google.common.primitives.Doubles;
 import com.navercorp.pinpoint.common.server.util.json.JsonField;
 import com.navercorp.pinpoint.common.server.util.json.JsonFields;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
@@ -28,9 +29,10 @@ import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.stat.SampledApdexScore;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
-import com.navercorp.pinpoint.web.vo.stat.chart.application.DoubleApplicationStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationStatPoint;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -46,8 +48,8 @@ import java.util.Objects;
  */
 public class AgentTimeHistogram {
 
-    private static final Double DEFAULT_MIN_APDEX_SCORE = 2D;
-    private static final Double DEFAULT_MAX_APDEX_SCORE = -2D;
+    private static final double DEFAULT_MIN_APDEX_SCORE = 2D;
+    private static final double DEFAULT_MAX_APDEX_SCORE = -2D;
     private static final String DEFAULT_AGENT_ID = "defaultAgentId";
 
     private static final Comparator<JsonField<AgentNameView, List<TimeViewModel>>> AGENT_NAME_COMPARATOR
@@ -104,13 +106,13 @@ public class AgentTimeHistogram {
     public List<SampledApdexScore> getSampledAgentApdexScoreList(String agentName) {
         AgentHistogram agentHistogram = selectAgentHistogram(agentName);
         if (agentHistogram == null) {
-            return Collections.emptyList();
+            return List.of();
         }
 
         List<SampledApdexScore> result = new ArrayList<>();
         for (TimeHistogram timeHistogram : agentHistogram.getTimeHistogram()) {
             if (timeHistogram.getTotalCount() != 0) {
-                AgentStatPoint<Double> agentStatPoint = new AgentStatPoint<>(timeHistogram.getTimeStamp(), ApdexScore.toDoubleFromHistogram(timeHistogram));
+                AgentStatPoint agentStatPoint = new AgentStatPoint(timeHistogram.getTimeStamp(), ApdexScore.toDoubleFromHistogram(timeHistogram));
                 result.add(new SampledApdexScore(agentStatPoint));
             }
         }
@@ -127,11 +129,11 @@ public class AgentTimeHistogram {
         return null;
     }
 
-    public List<DoubleApplicationStatPoint> getApplicationApdexScoreList(TimeWindow window) {
+    public List<ApplicationStatPoint> getApplicationApdexScoreList(TimeWindow window) {
         int size = (int) window.getWindowRangeCount();
-        List<Double> min = fillList(size, DEFAULT_MIN_APDEX_SCORE);
+        List<Double> min = fillDoubleList(size, DEFAULT_MIN_APDEX_SCORE);
         List<String> minAgentId = fillList(size, DEFAULT_AGENT_ID);
-        List<Double> max = fillList(size, DEFAULT_MAX_APDEX_SCORE);
+        List<Double> max = fillDoubleList(size, DEFAULT_MAX_APDEX_SCORE);
         List<String> maxAgentId = fillList(size, DEFAULT_AGENT_ID);
 
         List<Histogram> sumHistogram = getDefaultHistograms(window, application.getServiceType());
@@ -152,11 +154,17 @@ public class AgentTimeHistogram {
             }
         }
 
-        return createDoubleApplicationStatPoints(window, min, minAgentId, max, maxAgentId, sumHistogram);
+        return createApplicationStatPoints(window, min, minAgentId, max, maxAgentId, sumHistogram);
     }
 
     private <T> List<T> fillList(int size, T defaultValue) {
         return new ArrayList<>(Collections.nCopies(size, defaultValue));
+    }
+
+    private List<Double> fillDoubleList(int size, double defaultValue) {
+        double[] values = new double[size];
+        Arrays.fill(values, 0, size, defaultValue);
+        return Doubles.asList(values);
     }
 
     private void updateMinMaxValue(int index, double apdex, String agentId,
@@ -171,14 +179,17 @@ public class AgentTimeHistogram {
         }
     }
 
-    private List<DoubleApplicationStatPoint> createDoubleApplicationStatPoints(TimeWindow window, List<Double> min, List<String> minAgentId, List<Double> max, List<String> maxAgentId, List<Histogram> sumHistogram) {
-        List<DoubleApplicationStatPoint> applicationStatPoints = new ArrayList<>();
+    private List<ApplicationStatPoint> createApplicationStatPoints(TimeWindow window,
+                                                                   List<Double> min, List<String> minAgentId,
+                                                                   List<Double> max, List<String> maxAgentId,
+                                                                   List<Histogram> sumHistogram) {
+        List<ApplicationStatPoint> applicationStatPoints = new ArrayList<>();
         for (long timestamp : window) {
             int index = window.getWindowIndex(timestamp);
             Histogram histogram = sumHistogram.get(index);
             if (histogram.getTotalCount() != 0) {
                 double avg = ApdexScore.toDoubleFromHistogram(histogram);
-                DoubleApplicationStatPoint point = new DoubleApplicationStatPoint(timestamp, min.get(index), minAgentId.get(index), max.get(index), maxAgentId.get(index), avg);
+                ApplicationStatPoint point = new ApplicationStatPoint(timestamp, min.get(index), minAgentId.get(index), max.get(index), maxAgentId.get(index), avg);
                 applicationStatPoints.add(point);
             }
         }

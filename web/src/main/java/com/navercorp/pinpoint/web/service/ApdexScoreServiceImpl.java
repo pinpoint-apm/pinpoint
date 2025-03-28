@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
@@ -8,14 +9,13 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogramBui
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApdexScore;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import com.navercorp.pinpoint.web.vo.stat.SampledApdexScore;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentApdexScoreChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationApdexScoreChart;
-import com.navercorp.pinpoint.web.vo.stat.chart.application.DoubleApplicationStatPoint;
+import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationStatPoint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -90,7 +90,7 @@ public class ApdexScoreServiceImpl implements ApdexScoreService {
         List<ResponseTime> responseTimeList = mapResponseDao.selectResponseTime(application, range);
         AgentTimeHistogram timeHistogram = createAgentTimeHistogram(application, timeWindow, responseTimeList);
 
-        List<DoubleApplicationStatPoint> applicationStatPoints = timeHistogram.getApplicationApdexScoreList(timeWindow);
+        List<ApplicationStatPoint> applicationStatPoints = timeHistogram.getApplicationApdexScoreList(timeWindow);
 
         return new ApplicationApdexScoreChart(timeWindow, applicationStatPoints);
     }
