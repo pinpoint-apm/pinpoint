@@ -37,7 +37,7 @@ public class DeltaProcessor implements FieldPostProcessor {
         List<SystemMetricPoint<Double>> postProcessedList = new ArrayList<>(systemMetricPointList.size());
 
         SystemMetricPoint<Double> prevPoint = systemMetricPointList.get(0);
-        postProcessedList.add(new SystemMetricPoint<>(prevPoint.getXVal(), 0.0));
+        postProcessedList.add(SystemMetricPoint.of(prevPoint.getXVal(), 0.0));
 
         for (int i = 1; i < systemMetricPointList.size(); i++) {
             SystemMetricPoint<Double> currentPoint = systemMetricPointList.get(i);
@@ -49,7 +49,7 @@ public class DeltaProcessor implements FieldPostProcessor {
                 deltaValue = currentValue;
             }
 
-            SystemMetricPoint<Double> deltaSystemMetricPoint = new SystemMetricPoint<>(currentPoint.getXVal(), deltaValue);
+            SystemMetricPoint<Double> deltaSystemMetricPoint = SystemMetricPoint.of(currentPoint.getXVal(), deltaValue);
             postProcessedList.add(deltaSystemMetricPoint);
             prevPoint = currentPoint;
         }

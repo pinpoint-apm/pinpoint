@@ -16,44 +16,45 @@
 
 package com.navercorp.pinpoint.metric.common.model.chart;
 
-import java.util.Objects;
-
 /**
  * @author minwoo-jung
  */
-public class MinMaxMetricPoint <Y extends Number> implements Point {
+public class MinMaxMetricPoint implements Point {
 
     private final long xValue;
 
-    private final Y minValue;
+    private final double minValue;
 
-    private final Y maxValue;
+    private final double maxValue;
 
-    public MinMaxMetricPoint(long xValue, Y minValue, Y maxValue) {
+    public MinMaxMetricPoint(long xValue, double minValue, double maxValue) {
         this.xValue = xValue;
         this.minValue = minValue;
         this.maxValue = maxValue;
     }
 
-    public Y getMinValue() {
+    public double getMinValue() {
         return minValue;
     }
 
-    public Y getMaxValue() {
+    public double getMaxValue() {
         return maxValue;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MinMaxMetricPoint<?> that = (MinMaxMetricPoint<?>) o;
-        return xValue == that.xValue && Objects.equals(minValue, that.minValue) && Objects.equals(maxValue, that.maxValue);
+
+        MinMaxMetricPoint that = (MinMaxMetricPoint) o;
+        return xValue == that.xValue && Double.compare(minValue, that.minValue) == 0 && Double.compare(maxValue, that.maxValue) == 0;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(xValue, minValue, maxValue);
+        int result = Long.hashCode(xValue);
+        result = 31 * result + Double.hashCode(minValue);
+        result = 31 * result + Double.hashCode(maxValue);
+        return result;
     }
 
     @Override

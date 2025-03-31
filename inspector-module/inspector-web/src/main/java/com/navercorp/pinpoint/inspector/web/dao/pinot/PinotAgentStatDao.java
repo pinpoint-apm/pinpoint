@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.inspector.web.dao.pinot;
 
-import com.navercorp.pinpoint.common.server.metric.dao.TableNameManager;
 import com.navercorp.pinpoint.common.model.SortKeyUtils;
 import com.navercorp.pinpoint.common.model.TagInformation;
+import com.navercorp.pinpoint.common.server.metric.dao.TableNameManager;
 import com.navercorp.pinpoint.inspector.web.config.InspectorWebProperties;
 import com.navercorp.pinpoint.inspector.web.dao.AgentStatDao;
 import com.navercorp.pinpoint.inspector.web.dao.model.InspectorQueryParameter;
@@ -31,7 +31,6 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -86,8 +85,7 @@ public class PinotAgentStatDao implements AgentStatDao {
 
     @Override
     public TagInformation getTagInfoContainedSpecificTag(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field, Tag tag) {
-        List<Tag> tagList = new ArrayList<Tag>();
-        tagList.add(tag);
+        List<Tag> tagList = List.of(tag);
         InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, getTableName(inspectorDataSearchKey), generateKeyForAgentStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), tagList);
 
         return syncTemplate.selectOne(NAMESPACE + "selectTagInfoContainedSpecificTag", inspectorQueryParameter);

@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.metric.web.model;
 
 import com.navercorp.pinpoint.metric.common.model.Tag;
-import com.navercorp.pinpoint.metric.common.model.chart.Point;
 import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 
 import java.util.List;
@@ -27,13 +26,6 @@ import java.util.Objects;
  * @author Hyunjoon Cho
  */
 public class SampledSystemMetric<T extends Number> {
-    public static final Number UNCOLLECTED_VALUE = -1;
-    public static final Point.UncollectedPointCreator<SystemMetricPoint<Number>> UNCOLLECTED_POINT_CREATOR = new Point.UncollectedPointCreator<SystemMetricPoint<Number>>() {
-        @Override
-        public SystemMetricPoint<Number> createUnCollectedPoint(long xVal) {
-            return new SystemMetricPoint<>(xVal, UNCOLLECTED_VALUE);
-        }
-    };
 
     private final SystemMetricPoint<T> systemMetricPoint;
     private final List<Tag> tags;
@@ -43,7 +35,7 @@ public class SampledSystemMetric<T extends Number> {
         this.tags = Objects.requireNonNull(tags, "tags");
     }
 
-    public SystemMetricPoint<T>  getPoint() {
+    public SystemMetricPoint<T> getPoint() {
         return systemMetricPoint;
     }
 
@@ -53,10 +45,9 @@ public class SampledSystemMetric<T extends Number> {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("SampledSystemMetric{");
-        sb.append("systemMetricPoint=").append(systemMetricPoint);
-        sb.append(", tags=").append(tags);
-        sb.append('}');
-        return sb.toString();
+        return "SampledSystemMetric{" +
+                "systemMetricPoint=" + systemMetricPoint +
+                ", tags=" + tags +
+                '}';
     }
 }

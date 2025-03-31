@@ -26,7 +26,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author Hyunjoon Cho
  */
-public interface SystemMetricDao<T extends Number> {
+public interface SystemMetricDao {
 
-    CompletableFuture<List<SystemMetricPoint<T>>> getAsyncSampledSystemMetricData(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag);
+    CompletableFuture<List<SystemMetricPoint<Double>>> getAsyncSampledSystemMetricData(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag);
 }

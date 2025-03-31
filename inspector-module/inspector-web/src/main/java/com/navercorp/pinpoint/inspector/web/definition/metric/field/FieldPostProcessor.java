@@ -25,7 +25,7 @@ import java.util.List;
  */
 public interface FieldPostProcessor {
 
-    public List<SystemMetricPoint<Double>> postProcess(List<SystemMetricPoint<Double>> systemMetricPointList);
+    List<SystemMetricPoint<Double>> postProcess(List<SystemMetricPoint<Double>> systemMetricPointList);
 
     String getName();
 }

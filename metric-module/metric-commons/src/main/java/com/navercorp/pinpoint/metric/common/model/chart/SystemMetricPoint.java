@@ -16,53 +16,19 @@
 
 package com.navercorp.pinpoint.metric.common.model.chart;
 
-import java.util.Objects;
-
 /**
  * @author Hyunjoon Cho
  */
-public class SystemMetricPoint <Y extends Number> implements Point {
+public interface SystemMetricPoint<Y extends Number> extends Point {
 
-    private final long xVal;
-    private final Y yVal;
+    Y getYVal();
 
-    public SystemMetricPoint(long xVal, Y yVal) {
-        this.xVal = xVal;
-        this.yVal = yVal;
+    static SystemMetricPoint<Long> of(long x, long y) {
+        return new LongSystemMetricPoint(x, y);
     }
 
-    @Override
-    public long getXVal() {
-        return xVal;
+    static SystemMetricPoint<Double> of(long x, double y) {
+        return new DoubleSystemMetricPoint(x, y);
     }
 
-    public Y getYVal() {
-        return yVal;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        SystemMetricPoint<?> that = (SystemMetricPoint<?>) o;
-
-        if (xVal != that.xVal) return false;
-        return Objects.equals(yVal, that.yVal);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = Long.hashCode(xVal);
-        result = 31 * result + (yVal != null ? yVal.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "SystemMetricPoint{" +
-                "xVal=" + xVal +
-                ", yVal=" + yVal +
-                '}';
-    }
 }

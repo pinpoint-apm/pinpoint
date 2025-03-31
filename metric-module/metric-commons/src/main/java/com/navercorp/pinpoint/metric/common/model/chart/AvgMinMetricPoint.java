@@ -16,30 +16,28 @@
 
 package com.navercorp.pinpoint.metric.common.model.chart;
 
-import java.util.Objects;
-
 /**
  * @author minwoo-jung
  */
-public class AvgMinMetricPoint <Y extends Number> implements Point {
+public class AvgMinMetricPoint implements Point {
 
     private final long xValue;
 
-    private final Y avgValue;
+    private final double avgValue;
 
-    private final Y minValue;
+    private final double minValue;
 
-    public AvgMinMetricPoint(long xValue, Y avgValue, Y minValue) {
+    public AvgMinMetricPoint(long xValue, double avgValue, double minValue) {
         this.xValue = xValue;
         this.avgValue = avgValue;
         this.minValue = minValue;
     }
 
-    public Y getAvgValue() {
+    public double getAvgValue() {
         return avgValue;
     }
 
-    public Y getMinValue() {
+    public double getMinValue() {
         return minValue;
     }
 
@@ -50,14 +48,17 @@ public class AvgMinMetricPoint <Y extends Number> implements Point {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AvgMinMetricPoint<?> that = (AvgMinMetricPoint<?>) o;
-        return xValue == that.xValue && Objects.equals(avgValue, that.avgValue) && Objects.equals(minValue, that.minValue);
+
+        AvgMinMetricPoint that = (AvgMinMetricPoint) o;
+        return xValue == that.xValue && Double.compare(avgValue, that.avgValue) == 0 && Double.compare(minValue, that.minValue) == 0;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(xValue, avgValue, minValue);
+        int result = Long.hashCode(xValue);
+        result = 31 * result + Double.hashCode(avgValue);
+        result = 31 * result + Double.hashCode(minValue);
+        return result;
     }
 }
