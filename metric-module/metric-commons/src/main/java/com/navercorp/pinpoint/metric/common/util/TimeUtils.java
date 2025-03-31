@@ -18,22 +18,19 @@ package com.navercorp.pinpoint.metric.common.util;
 
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author minwoo-jung
  */
+@Deprecated
 public class TimeUtils {
-
+    /**
+     * @deprecated Since 3.1.0. Use {@link TimeWindow#getTimeseriesWindows()} instead.
+     */
+    @Deprecated
     public static List<Long> createTimeStampList(TimeWindow timeWindow) {
-        List<Long> timestampList = new ArrayList<>(timeWindow.getWindowRangeCount());
-
-        for (Long timestamp : timeWindow) {
-            timestampList.add(timestamp);
-        }
-
-        return timestampList;
+        return timeWindow.getTimeseriesWindows();
     }
 
 }

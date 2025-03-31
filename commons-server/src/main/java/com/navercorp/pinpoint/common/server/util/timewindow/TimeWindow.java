@@ -20,19 +20,16 @@ import com.navercorp.pinpoint.common.server.util.time.Range;
 
 import java.time.Instant;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.List;
 import java.util.Objects;
 
 /**
  * 
  * @author netspider
- * 
  */
 public class TimeWindow implements Iterable<Long>, TimeWindowFunction {
 
     private final long windowSlotSize;
-
-    private final Range range;
 
     private final Range windowRange;
 
@@ -43,10 +40,10 @@ public class TimeWindow implements Iterable<Long>, TimeWindowFunction {
     }
 
     public TimeWindow(Range range, TimeWindowSampler sampler) {
-        this.range = Objects.requireNonNull(range, "range");
+        Objects.requireNonNull(range, "range");
         Objects.requireNonNull(sampler, "sampler");
         this.windowSlotSize = sampler.getWindowSize(range);
-        this.windowRange = createWindowRange();
+        this.windowRange = createWindowRange(range);
         this.windowRangeCount = computeWindowRangeCount(windowRange.durationMillis(), windowSlotSize);
     }
 
@@ -58,8 +55,19 @@ public class TimeWindow implements Iterable<Long>, TimeWindowFunction {
         return Math.toIntExact(count);
     }
 
+    @Override
     public Iterator<Long> iterator() {
-        return new Itr();
+        final int size = this.getWindowRangeCount();
+        final long start = windowRange.getFrom();
+        final long increment = getWindowSlotSize();
+        return new TimeSeriesIterator(size, start, increment);
+    }
+
+    public List<Long> getTimeseriesWindows() {
+        final int size = this.getWindowRangeCount();
+        final long start = windowRange.getFrom();
+        final long increment = getWindowSlotSize();
+        return new TimeSeriesVirtualList(size, start, increment);
     }
 
     /**
@@ -91,7 +99,7 @@ public class TimeWindow implements Iterable<Long>, TimeWindowFunction {
         return  Range.between(scanFrom, Instant.ofEpochMilli(scanTo));
     }
 
-    private Range createWindowRange() {
+    private Range createWindowRange(Range range) {
         long from = refineTimestamp(range.getFrom());
         long to = refineTimestamp(range.getTo());
         return Range.between(from, to);
@@ -99,37 +107,7 @@ public class TimeWindow implements Iterable<Long>, TimeWindowFunction {
 
     public int getWindowIndex(long time) {
         long index = (time - windowRange.getFrom()) / this.windowSlotSize;
-        return (int)index;
+        return (int) index;
     }
 
-    private class Itr implements Iterator<Long> {
-
-        private long cursor;
-        private final long end;
-
-        public Itr() {
-            this.cursor = windowRange.getFrom();
-            this.end = windowRange.getTo();
-        }
-
-        @Override
-        public boolean hasNext() {
-            return cursor <= end;
-        }
-
-        @Override
-        public Long next() {
-            long current = cursor;
-            if (hasNext()) {
-                cursor += windowSlotSize;
-                return current;
-            }
-            throw new NoSuchElementException();
-        }
-
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
-    }
 }

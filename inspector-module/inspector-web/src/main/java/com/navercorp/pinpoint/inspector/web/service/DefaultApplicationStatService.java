@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.metric.common.model.chart.Point;
 import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 import com.navercorp.pinpoint.metric.common.util.DoubleUncollectedDataCreator;
 import com.navercorp.pinpoint.metric.common.util.TimeSeriesBuilder;
-import com.navercorp.pinpoint.metric.common.util.TimeUtils;
 import com.navercorp.pinpoint.metric.common.util.UncollectedDataCreator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -91,7 +90,7 @@ public class DefaultApplicationStatService implements ApplicationStatService {
 
         List<InspectorMetricValue> processedMetricValueList = postprocessMetricData(metricDefinition, metricValueList);
         processedMetricValueList = sortingMetricValueList(processedMetricValueList);
-        List<Long> timeStampList = TimeUtils.createTimeStampList(timeWindow);
+        List<Long> timeStampList = timeWindow.getTimeseriesWindows();
         return new InspectorMetricData(metricDefinition.getTitle(), timeStampList, processedMetricValueList);
     }
 
@@ -157,7 +156,7 @@ public class DefaultApplicationStatService implements ApplicationStatService {
 
 
         List<InspectorMetricValue> processedMetricValueList = postprocessMetricData(newMetricDefinition, metricValueList);
-        List<Long> timeStampList = TimeUtils.createTimeStampList(timeWindow);
+        List<Long> timeStampList = timeWindow.getTimeseriesWindows();
         Map<List<Tag>, List<InspectorMetricValue>> metricValueGroups = groupingMetricValue(processedMetricValueList, metricDefinition);
         metricValueGroups = sortingMetricValueGroups(metricValueGroups);
         return new InspectorMetricGroupData(metricDefinition.getTitle(), timeStampList, metricValueGroups);
