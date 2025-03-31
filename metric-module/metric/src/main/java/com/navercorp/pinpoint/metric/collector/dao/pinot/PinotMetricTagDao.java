@@ -64,7 +64,7 @@ public class PinotMetricTagDao implements MetricTagDao {
     @Override
     public void insertMetricTag(MetricTag metricTag) {
         MetricJsonTag metricJsonTag = MetricJsonTag.covertMetricJsonTag(tagListTypeHandler, metricTag);
-        CompletableFuture<SendResult<String, MetricJsonTag>> callBack = kafkaTagTemplate.send(topic, metricTag.getHostGroupName(), metricJsonTag);
+        CompletableFuture<SendResult<String, MetricJsonTag>> callBack = kafkaTagTemplate.send(topic, metricTag.getHostName(), metricJsonTag);
         callBack.whenComplete(resultCallback);
     }
 
