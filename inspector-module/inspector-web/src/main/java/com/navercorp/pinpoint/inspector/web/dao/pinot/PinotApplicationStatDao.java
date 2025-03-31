@@ -52,13 +52,13 @@ public class PinotApplicationStatDao implements ApplicationStatDao {
     }
 
     @Override
-    public CompletableFuture<List<AvgMinMaxMetricPoint<Double>>> selectStatAvgMinMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
+    public CompletableFuture<List<AvgMinMaxMetricPoint>> selectStatAvgMinMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
         InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, generateKeyForApplicationStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorAvgMinMaxData", inspectorQueryParameter);
     }
 
     @Override
-    public CompletableFuture<List<MinMaxMetricPoint<Double>>> selectStatMinMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
+    public CompletableFuture<List<MinMaxMetricPoint>> selectStatMinMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
         InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, generateKeyForApplicationStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorMinMaxData", inspectorQueryParameter);
     }
@@ -70,7 +70,7 @@ public class PinotApplicationStatDao implements ApplicationStatDao {
     }
 
     @Override
-    public CompletableFuture<List<AvgMinMetricPoint<Double>>> selectStatAvgMin(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
+    public CompletableFuture<List<AvgMinMetricPoint>> selectStatAvgMin(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
         InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, generateKeyForApplicationStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorAvgMinData", inspectorQueryParameter);
     }

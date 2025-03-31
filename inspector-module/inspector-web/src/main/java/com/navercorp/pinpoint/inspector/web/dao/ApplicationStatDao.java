@@ -32,13 +32,13 @@ import java.util.concurrent.CompletableFuture;
  * @author minwoo-jung
  */
 public interface ApplicationStatDao {
-    CompletableFuture<List<AvgMinMaxMetricPoint<Double>>> selectStatAvgMinMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
+    CompletableFuture<List<AvgMinMaxMetricPoint>> selectStatAvgMinMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 
-    CompletableFuture<List<MinMaxMetricPoint<Double>>>  selectStatMinMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
+    CompletableFuture<List<MinMaxMetricPoint>>  selectStatMinMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 
     CompletableFuture<List<SystemMetricPoint<Double>>>  selectStatSum(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 
-    CompletableFuture<List<AvgMinMetricPoint<Double>>> selectStatAvgMin(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
+    CompletableFuture<List<AvgMinMetricPoint>> selectStatAvgMin(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 
     CompletableFuture<List<SystemMetricPoint<Double>>> selectStatMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 

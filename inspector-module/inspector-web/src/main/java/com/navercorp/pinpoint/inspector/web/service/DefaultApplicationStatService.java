@@ -19,12 +19,12 @@ import com.navercorp.pinpoint.inspector.web.model.InspectorMetricValue;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMaxMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMetricPoint;
+import com.navercorp.pinpoint.metric.common.model.chart.DoubleSystemMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.MinMaxMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.Point;
 import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
-import com.navercorp.pinpoint.metric.common.util.DoubleUncollectedDataCreator;
+import com.navercorp.pinpoint.metric.common.util.PointCreator;
 import com.navercorp.pinpoint.metric.common.util.TimeSeriesBuilder;
-import com.navercorp.pinpoint.metric.common.util.UncollectedDataCreator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -71,17 +71,17 @@ public class DefaultApplicationStatService implements ApplicationStatService {
             for (QueryResult result : queryResults) {
                 Class<?> resultType = result.resultType();
                 if (resultType.equals(AvgMinMaxMetricPoint.class)) {
-                    List<AvgMinMaxMetricPoint<Double>> doubleList = (List<AvgMinMaxMetricPoint<Double>>) await(result.future());
-                    metricValueList.addAll(splitAvgMinMax(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
+                    List<AvgMinMaxMetricPoint> doubleList = (List<AvgMinMaxMetricPoint>) await(result.future());
+                    metricValueList.addAll(splitAvgMinMax(timeWindow, result.field(), doubleList));
                 } else if (resultType.equals(AvgMinMetricPoint.class)) {
-                    List<AvgMinMetricPoint<Double>> doubleList = (List<AvgMinMetricPoint<Double>>) await(result.future());
-                    metricValueList.addAll(splitAvgMin(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
+                    List<AvgMinMetricPoint> doubleList = (List<AvgMinMetricPoint>) await(result.future());
+                    metricValueList.addAll(splitAvgMin(timeWindow, result.field(), doubleList));
                 } else if (resultType.equals(MinMaxMetricPoint.class)) {
-                    List<MinMaxMetricPoint<Double>> doubleList = (List<MinMaxMetricPoint<Double>>) await(result.future());
-                    metricValueList.addAll(splitMinMax(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
-                } else if (resultType.equals(SystemMetricPoint.class)) {
+                    List<MinMaxMetricPoint> doubleList = (List<MinMaxMetricPoint>) await(result.future());
+                    metricValueList.addAll(splitMinMax(timeWindow, result.field(), doubleList));
+                } else if (resultType.equals(DoubleSystemMetricPoint.class)) {
                     List<SystemMetricPoint<Double>> doubleList = (List<SystemMetricPoint<Double>>) await(result.future());
-                    metricValueList.add(createInspectorMetricValue(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
+                    metricValueList.add(createInspectorMetricValue(timeWindow, result.field(), doubleList));
                 } else {
                     throw new RuntimeException("not support result type : " + result.resultType());
                 }
@@ -140,17 +140,17 @@ public class DefaultApplicationStatService implements ApplicationStatService {
         for (QueryResult result : queryResults) {
             Class<?> resultType = result.resultType();
             if (resultType.equals(AvgMinMaxMetricPoint.class)) {
-                List<AvgMinMaxMetricPoint<Double>> doubleList = (List<AvgMinMaxMetricPoint<Double>>) await(result.future());
-                metricValueList.addAll(splitAvgMinMax(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
+                List<AvgMinMaxMetricPoint> doubleList = (List<AvgMinMaxMetricPoint>) await(result.future());
+                metricValueList.addAll(splitAvgMinMax(timeWindow, result.field(), doubleList));
             } else if (resultType.equals(AvgMinMetricPoint.class)) {
-                List<AvgMinMetricPoint<Double>> doubleList = (List<AvgMinMetricPoint<Double>>) await(result.future());
-                metricValueList.addAll(splitAvgMin(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
+                List<AvgMinMetricPoint> doubleList = (List<AvgMinMetricPoint>) await(result.future());
+                metricValueList.addAll(splitAvgMin(timeWindow, result.field(), doubleList));
             } else if (resultType.equals(MinMaxMetricPoint.class)) {
-                List<MinMaxMetricPoint<Double>> doubleList = (List<MinMaxMetricPoint<Double>>) await(result.future());
-                metricValueList.addAll(splitMinMax(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
-            } else if (resultType.equals(SystemMetricPoint.class)) {
+                List<MinMaxMetricPoint> doubleList = (List<MinMaxMetricPoint>) await(result.future());
+                metricValueList.addAll(splitMinMax(timeWindow, result.field(), doubleList));
+            } else if (resultType.equals(DoubleSystemMetricPoint.class)) {
                 List<SystemMetricPoint<Double>> doubleList = (List<SystemMetricPoint<Double>>) await(result.future());
-                metricValueList.add(createInspectorMetricValue(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR));
+                metricValueList.add(createInspectorMetricValue(timeWindow, result.field(), doubleList));
             } else {
                 throw new RuntimeException("not support result type : " + result.resultType());
             }
@@ -193,26 +193,25 @@ public class DefaultApplicationStatService implements ApplicationStatService {
     }
 
     private InspectorMetricValue createInspectorMetricValue(TimeWindow timeWindow, Field field,
-                                                            List<SystemMetricPoint<Double>> sampledSystemMetricDataList,
-                                                            UncollectedDataCreator<Double> uncollectedDataCreator) {
-        TimeSeriesBuilder<Double> builder = new TimeSeriesBuilder<>(timeWindow, uncollectedDataCreator);
-        List<SystemMetricPoint<Double>> filledSystemMetricDataList = builder.build(sampledSystemMetricDataList);
+                                                            List<SystemMetricPoint<Double>> sampledSystemMetricDataList) {
+        TimeSeriesBuilder builder = new TimeSeriesBuilder(timeWindow);
+        List<SystemMetricPoint<Double>> filledSystemMetricDataList = builder.buildDoubleMetric(PointCreator::doublePoint, sampledSystemMetricDataList);
 
-        List<Double> valueList = DoubleArray.asList(filledSystemMetricDataList, SystemMetricPoint::getYVal);
+        List<Double> valueList = DoubleArray.asList(filledSystemMetricDataList, DoubleSystemMetricPoint::getRawY);
 
         return newInspectorMetric(field.getFieldAlias(), field, valueList);
     }
 
-    private List<InspectorMetricValue> splitMinMax(TimeWindow timeWindow, Field field, List<MinMaxMetricPoint<Double>> doubleList, UncollectedDataCreator<Double> uncollectedDataCreator) {
-        TimeSeriesBuilder<Double> builder = new TimeSeriesBuilder<>(timeWindow, uncollectedDataCreator);
-        List<MinMaxMetricPoint<Double>> filledSystemMetricDataList = builder.buildForMinMaxMetricPointList(doubleList);
+    private List<InspectorMetricValue> splitMinMax(TimeWindow timeWindow, Field field, List<MinMaxMetricPoint> doubleList) {
+        TimeSeriesBuilder builder = new TimeSeriesBuilder(timeWindow);
+        List<MinMaxMetricPoint> filledSystemMetricDataList = builder.buildForMinMaxMetricPointList(PointCreator::createMinMaxMetricPoint, doubleList);
 
         final int size = filledSystemMetricDataList.size();
         double[] minValueList = new double[size];
         double[] maxValueList = new double[size];
 
         int i = 0;
-        for (MinMaxMetricPoint<Double> avgMinMaxMetricPoint : filledSystemMetricDataList) {
+        for (MinMaxMetricPoint avgMinMaxMetricPoint : filledSystemMetricDataList) {
             minValueList[i] = avgMinMaxMetricPoint.getMinValue();
             maxValueList[i] = avgMinMaxMetricPoint.getMaxValue();
             i++;
@@ -224,16 +223,16 @@ public class DefaultApplicationStatService implements ApplicationStatService {
         );
     }
 
-    private Collection<InspectorMetricValue> splitAvgMin(TimeWindow timeWindow, Field field, List<AvgMinMetricPoint<Double>> doubleList, UncollectedDataCreator<Double> uncollectedDataCreator) {
-        TimeSeriesBuilder<Double> builder = new TimeSeriesBuilder<>(timeWindow, uncollectedDataCreator);
-        List<AvgMinMetricPoint<Double>> filledSystemMetricDataList = builder.buildForAvgMinMetricPointList(doubleList);
+    private Collection<InspectorMetricValue> splitAvgMin(TimeWindow timeWindow, Field field, List<AvgMinMetricPoint> doubleList) {
+        TimeSeriesBuilder builder = new TimeSeriesBuilder(timeWindow);
+        List<AvgMinMetricPoint> filledSystemMetricDataList = builder.buildForAvgMinMetricPointList(PointCreator::createAvgMinMetricPoint, doubleList);
 
         final int size = filledSystemMetricDataList.size();
         final double[] avgValueList = new double[size];
         final double[] minValueList = new double[size];
 
         int i =0;
-        for (AvgMinMetricPoint<Double> avgMinMetricPoint : filledSystemMetricDataList) {
+        for (AvgMinMetricPoint avgMinMetricPoint : filledSystemMetricDataList) {
             avgValueList[i] = avgMinMetricPoint.getAvgValue();
             minValueList[i] = avgMinMetricPoint.getMinValue();
             i++;
@@ -249,9 +248,9 @@ public class DefaultApplicationStatService implements ApplicationStatService {
         return new InspectorMetricValue(fieldName, field.getTags(), field.getChartType(), field.getUnit(), minValueList);
     }
 
-    private List<InspectorMetricValue> splitAvgMinMax(TimeWindow timeWindow, Field field, List<AvgMinMaxMetricPoint<Double>> doubleList, UncollectedDataCreator<Double> uncollectedDataCreator) {
-        TimeSeriesBuilder<Double> builder = new TimeSeriesBuilder<>(timeWindow, uncollectedDataCreator);
-        List<AvgMinMaxMetricPoint<Double>> filledSystemMetricDataList = builder.buildForAvgMinMaxMetricPointList(doubleList);
+    private List<InspectorMetricValue> splitAvgMinMax(TimeWindow timeWindow, Field field, List<AvgMinMaxMetricPoint> doubleList) {
+        TimeSeriesBuilder builder = new TimeSeriesBuilder(timeWindow);
+        List<AvgMinMaxMetricPoint> filledSystemMetricDataList = builder.buildForAvgMinMaxMetricPointList(PointCreator::createAvgMinMaxMetricPoint, doubleList);
 
         final int size = filledSystemMetricDataList.size();
         final double[] avgValueList = new double[size];
@@ -259,7 +258,7 @@ public class DefaultApplicationStatService implements ApplicationStatService {
         final double[] maxValueList = new double[size];
 
         int i = 0;
-        for (AvgMinMaxMetricPoint<Double> avgMinMaxMetricPoint : filledSystemMetricDataList) {
+        for (AvgMinMaxMetricPoint avgMinMaxMetricPoint : filledSystemMetricDataList) {
             avgValueList[i] = avgMinMaxMetricPoint.getAvgValue();
             minValueList[i] = avgMinMaxMetricPoint.getMinValue();
             maxValueList[i] = avgMinMaxMetricPoint.getMaxValue();
@@ -291,10 +290,10 @@ public class DefaultApplicationStatService implements ApplicationStatService {
                 resultType = MinMaxMetricPoint.class;
             } else if (AggregationFunction.SUM.equals(field.getAggregationFunction())) {
                 doubleFuture = applicationStatDao.selectStatSum(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
-                resultType = SystemMetricPoint.class;
+                resultType = DoubleSystemMetricPoint.class;
             } else if (AggregationFunction.MAX.equals(field.getAggregationFunction())) {
                 doubleFuture = applicationStatDao.selectStatMax(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
-                resultType = SystemMetricPoint.class;
+                resultType = DoubleSystemMetricPoint.class;
             } else {
                 throw new RuntimeException("not support aggregation function : " + field.getAggregationFunction());
             }

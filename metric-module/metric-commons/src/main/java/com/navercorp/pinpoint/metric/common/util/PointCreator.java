@@ -24,27 +24,32 @@ import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 /**
  * @author minwoo.jung
  */
-public class LongUncollectedDataCreator implements UncollectedDataCreator<Long> {
-    public static final Long UNCOLLECTED_VALUE = -1L;
-    public static final UncollectedDataCreator<Long> UNCOLLECTED_DATA_CREATOR = new LongUncollectedDataCreator();
+public class PointCreator {
+    public static final long UNCOLLECTED_LONG = -1L;
+    public static final double UNCOLLECTED_DOUBLE = -1D;
 
-    @Override
-    public SystemMetricPoint<Long> createUnCollectedPoint(long xVal) {
-        return new SystemMetricPoint<>(xVal, UNCOLLECTED_VALUE);
+
+    public static SystemMetricPoint<Double> doublePoint(long xVal) {
+        return SystemMetricPoint.of(xVal, UNCOLLECTED_DOUBLE);
     }
 
-    @Override
-    public AvgMinMaxMetricPoint<Long> createUnCollectedAvgMinMaxMetricPoint(long xVal) {
-        return new AvgMinMaxMetricPoint<>(xVal, UNCOLLECTED_VALUE, UNCOLLECTED_VALUE, UNCOLLECTED_VALUE);
+    public static SystemMetricPoint<Long> longPoint(long xVal) {
+        return SystemMetricPoint.of(xVal, UNCOLLECTED_LONG);
     }
 
-    @Override
-    public MinMaxMetricPoint<Long> createUnCollectedMinMaxMetricPoint(long xVal) {
-        return new MinMaxMetricPoint<>(xVal, UNCOLLECTED_VALUE, UNCOLLECTED_VALUE);
+    //------------
+
+    public static AvgMinMaxMetricPoint createAvgMinMaxMetricPoint(long xVal) {
+        return new AvgMinMaxMetricPoint(xVal, UNCOLLECTED_DOUBLE, UNCOLLECTED_DOUBLE, UNCOLLECTED_DOUBLE);
     }
 
-    @Override
-    public AvgMinMetricPoint<Long> createUnCollectedAvgMinMetricPoint(long xVal) {
-        return new AvgMinMetricPoint<>(xVal, UNCOLLECTED_VALUE, UNCOLLECTED_VALUE);
+    public static MinMaxMetricPoint createMinMaxMetricPoint(long xVal) {
+        return new MinMaxMetricPoint(xVal, UNCOLLECTED_DOUBLE, UNCOLLECTED_DOUBLE);
     }
+
+    public static AvgMinMetricPoint createAvgMinMetricPoint(long xVal) {
+        return new AvgMinMetricPoint(xVal, UNCOLLECTED_DOUBLE, UNCOLLECTED_DOUBLE);
+    }
+
+
 }

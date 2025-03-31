@@ -20,129 +20,68 @@ import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMaxMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.MinMaxMetricPoint;
+import com.navercorp.pinpoint.metric.common.model.chart.Point;
 import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.LongFunction;
 
 /**
  * @author minwoo-jung
  */
-public class TimeSeriesBuilder<T extends Number> {
+public class TimeSeriesBuilder {
 
     private final TimeWindow timeWindow;
-    private final UncollectedDataCreator<T> uncollectedDataCreator;
 
-    public TimeSeriesBuilder(TimeWindow timeWindow, UncollectedDataCreator<T> uncollectedDataCreator) {
+    public TimeSeriesBuilder(TimeWindow timeWindow) {
         this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
-        this.uncollectedDataCreator = Objects.requireNonNull(uncollectedDataCreator, "uncollectedDataCreator");
     }
-
 
     // TODO: (minwoo) Remove method duplication
-    public List<MinMaxMetricPoint<T>> buildForMinMaxMetricPointList(List<MinMaxMetricPoint<T>> minMaxMetricDataList) {
-        List<MinMaxMetricPoint<T>> filledMinMaxMetricPointList = createInitialMinMaxMetricPoint();
+    public List<MinMaxMetricPoint> buildForMinMaxMetricPointList(LongFunction<MinMaxMetricPoint> creator, List<MinMaxMetricPoint> minMaxMetricDataList) {
+        return buildPointList(creator, minMaxMetricDataList);
+    }
+
+    public List<AvgMinMetricPoint> buildForAvgMinMetricPointList(LongFunction<AvgMinMetricPoint> creator, List<AvgMinMetricPoint> avgMinMetricDataList) {
+        return buildPointList(creator, avgMinMetricDataList);
+    }
+
+    public List<AvgMinMaxMetricPoint> buildForAvgMinMaxMetricPointList(LongFunction<AvgMinMaxMetricPoint> creator, List<AvgMinMaxMetricPoint> avgMinMaxMetricDataList) {
+        return buildPointList(creator, avgMinMaxMetricDataList);
+    }
+
+    public List<SystemMetricPoint<Double>> buildDoubleMetric(LongFunction<SystemMetricPoint<Double>> creator, List<SystemMetricPoint<Double>> systemMetricDataList) {
+        return buildPointList(creator, systemMetricDataList);
+    }
+
+    public List<SystemMetricPoint<Long>> buildLongMetric(LongFunction<SystemMetricPoint<Long>> creator, List<SystemMetricPoint<Long>> systemMetricDataList) {
+        return buildPointList(creator, systemMetricDataList);
+    }
+
+    private <T extends Point> List<T> buildPointList(LongFunction<T> creator, List<T> dataList) {
+        final List<T> pointList = fillPoint(creator);
 
         final int windowRangeCount = timeWindow.getWindowRangeCount();
-        for (MinMaxMetricPoint<T> minMaxMetricPoint : minMaxMetricDataList) {
-            int timeslotIndex = this.timeWindow.getWindowIndex(minMaxMetricPoint.getXVal());
+        for (T point : dataList) {
+            final int timeslotIndex = this.timeWindow.getWindowIndex(point.getXVal());
             if (timeslotIndex < 0 || timeslotIndex >= windowRangeCount) {
                 continue;
             }
-            filledMinMaxMetricPointList.set(timeslotIndex, minMaxMetricPoint);
+            pointList.set(timeslotIndex, point);
         }
-
-        return filledMinMaxMetricPointList;
+        return pointList;
     }
 
-    public List<AvgMinMetricPoint<T>> buildForAvgMinMetricPointList(List<AvgMinMetricPoint<T>> avgMinMetricDataList) {
-        List<AvgMinMetricPoint<T>> filledAvgMinMetricPointList = createInitialAvgMinMetricPoint();
-
-        final int windowRangeCount = timeWindow.getWindowRangeCount();
-        for (AvgMinMetricPoint<T> avgMinMetricPoint : avgMinMetricDataList) {
-            int timeslotIndex = this.timeWindow.getWindowIndex(avgMinMetricPoint.getXVal());
-            if (timeslotIndex < 0 || timeslotIndex >= windowRangeCount) {
-                continue;
-            }
-            filledAvgMinMetricPointList.set(timeslotIndex, avgMinMetricPoint);
-        }
-
-        return filledAvgMinMetricPointList;
-    }
-
-    private List<AvgMinMetricPoint<T>> createInitialAvgMinMetricPoint() {
+    private <T> List<T> fillPoint(LongFunction<T> creator) {
         int numTimeslots = this.timeWindow.getWindowRangeCount();
-        List<AvgMinMetricPoint<T>> pointList = new ArrayList<>(numTimeslots);
+        List<T> pointList = new ArrayList<>(numTimeslots);
 
         for (long timestamp : this.timeWindow) {
-            pointList.add(uncollectedDataCreator.createUnCollectedAvgMinMetricPoint(timestamp));
+            pointList.add(creator.apply(timestamp));
         }
 
         return pointList;
     }
-
-    private List<MinMaxMetricPoint<T>> createInitialMinMaxMetricPoint() {
-        int numTimeslots = this.timeWindow.getWindowRangeCount();
-        List<MinMaxMetricPoint<T>> pointList = new ArrayList<>(numTimeslots);
-
-        for (long timestamp : this.timeWindow) {
-            pointList.add(uncollectedDataCreator.createUnCollectedMinMaxMetricPoint(timestamp));
-        }
-
-        return pointList;
-    }
-
-    public List<AvgMinMaxMetricPoint<T>> buildForAvgMinMaxMetricPointList(List<AvgMinMaxMetricPoint<T>> avgMinMaxMetricDataList) {
-        List<AvgMinMaxMetricPoint<T>> filledAvgMinMaxMetricPointList = createInitialAvgMinMaxMetricPoint();
-
-        final int windowRangeCount = timeWindow.getWindowRangeCount();
-        for (AvgMinMaxMetricPoint<T> avgMinMaxMetricPoint : avgMinMaxMetricDataList) {
-            int timeslotIndex = this.timeWindow.getWindowIndex(avgMinMaxMetricPoint.getXVal());
-            if (timeslotIndex < 0 || timeslotIndex >= windowRangeCount) {
-                continue;
-            }
-            filledAvgMinMaxMetricPointList.set(timeslotIndex, avgMinMaxMetricPoint);
-        }
-
-        return filledAvgMinMaxMetricPointList;
-    }
-
-    private List<AvgMinMaxMetricPoint<T>> createInitialAvgMinMaxMetricPoint() {
-        int numTimeslots = this.timeWindow.getWindowRangeCount();
-        List<AvgMinMaxMetricPoint<T>> pointList = new ArrayList<>(numTimeslots);
-
-        for (long timestamp : this.timeWindow) {
-            pointList.add(uncollectedDataCreator.createUnCollectedAvgMinMaxMetricPoint(timestamp));
-        }
-
-        return pointList;
-    }
-
-    public List<SystemMetricPoint<T>> build(List<SystemMetricPoint<T>> systemMetricDataList) {
-        List<SystemMetricPoint<T>> filledSystemMetricPointList = createInitialPoints();
-
-        final int windowRangeCount = timeWindow.getWindowRangeCount();
-        for (SystemMetricPoint<T> systemMetricPoint : systemMetricDataList) {
-            int timeslotIndex = this.timeWindow.getWindowIndex(systemMetricPoint.getXVal());
-            if (timeslotIndex < 0 || timeslotIndex >= windowRangeCount) {
-                continue;
-            }
-            filledSystemMetricPointList.set(timeslotIndex, systemMetricPoint);
-        }
-
-        return filledSystemMetricPointList;
-    }
-
-    private List<SystemMetricPoint<T>> createInitialPoints() {
-        int numTimeslots = this.timeWindow.getWindowRangeCount();
-        List<SystemMetricPoint<T>> pointList = new ArrayList<>(numTimeslots);
-
-        for (long timestamp : this.timeWindow) {
-            pointList.add(uncollectedDataCreator.createUnCollectedPoint(timestamp));
-        }
-
-        return pointList;
-    }
-
 }

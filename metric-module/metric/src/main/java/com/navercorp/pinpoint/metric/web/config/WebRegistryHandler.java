@@ -1,19 +1,20 @@
 package com.navercorp.pinpoint.metric.web.config;
 
-import com.navercorp.pinpoint.metric.common.config.CommonRegistryHandler;
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.metric.common.config.CommonRegistryHandler;
 import com.navercorp.pinpoint.metric.common.model.Tag;
+import com.navercorp.pinpoint.metric.common.model.chart.DoubleSystemMetricPoint;
+import com.navercorp.pinpoint.metric.common.model.chart.LongSystemMetricPoint;
+import com.navercorp.pinpoint.metric.common.mybatis.typehandler.TagTypeHandler;
 import com.navercorp.pinpoint.metric.web.dao.model.HostInfoSearchKey;
 import com.navercorp.pinpoint.metric.web.dao.model.MetricInfoSearchKey;
 import com.navercorp.pinpoint.metric.web.dao.model.MetricTagsSearchKey;
 import com.navercorp.pinpoint.metric.web.dao.model.SystemMetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.SampledSystemMetric;
-import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.DoubleToLongTypeHandler;
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.DoubleTypeHandler;
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.LongTypeHandler;
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.TagListTypeHandler;
-import com.navercorp.pinpoint.metric.common.mybatis.typehandler.TagTypeHandler;
 import com.navercorp.pinpoint.metric.web.util.MetricsQueryParameter;
 import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
 import org.apache.ibatis.type.TypeAliasRegistry;
@@ -42,7 +43,8 @@ public class WebRegistryHandler implements MyBatisRegistryHandler {
         typeAliasRegistry.registerAlias("TagListHandler", TagListTypeHandler.class);
 
         typeAliasRegistry.registerAlias(SampledSystemMetric.class);
-        typeAliasRegistry.registerAlias(SystemMetricPoint.class);
+        typeAliasRegistry.registerAlias(DoubleSystemMetricPoint.class);
+        typeAliasRegistry.registerAlias(LongSystemMetricPoint.class);
         typeAliasRegistry.registerAlias(SystemMetricDataSearchKey.class);
 
         typeAliasRegistry.registerAlias("metricInfoSearchKey", MetricInfoSearchKey.class);

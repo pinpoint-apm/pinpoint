@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
 import com.navercorp.pinpoint.pinot.mybatis.PinotAsyncTemplate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
@@ -36,16 +35,14 @@ import java.util.concurrent.CompletableFuture;
  * @author Hyunjoon Cho
  */
 @Repository
-public class PinotSystemMetricDoubleDao implements SystemMetricDao<Double> {
+public class PinotSystemMetricDoubleDao implements SystemMetricDao {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final String NAMESPACE = PinotSystemMetricDoubleDao.class.getName() + ".";
 
-    private final SqlSessionTemplate sqlPinotSessionTemplate;
     private final PinotAsyncTemplate asyncTemplate;
 
-    public PinotSystemMetricDoubleDao(SqlSessionTemplate sqlPinotSessionTemplate, @Qualifier("pinotAsyncTemplate") PinotAsyncTemplate asyncTemplate) {
-        this.sqlPinotSessionTemplate = Objects.requireNonNull(sqlPinotSessionTemplate, "sqlPinotSessionTemplate");
+    public PinotSystemMetricDoubleDao(@Qualifier("pinotAsyncTemplate") PinotAsyncTemplate asyncTemplate) {
         this.asyncTemplate = Objects.requireNonNull(asyncTemplate, "asyncTemplate");
     }
 

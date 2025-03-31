@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.inspector.web.definition.metric;
 
 import com.navercorp.pinpoint.common.server.util.array.DoubleArray;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricValue;
-import com.navercorp.pinpoint.metric.common.util.DoubleUncollectedDataCreator;
+import com.navercorp.pinpoint.metric.common.util.PointCreator;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -57,8 +57,8 @@ public class PercentageScalePostProcessor implements MetricPostProcessor {
         );
     }
 
-    private Double scaleToPercentage(Double value) {
-        if (value == DoubleUncollectedDataCreator.UNCOLLECTED_VALUE) {
+    private Double scaleToPercentage(double value) {
+        if (value == PointCreator.UNCOLLECTED_DOUBLE) {
             return value;
         } else {
             return value * SCALE_FACTOR;

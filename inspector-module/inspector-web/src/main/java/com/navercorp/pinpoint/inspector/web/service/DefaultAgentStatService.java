@@ -34,10 +34,10 @@ import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricGroupData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricValue;
 import com.navercorp.pinpoint.metric.common.model.Tag;
+import com.navercorp.pinpoint.metric.common.model.chart.DoubleSystemMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
-import com.navercorp.pinpoint.metric.common.util.DoubleUncollectedDataCreator;
+import com.navercorp.pinpoint.metric.common.util.PointCreator;
 import com.navercorp.pinpoint.metric.common.util.TimeSeriesBuilder;
-import com.navercorp.pinpoint.metric.common.util.UncollectedDataCreator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -87,7 +87,7 @@ public class DefaultAgentStatService implements AgentStatService {
                 CompletableFuture<List<SystemMetricPoint<Double>>> future = result.future();
                 List<SystemMetricPoint<Double>> doubleList = future.get();
 
-                InspectorMetricValue doubleMetricValue = createInspectorMetricValue(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
+                InspectorMetricValue doubleMetricValue = createInspectorMetricValue(timeWindow, result.field(), doubleList);
                 metricValueList.add(doubleMetricValue);
             }
         } catch (Throwable e) {
@@ -127,7 +127,7 @@ public class DefaultAgentStatService implements AgentStatService {
                 CompletableFuture<List<SystemMetricPoint<Double>>> future = result.future();
                 List<SystemMetricPoint<Double>> doubleList = future.get();
 
-                InspectorMetricValue doubleMetricValue = createInspectorMetricValue(timeWindow, result.field(), doubleList, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
+                InspectorMetricValue doubleMetricValue = createInspectorMetricValue(timeWindow, result.field(), doubleList);
                 metricValueList.add(doubleMetricValue);
             }
         } catch (Throwable e) {
@@ -161,15 +161,14 @@ public class DefaultAgentStatService implements AgentStatService {
     }
 
     private InspectorMetricValue createInspectorMetricValue(TimeWindow timeWindow, Field field,
-                                                            List<SystemMetricPoint<Double>> sampledSystemMetricDataList,
-                                                            UncollectedDataCreator<Double> uncollectedDataCreator) {
+                                                            List<SystemMetricPoint<Double>> sampledSystemMetricDataList) {
 
         List<SystemMetricPoint<Double>> postProcessedDataList = postprocessFieldData(field, sampledSystemMetricDataList);
 
-        TimeSeriesBuilder<Double> builder = new TimeSeriesBuilder<>(timeWindow, uncollectedDataCreator);
-        List<SystemMetricPoint<Double>> filledSystemMetricDataList = builder.build(postProcessedDataList);
+        TimeSeriesBuilder builder = new TimeSeriesBuilder(timeWindow);
+        List<SystemMetricPoint<Double>> filledSystemMetricDataList = builder.buildDoubleMetric(PointCreator::doublePoint, postProcessedDataList);
 
-        List<Double> valueList = DoubleArray.asList(filledSystemMetricDataList, SystemMetricPoint::getYVal);
+        List<Double> valueList = DoubleArray.asList(filledSystemMetricDataList, DoubleSystemMetricPoint::getRawY);
 
         return new InspectorMetricValue(field.getFieldAlias(), field.getTags(), field.getChartType(), field.getUnit(), valueList);
     }

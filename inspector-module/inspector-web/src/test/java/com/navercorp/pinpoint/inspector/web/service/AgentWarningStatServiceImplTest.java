@@ -72,21 +72,21 @@ class AgentWarningStatServiceImplTest {
 
         long firstStartTimestamp = from;
         long firstEndTimestamp = firstStartTimestamp + 10000;
-        mockDataList.add(new SystemMetricPoint<Double>(firstStartTimestamp , 22.0));
-        mockDataList.add(new SystemMetricPoint<Double>(firstStartTimestamp + 5000, 13.0));
-        mockDataList.add(new SystemMetricPoint<Double>(firstEndTimestamp, 14.0));
+        mockDataList.add(SystemMetricPoint.of(firstStartTimestamp , 22.0));
+        mockDataList.add(SystemMetricPoint.of(firstStartTimestamp + 5000, 13.0));
+        mockDataList.add(SystemMetricPoint.of(firstEndTimestamp, 14.0));
 
         long secondStartTimestamp = from + TIME_5_MIN;
         long secondEndTimestamp = secondStartTimestamp;
-        mockDataList.add(new SystemMetricPoint<Double>(secondStartTimestamp, 15.0));
-        mockDataList.add(new SystemMetricPoint<Double>(secondStartTimestamp + 5000, 112.0));
-        mockDataList.add(new SystemMetricPoint<Double>(secondEndTimestamp, 11.0));
+        mockDataList.add(SystemMetricPoint.of(secondStartTimestamp, 15.0));
+        mockDataList.add(SystemMetricPoint.of(secondStartTimestamp + 5000, 112.0));
+        mockDataList.add(SystemMetricPoint.of(secondEndTimestamp, 11.0));
 
         long thirdStartTimestamp = from + TIME_5_MIN + TIME_5_MIN;
         long thirdEndTimestamp = thirdStartTimestamp + 10000;
-        mockDataList.add(new SystemMetricPoint<Double>(thirdStartTimestamp, 15.0));
-        mockDataList.add(new SystemMetricPoint<Double>(thirdStartTimestamp + 5000, 112.0));
-        mockDataList.add(new SystemMetricPoint<Double>(thirdEndTimestamp, 11.0));
+        mockDataList.add(SystemMetricPoint.of(thirdStartTimestamp, 15.0));
+        mockDataList.add(SystemMetricPoint.of(thirdStartTimestamp + 5000, 112.0));
+        mockDataList.add(SystemMetricPoint.of(thirdEndTimestamp, 11.0));
 
         when(agentStatService.selectAgentStatUnconvertedTime(any(InspectorDataSearchKey.class), any(TimeWindow.class))).thenReturn(mockDataList);
         when(tenantProvider.getTenantId()).thenReturn("pinpoint");
@@ -112,12 +112,12 @@ class AgentWarningStatServiceImplTest {
         Range range = Range.between(from, to);
 
         List<SystemMetricPoint<Double>> mockDataList = new ArrayList<>(10);
-        mockDataList.add(new SystemMetricPoint<Double>(from , 22.0));
-        mockDataList.add(new SystemMetricPoint<Double>(from + 5000, 13.0));
-        mockDataList.add(new SystemMetricPoint<Double>(from + 10000, 14.0));
-        mockDataList.add(new SystemMetricPoint<Double>(from + 15000, 14.0));
-        mockDataList.add(new SystemMetricPoint<Double>(from + 20000, 14.0));
-        mockDataList.add(new SystemMetricPoint<Double>(from + 25000, 14.0));
+        mockDataList.add(SystemMetricPoint.of(from , 22.0));
+        mockDataList.add(SystemMetricPoint.of(from + 5000, 13.0));
+        mockDataList.add(SystemMetricPoint.of(from + 10000, 14.0));
+        mockDataList.add(SystemMetricPoint.of(from + 15000, 14.0));
+        mockDataList.add(SystemMetricPoint.of(from + 20000, 14.0));
+        mockDataList.add(SystemMetricPoint.of(from + 25000, 14.0));
 
         when(agentStatService.selectAgentStatUnconvertedTime(any(InspectorDataSearchKey.class), any(TimeWindow.class))).thenReturn(mockDataList);
         when(tenantProvider.getTenantId()).thenReturn("pinpoint");

@@ -3,10 +3,10 @@
 
 
 <mapper namespace="com.navercorp.pinpoint.metric.web.dao.pinot.PinotSystemMetricDoubleDao">
-    <resultMap id="systemMetricPointResultMap" type="SystemMetricPoint">
+    <resultMap id="systemMetricPointResultMap" type="DoubleSystemMetricPoint">
         <constructor>
             <arg column="avgTime" javaType="_long"/>
-            <arg column="avgValue" javaType="Number" typeHandler="DoubleHandler"/>
+            <arg column="avgValue" javaType="_double"/>
         </constructor>
     </resultMap>
 

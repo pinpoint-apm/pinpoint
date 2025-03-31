@@ -67,12 +67,12 @@ public class AgentWarningStatServiceImpl implements AgentWarningStatService {
             return Collections.emptyList();
         }
 
-        List<AgentStatusTimelineSegment> timelineSegmentList = new ArrayList<>();
+        List<AgentStatusTimelineSegment> timelineSegmentList = new ArrayList<>(metricDataList.size());
         long beforeTimestamp = -1;
         int index = 0;
 
         for (int i = 0; i < metricDataList.size(); i++) {
-            SystemMetricPoint metricData = metricDataList.get(i);
+            SystemMetricPoint<Double> metricData = metricDataList.get(i);
             if (i == 0) {
                 beforeTimestamp =  metricData.getXVal();
             } else {
@@ -98,10 +98,10 @@ public class AgentWarningStatServiceImpl implements AgentWarningStatService {
             return null;
         }
 
-        SystemMetricPoint first = CollectionUtils.firstElement(metricDataList);
-        SystemMetricPoint last = CollectionUtils.lastElement(metricDataList);
+        SystemMetricPoint<Double> first = CollectionUtils.firstElement(metricDataList);
+        SystemMetricPoint<Double> last = CollectionUtils.lastElement(metricDataList);
 
-        if(first == null || last == null) {
+        if (first == null || last == null) {
             return null;
         }
 

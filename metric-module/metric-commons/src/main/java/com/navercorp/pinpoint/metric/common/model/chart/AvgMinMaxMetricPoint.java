@@ -16,51 +16,53 @@
 
 package com.navercorp.pinpoint.metric.common.model.chart;
 
-import java.util.Objects;
-
 /**
  * @author minwoo-jung
  */
-public class AvgMinMaxMetricPoint <Y extends Number> implements Point {
+public class AvgMinMaxMetricPoint implements Point {
 
     private final long xValue;
 
-    private final Y avgValue;
+    private final double avgValue;
 
-    private final Y minValue;
+    private final double minValue;
 
-    private final Y maxValue;
+    private final double maxValue;
 
-    public AvgMinMaxMetricPoint(long xValue, Y avgValue, Y minValue, Y maxValue) {
+    public AvgMinMaxMetricPoint(long xValue, double avgValue, double minValue, double maxValue) {
         this.xValue = xValue;
         this.avgValue = avgValue;
         this.minValue = minValue;
         this.maxValue = maxValue;
     }
 
-    public Y getAvgValue() {
+    public double getAvgValue() {
         return avgValue;
     }
 
-    public Y getMinValue() {
+    public double getMinValue() {
         return minValue;
     }
 
-    public Y getMaxValue() {
+    public double getMaxValue() {
         return maxValue;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AvgMinMaxMetricPoint<?> that = (AvgMinMaxMetricPoint<?>) o;
-        return xValue == that.xValue && Objects.equals(avgValue, that.avgValue) && Objects.equals(minValue, that.minValue) && Objects.equals(maxValue, that.maxValue);
+
+        AvgMinMaxMetricPoint that = (AvgMinMaxMetricPoint) o;
+        return xValue == that.xValue && Double.compare(avgValue, that.avgValue) == 0 && Double.compare(minValue, that.minValue) == 0 && Double.compare(maxValue, that.maxValue) == 0;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(xValue, avgValue, minValue, maxValue);
+        int result = Long.hashCode(xValue);
+        result = 31 * result + Double.hashCode(avgValue);
+        result = 31 * result + Double.hashCode(minValue);
+        result = 31 * result + Double.hashCode(maxValue);
+        return result;
     }
 
     @Override
