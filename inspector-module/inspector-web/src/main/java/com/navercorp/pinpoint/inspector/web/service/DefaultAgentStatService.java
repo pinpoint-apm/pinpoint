@@ -36,7 +36,6 @@ import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 import com.navercorp.pinpoint.metric.common.util.DoubleUncollectedDataCreator;
 import com.navercorp.pinpoint.metric.common.util.TimeSeriesBuilder;
-import com.navercorp.pinpoint.metric.common.util.TimeUtils;
 import com.navercorp.pinpoint.metric.common.util.UncollectedDataCreator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -51,7 +50,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
-* @author minwoo.jung
+ * @author minwoo.jung
  */
 @Service
 public class DefaultAgentStatService implements AgentStatService {
@@ -63,7 +62,10 @@ public class DefaultAgentStatService implements AgentStatService {
     private final MetricProcessorManager metricProcessorManager;
     private final FieldProcessorManager fieldProcessorManager;
 
-    public DefaultAgentStatService(@Qualifier("pinotAgentStatDao")AgentStatDao agentStatDao, @Qualifier("agentInspectorDefinition")Mappings agentInspectorDefinition, MetricProcessorManager metricProcessorManager, FieldProcessorManager fieldProcessorManager) {
+    public DefaultAgentStatService(@Qualifier("pinotAgentStatDao") AgentStatDao agentStatDao,
+                                   @Qualifier("agentInspectorDefinition") Mappings agentInspectorDefinition,
+                                   MetricProcessorManager metricProcessorManager,
+                                   FieldProcessorManager fieldProcessorManager) {
         this.agentStatDao = Objects.requireNonNull(agentStatDao, "agentStatDao");
         Objects.requireNonNull(agentInspectorDefinition, "agentInspectorDefinition");
         this.ymlInspectorManager = new YMLInspectorManager(agentInspectorDefinition);
@@ -72,7 +74,7 @@ public class DefaultAgentStatService implements AgentStatService {
     }
 
     @Override
-    public InspectorMetricData selectAgentStat(InspectorDataSearchKey inspectorDataSearchKey, TimeWindow timeWindow){
+    public InspectorMetricData selectAgentStat(InspectorDataSearchKey inspectorDataSearchKey, TimeWindow timeWindow) {
         MetricDefinition metricDefinition = ymlInspectorManager.findElementOfBasicGroup(inspectorDataSearchKey.getMetricDefinitionId());
 
         List<QueryResult> queryResults = selectAll(inspectorDataSearchKey, metricDefinition);
@@ -92,7 +94,7 @@ public class DefaultAgentStatService implements AgentStatService {
         }
 
         List<InspectorMetricValue> processedMetricValueList = postprocessMetricData(metricDefinition, metricValueList);
-        List<Long> timeStampList = TimeUtils.createTimeStampList(timeWindow);
+        List<Long> timeStampList = timeWindow.getTimeseriesWindows();
         return new InspectorMetricData(metricDefinition.getTitle(), timeStampList, processedMetricValueList);
     }
 
@@ -112,7 +114,7 @@ public class DefaultAgentStatService implements AgentStatService {
         }
     }
 
-    public InspectorMetricGroupData selectAgentStatWithGrouping(InspectorDataSearchKey inspectorDataSearchKey, TimeWindow timeWindow){
+    public InspectorMetricGroupData selectAgentStatWithGrouping(InspectorDataSearchKey inspectorDataSearchKey, TimeWindow timeWindow) {
         MetricDefinition metricDefinition = ymlInspectorManager.findElementOfBasicGroup(inspectorDataSearchKey.getMetricDefinitionId());
         MetricDefinition newMetricDefinition = preProcess(inspectorDataSearchKey, metricDefinition);
         List<InspectorMetricValue> metricValueList = new ArrayList<>(newMetricDefinition.getFields().size());
@@ -132,14 +134,14 @@ public class DefaultAgentStatService implements AgentStatService {
         }
 
         List<InspectorMetricValue> processedMetricValueList = postprocessMetricData(newMetricDefinition, metricValueList);
-        List<Long> timeStampList = TimeUtils.createTimeStampList(timeWindow);
-        Map<List<Tag>,List<InspectorMetricValue>> metricValueGroups = groupingMetricValue(processedMetricValueList, metricDefinition);
+        List<Long> timeStampList = timeWindow.getTimeseriesWindows();
+        Map<List<Tag>, List<InspectorMetricValue>> metricValueGroups = groupingMetricValue(processedMetricValueList, metricDefinition);
 
         return new InspectorMetricGroupData(metricDefinition.getTitle(), timeStampList, metricValueGroups);
     }
 
-    private Map<List<Tag>,List<InspectorMetricValue>> groupingMetricValue(List<InspectorMetricValue> processedMetricValueList, MetricDefinition metricDefinition) {
-    switch (metricDefinition.getGroupingRule()) {
+    private Map<List<Tag>, List<InspectorMetricValue>> groupingMetricValue(List<InspectorMetricValue> processedMetricValueList, MetricDefinition metricDefinition) {
+        switch (metricDefinition.getGroupingRule()) {
             case TAG:
                 return processedMetricValueList.stream().collect(Collectors.groupingBy(InspectorMetricValue::getTagList));
             default:
@@ -175,8 +177,7 @@ public class DefaultAgentStatService implements AgentStatService {
 
     private List<SystemMetricPoint<Double>> postprocessFieldData(Field field, List<SystemMetricPoint<Double>> sampledSystemMetricDataList) {
         FieldPostProcessor postProcessor = fieldProcessorManager.getPostProcessor(field.getPostProcess());
-        List<SystemMetricPoint<Double>> postProcessedDataList = postProcessor.postProcess(sampledSystemMetricDataList);
-        return postProcessedDataList;
+        return postProcessor.postProcess(sampledSystemMetricDataList);
     }
 
     private List<QueryResult> selectAll(InspectorDataSearchKey inspectorDataSearchKey, MetricDefinition metricDefinition) {

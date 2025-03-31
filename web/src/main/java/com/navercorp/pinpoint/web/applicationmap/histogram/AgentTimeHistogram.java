@@ -186,7 +186,7 @@ public class AgentTimeHistogram {
     }
 
     private List<Histogram> getDefaultHistograms(TimeWindow window, ServiceType serviceType) {
-        List<Histogram> sum = new ArrayList<>((int) window.getWindowRangeCount());
+        List<Histogram> sum = new ArrayList<>(window.getWindowRangeCount());
         for (long timestamp : window) {
             sum.add(new TimeHistogram(serviceType, timestamp));
         }

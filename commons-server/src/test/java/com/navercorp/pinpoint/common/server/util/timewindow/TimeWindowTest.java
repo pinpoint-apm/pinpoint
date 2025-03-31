@@ -23,58 +23,74 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author emeroad
  */
-public class TimeWindowTest {
+class TimeWindowTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
 
     @Test
-    public void testGetNextWindowFirst() {
+    void testGetTimeseriesWindows() {
         TimeWindow window = new TimeWindow(Range.between(0L, 1000));
         logger.debug("{}", window.getWindowRange());
-        Iterator<Long> iterator = window.iterator();
-        Assertions.assertEquals(0L, iterator.next());
+        List<Long> timeWindows = window.getTimeseriesWindows();
 
-        Assertions.assertThrows(Exception.class, iterator::next);
+        assertThat(timeWindows).hasSize(1)
+                .containsExactly(0L);
+    }
 
+    @Test
+    void testTimestampWindows2() {
         TimeWindow window2 = new TimeWindow(Range.between(0L, TimeUnit.MINUTES.toMillis(1)));
         logger.debug("{}", window2.getWindowRange());
-        Iterator<Long> iterator2 = window2.iterator();
-        Assertions.assertEquals(0L, iterator2.next());
-        Assertions.assertEquals(1000*60L, iterator2.next());
-        Assertions.assertThrows(Exception.class, iterator2::next);
+        List<Long> timeWindows2 = window2.getTimeseriesWindows();
+        assertThat(timeWindows2).hasSize(2)
+                .containsExactly(0L, 1000 * 60L);
     }
 
+
     @Test
-    public void testGetNextWindow() {
+    void testTimestampWindowsSize() {
         Range range = Range.between(0L, TimeUnit.MINUTES.toMillis(1));
         TimeWindow window = new TimeWindow(range);
-        ImmutableList<Long> longs = ImmutableList.copyOf(window.iterator());
-        Assertions.assertEquals(2, longs.size());
+        List<Long> timestamps = window.getTimeseriesWindows();
+        Assertions.assertEquals(2, timestamps.size());
         Assertions.assertEquals(2, window.getWindowRangeCount());
     }
 
     @Test
-    public void testGetNextWindow2() {
+    void testTimestampWindowsSize2() {
         Range range = Range.between(1L, TimeUnit.MINUTES.toMillis(1));
         TimeWindow window = new TimeWindow(range);
-        ImmutableList<Long> longs = ImmutableList.copyOf(window.iterator());
-        Assertions.assertEquals(2, longs.size());
+        List<Long> timestamps = window.getTimeseriesWindows();
+        Assertions.assertEquals(2, timestamps.size());
         Assertions.assertEquals(2, window.getWindowRangeCount());
     }
 
     @Test
-    public void testRefineTimestamp() {
+    void testGetNextWindow_iter() {
+        Range range = Range.between(1L, TimeUnit.MINUTES.toMillis(1));
+        TimeWindow window = new TimeWindow(range);
+
+        List<Long> iter = ImmutableList.copyOf(window.iterator());
+        List<Long> timestamps = window.getTimeseriesWindows();
+        assertThat(timestamps)
+                .isEqualTo(iter);
+    }
+
+    @Test
+    void testRefineTimestamp() {
 
     }
 
     @Test
-    public void testGetWindowSize() {
+    void testGetWindowSize() {
         testWindowSize(0, TimeUnit.MINUTES.toMillis(1));
         testWindowSize(0, TimeUnit.HOURS.toMillis(1));
         testWindowSize(0, TimeUnit.HOURS.toMillis(23));
@@ -88,8 +104,8 @@ public class TimeWindowTest {
     }
 
     @Test
-    public void refineRange() {
-        Range range = Range.between(1L, TimeUnit.MINUTES.toMillis(1)+1);
+    void refineRange() {
+        Range range = Range.between(1L, TimeUnit.MINUTES.toMillis(1) + 1);
         TimeWindow window = new TimeWindow(range);
         Range windowRange = window.getWindowRange();
         // 1 should be replace by 0.
@@ -100,7 +116,7 @@ public class TimeWindowTest {
     }
 
     @Test
-    public void testGetWindowRangeLength() {
+    void testGetWindowRangeLength() {
         Range range = Range.between(1L, 2L);
         TimeWindow window = new TimeWindow(range);
         int windowRangeLength = window.getWindowRangeCount();
@@ -110,8 +126,8 @@ public class TimeWindowTest {
     }
 
     @Test
-    public void testGetWindowRangeLength2() {
-        Range range = Range.between(1L, 1000*60L + 1);
+    void testGetWindowRangeLength2() {
+        Range range = Range.between(1L, 1000 * 60L + 1);
         TimeWindow window = new TimeWindow(range);
         int windowRangeLength = window.getWindowRangeCount();
         logger.debug("{}", windowRangeLength);
@@ -119,8 +135,8 @@ public class TimeWindowTest {
     }
 
     @Test
-     public void testRefineIndex1() {
-        Range range = Range.between(1L, 1000*60L);
+    void testRefineIndex1() {
+        Range range = Range.between(1L, 1000 * 60L);
         TimeWindow window = new TimeWindow(range);
         long index = window.getWindowIndex(2);
         logger.debug("{}", index);
@@ -128,8 +144,8 @@ public class TimeWindowTest {
     }
 
     @Test
-     public void testRefineIndex2() {
-        Range range = Range.between(1L, 1000*60L);
+    void testRefineIndex2() {
+        Range range = Range.between(1L, 1000 * 60L);
         TimeWindow window = new TimeWindow(range);
         long index = window.getWindowIndex(1000 * 60L);
         logger.debug("{}", index);

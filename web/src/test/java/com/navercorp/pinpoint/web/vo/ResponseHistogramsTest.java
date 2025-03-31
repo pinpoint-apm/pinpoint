@@ -65,8 +65,8 @@ public class ResponseHistogramsTest {
         SpanBo fastSpan = new TestTraceUtils.SpanBuilder(applicationName, "test-app").elapsed(500).build();
 
         ResponseHistograms.Builder builder = new ResponseHistograms.Builder(range);
-        Iterator<Long> timeslotIterator = builder.getWindow().iterator();
-        long timeslot = timeslotIterator.next();
+        List<Long> timeslotIterator = builder.getWindow().getTimeseriesWindows();
+        long timeslot = timeslotIterator.get(0);
         builder.addHistogram(application, fastSpan, timeslot);
         ResponseHistograms responseHistograms = builder.build();
 
@@ -95,7 +95,7 @@ public class ResponseHistogramsTest {
         SpanBo errorSpan = new TestTraceUtils.SpanBuilder(applicationName, "test-app").elapsed(500).errorCode(1).build();
 
         ResponseHistograms.Builder builder = new ResponseHistograms.Builder(range);
-        Iterator<Long> timeslotIterator = builder.getWindow().iterator();
+        Iterator<Long> timeslotIterator = builder.getWindow().getTimeseriesWindows().iterator();
         long timeslot1 = timeslotIterator.next();
         long timeslot2 = timeslotIterator.next();
         long timeslot3 = timeslotIterator.next();
@@ -161,8 +161,7 @@ public class ResponseHistogramsTest {
         SpanBo errorSpan = new TestTraceUtils.SpanBuilder(applicationName, errorAgentId).elapsed(500).errorCode(1).build();
 
         ResponseHistograms.Builder builder = new ResponseHistograms.Builder(range);
-        Iterator<Long> timeslotIterator = builder.getWindow().iterator();
-        long timeslot = timeslotIterator.next();
+        long timeslot = builder.getWindow().getTimeseriesWindows().get(0);
         builder.addHistogram(application, fastSpan, timeslot);
         builder.addHistogram(application, normalSpan, timeslot);
         builder.addHistogram(application, slowSpan, timeslot);
@@ -208,8 +207,8 @@ public class ResponseHistogramsTest {
         SpanBo appBSpan = new TestTraceUtils.SpanBuilder(appBName, appBAgentId).elapsed(1500).build();
 
         ResponseHistograms.Builder builder = new ResponseHistograms.Builder(range);
-        Iterator<Long> timeslotIterator = builder.getWindow().iterator();
-        long timeslot = timeslotIterator.next();
+        List<Long> timeslotIterator = builder.getWindow().getTimeseriesWindows();
+        long timeslot = timeslotIterator.get(0);
 
         builder.addHistogram(appA, appASpan, timeslot);
         builder.addHistogram(appA, appASpan, timeslot);

@@ -5,7 +5,6 @@ import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
-import com.navercorp.pinpoint.metric.common.util.TimeUtils;
 import com.navercorp.pinpoint.otlp.common.model.MetricPoint;
 import com.navercorp.pinpoint.otlp.common.model.MetricType;
 import com.navercorp.pinpoint.otlp.common.util.DoubleUncollectedDataCreator;
@@ -166,7 +165,7 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
             queryResult.add(new QueryResult<>(chartPoints, chartQueryParameter));
         }
 
-        List<Long> timeStampList = TimeUtils.createTimeStampList(timeWindow);
+        List<Long> timeStampList = timeWindow.getTimeseriesWindows();
         // TODO: (minwoo) set unit data
         MetricData metricData = new MetricData(timeStampList, chartType, fields.get(0).unit());
 
@@ -185,7 +184,8 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
     }
 
     private MetricData createEmptyMetricData(TimeWindow timeWindow, ChartType chartType) {
-        return new MetricData(TimeUtils.createTimeStampList(timeWindow), chartType, EMPTY_STRING, "There is no metadata for the metric query.");
+        List<Long> windows = timeWindow.getTimeseriesWindows();
+        return new MetricData(windows, chartType, EMPTY_STRING, "There is no metadata for the metric query.");
     }
 
     private String getLegendName(OtlpMetricDataQueryParameter chartQueryParameter, PrimaryForFieldAndTagRelation primaryForFieldAndTagRelation) {

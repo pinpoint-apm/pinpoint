@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.metric.web.model.chart.Chart;
 import com.navercorp.pinpoint.metric.web.model.chart.SystemMetricChart;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,11 +50,7 @@ public class SystemMetricChartSerializer extends JsonSerializer<SystemMetricChar
     }
 
     private void writeTimestamp(JsonGenerator jgen, TimeWindow timeWindow) throws IOException {
-        List<Long> timestamps = new ArrayList<>(timeWindow.getWindowRangeCount());
-        for (Long timestamp : timeWindow) {
-            timestamps.add(timestamp);
-        }
-        jgen.writeObjectField("x", timestamps);
+        jgen.writeObjectField("x", timeWindow.getTimeseriesWindows());
     }
 
     private void writeCharts(JsonGenerator jgen, List<List<Tag>> tagsList, List<Chart<? extends Point>> charts) throws IOException {
