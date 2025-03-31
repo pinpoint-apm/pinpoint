@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.metric.collector;
 
 import com.navercorp.pinpoint.metric.collector.cache.MetricCacheConfiguration;
+import com.navercorp.pinpoint.metric.collector.config.MetricCollectorProperties;
 import com.navercorp.pinpoint.metric.collector.config.MetricKafkaConfiguration;
 import com.navercorp.pinpoint.metric.common.config.MetricCollectorPinotDaoConfiguration;
 import com.navercorp.pinpoint.pinot.config.PinotConfiguration;
@@ -35,7 +36,9 @@ import org.springframework.context.annotation.Profile;
         MetricCacheConfiguration.class,
         PinotConfiguration.class,
         MetricCollectorPinotDaoConfiguration.class,
-        MetricKafkaConfiguration.class
+        MetricKafkaConfiguration.class,
+        MetricCollectorProperties.class
+
 })
 @Profile("metric")
 public class MetricCollectorApp {
