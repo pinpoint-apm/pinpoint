@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.metric.collector.cache;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.navercorp.pinpoint.metric.collector.config.MetricCollectorProperties;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
@@ -48,12 +49,12 @@ public class MetricCacheConfiguration {
     }
 
     @Bean
-    public CacheManager metricTagCollection() {
+    public CacheManager metricTagCollection(MetricCollectorProperties metricCollectorProperties) {
         CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager(METRIC_TAG_COLLECTION_CACHE_NAME);
         caffeineCacheManager.setCaffeine(Caffeine.newBuilder()
                 .expireAfterWrite(86400, TimeUnit.SECONDS)
-                .initialCapacity(1000)
-                .maximumSize(10000));
+                .initialCapacity(metricCollectorProperties.getMetricTagCacheInitSize())
+                .maximumSize(metricCollectorProperties.getMetricTagCacheSize()));
         return caffeineCacheManager;
     }
 
