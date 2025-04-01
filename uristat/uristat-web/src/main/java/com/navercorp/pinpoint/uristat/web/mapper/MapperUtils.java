@@ -48,36 +48,23 @@ public class MapperUtils {
     }
 
     @Named("toApdex")
-    public static Double toApdex(UriStatSummaryEntity entity) {
+    public static double toApdex(UriStatSummaryEntity entity) {
         return MathUtils.average(entity.getTotalApdexRaw(), entity.getTotalCount());
     }
 
     @Named("toAvgTimeMs")
-    public static Double toAvgTimeMs(UriStatSummaryEntity entity) {
+    public static double toAvgTimeMs(UriStatSummaryEntity entity) {
         return MathUtils.average(entity.getSumOfTotalTimeMs(), entity.getTotalCount());
     }
 
     @Named("toTotalHistogram")
     public static List<Double> toTotalHistogram(UriStatChartEntity entity) {
-        return toHistogram(
-                entity.getTot0(), entity.getTot1(), entity.getTot2(), entity.getTot3(),
-                entity.getTot4(), entity.getTot5(), entity.getTot6(), entity.getTot7()
-        );
+        return Doubles.asList(entity.toTotalHistogram());
     }
 
     @Named("toFailureHistogram")
     public static List<Double> toFailureHistogram(UriStatChartEntity entity) {
-        return toHistogram(
-                entity.getFail0(), entity.getFail1(), entity.getFail2(), entity.getFail3(),
-                entity.getFail4(), entity.getFail5(), entity.getFail6(), entity.getFail7()
-        );
-    }
-
-    public static List<Double> toHistogram(
-            Double hist0, Double hist1, Double hist2, Double hist3,
-            Double hist4, Double hist5, Double hist6, Double hist7
-    ) {
-        return Doubles.asList(hist0, hist1, hist2, hist3, hist4, hist5, hist6, hist7);
+        return Doubles.asList(entity.toFailureHistogram());
     }
 
     @Named("toLatency")

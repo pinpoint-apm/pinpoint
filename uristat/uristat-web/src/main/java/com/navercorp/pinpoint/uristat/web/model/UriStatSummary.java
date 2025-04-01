@@ -20,11 +20,11 @@ import java.util.List;
 
 public class UriStatSummary {
     private String uri;
-    private Double totalCount;
-    private Double failureCount;
-    private Double maxTimeMs;
-    private Double avgTimeMs;
-    private Double apdex;
+    private double totalCount;
+    private double failureCount;
+    private double maxTimeMs;
+    private double avgTimeMs;
+    private double apdex;
     private String version;
 
     private List<UriStatChartValue> chartValue;
@@ -40,43 +40,43 @@ public class UriStatSummary {
         this.uri = uri;
     }
 
-    public Double getTotalCount() {
+    public double getTotalCount() {
         return totalCount;
     }
 
-    public void setTotalCount(Double totalCount) {
+    public void setTotalCount(double totalCount) {
         this.totalCount = totalCount;
     }
 
-    public Double getFailureCount() {
+    public double getFailureCount() {
         return failureCount;
     }
 
-    public void setFailureCount(Double failureCount) {
+    public void setFailureCount(double failureCount) {
         this.failureCount = failureCount;
     }
 
-    public Double getMaxTimeMs() {
+    public double getMaxTimeMs() {
         return maxTimeMs;
     }
 
-    public void setMaxTimeMs(Double maxTimeMs) {
+    public void setMaxTimeMs(double maxTimeMs) {
         this.maxTimeMs = maxTimeMs;
     }
 
-    public Double getAvgTimeMs() {
+    public double getAvgTimeMs() {
         return avgTimeMs;
     }
 
-    public void setAvgTimeMs(Double avgTimeMs) {
+    public void setAvgTimeMs(double avgTimeMs) {
         this.avgTimeMs = avgTimeMs;
     }
 
-    public Double getApdex() {
+    public double getApdex() {
         return apdex;
     }
 
-    public void setApdex(Double apdex) {
+    public void setApdex(double apdex) {
         this.apdex = apdex;
     }
 

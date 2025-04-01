@@ -16,21 +16,20 @@
 package com.navercorp.pinpoint.uristat.web.view;
 
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
-import com.navercorp.pinpoint.metric.common.util.TimeUtils;
-import com.navercorp.pinpoint.uristat.web.chart.UriStatChartType;
-import com.navercorp.pinpoint.uristat.web.model.UriStatGroup;
+import com.navercorp.pinpoint.metric.web.view.TimeSeriesValueView;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesView;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;
+import com.navercorp.pinpoint.uristat.web.chart.UriStatChartType;
 import com.navercorp.pinpoint.uristat.web.model.UriStatChartValue;
+import com.navercorp.pinpoint.uristat.web.model.UriStatGroup;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class UriStatView implements TimeSeriesView {
 
     private final TimeWindow timeWindow;
-    private final List<TimeseriesValueGroupView> uriStats = new ArrayList<>();
+    private final TimeseriesValueGroupView uriStats;
 
     public UriStatView(String uri, TimeWindow timeWindow, List<UriStatChartValue> uriStats, UriStatChartType chartType) {
         Objects.requireNonNull(timeWindow, "timeWindow");
@@ -39,9 +38,10 @@ public class UriStatView implements TimeSeriesView {
 
         this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
         if (uriStats.isEmpty()) {
-            this.uriStats.add(UriStatGroup.EMPTY_URI_STAT_GROUP);
+            this.uriStats = UriStatGroup.EMPTY_URI_STAT_GROUP;
         } else {
-            this.uriStats.add(new UriStatGroup(uri, timeWindow, uriStats, chartType.getFieldNames()));
+            List<TimeSeriesValueView> chartValueList = UriStatValue.createChartValueList(timeWindow, uriStats, chartType.getFieldNames());
+            this.uriStats = new UriStatGroup(uri, uriStats, chartValueList);
         }
     }
 
@@ -57,7 +57,7 @@ public class UriStatView implements TimeSeriesView {
 
     @Override
     public List<TimeseriesValueGroupView> getMetricValueGroups() {
-        return uriStats;
+        return List.of(uriStats);
     }
 
 }
