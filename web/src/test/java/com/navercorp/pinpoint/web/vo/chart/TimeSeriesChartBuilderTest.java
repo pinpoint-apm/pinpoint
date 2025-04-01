@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.LongFunction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,9 +45,9 @@ public class TimeSeriesChartBuilderTest {
     private static class TestPoint implements Point {
 
         private static final int UNCOLLECTED_VALUE = -1;
-        private static final UncollectedPointCreator<TestPoint> UNCOLLECTED_POINT_CREATOR = new UncollectedPointCreator<TestPoint>() {
+        private static final LongFunction<TestPoint> UNCOLLECTED_POINT_CREATOR = new LongFunction<TestPoint>() {
             @Override
-            public TestPoint createUnCollectedPoint(long xVal) {
+            public TestPoint apply(long xVal) {
                 return new TestPoint(xVal, UNCOLLECTED_VALUE);
             }
         };

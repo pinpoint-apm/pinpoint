@@ -1,15 +1,14 @@
 package com.navercorp.pinpoint.web.vo.stat;
 
-import com.navercorp.pinpoint.web.vo.chart.Point;
-import com.navercorp.pinpoint.web.vo.chart.UncollectedPointCreatorFactory;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 
 import java.util.Objects;
+import java.util.function.LongFunction;
 
 public class SampledApdexScore implements SampledAgentStatDataPoint {
 
-    public static final Double UNCOLLECTED_SCORE = -1D;
-    public static final Point.UncollectedPointCreator<AgentStatPoint> UNCOLLECTED_POINT_CREATOR = UncollectedPointCreatorFactory.createDoublePointCreator(UNCOLLECTED_SCORE);
+    public static final double UNCOLLECTED_SCORE = -1D;
+    public static final LongFunction<AgentStatPoint> UNCOLLECTED_POINT_CREATOR = (x) -> new AgentStatPoint(x, UNCOLLECTED_SCORE);
 
     private final AgentStatPoint apdexScore;
 

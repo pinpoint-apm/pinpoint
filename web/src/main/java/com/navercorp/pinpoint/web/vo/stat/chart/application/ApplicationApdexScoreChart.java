@@ -1,15 +1,15 @@
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
-import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
 import java.util.List;
+import java.util.function.LongFunction;
 
 public class ApplicationApdexScoreChart extends DefaultApplicationChart<ApplicationStatPoint> {
 
-    private static final Point.UncollectedPointCreator<ApplicationStatPoint> UNCOLLECTED_POINT
+    private static final LongFunction<ApplicationStatPoint> UNCOLLECTED_POINT
             = new ApplicationStatPoint.UncollectedCreator(-1D);
 
     public enum ApdexScoreChartType implements StatChartGroup.ApplicationChartType {

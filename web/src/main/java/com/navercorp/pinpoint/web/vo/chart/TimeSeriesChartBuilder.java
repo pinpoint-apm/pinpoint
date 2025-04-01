@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.LongFunction;
 
 /**
  * @author HyunGil Jeong
@@ -31,10 +32,10 @@ import java.util.function.Function;
  */
 public class TimeSeriesChartBuilder<P extends Point> {
 
-    private final Point.UncollectedPointCreator<P> uncollectedPointCreator;
+    private final LongFunction<P> function;
 
-    public TimeSeriesChartBuilder(Point.UncollectedPointCreator<P> uncollectedPointCreator) {
-        this.uncollectedPointCreator = Objects.requireNonNull(uncollectedPointCreator, "uncollectedPointCreator");
+    public TimeSeriesChartBuilder(LongFunction<P> function) {
+        this.function = Objects.requireNonNull(function, "uncollectedPointCreator");
     }
 
     public Chart<P> build(TimeWindow timeWindow, List<P> sampledPoints) {
@@ -43,7 +44,8 @@ public class TimeSeriesChartBuilder<P extends Point> {
         if (CollectionUtils.isEmpty(sampledPoints)) {
             return new Chart<>(Collections.emptyList());
         }
-        List<P> points = createInitialPoints(timeWindow);
+
+        List<P> points = createInitialPoints(timeWindow, this.function);
         final int windowRangeCount = timeWindow.getWindowRangeCount();
         for (P sampledPoint : sampledPoints) {
             int timeslotIndex = timeWindow.getWindowIndex(sampledPoint.getXVal());
@@ -75,11 +77,11 @@ public class TimeSeriesChartBuilder<P extends Point> {
         return result;
     }
 
-    private List<P> createInitialPoints(TimeWindow timeWindow) {
+    private List<P> createInitialPoints(TimeWindow timeWindow, LongFunction<P> function) {
         final int numTimeslots = timeWindow.getWindowRangeCount();
         List<P> points = new ArrayList<>(numTimeslots);
         for (long timestamp : timeWindow) {
-            points.add(uncollectedPointCreator.createUnCollectedPoint(timestamp));
+            points.add(function.apply(timestamp));
         }
         return points;
     }
