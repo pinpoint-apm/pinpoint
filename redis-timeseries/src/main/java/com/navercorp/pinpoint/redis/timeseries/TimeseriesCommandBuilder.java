@@ -54,6 +54,15 @@ public class TimeseriesCommandBuilder<K, V> extends BaseRedisCommandBuilder<K, V
         return tsRange(TS.RANGE, key, fromTimestamp, toTimestamp);
     }
 
+    public Command<K, V, List<TimestampValuePair>> tsRange(K key, String... args) {
+        CommandArgs<K, V> commandArgs = new CommandArgs<>(codec).addKey(key);
+        for (String arg : args) {
+            commandArgs.add(arg);
+        }
+        ArrayTimestampValueOutput<K, V> output = new ArrayTimestampValueOutput<>(codec);
+        return tsCommand(TS.RANGE, output, commandArgs);
+    }
+
     public Command<K, V, List<TimestampValuePair>> tsRevrange(K key, long fromTimestamp, long toTimestamp) {
         return tsRange(TS.REVRANGE, key, fromTimestamp, toTimestamp);
     }

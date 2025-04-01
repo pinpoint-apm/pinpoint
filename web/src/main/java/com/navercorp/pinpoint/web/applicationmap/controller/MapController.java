@@ -138,6 +138,7 @@ public class MapController {
         final MapServiceOption option = new MapServiceOption
                 .Builder(application, range, searchOption)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
+                .setSimpleResponseHistogram(false)
                 .build();
 
         return selectApplicationMap(application, option, useLoadHistogramFormat);
@@ -181,6 +182,7 @@ public class MapController {
         final MapServiceOption option = new MapServiceOption
                 .Builder(application, range, searchOption)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
+                .setSimpleResponseHistogram(false)
                 .build();
 
         return selectApplicationMap(application, option, useLoadHistogramFormat);

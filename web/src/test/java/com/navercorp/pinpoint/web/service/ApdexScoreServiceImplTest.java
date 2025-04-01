@@ -5,6 +5,7 @@ import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.SelfDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApdexScore;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -44,10 +45,14 @@ public class ApdexScoreServiceImplTest {
         }
 
         MapResponseDao mapResponseDao = mock(MapResponseDao.class);
+        SelfDao selfDao = mock(SelfDao.class);
         when(mapResponseDao.selectResponseTime(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Collections.emptyList());
         when(mapResponseDao.selectResponseTime(ArgumentMatchers.eq(testApplication), ArgumentMatchers.any())).thenReturn(responseTimeList);
 
-        apdexScoreService = new ApdexScoreServiceImpl(mapResponseDao);
+        when(selfDao.selectResponseTime(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Collections.emptyList());
+        when(selfDao.selectResponseTime(ArgumentMatchers.eq(testApplication), ArgumentMatchers.any())).thenReturn(responseTimeList);
+
+        apdexScoreService = new ApdexScoreServiceImpl(mapResponseDao, selfDao);
     }
 
     private ResponseTime createResponseTime(long timeStamp) {

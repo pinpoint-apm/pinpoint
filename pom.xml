@@ -119,6 +119,7 @@
         <module>otlpmetric</module>
         <module>redis-timeseries</module>
         <module>feature-flag</module>
+        <module>servermap</module>
     </modules>
 
     <properties>
@@ -513,6 +514,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-exceptiontrace-web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-servermap</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

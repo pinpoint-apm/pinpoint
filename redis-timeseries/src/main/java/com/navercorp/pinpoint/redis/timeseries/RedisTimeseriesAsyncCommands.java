@@ -23,6 +23,8 @@ public interface RedisTimeseriesAsyncCommands {
     RedisFuture<Long> tsDel(String key, long fromTimestamp, long toTimestamp);
 
     RedisFuture<List<TimestampValuePair>> tsRange(String key, long fromTimestamp, long toTimestamp);
+
+    RedisFuture<List<TimestampValuePair>> tsRange(String key, String... args);
 //
     RedisFuture<TimestampValuePair> tsGet(String key);
 //

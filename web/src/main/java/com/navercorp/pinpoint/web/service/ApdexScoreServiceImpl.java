@@ -4,6 +4,7 @@ import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.SelfDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogramBuilder;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApdexScore;
@@ -29,9 +30,14 @@ public class ApdexScoreServiceImpl implements ApdexScoreService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final MapResponseDao mapResponseDao;
+    private final SelfDao selfDao;
 
-    public ApdexScoreServiceImpl(MapResponseDao mapResponseDao) {
+    public ApdexScoreServiceImpl(
+            MapResponseDao mapResponseDao,
+            SelfDao selfDao
+    ) {
         this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
+        this.selfDao = Objects.requireNonNull(selfDao, "selfDao");
     }
 
     @Override
@@ -39,7 +45,7 @@ public class ApdexScoreServiceImpl implements ApdexScoreService {
         ServiceType applicationServiceType = application.getServiceType();
 
         if (applicationServiceType.isWas()) {
-            List<ResponseTime> responseTimeList = mapResponseDao.selectResponseTime(application, range);
+            List<ResponseTime> responseTimeList = selfDao.selectResponseTime(application, range);
             Histogram applicationHistogram = createApplicationHistogram(responseTimeList, applicationServiceType);
 
             return ApdexScore.newApdexScore(applicationHistogram);

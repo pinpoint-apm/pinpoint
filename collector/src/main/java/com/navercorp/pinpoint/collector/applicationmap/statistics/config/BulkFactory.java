@@ -6,9 +6,11 @@ import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HbaseMapRespons
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkIncrementer;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkUpdater;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
+import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.DefaultBulkIncrementer;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.DefaultBulkUpdater;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.DefaultBulkWriter;
+import com.navercorp.pinpoint.collector.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.RowKeyMerge;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.SyncWriter;
 import com.navercorp.pinpoint.collector.monitor.dao.hbase.BulkOperationReporter;
@@ -58,14 +60,16 @@ public class BulkFactory {
         return bulkIncrementerFactory.wrap(bulkUpdater, bulkConfiguration.getCalleeLimitSize(), reporter);
     }
 
-    private BulkWriter newBulkWriter(String loggerName,
-                                     HbaseOperations hbaseTemplate,
-                                     HbaseAsyncTemplate asyncTemplate,
-                                     HbaseColumnFamily descriptor,
-                                     TableNameProvider tableNameProvider,
-                                     RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
-                                     BulkIncrementer bulkIncrementer,
-                                     BulkUpdater bulkUpdater) {
+    private BulkWriter<RowKey, ColumnName> newBulkWriter(
+            String loggerName,
+            HbaseOperations hbaseTemplate,
+            HbaseAsyncTemplate asyncTemplate,
+            HbaseColumnFamily descriptor,
+            TableNameProvider tableNameProvider,
+            RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
+            BulkIncrementer bulkIncrementer,
+            BulkUpdater bulkUpdater
+    ) {
         if (bulkConfiguration.enableBulk()) {
             return new DefaultBulkWriter(loggerName, asyncTemplate, rowKeyDistributorByHashPrefix,
                     bulkIncrementer, bulkUpdater, descriptor, tableNameProvider);
@@ -91,7 +95,7 @@ public class BulkFactory {
 
 
     @Bean
-    public BulkWriter outLinkBulkWriter(HbaseOperations hbaseTemplate,
+    public BulkWriter<RowKey, ColumnName> outLinkBulkWriter(HbaseOperations hbaseTemplate,
                                         HbaseAsyncTemplate asyncTemplate,
                                         TableNameProvider tableNameProvider,
                                         @Qualifier("mapOutLinkRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
@@ -119,7 +123,7 @@ public class BulkFactory {
     }
 
     @Bean
-    public BulkWriter inLinkBulkWriter(HbaseOperations hbaseTemplate,
+    public BulkWriter<RowKey, ColumnName> inLinkBulkWriter(HbaseOperations hbaseTemplate,
                                        HbaseAsyncTemplate asyncTemplate,
                                        TableNameProvider tableNameProvider,
                                        @Qualifier("mapInLinkRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
@@ -145,7 +149,7 @@ public class BulkFactory {
     }
 
     @Bean
-    public BulkWriter selfBulkWriter(HbaseOperations hbaseTemplate,
+    public BulkWriter<RowKey, ColumnName> selfBulkWriter(HbaseOperations hbaseTemplate,
                                      HbaseAsyncTemplate asyncTemplate,
                                      TableNameProvider tableNameProvider,
                                      @Qualifier("mapSelfRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,

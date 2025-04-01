@@ -64,6 +64,14 @@ public class RedisTimeseriesAsyncCommandsImpl implements RedisTimeseriesAsyncCom
     }
 
     @Override
+    public RedisFuture<List<TimestampValuePair>> tsRange(String key, String... args) {
+        Preconditions.checkArgument(args != null, "args must not be null");
+
+        Command<String, String, List<TimestampValuePair>> cmd = this.builder.tsRange(key, args);
+        return commands().dispatch(cmd);
+    }
+
+    @Override
     public RedisFuture<TimestampValuePair> tsGet(String key) {
         Command<String, String, TimestampValuePair> cmd = this.builder.toGet(key);
         return commands().dispatch(cmd);
