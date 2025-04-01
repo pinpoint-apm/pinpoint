@@ -20,11 +20,11 @@ package com.navercorp.pinpoint.uristat.web.entity;
  */
 public class UriStatSummaryEntity extends UriStatChartEntity {
     private String uri;
-    private Double totalApdexRaw;
-    private Double totalCount;
-    private Double failureCount;
-    private Double maxTimeMs;
-    private Double sumOfTotalTimeMs;
+    private double totalApdexRaw;
+    private double totalCount;
+    private double failureCount;
+    private double maxTimeMs;
+    private double sumOfTotalTimeMs;
     private String version;
 
     public UriStatSummaryEntity() {
@@ -38,43 +38,43 @@ public class UriStatSummaryEntity extends UriStatChartEntity {
         this.uri = uri;
     }
 
-    public Double getTotalApdexRaw() {
+    public double getTotalApdexRaw() {
         return totalApdexRaw;
     }
 
-    public void setTotalApdexRaw(Double totalApdexRaw) {
+    public void setTotalApdexRaw(double totalApdexRaw) {
         this.totalApdexRaw = totalApdexRaw;
     }
 
-    public Double getTotalCount() {
+    public double getTotalCount() {
         return totalCount;
     }
 
-    public void setTotalCount(Double totalCount) {
+    public void setTotalCount(double totalCount) {
         this.totalCount = totalCount;
     }
 
-    public Double getFailureCount() {
+    public double getFailureCount() {
         return failureCount;
     }
 
-    public void setFailureCount(Double failureCount) {
+    public void setFailureCount(double failureCount) {
         this.failureCount = failureCount;
     }
 
-    public Double getMaxTimeMs() {
+    public double getMaxTimeMs() {
         return maxTimeMs;
     }
 
-    public void setMaxTimeMs(Double maxTimeMs) {
+    public void setMaxTimeMs(double maxTimeMs) {
         this.maxTimeMs = maxTimeMs;
     }
 
-    public Double getSumOfTotalTimeMs() {
+    public double getSumOfTotalTimeMs() {
         return sumOfTotalTimeMs;
     }
 
-    public void setSumOfTotalTimeMs(Double totalTimeMs) {
+    public void setSumOfTotalTimeMs(double totalTimeMs) {
         this.sumOfTotalTimeMs = totalTimeMs;
     }
 

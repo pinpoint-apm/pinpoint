@@ -16,18 +16,12 @@
 
 package com.navercorp.pinpoint.uristat.web.model;
 
-import com.google.common.primitives.Doubles;
 import com.navercorp.pinpoint.common.server.util.ObjectUtils;
-import com.navercorp.pinpoint.common.server.util.StringPrecondition;
-import com.navercorp.pinpoint.common.server.util.array.DoubleArray;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesValueView;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesChartType;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -46,12 +40,12 @@ public class UriStatGroup implements TimeseriesValueGroupView {
         this.unit = ObjectUtils.EMPTY_STRING;
     }
 
-    public UriStatGroup(String uri, TimeWindow timeWindow,
+    public UriStatGroup(String uri,
                         List<UriStatChartValue> uriStats,
-                        List<String> fieldNames) {
+                        List<TimeSeriesValueView> uriStatValues) {
         Assert.notEmpty(uriStats, "uriStats must not be empty");
         this.uri = Objects.requireNonNullElse(uri, ObjectUtils.EMPTY_STRING);
-        this.values = UriStatValue.createChartValueList(timeWindow, uriStats, fieldNames);
+        this.values = uriStatValues;
         UriStatChartValue uriStatChartValue = uriStats.get(0);
         this.chartType = uriStatChartValue.getChartType();
         this.unit = uriStatChartValue.getUnit();
@@ -75,51 +69,5 @@ public class UriStatGroup implements TimeseriesValueGroupView {
     @Override
     public String getUnit() {
         return unit;
-    }
-
-    public static class UriStatValue implements TimeSeriesValueView {
-        private static final double NULL = -1D;
-
-        private final String fieldName;
-        private final List<Double> values;
-
-        public static List<TimeSeriesValueView> createChartValueList(TimeWindow timeWindow, List<UriStatChartValue> uriStats, List<String> fieldNames) {
-
-            List<TimeSeriesValueView> values = new ArrayList<>();
-
-            final int bucketSize = uriStats.get(0).getValues().size();
-
-            for (int i = 0 ; i < bucketSize; i++) {
-                double[] filledData = DoubleArray.newArray(timeWindow.getWindowRangeCount(), NULL);
-
-                for (UriStatChartValue uriStat : uriStats) {
-                    int index = timeWindow.getWindowIndex(uriStat.getTimestamp());
-                    filledData[index] = uriStat.getValues().get(i);
-                }
-                values.add(new UriStatValue(fieldNames.get(i), Doubles.asList(filledData)));
-            }
-            return values;
-        }
-
-
-        public UriStatValue(String fieldName, List<Double> uriStats) {
-            this.fieldName = StringPrecondition.requireHasLength(fieldName, "fieldName");
-            this.values = Objects.requireNonNull(uriStats, "uriStats");
-        }
-
-        @Override
-        public String getFieldName() {
-            return fieldName;
-        }
-
-        @Override
-        public List<String> getTags() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public List<Double> getValues() {
-            return values;
-        }
     }
 }

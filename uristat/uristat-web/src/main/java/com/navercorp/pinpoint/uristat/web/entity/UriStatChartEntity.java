@@ -21,32 +21,32 @@ package com.navercorp.pinpoint.uristat.web.entity;
 public class UriStatChartEntity {
 
     // total
-    private Double tot0;
-    private Double tot1;
-    private Double tot2;
-    private Double tot3;
-    private Double tot4;
-    private Double tot5;
-    private Double tot6;
-    private Double tot7;
+    private double tot0;
+    private double tot1;
+    private double tot2;
+    private double tot3;
+    private double tot4;
+    private double tot5;
+    private double tot6;
+    private double tot7;
 
     // fail
-    private Double fail0;
-    private Double fail1;
-    private Double fail2;
-    private Double fail3;
-    private Double fail4;
-    private Double fail5;
-    private Double fail6;
-    private Double fail7;
+    private double fail0;
+    private double fail1;
+    private double fail2;
+    private double fail3;
+    private double fail4;
+    private double fail5;
+    private double fail6;
+    private double fail7;
 
     // latency
-    private Double totalTimeMs;
-    private Double maxLatencyMs;
-    private Double count;
+    private double totalTimeMs;
+    private double maxLatencyMs;
+    private double count;
 
     // apdex
-    private Double apdexRaw;
+    private double apdexRaw;
 
     // common
     private long timestamp;
@@ -55,163 +55,163 @@ public class UriStatChartEntity {
     public UriStatChartEntity() {
     }
 
-    public Double getTot0() {
+    public double getTot0() {
         return tot0;
     }
 
-    public void setTot0(Double tot0) {
+    public void setTot0(double tot0) {
         this.tot0 = tot0;
     }
 
-    public Double getTot1() {
+    public double getTot1() {
         return tot1;
     }
 
-    public void setTot1(Double tot1) {
+    public void setTot1(double tot1) {
         this.tot1 = tot1;
     }
 
-    public Double getTot2() {
+    public double getTot2() {
         return tot2;
     }
 
-    public void setTot2(Double tot2) {
+    public void setTot2(double tot2) {
         this.tot2 = tot2;
     }
 
-    public Double getTot3() {
+    public double getTot3() {
         return tot3;
     }
 
-    public void setTot3(Double tot3) {
+    public void setTot3(double tot3) {
         this.tot3 = tot3;
     }
 
-    public Double getTot4() {
+    public double getTot4() {
         return tot4;
     }
 
-    public void setTot4(Double tot4) {
+    public void setTot4(double tot4) {
         this.tot4 = tot4;
     }
 
-    public Double getTot5() {
+    public double getTot5() {
         return tot5;
     }
 
-    public void setTot5(Double tot5) {
+    public void setTot5(double tot5) {
         this.tot5 = tot5;
     }
 
-    public Double getTot6() {
+    public double getTot6() {
         return tot6;
     }
 
-    public void setTot6(Double tot6) {
+    public void setTot6(double tot6) {
         this.tot6 = tot6;
     }
 
-    public Double getTot7() {
+    public double getTot7() {
         return tot7;
     }
 
-    public void setTot7(Double tot7) {
+    public void setTot7(double tot7) {
         this.tot7 = tot7;
     }
 
-    public Double getFail0() {
+    public double getFail0() {
         return fail0;
     }
 
-    public void setFail0(Double fail0) {
+    public void setFail0(double fail0) {
         this.fail0 = fail0;
     }
 
-    public Double getFail1() {
+    public double getFail1() {
         return fail1;
     }
 
-    public void setFail1(Double fail1) {
+    public void setFail1(double fail1) {
         this.fail1 = fail1;
     }
 
-    public Double getFail2() {
+    public double getFail2() {
         return fail2;
     }
 
-    public void setFail2(Double fail2) {
+    public void setFail2(double fail2) {
         this.fail2 = fail2;
     }
 
-    public Double getFail3() {
+    public double getFail3() {
         return fail3;
     }
 
-    public void setFail3(Double fail3) {
+    public void setFail3(double fail3) {
         this.fail3 = fail3;
     }
 
-    public Double getFail4() {
+    public double getFail4() {
         return fail4;
     }
 
-    public void setFail4(Double fail4) {
+    public void setFail4(double fail4) {
         this.fail4 = fail4;
     }
 
-    public Double getFail5() {
+    public double getFail5() {
         return fail5;
     }
 
-    public void setFail5(Double fail5) {
+    public void setFail5(double fail5) {
         this.fail5 = fail5;
     }
 
-    public Double getFail6() {
+    public double getFail6() {
         return fail6;
     }
 
-    public void setFail6(Double fail6) {
+    public void setFail6(double fail6) {
         this.fail6 = fail6;
     }
 
-    public Double getFail7() {
+    public double getFail7() {
         return fail7;
     }
 
-    public void setFail7(Double fail7) {
+    public void setFail7(double fail7) {
         this.fail7 = fail7;
     }
 
-    public Double getTotalTimeMs() {
+    public double getTotalTimeMs() {
         return totalTimeMs;
     }
 
-    public void setTotalTimeMs(Double totalTimeMs) {
+    public void setTotalTimeMs(double totalTimeMs) {
         this.totalTimeMs = totalTimeMs;
     }
 
-    public Double getMaxLatencyMs() {
+    public double getMaxLatencyMs() {
         return maxLatencyMs;
     }
 
-    public void setMaxLatencyMs(Double maxLatencyMs) {
+    public void setMaxLatencyMs(double maxLatencyMs) {
         this.maxLatencyMs = maxLatencyMs;
     }
 
-    public Double getCount() {
+    public double getCount() {
         return count;
     }
 
-    public void setCount(Double count) {
+    public void setCount(double count) {
         this.count = count;
     }
 
-    public Double getApdexRaw() {
+    public double getApdexRaw() {
         return apdexRaw;
     }
 
-    public void setApdexRaw(Double apdexRaw) {
+    public void setApdexRaw(double apdexRaw) {
         this.apdexRaw = apdexRaw;
     }
 
@@ -229,5 +229,19 @@ public class UriStatChartEntity {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public double[] toTotalHistogram() {
+        return new double[]{
+                this.tot0, this.tot1, this.tot2, this.tot3,
+                this.tot4, this.tot5, this.tot6, this.tot7
+        };
+    }
+
+    public double[] toFailureHistogram() {
+        return new double[]{
+                this.fail0, this.fail1, this.fail2, this.fail3,
+                this.fail4, this.fail5, this.fail6, this.fail7
+        };
     }
 }
