@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.histogram;
 
 import com.google.common.collect.Ordering;
 import com.google.common.primitives.Doubles;
+import com.navercorp.pinpoint.common.server.util.array.DoubleArray;
 import com.navercorp.pinpoint.common.server.util.json.JsonField;
 import com.navercorp.pinpoint.common.server.util.json.JsonFields;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
@@ -32,7 +33,6 @@ import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationStatPoint;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -131,9 +131,9 @@ public class AgentTimeHistogram {
 
     public List<ApplicationStatPoint> getApplicationApdexScoreList(TimeWindow window) {
         int size = window.getWindowRangeCount();
-        double[] min = fillDoubleArray(size, DEFAULT_MIN_APDEX_SCORE);
+        double[] min = DoubleArray.newArray(size, DEFAULT_MIN_APDEX_SCORE);
         List<String> minAgentId = fillList(size, DEFAULT_AGENT_ID);
-        double[] max = fillDoubleArray(size, DEFAULT_MAX_APDEX_SCORE);
+        double[] max = DoubleArray.newArray(size, DEFAULT_MAX_APDEX_SCORE);
         List<String> maxAgentId = fillList(size, DEFAULT_AGENT_ID);
 
         List<Histogram> sumHistogram = getDefaultHistograms(window, application.getServiceType());
@@ -160,12 +160,6 @@ public class AgentTimeHistogram {
 
     private <T> List<T> fillList(int size, T defaultValue) {
         return new ArrayList<>(Collections.nCopies(size, defaultValue));
-    }
-
-    private double[] fillDoubleArray(int size, double defaultValue) {
-        double[] values = new double[size];
-        Arrays.fill(values, 0, size, defaultValue);
-        return values;
     }
 
     private void updateMin(int index, double apdex, String agentId, double[] min, List<String> minAgentId) {

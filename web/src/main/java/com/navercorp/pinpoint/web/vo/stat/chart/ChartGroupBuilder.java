@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.LongFunction;
 
 import static com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup.ChartType;
 
@@ -20,7 +21,7 @@ public class ChartGroupBuilder<T, P extends Point> {
     private final TimeSeriesChartBuilder<P> builder;
     private final List<ChartTransform<T, P>> pointFunctions = new ArrayList<>();
 
-    public ChartGroupBuilder(Point.UncollectedPointCreator<P> uncollectedPoint) {
+    public ChartGroupBuilder(LongFunction<P> uncollectedPoint) {
         Objects.requireNonNull(uncollectedPoint, "uncollectedPoint");
         this.builder = new TimeSeriesChartBuilder<>(uncollectedPoint);
     }

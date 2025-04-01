@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.otlp.web.vo.FieldAttribute;
 import java.util.List;
 
 public class OtlpChartFieldViewBuilder {
-    private static Number defaultValue = -1;
+    private static final Number defaultValue = -1;
 
     private String chartType;
     private String fieldName;

@@ -18,22 +18,24 @@ package com.navercorp.pinpoint.otlp.web.view.legacy;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Map.entry;
+
 public class OtlpChartFieldView {
-    private static String SUMMARY_KEY = "type";
-    private static String SUMMARY_VALUE = "value";
-    private String fieldName;
-    private String chartType;
-    private String description;
-    private String unit;
+    private static final String SUMMARY_KEY = "type";
+    private static final String SUMMARY_VALUE = "value";
+
+    private final String fieldName;
+    private final String chartType;
+    private final String description;
+    private final String unit;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Map<String, String> summary;
-    private String version;
-    private String aggregationTemporality;
-    private List<Number> values;
+    private final String version;
+    private final String aggregationTemporality;
+    private final List<Number> values;
 
     public OtlpChartFieldView(String chartType, String fieldName, String description, String unit, String version, String aggregationTemporality, List<Number> values) {
         this.chartType = chartType;
@@ -78,8 +80,9 @@ public class OtlpChartFieldView {
     }
 
     public void setSummaryField(String key, String value) {
-        summary = new HashMap<>();
-        summary.put(SUMMARY_KEY, key);
-        summary.put(SUMMARY_VALUE, value);
+        summary = Map.ofEntries(
+                entry(SUMMARY_KEY, key),
+                entry(SUMMARY_VALUE, value)
+        );
     }
 }

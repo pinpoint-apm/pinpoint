@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 
 import java.util.Objects;
+import java.util.function.LongFunction;
 
 /**
  * @author Taejin Koo
@@ -85,7 +86,7 @@ public class ApplicationStatPoint implements Point {
 
     public static final double UNCOLLECTED_VALUE = -1L;
 
-    public static class UncollectedCreator implements UncollectedPointCreator<ApplicationStatPoint> {
+    public static class UncollectedCreator implements LongFunction<ApplicationStatPoint> {
 
         private final double uncollectedValue;
 
@@ -98,7 +99,7 @@ public class ApplicationStatPoint implements Point {
         }
 
         @Override
-        public ApplicationStatPoint createUnCollectedPoint(long xVal) {
+        public ApplicationStatPoint apply(long xVal) {
             return new ApplicationStatPoint(xVal, uncollectedValue,
                     JoinStatBo.UNKNOWN_AGENT, uncollectedValue,
                     JoinStatBo.UNKNOWN_AGENT, uncollectedValue);

@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.otlp.common.web.definition.property.ChartType;
 import com.navercorp.pinpoint.otlp.common.web.model.MetricValue;
 import com.navercorp.pinpoint.otlp.web.vo.MetricData;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,10 +27,10 @@ import java.util.stream.Collectors;
  * @author minwoo-jung
  */
 public class MetricDataView {
-    private List<Long> timestamp;
-    private ChartType chartType;
-    private String unit;
-    private List<MetricValue> metricValueList;
+    private final List<Long> timestamp;
+    private final ChartType chartType;
+    private final String unit;
+    private final List<MetricValue> metricValueList;
     private final String message;
 
     public MetricDataView(MetricData metricData) {
@@ -63,9 +62,9 @@ public class MetricDataView {
     }
 
     public static class MetricValueView {
-        private String legendName;
-        private List<Number> valueList;
-        private String version;
+        private final String legendName;
+        private final List<Number> valueList;
+        private final String version;
 
         public MetricValueView(MetricValue metricValue) {
             this.legendName = metricValue.legendName();

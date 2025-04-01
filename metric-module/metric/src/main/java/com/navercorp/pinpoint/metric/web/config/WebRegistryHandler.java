@@ -10,7 +10,6 @@ import com.navercorp.pinpoint.metric.web.dao.model.HostInfoSearchKey;
 import com.navercorp.pinpoint.metric.web.dao.model.MetricInfoSearchKey;
 import com.navercorp.pinpoint.metric.web.dao.model.MetricTagsSearchKey;
 import com.navercorp.pinpoint.metric.web.dao.model.SystemMetricDataSearchKey;
-import com.navercorp.pinpoint.metric.web.model.SampledSystemMetric;
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.DoubleToLongTypeHandler;
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.DoubleTypeHandler;
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.LongTypeHandler;
@@ -42,7 +41,6 @@ public class WebRegistryHandler implements MyBatisRegistryHandler {
         typeAliasRegistry.registerAlias("TagHandler", TagTypeHandler.class);
         typeAliasRegistry.registerAlias("TagListHandler", TagListTypeHandler.class);
 
-        typeAliasRegistry.registerAlias(SampledSystemMetric.class);
         typeAliasRegistry.registerAlias(DoubleSystemMetricPoint.class);
         typeAliasRegistry.registerAlias(LongSystemMetricPoint.class);
         typeAliasRegistry.registerAlias(SystemMetricDataSearchKey.class);
