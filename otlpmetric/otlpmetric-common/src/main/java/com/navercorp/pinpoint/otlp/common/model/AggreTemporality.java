@@ -13,29 +13,21 @@ public enum AggreTemporality {
     }
 
     public static AggreTemporality forNumber(int value) {
-        switch (value) {
-            case 0:
-                return UNSPECIFIED;
-            case 1:
-                return DELTA;
-            case 2:
-                return CUMULATIVE;
-            default:
-                return UNRECOGNIZED;
-        }
+        return switch (value) {
+            case 0 -> UNSPECIFIED;
+            case 1 -> DELTA;
+            case 2 -> CUMULATIVE;
+            default -> UNRECOGNIZED;
+        };
     }
 
     public static AggreTemporality forName(String name) {
-        switch(name.toUpperCase()) {
-            case "UNSPECIFIED":
-                return UNSPECIFIED;
-            case "DELTA":
-                return DELTA;
-            case "CUMULATIVE":
-                return CUMULATIVE;
-            default:
-                return UNRECOGNIZED;
-        }
+        return switch (name.toUpperCase()) {
+            case "UNSPECIFIED" -> UNSPECIFIED;
+            case "DELTA" -> DELTA;
+            case "CUMULATIVE" -> CUMULATIVE;
+            default -> UNRECOGNIZED;
+        };
     }
 
     private AggreTemporality(int value) {

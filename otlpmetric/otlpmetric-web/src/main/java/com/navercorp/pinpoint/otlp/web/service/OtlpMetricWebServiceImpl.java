@@ -7,7 +7,7 @@ import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.otlp.common.model.MetricPoint;
 import com.navercorp.pinpoint.otlp.common.model.MetricType;
-import com.navercorp.pinpoint.otlp.common.util.DoubleUncollectedDataCreator;
+import com.navercorp.pinpoint.otlp.common.util.MetricPoints;
 import com.navercorp.pinpoint.otlp.common.util.TimeSeriesBuilder;
 import com.navercorp.pinpoint.otlp.common.web.defined.PrimaryForFieldAndTagRelation;
 import com.navercorp.pinpoint.otlp.common.web.definition.property.AggregationFunction;
@@ -200,9 +200,10 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
     }
 
 
-    private void addMetricValue(TimeWindow timeWindow, List<MetricPoint> meticDataList, MetricData metricData, String legendName, String version){
-        TimeSeriesBuilder timeSeriesBuilder = new TimeSeriesBuilder(timeWindow, DoubleUncollectedDataCreator.UNCOLLECTED_DATA_CREATOR);
-        List<MetricPoint> metricPointList = timeSeriesBuilder.build(meticDataList);
+    private void addMetricValue(TimeWindow timeWindow,
+                                                   List<MetricPoint> meticDataList, MetricData metricData, String legendName, String version){
+        TimeSeriesBuilder timeSeriesBuilder = new TimeSeriesBuilder(timeWindow);
+        List<MetricPoint> metricPointList = timeSeriesBuilder.build(MetricPoints::createUnCollectedPoint, meticDataList);
         List<Number> valueList = metricPointList.stream().map(MetricPoint::getYVal).collect(Collectors.toList());
 
         metricData.addMetricValue(new MetricValue(legendName, valueList, version));
