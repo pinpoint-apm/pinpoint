@@ -19,12 +19,20 @@ package com.navercorp.pinpoint.otlp.web.config.pinot;
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.DoubleTypeHandler;
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.LongTypeHandler;
 import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
-import com.navercorp.pinpoint.otlp.common.model.MetricPoint;
-import com.navercorp.pinpoint.otlp.common.web.definition.property.MetricDescriptor;
 import com.navercorp.pinpoint.otlp.common.model.AggreFunc;
 import com.navercorp.pinpoint.otlp.common.model.DataType;
+import com.navercorp.pinpoint.otlp.common.model.DoubleMetricPoint;
+import com.navercorp.pinpoint.otlp.common.model.LongMetricPoint;
+import com.navercorp.pinpoint.otlp.common.web.definition.property.MetricDescriptor;
+import com.navercorp.pinpoint.otlp.web.vo.FieldAttribute;
+import com.navercorp.pinpoint.otlp.web.vo.OtlpMetricChartQueryParameter;
+import com.navercorp.pinpoint.otlp.web.vo.OtlpMetricChartResult;
+import com.navercorp.pinpoint.otlp.web.vo.OtlpMetricChartSummary;
+import com.navercorp.pinpoint.otlp.web.vo.OtlpMetricDataQueryParameter;
+import com.navercorp.pinpoint.otlp.web.vo.OtlpMetricDetailsQueryParam;
+import com.navercorp.pinpoint.otlp.web.vo.OtlpMetricGroupsQueryParam;
+import com.navercorp.pinpoint.otlp.web.vo.OtlpMetricNamesQueryParam;
 import com.navercorp.pinpoint.otlp.web.vo.handler.FieldAttributeHandler;
-import com.navercorp.pinpoint.otlp.web.vo.*;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
@@ -42,7 +50,10 @@ public class OtlpMetricPinotRegistryHandler implements MyBatisRegistryHandler {
         typeAliasRegistry.registerAlias(DataType.class);
         typeAliasRegistry.registerAlias(OtlpMetricChartSummary.class);
         typeAliasRegistry.registerAlias(MetricDescriptor.class);
-        typeAliasRegistry.registerAlias(MetricPoint.class);
+
+        typeAliasRegistry.registerAlias(LongMetricPoint.class);
+        typeAliasRegistry.registerAlias(DoubleMetricPoint.class);
+
         typeAliasRegistry.registerAlias(Number.class);
         typeAliasRegistry.registerAlias("DoubleHandler", DoubleTypeHandler.class);
         typeAliasRegistry.registerAlias("LongHandler", LongTypeHandler.class);

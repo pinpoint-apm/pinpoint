@@ -16,47 +16,21 @@
 
 package com.navercorp.pinpoint.otlp.common.model;
 
-import java.util.Objects;
-
 /**
  * @author minwoo-jung
  */
-public class MetricPoint <Y extends Number> {
-    private final long xVal;
-    private final Y yVal;
+public interface MetricPoint <Y extends Number> {
 
-    public MetricPoint(long xVal, Y yVal) {
-        this.xVal = xVal;
-        this.yVal = yVal;
+    long getXVal();
+
+    Y getYVal();
+
+    static MetricPoint<Double> of(long x, double y) {
+        return new DoubleMetricPoint(x, y);
     }
 
-    public long getXVal() {
-        return xVal;
-    }
-
-    public Y getYVal() {
-        return yVal;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        MetricPoint<?> that = (MetricPoint<?>) o;
-        return xVal == that.xVal && Objects.equals(yVal, that.yVal);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(xVal, yVal);
-    }
-
-    @Override
-    public String toString() {
-        return "MetricPoint{" +
-                "xVal=" + xVal +
-                ", yVal=" + yVal +
-                '}';
+    static MetricPoint<Long> of(long x, long y) {
+        return new LongMetricPoint(x, y);
     }
 }
 

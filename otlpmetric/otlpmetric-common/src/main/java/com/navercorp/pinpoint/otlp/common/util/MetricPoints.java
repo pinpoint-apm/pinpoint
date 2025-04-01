@@ -21,6 +21,12 @@ import com.navercorp.pinpoint.otlp.common.model.MetricPoint;
 /**
  * @author minwoo-jung
  */
-public interface UncollectedDataCreator<T extends Number> {
-    MetricPoint<T> createUnCollectedPoint(long xVal);
+public final class MetricPoints {
+    private static final Double UNCOLLECTED_VALUE = -1D;
+
+
+    public static MetricPoint<Double> createUnCollectedPoint(long xVal) {
+        return MetricPoint.of(xVal, UNCOLLECTED_VALUE);
+    }
+
 }

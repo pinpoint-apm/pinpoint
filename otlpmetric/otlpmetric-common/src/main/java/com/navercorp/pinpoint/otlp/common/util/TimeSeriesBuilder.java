@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.otlp.common.model.MetricPoint;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.LongFunction;
 
 /**
  * @author minwoo-jung
@@ -29,15 +30,13 @@ import java.util.Objects;
 public class TimeSeriesBuilder<T extends Number> {
 
     private final TimeWindow timeWindow;
-    private final UncollectedDataCreator<T> uncollectedDataCreator;
 
-    public TimeSeriesBuilder(TimeWindow timeWindow, UncollectedDataCreator<T> uncollectedDataCreator) {
+    public TimeSeriesBuilder(TimeWindow timeWindow) {
         this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
-        this.uncollectedDataCreator = Objects.requireNonNull(uncollectedDataCreator, "uncollectedDataCreator");
     }
 
-    public List<MetricPoint<T>> build(List<MetricPoint<T>> metricDataList) {
-        List<MetricPoint<T>> filledMetricPointList = createInitialPoints();
+    public List<MetricPoint<T>> build(LongFunction<MetricPoint<T>> function, List<MetricPoint<T>> metricDataList) {
+        List<MetricPoint<T>> filledMetricPointList = createInitialPoints(function);
         final int windowRangeCount = timeWindow.getWindowRangeCount();
         for (MetricPoint<T> metricPoint : metricDataList) {
             int timeslotIndex = this.timeWindow.getWindowIndex(metricPoint.getXVal());
@@ -50,12 +49,12 @@ public class TimeSeriesBuilder<T extends Number> {
         return filledMetricPointList;
     }
 
-    private List<MetricPoint<T>> createInitialPoints() {
-        int numTimeslots = Math.toIntExact(this.timeWindow.getWindowRangeCount());
+    private List<MetricPoint<T>> createInitialPoints(LongFunction<MetricPoint<T>> function) {
+        final int numTimeslots = this.timeWindow.getWindowRangeCount();
         List<MetricPoint<T>> pointList = new ArrayList<>(numTimeslots);
 
         for (long timestamp : this.timeWindow) {
-            pointList.add(uncollectedDataCreator.createUnCollectedPoint(timestamp));
+            pointList.add(function.apply(timestamp));
         }
 
         return pointList;

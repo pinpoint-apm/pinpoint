@@ -3,17 +3,17 @@
 <mapper namespace="com.navercorp.pinpoint.otlp.web.dao.pinot.PinotOtlpMetricDao">
 
 
-    <resultMap id="doubleMetricPointResultMap" type="MetricPoint">
+    <resultMap id="doubleMetricPointResultMap" type="DoubleMetricPoint">
         <constructor>
             <arg column="eventTime" javaType="_long"/>
-            <arg column="value" javaType="Number" typeHandler="DoubleHandler"/>
+            <arg column="value" javaType="_double"/>
         </constructor>
     </resultMap>
 
-    <resultMap id="longMetricPointResultMap" type="MetricPoint">
+    <resultMap id="longMetricPointResultMap" type="LongMetricPoint">
         <constructor>
             <arg column="eventTime" javaType="_long"/>
-            <arg column="value" javaType="Number" typeHandler="LongHandler"/>
+            <arg column="value" javaType="_long"/>
         </constructor>
     </resultMap>
 
