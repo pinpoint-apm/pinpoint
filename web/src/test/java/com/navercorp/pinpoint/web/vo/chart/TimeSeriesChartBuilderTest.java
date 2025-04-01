@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.LongFunction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,12 +44,6 @@ public class TimeSeriesChartBuilderTest {
     private static class TestPoint implements Point {
 
         private static final int UNCOLLECTED_VALUE = -1;
-        private static final LongFunction<TestPoint> UNCOLLECTED_POINT_CREATOR = new LongFunction<TestPoint>() {
-            @Override
-            public TestPoint apply(long xVal) {
-                return new TestPoint(xVal, UNCOLLECTED_VALUE);
-            }
-        };
 
         private final long xVal;
         private final int yVal;
@@ -68,6 +61,10 @@ public class TimeSeriesChartBuilderTest {
         public int getYVal() {
             return yVal;
         }
+
+        public static TestPoint newPoint(long xVal) {
+            return new TestPoint(xVal, UNCOLLECTED_VALUE);
+        }
     }
 
     @Test
@@ -75,7 +72,7 @@ public class TimeSeriesChartBuilderTest {
         // Given
         int numSlots = 10;
         TimeWindow timeWindow = new TimeWindow(Range.between(0, TIME_WINDOW_SIZE * numSlots), TIME_WINDOW_SAMPLER);
-        TimeSeriesChartBuilder<TestPoint> builder = new TimeSeriesChartBuilder<>(TestPoint.UNCOLLECTED_POINT_CREATOR);
+        TimeSeriesChartBuilder<TestPoint> builder = new TimeSeriesChartBuilder<>(TestPoint::newPoint);
         List<TestPoint> points = Collections.emptyList();
         // When
         Chart<TestPoint> chart = builder.build(timeWindow, points);
@@ -89,7 +86,7 @@ public class TimeSeriesChartBuilderTest {
         // Given
         int numSlots = 100;
         TimeWindow timeWindow = new TimeWindow(Range.between(0, TIME_WINDOW_SIZE * numSlots), TIME_WINDOW_SAMPLER);
-        TimeSeriesChartBuilder<TestPoint> builder = new TimeSeriesChartBuilder<>(TestPoint.UNCOLLECTED_POINT_CREATOR);
+        TimeSeriesChartBuilder<TestPoint> builder = new TimeSeriesChartBuilder<>(TestPoint::newPoint);
         List<TestPoint> points = new ArrayList<>(TIME_WINDOW_SIZE * numSlots);
         for (int i = 0; i <= TIME_WINDOW_SIZE * numSlots; i++) {
             points.add(new TestPoint(i, i / TIME_WINDOW_SIZE));

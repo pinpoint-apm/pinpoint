@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.vo.stat.chart.application;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 
 import java.util.Objects;
-import java.util.function.LongFunction;
 
 /**
  * @author Taejin Koo
@@ -82,31 +81,4 @@ public class ApplicationStatPoint implements Point {
                 ", yValForAvg=" + yValForAvg +
                 '}';
     }
-
-    public static final double UNCOLLECTED_VALUE = -1L;
-
-    public static class UncollectedCreator implements LongFunction<ApplicationStatPoint> {
-
-        public static final String UNKNOWN_AGENT = "unknown_agent_id";
-
-        private final double uncollectedValue;
-
-        public UncollectedCreator() {
-            this(UNCOLLECTED_VALUE);
-        }
-
-        public UncollectedCreator(double uncollectedValue) {
-            this.uncollectedValue = uncollectedValue;
-        }
-
-        @Override
-        public ApplicationStatPoint apply(long xVal) {
-            return new ApplicationStatPoint(xVal, uncollectedValue,
-                    UNKNOWN_AGENT, uncollectedValue,
-                    UNKNOWN_AGENT, uncollectedValue);
-        }
-
-    }
-
-
 }

@@ -17,7 +17,7 @@ class ChartGroupBuilderTest {
 
     @Test
     void build() {
-        ChartGroupBuilder<SampledApdexScore, AgentStatPoint> builder = new ChartGroupBuilder<>(SampledApdexScore.UNCOLLECTED_POINT_CREATOR);
+        ChartGroupBuilder<SampledApdexScore, AgentStatPoint> builder = new ChartGroupBuilder<>(SampledApdexScore::newPoint);
 
         builder.addPointFunction(AgentApdexScoreChart.ApdexScoreChartType.APDEX_SCORE, SampledApdexScore::getApdexScore);
 
