@@ -3,12 +3,10 @@ package com.navercorp.pinpoint.web.vo.stat;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 
 import java.util.Objects;
-import java.util.function.LongFunction;
 
 public class SampledApdexScore implements SampledAgentStatDataPoint {
 
     public static final double UNCOLLECTED_SCORE = -1D;
-    public static final LongFunction<AgentStatPoint> UNCOLLECTED_POINT_CREATOR = (x) -> new AgentStatPoint(x, UNCOLLECTED_SCORE);
 
     private final AgentStatPoint apdexScore;
 
@@ -40,5 +38,9 @@ public class SampledApdexScore implements SampledAgentStatDataPoint {
         return "SampledApdexScore{" +
                 "apdexScore=" + apdexScore +
                 '}';
+    }
+
+    public static AgentStatPoint newPoint(long timestamp) {
+        return new AgentStatPoint(timestamp, UNCOLLECTED_SCORE);
     }
 }

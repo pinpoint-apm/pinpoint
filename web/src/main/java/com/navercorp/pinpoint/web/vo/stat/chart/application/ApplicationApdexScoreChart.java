@@ -5,12 +5,10 @@ import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 
 import java.util.List;
-import java.util.function.LongFunction;
 
 public class ApplicationApdexScoreChart extends DefaultApplicationChart<ApplicationStatPoint> {
-
-    private static final LongFunction<ApplicationStatPoint> UNCOLLECTED_POINT
-            = new ApplicationStatPoint.UncollectedCreator(-1D);
+    public static final double UNKNOWN_SCORE = -1;
+    public static final String UNKNOWN_AGENT = "unknown_agent_id";
 
     public enum ApdexScoreChartType implements StatChartGroup.ApplicationChartType {
         APDEX_SCORE
@@ -19,7 +17,7 @@ public class ApplicationApdexScoreChart extends DefaultApplicationChart<Applicat
     private static final ChartGroupBuilder<ApplicationStatPoint, ApplicationStatPoint> BUILDER = newChartBuilder();
 
     static ChartGroupBuilder<ApplicationStatPoint, ApplicationStatPoint> newChartBuilder() {
-        ChartGroupBuilder<ApplicationStatPoint, ApplicationStatPoint> builder = new ChartGroupBuilder<>(UNCOLLECTED_POINT);
+        ChartGroupBuilder<ApplicationStatPoint, ApplicationStatPoint> builder = new ChartGroupBuilder<>(ApplicationApdexScoreChart::newPoint);
         builder.addPointFunction(ApdexScoreChartType.APDEX_SCORE, ApplicationApdexScoreChart::newApdexScorePoint);
         return builder;
     }
@@ -30,5 +28,11 @@ public class ApplicationApdexScoreChart extends DefaultApplicationChart<Applicat
 
     private static ApplicationStatPoint newApdexScorePoint(ApplicationStatPoint apdexScore) {
         return apdexScore;
+    }
+
+    private static ApplicationStatPoint newPoint(long timestamp) {
+        return new ApplicationStatPoint(timestamp, UNKNOWN_SCORE,
+                UNKNOWN_AGENT, UNKNOWN_SCORE,
+                UNKNOWN_AGENT, UNKNOWN_SCORE);
     }
 }
