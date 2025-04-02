@@ -15,8 +15,9 @@
  */
 package com.navercorp.pinpoint.uristat.web.mapper;
 
-import com.google.common.primitives.Doubles;
 import com.navercorp.pinpoint.common.util.MathUtils;
+import com.navercorp.pinpoint.uristat.web.entity.UriApdexChartEntity;
+import com.navercorp.pinpoint.uristat.web.entity.UriLatencyChartEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriStatChartEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriStatSummaryEntity;
 import org.mapstruct.Named;
@@ -74,23 +75,24 @@ public class MapperUtils {
         return MathUtils.average(entity.getSumOfTotalTimeMs(), entity.getTotalCount());
     }
 
-    @Named("toTotalHistogram")
-    public static List<Double> toTotalHistogram(UriStatChartEntity entity) {
-        return Doubles.asList(entity.toTotalHistogram());
-    }
-
-    @Named("toFailureHistogram")
-    public static List<Double> toFailureHistogram(UriStatChartEntity entity) {
-        return Doubles.asList(entity.toFailureHistogram());
-    }
-
     @Named("toLatency")
     public static List<Double> toLatency(UriStatChartEntity entity) {
-        return Doubles.asList((entity.getCount() == 0) ? -1 : (entity.getTotalTimeMs() / entity.getCount()), entity.getMaxLatencyMs());
+        return List.of((entity.getCount() == 0) ? -1 : (entity.getTotalTimeMs() / entity.getCount()), entity.getMaxLatencyMs());
+    }
+
+    @Named("toSimpleLatency")
+    public static List<Double> toSimpleLatency(UriLatencyChartEntity entity) {
+        return List.of((entity.getCount() == 0) ? -1 : (entity.getTotalTimeMs() / entity.getCount()), entity.getMaxLatencyMs());
+    }
+
+    @Named("toApdexList")
+    public static List<Double> toSimpleApdexList(UriApdexChartEntity entity) {
+        return List.of((entity.getCount() == 0) ? -1 : (entity.getApdexRaw() / entity.getCount()));
     }
 
     @Named("toApdexList")
     public static List<Double> toApdexList(UriStatChartEntity entity) {
-        return Doubles.asList((entity.getCount() == 0) ? -1 : (entity.getApdexRaw() / entity.getCount()));
+        return List.of((entity.getCount() == 0) ? -1 : (entity.getApdexRaw() / entity.getCount()));
     }
 }
+

@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.uristat.web.dao;
 
-import com.navercorp.pinpoint.uristat.web.entity.UriStatChartEntity;
+import com.navercorp.pinpoint.uristat.web.entity.UriHistogramFailEntity;
 import com.navercorp.pinpoint.uristat.web.mapper.EntityToModelMapper;
 import com.navercorp.pinpoint.uristat.web.model.UriStatChartValue;
 import com.navercorp.pinpoint.uristat.web.util.UriStatChartQueryParameter;
@@ -29,9 +29,8 @@ public class PinotFailureCountChartDao implements UriStatChartDao {
 
     @Override
     public List<UriStatChartValue> getChartData(UriStatChartQueryParameter queryParameter) {
-        List<UriStatChartEntity> entities = sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_FAILURE_CHART, queryParameter);
+        List<UriHistogramFailEntity> entities = sqlPinotSessionTemplate.selectList(NAMESPACE + SELECT_FAILURE_CHART, queryParameter);
         return entities.stream()
-                .map(mapper::toFailureChart
-                ).toList();
+                .map(mapper::toFailureChart).toList();
     }
 }

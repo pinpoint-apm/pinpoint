@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.navercorp.pinpoint.uristat.web.dao.UriStatChartDao">
-    <resultMap id="uriStatChartEntity" type="UriStatChartEntity">
+
+    <resultMap id="uriHistogramEntity" type="UriHistogramEntity">
+    </resultMap>
+    <resultMap id="uriHistogramFailEntity" type="UriHistogramFailEntity">
     </resultMap>
 
-    <select id="selectTotalUriStat" resultMap="uriStatChartEntity" parameterType="UriStatChartQueryParameter">
+    <resultMap id="uriApdexChartEntity" type="UriApdexChartEntity">
+    </resultMap>
+
+    <resultMap id="uriLatencyChartEntity" type="UriLatencyChartEntity">
+    </resultMap>
+
+
+    <select id="selectTotalUriStat" resultMap="uriHistogramEntity" parameterType="UriStatChartQueryParameter">
         SELECT
             DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
                 '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
@@ -31,7 +41,7 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectFailedUriStat" resultMap="uriStatChartEntity" parameterType="UriStatChartQueryParameter">
+    <select id="selectFailedUriStat" resultMap="uriHistogramFailEntity" parameterType="UriStatChartQueryParameter">
         SELECT
             DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
                 '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
@@ -58,7 +68,7 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectUriApdex" resultMap="uriStatChartEntity" parameterType="UriStatChartQueryParameter">
+    <select id="selectUriApdex" resultMap="uriApdexChartEntity" parameterType="UriStatChartQueryParameter">
         SELECT
             DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
                 '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
@@ -79,7 +89,7 @@
         LIMIT ${limit}
     </select>
 
-    <select id="selectUriLatency" resultMap="uriStatChartEntity" parameterType="UriStatChartQueryParameter">
+    <select id="selectUriLatency" resultMap="uriLatencyChartEntity" parameterType="UriStatChartQueryParameter">
         SELECT
             DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
                 '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",

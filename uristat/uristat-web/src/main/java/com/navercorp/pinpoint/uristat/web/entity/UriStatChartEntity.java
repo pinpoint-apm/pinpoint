@@ -15,10 +15,14 @@
  */
 package com.navercorp.pinpoint.uristat.web.entity;
 
+import com.google.common.primitives.Doubles;
+
+import java.util.List;
+
 /**
  * @author intr3p1d
  */
-public class UriStatChartEntity {
+public class UriStatChartEntity extends UriEntity {
 
     // total
     private double tot0;
@@ -48,9 +52,6 @@ public class UriStatChartEntity {
     // apdex
     private double apdexRaw;
 
-    // common
-    private long timestamp;
-    private String version;
 
     public UriStatChartEntity() {
     }
@@ -215,33 +216,17 @@ public class UriStatChartEntity {
         this.apdexRaw = apdexRaw;
     }
 
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public double[] toTotalHistogram() {
-        return new double[]{
+    public List<Double> getTotalHistogram() {
+        return Doubles.asList(
                 this.tot0, this.tot1, this.tot2, this.tot3,
                 this.tot4, this.tot5, this.tot6, this.tot7
-        };
+        );
     }
 
-    public double[] toFailureHistogram() {
-        return new double[]{
+    public List<Double> getFailureHistogram() {
+        return Doubles.asList(
                 this.fail0, this.fail1, this.fail2, this.fail3,
                 this.fail4, this.fail5, this.fail6, this.fail7
-        };
+        );
     }
 }

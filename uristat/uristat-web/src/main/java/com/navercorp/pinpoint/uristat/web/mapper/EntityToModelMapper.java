@@ -15,8 +15,10 @@
  */
 package com.navercorp.pinpoint.uristat.web.mapper;
 
-import com.google.common.primitives.Doubles;
-import com.navercorp.pinpoint.common.util.MathUtils;
+import com.navercorp.pinpoint.uristat.web.entity.UriApdexChartEntity;
+import com.navercorp.pinpoint.uristat.web.entity.UriHistogramEntity;
+import com.navercorp.pinpoint.uristat.web.entity.UriHistogramFailEntity;
+import com.navercorp.pinpoint.uristat.web.entity.UriLatencyChartEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriStatChartEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriStatSummaryEntity;
 import com.navercorp.pinpoint.uristat.web.model.UriStatChartValue;
@@ -82,6 +84,7 @@ public interface EntityToModelMapper {
         return summary;
     }
 
+
     @Retention(RetentionPolicy.CLASS)
     @Mapping(target = "timestamp", source = "timestamp")
     @Mapping(target = "version", source = "version")
@@ -92,15 +95,37 @@ public interface EntityToModelMapper {
     @Named("toTotalChart")
     @Mapping(target = "chartType", constant = "bar")
     @Mapping(target = "unit", constant = "count")
-    @Mapping(target = "values", source = "entity", qualifiedByName = "toTotalHistogram")
+    @Mapping(target = "values", source = "totalHistogram")
+    UriStatChartValue toTotalChart(UriHistogramEntity entity);
+
+    @ToChartValue
+    @Named("toFailureChart")
+    @Mapping(target = "chartType", constant = "bar")
+    @Mapping(target = "unit", constant = "count")
+    @Mapping(target = "values", source = "failureHistogram")
+    UriStatChartValue toFailureChart(UriHistogramFailEntity entity);
+
+
+    @ToChartValue
+    @Named("toTotalChart")
+    @Mapping(target = "chartType", constant = "bar")
+    @Mapping(target = "unit", constant = "count")
+    @Mapping(target = "values", source = "totalHistogram")
     UriStatChartValue toTotalChart(UriStatChartEntity entity);
 
     @ToChartValue
     @Named("toFailureChart")
     @Mapping(target = "chartType", constant = "bar")
     @Mapping(target = "unit", constant = "count")
-    @Mapping(target = "values", source = "entity", qualifiedByName = "toFailureHistogram")
+    @Mapping(target = "values", source = "totalHistogram")
     UriStatChartValue toFailureChart(UriStatChartEntity entity);
+
+    @ToChartValue
+    @Named("toLatencyChart")
+    @Mapping(target = "chartType", constant = "line")
+    @Mapping(target = "unit", constant = "ms")
+    @Mapping(target = "values", source = "entity", qualifiedByName = "toSimpleLatency")
+    UriStatChartValue toSimpleLatencyChart(UriLatencyChartEntity entity);
 
     @ToChartValue
     @Named("toLatencyChart")
@@ -109,6 +134,13 @@ public interface EntityToModelMapper {
     @Mapping(target = "values", source = "entity", qualifiedByName = "toLatency")
     UriStatChartValue toLatencyChart(UriStatChartEntity entity);
 
+
+    @ToChartValue
+    @Named("toApdexChart")
+    @Mapping(target = "chartType", constant = "line")
+    @Mapping(target = "unit", constant = "")
+    @Mapping(target = "values", source = "entity", qualifiedByName = "toApdexList")
+    UriStatChartValue toSimpleApdexChart(UriApdexChartEntity entity);
 
     @ToChartValue
     @Named("toApdexChart")
