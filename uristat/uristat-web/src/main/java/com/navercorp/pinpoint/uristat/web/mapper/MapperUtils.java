@@ -21,9 +21,11 @@ import com.navercorp.pinpoint.uristat.web.entity.UriStatChartEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriStatSummaryEntity;
 import org.mapstruct.Named;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * @author intr3p1d
@@ -31,20 +33,35 @@ import java.util.stream.Collectors;
 public class MapperUtils {
     public static List<List<UriStatSummaryEntity>> groupByUriAndVersion(
             List<UriStatSummaryEntity> entities,
-            long originalLimit
+            int originalLimit
     ) {
-        // Use LinkedHashMap to preserve the order of the entities as much as possible
-        List<List<UriStatSummaryEntity>> grouped = entities.stream()
-                .collect(
-                        Collectors.groupingBy(
-                                entity -> entity.getUri() + entity.getVersion(), LinkedHashMap::new, Collectors.toList()
-                        )
-                ).values().stream().toList();
-        return subList(grouped, originalLimit);
+
+        Map<Key, List<UriStatSummaryEntity>> groupBy = groupBy(entities, MapperUtils::uriAndVersion);
+
+        return groupBy.values()
+                .stream()
+                .limit(originalLimit)
+                .toList();
     }
 
-    static <T> List<T> subList(List<T> list, long limit) {
-        return list.subList(0, (int) Math.min(list.size(), limit));
+    public static <K, V> Map<K, List<V>> groupBy(
+            List<V> entities,
+            Function<V, K> groupFunction
+    ) {
+        // Use LinkedHashMap to preserve the order of the entities as much as possible
+        Map<K, List<V>> map = new LinkedHashMap<>();
+        for (V entity : entities) {
+            final K key = groupFunction.apply(entity);
+            map.computeIfAbsent(key, k -> new ArrayList<>()).add(entity);
+        }
+        return map;
+    }
+
+    record Key(String uri, String version) {
+    }
+
+    private static Key uriAndVersion(UriStatSummaryEntity entity) {
+        return new Key(entity.getUri(), entity.getVersion());
     }
 
     @Named("toApdex")
