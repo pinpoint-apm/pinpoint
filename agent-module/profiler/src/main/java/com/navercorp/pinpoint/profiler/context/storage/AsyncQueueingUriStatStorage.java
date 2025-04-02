@@ -30,6 +30,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -42,37 +43,39 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
     private static final ThrottledLogger TLogger = ThrottledLogger.getLogger(LOGGER, 100);
     private final UriStatConsumer consumer;
 
-    private final boolean uriStatCollectHttpMethod;
+    private final UriTransformer uriTransformer;
 
-    public AsyncQueueingUriStatStorage(boolean uriStatCollectHttpMethod, int queueSize, int uriStatDataLimitSize, String executorName) {
-        this(uriStatCollectHttpMethod, queueSize, executorName, new UriStatConsumer(uriStatDataLimitSize));
+    public AsyncQueueingUriStatStorage(UriTransformer uriTransformer, int queueSize, int uriStatDataLimitSize, String executorName) {
+        this(uriTransformer, queueSize, executorName, new UriStatConsumer(uriStatDataLimitSize));
     }
 
-    public AsyncQueueingUriStatStorage(boolean uriStatCollectHttpMethod, int queueSize, int uriStatDataLimitSize, String executorName, int collectInterval) {
-        this(uriStatCollectHttpMethod, queueSize, executorName, new UriStatConsumer(uriStatDataLimitSize, collectInterval));
+    public AsyncQueueingUriStatStorage(UriTransformer uriTransformer, int queueSize, int uriStatDataLimitSize, String executorName, int collectInterval) {
+        this(uriTransformer, queueSize, executorName, new UriStatConsumer(uriStatDataLimitSize, collectInterval));
     }
 
-    private AsyncQueueingUriStatStorage(boolean uriStatCollectHttpMethod, int queueSize, String executorName, UriStatConsumer consumer) {
+    private AsyncQueueingUriStatStorage(UriTransformer uriTransformer, int queueSize, String executorName, UriStatConsumer consumer) {
         super(queueSize, executorName, consumer);
         this.consumer = consumer;
-        this.uriStatCollectHttpMethod = uriStatCollectHttpMethod;
+        this.uriTransformer = Objects.requireNonNull(uriTransformer, "uriTransformer");
     }
 
     @Override
     public void store(String uri, String httpMethod, boolean status, long startTime, long endTime) {
-        if (uri == null) {
-            uri = URITemplate.NULL_URI;
-        }
 
-        if (uriStatCollectHttpMethod && (httpMethod != null) && !httpMethod.isEmpty()) {
-            uri = httpMethod + " " + uri;
-        }
+        String cleanUri = cleanUri(uri, httpMethod);
 
-        UriStatInfo uriStatInfo = new UriStatInfo(uri, status, startTime, endTime);
+        UriStatInfo uriStatInfo = new UriStatInfo(cleanUri, status, startTime, endTime);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("UriStatInfo {}", uriStatInfo);
         }
         execute(uriStatInfo);
+    }
+
+    private String cleanUri(String uri, String httpMethod) {
+        if (uri == null) {
+            uri = URITemplate.NULL_URI;
+        }
+        return uriTransformer.transform(httpMethod, uri);
     }
 
     @Override

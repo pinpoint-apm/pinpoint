@@ -21,7 +21,10 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
 import com.navercorp.pinpoint.profiler.context.storage.AsyncQueueingUriStatStorage;
 import com.navercorp.pinpoint.profiler.context.storage.DisabledUriStatStorage;
+import com.navercorp.pinpoint.profiler.context.storage.UriMethodTransformer;
+import com.navercorp.pinpoint.profiler.context.storage.UriOnlyTransformer;
 import com.navercorp.pinpoint.profiler.context.storage.UriStatStorage;
+import com.navercorp.pinpoint.profiler.context.storage.UriTransformer;
 
 import java.util.Objects;
 
@@ -42,9 +45,18 @@ public class UriStatStorageProvider implements Provider<UriStatStorage> {
     @Override
     public UriStatStorage get() {
         if (monitorConfig.isUriStatEnable()) {
-            return new AsyncQueueingUriStatStorage(monitorConfig.getUriStatCollectHttpMethod(), 5192, monitorConfig.getCompletedUriStatDataLimitSize(), URI_STAT_STORAGE_EXECUTOR_NAME);
+            UriTransformer transformer = newUriTransformer();
+            final int completedUriStatDataLimitSize = monitorConfig.getCompletedUriStatDataLimitSize();
+            return new AsyncQueueingUriStatStorage(transformer, 5192, completedUriStatDataLimitSize, URI_STAT_STORAGE_EXECUTOR_NAME);
         } else {
             return DisabledUriStatStorage.INSTANCE;
         }
+    }
+
+    private UriTransformer newUriTransformer() {
+        if (monitorConfig.getUriStatCollectHttpMethod()) {
+            return new UriMethodTransformer();
+        }
+        return new UriOnlyTransformer();
     }
 }

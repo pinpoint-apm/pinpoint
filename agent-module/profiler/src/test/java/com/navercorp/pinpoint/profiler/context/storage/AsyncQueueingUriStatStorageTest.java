@@ -40,6 +40,8 @@ public class AsyncQueueingUriStatStorageTest {
 
     private static final String[] HTTP_METHODS = {"GET", "POST", "PUT", "DELETE"};
 
+    UriTransformer uriTransformer = new UriMethodTransformer();
+
     @Test
     public void storageTest() {
         int collectInterval = 100;
@@ -51,7 +53,7 @@ public class AsyncQueueingUriStatStorageTest {
 
     private void storageTest(int collectInterval, int storeCount) {
         try (AsyncQueueingUriStatStorage storage
-                     = new AsyncQueueingUriStatStorage(true, 5012, 1000, "Test-Executor", collectInterval)) {
+                     = new AsyncQueueingUriStatStorage(uriTransformer, 5012, 1000, "Test-Executor", collectInterval)) {
 
             long sleepTime = System.currentTimeMillis() % collectInterval;
 
