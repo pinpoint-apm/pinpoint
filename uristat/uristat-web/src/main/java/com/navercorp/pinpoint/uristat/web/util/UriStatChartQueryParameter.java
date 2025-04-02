@@ -16,9 +16,10 @@
 
 package com.navercorp.pinpoint.uristat.web.util;
 
+import com.google.common.primitives.Ints;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
 
 import java.util.concurrent.TimeUnit;
 
@@ -101,14 +102,8 @@ public class UriStatChartQueryParameter extends QueryParameter {
             return self();
         }
 
-        public Builder setLimit(long limit) {
-            if (limit > 200) {
-                this.limit = 200;
-            } else if (limit < 50) {
-                this.limit = 50;
-            } else {
-                this.limit = limit;
-            }
+        public Builder setLimit(int limit) {
+            this.limit = Ints.constrainToRange(limit, 50, 200);
             return self();
         }
 

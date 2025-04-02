@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.uristat.web.util;
 
+import com.google.common.primitives.Ints;
 import com.navercorp.pinpoint.common.server.util.EnumGetter;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
@@ -181,14 +182,8 @@ public class UriStatSummaryQueryParameter extends QueryParameter {
             return self();
         }
 
-        public Builder setLimit(long limit) {
-            if (limit > 200) {
-                this.limit = 200;
-            } else if (limit < 50) {
-                this.limit = 50;
-            } else {
-                this.limit = limit;
-            }
+        public Builder setLimit(int limit) {
+            this.limit = Ints.constrainToRange(limit, 50, 200);
             return self();
         }
 

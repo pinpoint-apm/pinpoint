@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.otlp.web.vo;
 
+import com.google.common.primitives.Ints;
 import com.navercorp.pinpoint.common.server.metric.dao.TableNameManager;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
-import com.navercorp.pinpoint.otlp.common.model.DataType;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
+import com.navercorp.pinpoint.otlp.common.model.DataType;
 import com.navercorp.pinpoint.otlp.common.web.definition.property.AggregationFunction;
 
 import java.security.InvalidParameterException;
@@ -44,7 +45,6 @@ public class OtlpMetricDataQueryParameter extends QueryParameter {
     private final String version;
     private final AggregationFunction aggregationFunction;
     private final int dataType;
-    private final TimeWindow timeWindow;
 
     public DataType getDataType() {
         return DataType.forNumber(dataType);
@@ -76,7 +76,6 @@ public class OtlpMetricDataQueryParameter extends QueryParameter {
         this.aggregationFunction = builder.aggregationFunction;
         this.dataType = builder.dataType;
         this.version = builder.version;
-        this.timeWindow = builder.timeWindow;
     }
 
     public static class Builder extends QueryParameter.Builder<Builder> {
@@ -149,14 +148,8 @@ public class OtlpMetricDataQueryParameter extends QueryParameter {
             return self();
         }
 
-        public Builder setLimit(long limit) {
-            if (limit > 200) {
-                this.limit = 200;
-            } else if (limit < 50) {
-                this.limit = 50;
-            } else {
-                this.limit = limit;
-            }
+        public Builder setLimit(int limit) {
+            this.limit = Ints.constrainToRange(limit, 50, 200);
             return self();
         }
 

@@ -21,11 +21,12 @@ import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
 
 public abstract class QueryParameter {
     protected static final int TAG_SET_COUNT = 10;
+
     protected final Range range;
     protected final TimePrecision timePrecision;
-    protected final long limit;
+    protected final int limit;
 
-    protected QueryParameter(Range range, TimePrecision timePrecision, long limit) {
+    protected QueryParameter(Range range, TimePrecision timePrecision, int limit) {
         this.range = range;
         this.timePrecision = timePrecision;
         this.limit = limit;
@@ -39,7 +40,7 @@ public abstract class QueryParameter {
         return timePrecision;
     }
 
-    public long getLimit() {
+    public int getLimit() {
         return limit;
     }
 
@@ -47,7 +48,7 @@ public abstract class QueryParameter {
         protected Range range;
         protected TimePrecision timePrecision;
         protected long timeSize = 10000;
-        protected long limit;
+        protected int limit;
 
         protected abstract S self();
 
@@ -66,8 +67,8 @@ public abstract class QueryParameter {
             return self();
         }
 
-        public long estimateLimit() {
-            return (range.getRange() / timePrecision.getInterval() + 1) * TAG_SET_COUNT;
+        public int estimateLimit() {
+            return Math.toIntExact((range.getRange() / timePrecision.getInterval() + 1) * TAG_SET_COUNT);
         }
 
         public Range getRange() {
@@ -78,7 +79,7 @@ public abstract class QueryParameter {
             return this.timePrecision;
         }
 
-        public long getLimit() {
+        public int getLimit() {
             return this.limit;
         }
 

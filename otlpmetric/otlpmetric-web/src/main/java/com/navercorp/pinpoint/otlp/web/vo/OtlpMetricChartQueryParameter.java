@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.otlp.web.vo;
 
+import com.google.common.primitives.Ints;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
@@ -106,14 +107,8 @@ public class OtlpMetricChartQueryParameter extends QueryParameter {
             return self();
         }
 
-        public Builder setLimit(long limit) {
-            if (limit > 200) {
-                this.limit = 200;
-            } else if (limit < 50) {
-                this.limit = 50;
-            } else {
-                this.limit = limit;
-            }
+        public Builder setLimit(int limit) {
+            this.limit = Ints.constrainToRange(limit, 50, 200);
             return self();
         }
 
