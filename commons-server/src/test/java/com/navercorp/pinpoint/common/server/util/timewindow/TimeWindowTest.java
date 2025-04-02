@@ -20,13 +20,13 @@ import com.google.common.collect.ImmutableList;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author emeroad
@@ -60,8 +60,8 @@ class TimeWindowTest {
         Range range = Range.between(0L, TimeUnit.MINUTES.toMillis(1));
         TimeWindow window = new TimeWindow(range);
         List<Long> timestamps = window.getTimeseriesWindows();
-        Assertions.assertEquals(2, timestamps.size());
-        Assertions.assertEquals(2, window.getWindowRangeCount());
+        assertEquals(2, timestamps.size());
+        assertEquals(2, window.getWindowRangeCount());
     }
 
     @Test
@@ -69,8 +69,8 @@ class TimeWindowTest {
         Range range = Range.between(1L, TimeUnit.MINUTES.toMillis(1));
         TimeWindow window = new TimeWindow(range);
         List<Long> timestamps = window.getTimeseriesWindows();
-        Assertions.assertEquals(2, timestamps.size());
-        Assertions.assertEquals(2, window.getWindowRangeCount());
+        assertEquals(2, timestamps.size());
+        assertEquals(2, window.getWindowRangeCount());
     }
 
     @Test
@@ -110,8 +110,8 @@ class TimeWindowTest {
         Range windowRange = window.getWindowRange();
         // 1 should be replace by 0.
         logger.debug("{}", windowRange);
-        Assertions.assertEquals(0, windowRange.getFrom());
-        Assertions.assertEquals(TimeUnit.MINUTES.toMillis(1), windowRange.getTo());
+        assertEquals(0, windowRange.getFrom());
+        assertEquals(TimeUnit.MINUTES.toMillis(1), windowRange.getTo());
 
     }
 
@@ -121,7 +121,7 @@ class TimeWindowTest {
         TimeWindow window = new TimeWindow(range);
         int windowRangeLength = window.getWindowRangeCount();
         logger.debug("{}", windowRangeLength);
-        Assertions.assertEquals(1, windowRangeLength);
+        assertEquals(1, windowRangeLength);
 
     }
 
@@ -131,7 +131,7 @@ class TimeWindowTest {
         TimeWindow window = new TimeWindow(range);
         int windowRangeLength = window.getWindowRangeCount();
         logger.debug("{}", windowRangeLength);
-        Assertions.assertEquals(2, windowRangeLength);
+        assertEquals(2, windowRangeLength);
     }
 
     @Test
@@ -140,7 +140,7 @@ class TimeWindowTest {
         TimeWindow window = new TimeWindow(range);
         long index = window.getWindowIndex(2);
         logger.debug("{}", index);
-        Assertions.assertEquals(0, index);
+        assertEquals(0, index);
     }
 
     @Test
@@ -149,6 +149,6 @@ class TimeWindowTest {
         TimeWindow window = new TimeWindow(range);
         long index = window.getWindowIndex(1000 * 60L);
         logger.debug("{}", index);
-        Assertions.assertEquals(1, index);
+        assertEquals(1, index);
     }
 }

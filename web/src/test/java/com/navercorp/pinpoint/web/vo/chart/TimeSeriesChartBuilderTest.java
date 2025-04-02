@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.vo.chart;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.server.util.timewindow.FixedTimeWindowSampler;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
 import org.junit.jupiter.api.Assertions;
@@ -34,12 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class TimeSeriesChartBuilderTest {
 
     private static final int TIME_WINDOW_SIZE = 10;
-    private static final TimeWindowSampler TIME_WINDOW_SAMPLER = new TimeWindowSampler() {
-        @Override
-        public long getWindowSize(Range range) {
-            return TIME_WINDOW_SIZE;
-        }
-    };
+    private static final TimeWindowSampler TIME_WINDOW_SAMPLER = new FixedTimeWindowSampler(TIME_WINDOW_SIZE);
 
     private static class TestPoint implements Point {
 

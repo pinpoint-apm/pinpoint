@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.common.server.util.timewindow;
 
 import com.navercorp.pinpoint.common.util.MathUtils;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 
 /**
  * @author hyungil.jeong
@@ -47,13 +46,12 @@ public class TimeWindowSlotCentricSampler implements TimeWindowSampler {
      * <p>Additionally, the window size is generated in multiples of
      * <tt>minTimeslot</tt>.
      * 
-     * @param range range to calculate the time window over 
+     * @param durationMillis range to calculate the time window over
      * @return size of the ideal time window
      */
     @Override
-    public long getWindowSize(Range range) {
-        final long periodMs = range.durationMillis();
-        final long idealTimeslotSize = periodMs / this.idealNumTimeslots;
+    public long getWindowSize(long durationMillis) {
+        final long idealTimeslotSize = durationMillis / this.idealNumTimeslots;
         if (idealTimeslotSize < this.minTimeslot) {
             return this.minTimeslot;
         }
@@ -61,7 +59,7 @@ public class TimeWindowSlotCentricSampler implements TimeWindowSampler {
             return idealTimeslotSize;
         } else {
             final long nearestMultipleOfMinTimeslotSize = MathUtils.roundToNearestMultipleOf(idealTimeslotSize, this.minTimeslot);
-            return findOptimalWindowSize(periodMs, nearestMultipleOfMinTimeslotSize);
+            return findOptimalWindowSize(durationMillis, nearestMultipleOfMinTimeslotSize);
         }
     }
 

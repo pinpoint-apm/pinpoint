@@ -16,9 +16,6 @@
 
 package com.navercorp.pinpoint.common.server.util.timewindow;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
-
 /**
  * @author emeroad
  */
@@ -29,7 +26,7 @@ public class FixedTimeWindowSampler implements TimeWindowSampler {
         this.interval = interval;
     }
 
-    public long getWindowSize(Range range) {
+    public long getWindowSize(long durationMillis) {
         return interval;
     }
 }
