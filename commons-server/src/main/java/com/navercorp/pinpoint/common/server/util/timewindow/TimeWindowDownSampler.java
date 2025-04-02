@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.common.server.util.timewindow;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
-
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -36,23 +34,18 @@ public class TimeWindowDownSampler implements TimeWindowSampler {
     public static final TimeWindowSampler SAMPLER = new TimeWindowDownSampler();
 
     @Override
-    public long getWindowSize(Range range) {
-        final long diff = range.durationMillis();
-        long size;
-        if (diff <= ONE_HOUR) {
-            size = ONE_MINUTE;
-        } else if (diff <= SIX_HOURS) {
-            size = ONE_MINUTE * 5;
-        } else if (diff <= TWELVE_HOURS) {
-            size = ONE_MINUTE * 10;
-        } else if (diff <= ONE_DAY) {
-            size = ONE_MINUTE * 20;
-        } else if (diff <= TWO_DAY) {
-            size = ONE_MINUTE * 30;
-        } else {
-            size = ONE_MINUTE * 60;
+    public long getWindowSize(final long durationMills) {
+        if (durationMills <= ONE_HOUR) {
+            return ONE_MINUTE;
+        } else if (durationMills <= SIX_HOURS) {
+            return ONE_MINUTE * 5;
+        } else if (durationMills <= TWELVE_HOURS) {
+            return ONE_MINUTE * 10;
+        } else if (durationMills <= ONE_DAY) {
+            return ONE_MINUTE * 20;
+        } else if (durationMills <= TWO_DAY) {
+            return ONE_MINUTE * 30;
         }
-
-        return size;
+        return ONE_MINUTE * 60;
     }
 }

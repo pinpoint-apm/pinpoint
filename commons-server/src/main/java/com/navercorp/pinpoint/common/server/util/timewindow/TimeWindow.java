@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.common.server.util.timewindow;
 
 import com.navercorp.pinpoint.common.server.util.time.Range;
 
-import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -31,7 +30,8 @@ public class TimeWindow implements Iterable<Long>, TimeWindowFunction {
 
     private final long windowSlotSize;
 
-    private final Range windowRange;
+    private final long from;
+    private final long to;
 
     private final int windowRangeCount;
 
@@ -40,11 +40,20 @@ public class TimeWindow implements Iterable<Long>, TimeWindowFunction {
     }
 
     public TimeWindow(Range range, TimeWindowSampler sampler) {
-        Objects.requireNonNull(range, "range");
+        this(Objects.requireNonNull(range).getFrom(),
+                range.getTo(), sampler);
+    }
+
+    TimeWindow(long rangeFrom, long rangeTo, TimeWindowSampler sampler) {
         Objects.requireNonNull(sampler, "sampler");
-        this.windowSlotSize = sampler.getWindowSize(range);
-        this.windowRange = createWindowRange(range);
-        this.windowRangeCount = computeWindowRangeCount(windowRange.durationMillis(), windowSlotSize);
+        this.windowSlotSize = sampler.getWindowSize(duration(rangeTo, rangeFrom));
+        this.from = refineTimestamp(rangeFrom);
+        this.to = this.refineTimestamp(rangeTo);
+        this.windowRangeCount = computeWindowRangeCount(duration(to, from), windowSlotSize);
+    }
+
+    private static long duration(long to, long from) {
+        return to - from;
     }
 
     /**
@@ -58,16 +67,14 @@ public class TimeWindow implements Iterable<Long>, TimeWindowFunction {
     @Override
     public Iterator<Long> iterator() {
         final int size = this.getWindowRangeCount();
-        final long start = windowRange.getFrom();
         final long increment = getWindowSlotSize();
-        return new TimeSeriesIterator(size, start, increment);
+        return new TimeSeriesIterator(size, from, increment);
     }
 
     public List<Long> getTimeseriesWindows() {
         final int size = this.getWindowRangeCount();
-        final long start = windowRange.getFrom();
         final long increment = getWindowSlotSize();
-        return new TimeSeriesVirtualList(size, start, increment);
+        return new TimeSeriesVirtualList(size, from, increment);
     }
 
     /**
@@ -82,7 +89,7 @@ public class TimeWindow implements Iterable<Long>, TimeWindowFunction {
     }
 
     public Range getWindowRange() {
-        return windowRange;
+        return Range.between(from, to);
     }
 
     public long getWindowSlotSize() {
@@ -94,19 +101,13 @@ public class TimeWindow implements Iterable<Long>, TimeWindowFunction {
     }
 
     public Range getWindowSlotRange() {
-        Instant scanFrom = windowRange.getFromInstant();
-        long scanTo = windowRange.getTo() + getWindowSlotSize();
-        return  Range.between(scanFrom, Instant.ofEpochMilli(scanTo));
+        long scanTo = to + getWindowSlotSize();
+        return  Range.between(from, scanTo);
     }
 
-    private Range createWindowRange(Range range) {
-        long from = refineTimestamp(range.getFrom());
-        long to = refineTimestamp(range.getTo());
-        return Range.between(from, to);
-    }
 
     public int getWindowIndex(long time) {
-        long index = (time - windowRange.getFrom()) / this.windowSlotSize;
+        long index = (time - from) / this.windowSlotSize;
         return (int) index;
     }
 

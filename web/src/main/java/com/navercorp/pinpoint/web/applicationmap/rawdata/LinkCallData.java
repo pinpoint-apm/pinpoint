@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
+import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowFunction;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowFunction;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.Collection;
@@ -95,7 +95,7 @@ public class LinkCallData {
         }
     }
 
-    private TimeHistogram getTimeHistogram(final Long timeStamp) {
+    private TimeHistogram getTimeHistogram(final long timeStamp) {
         final Long refineTimestamp = timeWindow.refineTimestamp(timeStamp);
         TimeHistogram histogram = targetHistogramTimeMap.get(refineTimestamp);
         if (histogram == null) {

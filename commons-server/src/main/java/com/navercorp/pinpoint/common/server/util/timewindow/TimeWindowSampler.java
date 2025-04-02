@@ -16,11 +16,9 @@
 
 package com.navercorp.pinpoint.common.server.util.timewindow;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
-
 /**
  * @author emeroad
  */
 public interface TimeWindowSampler {
-    long getWindowSize(Range range);
+    long getWindowSize(long durationMillis);
 }
