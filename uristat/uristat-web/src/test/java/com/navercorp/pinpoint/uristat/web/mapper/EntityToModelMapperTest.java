@@ -1,5 +1,8 @@
 package com.navercorp.pinpoint.uristat.web.mapper;
 
+import com.navercorp.pinpoint.uristat.web.entity.UriHistogramEntity;
+import com.navercorp.pinpoint.uristat.web.entity.UriHistogramFailEntity;
+import com.navercorp.pinpoint.uristat.web.entity.UriLatencyChartEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriStatChartEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriStatSummaryEntity;
 import com.navercorp.pinpoint.uristat.web.model.UriStatChartValue;
@@ -7,7 +10,7 @@ import com.navercorp.pinpoint.uristat.web.model.UriStatSummary;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author intr3p1d
@@ -40,7 +43,7 @@ class EntityToModelMapperTest {
 
     @Test
     void testTotalEntityToModel() {
-        UriStatChartEntity entity = new UriStatChartEntity();
+        UriHistogramEntity entity = new UriHistogramEntity();
         entity.setTimestamp(1000);
         entity.setVersion("version");
         entity.setTot0(10.0);
@@ -71,7 +74,7 @@ class EntityToModelMapperTest {
 
     @Test
     void testFailureEntityToModel() {
-        UriStatChartEntity entity = new UriStatChartEntity();
+        UriHistogramFailEntity entity = new UriHistogramFailEntity();
         entity.setTimestamp(1000);
         entity.setVersion("version");
         entity.setFail0(10.0);
@@ -102,14 +105,14 @@ class EntityToModelMapperTest {
 
     @Test
     void testLatencyEntityToModel() {
-        UriStatChartEntity entity = new UriStatChartEntity();
+        UriLatencyChartEntity entity = new UriLatencyChartEntity();
         entity.setTimestamp(1000);
         entity.setVersion("version");
         entity.setTotalTimeMs(1200.0);
         entity.setMaxLatencyMs(500.0);
         entity.setCount(3.0);
 
-        UriStatChartValue model = mapper.toLatencyChart(entity);
+        UriStatChartValue model = mapper.toSimpleLatencyChart(entity);
 
         assertEquals(entity.getTimestamp(), model.getTimestamp());
         assertEquals(entity.getVersion(), model.getVersion());

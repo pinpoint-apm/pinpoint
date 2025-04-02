@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.uristat.web.model;
 
-import com.google.common.primitives.Doubles;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesChartType;
 
 import java.util.List;

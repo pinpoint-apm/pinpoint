@@ -25,7 +25,6 @@ public class UriStatSummaryEntity extends UriStatChartEntity {
     private double failureCount;
     private double maxTimeMs;
     private double sumOfTotalTimeMs;
-    private String version;
 
     public UriStatSummaryEntity() {
     }
@@ -76,13 +75,5 @@ public class UriStatSummaryEntity extends UriStatChartEntity {
 
     public void setSumOfTotalTimeMs(double totalTimeMs) {
         this.sumOfTotalTimeMs = totalTimeMs;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
     }
 }
