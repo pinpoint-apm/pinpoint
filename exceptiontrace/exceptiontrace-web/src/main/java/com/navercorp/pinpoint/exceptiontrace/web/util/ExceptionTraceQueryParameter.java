@@ -16,10 +16,11 @@
 
 package com.navercorp.pinpoint.exceptiontrace.web.util;
 
+import com.google.common.primitives.Ints;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
@@ -151,9 +152,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         }
 
         public Builder setHardLimit(int limit) {
-            if (limit > 200) {
-                this.hardLimit = 200;
-            } else this.hardLimit = Math.max(limit, 50);
+            this.hardLimit = Ints.constrainToRange(limit, 50, 200);
             return self();
         }
 
@@ -204,7 +203,7 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
             return self();
         }
 
-        public long useLimitIfSet() {
+        public int useLimitIfSet() {
             if (hardLimit != null) {
                 return hardLimit;
             }
@@ -212,9 +211,9 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
         }
 
         @Override
-        public long estimateLimit() {
+        public int estimateLimit() {
             if (this.range != null) {
-                return (range.getRange() / Math.max(timePrecision.getInterval(), 30000) + 1);
+                return Math.toIntExact(range.getRange() / Math.max(timePrecision.getInterval(), 30000)) + 1;
             } else {
                 return MAX_LIMIT;
             }
