@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.web.vo.timeline.inspector;
 
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;

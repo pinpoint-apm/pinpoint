@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.tree.AgentsMapByHost;

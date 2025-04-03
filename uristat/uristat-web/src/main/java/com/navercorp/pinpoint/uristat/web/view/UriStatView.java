@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.uristat.web.view;
 
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesValueView;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesView;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;

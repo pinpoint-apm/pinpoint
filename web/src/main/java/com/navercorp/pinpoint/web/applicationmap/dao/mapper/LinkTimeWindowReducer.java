@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
 
 import com.navercorp.pinpoint.common.hbase.RowReducer;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowFunction;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 
 public class LinkTimeWindowReducer implements RowReducer<LinkDataMap> {

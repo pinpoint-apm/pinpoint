@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.batch.alarm.dao.model;
 
 import com.navercorp.pinpoint.common.model.SortKeyUtils;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 
 import java.util.Collections;

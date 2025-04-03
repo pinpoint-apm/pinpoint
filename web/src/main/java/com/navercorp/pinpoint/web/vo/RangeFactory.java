@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.navercorp.pinpoint.common.server.util.TimeSlot;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 
 import java.util.Objects;
 

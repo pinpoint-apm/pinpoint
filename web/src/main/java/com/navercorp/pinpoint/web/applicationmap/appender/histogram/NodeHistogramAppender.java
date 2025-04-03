@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.histogram;
 
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 
 /**
  * @author HyunGil Jeong

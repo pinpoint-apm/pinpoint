@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.web.vo;
 
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindowDownSampler;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowDownSampler;
 
 import java.util.ArrayList;
 import java.util.Collections;

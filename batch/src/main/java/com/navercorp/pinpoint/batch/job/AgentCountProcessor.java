@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.batch.job;
 
 import com.navercorp.pinpoint.batch.common.BatchProperties;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
 import jakarta.annotation.Nonnull;

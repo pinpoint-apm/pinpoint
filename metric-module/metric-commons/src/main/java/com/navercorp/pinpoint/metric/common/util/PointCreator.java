@@ -16,10 +16,11 @@
 
 package com.navercorp.pinpoint.metric.common.util;
 
+import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
+import com.navercorp.pinpoint.common.timeseries.point.Points;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMaxMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.MinMaxMetricPoint;
-import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 
 /**
  * @author minwoo.jung
@@ -29,12 +30,12 @@ public class PointCreator {
     public static final double UNCOLLECTED_DOUBLE = -1D;
 
 
-    public static SystemMetricPoint<Double> doublePoint(long xVal) {
-        return SystemMetricPoint.of(xVal, UNCOLLECTED_DOUBLE);
+    public static DataPoint<Double> doublePoint(long xVal) {
+        return Points.of(xVal, UNCOLLECTED_DOUBLE);
     }
 
-    public static SystemMetricPoint<Long> longPoint(long xVal) {
-        return SystemMetricPoint.of(xVal, UNCOLLECTED_LONG);
+    public static DataPoint<Long> longPoint(long xVal) {
+        return Points.of(xVal, UNCOLLECTED_LONG);
     }
 
     //------------

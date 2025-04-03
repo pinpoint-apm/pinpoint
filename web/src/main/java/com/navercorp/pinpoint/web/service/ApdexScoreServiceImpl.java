@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;

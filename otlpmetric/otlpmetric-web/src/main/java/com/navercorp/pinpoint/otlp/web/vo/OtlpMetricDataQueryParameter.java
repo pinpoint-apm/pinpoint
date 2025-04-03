@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.otlp.web.vo;
 
 import com.google.common.primitives.Ints;
 import com.navercorp.pinpoint.common.server.metric.dao.TableNameManager;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.window.TimePrecision;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 import com.navercorp.pinpoint.otlp.common.model.DataType;
 import com.navercorp.pinpoint.otlp.common.web.definition.property.AggregationFunction;

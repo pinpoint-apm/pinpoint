@@ -16,14 +16,20 @@
 
 package com.navercorp.pinpoint.otlp.web.dao.pinot;
 
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
+import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSampler;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.otlp.common.model.DataType;
-import com.navercorp.pinpoint.otlp.common.model.MetricPoint;
 import com.navercorp.pinpoint.otlp.web.dao.OtlpMetricDao;
 import com.navercorp.pinpoint.otlp.web.view.legacy.OtlpChartView;
 import com.navercorp.pinpoint.otlp.web.view.legacy.OtlpChartViewBuilder;
-import com.navercorp.pinpoint.otlp.web.vo.*;
+import com.navercorp.pinpoint.otlp.web.vo.FieldAttribute;
+import com.navercorp.pinpoint.otlp.web.vo.OtlpMetricChartQueryParameter;
+import com.navercorp.pinpoint.otlp.web.vo.OtlpMetricChartResult;
+import com.navercorp.pinpoint.otlp.web.vo.OtlpMetricDataQueryParameter;
+import com.navercorp.pinpoint.otlp.web.vo.OtlpMetricDetailsQueryParam;
+import com.navercorp.pinpoint.otlp.web.vo.OtlpMetricGroupsQueryParam;
+import com.navercorp.pinpoint.otlp.web.vo.OtlpMetricNamesQueryParam;
 import com.navercorp.pinpoint.pinot.mybatis.PinotAsyncTemplate;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -102,7 +108,7 @@ public class PinotOtlpMetricDao implements OtlpMetricDao {
     }
 
     @Override
-    public CompletableFuture<List<MetricPoint>> getChartPoints(OtlpMetricDataQueryParameter chartQueryParameter) {
+    public CompletableFuture<List<DataPoint>> getChartPoints(OtlpMetricDataQueryParameter chartQueryParameter) {
         if (chartQueryParameter.getDataType() == DataType.LONG) {
             return asyncTemplate.selectList(NAMESPACE + "getLongMetricData", chartQueryParameter);
         } else {

@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.inspector.web.dao.model;
 
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimePrecision;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
 import com.navercorp.pinpoint.metric.common.model.Tag;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
 
 import java.util.Collections;
 import java.util.List;

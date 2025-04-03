@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.web.authorization.controller;
 
-import com.navercorp.pinpoint.common.server.util.time.ForwardRangeValidator;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
+import com.navercorp.pinpoint.common.timeseries.time.ForwardRangeValidator;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;

@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.metric.web.dao.pinot;
 
+import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
-import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 import com.navercorp.pinpoint.metric.web.dao.SystemMetricDao;
 import com.navercorp.pinpoint.metric.web.dao.model.SystemMetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
@@ -47,7 +47,7 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao {
     }
 
     @Override
-    public CompletableFuture<List<SystemMetricPoint<Double>>> getAsyncSampledSystemMetricData(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag) {
+    public CompletableFuture<List<DataPoint<Double>>> getAsyncSampledSystemMetricData(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag) {
         SystemMetricDataSearchKey systemMetricDataSearchKey = new SystemMetricDataSearchKey(metricDataSearchKey, metricTag);
         return asyncTemplate.selectList(NAMESPACE + "selectSampledSystemMetricData", systemMetricDataSearchKey);
     }

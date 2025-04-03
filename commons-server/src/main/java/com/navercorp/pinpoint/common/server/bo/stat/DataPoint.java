@@ -16,19 +16,17 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat;
 
-import com.navercorp.pinpoint.common.server.timeseries.Point;
 
 /**
  * @author HyunGil Jeong
  */
-public interface DataPoint extends Point {
+public interface DataPoint {
     String getAgentId();
 
     String getApplicationName();
 
     long getStartTimestamp();
 
-    @Override
     long getTimestamp();
 
     static DataPoint of(String agentId, String applicationName, long startTimestamp, long timestamp) {

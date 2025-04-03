@@ -91,6 +91,7 @@
         <module>commons-config</module>
         <module>commons-profiler</module>
         <module>commons-hbase</module>
+        <module>commons-timeseries</module>
         <module>commons-server</module>
         <module>commons-mybatis</module>
         <module>commons-mapstruct-spi</module>
@@ -356,6 +357,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-commons-server</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-commons-timeseries</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

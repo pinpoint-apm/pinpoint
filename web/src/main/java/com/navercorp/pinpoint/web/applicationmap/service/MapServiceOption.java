@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.service;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.SearchOption;
 

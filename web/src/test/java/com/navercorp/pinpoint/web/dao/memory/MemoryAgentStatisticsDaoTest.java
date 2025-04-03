@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.dao.memory;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.vo.AgentCountStatistics;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

@@ -16,7 +16,8 @@
 
 package com.navercorp.pinpoint.inspector.web.definition.metric.field;
 
-import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
+
+import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ import java.util.List;
  */
 public interface FieldPostProcessor {
 
-    List<SystemMetricPoint<Double>> postProcess(List<SystemMetricPoint<Double>> systemMetricPointList);
+    List<DataPoint<Double>> postProcess(List<DataPoint<Double>> dataPointList);
 
     String getName();
 }

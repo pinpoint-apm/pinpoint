@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.common.server.cluster;
 
-import org.springframework.util.Assert;
+import com.google.common.base.Preconditions;
 
 import java.util.Objects;
 
@@ -16,7 +16,7 @@ public class ClusterKey {
         Objects.requireNonNull(clusterKeyFormat, "clusterKeyFormat");
 
         String[] tokens = clusterKeyFormat.split(DELIMITER, 3);
-        Assert.isTrue(tokens.length == 3, "invalid token.length == 3");
+        Preconditions.checkArgument(tokens.length == 3, "invalid token.length == 3");
         return new ClusterKey(tokens[0], tokens[1], Long.parseLong(tokens[2]));
     }
 

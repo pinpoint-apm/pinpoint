@@ -16,17 +16,19 @@
 
 package com.navercorp.pinpoint.otlp.common.util;
 
-import com.navercorp.pinpoint.otlp.common.model.MetricPoint;
+
+import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
+import com.navercorp.pinpoint.common.timeseries.point.Points;
 
 /**
  * @author minwoo-jung
  */
 public final class MetricPoints {
-    private static final Double UNCOLLECTED_VALUE = -1D;
+    private static final double UNCOLLECTED_VALUE = -1D;
 
 
-    public static MetricPoint<Double> createUnCollectedPoint(long xVal) {
-        return MetricPoint.of(xVal, UNCOLLECTED_VALUE);
+    public static DataPoint<Double> createUnCollectedPoint(long xVal) {
+        return Points.ofDouble(xVal, UNCOLLECTED_VALUE);
     }
 
 }

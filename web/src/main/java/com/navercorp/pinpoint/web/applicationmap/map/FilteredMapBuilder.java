@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.web.applicationmap.map;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowDownSampler;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindowDownSampler;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;

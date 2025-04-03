@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap;
 
 import com.navercorp.pinpoint.common.server.bo.SimpleAgentKey;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;

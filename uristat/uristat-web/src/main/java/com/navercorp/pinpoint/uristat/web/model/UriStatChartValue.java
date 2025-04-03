@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.uristat.web.model;
 
-import com.navercorp.pinpoint.common.server.timeseries.Point;
+import com.navercorp.pinpoint.common.timeseries.point.Point;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesChartType;
 
 import java.util.List;

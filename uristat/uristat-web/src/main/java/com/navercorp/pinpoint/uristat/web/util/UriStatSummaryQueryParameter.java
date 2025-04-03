@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.uristat.web.util;
 import com.google.common.primitives.Ints;
 import com.navercorp.pinpoint.common.server.util.EnumGetter;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimePrecision;
+import com.navercorp.pinpoint.common.timeseries.window.TimePrecision;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 

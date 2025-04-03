@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.batch.alarm.collector.SystemCpuDataGetter;
 import com.navercorp.pinpoint.batch.alarm.dao.AlarmDao;
 import com.navercorp.pinpoint.batch.alarm.vo.AgentUsageCount;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.vo.Application;
 

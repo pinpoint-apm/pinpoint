@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.web.realtime;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.realtime.service.AgentLookupService;
 import com.navercorp.pinpoint.web.service.ApplicationAgentListService;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;

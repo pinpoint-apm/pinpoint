@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.batch.alarm.vo;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 
 public class UriStatQueryParams {
     final private String tenantId;

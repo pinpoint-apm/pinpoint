@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.batch.alarm.checker;
 import com.navercorp.pinpoint.batch.alarm.collector.AgentEventDataCollector;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;

@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.web.authorization.controller;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSampler;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.web.heatmap.service.EmptyHeatmapService;
 import com.navercorp.pinpoint.web.heatmap.service.HeatmapChartService;
 import com.navercorp.pinpoint.web.heatmap.view.HeatMapDataView;

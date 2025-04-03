@@ -18,10 +18,12 @@ package com.navercorp.pinpoint.web.applicationmap.histogram;
 
 import com.google.common.collect.Ordering;
 import com.google.common.primitives.Doubles;
-import com.navercorp.pinpoint.common.server.util.array.DoubleArray;
 import com.navercorp.pinpoint.common.server.util.json.JsonField;
 import com.navercorp.pinpoint.common.server.util.json.JsonFields;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.array.DoubleArray;
+import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
+import com.navercorp.pinpoint.common.timeseries.point.Points;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
@@ -29,7 +31,6 @@ import com.navercorp.pinpoint.web.view.TimeViewModel;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.stat.SampledApdexScore;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationStatPoint;
 
 import java.util.ArrayList;
@@ -112,7 +113,7 @@ public class AgentTimeHistogram {
         List<SampledApdexScore> result = new ArrayList<>();
         for (TimeHistogram timeHistogram : agentHistogram.getTimeHistogram()) {
             if (timeHistogram.getTotalCount() != 0) {
-                AgentStatPoint agentStatPoint = new AgentStatPoint(timeHistogram.getTimeStamp(), ApdexScore.calculateApdexScore(timeHistogram));
+                DataPoint<Double> agentStatPoint = Points.of(timeHistogram.getTimeStamp(), ApdexScore.calculateApdexScore(timeHistogram));
                 result.add(new SampledApdexScore(agentStatPoint));
             }
         }

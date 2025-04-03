@@ -1,9 +1,12 @@
 package com.navercorp.pinpoint.inspector.web.service;
 
 import com.google.common.primitives.Doubles;
-import com.navercorp.pinpoint.common.server.timeseries.Point;
-import com.navercorp.pinpoint.common.server.util.array.DoubleArray;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.array.DoubleArray;
+import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
+import com.navercorp.pinpoint.common.timeseries.point.DoubleDataPoint;
+import com.navercorp.pinpoint.common.timeseries.point.Point;
+import com.navercorp.pinpoint.common.timeseries.point.Points;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.inspector.web.dao.ApplicationStatDao;
 import com.navercorp.pinpoint.inspector.web.definition.AggregationFunction;
 import com.navercorp.pinpoint.inspector.web.definition.Mappings;
@@ -20,9 +23,7 @@ import com.navercorp.pinpoint.inspector.web.model.InspectorMetricValue;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMaxMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMetricPoint;
-import com.navercorp.pinpoint.metric.common.model.chart.DoubleSystemMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.MinMaxMetricPoint;
-import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 import com.navercorp.pinpoint.metric.common.util.PointCreator;
 import com.navercorp.pinpoint.metric.common.util.TimeSeriesBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -79,8 +80,8 @@ public class DefaultApplicationStatService implements ApplicationStatService {
                 } else if (resultType.equals(MinMaxMetricPoint.class)) {
                     List<MinMaxMetricPoint> doubleList = (List<MinMaxMetricPoint>) await(result.future());
                     metricValueList.addAll(splitMinMax(timeWindow, result.field(), doubleList));
-                } else if (resultType.equals(DoubleSystemMetricPoint.class)) {
-                    List<SystemMetricPoint<Double>> doubleList = (List<SystemMetricPoint<Double>>) await(result.future());
+                } else if (resultType.equals(DoubleDataPoint.class)) {
+                    List<DataPoint<Double>> doubleList = (List<DataPoint<Double>>) await(result.future());
                     metricValueList.add(createInspectorMetricValue(timeWindow, result.field(), doubleList));
                 } else {
                     throw new RuntimeException("not support result type : " + result.resultType());
@@ -148,8 +149,8 @@ public class DefaultApplicationStatService implements ApplicationStatService {
             } else if (resultType.equals(MinMaxMetricPoint.class)) {
                 List<MinMaxMetricPoint> doubleList = (List<MinMaxMetricPoint>) await(result.future());
                 metricValueList.addAll(splitMinMax(timeWindow, result.field(), doubleList));
-            } else if (resultType.equals(DoubleSystemMetricPoint.class)) {
-                List<SystemMetricPoint<Double>> doubleList = (List<SystemMetricPoint<Double>>) await(result.future());
+            } else if (resultType.equals(DoubleDataPoint.class)) {
+                List<DataPoint<Double>> doubleList = (List<DataPoint<Double>>) await(result.future());
                 metricValueList.add(createInspectorMetricValue(timeWindow, result.field(), doubleList));
             } else {
                 throw new RuntimeException("not support result type : " + result.resultType());
@@ -193,11 +194,11 @@ public class DefaultApplicationStatService implements ApplicationStatService {
     }
 
     private InspectorMetricValue createInspectorMetricValue(TimeWindow timeWindow, Field field,
-                                                            List<SystemMetricPoint<Double>> sampledSystemMetricDataList) {
+                                                            List<DataPoint<Double>> sampledSystemMetricDataList) {
         TimeSeriesBuilder builder = new TimeSeriesBuilder(timeWindow);
-        List<SystemMetricPoint<Double>> filledSystemMetricDataList = builder.buildDoubleMetric(PointCreator::doublePoint, sampledSystemMetricDataList);
+        List<DataPoint<Double>> filledSystemMetricDataList = builder.buildDoubleMetric(PointCreator::doublePoint, sampledSystemMetricDataList);
 
-        List<Double> valueList = DoubleArray.asList(filledSystemMetricDataList, DoubleSystemMetricPoint::getRawY);
+        List<Double> valueList = DoubleArray.asList(filledSystemMetricDataList, Points::asDouble);
 
         return newInspectorMetric(field.getFieldAlias(), field, valueList);
     }
@@ -290,10 +291,10 @@ public class DefaultApplicationStatService implements ApplicationStatService {
                 resultType = MinMaxMetricPoint.class;
             } else if (AggregationFunction.SUM.equals(field.getAggregationFunction())) {
                 doubleFuture = applicationStatDao.selectStatSum(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
-                resultType = DoubleSystemMetricPoint.class;
+                resultType = DoubleDataPoint.class;
             } else if (AggregationFunction.MAX.equals(field.getAggregationFunction())) {
                 doubleFuture = applicationStatDao.selectStatMax(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
-                resultType = DoubleSystemMetricPoint.class;
+                resultType = DoubleDataPoint.class;
             } else {
                 throw new RuntimeException("not support aggregation function : " + field.getAggregationFunction());
             }

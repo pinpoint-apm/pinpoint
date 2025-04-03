@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.inspector.web.dao;
 
 import com.navercorp.pinpoint.common.model.TagInformation;
+import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.Field;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
 import com.navercorp.pinpoint.metric.common.model.Tag;
-import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -30,13 +30,13 @@ import java.util.concurrent.CompletableFuture;
  * @author minwoo.jung
  */
 public interface AgentStatDao {
-    CompletableFuture<List<SystemMetricPoint<Double>>> selectAgentStat(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
+    CompletableFuture<List<DataPoint<Double>>> selectAgentStat(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 
-    CompletableFuture<List<SystemMetricPoint<Double>>> selectAgentStatAvg(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
+    CompletableFuture<List<DataPoint<Double>>> selectAgentStatAvg(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 
-    CompletableFuture<List<SystemMetricPoint<Double>>> selectAgentStatMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
+    CompletableFuture<List<DataPoint<Double>>> selectAgentStatMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 
-    CompletableFuture<List<SystemMetricPoint<Double>>> selectAgentStatSum(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
+    CompletableFuture<List<DataPoint<Double>>> selectAgentStatSum(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 
     List<Tag> getTagInfo(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field);
 

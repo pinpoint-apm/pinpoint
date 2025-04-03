@@ -44,6 +44,10 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-commons-timeseries</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
             <scope>provided</scope>

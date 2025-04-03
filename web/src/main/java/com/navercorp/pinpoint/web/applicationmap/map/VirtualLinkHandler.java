@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;

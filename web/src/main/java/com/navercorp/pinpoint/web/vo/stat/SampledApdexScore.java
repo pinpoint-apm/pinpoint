@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web.vo.stat;
 
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
+import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
+import com.navercorp.pinpoint.common.timeseries.point.Points;
 
 import java.util.Objects;
 
@@ -8,13 +9,13 @@ public class SampledApdexScore implements SampledAgentStatDataPoint {
 
     public static final double UNCOLLECTED_SCORE = -1D;
 
-    private final AgentStatPoint apdexScore;
+    private final DataPoint<Double> apdexScore;
 
-    public SampledApdexScore(AgentStatPoint apdexScore) {
+    public SampledApdexScore(DataPoint<Double> apdexScore) {
         this.apdexScore = Objects.requireNonNull(apdexScore, "apdexScore");
     }
 
-    public AgentStatPoint getApdexScore() {
+    public DataPoint<Double> getApdexScore() {
         return apdexScore;
     }
 
@@ -40,7 +41,7 @@ public class SampledApdexScore implements SampledAgentStatDataPoint {
                 '}';
     }
 
-    public static AgentStatPoint newPoint(long timestamp) {
-        return new AgentStatPoint(timestamp, UNCOLLECTED_SCORE);
+    public static DataPoint<Double> newPoint(long timestamp) {
+        return Points.ofDouble(timestamp, UNCOLLECTED_SCORE);
     }
 }

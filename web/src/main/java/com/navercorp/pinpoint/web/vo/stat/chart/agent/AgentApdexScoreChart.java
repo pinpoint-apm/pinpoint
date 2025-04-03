@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledApdexScore;
 import com.navercorp.pinpoint.web.vo.stat.chart.ChartGroupBuilder;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
@@ -13,10 +14,10 @@ public class AgentApdexScoreChart extends DefaultAgentChart<SampledApdexScore> {
         APDEX_SCORE
     }
 
-    private static final ChartGroupBuilder<SampledApdexScore, AgentStatPoint> BUILDER = newChartBuilder();
+    private static final ChartGroupBuilder<SampledApdexScore, DataPoint<Double>> BUILDER = newChartBuilder();
 
-    static ChartGroupBuilder<SampledApdexScore, AgentStatPoint> newChartBuilder() {
-        ChartGroupBuilder<SampledApdexScore, AgentStatPoint> builder = new ChartGroupBuilder<>(SampledApdexScore::newPoint);
+    static ChartGroupBuilder<SampledApdexScore, DataPoint<Double>> newChartBuilder() {
+        ChartGroupBuilder<SampledApdexScore, DataPoint<Double>> builder = new ChartGroupBuilder<>(SampledApdexScore::newPoint);
         builder.addPointFunction(ApdexScoreChartType.APDEX_SCORE, SampledApdexScore::getApdexScore);
 
         return builder;

@@ -16,7 +16,8 @@
 
 package com.navercorp.pinpoint.pinot.alarm.collector;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
+
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 
 public interface PinotDataCollector<T> {
     T collect(String serviceName, String applicationName, String targetUri, Range range);

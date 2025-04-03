@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.web.vo.chart;
 
-import com.navercorp.pinpoint.common.server.timeseries.Point;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.common.server.util.timewindow.FixedTimeWindowSampler;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
+import com.navercorp.pinpoint.common.timeseries.point.Point;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.FixedTimeWindowSampler;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSampler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

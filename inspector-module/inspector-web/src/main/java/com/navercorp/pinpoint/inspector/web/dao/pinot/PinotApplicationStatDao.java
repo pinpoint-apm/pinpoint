@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.inspector.web.dao.pinot;
 
 import com.navercorp.pinpoint.common.model.SortKeyUtils;
 import com.navercorp.pinpoint.common.model.TagInformation;
+import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
 import com.navercorp.pinpoint.inspector.web.dao.ApplicationStatDao;
 import com.navercorp.pinpoint.inspector.web.dao.model.InspectorQueryParameter;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.Field;
@@ -26,7 +27,6 @@ import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMaxMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.MinMaxMetricPoint;
-import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 import com.navercorp.pinpoint.pinot.mybatis.PinotAsyncTemplate;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -64,7 +64,7 @@ public class PinotApplicationStatDao implements ApplicationStatDao {
     }
 
     @Override
-    public CompletableFuture<List<SystemMetricPoint<Double>>> selectStatSum(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
+    public CompletableFuture<List<DataPoint<Double>>> selectStatSum(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
         InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, generateKeyForApplicationStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorSumData", inspectorQueryParameter);
     }
@@ -76,7 +76,7 @@ public class PinotApplicationStatDao implements ApplicationStatDao {
     }
 
     @Override
-    public CompletableFuture<List<SystemMetricPoint<Double>>> selectStatMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
+    public CompletableFuture<List<DataPoint<Double>>> selectStatMax(InspectorDataSearchKey inspectorDataSearchKey, String metricName, Field field) {
         InspectorQueryParameter inspectorQueryParameter = new InspectorQueryParameter(inspectorDataSearchKey, generateKeyForApplicationStat(inspectorDataSearchKey, metricName), metricName, field.getFieldName(), field.getTags());
         return asyncTemplate.selectList(NAMESPACE + "selectInspectorMaxData", inspectorQueryParameter);
     }

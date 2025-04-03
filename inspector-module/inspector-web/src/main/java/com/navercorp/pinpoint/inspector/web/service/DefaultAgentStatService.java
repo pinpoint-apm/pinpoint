@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.inspector.web.service;
 
-import com.navercorp.pinpoint.common.server.util.array.DoubleArray;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.array.DoubleArray;
+import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
+import com.navercorp.pinpoint.common.timeseries.point.Points;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.inspector.web.dao.AgentStatDao;
 import com.navercorp.pinpoint.inspector.web.definition.AggregationFunction;
 import com.navercorp.pinpoint.inspector.web.definition.Mappings;
@@ -34,8 +36,6 @@ import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricGroupData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricValue;
 import com.navercorp.pinpoint.metric.common.model.Tag;
-import com.navercorp.pinpoint.metric.common.model.chart.DoubleSystemMetricPoint;
-import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 import com.navercorp.pinpoint.metric.common.util.PointCreator;
 import com.navercorp.pinpoint.metric.common.util.TimeSeriesBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -84,8 +84,8 @@ public class DefaultAgentStatService implements AgentStatService {
 
         try {
             for (QueryResult result : queryResults) {
-                CompletableFuture<List<SystemMetricPoint<Double>>> future = result.future();
-                List<SystemMetricPoint<Double>> doubleList = future.get();
+                CompletableFuture<List<DataPoint<Double>>> future = result.future();
+                List<DataPoint<Double>> doubleList = future.get();
 
                 InspectorMetricValue doubleMetricValue = createInspectorMetricValue(timeWindow, result.field(), doubleList);
                 metricValueList.add(doubleMetricValue);
@@ -100,14 +100,14 @@ public class DefaultAgentStatService implements AgentStatService {
     }
 
     @Override
-    public List<SystemMetricPoint<Double>> selectAgentStatUnconvertedTime(InspectorDataSearchKey inspectorDataSearchKey, TimeWindow timeWindow) {
+    public List<DataPoint<Double>> selectAgentStatUnconvertedTime(InspectorDataSearchKey inspectorDataSearchKey, TimeWindow timeWindow) {
         MetricDefinition metricDefinition = ymlInspectorManager.findElementOfBasicGroup(inspectorDataSearchKey.getMetricDefinitionId());
 
         QueryResult queryResult = selectOneField(inspectorDataSearchKey, metricDefinition);
 
         try {
-            CompletableFuture<List<SystemMetricPoint<Double>>> future = queryResult.future();
-            List<SystemMetricPoint<Double>> doubleList = future.get();
+            CompletableFuture<List<DataPoint<Double>>> future = queryResult.future();
+            List<DataPoint<Double>> doubleList = future.get();
 
             return postprocessFieldData(queryResult.field(), doubleList);
         } catch (Throwable e) {
@@ -124,8 +124,8 @@ public class DefaultAgentStatService implements AgentStatService {
 
         try {
             for (QueryResult result : queryResults) {
-                CompletableFuture<List<SystemMetricPoint<Double>>> future = result.future();
-                List<SystemMetricPoint<Double>> doubleList = future.get();
+                CompletableFuture<List<DataPoint<Double>>> future = result.future();
+                List<DataPoint<Double>> doubleList = future.get();
 
                 InspectorMetricValue doubleMetricValue = createInspectorMetricValue(timeWindow, result.field(), doubleList);
                 metricValueList.add(doubleMetricValue);
@@ -161,19 +161,19 @@ public class DefaultAgentStatService implements AgentStatService {
     }
 
     private InspectorMetricValue createInspectorMetricValue(TimeWindow timeWindow, Field field,
-                                                            List<SystemMetricPoint<Double>> sampledSystemMetricDataList) {
+                                                            List<DataPoint<Double>> sampledSystemMetricDataList) {
 
-        List<SystemMetricPoint<Double>> postProcessedDataList = postprocessFieldData(field, sampledSystemMetricDataList);
+        List<DataPoint<Double>> postProcessedDataList = postprocessFieldData(field, sampledSystemMetricDataList);
 
         TimeSeriesBuilder builder = new TimeSeriesBuilder(timeWindow);
-        List<SystemMetricPoint<Double>> filledSystemMetricDataList = builder.buildDoubleMetric(PointCreator::doublePoint, postProcessedDataList);
+        List<DataPoint<Double>> filledSystemMetricDataList = builder.buildDoubleMetric(PointCreator::doublePoint, postProcessedDataList);
 
-        List<Double> valueList = DoubleArray.asList(filledSystemMetricDataList, DoubleSystemMetricPoint::getRawY);
+        List<Double> valueList = DoubleArray.asList(filledSystemMetricDataList, Points::asDouble);
 
         return new InspectorMetricValue(field.getFieldAlias(), field.getTags(), field.getChartType(), field.getUnit(), valueList);
     }
 
-    private List<SystemMetricPoint<Double>> postprocessFieldData(Field field, List<SystemMetricPoint<Double>> sampledSystemMetricDataList) {
+    private List<DataPoint<Double>> postprocessFieldData(Field field, List<DataPoint<Double>> sampledSystemMetricDataList) {
         FieldPostProcessor postProcessor = fieldProcessorManager.getPostProcessor(field.getPostProcess());
         return postProcessor.postProcess(sampledSystemMetricDataList);
     }
@@ -183,7 +183,7 @@ public class DefaultAgentStatService implements AgentStatService {
 
         for (Field field : metricDefinition.getFields()) {
             //TODO : (minwoo) Consolidate dao calls into one
-            CompletableFuture<List<SystemMetricPoint<Double>>> doubleFuture = null;
+            CompletableFuture<List<DataPoint<Double>>> doubleFuture = null;
             if (AggregationFunction.AVG.equals(field.getAggregationFunction())) {
                 doubleFuture = agentStatDao.selectAgentStatAvg(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
             } else if (AggregationFunction.MAX.equals(field.getAggregationFunction())) {
@@ -201,13 +201,13 @@ public class DefaultAgentStatService implements AgentStatService {
 
     private QueryResult selectOneField(InspectorDataSearchKey inspectorDataSearchKey, MetricDefinition metricDefinition) {
         Field field = metricDefinition.getFields().stream().findFirst().get();
-        CompletableFuture<List<SystemMetricPoint<Double>>> doubleFuture = agentStatDao.selectAgentStat(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
+        CompletableFuture<List<DataPoint<Double>>> doubleFuture = agentStatDao.selectAgentStat(inspectorDataSearchKey, metricDefinition.getMetricName(), field);
         return new QueryResult(doubleFuture, field);
     }
 
 
     //TODO : (minwoo) It seems that this can also be integrated into one with the metric side.
-    private record QueryResult(CompletableFuture<List<SystemMetricPoint<Double>>> future, Field field) {
+    private record QueryResult(CompletableFuture<List<DataPoint<Double>>> future, Field field) {
     }
 
 }

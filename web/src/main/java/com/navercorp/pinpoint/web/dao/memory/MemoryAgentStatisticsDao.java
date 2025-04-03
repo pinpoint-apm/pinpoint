@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.web.dao.memory;
 
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.dao.AgentStatisticsDao;
 import com.navercorp.pinpoint.web.vo.AgentCountStatistics;
-import com.navercorp.pinpoint.common.server.util.time.Range;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;

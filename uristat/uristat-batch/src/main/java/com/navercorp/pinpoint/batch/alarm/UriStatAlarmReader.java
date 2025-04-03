@@ -1,17 +1,17 @@
 package com.navercorp.pinpoint.batch.alarm;
 
-import com.navercorp.pinpoint.pinot.alarm.dao.PinotAlarmDao;
 import com.navercorp.pinpoint.batch.alarm.dao.UriStatDao;
-import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmKey;
 import com.navercorp.pinpoint.batch.alarm.vo.UriStatQueryParams;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.pinot.alarm.dao.PinotAlarmDao;
+import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmKey;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
+import jakarta.annotation.Nonnull;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.item.ItemReader;
 
-import jakarta.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;

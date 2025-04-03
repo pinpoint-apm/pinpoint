@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.common.server.trace;
 
+import com.google.common.base.Preconditions;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
-import com.navercorp.pinpoint.common.util.Assert;
 
 import java.util.Objects;
 
@@ -18,8 +18,7 @@ public class DefaultApiParser implements ApiParser {
         Objects.requireNonNull(apiMetadata, "apiMetadata");
 
         MethodTypeEnum methodTypeEnum = apiMetadata.getMethodTypeEnum();
-        Assert.isTrue(methodTypeEnum == MethodTypeEnum.DEFAULT,
-                "Unexpected methodType:" + methodTypeEnum);
+        Preconditions.checkArgument(methodTypeEnum == MethodTypeEnum.DEFAULT, "Unexpected methodType:%s", methodTypeEnum);
 
         try {
             ApiDescription apiDescription = parser.parse(apiMetadata);

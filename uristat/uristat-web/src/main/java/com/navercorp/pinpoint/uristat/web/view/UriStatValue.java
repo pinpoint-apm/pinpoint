@@ -2,8 +2,8 @@ package com.navercorp.pinpoint.uristat.web.view;
 
 import com.google.common.primitives.Doubles;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
-import com.navercorp.pinpoint.common.server.util.array.DoubleArray;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.array.DoubleArray;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.metric.web.view.TimeSeriesValueView;
 import com.navercorp.pinpoint.uristat.web.model.UriStatChartValue;
 

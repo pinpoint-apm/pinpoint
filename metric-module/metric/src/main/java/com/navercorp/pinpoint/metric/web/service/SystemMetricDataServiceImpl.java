@@ -17,16 +17,16 @@
 package com.navercorp.pinpoint.metric.web.service;
 
 
-import com.navercorp.pinpoint.common.server.util.array.DoubleArray;
-import com.navercorp.pinpoint.common.server.util.array.LongArray;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.array.DoubleArray;
+import com.navercorp.pinpoint.common.timeseries.array.LongArray;
+import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
+import com.navercorp.pinpoint.common.timeseries.point.LongDataPoint;
+import com.navercorp.pinpoint.common.timeseries.point.Points;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.metric.common.model.MetricDataName;
 import com.navercorp.pinpoint.metric.common.model.MetricDataType;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.common.model.Tag;
-import com.navercorp.pinpoint.metric.common.model.chart.DoubleSystemMetricPoint;
-import com.navercorp.pinpoint.metric.common.model.chart.LongSystemMetricPoint;
-import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 import com.navercorp.pinpoint.metric.common.util.PointCreator;
 import com.navercorp.pinpoint.metric.common.util.TagUtils;
 import com.navercorp.pinpoint.metric.common.util.TimeSeriesBuilder;
@@ -79,10 +79,10 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
     public SystemMetricData<? extends Number> getCollectedMetricData(MetricDataSearchKey metricDataSearchKey, TimeWindow timeWindow, List<Tag> tags) {
         String metricDefinitionId = metricDataSearchKey.getMetricDefinitionId();
 
-        List<MetricValue<?>> metricValueList = getMetricValues(metricDataSearchKey, timeWindow, tags);
+        List<MetricValue<? extends Number>> metricValueList = getMetricValues(metricDataSearchKey, timeWindow, tags);
 
         GroupingRule groupingRule = systemMetricBasicGroupManager.findGroupingRule(metricDefinitionId);
-        List<MetricValueGroup<?>> metricValueGroupList = groupingMetricValue(metricValueList, groupingRule);
+        List<MetricValueGroup<? extends Number>> metricValueGroupList = groupingMetricValue(metricValueList, groupingRule);
 
         List<Long> timeStampList = timeWindow.getTimeseriesWindows();
         String title = systemMetricBasicGroupManager.findMetricTitle(metricDefinitionId);
@@ -99,15 +99,15 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
         List<MetricValue<?>> metricValueList = new ArrayList<>(elementOfBasicGroupList.getFields().size());
         try {
             for (QueryResult<Number> result : queryResults) {
-                CompletableFuture<List<SystemMetricPoint<Number>>> future = result.future();
+                CompletableFuture<List<DataPoint<Number>>> future = result.future();
                 MetricDataType type = result.type();
-                List<SystemMetricPoint<Number>> systemMetricPoints = future.get();
+                List<DataPoint<Number>> dataPoints = future.get();
                 if (type == MetricDataType.LONG) {
-                    List<SystemMetricPoint<Long>> longList = (List<SystemMetricPoint<Long>>) (List<?>) systemMetricPoints;
+                    List<DataPoint<Long>> longList = (List<DataPoint<Long>>) (List<?>) dataPoints;
                     MetricValue<Long> doubleMetricValue = createSystemLongMetricValue(timeWindow, result.tag(), longList);
                     metricValueList.add(doubleMetricValue);
                 } else if (type == MetricDataType.DOUBLE) {
-                    List<SystemMetricPoint<Double>> doubleList = (List<SystemMetricPoint<Double>>) (List<?>) systemMetricPoints;
+                    List<DataPoint<Double>> doubleList = (List<DataPoint<Double>>) (List<?>) dataPoints;
                     StopWatch dataProcessWatch = StopWatch.createStarted();
                     MetricValue<Double> doubleMetricValue = createSystemDoubleMetricValue(timeWindow, result.tag(), doubleList);
                     dataProcessWatch.stop();
@@ -131,7 +131,7 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
 
             for (MetricTag metricTag : metricTagList) {
                 if (MetricDataType.DOUBLE == metricDataType) {
-                    CompletableFuture<List<SystemMetricPoint<Double>>> doubleFuture = systemMetricDoubleDao.getAsyncSampledSystemMetricData(metricDataSearchKey, metricTag);
+                    CompletableFuture<List<DataPoint<Double>>> doubleFuture = systemMetricDoubleDao.getAsyncSampledSystemMetricData(metricDataSearchKey, metricTag);
                     invokeList.add(new QueryResult<>(metricDataType, doubleFuture, metricTag));
                 } else {
                     throw new RuntimeException("No Such Metric");
@@ -141,7 +141,7 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
         return (List<QueryResult<Number>>)(List<?>) invokeList;
     }
 
-    private record QueryResult<T extends Number>(MetricDataType type, CompletableFuture<List<SystemMetricPoint<T>>> future, MetricTag tag) {
+    private record QueryResult<T extends Number>(MetricDataType type, CompletableFuture<List<DataPoint<T>>> future, MetricTag tag) {
     }
 
 
@@ -238,21 +238,21 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
     }
 
     private MetricValue<Long> createSystemLongMetricValue(TimeWindow timeWindow, MetricTag metricTag,
-                                                                      List<SystemMetricPoint<Long>> sampledSystemMetricDataList) {
+                                                                      List<DataPoint<Long>> sampledSystemMetricDataList) {
         TimeSeriesBuilder builder = new TimeSeriesBuilder(timeWindow);
-        List<SystemMetricPoint<Long>> filledSystemMetricDataList = builder.buildLongMetric(PointCreator::longPoint, sampledSystemMetricDataList);
+        List<DataPoint<Long>> filledSystemMetricDataList = builder.buildLongMetric(PointCreator::longPoint, sampledSystemMetricDataList);
 
-        List<Long> list = LongArray.asList(filledSystemMetricDataList, (data) -> ((LongSystemMetricPoint) data).getRawY());
+        List<Long> list = LongArray.asList(filledSystemMetricDataList, (data) -> ((LongDataPoint) data).getLongValue());
         return new MetricValue<>(metricTag.getFieldName(), metricTag.getTags(), list);
     }
 
     private MetricValue<Double> createSystemDoubleMetricValue(
                                                       TimeWindow timeWindow, MetricTag metricTag,
-                                                      List<SystemMetricPoint<Double>> sampledSystemMetricDataList) {
+                                                      List<DataPoint<Double>> sampledSystemMetricDataList) {
         TimeSeriesBuilder builder = new TimeSeriesBuilder(timeWindow);
-        List<SystemMetricPoint<Double>> filledSystemMetricDataList = builder.buildDoubleMetric(PointCreator::doublePoint, sampledSystemMetricDataList);
+        List<DataPoint<Double>> filledSystemMetricDataList = builder.buildDoubleMetric(PointCreator::doublePoint, sampledSystemMetricDataList);
 
-        List<Double> list = DoubleArray.asList(filledSystemMetricDataList, DoubleSystemMetricPoint::getRawY);
+        List<Double> list = DoubleArray.asList(filledSystemMetricDataList, Points::asDouble);
         return new MetricValue<>(metricTag.getFieldName(), metricTag.getTags(), list);
     }
 

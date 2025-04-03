@@ -16,10 +16,11 @@
 
 package com.navercorp.pinpoint.inspector.web.service;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
+import com.navercorp.pinpoint.common.timeseries.point.Points;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
-import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentState;
@@ -68,25 +69,25 @@ class AgentWarningStatServiceImplTest {
         long to = CURRENT_TIME;
         Range range = Range.between(from, to);
 
-        List<SystemMetricPoint<Double>> mockDataList = new ArrayList<>(9);
+        List<DataPoint<Double>> mockDataList = new ArrayList<>(9);
 
         long firstStartTimestamp = from;
         long firstEndTimestamp = firstStartTimestamp + 10000;
-        mockDataList.add(SystemMetricPoint.of(firstStartTimestamp , 22.0));
-        mockDataList.add(SystemMetricPoint.of(firstStartTimestamp + 5000, 13.0));
-        mockDataList.add(SystemMetricPoint.of(firstEndTimestamp, 14.0));
+        mockDataList.add(Points.ofDouble(firstStartTimestamp, 22.0));
+        mockDataList.add(Points.of(firstStartTimestamp + 5000, 13.0));
+        mockDataList.add(Points.of(firstEndTimestamp, 14.0));
 
         long secondStartTimestamp = from + TIME_5_MIN;
         long secondEndTimestamp = secondStartTimestamp;
-        mockDataList.add(SystemMetricPoint.of(secondStartTimestamp, 15.0));
-        mockDataList.add(SystemMetricPoint.of(secondStartTimestamp + 5000, 112.0));
-        mockDataList.add(SystemMetricPoint.of(secondEndTimestamp, 11.0));
+        mockDataList.add(Points.of(secondStartTimestamp, 15.0));
+        mockDataList.add(Points.of(secondStartTimestamp + 5000, 112.0));
+        mockDataList.add(Points.of(secondEndTimestamp, 11.0));
 
         long thirdStartTimestamp = from + TIME_5_MIN + TIME_5_MIN;
         long thirdEndTimestamp = thirdStartTimestamp + 10000;
-        mockDataList.add(SystemMetricPoint.of(thirdStartTimestamp, 15.0));
-        mockDataList.add(SystemMetricPoint.of(thirdStartTimestamp + 5000, 112.0));
-        mockDataList.add(SystemMetricPoint.of(thirdEndTimestamp, 11.0));
+        mockDataList.add(Points.of(thirdStartTimestamp, 15.0));
+        mockDataList.add(Points.of(thirdStartTimestamp + 5000, 112.0));
+        mockDataList.add(Points.of(thirdEndTimestamp, 11.0));
 
         when(agentStatService.selectAgentStatUnconvertedTime(any(InspectorDataSearchKey.class), any(TimeWindow.class))).thenReturn(mockDataList);
         when(tenantProvider.getTenantId()).thenReturn("pinpoint");
@@ -111,13 +112,13 @@ class AgentWarningStatServiceImplTest {
         long to = CURRENT_TIME;
         Range range = Range.between(from, to);
 
-        List<SystemMetricPoint<Double>> mockDataList = new ArrayList<>(10);
-        mockDataList.add(SystemMetricPoint.of(from , 22.0));
-        mockDataList.add(SystemMetricPoint.of(from + 5000, 13.0));
-        mockDataList.add(SystemMetricPoint.of(from + 10000, 14.0));
-        mockDataList.add(SystemMetricPoint.of(from + 15000, 14.0));
-        mockDataList.add(SystemMetricPoint.of(from + 20000, 14.0));
-        mockDataList.add(SystemMetricPoint.of(from + 25000, 14.0));
+        List<DataPoint<Double>> mockDataList = new ArrayList<>(10);
+        mockDataList.add(Points.of(from , 22.0));
+        mockDataList.add(Points.of(from + 5000, 13.0));
+        mockDataList.add(Points.of(from + 10000, 14.0));
+        mockDataList.add(Points.of(from + 15000, 14.0));
+        mockDataList.add(Points.of(from + 20000, 14.0));
+        mockDataList.add(Points.of(from + 25000, 14.0));
 
         when(agentStatService.selectAgentStatUnconvertedTime(any(InspectorDataSearchKey.class), any(TimeWindow.class))).thenReturn(mockDataList);
         when(tenantProvider.getTenantId()).thenReturn("pinpoint");

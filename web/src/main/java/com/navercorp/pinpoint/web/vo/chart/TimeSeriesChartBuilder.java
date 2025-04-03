@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.vo.chart;
 
-import com.navercorp.pinpoint.common.server.timeseries.Point;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.point.Point;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;

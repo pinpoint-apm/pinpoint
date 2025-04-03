@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.otlp.web.config.pinot;
 
+import com.navercorp.pinpoint.common.timeseries.point.DoubleDataPoint;
+import com.navercorp.pinpoint.common.timeseries.point.LongDataPoint;
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.DoubleTypeHandler;
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.LongTypeHandler;
 import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
 import com.navercorp.pinpoint.otlp.common.model.AggreFunc;
 import com.navercorp.pinpoint.otlp.common.model.DataType;
-import com.navercorp.pinpoint.otlp.common.model.DoubleMetricPoint;
-import com.navercorp.pinpoint.otlp.common.model.LongMetricPoint;
 import com.navercorp.pinpoint.otlp.common.web.definition.property.MetricDescriptor;
 import com.navercorp.pinpoint.otlp.web.vo.FieldAttribute;
 import com.navercorp.pinpoint.otlp.web.vo.OtlpMetricChartQueryParameter;
@@ -51,8 +51,8 @@ public class OtlpMetricPinotRegistryHandler implements MyBatisRegistryHandler {
         typeAliasRegistry.registerAlias(OtlpMetricChartSummary.class);
         typeAliasRegistry.registerAlias(MetricDescriptor.class);
 
-        typeAliasRegistry.registerAlias(LongMetricPoint.class);
-        typeAliasRegistry.registerAlias(DoubleMetricPoint.class);
+        typeAliasRegistry.registerAlias(LongDataPoint.class);
+        typeAliasRegistry.registerAlias(DoubleDataPoint.class);
 
         typeAliasRegistry.registerAlias(Number.class);
         typeAliasRegistry.registerAlias("DoubleHandler", DoubleTypeHandler.class);

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.metric.common.util;
 
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 
 import java.util.List;
 

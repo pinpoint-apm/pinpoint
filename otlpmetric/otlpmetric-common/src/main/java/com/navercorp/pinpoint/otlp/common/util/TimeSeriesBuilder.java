@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.otlp.common.util;
 
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
-import com.navercorp.pinpoint.otlp.common.model.MetricPoint;
+import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,10 +35,10 @@ public class TimeSeriesBuilder<T extends Number> {
         this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
     }
 
-    public List<MetricPoint<T>> build(LongFunction<MetricPoint<T>> function, List<MetricPoint<T>> metricDataList) {
-        List<MetricPoint<T>> filledMetricPointList = createInitialPoints(function);
+    public List<DataPoint<T>> build(LongFunction<DataPoint<T>> function, List<DataPoint<T>> metricDataList) {
+        List<DataPoint<T>> filledMetricPointList = createInitialPoints(function);
         final int windowRangeCount = timeWindow.getWindowRangeCount();
-        for (MetricPoint<T> metricPoint : metricDataList) {
+        for (DataPoint<T> metricPoint : metricDataList) {
             int timeslotIndex = this.timeWindow.getWindowIndex(metricPoint.getTimestamp());
             if (timeslotIndex < 0 || timeslotIndex >= windowRangeCount) {
                 continue;
@@ -49,9 +49,9 @@ public class TimeSeriesBuilder<T extends Number> {
         return filledMetricPointList;
     }
 
-    private List<MetricPoint<T>> createInitialPoints(LongFunction<MetricPoint<T>> function) {
+    private List<DataPoint<T>> createInitialPoints(LongFunction<DataPoint<T>> function) {
         final int numTimeslots = this.timeWindow.getWindowRangeCount();
-        List<MetricPoint<T>> pointList = new ArrayList<>(numTimeslots);
+        List<DataPoint<T>> pointList = new ArrayList<>(numTimeslots);
 
         for (long timestamp : this.timeWindow) {
             pointList.add(function.apply(timestamp));

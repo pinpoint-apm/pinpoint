@@ -47,7 +47,7 @@
         </constructor>
     </resultMap>
 
-    <resultMap id="singleResultMap" type="DoubleSystemMetricPoint">
+    <resultMap id="singleResultMap" type="DoubleDataPoint">
         <constructor>
             <arg column="aggregatedTime" javaType="_long"/>
             <arg column="fValue" javaType="_double"/>
