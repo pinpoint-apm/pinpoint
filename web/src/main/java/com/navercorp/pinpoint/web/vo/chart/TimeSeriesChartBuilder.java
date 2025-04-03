@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.chart;
 
+import com.navercorp.pinpoint.common.server.timeseries.Point;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import org.springframework.util.CollectionUtils;
 
@@ -48,7 +49,7 @@ public class TimeSeriesChartBuilder<P extends Point> {
         List<P> points = createInitialPoints(timeWindow, this.function);
         final int windowRangeCount = timeWindow.getWindowRangeCount();
         for (P sampledPoint : sampledPoints) {
-            int timeslotIndex = timeWindow.getWindowIndex(sampledPoint.getXVal());
+            int timeslotIndex = timeWindow.getWindowIndex(sampledPoint.getTimestamp());
             if (timeslotIndex < 0 || timeslotIndex >= windowRangeCount) {
                 continue;
             }

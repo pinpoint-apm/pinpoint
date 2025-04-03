@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.vo.chart;
 
+import com.navercorp.pinpoint.common.server.timeseries.Point;
+
 import java.util.List;
 
 public class Chart<P extends Point> {

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.metric.common.model.chart;
 
+import com.navercorp.pinpoint.common.server.timeseries.Point;
+
 /**
  * @author Hyunjoon Cho
  */

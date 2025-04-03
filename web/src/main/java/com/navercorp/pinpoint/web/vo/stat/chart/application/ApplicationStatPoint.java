@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
-import com.navercorp.pinpoint.web.vo.chart.Point;
+import com.navercorp.pinpoint.common.server.timeseries.Point;
 
 import java.util.Objects;
 
@@ -25,15 +25,15 @@ import java.util.Objects;
  */
 public class ApplicationStatPoint implements Point {
 
-    private final long xVal;
+    private final long timestamp;
     private final double yValForMin;
     private final String agentIdForMin;
     private final double yValForMax;
     private final String agentIdForMax;
     private final double yValForAvg;
 
-    public ApplicationStatPoint(long xVal, double yValForMin, String agentIdForMin, double yValForMax, String agentIdForMax, double yValForAvg) {
-        this.xVal = xVal;
+    public ApplicationStatPoint(long timestamp, double yValForMin, String agentIdForMin, double yValForMax, String agentIdForMax, double yValForAvg) {
+        this.timestamp = timestamp;
 
         this.yValForMin = yValForMin;
         this.agentIdForMin = Objects.requireNonNull(agentIdForMin, "agentIdForMin");
@@ -46,8 +46,8 @@ public class ApplicationStatPoint implements Point {
 
 
     @Override
-    public long getXVal() {
-        return xVal;
+    public long getTimestamp() {
+        return timestamp;
     }
 
     public double getYValForMin() {
@@ -73,7 +73,7 @@ public class ApplicationStatPoint implements Point {
     @Override
     public String toString() {
         return "ApplicationStatPoint{" +
-                "xVal=" + xVal +
+                "xVal=" + timestamp +
                 ", yValForMin=" + yValForMin +
                 ", agentIdForMin='" + agentIdForMin + '\'' +
                 ", yValForMax=" + yValForMax +

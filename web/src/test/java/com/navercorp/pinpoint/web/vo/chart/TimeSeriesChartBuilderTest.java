@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.chart;
 
+import com.navercorp.pinpoint.common.server.timeseries.Point;
 import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.timewindow.FixedTimeWindowSampler;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
@@ -50,7 +51,7 @@ public class TimeSeriesChartBuilderTest {
         }
 
         @Override
-        public long getXVal() {
+        public long getTimestamp() {
             return xVal;
         }
 

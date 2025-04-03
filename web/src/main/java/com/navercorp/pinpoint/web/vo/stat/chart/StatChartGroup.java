@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart;
 
+import com.navercorp.pinpoint.common.server.timeseries.Point;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
-import com.navercorp.pinpoint.web.vo.chart.Point;
 
 import java.util.Map;
 
