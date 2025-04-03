@@ -32,7 +32,7 @@ public class HeatmapSearchKey {
 
     private final Range range;
     private final TimePrecision timePrecision;
-    private final long limit;
+    private final int limit;
 
     private final int maxYAsix;
 

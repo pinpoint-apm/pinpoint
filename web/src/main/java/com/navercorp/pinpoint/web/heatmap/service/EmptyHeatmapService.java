@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.heatmap.service;
 
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.web.heatmap.vo.HeatMapData;
 
 /**
  * @author minwoo-jung
@@ -24,7 +25,7 @@ import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 public class EmptyHeatmapService implements HeatmapChartService {
 
     @Override
-    public void getHeatmapAppData(String applicationName, TimeWindow timeWindow, int minYAxis, int maxYAxis) {
+    public HeatMapData getHeatmapAppData(String applicationName, TimeWindow timeWindow, int minYAxis, int maxYAxis) {
         throw new UnsupportedOperationException();
     }
 }

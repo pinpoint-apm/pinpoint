@@ -52,7 +52,7 @@ public class HeatmapChartServiceImpl implements HeatmapChartService {
     }
 
     @Override
-    public void getHeatmapAppData(String applicationName, TimeWindow timeWindow, int minYAxis, int maxYAxis) {
+    public HeatMapData getHeatmapAppData(String applicationName, TimeWindow timeWindow, int minYAxis, int maxYAxis) {
         ElapsedTimeBucketInfo elapsedTimeBucketInfo = createElapsedTimeBucketInfo(minYAxis, maxYAxis);
         HeatmapSearchKey heatmapSearchKey = new HeatmapSearchKey(applicationName + POSTFIX_SORT_KEY_SUCCESS,
                                                                  timeWindow,
@@ -62,9 +62,10 @@ public class HeatmapChartServiceImpl implements HeatmapChartService {
                                                                  elapsedTimeBucketInfo.findLargestMultipleBelow(),
                                                                  elapsedTimeBucketInfo.getBucketList().size());
 
+        // TODO : (minwoo) Change to parallel execution
         long startTime = System.currentTimeMillis();
         List<HeatmapCell> successHeatmapAppData = heatmapChartDao.getHeatmapAppData(heatmapSearchKey);
-        //TODO : (minwoo) remove log for performance
+        // TODO : (minwoo) remove log for performance
         long executionTime = System.currentTimeMillis() - startTime;
         logger.debug("==== successHeatmapAppData execution time: {}ms", executionTime);
 
@@ -74,12 +75,12 @@ public class HeatmapChartServiceImpl implements HeatmapChartService {
         }
 
         heatmapSearchKey = new HeatmapSearchKey(applicationName + POSTFIX_SORT_KEY_FAIL,
-                timeWindow,
-                elapsedTimeBucketInfo.getTimeInterval(),
-                elapsedTimeBucketInfo.getMin(),
-                elapsedTimeBucketInfo.getMax(),
-                elapsedTimeBucketInfo.findLargestMultipleBelow(),
-                elapsedTimeBucketInfo.getBucketList().size());
+                                                timeWindow,
+                                                elapsedTimeBucketInfo.getTimeInterval(),
+                                                elapsedTimeBucketInfo.getMin(),
+                                                elapsedTimeBucketInfo.getMax(),
+                                                elapsedTimeBucketInfo.findLargestMultipleBelow(),
+                                                elapsedTimeBucketInfo.getBucketList().size());
 
         startTime = System.currentTimeMillis();
         List<HeatmapCell> failHeatmapAppData = heatmapChartDao.getHeatmapAppData(heatmapSearchKey);
@@ -91,8 +92,7 @@ public class HeatmapChartServiceImpl implements HeatmapChartService {
             logger.debug("heatmapCell: {}", heatmapCell);
         }
 
-        HeatMapData heatmapData = createHeatmapData(timeWindow, successHeatmapAppData, failHeatmapAppData, elapsedTimeBucketInfo);
-        System.out.println(heatmapData.prettyToString());
+        return createHeatmapData(timeWindow, successHeatmapAppData, failHeatmapAppData, elapsedTimeBucketInfo);
     }
 
     private HeatMapData createHeatmapData(TimeWindow timeWindow, List<HeatmapCell> successHeatmapAppData, List<HeatmapCell> failHeatmapAppData, ElapsedTimeBucketInfo elapsedTimeBucketInfo) {

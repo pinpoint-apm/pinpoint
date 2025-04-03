@@ -44,8 +44,8 @@ public class TimeSeriesBuilder {
     }
 
     public HeatMapData createHeatMapData() {
-        int numTimeslots = (int) timeWindow.getWindowRangeCount();
-        Map<Long, HeatMapMetricColumn> heatMapMetricColumnMap = new TreeMap<>();
+        int numTimeslots = timeWindow.getWindowRangeCount();
+        TreeMap<Long, HeatMapMetricColumn> heatMapMetricColumnMap = new TreeMap<>();
 
         int columnNumber = numTimeslots - 1;
         for (long timestamp : timeWindow) {
@@ -74,11 +74,11 @@ public class TimeSeriesBuilder {
             }
         });
 
-        return new HeatMapData(Long.valueOf(timeWindow.getWindowRangeCount()).intValue(), bucketList.size(), heatMapMetricColumnMap);
+        return new HeatMapData(timeWindow.getWindowRangeCount(), bucketList.size(), heatMapMetricColumnMap);
     }
 
     protected Map<Integer, HeatMapMetricCell> initHeatmapMetricCellMap() {
-        Map<Integer, HeatMapMetricCell> heatMapMetricCellMap = new TreeMap<>();
+        TreeMap<Integer, HeatMapMetricCell> heatMapMetricCellMap = new TreeMap<>();
 
         for(int i = 0; i < bucketList.size(); i++) {
             heatMapMetricCellMap.put(bucketList.get(i), new HeatMapMetricCell(i, bucketList.get(i)));

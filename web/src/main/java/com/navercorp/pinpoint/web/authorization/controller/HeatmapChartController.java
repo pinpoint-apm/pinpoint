@@ -20,9 +20,10 @@ import com.navercorp.pinpoint.common.server.util.time.Range;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
-import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import com.navercorp.pinpoint.web.heatmap.service.EmptyHeatmapService;
 import com.navercorp.pinpoint.web.heatmap.service.HeatmapChartService;
+import com.navercorp.pinpoint.web.heatmap.view.HeatMapDataView;
+import com.navercorp.pinpoint.web.heatmap.vo.HeatMapData;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -53,17 +54,15 @@ public class HeatmapChartController {
     }
 
     @GetMapping(value = "/getHeatmapAppData")
-    public void getHeatmapAppData(@RequestParam("applicationName") @NotBlank String applicationName,
+    public HeatMapDataView getHeatmapAppData(@RequestParam("applicationName") @NotBlank String applicationName,
                                   @RequestParam("from") @PositiveOrZero long from,
                                   @RequestParam("to") @PositiveOrZero long to,
                                   @RequestParam("minYAxis") @PositiveOrZero int minYAxis,
                                   @RequestParam("maxYAxis") @Positive int maxYAxis) {
         Range range = Range.between(from, to);
         TimeWindow timeWindow = getTimeWindow(range);
-//        HeatmapChartData heatmapChartData = heatmapChartService.getHeatmapData(applicationName, from, to);
-        heatmapChartService.getHeatmapAppData(applicationName, timeWindow, minYAxis, maxYAxis);
-        //        return new HeatmapView(heatmapChartData);
-
+        HeatMapData heatMapData = heatmapChartService.getHeatmapAppData(applicationName, timeWindow, minYAxis, maxYAxis);
+        return new HeatMapDataView(heatMapData);
     }
 
     private TimeWindow getTimeWindow(Range range) {
