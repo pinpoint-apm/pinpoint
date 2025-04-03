@@ -52,8 +52,8 @@ public class HeatmapChartServiceImpl implements HeatmapChartService {
     }
 
     @Override
-    public HeatMapData getHeatmapAppData(String applicationName, TimeWindow timeWindow, int minYAxis, int maxYAxis) {
-        ElapsedTimeBucketInfo elapsedTimeBucketInfo = createElapsedTimeBucketInfo(minYAxis, maxYAxis);
+    public HeatMapData getHeatmapAppData(String applicationName, TimeWindow timeWindow, int minElapsedTime, int maxElapsedTime) {
+        ElapsedTimeBucketInfo elapsedTimeBucketInfo = createElapsedTimeBucketInfo(minElapsedTime, maxElapsedTime);
         HeatmapSearchKey heatmapSearchKey = new HeatmapSearchKey(applicationName + POSTFIX_SORT_KEY_SUCCESS,
                                                                  timeWindow,
                                                                  elapsedTimeBucketInfo.getTimeInterval(),
@@ -100,35 +100,35 @@ public class HeatmapChartServiceImpl implements HeatmapChartService {
         return timeSeriesBuilder.createHeatMapData();
     }
 
-    protected ElapsedTimeBucketInfo createElapsedTimeBucketInfo(int min, int max) {
-        int timeInterval = calculateTimeInterval(min, max);
+    protected ElapsedTimeBucketInfo createElapsedTimeBucketInfo(int minElapsedTime, int maxElapsedTime) {
+        int timeInterval = calculateTimeInterval(minElapsedTime, maxElapsedTime);
 
         List<Integer> bucketList = new ArrayList<Integer>();
 
         int value;
-        if (min == 0) {
+        if (minElapsedTime == 0) {
             value = timeInterval;
         } else {
-            value = min;
+            value = minElapsedTime;
         }
 
-        while (value < max) {
+        while (value < maxElapsedTime) {
             bucketList.add(value);
             value += timeInterval;
         }
 
-        bucketList.add(max);
+        bucketList.add(maxElapsedTime);
 
         return new ElapsedTimeBucketInfo(bucketList, timeInterval);
     }
 
-    protected int calculateTimeInterval(int min, int max) {
-        int range = max - min;
+    protected int calculateTimeInterval(int minElapsedTime, int maxElapsedTime) {
+        int range = maxElapsedTime - minElapsedTime;
         if (range <= (YAXIS_CELL_MAXCOUNT * MIN_INTERVAL_FOR_ELAPSED_TIME)) {
             return MIN_INTERVAL_FOR_ELAPSED_TIME;
         }
 
-        if (min == 0) {
+        if (minElapsedTime == 0) {
             return range / (YAXIS_CELL_MAXCOUNT);
         } else {
             return range / (YAXIS_CELL_MAXCOUNT - 1);

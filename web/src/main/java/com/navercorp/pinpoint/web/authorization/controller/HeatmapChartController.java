@@ -57,11 +57,11 @@ public class HeatmapChartController {
     public HeatMapDataView getHeatmapAppData(@RequestParam("applicationName") @NotBlank String applicationName,
                                   @RequestParam("from") @PositiveOrZero long from,
                                   @RequestParam("to") @PositiveOrZero long to,
-                                  @RequestParam("minYAxis") @PositiveOrZero int minYAxis,
-                                  @RequestParam("maxYAxis") @Positive int maxYAxis) {
+                                  @RequestParam("minElapsedTime") @PositiveOrZero int minElapsedTime,
+                                  @RequestParam("maxElapsedTime") @Positive int maxElapsedTime) {
         Range range = Range.between(from, to);
         TimeWindow timeWindow = getTimeWindow(range);
-        HeatMapData heatMapData = heatmapChartService.getHeatmapAppData(applicationName, timeWindow, minYAxis, maxYAxis);
+        HeatMapData heatMapData = heatmapChartService.getHeatmapAppData(applicationName, timeWindow, minElapsedTime, maxElapsedTime);
         return new HeatMapDataView(heatMapData);
     }
 
