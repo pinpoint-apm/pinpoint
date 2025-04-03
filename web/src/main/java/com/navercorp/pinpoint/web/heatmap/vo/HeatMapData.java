@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.heatmap.vo;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -29,15 +29,19 @@ public class HeatMapData {
 
     private final HeatmapSize heatmapSize;
 
-    private final Map<Long, HeatMapMetricColumn> heatMapMetricColumnMap;
+    private final TreeMap<Long, HeatMapMetricColumn> heatMapMetricColumnMap;
 
-    public HeatMapData(int width, int height, Map<Long, HeatMapMetricColumn> heatMapMetricColumnMap) {
+    public HeatMapData(int width, int height, TreeMap<Long, HeatMapMetricColumn> heatMapMetricColumnMap) {
         this.heatmapSize = new HeatmapSize(width, height);
         this.heatMapMetricColumnMap = Objects.requireNonNull(heatMapMetricColumnMap,"heatMapMetricColumnMap");
     }
 
     public Map<Long, HeatMapMetricColumn> getHeatMapMetricColumnMap() {
         return heatMapMetricColumnMap;
+    }
+
+    public HeatMapMetricColumn getHeatMapMetricColumn(long timestamp) {
+        return heatMapMetricColumnMap.get(timestamp);
     }
 
     public HeatmapSize getHeatmapSize() {
@@ -58,5 +62,9 @@ public class HeatMapData {
         sb.append("}");
 
         return sb.toString();
+    }
+
+    public List<HeatMapMetricColumn> getReverseOrderedHeatMapMetricColumnList() {
+        return new ArrayList<>(heatMapMetricColumnMap.descendingMap().values());
     }
 }

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.heatmap.vo;
 
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -28,18 +29,30 @@ import java.util.Objects;
 public class HeatMapMetricColumn {
 
     private final long timestamp;
-    private final int Column;
+    private final int column;
 
     private final Map<Integer, HeatMapMetricCell> heatMapMetricCellMap;
 
     public HeatMapMetricColumn(int columnNumber, long timestamp, Map<Integer, HeatMapMetricCell> heatMapMetricCellMap) {
-        this.Column = columnNumber;
+        this.column = columnNumber;
         this.timestamp = timestamp;
         this.heatMapMetricCellMap = Objects.requireNonNull(heatMapMetricCellMap,"heatMapMetricCellMap");;
     }
 
     public Map<Integer, HeatMapMetricCell> getHeatMapMetricCellMap() {
         return heatMapMetricCellMap;
+    }
+
+    public int getColumn() {
+        return column;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public List<HeatMapMetricCell> getHeatMapMetricCellList() {
+        return new ArrayList<>(heatMapMetricCellMap.values());
     }
 
     public HeatMapMetricCell getHeatMapMetricCell(int elapsedTime) {
@@ -51,7 +64,7 @@ public class HeatMapMetricColumn {
         sb.append(tab + "{\n" +
                     tab + "\ttimestamp= " + timestamp + ",\n" +
                     tab + "\ttime= " + DateTimeFormatUtils.formatSimple(timestamp) + ",\n" +
-                    tab + "\tColumn= " + Column + ",\n" +
+                    tab + "\tcolumn= " + column + ",\n" +
                     tab + "\theatMapMetricCellList : \n");
 
         for (HeatMapMetricCell heatMapMetricCell : heatMapMetricCellMap.values()) {

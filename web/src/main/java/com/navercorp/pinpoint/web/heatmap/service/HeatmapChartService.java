@@ -17,11 +17,12 @@
 package com.navercorp.pinpoint.web.heatmap.service;
 
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.web.heatmap.vo.HeatMapData;
 
 /**
  * @author minwoo-jung
  */
 public interface HeatmapChartService {
 
-    void getHeatmapAppData(String applicationName, TimeWindow timeWindow, int minYAxis, int maxYAxis);
+    HeatMapData getHeatmapAppData(String applicationName, TimeWindow timeWindow, int minYAxis, int maxYAxis);
 }

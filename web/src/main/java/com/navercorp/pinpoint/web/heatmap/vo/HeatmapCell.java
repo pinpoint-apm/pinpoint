@@ -27,7 +27,7 @@ public class HeatmapCell {
     private final int elapsedTime;
     private final int count;
 
-    HeatmapCell(long timestamp, double elapsedTime, double count) {
+    public HeatmapCell(long timestamp, double elapsedTime, double count) {
         this.timestamp = timestamp;
         this.elapsedTime = (int) elapsedTime;
         this.count = (int) count;
