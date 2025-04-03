@@ -85,7 +85,7 @@ public class UidFetcherV1 implements UidFetcher {
 
     private ApplicationUid fetchApplicationUid(String applicationName) {
         try {
-            return this.applicationUidService.getOrCreateApplicationId(DEFAULT_SERVICE_UID, applicationName);
+            return this.applicationUidService.getOrCreateApplicationUid(DEFAULT_SERVICE_UID, applicationName);
         } catch (Throwable e) {
             logger.info("Failed to fetch applicationId. applicationName:{}", applicationName, e);
             return ApplicationUid.ERROR_APPLICATION_UID;

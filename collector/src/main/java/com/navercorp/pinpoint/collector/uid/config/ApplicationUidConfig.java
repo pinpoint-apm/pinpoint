@@ -39,15 +39,15 @@ public class ApplicationUidConfig {
     @Bean
     public CacheManager applicationUidCache(@Qualifier("applicationUidCacheSpec") CaffeineCacheSpec caffeineCacheSpec) {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager(APPLICATION_UID_CACHE_NAME);
-        cacheManager.setCaffeine(
-                Caffeine.from(caffeineCacheSpec.getSpecification())
-        );
+        cacheManager.setCaffeine(Caffeine.from(caffeineCacheSpec.getSpecification()));
+        cacheManager.setAsyncCacheMode(true);
+        cacheManager.setAllowNullValues(false);
 
         return cacheManager;
     }
 
     @Bean
-    public IdGenerator<ApplicationUid> applicationIdGenerator() {
+    public IdGenerator<ApplicationUid> applicationUidGenerator() {
         return new RandomApplicationUidGenerator();
     }
 
