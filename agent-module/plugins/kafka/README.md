@@ -36,7 +36,17 @@ profiler.kafka.consumer.entryPoint=
 # You should set profiler.kafka.header.record as false below if you don't want to collect kafka header values.
 profiler.kafka.header.record=true
 ```
+
+#### kafka stream
+``` 
+# kafka stream
+profiler.kafka-streams.enable=false
+# traces the part where the request is pulled from the queue and process
+profiler.kafka-streams.trace.process=false
+```
+
 <br><br>
+
 
 
 ### Caution 

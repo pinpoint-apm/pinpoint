@@ -123,6 +123,10 @@ public class SpringKafkaApplication {
         public void sendGreetingMessage(Greeting greeting) {
             greetingKafkaTemplate.send(SpringKafkaPluginTestConstants.GREETING_TOPIC_NAME, greeting);
         }
+
+        public void sendStreamMessage(String message) {
+            kafkaTemplate.send("streamingTopic1", message);
+        }
     }
 
     public static class MessageListener {
