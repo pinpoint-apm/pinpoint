@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.common.server.util.array;
 import com.google.common.primitives.Doubles;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.RandomAccess;
 import java.util.function.ToDoubleFunction;
@@ -18,19 +19,30 @@ public final class DoubleArray {
         return array;
     }
 
-    public static <T> List<Double> asList(List<T> list, ToDoubleFunction<T> function) {
-        final int size = list.size();
-        final double[] values = new double[size];
+    public static <T> double[] asDoubleArray(List<T> list, ToDoubleFunction<T> function) {
         if (list instanceof RandomAccess) {
+            final int size = list.size();
+            final double[] values = new double[size];
             for (int i = 0; i < size; i++) {
                 values[i] = function.applyAsDouble(list.get(i));
             }
-        } else {
-            int i = 0;
-            for (T element : list) {
-                values[i++] = function.applyAsDouble(element);
-            }
+            return values;
         }
-        return Doubles.asList(values);
+        return asDoubleArray((Collection<T>) list, function);
     }
+
+    public static <T> double[] asDoubleArray(Collection<T> list, ToDoubleFunction<T> function) {
+        final int size = list.size();
+        final double[] values = new double[size];
+        int i = 0;
+        for (T element : list) {
+            values[i++] = function.applyAsDouble(element);
+        }
+        return values;
+    }
+
+    public static <T> List<Double> asList(List<T> list, ToDoubleFunction<T> function) {
+        return Doubles.asList(asDoubleArray(list, function));
+    }
+
 }
