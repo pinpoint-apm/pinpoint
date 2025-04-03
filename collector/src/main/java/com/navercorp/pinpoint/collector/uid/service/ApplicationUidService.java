@@ -5,8 +5,8 @@ import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 
 public interface ApplicationUidService {
 
-    ApplicationUid getApplicationId(ServiceUid serviceUid, String applicationName);
+    ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName);
 
-    ApplicationUid getOrCreateApplicationId(ServiceUid serviceUid, String applicationName);
+    ApplicationUid getOrCreateApplicationUid(ServiceUid serviceUid, String applicationName);
 
 }

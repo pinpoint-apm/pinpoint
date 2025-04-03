@@ -48,7 +48,7 @@ public class HbaseApplicationUidDao implements ApplicationUidDao {
     }
 
     @Override
-    @Cacheable(cacheNames = "applicationUidCache", key = "{#serviceUid, #applicationName}", cacheManager = ApplicationUidConfig.APPLICATION_UID_CACHE_NAME, unless = "#result == null")
+    @Cacheable(cacheNames = "applicationUidCache", key = "new org.springframework.cache.interceptor.SimpleKey(#serviceUid, #applicationName)", cacheManager = ApplicationUidConfig.APPLICATION_UID_CACHE_NAME, unless = "#result == null")
     public ApplicationUid selectApplicationUid(ServiceUid serviceUid, String applicationName) {
         Get get = createGet(serviceUid, applicationName);
 

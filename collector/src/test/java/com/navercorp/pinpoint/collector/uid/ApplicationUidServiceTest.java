@@ -55,8 +55,8 @@ public class ApplicationUidServiceTest {
     public void getOrCreateApplicationIdTest() {
         String testApplicationName = "test1";
 
-        ApplicationUid before = applicationIdService.getApplicationId(testServiceUid, testApplicationName);
-        ApplicationUid applicationUid = applicationIdService.getOrCreateApplicationId(testServiceUid, testApplicationName);
+        ApplicationUid before = applicationIdService.getApplicationUid(testServiceUid, testApplicationName);
+        ApplicationUid applicationUid = applicationIdService.getOrCreateApplicationUid(testServiceUid, testApplicationName);
 
         Assertions.assertThat(before).isNull();
         Assertions.assertThat(applicationUid).isNotNull();
@@ -71,7 +71,7 @@ public class ApplicationUidServiceTest {
         try {
             List<Callable<ApplicationUid>> tasks = new ArrayList<>();
             for (int i = 0; i < numberOfRequest; i++) {
-                tasks.add(() -> applicationIdService.getOrCreateApplicationId(testServiceUid, testApplicationName));
+                tasks.add(() -> applicationIdService.getOrCreateApplicationUid(testServiceUid, testApplicationName));
             }
             List<Future<ApplicationUid>> futures = localExecutorService.invokeAll(tasks);
 
