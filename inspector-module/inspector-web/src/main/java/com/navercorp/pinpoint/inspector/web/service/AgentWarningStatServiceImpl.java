@@ -74,9 +74,9 @@ public class AgentWarningStatServiceImpl implements AgentWarningStatService {
         for (int i = 0; i < metricDataList.size(); i++) {
             SystemMetricPoint<Double> metricData = metricDataList.get(i);
             if (i == 0) {
-                beforeTimestamp =  metricData.getXVal();
+                beforeTimestamp =  metricData.getTimestamp();
             } else {
-                boolean needSeparation =  metricData.getXVal() > beforeTimestamp + LIMIT_TIME;
+                boolean needSeparation =  metricData.getTimestamp() > beforeTimestamp + LIMIT_TIME;
 
                 if (needSeparation) {
                     AgentStatusTimelineSegment timelineSegment = createUnstableTimelineSegment(metricDataList.subList(index, i)); //!!! 여기서 어떻게 하는건지 알아야함.
@@ -84,7 +84,7 @@ public class AgentWarningStatServiceImpl implements AgentWarningStatService {
                     index = i;
                 }
 
-                beforeTimestamp =  metricData.getXVal();
+                beforeTimestamp =  metricData.getTimestamp();
             }
         }
 
@@ -106,8 +106,8 @@ public class AgentWarningStatServiceImpl implements AgentWarningStatService {
         }
 
         AgentStatusTimelineSegment timelineSegment = new AgentStatusTimelineSegment();
-        timelineSegment.setStartTimestamp(first.getXVal());
-        timelineSegment.setEndTimestamp(last.getXVal());
+        timelineSegment.setStartTimestamp(first.getTimestamp());
+        timelineSegment.setEndTimestamp(last.getTimestamp());
         timelineSegment.setValue(AgentState.UNSTABLE_RUNNING);
         return timelineSegment;
     }

@@ -16,12 +16,14 @@
 
 package com.navercorp.pinpoint.otlp.common.model;
 
+import com.navercorp.pinpoint.common.server.timeseries.Point;
+
 /**
  * @author minwoo-jung
  */
-public interface MetricPoint <Y extends Number> {
-
-    long getXVal();
+public interface MetricPoint<Y extends Number> extends Point {
+    @Override
+    long getTimestamp();
 
     Y getYVal();
 

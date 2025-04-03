@@ -23,8 +23,8 @@ public class DoubleSystemMetricPoint extends AbstractSystemMetricPoint<Double> {
 
     private final double y;
 
-    public DoubleSystemMetricPoint(long x, double y) {
-        super(x);
+    public DoubleSystemMetricPoint(long timestamp, double y) {
+        super(timestamp);
         this.y = y;
     }
 
@@ -64,7 +64,7 @@ public class DoubleSystemMetricPoint extends AbstractSystemMetricPoint<Double> {
     @Override
     public String toString() {
         return "SystemMetricPoint{" +
-                "x=" + x +
+                "timestamp=" + timestamp +
                 ", y=" + y +
                 '}';
     }

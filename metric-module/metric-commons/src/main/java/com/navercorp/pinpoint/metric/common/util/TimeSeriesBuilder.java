@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.metric.common.util;
 
+import com.navercorp.pinpoint.common.server.timeseries.Point;
 import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMaxMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.MinMaxMetricPoint;
-import com.navercorp.pinpoint.metric.common.model.chart.Point;
 import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 
 import java.util.ArrayList;
@@ -65,7 +65,7 @@ public class TimeSeriesBuilder {
 
         final int windowRangeCount = timeWindow.getWindowRangeCount();
         for (T point : dataList) {
-            final int timeslotIndex = this.timeWindow.getWindowIndex(point.getXVal());
+            final int timeslotIndex = this.timeWindow.getWindowIndex(point.getTimestamp());
             if (timeslotIndex < 0 || timeslotIndex >= windowRangeCount) {
                 continue;
             }

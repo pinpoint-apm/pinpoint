@@ -16,21 +16,28 @@
 
 package com.navercorp.pinpoint.metric.common.model.chart;
 
+import com.navercorp.pinpoint.common.server.timeseries.Point;
+
 /**
  * @author minwoo-jung
  */
 public class MinMaxMetricPoint implements Point {
 
-    private final long xValue;
+    private final long timestamp;
 
     private final double minValue;
 
     private final double maxValue;
 
-    public MinMaxMetricPoint(long xValue, double minValue, double maxValue) {
-        this.xValue = xValue;
+    public MinMaxMetricPoint(long timestamp, double minValue, double maxValue) {
+        this.timestamp = timestamp;
         this.minValue = minValue;
         this.maxValue = maxValue;
+    }
+
+    @Override
+    public long getTimestamp() {
+        return this.timestamp;
     }
 
     public double getMinValue() {
@@ -46,12 +53,12 @@ public class MinMaxMetricPoint implements Point {
         if (o == null || getClass() != o.getClass()) return false;
 
         MinMaxMetricPoint that = (MinMaxMetricPoint) o;
-        return xValue == that.xValue && Double.compare(minValue, that.minValue) == 0 && Double.compare(maxValue, that.maxValue) == 0;
+        return timestamp == that.timestamp && Double.compare(minValue, that.minValue) == 0 && Double.compare(maxValue, that.maxValue) == 0;
     }
 
     @Override
     public int hashCode() {
-        int result = Long.hashCode(xValue);
+        int result = Long.hashCode(timestamp);
         result = 31 * result + Double.hashCode(minValue);
         result = 31 * result + Double.hashCode(maxValue);
         return result;
@@ -60,14 +67,10 @@ public class MinMaxMetricPoint implements Point {
     @Override
     public String toString() {
         return "MinMaxMetricPoint{" +
-                "xValue=" + xValue +
+                "timestamp=" + timestamp +
                 ", minValue=" + minValue +
                 ", maxValue=" + maxValue +
                 '}';
     }
 
-    @Override
-    public long getXVal() {
-        return this.xValue;
-    }
 }

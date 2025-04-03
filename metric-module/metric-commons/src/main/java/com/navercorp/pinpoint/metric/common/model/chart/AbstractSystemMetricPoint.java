@@ -2,15 +2,15 @@ package com.navercorp.pinpoint.metric.common.model.chart;
 
 public abstract class AbstractSystemMetricPoint<Y extends Number> implements SystemMetricPoint<Y> {
 
-    protected final long x;
+    protected final long timestamp;
 
-    public AbstractSystemMetricPoint(long x) {
-        this.x = x;
+    public AbstractSystemMetricPoint(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     @Override
-    public long getXVal() {
-        return x;
+    public long getTimestamp() {
+        return timestamp;
     }
 
     public abstract Y getYVal();
@@ -19,11 +19,11 @@ public abstract class AbstractSystemMetricPoint<Y extends Number> implements Sys
     public boolean equals(Object o) {
         if (!(o instanceof AbstractSystemMetricPoint<?> that)) return false;
 
-        return x == that.x;
+        return timestamp == that.timestamp;
     }
 
     @Override
     public int hashCode() {
-        return Long.hashCode(x);
+        return Long.hashCode(timestamp);
     }
 }

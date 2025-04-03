@@ -16,12 +16,14 @@
 
 package com.navercorp.pinpoint.metric.common.model.chart;
 
+import com.navercorp.pinpoint.common.server.timeseries.Point;
+
 /**
  * @author minwoo-jung
  */
 public class AvgMinMaxMetricPoint implements Point {
 
-    private final long xValue;
+    private final long timestamp;
 
     private final double avgValue;
 
@@ -29,11 +31,16 @@ public class AvgMinMaxMetricPoint implements Point {
 
     private final double maxValue;
 
-    public AvgMinMaxMetricPoint(long xValue, double avgValue, double minValue, double maxValue) {
-        this.xValue = xValue;
+    public AvgMinMaxMetricPoint(long timestamp, double avgValue, double minValue, double maxValue) {
+        this.timestamp = timestamp;
         this.avgValue = avgValue;
         this.minValue = minValue;
         this.maxValue = maxValue;
+    }
+
+    @Override
+    public long getTimestamp() {
+        return this.timestamp;
     }
 
     public double getAvgValue() {
@@ -53,12 +60,12 @@ public class AvgMinMaxMetricPoint implements Point {
         if (o == null || getClass() != o.getClass()) return false;
 
         AvgMinMaxMetricPoint that = (AvgMinMaxMetricPoint) o;
-        return xValue == that.xValue && Double.compare(avgValue, that.avgValue) == 0 && Double.compare(minValue, that.minValue) == 0 && Double.compare(maxValue, that.maxValue) == 0;
+        return timestamp == that.timestamp && Double.compare(avgValue, that.avgValue) == 0 && Double.compare(minValue, that.minValue) == 0 && Double.compare(maxValue, that.maxValue) == 0;
     }
 
     @Override
     public int hashCode() {
-        int result = Long.hashCode(xValue);
+        int result = Long.hashCode(timestamp);
         result = 31 * result + Double.hashCode(avgValue);
         result = 31 * result + Double.hashCode(minValue);
         result = 31 * result + Double.hashCode(maxValue);
@@ -68,15 +75,11 @@ public class AvgMinMaxMetricPoint implements Point {
     @Override
     public String toString() {
         return "AvgMinMaxMetricPoint{" +
-                "xValue=" + xValue +
+                "timestamp=" + timestamp +
                 ", avgValue=" + avgValue +
                 ", minValue=" + minValue +
                 ", maxValue=" + maxValue +
                 '}';
     }
 
-    @Override
-    public long getXVal() {
-        return this.xValue;
-    }
 }

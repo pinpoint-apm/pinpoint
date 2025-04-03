@@ -57,7 +57,7 @@ public class LongSystemMetricPoint extends AbstractSystemMetricPoint<Long> {
     @Override
     public String toString() {
         return "SystemMetricPoint{" +
-                "x=" + x +
+                "timestamp=" + timestamp +
                 ", y=" + y +
                 '}';
     }

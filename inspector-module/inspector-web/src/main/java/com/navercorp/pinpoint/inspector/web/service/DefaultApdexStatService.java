@@ -119,7 +119,7 @@ public class DefaultApdexStatService implements ApdexStatService {
         for (Chart<ApplicationStatPoint> chartData : values) {
             List<ApplicationStatPoint> points = chartData.getPoints();
             for (ApplicationStatPoint point : points) {
-                timestampList[i] = point.getXVal();
+                timestampList[i] = point.getTimestamp();
                 avgValueList[i] = point.getYValForAvg();
                 minValueList[i] = point.getYValForMin();
                 maxValueList[i] = point.getYValForMax();
@@ -163,7 +163,7 @@ public class DefaultApdexStatService implements ApdexStatService {
         for (Chart<AgentStatPoint> chartData : values) {
             List<AgentStatPoint> points = chartData.getPoints();
             for (AgentStatPoint point : points) {
-                timestampList[i] = point.getXVal();
+                timestampList[i] = point.getTimestamp();
                 avgValueList[i] = point.getYVal();
                 i++;
             }

@@ -20,17 +20,17 @@ package com.navercorp.pinpoint.otlp.common.model;
  * @author minwoo-jung
  */
 public class DoubleMetricPoint implements MetricPoint<Double> {
-    private final long x;
+    private final long timestamp;
     private final double y;
 
-    public DoubleMetricPoint(long x, double y) {
-        this.x = x;
+    public DoubleMetricPoint(long timestamp, double y) {
+        this.timestamp = timestamp;
         this.y = y;
     }
 
     @Override
-    public long getXVal() {
-        return x;
+    public long getTimestamp() {
+        return timestamp;
     }
 
     @Override
@@ -47,12 +47,12 @@ public class DoubleMetricPoint implements MetricPoint<Double> {
         if (o == null || getClass() != o.getClass()) return false;
 
         DoubleMetricPoint that = (DoubleMetricPoint) o;
-        return x == that.x && Double.compare(y, that.y) == 0;
+        return timestamp == that.timestamp && Double.compare(y, that.y) == 0;
     }
 
     @Override
     public int hashCode() {
-        int result = Long.hashCode(x);
+        int result = Long.hashCode(timestamp);
         result = 31 * result + Double.hashCode(y);
         return result;
     }
@@ -60,7 +60,7 @@ public class DoubleMetricPoint implements MetricPoint<Double> {
     @Override
     public String toString() {
         return "MetricPoint{" +
-                "x=" + x +
+                "timestamp=" + timestamp +
                 ", y=" + y +
                 '}';
     }

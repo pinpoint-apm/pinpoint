@@ -1,11 +1,13 @@
 package com.navercorp.pinpoint.uristat.web.model;
 
+import com.navercorp.pinpoint.common.server.timeseries.Point;
 import com.navercorp.pinpoint.metric.web.view.TimeseriesChartType;
 
 import java.util.List;
 
-public class UriStatChartValue {
+public class UriStatChartValue implements Point {
     private long timestamp;
+
     private List<Double> values;
     private String version;
     private TimeseriesChartType chartType;
@@ -14,6 +16,7 @@ public class UriStatChartValue {
     public UriStatChartValue() {
     }
 
+    @Override
     public long getTimestamp() {
         return timestamp;
     }

@@ -39,7 +39,7 @@ public class TimeSeriesBuilder<T extends Number> {
         List<MetricPoint<T>> filledMetricPointList = createInitialPoints(function);
         final int windowRangeCount = timeWindow.getWindowRangeCount();
         for (MetricPoint<T> metricPoint : metricDataList) {
-            int timeslotIndex = this.timeWindow.getWindowIndex(metricPoint.getXVal());
+            int timeslotIndex = this.timeWindow.getWindowIndex(metricPoint.getTimestamp());
             if (timeslotIndex < 0 || timeslotIndex >= windowRangeCount) {
                 continue;
             }

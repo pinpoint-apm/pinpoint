@@ -20,17 +20,17 @@ package com.navercorp.pinpoint.otlp.common.model;
  * @author minwoo-jung
  */
 public class LongMetricPoint implements MetricPoint<Long> {
-    private final long x;
+    private final long timestamp;
     private final long y;
 
-    public LongMetricPoint(long x, long y) {
-        this.x = x;
+    public LongMetricPoint(long timestamp, long y) {
+        this.timestamp = timestamp;
         this.y = y;
     }
 
     @Override
-    public long getXVal() {
-        return x;
+    public long getTimestamp() {
+        return timestamp;
     }
 
     @Override
@@ -47,12 +47,12 @@ public class LongMetricPoint implements MetricPoint<Long> {
         if (o == null || getClass() != o.getClass()) return false;
 
         LongMetricPoint that = (LongMetricPoint) o;
-        return x == that.x && y == that.y;
+        return timestamp == that.timestamp && y == that.y;
     }
 
     @Override
     public int hashCode() {
-        int result = Long.hashCode(x);
+        int result = Long.hashCode(timestamp);
         result = 31 * result + Long.hashCode(y);
         return result;
     }
@@ -60,7 +60,7 @@ public class LongMetricPoint implements MetricPoint<Long> {
     @Override
     public String toString() {
         return "MetricPoint{" +
-                "x=" + x +
+                "timestamp=" + timestamp +
                 ", y=" + y +
                 '}';
     }

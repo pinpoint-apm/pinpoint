@@ -16,26 +16,25 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
-import com.navercorp.pinpoint.web.vo.chart.Point;
+import com.navercorp.pinpoint.common.server.timeseries.Point;
 
 /**
  * @author HyunGil Jeong
  */
 public class AgentStatPoint implements Point {
 
-    private final long xVal;
+    private final long timestamp;
     private final double yVal;
 
-    public AgentStatPoint(long xVal, double yVal) {
-        this.xVal = xVal;
+    public AgentStatPoint(long timestamp, double yVal) {
+        this.timestamp = timestamp;
         this.yVal = yVal;
     }
 
     @Override
-    public long getXVal() {
-        return xVal;
+    public long getTimestamp() {
+        return timestamp;
     }
-
 
     public double getYVal() {
         return yVal;
@@ -46,12 +45,12 @@ public class AgentStatPoint implements Point {
         if (o == null || getClass() != o.getClass()) return false;
 
         AgentStatPoint that = (AgentStatPoint) o;
-        return xVal == that.xVal && Double.compare(yVal, that.yVal) == 0;
+        return timestamp == that.timestamp && Double.compare(yVal, that.yVal) == 0;
     }
 
     @Override
     public int hashCode() {
-        int result = Long.hashCode(xVal);
+        int result = Long.hashCode(timestamp);
         result = 31 * result + Double.hashCode(yVal);
         return result;
     }
@@ -59,7 +58,7 @@ public class AgentStatPoint implements Point {
     @Override
     public String toString() {
         return "AgentStatPoint{" +
-                 xVal + "=" + yVal +
+                timestamp + "=" + yVal +
                 '}';
     }
 }

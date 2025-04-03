@@ -98,10 +98,10 @@ public class AgentTimeHistogramTest {
         List<ApplicationStatPoint> applicationStatPointList = histogram.getApplicationApdexScoreList(timeWindow);
         assertThat(applicationStatPointList).hasSize(2);
         assertThat(applicationStatPointList.get(0))
-                .extracting(ApplicationStatPoint::getXVal, ApplicationStatPoint::getYValForAvg)
+                .extracting(ApplicationStatPoint::getTimestamp, ApplicationStatPoint::getYValForAvg)
                 .containsExactly(0L, 1.0);
         assertThat(applicationStatPointList.get(1))
-                .extracting(ApplicationStatPoint::getXVal, ApplicationStatPoint::getYValForAvg)
+                .extracting(ApplicationStatPoint::getTimestamp, ApplicationStatPoint::getYValForAvg)
                 .containsExactly(1000L * 60, 0.5);
     }
 
