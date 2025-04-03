@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
 
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowFunction;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.vo.Application;
 

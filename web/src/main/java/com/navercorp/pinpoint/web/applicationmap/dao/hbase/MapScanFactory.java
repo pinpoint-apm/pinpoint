@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.web.applicationmap.dao.hbase;
 
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
 import org.apache.hadoop.hbase.client.Scan;

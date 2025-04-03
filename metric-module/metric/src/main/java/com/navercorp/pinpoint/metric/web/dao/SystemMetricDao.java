@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.metric.web.dao;
 
+import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
-import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
 
 import java.util.List;
@@ -28,5 +28,5 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface SystemMetricDao {
 
-    CompletableFuture<List<SystemMetricPoint<Double>>> getAsyncSampledSystemMetricData(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag);
+    CompletableFuture<List<DataPoint<Double>>> getAsyncSampledSystemMetricData(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag);
 }

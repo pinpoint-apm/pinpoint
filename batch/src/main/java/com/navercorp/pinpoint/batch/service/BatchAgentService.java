@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.batch.service;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 
 import java.util.List;
 

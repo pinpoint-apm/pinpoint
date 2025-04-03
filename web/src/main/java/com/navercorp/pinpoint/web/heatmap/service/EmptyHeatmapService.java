@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.heatmap.service;
 
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatMapData;
 
 /**

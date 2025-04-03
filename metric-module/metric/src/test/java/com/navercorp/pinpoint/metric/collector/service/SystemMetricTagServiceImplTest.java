@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.metric.collector.service;
 
-import com.navercorp.pinpoint.common.server.util.time.DateTimeUtils;
+import com.navercorp.pinpoint.common.timeseries.time.DateTimeUtils;
 import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.common.model.MetricTagCollection;

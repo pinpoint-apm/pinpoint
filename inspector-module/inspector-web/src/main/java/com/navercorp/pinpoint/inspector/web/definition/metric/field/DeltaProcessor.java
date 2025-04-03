@@ -16,7 +16,8 @@
 
 package com.navercorp.pinpoint.inspector.web.definition.metric.field;
 
-import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
+import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
+import com.navercorp.pinpoint.common.timeseries.point.Points;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -29,28 +30,28 @@ import java.util.List;
 public class DeltaProcessor implements FieldPostProcessor {
 
     @Override
-    public List<SystemMetricPoint<Double>> postProcess(List<SystemMetricPoint<Double>> systemMetricPointList) {
-        if (systemMetricPointList.isEmpty()) {
-            return systemMetricPointList;
+    public List<DataPoint<Double>> postProcess(List<DataPoint<Double>> dataPointList) {
+        if (dataPointList.isEmpty()) {
+            return dataPointList;
         }
 
-        List<SystemMetricPoint<Double>> postProcessedList = new ArrayList<>(systemMetricPointList.size());
+        List<DataPoint<Double>> postProcessedList = new ArrayList<>(dataPointList.size());
 
-        SystemMetricPoint<Double> prevPoint = systemMetricPointList.get(0);
-        postProcessedList.add(SystemMetricPoint.of(prevPoint.getTimestamp(), 0.0));
+        DataPoint<Double> prevPoint = dataPointList.get(0);
+        postProcessedList.add(Points.ofDouble(prevPoint.getTimestamp(), 0.0));
 
-        for (int i = 1; i < systemMetricPointList.size(); i++) {
-            SystemMetricPoint<Double> currentPoint = systemMetricPointList.get(i);
-            double prevValue = prevPoint.getYVal();
-            double currentValue = currentPoint.getYVal();
+        for (int i = 1; i < dataPointList.size(); i++) {
+            DataPoint<Double> currentPoint = dataPointList.get(i);
+            double prevValue = prevPoint.getValue();
+            double currentValue = currentPoint.getValue();
             double deltaValue = currentValue - prevValue;
 
             if (deltaValue < 0) {
                 deltaValue = currentValue;
             }
 
-            SystemMetricPoint<Double> deltaSystemMetricPoint = SystemMetricPoint.of(currentPoint.getTimestamp(), deltaValue);
-            postProcessedList.add(deltaSystemMetricPoint);
+            DataPoint<Double> deltaDataPoint = Points.ofDouble(currentPoint.getTimestamp(), deltaValue);
+            postProcessedList.add(deltaDataPoint);
             prevPoint = currentPoint;
         }
 

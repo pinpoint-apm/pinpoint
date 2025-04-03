@@ -18,7 +18,7 @@
 package com.navercorp.pinpoint.web.component.config;
 
 import com.navercorp.pinpoint.common.server.config.TypeLoaderConfiguration;
-import com.navercorp.pinpoint.common.server.util.TimeSlot;
+import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.DefaultAnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;

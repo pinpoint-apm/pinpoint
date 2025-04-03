@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.batch.alarm.vo.AgentFieldUsage;
 import com.navercorp.pinpoint.batch.alarm.vo.AgentUsage;
 import com.navercorp.pinpoint.batch.alarm.vo.AgentUsageCount;
 import com.navercorp.pinpoint.common.model.TagInformation;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 
 import java.util.List;

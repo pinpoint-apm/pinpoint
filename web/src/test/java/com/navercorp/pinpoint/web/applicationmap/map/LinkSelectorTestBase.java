@@ -18,7 +18,7 @@
 package com.navercorp.pinpoint.web.applicationmap.map;
 
 import com.google.common.util.concurrent.MoreExecutors;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;

@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.exceptiontrace.collector.mapper;
 
 import com.navercorp.pinpoint.common.server.mapper.MapStructUtils;
-import com.navercorp.pinpoint.common.server.util.array.IntArray;
+import com.navercorp.pinpoint.common.timeseries.array.IntArray;
 import com.navercorp.pinpoint.exceptiontrace.common.model.StackTraceElementWrapper;
 import org.mapstruct.Qualifier;
 import org.springframework.stereotype.Component;

@@ -3,7 +3,7 @@
 
 <mapper namespace="com.navercorp.pinpoint.inspector.web.dao.pinot.PinotAgentStatDao">
 
-    <resultMap id="inspectorMetricPointResultMap" type="DoubleSystemMetricPoint">
+    <resultMap id="inspectorMetricPointResultMap" type="DoubleDataPoint">
         <constructor>
             <arg column="avgTime" javaType="_long"/>
             <arg column="avgValue" javaType="_double"/>

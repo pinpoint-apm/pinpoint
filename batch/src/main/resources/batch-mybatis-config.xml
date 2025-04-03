@@ -35,7 +35,7 @@
         <typeAlias type="com.navercorp.pinpoint.web.webhook.model.WebhookSendInfo" alias="WebhookSendInfo"/>
 
         <typeAlias type="com.navercorp.pinpoint.web.vo.AgentCountStatistics" alias="AgentCountStatistics"/>
-        <typeAlias type="com.navercorp.pinpoint.common.server.util.time.Range" alias="Range"/>
+        <typeAlias type="com.navercorp.pinpoint.common.timeseries.time.Range" alias="Range"/>
     </typeAliases>
 
 </configuration>

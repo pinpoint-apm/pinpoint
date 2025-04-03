@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.web.heatmap.util;
 
-import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatMapData;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatMapMetricCell;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatMapMetricColumn;

@@ -18,13 +18,13 @@ package com.navercorp.pinpoint.inspector.web.config;
 
 import com.navercorp.pinpoint.common.dao.pinot.MultiValueTagTypeHandler;
 import com.navercorp.pinpoint.common.model.TagInformation;
+import com.navercorp.pinpoint.common.timeseries.point.DoubleDataPoint;
+import com.navercorp.pinpoint.common.timeseries.point.LongDataPoint;
 import com.navercorp.pinpoint.inspector.web.dao.model.InspectorQueryParameter;
 import com.navercorp.pinpoint.metric.common.config.CommonRegistryHandler;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMaxMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMetricPoint;
-import com.navercorp.pinpoint.metric.common.model.chart.DoubleSystemMetricPoint;
-import com.navercorp.pinpoint.metric.common.model.chart.LongSystemMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.MinMaxMetricPoint;
 import com.navercorp.pinpoint.metric.common.mybatis.typehandler.TagTypeHandler;
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.DoubleTypeHandler;
@@ -47,8 +47,8 @@ public class InspectorRegistryHandler implements MyBatisRegistryHandler {
     public void registerTypeAlias(TypeAliasRegistry typeAliasRegistry) {
         registryHandler.registerTypeAlias(typeAliasRegistry);
 
-        typeAliasRegistry.registerAlias(DoubleSystemMetricPoint.class);
-        typeAliasRegistry.registerAlias(LongSystemMetricPoint.class);
+        typeAliasRegistry.registerAlias(DoubleDataPoint.class);
+        typeAliasRegistry.registerAlias(LongDataPoint.class);
         typeAliasRegistry.registerAlias(AvgMinMaxMetricPoint.class);
         typeAliasRegistry.registerAlias(MinMaxMetricPoint.class);
         typeAliasRegistry.registerAlias(AvgMinMetricPoint.class);

@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.exceptiontrace.web.mapper;
 
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionGroupSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.util.TimeSeriesUtils;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.inspector.web.definition.metric;
 
-import com.navercorp.pinpoint.common.server.util.array.DoubleArray;
+import com.navercorp.pinpoint.common.timeseries.array.DoubleArray;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricValue;
 import com.navercorp.pinpoint.metric.common.util.PointCreator;
 import org.springframework.stereotype.Component;

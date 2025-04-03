@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.otlp.web.service;
 
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.otlp.common.web.defined.PrimaryForFieldAndTagRelation;
 import com.navercorp.pinpoint.otlp.common.web.definition.property.AggregationFunction;
 import com.navercorp.pinpoint.otlp.common.web.definition.property.ChartType;

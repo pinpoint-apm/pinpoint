@@ -17,10 +17,12 @@ package com.navercorp.pinpoint.inspector.web.service;
 
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Longs;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
+import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
+import com.navercorp.pinpoint.common.timeseries.point.Points;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSampler;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.inspector.web.definition.Mappings;
 import com.navercorp.pinpoint.inspector.web.definition.MetricDefinition;
 import com.navercorp.pinpoint.inspector.web.definition.YMLInspectorManager;
@@ -34,7 +36,6 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentApdexScoreChart;
-import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentStatPoint;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationApdexScoreChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationStatPoint;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -148,9 +149,9 @@ public class DefaultApdexStatService implements ApdexStatService {
     }
 
     private InspectorMetricData convertToInspectorMetricData(MetricDefinition metricDefinition, AgentApdexScoreChart agentApdexScoreChart) {
-        StatChartGroup<AgentStatPoint> statChartGroup = agentApdexScoreChart.getCharts();
-        Map<StatChartGroup.ChartType, Chart<AgentStatPoint>> chartDatas = statChartGroup.getCharts();
-        Collection<Chart<AgentStatPoint>> values = chartDatas.values();
+        StatChartGroup<DataPoint<Double>> statChartGroup = agentApdexScoreChart.getCharts();
+        Map<StatChartGroup.ChartType, Chart<DataPoint<Double>>> chartDatas = statChartGroup.getCharts();
+        Collection<Chart<DataPoint<Double>>> values = chartDatas.values();
 
         final int size = getFirstChartSize(values, (c) -> c.getPoints().size());
         if (size  == 0) {
@@ -160,11 +161,11 @@ public class DefaultApdexStatService implements ApdexStatService {
         final long[] timestampList = new long[size];
 
         int i = 0;
-        for (Chart<AgentStatPoint> chartData : values) {
-            List<AgentStatPoint> points = chartData.getPoints();
-            for (AgentStatPoint point : points) {
+        for (Chart<DataPoint<Double>> chartData : values) {
+            List<DataPoint<Double>> points = chartData.getPoints();
+            for (DataPoint<Double> point : points) {
                 timestampList[i] = point.getTimestamp();
-                avgValueList[i] = point.getYVal();
+                avgValueList[i] = Points.asDouble(point);
                 i++;
             }
         }

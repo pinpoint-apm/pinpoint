@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.otlp.web.controller;
 
-import com.navercorp.pinpoint.common.server.util.time.ForwardRangeValidator;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.common.server.util.time.RangeValidator;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
+import com.navercorp.pinpoint.common.timeseries.time.ForwardRangeValidator;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.otlp.common.web.defined.AppMetricDefinitionUtil;
 import com.navercorp.pinpoint.otlp.common.web.defined.PrimaryForFieldAndTagRelation;
 import com.navercorp.pinpoint.otlp.common.web.definition.property.AggregationFunction;
@@ -35,7 +35,6 @@ import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

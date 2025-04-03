@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
-import com.navercorp.pinpoint.common.server.timeseries.Point;
+import com.navercorp.pinpoint.common.timeseries.point.Point;
 
 import java.util.Objects;
 

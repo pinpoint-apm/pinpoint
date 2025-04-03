@@ -1,11 +1,11 @@
 package com.navercorp.pinpoint.otlp.web.service;
 
 import com.navercorp.pinpoint.common.server.metric.dao.TableNameManager;
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
-import com.navercorp.pinpoint.otlp.common.model.MetricPoint;
+import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSampler;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.otlp.common.model.MetricType;
 import com.navercorp.pinpoint.otlp.common.util.MetricPoints;
 import com.navercorp.pinpoint.otlp.common.util.TimeSeriesBuilder;
@@ -157,11 +157,11 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
                         .setMetricName(metricName)
                         .setAggregationFunction(aggregationFunction)
                         .setTimeWindow(timeWindow);
-        List<QueryResult<CompletableFuture<List<MetricPoint>>, OtlpMetricDataQueryParameter>> queryResult = new ArrayList<>();
+        List<QueryResult<CompletableFuture<List<DataPoint>>, OtlpMetricDataQueryParameter>> queryResult = new ArrayList<>();
 
         List<OtlpMetricDataQueryParameter> chartQueryParameterList = setupQueryParameterList(builder, fields, tagGroupList, primaryForFieldAndTagRelation);
         for (OtlpMetricDataQueryParameter chartQueryParameter : chartQueryParameterList) {
-            CompletableFuture<List<MetricPoint>> chartPoints = otlpMetricDao.getChartPoints(chartQueryParameter);
+            CompletableFuture<List<DataPoint>> chartPoints = otlpMetricDao.getChartPoints(chartQueryParameter);
             queryResult.add(new QueryResult<>(chartPoints, chartQueryParameter));
         }
 
@@ -169,11 +169,11 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
         // TODO: (minwoo) set unit data
         MetricData metricData = new MetricData(timeStampList, chartType, fields.get(0).unit());
 
-            for (QueryResult<CompletableFuture<List<MetricPoint>>, OtlpMetricDataQueryParameter> result : queryResult) {
-                CompletableFuture<List<MetricPoint>> future = result.future();
+            for (QueryResult<CompletableFuture<List<DataPoint>>, OtlpMetricDataQueryParameter> result : queryResult) {
+                CompletableFuture<List<DataPoint>> future = result.future();
                 OtlpMetricDataQueryParameter chartQueryParameter = result.key();
                 try {
-                    List<MetricPoint> meticDataList = future.get();
+                    List<DataPoint> meticDataList = future.get();
                     addMetricValue(timeWindow, meticDataList, metricData, getLegendName(chartQueryParameter, primaryForFieldAndTagRelation), chartQueryParameter.getVersion());
                 } catch(Exception e){
                     logger.warn("Failed to get OTLP metric data for applicationName: {}, metricGroup: {}, metricName {}, chartQueryParameter {}", applicationName, metricGroupName, metricName, chartQueryParameter, e);
@@ -201,10 +201,10 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
 
 
     private void addMetricValue(TimeWindow timeWindow,
-                                                   List<MetricPoint> meticDataList, MetricData metricData, String legendName, String version){
+                                List<DataPoint> meticDataList, MetricData metricData, String legendName, String version){
         TimeSeriesBuilder timeSeriesBuilder = new TimeSeriesBuilder(timeWindow);
-        List<MetricPoint> metricPointList = timeSeriesBuilder.build(MetricPoints::createUnCollectedPoint, meticDataList);
-        List<Number> valueList = metricPointList.stream().map(MetricPoint::getYVal).collect(Collectors.toList());
+        List<DataPoint> metricPointList = timeSeriesBuilder.build(MetricPoints::createUnCollectedPoint, meticDataList);
+        List<Number> valueList = metricPointList.stream().map(DataPoint::getValue).collect(Collectors.toList());
 
         metricData.addMetricValue(new MetricValue(legendName, valueList, version));
 
@@ -266,5 +266,5 @@ public class OtlpMetricWebServiceImpl implements OtlpMetricWebService {
     // TODO: duplicate record
     private record LegacyQueryResult<E, K>(CompletableFuture<List<OtlpMetricChartResult>> future, K key) {}
 
-    private record QueryResult<E, K>(CompletableFuture<List<MetricPoint>> future, K key) {}
+    private record QueryResult<E, K>(CompletableFuture<List<DataPoint>> future, K key) {}
 }

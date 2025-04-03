@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.pinot.alarm.checker;
 
 import com.navercorp.pinpoint.batch.alarm.checker.PinotAlarmCheckerInterface;
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.pinot.alarm.collector.PinotDataCollector;
 import com.navercorp.pinpoint.pinot.alarm.condition.AlarmCondition;
 import com.navercorp.pinpoint.pinot.alarm.vo.PinotAlarmRule;

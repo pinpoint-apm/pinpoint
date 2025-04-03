@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.inspector.web.service;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSampler;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindowSlotCentricSampler;
+import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSampler;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.inspector.web.model.InspectorDataSearchKey;
-import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentState;
@@ -58,11 +58,11 @@ public class AgentWarningStatServiceImpl implements AgentWarningStatService {
         String tenantId = tenantProvider.getTenantId();
         TimeWindow timeWindow = new TimeWindow(range, DEFAULT_TIME_WINDOW_SAMPLER);
         InspectorDataSearchKey inspectorDataSearchKey = new InspectorDataSearchKey(tenantId, applicationName, agentId, DEADLOCK_DEFINITION_ID, timeWindow);
-        List<SystemMetricPoint<Double>> systemMetricPoints = agentStatService.selectAgentStatUnconvertedTime(inspectorDataSearchKey, timeWindow);
-        return createTimelineSegment(systemMetricPoints);
+        List<DataPoint<Double>> dataPoints = agentStatService.selectAgentStatUnconvertedTime(inspectorDataSearchKey, timeWindow);
+        return createTimelineSegment(dataPoints);
     }
 
-    private List<AgentStatusTimelineSegment> createTimelineSegment(List<SystemMetricPoint<Double>> metricDataList) {
+    private List<AgentStatusTimelineSegment> createTimelineSegment(List<DataPoint<Double>> metricDataList) {
         if (CollectionUtils.isEmpty(metricDataList)) {
             return Collections.emptyList();
         }
@@ -72,7 +72,7 @@ public class AgentWarningStatServiceImpl implements AgentWarningStatService {
         int index = 0;
 
         for (int i = 0; i < metricDataList.size(); i++) {
-            SystemMetricPoint<Double> metricData = metricDataList.get(i);
+            DataPoint<Double> metricData = metricDataList.get(i);
             if (i == 0) {
                 beforeTimestamp =  metricData.getTimestamp();
             } else {
@@ -93,13 +93,13 @@ public class AgentWarningStatServiceImpl implements AgentWarningStatService {
         return timelineSegmentList;
     }
 
-    private AgentStatusTimelineSegment createUnstableTimelineSegment(List<SystemMetricPoint<Double>> metricDataList) {
+    private AgentStatusTimelineSegment createUnstableTimelineSegment(List<DataPoint<Double>> metricDataList) {
         if (CollectionUtils.isEmpty(metricDataList)) {
             return null;
         }
 
-        SystemMetricPoint<Double> first = CollectionUtils.firstElement(metricDataList);
-        SystemMetricPoint<Double> last = CollectionUtils.lastElement(metricDataList);
+        DataPoint<Double> first = CollectionUtils.firstElement(metricDataList);
+        DataPoint<Double> last = CollectionUtils.lastElement(metricDataList);
 
         if (first == null || last == null) {
             return null;

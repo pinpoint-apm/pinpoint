@@ -1,10 +1,10 @@
 package com.navercorp.pinpoint.metric.web.config;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.timeseries.point.DoubleDataPoint;
+import com.navercorp.pinpoint.common.timeseries.point.LongDataPoint;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.metric.common.config.CommonRegistryHandler;
 import com.navercorp.pinpoint.metric.common.model.Tag;
-import com.navercorp.pinpoint.metric.common.model.chart.DoubleSystemMetricPoint;
-import com.navercorp.pinpoint.metric.common.model.chart.LongSystemMetricPoint;
 import com.navercorp.pinpoint.metric.common.mybatis.typehandler.TagTypeHandler;
 import com.navercorp.pinpoint.metric.web.dao.model.HostInfoSearchKey;
 import com.navercorp.pinpoint.metric.web.dao.model.MetricInfoSearchKey;
@@ -41,8 +41,8 @@ public class WebRegistryHandler implements MyBatisRegistryHandler {
         typeAliasRegistry.registerAlias("TagHandler", TagTypeHandler.class);
         typeAliasRegistry.registerAlias("TagListHandler", TagListTypeHandler.class);
 
-        typeAliasRegistry.registerAlias(DoubleSystemMetricPoint.class);
-        typeAliasRegistry.registerAlias(LongSystemMetricPoint.class);
+        typeAliasRegistry.registerAlias(DoubleDataPoint.class);
+        typeAliasRegistry.registerAlias(LongDataPoint.class);
         typeAliasRegistry.registerAlias(SystemMetricDataSearchKey.class);
 
         typeAliasRegistry.registerAlias("metricInfoSearchKey", MetricInfoSearchKey.class);

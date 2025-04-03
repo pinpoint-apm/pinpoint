@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.web.view.histogram;
 
-import com.navercorp.pinpoint.common.server.util.array.LongArray;
+import com.navercorp.pinpoint.common.timeseries.array.LongArray;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;

@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.metric.common.util;
 
-import com.navercorp.pinpoint.common.server.timeseries.Point;
-import com.navercorp.pinpoint.common.server.util.timewindow.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
+import com.navercorp.pinpoint.common.timeseries.point.Point;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMaxMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.AvgMinMetricPoint;
 import com.navercorp.pinpoint.metric.common.model.chart.MinMaxMetricPoint;
-import com.navercorp.pinpoint.metric.common.model.chart.SystemMetricPoint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,11 +52,11 @@ public class TimeSeriesBuilder {
         return buildPointList(creator, avgMinMaxMetricDataList);
     }
 
-    public List<SystemMetricPoint<Double>> buildDoubleMetric(LongFunction<SystemMetricPoint<Double>> creator, List<SystemMetricPoint<Double>> systemMetricDataList) {
+    public List<DataPoint<Double>> buildDoubleMetric(LongFunction<DataPoint<Double>> creator, List<DataPoint<Double>> systemMetricDataList) {
         return buildPointList(creator, systemMetricDataList);
     }
 
-    public List<SystemMetricPoint<Long>> buildLongMetric(LongFunction<SystemMetricPoint<Long>> creator, List<SystemMetricPoint<Long>> systemMetricDataList) {
+    public List<DataPoint<Long>> buildLongMetric(LongFunction<DataPoint<Long>> creator, List<DataPoint<Long>> systemMetricDataList) {
         return buildPointList(creator, systemMetricDataList);
     }
 

@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.web.applicationmap;
 
-import com.navercorp.pinpoint.common.server.util.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import jakarta.annotation.Nullable;

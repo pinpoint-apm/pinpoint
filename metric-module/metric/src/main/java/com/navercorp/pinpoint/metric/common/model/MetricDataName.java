@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.metric.common.model;
 
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
-import com.navercorp.pinpoint.common.server.util.time.DateTimeUtils;
+import com.navercorp.pinpoint.common.timeseries.time.DateTimeUtils;
 
 import java.util.Objects;
 
