@@ -1,7 +1,7 @@
 package com.pinpoint.test.plugin;
 
 public class SpringKafkaPluginTestConstants {
-    public static final String BROKER_URL = "localhost:32773";
+    public static final String BROKER_URL = "localhost:32781";
 
     public static final String TOPIC_NAME = "foo";
 
