@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.uristat.collector.service;
 
+import com.google.common.primitives.Ints;
 import com.navercorp.pinpoint.collector.service.AgentUriStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.EachUriStatBo;
@@ -29,6 +30,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,8 +39,10 @@ import java.util.Objects;
 public class PinotAgentUriStatService implements AgentUriStatService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final int BUCKET_SIZE = 8;
-    private final int[] EMPTY_BUCKETS = new int[BUCKET_SIZE];
+    private static final int BUCKET_SIZE = 8;
+    private static final List<Integer> EMPTY_BUCKETS
+            = Collections.unmodifiableList(Ints.asList(new int[BUCKET_SIZE]));
+
     private final UriStatDao uriStatDao;
     private final TenantProvider tenantProvider;
 
@@ -52,30 +56,35 @@ public class PinotAgentUriStatService implements AgentUriStatService {
         if (logger.isDebugEnabled()) {
             logger.debug("save {}", agentUriStatBo);
         }
+        List<EachUriStatBo> eachUriStatBoList = agentUriStatBo.getEachUriStatBoList();
+        List<UriStat> data = new ArrayList<>(eachUriStatBoList.size());
 
-        List<UriStat> data = new ArrayList<>();
         final String serviceName = agentUriStatBo.getServiceName();
         final String applicationName = agentUriStatBo.getApplicationName();
         final String agentId = agentUriStatBo.getAgentId();
         final int version = agentUriStatBo.getBucketVersion();
         final String tenantId = tenantProvider.getTenantId();
 
-        for (EachUriStatBo eachUriStatBo : agentUriStatBo.getEachUriStatBoList()) {
+        for (EachUriStatBo eachUriStatBo : eachUriStatBoList) {
             final String uri = eachUriStatBo.getUri();
             final long timestamp = eachUriStatBo.getTimestamp();
             final UriStatHistogram totalHistogram = eachUriStatBo.getTotalHistogram();
             final UriStatHistogram failureHistogram = eachUriStatBo.getFailedHistogram();
-            data.add(new UriStat(timestamp, tenantId, serviceName, applicationName, agentId, uri, totalHistogram.getMax(),
-                    totalHistogram.getTotal(), getHistogramArray(totalHistogram), getHistogramArray(failureHistogram), version));
+            UriStat uriStat = new UriStat(timestamp, tenantId, serviceName, applicationName, agentId, uri,
+                    totalHistogram.getMax(),
+                    totalHistogram.getTotal(),
+                    getOrDefaultHistogram(totalHistogram),
+                    getOrDefaultHistogram(failureHistogram),
+                    version);
+            data.add(uriStat);
         }
         uriStatDao.insert(data);
     }
 
-    public int[] getHistogramArray(UriStatHistogram histogram) {
+    public List<Integer> getOrDefaultHistogram(UriStatHistogram histogram) {
         if (histogram != null) {
             return histogram.getTimestampHistogram();
         }
         return EMPTY_BUCKETS;
     }
-
 }

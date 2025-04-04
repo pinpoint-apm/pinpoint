@@ -33,44 +33,38 @@ import java.util.List;
 @Component
 public class GrpcAgentUriStatMapper {
 
+    private static final String DEFAULT_SERVICE_NAME = "DEFAULT";
+
     public AgentUriStatBo map(ServerHeader header, final PAgentUriStat agentUriStat) {
         final String agentId = header.getAgentId();
         final String applicationName = header.getApplicationName();
 
         int bucketVersion = agentUriStat.getBucketVersion();
-
-        AgentUriStatBo agentUriStatBo = new AgentUriStatBo();
-        agentUriStatBo.setServiceName("DEFAULT");                        // TODO: add serviceName when available
-        agentUriStatBo.setApplicationName(applicationName);
-        agentUriStatBo.setAgentId(agentId);
-        agentUriStatBo.setBucketVersion((byte) bucketVersion);
-
         List<PEachUriStat> eachUriStatList = agentUriStat.getEachUriStatList();
-        for (PEachUriStat pEachUriStat : eachUriStatList) {
-            EachUriStatBo eachUriStatBo = createEachUriStatBo(pEachUriStat);
-            agentUriStatBo.addEachUriStatBo(eachUriStatBo);
-        }
 
-        return agentUriStatBo;
+        List<EachUriStatBo> list = eachUriStatList.stream()
+                .map(this::createEachUriStatBo)
+                .toList();
+
+        return new AgentUriStatBo(
+                (byte) bucketVersion,
+                DEFAULT_SERVICE_NAME,
+                applicationName,
+                agentId, list);
     }
 
     private EachUriStatBo createEachUriStatBo(PEachUriStat pEachUriStat) {
-        EachUriStatBo eachUriStatBo = new EachUriStatBo();
 
         final String uri = pEachUriStat.getUri();
-        eachUriStatBo.setUri(uri);
+        long timestamp = pEachUriStat.getTimestamp();
 
         PUriHistogram pTotalHistogram = pEachUriStat.getTotalHistogram();
         final UriStatHistogram totalHistogram = convertUriStatHistogram(pTotalHistogram);
-        eachUriStatBo.setTotalHistogram(totalHistogram);
 
         PUriHistogram pFailedHistogram = pEachUriStat.getFailedHistogram();
         final UriStatHistogram failedHistogram = convertUriStatHistogram(pFailedHistogram);
-        eachUriStatBo.setFailedHistogram(failedHistogram);
 
-        eachUriStatBo.setTimestamp(pEachUriStat.getTimestamp());
-
-        return eachUriStatBo;
+        return new EachUriStatBo(timestamp, uri, totalHistogram, failedHistogram);
     }
 
     private UriStatHistogram convertUriStatHistogram(PUriHistogram pUriHistogram) {
@@ -85,17 +79,7 @@ public class GrpcAgentUriStatMapper {
 
         List<Integer> histogramList = pUriHistogram.getHistogramList();
 
-        int[] histogram = new int[histogramCount];
-        for (int i = 0; i < histogramCount; i++) {
-            histogram[i] = histogramList.get(i);
-        }
-
-        UriStatHistogram uriStatHistogram = new UriStatHistogram();
-        uriStatHistogram.setTotal(total);
-        uriStatHistogram.setMax(max);
-        uriStatHistogram.setTimestampHistogram(histogram);
-
-        return uriStatHistogram;
+        return new UriStatHistogram(total, max, histogramList);
     }
 
 }
