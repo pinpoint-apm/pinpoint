@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.inspector.collector.dao;
 
-import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
-import com.navercorp.pinpoint.common.server.bo.stat.StatDataPoint;
+import com.navercorp.pinpoint.inspector.collector.model.kafka.AgentStat;
+import com.navercorp.pinpoint.inspector.collector.model.kafka.ApplicationStat;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -26,8 +26,10 @@ import java.util.List;
  * @author minwoo.jung
  */
 @Repository
-public interface AgentStatDao<T extends StatDataPoint> {
-    void insert(String applicationName, String agentId, List<T> agentStatDataPoints);
+public interface AgentStatDao {
 
-    void dispatch(AgentStatBo agentStatBo);
+    void insertAgentStat(List<AgentStat> agentStatList);
+
+    void insertApplicationStat(List<ApplicationStat> applicationStatList);
+
 }
