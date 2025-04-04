@@ -31,16 +31,14 @@ public class TableNameManager {
 
     public TableNameManager(String tablePrefix, int paddingLength, int count) {
         this.tablePrefix = tablePrefix;
-        this.numberFormat = "%0" + String.valueOf(paddingLength) + "d";
+        this.numberFormat = "%0" + paddingLength + "d";
         this.count = count;
     }
 
     public String getTableName(String applicationName) {
         int hashValue = getHashValue(applicationName);
         String postfix = String.format(numberFormat, hashValue);
-        StringBuilder sb = new StringBuilder();
-        sb.append(tablePrefix).append(postfix);
-        return sb.toString();
+        return tablePrefix.concat(postfix);
     }
 
     protected int getHashValue(String applicationName) {
