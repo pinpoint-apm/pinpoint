@@ -19,6 +19,8 @@ export const APP_PATH = {
   OPEN_TELEMETRY_METRIC: '/openTelemetryMetric',
   SCATTER_FULL_SCREEN_REALTIME: '/scatterFullScreenMode/realtime',
   SCATTER_FULL_SCREEN: '/scatterFullScreenMode',
+  HEATMAP_FULL_SCREEN_REALTIME: '/heatmapFullScreenMode/realtime',
+  HEATMAP_FULL_SCREEN: '/heatmapFullScreenMode',
   SERVER_MAP_REALTIME: '/serverMap/realtime',
   SERVER_MAP: '/serverMap',
   SYSTEM_METRIC: '/systemMetric',

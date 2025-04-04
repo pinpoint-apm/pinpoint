@@ -6,6 +6,7 @@ export * from './NotFound404';
 export * from './OpenTelemetry';
 export * from './Realtime';
 export * from './ScatterFullScreen';
+export * from './ScatterOrHeatmapFullScreen';
 export * from './ServerMap';
 export * from './SystemMetric';
 export * from './TransactionList';
