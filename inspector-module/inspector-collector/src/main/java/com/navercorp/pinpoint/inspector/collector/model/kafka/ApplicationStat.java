@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.inspector.collector.model.kafka;
 
 import com.navercorp.pinpoint.common.model.SortKeyUtils;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 
 /**
  * @author minwoo-jung
@@ -27,30 +28,39 @@ public class ApplicationStat {
 
     private final String tenantId;
 
+    private final long timestamp;
+
     private final String sortKey;
     private final String applicationName;
     private final String metricName;
     private final String fieldName;
     private final double fieldValue;
     private final String primaryTag;
-    private final long eventTime;
-    public ApplicationStat(String tenantId, String applicationName, String metricName, String fieldName, double fieldValue, long eventTime) {
-        this(tenantId, applicationName, metricName, fieldName, NULL_STRING, fieldValue, eventTime);
+
+    public static ApplicationStat ofEmptyTag(String tenantId, long timestamp, String applicationName, String metricName, String fieldName, double fieldValue) {
+        return new ApplicationStat(tenantId, timestamp, applicationName, metricName, fieldName, NULL_STRING, fieldValue);
     }
 
-    public ApplicationStat(String tenantId, String applicationName, String metricName, String fieldName, String primaryTag, double fieldValue, long eventTime) {
+    public ApplicationStat(String tenantId, long timestamp,
+                           String applicationName, String metricName,
+                           String fieldName, String primaryTag, double fieldValue) {
         this.tenantId = tenantId;
-        this.applicationName = applicationName;
+        this.timestamp = timestamp;
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.metricName = metricName;
         this.sortKey = SortKeyUtils.generateKeyForApplicationStat(applicationName, metricName);
         this.fieldName = fieldName;
         this.fieldValue = fieldValue;
-        this.eventTime = eventTime;
         this.primaryTag = primaryTag;
     }
 
+    @Deprecated
     public String getTenantId() {
         return tenantId;
+    }
+
+    public long getEventTime() {
+        return timestamp;
     }
 
     public String getSortKey() {
@@ -77,7 +87,4 @@ public class ApplicationStat {
         return primaryTag;
     }
 
-    public long getEventTime() {
-        return eventTime;
-    }
 }

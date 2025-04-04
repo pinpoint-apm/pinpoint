@@ -30,22 +30,22 @@ public class ApplicationStatModelConverter {
 
     private final static Logger logger = LogManager.getLogger(ApplicationStatModelConverter.class.getName());
 
-    public static List<ApplicationStat> convertToApplicationStat(List<AgentStat> agentStatList) {
+    public List<ApplicationStat> convertToApplicationStat(List<AgentStat> agentStatList) {
         List<ApplicationStat> applicationStatList = new ArrayList<>(agentStatList.size());
 
         for (AgentStat agentStat : agentStatList) {
-            applicationStatList.add(new ApplicationStat(agentStat.getTenantId(),
-                                                        agentStat.getApplicationName(),
+            applicationStatList.add(ApplicationStat.ofEmptyTag(agentStat.getTenantId(),
+                    agentStat.getEventTime(), agentStat.getApplicationName(),
                                                         agentStat.getMetricName(),
                                                         agentStat.getFieldName(),
-                                                        agentStat.getFieldValue(),
-                                                        agentStat.getEventTime()));
+                                                        agentStat.getFieldValue()
+            ));
         }
 
         return applicationStatList;
     }
 
-    public static List<ApplicationStat> convertFromDataSourceStatToApplicationStat(List<AgentStat> agentStatList) {
+    public List<ApplicationStat> convertFromDataSource(List<AgentStat> agentStatList) {
         List<ApplicationStat> applicationStatList = new ArrayList<>(agentStatList.size());
 
         for (AgentStat agentStat : agentStatList) {
@@ -63,12 +63,12 @@ public class ApplicationStatModelConverter {
             }
 
             applicationStatList.add(new ApplicationStat(agentStat.getTenantId(),
-                                                        agentStat.getApplicationName(),
+                    agentStat.getEventTime(), agentStat.getApplicationName(),
                                                         agentStat.getMetricName(),
                                                         agentStat.getFieldName(),
                                                         jdbcUrlTag.toString(),
-                                                        agentStat.getFieldValue(),
-                                                        agentStat.getEventTime()));
+                                                        agentStat.getFieldValue()
+            ));
         }
 
         return applicationStatList;

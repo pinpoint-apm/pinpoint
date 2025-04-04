@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.inspector.collector.model.kafka;
 
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
-import com.navercorp.pinpoint.common.server.bo.stat.DataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
@@ -41,14 +40,14 @@ import java.util.stream.Stream;
  * @author minwoo.jung
  */
 // TODO : (minwoo) tenantId must be entered
-public class AgentStatModelConverter<T extends DataPoint> {
+public class AgentStatModelConverter {
 
     public static final String DATASOUCE_TAG_ID_KEY = "id";
     public static final String DATASOUCE_TAG_SERVICE_TYPE_CODE_KEY = "serviceTypeCode";
     public static final String DATASOUCE_TAG_DATABASE_NAME_KEY = "databaseName";
     public static final String DATASOUCE_TAG_JDBC_URL_KEY = "jdbcUrl";
 
-    public static List<AgentStat> convertCpuLoadToAgentStat(List<CpuLoadBo> cpuLoadBoList, String tenantId) {
+    public List<AgentStat> convertCpuLoad(List<CpuLoadBo> cpuLoadBoList, String tenantId) {
         List<AgentStat> agentStatList = cpuLoadBoList.stream()
                 .flatMap(cpuLoadBo -> {
                     final AgentStatBuilder builder = new AgentStatBuilder(tenantId, cpuLoadBo);
@@ -66,7 +65,7 @@ public class AgentStatModelConverter<T extends DataPoint> {
         return agentStatList;
     }
 
-    public static List<AgentStat> convertActiveTraceToAgentStat(List<ActiveTraceBo> activeTraceBoList, String tenantId) {
+    public List<AgentStat> convertActiveTrace(List<ActiveTraceBo> activeTraceBoList, String tenantId) {
         List<AgentStat> agentStatList = activeTraceBoList.stream()
                 .flatMap(activeTraceBo -> {
                     final AgentStatBuilder builder = new AgentStatBuilder(tenantId, activeTraceBo);
@@ -98,7 +97,7 @@ public class AgentStatModelConverter<T extends DataPoint> {
         return agentStatList;
     }
 
-    public static List<AgentStat> convertJvmGcToAgentStat(List<JvmGcBo> jvmGcBoList, String tenantId) {
+    public List<AgentStat> convertJvmGc(List<JvmGcBo> jvmGcBoList, String tenantId) {
         List<AgentStat> agentStatList = jvmGcBoList.stream()
                 .flatMap(jvmGcBo -> {
                     final AgentStatBuilder builder = new AgentStatBuilder(tenantId, jvmGcBo);
@@ -132,7 +131,7 @@ public class AgentStatModelConverter<T extends DataPoint> {
     }
 
 
-    public static List<AgentStat> convertJvmGCDetailedToAgentStat(List<JvmGcDetailedBo> jvmGcDetailedBoList, String tenantId) {
+    public List<AgentStat> convertJvmGCDetailed(List<JvmGcDetailedBo> jvmGcDetailedBoList, String tenantId) {
         List<AgentStat> agentStatList = jvmGcDetailedBoList
                 .stream()
                 .flatMap(jvmGcDetailedBo -> {
@@ -172,7 +171,7 @@ public class AgentStatModelConverter<T extends DataPoint> {
         return agentStatList;
     }
 
-    public static List<AgentStat> convertTransactionToAgentStat(List<TransactionBo> transactionBoList, String tenantId) {
+    public List<AgentStat> convertTransaction(List<TransactionBo> transactionBoList, String tenantId) {
         List<AgentStat> agentStatList = transactionBoList.stream()
                 .flatMap(transactionBo -> {
                             final AgentStatBuilder builder = new AgentStatBuilder(tenantId, transactionBo);
@@ -219,7 +218,7 @@ public class AgentStatModelConverter<T extends DataPoint> {
         return agentStatList;
     }
 
-    public static List<AgentStat> convertResponseTimeToAgentStat(List<ResponseTimeBo> reponseTimeBoList, String tenantId) {
+    public List<AgentStat> convertResponseTime(List<ResponseTimeBo> reponseTimeBoList, String tenantId) {
         List<AgentStat> agentStatList = reponseTimeBoList.stream()
                 .flatMap(responseTimeBo -> {
                             final AgentStatBuilder builder = new AgentStatBuilder(tenantId, responseTimeBo);
@@ -238,7 +237,7 @@ public class AgentStatModelConverter<T extends DataPoint> {
         return agentStatList;
     }
 
-    public static List<AgentStat> convertDeadlockThreadCountToAgentStat(List<DeadlockThreadCountBo> deadlockThreadCountBoList, String tenantId) {
+    public List<AgentStat> convertDeadlockThreadCount(List<DeadlockThreadCountBo> deadlockThreadCountBoList, String tenantId) {
         List<AgentStat> agentStatList = deadlockThreadCountBoList.stream()
                 .flatMap(deadlockThreadCountBo -> {
                             final AgentStatBuilder builder = new AgentStatBuilder(tenantId, deadlockThreadCountBo);
@@ -254,7 +253,7 @@ public class AgentStatModelConverter<T extends DataPoint> {
         return agentStatList;
     }
 
-    public static List<AgentStat> convertFileDescriptorToAgentStat(List<FileDescriptorBo> fileDescriptorBoList, String tenantId) {
+    public List<AgentStat> convertFileDescriptor(List<FileDescriptorBo> fileDescriptorBoList, String tenantId) {
         List<AgentStat> agentStatList = fileDescriptorBoList.stream()
                 .flatMap(fileDescriptorBo -> {
                             final AgentStatBuilder builder = new AgentStatBuilder(tenantId, fileDescriptorBo);
@@ -269,7 +268,7 @@ public class AgentStatModelConverter<T extends DataPoint> {
         return agentStatList;
     }
 
-    public static List<AgentStat> convertDirectBufferToAgentStat(List<DirectBufferBo> directBufferBoList, String tenantId) {
+    public List<AgentStat> convertDirectBuffer(List<DirectBufferBo> directBufferBoList, String tenantId) {
         List<AgentStat> agentStatList = directBufferBoList.stream()
                 .flatMap(directBufferBo -> {
                             final AgentStatBuilder builder = new AgentStatBuilder(tenantId, directBufferBo);
@@ -295,7 +294,7 @@ public class AgentStatModelConverter<T extends DataPoint> {
         return agentStatList;
     }
 
-    public static List<AgentStat> convertTotalThreadCountToAgentStat(List<TotalThreadCountBo> totalThreadCountBoList, String tenantId) {
+    public List<AgentStat> convertTotalThreadCount(List<TotalThreadCountBo> totalThreadCountBoList, String tenantId) {
         List<AgentStat> agentStatList = totalThreadCountBoList.stream()
                 .flatMap(totalThreadCountBo -> {
                             final AgentStatBuilder builder = new AgentStatBuilder(tenantId, totalThreadCountBo);
@@ -313,7 +312,7 @@ public class AgentStatModelConverter<T extends DataPoint> {
     }
 
 
-    public static List<AgentStat> convertLoadedClassToAgentStat(List<LoadedClassBo> loadedClassBoList, String tenantId) {
+    public List<AgentStat> convertLoadedClass(List<LoadedClassBo> loadedClassBoList, String tenantId) {
         List<AgentStat> agentStatList = loadedClassBoList.stream()
                 .flatMap(loadedClassBo -> {
                             final AgentStatBuilder builder = new AgentStatBuilder(tenantId, loadedClassBo);
@@ -332,7 +331,7 @@ public class AgentStatModelConverter<T extends DataPoint> {
         return agentStatList;
     }
 
-    public static List<AgentStat> convertDataSourceToAgentStat(List<DataSourceListBo> dataSourceListBoList, String tenantId) {
+    public List<AgentStat> convertDataSource(List<DataSourceListBo> dataSourceListBoList, String tenantId) {
         List<AgentStat> agentStatList = dataSourceListBoList.stream()
                 .flatMap(dataSourceListBo -> {
                             final Stream.Builder<AgentStat> builder = Stream.builder();

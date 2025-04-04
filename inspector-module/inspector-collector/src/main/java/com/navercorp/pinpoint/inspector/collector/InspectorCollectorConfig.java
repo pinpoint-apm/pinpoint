@@ -16,13 +16,23 @@
 
 package com.navercorp.pinpoint.inspector.collector;
 
+import com.navercorp.pinpoint.common.server.metric.dao.TopicNameManager;
+import com.navercorp.pinpoint.inspector.collector.config.InspectorCollectorProperties;
 import com.navercorp.pinpoint.inspector.collector.config.InspectorKafkaConfiguration;
 import com.navercorp.pinpoint.inspector.collector.config.InspectorPropertySources;
+import com.navercorp.pinpoint.inspector.collector.dao.AgentStatDao;
+import com.navercorp.pinpoint.inspector.collector.dao.pinot.DefaultAgentStatDao;
+import com.navercorp.pinpoint.inspector.collector.model.kafka.AgentStat;
+import com.navercorp.pinpoint.inspector.collector.model.kafka.ApplicationStat;
+import com.navercorp.pinpoint.inspector.collector.service.PinotMappers;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
+import org.springframework.kafka.core.KafkaTemplate;
 
 /**
  * @author minwoo.jung
@@ -30,8 +40,32 @@ import org.springframework.context.annotation.Import;
 @ComponentScan({"com.navercorp.pinpoint.inspector.collector"})
 @EnableAutoConfiguration(exclude = {KafkaAutoConfiguration.class})
 @Import({
-            InspectorPropertySources.class,
-            InspectorKafkaConfiguration.class})
+        InspectorPropertySources.class,
+        InspectorKafkaConfiguration.class})
 @ConditionalOnProperty(name = "pinpoint.modules.collector.inspector.enabled", havingValue = "true")
 public class InspectorCollectorConfig {
+
+    @Bean
+    public AgentStatDao agentStatDao(KafkaTemplate<String, AgentStat> kafkaAgentStatTemplate,
+                                     KafkaTemplate<String, ApplicationStat> kafkaApplicationStatTemplate,
+                                     InspectorCollectorProperties properties,
+                                     @Qualifier("agentStatDaoTopicNameManager")
+                                     TopicNameManager topicNameManager) {
+        String topicName = properties.getApplicationStatTopicName();
+        return new DefaultAgentStatDao(
+                kafkaAgentStatTemplate,
+                kafkaApplicationStatTemplate,
+                topicName,
+                topicNameManager);
+    }
+
+    @Bean
+    public PinotMappers getPinotStatMappers() {
+        return new PinotMappers();
+    }
+
+    @Bean(name = "agentStatDaoTopicNameManager")
+    public TopicNameManager getTopicNameManager(InspectorCollectorProperties properties) {
+        return new TopicNameManager(properties.getAgentStatTopicPrefix(), properties.getAgentStatTopicPaddingLength(), properties.getAgentStatTopicCount());
+    }
 }
