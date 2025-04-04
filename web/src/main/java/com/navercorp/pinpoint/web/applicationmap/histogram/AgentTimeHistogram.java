@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.common.timeseries.array.DoubleArray;
 import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
 import com.navercorp.pinpoint.common.timeseries.point.Points;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindows;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.view.TimeViewModel;
@@ -137,7 +137,7 @@ public class AgentTimeHistogram {
         double[] max = DoubleArray.newArray(size, DEFAULT_MAX_APDEX_SCORE);
         List<String> maxAgentId = fillList(size, DEFAULT_AGENT_ID);
 
-        List<Histogram> sumHistogram = getDefaultHistograms(window, application.getServiceType());
+        List<Histogram> sumHistogram = TimeWindows.createInitialPoints(window, this::histogram);
 
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
             for (TimeHistogram timeHistogram : agentHistogram.getTimeHistogram()) {
@@ -161,6 +161,10 @@ public class AgentTimeHistogram {
 
     private <T> List<T> fillList(int size, T defaultValue) {
         return new ArrayList<>(Collections.nCopies(size, defaultValue));
+    }
+
+    private Histogram histogram(long timestamp) {
+        return new TimeHistogram(application.getServiceType(), timestamp);
     }
 
     private void updateMin(int index, double apdex, String agentId, double[] min, List<String> minAgentId) {
@@ -194,11 +198,4 @@ public class AgentTimeHistogram {
         return applicationStatPoints;
     }
 
-    private List<Histogram> getDefaultHistograms(TimeWindow window, ServiceType serviceType) {
-        List<Histogram> sum = new ArrayList<>(window.getWindowRangeCount());
-        for (long timestamp : window) {
-            sum.add(new TimeHistogram(serviceType, timestamp));
-        }
-        return sum;
-    }
 }
