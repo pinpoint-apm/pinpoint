@@ -30,12 +30,11 @@ import org.springframework.stereotype.Component;
 public class GrpcDirectBufferBoMapper implements GrpcStatMapper {
 
     public DirectBufferBo map(DataPoint point, final PDirectBuffer tOpenDirectBuffer) {
-        final DirectBufferBo directBufferBo = new DirectBufferBo(point);
-        directBufferBo.setDirectCount(tOpenDirectBuffer.getDirectCount());
-        directBufferBo.setDirectMemoryUsed(tOpenDirectBuffer.getDirectMemoryUsed());
-        directBufferBo.setMappedCount(tOpenDirectBuffer.getMappedCount());
-        directBufferBo.setMappedMemoryUsed(tOpenDirectBuffer.getMappedMemoryUsed());
-        return directBufferBo;
+        return new DirectBufferBo(point,
+                tOpenDirectBuffer.getDirectCount(),
+                tOpenDirectBuffer.getDirectMemoryUsed(),
+                tOpenDirectBuffer.getMappedCount(),
+                tOpenDirectBuffer.getMappedMemoryUsed());
     }
 
     @Override
@@ -45,7 +44,7 @@ public class GrpcDirectBufferBoMapper implements GrpcStatMapper {
             final PDirectBuffer directBuffer = agentStat.getDirectBuffer();
             DataPoint point = builder.getDataPoint();
             final DirectBufferBo directBufferBo = this.map(point, directBuffer);
-            builder.addDirectBuffer(directBufferBo);
+            builder.addPoint(directBufferBo);
         }
     }
 }

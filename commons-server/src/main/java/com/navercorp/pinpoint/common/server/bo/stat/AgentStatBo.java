@@ -163,76 +163,10 @@ public class AgentStatBo {
                 return dataPoint;
             }
 
-
-            public void addJvmGc(JvmGcBo jvmGc) {
-                Objects.requireNonNull(jvmGc, "jvmGc");
-                statList.add(jvmGc);
+            public void addPoint(StatDataPoint point) {
+                Objects.requireNonNull(point, "point");
+                statList.add(point);
             }
-
-            public void addJvmGcDetailed(JvmGcDetailedBo jvmGcDetailed) {
-                Objects.requireNonNull(jvmGcDetailed, "jvmGcDetailed");
-                statList.add(jvmGcDetailed);
-            }
-
-
-            public void addCpuLoad(CpuLoadBo cpuLoad) {
-                Objects.requireNonNull(cpuLoad, "cpuLoad");
-                statList.add(cpuLoad);
-            }
-
-
-            public void addTransaction(TransactionBo transaction) {
-                Objects.requireNonNull(transaction, "transaction");
-                statList.add(transaction);
-            }
-
-
-            public void addActiveTrace(ActiveTraceBo activeTrace) {
-                Objects.requireNonNull(activeTrace, "activeTrace");
-                statList.add(activeTrace);
-            }
-
-            public void addDataSourceList(DataSourceListBo dataSourceList) {
-                Objects.requireNonNull(dataSourceList, "dataSourceList");
-                statList.add(dataSourceList);
-            }
-
-
-            public void addResponseTime(ResponseTimeBo responseTime) {
-                Objects.requireNonNull(responseTime, "responseTime");
-                statList.add(responseTime);
-            }
-
-
-            public void addDeadlockThreadCount(DeadlockThreadCountBo deadlockThreadCount) {
-                Objects.requireNonNull(deadlockThreadCount, "deadlockThreadCount");
-                statList.add(deadlockThreadCount);
-            }
-
-
-            public void addFileDescriptor(FileDescriptorBo fileDescriptor) {
-                Objects.requireNonNull(fileDescriptor, "fileDescriptor");
-                statList.add(fileDescriptor);
-            }
-
-
-            public void addDirectBuffer(DirectBufferBo directBuffer) {
-                Objects.requireNonNull(directBuffer, "directBuffer");
-                statList.add(directBuffer);
-            }
-
-
-            public void addTotalThreadCount(TotalThreadCountBo totalThreadCount) {
-                Objects.requireNonNull(totalThreadCount, "totalThreadCount");
-                statList.add(totalThreadCount);
-            }
-
-
-            public void addLoadedClass(LoadedClassBo loadedClass) {
-                Objects.requireNonNull(loadedClass, "loadedClass");
-                statList.add(loadedClass);
-            }
-
         }
 
         public AgentStatBo build() {

@@ -30,9 +30,7 @@ import org.springframework.stereotype.Component;
 public class GrpcDeadlockThreadCountBoMapper implements GrpcStatMapper {
 
     public DeadlockThreadCountBo map(DataPoint point, final PDeadlock tDeadlock) {
-        final DeadlockThreadCountBo deadlockThreadCountBo = new DeadlockThreadCountBo(point);
-        deadlockThreadCountBo.setDeadlockedThreadCount(tDeadlock.getCount());
-        return deadlockThreadCountBo;
+        return new DeadlockThreadCountBo(point, tDeadlock.getCount());
     }
 
     @Override
@@ -42,7 +40,7 @@ public class GrpcDeadlockThreadCountBoMapper implements GrpcStatMapper {
             final PDeadlock deadlock = agentStat.getDeadlock();
             DataPoint point = builder.getDataPoint();
             final DeadlockThreadCountBo deadlockThreadCountBo = this.map(point, deadlock);
-            builder.addDeadlockThreadCount(deadlockThreadCountBo);
+            builder.addPoint(deadlockThreadCountBo);
         }
     }
 }

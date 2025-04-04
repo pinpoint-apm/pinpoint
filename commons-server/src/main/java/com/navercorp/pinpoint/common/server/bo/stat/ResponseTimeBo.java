@@ -21,13 +21,13 @@ package com.navercorp.pinpoint.common.server.bo.stat;
  */
 public class ResponseTimeBo extends AbstractStatDataPoint {
 
-    public static final long UNCOLLECTED_VALUE = -1;
+    private final long avg;
+    private final long max;
 
-    private long avg = 0;
-    private long max = 0;
-
-    public ResponseTimeBo(DataPoint point) {
+    public ResponseTimeBo(DataPoint point, long avg, long max) {
         super(point);
+        this.avg = avg;
+        this.max = max;
     }
 
     @Override
@@ -38,18 +38,8 @@ public class ResponseTimeBo extends AbstractStatDataPoint {
     public long getAvg() {
         return avg;
     }
-
-    public void setAvg(long avg) {
-        this.avg = avg;
-    }
-
     public long getMax() {
         return max;
     }
-
-    public void setMax(long max) {
-        this.max = max;
-    }
-
 
 }

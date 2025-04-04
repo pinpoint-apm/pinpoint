@@ -21,18 +21,27 @@ package com.navercorp.pinpoint.common.server.bo.stat;
  */
 public class TransactionBo extends AbstractStatDataPoint {
 
-    public static final long UNCOLLECTED_VALUE = -1;
+    private final long collectInterval;
+    private final long sampledNewCount;
+    private final long sampledContinuationCount;
+    private final long unsampledNewCount;
+    private final long unsampledContinuationCount;
+    private final long skippedNewSkipCount;
+    private final long skippedContinuationCount;
 
-    private long collectInterval = UNCOLLECTED_VALUE;
-    private long sampledNewCount = UNCOLLECTED_VALUE;
-    private long sampledContinuationCount = UNCOLLECTED_VALUE;
-    private long unsampledNewCount = UNCOLLECTED_VALUE;
-    private long unsampledContinuationCount = UNCOLLECTED_VALUE;
-    private long skippedNewSkipCount = UNCOLLECTED_VALUE;
-    private long skippedContinuationCount = UNCOLLECTED_VALUE;
-
-    public TransactionBo(DataPoint point) {
+    public TransactionBo(DataPoint point,
+                         long collectInterval,
+                         long sampledNewCount, long sampledContinuationCount,
+                         long unsampledNewCount, long unsampledContinuationCount,
+                         long skippedNewSkipCount, long skippedContinuationCount) {
         super(point);
+        this.collectInterval = collectInterval;
+        this.sampledNewCount = sampledNewCount;
+        this.sampledContinuationCount = sampledContinuationCount;
+        this.unsampledNewCount = unsampledNewCount;
+        this.unsampledContinuationCount = unsampledContinuationCount;
+        this.skippedNewSkipCount = skippedNewSkipCount;
+        this.skippedContinuationCount = skippedContinuationCount;
     }
 
 
@@ -45,56 +54,28 @@ public class TransactionBo extends AbstractStatDataPoint {
         return collectInterval;
     }
 
-    public void setCollectInterval(long collectInterval) {
-        this.collectInterval = collectInterval;
-    }
-
     public long getSampledNewCount() {
         return sampledNewCount;
-    }
-
-    public void setSampledNewCount(long sampledNewCount) {
-        this.sampledNewCount = sampledNewCount;
     }
 
     public long getSampledContinuationCount() {
         return sampledContinuationCount;
     }
 
-    public void setSampledContinuationCount(long sampledContinuationCount) {
-        this.sampledContinuationCount = sampledContinuationCount;
-    }
-
     public long getUnsampledNewCount() {
         return unsampledNewCount;
-    }
-
-    public void setUnsampledNewCount(long unsampledNewCount) {
-        this.unsampledNewCount = unsampledNewCount;
     }
 
     public long getUnsampledContinuationCount() {
         return unsampledContinuationCount;
     }
 
-    public void setUnsampledContinuationCount(long unsampledContinuationCount) {
-        this.unsampledContinuationCount = unsampledContinuationCount;
-    }
-
     public long getSkippedNewSkipCount() {
         return skippedNewSkipCount;
     }
 
-    public void setSkippedNewSkipCount(long skippedNewSkipCount) {
-        this.skippedNewSkipCount = skippedNewSkipCount;
-    }
-
     public long getSkippedContinuationCount() {
         return skippedContinuationCount;
-    }
-
-    public void setSkippedContinuationCount(long skippedContinuationCount) {
-        this.skippedContinuationCount = skippedContinuationCount;
     }
 
     @Override

@@ -25,6 +25,9 @@ import com.navercorp.pinpoint.grpc.trace.PDataSource;
 import com.navercorp.pinpoint.grpc.trace.PDataSourceList;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Taejin Koo
  */
@@ -32,14 +35,13 @@ import org.springframework.stereotype.Component;
 public class GrpcDataSourceBoMapper implements GrpcStatMapper {
 
     public DataSourceBo map(DataPoint point, final PDataSource dataSource) {
-        final DataSourceBo dataSourceBo = new DataSourceBo(point);
-        dataSourceBo.setId(dataSource.getId());
-        dataSourceBo.setServiceTypeCode((short) dataSource.getServiceTypeCode());
-        dataSourceBo.setDatabaseName(dataSource.getDatabaseName());
-        dataSourceBo.setJdbcUrl(dataSource.getUrl());
-        dataSourceBo.setActiveConnectionSize(dataSource.getActiveConnectionSize());
-        dataSourceBo.setMaxConnectionSize(dataSource.getMaxConnectionSize());
-        return dataSourceBo;
+        return new DataSourceBo(point,
+                dataSource.getId(),
+                (short) dataSource.getServiceTypeCode(),
+                dataSource.getDatabaseName(),
+                dataSource.getUrl(),
+                dataSource.getActiveConnectionSize(),
+                dataSource.getMaxConnectionSize());
     }
 
     @Override
@@ -48,12 +50,15 @@ public class GrpcDataSourceBoMapper implements GrpcStatMapper {
         if (agentStat.hasDataSourceList()) {
             DataPoint point = builder.getDataPoint();
             final PDataSourceList dataSourceList = agentStat.getDataSourceList();
-            final DataSourceListBo dataSourceListBo = new DataSourceListBo(point);
+
+            List<DataSourceBo> dataSourceBoList = new ArrayList<>(dataSourceList.getDataSourceCount());
             for (PDataSource dataSource : dataSourceList.getDataSourceList()) {
                 final DataSourceBo dataSourceBo = this.map(point, dataSource);
-                dataSourceListBo.add(dataSourceBo);
+                dataSourceBoList.add(dataSourceBo);
             }
-            builder.addDataSourceList(dataSourceListBo);
+
+            final DataSourceListBo dataSourceListBo = new DataSourceListBo(point, dataSourceBoList);
+            builder.addPoint(dataSourceListBo);
         }
     }
 }

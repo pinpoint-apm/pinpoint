@@ -37,11 +37,10 @@ public class GrpcActiveTraceBoMapper implements GrpcStatMapper {
     public ActiveTraceBo map(DataPoint point, final PActiveTrace activeTrace) {
         final PActiveTraceHistogram histogram = activeTrace.getHistogram();
         final ActiveTraceHistogram activeTraceHistogram = createActiveTraceCountMap(histogram.getActiveTraceCountList());
-        final ActiveTraceBo activeTraceBo = new ActiveTraceBo(point);
-        activeTraceBo.setVersion((short) histogram.getVersion());
-        activeTraceBo.setHistogramSchemaType(histogram.getHistogramSchemaType());
-        activeTraceBo.setActiveTraceHistogram(activeTraceHistogram);
-        return activeTraceBo;
+        short version = (short) histogram.getVersion();
+        int histogramSchemaType = histogram.getHistogramSchemaType();
+        return new ActiveTraceBo(point,
+                version, histogramSchemaType, activeTraceHistogram);
     }
 
     private ActiveTraceHistogram createActiveTraceCountMap(final List<Integer> activeTraceCounts) {
@@ -67,7 +66,7 @@ public class GrpcActiveTraceBoMapper implements GrpcStatMapper {
             if (activeTrace.hasHistogram()) {
                 DataPoint point = builder.getDataPoint();
                 final ActiveTraceBo activeTraceBo = this.map(point, activeTrace);
-                builder.addActiveTrace(activeTraceBo);
+                builder.addPoint(activeTraceBo);
             }
         }
     }

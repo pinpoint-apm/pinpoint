@@ -29,15 +29,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class GrpcTransactionBoMapper implements GrpcStatMapper {
 
-    public TransactionBo map(DataPoint point, final PTransaction tTransaction) {
-        final TransactionBo transaction = new TransactionBo(point);
-        transaction.setSampledNewCount(tTransaction.getSampledNewCount());
-        transaction.setSampledContinuationCount(tTransaction.getSampledContinuationCount());
-        transaction.setUnsampledNewCount(tTransaction.getUnsampledNewCount());
-        transaction.setUnsampledContinuationCount(tTransaction.getUnsampledContinuationCount());
-        transaction.setSkippedNewSkipCount(tTransaction.getSkippedNewCount());
-        transaction.setSkippedContinuationCount(tTransaction.getSkippedContinuationCount());
-        return transaction;
+    public TransactionBo map(DataPoint point, final PTransaction tTransaction, long collectInterval) {
+        return new TransactionBo(point,
+                collectInterval,
+                tTransaction.getSampledNewCount(),
+                tTransaction.getSampledContinuationCount(),
+                tTransaction.getUnsampledNewCount(),
+                tTransaction.getUnsampledContinuationCount(),
+                tTransaction.getSkippedNewCount(),
+                tTransaction.getSkippedContinuationCount());
     }
 
     @Override
@@ -46,9 +46,8 @@ public class GrpcTransactionBoMapper implements GrpcStatMapper {
         if (agentStat.hasTransaction()) {
             DataPoint point = builder.getDataPoint();
             final PTransaction transaction = agentStat.getTransaction();
-            final TransactionBo transactionBo = this.map(point, transaction);
-            transactionBo.setCollectInterval(agentStat.getCollectInterval());
-            builder.addTransaction(transactionBo);
+            final TransactionBo transactionBo = this.map(point, transaction, agentStat.getCollectInterval());
+            builder.addPoint(transactionBo);
         }
     }
 }

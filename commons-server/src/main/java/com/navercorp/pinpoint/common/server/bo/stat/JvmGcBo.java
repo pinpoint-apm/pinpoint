@@ -18,25 +18,40 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 
 import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
 public class JvmGcBo extends AbstractStatDataPoint {
 
-    public static final long UNCOLLECTED_VALUE = -1;
+    private final JvmGcType gcType;
 
-    private JvmGcType gcType = JvmGcType.UNKNOWN;
-    private long heapUsed = UNCOLLECTED_VALUE;
-    private long heapMax = UNCOLLECTED_VALUE;
-    private long nonHeapUsed = UNCOLLECTED_VALUE;
-    private long nonHeapMax = UNCOLLECTED_VALUE;
-    private long gcOldCount = UNCOLLECTED_VALUE;
-    private long gcOldTime = UNCOLLECTED_VALUE;
+    private final long heapUsed;
+    private final long heapMax;
 
-    public JvmGcBo(DataPoint point) {
+    private final long nonHeapUsed;
+    private final long nonHeapMax;
+
+    private final long gcOldCount;
+    private final long gcOldTime;
+
+    public JvmGcBo(DataPoint point,
+                   JvmGcType gcType,
+                   long heapUsed, long heapMax,
+                   long nonHeapUsed, long nonHeapMax,
+                   long gcOldCount, long gcOldTime) {
         super(point);
-    }
+        this.gcType = Objects.requireNonNull(gcType, "gcType");
+        this.heapUsed = heapUsed;
+        this.heapMax = heapMax;
 
+        this.nonHeapUsed = nonHeapUsed;
+        this.nonHeapMax = nonHeapMax;
+
+        this.gcOldCount = gcOldCount;
+        this.gcOldTime = gcOldTime;
+    }
 
     @Override
     public AgentStatType getAgentStatType() {
@@ -47,58 +62,29 @@ public class JvmGcBo extends AbstractStatDataPoint {
         return gcType;
     }
 
-    public void setGcType(JvmGcType gcType) {
-        this.gcType = gcType;
-    }
-
     public long getHeapUsed() {
         return heapUsed;
-    }
-
-    public void setHeapUsed(long heapUsed) {
-        this.heapUsed = heapUsed;
     }
 
     public long getHeapMax() {
         return heapMax;
     }
 
-    public void setHeapMax(long heapMax) {
-        this.heapMax = heapMax;
-    }
-
     public long getNonHeapUsed() {
         return nonHeapUsed;
-    }
-
-    public void setNonHeapUsed(long nonHeapUsed) {
-        this.nonHeapUsed = nonHeapUsed;
     }
 
     public long getNonHeapMax() {
         return nonHeapMax;
     }
 
-    public void setNonHeapMax(long nonHeapMax) {
-        this.nonHeapMax = nonHeapMax;
-    }
-
     public long getGcOldCount() {
         return gcOldCount;
-    }
-
-    public void setGcOldCount(long gcOldCount) {
-        this.gcOldCount = gcOldCount;
     }
 
     public long getGcOldTime() {
         return gcOldTime;
     }
-
-    public void setGcOldTime(long gcOldTime) {
-        this.gcOldTime = gcOldTime;
-    }
-
 
     @Override
     public String toString() {

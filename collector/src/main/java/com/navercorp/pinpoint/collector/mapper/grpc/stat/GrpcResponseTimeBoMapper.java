@@ -30,10 +30,9 @@ import org.springframework.stereotype.Component;
 public class GrpcResponseTimeBoMapper implements GrpcStatMapper {
 
     public ResponseTimeBo map(DataPoint point, final PResponseTime tResponseTime) {
-        final ResponseTimeBo responseTimeBo = new ResponseTimeBo(point);
-        responseTimeBo.setAvg(tResponseTime.getAvg());
-        responseTimeBo.setMax(tResponseTime.getMax());
-        return responseTimeBo;
+        return new ResponseTimeBo(point,
+                tResponseTime.getAvg(),
+                tResponseTime.getMax());
     }
 
     @Override
@@ -43,7 +42,7 @@ public class GrpcResponseTimeBoMapper implements GrpcStatMapper {
             final PResponseTime responseTime = agentStat.getResponseTime();
             DataPoint point = builder.getDataPoint();
             final ResponseTimeBo responseTimeBo = this.map(point, responseTime);
-            builder.addResponseTime(responseTimeBo);
+            builder.addPoint(responseTimeBo);
         }
     }
 }

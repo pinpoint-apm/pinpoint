@@ -17,13 +17,15 @@
 package com.navercorp.pinpoint.common.server.bo.stat;
 
 public class LoadedClassBo extends AbstractStatDataPoint {
-    public static final long UNCOLLECTED_VALUE = -1L;
 
-    private long loadedClassCount = UNCOLLECTED_VALUE;
-    private long unloadedClassCount = UNCOLLECTED_VALUE;
+    private long loadedClassCount;
+    private long unloadedClassCount;
 
-    public LoadedClassBo(DataPoint point) {
+    public LoadedClassBo(DataPoint point,
+                         long loadedClassCount, long unloadedClassCount) {
         super(point);
+        this.loadedClassCount = loadedClassCount;
+        this.unloadedClassCount = unloadedClassCount;
     }
 
     @Override
