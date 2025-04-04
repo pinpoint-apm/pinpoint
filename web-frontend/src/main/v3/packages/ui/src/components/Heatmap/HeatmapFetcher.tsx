@@ -1,15 +1,30 @@
 import React from 'react';
 import { BsGearFill } from 'react-icons/bs';
 import { DefaultValue, HeatmapSetting } from './HeatmapSetting';
-import HeatmapChart from './HeatmapChart';
+import HeatmapChartCore from './HeatmapChartCore';
 import { useStoragedAxisY } from '@pinpoint-fe/ui/src/hooks';
-import { APP_SETTING_KEYS } from '@pinpoint-fe/ui/src/constants';
+import { APP_SETTING_KEYS, BASE_PATH } from '@pinpoint-fe/ui/src/constants';
 import { FaDownload, FaExpandArrowsAlt } from 'react-icons/fa';
 import { CgSpinner } from 'react-icons/cg';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 import html2canvas from 'html2canvas';
+import { CurrentTarget } from '@pinpoint-fe/ui/src/atoms';
+import { convertParamsToQueryString, getHeatmapFullScreenPath } from '@pinpoint-fe/ui/src/utils';
+import { useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 
-export const HeatmapFetcher = () => {
+export type HeatmapFetcherProps = {
+  node: CurrentTarget;
+  agentId?: string;
+  toolbarOption?: {
+    expand: {
+      hide?: boolean;
+      onClick?: () => void;
+    };
+  };
+};
+
+export const HeatmapFetcher = ({ node, agentId, toolbarOption }: HeatmapFetcherProps) => {
+  const { searchParameters } = useServerMapSearchParameters();
   const chartRef = React.useRef<ReactEChartsCore>(null);
   const [y, setY] = useStoragedAxisY(APP_SETTING_KEYS.HEATMAP_Y_AXIS_MIN_MAX, [
     DefaultValue.yMin,
@@ -17,6 +32,8 @@ export const HeatmapFetcher = () => {
   ]);
   const [showSetting, setShowSetting] = React.useState(false);
   const [isCapturingImage, setIsCapturingImage] = React.useState(false);
+
+  console.log('node', node, 'agentId', agentId, 'searchParameters', searchParameters);
 
   async function handleCaptureImage() {
     if (!chartRef.current) {
@@ -42,17 +59,26 @@ export const HeatmapFetcher = () => {
     await setIsCapturingImage(false);
   }
 
+  function handleExpand() {
+    window.open(
+      `${BASE_PATH}${getHeatmapFullScreenPath(node)}?${convertParamsToQueryString({
+        from: searchParameters.from,
+        to: searchParameters.to,
+      })}`,
+      '_blank',
+    );
+  }
+
   return (
     <div className="relative w-full h-full">
-      <div className="flex flex-row items-center justify-end h-full gap-2 px-4 font-normal text-gray-400">
-        <FaExpandArrowsAlt
-          className="text-base cursor-pointer"
-          onClick={() => console.log('outlink')}
-        />
+      <div className="flex flex-row items-center justify-end gap-2 px-4 font-normal text-gray-400">
+        {!toolbarOption?.expand?.hide && (
+          <FaExpandArrowsAlt className="text-base cursor-pointer" onClick={handleExpand} />
+        )}
         <FaDownload className="text-base cursor-pointer" onClick={handleCaptureImage} />
         <BsGearFill className="text-base cursor-pointer" onClick={() => setShowSetting(true)} />
       </div>
-      <HeatmapChart
+      <HeatmapChartCore
         ref={chartRef}
         setting={{
           yMin: y[0],

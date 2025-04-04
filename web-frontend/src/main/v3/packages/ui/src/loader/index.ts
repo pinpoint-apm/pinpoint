@@ -4,6 +4,7 @@ export * from './inspector';
 export * from './openTelemetry';
 export * from './realtime';
 export * from './scatterFullScreen';
+export * from './scatterOrHeatmapFullScreen';
 export * from './serverMap';
 export * from './systemMetric';
 export * from './threadDump';

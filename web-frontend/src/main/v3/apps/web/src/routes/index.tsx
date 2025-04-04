@@ -3,6 +3,7 @@ import { createBrowserRouter, redirect } from 'react-router-dom';
 import ServerMap from '@pinpoint-fe/web/src/pages/ServerMap';
 import Realtime from '@pinpoint-fe/web/src/pages/ServerMap/Realtime';
 import ScatterFullScreen from '@pinpoint-fe/web/src/pages/ScatterFullScreen';
+import ScatterOrHeatmapFullScreen from '@pinpoint-fe/web/src/pages/ScatterOrHeatmapFullScreen';
 import {
   serverMapRouteLoader,
   realtimeLoader,
@@ -17,6 +18,8 @@ import {
   openTelemetryRouteLoader,
   scatterFullScreenLoader,
   scatterFullScreenRealtimeLoader,
+  scatterOrHeatmapFullScreenLoader,
+  scatterOrHeatmapFullScreenRealtimeLoader,
 } from '@pinpoint-fe/ui/src/loader';
 
 import FilteredMap from '@pinpoint-fe/web/src/pages/FilteredMap';
@@ -87,13 +90,23 @@ const router = createBrowserRouter(
     },
     {
       path: `${APP_PATH.SCATTER_FULL_SCREEN}/:application?`,
-      element: <ScatterFullScreen />,
-      loader: scatterFullScreenLoader,
+      element: <ScatterOrHeatmapFullScreen />,
+      loader: scatterOrHeatmapFullScreenLoader,
     },
     {
       path: `${APP_PATH.SCATTER_FULL_SCREEN_REALTIME}/:application?`,
-      element: <ScatterFullScreen />,
-      loader: scatterFullScreenRealtimeLoader,
+      element: <ScatterOrHeatmapFullScreen />,
+      loader: scatterOrHeatmapFullScreenRealtimeLoader,
+    },
+    {
+      path: `${APP_PATH.HEATMAP_FULL_SCREEN}/:application?`,
+      element: <ScatterOrHeatmapFullScreen />,
+      loader: scatterOrHeatmapFullScreenLoader,
+    },
+    {
+      path: `${APP_PATH.HEATMAP_FULL_SCREEN_REALTIME}/:application?`,
+      element: <ScatterOrHeatmapFullScreen />,
+      loader: scatterOrHeatmapFullScreenRealtimeLoader,
     },
     {
       path: `${APP_PATH.ERROR_ANALYSIS}/:application?`,

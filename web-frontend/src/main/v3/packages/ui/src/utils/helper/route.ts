@@ -73,6 +73,12 @@ export const getScatterFullScreenPath = getApplicationPath(APP_PATH.SCATTER_FULL
 export const getScatterFullScreenRealtimePath = getApplicationPath(
   APP_PATH.SCATTER_FULL_SCREEN_REALTIME,
 );
+/** /heatmapFullScreenMode */
+export const getHeatmapFullScreenPath = getApplicationPath(APP_PATH.HEATMAP_FULL_SCREEN);
+/** /heatmapFullScreenMode/realtime */
+export const getHeatmapFullScreenRealtimePath = getApplicationPath(
+  APP_PATH.HEATMAP_FULL_SCREEN_REALTIME,
+);
 /** /filtedMap */
 export const getFilteredMapPath = (filterState: FilteredMap.FilterState, soureIsWas?: boolean) => {
   let applicationNameAndType = '';

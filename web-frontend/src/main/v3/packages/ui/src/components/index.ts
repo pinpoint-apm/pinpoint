@@ -18,6 +18,7 @@ export * from './ErrorAnalysis';
 export * from './FilterMap';
 export * from './Form';
 export * from './GlobalSearch';
+export * from './Heatmap';
 export * from './HelpPopover';
 export * from './HighLightCode';
 export * from './HOC';
