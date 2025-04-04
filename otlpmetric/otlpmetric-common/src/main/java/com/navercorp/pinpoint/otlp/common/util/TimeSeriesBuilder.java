@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.otlp.common.util;
 
 import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindows;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.LongFunction;
@@ -36,7 +36,7 @@ public class TimeSeriesBuilder<T extends Number> {
     }
 
     public List<DataPoint<T>> build(LongFunction<DataPoint<T>> function, List<DataPoint<T>> metricDataList) {
-        List<DataPoint<T>> filledMetricPointList = createInitialPoints(function);
+        List<DataPoint<T>> filledMetricPointList = TimeWindows.createInitialPoints(timeWindow, function);
         final int windowRangeCount = timeWindow.getWindowRangeCount();
         for (DataPoint<T> metricPoint : metricDataList) {
             int timeslotIndex = this.timeWindow.getWindowIndex(metricPoint.getTimestamp());
@@ -47,17 +47,6 @@ public class TimeSeriesBuilder<T extends Number> {
         }
 
         return filledMetricPointList;
-    }
-
-    private List<DataPoint<T>> createInitialPoints(LongFunction<DataPoint<T>> function) {
-        final int numTimeslots = this.timeWindow.getWindowRangeCount();
-        List<DataPoint<T>> pointList = new ArrayList<>(numTimeslots);
-
-        for (long timestamp : this.timeWindow) {
-            pointList.add(function.apply(timestamp));
-        }
-
-        return pointList;
     }
 
 }

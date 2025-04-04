@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.vo.chart;
 
 import com.navercorp.pinpoint.common.timeseries.point.Point;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindows;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -46,7 +47,7 @@ public class TimeSeriesChartBuilder<P extends Point> {
             return new Chart<>(Collections.emptyList());
         }
 
-        List<P> points = createInitialPoints(timeWindow, this.function);
+        List<P> points = TimeWindows.createInitialPoints(timeWindow, this.function);
         final int windowRangeCount = timeWindow.getWindowRangeCount();
         for (P sampledPoint : sampledPoints) {
             int timeslotIndex = timeWindow.getWindowIndex(sampledPoint.getTimestamp());
@@ -78,12 +79,4 @@ public class TimeSeriesChartBuilder<P extends Point> {
         return result;
     }
 
-    private List<P> createInitialPoints(TimeWindow timeWindow, LongFunction<P> function) {
-        final int numTimeslots = timeWindow.getWindowRangeCount();
-        List<P> points = new ArrayList<>(numTimeslots);
-        for (long timestamp : timeWindow) {
-            points.add(function.apply(timestamp));
-        }
-        return points;
-    }
 }
