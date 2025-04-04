@@ -22,6 +22,7 @@ public class KafkaConfig {
 
     // whether this plugin intercepts org.apache.kafka.common.header.Headers
     public static final String HEADER_ENABLE = "profiler.kafka.header.enable";
+    public static final String HEADER_REQUEST_ID_ENABLE = "profiler.kafka.requestId.enable";
 
     static final String ENABLE = "profiler.kafka.enable";
     static final String STREAMS_ENABLE = "profiler.kafka-streams.enable";
@@ -43,6 +44,7 @@ public class KafkaConfig {
     private final boolean springConsumerEnable;
     private final boolean headerEnable;
     private final boolean headerRecorded;
+    private final boolean headerRequestIdEnable;
     private final String kafkaEntryPoint;
     private final boolean kafkaMessageListenerContainerEnable;
     private final boolean kafkaMessageListenerContainerMarkError;
@@ -56,6 +58,7 @@ public class KafkaConfig {
         this.springConsumerEnable = config.readBoolean(SPRING_CONSUMER_ENABLE, false);
         this.headerEnable = config.readBoolean(HEADER_ENABLE, true);
         this.headerRecorded = config.readBoolean(HEADER_RECORD, true);
+        this.headerRequestIdEnable = config.readBoolean(HEADER_REQUEST_ID_ENABLE, false);
         this.kafkaEntryPoint = config.readString(CONSUMER_ENTRY_POINT, "");
         this.kafkaMessageListenerContainerEnable = config.readBoolean("profiler.springkafka.container.enable", false);
         this.kafkaMessageListenerContainerMarkError = config.readBoolean("profiler.springkafka.container.mark.error", false);
@@ -90,6 +93,10 @@ public class KafkaConfig {
         return headerRecorded;
     }
 
+    public boolean isHeaderRequestIdEnable() {
+        return headerRequestIdEnable;
+    }
+
     public String getKafkaEntryPoint() {
         return kafkaEntryPoint;
     }
@@ -116,6 +123,7 @@ public class KafkaConfig {
                 ", springConsumerEnable=" + springConsumerEnable +
                 ", headerEnable=" + headerEnable +
                 ", headerRecorded=" + headerRecorded +
+                ", headerRequestIdEnable=" + headerRequestIdEnable +
                 ", kafkaEntryPoint='" + kafkaEntryPoint + '\'' +
                 ", kafkaMessageListenerContainerEnable=" + kafkaMessageListenerContainerEnable +
                 ", kafkaMessageListenerContainerMarkError=" + kafkaMessageListenerContainerMarkError +
