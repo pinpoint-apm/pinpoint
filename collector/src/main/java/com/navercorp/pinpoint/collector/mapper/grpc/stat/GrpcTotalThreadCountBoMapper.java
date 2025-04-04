@@ -26,9 +26,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class GrpcTotalThreadCountBoMapper implements GrpcStatMapper {
     public TotalThreadCountBo map(DataPoint point, final PTotalThread tTotalThread) {
-        final TotalThreadCountBo totalThreadCountBo = new TotalThreadCountBo(point);
-        totalThreadCountBo.setTotalThreadCount(tTotalThread.getTotalThreadCount());
-        return totalThreadCountBo;
+        return new TotalThreadCountBo(point,
+                tTotalThread.getTotalThreadCount());
     }
 
     @Override
@@ -38,7 +37,7 @@ public class GrpcTotalThreadCountBoMapper implements GrpcStatMapper {
             final PTotalThread totalThread = agentStat.getTotalThread();
             DataPoint point = builder.getDataPoint();
             final TotalThreadCountBo totalThreadCountBo = this.map(point, totalThread);
-            builder.addTotalThreadCount(totalThreadCountBo);
+            builder.addPoint(totalThreadCountBo);
         }
     }
 }

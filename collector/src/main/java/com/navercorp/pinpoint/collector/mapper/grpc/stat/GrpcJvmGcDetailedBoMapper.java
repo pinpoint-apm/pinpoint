@@ -31,16 +31,17 @@ import org.springframework.stereotype.Component;
 public class GrpcJvmGcDetailedBoMapper implements GrpcStatMapper {
 
     public JvmGcDetailedBo map(DataPoint point, final PJvmGcDetailed jvmGcDetailed) {
-        final JvmGcDetailedBo jvmGcDetailedBo = new JvmGcDetailedBo(point);
-        jvmGcDetailedBo.setGcNewCount(jvmGcDetailed.getJvmGcNewCount());
-        jvmGcDetailedBo.setGcNewTime(jvmGcDetailed.getJvmGcNewTime());
-        jvmGcDetailedBo.setCodeCacheUsed(jvmGcDetailed.getJvmPoolCodeCacheUsed());
-        jvmGcDetailedBo.setNewGenUsed(jvmGcDetailed.getJvmPoolNewGenUsed());
-        jvmGcDetailedBo.setOldGenUsed(jvmGcDetailed.getJvmPoolOldGenUsed());
-        jvmGcDetailedBo.setSurvivorSpaceUsed(jvmGcDetailed.getJvmPoolSurvivorSpaceUsed());
-        jvmGcDetailedBo.setPermGenUsed(jvmGcDetailed.getJvmPoolPermGenUsed());
-        jvmGcDetailedBo.setMetaspaceUsed(jvmGcDetailed.getJvmPoolMetaspaceUsed());
-        return jvmGcDetailedBo;
+        return new JvmGcDetailedBo(point,
+                jvmGcDetailed.getJvmGcNewCount(),
+                jvmGcDetailed.getJvmGcNewTime(),
+                jvmGcDetailed.getJvmPoolCodeCacheUsed(),
+
+                jvmGcDetailed.getJvmPoolNewGenUsed(),
+                jvmGcDetailed.getJvmPoolOldGenUsed(),
+
+                jvmGcDetailed.getJvmPoolSurvivorSpaceUsed(),
+                jvmGcDetailed.getJvmPoolPermGenUsed(),
+                jvmGcDetailed.getJvmPoolMetaspaceUsed());
     }
 
     @Override
@@ -54,7 +55,7 @@ public class GrpcJvmGcDetailedBoMapper implements GrpcStatMapper {
                 final PJvmGcDetailed jvmGcDetailed = jvmGc.getJvmGcDetailed();
                 DataPoint point = builder.getDataPoint();
                 final JvmGcDetailedBo jvmGcDetailedBo = this.map(point, jvmGcDetailed);
-                builder.addJvmGcDetailed(jvmGcDetailedBo);
+                builder.addPoint(jvmGcDetailedBo);
             }
         }
     }

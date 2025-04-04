@@ -21,13 +21,13 @@ package com.navercorp.pinpoint.common.server.bo.stat;
  */
 public class CpuLoadBo extends AbstractStatDataPoint {
 
-    public static final double UNCOLLECTED_VALUE = -1;
+    private final double jvmCpuLoad;
+    private final double systemCpuLoad;
 
-    private double jvmCpuLoad = UNCOLLECTED_VALUE;
-    private double systemCpuLoad = UNCOLLECTED_VALUE;
-
-    public CpuLoadBo(DataPoint point) {
+    public CpuLoadBo(DataPoint point, double jvmCpuLoad, double systemCpuLoad) {
         super(point);
+        this.jvmCpuLoad = jvmCpuLoad;
+        this.systemCpuLoad = systemCpuLoad;
     }
 
     @Override
@@ -39,16 +39,8 @@ public class CpuLoadBo extends AbstractStatDataPoint {
         return jvmCpuLoad;
     }
 
-    public void setJvmCpuLoad(double jvmCpuLoad) {
-        this.jvmCpuLoad = jvmCpuLoad;
-    }
-
     public double getSystemCpuLoad() {
         return systemCpuLoad;
-    }
-
-    public void setSystemCpuLoad(double systemCpuLoad) {
-        this.systemCpuLoad = systemCpuLoad;
     }
 
     @Override

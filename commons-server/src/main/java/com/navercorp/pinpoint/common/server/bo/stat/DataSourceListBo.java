@@ -16,33 +16,25 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
 public class DataSourceListBo extends AbstractStatDataPoint implements AgentStatDataPointList<DataSourceBo>  {
 
-    private final List<DataSourceBo> dataSourceBoList = new ArrayList<>();
+    private final List<DataSourceBo> dataSourceBoList;
 
-    public DataSourceListBo(DataPoint point) {
+    public DataSourceListBo(DataPoint point, List<DataSourceBo> dataSourceBoList) {
         super(point);
+        Objects.requireNonNull(dataSourceBoList, "dataSourceBoList");
+        this.dataSourceBoList = List.copyOf(dataSourceBoList);
     }
 
     @Override
     public AgentStatType getAgentStatType() {
         return AgentStatType.DATASOURCE;
-    }
-
-    @Override
-    public boolean add(DataSourceBo element) {
-        return dataSourceBoList.add(element);
-    }
-
-    @Override
-    public boolean remove(DataSourceBo element) {
-        return dataSourceBoList.remove(element);
     }
 
     @Override
@@ -52,7 +44,7 @@ public class DataSourceListBo extends AbstractStatDataPoint implements AgentStat
 
     @Override
     public List<DataSourceBo> getList() {
-        return new ArrayList<>(dataSourceBoList);
+        return dataSourceBoList;
     }
 
 

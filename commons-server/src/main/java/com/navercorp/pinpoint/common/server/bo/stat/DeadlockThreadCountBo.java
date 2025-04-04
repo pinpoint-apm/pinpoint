@@ -22,14 +22,12 @@ package com.navercorp.pinpoint.common.server.bo.stat;
  */
 public class DeadlockThreadCountBo extends AbstractStatDataPoint {
 
-    public static final int UNCOLLECTED_INT_VALUE = -1;
+    private final int deadlockedThreadCount;
 
-    private int deadlockedThreadCount = UNCOLLECTED_INT_VALUE;
-
-    public DeadlockThreadCountBo(DataPoint point) {
+    public DeadlockThreadCountBo(DataPoint point, int deadlockedThreadCount) {
         super(point);
+        this.deadlockedThreadCount = deadlockedThreadCount;
     }
-
 
     @Override
     public AgentStatType getAgentStatType() {
@@ -38,10 +36,6 @@ public class DeadlockThreadCountBo extends AbstractStatDataPoint {
 
     public int getDeadlockedThreadCount() {
         return deadlockedThreadCount;
-    }
-
-    public void setDeadlockedThreadCount(int deadlockedThreadCount) {
-        this.deadlockedThreadCount = deadlockedThreadCount;
     }
 
     @Override

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.mapper.grpc.stat;
 
+import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
@@ -38,15 +39,14 @@ public class GrpcJvmGcBoMapper implements GrpcStatMapper {
     }
 
     public JvmGcBo map(DataPoint point, final PJvmGc jvmGc) {
-        final JvmGcBo jvmGcBo = new JvmGcBo(point);
-        jvmGcBo.setGcType(this.jvmGcTypeMapper.map(jvmGc.getType()));
-        jvmGcBo.setHeapUsed(jvmGc.getJvmMemoryHeapUsed());
-        jvmGcBo.setHeapMax(jvmGc.getJvmMemoryHeapMax());
-        jvmGcBo.setNonHeapUsed(jvmGc.getJvmMemoryNonHeapUsed());
-        jvmGcBo.setNonHeapMax(jvmGc.getJvmMemoryNonHeapMax());
-        jvmGcBo.setGcOldCount(jvmGc.getJvmGcOldCount());
-        jvmGcBo.setGcOldTime(jvmGc.getJvmGcOldTime());
-        return jvmGcBo;
+        JvmGcType gcType = this.jvmGcTypeMapper.map(jvmGc.getType());
+        return new JvmGcBo(point, gcType,
+                jvmGc.getJvmMemoryHeapUsed(),
+                jvmGc.getJvmMemoryHeapMax(),
+                jvmGc.getJvmMemoryNonHeapUsed(),
+                jvmGc.getJvmMemoryNonHeapMax(),
+                jvmGc.getJvmGcOldCount(),
+                jvmGc.getJvmGcOldTime());
     }
 
     @Override
@@ -56,7 +56,7 @@ public class GrpcJvmGcBoMapper implements GrpcStatMapper {
             final PJvmGc jvmGc = agentStat.getGc();
             DataPoint point = builder.getDataPoint();
             final JvmGcBo jvmGcBo = this.map(point, jvmGc);
-            builder.addJvmGc(jvmGcBo);
+            builder.addPoint(jvmGcBo);
         }
     }
 }

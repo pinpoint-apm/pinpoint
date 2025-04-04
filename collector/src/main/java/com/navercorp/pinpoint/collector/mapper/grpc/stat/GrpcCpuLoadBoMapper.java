@@ -30,10 +30,7 @@ import org.springframework.stereotype.Component;
 public class GrpcCpuLoadBoMapper implements GrpcStatMapper {
 
     public CpuLoadBo map(DataPoint dataPoint, final PCpuLoad cpuLoad) {
-        final CpuLoadBo cpuLoadBo = new CpuLoadBo(dataPoint);
-        cpuLoadBo.setJvmCpuLoad(cpuLoad.getJvmCpuLoad());
-        cpuLoadBo.setSystemCpuLoad(cpuLoad.getSystemCpuLoad());
-        return cpuLoadBo;
+        return new CpuLoadBo(dataPoint, cpuLoad.getJvmCpuLoad(), cpuLoad.getSystemCpuLoad());
     }
 
     @Override
@@ -43,7 +40,7 @@ public class GrpcCpuLoadBoMapper implements GrpcStatMapper {
             final PCpuLoad cpuLoad = agentStat.getCpuLoad();
             DataPoint point = builder.getDataPoint();
             final CpuLoadBo cpuLoadBo = this.map(point, cpuLoad);
-            builder.addCpuLoad(cpuLoadBo);
+            builder.addPoint(cpuLoadBo);
         }
     }
 }

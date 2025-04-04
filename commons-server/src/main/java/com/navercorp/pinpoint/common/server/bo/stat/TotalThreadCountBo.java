@@ -17,12 +17,12 @@
 package com.navercorp.pinpoint.common.server.bo.stat;
 
 public class TotalThreadCountBo extends AbstractStatDataPoint {
-    public static final long UNCOLLECTED_VALUE = -1L;
 
-    private long totalThreadCount = UNCOLLECTED_VALUE;
+    private long totalThreadCount;
 
-    public TotalThreadCountBo(DataPoint point) {
+    public TotalThreadCountBo(DataPoint point, long totalThreadCount) {
         super(point);
+        this.totalThreadCount = totalThreadCount;
     }
 
     @Override

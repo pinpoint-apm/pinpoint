@@ -30,9 +30,8 @@ import org.springframework.stereotype.Component;
 public class GrpcFileDescriptorBoMapper implements GrpcStatMapper {
 
     public FileDescriptorBo map(DataPoint point, final PFileDescriptor tOpenFileDescriptor) {
-        final FileDescriptorBo fileDescriptorBo = new FileDescriptorBo(point);
-        fileDescriptorBo.setOpenFileDescriptorCount(tOpenFileDescriptor.getOpenFileDescriptorCount());
-        return fileDescriptorBo;
+        return new FileDescriptorBo(point,
+                tOpenFileDescriptor.getOpenFileDescriptorCount());
     }
 
     @Override
@@ -41,7 +40,7 @@ public class GrpcFileDescriptorBoMapper implements GrpcStatMapper {
             final PFileDescriptor fileDescriptor = agentStat.getFileDescriptor();
             DataPoint point = builder.getDataPoint();
             final FileDescriptorBo fileDescriptorBo = this.map(point, fileDescriptor);
-            builder.addFileDescriptor(fileDescriptorBo);
+            builder.addPoint(fileDescriptorBo);
         }
     }
 }

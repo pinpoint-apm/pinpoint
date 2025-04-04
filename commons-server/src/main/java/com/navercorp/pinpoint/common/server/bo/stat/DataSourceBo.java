@@ -16,26 +16,32 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat;
 
-import com.navercorp.pinpoint.common.trace.ServiceType;
-
 /**
  * @author Taejin Koo
  */
 public class DataSourceBo extends AbstractStatDataPoint {
 
-    public static final int UNCOLLECTED_INT_VALUE = -1;
-    public static final String UNCOLLECTED_STRING_VALUE = "";
-    public static final ServiceType UNCOLLECTED_SERVICE_TYPE_VALUE = ServiceType.UNKNOWN;
+    private final int id;
+    private final short serviceTypeCode;
+    private final String databaseName;
+    private final String jdbcUrl;
+    private final int activeConnectionSize;
+    private final int maxConnectionSize;
 
-    private int id = UNCOLLECTED_INT_VALUE;
-    private short serviceTypeCode = UNCOLLECTED_SERVICE_TYPE_VALUE.getCode();
-    private String databaseName = UNCOLLECTED_STRING_VALUE;
-    private String jdbcUrl = UNCOLLECTED_STRING_VALUE;
-    private int activeConnectionSize = UNCOLLECTED_INT_VALUE;
-    private int maxConnectionSize = UNCOLLECTED_INT_VALUE;
-
-    public DataSourceBo(DataPoint point) {
+    public DataSourceBo(DataPoint point,
+                        int id,
+                        short serviceTypeCode,
+                        String databaseName,
+                        String jdbcUrl,
+                        int activeConnectionSize,
+                        int maxConnectionSize) {
         super(point);
+        this.id = id;
+        this.serviceTypeCode = serviceTypeCode;
+        this.databaseName = databaseName;
+        this.jdbcUrl = jdbcUrl;
+        this.activeConnectionSize = activeConnectionSize;
+        this.maxConnectionSize = maxConnectionSize;
     }
 
     @Override
@@ -47,50 +53,25 @@ public class DataSourceBo extends AbstractStatDataPoint {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public short getServiceTypeCode() {
         return serviceTypeCode;
-    }
-
-    public void setServiceTypeCode(short serviceTypeCode) {
-        this.serviceTypeCode = serviceTypeCode;
     }
 
     public String getDatabaseName() {
         return databaseName;
     }
 
-    public void setDatabaseName(String databaseName) {
-        this.databaseName = databaseName;
-    }
-
     public String getJdbcUrl() {
         return jdbcUrl;
-    }
-
-    public void setJdbcUrl(String jdbcUrl) {
-        this.jdbcUrl = jdbcUrl;
     }
 
     public int getActiveConnectionSize() {
         return activeConnectionSize;
     }
 
-    public void setActiveConnectionSize(int activeConnectionSize) {
-        this.activeConnectionSize = activeConnectionSize;
-    }
-
     public int getMaxConnectionSize() {
         return maxConnectionSize;
     }
-
-    public void setMaxConnectionSize(int maxConnectionSize) {
-        this.maxConnectionSize = maxConnectionSize;
-    }
-
 
     @Override
     public String toString() {

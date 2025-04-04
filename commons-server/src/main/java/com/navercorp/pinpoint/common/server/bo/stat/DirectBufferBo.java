@@ -21,16 +21,19 @@ package com.navercorp.pinpoint.common.server.bo.stat;
  */
 public class DirectBufferBo extends AbstractStatDataPoint {
 
-    public static final long UNCOLLECTED_VALUE = -1;
+    private final long directCount;
+    private final long directMemoryUsed;
+    private final long mappedCount;
+    private final long mappedMemoryUsed;
 
-
-    private long directCount = UNCOLLECTED_VALUE;
-    private long directMemoryUsed = UNCOLLECTED_VALUE;
-    private long mappedCount = UNCOLLECTED_VALUE;
-    private long mappedMemoryUsed = UNCOLLECTED_VALUE;
-
-    public DirectBufferBo(DataPoint point) {
+    public DirectBufferBo(DataPoint point,
+                          long directCount, long directMemoryUsed,
+                          long mappedCount, long mappedMemoryUsed) {
         super(point);
+        this.directCount = directCount;
+        this.directMemoryUsed = directMemoryUsed;
+        this.mappedCount = mappedCount;
+        this.mappedMemoryUsed = mappedMemoryUsed;
     }
 
     @Override
@@ -42,32 +45,16 @@ public class DirectBufferBo extends AbstractStatDataPoint {
         return directCount;
     }
 
-    public void setDirectCount(long directCount) {
-        this.directCount = directCount;
-    }
-
     public long getDirectMemoryUsed() {
         return directMemoryUsed;
-    }
-
-    public void setDirectMemoryUsed(long directMemoryUsed) {
-        this.directMemoryUsed = directMemoryUsed;
     }
 
     public long getMappedCount() {
         return mappedCount;
     }
 
-    public void setMappedCount(long mappedCount) {
-        this.mappedCount = mappedCount;
-    }
-
     public long getMappedMemoryUsed() {
         return mappedMemoryUsed;
-    }
-
-    public void setMappedMemoryUsed(long mappedMemoryUsed) {
-        this.mappedMemoryUsed = mappedMemoryUsed;
     }
 
     @Override

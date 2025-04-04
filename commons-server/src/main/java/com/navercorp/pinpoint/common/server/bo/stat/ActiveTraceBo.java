@@ -24,12 +24,16 @@ public class ActiveTraceBo extends AbstractStatDataPoint {
 
     public static final int UNCOLLECTED_ACTIVE_TRACE_COUNT = -1;
 
-    private short version = 0;
-    private int histogramSchemaType;
-    private ActiveTraceHistogram activeTraceHistogram;
+    private final short version;
+    private final int histogramSchemaType;
+    private final ActiveTraceHistogram activeTraceHistogram;
 
-    public ActiveTraceBo(DataPoint point) {
+    public ActiveTraceBo(DataPoint point,
+                         short version, int histogramSchemaType, ActiveTraceHistogram activeTraceHistogram) {
         super(point);
+        this.version = version;
+        this.histogramSchemaType = histogramSchemaType;
+        this.activeTraceHistogram = activeTraceHistogram;
     }
 
     @Override
@@ -41,24 +45,12 @@ public class ActiveTraceBo extends AbstractStatDataPoint {
         return version;
     }
 
-    public void setVersion(short version) {
-        this.version = version;
-    }
-
     public int getHistogramSchemaType() {
         return histogramSchemaType;
     }
 
-    public void setHistogramSchemaType(int histogramSchemaType) {
-        this.histogramSchemaType = histogramSchemaType;
-    }
-
     public ActiveTraceHistogram getActiveTraceHistogram() {
         return activeTraceHistogram;
-    }
-
-    public void setActiveTraceHistogram(ActiveTraceHistogram activeTraceHistogram) {
-        this.activeTraceHistogram = activeTraceHistogram;
     }
 
     @Override

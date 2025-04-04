@@ -26,10 +26,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class GrpcLoadedClassBoMapper implements GrpcStatMapper {
     public LoadedClassBo map(DataPoint point, final PLoadedClass loadedClass) {
-        final LoadedClassBo loadedClassBo = new LoadedClassBo(point);
-        loadedClassBo.setLoadedClassCount(loadedClass.getLoadedClassCount());
-        loadedClassBo.setUnloadedClassCount(loadedClass.getUnloadedClassCount());
-        return loadedClassBo;
+        return new LoadedClassBo(point,
+                loadedClass.getLoadedClassCount(),
+                loadedClass.getUnloadedClassCount());
     }
 
     @Override
@@ -39,7 +38,7 @@ public class GrpcLoadedClassBoMapper implements GrpcStatMapper {
             final PLoadedClass loadedClass = agentStat.getLoadedClass();
             DataPoint point = builder.getDataPoint();
             final LoadedClassBo loadedClassBo = this.map(point, loadedClass);
-            builder.addLoadedClass(loadedClassBo);
+            builder.addPoint(loadedClassBo);
         }
     }
 }

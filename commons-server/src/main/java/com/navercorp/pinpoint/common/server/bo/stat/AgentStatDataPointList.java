@@ -22,9 +22,6 @@ import java.util.List;
  * @author Taejin Koo
  */
 public interface AgentStatDataPointList<E extends StatDataPoint> extends StatDataPoint {
-
-    boolean add(E element);
-    boolean remove(E element);
     int size();
     List<E> getList();
 

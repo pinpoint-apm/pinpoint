@@ -21,14 +21,13 @@ package com.navercorp.pinpoint.common.server.bo.stat;
  */
 public class FileDescriptorBo extends AbstractStatDataPoint {
 
-    public static final long UNCOLLECTED_VALUE = -1;
 
-    private long openFileDescriptorCount = UNCOLLECTED_VALUE;
+    private final long openFileDescriptorCount;
 
-    public FileDescriptorBo(DataPoint point) {
+    public FileDescriptorBo(DataPoint point, long openFileDescriptorCount) {
         super(point);
+        this.openFileDescriptorCount = openFileDescriptorCount;
     }
-
 
     @Override
     public AgentStatType getAgentStatType() {
@@ -38,11 +37,6 @@ public class FileDescriptorBo extends AbstractStatDataPoint {
     public long getOpenFileDescriptorCount() {
         return openFileDescriptorCount;
     }
-
-    public void setOpenFileDescriptorCount(long openFileDescriptorCount) {
-        this.openFileDescriptorCount = openFileDescriptorCount;
-    }
-
 
     @Override
     public String toString() {
