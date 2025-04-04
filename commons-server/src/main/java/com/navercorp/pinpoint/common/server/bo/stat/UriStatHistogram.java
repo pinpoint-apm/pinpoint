@@ -16,63 +16,55 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat;
 
-import java.util.Arrays;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+
+import java.util.List;
 
 /**
  * @author Taejin Koo
  */
 public class UriStatHistogram {
+    public static final int URI_HISTOGRAM_SLOT = 8;
 
-    private long total;
-    private long max = 0;
-    private int[] timestampHistogram;
+    private final long total;
+    private final long max;
+    private final List<Integer> timestampHistogram;
+
+    public UriStatHistogram(long total, long max, List<Integer> timestampHistogram) {
+        this.total = total;
+        this.max = max;
+        if (CollectionUtils.nullSafeSize(timestampHistogram) != URI_HISTOGRAM_SLOT) {
+            throw new IllegalArgumentException("timestampHistogram.length must be 8");
+        }
+        this.timestampHistogram = timestampHistogram;
+    }
 
     public long getTotal() {
         return total;
-    }
-
-    public void setTotal(long total) {
-        this.total = total;
     }
 
     public long getMax() {
         return max;
     }
 
-    public void setMax(long max) {
-        this.max = max;
-    }
-
-    public int[] getTimestampHistogram() {
+    public List<Integer> getTimestampHistogram() {
         return timestampHistogram;
     }
 
-    public void setTimestampHistogram(int[] timestampHistogram) {
-        if (timestampHistogram == null || timestampHistogram.length != 8) {
-            throw new IllegalArgumentException("timestampHistogram");
-        }
-
-        this.timestampHistogram = timestampHistogram;
-    }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         UriStatHistogram that = (UriStatHistogram) o;
-
-        if (total != that.total) return false;
-        if (max != that.max) return false;
-        return Arrays.equals(timestampHistogram, that.timestampHistogram);
+        return total == that.total && max == that.max && timestampHistogram.equals(that.timestampHistogram);
     }
 
     @Override
     public int hashCode() {
-        int result;
-        result = Long.hashCode(total);
+        int result = Long.hashCode(total);
         result = 31 * result + Long.hashCode(max);
-        result = 31 * result + Arrays.hashCode(timestampHistogram);
+        result = 31 * result + timestampHistogram.hashCode();
         return result;
     }
 
@@ -81,7 +73,7 @@ public class UriStatHistogram {
         return "UriStatHistogram{" +
                 "total=" + total +
                 ", max=" + max +
-                ", timestampHistogram=" + Arrays.toString(timestampHistogram) +
+                ", timestampHistogram=" + timestampHistogram +
                 '}';
     }
 }

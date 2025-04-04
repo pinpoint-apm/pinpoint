@@ -19,10 +19,8 @@ package com.navercorp.pinpoint.uristat.collector.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
-
-import static com.navercorp.pinpoint.common.server.util.ObjectUtils.EMPTY_STRING;
 
 public class UriStat {
     private static final long EMPTY_NUMBER = 0L;
@@ -31,17 +29,27 @@ public class UriStat {
     private final String applicationName;
     private final String agentId;
     private final String uri;
+
+    private final long timestamp;
+
+    private final long maxLatencyMs;
+    private final long totalTimeMs;
+
+    private final List<Integer> totalHistogram;
+    private final List<Integer> failureHistogram;
+
     private final double apdexRaw;
     private final long count;
     private final long failCount;
-    private final long maxLatencyMs;
-    private final long totalTimeMs;
-    private final int[] totalHistogram;
-    private final int[] failureHistogram;
-    private final long timestamp;
+
     private final int version;
 
-    public UriStat(long timestamp, String tenantId, String serviceName, String applicationName, String agentId, String uri, long maxLatencyMs, long totalTimeMs, int[] totalHistogram, int[] failureHistogram, int version) {
+    public UriStat(long timestamp, String tenantId, String serviceName,
+                   String applicationName, String agentId,
+                   String uri, long maxLatencyMs, long totalTimeMs,
+                   List<Integer> totalHistogram,
+                   List<Integer> failureHistogram,
+                   int version) {
         this.timestamp = timestamp;
         this.tenantId = tenantId;
         this.serviceName = Objects.requireNonNull(serviceName, "serviceName");
@@ -51,32 +59,18 @@ public class UriStat {
         this.maxLatencyMs = maxLatencyMs;
         this.totalTimeMs = totalTimeMs;
         this.totalHistogram = Objects.requireNonNull(totalHistogram, "totalHistogram");
-        this.failureHistogram = Objects.requireNonNull(failureHistogram, "totalHistogram");
-        this.count = Arrays.stream(totalHistogram).sum();
-        this.failCount = Arrays.stream(failureHistogram).sum();
-        this.apdexRaw = (totalHistogram[0] + totalHistogram[1] + totalHistogram[2] + totalHistogram[3] + (0.5 * totalHistogram[4]));
+        this.failureHistogram = Objects.requireNonNull(failureHistogram, "failureHistogram");
+
+        this.count = totalHistogram.stream().mapToInt(Integer::intValue).sum();
+        this.failCount = failureHistogram.stream().mapToInt(Integer::intValue).sum();
+        this.apdexRaw = computeApdexRaw(totalHistogram);
+
         this.version = version;
     }
 
-    @Deprecated
-    public UriStat(long timestamp, double tot0, double tot1, double tot2, double tot3,
-                   double tot4, double tot5, double tot6, double tot7,
-                   double fail0, double fail1, double fail2, double fail3,
-                   double fail4, double fail5, double fail6, double fail7, int version) {
-        this.timestamp = timestamp;
-        this.tenantId = EMPTY_STRING;
-        this.serviceName = EMPTY_STRING;
-        this.applicationName = EMPTY_STRING;
-        this.agentId = EMPTY_STRING;
-        this.uri = EMPTY_STRING;
-        this.count = EMPTY_NUMBER;
-        this.failCount = EMPTY_NUMBER;
-        this.maxLatencyMs = EMPTY_NUMBER;
-        this.totalTimeMs = EMPTY_NUMBER;
-        this.apdexRaw = EMPTY_NUMBER;
-        this.totalHistogram = new int[]{(int) tot0, (int) tot1, (int) tot2, (int) tot3, (int) tot4, (int) tot5, (int) tot6, (int) tot7};
-        this.failureHistogram = new int[]{(int) fail0, (int) fail1, (int) fail2, (int) fail3, (int) fail4, (int) fail5, (int) fail6, (int) fail7};
-        this.version = version;
+    private double computeApdexRaw(List<Integer> totalHistogram) {
+        return totalHistogram.get(0) + totalHistogram.get(1) + totalHistogram.get(2) + totalHistogram.get(3)
+                + (0.5 * totalHistogram.get(4));
     }
 
     public String getTenantId() {
@@ -128,76 +122,76 @@ public class UriStat {
     }
 
     public int getTot0() {
-        return totalHistogram[0];
+        return totalHistogram.get(0);
     }
 
     public int getTot1() {
-        return totalHistogram[1];
+        return totalHistogram.get(1);
     }
 
     public int getTot2() {
-        return totalHistogram[2];
+        return totalHistogram.get(2);
     }
 
     public int getTot3() {
-        return totalHistogram[3];
+        return totalHistogram.get(3);
     }
 
     public int getTot4() {
-        return totalHistogram[4];
+        return totalHistogram.get(4);
     }
 
     public int getTot5() {
-        return totalHistogram[5];
+        return totalHistogram.get(5);
     }
 
     public int getTot6() {
-        return totalHistogram[6];
+        return totalHistogram.get(6);
     }
 
     public int getTot7() {
-        return totalHistogram[7];
+        return totalHistogram.get(7);
     }
 
     public int getFail0() {
-        return failureHistogram[0];
+        return failureHistogram.get(0);
     }
 
     public int getFail1() {
-        return failureHistogram[1];
+        return failureHistogram.get(1);
     }
 
     public int getFail2() {
-        return failureHistogram[2];
+        return failureHistogram.get(2);
     }
 
     public int getFail3() {
-        return failureHistogram[3];
+        return failureHistogram.get(3);
     }
 
     public int getFail4() {
-        return failureHistogram[4];
+        return failureHistogram.get(4);
     }
 
     public int getFail5() {
-        return failureHistogram[5];
+        return failureHistogram.get(5);
     }
 
     public int getFail6() {
-        return failureHistogram[6];
+        return failureHistogram.get(6);
     }
 
     public int getFail7() {
-        return failureHistogram[7];
+        return failureHistogram.get(7);
     }
 
     @JsonIgnore
-    public int[] getTotalHistogram() {
+    public List<Integer> getTotalHistogram() {
         return totalHistogram;
     }
 
     @JsonIgnore
-    public int[] getFailureHistogram() {
+    public List<Integer> getFailureHistogram() {
         return failureHistogram;
     }
 
@@ -207,14 +201,15 @@ public class UriStat {
                 "serviceName='" + serviceName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +
+                ", timestamp=" + timestamp +
                 ", uri=" + uri +
                 ", apdexRaw= " + apdexRaw +
                 ", count=" + count +
+                ", failCount=" + failCount +
                 ", maxLatencyMs=" + maxLatencyMs +
                 ", totalTimeMs=" + totalTimeMs +
-                ", totalHistogram=" + Arrays.toString(totalHistogram) +
-                ", failureHistogram=" + Arrays.toString(failureHistogram) +
-                ", timestamp=" + timestamp +
+                ", totalHistogram=" + totalHistogram +
+                ", failureHistogram=" + failureHistogram +
                 '}';
     }
 }

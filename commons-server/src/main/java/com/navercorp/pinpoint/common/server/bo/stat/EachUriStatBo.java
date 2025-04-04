@@ -16,37 +16,25 @@
 
 package com.navercorp.pinpoint.common.server.bo.stat;
 
+
+import java.util.Objects;
+
 /**
  * @author Taejin Koo
  */
 public class EachUriStatBo {
 
-    private String uri;
-    private UriStatHistogram totalHistogram = new UriStatHistogram();
-    private UriStatHistogram failedHistogram = null;
-    private long timestamp;
+    private final long timestamp;
+    private final String uri;
 
-    public String getUri() {
-        return uri;
-    }
+    private final UriStatHistogram totalHistogram ;
+    private final UriStatHistogram failedHistogram;
 
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
-
-    public UriStatHistogram getTotalHistogram() {
-        return totalHistogram;
-    }
-
-    public void setTotalHistogram(UriStatHistogram totalHistogram) {
+    public EachUriStatBo(long timestamp, String uri,
+                         UriStatHistogram totalHistogram, UriStatHistogram failedHistogram) {
+        this.timestamp = timestamp;
+        this.uri = Objects.requireNonNull(uri, "uri");
         this.totalHistogram = totalHistogram;
-    }
-
-    public UriStatHistogram getFailedHistogram() {
-        return failedHistogram;
-    }
-
-    public void setFailedHistogram(UriStatHistogram failedHistogram) {
         this.failedHistogram = failedHistogram;
     }
 
@@ -54,28 +42,31 @@ public class EachUriStatBo {
         return timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
+    public String getUri() {
+        return uri;
+    }
+
+    public UriStatHistogram getTotalHistogram() {
+        return totalHistogram;
+    }
+
+    public UriStatHistogram getFailedHistogram() {
+        return failedHistogram;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         EachUriStatBo that = (EachUriStatBo) o;
-
-        if (uri != null ? !uri.equals(that.uri) : that.uri != null) return false;
-        if (totalHistogram != null ? !totalHistogram.equals(that.totalHistogram) : that.totalHistogram != null) return false;
-        if (failedHistogram != null ? !failedHistogram.equals(that.failedHistogram) : that.failedHistogram != null) return false;
-        return timestamp == that.timestamp;
+        return timestamp == that.timestamp && uri.equals(that.uri) && Objects.equals(totalHistogram, that.totalHistogram) && Objects.equals(failedHistogram, that.failedHistogram);
     }
 
     @Override
     public int hashCode() {
-        int result = uri != null ? uri.hashCode() : 0;
-        result = 31 * result + (totalHistogram != null ? totalHistogram.hashCode() : 0);
-        result = 31 * result + (failedHistogram != null ? failedHistogram.hashCode() : 0);
+        int result = uri.hashCode();
+        result = 31 * result + Objects.hashCode(totalHistogram);
+        result = 31 * result + Objects.hashCode(failedHistogram);
         result = 31 * result + Long.hashCode(timestamp);
         return result;
     }

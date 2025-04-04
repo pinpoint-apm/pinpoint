@@ -19,93 +19,68 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import jakarta.validation.constraints.NotBlank;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
 public class AgentUriStatBo {
-    private String serviceName;
-    @NotBlank private String applicationName;
-    @NotBlank private String agentId;
-    private byte bucketVersion;
-    private List<EachUriStatBo> eachUriStatBoList = new ArrayList<>();
+    private final byte bucketVersion;
 
-    public String getServiceName() {
-        return serviceName;
-    }
+    private final String serviceName;
+    private final String applicationName;
+    private final String agentId;
 
-    public void setServiceName(String serviceName) {
+    private final List<EachUriStatBo> eachUriStatBoList;
+
+    public AgentUriStatBo(byte bucketVersion,
+                          @NotBlank String serviceName, @NotBlank
+                          @NotBlank String applicationName,
+                          @NotBlank String agentId,
+                          List<EachUriStatBo> eachUriStatBoList) {
+        this.bucketVersion = bucketVersion;
         this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
-    }
-
-    public String getApplicationName() {
-        return applicationName;
-    }
-
-    public void setApplicationName(String applicationName) {
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
-    }
-
-    public String getAgentId() {
-        return agentId;
-    }
-
-    public void setAgentId(String agentId) {
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
+        this.eachUriStatBoList = Objects.requireNonNull(eachUriStatBoList, "eachUriStatBoList");
     }
 
     public byte getBucketVersion() {
         return bucketVersion;
     }
 
-    public void setBucketVersion(byte bucketVersion) {
-        this.bucketVersion = bucketVersion;
+    public String getServiceName() {
+        return serviceName;
     }
 
-    public boolean addEachUriStatBo(EachUriStatBo eachUriStatBo) {
-        return eachUriStatBoList.add(eachUriStatBo);
+    public String getApplicationName() {
+        return applicationName;
     }
 
-    public boolean addAllEachUriStatBo(Collection<EachUriStatBo> eachUriStatBos) {
-        return eachUriStatBoList.addAll(eachUriStatBos);
-    }
-
-    public boolean removeEachUriStatBo(EachUriStatBo eachUriStatBo) {
-        return eachUriStatBoList.remove(eachUriStatBo);
+    public String getAgentId() {
+        return agentId;
     }
 
     public List<EachUriStatBo> getEachUriStatBoList() {
         return eachUriStatBoList;
     }
 
-    public void setEachUriStatBoList(List<EachUriStatBo> eachUriStatBoList) {
-        this.eachUriStatBoList = eachUriStatBoList;
-    }
-
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         AgentUriStatBo that = (AgentUriStatBo) o;
-
-        if (serviceName != null? !serviceName.equals(that.serviceName) : that.serviceName != null) return false;
-        if (applicationName != null? !applicationName.equals(that.applicationName) : that.applicationName != null) return false;
-        if (bucketVersion != that.bucketVersion) return false;
-        if (agentId != null ? !agentId.equals(that.agentId) : that.agentId != null) return false;
-        return eachUriStatBoList != null ? eachUriStatBoList.equals(that.eachUriStatBoList) : that.eachUriStatBoList == null;
+        return bucketVersion == that.bucketVersion && serviceName.equals(that.serviceName) && applicationName.equals(that.applicationName) && agentId.equals(that.agentId) && eachUriStatBoList.equals(that.eachUriStatBoList);
     }
 
     @Override
     public int hashCode() {
-        int result = serviceName != null ? serviceName.hashCode() : 0;
-        result = 31 * result + (applicationName != null ? applicationName.hashCode() : 0);
-        result = 31 * result + (agentId != null ? agentId.hashCode() : 0);
-        result = 31 * result + (int) bucketVersion;
-        result = 31 * result + (eachUriStatBoList != null ? eachUriStatBoList.hashCode() : 0);
+        int result = bucketVersion;
+        result = 31 * result + serviceName.hashCode();
+        result = 31 * result + applicationName.hashCode();
+        result = 31 * result + agentId.hashCode();
+        result = 31 * result + eachUriStatBoList.hashCode();
         return result;
     }
 
