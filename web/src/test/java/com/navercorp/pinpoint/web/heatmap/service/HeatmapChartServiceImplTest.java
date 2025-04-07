@@ -83,45 +83,45 @@ class HeatmapChartServiceImplTest {
     @Test
     public void createElapsedTimeBucketInfoTest() {
         ElapsedTimeBucketInfo elapsedTimeBucketInfo = heatmapChartService.createElapsedTimeBucketInfo(0, 10000);
-        assertEquals(200, elapsedTimeBucketInfo.getTimeInterval());
-        assertEquals(200, elapsedTimeBucketInfo.getMin());
-        assertEquals(10000, elapsedTimeBucketInfo.getMax());
-        assertEquals(50, elapsedTimeBucketInfo.getBucketList().size());
+        assertEquals(200, elapsedTimeBucketInfo.timeInterval());
+        assertEquals(200, elapsedTimeBucketInfo.min());
+        assertEquals(10000, elapsedTimeBucketInfo.max());
+        assertEquals(50, elapsedTimeBucketInfo.bucketList().size());
         List<Integer> bucketList = Arrays.asList(200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800, 4000, 4200, 4400, 4600, 4800, 5000, 5200, 5400, 5600, 5800, 6000, 6200, 6400, 6600, 6800, 7000, 7200, 7400, 7600, 7800, 8000, 8200, 8400, 8600, 8800, 9000, 9200, 9400, 9600, 9800, 10000);
-        assertEquals(bucketList, elapsedTimeBucketInfo.getBucketList());
+        assertEquals(bucketList, elapsedTimeBucketInfo.bucketList());
     }
 
     @Test
     public void createElapsedTimeBucketInfoTest2() {
         ElapsedTimeBucketInfo elapsedTimeBucketInfo = heatmapChartService.createElapsedTimeBucketInfo(133, 11234);
-        assertEquals(226, elapsedTimeBucketInfo.getTimeInterval());
-        assertEquals(133, elapsedTimeBucketInfo.getMin());
-        assertEquals(11234, elapsedTimeBucketInfo.getMax());
-        assertEquals(51, elapsedTimeBucketInfo.getBucketList().size());
+        assertEquals(226, elapsedTimeBucketInfo.timeInterval());
+        assertEquals(133, elapsedTimeBucketInfo.min());
+        assertEquals(11234, elapsedTimeBucketInfo.max());
+        assertEquals(51, elapsedTimeBucketInfo.bucketList().size());
         List<Integer> bucketList = Arrays.asList(133, 359, 585, 811, 1037, 1263, 1489, 1715, 1941, 2167, 2393, 2619, 2845, 3071, 3297, 3523, 3749, 3975, 4201, 4427, 4653, 4879, 5105, 5331, 5557, 5783, 6009, 6235, 6461, 6687, 6913, 7139, 7365, 7591, 7817, 8043, 8269, 8495, 8721, 8947, 9173, 9399, 9625, 9851, 10077, 10303, 10529, 10755, 10981, 11207, 11234);
-        assertEquals(bucketList, elapsedTimeBucketInfo.getBucketList());
+        assertEquals(bucketList, elapsedTimeBucketInfo.bucketList());
     }
 
     @Test
     public void createElapsedTimeBucketInfoTest3() {
         ElapsedTimeBucketInfo elapsedTimeBucketInfo = heatmapChartService.createElapsedTimeBucketInfo(300, 10000);
-        assertEquals(200, elapsedTimeBucketInfo.getTimeInterval());
-        assertEquals(300, elapsedTimeBucketInfo.getMin());
-        assertEquals(10000, elapsedTimeBucketInfo.getMax());
-        assertEquals(50, elapsedTimeBucketInfo.getBucketList().size());
+        assertEquals(200, elapsedTimeBucketInfo.timeInterval());
+        assertEquals(300, elapsedTimeBucketInfo.min());
+        assertEquals(10000, elapsedTimeBucketInfo.max());
+        assertEquals(50, elapsedTimeBucketInfo.bucketList().size());
         List<Integer> bucketList = Arrays.asList(300, 500, 700, 900, 1100, 1300, 1500, 1700, 1900, 2100, 2300, 2500, 2700, 2900, 3100, 3300, 3500, 3700, 3900, 4100, 4300, 4500, 4700, 4900, 5100, 5300, 5500, 5700, 5900, 6100, 6300, 6500, 6700, 6900, 7100, 7300, 7500, 7700, 7900, 8100, 8300, 8500, 8700, 8900, 9100, 9300, 9500, 9700, 9900, 10000);
-        assertEquals(bucketList, elapsedTimeBucketInfo.getBucketList());
+        assertEquals(bucketList, elapsedTimeBucketInfo.bucketList());
     }
 
     @Test
     public void createElapsedTimeBucketInfoTest4() {
         ElapsedTimeBucketInfo elapsedTimeBucketInfo = heatmapChartService.createElapsedTimeBucketInfo(355, 54123);
-        assertEquals(1097, elapsedTimeBucketInfo.getTimeInterval());
-        assertEquals(355, elapsedTimeBucketInfo.getMin());
-        assertEquals(54123, elapsedTimeBucketInfo.getMax());
-        assertEquals(51, elapsedTimeBucketInfo.getBucketList().size());
+        assertEquals(1097, elapsedTimeBucketInfo.timeInterval());
+        assertEquals(355, elapsedTimeBucketInfo.min());
+        assertEquals(54123, elapsedTimeBucketInfo.max());
+        assertEquals(51, elapsedTimeBucketInfo.bucketList().size());
         List<Integer> bucketList = Arrays.asList(355, 1452, 2549, 3646, 4743, 5840, 6937, 8034, 9131, 10228, 11325, 12422, 13519, 14616, 15713, 16810, 17907, 19004, 20101, 21198, 22295, 23392, 24489, 25586, 26683, 27780, 28877, 29974, 31071, 32168, 33265, 34362, 35459, 36556, 37653, 38750, 39847, 40944, 42041, 43138, 44235, 45332, 46429, 47526, 48623, 49720, 50817, 51914, 53011, 54108, 54123);
-        assertEquals(bucketList, elapsedTimeBucketInfo.getBucketList());
+        assertEquals(bucketList, elapsedTimeBucketInfo.bucketList());
     }
 
     @Test

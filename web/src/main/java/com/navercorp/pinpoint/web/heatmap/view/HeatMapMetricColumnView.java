@@ -35,11 +35,11 @@ public class HeatMapMetricColumnView {
     }
 
     public int getColumn() {
-        return heatMapMetricColumn.getColumn();
+        return heatMapMetricColumn.column();
     }
 
     public long getTimestamp() {
-        return heatMapMetricColumn.getTimestamp();
+        return heatMapMetricColumn.timestamp();
     }
 
     public List<HeatMapMetricCellView> getCellDataList() {

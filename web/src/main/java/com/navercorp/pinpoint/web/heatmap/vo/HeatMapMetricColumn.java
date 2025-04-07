@@ -26,29 +26,10 @@ import java.util.Objects;
 /**
  * @author minwoo-jung
  */
-public class HeatMapMetricColumn {
-
-    private final long timestamp;
-    private final int column;
-
-    private final Map<Integer, HeatMapMetricCell> heatMapMetricCellMap;
+public record HeatMapMetricColumn(long timestamp, int column, Map<Integer, HeatMapMetricCell> heatMapMetricCellMap) {
 
     public HeatMapMetricColumn(int columnNumber, long timestamp, Map<Integer, HeatMapMetricCell> heatMapMetricCellMap) {
-        this.column = columnNumber;
-        this.timestamp = timestamp;
-        this.heatMapMetricCellMap = Objects.requireNonNull(heatMapMetricCellMap,"heatMapMetricCellMap");;
-    }
-
-    public Map<Integer, HeatMapMetricCell> getHeatMapMetricCellMap() {
-        return heatMapMetricCellMap;
-    }
-
-    public int getColumn() {
-        return column;
-    }
-
-    public long getTimestamp() {
-        return timestamp;
+        this(timestamp, columnNumber, Objects.requireNonNull(heatMapMetricCellMap, "heatMapMetricCellMap"));
     }
 
     public List<HeatMapMetricCell> getHeatMapMetricCellList() {

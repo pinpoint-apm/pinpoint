@@ -51,7 +51,7 @@ class TimeSeriesBuilderTest {
         assertEquals(31, heatMapData.getHeatMapMetricColumnMap().size());
 
         for (HeatMapMetricColumn heatMapMetricColumn : heatMapData.getHeatMapMetricColumnMap().values()) {
-            assertEquals(bucketList.size(), heatMapMetricColumn.getHeatMapMetricCellMap().size());
+            assertEquals(bucketList.size(), heatMapMetricColumn.heatMapMetricCellMap().size());
         }
     }
 
@@ -69,7 +69,7 @@ class TimeSeriesBuilderTest {
         assertEquals(31, heatMapData.getHeatMapMetricColumnMap().size());
 
         for (HeatMapMetricColumn heatMapMetricColumn : heatMapData.getHeatMapMetricColumnMap().values()) {
-            assertEquals(bucketList.size(), heatMapMetricColumn.getHeatMapMetricCellMap().size());
+            assertEquals(bucketList.size(), heatMapMetricColumn.heatMapMetricCellMap().size());
         }
     }
 
@@ -85,8 +85,8 @@ class TimeSeriesBuilderTest {
         TimeSeriesBuilder timeSeriesBuilder = new TimeSeriesBuilder(heatmapCellList, heatmapCellList, timeWindow, bucketList);
         HeatMapData heatMapData = timeSeriesBuilder.createHeatMapData();
         assertEquals(31, heatMapData.getHeatMapMetricColumnMap().size());
-        assertEquals(31, heatMapData.getHeatmapSize().getWidth());
-        assertEquals(50, heatMapData.getHeatmapSize().getHeight());
+        assertEquals(31, heatMapData.getHeatmapSize().width());
+        assertEquals(50, heatMapData.getHeatmapSize().height());
     }
 
     @Test
@@ -101,14 +101,14 @@ class TimeSeriesBuilderTest {
         TimeSeriesBuilder timeSeriesBuilder = new TimeSeriesBuilder(heatmapCellList, heatmapCellList, timeWindow, bucketList);
         HeatMapData heatMapData = timeSeriesBuilder.createHeatMapData();
 
-        List<HeatMapMetricColumn> heatMapMetricColumnList = heatMapData.getReverseOrderedHeatMapMetricColumnList();
+        List<HeatMapMetricColumn> heatMapMetricColumnList = heatMapData.getDescHeatMapMetricColumnList();
         int size = heatMapMetricColumnList.size();
         assertEquals(31, size);
 
-        long timestamp = heatMapMetricColumnList.get(0).getTimestamp();
+        long timestamp = heatMapMetricColumnList.get(0).timestamp();
         assertEquals(1742826240000L, timestamp);
 
-        timestamp = heatMapMetricColumnList.get(size - 1).getTimestamp();
+        timestamp = heatMapMetricColumnList.get(size - 1).timestamp();
         assertEquals(1742567040000L, timestamp);
     }
 
