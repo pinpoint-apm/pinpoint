@@ -25,12 +25,14 @@ export const HelpPage = () => {
         </h4>
         <HelpCommunity />
       </div>
-      {/* <HeatmapFetcher
-        node={{
-          applicationName: 'APIGW-DEV-PGD1',
-          serviceType: 'VERTX',
-        }}
-      /> */}
+      {/* <div className="h-160">
+        <HeatmapFetcher
+          application={{
+            applicationName: 'APIGW-DEV-PGD1',
+            serviceType: 'VERTX',
+          }}
+        />
+      </div> */}
     </div>
   );
 };

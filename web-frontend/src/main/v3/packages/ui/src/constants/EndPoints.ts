@@ -36,6 +36,7 @@ export const TRANSACTION_INFO = `${LOCAL_API_PATH}/transactionInfo`;
 // export const = '/sqlBind';
 // export const = '/jsonBind';
 export const SCATTER_DATA = `${LOCAL_API_PATH}/getScatterData`;
+export const HEATMAP_APP_DATA = `${LOCAL_API_PATH}/getHeatmapAppData`;
 export const ACTIVE_THREAD_LIGHT_DUMP = `${LOCAL_API_PATH}/agent/activeThreadLightDump`;
 export const ACTIVE_THREAD_DUMP = `${LOCAL_API_PATH}/agent/activeThreadDump`;
 // export const = '/getAgentInstallationInfo';

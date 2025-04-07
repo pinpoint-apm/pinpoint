@@ -13,6 +13,8 @@ export interface Configuration {
   showOtlpMetric: boolean;
   openSource: boolean;
   version: string;
+  'experimental.enableHeatmap.value': boolean;
+  'experimental.enableHeatmap.description': string;
   'experimental.enableServerMapRealTime.value': boolean;
   'experimental.enableServerSideScanForScatter.description': string;
   'experimental.useStatisticsAgentState.value': boolean;
