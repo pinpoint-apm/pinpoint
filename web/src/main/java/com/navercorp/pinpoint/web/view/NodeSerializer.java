@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeViews;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
+import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramViewModel;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 
@@ -187,7 +188,7 @@ public class NodeSerializer extends JsonSerializer<Node> {
                 final TimeHistogramFormat format = node.getTimeHistogramFormat();
 
                 ApplicationTimeHistogram applicationTimeHistogram = nodeHistogram.getApplicationTimeHistogram();
-                List<TimeViewModel> applicationTimeSeriesHistogram = applicationTimeHistogram.createViewModel(format);
+                List<TimeHistogramViewModel> applicationTimeSeriesHistogram = applicationTimeHistogram.createViewModel(format);
                 if (applicationTimeSeriesHistogram == null) {
                     JacksonWriterUtils.writeEmptyArray(jgen, "timeSeriesHistogram");
                 } else {
@@ -196,7 +197,7 @@ public class NodeSerializer extends JsonSerializer<Node> {
 
                 if (NodeViews.Detailed.inView(activeView)) {
                     AgentTimeHistogram agentTimeHistogram = nodeHistogram.getAgentTimeHistogram();
-                    JsonFields<AgentNameView, List<TimeViewModel>> agentFields = agentTimeHistogram.createViewModel(format);
+                    JsonFields<AgentNameView, List<TimeHistogramViewModel>> agentFields = agentTimeHistogram.createViewModel(format);
                     jgen.writeFieldName(AGENT_TIME_SERIES_HISTOGRAM);
                     jgen.writeObject(agentFields);
                 }

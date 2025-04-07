@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
-import com.navercorp.pinpoint.web.view.TimeViewModel;
+import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramViewModel;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
@@ -60,7 +60,7 @@ public class AgentTimeHistogramTest {
         List<ResponseTime> responseHistogramList = createResponseTime(app, "test1", "test2");
         AgentTimeHistogram histogram = builder.build(responseHistogramList);
 
-        JsonFields<AgentNameView, List<TimeViewModel>> viewModel = histogram.createViewModel(TimeHistogramFormat.V1);
+        JsonFields<AgentNameView, List<TimeHistogramViewModel>> viewModel = histogram.createViewModel(TimeHistogramFormat.V1);
         logger.debug("{}", viewModel);
 
         String json = mapper.writeValueAsString(viewModel);

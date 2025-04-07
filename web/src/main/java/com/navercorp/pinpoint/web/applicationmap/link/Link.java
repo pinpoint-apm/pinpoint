@@ -31,8 +31,8 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
+import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramViewModel;
 import com.navercorp.pinpoint.web.view.LinkSerializer;
-import com.navercorp.pinpoint.web.view.TimeViewModel;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.Application;
 
@@ -168,7 +168,7 @@ public class Link {
         return outLinkList.mergeHistogram(toNode.getServiceType());
     }
 
-    public List<TimeViewModel> getLinkApplicationTimeSeriesHistogram() {
+    public List<TimeHistogramViewModel> getLinkApplicationTimeSeriesHistogram() {
         if (direction == LinkDirection.IN_LINK) {
             return getSourceApplicationTimeSeriesHistogram();
         } else {
@@ -176,7 +176,7 @@ public class Link {
         }
     }
 
-    public List<TimeViewModel> getSourceApplicationTimeSeriesHistogram() {
+    public List<TimeHistogramViewModel> getSourceApplicationTimeSeriesHistogram() {
         ApplicationTimeHistogram histogramData = getSourceApplicationTimeSeriesHistogramData();
         return histogramData.createViewModel(this.timeHistogramFormat);
     }
@@ -187,7 +187,7 @@ public class Link {
         return builder.build(inLink.getLinkDataList());
     }
 
-    public List<TimeViewModel> getTargetApplicationTimeSeriesHistogram() {
+    public List<TimeHistogramViewModel> getTargetApplicationTimeSeriesHistogram() {
         ApplicationTimeHistogram targetApplicationTimeHistogramData = getTargetApplicationTimeSeriesHistogramData();
         return targetApplicationTimeHistogramData.createViewModel(this.timeHistogramFormat);
     }
@@ -214,7 +214,7 @@ public class Link {
         this.outLink.addLinkDataMap(outLinkCallDataMap);
     }
 
-    public JsonFields<AgentNameView, List<TimeViewModel>> getSourceAgentTimeSeriesHistogram() {
+    public JsonFields<AgentNameView, List<TimeHistogramViewModel>> getSourceAgentTimeSeriesHistogram() {
         // we need Target (to)'s time since time in link is RPC-based
         AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(toNode.getApplication(), range);
         AgentTimeHistogram applicationTimeSeriesHistogram = builder.buildSource(inLink);
