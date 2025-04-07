@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
+import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramViewModel;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
@@ -148,7 +149,7 @@ public class LinkSerializer extends JsonSerializer<Link> {
     }
 
     private void writeTimeSeriesHistogram(Link link, JsonGenerator jgen) throws IOException {
-        List<TimeViewModel> sourceApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram();
+        List<TimeHistogramViewModel> sourceApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram();
         jgen.writeFieldName("timeSeriesHistogram");
         jgen.writeObject(sourceApplicationTimeSeriesHistogram);
     }
@@ -174,7 +175,7 @@ public class LinkSerializer extends JsonSerializer<Link> {
     }
 
     private void writeSourceAgentTimeSeriesHistogram(Link link, JsonGenerator jgen) throws IOException {
-        JsonFields<AgentNameView, List<TimeViewModel>> sourceAgentTimeSeriesHistogram = link.getSourceAgentTimeSeriesHistogram();
+        JsonFields<AgentNameView, List<TimeHistogramViewModel>> sourceAgentTimeSeriesHistogram = link.getSourceAgentTimeSeriesHistogram();
 //        sourceAgentTimeSeriesHistogram.setFieldName("sourceTimeSeriesHistogram");
         jgen.writeFieldName("sourceTimeSeriesHistogram");
         jgen.writeObject(sourceAgentTimeSeriesHistogram);

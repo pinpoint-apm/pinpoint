@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.view;
+package com.navercorp.pinpoint.web.applicationmap.view;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,7 +15,7 @@ class ResponseTimeViewModelTest {
 
     @Test
     void timeCount() throws JsonProcessingException {
-        ResponseTimeViewModel.TimeCount timeCount = new ResponseTimeViewModel.TimeCount(1, 2);
+        TimeCount timeCount = new TimeCount(1, 2);
 
         String json = mapper.writeValueAsString(timeCount);
         String expected = mapper.writeValueAsString(List.of(1, 2));

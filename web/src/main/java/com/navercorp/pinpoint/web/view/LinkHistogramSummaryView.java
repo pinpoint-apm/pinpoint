@@ -4,6 +4,7 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistog
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
+import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramViewModel;
 
 import java.util.List;
 import java.util.Objects;
@@ -25,7 +26,7 @@ public class LinkHistogramSummaryView {
         return linkHistogramSummary.getHistogram();
     }
 
-    public List<TimeViewModel> getTimeSeriesHistogram() {
+    public List<TimeHistogramViewModel> getTimeSeriesHistogram() {
         ApplicationTimeHistogram histogram = linkHistogramSummary.getLinkApplicationTimeHistogram();
         return histogram.createViewModel(format);
     }

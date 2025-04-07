@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.view;
+package com.navercorp.pinpoint.web.applicationmap.view;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.web.applicationmap.histogram.LoadHistogram;
 
 import java.util.Objects;
 
-public class LoadTimeViewModel implements TimeViewModel {
+public class LoadTimeViewModel implements TimeHistogramViewModel {
 
     private final long timestamp;
     private final LoadHistogram histogram;

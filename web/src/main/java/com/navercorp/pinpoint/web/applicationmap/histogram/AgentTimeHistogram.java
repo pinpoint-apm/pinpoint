@@ -27,7 +27,8 @@ import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindows;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
-import com.navercorp.pinpoint.web.view.TimeViewModel;
+import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramBuilder;
+import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramViewModel;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.stat.SampledApdexScore;
@@ -53,7 +54,7 @@ public class AgentTimeHistogram {
     private static final double DEFAULT_MAX_APDEX_SCORE = -2D;
     private static final String DEFAULT_AGENT_ID = "defaultAgentId";
 
-    private static final Comparator<JsonField<AgentNameView, List<TimeViewModel>>> AGENT_NAME_COMPARATOR
+    private static final Comparator<JsonField<AgentNameView, List<TimeHistogramViewModel>>> AGENT_NAME_COMPARATOR
             = Comparator.comparing((jsonField) -> jsonField.name().agentName());
 
     private static final Ordering<TimeHistogram> histogramOrdering = Ordering.from(TimeHistogram.TIME_STAMP_ASC_COMPARATOR);
@@ -71,14 +72,14 @@ public class AgentTimeHistogram {
         this.agentHistogramList = Objects.requireNonNull(agentHistogramList, "agentHistogramList");
     }
 
-    public JsonFields<AgentNameView, List<TimeViewModel>> createViewModel(TimeHistogramFormat timeHistogramFormat) {
+    public JsonFields<AgentNameView, List<TimeHistogramViewModel>> createViewModel(TimeHistogramFormat timeHistogramFormat) {
 
-        JsonFields.Builder<AgentNameView, List<TimeViewModel>> builder = JsonFields.newBuilder();
+        JsonFields.Builder<AgentNameView, List<TimeHistogramViewModel>> builder = JsonFields.newBuilder();
         builder.comparator(AGENT_NAME_COMPARATOR);
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
             Application agentId = agentHistogram.getAgentId();
             List<TimeHistogram> timeList = histogramOrdering.sortedCopy(agentHistogram.getTimeHistogram());
-            JsonField<AgentNameView, List<TimeViewModel>> model = createAgentResponseTimeViewModel(agentId, timeList, timeHistogramFormat);
+            JsonField<AgentNameView, List<TimeHistogramViewModel>> model = createAgentResponseTimeViewModel(agentId, timeList, timeHistogramFormat);
             builder.addField(model);
         }
         return builder.build();
@@ -94,14 +95,14 @@ public class AgentTimeHistogram {
     }
 
 
-    private JsonField<AgentNameView, List<TimeViewModel>> createAgentResponseTimeViewModel(Application agentName, List<TimeHistogram> timeHistogramList, TimeHistogramFormat timeHistogramFormat) {
-        List<TimeViewModel> responseTimeViewModel = createResponseTimeViewModel(timeHistogramList, timeHistogramFormat);
+    private JsonField<AgentNameView, List<TimeHistogramViewModel>> createAgentResponseTimeViewModel(Application agentName, List<TimeHistogram> timeHistogramList, TimeHistogramFormat timeHistogramFormat) {
+        List<TimeHistogramViewModel> responseTimeViewModel = createResponseTimeViewModel(timeHistogramList, timeHistogramFormat);
         return JsonField.of(AgentNameView.of(agentName), responseTimeViewModel);
     }
 
-    private List<TimeViewModel> createResponseTimeViewModel(List<TimeHistogram> timeHistogramList, TimeHistogramFormat timeHistogramFormat) {
-        TimeViewModel.Builder format = TimeViewModel.newBuilder(timeHistogramFormat);
-        return format.build(application, timeHistogramList);
+    private List<TimeHistogramViewModel> createResponseTimeViewModel(List<TimeHistogram> timeHistogramList, TimeHistogramFormat timeHistogramFormat) {
+        TimeHistogramBuilder builder = new TimeHistogramBuilder(timeHistogramFormat);
+        return builder.build(application, timeHistogramList);
     }
 
     public List<SampledApdexScore> getSampledAgentApdexScoreList(String agentName) {

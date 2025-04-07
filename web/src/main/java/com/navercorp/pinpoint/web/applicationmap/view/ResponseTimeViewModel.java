@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.view;
+package com.navercorp.pinpoint.web.applicationmap.view;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,7 +28,7 @@ import java.util.Objects;
 /**
  * @author emeroad
  */
-public class ResponseTimeViewModel implements TimeViewModel {
+public class ResponseTimeViewModel implements TimeHistogramViewModel {
 
     private final String columnName;
     private final List<TimeCount> columnValue;
@@ -49,13 +48,9 @@ public class ResponseTimeViewModel implements TimeViewModel {
         return columnValue;
     }
 
-    @JsonSerialize(using = TimeCountSerializer.class)
-    public record TimeCount(long time, long count) {
-    }
-
     public static class TimeCountSerializer extends JsonSerializer<TimeCount> {
         @Override
-        public void serialize(ResponseTimeViewModel.TimeCount count, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+        public void serialize(TimeCount count, JsonGenerator jgen, SerializerProvider provider) throws IOException {
             jgen.writeStartArray();
             jgen.writeNumber(count.time());
             jgen.writeNumber(count.count());

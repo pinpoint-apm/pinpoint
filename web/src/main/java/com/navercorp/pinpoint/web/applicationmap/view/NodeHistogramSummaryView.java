@@ -7,7 +7,6 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
-import com.navercorp.pinpoint.web.view.TimeViewModel;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 
@@ -57,7 +56,7 @@ public class NodeHistogramSummaryView {
     }
 
 
-    public List<TimeViewModel> getTimeSeriesHistogram() {
+    public List<TimeHistogramViewModel> getTimeSeriesHistogram() {
         ApplicationTimeHistogram applicationTimeHistogram = nodeHistogramSummary.getApplicationTimeHistogram();
         if (applicationTimeHistogram == null) {
             return List.of();
@@ -65,7 +64,7 @@ public class NodeHistogramSummaryView {
         return applicationTimeHistogram.createViewModel(format);
     }
 
-    public JsonFields<AgentNameView, List<TimeViewModel>> getAgentTimeSeriesHistogram() {
+    public JsonFields<AgentNameView, List<TimeHistogramViewModel>> getAgentTimeSeriesHistogram() {
         return nodeHistogram.getAgentTimeHistogram().createViewModel(format);
     }
 }

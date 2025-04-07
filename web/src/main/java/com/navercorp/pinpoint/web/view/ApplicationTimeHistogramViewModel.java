@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
+import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramViewModel;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.Application;
 
@@ -62,7 +63,7 @@ public class ApplicationTimeHistogramViewModel {
     /**
      * @return JsonFields(String:AgentId, value:List<TimeViewModel>)
      */
-    public JsonFields<AgentNameView, List<TimeViewModel>> getTimeSeries() {
+    public JsonFields<AgentNameView, List<TimeHistogramViewModel>> getTimeSeries() {
         AgentTimeHistogram histogram = new AgentTimeHistogram(application, agentHistogramList);
         return histogram.createViewModel(format);
     }
