@@ -17,11 +17,11 @@ import {
   DatetimePickerChangeHandler,
   MainHeader,
   ScatterChart,
-  HeatmapChart,
 } from '../components';
 import { PiTreeStructureDuotone } from 'react-icons/pi';
 import { useTranslation } from 'react-i18next';
 import { capitalize } from 'lodash';
+import { ScatterOrHeatmap } from '@pinpoint-fe/ui/src/components/Heatmap/ScatterOrHeatmap';
 
 export const ScatterOrHeatmapFullScreenPage = ({
   configuration,
@@ -110,7 +110,6 @@ export const ScatterOrHeatmapFullScreenPage = ({
           {agentId && (
             <div className="absolute text-sm font-semibold top-4">Agent ID: {agentId}</div>
           )}
-
           {application &&
             (type === 'scatter' ? (
               <ScatterChart
@@ -120,10 +119,11 @@ export const ScatterOrHeatmapFullScreenPage = ({
                 toolbarOption={{ expand: { hide: true } }}
               />
             ) : (
-              <HeatmapChart
-                agentId={agentId}
-                node={application}
+              <ScatterOrHeatmap
+                chartType="heatmap"
                 realtime={isRealtime}
+                agentId={agentId}
+                application={application}
                 toolbarOption={{ expand: { hide: true } }}
               />
             ))}

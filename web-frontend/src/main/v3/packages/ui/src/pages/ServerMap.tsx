@@ -13,7 +13,7 @@ import {
   getFormattedDateRange,
   getRealtimePath,
 } from '@pinpoint-fe/ui/src/utils';
-import { useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import { useLocalStorage, useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { MdArrowBackIosNew, MdArrowForwardIos } from 'react-icons/md';
 import { ServerList } from '@pinpoint-fe/web/src/components/ServerList/ServerList';
 import { RxChevronRight } from 'react-icons/rx';
@@ -30,6 +30,7 @@ import {
   GetServerMap,
   BASE_PATH,
   Configuration,
+  EXPERIMENTAL_CONFIG_KEYS,
 } from '@pinpoint-fe/ui/src/constants';
 import { IoMdClose } from 'react-icons/io';
 import {
@@ -58,7 +59,9 @@ import {
   ApplicationCombinedListProps,
 } from '@pinpoint-fe/ui';
 import { Edge, Node } from '@pinpoint-fe/server-map';
-import { PiTreeStructureDuotone, PiArrowSquareOut } from 'react-icons/pi';
+import { ScatterOrHeatmap } from '@pinpoint-fe/ui/src/components/Heatmap/ScatterOrHeatmap';
+import { PiTreeStructureDuotone, PiArrowSquareOut, PiChartScatterBold } from 'react-icons/pi';
+import { AiOutlineTable } from 'react-icons/ai';
 
 export interface ServermapPageProps {
   authorizationGuideUrl?: string;
@@ -71,6 +74,10 @@ export const ServerMapPage = ({
   configuration,
   ApplicationList = ApplicationCombinedList,
 }: ServermapPageProps) => {
+  const [enableHeatmap] = useLocalStorage(
+    EXPERIMENTAL_CONFIG_KEYS.ENABLE_HEATMAP,
+    configuration?.['experimental.enableHeatmap.value'],
+  );
   const periodMax = configuration?.[`periodMax.serverMap`];
   const periodInterval = configuration?.[`periodInterval.serverMap`];
   const SERVERMAP_CONTAINER_ID = 'server-map-main-container';
@@ -86,6 +93,7 @@ export const ServerMapPage = ({
   const [openServerViewTransitionEnd, setServerViewTransitionEnd] = React.useState(false);
   const [showFilter, setShowFilter] = React.useState(false);
   const [filter, setFilter] = React.useState<FilteredMap.FilterState>();
+  const [chartType, setChartType] = React.useState<'scatter' | 'heatmap'>('scatter'); // scatter
   const scatterData = useAtomValue(scatterDataAtom);
   const { t } = useTranslation();
 
@@ -397,7 +405,7 @@ export const ServerMapPage = ({
                           <>
                             {serverMapCurrentTarget.type === 'node' &&
                             (currentTargetData as GetServerMap.NodeData)?.instanceCount ? (
-                              <div className="flex items-center h-12 py-2.5 px-4">
+                              <div className="flex items-center h-12 py-2.5 px-4 gap-2">
                                 <Button
                                   className="px-2 py-1 text-xs"
                                   variant="outline"
@@ -406,6 +414,30 @@ export const ServerMapPage = ({
                                   {openServerView ? <MdArrowForwardIos /> : <MdArrowBackIosNew />}
                                   <span className="ml-2">VIEW SERVERS</span>
                                 </Button>
+                                {enableHeatmap && (
+                                  <div>
+                                    <Button
+                                      size="icon"
+                                      className="rounded-r-none"
+                                      variant={chartType === 'scatter' ? 'default' : 'outline'}
+                                      onClick={() => {
+                                        setChartType('scatter');
+                                      }}
+                                    >
+                                      <PiChartScatterBold />
+                                    </Button>
+                                    <Button
+                                      size="icon"
+                                      className="rounded-l-none"
+                                      variant={chartType === 'heatmap' ? 'default' : 'outline'}
+                                      onClick={() => {
+                                        setChartType('heatmap');
+                                      }}
+                                    >
+                                      <AiOutlineTable />
+                                    </Button>
+                                  </div>
+                                )}
                                 <InstanceCount
                                   nodeData={currentTargetData as GetServerMap.NodeData}
                                 />
@@ -413,14 +445,24 @@ export const ServerMapPage = ({
                             ) : null}
                             {!shouldHideScatter() && (
                               <>
-                                <div className="w-full p-5 mb-12 aspect-[1.618]">
-                                  <div className="h-7">
-                                    <ApdexScore
+                                {chartType === 'scatter' ? (
+                                  <div className="w-full p-5 mb-12 aspect-[1.618]">
+                                    <div className="h-7">
+                                      <ApdexScore
+                                        nodeData={currentTargetData as GetServerMap.NodeData}
+                                      />
+                                    </div>
+                                    <ScatterChart node={serverMapCurrentTarget} />
+                                  </div>
+                                ) : (
+                                  <div className="w-full p-5 mb-12 aspect-[1.618]">
+                                    <ScatterOrHeatmap
+                                      chartType="heatmap"
+                                      application={serverMapCurrentTarget}
                                       nodeData={currentTargetData as GetServerMap.NodeData}
                                     />
                                   </div>
-                                  <ScatterChart node={serverMapCurrentTarget} />
-                                </div>
+                                )}
                                 <Separator />
                               </>
                             )}
