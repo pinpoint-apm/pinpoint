@@ -20,6 +20,7 @@ import com.pinpoint.test.common.view.ApiLinkPage;
 import com.pinpoint.test.common.view.HrefTag;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.ListenableFuture;
 import org.asynchttpclient.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +35,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 @RestController
 public class NingAsyncHttpClientPluginController {
@@ -86,5 +89,43 @@ public class NingAsyncHttpClientPluginController {
         AsyncHttpClient asyncHttpClient = new DefaultAsyncHttpClient();
         Response response = asyncHttpClient.prepareGet("http://falfjlajdflajflajlf").execute().get();
         return Mono.just(response.getResponseBody());
+    }
+
+    @GetMapping("/client/callback")
+    public Mono<String> clientCallback() throws Exception {
+        AsyncHttpClient asyncHttpClient = new DefaultAsyncHttpClient();
+        ListenableFuture<Response> listenableFuture = asyncHttpClient.prepareGet("http://httpbin.org").execute();
+//        Listener listener = new Listener(listenableFuture);
+
+        Runnable callback = () -> {
+            try {
+                Response response = listenableFuture.get();
+                System.out.println("Response: " + response.getResponseBody());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        };
+        Executor executor = Executors.newSingleThreadExecutor();
+        listenableFuture.addListener(callback, executor);
+
+        return Mono.just("Callback added");
+    }
+
+    class Listener implements Runnable {
+        private final ListenableFuture<Response> future;
+
+        public Listener(ListenableFuture<Response> future) {
+            this.future = future;
+        }
+
+        @Override
+        public void run() {
+            try {
+                Response response = future.get();
+                System.out.println("Response: " + response.getResponseBody());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

@@ -19,6 +19,8 @@ import com.navercorp.pinpoint.bootstrap.config.DumpType;
 import com.navercorp.pinpoint.bootstrap.config.HttpDumpConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
+import java.util.List;
+
 /**
  * @author jaehong.kim
  */
@@ -41,6 +43,7 @@ public class NingAsyncHttpClientPluginConfig {
         DumpType entityDumpType = DumpType.of(config.readString("profiler.ning.asynchttpclient.entity.dumptype"));
         int entityDumpSize = config.readInt("profiler.ning.asynchttpclient.entity.dumpsize", 1024);
         int entitySamplingRate = config.readInt("profiler.ning.asynchttpclient.entity.sampling.rate", 1);
+
         return HttpDumpConfig.get(profileCookie, cookieDumpType, cookieSamplingRate, cookieDumpSize, profileEntity, entityDumpType, entitySamplingRate, entityDumpSize);
     }
 

@@ -32,7 +32,7 @@
         <dependency>
             <groupId>org.asynchttpclient</groupId>
             <artifactId>async-http-client</artifactId>
-            <version>2.12.3</version>
+            <version>3.0.2</version>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>

@@ -15,19 +15,24 @@
  */
 package com.navercorp.pinpoint.plugin.ning.asynchttpclient;
 
-
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.operand.InterfaceInternalNameMatcherOperand;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
-import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
+import com.navercorp.pinpoint.plugin.ning.asynchttpclient.interceptor.AsyncHandlerOnCompletedInterceptor;
+import com.navercorp.pinpoint.plugin.ning.asynchttpclient.interceptor.AsyncHandlerOnStatusReceivedInterceptor;
+import com.navercorp.pinpoint.plugin.ning.asynchttpclient.interceptor.AsyncHandlerOnThrowableInterceptor;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.interceptor.ExecuteInterceptor;
 import com.navercorp.pinpoint.plugin.ning.asynchttpclient.interceptor.ExecuteRequestInterceptor;
 
@@ -39,10 +44,10 @@ import java.security.ProtectionDomain;
  * @author minwoo.jung
  * @author jaehong.kim
  */
-public class NingAsyncHttpClientPlugin implements ProfilerPlugin, TransformTemplateAware {
+public class NingAsyncHttpClientPlugin implements ProfilerPlugin, MatchableTransformTemplateAware {
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
-    private TransformTemplate transformTemplate;
+    private MatchableTransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
@@ -61,6 +66,7 @@ public class NingAsyncHttpClientPlugin implements ProfilerPlugin, TransformTempl
         // 2.x
         logger.debug("Add DefaultAsyncHttpClient(2.x ~");
         addDefaultAsyncHttpClientTransformer();
+        addAsyncHanlderTransformer();
     }
 
     private void addAsyncHttpClientTransformer() {
@@ -73,8 +79,11 @@ public class NingAsyncHttpClientPlugin implements ProfilerPlugin, TransformTempl
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-            final InstrumentMethod executeRequestMethod = InstrumentUtils.findMethod(target, "executeRequest", "com.ning.http.client.Request", "com.ning.http.client.AsyncHandler");
-            executeRequestMethod.addInterceptor(ExecuteRequestInterceptor.class);
+            final InstrumentMethod executeRequestMethod = target.getDeclaredMethod("executeRequest", "com.ning.http.client.Request", "com.ning.http.client.AsyncHandler");
+            if (executeRequestMethod != null) {
+                executeRequestMethod.addInterceptor(ExecuteRequestInterceptor.class);
+            }
+
             return target.toBytecode();
         }
     }
@@ -89,14 +98,46 @@ public class NingAsyncHttpClientPlugin implements ProfilerPlugin, TransformTempl
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-            final InstrumentMethod executeRequestMethod = InstrumentUtils.findMethod(target, "execute", "org.asynchttpclient.Request", "org.asynchttpclient.AsyncHandler");
-            executeRequestMethod.addInterceptor(ExecuteInterceptor.class);
+            final InstrumentMethod executeRequestMethod = target.getDeclaredMethod("execute", "org.asynchttpclient.Request", "org.asynchttpclient.AsyncHandler");
+            if (executeRequestMethod != null) {
+                executeRequestMethod.addInterceptor(ExecuteInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    private void addAsyncHanlderTransformer() {
+        final Matcher matcher = Matchers.newPackageBasedMatcher("org.asynchttpclient", new InterfaceInternalNameMatcherOperand("org.asynchttpclient.AsyncHandler", true));
+        transformTemplate.transform(matcher, AsyncHandlerTransform.class);
+    }
+
+    public static class AsyncHandlerTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(AsyncContextAccessor.class);
+
+            final InstrumentMethod onStatusReceivedMethod = target.getDeclaredMethod("onStatusReceived", "org.asynchttpclient.HttpResponseStatus");
+            if (onStatusReceivedMethod != null) {
+                onStatusReceivedMethod.addInterceptor(AsyncHandlerOnStatusReceivedInterceptor.class);
+            }
+            final InstrumentMethod onThrowableMethod = target.getDeclaredMethod("onThrowable", "java.lang.Throwable");
+            if (onThrowableMethod != null) {
+                onThrowableMethod.addInterceptor(AsyncHandlerOnThrowableInterceptor.class);
+            }
+            final InstrumentMethod onCompletedMethod = target.getDeclaredMethod("onCompleted");
+            if (onCompletedMethod != null) {
+                onCompletedMethod.addInterceptor(AsyncHandlerOnCompletedInterceptor.class);
+            }
+
             return target.toBytecode();
         }
     }
 
     @Override
-    public void setTransformTemplate(TransformTemplate transformTemplate) {
+    public void setTransformTemplate(MatchableTransformTemplate transformTemplate) {
         this.transformTemplate = transformTemplate;
     }
 }

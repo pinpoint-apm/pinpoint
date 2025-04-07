@@ -15,7 +15,9 @@
  */
 package com.navercorp.pinpoint.plugin.ning.asynchttpclient.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.config.HttpDumpConfig;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -100,6 +102,9 @@ public class ExecuteInterceptor implements AroundInterceptor {
 
             final SpanEventRecorder recorder = trace.traceBlockBegin();
             if (trace.canSampled()) {
+                final AsyncContext asyncContext = recorder.recordNextAsyncContext();
+                AsyncContextAccessorUtils.setAsyncContext(asyncContext, args, 1);
+
                 final TraceId nextId = trace.getTraceId().getNextTraceId();
                 recorder.recordNextSpanId(nextId.getSpanId());
                 recorder.recordServiceType(NingAsyncHttpClientConstants.ASYNC_HTTP_CLIENT);
@@ -145,6 +150,11 @@ public class ExecuteInterceptor implements AroundInterceptor {
 
                 recorder.recordApi(descriptor);
                 recorder.recordException(markError, throwable);
+
+                final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 1);
+                if (asyncContext != null) {
+                    AsyncContextAccessorUtils.setAsyncContext(asyncContext, result);
+                }
             }
         } finally {
             trace.traceBlockEnd();
