@@ -20,12 +20,14 @@ package com.navercorp.pinpoint.web.applicationmap.controller;
 import com.navercorp.pinpoint.common.timeseries.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.MapView;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.applicationmap.service.MapService;
 import com.navercorp.pinpoint.web.applicationmap.service.MapServiceOption;
@@ -109,10 +111,95 @@ public class MapController {
      * @param to              to (timestamp)
      * @return MapWrap
      */
+    @GetMapping(value = "/serverMap", params = "serviceTypeCode")
+    public MapView getServerMapData(
+            @RequestParam("applicationName") @NotBlank String applicationName,
+            @RequestParam("serviceTypeCode") int serviceTypeCode,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to,
+            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH, required = false)
+            @Positive int callerRange,
+            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH, required = false)
+            @Positive int calleeRange,
+            @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
+            @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
+            boolean useStatisticsAgentState
+    ) {
+        final Range range = Range.between(from, to);
+        this.rangeValidator.validate(range);
+
+        final SearchOption searchOption = searchOptionBuilder().build(callerRange, calleeRange, bidirectional, wasOnly);
+
+        final Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+
+        final MapServiceOption option = new MapServiceOption
+                .Builder(application, range, searchOption)
+                .setUseStatisticsAgentState(useStatisticsAgentState)
+                .build();
+
+        logger.info("Select applicationMap. option={}", option);
+        final ApplicationMap map = this.mapService.selectApplicationMap(option);
+        TimeWindow timeWindow = new TimeWindow(range);
+        return new MapView(map, timeWindow, MapViews.Basic.class, TimeHistogramFormat.V3);
+    }
+
+    /**
+     * Server map data query within from ~ to timeframe
+     *
+     * @param applicationName applicationName
+     * @param serviceTypeName serviceTypeName
+     * @param from            from (timestamp)
+     * @param to              to (timestamp)
+     * @return MapWrap
+     */
+    @GetMapping(value = "/serverMap", params = "serviceTypeName")
+    public MapView getServerMapData(
+            @RequestParam("applicationName") @NotBlank String applicationName,
+            @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to,
+            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH, required = false)
+            @Positive int callerRange,
+            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH, required = false)
+            @Positive int calleeRange,
+            @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
+            @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
+            boolean useStatisticsAgentState
+    ) {
+        final Range range = Range.between(from, to);
+        this.rangeValidator.validate(range);
+
+        final SearchOption searchOption = searchOptionBuilder().build(callerRange, calleeRange, bidirectional, wasOnly);
+
+        final Application application =
+                applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
+
+        final MapServiceOption option = new MapServiceOption
+                .Builder(application, range, searchOption)
+                .setUseStatisticsAgentState(useStatisticsAgentState)
+                .build();
+
+        logger.info("Select applicationMap. option={}", option);
+        final ApplicationMap map = this.mapService.selectApplicationMap(option);
+        TimeWindow timeWindow = new TimeWindow(range);
+        return new MapView(map, timeWindow, MapViews.Basic.class, TimeHistogramFormat.V3);
+    }
+
+    /**
+     * Server map data query within from ~ to timeframe
+     *
+     * @param applicationName applicationName
+     * @param serviceTypeCode serviceTypeCode
+     * @param from            from (timestamp)
+     * @param to              to (timestamp)
+     * @return MapWrap
+     */
     @GetMapping(value = "/getServerMapDataV2", params = "serviceTypeCode")
     public MapView getServerMapDataV2(
             @RequestParam("applicationName") @NotBlank String applicationName,
-            @RequestParam("serviceTypeCode") short serviceTypeCode,
+            @RequestParam("serviceTypeCode") int serviceTypeCode,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
             @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH, required = false)
@@ -219,7 +306,7 @@ public class MapController {
     @PostMapping(value = "/getResponseTimeHistogramDataV2")
     public NodeHistogramSummaryView postResponseTimeHistogramDataV2(
             @RequestParam("applicationName") @NotBlank String applicationName,
-            @RequestParam("serviceTypeCode") Short serviceTypeCode,
+            @RequestParam("serviceTypeCode") int serviceTypeCode,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
             @RequestBody ApplicationPairs applicationPairs,
@@ -244,7 +331,8 @@ public class MapController {
         final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
 
         TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
-        return new NodeHistogramSummaryView(nodeHistogramSummary, nodeHistogramSummary.getServerGroupList(), format);
+        ServerGroupList serverGroupList = nodeHistogramSummary.getServerGroupList();
+        return new NodeHistogramSummaryView(nodeHistogramSummary, serverGroupList, format);
     }
 
 
@@ -291,7 +379,8 @@ public class MapController {
         final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
 
         final TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
-        return new NodeHistogramSummaryView(nodeHistogramSummary, nodeHistogramSummary.getServerGroupList(), format);
+        ServerGroupList serverGroupList = nodeHistogramSummary.getServerGroupList();
+        return new NodeHistogramSummaryView(nodeHistogramSummary, serverGroupList, format);
     }
 
     private List<Application> toApplications(List<String> applicationNames, List<Short> serviceTypeCodes) {
@@ -349,10 +438,10 @@ public class MapController {
         return this.applicationFactory.createApplication(name, serviceTypeCode);
     }
 
-    @GetMapping(value = "/getServerMapDataV3", params = "serviceTypeCode")
-    public MapView getServerMapDataV3(
+    @GetMapping(value = "/getSimpleServerMapData", params = "serviceTypeCode")
+    public MapView getSimpleServerMapData(
             @RequestParam("applicationName") @NotBlank String applicationName,
-            @RequestParam("serviceTypeCode") short serviceTypeCode,
+            @RequestParam("serviceTypeCode") int serviceTypeCode,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
             @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH)
@@ -375,11 +464,11 @@ public class MapController {
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 
-        return selectApplicationMap(application, mapServiceOption, MapViews.Simplified.class, TimeHistogramFormat.V1);
+        return selectApplicationMap(application, mapServiceOption, MapViews.Simplified.class, TimeHistogramFormat.V2);
     }
 
-    @GetMapping(value = "/getServerMapDataV3", params = "serviceTypeName")
-    public MapView getServerMapDataV3(
+    @GetMapping(value = "/getSimpleServerMapData", params = "serviceTypeName")
+    public MapView getSimpleServerMapData(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
             @RequestParam("from") @PositiveOrZero long from,
@@ -404,6 +493,6 @@ public class MapController {
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 
-        return selectApplicationMap(application, mapServiceOption, MapViews.Simplified.class, TimeHistogramFormat.V1);
+        return selectApplicationMap(application, mapServiceOption, MapViews.Simplified.class, TimeHistogramFormat.V2);
     }
 }

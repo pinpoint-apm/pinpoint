@@ -22,7 +22,9 @@ public class NodeHistogramSummaryView {
 
     private final ServerGroupList serverGroupList;
 
-    public NodeHistogramSummaryView(NodeHistogramSummary nodeHistogramSummary, ServerGroupList serverGroupList, TimeHistogramFormat format) {
+    public NodeHistogramSummaryView(NodeHistogramSummary nodeHistogramSummary,
+                                    ServerGroupList serverGroupList,
+                                    TimeHistogramFormat format) {
         this.nodeHistogramSummary = Objects.requireNonNull(nodeHistogramSummary, "nodeHistogramSummary");
         this.nodeHistogram = nodeHistogramSummary.getNodeHistogram();
 
