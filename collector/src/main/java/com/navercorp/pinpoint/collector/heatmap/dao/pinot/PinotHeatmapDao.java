@@ -49,6 +49,6 @@ public class PinotHeatmapDao implements HeatmapDao {
             return;
         }
         String topic = topicNameManager.getTopicName(heatmapStat.getApplicationName());
-        kafkaHeatmapStatTemplate.send(topic, heatmapStat.getApplicationName(), heatmapStat);
+        kafkaHeatmapStatTemplate.send(topic, heatmapStat.getSortKey(), heatmapStat);
     }
 }

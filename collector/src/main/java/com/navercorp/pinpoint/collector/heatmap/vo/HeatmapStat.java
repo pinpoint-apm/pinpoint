@@ -26,6 +26,7 @@ import java.util.Objects;
  */
 public class HeatmapStat {
 
+    private static final String DEFAULT_SERVICE_NAME = "DEFAULT";
     private final String applicationName;
     private final String agentId;
     private final String sortKey;
@@ -39,8 +40,8 @@ public class HeatmapStat {
         this.eventTime = eventTime;
         this.elapsedTime = (((elapsedTime - 1) / 200) + 1) * 200;
         this.isSuccess = errCode == 0;
-        this.sortKey = HashmapSortKeyUtils.generateKey(applicationName, isSuccess);
-
+        String sortKeyPrefix = DEFAULT_SERVICE_NAME + "#" + applicationName;
+        this.sortKey = HashmapSortKeyUtils.generateKey(sortKeyPrefix, isSuccess);
     }
 
     public String getApplicationName() {

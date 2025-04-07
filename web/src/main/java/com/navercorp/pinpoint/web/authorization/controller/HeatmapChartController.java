@@ -45,6 +45,7 @@ import java.util.Optional;
 public class HeatmapChartController {
 
     private final int MAX_TIMESLOT_COUNT = 30;
+    private final static String DEFAULT_SERVCIE_NAME = "DEFAULT";
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(10000L, MAX_TIMESLOT_COUNT);
     private final HeatmapChartService heatmapChartService;
 
@@ -61,7 +62,7 @@ public class HeatmapChartController {
                                   @RequestParam("maxElapsedTime") @Positive int maxElapsedTime) {
         Range range = Range.between(from, to);
         TimeWindow timeWindow = getTimeWindow(range);
-        HeatMapData heatMapData = heatmapChartService.getHeatmapAppData(applicationName, timeWindow, minElapsedTime, maxElapsedTime);
+        HeatMapData heatMapData = heatmapChartService.getHeatmapAppData(DEFAULT_SERVCIE_NAME, applicationName, timeWindow, minElapsedTime, maxElapsedTime);
         return new HeatMapDataView(heatMapData);
     }
 

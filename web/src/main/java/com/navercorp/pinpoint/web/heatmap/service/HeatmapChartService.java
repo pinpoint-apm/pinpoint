@@ -24,5 +24,5 @@ import com.navercorp.pinpoint.web.heatmap.vo.HeatMapData;
  */
 public interface HeatmapChartService {
 
-    HeatMapData getHeatmapAppData(String applicationName, TimeWindow timeWindow, int minYAxis, int maxYAxis);
+    HeatMapData getHeatmapAppData(String serviceName, String applicationName, TimeWindow timeWindow, int minYAxis, int maxYAxis);
 }
