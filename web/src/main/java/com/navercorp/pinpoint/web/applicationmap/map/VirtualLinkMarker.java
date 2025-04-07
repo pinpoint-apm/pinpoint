@@ -47,8 +47,7 @@ public class VirtualLinkMarker {
         logger.debug("acceptApplicationList:{}", acceptApplicationList);
         for (AcceptApplication acceptApplication : acceptApplicationList) {
             // linkCallData needs to be modified - remove callHistogram on purpose
-            LinkData virtualLinkData = new LinkData(linkData.getFromApplication(), acceptApplication.getApplication());
-            virtualLinkData.setLinkCallDataMap(linkData.getLinkCallDataMap());
+            LinkData virtualLinkData = LinkData.copyOf(linkData.getFromApplication(), acceptApplication.getApplication(), linkData.getLinkCallDataMap());
             virtualLinkDataList.add(virtualLinkData);
             markVirtualLink(virtualLinkData);
         }
