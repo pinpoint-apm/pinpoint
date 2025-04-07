@@ -24,10 +24,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.TreeMap;
 
 /**
  * @author minwoo-jung
@@ -35,10 +36,12 @@ import java.util.TreeMap;
 @Repository
 public class PinotMetricMetaDataDao implements MetricDefinitionDao {
 
-    private static final String NAMESPACE = PinotMetricMetaDataDao.class.getName() + ".";;
+    private static final String NAMESPACE = PinotMetricMetaDataDao.class.getName() + ".";
     private final SqlSessionTemplate syncTemplate;
 
-    public PinotMetricMetaDataDao(@Qualifier("otlpMetricPinotSessionTemplate") SqlSessionTemplate syncTemplate ) {
+    private static final Comparator<MetricGroup> COMPARATOR = Comparator.comparing(MetricGroup::getMetricGroupName);
+
+    public PinotMetricMetaDataDao(@Qualifier("otlpMetricPinotSessionTemplate") SqlSessionTemplate syncTemplate) {
         this.syncTemplate = Objects.requireNonNull(syncTemplate, "syncTemplate");
     }
 
@@ -46,13 +49,20 @@ public class PinotMetricMetaDataDao implements MetricDefinitionDao {
     public List<MetricGroup> getMetricGroupList(String applicationName) {
         List<MetricDescriptor> metricDescriptorList = syncTemplate.selectList(NAMESPACE + "selectMetricDescriptorList", applicationName);
 
-        Map<String, MetricGroup> metricGroupMap = new TreeMap<>();
-
+        final Map<String, MetricGroup> metricGroupMap = new HashMap<>();
         for (MetricDescriptor metricDescriptor : metricDescriptorList) {
-            MetricGroup metricGroup = metricGroupMap.computeIfAbsent(metricDescriptor.metricGroupName(), k -> new MetricGroup(metricDescriptor.metricGroupName()));
+            final String key = metricDescriptor.metricGroupName();
+            MetricGroup metricGroup = metricGroupMap.computeIfAbsent(key, k -> new MetricGroup(key));
             metricGroup.addUniqueMetric(metricDescriptor);
         }
 
-        return new ArrayList<>(metricGroupMap.values());
+        return sortedMetricGroups(metricGroupMap);
+    }
+
+    private List<MetricGroup> sortedMetricGroups(Map<String, MetricGroup> metricGroupMap) {
+        List<MetricGroup> list = new ArrayList<>(metricGroupMap.size());
+        list.addAll(metricGroupMap.values());
+        list.sort(COMPARATOR);
+        return list;
     }
 }
