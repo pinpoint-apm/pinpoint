@@ -52,9 +52,10 @@ public class HeatmapChartServiceImpl implements HeatmapChartService {
     }
 
     @Override
-    public HeatMapData getHeatmapAppData(String applicationName, TimeWindow timeWindow, int minElapsedTime, int maxElapsedTime) {
+    public HeatMapData getHeatmapAppData(String serviceName, String applicationName, TimeWindow timeWindow, int minElapsedTime, int maxElapsedTime) {
         ElapsedTimeBucketInfo elapsedTimeBucketInfo = createElapsedTimeBucketInfo(minElapsedTime, maxElapsedTime);
-        HeatmapSearchKey heatmapSearchKey = new HeatmapSearchKey(applicationName + POSTFIX_SORT_KEY_SUCCESS,
+        String sortKeyPrefix = serviceName + "#" +applicationName;
+        HeatmapSearchKey heatmapSearchKey = new HeatmapSearchKey(sortKeyPrefix + POSTFIX_SORT_KEY_SUCCESS,
                                                                  timeWindow,
                                                                  elapsedTimeBucketInfo.getTimeInterval(),
                                                                  elapsedTimeBucketInfo.getMin(),
@@ -74,7 +75,7 @@ public class HeatmapChartServiceImpl implements HeatmapChartService {
             logger.debug("heatmapCell: {}", heatmapCell);
         }
 
-        heatmapSearchKey = new HeatmapSearchKey(applicationName + POSTFIX_SORT_KEY_FAIL,
+        heatmapSearchKey = new HeatmapSearchKey(sortKeyPrefix + POSTFIX_SORT_KEY_FAIL,
                                                 timeWindow,
                                                 elapsedTimeBucketInfo.getTimeInterval(),
                                                 elapsedTimeBucketInfo.getMin(),

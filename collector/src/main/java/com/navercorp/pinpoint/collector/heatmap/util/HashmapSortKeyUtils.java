@@ -21,19 +21,19 @@ package com.navercorp.pinpoint.collector.heatmap.util;
  */
 public class HashmapSortKeyUtils {
 
-    private static String generateKeySuccessKey(String applicationName) {
-        return applicationName + "#suc";
+    private static String generateKeySuccessKey(String sortKeyPrefix) {
+        return sortKeyPrefix + "#suc";
     }
 
-    private static String generateFailKey(String applicationName) {
-        return applicationName + "#fal";
+    private static String generateFailKey(String sortKeyPrefix) {
+        return sortKeyPrefix + "#fal";
     }
 
-    public static String generateKey(String applicationName, boolean isSuccess) {
+    public static String generateKey(String sortKeyPrefix, boolean isSuccess) {
         if (isSuccess) {
-            return generateKeySuccessKey(applicationName);
+            return generateKeySuccessKey(sortKeyPrefix);
         } else {
-            return generateFailKey(applicationName);
+            return generateFailKey(sortKeyPrefix);
         }
     }
 }

@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.web.heatmap.vo.HeatMapData;
 public class EmptyHeatmapService implements HeatmapChartService {
 
     @Override
-    public HeatMapData getHeatmapAppData(String applicationName, TimeWindow timeWindow, int minYAxis, int maxYAxis) {
+    public HeatMapData getHeatmapAppData(String serviceName, String applicationName, TimeWindow timeWindow, int minYAxis, int maxYAxis) {
         throw new UnsupportedOperationException();
     }
 }
