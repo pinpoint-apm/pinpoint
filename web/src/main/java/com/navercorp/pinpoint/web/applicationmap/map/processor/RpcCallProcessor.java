@@ -84,8 +84,7 @@ public class RpcCallProcessor implements LinkDataMapProcessor {
                     logger.debug("Application info replaced. {} {} => {}", direction, linkData, acceptApplicationList);
 
                     AcceptApplication first = acceptApplicationList.iterator().next();
-                    final LinkData acceptedLinkData = new LinkData(linkData.getFromApplication(), first.getApplication());
-                    acceptedLinkData.setLinkCallDataMap(linkData.getLinkCallDataMap());
+                    final LinkData acceptedLinkData = LinkData.copyOf(linkData.getFromApplication(), first.getApplication(), linkData.getLinkCallDataMap());
                     return Collections.singletonList(acceptedLinkData);
                 } else {
                     // special case - there are more than 2 nodes grouped by a single url
@@ -97,8 +96,7 @@ public class RpcCallProcessor implements LinkDataMapProcessor {
                     return Collections.singletonList(linkData);
                 } else {
                     final Application unknown = new Application(toApplication.getName(), ServiceType.UNKNOWN);
-                    final LinkData unknownLinkData = new LinkData(linkData.getFromApplication(), unknown);
-                    unknownLinkData.setLinkCallDataMap(linkData.getLinkCallDataMap());
+                    final LinkData unknownLinkData = LinkData.copyOf(linkData.getFromApplication(), unknown, linkData.getLinkCallDataMap());
                     return Collections.singletonList(unknownLinkData);
                 }
             }

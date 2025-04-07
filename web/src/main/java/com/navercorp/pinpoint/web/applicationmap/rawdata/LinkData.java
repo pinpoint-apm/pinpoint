@@ -37,6 +37,11 @@ public class LinkData {
     private LinkCallDataMap linkCallDataMap;
     private final TimeWindowFunction timeWindow;
 
+    public static LinkData copyOf(Application fromApplication, Application toApplication, LinkCallDataMap linkCallDataMap) {
+        Objects.requireNonNull(linkCallDataMap, "linkCallDataMap");
+        return new LinkData(fromApplication, toApplication, TimeWindowFunction.identity(), linkCallDataMap);
+    }
+
     public LinkData(Application fromApplication, Application toApplication) {
         this(fromApplication, toApplication, TimeWindowFunction.identity());
     }
@@ -47,6 +52,14 @@ public class LinkData {
 
         this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
         this.linkCallDataMap = new LinkCallDataMap(timeWindow);
+    }
+
+    private LinkData(Application fromApplication, Application toApplication, TimeWindowFunction timeWindow, LinkCallDataMap linkCallDataMap) {
+        this.fromApplication = Objects.requireNonNull(fromApplication, "fromApplication");
+        this.toApplication = Objects.requireNonNull(toApplication, "toApplication");
+
+        this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
+        this.linkCallDataMap = Objects.requireNonNull(linkCallDataMap, "linkCallDataMap");
     }
 
     /**
@@ -66,17 +79,12 @@ public class LinkData {
         this.linkCallDataMap = new LinkCallDataMap(timeWindow);
     }
 
-
     public Application getFromApplication() {
         return this.fromApplication;
     }
 
     public Application getToApplication() {
         return this.toApplication;
-    }
-
-    public void setLinkCallDataMap(LinkCallDataMap linkCallDataMap) {
-        this.linkCallDataMap = linkCallDataMap;
     }
 
     public LinkCallDataMap getLinkCallDataMap() {
