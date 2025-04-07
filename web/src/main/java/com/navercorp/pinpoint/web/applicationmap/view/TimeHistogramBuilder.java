@@ -16,9 +16,10 @@ public class TimeHistogramBuilder {
     }
 
     public List<TimeHistogramViewModel> build(Application application, List<TimeHistogram> histogramList) {
-        if (TimeHistogramFormat.V1 == format) {
-            return new ResponseTimeViewModelBuilder(application, histogramList).build();
-        }
-        return new LoadTimeViewModelBuilder(histogramList).build();
+        return switch (format) {
+            case V1 -> new ResponseTimeViewModelBuilder(application, histogramList).build();
+            case V2 -> new LoadTimeViewModelBuilder(histogramList).build();
+            case V3 -> new TimeseriesHistogramViewModelBuilder(application, histogramList).build();
+        };
     }
 }

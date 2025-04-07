@@ -17,13 +17,27 @@
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
 public enum TimeHistogramFormat {
+    @Deprecated
     V1, // key is slot("1s", "3s", "5s", "Slow", "Error"), value is {timestamp : count}
-    V2; // key is timestamp, value is [1s, 3s, 5s, Slow, Error, Avg, Max, Sum, Tot] - LoadHistogram
+    V2, // key is timestamp, value is [1s, 3s, 5s, Slow, Error, Avg, Max, Sum, Tot] - LoadHistogram
+    V3;
+
 
     public static TimeHistogramFormat format(boolean useLoadHistogramFormat) {
         if (useLoadHistogramFormat) {
             return V2;
         }
         return V1;
+    }
+
+    public static TimeHistogramFormat format(int version) {
+        if (version == 3) {
+            return V3;
+        } else if (version == 2) {
+            return V2;
+        } else if (version == 1) {
+            return V1;
+        }
+        return V2;
     }
 }
