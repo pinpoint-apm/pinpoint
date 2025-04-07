@@ -28,11 +28,13 @@ import java.util.TreeMap;
 public class HeatMapData {
 
     private final HeatmapSize heatmapSize;
+    private final HeatmapSummary heatmapSummary;
 
     private final TreeMap<Long, HeatMapMetricColumn> heatMapMetricColumnMap;
 
-    public HeatMapData(int width, int height, TreeMap<Long, HeatMapMetricColumn> heatMapMetricColumnMap) {
+    public HeatMapData(int width, int height, long totalSuccessCount, long totalFailCount, TreeMap<Long, HeatMapMetricColumn> heatMapMetricColumnMap) {
         this.heatmapSize = new HeatmapSize(width, height);
+        this.heatmapSummary = new HeatmapSummary(totalSuccessCount, totalFailCount);
         this.heatMapMetricColumnMap = Objects.requireNonNull(heatMapMetricColumnMap,"heatMapMetricColumnMap");
     }
 
@@ -46,6 +48,14 @@ public class HeatMapData {
 
     public HeatmapSize getHeatmapSize() {
         return heatmapSize;
+    }
+
+    public HeatmapSummary getHeatmapSummary() {
+        return heatmapSummary;
+    }
+
+    public List<HeatMapMetricColumn> getDescHeatMapMetricColumnList() {
+        return new ArrayList<>(heatMapMetricColumnMap.descendingMap().values());
     }
 
     public String prettyToString() {
@@ -62,9 +72,5 @@ public class HeatMapData {
         sb.append("}");
 
         return sb.toString();
-    }
-
-    public List<HeatMapMetricColumn> getReverseOrderedHeatMapMetricColumnList() {
-        return new ArrayList<>(heatMapMetricColumnMap.descendingMap().values());
     }
 }

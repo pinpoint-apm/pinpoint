@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author minwoo-jung
@@ -54,27 +55,31 @@ public class TimeSeriesBuilder {
             columnNumber--;
         }
 
+        AtomicLong totalSuccessCount = new AtomicLong(0);
         successHeatmapAppData.forEach(heatmapCell -> {
-            HeatMapMetricColumn heatMapMetricColumn = heatMapMetricColumnMap.get(heatmapCell.getTimestamp());
+            HeatMapMetricColumn heatMapMetricColumn = heatMapMetricColumnMap.get(heatmapCell.timestamp());
             if (heatMapMetricColumn != null) {
-                HeatMapMetricCell heatMapMetricCell = heatMapMetricColumn.getHeatMapMetricCell(heatmapCell.getElapsedTime());
+                HeatMapMetricCell heatMapMetricCell = heatMapMetricColumn.getHeatMapMetricCell(heatmapCell.elapsedTime());
                 if (heatMapMetricCell != null) {
-                    heatMapMetricCell.updateSuccessCount(heatmapCell.getCount());
+                    totalSuccessCount.addAndGet(heatmapCell.count());
+                    heatMapMetricCell.updateSuccessCount(heatmapCell.count());
                 }
             }
         });
 
+        AtomicLong totalFailCount = new AtomicLong(0);
         failHeatmapAppData.forEach(heatmapCell -> {
-            HeatMapMetricColumn heatMapMetricColumn = heatMapMetricColumnMap.get(heatmapCell.getTimestamp());
+            HeatMapMetricColumn heatMapMetricColumn = heatMapMetricColumnMap.get(heatmapCell.timestamp());
             if (heatMapMetricColumn != null) {
-                HeatMapMetricCell heatMapMetricCell = heatMapMetricColumn.getHeatMapMetricCell(heatmapCell.getElapsedTime());
+                HeatMapMetricCell heatMapMetricCell = heatMapMetricColumn.getHeatMapMetricCell(heatmapCell.elapsedTime());
                 if (heatMapMetricCell != null) {
-                    heatMapMetricCell.updateFailCount(heatmapCell.getCount());
+                    totalFailCount.addAndGet(heatmapCell.count());
+                    heatMapMetricCell.updateFailCount(heatmapCell.count());
                 }
             }
         });
 
-        return new HeatMapData(timeWindow.getWindowRangeCount(), bucketList.size(), heatMapMetricColumnMap);
+        return new HeatMapData(timeWindow.getWindowRangeCount(), bucketList.size(), totalSuccessCount.get(), totalFailCount.get(), heatMapMetricColumnMap);
     }
 
     protected Map<Integer, HeatMapMetricCell> initHeatmapMetricCellMap() {

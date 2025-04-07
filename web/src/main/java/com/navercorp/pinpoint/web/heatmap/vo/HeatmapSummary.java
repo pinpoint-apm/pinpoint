@@ -19,11 +19,5 @@ package com.navercorp.pinpoint.web.heatmap.vo;
 /**
  * @author minwoo-jung
  */
-public record HeatmapSize(int width, int height) {
-    public String prettyToString(String tab) {
-        return tab + "{" +
-                tab +"width=" + width + ",\n" +
-                tab + tab + "\t\theight=" + height + "\n" +
-                tab + tab + "}";
-    }
+public record HeatmapSummary(long totalSuccessCount, long totalFailCount) {
 }

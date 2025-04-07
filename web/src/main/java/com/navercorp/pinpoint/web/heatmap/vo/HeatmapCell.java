@@ -21,28 +21,10 @@ import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 /**
  * @author minwoo-jung
  */
-public class HeatmapCell {
-
-    private final long timestamp;
-    private final int elapsedTime;
-    private final int count;
+public record HeatmapCell(long timestamp, int elapsedTime, int count) {
 
     public HeatmapCell(long timestamp, double elapsedTime, double count) {
-        this.timestamp = timestamp;
-        this.elapsedTime = (int) elapsedTime;
-        this.count = (int) count;
-    }
-
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public int getElapsedTime() {
-        return elapsedTime;
-    }
-
-    public int getCount() {
-        return count;
+        this(timestamp, (int) elapsedTime, (int) count);
     }
 
     @Override

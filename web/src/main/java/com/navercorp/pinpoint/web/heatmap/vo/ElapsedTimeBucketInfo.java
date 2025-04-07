@@ -22,39 +22,14 @@ import java.util.Objects;
 /**
  * @author minwoo-jung
  */
-public class ElapsedTimeBucketInfo {
-
-    private final int min;
-    private final int max;
-    private final int timeInterval;
-    private final List<Integer> bucketList;
+public record ElapsedTimeBucketInfo(int min, int max, int timeInterval, List<Integer> bucketList) {
 
     public ElapsedTimeBucketInfo(List<Integer> bucketList, int timeInterval) {
-        this.bucketList = Objects.requireNonNull(bucketList,"bucketList");
-        this.min = bucketList.get(0);
-        this.max = bucketList.get(bucketList.size() - 1);
-        this.timeInterval = timeInterval;
-
-    }
-
-    public int getMin() {
-        return min;
-    }
-
-    public int getMax() {
-        return max;
-    }
-
-    public int getTimeInterval() {
-        return timeInterval;
-    }
-
-    public List<Integer> getBucketList() {
-        return bucketList;
+        this(bucketList.get(0), bucketList.get(bucketList.size() - 1), timeInterval, Objects.requireNonNull(bucketList, "bucketList"));
     }
 
     public int findLargestMultipleBelow() {
-        return bucketList.get(bucketList.size() -2);
+        return bucketList.get(bucketList.size() - 2);
     }
 
     @Override
