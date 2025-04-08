@@ -82,6 +82,7 @@ public class GrpcSpanBinder {
         spanBo.setVersion(pSpan.getVersion());
         spanBo.setAgentId(attribute.getAgentId());
         spanBo.setApplicationName(attribute.getApplicationName());
+        spanBo.setAgentName(attribute.getAgentName());
         spanBo.setAgentStartTime(attribute.getAgentStartTime());
         spanBo.setCollectorAcceptTime(attribute.getAcceptedTime());
 
