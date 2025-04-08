@@ -43,7 +43,7 @@ public class SpanEncoderTest {
     private final RandomTSpan randomTSpan = new RandomTSpan();
     private final Random random = new Random();
 
-    private final BindAttribute attribute = new BindAttribute("agentId", "applicationName", () -> ApplicationUid.of(1), 88, spanAcceptedTime);
+    private final BindAttribute attribute = new BindAttribute("agentId", "agentName", "applicationName", () -> ApplicationUid.of(1), 88, spanAcceptedTime);
     private final GrpcSpanBinder grpcSpanBinder = new GrpcSpanBinder();
     private final SpanEventFilter filter = new EmptySpanEventFilter();
     private final GrpcSpanFactory grpcSpanFactory = new CollectorGrpcSpanFactory(grpcSpanBinder, filter);
@@ -138,7 +138,7 @@ public class SpanEncoderTest {
         SpanBo decode = (SpanBo) spanDecoder.decode(qualifier, column, decodingContext);
 
         List<String> notSerializedField = Lists.newArrayList("parentApplicationName", "parentApplicationServiceType");
-        List<String> excludeField = List.of("annotationBoList", "spanEventBoList");
+        List<String> excludeField = List.of("annotationBoList", "spanEventBoList", "agentName");
         notSerializedField.addAll(excludeField);
         Assertions.assertThat(decode)
                 .usingRecursiveComparison()

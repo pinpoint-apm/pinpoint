@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 
 public class BindAttribute {
     private final String agentId;
+    private final String agentName;
     private final String applicationName;
     private final Supplier<ApplicationUid> applicationUid;
 
@@ -15,11 +16,13 @@ public class BindAttribute {
     private final long acceptedTime;
 
     public BindAttribute(String agentId,
+                         String agentName,
                          String applicationName,
                          Supplier<ApplicationUid> applicationUid,
                          long agentStartTime,
                          long acceptedTime) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
+        this.agentName = agentName;
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.applicationUid = Objects.requireNonNull(applicationUid, "applicationUid");
         this.agentStartTime = agentStartTime;
@@ -32,6 +35,10 @@ public class BindAttribute {
 
     public String getAgentId() {
         return this.agentId;
+    }
+
+    public String getAgentName() {
+        return agentName;
     }
 
     public String getApplicationName() {
