@@ -17,11 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.view;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -46,16 +42,6 @@ public class ResponseTimeViewModel implements TimeHistogramViewModel {
     @JsonProperty("values")
     public List<TimeCount> getColumnValue() {
         return columnValue;
-    }
-
-    public static class TimeCountSerializer extends JsonSerializer<TimeCount> {
-        @Override
-        public void serialize(TimeCount count, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-            jgen.writeStartArray();
-            jgen.writeNumber(count.time());
-            jgen.writeNumber(count.count());
-            jgen.writeEndArray();
-        }
     }
 
 }
