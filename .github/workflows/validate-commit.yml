@@ -16,9 +16,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Validate commit messages
         run: |
-          MSG=$(git show -s --format=%s)
-          echo "Commit message: $MSG"
-          commit_msg=$(git log -1 --pretty=%B | head -n 1)
+          commit_msg=$(git show -s --format=%s)
           commit_regex='^\[#(noissue|[0-9]+?)\].*'
           error_msg="Commit message does not follow the Conventional Commits format:
               [#issue-number] messge
