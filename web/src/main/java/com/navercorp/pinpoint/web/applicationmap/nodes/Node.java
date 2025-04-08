@@ -16,12 +16,9 @@
 
 package com.navercorp.pinpoint.web.applicationmap.nodes;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApdexScore;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
-import com.navercorp.pinpoint.web.view.NodeSerializer;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.Objects;
@@ -33,7 +30,6 @@ import java.util.Objects;
  * @author emeroad
  * @author HyunGil Jeong
  */
-@JsonSerialize(using = NodeSerializer.class)
 public class Node {
 
     private final Application application;
@@ -44,7 +40,6 @@ public class Node {
     private NodeHistogram nodeHistogram;
 
     private boolean authorized = true;
-    private TimeHistogramFormat timeHistogramFormat = TimeHistogramFormat.V1;
 
     public Node(Application application) {
         this.application = Objects.requireNonNull(application, "application");
@@ -99,14 +94,6 @@ public class Node {
 
     public void setAuthorized(boolean authorized) {
         this.authorized = authorized;
-    }
-
-    public TimeHistogramFormat getTimeHistogramFormat() {
-        return timeHistogramFormat;
-    }
-
-    public void setTimeHistogramFormat(TimeHistogramFormat timeHistogramFormat) {
-        this.timeHistogramFormat = timeHistogramFormat;
     }
 
     @Override

@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.common.timeseries.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
-import com.navercorp.pinpoint.web.applicationmap.MapWrap;
+import com.navercorp.pinpoint.web.applicationmap.MapView;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
@@ -112,7 +112,7 @@ public class MapController {
      */
     @GetMapping(value = "/getServerMapDataV2", params = "serviceTypeCode")
     @JsonView(MapViews.Basic.class)
-    public MapWrap getServerMapDataV2(
+    public MapView getServerMapDataV2(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeCode") short serviceTypeCode,
             @RequestParam("from") @PositiveOrZero long from,
@@ -140,7 +140,8 @@ public class MapController {
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 
-        return selectApplicationMap(application, option, useLoadHistogramFormat);
+        TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        return selectApplicationMap(application, option, format);
     }
 
     /**
@@ -154,7 +155,7 @@ public class MapController {
      */
     @GetMapping(value = "/getServerMapDataV2", params = "serviceTypeName")
     @JsonView(MapViews.Basic.class)
-    public MapWrap getServerMapDataV2(
+    public MapView getServerMapDataV2(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
             @RequestParam("from") @PositiveOrZero long from,
@@ -183,13 +184,14 @@ public class MapController {
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 
-        return selectApplicationMap(application, option, useLoadHistogramFormat);
+        TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        return selectApplicationMap(application, option, format);
     }
 
-    private MapWrap selectApplicationMap(
+    private MapView selectApplicationMap(
             Application application,
             MapServiceOption mapServiceOption,
-            boolean useLoadHistogramFormat
+            TimeHistogramFormat format
     ) {
         Objects.requireNonNull(application, "application");
         Objects.requireNonNull(mapServiceOption, "mapServiceOption");
@@ -197,8 +199,7 @@ public class MapController {
         logger.info("Select applicationMap. option={}", mapServiceOption);
         final ApplicationMap map = this.mapService.selectApplicationMap(mapServiceOption);
 
-        TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
-        return new MapWrap(map, format);
+        return new MapView(map, format);
     }
 
     @GetMapping(value = "/getResponseTimeHistogramData", params = "serviceTypeName")
@@ -352,7 +353,7 @@ public class MapController {
 
     @GetMapping(value = "/getServerMapDataV3", params = "serviceTypeCode")
     @JsonView({MapViews.Simplified.class})
-    public MapWrap getServerMapDataV3(
+    public MapView getServerMapDataV3(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeCode") short serviceTypeCode,
             @RequestParam("from") @PositiveOrZero long from,
@@ -377,12 +378,12 @@ public class MapController {
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 
-        return selectApplicationMap(application, mapServiceOption, false);
+        return selectApplicationMap(application, mapServiceOption, TimeHistogramFormat.V1);
     }
 
     @GetMapping(value = "/getServerMapDataV3", params = "serviceTypeName")
     @JsonView({MapViews.Simplified.class})
-    public MapWrap getServerMapDataV3(
+    public MapView getServerMapDataV3(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
             @RequestParam("from") @PositiveOrZero long from,
@@ -407,6 +408,6 @@ public class MapController {
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 
-        return selectApplicationMap(application, mapServiceOption, false);
+        return selectApplicationMap(application, mapServiceOption, TimeHistogramFormat.V1);
     }
 }

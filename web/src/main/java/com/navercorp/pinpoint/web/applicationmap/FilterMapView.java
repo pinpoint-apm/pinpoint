@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.web.applicationmap;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
-import com.navercorp.pinpoint.web.applicationmap.link.Link;
-import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.view.FilteredHistogramView;
 import com.navercorp.pinpoint.web.applicationmap.view.ScatterDataMapView;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
@@ -32,30 +30,25 @@ import java.util.Objects;
 /**
  * @author emeroad
  */
-public class FilterMapWrap {
+public class FilterMapView {
     private final ApplicationMap applicationMap;
+    private final TimeHistogramFormat format;
     private Long lastFetchedTimestamp;
     private boolean filteredHistogram = false;
 
     private Map<Application, ScatterData> scatterDataMap;
 
-    public FilterMapWrap(ApplicationMap applicationMap, TimeHistogramFormat timeHistogramFormat) {
+    public FilterMapView(ApplicationMap applicationMap, TimeHistogramFormat format) {
         this.applicationMap = Objects.requireNonNull(applicationMap, "applicationMap");
-
-        for (Node node : applicationMap.getNodes()) {
-            node.setTimeHistogramFormat(timeHistogramFormat);
-        }
-        for (Link link : applicationMap.getLinks()) {
-            link.setTimeHistogramFormat(timeHistogramFormat);
-        }
+        this.format = Objects.requireNonNull(format, "format");
     }
 
     public void setLastFetchedTimestamp(Long lastFetchedTimestamp) {
         this.lastFetchedTimestamp = lastFetchedTimestamp;
     }
 
-    public ApplicationMap getApplicationMapData() {
-        return applicationMap;
+    public ApplicationMapView getApplicationMapData() {
+        return new ApplicationMapView(applicationMap, format);
     }
 
     public Long getLastFetchedTimestamp() {

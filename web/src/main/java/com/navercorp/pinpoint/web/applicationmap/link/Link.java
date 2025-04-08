@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.applicationmap.link;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.server.util.json.JsonFields;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -32,7 +31,6 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramViewModel;
-import com.navercorp.pinpoint.web.view.LinkSerializer;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.Application;
 
@@ -49,7 +47,6 @@ import java.util.Set;
  * @author emeroad
  * @author HyunGil Jeong
  */
-@JsonSerialize(using = LinkSerializer.class)
 public class Link {
 
     // specifies who created the link.
@@ -110,9 +107,6 @@ public class Link {
         return LinkName.of(fromNode.getApplication(), toNode.getApplication());
     }
 
-    public TimeHistogramFormat getTimeHistogramFormat() {
-        return timeHistogramFormat;
-    }
 
     public void setTimeHistogramFormat(TimeHistogramFormat timeHistogramFormat) {
         this.timeHistogramFormat = timeHistogramFormat;
@@ -168,17 +162,17 @@ public class Link {
         return outLinkList.mergeHistogram(toNode.getServiceType());
     }
 
-    public List<TimeHistogramViewModel> getLinkApplicationTimeSeriesHistogram() {
+    public List<TimeHistogramViewModel> getLinkApplicationTimeSeriesHistogram(TimeHistogramFormat format) {
         if (direction == LinkDirection.IN_LINK) {
-            return getSourceApplicationTimeSeriesHistogram();
+            return getSourceApplicationTimeSeriesHistogram(format);
         } else {
-            return getTargetApplicationTimeSeriesHistogram();
+            return getTargetApplicationTimeSeriesHistogram(format);
         }
     }
 
-    public List<TimeHistogramViewModel> getSourceApplicationTimeSeriesHistogram() {
+    public List<TimeHistogramViewModel> getSourceApplicationTimeSeriesHistogram(TimeHistogramFormat format) {
         ApplicationTimeHistogram histogramData = getSourceApplicationTimeSeriesHistogramData();
-        return histogramData.createViewModel(this.timeHistogramFormat);
+        return histogramData.createViewModel(format);
     }
 
     private ApplicationTimeHistogram getSourceApplicationTimeSeriesHistogramData() {
@@ -187,9 +181,9 @@ public class Link {
         return builder.build(inLink.getLinkDataList());
     }
 
-    public List<TimeHistogramViewModel> getTargetApplicationTimeSeriesHistogram() {
+    public List<TimeHistogramViewModel> getTargetApplicationTimeSeriesHistogram(TimeHistogramFormat format) {
         ApplicationTimeHistogram targetApplicationTimeHistogramData = getTargetApplicationTimeSeriesHistogramData();
-        return targetApplicationTimeHistogramData.createViewModel(this.timeHistogramFormat);
+        return targetApplicationTimeHistogramData.createViewModel(format);
     }
 
     public ApplicationTimeHistogram getTargetApplicationTimeSeriesHistogramData() {

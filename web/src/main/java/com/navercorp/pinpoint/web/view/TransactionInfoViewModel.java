@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
-import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapView;
 import com.navercorp.pinpoint.web.applicationmap.SimpleApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
@@ -156,18 +156,11 @@ public class TransactionInfoViewModel {
     }
 
     @JsonProperty("applicationMapData")
-    public ApplicationMap getApplicationMapData() {
+    public ApplicationMapView getApplicationMapData() {
 
-        if (timeHistogramFormat == TimeHistogramFormat.V2) {
-            for (Node node : nodes) {
-                node.setTimeHistogramFormat(timeHistogramFormat);
-            }
-            for (Link link : links) {
-                link.setTimeHistogramFormat(timeHistogramFormat);
-            }
-        }
+        SimpleApplicationMap map = new SimpleApplicationMap(nodes, links);
 
-        return new SimpleApplicationMap(nodes, links);
+        return new ApplicationMapView(map, timeHistogramFormat);
     }
 
     enum Field {

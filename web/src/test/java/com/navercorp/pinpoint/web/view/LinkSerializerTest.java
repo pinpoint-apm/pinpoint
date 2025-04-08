@@ -22,11 +22,13 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
+import com.navercorp.pinpoint.web.applicationmap.view.LinkView;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -51,8 +53,9 @@ public class LinkSerializerTest {
 
         Link link = new Link(LinkDirection.IN_LINK, node1, node2, Range.between(0, 1));
         ObjectWriter objectWriter = MAPPER.writerWithDefaultPrettyPrinter();
-        String s = objectWriter.writeValueAsString(link);
+        LinkView linkView = new LinkView(link, TimeHistogramFormat.V1);
+        String s = objectWriter.writeValueAsString(linkView);
 
-        logger.debug(s);
+        logger.debug("{}", s);
     }
 }
