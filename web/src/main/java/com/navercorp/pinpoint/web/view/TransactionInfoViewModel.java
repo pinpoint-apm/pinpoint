@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.web.applicationmap.ApplicationMapView;
 import com.navercorp.pinpoint.web.applicationmap.SimpleApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
+import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.calltree.span.TraceState;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
@@ -51,12 +52,13 @@ public class TransactionInfoViewModel {
     private final TraceState.State completeState;
 
     private final LogLinkView logLinkView;
-    private TimeHistogramFormat timeHistogramFormat = TimeHistogramFormat.V1;
+    private final TimeHistogramFormat timeHistogramFormat;
 
     public TransactionInfoViewModel(TransactionId transactionId, long spanId,
                                     Collection<Node> nodes, Collection<Link> links,
                                     RecordSet recordSet, TraceState.State state,
-                                    LogLinkView logLinkView) {
+                                    LogLinkView logLinkView,
+                                    TimeHistogramFormat timeHistogramFormat) {
         this.transactionId = transactionId;
         this.spanId = spanId;
         this.nodes = Objects.requireNonNullElseGet(nodes, Collections::emptyList);
@@ -65,10 +67,7 @@ public class TransactionInfoViewModel {
         this.recordSet = recordSet;
         this.completeState = state;
         this.logLinkView = Objects.requireNonNull(logLinkView, "logLinkView");
-    }
-
-    public void setTimeHistogramFormat(TimeHistogramFormat timeHistogramFormat) {
-        this.timeHistogramFormat = timeHistogramFormat;
+        this.timeHistogramFormat = Objects.requireNonNull(timeHistogramFormat, "timeHistogramFormat");
     }
 
     @JsonProperty("uri")
@@ -160,7 +159,7 @@ public class TransactionInfoViewModel {
 
         SimpleApplicationMap map = new SimpleApplicationMap(nodes, links);
 
-        return new ApplicationMapView(map, timeHistogramFormat);
+        return new ApplicationMapView(map, MapViews.Detailed.class, timeHistogramFormat);
     }
 
     enum Field {

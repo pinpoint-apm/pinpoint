@@ -17,7 +17,6 @@
 
 package com.navercorp.pinpoint.web.applicationmap.controller;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import com.navercorp.pinpoint.common.timeseries.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
@@ -111,7 +110,6 @@ public class MapController {
      * @return MapWrap
      */
     @GetMapping(value = "/getServerMapDataV2", params = "serviceTypeCode")
-    @JsonView(MapViews.Basic.class)
     public MapView getServerMapDataV2(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeCode") short serviceTypeCode,
@@ -141,7 +139,7 @@ public class MapController {
                 .build();
 
         TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
-        return selectApplicationMap(application, option, format);
+        return selectApplicationMap(application, option, MapViews.Basic.class, format);
     }
 
     /**
@@ -154,7 +152,6 @@ public class MapController {
      * @return MapWrap
      */
     @GetMapping(value = "/getServerMapDataV2", params = "serviceTypeName")
-    @JsonView(MapViews.Basic.class)
     public MapView getServerMapDataV2(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
@@ -185,12 +182,13 @@ public class MapController {
                 .build();
 
         TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
-        return selectApplicationMap(application, option, format);
+        return selectApplicationMap(application, option, MapViews.Basic.class, format);
     }
 
     private MapView selectApplicationMap(
             Application application,
             MapServiceOption mapServiceOption,
+            Class<?> activeView,
             TimeHistogramFormat format
     ) {
         Objects.requireNonNull(application, "application");
@@ -199,7 +197,7 @@ public class MapController {
         logger.info("Select applicationMap. option={}", mapServiceOption);
         final ApplicationMap map = this.mapService.selectApplicationMap(mapServiceOption);
 
-        return new MapView(map, format);
+        return new MapView(map, activeView, format);
     }
 
     @GetMapping(value = "/getResponseTimeHistogramData", params = "serviceTypeName")
@@ -352,7 +350,6 @@ public class MapController {
     }
 
     @GetMapping(value = "/getServerMapDataV3", params = "serviceTypeCode")
-    @JsonView({MapViews.Simplified.class})
     public MapView getServerMapDataV3(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeCode") short serviceTypeCode,
@@ -378,11 +375,10 @@ public class MapController {
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 
-        return selectApplicationMap(application, mapServiceOption, TimeHistogramFormat.V1);
+        return selectApplicationMap(application, mapServiceOption, MapViews.Simplified.class, TimeHistogramFormat.V1);
     }
 
     @GetMapping(value = "/getServerMapDataV3", params = "serviceTypeName")
-    @JsonView({MapViews.Simplified.class})
     public MapView getServerMapDataV3(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
@@ -408,6 +404,6 @@ public class MapController {
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 
-        return selectApplicationMap(application, mapServiceOption, TimeHistogramFormat.V1);
+        return selectApplicationMap(application, mapServiceOption, MapViews.Simplified.class, TimeHistogramFormat.V1);
     }
 }

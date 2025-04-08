@@ -26,15 +26,21 @@ import java.util.Objects;
 @JsonSerialize(using = LinkView.LinkViewSerializer.class)
 public class LinkView {
     private final Link link;
+    private final Class<?> activeView;
     private final TimeHistogramFormat format;
 
-    public LinkView(Link link, TimeHistogramFormat format) {
+    public LinkView(Link link, Class<?> activeView, TimeHistogramFormat format) {
         this.link = Objects.requireNonNull(link, "link");
+        this.activeView = Objects.requireNonNull(activeView, "activeView");
         this.format = Objects.requireNonNull(format, "format");
     }
 
     private Link getLink() {
         return link;
+    }
+
+    public Class<?> getActiveView() {
+        return activeView;
     }
 
     private TimeHistogramFormat getFormat() {
@@ -82,7 +88,7 @@ public class LinkView {
 
 
             jgen.writeObjectField("histogram", histogram);
-            final Class<?> activeView = LinkViews.getActiveView(provider);
+            final Class<?> activeView = linkView.getActiveView();
             //time histogram
             if (!LinkViews.Simplified.inView(activeView)){
                 writeTimeSeriesHistogram(link, linkView.getFormat(), jgen);

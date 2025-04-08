@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
+import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
@@ -53,7 +54,7 @@ public class LinkSerializerTest {
 
         Link link = new Link(LinkDirection.IN_LINK, node1, node2, Range.between(0, 1));
         ObjectWriter objectWriter = MAPPER.writerWithDefaultPrettyPrinter();
-        LinkView linkView = new LinkView(link, TimeHistogramFormat.V1);
+        LinkView linkView = new LinkView(link, MapViews.Basic.class, TimeHistogramFormat.V1);
         String s = objectWriter.writeValueAsString(linkView);
 
         logger.debug("{}", s);

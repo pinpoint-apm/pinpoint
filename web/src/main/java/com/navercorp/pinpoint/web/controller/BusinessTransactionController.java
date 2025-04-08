@@ -128,18 +128,16 @@ public class BusinessTransactionController {
         final RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
 
 
-        final TransactionInfoViewModel result = newTransactionInfo(spanId, transactionId, spanResult, map, recordSet);
-
         TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
-        result.setTimeHistogramFormat(format);
-        return result;
+        return newTransactionInfo(spanId, transactionId, spanResult, map, recordSet, format);
     }
 
     private TransactionInfoViewModel newTransactionInfo(long spanId,
                                                         TransactionId transactionId,
                                                         SpanResult spanResult,
                                                         ApplicationMap map,
-                                                        RecordSet recordSet) {
+                                                        RecordSet recordSet,
+                                                        TimeHistogramFormat format) {
         final LogLinkView logLinkView = logLinkBuilder.build(
                 transactionId,
                 spanId,
@@ -154,7 +152,8 @@ public class BusinessTransactionController {
                 map.getLinks(),
                 recordSet,
                 spanResult.traceState(),
-                logLinkView
+                logLinkView,
+                format
         );
     }
 
