@@ -27,15 +27,21 @@ import java.util.Objects;
 @JsonSerialize(using = NodeView.NodeViewSerializer.class)
 public class NodeView {
     private final Node node;
+    private final Class<?> activeView;
     private final TimeHistogramFormat format;
 
-    public NodeView(Node node, TimeHistogramFormat format) {
+    public NodeView(Node node, Class<?> activeView, TimeHistogramFormat format) {
         this.node = Objects.requireNonNull(node, "node");
+        this.activeView = Objects.requireNonNull(activeView, "activeView");
         this.format = Objects.requireNonNull(format, "format");
     }
 
     private Node getNode() {
         return node;
+    }
+
+    public Class<?> getActiveView() {
+        return activeView;
     }
 
     private TimeHistogramFormat getFormat() {
@@ -75,20 +81,21 @@ public class NodeView {
             jgen.writeBooleanField("isAuthorized", node.isAuthorized());
 
             writeHistogram(nodeView, jgen, provider);
-            writeServerGroupList(jgen, node, provider);
+            writeServerGroupList(nodeView, jgen, provider);
 
             jgen.writeEndObject();
         }
 
 
-        private void writeServerGroupList(JsonGenerator jgen, Node node, SerializerProvider provider) throws IOException {
+        private void writeServerGroupList(NodeView nodeView, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+            final Node node = nodeView.getNode();
             ServerGroupList serverGroupList = node.getServerGroupList();
             if (node.getServiceType().isUnknown()) {
                 serverGroupList = null;
             }
 
             final String agentIdNameMapKey = "agentIdNameMap";
-            final Class<?> activeView = NodeViews.getActiveView(provider);
+            final Class<?> activeView = nodeView.getActiveView();
             if (serverGroupList == null) {
                 jgen.writeNumberField("instanceCount", 0);
                 jgen.writeNumberField("instanceErrorCount", 0);
@@ -133,7 +140,7 @@ public class NodeView {
             final Node node = nodeView.getNode();
             final ServiceType serviceType = node.getServiceType();
             final NodeHistogram nodeHistogram = node.getNodeHistogram();
-            final Class<?> activeView = NodeViews.getActiveView(provider);
+            final Class<?> activeView = nodeView.getActiveView();
 
             // FIXME isn't this all ServiceTypes that can be a node?
             if (serviceType.isWas() || serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isUser() || serviceType.isQueue() || serviceType.isAlias()) {

@@ -17,7 +17,6 @@
 
 package com.navercorp.pinpoint.web.applicationmap.nodes;
 
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.util.json.JsonViewUtils;
 
 public interface NodeViews {
@@ -40,12 +39,4 @@ public interface NodeViews {
         }
     }
 
-
-    static Class<?> getActiveView(SerializerProvider provider) {
-        final Class<?> activeView = provider.getActiveView();
-        if (activeView != null) {
-            return activeView;
-        }
-        return NodeViews.Detailed.class;
-    }
 }

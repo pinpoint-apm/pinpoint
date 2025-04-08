@@ -28,15 +28,17 @@ import java.util.Objects;
 @JsonInclude(content = JsonInclude.Include.NON_NULL)
 public class MapView {
     private final ApplicationMap applicationMap;
-    private final TimeHistogramFormat format;
+    private final Class<?> activeView;
+    private final TimeHistogramFormat timeHistogramFormat;
 
-    public MapView(ApplicationMap applicationMap, final TimeHistogramFormat format) {
+    public MapView(ApplicationMap applicationMap, Class<?> activeView, final TimeHistogramFormat timeHistogramFormat) {
         this.applicationMap = applicationMap;
-        this.format = Objects.requireNonNull(format, "format");
+        this.activeView = Objects.requireNonNull(activeView, "activeView");
+        this.timeHistogramFormat = Objects.requireNonNull(timeHistogramFormat, "timeHistogramFormat");
     }
 
     @JsonProperty("applicationMapData")
     public ApplicationMapView getApplicationMap() {
-        return new ApplicationMapView(this.applicationMap, format);
+        return new ApplicationMapView(this.applicationMap, activeView, timeHistogramFormat);
     }
 }

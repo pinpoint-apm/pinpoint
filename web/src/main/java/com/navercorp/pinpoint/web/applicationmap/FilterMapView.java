@@ -32,15 +32,17 @@ import java.util.Objects;
  */
 public class FilterMapView {
     private final ApplicationMap applicationMap;
-    private final TimeHistogramFormat format;
+    private final Class<?> activeView;
+    private final TimeHistogramFormat timeHistogramFormat;
     private Long lastFetchedTimestamp;
     private boolean filteredHistogram = false;
 
     private Map<Application, ScatterData> scatterDataMap;
 
-    public FilterMapView(ApplicationMap applicationMap, TimeHistogramFormat format) {
+    public FilterMapView(ApplicationMap applicationMap, Class<?> activeView, TimeHistogramFormat timeHistogramFormat) {
         this.applicationMap = Objects.requireNonNull(applicationMap, "applicationMap");
-        this.format = Objects.requireNonNull(format, "format");
+        this.activeView = Objects.requireNonNull(activeView, "activeView");
+        this.timeHistogramFormat = Objects.requireNonNull(timeHistogramFormat, "timeHistogramFormat");
     }
 
     public void setLastFetchedTimestamp(Long lastFetchedTimestamp) {
@@ -48,7 +50,7 @@ public class FilterMapView {
     }
 
     public ApplicationMapView getApplicationMapData() {
-        return new ApplicationMapView(applicationMap, format);
+        return new ApplicationMapView(applicationMap, activeView, timeHistogramFormat);
     }
 
     public Long getLastFetchedTimestamp() {
