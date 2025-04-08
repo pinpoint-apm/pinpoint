@@ -1,6 +1,12 @@
 import { Separator } from '../ui/separator';
-import { useGetApdexScore, UseGetApdexScoreProps } from '@pinpoint-fe/ui/src/hooks';
+import {
+  useGetApdexScore,
+  UseGetApdexScoreProps,
+  useGetApplicationList,
+} from '@pinpoint-fe/ui/src/hooks';
 import { HelpPopover } from '..';
+import { ApplicationType, GetServerMap } from '@pinpoint-fe/ui/src/constants';
+import React from 'react';
 
 export interface ApdexScoreFetcherProps extends UseGetApdexScoreProps {}
 
@@ -20,7 +26,39 @@ const RankColorClassNameMap: { [key: string]: string } = {
 };
 
 export const ApdexScoreFetcher = (props: ApdexScoreFetcherProps) => {
-  const { data } = useGetApdexScore(props);
+  const serviceTypeCode = props?.nodeData?.serviceTypeCode;
+  const { data: applicationListData } = useGetApplicationList(!serviceTypeCode);
+
+  const params = React.useMemo(() => {
+    if (serviceTypeCode) {
+      return props;
+    }
+
+    if (applicationListData) {
+      const code = applicationListData.find(
+        (appData: ApplicationType) =>
+          appData?.applicationName === props?.nodeData?.applicationName &&
+          appData?.serviceType === props?.nodeData?.serviceType,
+      )?.code;
+
+      if (!code) {
+        return {};
+      }
+
+      return {
+        ...props,
+        nodeData: {
+          ...props.nodeData,
+          serviceTypeCode: code,
+        },
+      };
+    }
+
+    return {};
+  }, [props, serviceTypeCode, applicationListData]);
+
+  const { data } = useGetApdexScore(params as UseGetApdexScoreProps);
+
   const score = data?.apdexScore || 0;
   const getRank = () => {
     if (score >= 0.94) {
@@ -50,15 +88,15 @@ export const ApdexScoreFetcher = (props: ApdexScoreFetcherProps) => {
             <>
               <div className="flex flex-col gap-3 p-4 pt-2.5 text-xs">
                 <div className="text-center">
-                  <span>{data?.apdexFormula.satisfiedCount}</span>
+                  <span>{data?.apdexFormula?.satisfiedCount || 0}</span>
                   <span>{` + [ `}</span>
-                  <span>{data?.apdexFormula.toleratingCount}</span>
+                  <span>{data?.apdexFormula?.toleratingCount || 0}</span>
                   <span>{` / `}</span>
                   <span>{` 2 `}</span>
                   <span>{` ] `}</span>
                 </div>
                 <Separator />
-                <div className="text-center">{data?.apdexFormula.totalSamples}</div>
+                <div className="text-center">{data?.apdexFormula?.totalSamples || 0}</div>
               </div>
             </>
           }

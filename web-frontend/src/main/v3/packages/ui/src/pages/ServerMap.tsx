@@ -150,10 +150,7 @@ export const ServerMapPage = ({
   }, [serverMapData]);
 
   const shouldHideScatter = React.useCallback(() => {
-    if (!currentTargetData) {
-      return true;
-    }
-    return !(currentTargetData && (currentTargetData as GetServerMap.NodeData)?.isWas);
+    return currentTargetData && !(currentTargetData as GetServerMap.NodeData)?.isWas;
   }, [currentTargetData]);
 
   const handleChangeDateRagePicker = React.useCallback(
@@ -374,167 +371,175 @@ export const ServerMapPage = ({
                 </>
               )}
             </div>
-            {({ currentPanelWidth, SERVER_LIST_WIDTH, resizeHandleWidth }) =>
-              serverMapCurrentTarget && (
-                <>
-                  <ChartsBoard
-                    nodeData={
-                      (currentTargetData as GetServerMap.NodeData)?.isAuthorized === false
-                        ? undefined
-                        : (currentTargetData as GetServerMap.NodeData)
-                    }
-                    header={
-                      <ChartsBoardHeader
-                        currentTarget={openServerView ? null : serverMapCurrentTarget}
-                      />
-                    }
-                    emptyMessage={t('COMMON.NO_DATA')}
-                  >
-                    {serverMapCurrentTarget.nodes ||
-                    serverMapCurrentTarget.edges ||
-                    currentTargetData === undefined ||
-                    serverMapCurrentTarget.type === 'edge' ||
-                    (currentTargetData as GetServerMap.NodeData)?.isAuthorized ? (
-                      <>
-                        {serverMapCurrentTarget.nodes || serverMapCurrentTarget.edges ? (
-                          <MergedServerSearchList
-                            list={getClickedMergedNodeList(serverMapCurrentTarget)}
-                            onClickItem={handleClickMergedItem}
-                          />
-                        ) : (
-                          <>
-                            {serverMapCurrentTarget.type === 'node' &&
-                            (currentTargetData as GetServerMap.NodeData)?.instanceCount ? (
-                              <div className="flex items-center h-12 py-2.5 px-4 gap-2">
-                                <Button
-                                  className="px-2 py-1 text-xs"
-                                  variant="outline"
-                                  onClick={() => setOpenServerView(!openServerView)}
-                                >
-                                  {openServerView ? <MdArrowForwardIos /> : <MdArrowBackIosNew />}
-                                  <span className="ml-2">VIEW SERVERS</span>
-                                </Button>
-                                {enableHeatmap && (
-                                  <div>
-                                    <Button
-                                      size="icon"
-                                      className="rounded-r-none"
-                                      variant={chartType === 'scatter' ? 'default' : 'outline'}
-                                      onClick={() => {
-                                        setChartType('scatter');
-                                      }}
-                                    >
-                                      <PiChartScatterBold />
-                                    </Button>
-                                    <Button
-                                      size="icon"
-                                      className="rounded-l-none"
-                                      variant={chartType === 'heatmap' ? 'default' : 'outline'}
-                                      onClick={() => {
-                                        setChartType('heatmap');
-                                      }}
-                                    >
-                                      <AiOutlineTable />
-                                    </Button>
-                                  </div>
-                                )}
-                                <InstanceCount
-                                  nodeData={currentTargetData as GetServerMap.NodeData}
-                                />
-                              </div>
-                            ) : null}
-                            {!shouldHideScatter() && (
-                              <>
-                                {chartType === 'scatter' ? (
-                                  <div className="w-full p-5 mb-12 aspect-[1.618]">
-                                    <div className="h-7">
-                                      <ApdexScore
-                                        nodeData={currentTargetData as GetServerMap.NodeData}
-                                      />
-                                    </div>
-                                    <ScatterChart node={serverMapCurrentTarget} />
-                                  </div>
-                                ) : (
-                                  <div className="w-full p-5 mb-12 aspect-[1.618]">
-                                    <ScatterOrHeatmap
-                                      chartType="heatmap"
-                                      application={serverMapCurrentTarget}
-                                      nodeData={currentTargetData as GetServerMap.NodeData}
-                                    />
-                                  </div>
-                                )}
-                                <Separator />
-                              </>
-                            )}
-                          </>
-                        )}
-                      </>
-                    ) : (
-                      <div className="flex justify-center pt-24 font-semibold text-status-fail">
-                        <a href={authorizationGuideUrl} target="_blank">
-                          You don't have authorization.
-                          {authorizationGuideUrl && <PiArrowSquareOut />}
-                        </a>
-                      </div>
-                    )}
-                  </ChartsBoard>
-                  <Drawer
-                    open={openServerView}
-                    getContainer={`#${SERVERMAP_CONTAINER_ID}`}
-                    contentWrapperStyle={{
-                      width: currentPanelWidth + SERVER_LIST_WIDTH,
-                      right: currentPanelWidth + resizeHandleWidth,
-                    }}
-                    afterOpenChange={(openChange) => setServerViewTransitionEnd(openChange)}
-                    onClose={() => setOpenServerView(false)}
-                  >
-                    <div style={{ width: SERVER_LIST_WIDTH }}>
-                      <div className="flex items-center h-12 gap-1 font-semibold border-b-1 shrink-0">
-                        <img src={serverMapCurrentTarget?.imgPath} width={52} />
-                        <div className="truncate">{serverMapCurrentTarget?.applicationName}</div>
-                      </div>
-                      <ServerList disableFetch={!openServerView} />
-                    </div>
-                    <div style={{ width: currentPanelWidth }}>
-                      <ServerChartsBoard
-                        header={
-                          <div className="flex items-center h-12 gap-1 font-semibold border-b-1 shrink-0">
-                            <div className="flex items-center">
-                              <RxChevronRight />
-                            </div>
-                            {currentServer?.agentId}
-                          </div>
-                        }
-                        disableFetch={!openServerView && !openServerViewTransitionEnd}
-                        nodeData={currentTargetData as GetServerMap.NodeData}
-                      >
-                        {!shouldHideScatter() && application && (
-                          <>
-                            <div className="w-full p-5 mb-12 aspect-[1.618]">
-                              <div className="h-7">
-                                {currentServer?.agentId && (
-                                  <ApdexScore
-                                    nodeData={currentTargetData as GetServerMap.NodeData}
-                                    agentId={currentServer?.agentId}
-                                  />
-                                )}
-                              </div>
-                              <ScatterChartStatic
-                                application={serverMapCurrentTarget!}
-                                data={scatterData.acc[currentServer?.agentId || '']}
-                                range={[dateRange.from.getTime(), dateRange.to.getTime()]}
-                                selectedAgentId={currentServer?.agentId || ''}
+            {({ currentPanelWidth, SERVER_LIST_WIDTH, resizeHandleWidth }) => (
+              <>
+                <ChartsBoard
+                  nodeData={
+                    (currentTargetData as GetServerMap.NodeData)?.isAuthorized === false
+                      ? undefined
+                      : (currentTargetData as GetServerMap.NodeData)
+                  }
+                  header={
+                    <ChartsBoardHeader
+                      currentTarget={
+                        openServerView
+                          ? null
+                          : serverMapCurrentTarget || {
+                              ...application,
+                              type: 'node',
+                            }
+                      }
+                    />
+                  }
+                  emptyMessage={t('COMMON.NO_DATA')}
+                >
+                  {serverMapCurrentTarget?.nodes ||
+                  serverMapCurrentTarget?.edges ||
+                  currentTargetData === undefined ||
+                  serverMapCurrentTarget?.type === 'edge' ||
+                  (currentTargetData as GetServerMap.NodeData)?.isAuthorized ? (
+                    <>
+                      {serverMapCurrentTarget?.nodes || serverMapCurrentTarget?.edges ? (
+                        <MergedServerSearchList
+                          list={getClickedMergedNodeList(serverMapCurrentTarget)}
+                          onClickItem={handleClickMergedItem}
+                        />
+                      ) : (
+                        <>
+                          {serverMapCurrentTarget?.type === 'node' &&
+                          (currentTargetData as GetServerMap.NodeData)?.instanceCount ? (
+                            <div className="flex items-center h-12 py-2.5 px-4 gap-2">
+                              <Button
+                                className="px-2 py-1 text-xs"
+                                variant="outline"
+                                onClick={() => setOpenServerView(!openServerView)}
+                              >
+                                {openServerView ? <MdArrowForwardIos /> : <MdArrowBackIosNew />}
+                                <span className="ml-2">VIEW SERVERS</span>
+                              </Button>
+                              {enableHeatmap && (
+                                <div>
+                                  <Button
+                                    size="icon"
+                                    className="rounded-r-none"
+                                    variant={chartType === 'scatter' ? 'default' : 'outline'}
+                                    onClick={() => {
+                                      setChartType('scatter');
+                                    }}
+                                  >
+                                    <PiChartScatterBold />
+                                  </Button>
+                                  <Button
+                                    size="icon"
+                                    className="rounded-l-none"
+                                    variant={chartType === 'heatmap' ? 'default' : 'outline'}
+                                    onClick={() => {
+                                      setChartType('heatmap');
+                                    }}
+                                    disabled={true}
+                                  >
+                                    <AiOutlineTable />
+                                  </Button>
+                                </div>
+                              )}
+                              <InstanceCount
+                                nodeData={currentTargetData as GetServerMap.NodeData}
                               />
                             </div>
-                            <Separator />
-                          </>
-                        )}
-                      </ServerChartsBoard>
+                          ) : null}
+                          {!shouldHideScatter() && (
+                            <>
+                              {chartType === 'scatter' ? (
+                                <div className="w-full p-5 mb-12 aspect-[1.618]">
+                                  <div className="h-7">
+                                    <ApdexScore
+                                      nodeData={
+                                        (currentTargetData as GetServerMap.NodeData) || application
+                                      }
+                                    />
+                                  </div>
+                                  <ScatterChart node={serverMapCurrentTarget || application} />
+                                </div>
+                              ) : (
+                                <div className="w-full p-5 mb-12 aspect-[1.618]">
+                                  <ScatterOrHeatmap
+                                    chartType="heatmap"
+                                    application={serverMapCurrentTarget || application}
+                                    nodeData={currentTargetData as GetServerMap.NodeData}
+                                  />
+                                </div>
+                              )}
+                              <Separator />
+                            </>
+                          )}
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <div className="flex justify-center pt-24 font-semibold text-status-fail">
+                      <a href={authorizationGuideUrl} target="_blank">
+                        You don't have authorization.
+                        {authorizationGuideUrl && <PiArrowSquareOut />}
+                      </a>
                     </div>
-                  </Drawer>
-                </>
-              )
-            }
+                  )}
+                </ChartsBoard>
+                <Drawer
+                  open={openServerView}
+                  getContainer={`#${SERVERMAP_CONTAINER_ID}`}
+                  contentWrapperStyle={{
+                    width: currentPanelWidth + SERVER_LIST_WIDTH,
+                    right: currentPanelWidth + resizeHandleWidth,
+                  }}
+                  afterOpenChange={(openChange) => setServerViewTransitionEnd(openChange)}
+                  onClose={() => setOpenServerView(false)}
+                >
+                  <div style={{ width: SERVER_LIST_WIDTH }}>
+                    <div className="flex items-center h-12 gap-1 font-semibold border-b-1 shrink-0">
+                      <img src={serverMapCurrentTarget?.imgPath} width={52} />
+                      <div className="truncate">{serverMapCurrentTarget?.applicationName}</div>
+                    </div>
+                    <ServerList disableFetch={!openServerView} />
+                  </div>
+                  <div style={{ width: currentPanelWidth }}>
+                    <ServerChartsBoard
+                      header={
+                        <div className="flex items-center h-12 gap-1 font-semibold border-b-1 shrink-0">
+                          <div className="flex items-center">
+                            <RxChevronRight />
+                          </div>
+                          {currentServer?.agentId}
+                        </div>
+                      }
+                      disableFetch={!openServerView && !openServerViewTransitionEnd}
+                      nodeData={currentTargetData as GetServerMap.NodeData}
+                    >
+                      {!shouldHideScatter() && application && (
+                        <>
+                          <div className="w-full p-5 mb-12 aspect-[1.618]">
+                            <div className="h-7">
+                              {currentServer?.agentId && (
+                                <ApdexScore
+                                  nodeData={currentTargetData as GetServerMap.NodeData}
+                                  agentId={currentServer?.agentId}
+                                />
+                              )}
+                            </div>
+                            <ScatterChartStatic
+                              application={serverMapCurrentTarget!}
+                              data={scatterData.acc[currentServer?.agentId || '']}
+                              range={[dateRange.from.getTime(), dateRange.to.getTime()]}
+                              selectedAgentId={currentServer?.agentId || ''}
+                            />
+                          </div>
+                          <Separator />
+                        </>
+                      )}
+                    </ServerChartsBoard>
+                  </div>
+                </Drawer>
+              </>
+            )}
           </LayoutWithHorizontalResizable>
         </div>
       )}

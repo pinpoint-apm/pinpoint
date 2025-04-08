@@ -168,7 +168,7 @@ export const LayoutWithSideNavigation = ({
       <Tooltip>
         <TooltipTrigger asChild>{trigger}</TooltipTrigger>
         <TooltipContent side="right" className={cn({ hidden: !collapsed })}>
-          <p>{content}</p>
+          {content}
         </TooltipContent>
       </Tooltip>
     );
