@@ -188,6 +188,14 @@ public class ASMClassNodeAdapter {
         return findDeclaredMethod(methodName, desc);
     }
 
+    public List<ASMMethodNodeAdapter> getDeclaredMethod(final String methodName) {
+        if (this.skipCode) {
+            throw new IllegalStateException("not supported operation, skipCode option is true.");
+        }
+        
+        return findDeclaredMethod(methodName);
+    }
+
     public List<ASMMethodNodeAdapter> getDeclaredConstructors() {
         if (this.skipCode) {
             throw new IllegalStateException("not supported operation, skipCode option is true.");
