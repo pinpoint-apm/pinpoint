@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
+import com.navercorp.pinpoint.web.applicationmap.FilterMapView;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWithScatter;
-import com.navercorp.pinpoint.web.applicationmap.FilterMapWrap;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeViews;
@@ -77,7 +77,7 @@ public class FilteredMapController {
 
     @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroup", params = "serviceTypeCode")
     @JsonView({MapViews.Detailed.class})
-    public FilterMapWrap getFilteredServerMapDataMadeOfDotGroup(
+    public FilterMapView getFilteredServerMapDataMadeOfDotGroup(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeCode") short serviceTypeCode,
             @RequestParam("from") @PositiveOrZero long from,
@@ -114,7 +114,7 @@ public class FilteredMapController {
 
     @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroup", params = "serviceTypeName")
     @JsonView({MapViews.Detailed.class})
-    public FilterMapWrap getFilteredServerMapDataMadeOfDotGroup(
+    public FilterMapView getFilteredServerMapDataMadeOfDotGroup(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
             @RequestParam("from") @PositiveOrZero long from,
@@ -156,7 +156,7 @@ public class FilteredMapController {
         }
 
         TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
-        final FilterMapWrap mapWrap = new FilterMapWrap(map, format);
+        final FilterMapView mapWrap = new FilterMapView(map, format);
         mapWrap.setLastFetchedTimestamp(lastScanTime);
         mapWrap.setScatterDataMap(scatter.getScatterDataMap());
         return mapWrap;
@@ -164,7 +164,7 @@ public class FilteredMapController {
 
 
     @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroupV3", params = "serviceTypeCode")
-    public FilterMapWrap getFilteredServerMapDataMadeOfDotGroupV3(
+    public FilterMapView getFilteredServerMapDataMadeOfDotGroupV3(
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam("serviceTypeCode") short serviceTypeCode,
             @RequestParam("from") @PositiveOrZero long from,
@@ -194,7 +194,7 @@ public class FilteredMapController {
 
     @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroupV3", params = "serviceTypeName")
     @JsonView({NodeViews.Simplified.class})
-    public FilterMapWrap getFilteredServerMapDataMadeOfDotGroupV3(
+    public FilterMapView getFilteredServerMapDataMadeOfDotGroupV3(
             @RequestParam("applicationName") String applicationName,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
             @RequestParam("from") long from,
@@ -235,7 +235,7 @@ public class FilteredMapController {
             logger.debug("getFilteredServerMapData range scan(limit:{}) range:{} lastFetchedTimestamp:{}", limit, range.prettyToString(), DateTimeFormatUtils.format(lastScanTime));
         }
 
-        FilterMapWrap mapWrap = new FilterMapWrap(map.getApplicationMap(), TimeHistogramFormat.V1);
+        FilterMapView mapWrap = new FilterMapView(map.getApplicationMap(), TimeHistogramFormat.V1);
         mapWrap.setLastFetchedTimestamp(lastScanTime);
         mapWrap.setFilteredHistogram(true);
         mapWrap.setScatterDataMap(map.getScatterDataMap());

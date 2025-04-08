@@ -110,6 +110,8 @@ public class FilteredMapServiceImplTest {
     // Mocked
     private final ServiceTypeRegistryService registry = TestTraceUtils.mockServiceTypeRegistryService();
 
+    TimeHistogramFormat format = TimeHistogramFormat.V1;
+
     @Spy
     private ApplicationMapBuilderFactory applicationMapBuilderFactory = new ApplicationMapBuilderFactory(
             new NodeHistogramAppenderFactory(executor),
@@ -220,7 +222,7 @@ public class FilteredMapServiceImplTest {
                         new TimeCount(timeWindow.refineTimestamp(rootSpanCollectorAcceptTime), 1)
                 );
 
-                List<TimeHistogramViewModel> applicationTimeHistogram = getApplicationTimeHistogram(nodeHistogram, node.getTimeHistogramFormat());
+                List<TimeHistogramViewModel> applicationTimeHistogram = getApplicationTimeHistogram(nodeHistogram, format);
                 assertTimeHistogram(applicationTimeHistogram, histogramSchema.getFastSlot(), expectedTimeCounts);
                 JsonFields<AgentNameView, List<TimeHistogramViewModel>> agentTimeHistogram = getAgentTimeHistogram(nodeHistogram);
 //                AgentResponseTimeViewModelList agentTimeHistogram = agentTimeHistogram;
@@ -238,7 +240,7 @@ public class FilteredMapServiceImplTest {
                 List<TimeCount> expectedTimeCounts = List.of(
                         new TimeCount(timeWindow.refineTimestamp(rootSpanCollectorAcceptTime), 1)
                 );
-                List<TimeHistogramViewModel> applicationTimeHistogram = getApplicationTimeHistogram(nodeHistogram, node.getTimeHistogramFormat());
+                List<TimeHistogramViewModel> applicationTimeHistogram = getApplicationTimeHistogram(nodeHistogram, format);
                 assertTimeHistogram(applicationTimeHistogram, histogramSchema.getFastSlot(), expectedTimeCounts);
                 JsonFields<AgentNameView, List<TimeHistogramViewModel>> agentTimeHistogram = getAgentTimeHistogram(nodeHistogram);
 //                AgentResponseTimeViewModelList agentTimeHistogram = nodeHistogram.getAgentTimeHistogram(TimeHistogramFormat.V1);
@@ -256,7 +258,7 @@ public class FilteredMapServiceImplTest {
                 List<TimeCount> expectedTimeCounts = List.of(
                         new TimeCount(timeWindow.refineTimestamp(appASpanCollectorAcceptTime), 1)
                 );
-                List<TimeHistogramViewModel> applicationTimeHistogram = getApplicationTimeHistogram(nodeHistogram, node.getTimeHistogramFormat());
+                List<TimeHistogramViewModel> applicationTimeHistogram = getApplicationTimeHistogram(nodeHistogram, format);
                 assertTimeHistogram(applicationTimeHistogram, histogramSchema.getFastSlot(), expectedTimeCounts);
                 JsonFields<AgentNameView, List<TimeHistogramViewModel>> agentTimeHistogram = getAgentTimeHistogram(nodeHistogram);
 //                AgentResponseTimeViewModelList agentTimeHistogram = nodeHistogram.getAgentTimeHistogram(TimeHistogramFormat.V1);
@@ -274,7 +276,7 @@ public class FilteredMapServiceImplTest {
                 List<TimeCount> expectedTimeCounts = List.of(
                         new TimeCount(timeWindow.refineTimestamp(appASpanStartTime + cacheStartElapsed), 1)
                 );
-                List<TimeHistogramViewModel> applicationTimeHistogram = getApplicationTimeHistogram(nodeHistogram, node.getTimeHistogramFormat());
+                List<TimeHistogramViewModel> applicationTimeHistogram = getApplicationTimeHistogram(nodeHistogram, format);
                 assertTimeHistogram(applicationTimeHistogram, histogramSchema.getNormalSlot(), expectedTimeCounts);
                 JsonFields<AgentNameView, List<TimeHistogramViewModel>> agentTimeHistogram = getAgentTimeHistogram(nodeHistogram);
 //                AgentResponseTimeViewModelList agentTimeHistogram = nodeHistogram.getAgentTimeHistogram(TimeHistogramFormat.V1);
@@ -295,7 +297,7 @@ public class FilteredMapServiceImplTest {
                 Histogram histogram = link.getHistogram();
                 assertHistogram(histogram, 1, 0, 0, 0, 0);
                 // time histogram
-                List<TimeHistogramViewModel> linkApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram();
+                List<TimeHistogramViewModel> linkApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram(format);
                 HistogramSchema targetHistogramSchema = toApplication.getServiceType().getHistogramSchema();
                 List<TimeCount> expectedTimeCounts = List.of(
                         new TimeCount(timeWindow.refineTimestamp(rootSpanCollectorAcceptTime), 1)
@@ -307,7 +309,7 @@ public class FilteredMapServiceImplTest {
                 Histogram histogram = link.getHistogram();
                 assertHistogram(histogram, 1, 0, 0, 0, 0);
                 // time histogram
-                List<TimeHistogramViewModel> linkApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram();
+                List<TimeHistogramViewModel> linkApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram(format);
                 HistogramSchema targetHistogramSchema = toApplication.getServiceType().getHistogramSchema();
                 List<TimeCount> expectedTimeCounts = List.of(
                         new TimeCount(timeWindow.refineTimestamp(appASpanCollectorAcceptTime), 1)
@@ -320,7 +322,7 @@ public class FilteredMapServiceImplTest {
                 Histogram histogram = link.getHistogram();
                 assertHistogram(histogram, 0, 1, 0, 0, 0);
                 // time histogram
-                List<TimeHistogramViewModel> linkApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram();
+                List<TimeHistogramViewModel> linkApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram(format);
                 HistogramSchema targetHistogramSchema = toApplication.getServiceType().getHistogramSchema();
                 List<TimeCount> expectedTimeCounts = List.of(
                         new TimeCount(timeWindow.refineTimestamp(appASpanStartTime + cacheStartElapsed), 1)

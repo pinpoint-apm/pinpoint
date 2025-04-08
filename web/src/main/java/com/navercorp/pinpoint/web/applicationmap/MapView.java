@@ -19,31 +19,24 @@ package com.navercorp.pinpoint.web.applicationmap;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
-import com.navercorp.pinpoint.web.applicationmap.link.Link;
-import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
+
+import java.util.Objects;
 
 /**
  * @author emeroad
  */
 @JsonInclude(content = JsonInclude.Include.NON_NULL)
-public class MapWrap {
+public class MapView {
     private final ApplicationMap applicationMap;
+    private final TimeHistogramFormat format;
 
-    public MapWrap(ApplicationMap applicationMap, final TimeHistogramFormat timeHistogramFormat) {
+    public MapView(ApplicationMap applicationMap, final TimeHistogramFormat format) {
         this.applicationMap = applicationMap;
-        if (timeHistogramFormat == TimeHistogramFormat.V2) {
-            for(Node node : applicationMap.getNodes()) {
-                node.setTimeHistogramFormat(timeHistogramFormat);
-            }
-            for(Link link : applicationMap.getLinks()) {
-                link.setTimeHistogramFormat(timeHistogramFormat);
-            }
-        }
+        this.format = Objects.requireNonNull(format, "format");
     }
 
     @JsonProperty("applicationMapData")
-    public ApplicationMap getApplicationMap() {
-        return applicationMap;
+    public ApplicationMapView getApplicationMap() {
+        return new ApplicationMapView(this.applicationMap, format);
     }
-
 }
