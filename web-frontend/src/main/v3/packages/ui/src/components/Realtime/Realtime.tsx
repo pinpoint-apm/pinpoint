@@ -25,7 +25,7 @@ import {
   serverMapCurrentTargetDataAtom,
   serverMapDataAtom,
 } from '@pinpoint-fe/ui/src/atoms';
-import { APP_SETTING_KEYS, GetServerMap } from '@pinpoint-fe/ui/src/constants';
+import { APP_SETTING_KEYS, ApplicationType, GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import { getServerImagePath } from '@pinpoint-fe/ui/src/utils';
 
 export interface RealtimeProps {}
@@ -52,11 +52,13 @@ export const Realtime = () => {
   }, [application?.applicationName, application?.serviceType]);
 
   const shouldHideScatter = React.useCallback(() => {
-    if (!currentTargetData) {
+    if (serverMapData && !currentTargetData) {
       return true;
     }
-    return !(currentTargetData && (currentTargetData as GetServerMap.NodeData)?.isWas);
-  }, [currentTargetData]);
+    return (
+      serverMapData && !(currentTargetData && (currentTargetData as GetServerMap.NodeData)?.isWas)
+    );
+  }, [serverMapData, currentTargetData]);
 
   const handleClickMergedItem: MergedServerSearchListProps['onClickItem'] = (nodeData) => {
     const { key, applicationName, serviceType } = nodeData;
@@ -115,37 +117,52 @@ export const Realtime = () => {
           borderLeftWidth: resizeHandleWidth,
         }}
       >
-        {serverMapCurrentTarget && (
-          <ChartsBoard
-            nodeData={currentTargetData?.isAuthorized === false ? undefined : currentTargetData}
-            emptyMessage={t('COMMON.NO_DATA')}
-            header={<ChartsBoardHeader currentTarget={serverMapCurrentTarget} />}
-          >
-            {serverMapCurrentTarget.nodes || serverMapCurrentTarget.edges ? (
-              <MergedServerSearchList
-                list={getClickedMergedNodeList(serverMapCurrentTarget)}
-                onClickItem={handleClickMergedItem}
-              />
-            ) : (
-              <>
+        <ChartsBoard
+          nodeData={currentTargetData?.isAuthorized === false ? undefined : currentTargetData}
+          emptyMessage={t('COMMON.NO_DATA')}
+          header={
+            <ChartsBoardHeader
+              currentTarget={
+                serverMapCurrentTarget || {
+                  ...application,
+                  type: 'node',
+                }
+              }
+            />
+          }
+        >
+          {serverMapCurrentTarget?.nodes || serverMapCurrentTarget?.edges ? (
+            <MergedServerSearchList
+              list={getClickedMergedNodeList(serverMapCurrentTarget)}
+              onClickItem={handleClickMergedItem}
+            />
+          ) : (
+            <>
+              {(currentTargetData as GetServerMap.NodeData)?.instanceCount && (
                 <div className="flex items-center h-12 py-2.5 px-4">
                   <InstanceCount className="ml-auto" nodeData={currentTargetData} />
                 </div>
-                {!shouldHideScatter() && isFocus && (
-                  <>
-                    <div className="w-full p-5 mb-12 aspect-[1.618]">
-                      <div className="h-7">
-                        <ApdexScore shouldPoll={true} nodeData={currentTargetData}></ApdexScore>
-                      </div>
-                      <ScatterChart node={serverMapCurrentTarget} realtime={true} />
+              )}
+              {!shouldHideScatter() && isFocus && (
+                <>
+                  <div className="w-full p-5 mb-12 aspect-[1.618]">
+                    <div className="h-7">
+                      <ApdexScore
+                        shouldPoll={true}
+                        nodeData={currentTargetData || application}
+                      ></ApdexScore>
                     </div>
-                    <Separator />
-                  </>
-                )}
-              </>
-            )}
-          </ChartsBoard>
-        )}
+                    <ScatterChart
+                      node={serverMapCurrentTarget || (application as ApplicationType)}
+                      realtime={true}
+                    />
+                  </div>
+                  <Separator />
+                </>
+              )}
+            </>
+          )}
+        </ChartsBoard>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { SCATTER_DATA_TOTAL_KEY, BASE_PATH } from '@pinpoint-fe/ui/src/constants';
+import { SCATTER_DATA_TOTAL_KEY, BASE_PATH, ApplicationType } from '@pinpoint-fe/ui/src/constants';
 import { CurrentTarget } from '@pinpoint-fe/ui/src/atoms';
 import {
   convertParamsToQueryString,

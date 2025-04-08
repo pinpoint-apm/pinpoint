@@ -40,28 +40,28 @@ export const HeatmapFetcher = React.forwardRef(
       maxElapsedTime: Number(y[1]),
       agentId: agentId,
     });
-    // const { data, isLoading } = useGetHeatmapAppData(parameters);
+    const { data, isLoading } = useGetHeatmapAppData(parameters);
 
     // console.log('search', searchParameters, 'parameters', parameters);
-    // console.log('data', data);
+    console.log('data', data);
 
-    // React.useEffect(() => {
-    //   setParameters({
-    //     applicationName: application?.applicationName,
-    //     from: dateRange.from.getTime(),
-    //     to: dateRange.to.getTime(),
-    //     minElapsedTime: Number(y[0]),
-    //     maxElapsedTime: Number(y[1]),
-    //     agentId: agentId,
-    //   });
-    // }, [
-    //   dateRange.from.getTime(),
-    //   dateRange.to.getTime(),
-    //   y[0],
-    //   y[1],
-    //   application?.applicationName,
-    //   agentId,
-    // ]);
+    React.useEffect(() => {
+      setParameters({
+        applicationName: application?.applicationName,
+        from: dateRange.from.getTime(),
+        to: dateRange.to.getTime(),
+        minElapsedTime: Number(y[0]),
+        maxElapsedTime: Number(y[1]),
+        agentId: agentId,
+      });
+    }, [
+      dateRange.from.getTime(),
+      dateRange.to.getTime(),
+      y[0],
+      y[1],
+      application?.applicationName,
+      agentId,
+    ]);
 
     async function handleCaptureImage() {
       if (!chartRef.current) {
@@ -87,8 +87,8 @@ export const HeatmapFetcher = React.forwardRef(
       <div className="relative w-full h-full">
         <HeatmapChartCore
           ref={chartRef}
-          isLoading={false}
-          data={mockData}
+          isLoading={isLoading}
+          data={data}
           setting={{
             yMin: y[0],
             yMax: y[1],

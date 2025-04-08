@@ -66,6 +66,7 @@ export const useGetServerMapDataV2 = ({
   ]);
 
   const query = shouldPoll ? useQuery : useSuspenseQuery;
+
   const { data, isLoading } = query({
     queryKey: [END_POINTS.SERVER_MAP_DATA_V2, queryString],
     queryFn: !!queryString ? queryFn(`${END_POINTS.SERVER_MAP_DATA_V2}${queryString}`) : () => null,

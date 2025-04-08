@@ -38,23 +38,25 @@ export const useGetApdexScore = ({ nodeData, shouldPoll, agentId }: UseGetApdexS
   });
 
   React.useEffect(() => {
-    if (nodeData) {
-      setQueryParams((prev) => ({
-        ...prev,
-        applicationName: nodeData?.applicationName,
-        serviceTypeCode: nodeData?.serviceTypeCode,
-        from: from,
-        to: to,
-        agentId,
-      }));
-    }
+    setQueryParams((prev) => ({
+      ...prev,
+      applicationName: nodeData?.applicationName,
+      serviceTypeCode: nodeData?.serviceTypeCode,
+      from: from,
+      to: to,
+      agentId,
+    }));
   }, [nodeData, from, to, agentId]);
   const queryString = getQueryString(queryParams);
 
   const query = shouldPoll ? useQuery : useSuspenseQuery;
   const { data, isLoading } = query({
     queryKey: [END_POINTS.APDEX_SCORE, queryString],
-    queryFn: queryFn(`${END_POINTS.APDEX_SCORE}${queryString}`),
+    queryFn: !queryString
+      ? () => {
+          return null;
+        }
+      : queryFn(`${END_POINTS.APDEX_SCORE}${queryString}`),
     gcTime: shouldPoll ? 0 : 30000,
     staleTime: shouldPoll ? 0 : 30000,
     placeholderData: shouldPoll ? keepPreviousData : undefined,
