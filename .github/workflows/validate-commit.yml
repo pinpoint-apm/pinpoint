@@ -13,8 +13,11 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+          ref: ${{ github.event.after }}
       - name: Validate commit messages
         run: |
+          MSG=$(git log --format=%B -n 1 ${{github.event.after}})
+          echo "Commit message: $MSG"
           commit_msg=$(git log -1 --pretty=%B | head -n 1)
           commit_regex='^\[#(noissue|[0-9]+?)\].*'
           error_msg="Commit message does not follow the Conventional Commits format:
