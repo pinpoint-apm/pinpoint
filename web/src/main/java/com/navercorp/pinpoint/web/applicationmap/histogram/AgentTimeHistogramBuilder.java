@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.applicationmap.histogram;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowDownSampler;
-import com.navercorp.pinpoint.common.trace.SlotType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
@@ -100,11 +99,6 @@ public class AgentTimeHistogramBuilder {
         }
 
         return resultAgentHistogramList;
-    }
-
-
-    public long getCount(TimeHistogram timeHistogram, SlotType slotType) {
-        return timeHistogram.getCount(slotType);
     }
 
 
