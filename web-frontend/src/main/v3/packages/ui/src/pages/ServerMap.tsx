@@ -436,7 +436,6 @@ export const ServerMapPage = ({
                                     onClick={() => {
                                       setChartType('heatmap');
                                     }}
-                                    disabled={true}
                                   >
                                     <AiOutlineTable />
                                   </Button>
