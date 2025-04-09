@@ -69,7 +69,7 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping(path = {"/api", "/api/servermap"})
 @Validated
 public class MapController {
     private final Logger logger = LogManager.getLogger(this.getClass());
