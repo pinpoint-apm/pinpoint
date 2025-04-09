@@ -55,7 +55,7 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping(path = { "/api", "/api/filteredmap"})
 @Validated
 public class FilteredMapController {
     private final Logger logger = LogManager.getLogger(this.getClass());
