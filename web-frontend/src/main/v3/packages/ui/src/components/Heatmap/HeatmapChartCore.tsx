@@ -11,7 +11,7 @@ import {
 } from 'echarts/components';
 import { ECharts, EChartsOption } from 'echarts';
 import { colors, GetHeatmapAppData } from '@pinpoint-fe/ui/src/constants';
-import { capitalize, debounce } from 'lodash';
+import { capitalize, debounce, max } from 'lodash';
 import { defaultTickFormatter } from '@pinpoint-fe/ui/src/components/ReChart';
 import { HeatmapSettingType } from './HeatmapSetting';
 
@@ -26,16 +26,29 @@ echarts.use([
 
 echarts.use([HeatmapChartEcharts, CanvasRenderer]);
 
+const colorSteps = 10;
 export const HeatmapColor = {
-  success: '#34b994',
-  failed: '#eb4748',
-  selected: 'blue',
+  success: Array.from({ length: colorSteps }, (_, i) => {
+    return colors.green[(i + 1) * 100 === 1000 ? 950 : (i + 1) * 100];
+  }),
+  fail: Array.from({ length: colorSteps }, (_, i) => {
+    return colors.red[(i + 1) * 100 === 1000 ? 950 : (i + 1) * 100];
+  }),
+  selected: colors.yellow[200],
 };
 
 type HeatmapChartCoreProps = {
   isLoading?: boolean;
   data?: GetHeatmapAppData.Response;
   setting: HeatmapSettingType;
+};
+
+type DataForRender = {
+  value: [string, string, number];
+  itemStyle?: {
+    color: string;
+    opacity: number;
+  };
 };
 
 const HeatmapChartCore = React.forwardRef(
@@ -88,39 +101,54 @@ const HeatmapChartCore = React.forwardRef(
       [startCell, endCell],
     );
 
+    const maxCount = React.useMemo(() => {
+      let success = 0;
+      let fail = 0;
+
+      const { heatmapData } = data || {};
+
+      if (heatmapData) {
+        for (const data of heatmapData) {
+          for (const cell of data.cellDataList) {
+            success = Math.max(success, cell.successCount);
+            fail = Math.max(fail, cell.failCount);
+          }
+        }
+      }
+
+      return { success, fail };
+    }, [data]);
+
     const dataForRender = React.useMemo(() => {
-      const successData: [string, string, number][] = [];
-      const failData: {
-        value: [string, string, number];
-        itemStyle?: {
-          color: string;
-          opacity: number;
-        };
-      }[] = [];
-      let maxFailCount = 0;
-      let maxSuccessCount = 0;
+      const successData: DataForRender['value'][] = [];
+      const failData: DataForRender['value'][] = [];
+      const coverData: DataForRender[] = []; // 가장 위에 덮어져서 tooltip, select 이벤트를 받기 위한 것
 
       const { heatmapData } = data || {};
       heatmapData?.forEach((row) => {
         row?.cellDataList?.forEach((cell) => {
-          successData.push([String(row.timestamp), String(cell.elapsedTime), cell.successCount]);
-          failData.push({
-            value: [String(row.timestamp), String(cell.elapsedTime), cell.failCount],
-            itemStyle: isSelectedCell(row.timestamp, cell.elapsedTime)
-              ? {
-                  color: HeatmapColor.selected,
-                  opacity: 0.8,
-                }
-              : undefined,
+          coverData.push({
+            value: [String(row.timestamp), String(cell.elapsedTime), 0],
+            itemStyle: {
+              color: isSelectedCell(row.timestamp, cell.elapsedTime)
+                ? HeatmapColor.selected
+                : 'transparent',
+              opacity: 1,
+            },
           });
 
-          maxSuccessCount = Math.max(maxSuccessCount, cell.successCount);
-          maxFailCount = Math.max(maxFailCount, cell.failCount);
+          if (cell?.successCount) {
+            successData.push([String(row.timestamp), String(cell.elapsedTime), cell.successCount]);
+          }
+
+          if (cell?.failCount) {
+            failData.push([String(row.timestamp), String(cell.elapsedTime), cell.failCount]);
+          }
         });
       });
 
-      return { successData, failData, maxFailCount, maxSuccessCount };
-    }, [data, startCell, endCell]);
+      return { successData, failData, coverData };
+    }, [data, startCell, endCell, maxCount]);
 
     const xAxisData = React.useMemo(() => {
       return data?.heatmapData?.map((row) => String(row.timestamp)) || [];
@@ -146,24 +174,30 @@ const HeatmapChartCore = React.forwardRef(
         },
         formatter: (params: any) => {
           const { data } = params;
-          const [timestamp, elapsedTime, failedCount] = data?.value;
+          const [timestamp, elapsedTime] = data?.value;
+
+          const failedCount = dataForRender?.failData.find((item: [string, string, number]) => {
+            return item[0] === timestamp && item[1] === elapsedTime;
+          })?.[2];
+
           const successCount = dataForRender?.successData.find((item: [string, string, number]) => {
             return item[0] === timestamp && item[1] === elapsedTime;
           })?.[2];
+
           return `
         <div style="display: flex; flex-direction: column; gap: 5px; padding: 2px;">
           <div style="margin-bottom: 5px;"><strong>${defaultTickFormatter(Number(timestamp))}</strong></div>
-          ${['success', 'failed']
+          ${['success', 'fail']
             .map((type) => {
               const count = type === 'success' ? successCount : failedCount;
-              const color = type === 'success' ? HeatmapColor.success : HeatmapColor.failed;
+              const color = HeatmapColor[type as 'success' | 'fail'][5];
 
               return `
               <div style="display: flex; justify-content: space-between; gap: 5px;">
                 <div style="display: flex; gap: 6px; align-items: center;">
-                  <div style="width: 8px; height: 8px; background: ${color}"></div>${capitalize(type)}
+                  <div style="width: 8px; height: 8px; background: ${color}; border: ${count === 0 ? '1px solid black' : 'none'};"></div>${capitalize(type)}
                 </div>
-                <div>${count === undefined ? 'N/A' : Number(count).toLocaleString()}</div>
+                <div>${count === undefined ? 0 : Number(count).toLocaleString()}</div>
               </div>
             `;
             })
@@ -195,6 +229,7 @@ const HeatmapChartCore = React.forwardRef(
         data: yAxisData.filter(
           (yValue) => Number(yValue) >= setting.yMin && Number(yValue) <= setting.yMax,
         ),
+        offset: 1,
         axisLabel: {
           interval: (index: number, value: string) => {
             if (yAxisData.length <= 5) {
@@ -223,7 +258,7 @@ const HeatmapChartCore = React.forwardRef(
         {
           id: 'success',
           min: 0,
-          max: dataForRender?.maxSuccessCount,
+          max: maxCount.success,
           calculable: true,
           seriesIndex: 0,
           orient: 'horizontal',
@@ -239,14 +274,14 @@ const HeatmapChartCore = React.forwardRef(
             return Math.floor(Number(value)).toLocaleString();
           },
           inRange: {
-            color: ['#ffffff', dataForRender?.maxFailCount ? HeatmapColor.success : '#ffffff'],
+            color: HeatmapColor.success,
           },
           range: successRange,
         },
         {
           id: 'fail',
           min: 0,
-          max: dataForRender?.maxFailCount,
+          max: maxCount.fail,
           calculable: true,
           seriesIndex: 1,
           orient: 'horizontal',
@@ -259,9 +294,14 @@ const HeatmapChartCore = React.forwardRef(
             return Math.floor(Number(value)).toLocaleString();
           },
           inRange: {
-            color: ['#ffffff', dataForRender?.maxFailCount ? HeatmapColor.failed : '#ffffff'],
+            color: HeatmapColor.fail,
           },
           range: failRange,
+        },
+        {
+          id: 'cover',
+          show: false,
+          seriesIndex: 2,
         },
       ],
       graphic: [
@@ -276,11 +316,11 @@ const HeatmapChartCore = React.forwardRef(
             rich: {
               boldSuccess: {
                 fontWeight: 'bold',
-                fill: HeatmapColor.success,
+                fill: HeatmapColor.success[5],
               },
               boldFailed: {
                 fontWeight: 'bold',
-                fill: HeatmapColor.failed,
+                fill: HeatmapColor.fail[5],
               },
             },
           },
@@ -293,12 +333,14 @@ const HeatmapChartCore = React.forwardRef(
           data: dataForRender?.successData,
         },
         {
-          name: 'failed',
+          name: 'fail',
           type: 'heatmap',
           data: dataForRender?.failData,
-          itemStyle: {
-            opacity: 0.5,
-          },
+        },
+        {
+          name: 'cover',
+          type: 'heatmap',
+          data: dataForRender?.coverData,
           emphasis: {
             itemStyle: {
               borderColor: '#333',
@@ -316,36 +358,36 @@ const HeatmapChartCore = React.forwardRef(
           echarts={echarts}
           option={option}
           style={{ height: '100%', width: '100%' }}
-          onEvents={{
-            mousedown: (params: any, echartsInstance: ECharts) => {
-              console.log('mousedown', params);
-              setStartCell(`${params.value[0]}-${params.value[1]}`);
-              setEndCell(`${params.value[0]}-${params.value[1]}`);
-            },
-            mousemove: (params: any) => {
-              if (!startCell) {
-                return;
-              }
-              setEndCell(`${params.value[0]}-${params.value[1]}`);
-            },
-            mouseup: (params: any) => {
-              console.log('mouseup', params, startCell, endCell);
-              setStartCell('');
-              setEndCell('');
-            },
-            datarangeselected: debounce((params: any) => {
-              if (params.visualMapId === 'success') {
-                setSuccessRange(params.selected);
-              } else if (params.visualMapId === 'fail') {
-                setFailRange(params.selected);
-              }
-            }, 300),
-            // click: (params: any, echartsInstance: ECharts) => {
-            //   console.log('click', params);
-            //   setStartCell(`${params.value[0]}-${params.value[1]}`);
-            //   // setRange([1000, 3000]);
-            // },
-          }}
+          // onEvents={{
+          //   mousedown: (params: any, echartsInstance: ECharts) => {
+          //     console.log('mousedown', params);
+          //     setStartCell(`${params.value[0]}-${params.value[1]}`);
+          //     setEndCell(`${params.value[0]}-${params.value[1]}`);
+          //   },
+          //   mousemove: (params: any) => {
+          //     if (!startCell) {
+          //       return;
+          //     }
+          //     setEndCell(`${params.value[0]}-${params.value[1]}`);
+          //   },
+          //   mouseup: (params: any) => {
+          //     console.log('mouseup', params, startCell, endCell);
+          //     setStartCell('');
+          //     setEndCell('');
+          //   },
+          //   datarangeselected: debounce((params: any) => {
+          //     if (params.visualMapId === 'success') {
+          //       setSuccessRange(params.selected);
+          //     } else if (params.visualMapId === 'fail') {
+          //       setFailRange(params.selected);
+          //     }
+          //   }, 300),
+          //   // click: (params: any, echartsInstance: ECharts) => {
+          //   //   console.log('click', params);
+          //   //   setStartCell(`${params.value[0]}-${params.value[1]}`);
+          //   //   // setRange([1000, 3000]);
+          //   // },
+          // }}
         />
       </div>
     );

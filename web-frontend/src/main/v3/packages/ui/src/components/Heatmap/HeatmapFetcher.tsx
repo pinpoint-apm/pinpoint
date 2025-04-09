@@ -12,7 +12,6 @@ import {
   ApplicationType,
   GetHeatmapAppData,
 } from '@pinpoint-fe/ui/src/constants';
-import { mockData } from './mockData';
 
 export interface HeatmapFetcherHandle {
   handleCaptureImage: () => Promise<void>;
@@ -43,7 +42,7 @@ export const HeatmapFetcher = React.forwardRef(
     const { data, isLoading } = useGetHeatmapAppData(parameters);
 
     // console.log('search', searchParameters, 'parameters', parameters);
-    console.log('data', data);
+    // console.log('data', data);
 
     React.useEffect(() => {
       setParameters({
