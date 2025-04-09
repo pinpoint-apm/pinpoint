@@ -99,7 +99,7 @@ public class LinkView {
                 // data showing how agents call each of their respective links
                 writeAgentHistogram("sourceHistogram", link.getSourceList(), jgen);
                 writeAgentHistogram("targetHistogram", link.getTargetList(), jgen);
-                writeSourceAgentTimeSeriesHistogram(link, jgen);
+                writeSourceAgentTimeSeriesHistogram(linkView, jgen);
                 writeAgentResponseStatistics("sourceResponseStatistics", link.getSourceList(), jgen);
                 writeAgentResponseStatistics("targetResponseStatistics", link.getTargetList(), jgen);
             }
@@ -180,8 +180,10 @@ public class LinkView {
             jgen.writeEndObject();
         }
 
-        private void writeSourceAgentTimeSeriesHistogram(Link link, JsonGenerator jgen) throws IOException {
-            JsonFields<AgentNameView, List<TimeHistogramViewModel>> sourceAgentTimeSeriesHistogram = link.getSourceAgentTimeSeriesHistogram();
+        private void writeSourceAgentTimeSeriesHistogram(LinkView linkView, JsonGenerator jgen) throws IOException {
+            Link link = linkView.getLink();
+            TimeHistogramFormat format = linkView.getFormat();
+            JsonFields<AgentNameView, List<TimeHistogramViewModel>> sourceAgentTimeSeriesHistogram = link.getSourceAgentTimeSeriesHistogram(format);
 //        sourceAgentTimeSeriesHistogram.setFieldName("sourceTimeSeriesHistogram");
             jgen.writeFieldName("sourceTimeSeriesHistogram");
             jgen.writeObject(sourceAgentTimeSeriesHistogram);
