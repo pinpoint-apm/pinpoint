@@ -79,7 +79,7 @@ public class MapController {
     private final RangeValidator rangeValidator;
     private final ApplicationFactory applicationFactory;
 
-    private static final String DEFAULT_SEARCH_DEPTH = "4";
+    private static final String DEFAULT_SEARCH_DEPTH = "1";
     private static final int DEFAULT_MAX_SEARCH_DEPTH = 4;
 
     public MapController(
@@ -115,9 +115,9 @@ public class MapController {
             @RequestParam("serviceTypeCode") short serviceTypeCode,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
-            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH)
+            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH, required = false)
             @Positive int callerRange,
-            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH)
+            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH, required = false)
             @Positive int calleeRange,
             @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
             @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
@@ -157,9 +157,9 @@ public class MapController {
             @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
-            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH)
+            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH, required = false)
             @Positive int callerRange,
-            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH)
+            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH, required = false)
             @Positive int calleeRange,
             @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
             @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
@@ -251,7 +251,7 @@ public class MapController {
     @GetMapping(value = "/getResponseTimeHistogramDataV2")
     public NodeHistogramSummaryView getResponseTimeHistogramDataV2(
             @RequestParam("applicationName") @NotBlank String applicationName,
-            @RequestParam("serviceTypeCode") Short serviceTypeCode,
+            @RequestParam("serviceTypeCode") short serviceTypeCode,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
             @RequestParam(value = "fromApplicationNames", defaultValue = "", required = false)
