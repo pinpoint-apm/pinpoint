@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.SlotType;
 import com.navercorp.pinpoint.web.view.HistogramSerializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -198,7 +197,7 @@ public class Histogram implements StatisticsHistogram {
     }
 
     public long getTotalCount() {
-        return errorCount + fastCount + fastErrorCount + normalCount + normalErrorCount + slowCount + slowErrorCount + verySlowCount + verySlowErrorCount;
+        return getSuccessCount() + getTotalErrorCount();
     }
 
     public long getSuccessCount() {
@@ -216,27 +215,6 @@ public class Histogram implements StatisticsHistogram {
     public long getAvgElapsed() {
         final long totalCount = getTotalCount();
         return totalCount > 0 ? sumElapsed / totalCount : 0L;
-    }
-
-    public long getCount(SlotType slotType) {
-        Objects.requireNonNull(slotType, "slotType");
-
-        return switch (slotType) {
-            case FAST -> fastCount;
-            case FAST_ERROR -> fastErrorCount;
-            case NORMAL -> normalCount;
-            case NORMAL_ERROR -> normalErrorCount;
-            case SLOW -> slowCount;
-            case SLOW_ERROR -> slowErrorCount;
-            case VERY_SLOW -> verySlowCount;
-            case VERY_SLOW_ERROR -> verySlowErrorCount;
-            case ERROR ->
-                // for backward compatibility.
-                    errorCount + fastErrorCount + normalErrorCount + slowErrorCount + verySlowErrorCount;
-            case SUM_STAT -> sumElapsed;
-            case MAX_STAT -> maxElapsed;
-            case PING -> pingCount;
-        };
     }
 
     public void addAll(final Collection<? extends Histogram> histograms) {
