@@ -65,7 +65,6 @@ public class Link {
     private final LinkCallDataMap outLink = new LinkCallDataMap();
 
     private Histogram linkHistogram;
-    private TimeHistogramFormat timeHistogramFormat = TimeHistogramFormat.V1;
 
     public Link(LinkDirection direction, Node fromNode, Node toNode, Range range) {
         this.direction = Objects.requireNonNull(direction, "direction");
@@ -107,10 +106,6 @@ public class Link {
         return LinkName.of(fromNode.getApplication(), toNode.getApplication());
     }
 
-
-    public void setTimeHistogramFormat(TimeHistogramFormat timeHistogramFormat) {
-        this.timeHistogramFormat = timeHistogramFormat;
-    }
 
     public LinkCallDataMap getInLink() {
         return inLink;
@@ -208,12 +203,12 @@ public class Link {
         this.outLink.addLinkDataMap(outLinkCallDataMap);
     }
 
-    public JsonFields<AgentNameView, List<TimeHistogramViewModel>> getSourceAgentTimeSeriesHistogram() {
+    public JsonFields<AgentNameView, List<TimeHistogramViewModel>> getSourceAgentTimeSeriesHistogram(TimeHistogramFormat format) {
         // we need Target (to)'s time since time in link is RPC-based
         AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(toNode.getApplication(), range);
         AgentTimeHistogram applicationTimeSeriesHistogram = builder.buildSource(inLink);
 
-        return applicationTimeSeriesHistogram.createViewModel(timeHistogramFormat);
+        return applicationTimeSeriesHistogram.createViewModel(format);
     }
 
     public AgentTimeHistogram getTargetAgentTimeHistogram() {
