@@ -27,6 +27,6 @@ jobs:
 
           if ! echo "${commit_msg}" | grep -Eq "$commit_regex"; then
             echo "$error_msg"
-            echo "Invalid commit message: ${commit_msg}"
+            echo "Invalid commit message: \"${commit_msg}\""
             exit 1
           fi
