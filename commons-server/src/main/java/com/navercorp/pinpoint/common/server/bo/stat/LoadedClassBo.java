@@ -53,7 +53,7 @@ public class LoadedClassBo extends AbstractStatDataPoint {
     @Override
     public String toString() {
         return "LoadedClassBo{" +
-                ", point=" + point +
+                "point=" + point +
                 ", loadedClassCount=" + loadedClassCount +
                 ", unloadedClassCount=" + unloadedClassCount +
                 '}';

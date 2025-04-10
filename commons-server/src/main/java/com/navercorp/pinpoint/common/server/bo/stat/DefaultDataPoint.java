@@ -55,4 +55,12 @@ public class DefaultDataPoint implements DataPoint {
         result = 31 * result + Long.hashCode(timestamp);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "{id=" + applicationName + "/" + agentId +
+                ", startTimestamp=" + startTimestamp +
+                ", timestamp=" + timestamp +
+                '}';
+    }
 }

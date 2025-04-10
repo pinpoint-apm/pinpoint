@@ -29,6 +29,7 @@ import jakarta.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -44,6 +45,8 @@ public class PinotAgentStatService implements AgentStatService {
     private final Logger logger = LogManager.getLogger(getClass());
 
     private final PinotTypeMapper<StatDataPoint>[] mappers;
+
+    private final Duration timeout = Duration.ofMinutes(10);
 
     private final AgentStatDao agentStatDao;
 
@@ -73,7 +76,6 @@ public class PinotAgentStatService implements AgentStatService {
             if (!validateTime(agentStatData)) {
                 continue;
             }
-
             List<AgentStat> agentStatList = mapper.agentStat(agentStatData, tenantProvider.getTenantId());
             this.agentStatDao.insertAgentStat(agentStatList);
 
@@ -84,21 +86,24 @@ public class PinotAgentStatService implements AgentStatService {
 
 
     private boolean validateTime(List<? extends StatDataPoint> agentStatData) {
-        if (agentStatData.isEmpty()) {
+        if (CollectionUtils.isEmpty(agentStatData)) {
+            // no data
             return false;
         }
         StatDataPoint agentStat = agentStatData.get(0);
         DataPoint point = agentStat.getDataPoint();
         Instant collectedTime = Instant.ofEpochMilli(point.getTimestamp());
-        Instant validTime = Instant.now().minus(Duration.ofMinutes(10));
+        Instant validTime = Instant.now().minus(timeout);
 
-        if (validTime.isBefore(collectedTime)) {
-            return true;
+        if (!validTime.isBefore(collectedTime)) {
+            // Timeout to protect the segment partition
+            if (logger.isInfoEnabled()) {
+                logger.info("AgentStat data is invalid. applicationName: {}, agentId: {}, time: {}",
+                        point.getApplicationName(), point.getAgentId(), new Date(point.getTimestamp()));
+            }
+            return false;
         }
-        if (logger.isInfoEnabled()) {
-            logger.info("AgentStat data is invalid. applicationName: {}, agentId: {}, time: {}",
-                    point.getApplicationName(), point.getAgentId(), new Date(point.getTimestamp()));
-        }
-        return false;
+
+        return true;
     }
 }

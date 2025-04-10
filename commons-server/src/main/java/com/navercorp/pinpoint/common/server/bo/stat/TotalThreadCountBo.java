@@ -41,7 +41,7 @@ public class TotalThreadCountBo extends AbstractStatDataPoint {
     @Override
     public String toString() {
         return "TotalThreadCountBo{" +
-                ", point=" + point +
+                "point=" + point +
                 ", totalThreadCount=" + totalThreadCount +
                 '}';
     }
