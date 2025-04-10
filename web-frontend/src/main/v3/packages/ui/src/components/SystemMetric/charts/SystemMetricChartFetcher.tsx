@@ -48,7 +48,7 @@ export const SystemMetricChartFetcher = ({
     tags,
   });
 
-  const dataUnit = chartData?.metricValueGroups[0].unit || '';
+  const dataUnit = chartData?.metricValueGroups?.[0]?.unit || '';
   const title = chartData?.title || '';
 
   const chartComponent = React.useRef<IChart>(null);
