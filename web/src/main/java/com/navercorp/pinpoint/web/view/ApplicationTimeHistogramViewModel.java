@@ -37,9 +37,6 @@ public class ApplicationTimeHistogramViewModel {
     private final Application application;
     private final AgentHistogramList agentHistogramList;
 
-    public ApplicationTimeHistogramViewModel(Application application, AgentHistogramList agentHistogramList) {
-        this(TimeHistogramFormat.V1, application, agentHistogramList);
-    }
 
     public ApplicationTimeHistogramViewModel(TimeHistogramFormat format, Application application, AgentHistogramList agentHistogramList) {
         this.format = Objects.requireNonNull(format, "format");

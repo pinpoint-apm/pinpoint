@@ -17,18 +17,29 @@
 
 package com.navercorp.pinpoint.web.applicationmap.config;
 
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
 import com.navercorp.pinpoint.common.server.util.CallerUtils;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
+import com.navercorp.pinpoint.web.applicationmap.controller.FilteredMapController;
+import com.navercorp.pinpoint.web.applicationmap.controller.MapController;
+import com.navercorp.pinpoint.web.applicationmap.controller.MapHistogramController;
 import com.navercorp.pinpoint.web.applicationmap.map.ApplicationsMapCreatorFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.ApplicationLimiterProcessorFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.LinkDataMapProcessor;
+import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
 import com.navercorp.pinpoint.web.applicationmap.service.LinkDataMapService;
+import com.navercorp.pinpoint.web.applicationmap.service.MapService;
+import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
+import com.navercorp.pinpoint.web.component.ApplicationFactory;
+import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
+import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.task.RequestContextPropagatingTaskDecorator;
 import com.navercorp.pinpoint.web.task.SecurityContextPropagatingTaskDecorator;
@@ -46,6 +57,7 @@ import org.springframework.core.task.support.CompositeTaskDecorator;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.validation.annotation.Validated;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
@@ -54,7 +66,6 @@ import java.util.function.Supplier;
 @Configuration
 @ComponentScan(basePackages = {
         "com.navercorp.pinpoint.web.applicationmap.service",
-        "com.navercorp.pinpoint.web.applicationmap.controller"
 })
 @Import(MapHbaseConfiguration.class)
 public class ApplicationMapModule {
@@ -62,6 +73,29 @@ public class ApplicationMapModule {
 
     public ApplicationMapModule() {
         logger.info("Install {}", ApplicationMapModule.class.getSimpleName());
+    }
+
+    @Bean
+    public MapController mapController(MapService mapService,
+                                       ApplicationFactory applicationFactory,
+                                       ConfigProperties configProperties) {
+        Duration maxPeriod = Duration.ofDays(configProperties.getServerMapPeriodMax());
+        return new MapController(mapService, applicationFactory, maxPeriod);
+    }
+
+    @Bean
+    public MapHistogramController mapHistogramController(ResponseTimeHistogramService responseTimeHistogramService,
+                                                         ApplicationFactory applicationFactory,
+                                                         ConfigProperties configProperties) {
+        Duration maxPeriod = Duration.ofDays(configProperties.getServerMapPeriodMax());
+        return new MapHistogramController(responseTimeHistogramService, applicationFactory, maxPeriod);
+    }
+
+    @Bean
+    public FilteredMapController filteredMapController(FilteredMapService filteredMapService,
+                                                       FilterBuilder<List<SpanBo>> filterBuilder,
+                                                       ServiceTypeRegistryService registry) {
+        return new FilteredMapController(filteredMapService, filterBuilder, registry);
     }
 
     @Bean
