@@ -41,7 +41,7 @@ public class FileDescriptorBo extends AbstractStatDataPoint {
     @Override
     public String toString() {
         return "FileDescriptorBo{" +
-                ", point=" + point +
+                "point=" + point +
                 ", openFileDescriptorCount=" + openFileDescriptorCount +
                 '}';
     }

@@ -94,4 +94,18 @@ public class AgentStat {
         return sortKey;
     }
 
+    @Override
+    public String toString() {
+        return "AgentStat{" +
+                "tenantId='" + tenantId + '\'' +
+                ", timestamp=" + timestamp +
+                ", applicationName='" + applicationName + '\'' +
+                ", agentId='" + agentId + '\'' +
+                ", sortKey='" + sortKey + '\'' +
+                ", metricName='" + metricName + '\'' +
+                ", fieldName='" + fieldName + '\'' +
+                ", fieldValue=" + fieldValue +
+                ", tags=" + tags +
+                '}';
+    }
 }

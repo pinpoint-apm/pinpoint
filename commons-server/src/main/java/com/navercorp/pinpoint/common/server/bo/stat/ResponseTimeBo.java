@@ -42,4 +42,12 @@ public class ResponseTimeBo extends AbstractStatDataPoint {
         return max;
     }
 
+    @Override
+    public String toString() {
+        return "ResponseTimeBo{" +
+                "point=" + point +
+                ", avg=" + avg +
+                ", max=" + max +
+                '}';
+    }
 }

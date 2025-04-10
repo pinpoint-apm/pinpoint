@@ -81,7 +81,7 @@ public class TransactionBo extends AbstractStatDataPoint {
     @Override
     public String toString() {
         return "TransactionBo{" +
-                ", point=" + point +
+                "point=" + point +
                 ", collectInterval=" + collectInterval +
                 ", sampledNewCount=" + sampledNewCount +
                 ", sampledContinuationCount=" + sampledContinuationCount +
