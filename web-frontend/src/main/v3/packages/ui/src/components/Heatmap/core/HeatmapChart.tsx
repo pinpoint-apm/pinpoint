@@ -37,7 +37,7 @@ export const HeatmapColor = {
   selected: colors.yellow[200],
 };
 
-type HeatmapChartCoreProps = {
+type HeatmapChartProps = {
   isLoading?: boolean;
   data?: GetHeatmapAppData.Response;
   setting: HeatmapSettingType;
@@ -51,15 +51,9 @@ type DataForRender = {
   };
 };
 
-const HeatmapChartCore = React.forwardRef(
-  ({ data, setting }: HeatmapChartCoreProps, ref: React.Ref<ReactEChartsCore>) => {
-    const containerRef = React.useRef<HTMLDivElement>(null);
-    const [containerSize, setContainerSize] = React.useState({
-      width: 0,
-      height: 0,
-    });
+const HeatmapChart = React.forwardRef(
+  ({ data, setting }: HeatmapChartProps, ref: React.Ref<HTMLDivElement>) => {
     const chartRef = React.useRef<ReactEChartsCore>(null);
-
     const [successRange, setSuccessRange] = React.useState(); // 성공 범위: [시작, 끝]
     const [failRange, setFailRange] = React.useState(); // 성공 범위: [시작, 끝]
 
@@ -67,13 +61,12 @@ const HeatmapChartCore = React.forwardRef(
     const [endCell, setEndCell] = React.useState(''); // 끝 셀: x-y
 
     React.useEffect(() => {
-      const wrapperElement = containerRef.current;
+      const wrapperElement = chartRef.current?.getEchartsInstance()?.getDom();
+
       if (!wrapperElement) return;
+
       const resizeObserver = new ResizeObserver(() => {
-        setContainerSize({
-          width: wrapperElement.clientWidth,
-          height: wrapperElement.clientHeight,
-        });
+        chartRef.current?.getEchartsInstance()?.resize();
       });
       resizeObserver.observe(wrapperElement);
 
@@ -263,7 +256,7 @@ const HeatmapChartCore = React.forwardRef(
           seriesIndex: 0,
           orient: 'horizontal',
           itemWidth: 14,
-          itemHeight: (containerSize.width || 100) * 0.3,
+          itemHeight: (chartRef?.current?.getEchartsInstance()?.getWidth() || 100) * 0.3,
           right: '45%',
           bottom: '5%',
           hoverLink: false,
@@ -286,7 +279,7 @@ const HeatmapChartCore = React.forwardRef(
           seriesIndex: 1,
           orient: 'horizontal',
           itemWidth: 14,
-          itemHeight: (containerSize.width || 100) * 0.3,
+          itemHeight: (chartRef?.current?.getEchartsInstance()?.getWidth() || 100) * 0.3,
           left: '55%',
           bottom: '5%',
           hoverLink: false,
@@ -352,9 +345,9 @@ const HeatmapChartCore = React.forwardRef(
     };
 
     return (
-      <div ref={containerRef} className="relative w-full h-full">
+      <div ref={ref} className="relative w-full h-full">
         <ReactEChartsCore
-          ref={ref}
+          ref={chartRef}
           echarts={echarts}
           option={option}
           style={{ height: '100%', width: '100%' }}
@@ -394,4 +387,4 @@ const HeatmapChartCore = React.forwardRef(
   },
 );
 
-export default HeatmapChartCore;
+export default HeatmapChart;

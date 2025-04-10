@@ -1,4 +1,3 @@
-import { HeatmapFetcher } from '@pinpoint-fe/ui/src/components/Heatmap';
 import { HelpCommunity, HelpDocument } from '../../components';
 
 export interface HelpPageProps {}
@@ -25,14 +24,6 @@ export const HelpPage = () => {
         </h4>
         <HelpCommunity />
       </div>
-      {/* <div className="h-160">
-        <HeatmapFetcher
-          application={{
-            applicationName: 'APIGW-DEV-PGD1',
-            serviceType: 'VERTX',
-          }}
-        />
-      </div> */}
     </div>
   );
 };

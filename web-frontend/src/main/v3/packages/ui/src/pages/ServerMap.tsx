@@ -59,9 +59,9 @@ import {
   ApplicationCombinedListProps,
 } from '@pinpoint-fe/ui';
 import { Edge, Node } from '@pinpoint-fe/server-map';
-import { ScatterOrHeatmap } from '@pinpoint-fe/ui/src/components/Heatmap/ScatterOrHeatmap';
 import { PiTreeStructureDuotone, PiArrowSquareOut, PiChartScatterBold } from 'react-icons/pi';
 import { AiOutlineTable } from 'react-icons/ai';
+import { Heatmap } from '@pinpoint-fe/ui/src/components/Heatmap';
 
 export interface ServermapPageProps {
   authorizationGuideUrl?: string;
@@ -93,9 +93,12 @@ export const ServerMapPage = ({
   const [openServerViewTransitionEnd, setServerViewTransitionEnd] = React.useState(false);
   const [showFilter, setShowFilter] = React.useState(false);
   const [filter, setFilter] = React.useState<FilteredMap.FilterState>();
-  const [chartType, setChartType] = React.useState<'scatter' | 'heatmap'>('scatter'); // scatter
+  const [chartType, setChartType] = React.useState<'scatter' | 'heatmap'>('heatmap'); // scatter
   const scatterData = useAtomValue(scatterDataAtom);
   const { t } = useTranslation();
+
+  // console.log('serverMapCurrentTarget', serverMapCurrentTarget);
+  // console.log('currentTargetData', currentTargetData);
 
   React.useEffect(() => {
     initPage();
@@ -461,10 +464,10 @@ export const ServerMapPage = ({
                                 </div>
                               ) : (
                                 <div className="w-full p-5 mb-12 aspect-[1.618]">
-                                  <ScatterOrHeatmap
-                                    chartType="heatmap"
-                                    application={serverMapCurrentTarget || application}
-                                    nodeData={currentTargetData as GetServerMap.NodeData}
+                                  <Heatmap
+                                    nodeData={
+                                      (currentTargetData as GetServerMap.NodeData) || application
+                                    }
                                   />
                                 </div>
                               )}
