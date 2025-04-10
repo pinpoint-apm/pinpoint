@@ -21,7 +21,7 @@ import {
 import { PiTreeStructureDuotone } from 'react-icons/pi';
 import { useTranslation } from 'react-i18next';
 import { capitalize } from 'lodash';
-import { ScatterOrHeatmap } from '@pinpoint-fe/ui/src/components/Heatmap/ScatterOrHeatmap';
+import { Heatmap } from '@pinpoint-fe/ui/src/components/Heatmap/Heatmap';
 
 export const ScatterOrHeatmapFullScreenPage = ({
   configuration,
@@ -119,11 +119,10 @@ export const ScatterOrHeatmapFullScreenPage = ({
                 toolbarOption={{ expand: { hide: true } }}
               />
             ) : (
-              <ScatterOrHeatmap
-                chartType="heatmap"
+              <Heatmap
                 realtime={isRealtime}
                 agentId={agentId}
-                application={application}
+                nodeData={application}
                 toolbarOption={{ expand: { hide: true } }}
               />
             ))}

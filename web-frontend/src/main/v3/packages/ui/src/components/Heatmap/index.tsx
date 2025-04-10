@@ -1,2 +1,1 @@
-export * from './HeatmapFetcher';
-export * from './HeatmapChart';
+export * from './Heatmap';
