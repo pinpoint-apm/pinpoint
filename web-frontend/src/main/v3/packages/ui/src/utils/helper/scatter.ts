@@ -80,5 +80,12 @@ export const getScatterData = (
     },
   );
 
-  return result;
+  // 깊은 복사 또는 얕은 복사를 통해 새로운 객체 참조 생성
+  return {
+    curr: { ...result.curr },
+    acc: { ...result.acc },
+    dateRange: (newData as GetScatter.Response)?.complete
+      ? ([newData?.from, newData?.to] as ScatterDataByAgent['dateRange'])
+      : undefined,
+  };
 };

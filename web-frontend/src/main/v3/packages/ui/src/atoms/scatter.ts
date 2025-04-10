@@ -34,6 +34,7 @@ export const scatterDataAtom = atom(
         acc: {
           [SCATTER_DATA_TOTAL_KEY]: [],
         },
+        dateRange: undefined,
       });
     }
   },

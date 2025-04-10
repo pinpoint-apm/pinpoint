@@ -19,4 +19,5 @@ export type ScatterDataByAgent = {
     [key: string]: ScatterData[] | undefined;
     [SCATTER_DATA_TOTAL_KEY]: ScatterData[] | undefined;
   };
+  dateRange?: [number, number];
 };
