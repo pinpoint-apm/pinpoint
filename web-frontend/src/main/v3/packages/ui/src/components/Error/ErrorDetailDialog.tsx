@@ -16,7 +16,7 @@ import { HighLightCode } from '../HighLightCode';
 import { RxChevronDown, RxChevronUp } from 'react-icons/rx';
 
 export interface ErrorDetailDialogProps {
-  error: ErrorDetailResponse;
+  error: ErrorDetailResponse | Error;
   contentOption?: PopoverPrimitive.PopoverContentProps;
   contentClassName?: string;
 }
@@ -42,7 +42,7 @@ export const ErrorDetailDialog = ({
         onMouseDown={(e) => e.stopPropagation()}
         {...contentOption}
       >
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 overflow-hidden">
           <div className="space-y-2">
             <h4 className="flex items-center gap-1 font-medium">
               <div className="w-1 h-4 rounded-sm bg-status-fail" />
@@ -51,20 +51,25 @@ export const ErrorDetailDialog = ({
             <div className="flex items-center gap-1">
               <a
                 className="text-sm font-semibold text-primary hover:underline"
-                href={error?.url}
+                href={(error as ErrorDetailResponse)?.url}
                 target="_blank"
               >
-                {error?.instance}
+                {(error as ErrorDetailResponse)?.instance}
               </a>
             </div>
             <p className="text-sm break-all text-muted-foreground">{error?.message}</p>
           </div>
           <Separator />
-          {error?.data && (
+          {(error as Error)?.stack && (
+            <div className="overflow-auto">
+              <pre>{(error as Error)?.stack}</pre>
+            </div>
+          )}
+          {(error as ErrorDetailResponse)?.data && (
             <div className="grid gap-2 text-sm scrollbar-hide">
               <div className="grid grid-cols-[7rem_auto] gap-2">
                 <div className="text-muted-foreground">Method</div>
-                <div>{error.data.requestInfo?.method}</div>
+                <div>{(error as ErrorDetailResponse)?.data?.requestInfo?.method}</div>
               </div>
               <Collapsible className="space-y-2" open={headerOpen} onOpenChange={setHeaderOpen}>
                 <CollapsibleTrigger
@@ -75,14 +80,16 @@ export const ErrorDetailDialog = ({
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <div className="grid grid-cols-[7rem_auto] gap-2 text-xs p-2">
-                    {error.data.requestInfo?.headers &&
-                      Object.keys(error.data.requestInfo.headers)
+                    {(error as ErrorDetailResponse)?.data?.requestInfo?.headers &&
+                      Object.keys((error as ErrorDetailResponse)?.data?.requestInfo?.headers)
                         .sort()
                         .map((key) => {
                           return (
                             <React.Fragment key={key}>
                               <div className="text-muted-foreground">{key}</div>
-                              <div className="break-all">{error.data.requestInfo.headers[key]}</div>
+                              <div className="break-all">
+                                {(error as ErrorDetailResponse)?.data?.requestInfo?.headers?.[key]}
+                              </div>
                             </React.Fragment>
                           );
                         })}
@@ -102,15 +109,19 @@ export const ErrorDetailDialog = ({
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <div className="grid grid-cols-[7rem_auto] gap-2 text-xs p-2">
-                    {error.data.requestInfo?.parameters &&
-                      Object.keys(error.data.requestInfo.parameters)
+                    {(error as ErrorDetailResponse)?.data?.requestInfo?.parameters &&
+                      Object.keys((error as ErrorDetailResponse)?.data?.requestInfo?.parameters)
                         .sort()
                         .map((key) => {
                           return (
                             <React.Fragment key={key}>
                               <div className="text-muted-foreground">{key}</div>
                               <div className="break-all">
-                                {error.data.requestInfo.parameters[key]}
+                                {
+                                  (error as ErrorDetailResponse)?.data?.requestInfo?.parameters?.[
+                                    key
+                                  ]
+                                }
                               </div>
                             </React.Fragment>
                           );
@@ -130,7 +141,11 @@ export const ErrorDetailDialog = ({
                   StackTrace {stackTraceOpen ? <RxChevronUp /> : <RxChevronDown />}
                 </CollapsibleTrigger>
                 <CollapsibleContent>
-                  <HighLightCode language="java" code={error.trace} className="p-2 text-xs" />
+                  <HighLightCode
+                    language="java"
+                    code={(error as ErrorDetailResponse)?.trace}
+                    className="p-2 text-xs"
+                  />
                 </CollapsibleContent>
               </Collapsible>
             </div>
