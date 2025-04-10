@@ -54,6 +54,9 @@
   "URL_STAT": {
     "SELECT_URL_INFO": "아래에서 Path 정보를 선택하세요."
   },
+  "SERVER_MAP": {
+    "SCATTER_CHART_STATIC_WARN": "Agent별 scatter chart를 보기 위해 heatmap을 scatter chart로 변경해 주세요."
+  },
   "TRANSACTION_LIST": {
     "SELECT_TRANSACTION": "Transaction을 선택하세요.",
     "TRANSACTION_RETRIEVE_ERROR": "Transaction 정보가 없습니다.",

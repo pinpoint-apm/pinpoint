@@ -93,12 +93,23 @@ export const ServerMapPage = ({
   const [openServerViewTransitionEnd, setServerViewTransitionEnd] = React.useState(false);
   const [showFilter, setShowFilter] = React.useState(false);
   const [filter, setFilter] = React.useState<FilteredMap.FilterState>();
-  const [chartType, setChartType] = React.useState<'scatter' | 'heatmap'>('heatmap'); // scatter
+  const [chartType, setChartType] = React.useState<'scatter' | 'heatmap'>('scatter'); // scatter
+  const [isScatterDataOutdated, setIsScatterDataOutdated] = React.useState(chartType !== 'scatter');
   const scatterData = useAtomValue(scatterDataAtom);
   const { t } = useTranslation();
 
-  // console.log('serverMapCurrentTarget', serverMapCurrentTarget);
-  // console.log('currentTargetData', currentTargetData);
+  React.useEffect(() => {
+    if (
+      chartType === 'scatter' ||
+      (scatterData?.dateRange && scatterData?.dateRange[0] === dateRange.from?.getTime())
+      // from, to 둘 다 비교해야하는데 정확한 to를 useGetScatterData가 주지 않음
+    ) {
+      setIsScatterDataOutdated(false);
+      return;
+    }
+
+    setIsScatterDataOutdated(true);
+  }, [dateRange, scatterData]);
 
   React.useEffect(() => {
     initPage();
@@ -518,7 +529,7 @@ export const ServerMapPage = ({
                     >
                       {!shouldHideScatter() && application && (
                         <>
-                          <div className="w-full p-5 mb-12 aspect-[1.618]">
+                          <div className="w-full p-5 mb-12 aspect-[1.618] relative">
                             <div className="h-7">
                               {currentServer?.agentId && (
                                 <ApdexScore
@@ -533,6 +544,11 @@ export const ServerMapPage = ({
                               range={[dateRange.from.getTime(), dateRange.to.getTime()]}
                               selectedAgentId={currentServer?.agentId || ''}
                             />
+                            {isScatterDataOutdated && (
+                              <div className="absolute top-0 left-0 z-[1000] flex items-center justify-center w-full h-[calc(100%+48px)] bg-background/50 text-center whitespace-normal break-words">
+                                {t('SERVER_MAP.SCATTER_CHART_STATIC_WARN')}
+                              </div>
+                            )}
                           </div>
                           <Separator />
                         </>
