@@ -71,7 +71,7 @@ public class PinotAgentStatService implements AgentStatService {
         for (PinotTypeMapper<StatDataPoint> mapper : mappers) {
             List<StatDataPoint> agentStatData = mapper.point(agentStatBo);
             if (!validateTime(agentStatData)) {
-                return;
+                continue;
             }
 
             List<AgentStat> agentStatList = mapper.agentStat(agentStatData, tenantProvider.getTenantId());
