@@ -48,7 +48,6 @@ public class ApplicationMapView {
         return Iterators.transform(nodes.iterator(), node -> new NodeView(node, activeView, timeHistogramFormat));
     }
 
-    @JsonProperty("ts")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public List<Long> getTimestamp() {
         if (timeWindow == null) {
