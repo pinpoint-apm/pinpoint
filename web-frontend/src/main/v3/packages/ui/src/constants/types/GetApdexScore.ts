@@ -1,7 +1,8 @@
 export namespace GetApdexScore {
   export interface Parameters {
     applicationName: string;
-    serviceTypeCode: number;
+    serviceTypeName?: string;
+    serviceTypeCode?: number;
     from: number;
     to: number;
     agentId?: string;

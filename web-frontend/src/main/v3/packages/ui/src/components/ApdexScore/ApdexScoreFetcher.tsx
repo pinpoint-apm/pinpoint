@@ -1,13 +1,6 @@
 import { Separator } from '../ui/separator';
-import {
-  useGetApdexScore,
-  UseGetApdexScoreProps,
-  useGetApplicationList,
-} from '@pinpoint-fe/ui/src/hooks';
+import { useGetApdexScore, UseGetApdexScoreProps } from '@pinpoint-fe/ui/src/hooks';
 import { HelpPopover } from '..';
-import { ApplicationType, GetServerMap } from '@pinpoint-fe/ui/src/constants';
-import React from 'react';
-
 export interface ApdexScoreFetcherProps extends UseGetApdexScoreProps {}
 
 enum RANK {
@@ -26,38 +19,7 @@ const RankColorClassNameMap: { [key: string]: string } = {
 };
 
 export const ApdexScoreFetcher = (props: ApdexScoreFetcherProps) => {
-  const serviceTypeCode = props?.nodeData?.serviceTypeCode;
-  const { data: applicationListData } = useGetApplicationList(!serviceTypeCode);
-
-  const params = React.useMemo(() => {
-    if (serviceTypeCode) {
-      return props;
-    }
-
-    if (applicationListData) {
-      const code = applicationListData.find(
-        (appData: ApplicationType) =>
-          appData?.applicationName === props?.nodeData?.applicationName &&
-          appData?.serviceType === props?.nodeData?.serviceType,
-      )?.code;
-
-      if (!code) {
-        return {};
-      }
-
-      return {
-        ...props,
-        nodeData: {
-          ...props.nodeData,
-          serviceTypeCode: code,
-        },
-      };
-    }
-
-    return {};
-  }, [props, serviceTypeCode, applicationListData]);
-
-  const { data } = useGetApdexScore(params as UseGetApdexScoreProps);
+  const { data } = useGetApdexScore(props);
 
   const score = data?.apdexScore || 0;
   const getRank = () => {
