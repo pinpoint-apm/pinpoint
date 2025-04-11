@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.web.component.AnnotationKeyMatcherService;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.component.DefaultAnnotationKeyMatcherService;
 import com.navercorp.pinpoint.web.component.DefaultApplicationFactory;
+import com.navercorp.pinpoint.web.util.ApplicationValidator;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,6 +40,11 @@ public class ComponentConfiguration {
     @Bean
     public ApplicationFactory applicationFactory(ServiceTypeRegistryService registry) {
         return new DefaultApplicationFactory(registry);
+    }
+
+    @Bean
+    public ApplicationValidator applicationValidator(ServiceTypeRegistryService registry) {
+        return new ApplicationValidator(registry);
     }
 
     @Bean

@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapView;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWithScatter;
@@ -35,13 +34,14 @@ import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.util.LimitUtils;
 import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -62,60 +62,22 @@ public class FilteredMapController {
 
     private final FilteredMapService filteredMapService;
     private final FilterBuilder<List<SpanBo>> filterBuilder;
-    private final ServiceTypeRegistryService registry;
 
     public FilteredMapController(
             FilteredMapService filteredMapService,
-            FilterBuilder<List<SpanBo>> filterBuilder,
-            ServiceTypeRegistryService registry
+            FilterBuilder<List<SpanBo>> filterBuilder
     ) {
         this.filteredMapService = Objects.requireNonNull(filteredMapService, "filteredMapService");
         this.filterBuilder = Objects.requireNonNull(filterBuilder, "filterBuilder");
-        this.registry = Objects.requireNonNull(registry, "registry");
     }
 
-    @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroup", params = "serviceTypeCode")
-    public FilterMapView getFilteredServerMapDataMadeOfDotGroup(
-            @RequestParam("applicationName") @NotBlank String applicationName,
-            @RequestParam("serviceTypeCode") short serviceTypeCode,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
-            @RequestParam("originTo") long originTo,
-            @RequestParam("xGroupUnit") int xGroupUnit,
-            @RequestParam("yGroupUnit") int yGroupUnit,
-            @RequestParam(value = "filter", required = false) @NullOrNotBlank String filterText,
-            @RequestParam(value = "hint", required = false) @NullOrNotBlank String filterHint,
-            @RequestParam(value = "limit", required = false, defaultValue = "10000") @PositiveOrZero int limit,
-            @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
-            boolean useStatisticsAgentState,
-            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
-            boolean useLoadHistogramFormat
-    ) {
-        final String serviceTypeName = registry.findServiceType(serviceTypeCode).getName();
-        return getFilteredServerMapDataMadeOfDotGroup(
-                applicationName,
-                serviceTypeName,
-                from,
-                to,
-                originTo,
-                xGroupUnit,
-                yGroupUnit,
-                filterText,
-                filterHint,
-                limit,
-                viewVersion,
-                useStatisticsAgentState,
-                useLoadHistogramFormat
-        );
-    }
 
-    @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroup", params = "serviceTypeName")
+    @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroup")
     public FilterMapView getFilteredServerMapDataMadeOfDotGroup(
-            @RequestParam("applicationName") @NotBlank String applicationName,
-            @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
+            @Valid @ModelAttribute
+            ApplicationForm appForm,
+            @Valid @ModelAttribute
+            RangeForm rangeForm,
             @RequestParam("originTo") long originTo,
             @RequestParam("xGroupUnit") @Positive int xGroupUnit,
             @RequestParam("yGroupUnit") @Positive int yGroupUnit,
@@ -128,17 +90,19 @@ public class FilteredMapController {
             @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
             boolean useLoadHistogramFormat
     ) {
+        final String applicationName = appForm.getApplicationName();
+
         final int limit = Math.min(limitParam, LimitUtils.MAX);
         final Filter<List<SpanBo>> filter = filterBuilder.build(filterText, filterHint);
-        final Range range = Range.between(from, to);
+        final Range range = toRange(rangeForm);
         final LimitedScanResult<List<TransactionId>> limitedScanResult =
                 filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
 
         final long lastScanTime = limitedScanResult.limitedTime();
         // original range: needed for visual chart data sampling
-        final Range originalRange = Range.between(from, originTo);
+        final Range originalRange = Range.between(rangeForm.getFrom(), originTo);
         // needed to figure out already scanned ranged
-        final Range scannerRange = Range.between(lastScanTime, to);
+        final Range scannerRange = Range.between(lastScanTime, rangeForm.getTo());
         logger.debug("originalRange: {}, scannerRange: {}", originalRange, scannerRange);
         final FilteredMapServiceOption option = new FilteredMapServiceOption
                 .Builder(limitedScanResult.scanData(), originalRange, xGroupUnit, yGroupUnit, filter, viewVersion)
@@ -160,41 +124,12 @@ public class FilteredMapController {
     }
 
 
-    @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroupV3", params = "serviceTypeCode")
+    @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroupV3")
     public FilterMapView getFilteredServerMapDataMadeOfDotGroupV3(
-            @RequestParam("applicationName") @NotBlank String applicationName,
-            @RequestParam("serviceTypeCode") short serviceTypeCode,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
-            @RequestParam("originTo") long originTo,
-            @RequestParam("xGroupUnit") int xGroupUnit,
-            @RequestParam("yGroupUnit") int yGroupUnit,
-            @RequestParam(value = "filter", required = false) @NullOrNotBlank String filterText,
-            @RequestParam(value = "hint", required = false) @NullOrNotBlank String filterHint,
-            @RequestParam(value = "limit", required = false, defaultValue = "10000") @PositiveOrZero int limit,
-            @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState) {
-        String serviceTypeName = registry.findServiceType(serviceTypeCode).getName();
-        return getFilteredServerMapDataMadeOfDotGroupV3(applicationName,
-                serviceTypeName,
-                from,
-                to,
-                originTo,
-                xGroupUnit,
-                yGroupUnit,
-                filterText,
-                filterHint,
-                limit,
-                viewVersion,
-                useStatisticsAgentState);
-    }
-
-    @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroupV3", params = "serviceTypeName")
-    public FilterMapView getFilteredServerMapDataMadeOfDotGroupV3(
-            @RequestParam("applicationName") String applicationName,
-            @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to,
+            @Valid @ModelAttribute
+            ApplicationForm appForm,
+            @Valid @ModelAttribute
+            RangeForm rangeForm,
             @RequestParam("originTo") long originTo,
             @RequestParam("xGroupUnit") @Positive int xGroupUnit,
             @RequestParam("yGroupUnit") @Positive int yGroupUnit,
@@ -209,17 +144,18 @@ public class FilteredMapController {
         if (yGroupUnit <= 0) {
             throw new IllegalArgumentException("yGroupUnit(" + yGroupUnit + ") must be positive number");
         }
+        final String applicationName = appForm.getApplicationName();
 
         final int limit = Math.min(limitParam, LimitUtils.MAX);
         final Filter<List<SpanBo>> filter = filterBuilder.build(filterText, filterHint);
-        final Range range = Range.between(from, to);
+        final Range range = toRange(rangeForm);
         final LimitedScanResult<List<TransactionId>> limitedScanResult = filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
 
         final long lastScanTime = limitedScanResult.limitedTime();
         // original range: needed for visual chart data sampling
-        final Range originalRange = Range.between(from, originTo);
+        final Range originalRange = Range.between(rangeForm.getFrom(), originTo);
         // needed to figure out already scanned ranged
-        final Range scannerRange = Range.between(lastScanTime, to);
+        final Range scannerRange = Range.between(lastScanTime, range.getTo());
         logger.debug("originalRange:{} scannerRange:{} ", originalRange, scannerRange);
         final FilteredMapServiceOption option = new FilteredMapServiceOption
                 .Builder(limitedScanResult.scanData(), originalRange, xGroupUnit, yGroupUnit, filter, viewVersion)
@@ -236,5 +172,9 @@ public class FilteredMapController {
         mapWrap.setFilteredHistogram(true);
         mapWrap.setScatterDataMap(map.getScatterDataMap());
         return mapWrap;
+    }
+
+    private Range toRange(RangeForm rangeForm) {
+        return Range.between(rangeForm.getFrom(), rangeForm.getTo());
     }
 }

@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
 import com.navercorp.pinpoint.common.server.util.CallerUtils;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
@@ -43,6 +42,7 @@ import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.task.RequestContextPropagatingTaskDecorator;
 import com.navercorp.pinpoint.web.task.SecurityContextPropagatingTaskDecorator;
+import com.navercorp.pinpoint.web.util.ApplicationValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -77,25 +77,25 @@ public class ApplicationMapModule {
 
     @Bean
     public MapController mapController(MapService mapService,
-                                       ApplicationFactory applicationFactory,
+                                       ApplicationValidator applicationValidator,
                                        ConfigProperties configProperties) {
         Duration maxPeriod = Duration.ofDays(configProperties.getServerMapPeriodMax());
-        return new MapController(mapService, applicationFactory, maxPeriod);
+        return new MapController(mapService, applicationValidator, maxPeriod);
     }
 
     @Bean
     public MapHistogramController mapHistogramController(ResponseTimeHistogramService responseTimeHistogramService,
                                                          ApplicationFactory applicationFactory,
+                                                         ApplicationValidator applicationValidator,
                                                          ConfigProperties configProperties) {
         Duration maxPeriod = Duration.ofDays(configProperties.getServerMapPeriodMax());
-        return new MapHistogramController(responseTimeHistogramService, applicationFactory, maxPeriod);
+        return new MapHistogramController(responseTimeHistogramService, applicationFactory, applicationValidator, maxPeriod);
     }
 
     @Bean
     public FilteredMapController filteredMapController(FilteredMapService filteredMapService,
-                                                       FilterBuilder<List<SpanBo>> filterBuilder,
-                                                       ServiceTypeRegistryService registry) {
-        return new FilteredMapController(filteredMapService, filterBuilder, registry);
+                                                       FilterBuilder<List<SpanBo>> filterBuilder) {
+        return new FilteredMapController(filteredMapService, filterBuilder);
     }
 
     @Bean
