@@ -40,7 +40,7 @@ import java.util.Optional;
  */
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/heatmap")
 @Validated
 public class HeatmapChartController {
 
@@ -54,7 +54,7 @@ public class HeatmapChartController {
         //TODO : (minwoo) need to set rangeValidator
     }
 
-    @GetMapping(value = "/getHeatmapAppData")
+    @GetMapping(value = "/applicationData")
     public HeatMapDataView getHeatmapAppData(@RequestParam("applicationName") @NotBlank String applicationName,
                                   @RequestParam("from") @PositiveOrZero long from,
                                   @RequestParam("to") @PositiveOrZero long to,

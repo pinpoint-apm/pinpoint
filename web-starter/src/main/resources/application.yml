@@ -26,9 +26,11 @@ pinpoint:
         enabled: true
       inspector:
         enabled: true
+      otlpmetric:
+        enabled: true
+      heatmap:
+        enabled: false
     realtime:
-      enabled: true
-    otlpmetric:
       enabled: true
 
 pinpoint.web.websocket:

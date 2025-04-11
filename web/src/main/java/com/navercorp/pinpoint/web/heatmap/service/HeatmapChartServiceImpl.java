@@ -70,10 +70,10 @@ public class HeatmapChartServiceImpl implements HeatmapChartService {
         long executionTime = System.currentTimeMillis() - startTime;
         logger.debug("==== successHeatmapAppData execution time: {}ms", executionTime);
 
-        logger.debug("heatmapCell size: {}", successHeatmapAppData.size());
-        for (HeatmapCell heatmapCell : successHeatmapAppData) {
-            logger.debug("heatmapCell: {}", heatmapCell);
-        }
+//        logger.debug("heatmapCell size: {}", successHeatmapAppData.size());
+//        for (HeatmapCell heatmapCell : successHeatmapAppData) {
+//            logger.debug("heatmapCell: {}", heatmapCell);
+//        }
 
         heatmapSearchKey = new HeatmapSearchKey(sortKeyPrefix + POSTFIX_SORT_KEY_FAIL,
                                                 timeWindow,
@@ -88,10 +88,10 @@ public class HeatmapChartServiceImpl implements HeatmapChartService {
         executionTime = System.currentTimeMillis() - startTime;
         logger.debug("==== failHeatmapAppData execution time: {}ms", executionTime);
 
-        logger.debug("heatmapCell size: {}", failHeatmapAppData.size());
-        for (HeatmapCell heatmapCell : failHeatmapAppData) {
-            logger.debug("heatmapCell: {}", heatmapCell);
-        }
+//        logger.debug("heatmapCell size: {}", failHeatmapAppData.size());
+//        for (HeatmapCell heatmapCell : failHeatmapAppData) {
+//            logger.debug("heatmapCell: {}", heatmapCell);
+//        }
 
         return createHeatmapData(timeWindow, successHeatmapAppData, failHeatmapAppData, elapsedTimeBucketInfo);
     }
