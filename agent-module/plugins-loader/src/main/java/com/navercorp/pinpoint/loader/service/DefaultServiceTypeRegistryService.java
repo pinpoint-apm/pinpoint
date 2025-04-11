@@ -30,9 +30,8 @@ public class DefaultServiceTypeRegistryService implements ServiceTypeRegistrySer
 
     private final ServiceTypeLocator serviceTypeLocator;
 
-    public DefaultServiceTypeRegistryService(TraceMetadataLoaderService typeLoaderService) {
-        Objects.requireNonNull(typeLoaderService, "typeLoaderService");
-        this.serviceTypeLocator = typeLoaderService.getServiceTypeLocator();
+    public DefaultServiceTypeRegistryService(ServiceTypeLocator serviceTypeLocator) {
+        this.serviceTypeLocator = Objects.requireNonNull(serviceTypeLocator, "serviceTypeLocator");
     }
 
     @Override

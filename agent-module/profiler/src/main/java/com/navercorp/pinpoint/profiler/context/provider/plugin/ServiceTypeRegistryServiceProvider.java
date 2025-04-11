@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.provider.plugin;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.common.trace.ServiceTypeLocator;
 import com.navercorp.pinpoint.loader.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.loader.service.TraceMetadataLoaderService;
@@ -38,7 +39,7 @@ public class ServiceTypeRegistryServiceProvider implements Provider<ServiceTypeR
 
     @Override
     public ServiceTypeRegistryService get() {
-        ServiceTypeRegistryService serviceTypeRegistryService = new DefaultServiceTypeRegistryService(traceMetadataLoaderService);
-        return serviceTypeRegistryService ;
+        ServiceTypeLocator serviceTypeLocator = traceMetadataLoaderService.getServiceTypeLocator();
+        return new DefaultServiceTypeRegistryService(serviceTypeLocator);
     }
 }
