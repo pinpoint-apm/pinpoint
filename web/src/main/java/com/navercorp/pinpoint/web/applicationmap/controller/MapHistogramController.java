@@ -29,19 +29,20 @@ import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramSe
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramServiceOption;
 import com.navercorp.pinpoint.web.applicationmap.view.NodeHistogramSummaryView;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
+import com.navercorp.pinpoint.web.util.ApplicationValidator;
 import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
 import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
 import com.navercorp.pinpoint.web.view.LinkHistogramSummaryView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationPair;
 import com.navercorp.pinpoint.web.vo.ApplicationPairs;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -70,50 +71,56 @@ public class MapHistogramController {
     private final ResponseTimeHistogramService responseTimeHistogramService;
     private final RangeValidator rangeValidator;
     private final ApplicationFactory applicationFactory;
+    private final ApplicationValidator applicationValidator;
 
     public MapHistogramController(
             ResponseTimeHistogramService responseTimeHistogramService,
             ApplicationFactory applicationFactory,
+            ApplicationValidator applicationValidator,
             Duration limitDay
     ) {
         this.responseTimeHistogramService =
                 Objects.requireNonNull(responseTimeHistogramService, "responseTimeHistogramService");
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
+        this.applicationValidator = Objects.requireNonNull(applicationValidator, "applicationFactory");
         this.rangeValidator = new ForwardRangeValidator(Objects.requireNonNull(limitDay, "limitDay"));
     }
 
-    @GetMapping(value = "/getResponseTimeHistogramData", params = "serviceTypeName")
+    @GetMapping(value = "/getResponseTimeHistogramData")
     public ApplicationTimeHistogramViewModel getResponseTimeHistogramData(
-            @RequestParam("applicationName") @NotBlank String applicationName,
-            @RequestParam("serviceTypeName") @NotBlank String serviceTypeName,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to) {
-        final Range range = Range.between(from, to);
-        this.rangeValidator.validate(range);
+            @Valid @ModelAttribute
+            ApplicationForm appForm,
+            @Valid @ModelAttribute
+            RangeForm rangeForm) {
+        final Range range = toRange(rangeForm);
 
-        final Application application =
-                applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
+        final Application application = getApplication(appForm);
 
         AgentHistogramList responseTimes = responseTimeHistogramService.selectResponseTimeHistogramData(application, range);
         return new ApplicationTimeHistogramViewModel(TimeHistogramFormat.V1, application, responseTimes);
     }
 
+    private Range toRange(RangeForm rangeForm) {
+        Range between = Range.between(rangeForm.getFrom(), rangeForm.getTo());
+        this.rangeValidator.validate(between);
+        return between;
+    }
+
     @PostMapping(value = "/getResponseTimeHistogramDataV2")
     public NodeHistogramSummaryView postResponseTimeHistogramDataV2(
-            @RequestParam("applicationName") @NotBlank String applicationName,
-            @RequestParam("serviceTypeCode") int serviceTypeCode,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
+            @Valid @ModelAttribute
+            ApplicationForm appForm,
+            @Valid @ModelAttribute
+            RangeForm rangeForm,
             @RequestBody ApplicationPairs applicationPairs,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "true", required = false)
             boolean useStatisticsAgentState,
             @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
             boolean useLoadHistogramFormat
     ) {
-        final Range range = Range.between(from, to);
-        this.rangeValidator.validate(range);
+        final Range range = toRange(rangeForm);
 
-        final Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+        final Application application = getApplication(appForm);
 
         final List<Application> fromApplications =
                 mapApplicationPairsToApplications(applicationPairs.getFromApplications());
@@ -133,10 +140,10 @@ public class MapHistogramController {
 
     @GetMapping(value = "/getResponseTimeHistogramDataV2")
     public NodeHistogramSummaryView getResponseTimeHistogramDataV2(
-            @RequestParam("applicationName") @NotBlank String applicationName,
-            @RequestParam("serviceTypeCode") short serviceTypeCode,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
+            @Valid @ModelAttribute
+            ApplicationForm appForm,
+            @Valid @ModelAttribute
+            RangeForm rangeForm,
             @RequestParam(value = "fromApplicationNames", defaultValue = "", required = false)
             List<String> fromApplicationNames,
             @RequestParam(value = "fromServiceTypeCodes", defaultValue = "", required = false)
@@ -150,8 +157,7 @@ public class MapHistogramController {
             @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
             boolean useLoadHistogramFormat
     ) {
-        final Range range = Range.between(from, to);
-        this.rangeValidator.validate(range);
+        final Range range = toRange(rangeForm);
 
         if (fromApplicationNames.size() != fromServiceTypeCodes.size()) {
             throw new IllegalArgumentException(
@@ -162,7 +168,7 @@ public class MapHistogramController {
                     "toApplicationNames and toServiceTypeCodes must have the same number of elements");
         }
 
-        final Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+        final Application application = getApplication(appForm);
 
         final List<Application> fromApplications = toApplications(fromApplicationNames, fromServiceTypeCodes);
         final List<Application> toApplications = toApplications(toApplicationNames, toServiceTypeCodes);
@@ -208,12 +214,12 @@ public class MapHistogramController {
             @RequestParam(value = "fromServiceTypeCode", required = false) Short fromServiceTypeCode,
             @RequestParam(value = "toApplicationName", required = false) @NullOrNotBlank String toApplicationName,
             @RequestParam(value = "toServiceTypeCode", required = false) Short toServiceTypeCode,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
+            @Valid @ModelAttribute
+            RangeForm rangeForm,
             @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
             boolean useLoadHistogramFormat
     ) {
-        final Range range = Range.between(from, to);
+        final Range range = toRange(rangeForm);
         this.rangeValidator.validate(range);
 
         final Application fromApplication = this.createApplication(fromApplicationName, fromServiceTypeCode);
@@ -233,4 +239,7 @@ public class MapHistogramController {
         return this.applicationFactory.createApplication(name, serviceTypeCode);
     }
 
+    private Application getApplication(ApplicationForm appForm) {
+        return applicationValidator.newApplication(appForm.getApplicationName(), appForm.getServiceTypeCode(), appForm.getServiceTypeName());
+    }
 }
