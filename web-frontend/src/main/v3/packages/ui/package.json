@@ -91,7 +91,7 @@
     "react-responsive": "^9.0.2",
     "react-toastify": "^10.0.0",
     "react-virtuoso": "^4.6.0",
-    "recharts": "^2.12.7",
+    "recharts": "^2.15.2",
     "swr": "^2.1.2",
     "usehooks-ts": "^2.14.0",
     "zod": "^3.22.4"
