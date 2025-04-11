@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanRecursiveAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestId;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -233,19 +234,30 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
                     if (isDebug) {
                         logger.debug("remotecall sampling flag found. skip trace");
                     }
-                    return trace;
+                    return populateRequestId(trace, headers);
                 }
 
                 TraceId traceId = populateTraceIdFromHeaders(traceContext, headers);
                 final Trace trace;
                 if (traceId != null) {
-                    trace = createContinueTrace(traceContext, consumerRecord, traceId);
+                    trace = populateRequestId(createContinueTrace(traceContext, consumerRecord, traceId), headers);
                 } else {
-                    trace = createTrace0(traceContext, consumerRecord);
+                    trace = populateRequestId(createTrace0(traceContext, consumerRecord), headers);
                 }
                 if (trace.canSampled() && headerRecorded) {
                     headerRecorder.record(trace.getSpanRecorder(), consumerRecord);
                 }
+                return trace;
+            }
+
+            private Trace populateRequestId(Trace trace, org.apache.kafka.common.header.Headers headers) {
+                org.apache.kafka.common.header.Header requestIdHeader = headers.lastHeader(Header.HTTP_REQUEST_ID.toString());
+                if (requestIdHeader == null) {
+                    return trace;
+                }
+
+                String requestId = new String(requestIdHeader.value(), KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET);
+                trace.setRequestId(new DefaultRequestId(requestId));
                 return trace;
             }
 
