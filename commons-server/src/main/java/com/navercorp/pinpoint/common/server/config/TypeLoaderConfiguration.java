@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.common.server.config;
 
 import com.navercorp.pinpoint.common.server.util.ServerTraceMetadataLoaderService;
+import com.navercorp.pinpoint.common.trace.ServiceTypeLocator;
 import com.navercorp.pinpoint.loader.service.DefaultServiceTypeRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.loader.service.TraceMetadataLoaderService;
@@ -20,7 +21,8 @@ public class TypeLoaderConfiguration {
 
     @Bean
     public ServiceTypeRegistryService serviceTypeRegistryService(TraceMetadataLoaderService typeLoaderService) {
-        return new DefaultServiceTypeRegistryService(typeLoaderService);
+        ServiceTypeLocator serviceTypeLocator = typeLoaderService.getServiceTypeLocator();
+        return new DefaultServiceTypeRegistryService(serviceTypeLocator);
     }
 
 }
