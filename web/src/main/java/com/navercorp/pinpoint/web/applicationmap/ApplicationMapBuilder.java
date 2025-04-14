@@ -82,7 +82,7 @@ public class ApplicationMapBuilder {
 
         Node node = new Node(application);
         if (serverGroupListFactory != null) {
-            ServerGroupList runningInstances = serverGroupListFactory.createWasNodeInstanceList(node, range.getToInstant());
+            ServerGroupList runningInstances = serverGroupListFactory.createWasNodeInstanceList(node, range.getTo());
             if (runningInstances.getInstanceCount() > 0) {
                 node.setServerGroupList(runningInstances);
                 nodeList.addNode(node);
