@@ -44,7 +44,7 @@ import java.util.Optional;
 @Validated
 public class HeatmapChartController {
 
-    private final int MAX_TIMESLOT_COUNT = 30;
+    private final int MAX_TIMESLOT_COUNT = 60;
     private final static String DEFAULT_SERVCIE_NAME = "DEFAULT";
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(10000L, MAX_TIMESLOT_COUNT);
     private final HeatmapChartService heatmapChartService;
