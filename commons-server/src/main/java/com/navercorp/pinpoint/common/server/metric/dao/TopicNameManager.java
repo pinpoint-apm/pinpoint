@@ -18,19 +18,21 @@ package com.navercorp.pinpoint.common.server.metric.dao;
 
 /**
  * @author minwoo-jung
+ * @author donghun-cho
  */
-public class TopicNameManager extends TableNameManager {
+public class TopicNameManager {
 
-    public TopicNameManager(String topicPrefix, int paddingLength, int count) {
-        super(topicPrefix, paddingLength, count);
+    private final NameManager delegate;
+
+    public TopicNameManager(String prefix, int paddingLength, int count) {
+        this.delegate = new HashedNameManager(prefix, paddingLength, count);
     }
 
-    public String getTopicName(String applicationName) {
-        return super.getTableName(applicationName);
+    public TopicNameManager(String fixedName) {
+        this.delegate = new FixedNameManager(fixedName);
     }
 
-    @Override
-    public String getTableName(String applicationName) {
-        throw new UnsupportedOperationException("getTableName method is not supported in this class");
+    public String getTopicName(String key) {
+        return delegate.getName(key);
     }
 }

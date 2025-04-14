@@ -24,10 +24,15 @@ import org.springframework.context.annotation.PropertySources;
  */
 
 @PropertySources({
-        @PropertySource(name = "MetricAppPropertySources-CONFIG", value = { MetricAppPropertySources.KAFKA_TOPIC, MetricAppPropertySources.COLLECTOR_CONFIG}),
+        @PropertySource(name = "MetricAppPropertySources-CONFIG",
+                value = {
+                        MetricAppPropertySources.KAFKA_TOPIC_ROOT, MetricAppPropertySources.KAFKA_TOPIC_PROFILE,
+                        MetricAppPropertySources.COLLECTOR_CONFIG
+                }),
 })
 public class MetricAppPropertySources {
-    public static final String KAFKA_TOPIC = "classpath:pinot-collector/kafka-topic.properties";
+    public static final String KAFKA_TOPIC_ROOT = "classpath:pinot-collector/kafka-topic-root.properties";
+    public static final String KAFKA_TOPIC_PROFILE = "classpath:pinot-collector/profiles/${pinpoint.profiles.active:release}/kafka-topic.properties";
 
     public static final String COLLECTOR_CONFIG = "classpath:pinot-collector/profiles/${pinpoint.profiles.active:release}/collector-metric.properties";
 

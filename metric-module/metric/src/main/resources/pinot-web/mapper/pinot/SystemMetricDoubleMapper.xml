@@ -14,7 +14,7 @@
         SELECT
         AVG(fieldValue) AS avgValue,
         DATETIME_CONVERT(eventTime, '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH', '#{timePrecision.timeSize}:${timePrecision.timeUnit}') AS avgTime
-        FROM systemMetricDouble
+        FROM ${tableName}
         WHERE tenantId = #{tenantId}
         AND hostGroupName = #{hostGroupName}
         AND metricName = #{metricName}

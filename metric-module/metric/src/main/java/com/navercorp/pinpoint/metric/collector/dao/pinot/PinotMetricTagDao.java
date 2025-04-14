@@ -55,7 +55,7 @@ public class PinotMetricTagDao implements MetricTagDao {
 
     public PinotMetricTagDao(SqlSessionTemplate sqlPinotSessionTemplate,
                              KafkaTemplate<String, MetricJsonTag> kafkaTagTemplate,
-                             @Value("${kafka.metadata.tag.topic}") String topic) {
+                             @Value("${kafka.systemmetric.tag.topic}") String topic) {
         this.sqlPinotSessionTemplate = Objects.requireNonNull(sqlPinotSessionTemplate, "sqlPinotSessionTemplate");
         this.kafkaTagTemplate = Objects.requireNonNull(kafkaTagTemplate, "kafkaTagTemplate");
         this.topic = Objects.requireNonNull(topic, "topic");

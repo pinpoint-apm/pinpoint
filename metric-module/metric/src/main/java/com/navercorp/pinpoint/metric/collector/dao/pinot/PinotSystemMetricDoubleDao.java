@@ -16,13 +16,14 @@
 
 package com.navercorp.pinpoint.metric.collector.dao.pinot;
 
+import com.navercorp.pinpoint.common.server.metric.dao.TopicNameManager;
 import com.navercorp.pinpoint.metric.collector.dao.SystemMetricDao;
 import com.navercorp.pinpoint.metric.collector.view.SystemMetricView;
 import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
 import com.navercorp.pinpoint.pinot.kafka.util.KafkaCallbacks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Repository;
@@ -42,16 +43,16 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao<DoubleMetric>
 
     private final KafkaTemplate<String, SystemMetricView> kafkaDoubleTemplate;
 
-    private final String topic;
+    private final List<TopicNameManager> topicNameManagers;
 
     private final BiConsumer<SendResult<String, SystemMetricView>, Throwable> resultCallback
             = KafkaCallbacks.loggingCallback("Kafka(SystemMetricView)", logger);
 
     public PinotSystemMetricDoubleDao(KafkaTemplate<String, SystemMetricView> kafkaDoubleTemplate,
-                                      @Value("${kafka.double.topic}") String topic) {
+                                      @Qualifier("systemMetricTopicNameManagers") List<TopicNameManager> topicNameManagers) {
         this.kafkaDoubleTemplate = Objects.requireNonNull(kafkaDoubleTemplate, "kafkaDoubleTemplate");
-        this.topic = Objects.requireNonNull(topic, "topic");
-
+        this.topicNameManagers = Objects.requireNonNull(topicNameManagers, "topicNameManagers");
+        logger.info("PinotSystemMetricDoubleDao initialized with {} topicNameManagers", topicNameManagers.size());
     }
 
     @Override
@@ -60,11 +61,16 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao<DoubleMetric>
         Objects.requireNonNull(hostGroupName, "hostGroupName");
         Objects.requireNonNull(systemMetrics, "systemMetrics");
 
+        List<String> topicNames = topicNameManagers.stream()
+                .map(topicNameManager -> topicNameManager.getTopicName(hostGroupName))
+                .toList();
         for (DoubleMetric doubleMetric : systemMetrics) {
             String kafkaKey = generateKafkaKey(doubleMetric);
             SystemMetricView systemMetricView = new SystemMetricView(tenantId, hostGroupName, doubleMetric);
-            CompletableFuture<SendResult<String, SystemMetricView>> callback = this.kafkaDoubleTemplate.send(topic, kafkaKey, systemMetricView);
-            callback.whenComplete(resultCallback);
+            for (String topic : topicNames) {
+                CompletableFuture<SendResult<String, SystemMetricView>> callback = this.kafkaDoubleTemplate.send(topic, kafkaKey, systemMetricView);
+                callback.whenComplete(resultCallback);
+            }
         }
     }
 

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.metric.collector.dao.pinot;
 
+import com.navercorp.pinpoint.common.server.metric.dao.TopicNameManager;
 import com.navercorp.pinpoint.metric.collector.view.SystemMetricView;
 import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -49,6 +50,7 @@ import static org.mockito.Mockito.mock;
 public class PinotSystemMetricDaoTest {
 
     private final static String TOPIC = "test-topic";
+    private final List<TopicNameManager> TOPIC_NAME_MANAGERS = List.of(new TopicNameManager(TOPIC));
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final Random random = new Random(System.currentTimeMillis());
     private final MutableInt sendCount = new MutableInt();
@@ -75,7 +77,7 @@ public class PinotSystemMetricDaoTest {
 
     @Test
     public void testLogDao() {
-        PinotSystemMetricDoubleDao longDao = new PinotSystemMetricDoubleDao(kafkaTemplate, TOPIC);
+        PinotSystemMetricDoubleDao longDao = new PinotSystemMetricDoubleDao(kafkaTemplate, TOPIC_NAME_MANAGERS);
         List<DoubleMetric> doubleMetricList = createDoubleCounterList();
 
         longDao.insert("tenantId", "hostGroupName", "hostName", doubleMetricList);
