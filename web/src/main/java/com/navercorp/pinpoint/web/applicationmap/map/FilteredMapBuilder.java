@@ -205,8 +205,7 @@ public class FilteredMapBuilder {
                 } else {
                     applicationName = span.getApplicationName();
                 }
-                ServiceType serviceType = this.registry.findServiceType(ServiceType.USER.getCode());
-                return this.applicationFactory.createApplication(applicationName, serviceType);
+                return this.applicationFactory.createApplication(applicationName, ServiceType.USER.getCode());
             }
         } else {
             // create virtual queue node if current' span's service type is a queue AND :
