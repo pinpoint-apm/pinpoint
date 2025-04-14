@@ -108,8 +108,8 @@ public class BusinessTransactionController {
             @RequestParam(value = "useLoadHistogramFormat", required = false, defaultValue = "false")
             boolean useLoadHistogramFormat
     ) {
-        logger.debug("GET /transactionInfo params {traceId={}, focusTimestamp={}, agentId={}, spanId={}, v={}}",
-                traceId, focusTimestamp, agentId, spanId, viewVersion);
+        logger.debug("GET /transactionInfo params {traceId={}, focusTimestamp={}, agentId={}, spanId={}}",
+                traceId, focusTimestamp, agentId, spanId);
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
         final ColumnGetCount columnGetCount = ColumnGetCount.of(callstackSelectSpansLimit);
 
@@ -120,7 +120,7 @@ public class BusinessTransactionController {
 
         // application map
         final FilteredMapServiceOption.Builder optionBuilder =
-                new FilteredMapServiceOption.Builder(transactionId, viewVersion, columnGetCount);
+                new FilteredMapServiceOption.Builder(transactionId, columnGetCount);
         final FilteredMapServiceOption option =
                 optionBuilder.setUseStatisticsAgentState(useStatisticsAgentState).build();
         final ApplicationMap map = filteredMapService.selectApplicationMap(option);

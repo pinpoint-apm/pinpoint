@@ -32,7 +32,6 @@ import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapServiceOptio
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.util.LimitUtils;
-import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -81,10 +80,9 @@ public class FilteredMapController {
             @RequestParam("originTo") long originTo,
             @RequestParam("xGroupUnit") @Positive int xGroupUnit,
             @RequestParam("yGroupUnit") @Positive int yGroupUnit,
-            @RequestParam(value = "filter", required = false) @NullOrNotBlank String filterText,
-            @RequestParam(value = "hint", required = false) @NullOrNotBlank String filterHint,
+            @Valid @ModelAttribute
+            FilterForm filterForm,
             @RequestParam(value = "limit", required = false, defaultValue = "10000") @PositiveOrZero int limitParam,
-            @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
             boolean useStatisticsAgentState,
             @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
@@ -93,7 +91,7 @@ public class FilteredMapController {
         final String applicationName = appForm.getApplicationName();
 
         final int limit = Math.min(limitParam, LimitUtils.MAX);
-        final Filter<List<SpanBo>> filter = filterBuilder.build(filterText, filterHint);
+        final Filter<List<SpanBo>> filter = filterBuilder.build(filterForm.getFilterText(), filterForm.getFilterHint());
         final Range range = toRange(rangeForm);
         final LimitedScanResult<List<TransactionId>> limitedScanResult =
                 filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
@@ -102,10 +100,12 @@ public class FilteredMapController {
         // original range: needed for visual chart data sampling
         final Range originalRange = Range.between(rangeForm.getFrom(), originTo);
         // needed to figure out already scanned ranged
-        final Range scannerRange = Range.between(lastScanTime, rangeForm.getTo());
-        logger.debug("originalRange: {}, scannerRange: {}", originalRange, scannerRange);
+        if (logger.isDebugEnabled()) {
+            final Range scannerRange = Range.between(lastScanTime, rangeForm.getTo());
+            logger.debug("originalRange:{}, scannerRange:{}", originalRange, scannerRange);
+        }
         final FilteredMapServiceOption option = new FilteredMapServiceOption
-                .Builder(limitedScanResult.scanData(), originalRange, xGroupUnit, yGroupUnit, filter, viewVersion)
+                .Builder(limitedScanResult.scanData(), originalRange, xGroupUnit, yGroupUnit, filter)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
         final FilterMapWithScatter scatter = filteredMapService.selectApplicationMapWithScatterData(option);
@@ -133,21 +133,14 @@ public class FilteredMapController {
             @RequestParam("originTo") long originTo,
             @RequestParam("xGroupUnit") @Positive int xGroupUnit,
             @RequestParam("yGroupUnit") @Positive int yGroupUnit,
-            @RequestParam(value = "filter", required = false) @NullOrNotBlank String filterText,
-            @RequestParam(value = "hint", required = false) @NullOrNotBlank String filterHint,
+            @Valid @ModelAttribute
+            FilterForm filterForm,
             @RequestParam(value = "limit", required = false, defaultValue = "10000") @PositiveOrZero int limitParam,
-            @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState) {
-        if (xGroupUnit <= 0) {
-            throw new IllegalArgumentException("xGroupUnit(" + xGroupUnit + ") must be positive number");
-        }
-        if (yGroupUnit <= 0) {
-            throw new IllegalArgumentException("yGroupUnit(" + yGroupUnit + ") must be positive number");
-        }
         final String applicationName = appForm.getApplicationName();
 
         final int limit = Math.min(limitParam, LimitUtils.MAX);
-        final Filter<List<SpanBo>> filter = filterBuilder.build(filterText, filterHint);
+        final Filter<List<SpanBo>> filter = filterBuilder.build(filterForm.getFilterText(), filterForm.getFilterHint());
         final Range range = toRange(rangeForm);
         final LimitedScanResult<List<TransactionId>> limitedScanResult = filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
 
@@ -155,10 +148,12 @@ public class FilteredMapController {
         // original range: needed for visual chart data sampling
         final Range originalRange = Range.between(rangeForm.getFrom(), originTo);
         // needed to figure out already scanned ranged
-        final Range scannerRange = Range.between(lastScanTime, range.getTo());
-        logger.debug("originalRange:{} scannerRange:{} ", originalRange, scannerRange);
+        if (logger.isDebugEnabled()) {
+            final Range scannerRange = Range.between(lastScanTime, rangeForm.getTo());
+            logger.debug("originalRange:{}, scannerRange:{}", originalRange, scannerRange);
+        }
         final FilteredMapServiceOption option = new FilteredMapServiceOption
-                .Builder(limitedScanResult.scanData(), originalRange, xGroupUnit, yGroupUnit, filter, viewVersion)
+                .Builder(limitedScanResult.scanData(), originalRange, xGroupUnit, yGroupUnit, filter)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
         final FilterMapWithScatter map = filteredMapService.selectApplicationMapWithScatterData(option);
