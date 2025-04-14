@@ -91,26 +91,25 @@ public class FilteredMapServiceOption {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("FilteredMapServiceOption{");
-        sb.append("transactionIdList=").append(transactionIdList);
-        sb.append(", originalRange=").append(originalRange);
-        sb.append(", scanRange=").append(scanRange);
-        sb.append(", xGroupUnit=").append(xGroupUnit);
-        sb.append(", yGroupUnit=").append(yGroupUnit);
-        sb.append(", filter=").append(filter);
-        sb.append(", version=").append(version);
-        sb.append(", useStatisticsAgentState=").append(useStatisticsAgentState);
-        sb.append('}');
-        return sb.toString();
+        return "FilteredMapServiceOption{" +
+                "transactionIdList=" + transactionIdList +
+                ", originalRange=" + originalRange +
+                ", scanRange=" + scanRange +
+                ", xGroupUnit=" + xGroupUnit +
+                ", yGroupUnit=" + yGroupUnit +
+                ", filter=" + filter +
+                ", version=" + version +
+                ", useStatisticsAgentState=" + useStatisticsAgentState +
+                '}';
     }
 
     public static class Builder {
-        private List<TransactionId> transactionIdList;
-        private Range originalRange;
+        private final List<TransactionId> transactionIdList;
+        private final Range originalRange;
         private int xGroupUnit;
         private int yGroupUnit;
-        private Filter<List<SpanBo>> filter;
-        private int version;
+        private final Filter<List<SpanBo>> filter;
+        private final int version;
         private ColumnGetCount columnGetCount;
 
         private boolean useStatisticsAgentState;
