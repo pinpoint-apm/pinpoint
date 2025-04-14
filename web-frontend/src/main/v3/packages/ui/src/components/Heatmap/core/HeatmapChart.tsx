@@ -11,7 +11,7 @@ import {
 } from 'echarts/components';
 import { ECharts, EChartsOption } from 'echarts';
 import { colors, GetHeatmapAppData } from '@pinpoint-fe/ui/src/constants';
-import { capitalize, debounce, max } from 'lodash';
+import { capitalize, debounce } from 'lodash';
 import { defaultTickFormatter } from '@pinpoint-fe/ui/src/components/ReChart';
 import { HeatmapSettingType } from './HeatmapSetting';
 
@@ -38,9 +38,12 @@ export const HeatmapColor = {
 };
 
 type HeatmapChartProps = {
-  isLoading?: boolean;
   data?: GetHeatmapAppData.Response;
   setting: HeatmapSettingType;
+  onDragEnd?: (
+    dotData: { x1: number; y1: number; x2: number; y2: number },
+    checkedLegends: string[],
+  ) => void;
 };
 
 type DataForRender = {
@@ -52,8 +55,11 @@ type DataForRender = {
 };
 
 const HeatmapChart = React.forwardRef(
-  ({ data, setting }: HeatmapChartProps, ref: React.Ref<HTMLDivElement>) => {
+  ({ data, setting, onDragEnd }: HeatmapChartProps, ref: React.Ref<HTMLDivElement>) => {
     const chartRef = React.useRef<ReactEChartsCore>(null);
+
+    const [isMouseDown, setIsMouseDown] = React.useState(false);
+
     const [successRange, setSuccessRange] = React.useState(); // 성공 범위: [시작, 끝]
     const [failRange, setFailRange] = React.useState(); // 성공 범위: [시작, 끝]
 
@@ -75,23 +81,42 @@ const HeatmapChart = React.forwardRef(
       };
     }, []);
 
+    const selectedBoundary = React.useMemo(() => {
+      if (startCell === '' || endCell === '') {
+        return {
+          left: 0,
+          right: 0,
+          top: 0,
+          bottom: 0,
+        };
+      }
+
+      const [startX, startY] = startCell.split('-').map(Number);
+      const [endX, endY] = endCell.split('-').map(Number);
+
+      const left = Math.min(startX, endX);
+      const right = Math.max(startX, endX);
+      const top = Math.max(startY, endY);
+      const bottom = Math.min(startY, endY);
+
+      return {
+        left,
+        right,
+        top,
+        bottom,
+      };
+    }, [startCell, endCell]);
+
     const isSelectedCell = React.useCallback(
       (x: number, y: number) => {
-        const [startX, startY] = startCell.split('-').map(Number);
-        const [endX, endY] = endCell.split('-').map(Number);
-
-        if (!startX || !startY || !endX || !endY) {
-          return false;
-        }
-
-        const left = Math.min(startX, endX);
-        const right = Math.max(startX, endX);
-        const top = Math.max(startY, endY);
-        const bottom = Math.min(startY, endY);
+        const left = selectedBoundary.left;
+        const right = selectedBoundary.right;
+        const top = selectedBoundary.top;
+        const bottom = selectedBoundary.bottom;
 
         return x >= left && x <= right && y <= top && y >= bottom;
       },
-      [startCell, endCell],
+      [selectedBoundary],
     );
 
     const maxCount = React.useMemo(() => {
@@ -256,9 +281,9 @@ const HeatmapChart = React.forwardRef(
           seriesIndex: 0,
           orient: 'horizontal',
           itemWidth: 14,
-          itemHeight: (chartRef?.current?.getEchartsInstance()?.getWidth() || 100) * 0.3,
+          itemHeight: (chartRef?.current?.getEchartsInstance()?.getWidth() || 600) * 0.3,
           right: '45%',
-          bottom: '5%',
+          bottom: '6%',
           hoverLink: false,
           formatter: (value) => {
             if (value === setting.yMax) {
@@ -279,9 +304,9 @@ const HeatmapChart = React.forwardRef(
           seriesIndex: 1,
           orient: 'horizontal',
           itemWidth: 14,
-          itemHeight: (chartRef?.current?.getEchartsInstance()?.getWidth() || 100) * 0.3,
+          itemHeight: (chartRef?.current?.getEchartsInstance()?.getWidth() || 600) * 0.3,
           left: '55%',
-          bottom: '5%',
+          bottom: '6%',
           hoverLink: false,
           formatter: (value) => {
             return Math.floor(Number(value)).toLocaleString();
@@ -344,43 +369,71 @@ const HeatmapChart = React.forwardRef(
       ],
     };
 
+    const handleMouseUp = () => {
+      if (startCell === '' || endCell === '') {
+        setIsMouseDown(false);
+        return;
+      }
+
+      const checkedLegends = [];
+
+      if (!successRange || Math.floor(successRange?.[0]) !== Math.floor(successRange?.[1])) {
+        checkedLegends.push('success');
+      }
+
+      if (!failRange || Math.floor(failRange?.[0]) !== Math.floor(failRange?.[1])) {
+        checkedLegends.push('fail');
+      }
+
+      onDragEnd?.(
+        {
+          x1: selectedBoundary?.left,
+          x2: selectedBoundary?.right,
+          y1: selectedBoundary?.top,
+          y2: selectedBoundary?.bottom,
+        },
+        checkedLegends,
+      );
+
+      setIsMouseDown(false);
+      setStartCell('');
+      setEndCell('');
+    };
+
+    const handleMouseDown = () => {
+      setIsMouseDown(true);
+    };
+
     return (
-      <div ref={ref} className="relative w-full h-full">
+      <div
+        ref={ref}
+        className="relative w-full h-full pt-6 pr-3"
+        onMouseUp={handleMouseUp}
+        onMouseDown={handleMouseDown}
+      >
         <ReactEChartsCore
           ref={chartRef}
           echarts={echarts}
           option={option}
           style={{ height: '100%', width: '100%' }}
-          // onEvents={{
-          //   mousedown: (params: any, echartsInstance: ECharts) => {
-          //     console.log('mousedown', params);
-          //     setStartCell(`${params.value[0]}-${params.value[1]}`);
-          //     setEndCell(`${params.value[0]}-${params.value[1]}`);
-          //   },
-          //   mousemove: (params: any) => {
-          //     if (!startCell) {
-          //       return;
-          //     }
-          //     setEndCell(`${params.value[0]}-${params.value[1]}`);
-          //   },
-          //   mouseup: (params: any) => {
-          //     console.log('mouseup', params, startCell, endCell);
-          //     setStartCell('');
-          //     setEndCell('');
-          //   },
-          //   datarangeselected: debounce((params: any) => {
-          //     if (params.visualMapId === 'success') {
-          //       setSuccessRange(params.selected);
-          //     } else if (params.visualMapId === 'fail') {
-          //       setFailRange(params.selected);
-          //     }
-          //   }, 300),
-          //   // click: (params: any, echartsInstance: ECharts) => {
-          //   //   console.log('click', params);
-          //   //   setStartCell(`${params.value[0]}-${params.value[1]}`);
-          //   //   // setRange([1000, 3000]);
-          //   // },
-          // }}
+          onEvents={{
+            mousemove: (params: any) => {
+              if (!startCell && isMouseDown) {
+                setStartCell(`${params.value[0]}-${params.value[1]}`);
+                setEndCell(`${params.value[0]}-${params.value[1]}`);
+              } else if (!startCell && !isMouseDown) {
+                return;
+              }
+              setEndCell(`${params.value[0]}-${params.value[1]}`);
+            },
+            datarangeselected: debounce((params: any) => {
+              if (params.visualMapId === 'success') {
+                setSuccessRange(params.selected);
+              } else if (params.visualMapId === 'fail') {
+                setFailRange(params.selected);
+              }
+            }, 300),
+          }}
         />
       </div>
     );

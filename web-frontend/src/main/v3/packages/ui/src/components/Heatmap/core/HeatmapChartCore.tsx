@@ -12,6 +12,8 @@ import {
   cn,
   convertParamsToQueryString,
   getHeatmapFullScreenPath,
+  getTransactionListPath,
+  getTranscationListQueryString,
   useServerMapSearchParameters,
   useStoragedAxisY,
 } from '@pinpoint-fe/ui';
@@ -19,6 +21,7 @@ import { FaDownload, FaExpandArrowsAlt } from 'react-icons/fa';
 import { BsGearFill } from 'react-icons/bs';
 import { CgSpinner } from 'react-icons/cg';
 import { HeatmapSetting } from './HeatmapSetting';
+import { HeatmapSkeleton } from '../HeatmapSkeleton';
 
 const colorSteps = 10;
 export const HeatmapColor = {
@@ -42,7 +45,7 @@ export type HeatmapChartCoreProps = {
   };
 };
 
-const HeatmapChartCore = ({ data, agentId, toolbarOption }: HeatmapChartCoreProps) => {
+const HeatmapChartCore = ({ isLoading, data, agentId, toolbarOption }: HeatmapChartCoreProps) => {
   const chartContainerRef = React.useRef<HTMLDivElement>(null);
 
   const { searchParameters, application } = useServerMapSearchParameters();
@@ -90,6 +93,27 @@ const HeatmapChartCore = ({ data, agentId, toolbarOption }: HeatmapChartCoreProp
     setY([newSetting.yMin, newSetting.yMax]);
   };
 
+  const onDragEnd = (data: any, checkedLegends: any) => {
+    window.open(
+      `${BASE_PATH}${getTransactionListPath(
+        application,
+        searchParameters,
+      )}&${getTranscationListQueryString({
+        ...data,
+        checkedLegends,
+        agentId,
+      })}`,
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <div className="relative flex flex-col w-full h-full gap-4">
+        <HeatmapSkeleton />
+      </div>
+    );
+  }
+
   return (
     <div className="relative flex flex-col w-full h-full gap-4">
       <div className={cn('flex flex-row justify-end')}>
@@ -109,6 +133,7 @@ const HeatmapChartCore = ({ data, agentId, toolbarOption }: HeatmapChartCoreProp
           yMin: y[0],
           yMax: y[1],
         }}
+        onDragEnd={onDragEnd}
       />
       {(showSetting || isCapturingImage) && (
         <div className="absolute inset-0 z-[1000] flex items-center justify-center">
