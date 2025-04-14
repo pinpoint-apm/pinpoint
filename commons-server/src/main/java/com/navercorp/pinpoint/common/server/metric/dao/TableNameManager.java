@@ -16,34 +16,22 @@
 
 package com.navercorp.pinpoint.common.server.metric.dao;
 
-import org.apache.kafka.common.utils.Utils;
-
-import java.nio.charset.StandardCharsets;
-
 /**
  * @author minwoo-jung
+ * @author donghun-cho
  */
 public class TableNameManager {
+    private final NameManager delegate;
 
-    private final String tablePrefix;
-    private final String numberFormat;
-    private final int count;
-
-    public TableNameManager(String tablePrefix, int paddingLength, int count) {
-        this.tablePrefix = tablePrefix;
-        this.numberFormat = "%0" + paddingLength + "d";
-        this.count = count;
+    public TableNameManager(String prefix, int paddingLength, int count) {
+        this.delegate = new HashedNameManager(prefix, paddingLength, count);
     }
 
-    public String getTableName(String applicationName) {
-        int hashValue = getHashValue(applicationName);
-        String postfix = String.format(numberFormat, hashValue);
-        return tablePrefix.concat(postfix);
+    public TableNameManager(String fixedName) {
+        this.delegate = new FixedNameManager(fixedName);
     }
 
-    protected int getHashValue(String applicationName) {
-        int hash = Utils.murmur2(applicationName.getBytes(StandardCharsets.UTF_8));
-        return Utils.toPositive(hash) % count;
+    public String getTableName(String key) {
+        return delegate.getName(key);
     }
-
 }

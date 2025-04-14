@@ -38,6 +38,20 @@ public class MetricCollectorProperties {
     @Value("${metric.cache.tag.size:10000}")
     private int metricTagCacheSize;
 
+    @Value("${kafka.systemmetric.double.single.topic.enabled:true}")
+    private boolean systemMetricDoubleSingleTopicEnabled;
+    @Value("${kafka.systemmetric.double.single.topic:system-metric-double}")
+    private String systemMetricDoubleSingleTopicName;
+
+    @Value("${kafka.systemmetric.double.multi.topic.enabled:false}")
+    private boolean systemMetricDoubleMultiTopicEnabled;
+    @Value("${kafka.systemmetric.double.topic.prefix:systemMetricDouble}")
+    private String systemMetricDoubleTopicPrefix;
+    @Value("${kafka.systemmetric.double.topic.table.padding.length:2}")
+    private int systemMetricDoubleTopicPaddingLength;
+    @Value("${kafka.systemmetric.double.topic.count:1}")
+    private int systemMetricDoubleTopicCount;
+
     public int getMetricTagCacheSize() {
         return metricTagCacheSize;
     }
@@ -46,6 +60,29 @@ public class MetricCollectorProperties {
         return metricTagCacheInitSize;
     }
 
+    public boolean isSystemMetricDoubleSingleTopicEnabled() {
+        return systemMetricDoubleSingleTopicEnabled;
+    }
+
+    public String getSystemMetricDoubleSingleTopicName() {
+        return systemMetricDoubleSingleTopicName;
+    }
+
+    public boolean isSystemMetricDoubleMultiTopicEnabled() {
+        return systemMetricDoubleMultiTopicEnabled;
+    }
+
+    public String getSystemMetricDoubleTopicPrefix() {
+        return systemMetricDoubleTopicPrefix;
+    }
+
+    public int getSystemMetricDoubleTopicPaddingLength() {
+        return systemMetricDoubleTopicPaddingLength;
+    }
+
+    public int getSystemMetricDoubleTopicCount() {
+        return systemMetricDoubleTopicCount;
+    }
 
     @PostConstruct
     public void log() {
@@ -57,9 +94,14 @@ public class MetricCollectorProperties {
     @Override
     public String toString() {
         return "MetricCollectorProperties{" +
-                "logger=" + logger +
-                ", metricTagCacheInitSize=" + metricTagCacheInitSize +
+                "metricTagCacheInitSize=" + metricTagCacheInitSize +
                 ", metricTagCacheSize=" + metricTagCacheSize +
+                ", systemMetricDoubleSingleTopicEnabled=" + systemMetricDoubleSingleTopicEnabled +
+                ", systemMetricDoubleSingleTopicName='" + systemMetricDoubleSingleTopicName + '\'' +
+                ", systemMetricDoubleMultiTopicEnabled=" + systemMetricDoubleMultiTopicEnabled +
+                ", systemMetricDoubleTopicPrefix='" + systemMetricDoubleTopicPrefix + '\'' +
+                ", systemMetricDoubleTopicPaddingLength=" + systemMetricDoubleTopicPaddingLength +
+                ", systemMetricDoubleTopicCount=" + systemMetricDoubleTopicCount +
                 '}';
     }
 }

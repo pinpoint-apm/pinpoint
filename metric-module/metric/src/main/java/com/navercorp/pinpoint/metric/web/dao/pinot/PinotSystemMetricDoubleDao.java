@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.metric.web.dao.pinot;
 
+import com.navercorp.pinpoint.common.server.metric.dao.TableNameManager;
 import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
 import com.navercorp.pinpoint.metric.common.model.MetricTag;
 import com.navercorp.pinpoint.metric.web.dao.SystemMetricDao;
@@ -41,14 +42,18 @@ public class PinotSystemMetricDoubleDao implements SystemMetricDao {
     private static final String NAMESPACE = PinotSystemMetricDoubleDao.class.getName() + ".";
 
     private final PinotAsyncTemplate asyncTemplate;
+    private final TableNameManager tableNameManager;
 
-    public PinotSystemMetricDoubleDao(@Qualifier("pinotAsyncTemplate") PinotAsyncTemplate asyncTemplate) {
+    public PinotSystemMetricDoubleDao(@Qualifier("pinotAsyncTemplate") PinotAsyncTemplate asyncTemplate,
+                                      @Qualifier("systemMetricDoubleTableNameManager") TableNameManager tableNameManager) {
         this.asyncTemplate = Objects.requireNonNull(asyncTemplate, "asyncTemplate");
+        this.tableNameManager = Objects.requireNonNull(tableNameManager, "tableNameManager");
     }
 
     @Override
     public CompletableFuture<List<DataPoint<Double>>> getAsyncSampledSystemMetricData(MetricDataSearchKey metricDataSearchKey, MetricTag metricTag) {
-        SystemMetricDataSearchKey systemMetricDataSearchKey = new SystemMetricDataSearchKey(metricDataSearchKey, metricTag);
+        String tableName = tableNameManager.getTableName(metricDataSearchKey.getHostGroupName());
+        SystemMetricDataSearchKey systemMetricDataSearchKey = new SystemMetricDataSearchKey(tableName, metricDataSearchKey, metricTag);
         return asyncTemplate.selectList(NAMESPACE + "selectSampledSystemMetricData", systemMetricDataSearchKey);
     }
 }

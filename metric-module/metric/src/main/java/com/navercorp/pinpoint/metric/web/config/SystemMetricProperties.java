@@ -32,11 +32,44 @@ public class SystemMetricProperties {
 
     private final Logger logger = LogManager.getLogger(SystemMetricProperties.class);
 
+    @Value("${pinot.systemmetric.double.table.mode:single}") //single or multi
+    private String systemMetricDoubleTableMode;
+    // single
+    @Value("${pinot.systemmetric.double.single.table.name:systemMetricDouble}")
+    private String systemMetricDoubleSingleTableName;
+    // multi
+    @Value("${pinot.systemmetric.double.table.prefix:systemMetricDouble}")
+    private String systemMetricTablePrefix;
+    @Value("${pinot.systemmetric.double.table.padding.length:2}")
+    private int systemMetricTablePaddingLength;
+    @Value("${pinot.systemmetric.double.table.count:1}")
+    private int systemMetricTableCount;
+
     @Value("${web.systemmetric.api.period.max:28}")
     private int systemMetricPeriodMax;
 
     @Value("${web.systemmetric.api.period.interval:5m,20m,1h,3h,6h,12h,1d,2d,1w,2w,4w}")
     private List<String> systemMetricPeriodInteval;
+
+    public String getSystemMetricDoubleTableMode() {
+        return systemMetricDoubleTableMode;
+    }
+
+    public String getSystemMetricDoubleSingleTableName() {
+        return systemMetricDoubleSingleTableName;
+    }
+
+    public int getSystemMetricTableCount() {
+        return systemMetricTableCount;
+    }
+
+    public String getSystemMetricTablePrefix() {
+        return systemMetricTablePrefix;
+    }
+
+    public int getSystemMetricTablePaddingLength() {
+        return systemMetricTablePaddingLength;
+    }
 
     public int getSystemMetricPeriodMax() {
         return systemMetricPeriodMax;
@@ -56,7 +89,12 @@ public class SystemMetricProperties {
     @Override
     public String toString() {
         return "SystemMetricProperties{" +
-                "systemMetricPeriodMax=" + systemMetricPeriodMax +
+                "systemMetricDoubleTableMode='" + systemMetricDoubleTableMode + '\'' +
+                ", systemMetricDoubleSingleTableName='" + systemMetricDoubleSingleTableName + '\'' +
+                ", systemMetricTablePrefix='" + systemMetricTablePrefix + '\'' +
+                ", systemMetricTablePaddingLength=" + systemMetricTablePaddingLength +
+                ", systemMetricTableCount=" + systemMetricTableCount +
+                ", systemMetricPeriodMax=" + systemMetricPeriodMax +
                 ", systemMetricPeriodInteval=" + systemMetricPeriodInteval +
                 '}';
     }

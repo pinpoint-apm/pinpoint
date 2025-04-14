@@ -15,7 +15,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 
-
 @SpringBootConfiguration
 @EnableAutoConfiguration(exclude = {
         DataSourceAutoConfiguration.class,
@@ -37,11 +36,10 @@ import org.springframework.context.annotation.Profile;
         PinotConfiguration.class,
         MetricCollectorPinotDaoConfiguration.class,
         MetricKafkaConfiguration.class,
-        MetricCollectorProperties.class
-
+        MetricCollectorProperties.class,
+        MetricCollectorConfig.class
 })
 @Profile("metric")
 public class MetricCollectorApp {
-
 
 }

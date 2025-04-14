@@ -52,7 +52,7 @@ public class PinotSystemMetricDataTypeDao implements SystemMetricDataTypeDao {
 
     public PinotSystemMetricDataTypeDao(SqlSessionTemplate sqlPinotSessionTemplate,
                              KafkaTemplate<String, MetricData> kafkaDataTypeTemplate,
-                             @Value("${kafka.metadata.data.type.topic}") String topic) {
+                             @Value("${kafka.systemmetric.data.type.topic}") String topic) {
         this.sqlPinotSessionTemplate = Objects.requireNonNull(sqlPinotSessionTemplate, "sqlPinotSessionTemplate");
         this.kafkaDataTypeTemplate = Objects.requireNonNull(kafkaDataTypeTemplate, "kafkaDataTypeTemplate");
         this.topic = Objects.requireNonNull(topic, "topic");

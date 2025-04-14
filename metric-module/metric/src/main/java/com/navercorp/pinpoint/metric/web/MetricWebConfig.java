@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.metric.web;
 
+import com.navercorp.pinpoint.common.server.metric.dao.TableNameManager;
 import com.navercorp.pinpoint.metric.web.config.SystemMetricProperties;
 import com.navercorp.pinpoint.metric.web.frontend.export.SystemMetricPropertiesExporter;
 import org.springframework.context.annotation.Bean;
@@ -35,5 +36,13 @@ public class MetricWebConfig {
     @Bean
     public SystemMetricPropertiesExporter systemMetricPropertiesExporter(SystemMetricProperties systemMetricProperties) {
         return new SystemMetricPropertiesExporter(systemMetricProperties);
+    }
+
+    @Bean
+    TableNameManager systemMetricDoubleTableNameManager(SystemMetricProperties properties) {
+        if ("single".equalsIgnoreCase(properties.getSystemMetricDoubleTableMode())) {
+            return new TableNameManager(properties.getSystemMetricDoubleSingleTableName());
+        }
+        return new TableNameManager(properties.getSystemMetricTablePrefix(), properties.getSystemMetricTablePaddingLength(), properties.getSystemMetricTableCount());
     }
 }
