@@ -36,7 +36,6 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -162,7 +161,7 @@ public class HbaseAgentLifeCycleDaoTest {
         AgentInfo nullAgentInfo = null;
         List<AgentInfo> givenAgentInfos = Arrays.asList(nonNullAgentInfo, nullAgentInfo, nonNullAgentInfo, nullAgentInfo);
         // When
-        AgentStatusQuery query = AgentStatusQuery.buildQuery(givenAgentInfos, Instant.ofEpochMilli(expectedTimestamp));
+        AgentStatusQuery query = AgentStatusQuery.buildQuery(givenAgentInfos, expectedTimestamp);
         List<Optional<AgentStatus>> agentStatus = this.agentLifeCycleDao.getAgentStatus(query);
 
         // Then
@@ -178,7 +177,7 @@ public class HbaseAgentLifeCycleDaoTest {
     public void populateAgentStatus_should_not_crash_with_invalid_inputs() {
         this.agentLifeCycleDao.getAgentStatus(null, 1000, 1000L);
         AgentStatusQuery.Builder builder = AgentStatusQuery.newBuilder();
-        AgentStatusQuery query = builder.build(Instant.ofEpochMilli(1000));
+        AgentStatusQuery query = builder.build(1000);
         this.agentLifeCycleDao.getAgentStatus(query);
     }
 

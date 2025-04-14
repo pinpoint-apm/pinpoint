@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.web.applicationmap.appender.server.datasource;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 
-import java.time.Instant;
-
 /**
  * @author emeroad
  * @author minwoo.jung
@@ -28,5 +26,5 @@ import java.time.Instant;
  */
 public interface ServerGroupListDataSource {
 
-    ServerGroupList createServerGroupList(Node node, Instant timestamp);
+    ServerGroupList createServerGroupList(Node node, long timestamp);
 }

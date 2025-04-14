@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 
-import java.time.Instant;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -43,7 +42,7 @@ public class StatisticsServerGroupListFactory implements ServerGroupListFactory 
     }
 
     @Override
-    public ServerGroupList createWasNodeInstanceList(Node wasNode, Instant timestamp) {
+    public ServerGroupList createWasNodeInstanceList(Node wasNode, long timestamp) {
         ServerGroupList serverGroupList = createWasNodeInstanceListFromHistogram(wasNode, timestamp);
         if (serverGroupList.getServerGroupList().isEmpty()) {
             // When there is no transaction information, agentInfo information is used.
@@ -52,9 +51,9 @@ public class StatisticsServerGroupListFactory implements ServerGroupListFactory 
         return serverGroupList;
     }
 
-    ServerGroupList createWasNodeInstanceListFromHistogram(Node wasNode, Instant timestamp) {
+    ServerGroupList createWasNodeInstanceListFromHistogram(Node wasNode, long timestamp) {
         Objects.requireNonNull(wasNode, "wasNode");
-        if (timestamp.toEpochMilli() < 0) {
+        if (timestamp < 0) {
             return ServerGroupList.empty();
         }
 
@@ -76,7 +75,7 @@ public class StatisticsServerGroupListFactory implements ServerGroupListFactory 
         return builder.build();
     }
 
-    ServerGroupList createWasNodeInstanceListFromAgentInfo(Node wasNode, Instant timestamp) {
+    ServerGroupList createWasNodeInstanceListFromAgentInfo(Node wasNode, long timestamp) {
         return serverGroupListDataSource.createServerGroupList(wasNode, timestamp);
     }
 

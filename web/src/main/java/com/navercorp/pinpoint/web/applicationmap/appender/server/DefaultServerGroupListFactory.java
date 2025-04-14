@@ -16,15 +16,14 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.server;
 
+import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
 
-import java.time.Instant;
 import java.util.Objects;
 
 /**
@@ -39,7 +38,7 @@ public class DefaultServerGroupListFactory implements ServerGroupListFactory {
     }
 
     @Override
-    public ServerGroupList createWasNodeInstanceList(Node wasNode, Instant timestamp) {
+    public ServerGroupList createWasNodeInstanceList(Node wasNode, long timestamp) {
         return serverGroupListDataSource.createServerGroupList(wasNode, timestamp);
     }
 

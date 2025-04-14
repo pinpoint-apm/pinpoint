@@ -20,15 +20,13 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 
-import java.time.Instant;
-
 /**
  * @author HyunGil Jeong
  */
 public class EmptyServerGroupListFactory implements ServerGroupListFactory {
 
     @Override
-    public ServerGroupList createWasNodeInstanceList(Node wasNode, Instant timestamp) {
+    public ServerGroupList createWasNodeInstanceList(Node wasNode, long timestamp) {
         return ServerGroupList.empty();
     }
 

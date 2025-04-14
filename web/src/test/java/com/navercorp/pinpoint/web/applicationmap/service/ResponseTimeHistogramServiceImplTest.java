@@ -49,8 +49,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -76,7 +74,7 @@ public class ResponseTimeHistogramServiceImplTest {
 
         when(serverInstanceDatasourceService.getServerGroupListDataSource()).thenReturn(new ServerGroupListDataSource() {
             @Override
-            public ServerGroupList createServerGroupList(Node node, Instant timestamp) {
+            public ServerGroupList createServerGroupList(Node node, long timestamp) {
                 return ServerGroupList.empty();
             }
         });
@@ -93,10 +91,10 @@ public class ResponseTimeHistogramServiceImplTest {
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);
 
-        when(mapResponseDao.selectResponseTime(eq(nodeApplication), any(Range.class))).thenReturn(Collections.emptyList());
+        when(mapResponseDao.selectResponseTime(eq(nodeApplication), any(Range.class))).thenReturn(List.of());
 
         //WAS node does not use fromApplications or toApplications to build nodeHistogramData
-        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, Collections.emptyList(), Collections.emptyList())
+        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, List.of(), List.of())
                 .setUseStatisticsAgentState(true)
                 .build();
 
@@ -123,7 +121,7 @@ public class ResponseTimeHistogramServiceImplTest {
         when(mapResponseDao.selectResponseTime(eq(nodeApplication), any(Range.class))).thenReturn(List.of(createResponseTime(nodeApplication, timestamp)));
 
         //WAS node does not use fromApplications or toApplications to build nodeHistogramData
-        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, Collections.emptyList(), Collections.emptyList())
+        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, List.of(), List.of())
                 .setUseStatisticsAgentState(true)
                 .build();
 
@@ -165,7 +163,7 @@ public class ResponseTimeHistogramServiceImplTest {
         when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), eq(LinkDataMapProcessor.NO_OP), any(LinkDataMapProcessor.class)))
                 .thenReturn(createCalleeLinkSelector(List.of(new LinkKey(nodeApplication, toApplication)), timestamp));
 
-        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, Collections.emptyList(), List.of(toApplication))
+        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, List.of(), List.of(toApplication))
                 .setUseStatisticsAgentState(true)
                 .build();
         NodeHistogramSummary nodeHistogramSummary = service.selectNodeHistogramData(option);
@@ -194,7 +192,7 @@ public class ResponseTimeHistogramServiceImplTest {
                 .thenReturn(createCallerLinkSelector(List.of(new LinkKey(was, nodeApplication)), timestamp));
 
         //UNKNOWN(TERMINAL, ALIAS) node use fromApplications to build nodeHistogramData
-        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, List.of(was), Collections.emptyList())
+        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, List.of(was), List.of())
                 .setUseStatisticsAgentState(true)
                 .build();
         NodeHistogramSummary nodeHistogramSummary = service.selectNodeHistogramData(option);
@@ -229,7 +227,7 @@ public class ResponseTimeHistogramServiceImplTest {
                 ), timestamp));
 
         //UNKNOWN(TERMINAL, ALIAS) node use toApplications to build nodeHistogramData
-        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, List.of(was1, was2), Collections.emptyList())
+        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, List.of(was1, was2), List.of())
                 .setUseStatisticsAgentState(true)
                 .build();
         NodeHistogramSummary nodeHistogramSummary = service.selectNodeHistogramData(option);
@@ -261,7 +259,7 @@ public class ResponseTimeHistogramServiceImplTest {
         when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), eq(LinkDataMapProcessor.NO_OP)))
                 .thenReturn(createCallerLinkSelector(List.of(new LinkKey(was, nodeApplication)), timestamp));
 
-        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, List.of(was), Collections.emptyList())
+        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, List.of(was), List.of())
                 .setUseStatisticsAgentState(true)
                 .build();
         NodeHistogramSummary nodeHistogramSummary = service.selectNodeHistogramData(option);
@@ -293,7 +291,7 @@ public class ResponseTimeHistogramServiceImplTest {
         when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), any(LinkDataMapProcessor.class)))
                 .thenReturn(createCallerLinkSelector(List.of(new LinkKey(was1, nodeApplication)), timestamp));
 
-        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, List.of(was1, was2), Collections.emptyList())
+        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, List.of(was1, was2), List.of())
                 .setUseStatisticsAgentState(true)
                 .build();
         NodeHistogramSummary nodeHistogramSummary = service.selectNodeHistogramData(option);
@@ -327,7 +325,7 @@ public class ResponseTimeHistogramServiceImplTest {
                 .thenThrow(new IllegalStateException("no scan for QUEUE node with empty sourceApplications"));
 
         //fromApplications out of Search range
-        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, Collections.emptyList(), Collections.emptyList())
+        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, List.of(), List.of())
                 .setUseStatisticsAgentState(true)
                 .build();
         NodeHistogramSummary nodeHistogramSummary = service.selectNodeHistogramData(option);
@@ -365,7 +363,7 @@ public class ResponseTimeHistogramServiceImplTest {
                 ), timestamp));
 
         //fromApplications out of Search range
-        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, List.of(was2), Collections.emptyList())
+        ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, range, List.of(was2), List.of())
                 .setUseStatisticsAgentState(true)
                 .build();
         NodeHistogramSummary nodeHistogramSummary = service.selectNodeHistogramData(option);

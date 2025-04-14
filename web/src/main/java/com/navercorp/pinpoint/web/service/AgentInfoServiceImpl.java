@@ -47,7 +47,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -194,7 +193,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     private List<AgentAndStatus> getAgentAndStatuses(List<AgentInfo> agentInfoList, long timestamp) {
         List<AgentAndStatus> result = new ArrayList<>(agentInfoList.size());
 
-        AgentStatusQuery query = AgentStatusQuery.buildQuery(agentInfoList, Instant.ofEpochMilli(timestamp));
+        AgentStatusQuery query = AgentStatusQuery.buildQuery(agentInfoList, timestamp);
         List<Optional<AgentStatus>> agentStatus = this.agentLifeCycleDao.getAgentStatus(query);
         for (int i = 0; i < agentStatus.size(); i++) {
             Optional<AgentStatus> status = agentStatus.get(i);
@@ -231,7 +230,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
         List<DetailedAgentAndStatus> result = new ArrayList<>(agentInfos.size());
 
-        AgentStatusQuery query = AgentStatusQuery.buildGenericQuery(agentInfos, DetailedAgentInfo::getAgentInfo, Instant.ofEpochMilli(timestamp));
+        AgentStatusQuery query = AgentStatusQuery.buildGenericQuery(agentInfos, DetailedAgentInfo::getAgentInfo, timestamp);
         List<Optional<AgentStatus>> agentStatus = this.agentLifeCycleDao.getAgentStatus(query);
 
         for (int i = 0; i < agentStatus.size(); i++) {

@@ -21,7 +21,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -101,7 +100,7 @@ public class ApplicationAgentListServiceImpl implements ApplicationAgentListServ
     private List<AgentAndStatus> getAgentAndStatuses(List<AgentInfo> agentInfoList, Range range) {
         List<AgentAndStatus> agentAndStatusList = new ArrayList<>(agentInfoList.size());
 
-        AgentStatusQuery query = AgentStatusQuery.buildQuery(agentInfoList, Instant.ofEpochMilli(range.getTo()));
+        AgentStatusQuery query = AgentStatusQuery.buildQuery(agentInfoList, range.getTo());
         List<Optional<AgentStatus>> agentStatus = this.agentLifeCycleDao.getAgentStatus(query);
         for (int i = 0; i < agentStatus.size(); i++) {
             Optional<AgentStatus> status = agentStatus.get(i);

@@ -27,7 +27,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.CollectionUtils;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -105,7 +104,7 @@ public class DefaultServerInfoAppender implements ServerInfoAppender {
             return CompletableFuture.supplyAsync(new Supplier<>() {
                 @Override
                 public ServerGroupList get() {
-                    final Instant to = range.getToInstant();
+                    final long to = range.getTo();
                     return serverGroupListFactory.createWasNodeInstanceList(node, to);
                 }
             }, executor);
