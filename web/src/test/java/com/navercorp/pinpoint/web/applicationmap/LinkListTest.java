@@ -58,7 +58,7 @@ public class LinkListTest {
 
         // don't copy in case of duplicated node
         original.addLinkList(copy);
-        Assertions.assertEquals(original.size(), 1);
+        Assertions.assertEquals(1, original.size());
         assertThat(original.getLinkList()).hasSize(1);
 
     }

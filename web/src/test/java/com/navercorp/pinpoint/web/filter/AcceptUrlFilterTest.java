@@ -20,15 +20,12 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
  * @author emeroad
  */
 public class AcceptUrlFilterTest {
-    private static final Charset UTF8 = StandardCharsets.UTF_8;
 
     @Test
     public void acceptTest_1() {
