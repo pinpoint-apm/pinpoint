@@ -29,15 +29,15 @@ public class SearchDepthTest {
     public void testSearchDepth() {
         SearchDepth zero = new SearchDepth(2);
 
-        Assertions.assertEquals(zero.getDepth(), 0);
+        Assertions.assertEquals(0, zero.getDepth());
         Assertions.assertFalse(zero.isDepthOverflow());
 
         SearchDepth oneDepth = zero.nextDepth();
-        Assertions.assertEquals(oneDepth.getDepth(), 1);
+        Assertions.assertEquals(1, oneDepth.getDepth());
         Assertions.assertFalse(oneDepth.isDepthOverflow());
 
         SearchDepth twoDepth = oneDepth.nextDepth();
-        Assertions.assertEquals(twoDepth.getDepth(), 2);
+        Assertions.assertEquals(2, twoDepth.getDepth());
         Assertions.assertTrue(twoDepth.isDepthOverflow());
     }
 
