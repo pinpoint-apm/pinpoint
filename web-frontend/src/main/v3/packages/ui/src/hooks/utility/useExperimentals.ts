@@ -5,23 +5,27 @@ import { useUpdateEffect } from 'usehooks-ts';
 export const useExperimentals = (initialValue?: Configuration) => {
   const [enableServerMapRealTime, setEnableServerMapRealTime] = useLocalStorage(
     EXPERIMENTAL_CONFIG_KEYS.ENABLE_SERVER_MAP_REAL_TIME,
-    initialValue?.['experimental.enableServerMapRealTime.value'],
+    !!initialValue?.['experimental.enableServerMapRealTime.value'],
   );
   const [useStatisticsAgentState, setUseStatisticsAgentState] = useLocalStorage(
     EXPERIMENTAL_CONFIG_KEYS.USE_STATISTICS_AGENT_STATE,
-    initialValue?.['experimental.useStatisticsAgentState.value'],
+    !!initialValue?.['experimental.useStatisticsAgentState.value'],
   );
   const [enableHeatmap, setEnableHeatmap] = useLocalStorage(
     EXPERIMENTAL_CONFIG_KEYS.ENABLE_HEATMAP,
-    initialValue?.['experimental.enableHeatmap.value'],
+    !!initialValue?.['experimental.enableHeatmap.value'],
   );
 
   useUpdateEffect(() => {
     enableServerMapRealTime ??
-      setEnableServerMapRealTime(initialValue?.['experimental.enableServerMapRealTime.value']);
+      setEnableServerMapRealTime(
+        initialValue?.['experimental.enableServerMapRealTime.value'] || false,
+      );
     useStatisticsAgentState ??
-      setUseStatisticsAgentState(initialValue?.['experimental.useStatisticsAgentState.value']);
-    enableHeatmap ?? setEnableHeatmap(initialValue?.['experimental.enableHeatmap.value']);
+      setUseStatisticsAgentState(
+        initialValue?.['experimental.useStatisticsAgentState.value'] || false,
+      );
+    enableHeatmap ?? setEnableHeatmap(initialValue?.['experimental.enableHeatmap.value'] || false);
   }, [initialValue]);
 
   const experimentalMap = {
