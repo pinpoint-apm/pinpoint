@@ -1,7 +1,0 @@
-.l-disabled {
-    top: 0px;
-    left: 0px;
-    height: 100%;
-    position: absolute;
-    background: var(--background-blind-gradient);
-}

@@ -116,7 +116,6 @@
         <module>batch-alarmsender</module>
         <module>channel</module>
         <module>exceptiontrace</module>
-        <module>web-angular</module>
         <module>otlpmetric</module>
         <module>redis-timeseries</module>
         <module>feature-flag</module>
@@ -479,11 +478,6 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-uristat-batch</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-web-angular</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
