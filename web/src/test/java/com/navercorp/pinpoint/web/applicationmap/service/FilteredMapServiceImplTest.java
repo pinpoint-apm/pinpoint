@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.service;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.util.UserNodeUtils;
 import com.navercorp.pinpoint.common.server.util.json.JsonField;
 import com.navercorp.pinpoint.common.server.util.json.JsonFields;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
@@ -158,7 +159,6 @@ public class FilteredMapServiceImplTest {
     public void twoTier() {
         // Given
         Range originalRange = Range.between(1000, 2000);
-        Range scanRange = Range.between(1000, 2000);
         final TimeWindow timeWindow = new TimeWindow(originalRange, TimeWindowDownSampler.SAMPLER);
 
         // root app span
@@ -198,7 +198,7 @@ public class FilteredMapServiceImplTest {
         when(traceDao.selectAllSpans(anyList(), isNull())).thenReturn(List.of(List.of(rootSpan, appASpan)));
 
         // When
-        final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(Collections.emptyList(), originalRange, 1, 1, Filter.acceptAllFilter(), 0).build();
+        final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(Collections.emptyList(), originalRange, 1, 1, Filter.acceptAllFilter()).build();
         FilterMapWithScatter filterMapWithScatter = filteredMapService.selectApplicationMapWithScatterData(option);
         ApplicationMap applicationMap = filterMapWithScatter.getApplicationMap();
 
@@ -207,7 +207,7 @@ public class FilteredMapServiceImplTest {
         assertThat(nodes).hasSize(4);
         for (Node node : nodes) {
             Application application = node.getApplication();
-            if (application.getName().equals("ROOT_APP") && application.getServiceType().getCode() == TestTraceUtils.USER_TYPE_CODE) {
+            if (application.getName().equals(UserNodeUtils.newUserNodeName("ROOT_APP", ServiceType.TEST_STAND_ALONE)) && application.getServiceType().getCode() == TestTraceUtils.USER_TYPE_CODE) {
                 // USER node
                 NodeHistogram nodeHistogram = node.getNodeHistogram();
                 // histogram
@@ -290,7 +290,7 @@ public class FilteredMapServiceImplTest {
         for (Link link : links) {
             Application fromApplication = link.getFrom().getApplication();
             Application toApplication = link.getTo().getApplication();
-            if ((fromApplication.getName().equals("ROOT_APP") && fromApplication.getServiceType().getCode() == TestTraceUtils.USER_TYPE_CODE) &&
+            if ((fromApplication.getName().equals(UserNodeUtils.newUserNodeName("ROOT_APP", ServiceType.TEST_STAND_ALONE)) && fromApplication.getServiceType().getCode() == TestTraceUtils.USER_TYPE_CODE) &&
                     (toApplication.getName().equals("ROOT_APP") && toApplication.getServiceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE)) {
                 // histogram
                 Histogram histogram = link.getHistogram();

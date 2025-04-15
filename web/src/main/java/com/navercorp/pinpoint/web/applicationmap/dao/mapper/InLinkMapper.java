@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
+import com.navercorp.pinpoint.common.server.util.UserNodeUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.TimeUtils;
@@ -123,12 +124,13 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
     }
 
     private Application readOutApplication(byte[] qualifier, ServiceType outServiceType) {
-        short outServiceTypeCode = ApplicationMapStatisticsUtils.getDestServiceTypeFromColumnName(qualifier);
+        int outServiceTypeCode = ApplicationMapStatisticsUtils.getDestServiceTypeFromColumnName(qualifier);
         // Caller may be a user node, and user nodes may call nodes with the same application name but different service type.
         // To distinguish between these user nodes, append callee's service type to the application name.
         String outApplicationName;
         if (registry.findServiceType(outServiceTypeCode).isUser()) {
-            outApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnNameForUser(qualifier, outServiceType);
+            String destApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
+            outApplicationName = UserNodeUtils.newUserNodeName(destApplicationName, outServiceType);
         } else {
             outApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
         }

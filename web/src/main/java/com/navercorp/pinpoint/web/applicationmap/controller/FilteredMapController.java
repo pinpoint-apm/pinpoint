@@ -96,7 +96,6 @@ public class FilteredMapController {
             @NullOrNotBlank String filterHint,
             @RequestParam(value = "limit", required = false, defaultValue = "10000")
             @PositiveOrZero int limitParam,
-            @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
             boolean useStatisticsAgentState,
             @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
@@ -117,7 +116,7 @@ public class FilteredMapController {
         final Range scannerRange = Range.between(lastScanTime, rangeForm.getTo());
         logger.debug("originalRange: {}, scannerRange: {}", originalRange, scannerRange);
         final FilteredMapServiceOption option = new FilteredMapServiceOption
-                .Builder(limitedScanResult.scanData(), originalRange, xGroupUnit, yGroupUnit, filter, viewVersion)
+                .Builder(limitedScanResult.scanData(), originalRange, xGroupUnit, yGroupUnit, filter)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
         final FilterMapWithScatter scatter = filteredMapService.selectApplicationMapWithScatterData(option);
@@ -152,7 +151,6 @@ public class FilteredMapController {
             @NullOrNotBlank String filterHint,
             @RequestParam(value = "limit", required = false, defaultValue = "10000")
             @PositiveOrZero int limitParam,
-            @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "true", required = false) boolean useStatisticsAgentState) {
         final String applicationName = appForm.getApplicationName();
 
@@ -168,7 +166,7 @@ public class FilteredMapController {
         final Range scannerRange = Range.between(lastScanTime, range.getTo());
         logger.debug("originalRange:{} scannerRange:{} ", originalRange, scannerRange);
         final FilteredMapServiceOption option = new FilteredMapServiceOption
-                .Builder(limitedScanResult.scanData(), originalRange, xGroupUnit, yGroupUnit, filter, viewVersion)
+                .Builder(limitedScanResult.scanData(), originalRange, xGroupUnit, yGroupUnit, filter)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
         final FilterMapWithScatter map = filteredMapService.selectApplicationMapWithScatterData(option);

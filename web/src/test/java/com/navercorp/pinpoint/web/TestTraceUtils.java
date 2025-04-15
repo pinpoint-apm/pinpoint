@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.web.util.ServiceTypeRegistryMockFactory;
 import org.assertj.core.matcher.AssertionMatcher;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -45,8 +46,11 @@ public class TestTraceUtils {
     public static final String UNKNOWN_TYPE_NAME = ServiceType.UNKNOWN.getName();
     public static final short USER_TYPE_CODE = ServiceType.USER.getCode();
     public static final String USER_TYPE_NAME = ServiceType.USER.getName();
-    public static final short TEST_STAND_ALONE_TYPE_CODE = ServiceType.TEST_STAND_ALONE.getCode();
-    public static final String TEST_STAND_ALONE_TYPE_NAME = ServiceType.TEST_STAND_ALONE.getName();
+
+    public static final ServiceType TEST_STAND_ALONE_TYPE = ServiceType.TEST_STAND_ALONE;
+    public static final short TEST_STAND_ALONE_TYPE_CODE = TEST_STAND_ALONE_TYPE.getCode();
+    public static final String TEST_STAND_ALONE_TYPE_NAME = TEST_STAND_ALONE_TYPE.getName();
+
     public static final short TOMCAT_TYPE_CODE = 1010;
     public static final String TOMCAT_TYPE_NAME = "TOMCAT";
     public static final short RPC_TYPE_CODE = 9999;
@@ -111,6 +115,7 @@ public class TestTraceUtils {
         private int elapsed;
         private int errorCode;
         private SpanBo parentSpan;
+        private ServiceType serviceType = TEST_STAND_ALONE_TYPE;
 
         public SpanBuilder(String applicationName, String agentId) {
             this(0, applicationName, agentId);
@@ -118,7 +123,7 @@ public class TestTraceUtils {
 
         public SpanBuilder(int version, String applicationName, String agentId) {
             this.version = version;
-            this.applicationName = applicationName;
+            this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
             this.agentId = agentId;
         }
 
@@ -151,7 +156,13 @@ public class TestTraceUtils {
         }
 
         public SpanBuilder parentSpan(SpanBo parentSpan) {
-            this.parentSpan = parentSpan;
+            this.parentSpan = Objects.requireNonNull(parentSpan, "parentSpan");
+            return this;
+        }
+
+        public SpanBuilder serviceType(ServiceType serviceType) {
+            Objects.requireNonNull(serviceType, "serviceType");
+            this.serviceType = serviceType;
             return this;
         }
 
@@ -165,8 +176,8 @@ public class TestTraceUtils {
                 spanId = random.nextLong();
             }
             spanBo.setSpanId(spanId);
-            spanBo.setServiceType(ServiceType.TEST_STAND_ALONE.getCode());
-            spanBo.setApplicationServiceType(ServiceType.TEST_STAND_ALONE.getCode());
+            spanBo.setServiceType(serviceType.getCode());
+            spanBo.setApplicationServiceType(serviceType.getCode());
             spanBo.setStartTime(startTime);
             spanBo.setCollectorAcceptTime(collectorAcceptTime);
             spanBo.setElapsed(elapsed);
