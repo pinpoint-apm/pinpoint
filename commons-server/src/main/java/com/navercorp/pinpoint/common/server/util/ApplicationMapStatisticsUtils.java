@@ -114,6 +114,10 @@ public class ApplicationMapStatisticsUtils {
         return BytesUtils.toStringAndRightTrim(bytes, 6, length);
     }
 
+    /**
+     * @deprecated Since 3.1.0. Use {@link UserNodeUtils#newUserNodeName(String, ServiceType)} instead.
+     */
+    @Deprecated
     public static String getDestApplicationNameFromColumnNameForUser(byte[] bytes, ServiceType destServiceType) {
         String destApplicationName = getDestApplicationNameFromColumnName(bytes);
         String destServiceTypeName = destServiceType.getName();

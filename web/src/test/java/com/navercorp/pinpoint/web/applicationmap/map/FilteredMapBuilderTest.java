@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.map;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.util.UserNodeUtils;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
@@ -51,8 +52,6 @@ public class FilteredMapBuilderTest {
 
     private static final Random RANDOM = new Random();
 
-    private static final int VERSION = 0;
-
     // Mocked
     private final ServiceTypeRegistryService registry = TestTraceUtils.mockServiceTypeRegistryService();
 
@@ -70,7 +69,7 @@ public class FilteredMapBuilderTest {
     public void twoTier() {
         // Given
         final Range range = Range.between(1, 200000);
-        final FilteredMapBuilder builder = new FilteredMapBuilder(applicationFactory, registry, range, VERSION);
+        final FilteredMapBuilder builder = new FilteredMapBuilder(applicationFactory, registry, range);
 
         // root app span
         long rootSpanId = RANDOM.nextLong();
@@ -114,7 +113,7 @@ public class FilteredMapBuilderTest {
         LinkDataDuplexMap linkDataDuplexMap = filteredMap.getLinkDataDuplexMap();
         LinkDataMap sourceLinkDataMap = linkDataDuplexMap.getSourceLinkDataMap();
         assertSourceLinkData(sourceLinkDataMap,
-                "ROOT_APP", registry.findServiceType(TestTraceUtils.USER_TYPE_CODE),
+                newUserNode("ROOT_APP"), registry.findServiceType(TestTraceUtils.USER_TYPE_CODE),
                 "ROOT_APP", registry.findServiceType(TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE));
         assertSourceLinkData(sourceLinkDataMap,
                 "ROOT_APP", registry.findServiceType(TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE),
@@ -124,7 +123,7 @@ public class FilteredMapBuilderTest {
                 "CacheName", registry.findServiceType(TestTraceUtils.CACHE_TYPE_CODE));
         LinkDataMap targetLinkDataMap = linkDataDuplexMap.getTargetLinkDataMap();
         assertTargetLinkData(targetLinkDataMap,
-                "ROOT_APP", registry.findServiceType(TestTraceUtils.USER_TYPE_CODE),
+                newUserNode("ROOT_APP"), registry.findServiceType(TestTraceUtils.USER_TYPE_CODE),
                 "ROOT_APP", registry.findServiceType(TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE));
         assertTargetLinkData(targetLinkDataMap,
                 "ROOT_APP", registry.findServiceType(TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE),
@@ -140,6 +139,10 @@ public class FilteredMapBuilderTest {
         List<ResponseTime> appAResponseTimes = responseHistograms.getResponseTimeList(applicationA);
 
         assertThat(appAResponseTimes).hasSize(1);
+    }
+
+    private String newUserNode(String nodeName) {
+        return UserNodeUtils.newUserNodeName(nodeName, TestTraceUtils.TEST_STAND_ALONE_TYPE);
     }
 
     private void assertSourceLinkData(LinkDataMap sourceLinkDataMap, String fromApplicationName, ServiceType fromServiceType, String toApplicationName, ServiceType toServiceType) {
