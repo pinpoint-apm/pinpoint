@@ -16,6 +16,8 @@ export interface HeatmapFetcherHandle {
   handleCaptureImage: () => Promise<void>;
 }
 
+const DefaultAxisY = [0, 10000];
+
 export type HeatmapFetcherProps = {
   nodeData: GetServerMap.NodeData | ApplicationType;
   agentId?: string;
@@ -24,14 +26,14 @@ export type HeatmapFetcherProps = {
 export const HeatmapFetcher = ({ nodeData, agentId, ...props }: HeatmapFetcherProps) => {
   const { dateRange } = useServerMapSearchParameters();
 
-  const [y] = useStoragedAxisY(APP_SETTING_KEYS.HEATMAP_Y_AXIS_MIN_MAX, [0, 10000]);
+  const [y] = useStoragedAxisY(APP_SETTING_KEYS.HEATMAP_Y_AXIS_MIN_MAX, DefaultAxisY);
 
   const [parameters, setParameters] = React.useState<GetHeatmapAppData.Parameters>({
     applicationName: nodeData?.applicationName,
     from: dateRange.from.getTime(),
     to: dateRange.to.getTime(),
-    minElapsedTime: Number(y[0]),
-    maxElapsedTime: Number(y[1]),
+    minElapsedTime: Number(y?.[0]) || DefaultAxisY[0],
+    maxElapsedTime: Number(y?.[1]) || DefaultAxisY[1],
     agentId: agentId,
   });
   const { data, isLoading } = useGetHeatmapAppData(parameters);
@@ -41,15 +43,15 @@ export const HeatmapFetcher = ({ nodeData, agentId, ...props }: HeatmapFetcherPr
       applicationName: nodeData?.applicationName,
       from: dateRange.from.getTime(),
       to: dateRange.to.getTime(),
-      minElapsedTime: Number(y[0]),
-      maxElapsedTime: Number(y[1]),
+      minElapsedTime: Number(y?.[0]) || DefaultAxisY[0],
+      maxElapsedTime: Number(y?.[1]) || DefaultAxisY[1],
       agentId: agentId,
     });
   }, [
     dateRange.from.getTime(),
     dateRange.to.getTime(),
-    y[0],
-    y[1],
+    y?.[0],
+    y?.[1],
     nodeData?.applicationName,
     agentId,
   ]);

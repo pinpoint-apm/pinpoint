@@ -59,10 +59,8 @@ export const HeatmapSetting = ({
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    const data = form.getValues();
-
     if (e.key === 'Enter') {
-      onApply?.(data);
+      form.handleSubmit(onSubmit)();
     }
   };
 

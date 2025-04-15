@@ -142,8 +142,8 @@ const HeatmapChartCore = ({ isLoading, data, agentId, toolbarOption }: HeatmapCh
             <HeatmapSetting
               className="z-10"
               defaultValues={{
-                yMin: y[0],
-                yMax: y[1],
+                yMin: y?.[0],
+                yMax: y?.[1],
               }}
               onClose={() => setShowSetting(false)}
               onApply={(newSetting) => {
