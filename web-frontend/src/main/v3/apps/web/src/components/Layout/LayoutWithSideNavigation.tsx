@@ -37,20 +37,6 @@ export const LayoutWithSideNavigation = ({ ...props }: LayoutWithSideNavigationP
       path: APP_PATH.CONFIG_GENERAL,
       childItems: CONFIG_MENU_MAP.PERSONAL_SETTINGS.menus,
     },
-    {
-      children: (collapsed) => (
-        <div
-          className="flex items-center justify-center gap-2 font-semibold"
-          style={{ color: 'aqua' }}
-        >
-          {collapsed ? '' : 'Go to Pinpoint v2 '}
-          <LuDoorOpen />
-        </div>
-      ),
-      name: 'Go to Pinpoint v2',
-      path: 'gotoV2',
-      aHref: '/v2',
-    },
   ];
 
   return (
