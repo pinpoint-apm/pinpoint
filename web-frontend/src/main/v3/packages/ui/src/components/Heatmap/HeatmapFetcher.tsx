@@ -54,9 +54,5 @@ export const HeatmapFetcher = ({ nodeData, agentId, ...props }: HeatmapFetcherPr
     agentId,
   ]);
 
-  return (
-    <div className="relative w-full h-full">
-      <HeatmapChartCore isLoading={isLoading} data={data} {...props} />
-    </div>
-  );
+  return <HeatmapChartCore isLoading={isLoading} data={data} {...props} />;
 };

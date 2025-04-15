@@ -63,8 +63,8 @@ const HeatmapChart = React.forwardRef(
     const [successRange, setSuccessRange] = React.useState(); // 성공 범위: [시작, 끝]
     const [failRange, setFailRange] = React.useState(); // 성공 범위: [시작, 끝]
 
-    const [startCell, setStartCell] = React.useState(''); // 시작 셀: x-y
-    const [endCell, setEndCell] = React.useState(''); // 끝 셀: x-y
+    const [startCell, setStartCell] = React.useState<any>(); // 시작 셀: x-y
+    const [endCell, setEndCell] = React.useState<any>(); // 끝 셀: x-y
 
     React.useEffect(() => {
       const wrapperElement = chartRef.current?.getEchartsInstance()?.getDom();
@@ -80,44 +80,6 @@ const HeatmapChart = React.forwardRef(
         resizeObserver.disconnect();
       };
     }, []);
-
-    const selectedBoundary = React.useMemo(() => {
-      if (startCell === '' || endCell === '') {
-        return {
-          left: 0,
-          right: 0,
-          top: 0,
-          bottom: 0,
-        };
-      }
-
-      const [startX, startY] = startCell.split('-').map(Number);
-      const [endX, endY] = endCell.split('-').map(Number);
-
-      const left = Math.min(startX, endX);
-      const right = Math.max(startX, endX);
-      const top = Math.max(startY, endY);
-      const bottom = Math.min(startY, endY);
-
-      return {
-        left,
-        right,
-        top,
-        bottom,
-      };
-    }, [startCell, endCell]);
-
-    const isSelectedCell = React.useCallback(
-      (x: number, y: number) => {
-        const left = selectedBoundary.left;
-        const right = selectedBoundary.right;
-        const top = selectedBoundary.top;
-        const bottom = selectedBoundary.bottom;
-
-        return x >= left && x <= right && y <= top && y >= bottom;
-      },
-      [selectedBoundary],
-    );
 
     const maxCount = React.useMemo(() => {
       let success = 0;
@@ -148,10 +110,8 @@ const HeatmapChart = React.forwardRef(
           coverData.push({
             value: [String(row.timestamp), String(cell.elapsedTime), 0],
             itemStyle: {
-              color: isSelectedCell(row.timestamp, cell.elapsedTime)
-                ? HeatmapColor.selected
-                : 'transparent',
-              opacity: 1,
+              color: 'transparent',
+              opacity: isMouseDown ? 0 : 1,
             },
           });
 
@@ -166,7 +126,7 @@ const HeatmapChart = React.forwardRef(
       });
 
       return { successData, failData, coverData };
-    }, [data, startCell, endCell, maxCount]);
+    }, [data, maxCount, isMouseDown]);
 
     const xAxisData = React.useMemo(() => {
       return data?.heatmapData?.map((row) => String(row.timestamp)) || [];
@@ -182,9 +142,94 @@ const HeatmapChart = React.forwardRef(
       return data?.summary?.totalFailCount || 0;
     }, [data]);
 
+    const getDragRect = React.useCallback(() => {
+      if (!startCell || !endCell) {
+        return [];
+      }
+
+      const startX = startCell.event?.target?.shape?.x;
+      const startY = startCell.event?.target?.shape?.y;
+      const endX = endCell.event?.target?.shape?.x;
+      const endY = endCell.event?.target?.shape?.y;
+      const cellWidth = startCell.event?.target?.shape?.width;
+      const cellHeight = startCell.event?.target?.shape?.height;
+
+      if (startX <= endX && startY <= endY) {
+        // 오른쪽 아래로
+        return {
+          x: startX,
+          y: startY,
+          width: endX - startX + cellWidth,
+          height: endY - startY + cellHeight,
+        };
+      } else if (startX <= endX && startY >= endY) {
+        // 오른쪽 위로
+        return {
+          x: startX,
+          y: endY,
+          width: endX - startX + cellWidth,
+          height: startY - endY + cellHeight,
+        };
+      } else if (startX >= endX && startY <= endY) {
+        // 왼쪽 아래로
+        return {
+          x: endX,
+          y: startY,
+          width: startX - endX + cellWidth,
+          height: endY - startY + cellHeight,
+        };
+      } else if (startX >= endX && startY >= endY) {
+        // 왼쪽 위로
+        return {
+          x: endX,
+          y: endY,
+          width: startX - endX + cellWidth,
+          height: startY - endY + cellHeight,
+        };
+      }
+    }, [startCell, endCell]);
+
+    const handleDragEnd = React.useCallback(() => {
+      if (!startCell || !endCell) {
+        return;
+      }
+
+      const [startX, startY] = startCell?.data?.value;
+      const [endX, endY] = endCell?.data?.value;
+
+      const x1 = Math.min(startX, endX);
+      const x2 = Math.max(startX, endX);
+
+      const y1 = Math.max(startY, endY);
+
+      const bottom = Math.min(startY, endY);
+      const bottomIndex = yAxisData?.findIndex((yValue) => Number(yValue) === Number(bottom));
+      const y2 = bottomIndex <= 0 ? 0 : Number(yAxisData?.[bottomIndex - 1]);
+
+      const checkedLegends = [];
+
+      if (!successRange || Math.floor(successRange?.[0]) !== Math.floor(successRange?.[1])) {
+        checkedLegends.push('success');
+      }
+
+      if (!failRange || Math.floor(failRange?.[0]) !== Math.floor(failRange?.[1])) {
+        checkedLegends.push('fail');
+      }
+
+      onDragEnd?.(
+        {
+          x1,
+          x2,
+          y1,
+          y2,
+        },
+        checkedLegends,
+      );
+    }, [startCell, endCell, yAxisData]);
+
     const option: EChartsOption = {
       tooltip: {
-        show: !!startCell ? false : true,
+        show: !!isMouseDown ? false : true,
         borderColor: colors.gray[300],
         textStyle: {
           fontFamily: 'inherit',
@@ -227,7 +272,7 @@ const HeatmapChart = React.forwardRef(
       grid: {
         left: setting.yMax.toString().length * 10,
         right: '10px',
-        top: '2%',
+        top: '20px',
         bottom: '100px',
       },
       xAxis: {
@@ -343,6 +388,17 @@ const HeatmapChart = React.forwardRef(
             },
           },
         },
+        {
+          type: 'rect',
+          z: 10,
+          shape: getDragRect(),
+          style: {
+            fill: 'rgba(225,225,225,0.4)',
+            stroke: '#469ae4',
+            lineWidth: 1,
+          },
+          silent: true,
+        },
       ],
       series: [
         {
@@ -369,62 +425,39 @@ const HeatmapChart = React.forwardRef(
       ],
     };
 
-    const handleMouseUp = () => {
-      if (startCell === '' || endCell === '') {
-        setIsMouseDown(false);
-        return;
-      }
-
-      const checkedLegends = [];
-
-      if (!successRange || Math.floor(successRange?.[0]) !== Math.floor(successRange?.[1])) {
-        checkedLegends.push('success');
-      }
-
-      if (!failRange || Math.floor(failRange?.[0]) !== Math.floor(failRange?.[1])) {
-        checkedLegends.push('fail');
-      }
-
-      onDragEnd?.(
-        {
-          x1: selectedBoundary?.left,
-          x2: selectedBoundary?.right,
-          y1: selectedBoundary?.top,
-          y2: selectedBoundary?.bottom,
-        },
-        checkedLegends,
-      );
-
-      setIsMouseDown(false);
-      setStartCell('');
-      setEndCell('');
-    };
-
-    const handleMouseDown = () => {
-      setIsMouseDown(true);
-    };
-
     return (
-      <div
-        ref={ref}
-        className="relative w-full h-full pt-6 pr-3"
-        onMouseUp={handleMouseUp}
-        onMouseDown={handleMouseDown}
-      >
+      <div ref={ref} className="relative w-full h-full">
         <ReactEChartsCore
           ref={chartRef}
           echarts={echarts}
           option={option}
           style={{ height: '100%', width: '100%' }}
+          onChartReady={(chartInstance) => {
+            // mouseup, mousedown 이벤트를 동시 on 적용시 visualMap이 동작하지 않아 mouseup만 적용
+            chartInstance.getZr().on('mouseup', () => {
+              setIsMouseDown(false);
+              handleDragEnd();
+              setStartCell(undefined);
+              setEndCell(undefined);
+            });
+          }}
           onEvents={{
+            mousedown: (params: any) => {
+              setIsMouseDown(true);
+              if (!startCell) {
+                setIsMouseDown(true);
+                setStartCell(params);
+                setEndCell(params);
+              }
+            },
             mousemove: (params: any) => {
-              if (!startCell && isMouseDown) {
-                setStartCell(`${params.value[0]}-${params.value[1]}`);
-                setEndCell(`${params.value[0]}-${params.value[1]}`);
-              } else if (!startCell && !isMouseDown) {
+              if (!isMouseDown) {
                 return;
               }
-              setEndCell(`${params.value[0]}-${params.value[1]}`);
+              if (!startCell) {
+                setStartCell(params);
+              }
+              setEndCell(params);
             },
             datarangeselected: debounce((params: any) => {
               if (params.visualMapId === 'success') {
