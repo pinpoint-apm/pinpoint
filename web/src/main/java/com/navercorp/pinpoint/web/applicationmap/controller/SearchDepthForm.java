@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Min;
 public class SearchDepthForm {
 
     public static final int MIN = 1;
-    public static final int MAX = 1;
+    public static final int MAX = 4;
 
     public static final int DEFAULT_SEARCH_DEPTH = MIN;
 
