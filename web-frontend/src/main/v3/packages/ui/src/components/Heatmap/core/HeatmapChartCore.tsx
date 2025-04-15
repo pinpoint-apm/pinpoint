@@ -115,7 +115,7 @@ const HeatmapChartCore = ({ isLoading, data, agentId, toolbarOption }: HeatmapCh
   }
 
   return (
-    <div className="relative flex flex-col w-full h-full gap-4">
+    <div className="relative flex flex-col w-full h-full gap-2">
       <div className={cn('flex flex-row justify-end')}>
         <div className="flex flex-row items-center justify-end gap-2 px-4 font-normal text-gray-400">
           <BsGearFill className="text-base cursor-pointer" onClick={() => setShowSetting(true)} />

@@ -474,7 +474,7 @@ export const ServerMapPage = ({
                                   <ScatterChart node={serverMapCurrentTarget || application} />
                                 </div>
                               ) : (
-                                <div className="w-full p-5 mb-12 aspect-[1.618]">
+                                <div className="w-full pl-3 pt-5 pr-10 pb-8 aspect-[1.3]">
                                   <Heatmap
                                     nodeData={
                                       (currentTargetData as GetServerMap.NodeData) || application
