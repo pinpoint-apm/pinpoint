@@ -54,14 +54,33 @@ type DataForRender = {
   };
 };
 
+function visualMapFormatter(value: string, range: [number, number] | undefined) {
+  const valueString = Math.floor(Number(value))?.toLocaleString();
+
+  if (!range) {
+    return Number(value) === 0 ? '0~' : `~${valueString}`;
+  }
+
+  const isMin = Math.floor(Number(value)) < Math.floor(range?.[1]);
+  const isMax = !range || Math.floor(Number(value)) > Math.floor(range?.[0]);
+
+  if (isMin) {
+    return `${valueString}~`;
+  }
+  if (isMax) {
+    return `~${valueString}`;
+  }
+  return valueString;
+}
+
 const HeatmapChart = React.forwardRef(
   ({ data, setting, onDragEnd }: HeatmapChartProps, ref: React.Ref<HTMLDivElement>) => {
     const chartRef = React.useRef<ReactEChartsCore>(null);
 
     const [isMouseDown, setIsMouseDown] = React.useState(false);
 
-    const [successRange, setSuccessRange] = React.useState(); // 성공 범위: [시작, 끝]
-    const [failRange, setFailRange] = React.useState(); // 성공 범위: [시작, 끝]
+    const [successRange, setSuccessRange] = React.useState<[number, number]>(); // 성공 범위: [시작, 끝]
+    const [failRange, setFailRange] = React.useState<[number, number]>(); // 성공 범위: [시작, 끝]
 
     const [startCell, setStartCell] = React.useState<any>(); // 시작 셀: x-y
     const [endCell, setEndCell] = React.useState<any>(); // 끝 셀: x-y
@@ -220,7 +239,7 @@ const HeatmapChart = React.forwardRef(
         {
           x1,
           x2,
-          y1,
+          y1: y1 === Number(yAxisData?.[yAxisData?.length - 1]) ? Number.MAX_SAFE_INTEGER : y1,
           y2,
         },
         checkedLegends,
@@ -325,16 +344,13 @@ const HeatmapChart = React.forwardRef(
           calculable: true,
           seriesIndex: 0,
           orient: 'horizontal',
-          itemWidth: 14,
+          itemWidth: 12,
           itemHeight: (chartRef?.current?.getEchartsInstance()?.getWidth() || 600) * 0.3,
           right: '45%',
-          bottom: '6%',
+          bottom: '0%',
           hoverLink: false,
           formatter: (value) => {
-            if (value === setting.yMax) {
-              return '';
-            }
-            return Math.floor(Number(value)).toLocaleString();
+            return visualMapFormatter(value as string, successRange);
           },
           inRange: {
             color: HeatmapColor.success,
@@ -348,13 +364,13 @@ const HeatmapChart = React.forwardRef(
           calculable: true,
           seriesIndex: 1,
           orient: 'horizontal',
-          itemWidth: 14,
+          itemWidth: 12,
           itemHeight: (chartRef?.current?.getEchartsInstance()?.getWidth() || 600) * 0.3,
           left: '55%',
-          bottom: '6%',
+          bottom: '0%',
           hoverLink: false,
           formatter: (value) => {
-            return Math.floor(Number(value)).toLocaleString();
+            return visualMapFormatter(value as string, failRange);
           },
           inRange: {
             color: HeatmapColor.fail,
@@ -370,7 +386,7 @@ const HeatmapChart = React.forwardRef(
       graphic: [
         {
           type: 'text',
-          bottom: '0%',
+          bottom: 38,
           left: 'center',
           style: {
             text: `Success {boldSuccess|${Math.floor(totalSuccessCount).toLocaleString()}}    Failed {boldFailed|${Math.floor(totalFailedCount).toLocaleString()}}`,
