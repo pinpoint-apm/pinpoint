@@ -1,7 +1,7 @@
 import { APP_SETTING_KEYS, EXPERIMENTAL_CONFIG_KEYS } from '@pinpoint-fe/ui/src/constants';
 
 const parseSafe = (value: string | null) => {
-  if (!value || value === 'undefined') {
+  if (value === null || value === undefined || value === 'undefined') {
     return undefined;
   }
   try {
