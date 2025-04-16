@@ -76,7 +76,7 @@ export const ServerMapPage = ({
 }: ServermapPageProps) => {
   const [enableHeatmap] = useLocalStorage(
     EXPERIMENTAL_CONFIG_KEYS.ENABLE_HEATMAP,
-    configuration?.['experimental.enableHeatmap.value'],
+    !!configuration?.['experimental.enableHeatmap.value'],
   );
   const periodMax = configuration?.[`periodMax.serverMap`];
   const periodInterval = configuration?.[`periodInterval.serverMap`];

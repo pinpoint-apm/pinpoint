@@ -12,7 +12,7 @@ export const useLocalStorage = <T, K extends LocalStorageKeyTypes = LocalStorage
     try {
       const initValue = window.localStorage.getItem(key);
 
-      if (!initValue || initValue === 'undefined') {
+      if (initValue === null || initValue === undefined || initValue === 'undefined') {
         return initialValue;
       }
 
