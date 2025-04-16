@@ -8,28 +8,22 @@ export const useLocalStorage = <T, K extends LocalStorageKeyTypes = LocalStorage
   key: K,
   initialValue: T,
 ) => {
-  const [data, setData] = useLocalStorageTS<T>(key, () => {
-    try {
-      const initValue = window.localStorage.getItem(key);
-
-      if (initValue === null || initValue === undefined || initValue === 'undefined') {
-        return initialValue;
-      }
-
-      return JSON.parse(initValue as any);
-    } catch (error) {
-      console.error('Error getting local storage item:', error);
-      return initialValue;
-    }
-  });
+  const [data, setData] = useLocalStorageTS<T>(key, initialValue);
+  const [hydratedValue, setHydratedValue] = React.useState<T>(initialValue);
 
   React.useEffect(() => {
-    if (data !== undefined && data !== null && data !== 'undefined') {
-      window.localStorage.setItem(key, JSON.stringify(data));
-    }
-  }, [data]);
+    const isInvalidValue =
+      data === undefined || data === null || data === 'undefined' || data === '';
 
-  return [data, setData] as [T, React.Dispatch<React.SetStateAction<T>>];
+    if (isInvalidValue) {
+      setData(initialValue);
+      setHydratedValue(initialValue);
+    } else {
+      setHydratedValue(data as T);
+    }
+  }, [data, initialValue, setData]);
+
+  return [hydratedValue, setData] as [T, React.Dispatch<React.SetStateAction<T>>];
 };
 
 export const useExpiredLocalStorage = <
