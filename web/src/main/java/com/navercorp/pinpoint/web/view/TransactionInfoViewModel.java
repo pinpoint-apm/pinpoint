@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.calltree.span.TraceState;
+import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 
@@ -52,12 +53,14 @@ public class TransactionInfoViewModel {
     private final TraceState.State completeState;
 
     private final LogLinkView logLinkView;
+    private final HyperLinkFactory hyperLinkFactory;
     private final TimeHistogramFormat timeHistogramFormat;
 
     public TransactionInfoViewModel(TransactionId transactionId, long spanId,
                                     Collection<Node> nodes, Collection<Link> links,
                                     RecordSet recordSet, TraceState.State state,
                                     LogLinkView logLinkView,
+                                    HyperLinkFactory hyperLinkFactory,
                                     TimeHistogramFormat timeHistogramFormat) {
         this.transactionId = transactionId;
         this.spanId = spanId;
@@ -67,6 +70,7 @@ public class TransactionInfoViewModel {
         this.recordSet = recordSet;
         this.completeState = state;
         this.logLinkView = Objects.requireNonNull(logLinkView, "logLinkView");
+        this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
         this.timeHistogramFormat = Objects.requireNonNull(timeHistogramFormat, "timeHistogramFormat");
     }
 
@@ -159,7 +163,7 @@ public class TransactionInfoViewModel {
 
         SimpleApplicationMap map = new SimpleApplicationMap(nodes, links);
 
-        return new ApplicationMapView(map, MapViews.Detailed.class, timeHistogramFormat);
+        return new ApplicationMapView(map, MapViews.Detailed.class, hyperLinkFactory, timeHistogramFormat);
     }
 
     enum Field {

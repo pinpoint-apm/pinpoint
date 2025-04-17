@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
-import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
@@ -51,11 +50,9 @@ public class AgentInfoServerGroupListDataSource implements ServerGroupListDataSo
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AgentInfoService agentInfoService;
-    private final HyperLinkFactory hyperLinkFactory;
 
-    public AgentInfoServerGroupListDataSource(AgentInfoService agentInfoService, HyperLinkFactory hyperLinkFactory) {
+    public AgentInfoServerGroupListDataSource(AgentInfoService agentInfoService) {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
-        this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
     }
 
     public ServerGroupList createServerGroupList(Node node, long timestamp) {
@@ -79,7 +76,7 @@ public class AgentInfoServerGroupListDataSource implements ServerGroupListDataSo
                 .map(AgentAndStatus::new)
                 .collect(Collectors.toSet());
 
-        ServerBuilder builder = new ServerBuilder(hyperLinkFactory);
+        ServerBuilder builder = new ServerBuilder();
         builder.addAgentInfo(agentAndStatusSet);
         return builder.build();
     }

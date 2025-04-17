@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AgentsMapByHostTest {
 
-    private final HyperLinkFactory hyperLinkFactory = HyperLinkFactory.empty();
+    private final HyperLinkFactory hyperLinkFactory = new HyperLinkFactory(List.of());
 
     @Test
     public void groupByHostNameShouldHaveContainersFirstAndGroupedSeparatelyByAgentIdAscendingOrder() {

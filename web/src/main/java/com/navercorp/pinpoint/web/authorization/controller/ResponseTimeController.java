@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramSe
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramServiceOption;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
+import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.view.histogram.HistogramView;
 import com.navercorp.pinpoint.web.view.histogram.ServerHistogramView;
 import com.navercorp.pinpoint.web.view.histogram.TimeHistogramChart;
@@ -65,13 +66,17 @@ public class ResponseTimeController {
     private final ResponseTimeHistogramService responseTimeHistogramService;
     private final RangeValidator rangeValidator;
     private final ApplicationFactory applicationFactory;
+    private final HyperLinkFactory hyperLinkFactory;
 
     public ResponseTimeController(ResponseTimeHistogramService responseTimeHistogramService,
-                                  ConfigProperties configProperties, ApplicationFactory applicationFactory) {
+                                  ConfigProperties configProperties,
+                                  ApplicationFactory applicationFactory,
+                                  HyperLinkFactory hyperLinkFactory) {
         this.responseTimeHistogramService = Objects.requireNonNull(responseTimeHistogramService, "responseTimeHistogramService");
         Objects.requireNonNull(configProperties, "configProperties");
         this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(configProperties.getServerMapPeriodMax()));
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
+        this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
     }
 
     @GetMapping(value = "/getWas/serverHistogramData")
@@ -90,7 +95,7 @@ public class ResponseTimeController {
                 .setUseStatisticsAgentState(false) //set useStatisticsAgentState to false for agent data
                 .build();
         NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
-        return ServerHistogramView.view(nodeHistogramSummary);
+        return ServerHistogramView.view(nodeHistogramSummary, hyperLinkFactory);
     }
 
     @GetMapping(value = "/getWas/histogram")
@@ -190,7 +195,7 @@ public class ResponseTimeController {
                 .setUseStatisticsAgentState(false) //set useStatisticsAgentState to false for agent data
                 .build();
         NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
-        return ServerHistogramView.view(nodeHistogramSummary);
+        return ServerHistogramView.view(nodeHistogramSummary, hyperLinkFactory);
     }
 
     @PostMapping(value = "/getNode/histogramData")

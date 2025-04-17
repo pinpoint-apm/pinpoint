@@ -29,8 +29,10 @@ import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeViews;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapServiceOption;
+import com.navercorp.pinpoint.web.applicationmap.view.FilteredHistogramView;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
+import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.util.LimitUtils;
 import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
@@ -62,13 +64,16 @@ public class FilteredMapController {
 
     private final FilteredMapService filteredMapService;
     private final FilterBuilder<List<SpanBo>> filterBuilder;
+    private final HyperLinkFactory hyperLinkFactory;
 
     public FilteredMapController(
             FilteredMapService filteredMapService,
-            FilterBuilder<List<SpanBo>> filterBuilder
+            FilterBuilder<List<SpanBo>> filterBuilder,
+            HyperLinkFactory hyperLinkFactory
     ) {
         this.filteredMapService = Objects.requireNonNull(filteredMapService, "filteredMapService");
         this.filterBuilder = Objects.requireNonNull(filterBuilder, "filterBuilder");
+        this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
     }
 
 
@@ -117,7 +122,7 @@ public class FilteredMapController {
         }
 
         TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
-        final FilterMapView mapWrap = new FilterMapView(map, MapViews.Detailed.class, format);
+        final FilterMapView mapWrap = new FilterMapView(map, MapViews.Detailed.class, hyperLinkFactory, format);
         mapWrap.setLastFetchedTimestamp(lastScanTime);
         mapWrap.setScatterDataMap(scatter.getScatterDataMap());
         return mapWrap;
@@ -167,14 +172,18 @@ public class FilteredMapController {
             logger.debug("getFilteredServerMapData range scan(limit:{}) range:{} lastFetchedTimestamp:{}", limit, range.prettyToString(), DateTimeFormatUtils.format(lastScanTime));
         }
 
-        FilterMapView mapWrap = new FilterMapView(map.getApplicationMap(), NodeViews.Simplified.class, TimeHistogramFormat.V1);
+        FilterMapView mapWrap = new FilterMapView(map.getApplicationMap(), NodeViews.Simplified.class, hyperLinkFactory, TimeHistogramFormat.V1);
         mapWrap.setLastFetchedTimestamp(lastScanTime);
-        mapWrap.setFilteredHistogram(true);
+        mapWrap.setFilteredHistogram(this::filteredHistogramView);
         mapWrap.setScatterDataMap(map.getScatterDataMap());
         return mapWrap;
     }
 
     private Range toRange(RangeForm rangeForm) {
         return Range.between(rangeForm.getFrom(), rangeForm.getTo());
+    }
+
+    private FilteredHistogramView filteredHistogramView(ApplicationMap applicationMap) {
+        return new FilteredHistogramView(applicationMap, hyperLinkFactory);
     }
 }

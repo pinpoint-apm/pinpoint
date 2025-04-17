@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.service.MapService;
 import com.navercorp.pinpoint.web.applicationmap.service.MapServiceOption;
+import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.util.ApplicationValidator;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.SearchOption;
@@ -57,6 +58,7 @@ public class MapController {
 
     private final MapService mapService;
     private final RangeValidator rangeValidator;
+    private final HyperLinkFactory hyperLinkFactory;
     private final ApplicationValidator applicationValidator;
 
     private static final int DEFAULT_MAX_SEARCH_DEPTH = 4;
@@ -64,9 +66,11 @@ public class MapController {
     public MapController(
             MapService mapService,
             ApplicationValidator applicationValidator,
+            HyperLinkFactory hyperLinkFactory,
             Duration limitDay) {
         this.mapService = Objects.requireNonNull(mapService, "mapService");
         this.applicationValidator = Objects.requireNonNull(applicationValidator, "applicationValidator");
+        this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
         this.rangeValidator = new ForwardRangeValidator(Objects.requireNonNull(limitDay, "limitDay"));
     }
 
@@ -110,7 +114,7 @@ public class MapController {
         final ApplicationMap map = this.mapService.selectApplicationMap(option);
 
         TimeWindow timeWindow = new TimeWindow(range);
-        return new MapView(map, timeWindow, MapViews.Basic.class, TimeHistogramFormat.V3);
+        return new MapView(map, timeWindow, MapViews.Basic.class, hyperLinkFactory, TimeHistogramFormat.V3);
     }
 
     /**
@@ -150,7 +154,7 @@ public class MapController {
         logger.info("Select ApplicationMap {} option={}", format, option);
         final ApplicationMap map = this.mapService.selectApplicationMap(option);
 
-        return new MapView(map, MapViews.Basic.class, format);
+        return new MapView(map, MapViews.Basic.class, hyperLinkFactory, format);
 
     }
 
@@ -181,7 +185,7 @@ public class MapController {
         logger.info("Select simpleApplicationMap. option={}", option);
         final ApplicationMap map = this.mapService.selectApplicationMap(option);
 
-        return new MapView(map, MapViews.Simplified.class, TimeHistogramFormat.V3);
+        return new MapView(map, MapViews.Simplified.class, hyperLinkFactory, TimeHistogramFormat.V3);
     }
 
     private Application getApplication(ApplicationForm appForm) {

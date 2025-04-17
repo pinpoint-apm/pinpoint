@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HyperLinkFactory {
-    private static HyperLinkFactory EMPTY = new HyperLinkFactory(List.of());
 
     private final MatcherGroup[] matcherGroups;
 
@@ -31,9 +30,5 @@ public class HyperLinkFactory {
             }
         }
         return list;
-    }
-
-    public static HyperLinkFactory empty() {
-        return EMPTY;
     }
 }

@@ -16,11 +16,6 @@
 
 package com.navercorp.pinpoint.web.applicationmap.nodes;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.web.hyperlink.HyperLink;
-import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
-import com.navercorp.pinpoint.web.hyperlink.LinkSources;
-import com.navercorp.pinpoint.web.view.ServerGroupListSerializer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author emeroad
@@ -36,7 +30,6 @@ import java.util.stream.Collectors;
  * @author minwoo.jung
  * @author HyunGil Jeong
  */
-@JsonSerialize(using = ServerGroupListSerializer.class)
 public class ServerGroupList {
     public static final ServerGroupList EMPTY = new ServerGroupList(List.of());
 
@@ -46,7 +39,7 @@ public class ServerGroupList {
         return EMPTY;
     }
 
-    ServerGroupList(List<ServerGroup> serverGroupList) {
+    private ServerGroupList(List<ServerGroup> serverGroupList) {
         this.serverGroupList = Objects.requireNonNull(serverGroupList, "serverGroupList");
     }
 
@@ -56,11 +49,15 @@ public class ServerGroupList {
     }
 
     public List<String> getAgentIdList() {
-        return this.serverGroupList.stream()
-                .map(ServerGroup::getInstanceList)
-                .flatMap(List::stream)
-                .map(ServerInstance::getName)
-                .collect(Collectors.toList());
+        List<String> list = new ArrayList<>();
+        for (ServerGroup serverGroup : this.serverGroupList) {
+            List<ServerInstance> instanceList = serverGroup.getInstanceList();
+            for (ServerInstance serverInstance : instanceList) {
+                String name = serverInstance.getName();
+                list.add(name);
+            }
+        }
+        return list;
     }
 
     public Map<String, String> getAgentIdNameMap() {
@@ -84,20 +81,14 @@ public class ServerGroupList {
     }
 
 
-    public static Builder newBuilder(HyperLinkFactory hyperLinkFactory) {
-        return new Builder(hyperLinkFactory);
-    }
-
     public static Builder newBuilder() {
-        return new Builder(HyperLinkFactory.empty());
+        return new Builder();
     }
 
     public static class Builder {
         private final Map<String, List<ServerInstance>> map = new HashMap<>();
-        private final HyperLinkFactory hyperLinkFactory;
 
-        Builder(HyperLinkFactory hyperLinkFactory) {
-            this.hyperLinkFactory = hyperLinkFactory;
+        Builder() {
         }
 
         public void addServerInstance(ServerInstance serverInstance) {
@@ -123,28 +114,17 @@ public class ServerGroupList {
             List<Map.Entry<String, List<ServerInstance>>> sortedList = map.entrySet()
                     .stream()
                     .sorted(Map.Entry.comparingByKey())
-                    .collect(Collectors.toList());
+                    .toList();
 
             List<ServerGroup> serverGroups = new ArrayList<>();
             for (Map.Entry<String, List<ServerInstance>> entry : sortedList) {
                 String hostName = entry.getKey();
                 List<ServerInstance> serverInstances = entry.getValue();
 
-                List<HyperLink> hyperLinks = newHyperLink(serverInstances);
-                serverGroups.add(new ServerGroup(hostName, null, hyperLinks, serverInstances));
+                serverGroups.add(new ServerGroup(hostName, null, serverInstances));
             }
             return new ServerGroupList(serverGroups);
         }
 
-        private List<HyperLink> newHyperLink(List<ServerInstance> serverList) {
-            if (hyperLinkFactory == null) {
-                return List.of();
-            }
-            if (serverList.isEmpty()) {
-                return List.of();
-            }
-            ServerInstance first = serverList.get(0);
-            return hyperLinkFactory.build(LinkSources.from(first.getHostName(), first.getIp()));
-        }
     }
 }

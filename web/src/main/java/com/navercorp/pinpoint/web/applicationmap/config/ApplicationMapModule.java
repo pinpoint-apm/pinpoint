@@ -39,6 +39,7 @@ import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
+import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.task.RequestContextPropagatingTaskDecorator;
 import com.navercorp.pinpoint.web.task.SecurityContextPropagatingTaskDecorator;
@@ -78,24 +79,27 @@ public class ApplicationMapModule {
     @Bean
     public MapController mapController(MapService mapService,
                                        ApplicationValidator applicationValidator,
+                                       HyperLinkFactory hyperLinkFactory,
                                        ConfigProperties configProperties) {
         Duration maxPeriod = Duration.ofDays(configProperties.getServerMapPeriodMax());
-        return new MapController(mapService, applicationValidator, maxPeriod);
+        return new MapController(mapService, applicationValidator, hyperLinkFactory, maxPeriod);
     }
 
     @Bean
     public MapHistogramController mapHistogramController(ResponseTimeHistogramService responseTimeHistogramService,
                                                          ApplicationFactory applicationFactory,
                                                          ApplicationValidator applicationValidator,
+                                                         HyperLinkFactory hyperLinkFactory,
                                                          ConfigProperties configProperties) {
         Duration maxPeriod = Duration.ofDays(configProperties.getServerMapPeriodMax());
-        return new MapHistogramController(responseTimeHistogramService, applicationFactory, applicationValidator, maxPeriod);
+        return new MapHistogramController(responseTimeHistogramService, applicationFactory, applicationValidator, hyperLinkFactory, maxPeriod);
     }
 
     @Bean
     public FilteredMapController filteredMapController(FilteredMapService filteredMapService,
-                                                       FilterBuilder<List<SpanBo>> filterBuilder) {
-        return new FilteredMapController(filteredMapService, filterBuilder);
+                                                       FilterBuilder<List<SpanBo>> filterBuilder,
+                                                       HyperLinkFactory hyperLinkFactory) {
+        return new FilteredMapController(filteredMapService, filterBuilder, hyperLinkFactory);
     }
 
     @Bean

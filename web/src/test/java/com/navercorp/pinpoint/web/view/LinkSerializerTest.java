@@ -40,12 +40,46 @@ import org.junit.jupiter.api.Test;
  */
 public class LinkSerializerTest {
 
-    private static final ObjectMapper MAPPER = Jackson.newMapper();
     private final Logger logger = LogManager.getLogger(this.getClass());
+
+    final ObjectMapper MAPPER = Jackson.newMapper();
 
 
     @Test
-    public void testSerialize() throws JsonProcessingException {
+    public void testSerializeV1() throws JsonProcessingException {
+        TimeHistogramFormat version = TimeHistogramFormat.V1;
+        LinkView linkView = newLinkView(version);
+
+        ObjectWriter objectWriter = MAPPER.writerWithDefaultPrettyPrinter();
+        String s = objectWriter.writeValueAsString(linkView);
+
+        logger.debug("{}", s);
+    }
+
+    @Test
+    public void testSerializeV2() throws JsonProcessingException {
+        TimeHistogramFormat version = TimeHistogramFormat.V2;
+        LinkView linkView = newLinkView(version);
+
+        ObjectWriter objectWriter = MAPPER.writerWithDefaultPrettyPrinter();
+        String s = objectWriter.writeValueAsString(linkView);
+
+        logger.debug("{}", s);
+    }
+
+
+    @Test
+    public void testSerializeV3() throws JsonProcessingException {
+        TimeHistogramFormat version = TimeHistogramFormat.V3;
+        LinkView linkView = newLinkView(version);
+
+        ObjectWriter objectWriter = MAPPER.writerWithDefaultPrettyPrinter();
+        String s = objectWriter.writeValueAsString(linkView);
+
+        logger.debug("{}", s);
+    }
+
+    private LinkView newLinkView(TimeHistogramFormat version) {
         AgentHistogramList list = new AgentHistogramList();
         AgentHistogram histogram = new AgentHistogram(new Application("test", ServiceType.STAND_ALONE));
         list.addAgentHistogram(histogram);
@@ -53,10 +87,6 @@ public class LinkSerializerTest {
         Node node2 = new Node(new Application("test1", ServiceType.STAND_ALONE));
 
         Link link = new Link(LinkDirection.IN_LINK, node1, node2, Range.between(0, 1));
-        ObjectWriter objectWriter = MAPPER.writerWithDefaultPrettyPrinter();
-        LinkView linkView = new LinkView(link, MapViews.Basic.class, TimeHistogramFormat.V1);
-        String s = objectWriter.writeValueAsString(linkView);
-
-        logger.debug("{}", s);
+        return new LinkView(link, MapViews.Basic.class, version);
     }
 }

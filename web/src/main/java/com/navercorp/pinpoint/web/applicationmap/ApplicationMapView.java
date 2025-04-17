@@ -10,6 +10,7 @@ import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.view.LinkView;
 import com.navercorp.pinpoint.web.applicationmap.view.NodeView;
+import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -20,19 +21,22 @@ public class ApplicationMapView {
     private final ApplicationMap applicationMap;
     private final TimeWindow timeWindow;
     private final Class<?> activeView;
+    private final HyperLinkFactory hyperLinkFactory;
     private final TimeHistogramFormat timeHistogramFormat;
 
-    public ApplicationMapView(ApplicationMap applicationMap, Class<?> activeView, TimeHistogramFormat timeHistogramFormat) {
+    public ApplicationMapView(ApplicationMap applicationMap, Class<?> activeView, HyperLinkFactory hyperLinkFactory, TimeHistogramFormat timeHistogramFormat) {
         this.applicationMap = Objects.requireNonNull(applicationMap, "applicationMap");
         this.timeWindow = null;
         this.activeView = Objects.requireNonNull(activeView, "activeView");
+        this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
         this.timeHistogramFormat = Objects.requireNonNull(timeHistogramFormat, "timeHistogramFormat");
     }
 
-    public ApplicationMapView(ApplicationMap applicationMap, TimeWindow timeWindow, Class<?> activeView, TimeHistogramFormat timeHistogramFormat) {
+    public ApplicationMapView(ApplicationMap applicationMap, TimeWindow timeWindow, Class<?> activeView, HyperLinkFactory hyperLinkFactory, TimeHistogramFormat timeHistogramFormat) {
         this.applicationMap = Objects.requireNonNull(applicationMap, "applicationMap");
         this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
         this.activeView = Objects.requireNonNull(activeView, "activeView");
+        this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
         this.timeHistogramFormat = Objects.requireNonNull(timeHistogramFormat, "timeHistogramFormat");
     }
 
@@ -45,7 +49,7 @@ public class ApplicationMapView {
     public Iterator<NodeView> getNodes() {
         Collection<Node> nodes = applicationMap.getNodes();
 
-        return Iterators.transform(nodes.iterator(), node -> new NodeView(node, activeView, timeHistogramFormat));
+        return Iterators.transform(nodes.iterator(), node -> new NodeView(node, activeView, hyperLinkFactory, timeHistogramFormat));
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)

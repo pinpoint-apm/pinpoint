@@ -6,7 +6,6 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
-import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 
@@ -20,15 +19,16 @@ public class NodeHistogramSummaryView {
     private final NodeHistogram nodeHistogram;
     private final TimeHistogramFormat format;
 
-    private final ServerGroupList serverGroupList;
+    private final ServerGroupListView serverGroupListView;
+
 
     public NodeHistogramSummaryView(NodeHistogramSummary nodeHistogramSummary,
-                                    ServerGroupList serverGroupList,
+                                    ServerGroupListView serverGroupListView,
                                     TimeHistogramFormat format) {
         this.nodeHistogramSummary = Objects.requireNonNull(nodeHistogramSummary, "nodeHistogramSummary");
         this.nodeHistogram = nodeHistogramSummary.getNodeHistogram();
 
-        this.serverGroupList = Objects.requireNonNull(serverGroupList, "serverGroupList");
+        this.serverGroupListView = Objects.requireNonNull(serverGroupListView, "serverGroupListView");
 
         this.format = Objects.requireNonNull(format, "format");
     }
@@ -37,8 +37,8 @@ public class NodeHistogramSummaryView {
         return System.currentTimeMillis();
     }
 
-    public ServerGroupList getServerList() {
-        return serverGroupList;
+    public ServerGroupListView getServerList() {
+        return serverGroupListView;
     }
 
     public ResponseTimeStatics getResponseStatistics() {

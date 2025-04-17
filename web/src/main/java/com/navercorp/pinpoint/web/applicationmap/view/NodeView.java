@@ -16,6 +16,7 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeViews;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
+import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 
@@ -28,11 +29,13 @@ import java.util.Objects;
 public class NodeView {
     private final Node node;
     private final Class<?> activeView;
+    private final HyperLinkFactory hyperLinkFactory;
     private final TimeHistogramFormat format;
 
-    public NodeView(Node node, Class<?> activeView, TimeHistogramFormat format) {
+    public NodeView(Node node, Class<?> activeView, HyperLinkFactory hyperLinkFactory, TimeHistogramFormat format) {
         this.node = Objects.requireNonNull(node, "node");
         this.activeView = Objects.requireNonNull(activeView, "activeView");
+        this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
         this.format = Objects.requireNonNull(format, "format");
     }
 
@@ -42,6 +45,10 @@ public class NodeView {
 
     public Class<?> getActiveView() {
         return activeView;
+    }
+
+    public HyperLinkFactory getHyperLinkFactory() {
+        return hyperLinkFactory;
     }
 
     private TimeHistogramFormat getFormat() {
@@ -131,7 +138,7 @@ public class NodeView {
                 jgen.writeEndObject();
 
                 if (NodeViews.Detailed.inView(activeView)) {
-                    jgen.writeObjectField("serverList", serverGroupList);
+                    jgen.writeObjectField("serverList", new ServerGroupListView(serverGroupList, nodeView.getHyperLinkFactory()));
                 }
             }
         }

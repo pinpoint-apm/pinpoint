@@ -22,6 +22,8 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeName;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
+import com.navercorp.pinpoint.web.applicationmap.view.ServerGroupListView;
+import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.List;
@@ -30,24 +32,25 @@ import java.util.Objects;
 public class ServerHistogramView {
     private final String key;
     private final List<HistogramView> agentHistogramList;
-    private final ServerGroupList serverGroupList;
+    private final ServerGroupListView serverGroupListView;
 
-    public static ServerHistogramView view(NodeHistogramSummary summary) {
+    public static ServerHistogramView view(NodeHistogramSummary summary, HyperLinkFactory hyperLinkFactory) {
         Application application = summary.getApplication();
         String key = NodeName.toNodeName(application.getName(), application.getServiceType());
         List<HistogramView> agentHistogramList = summary.getNodeHistogram().createAgentHistogramViewList();
         ServerGroupList serverGroupList = summary.getServerGroupList();
-        return new ServerHistogramView(key, agentHistogramList, serverGroupList);
+        ServerGroupListView serverGroupListView = new ServerGroupListView(serverGroupList, hyperLinkFactory);
+        return new ServerHistogramView(key, agentHistogramList, serverGroupListView);
     }
 
-    public ServerHistogramView(String key, List<HistogramView> agentHistogramList, ServerGroupList serverGroupList) {
+    public ServerHistogramView(String key, List<HistogramView> agentHistogramList, ServerGroupListView serverGroupListView) {
         this.key = Objects.requireNonNull(key, "key");
         this.agentHistogramList = Objects.requireNonNull(agentHistogramList, "agentHistogramList");
-        this.serverGroupList = Objects.requireNonNull(serverGroupList, "serverGroupList");
+        this.serverGroupListView = Objects.requireNonNull(serverGroupListView, "serverGroupListView");
     }
 
-    public ServerHistogramView(NodeName nodeName, NodeHistogram nodeHistogram, ServerGroupList serverGroupList) {
-        this(nodeName.getName(), nodeHistogram.createAgentHistogramViewList(), serverGroupList);
+    public ServerHistogramView(NodeName nodeName, NodeHistogram nodeHistogram, ServerGroupListView serverGroupListView) {
+        this(nodeName.getName(), nodeHistogram.createAgentHistogramViewList(), serverGroupListView);
     }
 
     @JsonProperty("key")
@@ -61,7 +64,7 @@ public class ServerHistogramView {
     }
 
     @JsonProperty("serverList")
-    public ServerGroupList getServerList() {
-        return serverGroupList;
+    public ServerGroupListView getServerList() {
+        return serverGroupListView;
     }
 }

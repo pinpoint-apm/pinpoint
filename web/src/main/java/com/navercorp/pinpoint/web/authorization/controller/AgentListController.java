@@ -9,6 +9,9 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstance;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramServiceOption;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
+import com.navercorp.pinpoint.web.hyperlink.HyperLink;
+import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
+import com.navercorp.pinpoint.web.hyperlink.LinkSources;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.ApplicationAgentInfoMapServiceImpl;
 import com.navercorp.pinpoint.web.service.ApplicationAgentListQueryRule;
@@ -59,7 +62,7 @@ public class AgentListController {
     private final ResponseTimeHistogramService responseTimeHistogramService;
 
     private final ApplicationAgentInfoMapServiceImpl applicationAgentInfoService;
-
+    private final HyperLinkFactory hyperLinkFactory;
     private final SortByAgentInfo.Rules DEFAULT_SORT_BY = SortByAgentInfo.Rules.AGENT_ID_ASC;
 
     public AgentListController(
@@ -67,13 +70,15 @@ public class AgentListController {
             ServiceTypeRegistryService registry,
             ApplicationFactory applicationFactory,
             ResponseTimeHistogramService responseTimeHistogramService,
-            ApplicationAgentInfoMapServiceImpl applicationAgentInfoService) {
+            ApplicationAgentInfoMapServiceImpl applicationAgentInfoService,
+            HyperLinkFactory hyperLinkFactory) {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
         this.registry = Objects.requireNonNull(registry, "registry");
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
         this.responseTimeHistogramService =
                 Objects.requireNonNull(responseTimeHistogramService, "responseTimeHistogramService");
         this.applicationAgentInfoService = applicationAgentInfoService;
+        this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
     }
 
     @GetMapping(value = "/search-all")
@@ -215,19 +220,25 @@ public class AgentListController {
 
                 AgentStatus agentStatus = new AgentStatus(instance.getName(), instance.getStatus(), 0);
 
-                agents.add(
-                        new AgentStatusAndLink(
-                                agentInfo,
-                                agentStatus,
-                                group.getLinkList()
-                        )
+                AgentStatusAndLink agentStatusAndLik = new AgentStatusAndLink(
+                        agentInfo,
+                        agentStatus,
+                        newHyperLink(hyperLinkFactory, instance)
                 );
+                agents.add(agentStatusAndLik);
             }
             InstancesList<AgentStatusAndLink> instancesList = new InstancesList<>(group.getHostName(), agents);
 
             listMap.add(instancesList);
         }
-        return new AgentsMapByHost(new InstancesListMap<AgentStatusAndLink>(listMap));
+        return new AgentsMapByHost(new InstancesListMap<>(listMap));
+    }
+
+    private List<HyperLink> newHyperLink(HyperLinkFactory hyperLinkFactory, ServerInstance serverInstance) {
+        if (serverInstance == null) {
+            return List.of();
+        }
+        return hyperLinkFactory.build(LinkSources.from(serverInstance.getHostName(), serverInstance.getIp()));
     }
 
     private static TreeView<InstancesList<AgentStatusAndLink>> treeView(AgentsMapByHost agentsMapByHost) {

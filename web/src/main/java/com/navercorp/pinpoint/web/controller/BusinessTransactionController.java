@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapServiceOption;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.SpanFilters;
+import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.SpanResult;
 import com.navercorp.pinpoint.web.service.SpanService;
 import com.navercorp.pinpoint.web.service.TransactionInfoService;
@@ -71,6 +72,7 @@ public class BusinessTransactionController {
     private final SpanService spanService;
     private final TransactionInfoService transactionInfoService;
     private final FilteredMapService filteredMapService;
+    private final HyperLinkFactory hyperLinkFactory;
     private final LogLinkBuilder logLinkBuilder;
 
     @Value("${web.callstack.selectSpans.limit:-1}")
@@ -80,10 +82,12 @@ public class BusinessTransactionController {
     public BusinessTransactionController(SpanService spanService,
                                          TransactionInfoService transactionInfoService,
                                          FilteredMapService filteredMapService,
+                                         HyperLinkFactory hyperLinkFactory,
                                          LogLinkBuilder logLinkBuilder) {
         this.spanService = Objects.requireNonNull(spanService, "spanService");
         this.transactionInfoService = Objects.requireNonNull(transactionInfoService, "transactionInfoService");
         this.filteredMapService = Objects.requireNonNull(filteredMapService, "filteredMapService");
+        this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
         this.logLinkBuilder = Objects.requireNonNull(logLinkBuilder, "logLinkBuilder");
     }
 
@@ -153,6 +157,7 @@ public class BusinessTransactionController {
                 recordSet,
                 spanResult.traceState(),
                 logLinkView,
+                hyperLinkFactory,
                 format
         );
     }
