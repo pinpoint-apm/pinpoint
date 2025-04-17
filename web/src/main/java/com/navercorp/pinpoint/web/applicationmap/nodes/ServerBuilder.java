@@ -19,13 +19,11 @@ package com.navercorp.pinpoint.web.applicationmap.nodes;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
-import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -39,14 +37,8 @@ public class ServerBuilder {
 
     private final AgentHistogramList agentHistogramList = new AgentHistogramList();
     private final Set<AgentAndStatus> agentSet = new HashSet<>();
-    private final HyperLinkFactory hyperLinkFactory;
 
     public ServerBuilder() {
-        this.hyperLinkFactory = HyperLinkFactory.empty();
-    }
-
-    public ServerBuilder(HyperLinkFactory hyperLinkFactory) {
-        this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
     }
 
     public void addCallHistogramList(AgentHistogramList agentHistogramList) {
@@ -79,7 +71,7 @@ public class ServerBuilder {
      * @param hostHistogram
      */
     public ServerGroupList buildLogicalServer(final AgentHistogramList hostHistogram) {
-        ServerGroupList.Builder builder = ServerGroupList.newBuilder(hyperLinkFactory);
+        ServerGroupList.Builder builder = ServerGroupList.newBuilder();
 
         for (AgentHistogram agentHistogram : hostHistogram.getAgentHistogramList()) {
             final String instanceName = agentHistogram.getId();
@@ -94,7 +86,7 @@ public class ServerBuilder {
     }
 
     public ServerGroupList buildPhysicalServer(final Set<AgentAndStatus> agentSet) {
-        final ServerGroupList.Builder builder = ServerGroupList.newBuilder(hyperLinkFactory);
+        final ServerGroupList.Builder builder = ServerGroupList.newBuilder();
         for (AgentAndStatus agentAndStatus : agentSet) {
             final ServerInstance serverInstance = new ServerInstance(agentAndStatus.getAgentInfo(), agentAndStatus.getStatus());
             builder.addServerInstance(serverInstance);

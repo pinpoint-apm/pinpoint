@@ -6,26 +6,36 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
+import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.view.histogram.HistogramView;
 import com.navercorp.pinpoint.web.view.histogram.ServerHistogramView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class FilteredHistogramView {
 
     private final ApplicationMap applicationMap;
+    private final HyperLinkFactory hyperLinkFactory;
 
-    public FilteredHistogramView(ApplicationMap applicationMap) {
+    public FilteredHistogramView(ApplicationMap applicationMap, HyperLinkFactory hyperLinkFactory) {
         this.applicationMap = applicationMap;
+        this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
     }
 
     public List<ServerHistogramView> getNodeServerHistogramData() {
         final List<ServerHistogramView> result = new ArrayList<>();
         for (Node node : applicationMap.getNodes()) {
-            result.add(new ServerHistogramView(node.getNodeName(), node.getNodeHistogram(), node.getServerGroupList()));
+            ServerHistogramView view = newServerHistogramView(node);
+            result.add(view);
         }
         return result;
+    }
+
+    private ServerHistogramView newServerHistogramView(Node node) {
+        ServerGroupListView serverGroupListView = new ServerGroupListView(node.getServerGroupList(), hyperLinkFactory);
+        return new ServerHistogramView(node.getNodeName(), node.getNodeHistogram(), serverGroupListView);
     }
 
     public List<HistogramView> getNodeHistogramData() {

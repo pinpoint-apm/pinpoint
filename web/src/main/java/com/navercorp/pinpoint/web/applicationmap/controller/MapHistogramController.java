@@ -27,12 +27,14 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramServiceOption;
+import com.navercorp.pinpoint.web.applicationmap.view.LinkHistogramSummaryView;
 import com.navercorp.pinpoint.web.applicationmap.view.NodeHistogramSummaryView;
+import com.navercorp.pinpoint.web.applicationmap.view.ServerGroupListView;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
+import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.util.ApplicationValidator;
 import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
 import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
-import com.navercorp.pinpoint.web.view.LinkHistogramSummaryView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationPair;
 import com.navercorp.pinpoint.web.vo.ApplicationPairs;
@@ -72,11 +74,13 @@ public class MapHistogramController {
     private final RangeValidator rangeValidator;
     private final ApplicationFactory applicationFactory;
     private final ApplicationValidator applicationValidator;
+    private final HyperLinkFactory hyperLinkFactory;
 
     public MapHistogramController(
             ResponseTimeHistogramService responseTimeHistogramService,
             ApplicationFactory applicationFactory,
             ApplicationValidator applicationValidator,
+            HyperLinkFactory hyperLinkFactory,
             Duration limitDay
     ) {
         this.responseTimeHistogramService =
@@ -84,6 +88,7 @@ public class MapHistogramController {
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
         this.applicationValidator = Objects.requireNonNull(applicationValidator, "applicationFactory");
         this.rangeValidator = new ForwardRangeValidator(Objects.requireNonNull(limitDay, "limitDay"));
+        this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
     }
 
     @GetMapping(value = "/getResponseTimeHistogramData")
@@ -134,7 +139,8 @@ public class MapHistogramController {
 
         TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
         ServerGroupList serverGroupList = nodeHistogramSummary.getServerGroupList();
-        return new NodeHistogramSummaryView(nodeHistogramSummary, serverGroupList, format);
+        ServerGroupListView serverGroupListView = new ServerGroupListView(serverGroupList, hyperLinkFactory);
+        return new NodeHistogramSummaryView(nodeHistogramSummary, serverGroupListView, format);
     }
 
 
@@ -181,7 +187,8 @@ public class MapHistogramController {
 
         final TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
         ServerGroupList serverGroupList = nodeHistogramSummary.getServerGroupList();
-        return new NodeHistogramSummaryView(nodeHistogramSummary, serverGroupList, format);
+        ServerGroupListView serverGroupListView = new ServerGroupListView(serverGroupList, hyperLinkFactory);
+        return new NodeHistogramSummaryView(nodeHistogramSummary, serverGroupListView, format);
     }
 
     private List<Application> toApplications(List<String> applicationNames, List<Short> serviceTypeCodes) {
