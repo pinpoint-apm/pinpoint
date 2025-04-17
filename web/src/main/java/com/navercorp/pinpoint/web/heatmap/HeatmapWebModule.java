@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.web.heatmap;
 
+import com.navercorp.pinpoint.pinot.config.PinotConfiguration;
 import com.navercorp.pinpoint.web.heatmap.config.HeatmapPropertySources;
 import com.navercorp.pinpoint.web.heatmap.config.HeatmapWebPinotDaoConfiguration;
-import org.apache.pinot.spi.env.PinotConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
