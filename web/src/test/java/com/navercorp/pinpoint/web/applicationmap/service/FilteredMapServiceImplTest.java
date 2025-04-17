@@ -49,7 +49,6 @@ import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
-import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.ServerInstanceDatasourceService;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;
@@ -144,7 +143,7 @@ public class FilteredMapServiceImplTest {
         when(serverInstanceDatasourceService.getServerGroupListDataSource())
                 .thenAnswer(invocation -> {
                     AgentInfoService agentInfoService = mock(AgentInfoService.class);
-                    return new AgentInfoServerGroupListDataSource(agentInfoService, HyperLinkFactory.empty());
+                    return new AgentInfoServerGroupListDataSource(agentInfoService);
                 });
 
         filteredMapService = new FilteredMapServiceImpl(traceDao, applicationTraceIndexDao,

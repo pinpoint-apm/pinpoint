@@ -1,10 +1,9 @@
-package com.navercorp.pinpoint.web.view;
+package com.navercorp.pinpoint.web.applicationmap.view;
 
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
-import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramViewModel;
 
 import java.util.List;
 import java.util.Objects;

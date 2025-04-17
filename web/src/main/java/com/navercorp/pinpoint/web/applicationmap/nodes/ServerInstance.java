@@ -17,10 +17,8 @@
 package com.navercorp.pinpoint.web.applicationmap.nodes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.view.ServerInstanceSerializer;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 
@@ -32,7 +30,6 @@ import java.util.Objects;
  * @author emeroad
  * @author HyunGil Jeong
  */
-@JsonSerialize(using = ServerInstanceSerializer.class)
 public class ServerInstance {
 
     private final String hostName;

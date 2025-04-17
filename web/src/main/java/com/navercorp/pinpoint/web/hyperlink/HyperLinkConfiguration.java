@@ -25,7 +25,7 @@ import java.util.List;
 @Configuration
 public class HyperLinkConfiguration {
     @Bean
-    public HyperLinkFactory HyperLinkFactory(List<MatcherGroup> matcherGroups) {
+    public HyperLinkFactory hyperLinkFactory(List<MatcherGroup> matcherGroups) {
         return new HyperLinkFactory(matcherGroups);
     }
 
