@@ -100,6 +100,8 @@ public class ExecuteInterceptor implements AroundInterceptor {
                 return;
             }
 
+            this.requestTraceWriter.write(httpRequest, trace.getRequestId());
+
             final SpanEventRecorder recorder = trace.traceBlockBegin();
             if (trace.canSampled()) {
                 final AsyncContext asyncContext = recorder.recordNextAsyncContext();
