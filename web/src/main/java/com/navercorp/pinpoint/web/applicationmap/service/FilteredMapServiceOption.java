@@ -37,7 +37,6 @@ public class FilteredMapServiceOption {
     private final int xGroupUnit;
     private final int yGroupUnit;
     private final Filter<List<SpanBo>> filter;
-    private final int version;
     private final boolean useStatisticsAgentState;
     private final ColumnGetCount columnGetCount;
 
@@ -48,7 +47,6 @@ public class FilteredMapServiceOption {
         this.xGroupUnit = builder.xGroupUnit;
         this.yGroupUnit = builder.yGroupUnit;
         this.filter = builder.filter;
-        this.version = builder.version;
         this.useStatisticsAgentState = builder.useStatisticsAgentState;
         this.columnGetCount = builder.columnGetCount;
     }
@@ -77,10 +75,6 @@ public class FilteredMapServiceOption {
         return filter;
     }
 
-    public int getVersion() {
-        return version;
-    }
-
     public boolean isUseStatisticsAgentState() {
         return useStatisticsAgentState;
     }
@@ -98,7 +92,6 @@ public class FilteredMapServiceOption {
                 ", xGroupUnit=" + xGroupUnit +
                 ", yGroupUnit=" + yGroupUnit +
                 ", filter=" + filter +
-                ", version=" + version +
                 ", useStatisticsAgentState=" + useStatisticsAgentState +
                 '}';
     }
@@ -109,27 +102,24 @@ public class FilteredMapServiceOption {
         private int xGroupUnit;
         private int yGroupUnit;
         private final Filter<List<SpanBo>> filter;
-        private final int version;
         private ColumnGetCount columnGetCount;
 
         private boolean useStatisticsAgentState;
 
-        public Builder(TransactionId transactionId, int version, ColumnGetCount columnGetCount) {
+        public Builder(TransactionId transactionId, ColumnGetCount columnGetCount) {
             Objects.requireNonNull(transactionId, "transactionId");
             this.transactionIdList = Collections.singletonList(transactionId);
-            this.version = version;
             this.columnGetCount = columnGetCount;
             this.originalRange = Range.between(-1, -1);
             this.filter = Filter.acceptAllFilter();
         }
 
-        public Builder(List<TransactionId> transactionIdList, Range originalRange, int xGroupUnit, int yGroupUnit, Filter<List<SpanBo>> filter, int version) {
+        public Builder(List<TransactionId> transactionIdList, Range originalRange, int xGroupUnit, int yGroupUnit, Filter<List<SpanBo>> filter) {
             this.transactionIdList = Objects.requireNonNull(transactionIdList, "transactionIdList");
             this.filter = Objects.requireNonNull(filter, "filter");
             this.originalRange = originalRange;
             this.xGroupUnit = xGroupUnit;
             this.yGroupUnit = yGroupUnit;
-            this.version = version;
         }
 
         public Builder setUseStatisticsAgentState(boolean useStatisticsAgentState) {

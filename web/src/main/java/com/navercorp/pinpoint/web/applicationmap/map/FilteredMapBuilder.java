@@ -63,8 +63,6 @@ public class FilteredMapBuilder {
 
     private final ServiceTypeRegistryService registry;
 
-    private final int version;
-
     private final TimeWindow timeWindow;
 
     private final LinkDataDuplexMap linkDataDuplexMap;
@@ -78,11 +76,9 @@ public class FilteredMapBuilder {
 
     private final Map<String, Application> applicationHashMap = new HashMap<>();
 
-    public FilteredMapBuilder(ApplicationFactory applicationFactory, ServiceTypeRegistryService registry, Range range, int version) {
+    public FilteredMapBuilder(ApplicationFactory applicationFactory, ServiceTypeRegistryService registry, Range range) {
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
         this.registry = Objects.requireNonNull(registry, "registry");
-
-        this.version = version;
 
         Objects.requireNonNull(range, "range");
         this.timeWindow = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
@@ -107,7 +103,7 @@ public class FilteredMapBuilder {
         final MultiValueMap<Long, SpanBo> transactionSpanMap = createTransactionSpanMap(transaction);
 
         for (SpanBo span : transaction) {
-            final Application parentApplication = createParentApplication(span, transactionSpanMap, version);
+            final Application parentApplication = createParentApplication(span, transactionSpanMap);
             final Application spanApplication = this.applicationFactory.createApplication(span.getApplicationName(), span.getApplicationServiceType());
 
             // records the Span's response time statistics
@@ -187,24 +183,17 @@ public class FilteredMapBuilder {
         return transactionSpanMap;
     }
 
-    private Application createParentApplication(SpanBo span, MultiValueMap<Long, SpanBo> transactionSpanMap, int version) {
+    private Application createParentApplication(SpanBo span, MultiValueMap<Long, SpanBo> transactionSpanMap) {
         final SpanBo parentSpan = getParentsSpan(span, transactionSpanMap);
 
         if (span.isRoot() || parentSpan == null) {
             ServiceType spanServiceType = this.registry.findServiceType(span.getServiceType());
             if (spanServiceType.isQueue()) {
                 String applicationName = span.getAcceptorHost();
-                ServiceType serviceType = spanServiceType;
-                return this.applicationFactory.createApplication(applicationName, serviceType);
+                return this.applicationFactory.createApplication(applicationName, spanServiceType);
             } else {
-                String applicationName;
-                // FIXME magic number, remove after front end UI changes and simply use the newer one
-                if (version >= 4) {
-                    ServiceType applicationServiceType = this.registry.findServiceType(span.getApplicationServiceType());
-                    applicationName = span.getApplicationName() + "_" + applicationServiceType;
-                } else {
-                    applicationName = span.getApplicationName();
-                }
+                ServiceType applicationServiceType = this.registry.findServiceType(span.getApplicationServiceType());
+                String applicationName = span.getApplicationName() + "_" + applicationServiceType;
                 return this.applicationFactory.createApplication(applicationName, ServiceType.USER.getCode());
             }
         } else {
