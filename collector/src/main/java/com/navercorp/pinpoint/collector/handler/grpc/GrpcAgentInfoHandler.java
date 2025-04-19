@@ -91,7 +91,7 @@ public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler<Gen
         try {
             // agent info
             final AgentInfoBo agentInfoBo = this.agentInfoBoMapper.map(agentInfo, header);
-            this.agentInfoService.insert(agentInfoBo);
+            this.agentInfoService.insert(header.getServiceUid(), header.getApplicationUid(), agentInfoBo);
             return PResult.newBuilder().setSuccess(true).build();
         } catch (Exception e) {
             logger.warn("Failed to handle. agentInfo={}", MessageFormatUtils.debugLog(agentInfo), e);
