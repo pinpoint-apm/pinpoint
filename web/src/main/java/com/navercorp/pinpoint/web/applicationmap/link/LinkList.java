@@ -32,18 +32,25 @@ import java.util.function.Function;
  */
 public class LinkList {
 
-    private final Map<LinkKey, Link> linkMap = new HashMap<>();
+    public static final LinkList EMPTY = new LinkList(Map.of());
+
+    private final Map<LinkKey, Link> linkMap;
+
+    public static LinkList of(Link link) {
+        Objects.requireNonNull(link, "link");
+        return new LinkList(Map.of(link.getLinkKey(), link));
+    }
+
+    public static LinkList of() {
+        return EMPTY;
+    }
+
+    LinkList(Map<LinkKey, Link> linkMap) {
+        this.linkMap = Objects.requireNonNull(linkMap, "linkMap");
+    }
 
     public Collection<Link> getLinkList() {
         return this.linkMap.values();
-    }
-
-    public void addLinkList(LinkList linkList) {
-        Objects.requireNonNull(linkList, "linkList");
-
-        for (Link link : linkList.getLinkList()) {
-            addLink(link);
-        }
     }
 
     /**
@@ -78,22 +85,11 @@ public class LinkList {
         return findList;
     }
 
-    public boolean addLink(Link link) {
-        Objects.requireNonNull(link, "link");
-
-        final LinkKey linkId = link.getLinkKey();
-        final Link find = this.linkMap.get(linkId);
-        if (find != null) {
-            return false;
-        }
-        return this.linkMap.put(linkId, link) == null;
-    }
-
     public Link getLink(LinkKey linkKey) {
         return linkMap.get(linkKey);
     }
 
-    public boolean containsNode(Link link) {
+    public boolean contains(Link link) {
         Objects.requireNonNull(link, "link");
 
         return linkMap.containsKey(link.getLinkKey());
@@ -101,5 +97,48 @@ public class LinkList {
 
     public int size() {
         return this.linkMap.size();
+    }
+
+    public static Builder newBuilder() {
+        return newBuilder(16);
+    }
+
+    public static Builder newBuilder(int size) {
+        return new Builder(size);
+    }
+
+    public static class Builder {
+        private final Map<LinkKey, Link> linkMap;
+
+        Builder(int size) {
+            this.linkMap = new HashMap<>(size);
+        }
+
+        public boolean addLink(Link link) {
+            Objects.requireNonNull(link, "link");
+
+            final LinkKey linkId = link.getLinkKey();
+            return this.linkMap.putIfAbsent(linkId, link) == null;
+        }
+
+        public void addLinkList(LinkList linkList) {
+            Objects.requireNonNull(linkList, "linkList");
+
+            for (Link link : linkList.getLinkList()) {
+                addLink(link);
+            }
+        }
+
+        public LinkList build() {
+            if (this.linkMap.isEmpty()) {
+                return EMPTY;
+            }
+//             return new LinkList(Map.copyOf(this.linkMap));
+            return new LinkList(this.linkMap);
+        }
+
+        public int size() {
+            return this.linkMap.size();
+        }
     }
 }

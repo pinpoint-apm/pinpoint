@@ -39,7 +39,7 @@ public class DefaultApplicationMap {
             return List.of();
         }
 
-        LinkList newLinkList = new LinkList();
+        LinkList.Builder builder = LinkList.newBuilder(linkList.size());
         for (Link link : linkList) {
             if (link == null) {
                 continue;
@@ -47,10 +47,11 @@ public class DefaultApplicationMap {
             if (link.getHistogram().getTotalCount() == 0) {
                 continue;
             }
-            newLinkList.addLink(link);
+            builder.addLink(link);
         }
 
-        return newLinkList.getLinkList();
+        LinkList links = builder.build();
+        return links.getLinkList();
     }
 
     public static ApplicationMap build(NodeList nodeList, LinkList linkList, Range range) {

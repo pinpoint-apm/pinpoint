@@ -37,7 +37,7 @@ public class ApplicationMapTest {
 
     @Test
     public void root() throws IOException {
-        ApplicationMap app = DefaultApplicationMap.build(new NodeList(), new LinkList(), Range.between(0, 1));
+        ApplicationMap app = DefaultApplicationMap.build(NodeList.of(), LinkList.of(), Range.between(0, 1));
         String s = mapper.writeValueAsString(app);
         logger.debug(s);
     }

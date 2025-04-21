@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.nodes;
 
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -73,11 +74,19 @@ public class ServerGroupList {
     }
 
     public int getInstanceCount() {
-
         return this.serverGroupList.stream()
                 .map(ServerGroup::getInstanceList)
                 .mapToInt(List::size)
                 .sum();
+    }
+
+    public boolean hasServerInstance() {
+        for (ServerGroup serverGroup : this.serverGroupList) {
+            if (!serverGroup.getInstanceList().isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -86,22 +95,24 @@ public class ServerGroupList {
     }
 
     public static class Builder {
+
+        private static final Comparator<ServerGroup> HOST_NAME_COMPARATOR = Comparator.comparing(ServerGroup::getHostName);
+
         private final Map<String, List<ServerInstance>> map = new HashMap<>();
 
         Builder() {
         }
 
         public void addServerInstance(ServerInstance serverInstance) {
+            Objects.requireNonNull(serverInstance, "serverInstance");
+
             List<ServerInstance> find = getServerGroupList0(serverInstance.getHostName());
             addServerInstance(find, serverInstance);
         }
 
         private void addServerInstance(List<ServerInstance> nodeList, ServerInstance serverInstance) {
-            for (ServerInstance node : nodeList) {
-                boolean equalsNode = node.equals(serverInstance);
-                if (equalsNode) {
-                    return;
-                }
+            if (nodeList.contains(serverInstance)) {
+                return;
             }
             nodeList.add(serverInstance);
         }
@@ -111,18 +122,14 @@ public class ServerGroupList {
         }
 
         public ServerGroupList build() {
-            List<Map.Entry<String, List<ServerInstance>>> sortedList = map.entrySet()
-                    .stream()
-                    .sorted(Map.Entry.comparingByKey())
-                    .toList();
-
             List<ServerGroup> serverGroups = new ArrayList<>();
-            for (Map.Entry<String, List<ServerInstance>> entry : sortedList) {
+            for (Map.Entry<String, List<ServerInstance>> entry : map.entrySet()) {
                 String hostName = entry.getKey();
                 List<ServerInstance> serverInstances = entry.getValue();
 
                 serverGroups.add(new ServerGroup(hostName, null, serverInstances));
             }
+            serverGroups.sort(HOST_NAME_COMPARATOR);
             return new ServerGroupList(serverGroups);
         }
 

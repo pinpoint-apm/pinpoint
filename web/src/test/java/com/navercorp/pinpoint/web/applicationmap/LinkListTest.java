@@ -42,24 +42,23 @@ public class LinkListTest {
 
     @Test
     public void testGetLinkList() {
-        LinkList linkList = new LinkList();
+        LinkList linkList = LinkList.of();
         assertThat(linkList.getLinkList()).isEmpty();
     }
 
     @Test
     public void addLinkList() {
         Link tomcatToTomcatLink = createTomcatToTomcatLink();
-        LinkList copy = new LinkList();
-        copy.addLink(tomcatToTomcatLink);
+        LinkList copy = LinkList.of(tomcatToTomcatLink);
 
-        LinkList original = new LinkList();
+        LinkList.Builder original = LinkList.newBuilder();
         original.addLinkList(copy);
-        assertThat(original.getLinkList()).hasSize(1);
+        assertThat(original.build().getLinkList()).hasSize(1);
 
         // don't copy in case of duplicated node
         original.addLinkList(copy);
         Assertions.assertEquals(1, original.size());
-        assertThat(original.getLinkList()).hasSize(1);
+        assertThat(original.build().getLinkList()).hasSize(1);
 
     }
 
@@ -78,10 +77,11 @@ public class LinkListTest {
     @Test
     public void testFindToLink() {
         Link tomcatToBlocLink = createTomcatToBlocLink();
-        LinkList list = new LinkList();
-        list.addLink(tomcatToBlocLink);
+        LinkList.Builder builder = LinkList.newBuilder();
+        builder.addLink(tomcatToBlocLink);
         Link tomcatToTomcatLink = createTomcatToTomcatLink();
-        list.addLink(tomcatToTomcatLink);
+        builder.addLink(tomcatToTomcatLink);
+        LinkList list = builder.build();
 
         // find all links requesting "to"
         Application toBloc = new Application("to", BLOC);
@@ -100,15 +100,16 @@ public class LinkListTest {
     @Test
     public void testFindFromLink() {
         Link tomcatToBlocLink = createTomcatToBlocLink();
-        LinkList list = new LinkList();
-        list.addLink(tomcatToBlocLink);
+        LinkList.Builder builder = LinkList.newBuilder();
+        builder.addLink(tomcatToBlocLink);
         Link tomcatToTomcatLink = createTomcatToTomcatLink();
-        list.addLink(tomcatToTomcatLink);
+        builder.addLink(tomcatToTomcatLink);
+        LinkList list = builder.build();
 
         // find all links for "from" to request
         Application tomcat = new Application("from", TOMCAT);
         List<Link> findFromLink = list.findFromLink(tomcat);
-        Assertions.assertEquals(findFromLink.size(), 2);
+        Assertions.assertEquals(2, findFromLink.size());
         for (Link link : findFromLink) {
             Application linkFrom = link.getFrom().getApplication();
             Assertions.assertEquals(linkFrom, tomcat);
@@ -119,22 +120,23 @@ public class LinkListTest {
     }
 
     @Test
-    public void testContainsNode() {
+    public void testContains() {
         Link tomcatToBlocLink = createTomcatToBlocLink();
-        LinkList list = new LinkList();
-        Assertions.assertFalse(list.containsNode(tomcatToBlocLink));
+        LinkList.Builder builder = LinkList.newBuilder();
+        Assertions.assertFalse(builder.build().contains(tomcatToBlocLink));
 
-        list.addLink(tomcatToBlocLink);
+        builder.addLink(tomcatToBlocLink);
 
-        Assertions.assertTrue(list.containsNode(tomcatToBlocLink));
+        Assertions.assertTrue(builder.build().contains(tomcatToBlocLink));
     }
 
     @Test
     public void testSize() {
-        LinkList list = new LinkList();
-        assertThat(list.getLinkList()).isEmpty();
+        LinkList.Builder builder = LinkList.newBuilder();
+        assertThat(builder.build().getLinkList()).isEmpty();
 
-        list.addLink(createTomcatToTomcatLink());
+        builder.addLink(createTomcatToTomcatLink());
+        LinkList list = builder.build();
         assertThat(list.getLinkList()).hasSize(1);
     }
 }

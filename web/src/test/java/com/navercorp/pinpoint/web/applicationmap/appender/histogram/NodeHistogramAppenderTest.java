@@ -80,8 +80,8 @@ public class NodeHistogramAppenderTest {
     public void emptyNodeList() {
         // Given
         Range range = Range.between(0, 60 * 1000);
-        NodeList nodeList = new NodeList();
-        LinkList linkList = new LinkList();
+        NodeList nodeList = NodeList.of();
+        LinkList linkList = LinkList.of();
         // When
         nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, buildTimeoutMillis);
         // Then
@@ -96,10 +96,10 @@ public class NodeHistogramAppenderTest {
     public void wasNode() {
         // Given
         Range range = Range.between(0, 60 * 1000);
-        NodeList nodeList = new NodeList();
-        LinkList linkList = new LinkList();
+
+        LinkList linkList = LinkList.of();
         Node node = createNode("testApp", ServiceTypeFactory.of(1000, "WAS"));
-        nodeList.addNode(node);
+        NodeList nodeList = NodeList.of(node);
 
         NodeHistogram nodeHistogram = NodeHistogram.empty(node.getApplication(), range);
         when(wasNodeHistogramDataSource.createNodeHistogram(node.getApplication(), range)).thenReturn(nodeHistogram);
@@ -120,8 +120,6 @@ public class NodeHistogramAppenderTest {
     public void terminalNode() {
         // Given
         Range range = Range.between(0, 60 * 1000);
-        NodeList nodeList = new NodeList();
-        LinkList linkList = new LinkList();
 
         // fromNode : [testApp] test-app
         Node fromNode = createNode("testApp", ServiceTypeFactory.of(1000, "WAS"));
@@ -129,7 +127,7 @@ public class NodeHistogramAppenderTest {
         // toNode : [testDatabase] test-database
         Node toNode = createNode("testDatabase", ServiceTypeFactory.of(2000, "RDB", ServiceTypeProperty.TERMINAL));
         String toNodeAgent = "test-database";
-        nodeList.addNode(toNode);
+        NodeList nodeList = NodeList.of(toNode);
 
         Link link = new Link(LinkDirection.IN_LINK, fromNode, toNode, range);
         HistogramSlot fastSlot = toNode.getServiceType().getHistogramSchema().getFastSlot();
@@ -142,7 +140,7 @@ public class NodeHistogramAppenderTest {
         link.addInLink(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), toNodeAgent, toNode.getServiceType(), fastSlot, fastCallCount));
         link.addInLink(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), toNodeAgent, toNode.getServiceType(), normalSlot, normalCallCount));
         link.addInLink(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), toNodeAgent, toNode.getServiceType(), slowSlot, slowCallCount));
-        linkList.addLink(link);
+        LinkList linkList = LinkList.of(link);
 
         // When
         nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, buildTimeoutMillis);
@@ -175,8 +173,6 @@ public class NodeHistogramAppenderTest {
     public void terminalNode_multiple() {
         // Given
         Range range = Range.between(0, 60 * 1000);
-        NodeList nodeList = new NodeList();
-        LinkList linkList = new LinkList();
 
         // fromNode : [testApp] test-app
         Node fromNode = createNode("testApp", ServiceTypeFactory.of(1000, "WAS"));
@@ -185,7 +181,7 @@ public class NodeHistogramAppenderTest {
         Node toNode = createNode("testDatabase", ServiceTypeFactory.of(2000, "RDB", ServiceTypeProperty.TERMINAL));
         String toNodeAgent1 = "test-database1";
         String toNodeAgent2 = "test-database2";
-        nodeList.addNode(toNode);
+        NodeList nodeList = NodeList.of(toNode);
 
         Link link = new Link(LinkDirection.IN_LINK, fromNode, toNode, range);
         HistogramSlot fastSlot = toNode.getServiceType().getHistogramSchema().getFastSlot();
@@ -196,7 +192,7 @@ public class NodeHistogramAppenderTest {
         // [testApp] test-app -> [testDatabase] test-database2
         long callCount2 = 50L;
         link.addInLink(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), toNodeAgent2, toNode.getServiceType(), normalSlot, callCount2));
-        linkList.addLink(link);
+        LinkList linkList = LinkList.of(link);
 
         // When
         nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, buildTimeoutMillis);
@@ -230,8 +226,8 @@ public class NodeHistogramAppenderTest {
     public void terminalNodes() {
         // Given
         Range range = Range.between(0, 60 * 1000);
-        NodeList nodeList = new NodeList();
-        LinkList linkList = new LinkList();
+        NodeList.Builder nodeBuilder = NodeList.newBuilder();
+        LinkList.Builder linkBuilder = LinkList.newBuilder();
 
         // fromNode : [testApp] test-app
         Node fromNode = createNode("testApp", ServiceTypeFactory.of(1000, "WAS"));
@@ -239,17 +235,18 @@ public class NodeHistogramAppenderTest {
         // databaseNode : [testDatabase] test-database
         Node databaseNode = createNode("testDatabase", ServiceTypeFactory.of(2000, "RDB", ServiceTypeProperty.TERMINAL));
         String databaseNodeAgent = "test-database";
-        nodeList.addNode(databaseNode);
+        nodeBuilder.addNode(databaseNode);
         // cacheNode : [testCache] test-cache
         Node cacheNode = createNode("testCache", ServiceTypeFactory.of(8000, "Cache", ServiceTypeProperty.TERMINAL));
         String cacheNodeAgent = "test-cache";
-        nodeList.addNode(cacheNode);
+        nodeBuilder.addNode(cacheNode);
+        NodeList nodeList = nodeBuilder.build();
 
         Link databaseLink = new Link(LinkDirection.IN_LINK, fromNode, databaseNode, range);
         HistogramSlot databaseSlowSlot = databaseNode.getServiceType().getHistogramSchema().getSlowSlot();
         long databaseCallSlowCount = 50L;
         databaseLink.addInLink(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), databaseNodeAgent, databaseNode.getServiceType(), databaseSlowSlot, databaseCallSlowCount));
-        linkList.addLink(databaseLink);
+        linkBuilder.addLink(databaseLink);
 
         Link cacheLink = new Link(LinkDirection.IN_LINK, fromNode, cacheNode, range);
         HistogramSlot cacheFastSlot = cacheNode.getServiceType().getHistogramSchema().getFastSlot();
@@ -258,7 +255,8 @@ public class NodeHistogramAppenderTest {
         long cacheCallSlowCount = 99L;
         cacheLink.addInLink(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), cacheNodeAgent, cacheNode.getServiceType(), cacheFastSlot, cacheCallFastCount));
         cacheLink.addInLink(createLinkCallDataMap(fromNodeAgent, fromNode.getServiceType(), cacheNodeAgent, cacheNode.getServiceType(), cacheSlowSlot, cacheCallSlowCount));
-        linkList.addLink(cacheLink);
+        linkBuilder.addLink(cacheLink);
+        LinkList linkList = linkBuilder.build();
 
         // When
         nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, buildTimeoutMillis);
@@ -302,17 +300,18 @@ public class NodeHistogramAppenderTest {
     public void userNode() {
         // Given
         Range range = Range.between(0, 60 * 1000);
-        NodeList nodeList = new NodeList();
-        LinkList linkList = new LinkList();
+        NodeList.Builder nodeBuilder = NodeList.newBuilder();
+
         // userNode : [userNode] user
         Node userNode = createNode("userNode", ServiceType.USER);
         String userNodeAgent = "user";
-        nodeList.addNode(userNode);
+        nodeBuilder.addNode(userNode);
         // wasNode : [wasNode] was-1, was-2
         Node wasNode = createNode("wasNode", ServiceTypeFactory.of(1000, "WAS"));
         String wasNodeAgent1 = "was-1";
         String wasNodeAgent2 = "was-2";
-        nodeList.addNode(wasNode);
+        nodeBuilder.addNode(wasNode);
+        NodeList nodeList = nodeBuilder.build();
 
         Link link = new Link(LinkDirection.OUT_LINK, userNode, wasNode, range);
         HistogramSlot fastSlot = wasNode.getServiceType().getHistogramSchema().getFastSlot();
@@ -323,7 +322,7 @@ public class NodeHistogramAppenderTest {
         // [userNode] user -> [wasNode] was-2
         long normalCallCount = 50L;
         link.addOutLink(createLinkCallDataMap(userNodeAgent, userNode.getServiceType(), wasNodeAgent2, wasNode.getServiceType(), normalSlot, normalCallCount));
-        linkList.addLink(link);
+        LinkList linkList = LinkList.of(link);
 
         // When
         nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, buildTimeoutMillis);

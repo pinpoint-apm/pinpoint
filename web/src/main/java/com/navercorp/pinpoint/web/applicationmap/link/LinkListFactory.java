@@ -35,20 +35,21 @@ public class LinkListFactory {
 
     public static LinkList createLinkList(NodeList nodeList, LinkDataDuplexMap linkDataDuplexMap, Range range) {
         // don't change
-        LinkList linkList = new LinkList();
-        createSourceLink(nodeList, linkList, linkDataDuplexMap.getSourceLinkDataMap(), range);
-        int before = linkList.size();
+        LinkList.Builder linkBuilder = LinkList.newBuilder(linkDataDuplexMap.size());
+        createSourceLink(nodeList, linkBuilder, linkDataDuplexMap.getSourceLinkDataMap(), range);
+        int before = linkBuilder.size();
         logger.debug("total link (in search) size:{}", before);
-        createTargetLink(nodeList, linkList, linkDataDuplexMap.getTargetLinkDataMap(), range);
-        logger.debug("total link (out search) size:{}->{}", before, linkList.size());
+        createTargetLink(nodeList, linkBuilder, linkDataDuplexMap.getTargetLinkDataMap(), range);
+        logger.debug("total link (out search) size:{}->{}", before, linkBuilder.size());
 
+        LinkList linkList = linkBuilder.build();
         for (Link link : linkList.getLinkList()) {
             appendLinkHistogram(link, linkDataDuplexMap);
         }
         return linkList;
     }
 
-    private static void createSourceLink(NodeList nodeList, LinkList linkList, LinkDataMap linkDataMap, Range range) {
+    private static void createSourceLink(NodeList nodeList, LinkList.Builder linkList, LinkDataMap linkDataMap, Range range) {
         for (LinkData linkData : linkDataMap.getLinkDataList()) {
             final Application fromApplicationId = linkData.getFromApplication();
             Node fromNode = nodeList.findNode(fromApplicationId);
@@ -65,7 +66,7 @@ public class LinkListFactory {
             // for RPC clients: skip if there is a dest application, convert to "unknown cloud" if not
             // shouldn't really be necessary as rpc client toNodes are converted to unknown nodes beforehand.
             if (toNode.getServiceType().isRpcClient()) {
-                if (!nodeList.containsNode(toNode.getApplication()) || toNode.getServiceType().isAlias()) {
+                if (!nodeList.contains(toNode.getApplication()) || toNode.getServiceType().isAlias()) {
                     final Link link = addLink(linkList, fromNode, toNode, LinkDirection.IN_LINK, range);
                     if (link != null) {
                         logger.debug("createRpcSourceLink:{}", link);
@@ -80,7 +81,7 @@ public class LinkListFactory {
         }
     }
 
-    private static void createTargetLink(NodeList nodeList, LinkList linkList, LinkDataMap linkDataMap, Range range) {
+    private static void createTargetLink(NodeList nodeList, LinkList.Builder linkList, LinkDataMap linkDataMap, Range range) {
         for (LinkData linkData : linkDataMap.getLinkDataList()) {
             final Application fromApplicationId = linkData.getFromApplication();
             Node fromNode = nodeList.findNode(fromApplicationId);
@@ -97,7 +98,7 @@ public class LinkListFactory {
             // for RPC clients: skip if there is a dest application, convert to "unknown cloud" if not
             if (toNode.getServiceType().isRpcClient()) {
                 // check if "to" node exists
-                if (!nodeList.containsNode(toNode.getApplication())) {
+                if (!nodeList.contains(toNode.getApplication())) {
                     final Link link = addLink(linkList, fromNode, toNode, LinkDirection.OUT_LINK, range);
                     if (link != null) {
                         logger.debug("createRpcTargetLink:{}", link);
@@ -112,7 +113,7 @@ public class LinkListFactory {
         }
     }
 
-    private static Link addLink(LinkList linkList, Node fromNode, Node toNode, LinkDirection direction, Range range) {
+    private static Link addLink(LinkList.Builder linkList, Node fromNode, Node toNode, LinkDirection direction, Range range) {
         final Link link = new Link(direction, fromNode, toNode, range);
         if (linkList.addLink(link)) {
             return link;

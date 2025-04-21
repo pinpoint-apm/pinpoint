@@ -87,7 +87,7 @@ public class ServerInfoAppenderTest {
     public void emptyNodeList() {
         // Given
         Range range = Range.between(0, 60 * 1000);
-        NodeList nodeList = new NodeList();
+        NodeList nodeList = NodeList.of();
         LinkDataDuplexMap linkDataDuplexMap = mock(LinkDataDuplexMap.class);
         // When
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
@@ -101,11 +101,10 @@ public class ServerInfoAppenderTest {
     public void wasNode() {
         // Given
         Range range = Range.between(0, 60 * 1000);
-        NodeList nodeList = new NodeList();
         LinkDataDuplexMap linkDataDuplexMap = mock(LinkDataDuplexMap.class);
 
         Node wasNode = new Node(new Application("Was", ServiceType.TEST_STAND_ALONE));
-        nodeList.addNode(wasNode);
+        NodeList nodeList = NodeList.of(wasNode);
 
         ServerGroupList serverGroupList = ServerGroupList.empty();
         when(serverGroupListDataSource.createServerGroupList(wasNode, range.getTo())).thenReturn(serverGroupList);
@@ -120,13 +119,14 @@ public class ServerInfoAppenderTest {
     public void wasNodes() {
         // Given
         Range range = Range.between(0, 60 * 1000);
-        NodeList nodeList = new NodeList();
+        NodeList.Builder nodeBuilder = NodeList.newBuilder();
         LinkDataDuplexMap linkDataDuplexMap = mock(LinkDataDuplexMap.class);
 
         Node wasNode1 = new Node(new Application("Was1", ServiceType.TEST_STAND_ALONE));
-        nodeList.addNode(wasNode1);
+        nodeBuilder.addNode(wasNode1);
         Node wasNode2 = new Node(new Application("Was2", ServiceType.TEST_STAND_ALONE));
-        nodeList.addNode(wasNode2);
+        nodeBuilder.addNode(wasNode2);
+        NodeList nodeList = nodeBuilder.build();
 
         ServerGroupList serverGroupList1 = ServerGroupList.empty();
         when(serverGroupListDataSource.createServerGroupList(wasNode1, range.getTo())).thenReturn(serverGroupList1);
@@ -144,13 +144,12 @@ public class ServerInfoAppenderTest {
     public void terminalNode() {
         // Given
         Range range = Range.between(0, 60 * 1000);
-        NodeList nodeList = new NodeList();
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
 
         ServiceType terminalType = ServiceTypeFactory.of(2000, "TERMINAL", TERMINAL, INCLUDE_DESTINATION_ID);
         Application terminalApplication = new Application("Terminal", terminalType);
         Node terminalNode = new Node(terminalApplication);
-        nodeList.addNode(terminalNode);
+        NodeList nodeList = NodeList.of(terminalNode);
 
         Application fromApplication = new Application("FromWas", ServiceType.TEST_STAND_ALONE);
         LinkData linkData = new LinkData(fromApplication, terminalApplication);
@@ -169,13 +168,12 @@ public class ServerInfoAppenderTest {
     public void terminalNode_multipleInstances() {
         // Given
         Range range = Range.between(0, 60 * 1000);
-        NodeList nodeList = new NodeList();
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
 
         ServiceType terminalType = ServiceTypeFactory.of(2000, "TERMINAL", TERMINAL, INCLUDE_DESTINATION_ID);
         Application terminalApplication = new Application("Terminal", terminalType);
         Node terminalNode = new Node(terminalApplication);
-        nodeList.addNode(terminalNode);
+        NodeList nodeList = NodeList.of(terminalNode);
 
         Application fromApplication = new Application("FromWas", ServiceType.TEST_STAND_ALONE);
         LinkData linkData = new LinkData(fromApplication, terminalApplication);
@@ -198,11 +196,10 @@ public class ServerInfoAppenderTest {
     public void userNode() {
         // Given
         Range range = Range.between(0, 60 * 1000);
-        NodeList nodeList = new NodeList();
         LinkDataDuplexMap linkDataDuplexMap = mock(LinkDataDuplexMap.class);
 
         Node userNode = new Node(new Application("User", ServiceType.USER));
-        nodeList.addNode(userNode);
+        NodeList nodeList = NodeList.of(userNode);
         // When
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
@@ -214,11 +211,11 @@ public class ServerInfoAppenderTest {
     public void unknownNode() {
         // Given
         Range range = Range.between(0, 60 * 1000);
-        NodeList nodeList = new NodeList();
         LinkDataDuplexMap linkDataDuplexMap = mock(LinkDataDuplexMap.class);
 
         Node unknownNode = new Node(new Application("Unknown", ServiceType.UNKNOWN));
-        nodeList.addNode(unknownNode);
+        NodeList nodeList = NodeList.of(unknownNode);
+
         // When
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutMillis);
         // Then
