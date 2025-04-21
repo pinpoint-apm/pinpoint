@@ -41,4 +41,12 @@ public class SimpleApplicationMap implements ApplicationMap {
     public Range getRange() {
         return range;
     }
+
+    @Override
+    public String toString() {
+        return "SimpleApplicationMap{" +
+                "nodes=" + nodes.size() +
+                ", links=" + links.size() +
+                "}";
+    }
 }
