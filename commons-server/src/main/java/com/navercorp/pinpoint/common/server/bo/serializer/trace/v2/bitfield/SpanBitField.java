@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.util.BitFieldUtils;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
-import com.navercorp.pinpoint.common.profiler.encoding.BitFieldUtils;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.Objects;

@@ -115,7 +115,7 @@ public class MapController {
         final ApplicationMap map = this.mapService.selectApplicationMap(option);
 
         TimeWindow timeWindow = new TimeWindow(range);
-        return new MapViewV3(map, timeWindow, MapViews.Basic.class, hyperLinkFactory);
+        return new MapViewV3(map, timeWindow, MapViews.ofBasic(), hyperLinkFactory);
     }
 
     /**
@@ -155,7 +155,7 @@ public class MapController {
         logger.info("Select ApplicationMap {} option={}", format, option);
         final ApplicationMap map = this.mapService.selectApplicationMap(option);
 
-        return new MapView(map, MapViews.Basic.class, hyperLinkFactory, format);
+        return new MapView(map, MapViews.ofBasic(), hyperLinkFactory, format);
 
     }
 
@@ -186,7 +186,7 @@ public class MapController {
         logger.info("Select simpleApplicationMap. option={}", option);
         final ApplicationMap map = this.mapService.selectApplicationMap(option);
 
-        return new MapView(map, MapViews.Simplified.class, hyperLinkFactory, TimeHistogramFormat.V3);
+        return new MapView(map, MapViews.ofSimpled(), hyperLinkFactory, TimeHistogramFormat.V3);
     }
 
     private Application getApplication(ApplicationForm appForm) {

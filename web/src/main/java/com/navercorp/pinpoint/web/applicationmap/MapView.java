@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
+import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 
 import java.util.Objects;
@@ -29,11 +30,11 @@ import java.util.Objects;
 @JsonInclude(content = JsonInclude.Include.NON_NULL)
 public class MapView {
     private final ApplicationMap applicationMap;
-    private final Class<?> activeView;
+    private final MapViews activeView;
     private final HyperLinkFactory hyperLinkFactory;
     private final TimeHistogramFormat timeHistogramFormat;
 
-    public MapView(ApplicationMap applicationMap, Class<?> activeView, HyperLinkFactory hyperLinkFactory, final TimeHistogramFormat timeHistogramFormat) {
+    public MapView(ApplicationMap applicationMap, MapViews activeView, HyperLinkFactory hyperLinkFactory, final TimeHistogramFormat timeHistogramFormat) {
         this.applicationMap = applicationMap;
         this.activeView = Objects.requireNonNull(activeView, "activeView");
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");

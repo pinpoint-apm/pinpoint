@@ -17,28 +17,66 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map;
 
-import com.navercorp.pinpoint.web.applicationmap.link.LinkViews;
-import com.navercorp.pinpoint.web.applicationmap.nodes.NodeViews;
-import com.navercorp.pinpoint.web.util.json.JsonViewUtils;
+import com.navercorp.pinpoint.common.server.util.BitFieldUtils;
 
-public interface MapViews {
+public class MapViews {
 
-    interface Simplified extends NodeViews.Simplified, LinkViews.Simplified {
-        static boolean inView(Class<?> activeView) {
-            return JsonViewUtils.inView(MapViews.Simplified.class, activeView);
-        }
+    private static final int SIMPLIFIED = 0;
+    private static final int BASIC = 1;
+    private static final int DETAILED = 2;
+
+    @SuppressWarnings("FieldMayBeFinal")
+    private int bitSet;
+
+    private MapViews(int bitSet) {
+        this.bitSet = bitSet;
     }
 
-    interface Basic extends NodeViews.Basic, LinkViews.Basic {
-        static boolean inView(Class<?> activeView) {
-            return JsonViewUtils.inView(MapViews.Basic.class, activeView);
-        }
+    MapViews() {
+        this.bitSet = 0;
     }
 
-    interface Detailed extends NodeViews.Detailed, LinkViews.Detailed {
-        static boolean inView(Class<?> activeView) {
-            return JsonViewUtils.inView(MapViews.Detailed.class, activeView);
-        }
+
+    public static MapViews ofSimpled() {
+        int bitSet = BitFieldUtils.setBit(0, SIMPLIFIED, true);
+        return new MapViews(bitSet);
+    }
+
+    public static MapViews ofBasic() {
+        int bitSet = BitFieldUtils.setBit(0, BASIC, true);
+        return new MapViews(bitSet);
+    }
+
+    public static MapViews ofDetailed() {
+        int bitSet = BitFieldUtils.setBit(0, DETAILED, true);
+        return new MapViews(bitSet);
+    }
+
+    public MapViews withSimplified() {
+        final int mask = BitFieldUtils.setBit(bitSet, SIMPLIFIED, true);
+        return new MapViews(mask);
+    }
+
+    public MapViews withBasic() {
+        final int mask = BitFieldUtils.setBit(bitSet, BASIC, true);
+        return new MapViews(mask);
+    }
+
+    public MapViews withDetailed() {
+        int copy = BitFieldUtils.setBit(bitSet, DETAILED, true);
+        return new MapViews(copy);
+    }
+
+    public boolean isSimplified() {
+        return BitFieldUtils.testBit(bitSet, SIMPLIFIED);
+    }
+
+    public boolean isBasic() {
+        return BitFieldUtils.testBit(bitSet, BASIC);
+    }
+
+    public boolean isDetailed() {
+        return BitFieldUtils.testBit(bitSet, DETAILED);
     }
 
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.profiler.encoding;
+package com.navercorp.pinpoint.common.server.util;
 
 
 

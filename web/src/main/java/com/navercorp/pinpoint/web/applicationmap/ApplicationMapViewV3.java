@@ -7,6 +7,7 @@ import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
+import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.view.LinkView;
 import com.navercorp.pinpoint.web.applicationmap.view.NodeView;
@@ -20,11 +21,11 @@ import java.util.Objects;
 public class ApplicationMapViewV3 {
     private final ApplicationMap applicationMap;
     private final TimeWindow timeWindow;
-    private final Class<?> activeView;
+    private final MapViews activeView;
     private final HyperLinkFactory hyperLinkFactory;
     private final TimeHistogramFormat v3 = TimeHistogramFormat.V3;
 
-    public ApplicationMapViewV3(ApplicationMap applicationMap, TimeWindow timeWindow, Class<?> activeView, HyperLinkFactory hyperLinkFactory) {
+    public ApplicationMapViewV3(ApplicationMap applicationMap, TimeWindow timeWindow, MapViews activeView, HyperLinkFactory hyperLinkFactory) {
         this.applicationMap = Objects.requireNonNull(applicationMap, "applicationMap");
         this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
         this.activeView = Objects.requireNonNull(activeView, "activeView");

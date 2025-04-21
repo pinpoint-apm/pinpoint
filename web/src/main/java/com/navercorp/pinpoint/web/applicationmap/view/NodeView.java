@@ -13,8 +13,8 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistog
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
+import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
-import com.navercorp.pinpoint.web.applicationmap.nodes.NodeViews;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;
@@ -28,11 +28,11 @@ import java.util.Objects;
 @JsonSerialize(using = NodeView.NodeViewSerializer.class)
 public class NodeView {
     private final Node node;
-    private final Class<?> activeView;
+    private final MapViews activeView;
     private final HyperLinkFactory hyperLinkFactory;
     private final TimeHistogramFormat format;
 
-    public NodeView(Node node, Class<?> activeView, HyperLinkFactory hyperLinkFactory, TimeHistogramFormat format) {
+    public NodeView(Node node, MapViews activeView, HyperLinkFactory hyperLinkFactory, TimeHistogramFormat format) {
         this.node = Objects.requireNonNull(node, "node");
         this.activeView = Objects.requireNonNull(activeView, "activeView");
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
@@ -43,7 +43,7 @@ public class NodeView {
         return node;
     }
 
-    public Class<?> getActiveView() {
+    public MapViews getActiveView() {
         return activeView;
     }
 
@@ -88,13 +88,13 @@ public class NodeView {
             jgen.writeBooleanField("isAuthorized", node.isAuthorized());
 
             writeHistogram(nodeView, jgen, provider);
-            writeServerGroupList(nodeView, jgen, provider);
+            writeServerGroupList(nodeView, jgen);
 
             jgen.writeEndObject();
         }
 
 
-        private void writeServerGroupList(NodeView nodeView, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+        private void writeServerGroupList(NodeView nodeView, JsonGenerator jgen) throws IOException {
             final Node node = nodeView.getNode();
             ServerGroupList serverGroupList = node.getServerGroupList();
             if (node.getServiceType().isUnknown()) {
@@ -102,14 +102,14 @@ public class NodeView {
             }
 
             final String agentIdNameMapKey = "agentIdNameMap";
-            final Class<?> activeView = nodeView.getActiveView();
+            final MapViews activeView = nodeView.getActiveView();
             if (serverGroupList == null) {
                 jgen.writeNumberField("instanceCount", 0);
                 jgen.writeNumberField("instanceErrorCount", 0);
                 JacksonWriterUtils.writeEmptyArray(jgen, "agentIds");
                 JacksonWriterUtils.writeEmptyObject(jgen, agentIdNameMapKey);
 
-                if (NodeViews.Detailed.inView(activeView)) {
+                if (activeView.isDetailed()) {
                     JacksonWriterUtils.writeEmptyObject(jgen, "serverList");
                 }
             } else {
@@ -137,7 +137,7 @@ public class NodeView {
                 }
                 jgen.writeEndObject();
 
-                if (NodeViews.Detailed.inView(activeView)) {
+                if (activeView.isDetailed()) {
                     jgen.writeObjectField("serverList", new ServerGroupListView(serverGroupList, nodeView.getHyperLinkFactory()));
                 }
             }
@@ -147,7 +147,7 @@ public class NodeView {
             final Node node = nodeView.getNode();
             final ServiceType serviceType = node.getServiceType();
             final NodeHistogram nodeHistogram = node.getNodeHistogram();
-            final Class<?> activeView = nodeView.getActiveView();
+            final MapViews activeView = nodeView.getActiveView();
 
             // FIXME isn't this all ServiceTypes that can be a node?
             if (serviceType.isWas() || serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isUser() || serviceType.isQueue() || serviceType.isAlias()) {
@@ -170,7 +170,7 @@ public class NodeView {
                     jgen.writeObjectField("histogram", applicationHistogram);
                 }
 
-                if (NodeViews.Simplified.inView(activeView)) {
+                if (activeView.isSimplified()) {
                     if (applicationHistogram == null) {
                         JacksonWriterUtils.writeEmptyObject(jgen, "apdexScore");
                     } else {
@@ -182,7 +182,7 @@ public class NodeView {
                 }
 
                 // agent histogram
-                if (NodeViews.Detailed.inView(activeView)) {
+                if (activeView.isDetailed()) {
                     Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
                     if (agentHistogramMap == null) {
                         JacksonWriterUtils.writeEmptyObject(jgen, "agentHistogram");
@@ -197,7 +197,7 @@ public class NodeView {
             }
 
             //time histogram
-            if (!NodeViews.Simplified.inView(activeView)) {
+            if (!activeView.isSimplified()) {
                 // FIXME isn't this all ServiceTypes that can be a node?
                 if (serviceType.isWas() || serviceType.isUser() || serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isQueue() || serviceType.isAlias()) {
                     final TimeHistogramFormat format = nodeView.getFormat();
@@ -210,7 +210,7 @@ public class NodeView {
                         jgen.writeObjectField("timeSeriesHistogram", applicationTimeSeriesHistogram);
                     }
 
-                    if (NodeViews.Detailed.inView(activeView)) {
+                    if (activeView.isDetailed()) {
                         AgentTimeHistogram agentTimeHistogram = nodeHistogram.getAgentTimeHistogram();
                         JsonFields<AgentNameView, List<TimeHistogramViewModel>> agentFields = agentTimeHistogram.createViewModel(format);
                         jgen.writeFieldName(AGENT_TIME_SERIES_HISTOGRAM);

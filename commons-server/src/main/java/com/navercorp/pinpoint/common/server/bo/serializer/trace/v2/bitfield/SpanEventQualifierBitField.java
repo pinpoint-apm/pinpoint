@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield;
 
-import com.navercorp.pinpoint.common.profiler.encoding.BitFieldUtils;
 import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
+import com.navercorp.pinpoint.common.server.util.BitFieldUtils;
 
 /**
  * @author Woonduk Kang(emeroad)
