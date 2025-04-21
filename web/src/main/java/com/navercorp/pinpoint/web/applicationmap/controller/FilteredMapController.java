@@ -21,14 +21,19 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapView;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapViewV3;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapView;
+import com.navercorp.pinpoint.web.applicationmap.FilterMapViewV3;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWithScatter;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapServiceOption;
 import com.navercorp.pinpoint.web.applicationmap.view.FilteredHistogramView;
+import com.navercorp.pinpoint.web.applicationmap.view.ScatterDataMapView;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
@@ -85,9 +90,12 @@ public class FilteredMapController {
             @RequestParam("originTo") long originTo,
             @RequestParam("xGroupUnit") @Positive int xGroupUnit,
             @RequestParam("yGroupUnit") @Positive int yGroupUnit,
-            @RequestParam(value = "filter", required = false) @NullOrNotBlank String filterText,
-            @RequestParam(value = "hint", required = false) @NullOrNotBlank String filterHint,
-            @RequestParam(value = "limit", required = false, defaultValue = "10000") @PositiveOrZero int limitParam,
+            @RequestParam(value = "filter", required = false)
+            @NullOrNotBlank String filterText,
+            @RequestParam(value = "hint", required = false)
+            @NullOrNotBlank String filterHint,
+            @RequestParam(value = "limit", required = false, defaultValue = "10000")
+            @PositiveOrZero int limitParam,
             @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
             boolean useStatisticsAgentState,
@@ -121,15 +129,16 @@ public class FilteredMapController {
         }
 
         TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
-        final FilterMapView mapWrap = new FilterMapView(map, MapViews.ofDetailed(), hyperLinkFactory, format);
+        ApplicationMapView applicationMapView = new ApplicationMapView(map, MapViews.ofDetailed(), hyperLinkFactory, format);
+        ScatterDataMapView scatterDataMapView = new ScatterDataMapView(scatter.getScatterDataMap());
+        final FilterMapView mapWrap = new FilterMapView(applicationMapView, scatterDataMapView);
         mapWrap.setLastFetchedTimestamp(lastScanTime);
-        mapWrap.setScatterDataMap(scatter.getScatterDataMap());
         return mapWrap;
     }
 
 
-    @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroupV3")
-    public FilterMapView getFilteredServerMapDataMadeOfDotGroupV3(
+    @GetMapping(value = "/filteredServerMapDataMadeOfDotGroup")
+    public FilterMapViewV3 getFilteredServerMapDataMadeOfDotGroupV3(
             @Valid @ModelAttribute
             ApplicationForm appForm,
             @Valid @ModelAttribute
@@ -137,11 +146,14 @@ public class FilteredMapController {
             @RequestParam("originTo") long originTo,
             @RequestParam("xGroupUnit") @Positive int xGroupUnit,
             @RequestParam("yGroupUnit") @Positive int yGroupUnit,
-            @RequestParam(value = "filter", required = false) @NullOrNotBlank String filterText,
-            @RequestParam(value = "hint", required = false) @NullOrNotBlank String filterHint,
-            @RequestParam(value = "limit", required = false, defaultValue = "10000") @PositiveOrZero int limitParam,
+            @RequestParam(value = "filter", required = false)
+            @NullOrNotBlank String filterText,
+            @RequestParam(value = "hint", required = false)
+            @NullOrNotBlank String filterHint,
+            @RequestParam(value = "limit", required = false, defaultValue = "10000")
+            @PositiveOrZero int limitParam,
             @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState) {
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "true", required = false) boolean useStatisticsAgentState) {
         final String applicationName = appForm.getApplicationName();
 
         final int limit = Math.min(limitParam, LimitUtils.MAX);
@@ -165,18 +177,17 @@ public class FilteredMapController {
             logger.debug("getFilteredServerMapData range scan(limit:{}) range:{} lastFetchedTimestamp:{}", limit, range.prettyToString(), DateTimeFormatUtils.format(lastScanTime));
         }
 
-        FilterMapView mapWrap = new FilterMapView(map.getApplicationMap(), MapViews.ofSimpled(), hyperLinkFactory, TimeHistogramFormat.V1);
-        mapWrap.setLastFetchedTimestamp(lastScanTime);
-        mapWrap.setFilteredHistogram(this::filteredHistogramView);
-        mapWrap.setScatterDataMap(map.getScatterDataMap());
-        return mapWrap;
+        TimeWindow timeWindow = new TimeWindow(scannerRange);
+        ApplicationMapViewV3 applicationMapView = new ApplicationMapViewV3(map.getApplicationMap(), timeWindow, MapViews.ofDetailed(), hyperLinkFactory);
+        ScatterDataMapView scatterDataMapView = new ScatterDataMapView(map.getScatterDataMap());
+        FilteredHistogramView filteredHistogramView = new FilteredHistogramView(map.getApplicationMap(), hyperLinkFactory);
+        FilterMapViewV3 mapView = new FilterMapViewV3(applicationMapView, scatterDataMapView, filteredHistogramView);
+        mapView.setLastFetchedTimestamp(lastScanTime);
+        return mapView;
     }
 
     private Range toRange(RangeForm rangeForm) {
         return Range.between(rangeForm.getFrom(), rangeForm.getTo());
     }
 
-    private FilteredHistogramView filteredHistogramView(ApplicationMap applicationMap) {
-        return new FilteredHistogramView(applicationMap, hyperLinkFactory);
-    }
 }

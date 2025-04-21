@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.web.applicationmap;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.navercorp.pinpoint.web.applicationmap.view.FilteredHistogramView;
 import com.navercorp.pinpoint.web.applicationmap.view.ScatterDataMapView;
 
 import java.util.Objects;
@@ -24,19 +26,24 @@ import java.util.Objects;
 /**
  * @author emeroad
  */
-public class FilterMapView {
-    private final ApplicationMapView applicationMapView;
+public class FilterMapViewV3 {
+    private final ApplicationMapViewV3 applicationMapView;
+
     private Long lastFetchedTimestamp;
 
     private final ScatterDataMapView scatterDataMapView;
 
-    public FilterMapView(ApplicationMapView applicationMapView,
-                         ScatterDataMapView scatterDataMapView) {
+    private final FilteredHistogramView filteredHistogramView;
+
+    public FilterMapViewV3(ApplicationMapViewV3 applicationMapView,
+                           ScatterDataMapView scatterDataMapView,
+                           FilteredHistogramView filteredHistogramView) {
         this.applicationMapView = Objects.requireNonNull(applicationMapView, "applicationMapView");
         this.scatterDataMapView = Objects.requireNonNull(scatterDataMapView, "scatterDataMapView");
+        this.filteredHistogramView = Objects.requireNonNull(filteredHistogramView, "filteredHistogramView");
     }
 
-    public ApplicationMapView getApplicationMapData() {
+    public ApplicationMapViewV3 getApplicationMapData() {
         return applicationMapView;
     }
 
@@ -51,6 +58,13 @@ public class FilterMapView {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public ScatterDataMapView getApplicationScatterData() {
         return scatterDataMapView;
+    }
+
+
+    @JsonUnwrapped
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public FilteredHistogramView getFilteredHistogram() {
+        return filteredHistogramView;
     }
 
 }

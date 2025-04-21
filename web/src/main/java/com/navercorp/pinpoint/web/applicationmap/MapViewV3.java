@@ -46,4 +46,12 @@ public class MapViewV3 {
     public ApplicationMapViewV3 getApplicationMap() {
         return new ApplicationMapViewV3(this.applicationMap, timeWindow, activeView, hyperLinkFactory);
     }
+
+    @Override
+    public String toString() {
+        return "MapViewV3{" +
+                "timeWindow=" + timeWindow +
+                ", applicationMap=" + applicationMap +
+                '}';
+    }
 }
