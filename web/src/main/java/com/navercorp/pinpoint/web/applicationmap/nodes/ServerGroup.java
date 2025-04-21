@@ -16,7 +16,7 @@ public class ServerGroup {
     public ServerGroup(String hostName, @Nullable String status, List<ServerInstance> instanceList) {
         this.hostName = Objects.requireNonNull(hostName, "hostName");
         this.status = status;
-        this.instanceList = instanceList;
+        this.instanceList = Objects.requireNonNull(instanceList, "instanceList");
     }
 
     @JsonProperty("name")

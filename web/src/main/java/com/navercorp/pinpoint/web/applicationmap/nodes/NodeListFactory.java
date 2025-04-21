@@ -32,17 +32,22 @@ public class NodeListFactory {
     private static final Logger logger = LogManager.getLogger(NodeListFactory.class);
 
     public static NodeList createNodeList(LinkDataDuplexMap linkDataDuplexMap) {
-        NodeList nodeList = new NodeList();
-        createNode(nodeList, linkDataDuplexMap.getSourceLinkDataMap());
-        logger.debug("node size:{}", nodeList.size());
-        createNode(nodeList, linkDataDuplexMap.getTargetLinkDataMap());
-        logger.debug("node size:{}", nodeList.size());
 
-        logger.debug("allNode:{}", nodeList.getNodeList());
+        NodeList.Builder builder = NodeList.newBuilder(linkDataDuplexMap.size());
+
+        createNode(builder, linkDataDuplexMap.getSourceLinkDataMap());
+        logger.debug("node size:{}", builder.size());
+        createNode(builder, linkDataDuplexMap.getTargetLinkDataMap());
+
+        NodeList nodeList = builder.build();
+        if (logger.isDebugEnabled()) {
+            logger.debug("node size:{}", nodeList.size());
+            logger.debug("allNode:{}", nodeList.getNodeList());
+        }
         return nodeList;
     }
 
-    private static void createNode(NodeList nodeList, LinkDataMap linkDataMap) {
+    private static void createNode(NodeList.Builder nodeBuilder, LinkDataMap linkDataMap) {
         for (LinkData linkData : linkDataMap.getLinkDataList()) {
             final Application fromApplication = linkData.getFromApplication();
             final Application toApplication = linkData.getToApplication();
@@ -50,7 +55,7 @@ public class NodeListFactory {
             // FROM is either a CLIENT or a node
             // cannot be RPC. Already converted to unknown.
             if (isFromNode(fromApplication, toApplication)) {
-                final boolean success = addNode(nodeList, fromApplication);
+                final boolean success = addNode(nodeBuilder, fromApplication);
                 if (success) {
                     logger.debug("createSourceNode:{}", fromApplication);
                 }
@@ -61,7 +66,7 @@ public class NodeListFactory {
             // FROM -> TO : TO is either a CLIENT or a node
             // create node when it's alias even if RPC
             if (isToNode(fromApplication, toApplication)) {
-                final boolean success = addNode(nodeList, toApplication);
+                final boolean success = addNode(nodeBuilder, toApplication);
                 if (success) {
                     logger.debug("createTargetNode:{}", toApplication);
                 }
@@ -88,11 +93,11 @@ public class NodeListFactory {
         return false;
     }
 
-    private static boolean addNode(NodeList nodeList, Application application) {
-        if (nodeList.containsNode(application)) {
+    private static boolean addNode(NodeList.Builder builder, Application application) {
+        if (builder.containsNode(application)) {
             return false;
         }
         Node fromNode = new Node(application);
-        return nodeList.addNode(fromNode);
+        return builder.addNode(fromNode);
     }
 }

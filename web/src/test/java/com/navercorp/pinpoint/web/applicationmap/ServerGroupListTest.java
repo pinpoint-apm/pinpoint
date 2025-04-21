@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerBuilder;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstance;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFactory;
 import org.junit.jupiter.api.Test;
@@ -70,6 +71,14 @@ public class ServerGroupListTest {
         AgentInfoFactory factory = new AgentInfoFactory(registry);
 
         return new AgentAndStatus(factory.build(agentInfoBuilder.build()));
+    }
 
+    @Test
+    public void hasServerInstance() {
+        ServerGroupList.Builder builder = ServerGroupList.newBuilder();
+        builder.addServerInstance(new ServerInstance("hostName", "agentId", ServiceType.TEST_STAND_ALONE));
+        ServerGroupList groupList = builder.build();
+        assertThat(groupList.getServerGroupList()).hasSize(1);
+        assertThat(groupList.hasServerInstance()).isTrue();
     }
 }

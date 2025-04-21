@@ -150,10 +150,12 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
         Application application = option.getApplication();
         Range range = option.getRange();
 
-        Node node = new Node(application);
         final NodeHistogramFactory nodeHistogramFactory = createNodeHistogramFactory();
         NodeHistogram nodeHistogram = nodeHistogramFactory.createWasNodeHistogram(application, range);
+
+        Node node = new Node(application);
         node.setNodeHistogram(nodeHistogram);
+
         final ServerGroupListFactory serverGroupListFactory = createServerGroupListFactory(option.isUseStatisticsAgentState());
         ServerGroupList serverGroupList = serverGroupListFactory.createWasNodeInstanceList(node, range.getTo());
         return new NodeHistogramSummary(application, serverGroupList, nodeHistogram);

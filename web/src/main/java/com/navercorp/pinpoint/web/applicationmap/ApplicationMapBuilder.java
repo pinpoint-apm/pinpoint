@@ -77,26 +77,30 @@ public class ApplicationMapBuilder {
     public ApplicationMap build(Application application, long timeoutMillis) {
         logger.info("Building empty application map");
 
-        NodeList nodeList = new NodeList();
-        LinkList emptyLinkList = new LinkList();
-
-        Node node = new Node(application);
-        if (serverGroupListFactory != null) {
-            ServerGroupList runningInstances = serverGroupListFactory.createWasNodeInstanceList(node, range.getTo());
-            if (runningInstances.getInstanceCount() > 0) {
-                node.setServerGroupList(runningInstances);
-                nodeList.addNode(node);
-            }
-        }
-
+        NodeList nodeList = getNodeList(application);
         NodeHistogramFactory nodeHistogramFactory = this.nodeHistogramFactory;
         if (nodeHistogramFactory == null) {
             nodeHistogramFactory = new EmptyNodeHistogramFactory();
         }
         NodeHistogramAppender nodeHistogramAppender = nodeHistogramAppenderFactory.create(nodeHistogramFactory);
+
+        LinkList emptyLinkList = LinkList.of();
         nodeHistogramAppender.appendNodeHistogram(range, nodeList, emptyLinkList, timeoutMillis);
 
         return DefaultApplicationMap.build(nodeList, emptyLinkList, range);
+    }
+
+    private NodeList getNodeList(Application application) {
+        if (serverGroupListFactory == null) {
+            return NodeList.of();
+        }
+        Node node = new Node(application);
+        ServerGroupList runningInstances = serverGroupListFactory.createWasNodeInstanceList(node, range.getTo());
+        if (runningInstances.hasServerInstance()) {
+            node.setServerGroupList(runningInstances);
+            return NodeList.of(node);
+        }
+        return NodeList.of();
     }
 
     public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, long timeoutMillis) {
