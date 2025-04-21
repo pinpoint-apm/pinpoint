@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
+import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.view.FilteredHistogramView;
 import com.navercorp.pinpoint.web.applicationmap.view.ScatterDataMapView;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
@@ -34,7 +35,7 @@ import java.util.function.Function;
  */
 public class FilterMapView {
     private final ApplicationMap applicationMap;
-    private final Class<?> activeView;
+    private final MapViews activeView;
     private final TimeHistogramFormat timeHistogramFormat;
     private final HyperLinkFactory hyperLinkFactory;
     private Long lastFetchedTimestamp;
@@ -42,7 +43,7 @@ public class FilterMapView {
 
     private Map<Application, ScatterData> scatterDataMap;
 
-    public FilterMapView(ApplicationMap applicationMap, Class<?> activeView, HyperLinkFactory hyperLinkFactory, TimeHistogramFormat timeHistogramFormat) {
+    public FilterMapView(ApplicationMap applicationMap, MapViews activeView, HyperLinkFactory hyperLinkFactory, TimeHistogramFormat timeHistogramFormat) {
         this.applicationMap = Objects.requireNonNull(applicationMap, "applicationMap");
         this.activeView = Objects.requireNonNull(activeView, "activeView");
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");

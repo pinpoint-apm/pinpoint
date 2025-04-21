@@ -8,7 +8,7 @@ import com.navercorp.pinpoint.common.server.util.json.JsonFields;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
-import com.navercorp.pinpoint.web.applicationmap.link.LinkViews;
+import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
@@ -26,10 +26,10 @@ import java.util.Objects;
 @JsonSerialize(using = LinkView.LinkViewSerializer.class)
 public class LinkView {
     private final Link link;
-    private final Class<?> activeView;
+    private final MapViews activeView;
     private final TimeHistogramFormat format;
 
-    public LinkView(Link link, Class<?> activeView, TimeHistogramFormat format) {
+    public LinkView(Link link, MapViews activeView, TimeHistogramFormat format) {
         this.link = Objects.requireNonNull(link, "link");
         this.activeView = Objects.requireNonNull(activeView, "activeView");
         this.format = Objects.requireNonNull(format, "format");
@@ -39,7 +39,7 @@ public class LinkView {
         return link;
     }
 
-    public Class<?> getActiveView() {
+    public MapViews getActiveView() {
         return activeView;
     }
 
@@ -88,14 +88,14 @@ public class LinkView {
 
 
             jgen.writeObjectField("histogram", histogram);
-            final Class<?> activeView = linkView.getActiveView();
+            final MapViews activeView = linkView.getActiveView();
             //time histogram
-            if (!LinkViews.Simplified.inView(activeView)){
+            if (!activeView.isSimplified()){
                 writeTimeSeriesHistogram(link, linkView.getFormat(), jgen);
             }
 
             //agent histogram
-            if (LinkViews.Detailed.inView(activeView)) {
+            if (activeView.isDetailed()) {
                 // data showing how agents call each of their respective links
                 writeAgentHistogram("sourceHistogram", link.getSourceList(), jgen);
                 writeAgentHistogram("targetHistogram", link.getTargetList(), jgen);

@@ -87,6 +87,6 @@ public class LinkSerializerTest {
         Node node2 = new Node(new Application("test1", ServiceType.STAND_ALONE));
 
         Link link = new Link(LinkDirection.IN_LINK, node1, node2, Range.between(0, 1));
-        return new LinkView(link, MapViews.Basic.class, version);
+        return new LinkView(link, MapViews.ofBasic(), version);
     }
 }

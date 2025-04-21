@@ -17,26 +17,23 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map;
 
-import com.navercorp.pinpoint.web.applicationmap.link.LinkViews;
-import com.navercorp.pinpoint.web.applicationmap.nodes.NodeViews;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class MapViewsTest {
     @Test
     void extend_test() {
-        Assertions.assertTrue(MapViews.Simplified.inView(MapViews.Simplified.class));
-        Assertions.assertTrue(LinkViews.Simplified.inView(MapViews.Simplified.class));
+        Assertions.assertTrue(MapViews.ofSimpled().isSimplified());
 
-        Assertions.assertFalse(MapViews.Simplified.inView(MapViews.Detailed.class));
+        Assertions.assertFalse(MapViews.ofSimpled().isDetailed());
     }
-
-
 
     @Test
-    void extend_test_failure() {
-        Assertions.assertFalse(MapViews.Simplified.inView(NodeViews.Simplified.class));
-        Assertions.assertFalse(MapViews.Simplified.inView(LinkViews.Simplified.class));
-
+    void extend_test_complex() {
+        MapViews mapViews = MapViews.ofSimpled().withDetailed();
+        Assertions.assertTrue(mapViews.isSimplified());
+        Assertions.assertFalse(mapViews.isBasic());
+        Assertions.assertTrue(mapViews.isDetailed());
     }
+
 }

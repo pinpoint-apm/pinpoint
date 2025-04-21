@@ -163,7 +163,7 @@ public class TransactionInfoViewModel {
 
         SimpleApplicationMap map = new SimpleApplicationMap(nodes, links);
 
-        return new ApplicationMapView(map, MapViews.Detailed.class, hyperLinkFactory, timeHistogramFormat);
+        return new ApplicationMapView(map, MapViews.ofDetailed(), hyperLinkFactory, timeHistogramFormat);
     }
 
     enum Field {

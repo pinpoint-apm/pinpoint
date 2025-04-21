@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.web.applicationmap.FilterMapView;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWithScatter;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
-import com.navercorp.pinpoint.web.applicationmap.nodes.NodeViews;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapServiceOption;
 import com.navercorp.pinpoint.web.applicationmap.view.FilteredHistogramView;
@@ -122,7 +121,7 @@ public class FilteredMapController {
         }
 
         TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
-        final FilterMapView mapWrap = new FilterMapView(map, MapViews.Detailed.class, hyperLinkFactory, format);
+        final FilterMapView mapWrap = new FilterMapView(map, MapViews.ofDetailed(), hyperLinkFactory, format);
         mapWrap.setLastFetchedTimestamp(lastScanTime);
         mapWrap.setScatterDataMap(scatter.getScatterDataMap());
         return mapWrap;
@@ -143,12 +142,6 @@ public class FilteredMapController {
             @RequestParam(value = "limit", required = false, defaultValue = "10000") @PositiveOrZero int limitParam,
             @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState) {
-        if (xGroupUnit <= 0) {
-            throw new IllegalArgumentException("xGroupUnit(" + xGroupUnit + ") must be positive number");
-        }
-        if (yGroupUnit <= 0) {
-            throw new IllegalArgumentException("yGroupUnit(" + yGroupUnit + ") must be positive number");
-        }
         final String applicationName = appForm.getApplicationName();
 
         final int limit = Math.min(limitParam, LimitUtils.MAX);
@@ -172,7 +165,7 @@ public class FilteredMapController {
             logger.debug("getFilteredServerMapData range scan(limit:{}) range:{} lastFetchedTimestamp:{}", limit, range.prettyToString(), DateTimeFormatUtils.format(lastScanTime));
         }
 
-        FilterMapView mapWrap = new FilterMapView(map.getApplicationMap(), NodeViews.Simplified.class, hyperLinkFactory, TimeHistogramFormat.V1);
+        FilterMapView mapWrap = new FilterMapView(map.getApplicationMap(), MapViews.ofSimpled(), hyperLinkFactory, TimeHistogramFormat.V1);
         mapWrap.setLastFetchedTimestamp(lastScanTime);
         mapWrap.setFilteredHistogram(this::filteredHistogramView);
         mapWrap.setScatterDataMap(map.getScatterDataMap());
