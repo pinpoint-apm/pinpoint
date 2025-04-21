@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 
 import java.util.Objects;
@@ -27,22 +27,22 @@ import java.util.Objects;
  * @author emeroad
  */
 @JsonInclude(content = JsonInclude.Include.NON_NULL)
-public class MapView {
+public class MapViewV3 {
     private final ApplicationMap applicationMap;
+    private final TimeWindow timeWindow;
     private final Class<?> activeView;
     private final HyperLinkFactory hyperLinkFactory;
-    private final TimeHistogramFormat timeHistogramFormat;
 
-    public MapView(ApplicationMap applicationMap, Class<?> activeView, HyperLinkFactory hyperLinkFactory, final TimeHistogramFormat timeHistogramFormat) {
+
+    public MapViewV3(ApplicationMap applicationMap, TimeWindow timeWindow, Class<?> activeView, HyperLinkFactory hyperLinkFactory) {
         this.applicationMap = applicationMap;
+        this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
         this.activeView = Objects.requireNonNull(activeView, "activeView");
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
-        this.timeHistogramFormat = Objects.requireNonNull(timeHistogramFormat, "timeHistogramFormat");
     }
 
-
     @JsonProperty("applicationMapData")
-    public ApplicationMapView getApplicationMap() {
-        return new ApplicationMapView(this.applicationMap, activeView, hyperLinkFactory, timeHistogramFormat);
+    public ApplicationMapViewV3 getApplicationMap() {
+        return new ApplicationMapViewV3(this.applicationMap, timeWindow, activeView, hyperLinkFactory);
     }
 }

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.MapView;
+import com.navercorp.pinpoint.web.applicationmap.MapViewV3;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.service.MapService;
@@ -86,7 +87,7 @@ public class MapController {
      * @return MapWrap
      */
     @GetMapping(value = "/serverMap")
-    public MapView getServerMapData(
+    public MapViewV3 getServerMapData(
             @Valid @ModelAttribute
             ApplicationForm appForm,
             @Valid @ModelAttribute
@@ -114,7 +115,7 @@ public class MapController {
         final ApplicationMap map = this.mapService.selectApplicationMap(option);
 
         TimeWindow timeWindow = new TimeWindow(range);
-        return new MapView(map, timeWindow, MapViews.Basic.class, hyperLinkFactory, TimeHistogramFormat.V3);
+        return new MapViewV3(map, timeWindow, MapViews.Basic.class, hyperLinkFactory);
     }
 
     /**
