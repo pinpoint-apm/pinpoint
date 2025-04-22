@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author emeroad
  */
-public class LinkSerializerTest {
+public class LinkViewTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
