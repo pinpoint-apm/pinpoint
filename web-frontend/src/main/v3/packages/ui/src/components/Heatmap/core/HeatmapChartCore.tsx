@@ -5,13 +5,18 @@ import {
   BASE_PATH,
   colors,
   GetHeatmapAppData,
+  GetServerMap,
+  ApplicationType,
 } from '@pinpoint-fe/ui/src/constants';
 import HeatmapChart from './HeatmapChart';
 import {
   HelpPopover,
   cn,
   convertParamsToQueryString,
+  getFormattedDateRange,
   getHeatmapFullScreenPath,
+  getHeatmapFullScreenRealtimePath,
+  getScatterFullScreenRealtimePath,
   getTransactionListPath,
   getTranscationListQueryString,
   useServerMapSearchParameters,
@@ -35,7 +40,9 @@ export const HeatmapColor = {
 };
 
 export type HeatmapChartCoreProps = {
+  isRealtime?: boolean;
   isLoading?: boolean;
+  nodeData: GetServerMap.NodeData | ApplicationType;
   data?: GetHeatmapAppData.Response;
   agentId?: string;
   toolbarOption?: {
@@ -45,21 +52,34 @@ export type HeatmapChartCoreProps = {
   };
 };
 
-const HeatmapChartCore = ({ isLoading, data, agentId, toolbarOption }: HeatmapChartCoreProps) => {
+const HeatmapChartCore = ({
+  isRealtime,
+  isLoading,
+  nodeData,
+  data,
+  agentId,
+  toolbarOption,
+}: HeatmapChartCoreProps) => {
   const chartContainerRef = React.useRef<HTMLDivElement>(null);
 
-  const { searchParameters, application } = useServerMapSearchParameters();
+  const { dateRange, searchParameters, application } = useServerMapSearchParameters();
   const [showSetting, setShowSetting] = React.useState(false);
   const [isCapturingImage, setIsCapturingImage] = React.useState(false);
 
   const [y, setY] = useStoragedAxisY(APP_SETTING_KEYS.HEATMAP_Y_AXIS_MIN_MAX, [0, 10000]);
 
   const handleExpand = () => {
-    // if (realtime) {
-    //   return;
-    // }
+    if (isRealtime) {
+      window.open(
+        `${BASE_PATH}${getHeatmapFullScreenRealtimePath(nodeData)}?${convertParamsToQueryString({
+          agentId,
+        })}`,
+        '_blank',
+      );
+      return;
+    }
     window.open(
-      `${BASE_PATH}${getHeatmapFullScreenPath(application)}?${convertParamsToQueryString({
+      `${BASE_PATH}${getHeatmapFullScreenPath(nodeData)}?${convertParamsToQueryString({
         from: searchParameters.from,
         to: searchParameters.to,
       })}`,
@@ -97,7 +117,7 @@ const HeatmapChartCore = ({ isLoading, data, agentId, toolbarOption }: HeatmapCh
     window.open(
       `${BASE_PATH}${getTransactionListPath(
         application,
-        searchParameters,
+        isRealtime ? getFormattedDateRange(dateRange) : searchParameters,
       )}&${getTranscationListQueryString({
         ...data,
         checkedLegends,
@@ -129,6 +149,7 @@ const HeatmapChartCore = ({ isLoading, data, agentId, toolbarOption }: HeatmapCh
       <HeatmapChart
         ref={chartContainerRef}
         data={data}
+        isRealtime={isRealtime}
         setting={{
           yMin: y[0],
           yMax: y[1],

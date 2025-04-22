@@ -30,7 +30,6 @@ import {
   GetServerMap,
   BASE_PATH,
   Configuration,
-  EXPERIMENTAL_CONFIG_KEYS,
 } from '@pinpoint-fe/ui/src/constants';
 import { IoMdClose } from 'react-icons/io';
 import {
@@ -57,10 +56,11 @@ import {
   ServerChartsBoard,
   HelpPopover,
   ApplicationCombinedListProps,
+  ChartTypeButtons,
+  useServerMapChartType,
 } from '@pinpoint-fe/ui';
 import { Edge, Node } from '@pinpoint-fe/server-map';
-import { PiTreeStructureDuotone, PiArrowSquareOut, PiChartScatterBold } from 'react-icons/pi';
-import { AiOutlineTable } from 'react-icons/ai';
+import { PiTreeStructureDuotone, PiArrowSquareOut } from 'react-icons/pi';
 import { Heatmap } from '@pinpoint-fe/ui/src/components/Heatmap';
 
 export interface ServermapPageProps {
@@ -74,10 +74,6 @@ export const ServerMapPage = ({
   configuration,
   ApplicationList = ApplicationCombinedList,
 }: ServermapPageProps) => {
-  const [enableHeatmap] = useLocalStorage(
-    EXPERIMENTAL_CONFIG_KEYS.ENABLE_HEATMAP,
-    !!configuration?.['experimental.enableHeatmap.value'],
-  );
   const periodMax = configuration?.[`periodMax.serverMap`];
   const periodInterval = configuration?.[`periodInterval.serverMap`];
   const SERVERMAP_CONTAINER_ID = 'server-map-main-container';
@@ -93,7 +89,7 @@ export const ServerMapPage = ({
   const [openServerViewTransitionEnd, setServerViewTransitionEnd] = React.useState(false);
   const [showFilter, setShowFilter] = React.useState(false);
   const [filter, setFilter] = React.useState<FilteredMap.FilterState>();
-  const [chartType, setChartType] = React.useState<'scatter' | 'heatmap'>('scatter'); // scatter
+  const [chartType] = useServerMapChartType();
   const [isScatterDataOutdated, setIsScatterDataOutdated] = React.useState(chartType !== 'scatter');
   const scatterData = useAtomValue(scatterDataAtom);
   const { t } = useTranslation();
@@ -431,30 +427,7 @@ export const ServerMapPage = ({
                                 {openServerView ? <MdArrowForwardIos /> : <MdArrowBackIosNew />}
                                 <span className="ml-2">VIEW SERVERS</span>
                               </Button>
-                              {enableHeatmap && (
-                                <div>
-                                  <Button
-                                    size="icon"
-                                    className="rounded-r-none"
-                                    variant={chartType === 'scatter' ? 'default' : 'outline'}
-                                    onClick={() => {
-                                      setChartType('scatter');
-                                    }}
-                                  >
-                                    <PiChartScatterBold />
-                                  </Button>
-                                  <Button
-                                    size="icon"
-                                    className="rounded-l-none"
-                                    variant={chartType === 'heatmap' ? 'default' : 'outline'}
-                                    onClick={() => {
-                                      setChartType('heatmap');
-                                    }}
-                                  >
-                                    <AiOutlineTable />
-                                  </Button>
-                                </div>
-                              )}
+                              <ChartTypeButtons />
                               <InstanceCount
                                 nodeData={currentTargetData as GetServerMap.NodeData}
                               />
