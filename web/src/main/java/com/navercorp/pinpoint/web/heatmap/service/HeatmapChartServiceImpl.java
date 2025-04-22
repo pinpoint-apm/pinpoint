@@ -62,18 +62,7 @@ public class HeatmapChartServiceImpl implements HeatmapChartService {
                                                                  elapsedTimeBucketInfo.max(),
                                                                  elapsedTimeBucketInfo.findLargestMultipleBelow(),
                                                                  elapsedTimeBucketInfo.bucketList().size());
-
-        // TODO : (minwoo) Change to parallel execution
-        long startTime = System.currentTimeMillis();
         List<HeatmapCell> successHeatmapAppData = heatmapChartDao.getHeatmapAppData(heatmapSearchKey);
-        // TODO : (minwoo) remove log for performance
-        long executionTime = System.currentTimeMillis() - startTime;
-        logger.debug("==== successHeatmapAppData execution time: {}ms", executionTime);
-
-//        logger.debug("heatmapCell size: {}", successHeatmapAppData.size());
-//        for (HeatmapCell heatmapCell : successHeatmapAppData) {
-//            logger.debug("heatmapCell: {}", heatmapCell);
-//        }
 
         heatmapSearchKey = new HeatmapSearchKey(sortKeyPrefix + POSTFIX_SORT_KEY_FAIL,
                                                 timeWindow,
@@ -82,16 +71,7 @@ public class HeatmapChartServiceImpl implements HeatmapChartService {
                                                 elapsedTimeBucketInfo.max(),
                                                 elapsedTimeBucketInfo.findLargestMultipleBelow(),
                                                 elapsedTimeBucketInfo.bucketList().size());
-
-        startTime = System.currentTimeMillis();
         List<HeatmapCell> failHeatmapAppData = heatmapChartDao.getHeatmapAppData(heatmapSearchKey);
-        executionTime = System.currentTimeMillis() - startTime;
-        logger.debug("==== failHeatmapAppData execution time: {}ms", executionTime);
-
-//        logger.debug("heatmapCell size: {}", failHeatmapAppData.size());
-//        for (HeatmapCell heatmapCell : failHeatmapAppData) {
-//            logger.debug("heatmapCell: {}", heatmapCell);
-//        }
 
         return createHeatmapData(timeWindow, successHeatmapAppData, failHeatmapAppData, elapsedTimeBucketInfo);
     }

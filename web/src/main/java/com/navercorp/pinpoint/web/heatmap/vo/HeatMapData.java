@@ -58,6 +58,10 @@ public class HeatMapData {
         return new ArrayList<>(heatMapMetricColumnMap.descendingMap().values());
     }
 
+    public List<HeatMapMetricColumn> getAscHeatMapMetricColumnList() {
+        return new ArrayList<>(heatMapMetricColumnMap.values());
+    }
+
     public String prettyToString() {
         String tab = "\t";
         StringBuilder sb = new StringBuilder();

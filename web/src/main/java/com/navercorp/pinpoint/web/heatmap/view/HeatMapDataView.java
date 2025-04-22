@@ -44,7 +44,7 @@ public class HeatMapDataView {
     }
 
     public List<HeatMapMetricColumnView> getHeatmapData() {
-        List<HeatMapMetricColumn> heatMapMetricColumnList = heatmapData.getDescHeatMapMetricColumnList();
+        List<HeatMapMetricColumn> heatMapMetricColumnList = heatmapData.getAscHeatMapMetricColumnList();
 
         List<HeatMapMetricColumnView> heatMapMetricColumnViewList = new ArrayList<>(heatMapMetricColumnList.size());
 
