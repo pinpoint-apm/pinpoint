@@ -23,4 +23,5 @@ export enum APP_SETTING_KEYS {
   SERVER_MAP_HORIZONTAL_RESIZABLE = 'serverMapHorizontalResizable',
   REALTIME_ACTIVE_REQUEST_RESIZABLE = 'realtimeActiveRequestResizable',
   CONFIG_LAST_SELECTED_APPLICATION = 'configLastSelectedApplication',
+  SERVER_MAP_CHART_TYPE = 'serverMapChartType',
 }

@@ -38,6 +38,7 @@ export const HeatmapColor = {
 };
 
 type HeatmapChartProps = {
+  isRealtime?: boolean;
   data?: GetHeatmapAppData.Response;
   setting: HeatmapSettingType;
   onDragEnd?: (
@@ -74,7 +75,7 @@ function visualMapFormatter(value: string, range: [number, number] | undefined) 
 }
 
 const HeatmapChart = React.forwardRef(
-  ({ data, setting, onDragEnd }: HeatmapChartProps, ref: React.Ref<HTMLDivElement>) => {
+  ({ isRealtime, data, setting, onDragEnd }: HeatmapChartProps, ref: React.Ref<HTMLDivElement>) => {
     const chartRef = React.useRef<ReactEChartsCore>(null);
 
     const [isMouseDown, setIsMouseDown] = React.useState(false);
@@ -100,6 +101,7 @@ const HeatmapChart = React.forwardRef(
       };
     }, []);
 
+    // realtime일 경우 사용하지 않음
     const maxCount = React.useMemo(() => {
       let success = 0;
       let fail = 0;
@@ -340,7 +342,7 @@ const HeatmapChart = React.forwardRef(
         {
           id: 'success',
           min: 0,
-          max: maxCount.success,
+          max: isRealtime ? 5000 : maxCount.success,
           calculable: true,
           seriesIndex: 0,
           orient: 'horizontal',
@@ -360,7 +362,7 @@ const HeatmapChart = React.forwardRef(
         {
           id: 'fail',
           min: 0,
-          max: maxCount.fail,
+          max: isRealtime ? 100 : maxCount.fail,
           calculable: true,
           seriesIndex: 1,
           orient: 'horizontal',

@@ -5,27 +5,16 @@ import {
   useStoragedAxisY,
   useGetHeatmapAppData,
 } from '@pinpoint-fe/ui/src/hooks';
-import {
-  APP_SETTING_KEYS,
-  ApplicationType,
-  GetHeatmapAppData,
-  GetServerMap,
-} from '@pinpoint-fe/ui/src/constants';
-
-export interface HeatmapFetcherHandle {
-  handleCaptureImage: () => Promise<void>;
-}
+import { APP_SETTING_KEYS, GetHeatmapAppData } from '@pinpoint-fe/ui/src/constants';
 
 const DefaultAxisY = [0, 10000];
 
 export type HeatmapFetcherProps = {
-  nodeData: GetServerMap.NodeData | ApplicationType;
   agentId?: string;
-} & Pick<HeatmapChartCoreProps, 'toolbarOption'>;
+} & Pick<HeatmapChartCoreProps, 'toolbarOption' | 'nodeData'>;
 
 export const HeatmapFetcher = ({ nodeData, agentId, ...props }: HeatmapFetcherProps) => {
   const { dateRange } = useServerMapSearchParameters();
-
   const [y] = useStoragedAxisY(APP_SETTING_KEYS.HEATMAP_Y_AXIS_MIN_MAX, DefaultAxisY);
 
   const [parameters, setParameters] = React.useState<GetHeatmapAppData.Parameters>({
@@ -56,5 +45,5 @@ export const HeatmapFetcher = ({ nodeData, agentId, ...props }: HeatmapFetcherPr
     agentId,
   ]);
 
-  return <HeatmapChartCore isLoading={isLoading} data={data} {...props} />;
+  return <HeatmapChartCore isLoading={isLoading} data={data} nodeData={nodeData} {...props} />;
 };

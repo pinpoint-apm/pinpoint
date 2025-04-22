@@ -17,6 +17,9 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
   ErrorBoundary,
+  Heatmap,
+  ChartTypeButtons,
+  useServerMapChartType,
 } from '..';
 import { useServerMapSearchParameters, useTabFocus } from '@pinpoint-fe/ui/src/hooks';
 import {
@@ -31,6 +34,7 @@ import { getServerImagePath } from '@pinpoint-fe/ui/src/utils';
 export interface RealtimeProps {}
 
 export const Realtime = () => {
+  const [chartType] = useServerMapChartType();
   const isFocus = useTabFocus();
   const containerRef = React.useRef<HTMLDivElement>(null);
   const { application } = useServerMapSearchParameters();
@@ -140,10 +144,11 @@ export const Realtime = () => {
             <>
               {(currentTargetData as GetServerMap.NodeData)?.instanceCount && (
                 <div className="flex items-center h-12 py-2.5 px-4">
+                  {/* <ChartTypeButtons /> */}
                   <InstanceCount className="ml-auto" nodeData={currentTargetData} />
                 </div>
               )}
-              {!shouldHideScatter() && isFocus && (
+              {/* {!shouldHideScatter() && isFocus && (
                 <>
                   <div className="w-full p-5 mb-12 aspect-[1.618]">
                     <div className="h-7">
@@ -157,6 +162,32 @@ export const Realtime = () => {
                       realtime={true}
                     />
                   </div>
+                  <Separator />
+                </>
+              )} */}
+              {!shouldHideScatter() && isFocus && (
+                <>
+                  {chartType === 'scatter' ? (
+                    <div className="w-full p-5 mb-12 aspect-[1.618]">
+                      <div className="h-7">
+                        <ApdexScore
+                          shouldPoll={true}
+                          nodeData={currentTargetData || application}
+                        ></ApdexScore>
+                      </div>
+                      <ScatterChart
+                        node={serverMapCurrentTarget || (application as ApplicationType)}
+                        realtime={true}
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full pl-3 pt-5 pr-10 pb-8 aspect-[1.3]">
+                      <Heatmap
+                        nodeData={currentTargetData || (application as ApplicationType)}
+                        realtime={true}
+                      />
+                    </div>
+                  )}
                   <Separator />
                 </>
               )}

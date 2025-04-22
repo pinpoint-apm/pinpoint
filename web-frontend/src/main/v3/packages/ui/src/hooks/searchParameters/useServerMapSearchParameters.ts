@@ -5,7 +5,8 @@ import { getApplicationTypeAndName } from '@pinpoint-fe/ui/src/utils';
 import { getSearchParameters, getDateRange } from './utils';
 
 export const useServerMapSearchParameters = () => {
-  const regex = /^(\/serverMap\/realtime|\/scatterFullScreenMode\/realtime)/;
+  const regex =
+    /^(\/serverMap\/realtime|\/scatterFullScreenMode\/realtime|\/heatmapFullScreenMode\/realtime)/;
   const intervalRef = React.useRef<NodeJS.Timeout>();
   const { search, pathname } = useLocation();
   const searchParameters = getSearchParameters(search);
