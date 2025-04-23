@@ -5,13 +5,13 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class NodeList implements Iterable<Node> {
 
@@ -23,15 +23,17 @@ public class NodeList implements Iterable<Node> {
     public static NodeList newNodeList(List<SpanBo> spans) {
         Objects.requireNonNull(spans, "spans");
 
-        List<Node> list = spans.stream()
-                .map(Node::toNode)
-                .sorted(STARTTIME_COMPARATOR)
-                .collect(Collectors.toList());
+        List<Node> list = new ArrayList<>(spans.size());
+        for (SpanBo span : spans) {
+            Node node = Node.toNode(span);
+            list.add(node);
+        }
+        list.sort(STARTTIME_COMPARATOR);
         return new NodeList(list);
     }
 
     public NodeList() {
-        this.nodeList = new ArrayList<>();
+        this.nodeList = Collections.emptyList();
     }
 
     public NodeList(List<Node> nodeList) {
@@ -72,14 +74,18 @@ public class NodeList implements Iterable<Node> {
 
 
     public NodeList filter(Predicate<Node> filter) {
+        Objects.requireNonNull(filter, "filter");
+
         if (CollectionUtils.isEmpty(nodeList)) {
             return new NodeList();
         }
-        Objects.requireNonNull(filter, "filter");
 
-        List<Node> list = nodeList.stream()
-                .filter(filter)
-                .collect(Collectors.toList());
+        List<Node> list = new ArrayList<>();
+        for (Node node : nodeList) {
+            if (filter.test(node)) {
+                list.add(node);
+            }
+        }
         return new NodeList(list);
     }
 
