@@ -88,13 +88,14 @@ const HeatmapChartCore = ({
   };
 
   const handleCaptureImage = async () => {
+    console.log('??', chartContainerRef?.current);
     if (!chartContainerRef.current) {
       return;
     }
 
     await setIsCapturingImage(true);
 
-    const currentNode = '';
+    const currentNode = `${nodeData?.applicationName}^${nodeData?.serviceType}`;
     const fileName = `Pinpoint_Heatmap_Chart__${(agentId ? agentId : currentNode) || ''}`;
 
     const canvas = await html2canvas(chartContainerRef.current);
