@@ -142,29 +142,12 @@ export const Realtime = () => {
             />
           ) : (
             <>
-              {(currentTargetData as GetServerMap.NodeData)?.instanceCount && (
+              {(currentTargetData as GetServerMap.NodeData)?.instanceCount ? (
                 <div className="flex items-center h-12 py-2.5 px-4">
-                  {/* <ChartTypeButtons /> */}
+                  <ChartTypeButtons />
                   <InstanceCount className="ml-auto" nodeData={currentTargetData} />
                 </div>
-              )}
-              {/* {!shouldHideScatter() && isFocus && (
-                <>
-                  <div className="w-full p-5 mb-12 aspect-[1.618]">
-                    <div className="h-7">
-                      <ApdexScore
-                        shouldPoll={true}
-                        nodeData={currentTargetData || application}
-                      ></ApdexScore>
-                    </div>
-                    <ScatterChart
-                      node={serverMapCurrentTarget || (application as ApplicationType)}
-                      realtime={true}
-                    />
-                  </div>
-                  <Separator />
-                </>
-              )} */}
+              ) : null}
               {!shouldHideScatter() && isFocus && (
                 <>
                   {chartType === 'scatter' ? (
