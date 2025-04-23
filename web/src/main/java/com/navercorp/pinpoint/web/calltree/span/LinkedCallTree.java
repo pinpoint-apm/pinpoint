@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.common.util.LineNumber;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 /**
  * @author jaehong.kim
@@ -185,6 +186,6 @@ public class LinkedCallTree implements CallTree {
     }
 
     @Override
-    public void sort() {
+    public void pruning(Predicate<CallTreeNode> filter) {
     }
 }

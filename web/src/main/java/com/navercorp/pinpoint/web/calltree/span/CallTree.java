@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.calltree.span;
 
+import java.util.function.Predicate;
+
 /**
  * 
  * @author jaehong.kim
@@ -35,5 +37,5 @@ public interface CallTree extends Iterable<CallTreeNode> {
 
     void add(final int depth, final Align align);
     
-    void sort();
+    void pruning(Predicate<CallTreeNode> filter);
 }

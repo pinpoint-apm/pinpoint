@@ -44,6 +44,7 @@ public class SpanAligner {
     private final LinkList linkList;
     private final LinkMap linkMap;
     private final MetaSpanCallTreeFactory metaSpanCallTreeFactory = new MetaSpanCallTreeFactory();
+    private final Predicate<CallTreeNode> callTreeNodeNonProductiveFilter;
 
     public SpanAligner(final List<SpanBo> spans, Predicate<SpanBo> filter, ServiceTypeRegistryService serviceTypeRegistryService) {
         this.nodeList = NodeList.newNodeList(spans);
@@ -55,6 +56,7 @@ public class SpanAligner {
         removeDuplicateNode();
 
         this.focusFilter = NodeList.callTreeFilter(filter);
+        this.callTreeNodeNonProductiveFilter = CallTreeNodeNonProductiveFilter.of(serviceTypeRegistryService);
     }
 
     private void removeDuplicateNode() {
@@ -78,7 +80,11 @@ public class SpanAligner {
         // remove unlinked
         clear();
         // select root
-        return root();
+        final CallTree callTree = root();
+        // pruning non productive node
+        callTree.pruning(callTreeNodeNonProductiveFilter);
+
+        return callTree;
     }
 
     private void populate() {

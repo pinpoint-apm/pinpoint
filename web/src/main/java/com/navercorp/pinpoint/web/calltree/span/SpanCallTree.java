@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.web.calltree.span;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -32,8 +30,6 @@ public class SpanCallTree implements CallTree {
     private static final int MIN_DEPTH = -1;
     private static final int LEVEL_DEPTH = -1;
     private static final int ROOT_DEPTH = 0;
-
-    private static final Comparator<CallTreeNode> START_TIME_COMPARATOR = Comparator.comparingLong((CallTreeNode node) -> node.getAlign().getStartTime());
 
     private final CallTreeNode root;
     private CallTreeNode cursor;
@@ -294,83 +290,61 @@ public class SpanCallTree implements CallTree {
         return lastSibling;
     }
 
-    public void sort() {
-        travel(root);
+    @Override
+    public void pruning(Predicate<CallTreeNode> filter) {
+        pruningTravel(filter, root);
     }
 
-    void travel(CallTreeNode node) {
-        sortChildSibling(node);
-        if (node.hasChild()) {
-            travel(node.getChild());
+    void pruningTravel(Predicate<CallTreeNode> filter, CallTreeNode node) {
+        if (node == null) {
+            return;
         }
 
-        // change logic from recursive to loop, because of avoid call-stack-overflow.
+        final List<CallTreeNode> siblings = new ArrayList<>();
         CallTreeNode sibling = node.getSibling();
         while (sibling != null) {
-            sortChildSibling(sibling);
-            if (sibling.hasChild()) {
-                travel(sibling.getChild());
-            }
+            siblings.add(sibling);
             sibling = sibling.getSibling();
         }
-    }
 
-    void sortChildSibling(final CallTreeNode parent) {
-        if (!parent.hasChild() || !parent.getChild().hasSibling()) {
-            // no child or no child sibling.
-            return;
-        }
-
-        final List<CallTreeNode> events = new ArrayList<>();
-        final LinkedList<CallTreeNode> spans = new LinkedList<>();
-        splitChildSiblingNodes(parent, events, spans);
-        if (spans.isEmpty()) {
-            // not found span
-            return;
-        }
-
-        // order by abs.
-        spans.sort(START_TIME_COMPARATOR);
-
-        // sort
-        final List<CallTreeNode> nodes = new ArrayList<>();
-        for (CallTreeNode event : events) {
-            while (spans.peek() != null && event.getAlign().getStartTime() > spans.peek().getAlign().getStartTime()) {
-                nodes.add(spans.poll());
+        CallTreeNode nextSibling = null;
+        boolean removed = false;
+        for (int i = siblings.size(); i > 0; i--) {
+            final CallTreeNode lastSibling = siblings.get(i - 1);
+            if (removed) {
+                lastSibling.setSibling(nextSibling);
             }
-            nodes.add(event);
-        }
-        nodes.addAll(spans);
+            if (lastSibling.hasChild()) {
+                pruningTravel(filter, lastSibling.getChild());
+            }
+            if (filter.test(lastSibling)) {
+                removed = true;
+                nextSibling = lastSibling.getSibling();
 
-        // reform sibling
-        CallTreeNode prev = null;
-        for (CallTreeNode node : nodes) {
-            final CallTreeNode reset = null;
-            node.setSibling(reset);
-            if (prev == null) {
-                parent.setChild(node);
-                prev = node;
+                lastSibling.setParent(null);
+                lastSibling.setSibling((CallTreeNode) null);
+                lastSibling.setChild((CallTreeNode) null);
+                lastSibling.setAlign(null);
             } else {
-                prev.setSibling(node);
-                prev = node;
+                removed = false;
+                nextSibling = lastSibling;
             }
         }
-    }
+        node.setSibling(nextSibling);
 
-    private void splitChildSiblingNodes(final CallTreeNode parent, List<CallTreeNode> events, List<CallTreeNode> spans) {
-        CallTreeNode node = parent.getChild();
-        if (node.getAlign().isSpan()) {
-            spans.add(node);
-        } else {
-            events.add(node);
+        if (node.hasChild()) {
+            pruningTravel(filter, node.getChild());
         }
 
-        while (node.hasSibling()) {
-            node = node.getSibling();
-            if (node.getAlign().isSpan()) {
-                spans.add(node);
-            } else {
-                events.add(node);
+        if (filter.test(node)) {
+            final CallTreeNode parent = node.getParent();
+            if (parent != null) {
+                parent.setChild(node.getSibling());
+
+                node.setParent(null);
+                node.setSibling((CallTreeNode) null);
+                node.setChild((CallTreeNode) null);
+                node.setAlign(null);
             }
         }
     }
