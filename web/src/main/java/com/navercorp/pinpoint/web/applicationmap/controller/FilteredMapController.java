@@ -130,9 +130,7 @@ public class FilteredMapController {
         TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
         ApplicationMapView applicationMapView = new ApplicationMapView(map, MapViews.ofDetailed(), hyperLinkFactory, format);
         ScatterDataMapView scatterDataMapView = new ScatterDataMapView(scatter.getScatterDataMap());
-        final FilterMapView mapWrap = new FilterMapView(applicationMapView, scatterDataMapView);
-        mapWrap.setLastFetchedTimestamp(lastScanTime);
-        return mapWrap;
+        return new FilterMapView(applicationMapView, scatterDataMapView, lastScanTime);
     }
 
 
@@ -179,9 +177,7 @@ public class FilteredMapController {
         ApplicationMapViewV3 applicationMapView = new ApplicationMapViewV3(map.getApplicationMap(), timeWindow, MapViews.ofDetailed(), hyperLinkFactory);
         ScatterDataMapView scatterDataMapView = new ScatterDataMapView(map.getScatterDataMap());
         FilteredHistogramView filteredHistogramView = new FilteredHistogramView(map.getApplicationMap(), hyperLinkFactory);
-        FilterMapViewV3 mapView = new FilterMapViewV3(applicationMapView, scatterDataMapView, filteredHistogramView);
-        mapView.setLastFetchedTimestamp(lastScanTime);
-        return mapView;
+        return new FilterMapViewV3(applicationMapView, scatterDataMapView, filteredHistogramView, lastScanTime);
     }
 
     private Range toRange(RangeForm rangeForm) {
