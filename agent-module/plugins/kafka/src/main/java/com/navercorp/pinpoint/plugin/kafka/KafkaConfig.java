@@ -46,6 +46,7 @@ public class KafkaConfig {
     private final String kafkaEntryPoint;
     private final boolean kafkaMessageListenerContainerEnable;
     private final boolean kafkaMessageListenerContainerMarkError;
+    private final boolean traceStreamProcess;
 
     public KafkaConfig(ProfilerConfig config) {
         this.enable = config.readBoolean(ENABLE, true);
@@ -58,6 +59,7 @@ public class KafkaConfig {
         this.kafkaEntryPoint = config.readString(CONSUMER_ENTRY_POINT, "");
         this.kafkaMessageListenerContainerEnable = config.readBoolean("profiler.springkafka.container.enable", false);
         this.kafkaMessageListenerContainerMarkError = config.readBoolean("profiler.springkafka.container.mark.error", false);
+        this.traceStreamProcess = config.readBoolean("profiler.kafka-streams.trace.process", false);
     }
 
     public boolean isEnable() {
@@ -100,6 +102,10 @@ public class KafkaConfig {
         return kafkaMessageListenerContainerMarkError;
     }
 
+    public boolean isTraceStreamProcess() {
+        return traceStreamProcess;
+    }
+
     @Override
     public String toString() {
         return "KafkaConfig{" +
@@ -113,6 +119,7 @@ public class KafkaConfig {
                 ", kafkaEntryPoint='" + kafkaEntryPoint + '\'' +
                 ", kafkaMessageListenerContainerEnable=" + kafkaMessageListenerContainerEnable +
                 ", kafkaMessageListenerContainerMarkError=" + kafkaMessageListenerContainerMarkError +
+                ", traceStreamProcess=" + traceStreamProcess +
                 '}';
     }
 }
