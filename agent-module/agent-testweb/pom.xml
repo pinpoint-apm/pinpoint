@@ -80,6 +80,7 @@
         <module>httpclient5-plugin-testweb</module>
         <module>httpclient4-plugin-testweb</module>
         <module>kafka-plugin-testweb</module>
+        <module>kafka-4-plugin-testweb</module>
         <module>kafka-streams-testweb</module>
         <module>cassandra3-plugin-testweb</module>
         <module>cassandra4-plugin-testweb</module>

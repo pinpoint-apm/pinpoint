@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.plugin.kafka.KafkaConfig;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 import com.navercorp.pinpoint.plugin.kafka.field.getter.ApiVersionsGetter;
 
+import java.lang.reflect.Method;
 import java.util.Objects;
 
 /**
@@ -69,20 +70,34 @@ public class ProducerAddHeaderInterceptor implements AroundInterceptor {
             return;
 
         }
-        ApiVersionsGetter apiVersionsGetter = (ApiVersionsGetter) target;
-        org.apache.kafka.clients.ApiVersions apiVersions = apiVersionsGetter._$PINPOINT$_getApiVersions();
-        if (apiVersions == null || apiVersions.maxUsableProduceMagic() < org.apache.kafka.common.record.RecordBatch.MAGIC_VALUE_V2) {
-            return;
+
+        try {
+            ApiVersionsGetter apiVersionsGetter = (ApiVersionsGetter) target;
+            org.apache.kafka.clients.ApiVersions apiVersions = apiVersionsGetter._$PINPOINT$_getApiVersions();
+            if (apiVersions == null) {
+                return;
+            }
+
+            // Check if the Kafka version is 2.0 or higher
+            final Class clazz = apiVersions.getClass();
+            final Method method = clazz.getMethod("maxUsableProduceMagic");
+            final byte result = (byte) method.invoke(apiVersions);
+            if (result < org.apache.kafka.common.record.RecordBatch.MAGIC_VALUE_V2) {
+                return;
+            }
+        } catch (Exception ignored) {
         }
 
-        if (!(args[0] instanceof org.apache.kafka.common.header.Headers)) {
-            return;
+        try {
+            if (!(args[0] instanceof org.apache.kafka.common.header.Headers)) {
+                return;
+            }
+            org.apache.kafka.common.header.Headers headers = (org.apache.kafka.common.header.Headers) args[0];
+            SpanEventRecorder spanEventRecorder = trace.currentSpanEventRecorder();
+            headerSetter.setPinpointHeaders(spanEventRecorder, trace, headers, trace.canSampled(), traceContext.getApplicationName(), traceContext.getServerTypeCode());
+        } catch (Exception e) {
+            logger.warn("Failed to set headers. {}", e.getMessage(), e);
         }
-
-        org.apache.kafka.common.header.Headers headers = (org.apache.kafka.common.header.Headers) args[0];
-
-        SpanEventRecorder spanEventRecorder = trace.currentSpanEventRecorder();
-        headerSetter.setPinpointHeaders(spanEventRecorder, trace, headers, trace.canSampled(), traceContext.getApplicationName(), traceContext.getServerTypeCode());
     }
 
     @Override
@@ -125,9 +140,7 @@ public class ProducerAddHeaderInterceptor implements AroundInterceptor {
                 }
             }
         }
-
     }
-
 }
 
 
