@@ -81,12 +81,12 @@ final class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     ) {
         ResponseEntity<Object> response = super.handleExceptionInternal(ex, body, headers, statusCode, request);
 
-        if (response.getBody() instanceof ProblemDetail problemDetail) {
+        if (response != null && response.getBody() instanceof ProblemDetail problemDetail) {
             addProperties(problemDetail, request);
             addStackTraces(problemDetail, ex);
             return this.createResponseEntity(problemDetail, headers, statusCode, request);
         }
-        return response;
+        return response != null ? response : ResponseEntity.status(statusCode).body(body);
     }
 
     public void addProperties(ProblemDetail problemDetail, WebRequest request) {
