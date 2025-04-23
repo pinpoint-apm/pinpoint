@@ -29,30 +29,24 @@ import java.util.Objects;
 public class FilterMapViewV3 {
     private final ApplicationMapViewV3 applicationMapView;
 
-    private Long lastFetchedTimestamp;
-
     private final ScatterDataMapView scatterDataMapView;
 
     private final FilteredHistogramView filteredHistogramView;
 
+    private final long lastFetchedTimestamp;
+
     public FilterMapViewV3(ApplicationMapViewV3 applicationMapView,
                            ScatterDataMapView scatterDataMapView,
-                           FilteredHistogramView filteredHistogramView) {
+                           FilteredHistogramView filteredHistogramView,
+                           long lastFetchedTimestamp) {
         this.applicationMapView = Objects.requireNonNull(applicationMapView, "applicationMapView");
         this.scatterDataMapView = Objects.requireNonNull(scatterDataMapView, "scatterDataMapView");
         this.filteredHistogramView = Objects.requireNonNull(filteredHistogramView, "filteredHistogramView");
+        this.lastFetchedTimestamp = lastFetchedTimestamp;
     }
 
     public ApplicationMapViewV3 getApplicationMapData() {
         return applicationMapView;
-    }
-
-    public void setLastFetchedTimestamp(Long lastFetchedTimestamp) {
-        this.lastFetchedTimestamp = lastFetchedTimestamp;
-    }
-
-    public Long getLastFetchedTimestamp() {
-        return lastFetchedTimestamp;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -60,11 +54,13 @@ public class FilterMapViewV3 {
         return scatterDataMapView;
     }
 
+    public long getLastFetchedTimestamp() {
+        return lastFetchedTimestamp;
+    }
 
     @JsonUnwrapped
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public FilteredHistogramView getFilteredHistogram() {
         return filteredHistogramView;
     }
-
 }

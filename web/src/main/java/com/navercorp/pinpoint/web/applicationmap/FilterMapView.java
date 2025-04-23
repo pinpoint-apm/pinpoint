@@ -26,26 +26,21 @@ import java.util.Objects;
  */
 public class FilterMapView {
     private final ApplicationMapView applicationMapView;
-    private Long lastFetchedTimestamp;
 
     private final ScatterDataMapView scatterDataMapView;
 
+    private final long lastFetchedTimestamp;
+
     public FilterMapView(ApplicationMapView applicationMapView,
-                         ScatterDataMapView scatterDataMapView) {
+                         ScatterDataMapView scatterDataMapView,
+                         long lastFetchedTimestamp) {
         this.applicationMapView = Objects.requireNonNull(applicationMapView, "applicationMapView");
         this.scatterDataMapView = Objects.requireNonNull(scatterDataMapView, "scatterDataMapView");
+        this.lastFetchedTimestamp = lastFetchedTimestamp;
     }
 
     public ApplicationMapView getApplicationMapData() {
         return applicationMapView;
-    }
-
-    public void setLastFetchedTimestamp(Long lastFetchedTimestamp) {
-        this.lastFetchedTimestamp = lastFetchedTimestamp;
-    }
-
-    public Long getLastFetchedTimestamp() {
-        return lastFetchedTimestamp;
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -53,4 +48,7 @@ public class FilterMapView {
         return scatterDataMapView;
     }
 
+    public long getLastFetchedTimestamp() {
+        return lastFetchedTimestamp;
+    }
 }
