@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -61,8 +62,13 @@ public class ApplicationUidController {
     @DeleteMapping(value = "/application")
     public Response deleteApplication(@RequestParam(value = "serviceUid", required = false, defaultValue = DEFAULT_SERVICE_UID_CODE) int serviceUid,
                                       @RequestParam(value = "applicationName") @NotBlank String applicationName) {
-        ServiceUid serviceUidObject = ServiceUid.of(serviceUid);
-        applicationUidService.deleteApplication(serviceUidObject, applicationName);
+        applicationUidService.deleteApplication(ServiceUid.of(serviceUid), applicationName);
         return SimpleResponse.ok();
+    }
+
+    @GetMapping(value = "/application/cleanup/inconsistent")
+    public Response cleanupUnMatchingApplicationUid(@RequestParam(value = "serviceUid") Optional<Integer> serviceUid) {
+        int cleanupCount = applicationUidService.cleanupInconsistentApplicationName(serviceUid.map(ServiceUid::of).orElse(null));
+        return SimpleResponse.ok("cleanupCount: " + cleanupCount);
     }
 }
