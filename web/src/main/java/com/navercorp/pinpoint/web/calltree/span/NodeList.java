@@ -18,25 +18,33 @@ public class NodeList implements Iterable<Node> {
     private final static Comparator<Node> STARTTIME_COMPARATOR
             = Comparator.comparingLong((Node node) -> node.getSpanBo().getStartTime());
 
+    public static final NodeList EMPTY = new NodeList(Collections.emptyList());
+
     private final List<Node> nodeList;
 
     public static NodeList newNodeList(List<SpanBo> spans) {
         Objects.requireNonNull(spans, "spans");
+        if (spans.isEmpty()) {
+            return EMPTY;
+        }
 
         List<Node> list = new ArrayList<>(spans.size());
         for (SpanBo span : spans) {
-            Node node = Node.toNode(span);
-            list.add(node);
+            list.add(Node.toNode(span));
         }
         list.sort(STARTTIME_COMPARATOR);
         return new NodeList(list);
     }
 
-    public NodeList() {
-        this.nodeList = Collections.emptyList();
+    public static NodeList of(List<Node> nodeList) {
+        Objects.requireNonNull(nodeList, "nodeList");
+        if (CollectionUtils.isEmpty(nodeList)) {
+            return EMPTY;
+        }
+        return new NodeList(nodeList);
     }
 
-    public NodeList(List<Node> nodeList) {
+    private NodeList(List<Node> nodeList) {
         this.nodeList = Objects.requireNonNull(nodeList, "nodeList");
     }
 
@@ -75,9 +83,8 @@ public class NodeList implements Iterable<Node> {
 
     public NodeList filter(Predicate<Node> filter) {
         Objects.requireNonNull(filter, "filter");
-
-        if (CollectionUtils.isEmpty(nodeList)) {
-            return new NodeList();
+        if (nodeList.isEmpty()) {
+            return EMPTY;
         }
 
         List<Node> list = new ArrayList<>();
@@ -86,7 +93,7 @@ public class NodeList implements Iterable<Node> {
                 list.add(node);
             }
         }
-        return new NodeList(list);
+        return NodeList.of(list);
     }
 
 

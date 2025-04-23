@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.web.calltree.span;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.Objects;
@@ -259,7 +259,7 @@ public class SpanAligner {
 
         // find root
         final NodeList rootNodeList = nodeList.filter(NodeList.rootFilter());
-        if (rootNodeList.size() >= 1) {
+        if (!rootNodeList.isEmpty()) {
             return selectInRootNodeList(rootNodeList, true);
         }
 
@@ -306,7 +306,7 @@ public class SpanAligner {
 
         // find focus
         final NodeList focusNodeList = topNodeList.filter(this.focusFilter);
-        if (focusNodeList.size() >= 1) {
+        if (!focusNodeList.isEmpty()) {
             return selectInFocusNodeList(focusNodeList, topNodeList);
         }
 
