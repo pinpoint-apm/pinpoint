@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.collect.Iterators;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -42,7 +43,7 @@ public class JsonFields<K, V> implements Iterable<JsonField<K, V>>, RandomAccess
 
     @Override
     public Iterator<JsonField<K, V>> iterator() {
-        return stream().iterator();
+        return Iterators.forArray(fields);
     }
 
     public Stream<JsonField<K, V>> stream() {
