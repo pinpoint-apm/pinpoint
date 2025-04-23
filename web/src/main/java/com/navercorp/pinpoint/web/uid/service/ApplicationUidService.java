@@ -14,4 +14,7 @@ public interface ApplicationUidService {
     String getApplicationName(ServiceUid serviceUid, ApplicationUid applicationUid);
 
     void deleteApplication(ServiceUid serviceUid, String applicationName);
+
+    int cleanupInconsistentApplicationName(ServiceUid serviceUid);
+
 }

@@ -32,4 +32,12 @@ public class ApplicationUidRowKeyUtils {
         return rowKey;
     }
 
+    public static ServiceUid getServiceUid(byte[] rowKey) {
+        return ServiceUid.of(ByteArrayUtils.bytesToInt(rowKey, 0));
+    }
+
+    public static ApplicationUid getApplicationUidLong(byte[] rowKey) {
+        return ApplicationUid.of(ByteArrayUtils.bytesToLong(rowKey, ByteArrayUtils.INT_BYTE_LENGTH));
+    }
+
 }
