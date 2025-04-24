@@ -33,7 +33,9 @@ public class FilteredHistogramView {
 
     private ServerHistogramView newServerHistogramView(Node node) {
         ServerGroupListView serverGroupListView = new ServerGroupListView(node.getServerGroupList(), hyperLinkFactory);
-        return new ServerHistogramView(node.getNodeName(), node.getNodeHistogram(), serverGroupListView);
+        String name = node.getNodeName().getName();
+        List<HistogramView> agentHistogramViewList = node.getNodeHistogram().createAgentHistogramViewList();
+        return new ServerHistogramView(name, agentHistogramViewList, serverGroupListView);
     }
 
     public Iterator<HistogramView> getNodeHistogramData() {

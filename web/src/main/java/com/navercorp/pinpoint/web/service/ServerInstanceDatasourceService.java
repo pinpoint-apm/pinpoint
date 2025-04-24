@@ -8,13 +8,14 @@ import java.util.Objects;
 
 @Component
 public class ServerInstanceDatasourceService {
-    private final AgentInfoService agentInfoService;
+    private final ServerGroupListDataSource datasource;
 
-    public ServerInstanceDatasourceService(AgentInfoService agentInfoService) {
-        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+    public ServerInstanceDatasourceService(AgentInfoService datasource) {
+        Objects.requireNonNull(datasource, "agentInfoService");
+        this.datasource =  new AgentInfoServerGroupListDataSource(datasource);
     }
 
     public ServerGroupListDataSource getServerGroupListDataSource() {
-        return new AgentInfoServerGroupListDataSource(agentInfoService);
+        return datasource;
     }
 }
