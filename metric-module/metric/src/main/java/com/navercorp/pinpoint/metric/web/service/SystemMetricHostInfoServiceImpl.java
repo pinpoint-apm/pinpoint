@@ -111,7 +111,7 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
         List<MetricTag> metricTagList = metricTagCollection.getMetricTagList();
         List<MetricTag> anyOneTag = new ArrayList<>();
 
-        if (metricTagList.size() != 1) {
+        if (metricTagList.isEmpty()) {
             return Collections.emptyList();
         }
 

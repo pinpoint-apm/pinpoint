@@ -93,7 +93,6 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
     private List<MetricValue<? extends Number>> getMetricValues(MetricDataSearchKey metricDataSearchKey, TimeWindow timeWindow, List<Tag> tags) {
         Metric elementOfBasicGroupList = systemMetricBasicGroupManager.findElementOfBasicGroup(metricDataSearchKey.getMetricDefinitionId());
 
-        StopWatch watch = StopWatch.createStarted();
         List<QueryResult<Number>> queryResults = selectAll(metricDataSearchKey, elementOfBasicGroupList, tags);
 
         List<MetricValue<?>> metricValueList = new ArrayList<>(elementOfBasicGroupList.getFields().size());
@@ -108,14 +107,11 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
                     metricValueList.add(doubleMetricValue);
                 } else if (type == MetricDataType.DOUBLE) {
                     List<DataPoint<Double>> doubleList = (List<DataPoint<Double>>) (List<?>) dataPoints;
-                    StopWatch dataProcessWatch = StopWatch.createStarted();
                     MetricValue<Double> doubleMetricValue = createSystemDoubleMetricValue(timeWindow, result.tag(), doubleList);
-                    dataProcessWatch.stop();
                     metricValueList.add(doubleMetricValue);
                 }
             }
 
-            watch.stop();
             return metricValueList;
         } catch (Throwable e) {
             throw new RuntimeException(e);
