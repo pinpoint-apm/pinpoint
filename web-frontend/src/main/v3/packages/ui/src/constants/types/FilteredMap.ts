@@ -51,7 +51,6 @@ export namespace FilteredMapType {
     callerRange: number;
     filter: string;
     hint: string;
-    v: number;
     limit: number;
     xGroupUnit: number;
     yGroupUnit: number;
