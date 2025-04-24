@@ -23,8 +23,6 @@ import com.navercorp.pinpoint.web.dao.AgentInfoQuery;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
-import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
-import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -81,24 +79,17 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     private final AgentLifeCycleDao agentLifeCycleDao;
 
-    private final HyperLinkFactory hyperLinkFactory;
-    private final ActiveAgentValidator activeAgentValidator;
-
     public AgentInfoServiceImpl(AgentEventService agentEventService,
                                 ApplicationAgentListService applicationAgentListService, AgentWarningStatService agentWarningStatService,
                                 ApplicationIndexDao applicationIndexDao,
                                 AgentInfoDao agentInfoDao,
-                                AgentLifeCycleDao agentLifeCycleDao,
-                                ActiveAgentValidator activeAgentValidator,
-                                HyperLinkFactory hyperLinkFactory) {
+                                AgentLifeCycleDao agentLifeCycleDao) {
         this.agentEventService = Objects.requireNonNull(agentEventService, "agentEventService");
         this.applicationAgentListService = Objects.requireNonNull(applicationAgentListService, "applicationAgentListService");
         this.agentWarningStatService = Objects.requireNonNull(agentWarningStatService, "agentWarningStatService");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
-        this.activeAgentValidator = Objects.requireNonNull(activeAgentValidator, "activeAgentValidator");
-        this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
     }
 
     @Override
