@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.applicationmap.controller;
+package com.navercorp.pinpoint.web.applicationmap.controller.form;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

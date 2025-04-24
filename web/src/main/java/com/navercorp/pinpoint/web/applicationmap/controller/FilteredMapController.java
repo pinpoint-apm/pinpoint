@@ -28,6 +28,10 @@ import com.navercorp.pinpoint.web.applicationmap.ApplicationMapViewV3;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapView;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapViewV3;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWithScatter;
+import com.navercorp.pinpoint.web.applicationmap.controller.form.ApplicationForm;
+import com.navercorp.pinpoint.web.applicationmap.controller.form.FilterForm;
+import com.navercorp.pinpoint.web.applicationmap.controller.form.GroupForm;
+import com.navercorp.pinpoint.web.applicationmap.controller.form.RangeForm;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
@@ -38,10 +42,8 @@ import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.util.LimitUtils;
-import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -88,12 +90,10 @@ public class FilteredMapController {
             @Valid @ModelAttribute
             RangeForm rangeForm,
             @RequestParam("originTo") long originTo,
-            @RequestParam("xGroupUnit") @Positive int xGroupUnit,
-            @RequestParam("yGroupUnit") @Positive int yGroupUnit,
-            @RequestParam(value = "filter", required = false)
-            @NullOrNotBlank String filterText,
-            @RequestParam(value = "hint", required = false)
-            @NullOrNotBlank String filterHint,
+            @Valid @ModelAttribute
+            GroupForm groupForm,
+            @Valid @ModelAttribute
+            FilterForm filterForm,
             @RequestParam(value = "limit", required = false, defaultValue = "10000")
             @PositiveOrZero int limitParam,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
@@ -104,7 +104,7 @@ public class FilteredMapController {
         final String applicationName = appForm.getApplicationName();
 
         final int limit = Math.min(limitParam, LimitUtils.MAX);
-        final Filter<List<SpanBo>> filter = filterBuilder.build(filterText, filterHint);
+        final Filter<List<SpanBo>> filter = newFilter(filterForm);
         final Range range = toRange(rangeForm);
         final LimitedScanResult<List<TransactionId>> limitedScanResult =
                 filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
@@ -115,10 +115,7 @@ public class FilteredMapController {
         // needed to figure out already scanned ranged
         final Range scannerRange = Range.between(lastScanTime, rangeForm.getTo());
         logger.debug("originalRange: {}, scannerRange: {}", originalRange, scannerRange);
-        final FilteredMapServiceOption option = new FilteredMapServiceOption
-                .Builder(limitedScanResult.scanData(), originalRange, xGroupUnit, yGroupUnit, filter)
-                .setUseStatisticsAgentState(useStatisticsAgentState)
-                .build();
+        final FilteredMapServiceOption option = newFilteredOption(limitedScanResult.scanData(), originalRange, groupForm, filter, useStatisticsAgentState);
         final FilterMapWithScatter scatter = filteredMapService.selectApplicationMapWithScatterData(option);
         ApplicationMap map = scatter.getApplicationMap();
 
@@ -133,27 +130,25 @@ public class FilteredMapController {
         return new FilterMapView(applicationMapView, scatterDataMapView, lastScanTime);
     }
 
-
-    @GetMapping(value = "/filteredServerMapDataMadeOfDotGroup")
-    public FilterMapViewV3 getFilteredServerMapDataMadeOfDotGroupV3(
+    @GetMapping(value = "/filterServer")
+    public FilterMapViewV3 getFilterServer(
             @Valid @ModelAttribute
             ApplicationForm appForm,
             @Valid @ModelAttribute
             RangeForm rangeForm,
             @RequestParam("originTo") long originTo,
-            @RequestParam("xGroupUnit") @Positive int xGroupUnit,
-            @RequestParam("yGroupUnit") @Positive int yGroupUnit,
-            @RequestParam(value = "filter", required = false)
-            @NullOrNotBlank String filterText,
-            @RequestParam(value = "hint", required = false)
-            @NullOrNotBlank String filterHint,
+            @Valid @ModelAttribute
+            GroupForm groupForm,
+            @Valid @ModelAttribute
+            FilterForm filterForm,
             @RequestParam(value = "limit", required = false, defaultValue = "10000")
             @PositiveOrZero int limitParam,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "true", required = false) boolean useStatisticsAgentState) {
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "true", required = false)
+            boolean useStatisticsAgentState) {
         final String applicationName = appForm.getApplicationName();
 
         final int limit = Math.min(limitParam, LimitUtils.MAX);
-        final Filter<List<SpanBo>> filter = filterBuilder.build(filterText, filterHint);
+        final Filter<List<SpanBo>> filter = newFilter(filterForm);
         final Range range = toRange(rangeForm);
         final LimitedScanResult<List<TransactionId>> limitedScanResult = filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
 
@@ -163,10 +158,7 @@ public class FilteredMapController {
         // needed to figure out already scanned ranged
         final Range scannerRange = Range.between(lastScanTime, range.getTo());
         logger.debug("originalRange:{} scannerRange:{} ", originalRange, scannerRange);
-        final FilteredMapServiceOption option = new FilteredMapServiceOption
-                .Builder(limitedScanResult.scanData(), originalRange, xGroupUnit, yGroupUnit, filter)
-                .setUseStatisticsAgentState(useStatisticsAgentState)
-                .build();
+        final FilteredMapServiceOption option = newFilteredOption(limitedScanResult.scanData(), originalRange, groupForm, filter, useStatisticsAgentState);
         final FilterMapWithScatter map = filteredMapService.selectApplicationMapWithScatterData(option);
 
         if (logger.isDebugEnabled()) {
@@ -178,6 +170,21 @@ public class FilteredMapController {
         ScatterDataMapView scatterDataMapView = new ScatterDataMapView(map.getScatterDataMap());
         FilteredHistogramView filteredHistogramView = new FilteredHistogramView(map.getApplicationMap(), hyperLinkFactory);
         return new FilterMapViewV3(applicationMapView, scatterDataMapView, filteredHistogramView, lastScanTime);
+    }
+
+    private FilteredMapServiceOption newFilteredOption(List<TransactionId> transactionIdList,
+                                                       Range originalRange,
+                                                       GroupForm groupForm,
+                                                       Filter<List<SpanBo>> filter,
+                                                       boolean useStatisticsAgentState) {
+        return new FilteredMapServiceOption
+                .Builder(transactionIdList, originalRange, groupForm.getXGroupUnit(), groupForm.geYGroupUnit(), filter)
+                .setUseStatisticsAgentState(useStatisticsAgentState)
+                .build();
+    }
+
+    private Filter<List<SpanBo>> newFilter(FilterForm filterForm) {
+        return filterBuilder.build(filterForm.getFilter(), filterForm.getHint());
     }
 
     private Range toRange(RangeForm rangeForm) {
