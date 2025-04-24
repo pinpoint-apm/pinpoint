@@ -20,12 +20,12 @@ import {
   getTransactionListPath,
   getTranscationListQueryString,
   useServerMapSearchParameters,
-  useStoragedAxisY,
+  useStoragedSetting,
 } from '@pinpoint-fe/ui';
 import { FaDownload, FaExpandArrowsAlt } from 'react-icons/fa';
 import { BsGearFill } from 'react-icons/bs';
 import { CgSpinner } from 'react-icons/cg';
-import { HeatmapSetting } from './HeatmapSetting';
+import { HeatmapSetting, HeatmapSettingType } from './HeatmapSetting';
 import { HeatmapSkeleton } from '../HeatmapSkeleton';
 
 const colorSteps = 10;
@@ -66,7 +66,7 @@ const HeatmapChartCore = ({
   const [showSetting, setShowSetting] = React.useState(false);
   const [isCapturingImage, setIsCapturingImage] = React.useState(false);
 
-  const [y, setY] = useStoragedAxisY(APP_SETTING_KEYS.HEATMAP_Y_AXIS_MIN_MAX, [0, 10000]);
+  const [setting, setSetting] = useStoragedSetting(APP_SETTING_KEYS.HEATMAP_SETTING);
 
   const handleExpand = () => {
     if (isRealtime) {
@@ -88,7 +88,6 @@ const HeatmapChartCore = ({
   };
 
   const handleCaptureImage = async () => {
-    console.log('??', chartContainerRef?.current);
     if (!chartContainerRef.current) {
       return;
     }
@@ -110,8 +109,8 @@ const HeatmapChartCore = ({
     await setIsCapturingImage(false);
   };
 
-  const handleSettingApply = (newSetting: { yMin: number; yMax: number }) => {
-    setY([newSetting.yMin, newSetting.yMax]);
+  const handleSettingApply = (newSetting: HeatmapSettingType) => {
+    setSetting(newSetting);
   };
 
   const onDragEnd = (data: any, checkedLegends: any) => {
@@ -151,10 +150,7 @@ const HeatmapChartCore = ({
         ref={chartContainerRef}
         data={data}
         isRealtime={isRealtime}
-        setting={{
-          yMin: y[0],
-          yMax: y[1],
-        }}
+        setting={setting}
         onDragEnd={onDragEnd}
       />
       {(showSetting || isCapturingImage) && (
@@ -163,10 +159,8 @@ const HeatmapChartCore = ({
           {showSetting && (
             <HeatmapSetting
               className="z-10"
-              defaultValues={{
-                yMin: y?.[0],
-                yMax: y?.[1],
-              }}
+              isRealtime={isRealtime}
+              defaultValues={setting}
               onClose={() => setShowSetting(false)}
               onApply={(newSetting) => {
                 handleSettingApply(newSetting);

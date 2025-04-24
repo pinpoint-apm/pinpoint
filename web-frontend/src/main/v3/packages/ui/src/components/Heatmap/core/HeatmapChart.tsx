@@ -208,7 +208,7 @@ const HeatmapChart = React.forwardRef(
           {
             id: 'success',
             min: 0,
-            max: isRealtime ? 5000 : successMaxCount,
+            max: isRealtime ? setting?.visualMapSuccessMax : successMaxCount,
             calculable: true,
             seriesIndex: 0,
             orient: 'horizontal',
@@ -231,7 +231,7 @@ const HeatmapChart = React.forwardRef(
           {
             id: 'fail',
             min: 0,
-            max: isRealtime ? 100 : failMaxCount,
+            max: isRealtime ? setting?.visualMapFailMax : failMaxCount,
             calculable: true,
             seriesIndex: 1,
             orient: 'horizontal',

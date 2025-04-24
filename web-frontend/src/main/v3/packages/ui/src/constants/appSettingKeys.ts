@@ -19,7 +19,7 @@ export enum APP_SETTING_KEYS {
   TRANSACTION_LIST_RESIZABLE = 'transactionListResizable',
   TRANSACTION_DETAIL_RESIZABLE = 'transactionDetailResizable',
   SCATTER_Y_AXIS_MIN_MAX = 'scatterYAxisMinMax',
-  HEATMAP_Y_AXIS_MIN_MAX = 'heatmapYAxisMinMax',
+  HEATMAP_SETTING = 'heatmapSetting',
   SERVER_MAP_HORIZONTAL_RESIZABLE = 'serverMapHorizontalResizable',
   REALTIME_ACTIVE_REQUEST_RESIZABLE = 'realtimeActiveRequestResizable',
   CONFIG_LAST_SELECTED_APPLICATION = 'configLastSelectedApplication',

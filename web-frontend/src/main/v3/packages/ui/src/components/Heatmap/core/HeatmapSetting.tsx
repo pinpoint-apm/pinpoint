@@ -16,22 +16,31 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 export interface HeatmapSettingProps {
+  isRealtime?: boolean;
   className?: string;
   onApply?: (value: HeatmapSettingType) => void;
   onClose?: () => void;
   defaultValues?: HeatmapSettingType;
 }
 
-export const DefaultValue = { yMin: 0, yMax: 10000 };
+export const DefaultValue = {
+  yMin: 0,
+  yMax: 10000,
+  visualMapSuccessMax: 5000,
+  visualMapFailMax: 100,
+};
 
 const FormSchema = z.object({
   yMin: z.coerce.number().min(0),
   yMax: z.coerce.number().min(1),
+  visualMapSuccessMax: z.coerce.number().min(1).optional(),
+  visualMapFailMax: z.coerce.number().min(1).optional(),
 });
 
 export type HeatmapSettingType = z.infer<typeof FormSchema>;
 
 export const HeatmapSetting = ({
+  isRealtime,
   className,
   onApply,
   onClose,
@@ -50,6 +59,8 @@ export const HeatmapSetting = ({
     defaultValues: {
       yMin: defaultValues?.yMin,
       yMax: defaultValues?.yMax,
+      visualMapSuccessMax: defaultValues?.visualMapSuccessMax || DefaultValue.visualMapSuccessMax,
+      visualMapFailMax: defaultValues?.visualMapFailMax || DefaultValue.visualMapFailMax,
     },
   });
 
@@ -113,6 +124,52 @@ export const HeatmapSetting = ({
               </FormItem>
             )}
           />
+          {isRealtime && (
+            <>
+              <FormField
+                control={form.control}
+                name="visualMapSuccessMax"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs text-muted-foreground">
+                      VisualMap success max
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        className="w-24 h-7"
+                        onKeyDown={handleKeyDown}
+                        min={1}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="visualMapFailMax"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs text-muted-foreground">
+                      VisualMap fail max
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        className="w-24 h-7"
+                        onKeyDown={handleKeyDown}
+                        min={1}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
           <div className="flex justify-end gap-1 mt-6">
             <Button className="text-xs h-7" variant="outline" onClick={handleClickClose}>
               Cancel
