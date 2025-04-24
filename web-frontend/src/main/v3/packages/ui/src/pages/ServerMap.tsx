@@ -13,7 +13,7 @@ import {
   getFormattedDateRange,
   getRealtimePath,
 } from '@pinpoint-fe/ui/src/utils';
-import { useLocalStorage, useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import { useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { MdArrowBackIosNew, MdArrowForwardIos } from 'react-icons/md';
 import { ServerList } from '@pinpoint-fe/web/src/components/ServerList/ServerList';
 import { RxChevronRight } from 'react-icons/rx';
@@ -432,6 +432,10 @@ export const ServerMapPage = ({
                                 nodeData={currentTargetData as GetServerMap.NodeData}
                               />
                             </div>
+                          ) : !shouldHideScatter() ? (
+                            <div className="flex items-center h-12 py-2.5 px-4 gap-2">
+                              <ChartTypeButtons />
+                            </div>
                           ) : null}
                           {!shouldHideScatter() && (
                             <>
@@ -447,7 +451,7 @@ export const ServerMapPage = ({
                                   <ScatterChart node={serverMapCurrentTarget || application} />
                                 </div>
                               ) : (
-                                <div className="w-full pl-3 pt-5 pr-10 pb-8 aspect-[1.3]">
+                                <div className="w-full p-5 aspect-[1.3]">
                                   <Heatmap
                                     nodeData={
                                       (currentTargetData as GetServerMap.NodeData) || application
@@ -513,7 +517,11 @@ export const ServerMapPage = ({
                             </div>
                             <ScatterChartStatic
                               application={serverMapCurrentTarget!}
-                              data={scatterData.acc[currentServer?.agentId || '']}
+                              data={
+                                isScatterDataOutdated
+                                  ? []
+                                  : scatterData.acc[currentServer?.agentId || '']
+                              }
                               range={[dateRange.from.getTime(), dateRange.to.getTime()]}
                               selectedAgentId={currentServer?.agentId || ''}
                             />

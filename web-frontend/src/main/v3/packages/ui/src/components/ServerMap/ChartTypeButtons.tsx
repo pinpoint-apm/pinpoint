@@ -24,22 +24,22 @@ export const ChartTypeButtons = () => {
       <Button
         size="icon"
         className="rounded-r-none"
-        variant={chartType === 'scatter' ? 'default' : 'outline'}
-        onClick={() => {
-          setChartType('scatter');
-        }}
-      >
-        <PiChartScatterBold />
-      </Button>
-      <Button
-        size="icon"
-        className="rounded-l-none"
         variant={chartType === 'heatmap' ? 'default' : 'outline'}
         onClick={() => {
           setChartType('heatmap');
         }}
       >
         <AiOutlineTable />
+      </Button>
+      <Button
+        size="icon"
+        className="rounded-l-none"
+        variant={chartType === 'scatter' ? 'default' : 'outline'}
+        onClick={() => {
+          setChartType('scatter');
+        }}
+      >
+        <PiChartScatterBold />
       </Button>
     </div>
   );
