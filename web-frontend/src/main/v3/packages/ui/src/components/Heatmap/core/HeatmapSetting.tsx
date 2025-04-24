@@ -153,7 +153,7 @@ export const HeatmapSetting = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-xs text-muted-foreground">
-                      VisualMap fail max
+                      VisualMap failed max
                     </FormLabel>
                     <FormControl>
                       <Input

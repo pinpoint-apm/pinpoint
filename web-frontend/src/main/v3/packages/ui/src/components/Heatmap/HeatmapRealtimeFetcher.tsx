@@ -12,6 +12,7 @@ import {
   GetServerMap,
 } from '@pinpoint-fe/ui/src/constants';
 import { subMinutes, subSeconds, addSeconds } from 'date-fns';
+import { last } from 'lodash';
 
 const DefaultAxisY = [0, 10000];
 
@@ -40,7 +41,7 @@ export const HeatmapRealtimeFetcher = ({
   ...props
 }: HeatmapRealtimeFetcherProps) => {
   const now = new Date();
-  const lastToDate = now; // 마지막 호출 시간을 기억해서 from~to 보다 전이면 "lastToDate ~ new Date()" 로 호출
+  const lastToTimestamp = React.useRef<number>(); // 마지막 호출 시간을 기억해서 from~to 보다 전이면 "lastToDate ~ new Date()" 로 호출
   const [realtimeDateRange, setRealtimeDateRange] = React.useState({
     from: subMinutes(now, 5),
     to: now,
@@ -84,7 +85,10 @@ export const HeatmapRealtimeFetcher = ({
   React.useEffect(() => {
     setParameters({
       applicationName: nodeData?.applicationName,
-      from: realtimeDateRange.from.getTime(),
+      from:
+        !!lastToTimestamp.current && lastToTimestamp.current < realtimeDateRange.from.getTime()
+          ? lastToTimestamp.current
+          : realtimeDateRange.from.getTime(),
       to: realtimeDateRange.to.getTime(),
       minElapsedTime: Number(setting?.yMin) || DefaultAxisY[0],
       maxElapsedTime: Number(setting?.yMax) || DefaultAxisY[1],
@@ -100,6 +104,14 @@ export const HeatmapRealtimeFetcher = ({
   ]);
 
   React.useEffect(() => {
+    if (!data) {
+      return;
+    }
+
+    const newLastTimeStamp = data?.heatmapData?.sort((a, b) => b.timestamp - a.timestamp)?.[0]
+      ?.timestamp;
+    lastToTimestamp.current = newLastTimeStamp;
+
     setRealtimeData((prevData) => {
       if (!prevData) {
         return data;

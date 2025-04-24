@@ -16,7 +16,6 @@ import {
   getFormattedDateRange,
   getHeatmapFullScreenPath,
   getHeatmapFullScreenRealtimePath,
-  getScatterFullScreenRealtimePath,
   getTransactionListPath,
   getTranscationListQueryString,
   useServerMapSearchParameters,
@@ -27,17 +26,6 @@ import { BsGearFill } from 'react-icons/bs';
 import { CgSpinner } from 'react-icons/cg';
 import { HeatmapSetting, HeatmapSettingType } from './HeatmapSetting';
 import { HeatmapSkeleton } from '../HeatmapSkeleton';
-
-const colorSteps = 10;
-export const HeatmapColor = {
-  success: Array.from({ length: colorSteps }, (_, i) => {
-    return colors.green[(i + 1) * 100 === 1000 ? 950 : (i + 1) * 100];
-  }),
-  fail: Array.from({ length: colorSteps }, (_, i) => {
-    return colors.red[(i + 1) * 100 === 1000 ? 950 : (i + 1) * 100];
-  }),
-  selected: colors.yellow[200],
-};
 
 export type HeatmapChartCoreProps = {
   isRealtime?: boolean;

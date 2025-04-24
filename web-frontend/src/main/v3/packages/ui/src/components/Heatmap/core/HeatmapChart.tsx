@@ -122,7 +122,7 @@ const HeatmapChart = React.forwardRef(
 
     // data 변경 시 업데이트
     React.useEffect(() => {
-      if (!chartInstanceRef.current || !data) return;
+      if (!chartInstanceRef.current) return;
 
       let successMaxCount = 0;
       let failMaxCount = 0;
@@ -148,6 +148,7 @@ const HeatmapChart = React.forwardRef(
         });
       });
 
+
       const xAxisData = heatmapData?.map((row) => String(row.timestamp)) || [];
       const yAxisData =
         heatmapData?.[heatmapData?.length - 1].cellDataList
@@ -155,12 +156,12 @@ const HeatmapChart = React.forwardRef(
           ?.filter((yValue) => Number(yValue) >= setting.yMin && Number(yValue) <= setting.yMax) ||
         [];
       const totalSuccessCount = data?.summary?.totalSuccessCount || 0;
-      const totalFailedCount = data?.summary?.totalFailCount || 0;
+      const totalFailCount = data?.summary?.totalFailCount || 0;
 
       chartInstanceRef.current.setOption({
         grid: {
           left: setting.yMax.toString().length * 10,
-          right: '13px',
+          right: '16px',
           top: '20px',
           bottom: '100px',
         },
@@ -213,7 +214,7 @@ const HeatmapChart = React.forwardRef(
             seriesIndex: 0,
             orient: 'horizontal',
             itemWidth: 12,
-            right: '45%',
+            right: '48%',
             bottom: '0%',
             hoverLink: false,
             formatter: (value: any) => {
@@ -236,7 +237,7 @@ const HeatmapChart = React.forwardRef(
             seriesIndex: 1,
             orient: 'horizontal',
             itemWidth: 12,
-            left: '55%',
+            left: '56%',
             bottom: '0%',
             hoverLink: false,
             formatter: (value: any) => {
@@ -253,6 +254,7 @@ const HeatmapChart = React.forwardRef(
             id: 'cover',
             show: false,
             seriesIndex: 2,
+            left: '-100',
             inRange: {
               color: 'transparent',
             },
@@ -269,7 +271,7 @@ const HeatmapChart = React.forwardRef(
             const { data } = params;
             const [timestamp, elapsedTime] = data;
 
-            const failedCount = failData.find((item: [string, string, number]) => {
+            const failCount = failData.find((item: [string, string, number]) => {
               return item[0] === timestamp && item[1] === elapsedTime;
             })?.[2];
 
@@ -280,9 +282,9 @@ const HeatmapChart = React.forwardRef(
             return `
 							<div style="display: flex; flex-direction: column; gap: 5px; padding: 2px;">
 								<div style="margin-bottom: 5px;"><strong>${defaultTickFormatter(Number(timestamp))}</strong></div>
-								${['success', 'fail']
+								${['success', 'failed']
                   .map((type) => {
-                    const count = type === 'success' ? successCount : failedCount;
+                    const count = type === 'success' ? successCount : failCount;
                     const color = colors[type === 'success' ? 'green' : 'red'][500];
 
                     return `
@@ -301,25 +303,79 @@ const HeatmapChart = React.forwardRef(
         },
         graphic: [
           {
-            type: 'text',
-            bottom: 38,
-            left: 'center',
-            style: {
-              text: `Success {boldSuccess|${Math.floor(totalSuccessCount).toLocaleString()}}    Failed {boldFailed|${Math.floor(totalFailedCount).toLocaleString()}}`,
-              fontSize: 15,
-              fill: colors.gray[500],
-              rich: {
-                boldSuccess: {
-                  fontWeight: 'bold',
-                  fill: colors.green[500],
-                },
-                boldFailed: {
-                  fontWeight: 'bold',
-                  fill: colors.red[500],
-                },
+            type: 'group',
+            right: '55%',
+            bottom: 40,
+            children: [
+              {
+                type: 'circle',
+                left: 0,
+                top: 0,
+                shape: { r: 6 },
+                style: { fill: '#34D399' }
               },
-            },
+              {
+                type: 'text',
+                left: 14,
+                top: 0,
+                style: {
+                  text: 'Success',
+                  fontSize: 14,
+                  fill: '#6B7280',
+                  fontFamily: 'sans-serif'
+                }
+              },
+              {
+                type: 'text',
+                top: -1,
+                left: 65,
+                style: {
+                  text: `${Math.floor(totalSuccessCount).toLocaleString()}`,
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                  fill: '#111827',
+                  fontFamily: 'sans-serif'
+                }
+              }
+            ]
           },
+          {
+            type: 'group',
+            left: '65%',
+            bottom: 40,
+            children: [
+              {
+                type: 'circle',
+                left: 0,
+                top: 0,
+                shape: { r: 6 },
+                style: { fill: '#EF4444' }
+              },
+              {
+                type: 'text',
+                left: 14,
+                top: 0,
+                style: {
+                  text: 'Failed',
+                  fontSize: 14,
+                  fill: '#6B7280',
+                  fontFamily: 'sans-serif'
+                }
+              },
+              {
+                type: 'text',
+                left: 55,
+                top: -1,
+                style: {
+                  text: `${Math.floor(totalFailCount).toLocaleString()}`,
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                  fill: '#111827',
+                  fontFamily: 'sans-serif'
+                }
+              }
+            ]
+          }
         ],
         series: [
           {
