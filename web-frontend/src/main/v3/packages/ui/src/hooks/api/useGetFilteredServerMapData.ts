@@ -31,7 +31,6 @@ export const useGetFilteredServerMapData = (isPaused: boolean) => {
     originTo: to,
     calleeRange: 1,
     callerRange: 1,
-    v: 4,
     limit: 5000,
     xGroupUnit: 987,
     yGroupUnit: 57,
