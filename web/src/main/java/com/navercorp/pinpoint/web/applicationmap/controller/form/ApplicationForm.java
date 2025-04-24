@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.web.applicationmap.controller;
+package com.navercorp.pinpoint.web.applicationmap.controller.form;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import jakarta.validation.constraints.NotBlank;
