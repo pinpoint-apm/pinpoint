@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParameters;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackParametersBuilder;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
@@ -86,7 +88,10 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         if (config.isStreamsEnable()) {
-            transformTemplate.transform("org.apache.kafka.streams.processor.internals.StreamTask", StreamTaskTransform.class, va(config.isTraceStreamProcess()), va(boolean.class));
+            TransformCallbackParameters parameters = TransformCallbackParametersBuilder.newBuilder()
+                    .addBoolean(config.isTraceStreamProcess())
+                    .toParameters();
+            transformTemplate.transform("org.apache.kafka.streams.processor.internals.StreamTask", StreamTaskTransform.class, parameters);
             transformTemplate.transform("org.apache.kafka.streams.processor.internals.RecordCollectorImpl", RecordCollectorTransform.class);
             transformTemplate.transform("org.apache.kafka.streams.processor.internals.RecordDeserializer", RecordDeserializerTransform.class);
             transformTemplate.transform("org.apache.kafka.streams.processor.internals.StampedRecord", StampedRecordTransform.class);
@@ -183,7 +188,7 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
     public static class StreamTaskTransform implements TransformCallback {
         private final boolean traceStreamProcess;
 
-        public StreamTaskTransform(boolean traceStreamProcess) {
+        public StreamTaskTransform(Boolean traceStreamProcess) {
             this.traceStreamProcess = traceStreamProcess;
         }
 
