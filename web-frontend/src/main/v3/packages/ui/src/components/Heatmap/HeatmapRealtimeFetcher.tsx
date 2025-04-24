@@ -2,7 +2,7 @@ import React from 'react';
 import HeatmapChartCore, { HeatmapChartCoreProps } from './core/HeatmapChartCore';
 import {
   useServerMapSearchParameters,
-  useStoragedAxisY,
+  useStoragedSetting,
   useGetHeatmapAppData,
 } from '@pinpoint-fe/ui/src/hooks';
 import {
@@ -69,14 +69,14 @@ export const HeatmapRealtimeFetcher = ({
     });
   }, [nodeData?.applicationName]);
 
-  const [y] = useStoragedAxisY(APP_SETTING_KEYS.HEATMAP_Y_AXIS_MIN_MAX, DefaultAxisY);
+  const [setting] = useStoragedSetting(APP_SETTING_KEYS.HEATMAP_SETTING);
 
   const [parameters, setParameters] = React.useState<GetHeatmapAppData.Parameters>({
     applicationName: nodeData?.applicationName,
     from: realtimeDateRange.from.getTime(),
     to: realtimeDateRange.to.getTime(),
-    minElapsedTime: Number(y?.[0]) || DefaultAxisY[0],
-    maxElapsedTime: Number(y?.[1]) || DefaultAxisY[1],
+    minElapsedTime: Number(setting?.yMin) || DefaultAxisY[0],
+    maxElapsedTime: Number(setting?.yMax) || DefaultAxisY[1],
     agentId: agentId,
   });
   const { data, isLoading } = useGetHeatmapAppData(parameters);
@@ -86,15 +86,15 @@ export const HeatmapRealtimeFetcher = ({
       applicationName: nodeData?.applicationName,
       from: realtimeDateRange.from.getTime(),
       to: realtimeDateRange.to.getTime(),
-      minElapsedTime: Number(y?.[0]) || DefaultAxisY[0],
-      maxElapsedTime: Number(y?.[1]) || DefaultAxisY[1],
+      minElapsedTime: Number(setting?.yMin) || DefaultAxisY[0],
+      maxElapsedTime: Number(setting?.yMax) || DefaultAxisY[1],
       agentId: agentId,
     });
   }, [
     realtimeDateRange.from.getTime(),
     realtimeDateRange.to.getTime(),
-    y?.[0],
-    y?.[1],
+    setting?.yMin,
+    setting?.yMax,
     nodeData?.applicationName,
     agentId,
   ]);
