@@ -44,7 +44,7 @@ export const useGetFilteredServerMapData = (isPaused: boolean) => {
   });
   const queryString = getQueryString(queryParams);
   const { data, isLoading } = useSWR<FilteredMap.Response>(
-    [!isPaused && queryString ? `${END_POINTS.FILTERED_SERVER_MAP_DATA}${queryString}` : null],
+    !isPaused && queryString ? `${END_POINTS.FILTERED_SERVER_MAP_DATA}${queryString}` : null,
     {
       ...swrConfigs,
       keepPreviousData: true,
