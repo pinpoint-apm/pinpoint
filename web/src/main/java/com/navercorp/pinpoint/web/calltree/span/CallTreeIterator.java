@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class CallTreeIterator implements Iterator<CallTreeNode> {
 
-    private List<CallTreeNode> nodes = new ArrayList<>();
+    private final List<CallTreeNode> nodes = new ArrayList<>();
     private int index = -1;
 
     public CallTreeIterator(final CallTreeNode root) {
@@ -79,7 +79,7 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         index++;
 
         final Align align = node.getAlign();
-        if(align.isMeta()) {
+        if (align.isMeta()) {
             align.setGap(0);
             align.setDepth(node.getDepth());
             align.setExecutionMilliseconds(0);

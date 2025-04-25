@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web.view.tree;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.collect.Iterators;
 
 import java.util.Iterator;
 import java.util.List;
@@ -27,9 +28,7 @@ public class SimpleTreeView<I, C> implements TreeView<TreeNode<C>> {
 
     @Override
     public Iterator<TreeNode<C>> nodes() {
-        return nodeList.stream()
-                .map(this::toTreeNode)
-                .iterator();
+        return Iterators.transform(nodeList.iterator(), this::toTreeNode);
     }
 
     private TreeNode<C> toTreeNode(I item) {
