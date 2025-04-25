@@ -21,18 +21,13 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapView;
-import com.navercorp.pinpoint.web.applicationmap.SimpleApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
-import com.navercorp.pinpoint.web.applicationmap.link.Link;
-import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
-import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.calltree.span.TraceState;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -47,31 +42,26 @@ public class TransactionInfoViewModel {
 
     private final TransactionId transactionId;
     private final long spanId;
-    private final Collection<Node> nodes;
-    private final Collection<Link> links;
     private final RecordSet recordSet;
     private final TraceState.State completeState;
 
     private final LogLinkView logLinkView;
-    private final HyperLinkFactory hyperLinkFactory;
-    private final TimeHistogramFormat timeHistogramFormat;
+    private final ApplicationMapView mapView;
 
     public TransactionInfoViewModel(TransactionId transactionId, long spanId,
-                                    Collection<Node> nodes, Collection<Link> links,
+                                    ApplicationMapView mapView,
                                     RecordSet recordSet, TraceState.State state,
                                     LogLinkView logLinkView,
                                     HyperLinkFactory hyperLinkFactory,
                                     TimeHistogramFormat timeHistogramFormat) {
         this.transactionId = transactionId;
         this.spanId = spanId;
-        this.nodes = Objects.requireNonNullElseGet(nodes, Collections::emptyList);
-        this.links = Objects.requireNonNullElseGet(links, Collections::emptyList);
+
+        this.mapView = Objects.requireNonNull(mapView, "mapView");
 
         this.recordSet = recordSet;
         this.completeState = state;
         this.logLinkView = Objects.requireNonNull(logLinkView, "logLinkView");
-        this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
-        this.timeHistogramFormat = Objects.requireNonNull(timeHistogramFormat, "timeHistogramFormat");
     }
 
     @JsonProperty("uri")
@@ -160,10 +150,7 @@ public class TransactionInfoViewModel {
 
     @JsonProperty("applicationMapData")
     public ApplicationMapView getApplicationMapData() {
-
-        SimpleApplicationMap map = new SimpleApplicationMap(nodes, links);
-
-        return new ApplicationMapView(map, MapViews.ofDetailed(), hyperLinkFactory, timeHistogramFormat);
+        return mapView;
     }
 
     enum Field {

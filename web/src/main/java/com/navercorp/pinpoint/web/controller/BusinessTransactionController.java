@@ -20,8 +20,12 @@ import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapView;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapViewV3;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
+import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapServiceOption;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
@@ -60,7 +64,7 @@ import java.util.function.Predicate;
  * @author Taejin Koo
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping(path = {"/api", "/api/trace"})
 @Validated
 public class BusinessTransactionController {
     private final Logger logger = LogManager.getLogger(this.getClass());
@@ -91,6 +95,20 @@ public class BusinessTransactionController {
         this.logLinkBuilder = Objects.requireNonNull(logLinkBuilder, "logLinkBuilder");
     }
 
+    @GetMapping(value = "/transaction")
+    public TransactionInfoViewModel getTrace(
+            @RequestParam("traceId") @NotBlank String traceId,
+            @RequestParam(value = "focusTimestamp", required = false, defaultValue = DEFAULT_FOCUS_TIMESTAMP)
+            @PositiveOrZero
+            long focusTimestamp,
+            @RequestParam(value = "agentId", required = false) String agentId,
+            @RequestParam(value = "spanId", required = false, defaultValue = DEFAULT_SPAN_ID) long spanId,
+            @RequestParam(value = "useStatisticsAgentState", required = false, defaultValue = "false")
+            boolean useStatisticsAgentState
+    ) {
+        return getTransaction0(traceId, focusTimestamp, agentId, spanId, useStatisticsAgentState, TimeHistogramFormat.V3);
+    }
+
     /**
      * info lookup for a selected transaction
      *
@@ -111,8 +129,18 @@ public class BusinessTransactionController {
             @RequestParam(value = "useLoadHistogramFormat", required = false, defaultValue = "false")
             boolean useLoadHistogramFormat
     ) {
-        logger.debug("GET /transactionInfo params {traceId={}, focusTimestamp={}, agentId={}, spanId={}}",
-                traceId, focusTimestamp, agentId, spanId);
+        TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        return getTransaction0(traceId, focusTimestamp, agentId, spanId, useStatisticsAgentState, format);
+    }
+
+    private TransactionInfoViewModel getTransaction0(String traceId,
+                                                     long focusTimestamp,
+                                                     String agentId,
+                                                     long spanId,
+                                                     boolean useStatisticsAgentState,
+                                                     TimeHistogramFormat format) {
+        logger.debug("GET /trace params {traceId={}, focusTimestamp={}, agentId={}, spanId={}, format={}}",
+                traceId, focusTimestamp, agentId, spanId, format);
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
         final ColumnGetCount columnGetCount = ColumnGetCount.of(callstackSelectSpansLimit);
 
@@ -122,16 +150,15 @@ public class BusinessTransactionController {
         final CallTreeIterator callTreeIterator = spanResult.callTree();
 
         // application map
-        final FilteredMapServiceOption.Builder optionBuilder =
-                new FilteredMapServiceOption.Builder(transactionId, columnGetCount);
-        final FilteredMapServiceOption option =
-                optionBuilder.setUseStatisticsAgentState(useStatisticsAgentState).build();
+        final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(transactionId, columnGetCount)
+                .setUseStatisticsAgentState(useStatisticsAgentState)
+                .build();
+
         final ApplicationMap map = filteredMapService.selectApplicationMap(option);
 
         final RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
 
 
-        TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
         return newTransactionInfo(spanId, transactionId, spanResult, map, recordSet, format);
     }
 
@@ -147,18 +174,28 @@ public class BusinessTransactionController {
                 recordSet.getApplicationName(),
                 recordSet.getStartTime()
         );
+        ApplicationMapView mapView = new ApplicationMapView(map, MapViews.ofDetailed(), hyperLinkFactory, format);
+//        getApplicationMap(map, format);
 
         return new TransactionInfoViewModel(
                 transactionId,
                 spanId,
-                map.getNodes(),
-                map.getLinks(),
+                mapView,
                 recordSet,
                 spanResult.traceState(),
                 logLinkView,
                 hyperLinkFactory,
                 format
         );
+    }
+
+    private Object getApplicationMap(ApplicationMap map, TimeHistogramFormat format) {
+        if (format == TimeHistogramFormat.V3) {
+            TimeWindow timeWindow = null;
+            return new ApplicationMapViewV3(map, timeWindow, MapViews.ofDetailed(), hyperLinkFactory);
+        }
+
+        return new ApplicationMapView(map, MapViews.ofDetailed(), hyperLinkFactory, format);
     }
 
     /**
