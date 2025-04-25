@@ -129,7 +129,7 @@ public class FilteredMapController {
         return new FilterMapView(applicationMapView, scatterDataMapView, lastScanTime);
     }
 
-    @GetMapping(value = "/filterServer")
+    @GetMapping(value = "/filterServerMap")
     public FilterMapViewV3 getFilterServer(
             @Valid @ModelAttribute
             ApplicationForm appForm,

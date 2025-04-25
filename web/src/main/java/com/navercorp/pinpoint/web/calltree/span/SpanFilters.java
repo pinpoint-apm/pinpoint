@@ -3,7 +3,7 @@ package com.navercorp.pinpoint.web.calltree.span;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.web.controller.BusinessTransactionController;
+import com.navercorp.pinpoint.web.controller.TransactionController;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,8 +12,8 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 public class SpanFilters {
-    private static final long DEFAULT_FOCUS_TIMESTAMP = Long.parseLong(BusinessTransactionController.DEFAULT_FOCUS_TIMESTAMP);
-    private static final long DEFAULT_SPAN_ID = Long.parseLong(BusinessTransactionController.DEFAULT_SPAN_ID);
+    private static final long DEFAULT_FOCUS_TIMESTAMP = Long.parseLong(TransactionController.DEFAULT_FOCUS_TIMESTAMP);
+    private static final long DEFAULT_SPAN_ID = Long.parseLong(TransactionController.DEFAULT_SPAN_ID);
 
 
     public static Predicate<SpanBo> spanFilter(long spanId, String agentId, long focusTimestamp) {
