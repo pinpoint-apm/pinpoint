@@ -32,8 +32,7 @@ import java.util.Objects;
  */
 public class FilteredMapServiceOption {
     private final List<TransactionId> transactionIdList;
-    private final Range originalRange;
-    private final Range scanRange;
+    private final Range range;
     private final int xGroupUnit;
     private final int yGroupUnit;
     private final Filter<List<SpanBo>> filter;
@@ -42,8 +41,7 @@ public class FilteredMapServiceOption {
 
     public FilteredMapServiceOption(final Builder builder) {
         this.transactionIdList = builder.transactionIdList;
-        this.originalRange = builder.originalRange;
-        this.scanRange = null;
+        this.range = builder.range;
         this.xGroupUnit = builder.xGroupUnit;
         this.yGroupUnit = builder.yGroupUnit;
         this.filter = builder.filter;
@@ -55,19 +53,15 @@ public class FilteredMapServiceOption {
         return transactionIdList;
     }
 
-    public Range getOriginalRange() {
-        return originalRange;
+    public Range getRange() {
+        return range;
     }
 
-    public Range getScanRange() {
-        return scanRange;
-    }
-
-    public int getxGroupUnit() {
+    public int getXGroupUnit() {
         return xGroupUnit;
     }
 
-    public int getyGroupUnit() {
+    public int getYGroupUnit() {
         return yGroupUnit;
     }
 
@@ -87,8 +81,7 @@ public class FilteredMapServiceOption {
     public String toString() {
         return "FilteredMapServiceOption{" +
                 "transactionIdList=" + transactionIdList +
-                ", originalRange=" + originalRange +
-                ", scanRange=" + scanRange +
+                ", range=" + range +
                 ", xGroupUnit=" + xGroupUnit +
                 ", yGroupUnit=" + yGroupUnit +
                 ", filter=" + filter +
@@ -98,7 +91,7 @@ public class FilteredMapServiceOption {
 
     public static class Builder {
         private final List<TransactionId> transactionIdList;
-        private final Range originalRange;
+        private final Range range;
         private int xGroupUnit;
         private int yGroupUnit;
         private final Filter<List<SpanBo>> filter;
@@ -106,18 +99,18 @@ public class FilteredMapServiceOption {
 
         private boolean useStatisticsAgentState;
 
-        public Builder(TransactionId transactionId, ColumnGetCount columnGetCount) {
+        public Builder(TransactionId transactionId, Range range, ColumnGetCount columnGetCount) {
             Objects.requireNonNull(transactionId, "transactionId");
             this.transactionIdList = Collections.singletonList(transactionId);
+            this.range = Objects.requireNonNull(range, "scanRange");
             this.columnGetCount = columnGetCount;
-            this.originalRange = Range.between(-1, -1);
             this.filter = Filter.acceptAllFilter();
         }
 
-        public Builder(List<TransactionId> transactionIdList, Range originalRange, int xGroupUnit, int yGroupUnit, Filter<List<SpanBo>> filter) {
+        public Builder(List<TransactionId> transactionIdList, Range range, int xGroupUnit, int yGroupUnit, Filter<List<SpanBo>> filter) {
             this.transactionIdList = Objects.requireNonNull(transactionIdList, "transactionIdList");
             this.filter = Objects.requireNonNull(filter, "filter");
-            this.originalRange = originalRange;
+            this.range = Objects.requireNonNull(range, "range");
             this.xGroupUnit = xGroupUnit;
             this.yGroupUnit = yGroupUnit;
         }

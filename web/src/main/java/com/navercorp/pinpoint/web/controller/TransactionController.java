@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapView;
@@ -148,18 +149,26 @@ public class TransactionController {
         // select spans
         final SpanResult spanResult = this.spanService.selectSpan(transactionId, spanMatchFilter, columnGetCount);
         final CallTreeIterator callTreeIterator = spanResult.callTree();
+        final RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
+
+        TimeWindow timeWindow = newTimeWindow(recordSet);
+        Range scanRange = timeWindow.getWindowRange();
 
         // application map
-        final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(transactionId, columnGetCount)
+        final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(transactionId, scanRange, columnGetCount)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 
         final ApplicationMap map = filteredMapService.selectApplicationMap(option);
 
-        final RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
+        return newTransactionInfo(spanId, transactionId, spanResult, map, recordSet, timeWindow, format);
+    }
 
-
-        return newTransactionInfo(spanId, transactionId, spanResult, map, recordSet, format);
+    private TimeWindow newTimeWindow(RecordSet recordSet) {
+        long startTime = recordSet.getStartTime();
+        long endTime = recordSet.getEndTime();
+        Range between = Range.between(startTime, endTime);
+        return new TimeWindow(between);
     }
 
     private TransactionInfoViewModel newTransactionInfo(long spanId,
@@ -167,6 +176,7 @@ public class TransactionController {
                                                         SpanResult spanResult,
                                                         ApplicationMap map,
                                                         RecordSet recordSet,
+                                                        TimeWindow timeWindow,
                                                         TimeHistogramFormat format) {
         final LogLinkView logLinkView = logLinkBuilder.build(
                 transactionId,
@@ -174,8 +184,8 @@ public class TransactionController {
                 recordSet.getApplicationName(),
                 recordSet.getStartTime()
         );
-        ApplicationMapView mapView = new ApplicationMapView(map, MapViews.ofDetailed(), hyperLinkFactory, format);
-//        getApplicationMap(map, format);
+
+        Object mapView = getApplicationMap(map, timeWindow, format);
 
         return new TransactionInfoViewModel(
                 transactionId,
@@ -183,18 +193,14 @@ public class TransactionController {
                 mapView,
                 recordSet,
                 spanResult.traceState(),
-                logLinkView,
-                hyperLinkFactory,
-                format
+                logLinkView
         );
     }
 
-    private Object getApplicationMap(ApplicationMap map, TimeHistogramFormat format) {
+    private Object getApplicationMap(ApplicationMap map, TimeWindow timeWindow, TimeHistogramFormat format) {
         if (format == TimeHistogramFormat.V3) {
-            TimeWindow timeWindow = null;
             return new ApplicationMapViewV3(map, timeWindow, MapViews.ofDetailed(), hyperLinkFactory);
         }
-
         return new ApplicationMapView(map, MapViews.ofDetailed(), hyperLinkFactory, format);
     }
 

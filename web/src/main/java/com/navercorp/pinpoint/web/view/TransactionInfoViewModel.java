@@ -20,10 +20,7 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
-import com.navercorp.pinpoint.web.applicationmap.ApplicationMapView;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.calltree.span.TraceState;
-import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 
@@ -46,14 +43,12 @@ public class TransactionInfoViewModel {
     private final TraceState.State completeState;
 
     private final LogLinkView logLinkView;
-    private final ApplicationMapView mapView;
+    private final Object mapView;
 
     public TransactionInfoViewModel(TransactionId transactionId, long spanId,
-                                    ApplicationMapView mapView,
+                                    Object mapView,
                                     RecordSet recordSet, TraceState.State state,
-                                    LogLinkView logLinkView,
-                                    HyperLinkFactory hyperLinkFactory,
-                                    TimeHistogramFormat timeHistogramFormat) {
+                                    LogLinkView logLinkView) {
         this.transactionId = transactionId;
         this.spanId = spanId;
 
@@ -149,7 +144,7 @@ public class TransactionInfoViewModel {
     }
 
     @JsonProperty("applicationMapData")
-    public ApplicationMapView getApplicationMapData() {
+    public Object getApplicationMapData() {
         return mapView;
     }
 
