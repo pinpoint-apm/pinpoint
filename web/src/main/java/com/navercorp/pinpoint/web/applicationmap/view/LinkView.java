@@ -12,7 +12,6 @@ import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
@@ -97,11 +96,15 @@ public class LinkView {
             //agent histogram
             if (activeView.isDetailed()) {
                 // data showing how agents call each of their respective links
-                writeAgentHistogram("sourceHistogram", link.getSourceList(), jgen);
-                writeAgentHistogram("targetHistogram", link.getTargetList(), jgen);
+                final Collection<AgentHistogram> sourceList = link.getSourceList().getAgentHistogramList();
+                writeAgentHistogram("sourceHistogram", sourceList, jgen);
+                writeAgentResponseStatistics("sourceResponseStatistics", sourceList, jgen);
+
+                final Collection<AgentHistogram> targetList = link.getTargetList().getAgentHistogramList();
+                writeAgentHistogram("targetHistogram", targetList, jgen);
+                writeAgentResponseStatistics("targetResponseStatistics", targetList, jgen);
+
                 writeSourceAgentTimeSeriesHistogram(linkView, jgen);
-                writeAgentResponseStatistics("sourceResponseStatistics", link.getSourceList(), jgen);
-                writeAgentResponseStatistics("targetResponseStatistics", link.getTargetList(), jgen);
             }
 
 //        String state = link.getLinkState();
@@ -160,20 +163,20 @@ public class LinkView {
             jgen.writeObject(sourceApplicationTimeSeriesHistogram);
         }
 
-        private void writeAgentResponseStatistics(String fieldName, AgentHistogramList agentHistogramList, JsonGenerator jgen) throws IOException {
+        private void writeAgentResponseStatistics(String fieldName, Collection<AgentHistogram> agentHistogramList, JsonGenerator jgen) throws IOException {
             jgen.writeFieldName(fieldName);
             jgen.writeStartObject();
-            for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
+            for (AgentHistogram agentHistogram : agentHistogramList) {
                 jgen.writeFieldName(agentHistogram.getId());
                 jgen.writeObject(ResponseTimeStatics.fromHistogram(agentHistogram.getHistogram()));
             }
             jgen.writeEndObject();
         }
 
-        private void writeAgentHistogram(String fieldName, AgentHistogramList agentHistogramList, JsonGenerator jgen) throws IOException {
+        private void writeAgentHistogram(String fieldName, Collection<AgentHistogram> agentHistogramList, JsonGenerator jgen) throws IOException {
             jgen.writeFieldName(fieldName);
             jgen.writeStartObject();
-            for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
+            for (AgentHistogram agentHistogram : agentHistogramList) {
                 jgen.writeFieldName(agentHistogram.getId());
                 jgen.writeObject(agentHistogram.getHistogram());
             }
