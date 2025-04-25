@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.applicationmap;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.navercorp.pinpoint.web.applicationmap.view.FilteredHistogramView;
 import com.navercorp.pinpoint.web.applicationmap.view.ScatterDataMapView;
 
@@ -41,7 +40,7 @@ public class FilterMapViewV3 {
                            long lastFetchedTimestamp) {
         this.applicationMapView = Objects.requireNonNull(applicationMapView, "applicationMapView");
         this.scatterDataMapView = Objects.requireNonNull(scatterDataMapView, "scatterDataMapView");
-        this.filteredHistogramView = Objects.requireNonNull(filteredHistogramView, "filteredHistogramView");
+        this.filteredHistogramView = filteredHistogramView;
         this.lastFetchedTimestamp = lastFetchedTimestamp;
     }
 
@@ -58,9 +57,8 @@ public class FilterMapViewV3 {
         return lastFetchedTimestamp;
     }
 
-    @JsonUnwrapped
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public FilteredHistogramView getFilteredHistogram() {
+    public FilteredHistogramView getResponseTimeHistogram() {
         return filteredHistogramView;
     }
 }

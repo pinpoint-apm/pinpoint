@@ -36,7 +36,6 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapServiceOption;
-import com.navercorp.pinpoint.web.applicationmap.view.FilteredHistogramView;
 import com.navercorp.pinpoint.web.applicationmap.view.ScatterDataMapView;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
@@ -168,8 +167,8 @@ public class FilteredMapController {
         TimeWindow timeWindow = new TimeWindow(scannerRange);
         ApplicationMapViewV3 applicationMapView = new ApplicationMapViewV3(map.getApplicationMap(), timeWindow, MapViews.ofDetailed(), hyperLinkFactory);
         ScatterDataMapView scatterDataMapView = new ScatterDataMapView(map.getScatterDataMap());
-        FilteredHistogramView filteredHistogramView = new FilteredHistogramView(map.getApplicationMap(), hyperLinkFactory);
-        return new FilterMapViewV3(applicationMapView, scatterDataMapView, filteredHistogramView, lastScanTime);
+//        FilteredHistogramView filteredHistogramView = new FilteredHistogramView(map.getApplicationMap(), timeWindow, hyperLinkFactory);
+        return new FilterMapViewV3(applicationMapView, scatterDataMapView, null, lastScanTime);
     }
 
     private FilteredMapServiceOption newFilteredOption(List<TransactionId> transactionIdList,

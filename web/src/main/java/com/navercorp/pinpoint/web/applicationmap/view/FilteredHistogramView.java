@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web.applicationmap.view;
 
 import com.google.common.collect.Iterators;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
@@ -19,11 +20,17 @@ import java.util.Objects;
 public class FilteredHistogramView {
 
     private final ApplicationMap applicationMap;
+    private final TimeWindow timeWindow;
     private final HyperLinkFactory hyperLinkFactory;
 
-    public FilteredHistogramView(ApplicationMap applicationMap, HyperLinkFactory hyperLinkFactory) {
-        this.applicationMap = applicationMap;
+    public FilteredHistogramView(ApplicationMap applicationMap, TimeWindow timeWindow, HyperLinkFactory hyperLinkFactory) {
+        this.applicationMap = Objects.requireNonNull(applicationMap, "applicationMap");
+        this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
+    }
+
+    public List<Long> getTimestamp() {
+        return timeWindow.getTimeseriesWindows();
     }
 
     public Iterator<ServerHistogramView> getNodeServerHistogramData() {
@@ -48,7 +55,7 @@ public class FilteredHistogramView {
         NodeHistogram nodeHistogram = node.getNodeHistogram();
         Histogram histogram = nodeHistogram.getApplicationHistogram();
         List<TimeHistogram> histogramList = nodeHistogram.getApplicationTimeHistogram().getHistogramList();
-        return new HistogramView(nodeName, histogram, histogramList);
+        return new HistogramView(nodeName, histogram, histogramList, false);
     }
 
     public Iterator<HistogramView> getLinkHistogramData() {
@@ -60,7 +67,7 @@ public class FilteredHistogramView {
         String linkName = link.getLinkName().getName();
         Histogram histogram = link.getHistogram();
         List<TimeHistogram> histogramList = link.getLinkApplicationTimeHistogram().getHistogramList();
-        return new HistogramView(linkName, histogram, histogramList);
+        return new HistogramView(linkName, histogram, histogramList, false);
     }
 
 }
