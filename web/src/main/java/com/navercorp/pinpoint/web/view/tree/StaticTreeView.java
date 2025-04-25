@@ -19,7 +19,7 @@ public class StaticTreeView<C> implements TreeView<C> {
     @JsonValue
     @JsonUnwrapped
     public Iterator<C> nodes() {
-        return nodeList.stream().iterator();
+        return nodeList.iterator();
     }
 
     @Override
