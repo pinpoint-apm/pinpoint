@@ -131,7 +131,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
     public ApplicationMap selectApplicationMap(FilteredMapServiceOption option) {
         final List<List<SpanBo>> filterList = selectFilteredSpan(option.getTransactionIdList(), option.getFilter(), option.getColumnGetCount());
-        FilteredMapBuilder filteredMapBuilder = new FilteredMapBuilder(applicationFactory, registry, option.getOriginalRange());
+        FilteredMapBuilder filteredMapBuilder = new FilteredMapBuilder(applicationFactory, registry, option.getRange());
         filteredMapBuilder.serverMapDataFilter(serverMapDataFilter);
         filteredMapBuilder.addTransactions(filterList);
         FilteredMap filteredMap = filteredMapBuilder.build();
@@ -144,14 +144,19 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         watch.start();
 
         final List<List<SpanBo>> filterList = selectFilteredSpan(option.getTransactionIdList(), option.getFilter(), option.getColumnGetCount());
-        FilteredMapBuilder filteredMapBuilder = new FilteredMapBuilder(applicationFactory, registry, option.getOriginalRange());
+        Range scanRange = option.getRange();
+        FilteredMapBuilder filteredMapBuilder = new FilteredMapBuilder(applicationFactory, registry, scanRange);
         filteredMapBuilder.serverMapDataFilter(serverMapDataFilter);
         filteredMapBuilder.addTransactions(filterList);
         FilteredMap filteredMap = filteredMapBuilder.build();
 
         ApplicationMap map = createMap(option, filteredMap);
 
-        Map<Application, ScatterData> applicationScatterData = filteredMap.getApplicationScatterData(option.getOriginalRange().getFrom(), option.getOriginalRange().getTo(), option.getxGroupUnit(), option.getyGroupUnit());
+        Map<Application, ScatterData> applicationScatterData = filteredMap
+                .getApplicationScatterData(
+                        scanRange.getFrom(), scanRange.getTo(),
+                        option.getXGroupUnit(), option.getYGroupUnit()
+                );
 
         watch.stop();
         logger.debug("Select filtered application map elapsed. {}ms", watch.getTotalTimeMillis());
@@ -172,7 +177,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
     private ApplicationMap createMap(FilteredMapServiceOption option, FilteredMap filteredMap) {
-        final ApplicationMapBuilder applicationMapBuilder = applicationMapBuilderFactory.createApplicationMapBuilder(option.getOriginalRange());
+        final ApplicationMapBuilder applicationMapBuilder = applicationMapBuilderFactory.createApplicationMapBuilder(option.getRange());
         final WasNodeHistogramDataSource wasNodeHistogramDataSource = new ResponseHistogramsNodeHistogramDataSource(filteredMap.getResponseHistograms());
         applicationMapBuilder.includeNodeHistogram(new DefaultNodeHistogramFactory(wasNodeHistogramDataSource));
         ServerGroupListDataSource serverGroupListDataSource = serverInstanceDatasourceService.getServerGroupListDataSource();
