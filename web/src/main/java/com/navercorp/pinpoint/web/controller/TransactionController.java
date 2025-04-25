@@ -64,9 +64,9 @@ import java.util.function.Predicate;
  * @author Taejin Koo
  */
 @RestController
-@RequestMapping(path = {"/api", "/api/trace"})
+@RequestMapping(path = {"/api", "/api/transaction"})
 @Validated
-public class BusinessTransactionController {
+public class TransactionController {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     public static final String DEFAULT_FOCUS_TIMESTAMP = "0";
@@ -83,11 +83,11 @@ public class BusinessTransactionController {
     private int callstackSelectSpansLimit;
 
 
-    public BusinessTransactionController(SpanService spanService,
-                                         TransactionInfoService transactionInfoService,
-                                         FilteredMapService filteredMapService,
-                                         HyperLinkFactory hyperLinkFactory,
-                                         LogLinkBuilder logLinkBuilder) {
+    public TransactionController(SpanService spanService,
+                                 TransactionInfoService transactionInfoService,
+                                 FilteredMapService filteredMapService,
+                                 HyperLinkFactory hyperLinkFactory,
+                                 LogLinkBuilder logLinkBuilder) {
         this.spanService = Objects.requireNonNull(spanService, "spanService");
         this.transactionInfoService = Objects.requireNonNull(transactionInfoService, "transactionInfoService");
         this.filteredMapService = Objects.requireNonNull(filteredMapService, "filteredMapService");
@@ -95,7 +95,7 @@ public class BusinessTransactionController {
         this.logLinkBuilder = Objects.requireNonNull(logLinkBuilder, "logLinkBuilder");
     }
 
-    @GetMapping(value = "/transaction")
+    @GetMapping(value = "/trace")
     public TransactionInfoViewModel getTrace(
             @RequestParam("traceId") @NotBlank String traceId,
             @RequestParam(value = "focusTimestamp", required = false, defaultValue = DEFAULT_FOCUS_TIMESTAMP)
