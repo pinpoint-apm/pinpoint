@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.web.view.TimeSeries;
 
-import com.navercorp.pinpoint.web.view.TimeSeries.TimeSeriesValueGroupView;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.List;
 
@@ -23,6 +23,7 @@ import java.util.List;
 public interface TimeSeriesView {
     String getTitle();
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     List<Long> getTimestamp();
 
     List<TimeSeriesValueGroupView> getMetricValueGroups();

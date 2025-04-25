@@ -34,11 +34,20 @@ public class HistogramView {
     private final String key;
     private final Histogram histogram;
     private final List<TimeHistogram> sortedTimeHistograms;
+    private final boolean includeTimestamp;
 
     public HistogramView(String key, Histogram histogram, List<TimeHistogram> timeHistograms) {
         this.key = Objects.requireNonNull(key, "key");
         this.histogram = Objects.requireNonNull(histogram, "histogram");
         this.sortedTimeHistograms = Objects.requireNonNull(timeHistograms, "timeHistograms");
+        this.includeTimestamp = true;
+    }
+
+    public HistogramView(String key, Histogram histogram, List<TimeHistogram> timeHistograms, boolean includeTimestamp) {
+        this.key = Objects.requireNonNull(key, "key");
+        this.histogram = Objects.requireNonNull(histogram, "histogram");
+        this.sortedTimeHistograms = Objects.requireNonNull(timeHistograms, "timeHistograms");
+        this.includeTimestamp = includeTimestamp;
     }
 
     @JsonProperty("key")
@@ -64,12 +73,18 @@ public class HistogramView {
     @JsonProperty("loadChart")
     public TimeSeriesView getLoadChart() {
         TimeHistogramChartBuilder builder = new TimeHistogramChartBuilder(sortedTimeHistograms);
+        if (!includeTimestamp) {
+            builder.skipTimestamp();
+        }
         return builder.build(TimeHistogramType.load);
     }
 
     @JsonProperty("loadStatisticsChart")
     public TimeSeriesView getLoadStatisticsChart() {
         TimeHistogramChartBuilder builder = new TimeHistogramChartBuilder(sortedTimeHistograms);
+        if (!includeTimestamp) {
+            builder.skipTimestamp();
+        }
         return builder.build(TimeHistogramType.loadStatistics);
     }
 

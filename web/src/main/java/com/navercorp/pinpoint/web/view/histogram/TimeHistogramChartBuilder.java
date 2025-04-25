@@ -30,9 +30,15 @@ import java.util.Objects;
 
 public class TimeHistogramChartBuilder {
     private final List<TimeHistogram> orderedTimeHistograms;
+    private boolean includeTimestamp = true;
 
     public TimeHistogramChartBuilder(List<TimeHistogram> orderedTimeHistograms) {
         this.orderedTimeHistograms = Objects.requireNonNull(orderedTimeHistograms, "orderedTimeHistograms");
+    }
+
+    public TimeHistogramChartBuilder skipTimestamp() {
+        this.includeTimestamp = false;
+        return this;
     }
 
     public TimeHistogramChart build(TimeHistogramType timeHistogramType) {
@@ -46,7 +52,8 @@ public class TimeHistogramChartBuilder {
 
     public TimeHistogramChart buildLoadChart() {
         List<TimeSeriesValueView> metricValueList = createLoadValueList(orderedTimeHistograms);
-        return new TimeHistogramChart("Load", LongArray.asList(orderedTimeHistograms, TimeHistogram::getTimeStamp),
+        List<Long> timestamp = getTimestamp();
+        return new TimeHistogramChart("Load", timestamp,
                 List.of(new TimeHistogramValueGroupView("load", "count", "area-step", metricValueList)));
     }
 
@@ -66,8 +73,16 @@ public class TimeHistogramChartBuilder {
 
     public TimeHistogramChart buildLoadStatisticsChart() {
         List<TimeSeriesValueView> metricValueList = createLoadStatisticsValueList(orderedTimeHistograms);
-        return new TimeHistogramChart("Load Avg & Max", LongArray.asList(orderedTimeHistograms, TimeHistogram::getTimeStamp),
+        List<Long> timestamp = getTimestamp();
+        return new TimeHistogramChart("Load Avg & Max", timestamp,
                 List.of(new TimeHistogramValueGroupView("loadStatistics", "ms", "area-step", metricValueList)));
+    }
+
+    private List<Long> getTimestamp() {
+        if (includeTimestamp) {
+            return LongArray.asList(orderedTimeHistograms, TimeHistogram::getTimeStamp);
+        }
+        return null;
     }
 
     private List<TimeSeriesValueView> createLoadStatisticsValueList(List<TimeHistogram> histogramList) {
