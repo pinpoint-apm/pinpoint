@@ -47,7 +47,7 @@ public class LinkViewTest {
 
     @Test
     public void testSerializeV1() throws JsonProcessingException {
-        TimeHistogramFormat version = TimeHistogramFormat.V1;
+        TimeHistogramFormat version = TimeHistogramFormat.V3;
         LinkView linkView = newLinkView(version);
 
         ObjectWriter objectWriter = MAPPER.writerWithDefaultPrettyPrinter();
@@ -58,7 +58,7 @@ public class LinkViewTest {
 
     @Test
     public void testSerializeV2() throws JsonProcessingException {
-        TimeHistogramFormat version = TimeHistogramFormat.V2;
+        TimeHistogramFormat version = TimeHistogramFormat.V3;
         LinkView linkView = newLinkView(version);
 
         ObjectWriter objectWriter = MAPPER.writerWithDefaultPrettyPrinter();

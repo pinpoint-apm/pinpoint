@@ -63,7 +63,8 @@ public class NodeHistogramSummaryView {
         if (applicationTimeHistogram == null) {
             return List.of();
         }
-        return applicationTimeHistogram.createViewModel(format);
+        TimeHistogramBuilder builder = new TimeHistogramBuilder(format);
+        return builder.build(applicationTimeHistogram);
     }
 
     public JsonFields<AgentNameView, List<TimeHistogramViewModel>> getAgentTimeSeriesHistogram() {

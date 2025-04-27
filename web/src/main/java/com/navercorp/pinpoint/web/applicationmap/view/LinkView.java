@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.server.util.json.JsonFields;
+import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
@@ -158,9 +160,11 @@ public class LinkView {
         }
 
         private void writeTimeSeriesHistogram(Link link, TimeHistogramFormat format, JsonGenerator jgen) throws IOException {
-            List<TimeHistogramViewModel> sourceApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram(format);
+            ApplicationTimeHistogram linkApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram();
+            TimeHistogramBuilder builder = new TimeHistogramBuilder(format);
+            List<TimeHistogramViewModel> sourceApplicationHistogram = builder.build(linkApplicationTimeSeriesHistogram);
             jgen.writeFieldName("timeSeriesHistogram");
-            jgen.writeObject(sourceApplicationTimeSeriesHistogram);
+            jgen.writeObject(sourceApplicationHistogram);
         }
 
         private void writeAgentResponseStatistics(String fieldName, Collection<AgentHistogram> agentHistogramList, JsonGenerator jgen) throws IOException {
@@ -186,8 +190,8 @@ public class LinkView {
         private void writeSourceAgentTimeSeriesHistogram(LinkView linkView, JsonGenerator jgen) throws IOException {
             Link link = linkView.getLink();
             TimeHistogramFormat format = linkView.getFormat();
-            JsonFields<AgentNameView, List<TimeHistogramViewModel>> sourceAgentTimeSeriesHistogram = link.getSourceAgentTimeSeriesHistogram(format);
-//        sourceAgentTimeSeriesHistogram.setFieldName("sourceTimeSeriesHistogram");
+            AgentTimeHistogram agentTimeHistogram = link.getSourceAgentTimeSeriesHistogram();
+            JsonFields<AgentNameView, List<TimeHistogramViewModel>> sourceAgentTimeSeriesHistogram = agentTimeHistogram.createViewModel(format);
             jgen.writeFieldName("sourceTimeSeriesHistogram");
             jgen.writeObject(sourceAgentTimeSeriesHistogram);
         }

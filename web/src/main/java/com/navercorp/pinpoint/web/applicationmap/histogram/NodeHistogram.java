@@ -107,7 +107,7 @@ public class NodeHistogram {
 
     public Map<String, ResponseTimeStatics> getAgentResponseStatisticsMap() {
         if (agentHistogramMap == null) {
-            return null;
+            return Map.of();
         }
         Map<String, ResponseTimeStatics> map = new HashMap<>(agentHistogramMap.size());
         agentHistogramMap.forEach((agentId, histogram) ->

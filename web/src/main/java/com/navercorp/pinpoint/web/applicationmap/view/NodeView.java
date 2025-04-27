@@ -203,7 +203,8 @@ public class NodeView {
                     final TimeHistogramFormat format = nodeView.getFormat();
 
                     ApplicationTimeHistogram applicationTimeHistogram = nodeHistogram.getApplicationTimeHistogram();
-                    List<TimeHistogramViewModel> applicationTimeSeriesHistogram = applicationTimeHistogram.createViewModel(format);
+                    TimeHistogramBuilder builder = new TimeHistogramBuilder(format);
+                    List<TimeHistogramViewModel> applicationTimeSeriesHistogram = builder.build(applicationTimeHistogram);
                     if (applicationTimeSeriesHistogram == null) {
                         JacksonWriterUtils.writeEmptyArray(jgen, "timeSeriesHistogram");
                     } else {
