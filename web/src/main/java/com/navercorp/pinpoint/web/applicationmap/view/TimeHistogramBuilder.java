@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.applicationmap.view;
 
+import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -21,5 +22,11 @@ public class TimeHistogramBuilder {
             case V2 -> new LoadTimeViewModelBuilder(histogramList).build();
             case V3 -> new TimeseriesHistogramViewModelBuilder(application, histogramList).build();
         };
+    }
+
+    public List<TimeHistogramViewModel> build(ApplicationTimeHistogram histogram) {
+        Objects.requireNonNull(histogram, "histogram");
+
+        return build(histogram.getApplication(), histogram.getHistogramList());
     }
 }

@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.applicationmap.link;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.navercorp.pinpoint.common.server.util.json.JsonFields;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
@@ -25,18 +24,14 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogramBui
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogramBuilder;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
-import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramViewModel;
-import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -157,29 +152,21 @@ public class Link {
         return outLinkList.mergeHistogram(toNode.getServiceType());
     }
 
-    public List<TimeHistogramViewModel> getLinkApplicationTimeSeriesHistogram(TimeHistogramFormat format) {
+    public ApplicationTimeHistogram getLinkApplicationTimeSeriesHistogram() {
         if (direction == LinkDirection.IN_LINK) {
-            return getSourceApplicationTimeSeriesHistogram(format);
+            return getSourceApplicationTimeSeriesHistogramData();
         } else {
-            return getTargetApplicationTimeSeriesHistogram(format);
+            return getTargetApplicationTimeSeriesHistogramData();
         }
     }
 
-    public List<TimeHistogramViewModel> getSourceApplicationTimeSeriesHistogram(TimeHistogramFormat format) {
-        ApplicationTimeHistogram histogramData = getSourceApplicationTimeSeriesHistogramData();
-        return histogramData.createViewModel(format);
-    }
 
-    private ApplicationTimeHistogram getSourceApplicationTimeSeriesHistogramData() {
+    public ApplicationTimeHistogram getSourceApplicationTimeSeriesHistogramData() {
         // we need Target (to)'s time since time in link is RPC-based
         ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(toNode.getApplication(), range);
         return builder.build(inLink.getLinkDataList());
     }
 
-    public List<TimeHistogramViewModel> getTargetApplicationTimeSeriesHistogram(TimeHistogramFormat format) {
-        ApplicationTimeHistogram targetApplicationTimeHistogramData = getTargetApplicationTimeSeriesHistogramData();
-        return targetApplicationTimeHistogramData.createViewModel(format);
-    }
 
     public ApplicationTimeHistogram getTargetApplicationTimeSeriesHistogramData() {
         // we need Target (to)'s time since time in link is RPC-based
@@ -203,12 +190,10 @@ public class Link {
         this.outLink.addLinkDataMap(outLinkCallDataMap);
     }
 
-    public JsonFields<AgentNameView, List<TimeHistogramViewModel>> getSourceAgentTimeSeriesHistogram(TimeHistogramFormat format) {
+    public AgentTimeHistogram getSourceAgentTimeSeriesHistogram() {
         // we need Target (to)'s time since time in link is RPC-based
         AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(toNode.getApplication(), range);
-        AgentTimeHistogram applicationTimeSeriesHistogram = builder.buildSource(inLink);
-
-        return applicationTimeSeriesHistogram.createViewModel(format);
+        return builder.buildSource(inLink);
     }
 
     public AgentTimeHistogram getTargetAgentTimeHistogram() {

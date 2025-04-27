@@ -43,9 +43,10 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
-import com.navercorp.pinpoint.web.applicationmap.view.ResponseTimeViewModel;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeCount;
+import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramBuilder;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramViewModel;
+import com.navercorp.pinpoint.web.applicationmap.view.TimeseriesHistogramViewModel;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
@@ -110,7 +111,7 @@ public class FilteredMapServiceImplTest {
     // Mocked
     private final ServiceTypeRegistryService registry = TestTraceUtils.mockServiceTypeRegistryService();
 
-    TimeHistogramFormat format = TimeHistogramFormat.V1;
+    TimeHistogramFormat format = TimeHistogramFormat.V3;
 
     @Spy
     private ApplicationMapBuilderFactory applicationMapBuilderFactory = new ApplicationMapBuilderFactory(
@@ -221,7 +222,7 @@ public class FilteredMapServiceImplTest {
                         new TimeCount(timeWindow.refineTimestamp(rootSpanCollectorAcceptTime), 1)
                 );
 
-                List<TimeHistogramViewModel> applicationTimeHistogram = getApplicationTimeHistogram(nodeHistogram, format);
+                List<TimeHistogramViewModel> applicationTimeHistogram = getApplicationTimeHistogram(nodeHistogram);
                 assertTimeHistogram(applicationTimeHistogram, histogramSchema.getFastSlot(), expectedTimeCounts);
                 JsonFields<AgentNameView, List<TimeHistogramViewModel>> agentTimeHistogram = getAgentTimeHistogram(nodeHistogram);
 //                AgentResponseTimeViewModelList agentTimeHistogram = agentTimeHistogram;
@@ -239,7 +240,7 @@ public class FilteredMapServiceImplTest {
                 List<TimeCount> expectedTimeCounts = List.of(
                         new TimeCount(timeWindow.refineTimestamp(rootSpanCollectorAcceptTime), 1)
                 );
-                List<TimeHistogramViewModel> applicationTimeHistogram = getApplicationTimeHistogram(nodeHistogram, format);
+                List<TimeHistogramViewModel> applicationTimeHistogram = getApplicationTimeHistogram(nodeHistogram);
                 assertTimeHistogram(applicationTimeHistogram, histogramSchema.getFastSlot(), expectedTimeCounts);
                 JsonFields<AgentNameView, List<TimeHistogramViewModel>> agentTimeHistogram = getAgentTimeHistogram(nodeHistogram);
 //                AgentResponseTimeViewModelList agentTimeHistogram = nodeHistogram.getAgentTimeHistogram(TimeHistogramFormat.V1);
@@ -257,7 +258,7 @@ public class FilteredMapServiceImplTest {
                 List<TimeCount> expectedTimeCounts = List.of(
                         new TimeCount(timeWindow.refineTimestamp(appASpanCollectorAcceptTime), 1)
                 );
-                List<TimeHistogramViewModel> applicationTimeHistogram = getApplicationTimeHistogram(nodeHistogram, format);
+                List<TimeHistogramViewModel> applicationTimeHistogram = getApplicationTimeHistogram(nodeHistogram);
                 assertTimeHistogram(applicationTimeHistogram, histogramSchema.getFastSlot(), expectedTimeCounts);
                 JsonFields<AgentNameView, List<TimeHistogramViewModel>> agentTimeHistogram = getAgentTimeHistogram(nodeHistogram);
 //                AgentResponseTimeViewModelList agentTimeHistogram = nodeHistogram.getAgentTimeHistogram(TimeHistogramFormat.V1);
@@ -275,7 +276,7 @@ public class FilteredMapServiceImplTest {
                 List<TimeCount> expectedTimeCounts = List.of(
                         new TimeCount(timeWindow.refineTimestamp(appASpanStartTime + cacheStartElapsed), 1)
                 );
-                List<TimeHistogramViewModel> applicationTimeHistogram = getApplicationTimeHistogram(nodeHistogram, format);
+                List<TimeHistogramViewModel> applicationTimeHistogram = getApplicationTimeHistogram(nodeHistogram);
                 assertTimeHistogram(applicationTimeHistogram, histogramSchema.getNormalSlot(), expectedTimeCounts);
                 JsonFields<AgentNameView, List<TimeHistogramViewModel>> agentTimeHistogram = getAgentTimeHistogram(nodeHistogram);
 //                AgentResponseTimeViewModelList agentTimeHistogram = nodeHistogram.getAgentTimeHistogram(TimeHistogramFormat.V1);
@@ -296,19 +297,19 @@ public class FilteredMapServiceImplTest {
                 Histogram histogram = link.getHistogram();
                 assertHistogram(histogram, 1, 0, 0, 0, 0);
                 // time histogram
-                List<TimeHistogramViewModel> linkApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram(format);
+                List<TimeHistogramViewModel> histogramViewModels = getTimeHistogramViewModels(link);
                 HistogramSchema targetHistogramSchema = toApplication.getServiceType().getHistogramSchema();
                 List<TimeCount> expectedTimeCounts = List.of(
                         new TimeCount(timeWindow.refineTimestamp(rootSpanCollectorAcceptTime), 1)
                 );
-                assertTimeHistogram(linkApplicationTimeSeriesHistogram, targetHistogramSchema.getFastSlot(), expectedTimeCounts);
+                assertTimeHistogram(histogramViewModels, targetHistogramSchema.getFastSlot(), expectedTimeCounts);
             } else if ((fromApplication.getName().equals("ROOT_APP") && fromApplication.getServiceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE) &&
                     (toApplication.getName().equals("APP_A") && toApplication.getServiceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE)) {
                 // histogram
                 Histogram histogram = link.getHistogram();
                 assertHistogram(histogram, 1, 0, 0, 0, 0);
                 // time histogram
-                List<TimeHistogramViewModel> linkApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram(format);
+                List<TimeHistogramViewModel> linkApplicationTimeSeriesHistogram = getTimeHistogramViewModels(link);
                 HistogramSchema targetHistogramSchema = toApplication.getServiceType().getHistogramSchema();
                 List<TimeCount> expectedTimeCounts = List.of(
                         new TimeCount(timeWindow.refineTimestamp(appASpanCollectorAcceptTime), 1)
@@ -321,7 +322,7 @@ public class FilteredMapServiceImplTest {
                 Histogram histogram = link.getHistogram();
                 assertHistogram(histogram, 0, 1, 0, 0, 0);
                 // time histogram
-                List<TimeHistogramViewModel> linkApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram(format);
+                List<TimeHistogramViewModel> linkApplicationTimeSeriesHistogram = getTimeHistogramViewModels(link);
                 HistogramSchema targetHistogramSchema = toApplication.getServiceType().getHistogramSchema();
                 List<TimeCount> expectedTimeCounts = List.of(
                         new TimeCount(timeWindow.refineTimestamp(appASpanStartTime + cacheStartElapsed), 1)
@@ -333,14 +334,21 @@ public class FilteredMapServiceImplTest {
         }
     }
 
-    private List<TimeHistogramViewModel> getApplicationTimeHistogram(NodeHistogram nodeHistogram, TimeHistogramFormat format) {
+    private List<TimeHistogramViewModel> getTimeHistogramViewModels(Link link) {
+        ApplicationTimeHistogram linkApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram();
+        TimeHistogramBuilder builder = new TimeHistogramBuilder(format);
+        return builder.build(linkApplicationTimeSeriesHistogram);
+    }
+
+    private List<TimeHistogramViewModel> getApplicationTimeHistogram(NodeHistogram nodeHistogram) {
         ApplicationTimeHistogram applicationTimeHistogram = nodeHistogram.getApplicationTimeHistogram();
-        return applicationTimeHistogram.createViewModel(format);
+        TimeHistogramBuilder builder = new TimeHistogramBuilder(format);
+        return builder.build(applicationTimeHistogram);
     }
 
     private JsonFields<AgentNameView, List<TimeHistogramViewModel>> getAgentTimeHistogram(NodeHistogram nodeHistogram) {
         AgentTimeHistogram factory = nodeHistogram.getAgentTimeHistogram();
-        return factory.createViewModel(TimeHistogramFormat.V1);
+        return factory.createViewModel(format);
     }
 
     private void assertHistogram(Histogram histogram, int fastCount, int normalCount, int slowCount, int verySlowCount, int totalErrorCount) {
@@ -357,22 +365,12 @@ public class FilteredMapServiceImplTest {
         }
         String slotName = histogramSlot.getSlotName();
         for (TimeHistogramViewModel timeViewModel : histogramList) {
-            ResponseTimeViewModel histogram = (ResponseTimeViewModel) timeViewModel;
+            TimeseriesHistogramViewModel view = (TimeseriesHistogramViewModel) timeViewModel;
 
-            if (histogram.getColumnName().equals(slotName)) {
-                for (TimeCount expectedTimeCount : expectedTimeCounts) {
-                    boolean expectedTimeCountExists = false;
-                    for (TimeCount actualTimeCount : histogram.getColumnValue()) {
-                        if (expectedTimeCount.time() == actualTimeCount.time()) {
-                            expectedTimeCountExists = true;
-                            Assertions.assertEquals(expectedTimeCount.count(), actualTimeCount.count(), "TimeCount mismatch for slot : " + slotName);
-                            break;
-                        }
-                    }
-                    if (!expectedTimeCountExists) {
-                        fail("Expected TimeCount for " + slotName + " not found, time : " + expectedTimeCount.time() + ", count : " + expectedTimeCount.count());
-                    }
-                }
+            if (view.getKey().equals(slotName)) {
+                List<Long> expected = expectedTimeCounts.stream().map(TimeCount::count).toList();
+                List<Long> actual = view.getValues().stream().map(Number::longValue).toList();
+                Assertions.assertEquals(expected, actual, "Mismatch for slot : " + slotName);
                 return;
             }
         }

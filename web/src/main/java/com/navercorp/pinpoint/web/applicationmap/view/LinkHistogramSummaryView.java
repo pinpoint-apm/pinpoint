@@ -27,6 +27,7 @@ public class LinkHistogramSummaryView {
 
     public List<TimeHistogramViewModel> getTimeSeriesHistogram() {
         ApplicationTimeHistogram histogram = linkHistogramSummary.getLinkApplicationTimeHistogram();
-        return histogram.createViewModel(format);
+        TimeHistogramBuilder builder = new TimeHistogramBuilder(format);
+        return builder.build(histogram);
     }
 }

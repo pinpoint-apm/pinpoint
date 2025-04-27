@@ -60,7 +60,7 @@ public class AgentTimeHistogramTest {
         List<ResponseTime> responseHistogramList = createResponseTime(app, "test1", "test2");
         AgentTimeHistogram histogram = builder.build(responseHistogramList);
 
-        JsonFields<AgentNameView, List<TimeHistogramViewModel>> viewModel = histogram.createViewModel(TimeHistogramFormat.V1);
+        JsonFields<AgentNameView, List<TimeHistogramViewModel>> viewModel = histogram.createViewModel(TimeHistogramFormat.V3);
         logger.debug("{}", viewModel);
 
         String json = mapper.writeValueAsString(viewModel);
