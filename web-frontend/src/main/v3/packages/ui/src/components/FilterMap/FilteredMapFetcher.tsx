@@ -41,8 +41,15 @@ export const FilteredMapFetcher = ({
     if (!isLoading && data) {
       setServerMapData((prev) => {
         if (prev) {
+          const timestampAray = prev.applicationMapData.timestamp;
           const nodeDataArray = prev.applicationMapData.nodeDataArray as FilteredMap.NodeData[];
           const linkDataArray = prev.applicationMapData.linkDataArray as FilteredMap.LinkData[];
+
+          data?.applicationMapData?.timestamp.forEach((timestamp) => {
+            if (!timestampAray.includes(timestamp)) {
+              timestampAray.push(timestamp);
+            }
+          });
 
           data.applicationMapData.nodeDataArray.forEach((newNodeData) => {
             const prevNode = nodeDataArray.find(
@@ -52,7 +59,16 @@ export const FilteredMapFetcher = ({
             if (prevNode) {
               nodeDataArray.map((node) => {
                 if (node.key === newNodeData.key) {
-                  return mergeFilteredMapNodeData(node, newNodeData);
+                  return mergeFilteredMapNodeData(
+                    {
+                      timestamp: prev?.applicationMapData.timestamp,
+                      data: node,
+                    },
+                    {
+                      timestamp: data?.applicationMapData.timestamp,
+                      data: newNodeData,
+                    },
+                  );
                 }
                 return node;
               });
@@ -69,7 +85,16 @@ export const FilteredMapFetcher = ({
             if (hasExistLink) {
               linkDataArray.map((link) => {
                 if (link.key === newLinkData.key) {
-                  return mergeFilteredMapLinkData(link, newLinkData);
+                  return mergeFilteredMapLinkData(
+                    {
+                      timestamp: prev?.applicationMapData.timestamp,
+                      data: link,
+                    },
+                    {
+                      timestamp: data?.applicationMapData.timestamp,
+                      data: newLinkData,
+                    },
+                  );
                 }
                 return link;
               });
@@ -82,6 +107,7 @@ export const FilteredMapFetcher = ({
             ...data,
             applicationMapData: {
               ...data.applicationMapData,
+              timestamp: timestampAray,
               nodeDataArray: nodeDataArray,
               linkDataArray: linkDataArray,
             },

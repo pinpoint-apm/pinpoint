@@ -407,6 +407,7 @@ export const FilteredMapPage = ({
               serverMapCurrentTarget && (
                 <>
                   <ChartsBoard
+                    timestamp={serverMapData?.applicationMapData?.timestamp}
                     nodeData={
                       (currentTargetData as FilteredMap.NodeData)?.isAuthorized === false
                         ? undefined

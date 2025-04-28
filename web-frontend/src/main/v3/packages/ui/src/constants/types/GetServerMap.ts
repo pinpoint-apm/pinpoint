@@ -18,6 +18,7 @@ export namespace GetServerMap {
 
   export interface ApplicationMapData {
     range: Range;
+    timestamp: number[];
     linkDataArray: LinkData[];
     nodeDataArray: NodeData[];
   }
@@ -97,7 +98,7 @@ export namespace GetServerMap {
 
   export interface TimeSeriesHistogram {
     key: string;
-    values: number[][];
+    values: number[];
   }
 
   export interface NodeData {
