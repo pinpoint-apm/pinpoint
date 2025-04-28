@@ -150,7 +150,8 @@ public class NodeView {
             final MapViews activeView = nodeView.getActiveView();
 
             // FIXME isn't this all ServiceTypes that can be a node?
-            if (serviceType.isWas() || serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isUser() || serviceType.isQueue() || serviceType.isAlias()) {
+            final boolean nodeServiceType = isNodeServiceType(serviceType);
+            if (nodeServiceType) {
                 Histogram applicationHistogram = nodeHistogram.getApplicationHistogram();
                 if (applicationHistogram == null) {
                     jgen.writeBooleanField("hasAlert", false);  // for go.js
@@ -199,7 +200,7 @@ public class NodeView {
             //time histogram
             if (!activeView.isSimplified()) {
                 // FIXME isn't this all ServiceTypes that can be a node?
-                if (serviceType.isWas() || serviceType.isUser() || serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isQueue() || serviceType.isAlias()) {
+                if (nodeServiceType) {
                     final TimeHistogramFormat format = nodeView.getFormat();
 
                     ApplicationTimeHistogram applicationTimeHistogram = nodeHistogram.getApplicationTimeHistogram();
@@ -219,6 +220,10 @@ public class NodeView {
                     }
                 }
             }
+        }
+
+        private boolean isNodeServiceType(ServiceType serviceType) {
+            return serviceType.isWas() || serviceType.isTerminal() || serviceType.isUser() || serviceType.isUnknown() || serviceType.isQueue() || serviceType.isAlias();
         }
 
         private boolean hasAlert(Histogram applicationHistogram) {
