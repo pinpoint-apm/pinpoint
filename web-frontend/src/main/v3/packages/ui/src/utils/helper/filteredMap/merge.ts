@@ -1,11 +1,17 @@
 import { FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/src/constants';
 
 export const mergeFilteredMapNodeData = (
-  currentNodeData: FilteredMap.NodeData,
-  newNodeData: FilteredMap.NodeData,
+  current: {
+    timestamp: FilteredMap.ApplicationMapData['timestamp'];
+    data: FilteredMap.NodeData;
+  },
+  newNode: {
+    timestamp: FilteredMap.ApplicationMapData['timestamp'];
+    data: FilteredMap.NodeData;
+  },
 ) => {
-  const acc = currentNodeData;
-  const neo = newNodeData;
+  const acc = current?.data;
+  const neo = newNode?.data;
 
   acc.hasAlert = neo.hasAlert;
   acc.slowCount += neo.slowCount;
@@ -19,19 +25,34 @@ export const mergeFilteredMapNodeData = (
   mergeHistogram(acc, neo);
   mergeResponseStatistics(acc, neo);
   mergeAgentHistogram(acc, neo);
-  mergeTimeSeriesHistogram(acc, neo);
-  mergeAgentTimeSeriesHistogramByType(acc.agentTimeSeriesHistogram, neo.agentTimeSeriesHistogram);
+  mergeTimeSeriesHistogram(current, newNode);
+  mergeAgentTimeSeriesHistogramByType(
+    {
+      timestamp: current?.timestamp,
+      data: acc?.agentTimeSeriesHistogram,
+    },
+    {
+      timestamp: newNode?.timestamp,
+      data: neo?.agentTimeSeriesHistogram,
+    },
+  );
   mergeServerList(acc, neo);
 
   return acc;
 };
 
 export const mergeFilteredMapLinkData = (
-  currentLinkData: FilteredMap.LinkData,
-  newLinkData: FilteredMap.LinkData,
+  current: {
+    timestamp: FilteredMap.ApplicationMapData['timestamp'];
+    data: FilteredMap.LinkData;
+  },
+  newNode: {
+    timestamp: FilteredMap.ApplicationMapData['timestamp'];
+    data: FilteredMap.LinkData;
+  },
 ) => {
-  const acc = currentLinkData;
-  const neo = newLinkData;
+  const acc = current?.data;
+  const neo = newNode?.data;
 
   acc.hasAlert = neo.hasAlert;
   acc.slowCount += neo.slowCount;
@@ -44,8 +65,17 @@ export const mergeFilteredMapLinkData = (
   mergeLinkAgentIds(acc, neo, 'fromAgent');
   mergeLinkAgentIds(acc, neo, 'toAgent');
   mergeResponseStatistics(acc, neo);
-  mergeTimeSeriesHistogram(acc, neo);
-  mergeAgentTimeSeriesHistogramByType(acc.sourceTimeSeriesHistogram, neo.sourceTimeSeriesHistogram);
+  mergeTimeSeriesHistogram(current, newNode);
+  mergeAgentTimeSeriesHistogramByType(
+    {
+      timestamp: current?.timestamp,
+      data: acc.sourceTimeSeriesHistogram,
+    },
+    {
+      timestamp: newNode?.timestamp,
+      data: neo.sourceTimeSeriesHistogram,
+    },
+  );
   mergeHistogramByType(acc, neo, 'sourceHistogram');
   mergeHistogramByType(acc, neo, 'targetHistogram');
   mergeResponseStatisticsByType(acc, neo, 'sourceResponseStatistics');
@@ -178,37 +208,50 @@ function mergeAgentHistogram(old: FilteredMap.NodeData, neo: FilteredMap.NodeDat
 
 // 내부 값의 순서가 보장되어야한 유의미한 코드
 function mergeTimeSeriesHistogram(
-  old: FilteredMap.NodeData | FilteredMap.LinkData,
-  neo: FilteredMap.NodeData | FilteredMap.LinkData,
+  old: {
+    timestamp: FilteredMap.ApplicationMapData['timestamp'];
+    data: FilteredMap.NodeData | FilteredMap.LinkData;
+  },
+  neo: {
+    timestamp: FilteredMap.ApplicationMapData['timestamp'];
+    data: FilteredMap.NodeData | FilteredMap.LinkData;
+  },
 ): void {
-  if (neo.timeSeriesHistogram) {
-    if (old.timeSeriesHistogram) {
-      neo.timeSeriesHistogram.forEach((obj, outerIndex: number) => {
+  if (neo.data?.timeSeriesHistogram) {
+    if (old.data?.timeSeriesHistogram) {
+      neo?.data?.timeSeriesHistogram?.forEach((obj, outerIndex: number) => {
         if (obj.key === 'Avg') {
           return;
         }
         if (obj.key === 'Max') {
-          old.timeSeriesHistogram[outerIndex].values.forEach((value) => {
-            value[1] = Math.max(
-              value[1],
-              obj.values.find((chartValue) => chartValue[0] === value[0])?.[1] || 0,
+          old?.data?.timeSeriesHistogram?.[outerIndex]?.values?.forEach((value, valueIndex) => {
+            const oldTimestamp = old?.timestamp?.[valueIndex];
+            const newTimestampIndex = neo?.timestamp?.findIndex(
+              (timestamp) => timestamp === oldTimestamp,
             );
+            value = Math.max(value, obj.values[newTimestampIndex] || 0);
           });
-
           return;
         }
-        old.timeSeriesHistogram[outerIndex].values.forEach((value) => {
-          value[1] += obj.values.find((chartValue) => chartValue[0] === value[0])?.[1] || 0;
+        old.data?.timeSeriesHistogram?.[outerIndex]?.values?.forEach((value, valueIndex) => {
+          const oldTimestamp = old?.timestamp?.[valueIndex];
+          const newTimestampIndex = neo?.timestamp?.findIndex(
+            (timestamp) => timestamp === oldTimestamp,
+          );
+          value += obj.values[newTimestampIndex] || 0;
         });
       });
-      updateAvgTimeSeriesHistogram(old.timeSeriesHistogram);
+      updateAvgTimeSeriesHistogram(old?.data?.timeSeriesHistogram, old?.timestamp);
     } else {
-      old.timeSeriesHistogram = neo.timeSeriesHistogram;
+      old.data.timeSeriesHistogram = neo?.data?.timeSeriesHistogram;
     }
   }
 }
 
-function updateAvgTimeSeriesHistogram(histArray: FilteredMap.TimeSeriesHistogram[]) {
+function updateAvgTimeSeriesHistogram(
+  histArray: FilteredMap.TimeSeriesHistogram[],
+  timestamp: FilteredMap.ApplicationMapData['timestamp'],
+): void {
   const mapSum = {} as { [key: number]: number };
   const mapTot = {} as { [key: number]: number };
   let avgHistogram: FilteredMap.TimeSeriesHistogram | undefined;
@@ -219,20 +262,20 @@ function updateAvgTimeSeriesHistogram(histArray: FilteredMap.TimeSeriesHistogram
       avgHistogramIndex = outerIndex;
     }
     if (histogram.key === 'Tot') {
-      histogram.values.forEach((chartValue) => {
-        mapTot[chartValue[0]] = chartValue[1];
+      histogram.values.forEach((chartValue, valueIndex) => {
+        mapTot[timestamp[valueIndex]] = chartValue;
       });
     }
     if (histogram.key === 'Sum') {
-      histogram.values.forEach((chartValue) => {
-        mapSum[chartValue[0]] = chartValue[1];
+      histogram.values.forEach((chartValue, valueIndex) => {
+        mapSum[timestamp[valueIndex]] = chartValue;
       });
     }
   });
   if (avgHistogram) {
-    avgHistogram.values.forEach((info: number[]) => {
-      const timestamp = info[0];
-      info[1] = mapTot[timestamp] > 0 ? Math.floor(mapSum[timestamp] / mapTot[timestamp]) : 0;
+    avgHistogram.values.forEach((info: number, valueIndex) => {
+      const timestampV = timestamp[valueIndex];
+      info = mapTot[timestampV] > 0 ? Math.floor(mapSum[timestampV] / mapTot[timestampV]) : 0;
     });
     if (avgHistogramIndex >= 0) {
       histArray[avgHistogramIndex] = avgHistogram;
@@ -241,9 +284,18 @@ function updateAvgTimeSeriesHistogram(histArray: FilteredMap.TimeSeriesHistogram
 }
 
 function mergeAgentTimeSeriesHistogramByType(
-  old: FilteredMap.SourceTimeSeriesHistogram | FilteredMap.AgentTimeSeriesHistogram,
-  neo: FilteredMap.SourceTimeSeriesHistogram | FilteredMap.AgentTimeSeriesHistogram,
+  current: {
+    timestamp: FilteredMap.ApplicationMapData['timestamp'];
+    data: FilteredMap.SourceTimeSeriesHistogram | FilteredMap.AgentTimeSeriesHistogram;
+  },
+  newNode: {
+    timestamp: FilteredMap.ApplicationMapData['timestamp'];
+    data: FilteredMap.SourceTimeSeriesHistogram | FilteredMap.AgentTimeSeriesHistogram;
+  },
 ): void {
+  let old = current.data;
+  const neo = newNode.data;
+
   if (neo) {
     if (old) {
       Object.keys(neo).forEach((agentId: string) => {
@@ -253,20 +305,26 @@ function mergeAgentTimeSeriesHistogramByType(
               return;
             }
             if (obj.key === 'Max') {
-              old[agentId][outerIndex].values.forEach((value) => {
-                value[1] = Math.max(
-                  value[1],
-                  obj.values.find((chartValue) => chartValue[0] === value[0])?.[1] || 0,
+              old[agentId][outerIndex].values.forEach((value, valueIndex) => {
+                const oldTimestamp = old?.timestamp?.[valueIndex];
+                const newTimestampIndex = neo?.timestamp?.findIndex(
+                  (timestamp) => timestamp === oldTimestamp,
                 );
+
+                value = Math.max(value, obj.values[newTimestampIndex] || 0);
               });
 
               return;
             }
-            old[agentId][outerIndex].values.forEach((value) => {
-              value[1] += obj.values.find((chartValue) => chartValue[0] === value[0])?.[1] || 0;
+            old[agentId][outerIndex].values.forEach((value, valueIndex) => {
+              const oldTimestamp = old?.timestamp?.[valueIndex];
+              const newTimestampIndex = neo?.timestamp?.findIndex(
+                (timestamp) => timestamp === oldTimestamp,
+              );
+              value += obj.values[newTimestampIndex] || 0;
             });
           });
-          updateAvgTimeSeriesHistogram(old[agentId]);
+          updateAvgTimeSeriesHistogram(old[agentId], current.timestamp);
         } else {
           old[agentId] = neo[agentId];
         }

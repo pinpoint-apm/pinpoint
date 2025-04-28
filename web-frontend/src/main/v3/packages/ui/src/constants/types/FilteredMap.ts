@@ -90,6 +90,7 @@ export namespace FilteredMapType {
 
   export interface ApplicationMapData {
     range: Range;
+    timestamp: number[];
     linkDataArray: LinkData[];
     nodeDataArray: NodeData[];
   }
@@ -174,7 +175,7 @@ export namespace FilteredMapType {
 
   export interface TimeSeriesHistogram {
     key: string;
-    values: number[][];
+    values: number[];
   }
 
   export interface SourceHistogram {

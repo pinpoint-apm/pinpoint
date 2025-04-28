@@ -122,6 +122,10 @@ export const Realtime = () => {
         }}
       >
         <ChartsBoard
+          timestamp={
+            serverMapData?.applicationMapData
+              ?.timestamp as GetServerMap.ApplicationMapData['timestamp']
+          }
           nodeData={currentTargetData?.isAuthorized === false ? undefined : currentTargetData}
           emptyMessage={t('COMMON.NO_DATA')}
           header={

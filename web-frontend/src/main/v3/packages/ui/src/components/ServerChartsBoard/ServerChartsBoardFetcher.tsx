@@ -94,7 +94,10 @@ export const ServerChartsBoardFetcher = ({
   return (
     <ChartsBoard
       {...props}
-      nodeData={serverData as GetServerMap.NodeData}
+      timestamp={
+        serverMapData?.applicationMapData?.timestamp as GetServerMap.ApplicationMapData['timestamp']
+      }
+      nodeData={serverData as unknown as GetServerMap.NodeData} // todo
       chartsContainerClassName="pt-12"
       emptyMessage={t('COMMON.NO_DATA')}
     >

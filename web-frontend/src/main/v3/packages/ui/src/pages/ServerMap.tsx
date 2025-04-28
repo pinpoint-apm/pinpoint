@@ -384,6 +384,7 @@ export const ServerMapPage = ({
             {({ currentPanelWidth, SERVER_LIST_WIDTH, resizeHandleWidth }) => (
               <>
                 <ChartsBoard
+                  timestamp={serverMapData?.applicationMapData?.timestamp}
                   nodeData={
                     (currentTargetData as GetServerMap.NodeData)?.isAuthorized === false
                       ? undefined
