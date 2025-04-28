@@ -53,17 +53,9 @@ public class SpanAligner {
         Objects.requireNonNull(filter, "filter");
 
         this.linkMap = LinkMap.buildLinkMap(nodeList, traceState, filter, serviceTypeRegistryService);
-        removeDuplicateNode();
 
         this.focusFilter = NodeList.callTreeFilter(filter);
         this.callTreeNodeNonProductiveFilter = CallTreeNodeNonProductiveFilter.of(serviceTypeRegistryService);
-    }
-
-    private void removeDuplicateNode() {
-        // TODO??
-        List<Node> duplicatedNodeList = linkMap.getDuplicatedNodeList();
-        nodeList.removeAll(duplicatedNodeList);
-        duplicatedNodeList.clear();
     }
 
     public TraceState.State getMatchType() {
