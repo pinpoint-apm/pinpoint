@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.web.applicationmap.service;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
@@ -33,5 +34,5 @@ public interface ResponseTimeHistogramService {
 
     NodeHistogramSummary selectNodeHistogramData(ResponseTimeHistogramServiceOption option);
 
-    LinkHistogramSummary selectLinkHistogramData(Application fromApplication, Application toApplication, Range range);
+    LinkHistogramSummary selectLinkHistogramData(Application fromApplication, Application toApplication, TimeWindow range);
 }

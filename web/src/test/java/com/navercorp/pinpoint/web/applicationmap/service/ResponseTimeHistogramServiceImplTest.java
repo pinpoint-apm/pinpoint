@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.web.applicationmap.service;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -387,12 +388,13 @@ public class ResponseTimeHistogramServiceImplTest {
         final Application toApplication = new Application("WAS", ServiceType.STAND_ALONE);
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);
+        final TimeWindow timeWindow = new TimeWindow(range);
 
 
         when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), eq(LinkDataMapProcessor.NO_OP), any(LinkDataMapProcessor.class)))
                 .thenReturn(createCalleeLinkSelector(List.of(new LinkKey(fromApplication, toApplication)), timestamp));
 
-        LinkHistogramSummary linkHistogramSummary = service.selectLinkHistogramData(fromApplication, toApplication, range);
+        LinkHistogramSummary linkHistogramSummary = service.selectLinkHistogramData(fromApplication, toApplication, timeWindow);
         Histogram histogram = linkHistogramSummary.getHistogram();
 
         logger.debug(linkHistogramSummary);
@@ -412,11 +414,12 @@ public class ResponseTimeHistogramServiceImplTest {
         final Application toApplication = new Application("was2", ServiceType.STAND_ALONE);
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);
+        final TimeWindow timeWindow = new TimeWindow(range);
 
         when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), eq(LinkDataMapProcessor.NO_OP)))
                 .thenReturn(createCallerLinkSelector(List.of(new LinkKey(fromApplication, toApplication)), timestamp));
 
-        LinkHistogramSummary linkHistogramSummary = service.selectLinkHistogramData(fromApplication, toApplication, range);
+        LinkHistogramSummary linkHistogramSummary = service.selectLinkHistogramData(fromApplication, toApplication, timeWindow);
         Histogram histogram = linkHistogramSummary.getHistogram();
 
         logger.debug(linkHistogramSummary);
@@ -436,11 +439,12 @@ public class ResponseTimeHistogramServiceImplTest {
         final Application toApplication = new Application("unknown", ServiceType.UNKNOWN);
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);
+        final TimeWindow timeWindow = new TimeWindow(range);
 
         when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), eq(LinkDataMapProcessor.NO_OP)))
                 .thenReturn(createCallerLinkSelector(List.of(new LinkKey(fromApplication, toApplication)), timestamp));
 
-        LinkHistogramSummary linkHistogramSummary = service.selectLinkHistogramData(fromApplication, toApplication, range);
+        LinkHistogramSummary linkHistogramSummary = service.selectLinkHistogramData(fromApplication, toApplication, timeWindow);
         Histogram histogram = linkHistogramSummary.getHistogram();
 
         logger.debug(linkHistogramSummary);
@@ -462,11 +466,12 @@ public class ResponseTimeHistogramServiceImplTest {
         final Application toApplication = new Application("cache", cacheServiceType);
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);
+        final TimeWindow timeWindow = new TimeWindow(range);
 
         when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), eq(LinkDataMapProcessor.NO_OP)))
                 .thenReturn(createCallerLinkSelector(List.of(new LinkKey(fromApplication, toApplication)), timestamp));
 
-        LinkHistogramSummary linkHistogramSummary = service.selectLinkHistogramData(fromApplication, toApplication, range);
+        LinkHistogramSummary linkHistogramSummary = service.selectLinkHistogramData(fromApplication, toApplication, timeWindow);
         Histogram histogram = linkHistogramSummary.getHistogram();
 
         logger.debug(linkHistogramSummary);
@@ -488,11 +493,12 @@ public class ResponseTimeHistogramServiceImplTest {
         final Application toApplication = new Application("queue", queueServiceType);
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);
+        final TimeWindow timeWindow = new TimeWindow(range);
 
         when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), any(LinkDataMapProcessor.class)))
                 .thenReturn(createCallerLinkSelector(List.of(new LinkKey(fromApplication, toApplication)), timestamp));
 
-        LinkHistogramSummary linkHistogramSummary = service.selectLinkHistogramData(fromApplication, toApplication, range);
+        LinkHistogramSummary linkHistogramSummary = service.selectLinkHistogramData(fromApplication, toApplication, timeWindow);
         Histogram histogram = linkHistogramSummary.getHistogram();
 
         logger.debug(linkHistogramSummary);
@@ -514,11 +520,12 @@ public class ResponseTimeHistogramServiceImplTest {
         final Application toApplication = new Application("was", ServiceType.STAND_ALONE);
         final long timestamp = System.currentTimeMillis();
         final Range range = Range.between(timestamp, timestamp + 60000);
+        final TimeWindow timeWindow = new TimeWindow(range);
 
         when(linkSelectorFactory.createLinkSelector(eq(LinkSelectorType.UNIDIRECTIONAL), any(LinkDataMapProcessor.class), any(LinkDataMapProcessor.class)))
                 .thenReturn(createCallerLinkSelector(List.of(new LinkKey(fromApplication, toApplication)), timestamp));
 
-        LinkHistogramSummary linkHistogramSummary = service.selectLinkHistogramData(fromApplication, toApplication, range);
+        LinkHistogramSummary linkHistogramSummary = service.selectLinkHistogramData(fromApplication, toApplication, timeWindow);
         Histogram histogram = linkHistogramSummary.getHistogram();
 
         logger.debug(linkHistogramSummary);
@@ -530,7 +537,7 @@ public class ResponseTimeHistogramServiceImplTest {
     private LinkSelector createCallerLinkSelector(List<LinkKey> linkKeys, long timestamp) {
         return new LinkSelector() {
             @Override
-            public LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int callerSearchDepth, int calleeSearchDepth) {
+            public LinkDataDuplexMap select(List<Application> sourceApplications, TimeWindow timeWindow, int callerSearchDepth, int calleeSearchDepth) {
                 if (calleeSearchDepth > 0) {
                     throw new IllegalArgumentException("use UNIDIRECTIONAL link selector only. calleeSearchDepth: " + calleeSearchDepth);
                 }
@@ -543,11 +550,11 @@ public class ResponseTimeHistogramServiceImplTest {
             }
 
             @Override
-            public LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int callerSearchDepth, int calleeSearchDepth, boolean timeAggregated) {
+            public LinkDataDuplexMap select(List<Application> sourceApplications, TimeWindow timeWindow, int callerSearchDepth, int calleeSearchDepth, boolean timeAggregated) {
                 if (timeAggregated) {
                     throw new IllegalArgumentException("link histogram data require timeSeries data");
                 }
-                return select(sourceApplications, range, callerSearchDepth, calleeSearchDepth);
+                return select(sourceApplications, timeWindow, callerSearchDepth, calleeSearchDepth);
             }
         };
     }
@@ -555,7 +562,7 @@ public class ResponseTimeHistogramServiceImplTest {
     private LinkSelector createCalleeLinkSelector(List<LinkKey> linkKeys, long timestamp) {
         return new LinkSelector() {
             @Override
-            public LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int callerSearchDepth, int calleeSearchDepth) {
+            public LinkDataDuplexMap select(List<Application> sourceApplications, TimeWindow timeWindow, int callerSearchDepth, int calleeSearchDepth) {
                 if (callerSearchDepth > 0) {
                     throw new IllegalArgumentException("use UNIDIRECTIONAL link selector only. callerSearchDepth: " + callerSearchDepth);
                 }
@@ -568,11 +575,11 @@ public class ResponseTimeHistogramServiceImplTest {
             }
 
             @Override
-            public LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int callerSearchDepth, int calleeSearchDepth, boolean timeAggregated) {
+            public LinkDataDuplexMap select(List<Application> sourceApplications, TimeWindow timeWindow, int callerSearchDepth, int calleeSearchDepth, boolean timeAggregated) {
                 if (timeAggregated) {
                     throw new IllegalArgumentException("link histogram data require timeSeries data");
                 }
-                return select(sourceApplications, range, callerSearchDepth, calleeSearchDepth);
+                return select(sourceApplications, timeWindow, callerSearchDepth, calleeSearchDepth);
             }
         };
     }

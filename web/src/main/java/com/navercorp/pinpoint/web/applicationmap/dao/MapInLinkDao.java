@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.dao;
 
-import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
 
@@ -27,6 +27,6 @@ import com.navercorp.pinpoint.web.vo.Application;
  * 
  */
 public interface MapInLinkDao {
-    LinkDataMap selectInLink(Application inApplication, Range range, boolean timeAggregated);
+    LinkDataMap selectInLink(Application inApplication, TimeWindow timeWindow, boolean timeAggregated);
 
 }

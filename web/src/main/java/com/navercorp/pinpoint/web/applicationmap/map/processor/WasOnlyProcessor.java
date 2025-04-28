@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map.processor;
 
-import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
@@ -35,7 +35,7 @@ public class WasOnlyProcessor implements LinkDataMapProcessor {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
-    public LinkDataMap processLinkDataMap(LinkDirection linkDirection, LinkDataMap linkDataMap, Range range) {
+    public LinkDataMap processLinkDataMap(LinkDirection linkDirection, LinkDataMap linkDataMap, TimeWindow timeWindow) {
         final LinkDataMap filteredLinkDataMap = new LinkDataMap();
         for (LinkData linkData : linkDataMap.getLinkDataList()) {
             if (accept(linkData)) {

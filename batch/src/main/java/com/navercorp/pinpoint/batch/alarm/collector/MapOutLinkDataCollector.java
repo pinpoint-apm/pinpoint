@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.batch.alarm.collector;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
@@ -60,7 +61,8 @@ public class MapOutLinkDataCollector extends DataCollector {
         }
 
         Range between = Range.between(timeSlotEndTime - slotInterval, timeSlotEndTime);
-        LinkDataMap outLinkDataMap = mapOutLinkDao.selectOutLink(application, between, false);
+        TimeWindow timeWindow = new TimeWindow(between);
+        LinkDataMap outLinkDataMap = mapOutLinkDao.selectOutLink(application, timeWindow, false);
 
         for (LinkData linkData : outLinkDataMap.getLinkDataList()) {
             LinkCallDataMap linkCallDataMap = linkData.getLinkCallDataMap();

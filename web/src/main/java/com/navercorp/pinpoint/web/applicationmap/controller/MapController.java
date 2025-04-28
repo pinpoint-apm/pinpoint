@@ -102,7 +102,7 @@ public class MapController {
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
             boolean useStatisticsAgentState
     ) {
-        final Range range = toRange(rangeForm);
+        final TimeWindow timeWindow = newTimeWindow(rangeForm);
 
         final SearchOption searchOption = searchOptionBuilder()
                 .build(depthForm.getCallerRange(), depthForm.getCalleeRange(), bidirectional, wasOnly);
@@ -110,14 +110,13 @@ public class MapController {
         final Application application = getApplication(appForm);
 
         final MapServiceOption option = new MapServiceOption
-                .Builder(application, range, searchOption)
+                .Builder(application, timeWindow, searchOption)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 
         logger.info("Select applicationMap {}. option={}", TimeHistogramFormat.V3, option);
         final ApplicationMap map = this.mapService.selectApplicationMap(option);
 
-        TimeWindow timeWindow = new TimeWindow(range);
         return new MapViewV3(map, timeWindow, MapViews.ofBasic(), hyperLinkFactory);
     }
 
@@ -143,14 +142,14 @@ public class MapController {
             @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
             boolean useLoadHistogramFormat
     ) {
-        final Range range = toRange(rangeForm);
+        final TimeWindow timeWindow = newTimeWindow(rangeForm);
 
         final SearchOption searchOption = searchOptionBuilder()
                 .build(depthForm.getCallerRange(), depthForm.getCalleeRange(), bidirectional, wasOnly);
         final Application application = getApplication(appForm);
 
         final MapServiceOption option = new MapServiceOption
-                .Builder(application, range, searchOption)
+                .Builder(application, timeWindow, searchOption)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 
@@ -174,14 +173,14 @@ public class MapController {
             @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
             boolean useStatisticsAgentState) {
-        final Range range = toRange(rangeForm);
+        final TimeWindow timeWindow = newTimeWindow(rangeForm);
 
         final Application application = getApplication(appForm);
         SearchOption searchOption = searchOptionBuilder()
                 .build(depthForm.getCallerRange(), depthForm.getCalleeRange(), bidirectional, wasOnly);
 
         final MapServiceOption option = new MapServiceOption
-                .Builder(application, range, searchOption)
+                .Builder(application, timeWindow, searchOption)
                 .setSimpleResponseHistogram(true)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
@@ -196,9 +195,9 @@ public class MapController {
         return applicationValidator.newApplication(appForm.getApplicationName(), appForm.getServiceTypeCode(), appForm.getServiceTypeName());
     }
 
-    private Range toRange(RangeForm rangeForm) {
+    private TimeWindow newTimeWindow(RangeForm rangeForm) {
         Range between = Range.between(rangeForm.getFrom(), rangeForm.getTo());
         this.rangeValidator.validate(between);
-        return between;
+        return new TimeWindow(between);
     }
 }

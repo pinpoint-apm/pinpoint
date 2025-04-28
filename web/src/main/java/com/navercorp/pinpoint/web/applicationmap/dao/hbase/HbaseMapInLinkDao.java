@@ -23,9 +23,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
-import com.navercorp.pinpoint.common.timeseries.window.TimeWindowDownSampler;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.LinkTimeWindowReducer;
@@ -81,17 +79,15 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
     }
 
     @Override
-    public LinkDataMap selectInLink(Application inApplication, Range range, boolean timeAggregated) {
+    public LinkDataMap selectInLink(Application inApplication, TimeWindow timeWindow, boolean timeAggregated) {
         Objects.requireNonNull(inApplication, "inApplication");
-        Objects.requireNonNull(range, "range");
-
-        final TimeWindow timeWindow = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
+        Objects.requireNonNull(timeWindow, "timeWindow");
 
         TimeWindowFunction mapperWindow = newTimeWindow(timeAggregated);
         RowMapper<LinkDataMap> rowMapper = this.inLinkMapperFactory.newMapper(mapperWindow);
         ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(rowMapper, new LinkTimeWindowReducer(timeWindow));
 
-        final Scan scan = scanFactory.createScan("MapInLinkScan", inApplication, range, DESCRIPTOR.getName());
+        final Scan scan = scanFactory.createScan("MapInLinkScan", inApplication, timeWindow.getWindowRange(), DESCRIPTOR.getName());
 
         return selectInLink(scan, DESCRIPTOR.getTable(), resultExtractor, MAP_STATISTICS_CALLER_VER2_NUM_PARTITIONS);
     }

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.authorization.controller;
 import com.navercorp.pinpoint.common.timeseries.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
@@ -262,12 +263,13 @@ public class ResponseTimeController {
     ) {
         final Range range = Range.between(from, to);
         this.rangeValidator.validate(range);
+        final TimeWindow timeWindow = new TimeWindow(range);
 
         Application fromApplication = createApplication(fromApplicationName, fromServiceTypeCode, fromServiceTypeName);
         Application toApplication = createApplication(toApplicationName, toServiceTypeCode, toServiceTypeName);
 
         LinkHistogramSummary linkHistogramSummary =
-                responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, range);
+                responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, timeWindow);
 
         return newHistogramView(linkHistogramSummary);
     }
@@ -293,13 +295,14 @@ public class ResponseTimeController {
     ) {
         final Range range = Range.between(from, to);
         this.rangeValidator.validate(range);
+        final TimeWindow timeWindow = new TimeWindow(range);
 
         Application fromApplication = createApplication(fromApplicationName, fromServiceTypeCode, fromServiceTypeName);
         Application toApplication = createApplication(toApplicationName, toServiceTypeCode, toServiceTypeName);
         TimeHistogramType timeHistogramType = TimeHistogramType.valueOf(type);
 
         LinkHistogramSummary linkHistogramSummary =
-                responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, range);
+                responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, timeWindow);
 
         ApplicationTimeHistogram histogram = linkHistogramSummary.getLinkApplicationTimeHistogram();
 

@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map;
 
-import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.service.SearchDepth;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
@@ -59,19 +59,19 @@ public class BidirectionalLinkSelector implements LinkSelector {
     }
 
     @Override
-    public LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int outSearchDepth, int inSearchDepth) {
-        return select(sourceApplications, range, outSearchDepth, inSearchDepth, false);
+    public LinkDataDuplexMap select(List<Application> sourceApplications, TimeWindow timeWindow, int outSearchDepth, int inSearchDepth) {
+        return select(sourceApplications, timeWindow, outSearchDepth, inSearchDepth, false);
     }
 
     @Override
-    public LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int outSearchDepth, int inSearchDepth, boolean timeAggregated) {
+    public LinkDataDuplexMap select(List<Application> sourceApplications, TimeWindow timeWindow, int outSearchDepth, int inSearchDepth, boolean timeAggregated) {
         logger.debug("Creating link data map for {}", sourceApplications);
         final SearchDepth outDepth = new SearchDepth(outSearchDepth);
         final SearchDepth inDepth = new SearchDepth(inSearchDepth);
 
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
         List<Application> applications = filterApplications(sourceApplications);
-        LinkSelectContext linkSelectContext = new LinkSelectContext(range, outDepth, inDepth, linkVisitChecker, timeAggregated);
+        LinkSelectContext linkSelectContext = new LinkSelectContext(timeWindow, outDepth, inDepth, linkVisitChecker, timeAggregated);
 
         while (!applications.isEmpty()) {
 
@@ -85,7 +85,7 @@ public class BidirectionalLinkSelector implements LinkSelector {
             applications = filterApplications(nextApplications);
             linkSelectContext = linkSelectContext.advance();
         }
-        return virtualLinkHandler.processVirtualLinks(linkDataDuplexMap, linkVisitChecker, range);
+        return virtualLinkHandler.processVirtualLinks(linkDataDuplexMap, linkVisitChecker, timeWindow);
     }
 
     private List<Application> filterApplications(List<Application> applications) {

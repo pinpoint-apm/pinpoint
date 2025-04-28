@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map;
 
-import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.LinkDataMapProcessor;
@@ -44,7 +44,9 @@ public class DefaultApplicationMapCreator implements ApplicationMapCreator {
 
     private final LinkDataMapProcessor inLinkDataMapProcessor;
 
-    public DefaultApplicationMapCreator(LinkDataMapService linkDataMapService, LinkDataMapProcessor outLinkDataMapProcessor, LinkDataMapProcessor inLinkDataMapProcessor) {
+    public DefaultApplicationMapCreator(LinkDataMapService linkDataMapService,
+                                        LinkDataMapProcessor outLinkDataMapProcessor,
+                                        LinkDataMapProcessor inLinkDataMapProcessor) {
         this.linkDataMapService = Objects.requireNonNull(linkDataMapService, "linkDataMapService");
         this.outLinkDataMapProcessor = Objects.requireNonNull(outLinkDataMapProcessor, "outLinkDataMapProcessor");
         this.inLinkDataMapProcessor = Objects.requireNonNull(inLinkDataMapProcessor, "inLinkDataMapProcessor");
@@ -53,14 +55,15 @@ public class DefaultApplicationMapCreator implements ApplicationMapCreator {
     @Override
     public LinkDataDuplexMap createMap(Application application, LinkSelectContext linkSelectContext) {
         logger.debug("Finding Out/In link data for {}", application);
-        final Range range = linkSelectContext.getRange();
+
+        TimeWindow timeWindow = linkSelectContext.getTimeWindow();
         LinkDataDuplexMap searchResult = new LinkDataDuplexMap();
 
         if (linkSelectContext.checkNextOut(application)) {
-            final LinkDataMap outLinkDataMap = linkDataMapService.selectOutLinkDataMap(application, range, linkSelectContext.isTimeAggregated());
+            final LinkDataMap outLinkDataMap = linkDataMapService.selectOutLinkDataMap(application, timeWindow, linkSelectContext.isTimeAggregated());
             logger.debug("Found {}. node={}, depth={}, count={}", LinkDirection.OUT_LINK, application, linkSelectContext.getOutDepth(), outLinkDataMap.size());
 
-            final LinkDataMap processedOutLinkDataMap = outLinkDataMapProcessor.processLinkDataMap(LinkDirection.OUT_LINK, outLinkDataMap, range);
+            final LinkDataMap processedOutLinkDataMap = outLinkDataMapProcessor.processLinkDataMap(LinkDirection.OUT_LINK, outLinkDataMap, timeWindow);
             logger.debug("Processed {} node={} count:{} {}", LinkDirection.OUT_LINK, application, processedOutLinkDataMap.size(), processedOutLinkDataMap);
             for (LinkData outLinkData : processedOutLinkDataMap.getLinkDataList()) {
                 searchResult.addSourceLinkData(outLinkData);
@@ -75,10 +78,10 @@ public class DefaultApplicationMapCreator implements ApplicationMapCreator {
         }
 
         if (linkSelectContext.checkNextIn(application)) {
-            final LinkDataMap inLinkDataMap = linkDataMapService.selectInLinkDataMap(application, range, linkSelectContext.isTimeAggregated());
+            final LinkDataMap inLinkDataMap = linkDataMapService.selectInLinkDataMap(application, timeWindow, linkSelectContext.isTimeAggregated());
             logger.debug("Found {}. node={}, depth={}, count={}", LinkDirection.IN_LINK, application, linkSelectContext.getInDepth(), inLinkDataMap.size());
 
-            final LinkDataMap processedInLinkDataMap = inLinkDataMapProcessor.processLinkDataMap(LinkDirection.IN_LINK, inLinkDataMap, range);
+            final LinkDataMap processedInLinkDataMap = inLinkDataMapProcessor.processLinkDataMap(LinkDirection.IN_LINK, inLinkDataMap, timeWindow);
             logger.debug("Processed {} node={} count:{} {}", LinkDirection.IN_LINK, application, processedInLinkDataMap.size(), processedInLinkDataMap);
             for (LinkData inLinkData : processedInLinkDataMap.getLinkDataList()) {
                 searchResult.addTargetLinkData(inLinkData);

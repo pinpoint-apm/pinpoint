@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map.processor;
 
-import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 
@@ -26,11 +26,11 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
  */
 public interface LinkDataMapProcessor {
 
-    LinkDataMap processLinkDataMap(LinkDirection direction, LinkDataMap linkDataMap, Range range);
+    LinkDataMap processLinkDataMap(LinkDirection direction, LinkDataMap linkDataMap, TimeWindow timeWindow);
 
     LinkDataMapProcessor NO_OP = new LinkDataMapProcessor() {
         @Override
-        public LinkDataMap processLinkDataMap(LinkDirection direction, LinkDataMap linkDataMap, Range range) {
+        public LinkDataMap processLinkDataMap(LinkDirection direction, LinkDataMap linkDataMap, TimeWindow timeWindow) {
             return linkDataMap;
         }
     };

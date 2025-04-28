@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.web.applicationmap.map.processor;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
@@ -61,23 +62,23 @@ public class RpcCallProcessor implements LinkDataMapProcessor {
     }
 
     @Override
-    public LinkDataMap processLinkDataMap(LinkDirection direction, LinkDataMap linkDataMap, Range range) {
+    public LinkDataMap processLinkDataMap(LinkDirection direction, LinkDataMap linkDataMap, TimeWindow timeWindow) {
         final LinkDataMap replacedLinkDataMap = new LinkDataMap();
         for (LinkData linkData : linkDataMap.getLinkDataList()) {
-            final List<LinkData> replacedLinkDatas = replaceLinkData(direction, linkData, range);
+            final List<LinkData> replacedLinkDatas = replaceLinkData(direction, linkData, timeWindow);
             for (LinkData replacedLinkData : replacedLinkDatas)
                 replacedLinkDataMap.addLinkData(replacedLinkData);
         }
         return replacedLinkDataMap;
     }
 
-    private List<LinkData> replaceLinkData(LinkDirection direction, LinkData linkData, Range range) {
+    private List<LinkData> replaceLinkData(LinkDirection direction, LinkData linkData, TimeWindow timeWindow) {
         final Application toApplication = linkData.getToApplication();
         if (toApplication.getServiceType().isRpcClient() || toApplication.getServiceType().isQueue()) {
             // rpc client's destination could have an agent installed in which case the link data must be replaced to point
             // to the destination application.
-            logger.debug("Finding {} accept applications for {}, {}", direction, toApplication, range);
-            final Set<AcceptApplication> acceptApplicationList = findAcceptApplications(linkData.getFromApplication(), toApplication.getName(), range);
+            logger.debug("Finding {} accept applications for {}, {}", direction, toApplication, timeWindow.getWindowRange());
+            final Set<AcceptApplication> acceptApplicationList = findAcceptApplications(linkData.getFromApplication(), toApplication.getName(), timeWindow.getWindowRange());
             logger.debug("Found {} accept applications: {}", direction, acceptApplicationList);
             if (CollectionUtils.hasLength(acceptApplicationList)) {
                 if (acceptApplicationList.size() == 1) {

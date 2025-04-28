@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.web.applicationmap.service;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
@@ -126,6 +127,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     private NodeHistogramSummary getUserNodeHistogramSummary(ResponseTimeHistogramServiceOption option) {
         Application application = option.getApplication();
         Range range = option.getRange();
+        TimeWindow timeWindow = new TimeWindow(range);
         List<Application> destinationApplications = option.getToApplications();
 
         final ServerGroupListFactory serverGroupListFactory = createServerGroupListFactory(option.isUseStatisticsAgentState());
@@ -134,7 +136,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
         }
         LinkDataMapProcessor sourceApplicationFilter = new SourceApplicationFilter(application);
         LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(LinkSelectorType.UNIDIRECTIONAL, LinkDataMapProcessor.NO_OP, sourceApplicationFilter);
-        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(destinationApplications, range, 0, 1);
+        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(destinationApplications, timeWindow, 0, 1);
 
         ServerGroupList serverGroupList = serverGroupListFactory.createUserNodeInstanceList();
 
@@ -164,6 +166,8 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     private NodeHistogramSummary getTerminalNodeHistogramSummary(ResponseTimeHistogramServiceOption option) {
         Application application = option.getApplication();
         Range range = option.getRange();
+        TimeWindow timeWindow = new TimeWindow(range);
+
         ServiceType applicationServiceType = application.getServiceType();
 
         final ServerGroupListFactory serverGroupListFactory = createServerGroupListFactory(option.isUseStatisticsAgentState());
@@ -173,7 +177,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
         }
         LinkDataMapProcessor destinationApplicationFilter = new DestinationApplicationFilter(application);
         LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(LinkSelectorType.UNIDIRECTIONAL, destinationApplicationFilter, LinkDataMapProcessor.NO_OP);
-        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(sourceApplications, range, 1, 0);
+        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(sourceApplications, timeWindow, 1, 0);
 
         ServerGroupList serverGroupList = serverGroupListFactory.createEmptyNodeInstanceList();
         if (applicationServiceType.isTerminal() || applicationServiceType.isAlias()) {
@@ -194,6 +198,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
 
         Application application = option.getApplication();
         Range range = option.getRange();
+        TimeWindow timeWindow = new TimeWindow(range);
 
         final ServerGroupListFactory serverGroupListFactory = createServerGroupListFactory(option.isUseStatisticsAgentState());
         List<Application> sourceApplications = option.getFromApplications();
@@ -203,7 +208,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
         }
         LinkDataMapProcessor destinationApplicationFilter = new DestinationApplicationFilter(application);
         LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(LinkSelectorType.UNIDIRECTIONAL, destinationApplicationFilter, LinkDataMapProcessor.NO_OP);
-        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(sourceApplications, range, 1, 0);
+        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(sourceApplications, timeWindow, 1, 0);
 
         Node node = new Node(application);
         ServerGroupList serverGroupList = serverGroupListFactory.createQueueNodeInstanceList(node, linkDataDuplexMap);
@@ -228,11 +233,10 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     }
 
     @Override
-    public LinkHistogramSummary selectLinkHistogramData(Application fromApplication, Application toApplication, Range range) {
+    public LinkHistogramSummary selectLinkHistogramData(Application fromApplication, Application toApplication, TimeWindow timeWindow) {
         Objects.requireNonNull(fromApplication, "fromApplication");
         Objects.requireNonNull(toApplication, "toApplication");
-        Objects.requireNonNull(range, "range");
-
+        Objects.requireNonNull(timeWindow, "range");
 
         LinkDataDuplexMap linkDataDuplexMap;
         ServiceType fromApplicationServiceType = fromApplication.getServiceType();
@@ -242,14 +246,15 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
             linkDirection = LinkDirection.IN_LINK;
             LinkDataMapProcessor sourceApplicationFilter = new SourceApplicationFilter(fromApplication);
             LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(LinkSelectorType.UNIDIRECTIONAL, LinkDataMapProcessor.NO_OP, sourceApplicationFilter);
-            linkDataDuplexMap = linkSelector.select(Collections.singletonList(toApplication), range, 0, 1);
+            linkDataDuplexMap = linkSelector.select(Collections.singletonList(toApplication), timeWindow, 0, 1);
         } else {
             LinkDataMapProcessor destinationApplication = new DestinationApplicationFilter(toApplication);
             LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(LinkSelectorType.UNIDIRECTIONAL, destinationApplication, LinkDataMapProcessor.NO_OP);
-            linkDataDuplexMap = linkSelector.select(Collections.singletonList(fromApplication), range, 1, 0);
+            linkDataDuplexMap = linkSelector.select(Collections.singletonList(fromApplication), timeWindow, 1, 0);
         }
 
         NodeList nodeList = NodeListFactory.createNodeList(linkDataDuplexMap);
+        Range range = timeWindow.getWindowRange();
         LinkList linkList = LinkListFactory.createLinkList(nodeList, linkDataDuplexMap, range);
         LinkKey linkKey = new LinkKey(fromApplication, toApplication);
         Link link = linkList.getLink(linkKey);

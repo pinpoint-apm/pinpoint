@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.service;
 
-import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
@@ -42,12 +42,12 @@ public class LinkDataMapServiceImpl implements LinkDataMapService {
     }
 
     @Override
-    public LinkDataMap selectOutLinkDataMap(Application outApplication, Range range, boolean timeAggregated) {
-        return mapOutLinkDao.selectOutLink(outApplication, range, timeAggregated);
+    public LinkDataMap selectOutLinkDataMap(Application outApplication, TimeWindow timeWindow, boolean timeAggregated) {
+        return mapOutLinkDao.selectOutLink(outApplication, timeWindow, timeAggregated);
     }
 
     @Override
-    public LinkDataMap selectInLinkDataMap(Application inApplication, Range range, boolean timeAggregated) {
-        return mapInLinkDao.selectInLink(inApplication, range, timeAggregated);
+    public LinkDataMap selectInLinkDataMap(Application inApplication, TimeWindow timeWindow, boolean timeAggregated) {
+        return mapInLinkDao.selectInLink(inApplication, timeWindow, timeAggregated);
     }
 }

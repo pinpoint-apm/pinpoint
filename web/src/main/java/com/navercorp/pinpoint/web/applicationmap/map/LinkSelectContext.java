@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map;
 
-import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.service.SearchDepth;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -38,7 +38,7 @@ public class LinkSelectContext {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final Range range;
+    private final TimeWindow timeWindow;
     private final SearchDepth outDepth;
     private final SearchDepth inDepth;
 
@@ -47,17 +47,17 @@ public class LinkSelectContext {
 
     private final Set<Application> nextApplications = ConcurrentHashMap.newKeySet();
 
-    public LinkSelectContext(Range range, SearchDepth outDepth, SearchDepth inDepth,
+    public LinkSelectContext(TimeWindow timeWindow, SearchDepth outDepth, SearchDepth inDepth,
                              LinkVisitChecker linkVisitChecker, boolean timeAggregated) {
-        this.range = Objects.requireNonNull(range, "range");
+        this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
         this.outDepth = Objects.requireNonNull(outDepth, "outDepth");
         this.inDepth = Objects.requireNonNull(inDepth, "inDepth");
         this.linkVisitChecker = Objects.requireNonNull(linkVisitChecker, "linkVisitChecker");
         this.timeAggregated = timeAggregated;
     }
 
-    public Range getRange() {
-        return range;
+    public TimeWindow getTimeWindow() {
+        return timeWindow;
     }
 
     public int getOutDepth() {
@@ -106,6 +106,6 @@ public class LinkSelectContext {
     public LinkSelectContext advance() {
         SearchDepth nextOutDepth = outDepth.nextDepth();
         SearchDepth nextInDepth = inDepth.nextDepth();
-        return new LinkSelectContext(range, nextOutDepth, nextInDepth, linkVisitChecker, timeAggregated);
+        return new LinkSelectContext(timeWindow, nextOutDepth, nextInDepth, linkVisitChecker, timeAggregated);
     }
 }
