@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.service;
 
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
@@ -110,7 +111,9 @@ public class MapServiceImpl implements MapService {
         }
         LinkDataMapProcessor inLinkProcessor = LinkDataMapProcessor.NO_OP;
         LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(linkSelectorType, outLinkProcessor, inLinkProcessor);
-        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(Collections.singletonList(option.getSourceApplication()), option.getRange(), outSearchDepth, inSearchDepth, timeAggregate);
+
+        TimeWindow timeWindow = option.getTimeWindow();
+        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(Collections.singletonList(option.getSourceApplication()), timeWindow, outSearchDepth, inSearchDepth, timeAggregate);
         watch.stop();
 
         if (linkDataLimiter.excess(linkDataDuplexMap.getTotalCount())) {

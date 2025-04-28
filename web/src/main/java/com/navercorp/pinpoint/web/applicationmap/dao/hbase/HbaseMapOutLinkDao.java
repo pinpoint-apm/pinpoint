@@ -23,9 +23,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
-import com.navercorp.pinpoint.common.timeseries.window.TimeWindowDownSampler;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.LinkTimeWindowReducer;
@@ -81,16 +79,14 @@ public class HbaseMapOutLinkDao implements MapOutLinkDao {
     }
 
     @Override
-    public LinkDataMap selectOutLink(Application outApplication, Range range, boolean timeAggregated) {
-
-        final TimeWindow timeWindow = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
+    public LinkDataMap selectOutLink(Application outApplication, TimeWindow timeWindow, boolean timeAggregated) {
 
         TimeWindowFunction mapperWindow = newTimeWindow(timeAggregated);
         RowMapper<LinkDataMap> rowMapper = this.outMapperFactory.newMapper(mapperWindow);
 
         ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(rowMapper, new LinkTimeWindowReducer(timeWindow));
 
-        final Scan scan = scanFactory.createScan("MapOutLinkScan", outApplication, range, DESCRIPTOR.getName());
+        final Scan scan = scanFactory.createScan("MapOutLinkScan", outApplication, timeWindow.getWindowRange(), DESCRIPTOR.getName());
         return selectOutLink(scan, DESCRIPTOR.getTable(), resultExtractor, MAP_STATISTICS_CALLEE_VER2_NUM_PARTITIONS);
     }
 

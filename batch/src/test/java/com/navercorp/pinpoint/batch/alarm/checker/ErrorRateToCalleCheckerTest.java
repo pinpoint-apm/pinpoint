@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.batch.alarm.checker;
 
 import com.navercorp.pinpoint.batch.alarm.collector.MapOutLinkDataCollector;
-import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
@@ -50,7 +50,7 @@ public class ErrorRateToCalleCheckerTest {
         dao = new MapOutLinkDao() {
 
             @Override
-            public LinkDataMap selectOutLink(Application outApplication, Range range, boolean timeAggregated) {
+            public LinkDataMap selectOutLink(Application outApplication, TimeWindow range, boolean timeAggregated) {
                 long timeStamp = 1409814914298L;
                 LinkDataMap linkDataMap = new LinkDataMap();
                 Application fromApplication = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);

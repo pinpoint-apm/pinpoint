@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.web.applicationmap.map.processor;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
@@ -35,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class WasOnlyProcessorTest {
 
     private final Range testRange = Range.between(System.currentTimeMillis(), System.currentTimeMillis());
+    private final TimeWindow timeWindow = new TimeWindow(testRange);
 
     @Test
     public void shouldFilterLinksToTerminalNodes() {
@@ -48,7 +50,7 @@ public class WasOnlyProcessorTest {
 
         // When
         WasOnlyProcessor wasOnlyProcessor = new WasOnlyProcessor();
-        LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, testRange);
+        LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, timeWindow);
 
         // Then
         assertThat(filteredLinkDataMap.getLinkDataList()).isEmpty();
@@ -65,7 +67,7 @@ public class WasOnlyProcessorTest {
 
         // When
         WasOnlyProcessor wasOnlyProcessor = new WasOnlyProcessor();
-        LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, testRange);
+        LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, timeWindow);
 
         // Then
         assertThat(filteredLinkDataMap.getLinkDataList()).isEmpty();
@@ -82,7 +84,7 @@ public class WasOnlyProcessorTest {
 
         // When
         WasOnlyProcessor wasOnlyProcessor = new WasOnlyProcessor();
-        LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, testRange);
+        LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, timeWindow);
 
         // Then
         assertThat(filteredLinkDataMap.getLinkDataList()).isNotEmpty();
@@ -99,7 +101,7 @@ public class WasOnlyProcessorTest {
 
         // When
         WasOnlyProcessor wasOnlyProcessor = new WasOnlyProcessor();
-        LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, testRange);
+        LinkDataMap filteredLinkDataMap = wasOnlyProcessor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, timeWindow);
 
         // Then
         assertThat(filteredLinkDataMap.getLinkDataList()).isNotEmpty();

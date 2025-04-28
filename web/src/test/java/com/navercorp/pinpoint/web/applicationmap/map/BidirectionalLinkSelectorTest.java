@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.web.applicationmap.map;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
@@ -76,7 +77,7 @@ public class BidirectionalLinkSelectorTest extends LinkSelectorTestBase {
         LinkDataMap link_OUT_IN_to_OUT = new LinkDataMap();
         link_OUT_IN_to_OUT.addLinkData(APP_OUT_IN, "agentOutIn", APP_OUT, "agentOut", 1000, ServiceType.STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount);
 
-        when(linkDataMapService.selectOutLinkDataMap(any(Application.class), any(Range.class), anyBoolean())).thenAnswer(new Answer<LinkDataMap>() {
+        when(linkDataMapService.selectOutLinkDataMap(any(Application.class), any(TimeWindow.class), anyBoolean())).thenAnswer(new Answer<LinkDataMap>() {
             @Override
             public LinkDataMap answer(InvocationOnMock invocation) throws Throwable {
                 Application callerApplication = invocation.getArgument(0);
@@ -97,7 +98,7 @@ public class BidirectionalLinkSelectorTest extends LinkSelectorTestBase {
                 return newEmptyLinkDataMap();
             }
         });
-        when(linkDataMapService.selectInLinkDataMap(any(Application.class), any(Range.class), anyBoolean())).thenAnswer(new Answer<LinkDataMap>() {
+        when(linkDataMapService.selectInLinkDataMap(any(Application.class), any(TimeWindow.class), anyBoolean())).thenAnswer(new Answer<LinkDataMap>() {
             @Override
             public LinkDataMap answer(InvocationOnMock invocation) throws Throwable {
                 Application calleeApplication = invocation.getArgument(0);
@@ -121,7 +122,7 @@ public class BidirectionalLinkSelectorTest extends LinkSelectorTestBase {
         when(hostApplicationMapDao.findAcceptApplicationName(any(Application.class), any(Range.class))).thenReturn(Set.of());
 
         LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(getLinkSelectorType());
-        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(List.of(APP_A), range, 2, 2);
+        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(List.of(APP_A), timeWindow, 2, 2);
 
         // APP_IN_IN -> APP_IN (callee)
         LinkKey linkKey_IN_IN_to_IN = new LinkKey(APP_IN_IN, APP_IN);

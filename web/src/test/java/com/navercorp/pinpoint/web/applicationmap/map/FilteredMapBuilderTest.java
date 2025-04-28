@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.util.UserNodeUtils;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.TestTraceUtils;
@@ -69,7 +70,8 @@ public class FilteredMapBuilderTest {
     public void twoTier() {
         // Given
         final Range range = Range.between(1, 200000);
-        final FilteredMapBuilder builder = new FilteredMapBuilder(applicationFactory, registry, range);
+        TimeWindow timeWindow = new TimeWindow(range);
+        final FilteredMapBuilder builder = new FilteredMapBuilder(applicationFactory, registry, timeWindow.getWindowRange());
 
         // root app span
         long rootSpanId = RANDOM.nextLong();

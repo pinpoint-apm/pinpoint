@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map;
 
-import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.service.SearchDepth;
@@ -56,12 +56,12 @@ public class UnidirectionalLinkSelector implements LinkSelector {
     }
 
     @Override
-    public LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int outSearchDepth, int inSearchDepth) {
-        return select(sourceApplications, range, outSearchDepth, inSearchDepth, false);
+    public LinkDataDuplexMap select(List<Application> sourceApplications, TimeWindow timeWindow, int outSearchDepth, int inSearchDepth) {
+        return select(sourceApplications, timeWindow, outSearchDepth, inSearchDepth, false);
     }
 
     @Override
-    public LinkDataDuplexMap select(List<Application> sourceApplications, Range range, int outSearchDepth, int inSearchDepth, boolean timeAggregated) {
+    public LinkDataDuplexMap select(List<Application> sourceApplications, TimeWindow timeWindow, int outSearchDepth, int inSearchDepth, boolean timeAggregated) {
         logger.debug("Creating link data map for {}", sourceApplications);
         final SearchDepth outDepth = new SearchDepth(outSearchDepth);
         final SearchDepth inDepth = new SearchDepth(inSearchDepth);
@@ -70,9 +70,9 @@ public class UnidirectionalLinkSelector implements LinkSelector {
         List<Application> applications = filterApplications(sourceApplications);
 
         List<Application> outboundApplications = Collections.unmodifiableList(applications);
-        LinkSelectContext outboundLinkSelectContext = new LinkSelectContext(range, outDepth, new SearchDepth(0), linkVisitChecker, timeAggregated);
+        LinkSelectContext outboundLinkSelectContext = new LinkSelectContext(timeWindow, outDepth, new SearchDepth(0), linkVisitChecker, timeAggregated);
         List<Application> inboundApplications = Collections.unmodifiableList(applications);
-        LinkSelectContext inboundLinkSelectContext = new LinkSelectContext(range, new SearchDepth(0), inDepth, linkVisitChecker, timeAggregated);
+        LinkSelectContext inboundLinkSelectContext = new LinkSelectContext(timeWindow, new SearchDepth(0), inDepth, linkVisitChecker, timeAggregated);
 
         while (!outboundApplications.isEmpty() || !inboundApplications.isEmpty()) {
 
@@ -93,7 +93,7 @@ public class UnidirectionalLinkSelector implements LinkSelector {
             outboundLinkSelectContext = outboundLinkSelectContext.advance();
             inboundLinkSelectContext = inboundLinkSelectContext.advance();
         }
-        return virtualLinkHandler.processVirtualLinks(linkDataDuplexMap, linkVisitChecker, range);
+        return virtualLinkHandler.processVirtualLinks(linkDataDuplexMap, linkVisitChecker, timeWindow);
     }
 
     private List<Application> filterApplications(List<Application> applications) {

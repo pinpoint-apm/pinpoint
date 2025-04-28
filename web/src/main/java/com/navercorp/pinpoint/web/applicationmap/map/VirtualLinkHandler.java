@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map;
 
-import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
@@ -53,7 +53,7 @@ public class VirtualLinkHandler {
         this.virtualLinkMarker = Objects.requireNonNull(virtualLinkMarker, "virtualLinkMarker");
     }
 
-    public LinkDataDuplexMap processVirtualLinks(LinkDataDuplexMap linkDataDuplexMap, LinkVisitChecker linkVisitChecker, Range range) {
+    public LinkDataDuplexMap processVirtualLinks(LinkDataDuplexMap linkDataDuplexMap, LinkVisitChecker linkVisitChecker, TimeWindow timeWindow) {
         Set<LinkData> virtualLinkDataSet = virtualLinkMarker.getVirtualLinkData();
         if (virtualLinkDataSet.isEmpty()) {
             return linkDataDuplexMap;
@@ -65,7 +65,7 @@ public class VirtualLinkHandler {
         } else {
             logger.info("unpopulated emulated nodes : {}", unpopulatedEmulatedNodes);
             for (Application unpopulatedEmulatedNode : unpopulatedEmulatedNodes) {
-                for (LinkData emulatedNodeInLinkData : getEmulatedNodeInLinkData(linkVisitChecker, unpopulatedEmulatedNode, range)) {
+                for (LinkData emulatedNodeInLinkData : getEmulatedNodeInLinkData(linkVisitChecker, unpopulatedEmulatedNode, timeWindow)) {
                     linkDataDuplexMap.addTargetLinkData(emulatedNodeInLinkData);
                 }
             }
@@ -86,8 +86,8 @@ public class VirtualLinkHandler {
         return new ArrayList<>(unpopulatedEmulatedNodes);
     }
 
-    private Collection<LinkData> getEmulatedNodeInLinkData(LinkVisitChecker linkVisitChecker, Application emulatedNode, Range range) {
-        LinkDataMap inLinkDataMap = linkDataMapService.selectInLinkDataMap(emulatedNode, range, false);
+    private Collection<LinkData> getEmulatedNodeInLinkData(LinkVisitChecker linkVisitChecker, Application emulatedNode, TimeWindow timeWindow) {
+        LinkDataMap inLinkDataMap = linkDataMapService.selectInLinkDataMap(emulatedNode, timeWindow, false);
         logger.debug("emulated node [{}] in LinkDataMap:{}", emulatedNode, inLinkDataMap);
 
         LinkDataMap filteredInLinkDataMap = new LinkDataMap();

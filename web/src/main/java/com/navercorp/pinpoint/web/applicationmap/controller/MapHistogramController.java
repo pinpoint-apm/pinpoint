@@ -20,6 +20,7 @@ package com.navercorp.pinpoint.web.applicationmap.controller;
 import com.navercorp.pinpoint.common.timeseries.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.ApplicationForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.RangeForm;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
@@ -230,11 +231,12 @@ public class MapHistogramController {
     ) {
         final Range range = toRange(rangeForm);
         this.rangeValidator.validate(range);
+        TimeWindow timeWindow = new TimeWindow(range);
 
         final Application fromApplication = this.createApplication(fromApplicationName, fromServiceTypeCode);
         final Application toApplication = this.createApplication(toApplicationName, toServiceTypeCode);
         final LinkHistogramSummary linkHistogramSummary =
-                responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, range);
+                responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, timeWindow);
 
         TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
         return new LinkHistogramSummaryView(linkHistogramSummary, format);

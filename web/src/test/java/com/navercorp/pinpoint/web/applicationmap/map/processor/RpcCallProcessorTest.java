@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.web.applicationmap.map.processor;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
@@ -49,7 +50,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class RpcCallProcessorTest {
 
-    private final Range testRange = Range.between(System.currentTimeMillis(), System.currentTimeMillis());
+    private final TimeWindow timeWindow = new TimeWindow(Range.between(1000 * 60, 1000 * 60));
+    private final Range testRange = timeWindow.getWindowRange();
 
     @Mock
     private HostApplicationMapDao hostApplicationMapDao;
@@ -70,7 +72,7 @@ public class RpcCallProcessorTest {
         // When
         VirtualLinkMarker virtualLinkMarker = new VirtualLinkMarker();
         RpcCallProcessor rpcCallProcessor = new RpcCallProcessor(hostApplicationMapDao, virtualLinkMarker);
-        LinkDataMap replacedLinkDataMap = rpcCallProcessor.processLinkDataMap(LinkDirection.OUT_LINK, linkDataMap, testRange);
+        LinkDataMap replacedLinkDataMap = rpcCallProcessor.processLinkDataMap(LinkDirection.OUT_LINK, linkDataMap, timeWindow);
 
         // Then
         LinkKey linkKey = new LinkKey(fromApplication, toApplication);
@@ -100,7 +102,7 @@ public class RpcCallProcessorTest {
         // When
         VirtualLinkMarker virtualLinkMarker = new VirtualLinkMarker();
         RpcCallProcessor rpcCallProcessor = new RpcCallProcessor(hostApplicationMapDao, virtualLinkMarker);
-        LinkDataMap replacedLinkDataMap = rpcCallProcessor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, testRange);
+        LinkDataMap replacedLinkDataMap = rpcCallProcessor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, timeWindow);
 
         // Then
         LinkKey originalLinkKey = new LinkKey(fromApplication, toApplication);
@@ -139,7 +141,7 @@ public class RpcCallProcessorTest {
         // When
         VirtualLinkMarker virtualLinkMarker = new VirtualLinkMarker();
         RpcCallProcessor rpcCallProcessor = new RpcCallProcessor(hostApplicationMapDao, virtualLinkMarker);
-        LinkDataMap replacedLinkDataMap = rpcCallProcessor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, testRange);
+        LinkDataMap replacedLinkDataMap = rpcCallProcessor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, timeWindow);
 
         // Then
         LinkKey originalLinkKey = new LinkKey(fromApplication, toApplication);
@@ -181,7 +183,7 @@ public class RpcCallProcessorTest {
         // When
         VirtualLinkMarker virtualLinkMarker = new VirtualLinkMarker();
         RpcCallProcessor rpcCallProcessor = new RpcCallProcessor(hostApplicationMapDao, virtualLinkMarker);
-        LinkDataMap replacedLinkDataMap = rpcCallProcessor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, testRange);
+        LinkDataMap replacedLinkDataMap = rpcCallProcessor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, timeWindow);
 
         // Then
         LinkKey originalLinkKey = new LinkKey(fromApplication, toApplication);
@@ -214,7 +216,7 @@ public class RpcCallProcessorTest {
         // When
         VirtualLinkMarker virtualLinkMarker = new VirtualLinkMarker();
         RpcCallProcessor rpcCallProcessor = new RpcCallProcessor(hostApplicationMapDao, virtualLinkMarker);
-        LinkDataMap replacedLinkDataMap = rpcCallProcessor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, testRange);
+        LinkDataMap replacedLinkDataMap = rpcCallProcessor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, timeWindow);
 
         // Then
         LinkKey linkKey = new LinkKey(fromApplication, toApplication);
@@ -253,7 +255,7 @@ public class RpcCallProcessorTest {
         // When
         VirtualLinkMarker virtualLinkMarker = new VirtualLinkMarker();
         RpcCallProcessor rpcCallProcessor = new RpcCallProcessor(hostApplicationMapDao, virtualLinkMarker);
-        LinkDataMap replacedLinkDataMap = rpcCallProcessor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, testRange);
+        LinkDataMap replacedLinkDataMap = rpcCallProcessor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, timeWindow);
 
         // Then
         LinkKey originalLinkKey = new LinkKey(fromApplication, toApplication);

@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map.processor;
 
-import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
@@ -54,7 +54,7 @@ public class ApplicationLimiterProcessor implements LinkDataMapProcessor {
 
 
     @Override
-    public LinkDataMap processLinkDataMap(LinkDirection direction, LinkDataMap linkDataMap, Range range) {
+    public LinkDataMap processLinkDataMap(LinkDirection direction, LinkDataMap linkDataMap, TimeWindow timeWindow) {
         final int linkSize = linkDataMap.size();
         final int remain = remain(linkSize);
         if (remain == EMPTY) {

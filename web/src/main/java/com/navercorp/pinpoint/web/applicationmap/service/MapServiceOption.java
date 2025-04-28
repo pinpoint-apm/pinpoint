@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.web.applicationmap.service;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.SearchOption;
 
@@ -28,7 +29,7 @@ import java.util.Objects;
  */
 public class MapServiceOption {
     private final Application sourceApplication;
-    private final Range range;
+    private final TimeWindow timeWindow;
     private final SearchOption searchOption;
 
     private final boolean simpleResponseHistogram;
@@ -36,7 +37,7 @@ public class MapServiceOption {
 
     private MapServiceOption(Builder builder) {
         this.sourceApplication = builder.sourceApplication;
-        this.range = builder.range;
+        this.timeWindow = builder.timeWindow;
         this.searchOption = builder.searchOption;
         this.simpleResponseHistogram = builder.simpleResponseHistogram;
         this.useStatisticsAgentState = builder.useStatisticsAgentState;
@@ -47,7 +48,11 @@ public class MapServiceOption {
     }
 
     public Range getRange() {
-        return range;
+        return timeWindow.getWindowRange();
+    }
+
+    public TimeWindow getTimeWindow() {
+        return timeWindow;
     }
 
     public SearchOption getSearchOption() {
@@ -66,7 +71,7 @@ public class MapServiceOption {
     public String toString() {
         return "MapServiceOption{" +
                 "sourceApplication=" + sourceApplication +
-                ", range=" + range +
+                ", timeWindow=" + timeWindow +
                 ", searchOption=" + searchOption +
                 ", simpleResponseHistogram=" + simpleResponseHistogram +
                 ", useStatisticsAgentState=" + useStatisticsAgentState +
@@ -75,16 +80,16 @@ public class MapServiceOption {
 
     public static class Builder {
         private final Application sourceApplication;
-        private final Range range;
+        private final TimeWindow timeWindow;
         private final SearchOption searchOption;
 
         private boolean simpleResponseHistogram;
         // option
         private boolean useStatisticsAgentState;
 
-        public Builder(Application sourceApplication, Range range, SearchOption searchOption) {
+        public Builder(Application sourceApplication, TimeWindow timeWindow, SearchOption searchOption) {
             this.sourceApplication = Objects.requireNonNull(sourceApplication, "sourceApplication");
-            this.range = Objects.requireNonNull(range,"range");
+            this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
             this.searchOption = Objects.requireNonNull(searchOption, "searchOption");
         }
 

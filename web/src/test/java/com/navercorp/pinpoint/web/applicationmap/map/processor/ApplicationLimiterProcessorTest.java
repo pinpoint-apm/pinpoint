@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.web.applicationmap.map.processor;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
@@ -31,6 +32,7 @@ class ApplicationLimiterProcessorTest {
     Application application1 = new Application("test1", ServiceType.TEST);
     Application application2 = new Application("test2", ServiceType.TEST);
     Range between = Range.between(10, 100);
+    final TimeWindow timeWindow = new TimeWindow(between);
 
     @Test
     void limitReached() {
@@ -39,14 +41,14 @@ class ApplicationLimiterProcessorTest {
         LinkDataMap linkDataMap = new LinkDataMap();
         linkDataMap.addLinkData(new LinkData(application1, application1));
 
-        processor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, between);
+        processor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, timeWindow);
         Assertions.assertFalse(processor.limitReached());
 
-        processor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, between);
+        processor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, timeWindow);
         Assertions.assertFalse(processor.limitReached());
 
 
-        processor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, between);
+        processor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, timeWindow);
         Assertions.assertTrue(processor.limitReached());
     }
 
@@ -58,17 +60,17 @@ class ApplicationLimiterProcessorTest {
         LinkDataMap linkDataMap = new LinkDataMap();
         linkDataMap.addLinkData(new LinkData(application1, application1));
 
-        processor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, between);
+        processor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, timeWindow);
         Assertions.assertFalse(processor.limitReached());
 
         LinkDataMap linkDataMap2 = new LinkDataMap();
         linkDataMap2.addLinkData(new LinkData(application1, application1));
         linkDataMap2.addLinkData(new LinkData(application2, application2));
-        LinkDataMap replaceLink = processor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap2, between);
+        LinkDataMap replaceLink = processor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap2, timeWindow);
         Assertions.assertTrue(processor.limitReached());
         Assertions.assertEquals(1, replaceLink.size());
 
-        processor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, between);
+        processor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, timeWindow);
         Assertions.assertTrue(processor.limitReached());
     }
 
@@ -79,11 +81,11 @@ class ApplicationLimiterProcessorTest {
         LinkDataMap linkDataMap = new LinkDataMap();
         linkDataMap.addLinkData(new LinkData(application1, application1));
 
-        LinkDataMap result = processor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, between);
+        LinkDataMap result = processor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, timeWindow);
         Assertions.assertSame(linkDataMap, result);
 
         linkDataMap.addLinkData(new LinkData(application2, application2));
-        LinkDataMap result2 = processor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, between);
+        LinkDataMap result2 = processor.processLinkDataMap(LinkDirection.IN_LINK, linkDataMap, timeWindow);
         Assertions.assertNotSame(linkDataMap, result2);
     }
 
