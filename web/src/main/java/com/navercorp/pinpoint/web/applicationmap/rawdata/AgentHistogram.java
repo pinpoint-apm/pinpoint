@@ -33,7 +33,6 @@ import java.util.Objects;
  * @author netspider
  * @author emeroad
  */
-
 public class AgentHistogram {
     /**
      * to uniquely identify a host from UI, we can use things like hostname, agentId, endpoint, etc
@@ -104,13 +103,13 @@ public class AgentHistogram {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("AgentHistogram{");
-        sb.append("agent='").append(agentId.getName()).append('\'');
-        sb.append(", serviceType=").append(agentId.getServiceType());
         // FIXME temporarily hard-coded due to a change in the data structure
-        sb.append(", ").append(timeHistogramMap);
-        sb.append('}');
-        return sb.toString();
+        return "AgentHistogram{" +
+                "agent='" + agentId.getName() + '\'' +
+                ", serviceType=" + agentId.getServiceType() +
+                // FIXME temporarily hard-coded due to a change in the data structure
+                ", " + timeHistogramMap +
+                '}';
     }
 
 

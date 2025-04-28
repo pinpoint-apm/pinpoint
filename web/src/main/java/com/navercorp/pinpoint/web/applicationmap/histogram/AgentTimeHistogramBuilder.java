@@ -48,7 +48,7 @@ public class AgentTimeHistogramBuilder {
     }
 
     public AgentTimeHistogram build(List<ResponseTime> responseHistogramList) {
-        AgentHistogramList agentHistogramList = new AgentHistogramList(application, responseHistogramList);
+        AgentHistogramList agentHistogramList = AgentHistogramList.newBuilder().build(application, responseHistogramList);
         return build(agentHistogramList);
     }
 
@@ -79,26 +79,29 @@ public class AgentTimeHistogramBuilder {
         // create window space. Prior to using a AgentHistogramList, we used a raw data structure.
         // could've been a list, but since range overflow may occur when applying filters, we use a map instead.
         // TODO: find better structure
-        final AgentHistogramList resultAgentHistogramList = new AgentHistogramList();
+        final AgentHistogramList.Builder resultAgentHistogramBuilder = AgentHistogramList.newBuilder();
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
             List<TimeHistogram> timeHistogramList = new ArrayList<>();
             for (Long time : window) {
                 timeHistogramList.add(new TimeHistogram(application.getServiceType(), time));
             }
-            resultAgentHistogramList.addTimeHistogram(agentHistogram.getAgentId(), timeHistogramList);
+            Application agentId = agentHistogram.getAgentId();
+            resultAgentHistogramBuilder.addTimeHistogram(agentId, timeHistogramList);
         }
 
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
             for (TimeHistogram timeHistogram : agentHistogram.getTimeHistogram()) {
                 final long time = window.refineTimestamp(timeHistogram.getTimeStamp());
                 Application agentId = agentHistogram.getAgentId();
-                TimeHistogram windowHistogram = new TimeHistogram(timeHistogram.getHistogramSchema(), time);
-                windowHistogram.add(timeHistogram);
-                resultAgentHistogramList.addTimeHistogram(agentId, windowHistogram);
+
+                TimeHistogram newHistogram = new TimeHistogram(timeHistogram.getHistogramSchema(), time);
+                newHistogram.add(timeHistogram);
+
+                resultAgentHistogramBuilder.addTimeHistogram(agentId, newHistogram);
             }
         }
 
-        return resultAgentHistogramList;
+        return resultAgentHistogramBuilder.build();
     }
 
 

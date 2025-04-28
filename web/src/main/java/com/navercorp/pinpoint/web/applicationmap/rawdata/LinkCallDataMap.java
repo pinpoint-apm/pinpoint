@@ -100,27 +100,27 @@ public class LinkCallDataMap {
     }
 
     public AgentHistogramList getOutLinkList() {
-        AgentHistogramList targetList = new AgentHistogramList();
+        AgentHistogramList.Builder targetBuilder = AgentHistogramList.newBuilder();
         for (Map.Entry<LinkKey, LinkCallData> linkKeyRawCallDataEntry : linkDataMap.entrySet()) {
             final LinkKey key = linkKeyRawCallDataEntry.getKey();
             final LinkCallData linkCallData = linkKeyRawCallDataEntry.getValue();
-            targetList.addTimeHistogram(key.getTo(), linkCallData.getTimeHistogram());
+            targetBuilder.addTimeHistogram(key.getTo(), linkCallData.getTimeHistogram());
         }
-        return targetList;
+        return targetBuilder.build();
     }
 
 
     public AgentHistogramList getInLinkList() {
-        AgentHistogramList sourceList = new AgentHistogramList();
+        AgentHistogramList.Builder sourceBuilder = AgentHistogramList.newBuilder();
         for (Map.Entry<LinkKey, LinkCallData> linkKeyRawCallDataEntry : linkDataMap.entrySet()) {
             final LinkKey key = linkKeyRawCallDataEntry.getKey();
             final LinkCallData linkCallData = linkKeyRawCallDataEntry.getValue();
             // need target (to) ServiceType
             // the definition of source is data from the source when the source sends a request to a target.
             // Thus ServiceType is the target's ServiceType
-            sourceList.addAgentHistogram(key.getFrom().getName(), key.getTo().getServiceType(), linkCallData.getTimeHistogram());
+            sourceBuilder.addAgentHistogram(key.getFrom().getName(), key.getTo().getServiceType(), linkCallData.getTimeHistogram());
         }
-        return sourceList;
+        return sourceBuilder.build();
     }
 
     @Override

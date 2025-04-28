@@ -98,11 +98,11 @@ public class LinkView {
             //agent histogram
             if (activeView.isDetailed()) {
                 // data showing how agents call each of their respective links
-                final Collection<AgentHistogram> sourceList = link.getSourceList().getAgentHistogramList();
+                final List<AgentHistogram> sourceList = link.getSourceList().getAgentHistogramList();
                 writeAgentHistogram("sourceHistogram", sourceList, jgen);
                 writeAgentResponseStatistics("sourceResponseStatistics", sourceList, jgen);
 
-                final Collection<AgentHistogram> targetList = link.getTargetList().getAgentHistogramList();
+                final List<AgentHistogram> targetList = link.getTargetList().getAgentHistogramList();
                 writeAgentHistogram("targetHistogram", targetList, jgen);
                 writeAgentResponseStatistics("targetResponseStatistics", targetList, jgen);
 
