@@ -35,7 +35,7 @@ public class ServerBuilder {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final AgentHistogramList agentHistogramList = new AgentHistogramList();
+    private final AgentHistogramList.Builder agentHistogramBuilder = AgentHistogramList.newBuilder();
     private final Set<AgentAndStatus> agentSet = new HashSet<>();
 
     public ServerBuilder() {
@@ -45,7 +45,7 @@ public class ServerBuilder {
         if (agentHistogramList == null) {
             return;
         }
-        this.agentHistogramList.addAgentHistogram(agentHistogramList);
+        this.agentHistogramBuilder.addAgentHistogram(agentHistogramList);
     }
 
     public void addAgentInfo(Set<AgentAndStatus> agentInfo) {
@@ -102,6 +102,7 @@ public class ServerBuilder {
         } else {
             // otherwise, create logical name
             this.logger.debug("buildLogicalServer");
+            AgentHistogramList agentHistogramList = agentHistogramBuilder.build();
             return buildLogicalServer(agentHistogramList);
         }
     }

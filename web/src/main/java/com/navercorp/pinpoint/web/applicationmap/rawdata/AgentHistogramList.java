@@ -16,13 +16,12 @@
 
 package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
+import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -35,101 +34,116 @@ import java.util.Objects;
  */
 public class AgentHistogramList {
 
-    private final Logger logger = LogManager.getLogger(this.getClass());
-
     // stores times series data per agent
-    private final Map<Application, AgentHistogram> agentHistogramMap = new HashMap<>();
+    private final List<AgentHistogram> agentHistogramList;
 
     public AgentHistogramList() {
+        this.agentHistogramList = List.of();
     }
 
-    public AgentHistogramList(Application application, List<ResponseTime> responseHistogramList) {
-        Objects.requireNonNull(responseHistogramList, "responseHistogramList");
-
-        for (ResponseTime responseTime : responseHistogramList) {
-            for (Map.Entry<String, TimeHistogram> agentEntry : responseTime.getAgentHistogram()) {
-                TimeHistogram timeHistogram = agentEntry.getValue();
-                this.addAgentHistogram(agentEntry.getKey(), application.getServiceType(), timeHistogram);
-            }
-        }
+    public AgentHistogramList(List<AgentHistogram> agentHistogramList) {
+        this.agentHistogramList = Objects.requireNonNull(agentHistogramList, "agentHistogramList");
     }
 
-
-    public void addTimeHistogram(Application agentId, Collection<TimeHistogram> histogramList) {
-        Objects.requireNonNull(agentId, "agentId");
-        Objects.requireNonNull(histogramList, "histogramList");
-
-        AgentHistogram agentHistogram = getAgentHistogram(agentId);
-        agentHistogram.addTimeHistogram(histogramList);
-    }
-
-    public void addTimeHistogram(Application agentId, TimeHistogram timeHistogram) {
-        Objects.requireNonNull(agentId, "agentId");
-        Objects.requireNonNull(timeHistogram, "timeHistogram");
-
-        AgentHistogram agentHistogram = getAgentHistogram(agentId);
-        agentHistogram.addTimeHistogram(timeHistogram);
-    }
-
-    public void addAgentHistogram(String agentName, ServiceType serviceType, Collection<TimeHistogram> histogramList) {
-        Application agentId = new Application(agentName, serviceType);
-        addTimeHistogram(agentId, histogramList);
-    }
-
-    public void addAgentHistogram(String agentName, ServiceType serviceType, TimeHistogram timeHistogram) {
-        Application agentId = new Application(agentName, serviceType);
-        addTimeHistogram(agentId, timeHistogram);
-    }
-
-
-
-    private AgentHistogram getAgentHistogram(Application agentId) {
-        Objects.requireNonNull(agentId, "agentId");
-
-        return agentHistogramMap.computeIfAbsent(agentId, k -> new AgentHistogram(agentId));
-    }
-
-    public Histogram mergeHistogram(ServiceType serviceType) {
-        final Histogram histogram = new Histogram(serviceType);
-        for (AgentHistogram agentHistogram : getAgentHistogramList()) {
+    public Histogram mergeHistogram(HistogramSchema schema) {
+        final Histogram histogram = new Histogram(schema);
+        for (AgentHistogram agentHistogram : agentHistogramList) {
             histogram.add(agentHistogram.getHistogram());
         }
         return histogram;
     }
 
-
-
-    public void addAgentHistogram(AgentHistogram agentHistogram) {
-        Objects.requireNonNull(agentHistogram, "agentHistogram");
-
-        final String hostName = agentHistogram.getId();
-        ServiceType serviceType = agentHistogram.getServiceType();
-
-        Application agentId = new Application(hostName, serviceType);
-        AgentHistogram findAgentHistogram = getAgentHistogram(agentId);
-        findAgentHistogram.addTimeHistogram(agentHistogram.getTimeHistogram());
-    }
-
-    public void addAgentHistogram(AgentHistogramList addAgentHistogramList) {
-        Objects.requireNonNull(addAgentHistogramList, "addAgentHistogramList");
-
-        for (AgentHistogram agentHistogram : addAgentHistogramList.agentHistogramMap.values()) {
-            addAgentHistogram(agentHistogram);
-        }
-    }
-
-    public Collection<AgentHistogram> getAgentHistogramList() {
-        return agentHistogramMap.values();
+    public List<AgentHistogram> getAgentHistogramList() {
+        return agentHistogramList;
     }
 
     @Override
     public String toString() {
         return "AgentHistogramList{"
-                    + agentHistogramMap +
+                + agentHistogramList +
                 '}';
     }
 
     public int size() {
-        return this.agentHistogramMap.size();
+        return this.agentHistogramList.size();
+    }
+
+    public static Builder newBuilder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private final Map<Application, AgentHistogram> agentHistogramMap = new HashMap<>();
+
+
+        Builder() {
+        }
+
+        public void addTimeHistogram(Application agentId, Collection<TimeHistogram> histogramList) {
+            Objects.requireNonNull(agentId, "agentId");
+            Objects.requireNonNull(histogramList, "histogramList");
+
+            AgentHistogram agentHistogram = getAgentHistogram(agentId);
+            agentHistogram.addTimeHistogram(histogramList);
+        }
+
+        public void addTimeHistogram(Application agentId, TimeHistogram timeHistogram) {
+            Objects.requireNonNull(agentId, "agentId");
+            Objects.requireNonNull(timeHistogram, "timeHistogram");
+
+            AgentHistogram agentHistogram = getAgentHistogram(agentId);
+            agentHistogram.addTimeHistogram(timeHistogram);
+        }
+
+        public void addAgentHistogram(String agentName, ServiceType serviceType, Collection<TimeHistogram> histogramList) {
+            Application agentId = new Application(agentName, serviceType);
+            addTimeHistogram(agentId, histogramList);
+        }
+
+        public void addAgentHistogram(String agentName, ServiceType serviceType, TimeHistogram timeHistogram) {
+            Application agentId = new Application(agentName, serviceType);
+            addTimeHistogram(agentId, timeHistogram);
+        }
+
+        public void addAgentHistogram(AgentHistogramList addAgentHistogramList) {
+            Objects.requireNonNull(addAgentHistogramList, "addAgentHistogramList");
+
+            for (AgentHistogram agentHistogram : addAgentHistogramList.getAgentHistogramList()) {
+                addAgentHistogram(agentHistogram);
+            }
+        }
+
+        public void addAgentHistogram(AgentHistogram agentHistogram) {
+            Objects.requireNonNull(agentHistogram, "agentHistogram");
+
+            final String hostName = agentHistogram.getId();
+            ServiceType serviceType = agentHistogram.getServiceType();
+
+            Application agentId = new Application(hostName, serviceType);
+            AgentHistogram findAgentHistogram = getAgentHistogram(agentId);
+            findAgentHistogram.addTimeHistogram(agentHistogram.getTimeHistogram());
+        }
+
+
+        private AgentHistogram getAgentHistogram(Application agentId) {
+            return agentHistogramMap.computeIfAbsent(agentId, k -> new AgentHistogram(agentId));
+        }
+
+        public AgentHistogramList build(Application application, List<ResponseTime> responseHistogramList) {
+            for (ResponseTime responseTime : responseHistogramList) {
+                for (Map.Entry<String, TimeHistogram> agentEntry : responseTime.getAgentHistogram()) {
+                    TimeHistogram timeHistogram = agentEntry.getValue();
+
+                    addAgentHistogram(agentEntry.getKey(), application.getServiceType(), timeHistogram);
+                }
+            }
+            List<AgentHistogram> copy = List.copyOf(agentHistogramMap.values());
+            return new AgentHistogramList(copy);
+        }
+
+        public AgentHistogramList build() {
+            List<AgentHistogram> copy = List.copyOf(agentHistogramMap.values());
+            return new AgentHistogramList(copy);
+        }
     }
 }

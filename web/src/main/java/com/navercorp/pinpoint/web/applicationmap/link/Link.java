@@ -135,7 +135,7 @@ public class Link {
         // ie. Tomcat -> Arcus: we need arcus type
         final LinkCallDataMap findMap = getLinkCallDataMap();
         AgentHistogramList outLinkList = findMap.getOutLinkList();
-        return outLinkList.mergeHistogram(toNode.getServiceType());
+        return outLinkList.mergeHistogram(toNode.getServiceType().getHistogramSchema());
     }
 
     private LinkCallDataMap getLinkCallDataMap() {
@@ -149,7 +149,7 @@ public class Link {
         // need serviceType of out link
         // ie. Tomcat -> Arcus: we need Arcus type
         AgentHistogramList outLinkList = outLink.getOutLinkList();
-        return outLinkList.mergeHistogram(toNode.getServiceType());
+        return outLinkList.mergeHistogram(toNode.getServiceType().getHistogramSchema());
     }
 
     public ApplicationTimeHistogram getLinkApplicationTimeSeriesHistogram() {

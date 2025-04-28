@@ -27,8 +27,6 @@ import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.applicationmap.view.LinkView;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
@@ -80,9 +78,6 @@ public class LinkViewTest {
     }
 
     private LinkView newLinkView(TimeHistogramFormat version) {
-        AgentHistogramList list = new AgentHistogramList();
-        AgentHistogram histogram = new AgentHistogram(new Application("test", ServiceType.STAND_ALONE));
-        list.addAgentHistogram(histogram);
         Node node1 = new Node(new Application("test1", ServiceType.STAND_ALONE));
         Node node2 = new Node(new Application("test1", ServiceType.STAND_ALONE));
 

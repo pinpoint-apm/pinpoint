@@ -99,7 +99,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     @Override
     public AgentHistogramList selectResponseTimeHistogramData(Application application, Range range) {
         List<ResponseTime> responseTimes = mapResponseDao.selectResponseTime(application, range);
-        return new AgentHistogramList(application, responseTimes);
+        return AgentHistogramList.newBuilder().build(application, responseTimes);
     }
 
     @Override
