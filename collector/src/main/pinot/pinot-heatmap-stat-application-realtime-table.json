@@ -57,6 +57,16 @@
   "metadata": {
     "customConfigs": {}
   },
+  "task": {
+    "taskTypeConfigsMap": {
+      "RealtimeToOfflineSegmentsTask": {
+        "bucketTimePeriod": "1d",
+        "bufferTimePeriod": "24h",
+        "schedule": "0 0 14 * * ?",
+        "maxNumRecordsPerSegment": "100000000"
+      }
+    }
+  },
   "routing": {
     "segmentPrunerTypes": [
       "time",
