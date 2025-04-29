@@ -7,4 +7,7 @@ module.exports = {
   moduleNameMapper: {
     '^@pinpoint-fe/ui/src/(.*)$': '<rootDir>/src/$1',
   },
+  transform: {
+    '^.+\\.[t|j]sx?$': 'babel-jest',
+  },
 };

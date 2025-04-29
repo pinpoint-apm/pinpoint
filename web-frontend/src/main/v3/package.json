@@ -10,7 +10,7 @@
     "build": "yarn workspace @pinpoint-fe/web build",
     "dev": "yarn workspace @pinpoint-fe/web dev",
     "lint": "yarn workspace @pinpoint-fe/web lint",
-    "test": "yarn workspace @pinpoint-fe/web test",
+    "test": "yarn workspaces run test",
     "clean": "yarn workspace @pinpoint-fe/web clean && rm -rf node_modules"
   },
   "devDependencies": {
