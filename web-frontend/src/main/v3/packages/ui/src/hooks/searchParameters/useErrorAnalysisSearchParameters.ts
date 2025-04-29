@@ -11,7 +11,14 @@ export const useErrorAnalysisSearchParameters = () => {
   const groupBy = decodeURIComponent(searchParameters?.groupBy || '');
   const parsedGroupBy = groupBy ? parseErrorGroupBy(groupBy) : undefined;
   const transactionInfo = decodeURIComponent(searchParameters?.transactionInfo || '');
-  const parsedTransactionInfo = transactionInfo ? JSON.parse(transactionInfo) : undefined;
+  const parsedTransactionInfo = (() => {
+    if (!transactionInfo) return undefined;
+    try {
+      return JSON.parse(transactionInfo);
+    } catch (e) {
+      return undefined;
+    }
+  })();
   const openErrorDetail = Boolean(searchParameters?.openErrorDetail);
 
   return {

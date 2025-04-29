@@ -5,11 +5,11 @@ import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 
 export const handleV2RouteLoader = ({ params, request }: LoaderFunctionArgs) => {
   const basePath = `${APP_PATH.SERVER_MAP}/${params.application}`;
-  const v2QueryParams = Object.fromEntries(new URL(request.url).searchParams);
-  const currentDate = new Date();
 
-  const to = parse(params.endTime!, SEARCH_PARAMETER_DATE_FORMAT, currentDate);
   try {
+    const v2QueryParams = Object.fromEntries(new URL(request.url)?.searchParams);
+    const currentDate = new Date();
+    const to = parse(params.endTime!, SEARCH_PARAMETER_DATE_FORMAT, currentDate);
     const timeDiff = convertTimeStringToTime(params.period!);
     const from = subMilliseconds(to, timeDiff);
     const formattedDateRange = {

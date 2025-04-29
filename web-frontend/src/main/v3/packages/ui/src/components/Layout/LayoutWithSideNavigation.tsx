@@ -18,6 +18,7 @@ import {
 } from '../Sidebar';
 import { cn } from '../../lib';
 import {
+  ErrorBoundary,
   GlobalSearch,
   Separator,
   Tooltip,
@@ -176,78 +177,88 @@ export const LayoutWithSideNavigation = ({
 
   return (
     <div className="flex h-screen">
-      <Sidebar
-        header={(collapsed) => {
-          return (
-            <Link to={APP_PATH.SERVER_MAP}>
-              <img
-                src={collapsed ? `${IMAGE_PATH}/mini-logo.png` : `${IMAGE_PATH}/logo.png`}
-                alt={'pinpoint-logo'}
-              />
-            </Link>
-          );
-        }}
+      <ErrorBoundary
+        fallbackRender={({ error }) => (
+          <div className="flex flex-col items-center justify-center w-[200px] h-full gap-5 p-3">
+            <div className="w-full text-center max-w-[28rem]">
+              <p className="mb-2 text-sm truncate">{error?.message}</p>
+            </div>
+          </div>
+        )}
       >
-        <TooltipProvider delayDuration={100}>
-          <Menu menuItemStyles={menuItemStyles} className="px-2">
-            {WithTooltip({
-              trigger: (
-                <MenuItemComponent
-                  component={<a>se</a>}
-                  className={cn('mb-0.5 group/global_search')}
-                  icon={<RxMagnifyingGlass className="text-lg" />}
-                  onClick={() => setGlobalSearchOpen(true)}
-                >
+        <Sidebar
+          header={(collapsed) => {
+            return (
+              <Link to={APP_PATH.SERVER_MAP}>
+                <img
+                  src={collapsed ? `${IMAGE_PATH}/mini-logo.png` : `${IMAGE_PATH}/logo.png`}
+                  alt={'pinpoint-logo'}
+                />
+              </Link>
+            );
+          }}
+        >
+          <TooltipProvider delayDuration={100}>
+            <Menu menuItemStyles={menuItemStyles} className="px-2">
+              {WithTooltip({
+                trigger: (
+                  <MenuItemComponent
+                    component={<a>se</a>}
+                    className={cn('mb-0.5 group/global_search')}
+                    icon={<RxMagnifyingGlass className="text-lg" />}
+                    onClick={() => setGlobalSearchOpen(true)}
+                  >
+                    <div className="flex">
+                      Search...
+                      <div className="items-center hidden gap-1 px-1 ml-auto text-xs border rounded group-hover/global_search:flex bg-muted/25">
+                        <LuCommand />K{/* <span className="text-xxs">ctrl</span> K */}
+                      </div>
+                    </div>
+                  </MenuItemComponent>
+                ),
+                content: (
                   <div className="flex">
                     Search...
-                    <div className="items-center hidden gap-1 px-1 ml-auto text-xs border rounded group-hover/global_search:flex bg-muted/25">
-                      <LuCommand />K{/* <span className="text-xxs">ctrl</span> K */}
+                    <div className="flex items-center gap-1 px-1 ml-3 text-xs border rounded bg-muted/25">
+                      <LuCommand /> K
                     </div>
                   </div>
-                </MenuItemComponent>
-              ),
-              content: (
-                <div className="flex">
-                  Search...
-                  <div className="flex items-center gap-1 px-1 ml-3 text-xs border rounded bg-muted/25">
-                    <LuCommand /> K
-                  </div>
-                </div>
-              ),
-            })}
-          </Menu>
-          <div className="px-4 my-2">
-            <Separator className="opacity-50 " />
-          </div>
-          <Menu menuItemStyles={menuItemStyles} className="px-2">
-            {topMenuItems?.map((item) => {
-              return (
-                <React.Fragment key={getMenuKey(item.path)}>
-                  {WithTooltip({ trigger: MenuItem({ item }), content: item.name || '' })}
-                </React.Fragment>
-              );
-            })}
-          </Menu>
-          <Menu menuItemStyles={bottomMenuItemStyles} className="px-2 mt-auto space-y-1">
-            {bottomMenuItems?.map((item) => {
-              return (
-                <React.Fragment key={getMenuKey(item.path)}>
-                  {item.childItems
-                    ? SubMenuItem({ item })
-                    : WithTooltip({ trigger: MenuItem({ item }), content: item.name || '' })}
-                </React.Fragment>
-              );
-            })}
-          </Menu>
-        </TooltipProvider>
-      </Sidebar>
+                ),
+              })}
+            </Menu>
+            <div className="px-4 my-2">
+              <Separator className="opacity-50 " />
+            </div>
+            <Menu menuItemStyles={menuItemStyles} className="px-2">
+              {topMenuItems?.map((item) => {
+                return (
+                  <React.Fragment key={getMenuKey(item.path)}>
+                    {WithTooltip({ trigger: MenuItem({ item }), content: item.name || '' })}
+                  </React.Fragment>
+                );
+              })}
+            </Menu>
+            <Menu menuItemStyles={bottomMenuItemStyles} className="px-2 mt-auto space-y-1">
+              {bottomMenuItems?.map((item) => {
+                return (
+                  <React.Fragment key={getMenuKey(item.path)}>
+                    {item.childItems
+                      ? SubMenuItem({ item })
+                      : WithTooltip({ trigger: MenuItem({ item }), content: item.name || '' })}
+                  </React.Fragment>
+                );
+              })}
+            </Menu>
+          </TooltipProvider>
+        </Sidebar>
+      </ErrorBoundary>
       <div
         style={{
           width: `calc(100% - ${collapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH}px)`,
           height: '100%',
         }}
       >
-        {children}
+        <ErrorBoundary>{children}</ErrorBoundary>
       </div>
       <GlobalSearch services={topMenuItems} />
     </div>

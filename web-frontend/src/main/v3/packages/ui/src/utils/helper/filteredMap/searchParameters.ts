@@ -2,9 +2,15 @@ import { FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/src/constants';
 import { isEmpty } from '../../object';
 
 export const parseFilterStateFromQueryString = (queryString: string): FilteredMap.FilterState[] => {
-  const parsedFilters: FilteredMap.SearchParameters[] = queryString
-    ? JSON.parse(queryString)
-    : [{ ie: null }];
+  const parsedFilters: FilteredMap.SearchParameters[] = (() => {
+    if (!queryString) return [{ ie: null }];
+    try {
+      return JSON.parse(queryString);
+    } catch (e) {
+      return [{ ie: null }];
+    }
+  })();
+
   return parsedFilters?.map((filter) => ({
     fromApplication: filter.fa,
     fromServiceType: filter.fst,

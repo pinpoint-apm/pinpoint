@@ -93,16 +93,20 @@ export const OpenTelemetryMetricFetcher = ({
   const { stack, stackDetails } = metricDefinition;
 
   if (error) {
-    const errorObj = JSON.parse(error.message);
-    return (
-      <div className="flex flex-col items-center justify-center w-full h-full">
-        {errorObj?.message}
-        <ErrorDetailDialog error={errorObj as unknown as ErrorDetailResponse} />
-        <Button className="text-xs" variant="outline" onClick={() => getMetricData()}>
-          {t('COMMON.TRY_AGAIN')}
-        </Button>
-      </div>
-    );
+    try {
+      const errorObj = JSON.parse(error.message);
+      return (
+        <div className="flex flex-col items-center justify-center w-full h-full">
+          {errorObj?.message}
+          <ErrorDetailDialog error={errorObj as unknown as ErrorDetailResponse} />
+          <Button className="text-xs" variant="outline" onClick={() => getMetricData()}>
+            {t('COMMON.TRY_AGAIN')}
+          </Button>
+        </div>
+      );
+    } catch (err) {
+      return;
+    }
   }
 
   return (

@@ -106,7 +106,12 @@ export const AgentActiveThreadFetcher = () => {
   };
 
   const parseMessage = (message: string): AgentActiveThread.Response => {
-    return JSON.parse(message);
+    try {
+      return JSON.parse(message);
+    } catch (error) {
+      console.error('Error parsing message:', error);
+      return {};
+    }
   };
 
   const sendMessage = (message: AgentActiveThread.Request) => {
