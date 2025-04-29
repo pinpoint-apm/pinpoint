@@ -3,22 +3,27 @@ import { getApplicationTypeAndName } from '@pinpoint-fe/ui/src/utils';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 
 export const transactionDetailRouteLoader = ({ params, request }: LoaderFunctionArgs) => {
-  const application = getApplicationTypeAndName(params.application!);
+  try {
+    const application = getApplicationTypeAndName(params.application!);
 
-  if (application?.applicationName && application.serviceType) {
-    const queryParam = Object.fromEntries(new URL(request.url).searchParams);
-    const conditions = Object.keys(queryParam);
+    if (application?.applicationName && application.serviceType) {
+      const queryParam = Object.fromEntries(new URL(request.url).searchParams);
+      const conditions = Object.keys(queryParam);
 
-    if (conditions.length === 0) {
-      return redirect(APP_PATH.SERVER_MAP);
-    } else {
-      if (conditions.includes('transactionInfo')) {
-        return application;
-      } else {
+      if (conditions.length === 0) {
         return redirect(APP_PATH.SERVER_MAP);
+      } else {
+        if (conditions.includes('transactionInfo')) {
+          return application;
+        } else {
+          return redirect(APP_PATH.SERVER_MAP);
+        }
       }
     }
-  }
 
-  return application;
+    return application;
+  } catch (err) {
+    console.error('Error in transactionDetailRouteLoader:', err);
+    return null;
+  }
 };

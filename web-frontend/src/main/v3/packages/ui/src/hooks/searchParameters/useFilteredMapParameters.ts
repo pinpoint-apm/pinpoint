@@ -11,7 +11,14 @@ export const useFilteredMapParameters = () => {
   const application = getApplicationTypeAndName(pathname);
   const dateRange = getDateRange(search, false);
   const parsedFilters = parseFilterStateFromQueryString(searchParameters.filter);
-  const parsedHint = searchParameters?.hint ? JSON.parse(searchParameters.hint) : null;
+  const parsedHint = (() => {
+    if (!searchParameters?.hint) return null;
+    try {
+      return JSON.parse(searchParameters?.hint);
+    } catch (e) {
+      return null;
+    }
+  })();
 
   return { search, dateRange, searchParameters, application, parsedFilters, parsedHint };
 };
