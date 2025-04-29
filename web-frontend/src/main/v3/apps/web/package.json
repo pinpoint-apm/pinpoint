@@ -12,7 +12,8 @@
     "clean": "yarn clean:dist && yarn clean:node_modules",
     "clean:node_modules": "rm -rf node_modules",
     "clean:dist": "rm -rf dist",
-    "move:dist": "cpx \"./dist/**\" \"../../../../../target/classes/static/\""
+    "move:dist": "cpx \"./dist/**\" \"../../../../../target/classes/static/\"",
+    "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
     "@pinpoint-fe/ui": "*",

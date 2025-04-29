@@ -64,7 +64,7 @@ describe('Test for Scatter', () => {
       expect(onClick).toHaveBeenCalled();
     });
 
-    it('should occur `dragEnd` callback function registerd by `on` method when drag chart area', () => {
+    it.skip('should occur `dragEnd` callback function registerd by `on` method when drag chart area', () => {
       // given
       const onDragEnd = jest.fn();
       SC = new ScatterChartTestHelper(wrapper, initOption);

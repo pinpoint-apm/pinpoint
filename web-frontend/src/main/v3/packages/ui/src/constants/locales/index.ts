@@ -1,2 +1,4 @@
-export { default as en } from './en.json';
-export { default as ko } from './ko.json';
+import * as en from './en.json';
+import * as ko from './ko.json';
+
+export { en, ko };
