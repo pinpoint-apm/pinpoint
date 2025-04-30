@@ -44,6 +44,7 @@ public class HbaseTables {
 
     public static final HbaseColumnFamily APPLICATION_NAME = new HbaseColumnFamily(HbaseTable.APPLICATION_NAME, Bytes.toBytes("N"));
 
+    public static final HbaseColumnFamily AGENT_NAME = new HbaseColumnFamily(HbaseTable.AGENT_NAME, Bytes.toBytes("A"));
 
     public static final HbaseColumnFamily APPLICATION_INDEX_AGENTS = new HbaseColumnFamily(HbaseTable.APPLICATION_INDEX, Bytes.toBytes("Agents"));
 
