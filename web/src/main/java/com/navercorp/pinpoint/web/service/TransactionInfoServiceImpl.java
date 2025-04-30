@@ -277,7 +277,8 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                 if (isViewPoint(spanBo, viewPointFilter)) {
                     return align;
                 }
-                if (firstSpan == null) {
+                // do not use unknown, corrupted span as firstSpan
+                if (firstSpan == null && !align.isMeta()) {
                     firstSpan = align;
                 }
             }
