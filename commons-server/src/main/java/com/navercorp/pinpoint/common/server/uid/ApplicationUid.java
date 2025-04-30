@@ -47,8 +47,6 @@ public class ApplicationUid {
 
     @Override
     public String toString() {
-        return "ApplicationUid{" +
-                "uid=" + uid +
-                '}';
+        return "ApplicationUid{" + uid + '}';
     }
 }

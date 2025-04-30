@@ -16,14 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
 @ConditionalOnProperty(name = "pinpoint.web.application.uid.enable", havingValue = "true")
 public class ApplicationUidController {
 
-    private final String DEFAULT_SERVICE_UID_CODE = "0";
     private final ApplicationUidService applicationUidService;
 
     public ApplicationUidController(ApplicationUidService applicationUidService) {
@@ -31,13 +29,13 @@ public class ApplicationUidController {
     }
 
     @GetMapping(value = "/applicationNames")
-    public List<String> getApplications(@RequestParam(value = "serviceUid", required = false, defaultValue = DEFAULT_SERVICE_UID_CODE) int serviceUid) {
+    public List<String> getApplications(@RequestParam(value = "serviceUid", required = false, defaultValue = "0") int serviceUid) {
         ServiceUid serviceUidObject = ServiceUid.of(serviceUid);
         return applicationUidService.getApplicationNames(serviceUidObject);
     }
 
     @GetMapping(value = "/application/uid")
-    public ResponseEntity<Long> getApplicationUid(@RequestParam(value = "serviceUid", required = false, defaultValue = DEFAULT_SERVICE_UID_CODE) int serviceUid,
+    public ResponseEntity<Long> getApplicationUid(@RequestParam(value = "serviceUid", required = false, defaultValue = "0") int serviceUid,
                                                   @RequestParam(value = "applicationName") @NotBlank String applicationName) {
         ServiceUid serviceUidObject = ServiceUid.of(serviceUid);
         ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUidObject, applicationName);
@@ -48,7 +46,7 @@ public class ApplicationUidController {
     }
 
     @GetMapping(value = "/application/name")
-    public ResponseEntity<String> getApplicationName(@RequestParam(value = "serviceUid", required = false, defaultValue = DEFAULT_SERVICE_UID_CODE) int serviceUid,
+    public ResponseEntity<String> getApplicationName(@RequestParam(value = "serviceUid", required = false, defaultValue = "0") int serviceUid,
                                                      @RequestParam(value = "applicationUid") long applicationUid) {
         ServiceUid serviceUidObject = ServiceUid.of(serviceUid);
         ApplicationUid applicationUidObject = ApplicationUid.of(applicationUid);
@@ -60,15 +58,10 @@ public class ApplicationUidController {
     }
 
     @DeleteMapping(value = "/application")
-    public Response deleteApplication(@RequestParam(value = "serviceUid", required = false, defaultValue = DEFAULT_SERVICE_UID_CODE) int serviceUid,
+    public Response deleteApplication(@RequestParam(value = "serviceUid", required = false, defaultValue = "0") int serviceUid,
                                       @RequestParam(value = "applicationName") @NotBlank String applicationName) {
         applicationUidService.deleteApplication(ServiceUid.of(serviceUid), applicationName);
         return SimpleResponse.ok();
     }
 
-    @GetMapping(value = "/application/cleanup/inconsistent")
-    public Response cleanupUnMatchingApplicationUid(@RequestParam(value = "serviceUid") Optional<Integer> serviceUid) {
-        int cleanupCount = applicationUidService.cleanupInconsistentApplicationName(serviceUid.map(ServiceUid::of).orElse(null));
-        return SimpleResponse.ok("cleanupCount: " + cleanupCount);
-    }
 }

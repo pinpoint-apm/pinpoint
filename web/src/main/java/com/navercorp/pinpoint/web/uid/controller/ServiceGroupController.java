@@ -52,12 +52,6 @@ public class ServiceGroupController {
         return ResponseEntity.ok(new ServiceInfo(serviceUid, serviceName, null));
     }
 
-    @DeleteMapping(value = "/service")
-    public Response deleteServiceInfo(@RequestParam("serviceName") @NotBlank String serviceName) {
-        serviceGroupService.deleteService(serviceName);
-        return SimpleResponse.ok();
-    }
-
     @GetMapping(value = "/service/name")
     public ResponseEntity<String> getServiceName(@RequestParam("serviceUid") int serviceUid) {
         String serviceName = serviceGroupService.selectServiceName(ServiceUid.of(serviceUid));
@@ -74,5 +68,11 @@ public class ServiceGroupController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(serviceUid.getUid());
+    }
+
+    @DeleteMapping(value = "/service")
+    public Response deleteServiceInfo(@RequestParam("serviceName") @NotBlank String serviceName) {
+        serviceGroupService.deleteService(serviceName);
+        return SimpleResponse.ok();
     }
 }
