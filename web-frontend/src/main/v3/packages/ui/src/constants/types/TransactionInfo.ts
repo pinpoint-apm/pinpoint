@@ -61,8 +61,17 @@ export namespace TransactionInfoType {
   }
 
   export interface ApplicationMapData {
+    timestamp: number[];
+    range: Range;
     nodeDataArray: NodeDataArray[];
     linkDataArray: LinkDataArray[];
+  }
+
+  export interface Range {
+    from: number;
+    to: number;
+    fromDateTime: string;
+    toDateTime: string;
   }
 
   export interface NodeDataArray {
@@ -127,7 +136,7 @@ export namespace TransactionInfoType {
 
   export interface TimeSeriesHistogram {
     key: string;
-    values: number[][];
+    values: number[];
   }
 
   export interface AgentTimeSeriesHistogram {
@@ -212,7 +221,7 @@ export namespace TransactionInfoType {
 
   export interface TimeSeriesHistogram {
     key: string;
-    values: number[][];
+    values: number[];
   }
 
   export interface SourceHistogram {
