@@ -5,25 +5,24 @@ import java.util.Objects;
 public class HbaseCellData {
 
     private final byte[] rowKey;
-    private final Object value;
     long timestamp;
+    private final Object value;
 
-    public HbaseCellData(byte[] rowKey, Object valueObject, long timestamp) {
+    public HbaseCellData(byte[] rowKey, long timestamp, Object valueObject) {
         this.rowKey = Objects.requireNonNull(rowKey, "rowKey");
-        this.value = valueObject;
         this.timestamp = timestamp;
+        this.value = valueObject;
     }
 
     public byte[] getRowKey() {
         return rowKey;
     }
 
-    public Object getValue() {
-        return value;
-    }
-
     public long getTimestamp() {
         return timestamp;
     }
 
+    public Object getValue() {
+        return value;
+    }
 }

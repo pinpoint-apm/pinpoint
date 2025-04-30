@@ -6,9 +6,11 @@ import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
+import com.navercorp.pinpoint.common.server.uid.HbaseCellData;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.ApplicationUidRowKeyUtils;
 import com.navercorp.pinpoint.web.uid.dao.ApplicationUidDao;
+import jakarta.annotation.Nullable;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
@@ -31,18 +33,21 @@ public class HbaseApplicationUidDao implements ApplicationUidDao {
 
     private final RowMapper<ApplicationUid> applicationUidMapper;
     private final RowMapper<String> applicationUidNameMapper;
+    private final RowMapper<HbaseCellData> applicationUidCellMapper;
 
     public HbaseApplicationUidDao(HbaseOperations hbaseOperations, TableNameProvider tableNameProvider,
                                   @Qualifier("applicationUidMapper") RowMapper<ApplicationUid> applicationUidMapper,
-                                  @Qualifier("applicationUidNameMapper") RowMapper<String> applicationUidNameMapper) {
+                                  @Qualifier("applicationUidNameMapper") RowMapper<String> applicationUidNameMapper,
+                                  @Qualifier("applicationUidCellMapper") RowMapper<HbaseCellData> applicationUidCellMapper) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.applicationUidMapper = Objects.requireNonNull(applicationUidMapper, "applicationUidMapper");
         this.applicationUidNameMapper = Objects.requireNonNull(applicationUidNameMapper, "applicationUidNameMapper");
+        this.applicationUidCellMapper = Objects.requireNonNull(applicationUidCellMapper, "applicationUidCellMapper");
     }
 
     @Override
-    public List<String> selectApplicationUidRows(ServiceUid serviceUid) {
+    public List<String> selectApplicationNames(ServiceUid serviceUid) {
         byte[] rowKeyPrefix = ApplicationUidRowKeyUtils.makeRowKey(serviceUid);
 
         Scan scan = new Scan();
@@ -73,5 +78,18 @@ public class HbaseApplicationUidDao implements ApplicationUidDao {
 
         TableName applicationIdTableName = tableNameProvider.getTableName(UID.getTable());
         hbaseOperations.delete(applicationIdTableName, delete);
+    }
+
+    @Override
+    public List<HbaseCellData> selectCellData(@Nullable ServiceUid serviceUid) {
+        Scan scan = new Scan();
+        scan.setCaching(30);
+        scan.addColumn(UID.getName(), UID.getName());
+        if (serviceUid != null) {
+            scan.setStartStopRowForPrefixScan(ApplicationUidRowKeyUtils.makeRowKey(serviceUid));
+        }
+
+        TableName applicationNameTableName = tableNameProvider.getTableName(UID.getTable());
+        return hbaseOperations.find(applicationNameTableName, scan, applicationUidCellMapper);
     }
 }
