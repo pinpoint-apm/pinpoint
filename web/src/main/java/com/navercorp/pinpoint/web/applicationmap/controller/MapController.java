@@ -112,6 +112,7 @@ public class MapController {
         final MapServiceOption option = new MapServiceOption
                 .Builder(application, range, searchOption)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
+                .setSimpleResponseHistogram(false)
                 .build();
 
         logger.info("Select applicationMap {}. option={}", TimeHistogramFormat.V3, option);
@@ -152,6 +153,7 @@ public class MapController {
         final MapServiceOption option = new MapServiceOption
                 .Builder(application, range, searchOption)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
+                .setSimpleResponseHistogram(false)
                 .build();
 
         TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);

@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * @author emeroad
  */
-public class SyncWriter implements BulkWriter {
+public class SyncWriter implements BulkWriter<RowKey, ColumnName> {
 
 
     private final HbaseOperations hbaseTemplate;

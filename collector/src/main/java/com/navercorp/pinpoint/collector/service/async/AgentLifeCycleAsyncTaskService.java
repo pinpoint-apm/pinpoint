@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.service.async;
 
+import com.navercorp.pinpoint.collector.applicationmap.service.ApplicationMapService;
 import com.navercorp.pinpoint.collector.applicationmap.service.StatisticsService;
 import com.navercorp.pinpoint.collector.config.CollectorProperties;
 import com.navercorp.pinpoint.collector.service.AgentLifeCycleService;
@@ -31,6 +32,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
+import static com.navercorp.pinpoint.common.server.applicationmap.ServiceId.DEFAULT_SERVICE_ID;
+
 /**
  * @author HyunGil Jeong
  */
@@ -42,15 +45,18 @@ public class AgentLifeCycleAsyncTaskService {
 
     private final AgentLifeCycleService agentLifeCycleService;
     private final StatisticsService statisticsService;
+    private final ApplicationMapService applicationMapService;
     private final ServiceTypeRegistryService registry;
     private final CollectorProperties collectorProperties;
 
     public AgentLifeCycleAsyncTaskService(AgentLifeCycleService agentLifeCycleService,
                                           StatisticsService statisticsService,
+                                          ApplicationMapService applicationMapService,
                                           ServiceTypeRegistryService registry,
                                           CollectorProperties collectorProperties) {
         this.agentLifeCycleService = agentLifeCycleService;
         this.statisticsService = statisticsService;
+        this.applicationMapService = applicationMapService;
         this.registry = registry;
         this.collectorProperties = collectorProperties;
     }
@@ -84,6 +90,7 @@ public class AgentLifeCycleAsyncTaskService {
         final ServiceType serviceType = registry.findServiceType(serviceTypeCode);
         if (isUpdateAgentState(serviceType)) {
             statisticsService.updateAgentState(eventTimestamp, applicationName, serviceType, agentId);
+            applicationMapService.updateAgentState(eventTimestamp, DEFAULT_SERVICE_ID, applicationName, serviceType);
         }
     }
 

@@ -43,6 +43,7 @@ import org.springframework.context.annotation.Import;
 
         UidModule.class,
         HeatmapCollectorModule.class,
+        ApplicationMapModule.class,
 })
 @ComponentScan(basePackages = {
         "com.navercorp.pinpoint.collector.handler",

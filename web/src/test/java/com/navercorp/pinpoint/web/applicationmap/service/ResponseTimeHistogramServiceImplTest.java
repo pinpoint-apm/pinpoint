@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.SelfDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
@@ -65,12 +66,15 @@ public class ResponseTimeHistogramServiceImplTest {
     private ServerInstanceDatasourceService serverInstanceDatasourceService;
 
     private MapResponseDao mapResponseDao;
+    
+    private SelfDao selfDao;
 
     @BeforeEach
     public void SetUp() {
         mapResponseDao = mock(MapResponseDao.class);
         serverInstanceDatasourceService = mock(ServerInstanceDatasourceService.class);
         linkSelectorFactory = mock(LinkSelectorFactory.class);
+        selfDao = mock(SelfDao.class);
 
         when(serverInstanceDatasourceService.getServerGroupListDataSource()).thenReturn(new ServerGroupListDataSource() {
             @Override
@@ -85,7 +89,7 @@ public class ResponseTimeHistogramServiceImplTest {
      */
     @Test
     public void selectNodeHistogramEmptyWASDataTest() {
-        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
+        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao, selfDao);
 
         final Application nodeApplication = new Application("WAS", ServiceType.STAND_ALONE);
         final long timestamp = System.currentTimeMillis();
@@ -112,7 +116,7 @@ public class ResponseTimeHistogramServiceImplTest {
      */
     @Test
     public void selectNodeHistogramWASDataTest() {
-        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
+        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao, selfDao);
 
         final Application nodeApplication = new Application("WAS", ServiceType.STAND_ALONE);
         final long timestamp = System.currentTimeMillis();
@@ -151,7 +155,7 @@ public class ResponseTimeHistogramServiceImplTest {
      */
     @Test
     public void selectNodeHistogramDataTest1() {
-        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
+        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao, selfDao);
 
         final Application nodeApplication = new Application("user", ServiceType.USER);
         final Application toApplication = new Application("was1", ServiceType.STAND_ALONE);
@@ -180,7 +184,7 @@ public class ResponseTimeHistogramServiceImplTest {
      */
     @Test
     public void selectNodeHistogramDataTest2() {
-        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
+        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao, selfDao);
 
         final Application nodeApplication = new Application("unknown", ServiceType.UNKNOWN);
         final Application was = new Application("was", ServiceType.STAND_ALONE);
@@ -210,7 +214,7 @@ public class ResponseTimeHistogramServiceImplTest {
      */
     @Test
     public void selectNodeHistogramDataTest3() {
-        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
+        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao, selfDao);
 
         final Application nodeApplication = new Application("unknown", ServiceType.UNKNOWN);
         final Application was1 = new Application("was1", ServiceType.STAND_ALONE);
@@ -246,7 +250,7 @@ public class ResponseTimeHistogramServiceImplTest {
      */
     @Test
     public void selectNodeHistogramDataCacheTest() {
-        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
+        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao, selfDao);
 
         //CACHE_LIBRARY serviceTypeCode 8000 ~ 8299
         ServiceType cacheServiceType = ServiceTypeFactory.of(8299, "CACHE", "CACHE", ServiceTypeProperty.TERMINAL, ServiceTypeProperty.RECORD_STATISTICS);
@@ -277,7 +281,7 @@ public class ResponseTimeHistogramServiceImplTest {
      */
     @Test
     public void selectNodeHistogramDataQueueTest1() {
-        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
+        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao, selfDao);
 
         //MESSAGE_BROKER serviceTypeCode 8300 ~ 8799
         final ServiceType queueServiceType = ServiceTypeFactory.of(8799, "QUEUE", "QUEUE", ServiceTypeProperty.QUEUE, ServiceTypeProperty.RECORD_STATISTICS);
@@ -310,7 +314,7 @@ public class ResponseTimeHistogramServiceImplTest {
      */
     @Test
     public void selectNodeHistogramDataQueueTest2() {
-        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
+        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao, selfDao);
 
         //MESSAGE_BROKER serviceTypeCode 8300 ~ 8799
         final ServiceType queueServiceType = ServiceTypeFactory.of(8799, "QUEUE", "QUEUE", ServiceTypeProperty.QUEUE, ServiceTypeProperty.RECORD_STATISTICS);
@@ -346,7 +350,7 @@ public class ResponseTimeHistogramServiceImplTest {
      */
     @Test
     public void selectNodeHistogramDataQueueTest3() {
-        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
+        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao, selfDao);
 
         //MESSAGE_BROKER serviceTypeCode 8300 ~ 8799
         final ServiceType queueServiceType = ServiceTypeFactory.of(8799, "QUEUE", "QUEUE", ServiceTypeProperty.QUEUE, ServiceTypeProperty.RECORD_STATISTICS);
@@ -381,7 +385,7 @@ public class ResponseTimeHistogramServiceImplTest {
      */
     @Test
     public void selectLinkHistogramDataTest1() {
-        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
+        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao, selfDao);
 
         final Application fromApplication = new Application("user", ServiceType.USER);
         final Application toApplication = new Application("WAS", ServiceType.STAND_ALONE);
@@ -406,7 +410,7 @@ public class ResponseTimeHistogramServiceImplTest {
      */
     @Test
     public void selectLinkHistogramDataTest2() {
-        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
+        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao, selfDao);
 
         final Application fromApplication = new Application("was1", ServiceType.STAND_ALONE);
         final Application toApplication = new Application("was2", ServiceType.STAND_ALONE);
@@ -430,7 +434,7 @@ public class ResponseTimeHistogramServiceImplTest {
      */
     @Test
     public void selectLinkHistogramDataTest3() {
-        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
+        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao, selfDao);
 
         final Application fromApplication = new Application("was", ServiceType.STAND_ALONE);
         final Application toApplication = new Application("unknown", ServiceType.UNKNOWN);
@@ -454,7 +458,7 @@ public class ResponseTimeHistogramServiceImplTest {
      */
     @Test
     public void selectLinkHistogramDataCacheTest() {
-        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
+        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao, selfDao);
 
         //CACHE_LIBRARY serviceTypeCode 8000 ~ 8299
         ServiceType cacheServiceType = ServiceTypeFactory.of(8299, "CACHE", "CACHE", ServiceTypeProperty.TERMINAL, ServiceTypeProperty.RECORD_STATISTICS);
@@ -481,7 +485,7 @@ public class ResponseTimeHistogramServiceImplTest {
      */
     @Test
     public void selectLinkHistogramDataQueueTest1() {
-        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
+        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao, selfDao);
 
         final ServiceType queueServiceType = ServiceTypeFactory.of(7999, "QUEUE", "QUEUE", ServiceTypeProperty.QUEUE, ServiceTypeProperty.RECORD_STATISTICS);
         final Application fromApplication = new Application("was", ServiceType.STAND_ALONE);
@@ -506,7 +510,7 @@ public class ResponseTimeHistogramServiceImplTest {
      */
     @Test
     public void selectLinkHistogramDataQueueTest2() {
-        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao);
+        ResponseTimeHistogramService service = new ResponseTimeHistogramServiceImpl(linkSelectorFactory, serverInstanceDatasourceService, mapResponseDao, selfDao);
 
         //MESSAGE_BROKER serviceTypeCode 8300 ~ 8799
         final ServiceType queueServiceType = ServiceTypeFactory.of(8799, "QUEUE", "QUEUE", ServiceTypeProperty.QUEUE, ServiceTypeProperty.RECORD_STATISTICS);

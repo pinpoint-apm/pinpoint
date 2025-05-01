@@ -3,12 +3,12 @@ package com.navercorp.pinpoint.collector.applicationmap.statistics;
 /**
  * @author emeroad
  */
-public interface BulkWriter {
-    void increment(RowKey rowKey, ColumnName columnName);
+public interface BulkWriter<K, V> {
+    void increment(K rowKey, V columnName);
 
-    void increment(RowKey rowKey, ColumnName columnName, long addition);
+    void increment(K rowKey, V columnName, long addition);
 
-    void updateMax(RowKey rowKey, ColumnName columnName, long max);
+    void updateMax(K rowKey, V columnName, long max);
 
     void flushLink();
 
