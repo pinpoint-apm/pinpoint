@@ -182,7 +182,8 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
     private ApplicationMap createMap(FilteredMapServiceOption option, FilteredMap filteredMap) {
-        final ApplicationMapBuilder applicationMapBuilder = applicationMapBuilderFactory.createApplicationMapBuilder(option.getRange());
+        TimeWindow timeWindow = new TimeWindow(option.getRange());
+        final ApplicationMapBuilder applicationMapBuilder = applicationMapBuilderFactory.createApplicationMapBuilder(timeWindow);
         final WasNodeHistogramDataSource wasNodeHistogramDataSource = new ResponseHistogramsNodeHistogramDataSource(filteredMap.getResponseHistograms());
         applicationMapBuilder.includeNodeHistogram(new DefaultNodeHistogramFactory(wasNodeHistogramDataSource));
         ServerGroupListDataSource serverGroupListDataSource = serverInstanceDatasourceService.getServerGroupListDataSource();

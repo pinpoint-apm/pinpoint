@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
-import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
@@ -43,10 +43,10 @@ public class ApplicationMapBuilderTestHelper {
     private static final ServiceType TERMINAL_TYPE = ServiceTypeFactory.of(2000, "TERMINAL", TERMINAL, INCLUDE_DESTINATION_ID);
     private static final ServiceType RPC_TYPE = ServiceTypeFactory.of(9000, "RPC", RECORD_STATISTICS);
 
-    public static ApplicationMapBuilder createApplicationMapBuilder(Range range, Executor executor) {
+    public static ApplicationMapBuilder createApplicationMapBuilder(TimeWindow timeWindow, Executor executor) {
         NodeHistogramAppenderFactory nodeHistogramAppenderFactory = new NodeHistogramAppenderFactory(executor);
         ServerInfoAppenderFactory serverInfoAppenderFactory = new ServerInfoAppenderFactory(executor);
-        return new ApplicationMapBuilder(range, nodeHistogramAppenderFactory, serverInfoAppenderFactory);
+        return new ApplicationMapBuilder(timeWindow, nodeHistogramAppenderFactory, serverInfoAppenderFactory);
     }
 
     public static int getExpectedNumNodes(int calleeDepth, int callerDepth) {

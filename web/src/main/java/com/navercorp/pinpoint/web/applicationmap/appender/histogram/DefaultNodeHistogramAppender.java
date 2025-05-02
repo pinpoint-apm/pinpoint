@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.appender.histogram;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.concurrent.FutureUtils;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
@@ -55,7 +56,7 @@ public class DefaultNodeHistogramAppender implements NodeHistogramAppender {
     }
 
     @Override
-    public void appendNodeHistogram(final Range range, final NodeList nodeList, final LinkList linkList, final long timeoutMillis) {
+    public void appendNodeHistogram(final TimeWindow timeWindow, final NodeList nodeList, final LinkList linkList, final long timeoutMillis) {
         if (nodeList == null) {
             return;
         }
@@ -64,7 +65,7 @@ public class DefaultNodeHistogramAppender implements NodeHistogramAppender {
             return;
         }
         final Node[] nodeArray = nodes.toArray(new Node[0]);
-        final CompletableFuture<List<NodeHistogram>> future = getNodeHistogramList(range, nodeArray, linkList);
+        final CompletableFuture<List<NodeHistogram>> future = getNodeHistogramList(timeWindow, nodeArray, linkList);
         List<NodeHistogram> result = allOf(future, timeoutMillis, nodeHistogramFactory::cancel);
         bindHistogramToNode(nodeArray, result);
     }
@@ -100,26 +101,27 @@ public class DefaultNodeHistogramAppender implements NodeHistogramAppender {
         }
     }
 
-    private CompletableFuture<List<NodeHistogram>> getNodeHistogramList(Range range, Node[] nodes, LinkList linkList) {
+    private CompletableFuture<List<NodeHistogram>> getNodeHistogramList(TimeWindow timeWindow, Node[] nodes, LinkList linkList) {
         @SuppressWarnings("unchecked")
         CompletableFuture<NodeHistogram>[] futures = new CompletableFuture[nodes.length];
         for (int i = 0; i < nodes.length; i++) {
             final Node node = nodes[i];
-            futures[i] = asyncNodeHistogram(range, node, linkList);
+            futures[i] = asyncNodeHistogram(timeWindow, node, linkList);
         }
         return FutureUtils.allOfAsync(futures);
     }
 
-    private CompletableFuture<NodeHistogram> asyncNodeHistogram(Range range, Node node, LinkList linkList) {
+    private CompletableFuture<NodeHistogram> asyncNodeHistogram(TimeWindow timeWindow, Node node, LinkList linkList) {
         final Application application = node.getApplication();
         final ServiceType serviceType = application.getServiceType();
+        final Range range = timeWindow.getWindowRange();
         if (serviceType.isWas()) {
             // for WAS nodes, set their own response time histogram
             final Application wasNode = node.getApplication();
             return CompletableFuture.supplyAsync(new Supplier<NodeHistogram>() {
                 @Override
                 public NodeHistogram get() {
-                    return nodeHistogramFactory.createWasNodeHistogram(wasNode, range);
+                    return nodeHistogramFactory.createWasNodeHistogram(wasNode, timeWindow);
                 }
             }, executor);
         } else if (serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isAlias()) {

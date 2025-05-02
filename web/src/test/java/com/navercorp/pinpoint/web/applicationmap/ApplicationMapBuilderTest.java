@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap;
 import com.navercorp.pinpoint.common.server.bo.SimpleAgentKey;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
@@ -106,7 +107,7 @@ public class ApplicationMapBuilderTest {
                 return List.of(responseTimeBuilder.build());
             }
         };
-        when(mapResponseDao.selectResponseTime(any(Application.class), any(Range.class))).thenAnswer(responseTimeAnswer);
+        when(mapResponseDao.selectResponseTime(any(Application.class), any(TimeWindow.class))).thenAnswer(responseTimeAnswer);
         when(responseHistograms.getResponseTimeList(any(Application.class))).thenAnswer(responseTimeAnswer);
 
         when(agentInfoService.getAgentsByApplicationName(anyString(), anyLong())).thenAnswer(new Answer<>() {
@@ -153,12 +154,14 @@ public class ApplicationMapBuilderTest {
     @Test
     public void testNoCallData() {
         Range range = Range.between(0, 1000);
+        TimeWindow timeWindow = new TimeWindow(range);
+
         Application application = ApplicationMapBuilderTestHelper.createApplicationFromDepth(0);
 
         ServerGroupListFactory serverGroupListFactory = new DefaultServerGroupListFactory(agentInfoServerGroupListDataSource);
 
-        ApplicationMapBuilder applicationMapBuilder = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(range, serialExecutor);
-        ApplicationMapBuilder applicationMapBuilder_parallelAppenders = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(range, parallelExecutor);
+        ApplicationMapBuilder applicationMapBuilder = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(timeWindow, serialExecutor);
+        ApplicationMapBuilder applicationMapBuilder_parallelAppenders = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(timeWindow, parallelExecutor);
         ApplicationMap applicationMap = applicationMapBuilder
                 .includeServerInfo(serverGroupListFactory)
                 .build(application, buildTimeoutMillis);
@@ -179,13 +182,15 @@ public class ApplicationMapBuilderTest {
     @Test
     public void testEmptyCallData() {
         Range range = Range.between(0, 1000);
+        TimeWindow timeWindow = new TimeWindow(range);
+
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
 
         NodeHistogramFactory nodeHistogramFactory = new DefaultNodeHistogramFactory(mapResponseNodeHistogramDataSource);
         ServerGroupListFactory serverGroupListFactory = new DefaultServerGroupListFactory(agentInfoServerGroupListDataSource);
 
-        ApplicationMapBuilder applicationMapBuilder = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(range, serialExecutor);
-        ApplicationMapBuilder applicationMapBuilder_parallelAppenders = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(range, parallelExecutor);
+        ApplicationMapBuilder applicationMapBuilder = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(timeWindow, serialExecutor);
+        ApplicationMapBuilder applicationMapBuilder_parallelAppenders = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(timeWindow, parallelExecutor);
         ApplicationMap applicationMap = applicationMapBuilder
                 .includeNodeHistogram(nodeHistogramFactory)
                 .includeServerInfo(serverGroupListFactory)
@@ -209,13 +214,15 @@ public class ApplicationMapBuilderTest {
     @Test
     public void testEmptyCallDataSimplified() {
         Range range = Range.between(0, 1000);
+        TimeWindow timeWindow = new TimeWindow(range);
+
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
 
         NodeHistogramFactory nodeHistogramFactory = new SimplifiedNodeHistogramFactory(mapResponseSimplifiedNodeHistogramDataSource);
         ServerGroupListFactory serverGroupListFactory = new DefaultServerGroupListFactory(agentInfoServerGroupListDataSource);
 
-        ApplicationMapBuilder applicationMapBuilder = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(range, serialExecutor);
-        ApplicationMapBuilder applicationMapBuilder_parallelAppenders = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(range, parallelExecutor);
+        ApplicationMapBuilder applicationMapBuilder = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(timeWindow, serialExecutor);
+        ApplicationMapBuilder applicationMapBuilder_parallelAppenders = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(timeWindow, parallelExecutor);
         ApplicationMap applicationMap = applicationMapBuilder
                 .includeNodeHistogram(nodeHistogramFactory)
                 .includeServerInfo(serverGroupListFactory)
@@ -351,6 +358,8 @@ public class ApplicationMapBuilderTest {
 
     private void runTest(int callerDepth, int calleeDepth) {
         Range range = Range.between(0, 1000);
+        TimeWindow timeWindow = new TimeWindow(range);
+
         int expectedNumNodes = ApplicationMapBuilderTestHelper.getExpectedNumNodes(calleeDepth, callerDepth);
         int expectedNumLinks = ApplicationMapBuilderTestHelper.getExpectedNumLinks(calleeDepth, callerDepth);
 
@@ -359,8 +368,8 @@ public class ApplicationMapBuilderTest {
         ServerGroupListFactory serverGroupListFactory = new DefaultServerGroupListFactory(agentInfoServerGroupListDataSource);
 
         LinkDataDuplexMap linkDataDuplexMap = ApplicationMapBuilderTestHelper.createLinkDataDuplexMap(calleeDepth, callerDepth);
-        ApplicationMapBuilder applicationMapBuilder = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(range, serialExecutor);
-        ApplicationMapBuilder applicationMapBuilder_parallelAppenders = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(range, parallelExecutor);
+        ApplicationMapBuilder applicationMapBuilder = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(timeWindow, serialExecutor);
+        ApplicationMapBuilder applicationMapBuilder_parallelAppenders = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(timeWindow, parallelExecutor);
 
         // test builder using MapResponseDao
         ApplicationMap applicationMap_MapResponseDao = applicationMapBuilder
@@ -403,6 +412,8 @@ public class ApplicationMapBuilderTest {
 
     private void runTestSimplified(int callerDepth, int calleeDepth) {
         Range range = Range.between(0, 1000);
+        TimeWindow timeWindow = new TimeWindow(range);
+
         int expectedNumNodes = ApplicationMapBuilderTestHelper.getExpectedNumNodes(calleeDepth, callerDepth);
         int expectedNumLinks = ApplicationMapBuilderTestHelper.getExpectedNumLinks(calleeDepth, callerDepth);
 
@@ -410,8 +421,8 @@ public class ApplicationMapBuilderTest {
         ServerGroupListFactory serverGroupListFactory = new DefaultServerGroupListFactory(agentInfoServerGroupListDataSource);
 
         LinkDataDuplexMap linkDataDuplexMap = ApplicationMapBuilderTestHelper.createLinkDataDuplexMap(calleeDepth, callerDepth);
-        ApplicationMapBuilder applicationMapBuilder = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(range, serialExecutor);
-        ApplicationMapBuilder applicationMapBuilder_parallelAppenders = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(range, parallelExecutor);
+        ApplicationMapBuilder applicationMapBuilder = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(timeWindow, serialExecutor);
+        ApplicationMapBuilder applicationMapBuilder_parallelAppenders = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(timeWindow, parallelExecutor);
 
         // test builder using MapResponseDao
         ApplicationMap applicationMap_MapResponseDao = applicationMapBuilder

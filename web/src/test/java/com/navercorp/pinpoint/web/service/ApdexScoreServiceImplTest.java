@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.timeseries.time.DateTimeUtils;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
@@ -31,11 +32,13 @@ public class ApdexScoreServiceImplTest {
 
     private ApdexScoreServiceImpl apdexScoreService;
     private Range testRange;
+    private TimeWindow timeWindow;
 
     @BeforeEach
     public void mockResponseDao() {
         Instant endTimestamp = DateTimeUtils.epochMilli().truncatedTo(ChronoUnit.MINUTES);
         testRange = Range.between(endTimestamp.minus(Duration.ofMinutes(5)), endTimestamp);
+        timeWindow = new TimeWindow(testRange);
 
         List<ResponseTime> responseTimeList = new ArrayList<>(5);
         for (int i = 0; i < 5; i++) {
@@ -72,35 +75,35 @@ public class ApdexScoreServiceImplTest {
 
     @Test
     public void selectApplicationApdexScoreData() {
-        ApdexScore apdexScore = apdexScoreService.selectApdexScoreData(testApplication, testRange);
+        ApdexScore apdexScore = apdexScoreService.selectApdexScoreData(testApplication, timeWindow);
 
         assertThat(apdexScore.getApdexScore()).isGreaterThan(0);
     }
 
     @Test
     public void selectNonWasApplicationApexScoreData() {
-        ApdexScore apdexScore = apdexScoreService.selectApdexScoreData(new Application("nonWas", ServiceType.USER), testRange);
+        ApdexScore apdexScore = apdexScoreService.selectApdexScoreData(new Application("nonWas", ServiceType.USER), timeWindow);
 
         assertThat(apdexScore.getApdexScore()).isEqualTo(0);
     }
 
     @Test
     public void selectNonExistingApplicationApexScoreData() {
-        ApdexScore apdexScore = apdexScoreService.selectApdexScoreData(new Application("nonExisting", ServiceType.STAND_ALONE), testRange);
+        ApdexScore apdexScore = apdexScoreService.selectApdexScoreData(new Application("nonExisting", ServiceType.STAND_ALONE), timeWindow);
 
         assertThat(apdexScore.getApdexScore()).isEqualTo(0);
     }
 
     @Test
     public void selectAgentApexScoreData() {
-        ApdexScore apdexScore = apdexScoreService.selectApdexScoreData(testApplication, agentIdList.get(0), testRange);
+        ApdexScore apdexScore = apdexScoreService.selectApdexScoreData(testApplication, agentIdList.get(0), timeWindow);
 
         assertThat(apdexScore.getApdexScore()).isGreaterThan(0);
     }
 
     @Test
     public void selectNonExistingAgentApexScoreData() {
-        ApdexScore apdexScore = apdexScoreService.selectApdexScoreData(testApplication, "nonExistingAgentId", testRange);
+        ApdexScore apdexScore = apdexScoreService.selectApdexScoreData(testApplication, "nonExistingAgentId", timeWindow);
 
         assertThat(apdexScore.getApdexScore()).isEqualTo(0);
     }

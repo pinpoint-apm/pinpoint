@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
@@ -119,9 +120,11 @@ public class AgentListController {
         final ApplicationAgentListQueryRule applicationAgentListQueryRule = ApplicationAgentListQueryRule.getByValue(query, ApplicationAgentListQueryRule.ALL);
         final long timestamp = System.currentTimeMillis();
         final Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
+        Range between = Range.between(timestamp, timestamp);
+        TimeWindow timeWindow = new TimeWindow(between);
         final AgentsMapByHost list = this.applicationAgentInfoService.getAgentsListByApplicationName(
                 application,
-                Range.between(timestamp, timestamp),
+                timeWindow,
                 paramSortBy,
                 applicationAgentListQueryRule,
                 AgentInfoFilters.acceptAll()
@@ -141,9 +144,12 @@ public class AgentListController {
         final SortByAgentInfo.Rules paramSortBy = sortBy.orElse(DEFAULT_SORT_BY);
         final ApplicationAgentListQueryRule applicationAgentListQueryRule = ApplicationAgentListQueryRule.getByValue(query, ApplicationAgentListQueryRule.ACTIVE_STATUS);
         final Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
+        Range between = Range.between(from, to);
+        TimeWindow timeWindow = new TimeWindow(between);
+
         final AgentsMapByHost list = this.applicationAgentInfoService.getAgentsListByApplicationName(
                 application,
-                Range.between(from, to),
+                timeWindow,
                 paramSortBy,
                 applicationAgentListQueryRule,
                 AgentInfoFilters.acceptAll()
@@ -170,6 +176,8 @@ public class AgentListController {
                     applicationName, serviceTypeCode, serviceTypeName, from, to, sortBy, String.valueOf(serverMapAgentListQueryRule)
             );
         }
+        Range between = Range.between(from, to);
+        TimeWindow timeWindow = new TimeWindow(between);
 
         final Application application = applicationFactory.createApplication(applicationName, serviceType.getCode());
 
@@ -178,7 +186,7 @@ public class AgentListController {
         final List<Application> toApplications =
                 pairsToList(applicationPairs.getToApplications());
         final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption
-                .Builder(application, Range.between(from, to),
+                .Builder(application, timeWindow,
                 fromApplications, toApplications)
                 .build();
 

@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.web.realtime;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.realtime.service.AgentLookupService;
 import com.navercorp.pinpoint.web.service.ApplicationAgentListService;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
@@ -46,8 +47,11 @@ class AgentLookupServiceImpl implements AgentLookupService {
     public List<ClusterKey> getRecentAgents(String applicationName) {
         long now = System.currentTimeMillis();
         long from = now - recentness.toMillis();
+        Range between = Range.between(from, now);
+        TimeWindow timeWindow = new TimeWindow(between);
+
         return intoClusterKeyList(this.applicationAgentListService.activeStatisticsAgentList(applicationName, null,
-                Range.between(from, now),
+                timeWindow,
                 ACTUAL_AGENT_INFO_PREDICATE
         ));
     }

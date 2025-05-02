@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.applicationmap.config;
 
 import com.navercorp.pinpoint.common.hbase.ConnectionFactoryBean;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate;
-import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableFactory;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.AsyncConnectionFactoryBean;
@@ -39,6 +38,7 @@ import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapInLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapOutLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapResponseTimeDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.MapScanFactory;
+import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResultExtractorFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.RowMapperFactory;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
@@ -57,6 +57,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
@@ -131,14 +132,14 @@ public class MapHbaseConfiguration {
 
     @Bean
     public MapResponseDao mapResponseDao(@Qualifier("mapHbaseTemplate")
-                                                  HbaseTemplate hbaseTemplate,
+                                         HbaseTemplate hbaseTemplate,
                                          TableNameProvider tableNameProvider,
-                                         @Qualifier("responseTimeMapper")
-                                                  RowMapper<ResponseTime> responseTimeMapper,
+                                         @Qualifier("responseTimeResultExtract")
+                                         ResultExtractorFactory<List<ResponseTime>> resultExtractFactory,
                                          MapScanFactory mapScanFactory,
                                          @Qualifier("mapSelfRowKeyDistributor")
-                                                  RowKeyDistributorByHashPrefix rowKeyDistributor) {
-        return new HbaseMapResponseTimeDao(hbaseTemplate, tableNameProvider, responseTimeMapper, mapScanFactory, rowKeyDistributor);
+                                         RowKeyDistributorByHashPrefix rowKeyDistributor) {
+        return new HbaseMapResponseTimeDao(hbaseTemplate, tableNameProvider, resultExtractFactory, mapScanFactory, rowKeyDistributor);
     }
 
     @Bean

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.dao;
 
-import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
@@ -29,6 +29,6 @@ import java.util.List;
  * 
  */
 public interface MapResponseDao {
-    List<ResponseTime> selectResponseTime(Application application, Range range);
+    List<ResponseTime> selectResponseTime(Application application, TimeWindow timeWindow);
 
 }

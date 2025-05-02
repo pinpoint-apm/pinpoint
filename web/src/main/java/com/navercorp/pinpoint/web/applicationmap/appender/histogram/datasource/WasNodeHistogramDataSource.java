@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource;
 
-import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
 
@@ -27,5 +27,5 @@ import com.navercorp.pinpoint.web.vo.Application;
  */
 public interface WasNodeHistogramDataSource {
 
-    NodeHistogram createNodeHistogram(Application application, Range range);
+    NodeHistogram createNodeHistogram(Application application, TimeWindow timeWindow);
 }

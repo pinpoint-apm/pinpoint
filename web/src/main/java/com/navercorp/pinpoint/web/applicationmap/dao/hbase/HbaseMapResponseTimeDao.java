@@ -19,10 +19,12 @@ package com.navercorp.pinpoint.web.applicationmap.dao.hbase;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
-import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResultExtractorFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
@@ -32,7 +34,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -49,7 +50,7 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
 
     private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER;
 
-    private final RowMapper<ResponseTime> responseTimeMapper;
+    private final ResultExtractorFactory<List<ResponseTime>> resultExtractFactory;
 
     private final HbaseOperations hbaseOperations;
     private final TableNameProvider tableNameProvider;
@@ -60,35 +61,38 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
 
     public HbaseMapResponseTimeDao(HbaseOperations hbaseOperations,
                                    TableNameProvider tableNameProvider,
-                                   RowMapper<ResponseTime> responseTimeMapper,
+                                   ResultExtractorFactory<List<ResponseTime>> resultExtractMapperFactory,
                                    MapScanFactory scanFactory,
                                    RowKeyDistributorByHashPrefix rowKeyDistributor) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
-        this.responseTimeMapper = Objects.requireNonNull(responseTimeMapper, "responseTimeMapper");
+        this.resultExtractFactory = Objects.requireNonNull(resultExtractMapperFactory, "resultExtractMapperFactory");
+
         this.scanFactory = Objects.requireNonNull(scanFactory, "scanFactory");
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
     }
 
 
     @Override
-    public List<ResponseTime> selectResponseTime(Application application, Range range) {
+    public List<ResponseTime> selectResponseTime(Application application, TimeWindow timeWindow) {
         Objects.requireNonNull(application, "application");
 
         if (logger.isDebugEnabled()) {
-            logger.debug("selectResponseTime applicationName:{}, {}", application, range);
+            logger.debug("selectResponseTime applicationName:{}, {}", application, timeWindow);
         }
 
-        Scan scan = scanFactory.createScan("MapSelfScan", application, range, DESCRIPTOR.getName());
+        Range windowRange = timeWindow.getWindowRange();
+        Scan scan = scanFactory.createScan("MapSelfScan", application, windowRange, DESCRIPTOR.getName());
+
+        ResultsExtractor<List<ResponseTime>> resultsExtractor = resultExtractFactory.newMapper(timeWindow);
 
         TableName mapStatisticsSelfTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        List<ResponseTime> responseTimeList = hbaseOperations.findParallel(mapStatisticsSelfTableName, scan, rowKeyDistributor, responseTimeMapper, MAP_STATISTICS_SELF_VER2_NUM_PARTITIONS);
+        List<ResponseTime> responseTimeList = hbaseOperations.findParallel(mapStatisticsSelfTableName, scan, rowKeyDistributor,
+                resultsExtractor, MAP_STATISTICS_SELF_VER2_NUM_PARTITIONS);
 
         if (responseTimeList.isEmpty()) {
-            return new ArrayList<>();
+            return List.of();
         }
-
         return responseTimeList;
     }
-
 }

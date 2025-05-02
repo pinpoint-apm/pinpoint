@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.appender.histogram;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -27,8 +28,8 @@ import com.navercorp.pinpoint.web.vo.Application;
 public class EmptyNodeHistogramFactory implements NodeHistogramFactory {
 
     @Override
-    public NodeHistogram createWasNodeHistogram(Application wasApplication, Range range) {
-        return NodeHistogram.empty(wasApplication, range);
+    public NodeHistogram createWasNodeHistogram(Application wasApplication,  TimeWindow timeWindow) {
+        return NodeHistogram.empty(wasApplication, timeWindow.getWindowRange());
     }
 
     @Override

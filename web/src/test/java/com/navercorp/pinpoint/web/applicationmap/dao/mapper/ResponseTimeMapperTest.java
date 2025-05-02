@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
@@ -59,7 +60,8 @@ public class ResponseTimeMapperTest {
                 .setValue(valueArray)
                 .build();
 
-        ResponseTimeMapper responseTimeMapper = new ResponseTimeMapper(mock(ServiceTypeRegistryService.class), mock(RowKeyDistributorByHashPrefix.class));
+        ResponseTimeMapper responseTimeMapper = new ResponseTimeMapper(mock(ServiceTypeRegistryService.class),
+                mock(RowKeyDistributorByHashPrefix.class), TimeWindowFunction.identity());
         ResponseTime.Builder responseBuilder = ResponseTime.newBuilder("applicationName", ServiceType.STAND_ALONE, System.currentTimeMillis());
         responseTimeMapper.recordColumn(responseBuilder, mockCell);
 

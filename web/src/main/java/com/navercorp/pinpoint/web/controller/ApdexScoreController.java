@@ -40,10 +40,11 @@ public class ApdexScoreController {
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to) {
         final Range range = Range.between(from, to);
+        TimeWindow timeWindow = new TimeWindow(range);
 
         Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
 
-        return apdexScoreService.selectApdexScoreData(application, range);
+        return apdexScoreService.selectApdexScoreData(application, timeWindow);
     }
 
     @GetMapping(value = "/getApdexScore", params = "serviceTypeName")
@@ -53,10 +54,11 @@ public class ApdexScoreController {
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to) {
         final Range range = Range.between(from, to);
+        TimeWindow timeWindow = new TimeWindow(range);
 
         Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
 
-        return apdexScoreService.selectApdexScoreData(application, range);
+        return apdexScoreService.selectApdexScoreData(application, timeWindow);
     }
 
     @GetMapping(value = "/getApdexScore", params = {"agentId"})
@@ -67,10 +69,11 @@ public class ApdexScoreController {
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to) {
         final Range range = Range.between(from, to);
+        TimeWindow timeWindow = new TimeWindow(range);
 
         Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
 
-        return apdexScoreService.selectApdexScoreData(application, agentId, range);
+        return apdexScoreService.selectApdexScoreData(application, agentId, timeWindow);
     }
 
     @GetMapping(value = "/getApdexScore", params = {"agentId", "serviceTypeName"})
@@ -81,10 +84,11 @@ public class ApdexScoreController {
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to) {
         final Range range = Range.between(from, to);
+        TimeWindow timeWindow = new TimeWindow(range);
 
         Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
 
-        return apdexScoreService.selectApdexScoreData(application, agentId, range);
+        return apdexScoreService.selectApdexScoreData(application, agentId, timeWindow);
     }
 
     @GetMapping(value = "/getApplicationStat/apdexScore/chart")

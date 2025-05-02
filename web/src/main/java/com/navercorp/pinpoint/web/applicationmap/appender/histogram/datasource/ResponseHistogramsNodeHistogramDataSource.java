@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource;
 
-import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
@@ -37,10 +37,10 @@ public class ResponseHistogramsNodeHistogramDataSource implements WasNodeHistogr
     }
 
     @Override
-    public NodeHistogram createNodeHistogram(Application application, Range range) {
+    public NodeHistogram createNodeHistogram(Application application, TimeWindow timeWindow) {
         List<ResponseTime> responseTimes = responseHistograms.getResponseTimeList(application);
 
-        NodeHistogram.Builder builder = NodeHistogram.newBuilder(application, range);
+        NodeHistogram.Builder builder = NodeHistogram.newBuilder(application, timeWindow.getWindowRange());
         builder.setResponseHistogram(responseTimes);
         return builder.build();
     }

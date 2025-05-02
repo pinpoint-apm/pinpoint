@@ -138,7 +138,7 @@ public class MapServiceImpl implements MapService {
     }
 
     private ApplicationMapBuilder createApplicationMapBuilder(MapServiceOption option) {
-        ApplicationMapBuilder builder = applicationMapBuilderFactory.createApplicationMapBuilder(option.getRange());
+        ApplicationMapBuilder builder = applicationMapBuilderFactory.createApplicationMapBuilder(option.getTimeWindow());
 
         final NodeHistogramFactory nodeHistogramFactory = newNodeHistogramFactory(option);
         builder.includeNodeHistogram(nodeHistogramFactory);

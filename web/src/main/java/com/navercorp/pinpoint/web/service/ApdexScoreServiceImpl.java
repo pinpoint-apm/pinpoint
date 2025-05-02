@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
@@ -35,11 +34,11 @@ public class ApdexScoreServiceImpl implements ApdexScoreService {
     }
 
     @Override
-    public ApdexScore selectApdexScoreData(Application application, Range range) {
+    public ApdexScore selectApdexScoreData(Application application, TimeWindow timeWindow) {
         ServiceType applicationServiceType = application.getServiceType();
 
         if (applicationServiceType.isWas()) {
-            List<ResponseTime> responseTimeList = mapResponseDao.selectResponseTime(application, range);
+            List<ResponseTime> responseTimeList = mapResponseDao.selectResponseTime(application, timeWindow);
             Histogram applicationHistogram = createApplicationHistogram(responseTimeList, applicationServiceType);
 
             return ApdexScore.newApdexScore(applicationHistogram);
@@ -50,11 +49,11 @@ public class ApdexScoreServiceImpl implements ApdexScoreService {
     }
 
     @Override
-    public ApdexScore selectApdexScoreData(Application application, String agentId, Range range) {
+    public ApdexScore selectApdexScoreData(Application application, String agentId, TimeWindow timeWindow) {
         ServiceType applicationServiceType = application.getServiceType();
 
         if (applicationServiceType.isWas()) {
-            List<ResponseTime> responseTimeList = mapResponseDao.selectResponseTime(application, range);
+            List<ResponseTime> responseTimeList = mapResponseDao.selectResponseTime(application, timeWindow);
             Histogram agentHistogram = createAgentHistogram(responseTimeList, agentId, applicationServiceType);
 
             return ApdexScore.newApdexScore(agentHistogram);
@@ -86,8 +85,7 @@ public class ApdexScoreServiceImpl implements ApdexScoreService {
 
     @Override
     public StatChart<?> selectApplicationChart(Application application, TimeWindow timeWindow) {
-        Range range = timeWindow.getWindowRange();
-        List<ResponseTime> responseTimeList = mapResponseDao.selectResponseTime(application, range);
+        List<ResponseTime> responseTimeList = mapResponseDao.selectResponseTime(application, timeWindow);
         AgentTimeHistogram timeHistogram = createAgentTimeHistogram(application, timeWindow, responseTimeList);
 
         List<ApplicationStatPoint> applicationStatPoints = timeHistogram.getApplicationApdexScoreList(timeWindow);
@@ -97,8 +95,7 @@ public class ApdexScoreServiceImpl implements ApdexScoreService {
 
     @Override
     public StatChart<?> selectAgentChart(Application application, TimeWindow timeWindow, String agentId) {
-        Range range = timeWindow.getWindowRange();
-        List<ResponseTime> responseTimeList = mapResponseDao.selectResponseTime(application, range);
+        List<ResponseTime> responseTimeList = mapResponseDao.selectResponseTime(application, timeWindow);
         AgentTimeHistogram timeHistogram = createAgentTimeHistogram(application, timeWindow, responseTimeList);
 
         List<SampledApdexScore> sampledPoints = timeHistogram.getSampledAgentApdexScoreList(agentId);
