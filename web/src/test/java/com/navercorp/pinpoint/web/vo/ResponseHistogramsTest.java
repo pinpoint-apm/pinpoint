@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.vo;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.TestTraceUtils;
@@ -41,11 +42,13 @@ public class ResponseHistogramsTest {
     public void empty() {
         // Given
         final Range range = Range.between(1, 200000);
+        final TimeWindow timeWindow = new TimeWindow(range);
+
         final String applicationName = "TEST_APP";
         final ServiceType serviceType = registry.findServiceType(TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE);
         final Application application = new Application(applicationName, serviceType);
 
-        ResponseHistograms.Builder builder = new ResponseHistograms.Builder(range);
+        ResponseHistograms.Builder builder = new ResponseHistograms.Builder(timeWindow);
         ResponseHistograms responseHistograms = builder.build();
 
         // When
@@ -59,12 +62,14 @@ public class ResponseHistogramsTest {
     public void nonExistentApplication() {
         // Given
         final Range range = Range.between(1, 200000);
+        final TimeWindow timeWindow = new TimeWindow(range);
+
         final String applicationName = "TEST_APP";
         final ServiceType serviceType = registry.findServiceType(TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE);
         final Application application = new Application(applicationName, serviceType);
         SpanBo fastSpan = new TestTraceUtils.SpanBuilder(applicationName, "test-app").elapsed(500).build();
 
-        ResponseHistograms.Builder builder = new ResponseHistograms.Builder(range);
+        ResponseHistograms.Builder builder = new ResponseHistograms.Builder(timeWindow);
         List<Long> timeslotIterator = builder.getWindow().getTimeseriesWindows();
         long timeslot = timeslotIterator.get(0);
         builder.addHistogram(application, fastSpan, timeslot);
@@ -84,6 +89,7 @@ public class ResponseHistogramsTest {
     public void timeslots() {
         // Given
         final Range range = Range.between(1, 200000);
+        final TimeWindow timeWindow = new TimeWindow(range);
         final String applicationName = "TEST_APP";
         final ServiceType serviceType = registry.findServiceType(TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE);
         final Application application = new Application(applicationName, serviceType);
@@ -94,7 +100,7 @@ public class ResponseHistogramsTest {
         SpanBo verySlowSpan = new TestTraceUtils.SpanBuilder(applicationName, "test-app").elapsed(5500).build();
         SpanBo errorSpan = new TestTraceUtils.SpanBuilder(applicationName, "test-app").elapsed(500).errorCode(1).build();
 
-        ResponseHistograms.Builder builder = new ResponseHistograms.Builder(range);
+        ResponseHistograms.Builder builder = new ResponseHistograms.Builder(timeWindow);
         Iterator<Long> timeslotIterator = builder.getWindow().getTimeseriesWindows().iterator();
         long timeslot1 = timeslotIterator.next();
         long timeslot2 = timeslotIterator.next();
@@ -145,6 +151,7 @@ public class ResponseHistogramsTest {
     public void multipleAgents() {
         // Given
         final Range range = Range.between(1, 200000);
+        final TimeWindow timeWindow = new TimeWindow(range);
         final String applicationName = "TEST_APP";
         final ServiceType serviceType = registry.findServiceType(TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE);
         final Application application = new Application(applicationName, serviceType);
@@ -160,7 +167,7 @@ public class ResponseHistogramsTest {
         SpanBo verySlowSpan = new TestTraceUtils.SpanBuilder(applicationName, verySlowAgentId).elapsed(5500).build();
         SpanBo errorSpan = new TestTraceUtils.SpanBuilder(applicationName, errorAgentId).elapsed(500).errorCode(1).build();
 
-        ResponseHistograms.Builder builder = new ResponseHistograms.Builder(range);
+        ResponseHistograms.Builder builder = new ResponseHistograms.Builder(timeWindow);
         long timeslot = builder.getWindow().getTimeseriesWindows().get(0);
         builder.addHistogram(application, fastSpan, timeslot);
         builder.addHistogram(application, normalSpan, timeslot);
@@ -194,6 +201,7 @@ public class ResponseHistogramsTest {
     public void multipleApplications() {
         // Given
         final Range range = Range.between(1, 200000);
+        final TimeWindow timeWindow = new TimeWindow(range);
         final String appAName = "APP_A";
         final ServiceType appAServiceType = registry.findServiceType(TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE);
         final Application appA = new Application(appAName, appAServiceType);
@@ -206,7 +214,7 @@ public class ResponseHistogramsTest {
         SpanBo appASpan = new TestTraceUtils.SpanBuilder(appAName, appAAgentId).elapsed(500).build();
         SpanBo appBSpan = new TestTraceUtils.SpanBuilder(appBName, appBAgentId).elapsed(1500).build();
 
-        ResponseHistograms.Builder builder = new ResponseHistograms.Builder(range);
+        ResponseHistograms.Builder builder = new ResponseHistograms.Builder(timeWindow);
         List<Long> timeslotIterator = builder.getWindow().getTimeseriesWindows();
         long timeslot = timeslotIterator.get(0);
 

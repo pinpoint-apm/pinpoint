@@ -60,9 +60,10 @@ public class ResponseTimeMapperTest {
                 .build();
 
         ResponseTimeMapper responseTimeMapper = new ResponseTimeMapper(mock(ServiceTypeRegistryService.class), mock(RowKeyDistributorByHashPrefix.class));
-        ResponseTime responseTime = new ResponseTime("applicationName", ServiceType.STAND_ALONE, System.currentTimeMillis());
-        responseTimeMapper.recordColumn(responseTime, mockCell);
+        ResponseTime.Builder responseBuilder = ResponseTime.newBuilder("applicationName", ServiceType.STAND_ALONE, System.currentTimeMillis());
+        responseTimeMapper.recordColumn(responseBuilder, mockCell);
 
+        ResponseTime responseTime = responseBuilder.build();
         Histogram agentHistogram = responseTime.findHistogram("agent");
 
         assertThat(agentHistogram)

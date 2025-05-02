@@ -18,9 +18,7 @@ package com.navercorp.pinpoint.web.vo;
 
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
-import com.navercorp.pinpoint.common.timeseries.window.TimeWindowDownSampler;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 
 import java.util.ArrayList;
@@ -50,13 +48,11 @@ public class ResponseHistograms {
     public static class Builder {
 
         private final TimeWindow window;
-        private final Map<Long, Map<Application, ResponseTime>> responseTimeApplicationMap = new HashMap<>();
+        private final Map<Long, Map<Application, ResponseTime.Builder>> map = new HashMap<>();
 
-        public Builder(Range range) {
-            Objects.requireNonNull(range, "range");
-
+        public Builder(TimeWindow window) {
             // don't sample for now
-            this.window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
+            this.window = Objects.requireNonNull(window, "window");
         }
 
         @VisibleForTesting
@@ -67,39 +63,48 @@ public class ResponseHistograms {
         public Builder addHistogram(Application application, SpanBo span, long timestamp) {
             timestamp = window.refineTimestamp(timestamp);
 
-            final ResponseTime responseTime = getResponseTime(application, timestamp);
-            boolean error = false;
-            if (span.getErrCode() != 0) {
-                error = true;
-            }
+            final ResponseTime.Builder responseTime = getBuilder(application, timestamp);
+            final boolean error = isError(span);
             responseTime.addResponseTime(span.getAgentId(), span.getElapsed(), error);
             return this;
+        }
+
+        private boolean isError(SpanBo span) {
+            if (span.getErrCode() != 0) {
+                return true;
+            }
+            return false;
         }
 
         public void addLinkHistogram(Application application, String agentId, TimeHistogram timeHistogram) {
             long timeStamp = timeHistogram.getTimeStamp();
             timeStamp = window.refineTimestamp(timeStamp);
-            final ResponseTime responseTime = getResponseTime(application, timeStamp);
+            final ResponseTime.Builder responseTime = getBuilder(application, timeStamp);
             responseTime.addResponseTime(agentId, timeHistogram);
         }
 
-        private ResponseTime getResponseTime(Application application, Long timestamp) {
-            Map<Application, ResponseTime> responseTimeMap = responseTimeApplicationMap.computeIfAbsent(timestamp, (Long k) -> new HashMap<>());
-            ResponseTime responseTime = responseTimeMap.get(application);
+        private ResponseTime.Builder getBuilder(Application application, long timestamp) {
+            Map<Application, ResponseTime.Builder> responseTimeMap = map.computeIfAbsent(timestamp, (Long k) -> new HashMap<>());
+            ResponseTime.Builder responseTime = responseTimeMap.get(application);
             if (responseTime == null) {
-                responseTime = new ResponseTime(application.getName(), application.getServiceType(), timestamp);
+                responseTime = ResponseTime.newBuilder(application.getName(), application.getServiceType(), timestamp);
                 responseTimeMap.put(application, responseTime);
             }
             return responseTime;
         }
 
         public ResponseHistograms build() {
-            final Map<Application, List<ResponseTime>> responseTimeMap = new HashMap<>();
+            final Map<Long, Map<Application, ResponseTime.Builder>> copyMap = this.map;
 
-            for (Map<Application, ResponseTime> entry : responseTimeApplicationMap.values()) {
-                for (Map.Entry<Application, ResponseTime> applicationResponseTimeEntry : entry.entrySet()) {
-                    List<ResponseTime> responseTimeList = responseTimeMap.computeIfAbsent(applicationResponseTimeEntry.getKey(), (Application k) -> new ArrayList<>());
-                    responseTimeList.add(applicationResponseTimeEntry.getValue());
+            final Map<Application, List<ResponseTime>> responseTimeMap = new HashMap<>(copyMap.size());
+
+            for (Map<Application, ResponseTime.Builder> entry : copyMap.values()) {
+                for (Map.Entry<Application, ResponseTime.Builder> applicationResponseTimeEntry : entry.entrySet()) {
+                    Application application = applicationResponseTimeEntry.getKey();
+                    ResponseTime.Builder builder = applicationResponseTimeEntry.getValue();
+
+                    List<ResponseTime> responseTimeList = responseTimeMap.computeIfAbsent(application, (Application k) -> new ArrayList<>());
+                    responseTimeList.add(builder.build());
                 }
             }
             return new ResponseHistograms(responseTimeMap);

@@ -20,9 +20,7 @@ package com.navercorp.pinpoint.web.applicationmap.map;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.util.UserNodeUtils;
-import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
-import com.navercorp.pinpoint.common.timeseries.window.TimeWindowDownSampler;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -77,14 +75,13 @@ public class FilteredMapBuilder {
 
     private final Map<String, Application> applicationHashMap = new HashMap<>();
 
-    public FilteredMapBuilder(ApplicationFactory applicationFactory, ServiceTypeRegistryService registry, Range range) {
+    public FilteredMapBuilder(ApplicationFactory applicationFactory, ServiceTypeRegistryService registry, TimeWindow timeWindow) {
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
         this.registry = Objects.requireNonNull(registry, "registry");
 
-        Objects.requireNonNull(range, "range");
-        this.timeWindow = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
+        this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
         this.linkDataDuplexMap = new LinkDataDuplexMap();
-        this.responseHistogramsBuilder = new ResponseHistograms.Builder(range);
+        this.responseHistogramsBuilder = new ResponseHistograms.Builder(timeWindow);
         this.dotExtractor = new DotExtractor();
     }
 

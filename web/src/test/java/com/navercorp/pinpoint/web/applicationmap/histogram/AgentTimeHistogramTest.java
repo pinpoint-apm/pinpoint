@@ -107,19 +107,19 @@ public class AgentTimeHistogramTest {
 
     private List<ResponseTime> createResponseTime(Application app, String agentName1, String agentName2) {
 
-        ResponseTime one = new ResponseTime(app.getName(), app.getServiceType(), 0);
+        ResponseTime.Builder one = ResponseTime.newBuilder(app.getName(), app.getServiceType(), 0);
         one.addResponseTime(agentName1, (short) 1000, 1);
 
-        ResponseTime two = new ResponseTime(app.getName(), app.getServiceType(), 1000 * 60);
+        ResponseTime.Builder two = ResponseTime.newBuilder(app.getName(), app.getServiceType(), 1000 * 60);
         two.addResponseTime(agentName1, (short) 3000, 1);
 
-        ResponseTime three = new ResponseTime(app.getName(), app.getServiceType(), 0);
+        ResponseTime.Builder three = ResponseTime.newBuilder(app.getName(), app.getServiceType(), 0);
         three.addResponseTime(agentName2, (short) 1000, 1);
 
-        ResponseTime four = new ResponseTime(app.getName(), app.getServiceType(), 1000 * 60);
+        ResponseTime.Builder four = ResponseTime.newBuilder(app.getName(), app.getServiceType(), 1000 * 60);
         four.addResponseTime(agentName2, (short) 3000, 1);
 
-        return List.of(one, two, three, four);
+        return List.of(one.build(), two.build(), three.build(), four.build());
     }
 
     @Test

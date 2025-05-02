@@ -62,10 +62,10 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
 
         final byte[] rowKey = getOriginalKey(result.getRow());
 
-        ResponseTime responseTime = createResponseTime(rowKey);
+        ResponseTime.Builder responseTimeBuilder = createResponseTime(rowKey);
         for (Cell cell : result.rawCells()) {
             if (CellUtil.matchingFamily(cell, HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER.getName())) {
-                recordColumn(responseTime, cell);
+                recordColumn(responseTimeBuilder, cell);
             }
 
             if (logger.isTraceEnabled()) {
@@ -73,10 +73,10 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
                 logger.trace("unknown column family:{}", columnFamily);
             }
         }
-        return responseTime;
+        return responseTimeBuilder.build();
     }
 
-    void recordColumn(ResponseTime responseTime, Cell cell) {
+    void recordColumn(ResponseTime.Builder responseTime, Cell cell) {
 
         final byte[] qArray = cell.getQualifierArray();
         final int qOffset = cell.getQualifierOffset();
@@ -88,13 +88,13 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
         responseTime.addResponseTime(agentId, slotNumber, count);
     }
 
-    private ResponseTime createResponseTime(byte[] rowKey) {
+    private ResponseTime.Builder createResponseTime(byte[] rowKey) {
         final Buffer row = new FixedBuffer(rowKey);
         String applicationName = row.read2PrefixedString();
         short serviceTypeCode = row.readShort();
         final long timestamp = TimeUtils.recoveryTimeMillis(row.readLong());
         ServiceType serviceType = registry.findServiceType(serviceTypeCode);
-        return new ResponseTime(applicationName, serviceType, timestamp);
+        return ResponseTime.newBuilder(applicationName, serviceType, timestamp);
     }
 
     private byte[] getOriginalKey(byte[] rowKey) {

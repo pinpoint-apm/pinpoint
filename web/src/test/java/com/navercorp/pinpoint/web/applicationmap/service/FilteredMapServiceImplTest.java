@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.common.server.util.json.JsonField;
 import com.navercorp.pinpoint.common.server.util.json.JsonFields;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
-import com.navercorp.pinpoint.common.timeseries.window.TimeWindowDownSampler;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -160,8 +159,7 @@ public class FilteredMapServiceImplTest {
     public void twoTier() {
         // Given
         Range originalRange = Range.between(1000, 2000);
-        final TimeWindow timeWindow = new TimeWindow(originalRange, TimeWindowDownSampler.SAMPLER);
-
+        final TimeWindow timeWindow = new TimeWindow(originalRange);
         // root app span
         long rootSpanId = RANDOM.nextLong();
         long rootSpanStartTime = 1000L;
