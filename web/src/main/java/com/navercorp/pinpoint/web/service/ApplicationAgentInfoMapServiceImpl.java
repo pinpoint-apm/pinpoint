@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -30,14 +31,14 @@ public class ApplicationAgentInfoMapServiceImpl implements ApplicationAgentInfoM
 
     @Override
     public AgentsMapByHost getAgentsListByApplicationName(Application application,
-                                                          Range range,
+                                                          TimeWindow timeWindow,
                                                           SortByAgentInfo.Rules sortBy,
                                                           ApplicationAgentListQueryRule applicationAgentListQueryRule,
                                                           AgentInfoFilter agentInfoPredicate) {
         Objects.requireNonNull(agentInfoPredicate, "agentInfoPredicate");
         Objects.requireNonNull(application, "applicationName");
 
-        List<AgentAndStatus> agentInfoAndStatuses = getActivateAgentInfoList(application, range, applicationAgentListQueryRule, agentInfoPredicate);
+        List<AgentAndStatus> agentInfoAndStatuses = getActivateAgentInfoList(application, timeWindow, applicationAgentListQueryRule, agentInfoPredicate);
         if (agentInfoAndStatuses.isEmpty()) {
             logger.warn("agent list is empty for application:{}", application);
         }
@@ -60,16 +61,17 @@ public class ApplicationAgentInfoMapServiceImpl implements ApplicationAgentInfoM
     }
 
     private List<AgentAndStatus> getActivateAgentInfoList(Application application,
-                                                          Range range,
+                                                          TimeWindow timeWindow,
                                                           ApplicationAgentListQueryRule applicationAgentListQueryRule,
                                                           AgentInfoFilter agentInfoFilter) {
         final String applicationName = application.getName();
         final ServiceType serviceType = application.getServiceType();
+        final Range windowRange = timeWindow.getWindowRange();
         return switch (applicationAgentListQueryRule) {
-            case ACTIVE_STATUS -> applicationAgentListService.activeStatusAgentList(applicationName, serviceType, range, agentInfoFilter);
-            case ACTIVE_STATISTICS -> applicationAgentListService.activeStatisticsAgentList(applicationName, serviceType, range, agentInfoFilter);
-            case ACTIVE_ALL -> applicationAgentListService.activeAllAgentList(applicationName, serviceType, range, agentInfoFilter);
-            default -> applicationAgentListService.allAgentList(applicationName, serviceType, range, agentInfoFilter);
+            case ACTIVE_STATUS -> applicationAgentListService.activeStatusAgentList(applicationName, serviceType, timeWindow, agentInfoFilter);
+            case ACTIVE_STATISTICS -> applicationAgentListService.activeStatisticsAgentList(applicationName, serviceType, timeWindow, agentInfoFilter);
+            case ACTIVE_ALL -> applicationAgentListService.activeAllAgentList(applicationName, serviceType, timeWindow, agentInfoFilter);
+            default -> applicationAgentListService.allAgentList(applicationName, serviceType, windowRange, agentInfoFilter);
         };
     }
 }

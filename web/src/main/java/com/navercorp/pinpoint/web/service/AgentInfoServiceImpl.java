@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentInfoQuery;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
@@ -151,15 +152,15 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     private List<AgentInfo> getAgentInfoList(String applicationName, long timestamp, int durationHours, Predicate<AgentInfo> agentInfoFilter) {
         Range range = Range.between(timestamp - TimeUnit.HOURS.toMillis(durationHours), timestamp);
+        TimeWindow timeWindow = new TimeWindow(range);
         if (durationHours <= 0) {
             return applicationAgentListService.allAgentList(applicationName, null, range, agentInfoFilter.and(ACTUAL_AGENT_INFO_PREDICATE)).stream()
                     .map(AgentAndStatus::getAgentInfo)
                     .collect(Collectors.toList());
         }
-        List<AgentInfo> result = applicationAgentListService.activeStatusAgentList(applicationName, null, range, agentInfoFilter).stream()
+        return applicationAgentListService.activeStatusAgentList(applicationName, null, timeWindow, agentInfoFilter).stream()
                 .map(AgentAndStatus::getAgentInfo)
                 .collect(Collectors.toList());
-        return result;
     }
 
     private ApplicationAgentHostList.Builder newBuilder(int offset, int endIndex, int totalApplications) {

@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
@@ -15,11 +16,23 @@ public interface ApplicationAgentListService {
     String AGENT_INFO_NOT_FOUND_HOSTNAME = "!noAgentInfo";
     Predicate<AgentInfo> ACTUAL_AGENT_INFO_PREDICATE = agentInfo -> !AGENT_INFO_NOT_FOUND_HOSTNAME.equals(agentInfo.getHostName());
 
-    List<AgentAndStatus> allAgentList(String applicationName, @Nullable ServiceType serviceType, Range range, Predicate<AgentInfo> agentInfoPredicate);
+    List<AgentAndStatus> allAgentList(String applicationName,
+                                      @Nullable ServiceType serviceType,
+                                      Range range,
+                                      Predicate<AgentInfo> agentInfoPredicate);
 
-    List<AgentAndStatus> activeStatusAgentList(String applicationName, @Nullable ServiceType serviceType, Range range, Predicate<AgentInfo> agentInfoPredicate);
+    List<AgentAndStatus> activeStatusAgentList(String applicationName,
+                                               @Nullable ServiceType serviceType,
+                                               TimeWindow timeWindow,
+                                               Predicate<AgentInfo> agentInfoPredicate);
 
-    List<AgentAndStatus> activeStatisticsAgentList(String applicationName, @Nullable ServiceType serviceType, Range range, Predicate<AgentInfo> agentInfoPredicate);
+    List<AgentAndStatus> activeStatisticsAgentList(String applicationName,
+                                                   @Nullable ServiceType serviceType,
+                                                   TimeWindow timeWindow,
+                                                   Predicate<AgentInfo> agentInfoPredicate);
 
-    List<AgentAndStatus> activeAllAgentList(String applicationName, @Nullable ServiceType serviceType, Range range, Predicate<AgentInfo> agentInfoPredicate);
+    List<AgentAndStatus> activeAllAgentList(String applicationName,
+                                            @Nullable ServiceType serviceType,
+                                            TimeWindow timeWindow,
+                                            Predicate<AgentInfo> agentInfoPredicate);
 }

@@ -101,10 +101,11 @@ public class MapHistogramController {
             @Valid @ModelAttribute
             RangeForm rangeForm) {
         final Range range = toRange(rangeForm);
+        TimeWindow timeWindow = new TimeWindow(range);
 
         final Application application = getApplication(appForm);
 
-        AgentHistogramList responseTimes = responseTimeHistogramService.selectResponseTimeHistogramData(application, range);
+        AgentHistogramList responseTimes = responseTimeHistogramService.selectResponseTimeHistogramData(application, timeWindow);
         return new ApplicationTimeHistogramViewModel(TimeHistogramFormat.V1, application, responseTimes);
     }
 
@@ -127,6 +128,7 @@ public class MapHistogramController {
             boolean useLoadHistogramFormat
     ) {
         final Range range = toRange(rangeForm);
+        TimeWindow timeWindow = new TimeWindow(range);
 
         final Application application = getApplication(appForm);
 
@@ -135,7 +137,7 @@ public class MapHistogramController {
         final List<Application> toApplications =
                 mapApplicationPairsToApplications(applicationPairs.getToApplications());
         final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption
-                .Builder(application, range, fromApplications, toApplications)
+                .Builder(application, timeWindow, fromApplications, toApplications)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
         final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
@@ -167,6 +169,7 @@ public class MapHistogramController {
             boolean useLoadHistogramFormat
     ) {
         final Range range = toRange(rangeForm);
+        TimeWindow timeWindow = new TimeWindow(range);
 
         if (fromApplicationNames.size() != fromServiceTypeCodes.size()) {
             throw new IllegalArgumentException(
@@ -182,7 +185,7 @@ public class MapHistogramController {
         final List<Application> fromApplications = toApplications(fromApplicationNames, fromServiceTypeCodes);
         final List<Application> toApplications = toApplications(toApplicationNames, toServiceTypeCodes);
         final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption
-                .Builder(application, range, fromApplications, toApplications)
+                .Builder(application, timeWindow, fromApplications, toApplications)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 

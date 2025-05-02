@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.appender.histogram;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
@@ -80,10 +81,12 @@ public class NodeHistogramAppenderTest {
     public void emptyNodeList() {
         // Given
         Range range = Range.between(0, 60 * 1000);
+        TimeWindow timeWindow = new TimeWindow(range);
+
         NodeList nodeList = NodeList.of();
         LinkList linkList = LinkList.of();
         // When
-        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, buildTimeoutMillis);
+        nodeHistogramAppender.appendNodeHistogram(timeWindow, nodeList, linkList, buildTimeoutMillis);
         // Then
         assertThat(nodeList.getNodeList()).isEmpty();
         verifyNoInteractions(wasNodeHistogramDataSource);
@@ -96,15 +99,16 @@ public class NodeHistogramAppenderTest {
     public void wasNode() {
         // Given
         Range range = Range.between(0, 60 * 1000);
+        TimeWindow timeWindow = new TimeWindow(range);
 
         LinkList linkList = LinkList.of();
         Node node = createNode("testApp", ServiceTypeFactory.of(1000, "WAS"));
         NodeList nodeList = NodeList.of(node);
 
         NodeHistogram nodeHistogram = NodeHistogram.empty(node.getApplication(), range);
-        when(wasNodeHistogramDataSource.createNodeHistogram(node.getApplication(), range)).thenReturn(nodeHistogram);
+        when(wasNodeHistogramDataSource.createNodeHistogram(node.getApplication(), timeWindow)).thenReturn(nodeHistogram);
         // When
-        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, buildTimeoutMillis);
+        nodeHistogramAppender.appendNodeHistogram(timeWindow, nodeList, linkList, buildTimeoutMillis);
         // Then
         Node actualNode = nodeList.getNodeList().iterator().next();
         Assertions.assertSame(nodeHistogram, actualNode.getNodeHistogram());
@@ -120,6 +124,7 @@ public class NodeHistogramAppenderTest {
     public void terminalNode() {
         // Given
         Range range = Range.between(0, 60 * 1000);
+        TimeWindow timeWindow = new TimeWindow(range);
 
         // fromNode : [testApp] test-app
         Node fromNode = createNode("testApp", ServiceTypeFactory.of(1000, "WAS"));
@@ -143,7 +148,7 @@ public class NodeHistogramAppenderTest {
         LinkList linkList = LinkList.of(link);
 
         // When
-        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, buildTimeoutMillis);
+        nodeHistogramAppender.appendNodeHistogram(timeWindow, nodeList, linkList, buildTimeoutMillis);
 
         // Then
         Node actualNode = nodeList.getNodeList().iterator().next();
@@ -173,6 +178,7 @@ public class NodeHistogramAppenderTest {
     public void terminalNode_multiple() {
         // Given
         Range range = Range.between(0, 60 * 1000);
+        TimeWindow timeWindow = new TimeWindow(range);
 
         // fromNode : [testApp] test-app
         Node fromNode = createNode("testApp", ServiceTypeFactory.of(1000, "WAS"));
@@ -195,7 +201,7 @@ public class NodeHistogramAppenderTest {
         LinkList linkList = LinkList.of(link);
 
         // When
-        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, buildTimeoutMillis);
+        nodeHistogramAppender.appendNodeHistogram(timeWindow, nodeList, linkList, buildTimeoutMillis);
 
         // Then
         Node actualNode = nodeList.getNodeList().iterator().next();
@@ -226,6 +232,8 @@ public class NodeHistogramAppenderTest {
     public void terminalNodes() {
         // Given
         Range range = Range.between(0, 60 * 1000);
+        TimeWindow timeWindow = new TimeWindow(range);
+
         NodeList.Builder nodeBuilder = NodeList.newBuilder();
         LinkList.Builder linkBuilder = LinkList.newBuilder();
 
@@ -259,7 +267,7 @@ public class NodeHistogramAppenderTest {
         LinkList linkList = linkBuilder.build();
 
         // When
-        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, buildTimeoutMillis);
+        nodeHistogramAppender.appendNodeHistogram(timeWindow, nodeList, linkList, buildTimeoutMillis);
 
         // Then
         // Database node
@@ -300,6 +308,8 @@ public class NodeHistogramAppenderTest {
     public void userNode() {
         // Given
         Range range = Range.between(0, 60 * 1000);
+        TimeWindow timeWindow = new TimeWindow(range);
+
         NodeList.Builder nodeBuilder = NodeList.newBuilder();
 
         // userNode : [userNode] user
@@ -325,7 +335,7 @@ public class NodeHistogramAppenderTest {
         LinkList linkList = LinkList.of(link);
 
         // When
-        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, buildTimeoutMillis);
+        nodeHistogramAppender.appendNodeHistogram(timeWindow, nodeList, linkList, buildTimeoutMillis);
 
         NodeHistogram nodeHistogram = userNode.getNodeHistogram();
         // verify application-level histogram

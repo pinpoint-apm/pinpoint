@@ -98,8 +98,8 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     }
 
     @Override
-    public AgentHistogramList selectResponseTimeHistogramData(Application application, Range range) {
-        List<ResponseTime> responseTimes = mapResponseDao.selectResponseTime(application, range);
+    public AgentHistogramList selectResponseTimeHistogramData(Application application, TimeWindow timeWindow) {
+        List<ResponseTime> responseTimes = mapResponseDao.selectResponseTime(application, timeWindow);
         return AgentHistogramList.newBuilder().build(application, responseTimes);
     }
 
@@ -127,7 +127,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     private NodeHistogramSummary getUserNodeHistogramSummary(ResponseTimeHistogramServiceOption option) {
         Application application = option.getApplication();
         Range range = option.getRange();
-        TimeWindow timeWindow = new TimeWindow(range);
+        TimeWindow timeWindow = option.getTimeWindow();
         List<Application> destinationApplications = option.getToApplications();
 
         final ServerGroupListFactory serverGroupListFactory = createServerGroupListFactory(option.isUseStatisticsAgentState());
@@ -151,9 +151,10 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     private NodeHistogramSummary getWasNodeHistogramSummary(ResponseTimeHistogramServiceOption option) {
         Application application = option.getApplication();
         Range range = option.getRange();
+        TimeWindow timeWindow = option.getTimeWindow();
 
         final NodeHistogramFactory nodeHistogramFactory = createNodeHistogramFactory();
-        NodeHistogram nodeHistogram = nodeHistogramFactory.createWasNodeHistogram(application, range);
+        NodeHistogram nodeHistogram = nodeHistogramFactory.createWasNodeHistogram(application, timeWindow);
 
         Node node = new Node(application);
         node.setNodeHistogram(nodeHistogram);
@@ -166,7 +167,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     private NodeHistogramSummary getTerminalNodeHistogramSummary(ResponseTimeHistogramServiceOption option) {
         Application application = option.getApplication();
         Range range = option.getRange();
-        TimeWindow timeWindow = new TimeWindow(range);
+        TimeWindow timeWindow = option.getTimeWindow();
 
         ServiceType applicationServiceType = application.getServiceType();
 
@@ -198,7 +199,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
 
         Application application = option.getApplication();
         Range range = option.getRange();
-        TimeWindow timeWindow = new TimeWindow(range);
+        TimeWindow timeWindow = option.getTimeWindow();
 
         final ServerGroupListFactory serverGroupListFactory = createServerGroupListFactory(option.isUseStatisticsAgentState());
         List<Application> sourceApplications = option.getFromApplications();

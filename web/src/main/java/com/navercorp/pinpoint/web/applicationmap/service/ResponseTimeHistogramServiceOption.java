@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.web.applicationmap.service;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.List;
@@ -28,14 +29,14 @@ import java.util.Objects;
  */
 public class ResponseTimeHistogramServiceOption {
     private final Application application;
-    private final Range range;
+    private final TimeWindow timeWindow;
     private final List<Application> fromApplications;
     private final List<Application> toApplications;
     private final boolean useStatisticsAgentState;
 
     private ResponseTimeHistogramServiceOption(Builder builder) {
         this.application = builder.application;
-        this.range = builder.range;
+        this.timeWindow = builder.timeWindow;
         this.fromApplications = builder.fromApplications;
         this.toApplications = builder.toApplications;
         this.useStatisticsAgentState = builder.useStatisticsAgentState;
@@ -46,7 +47,11 @@ public class ResponseTimeHistogramServiceOption {
     }
 
     public Range getRange() {
-        return range;
+        return timeWindow.getWindowRange();
+    }
+
+    public TimeWindow getTimeWindow() {
+        return timeWindow;
     }
 
     public List<Application> getFromApplications() {
@@ -64,7 +69,7 @@ public class ResponseTimeHistogramServiceOption {
     @Override
     public String toString() {
         return "ResponseTimeHistogramServiceOption{" + "application=" + application +
-                ", range=" + range +
+                ", timeWindow=" + timeWindow +
                 ", fromApplications=" + fromApplications +
                 ", toApplications=" + toApplications +
                 ", useStatisticsAgentState=" + useStatisticsAgentState +
@@ -73,15 +78,15 @@ public class ResponseTimeHistogramServiceOption {
 
     public static class Builder {
         private final Application application;
-        private final Range range;
+        private final TimeWindow timeWindow;
         private final List<Application> fromApplications;
         private final List<Application> toApplications;
 
         private boolean useStatisticsAgentState;
 
-        public Builder(Application application, Range range, List<Application> fromApplications, List<Application> toApplications) {
+        public Builder(Application application, TimeWindow timeWindow, List<Application> fromApplications, List<Application> toApplications) {
             this.application = Objects.requireNonNull(application, "application");
-            this.range = Objects.requireNonNull(range, "range");
+            this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
             this.fromApplications = Objects.requireNonNull(fromApplications, "fromApplications");
             this.toApplications = Objects.requireNonNull(toApplications, "toApplications");
         }

@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web.applicationmap.util;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
@@ -16,11 +17,11 @@ public class CancellableHistogramFactory implements NodeHistogramFactory {
         this.nodeHistogramFactory = Objects.requireNonNull(nodeHistogramFactory, "nodeHistogramFactory");
     }
 
-    public NodeHistogram createWasNodeHistogram(Application application, Range range) {
+    public NodeHistogram createWasNodeHistogram(Application application, TimeWindow timeWindow) {
         if (isCancel()) {
-            return nodeHistogramFactory.createEmptyNodeHistogram(application, range);
+            return nodeHistogramFactory.createEmptyNodeHistogram(application, timeWindow.getWindowRange());
         }
-        return nodeHistogramFactory.createWasNodeHistogram(application, range);
+        return nodeHistogramFactory.createWasNodeHistogram(application, timeWindow);
     }
 
     @Override

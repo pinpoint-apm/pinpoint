@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.batch.alarm.checker;
 
 import com.navercorp.pinpoint.batch.alarm.DataCollectorFactory;
 import com.navercorp.pinpoint.batch.alarm.collector.ResponseTimeDataCollector;
-import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
@@ -48,7 +48,7 @@ public class ResponseCountCheckerTest {
         mockMapResponseDAO = new MapResponseDao() {
 
             @Override
-            public List<ResponseTime> selectResponseTime(Application application, Range range) {
+            public List<ResponseTime> selectResponseTime(Application application, TimeWindow timeWindow) {
                 long timeStamp = 1409814914298L;
                 ResponseTime.Builder responseTime = ResponseTime.newBuilder(SERVICE_NAME, ServiceType.STAND_ALONE, timeStamp);
 

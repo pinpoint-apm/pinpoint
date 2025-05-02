@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
-import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
 
@@ -37,7 +37,7 @@ public class ApplicationMapBuilderFactory {
         this.serverInfoAppenderFactory = serverInfoAppenderFactory;
     }
 
-    public ApplicationMapBuilder createApplicationMapBuilder(Range range) {
-        return new ApplicationMapBuilder(range, nodeHistogramAppenderFactory, serverInfoAppenderFactory);
+    public ApplicationMapBuilder createApplicationMapBuilder(TimeWindow timeWindow) {
+        return new ApplicationMapBuilder(timeWindow, nodeHistogramAppenderFactory, serverInfoAppenderFactory);
     }
 }

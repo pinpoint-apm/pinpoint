@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.EmptyNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppender;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
@@ -48,6 +49,8 @@ public class ApplicationMapBuilder {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
+
+    private final TimeWindow timeWindow;
     private final Range range;
 
     private final NodeHistogramAppenderFactory nodeHistogramAppenderFactory;
@@ -56,9 +59,11 @@ public class ApplicationMapBuilder {
     private NodeHistogramFactory nodeHistogramFactory;
     private ServerGroupListFactory serverGroupListFactory;
 
-    public ApplicationMapBuilder(Range range, NodeHistogramAppenderFactory nodeHistogramAppenderFactory,
+    public ApplicationMapBuilder(TimeWindow timeWindow,
+                                 NodeHistogramAppenderFactory nodeHistogramAppenderFactory,
                                  ServerInfoAppenderFactory serverInfoAppenderFactory) {
-        this.range = Objects.requireNonNull(range, "range");
+        this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
+        this.range = timeWindow.getWindowRange();
         this.nodeHistogramAppenderFactory = Objects.requireNonNull(nodeHistogramAppenderFactory, "nodeHistogramAppenderFactory");
         this.serverInfoAppenderFactory = Objects.requireNonNull(serverInfoAppenderFactory, "serverInfoAppenderFactory");
     }
@@ -85,9 +90,9 @@ public class ApplicationMapBuilder {
         NodeHistogramAppender nodeHistogramAppender = nodeHistogramAppenderFactory.create(nodeHistogramFactory);
 
         LinkList emptyLinkList = LinkList.of();
-        nodeHistogramAppender.appendNodeHistogram(range, nodeList, emptyLinkList, timeoutMillis);
+        nodeHistogramAppender.appendNodeHistogram(timeWindow, nodeList, emptyLinkList, timeoutMillis);
 
-        return DefaultApplicationMap.build(nodeList, emptyLinkList, range);
+        return DefaultApplicationMap.build(nodeList, emptyLinkList, timeWindow.getWindowRange());
     }
 
     private NodeList getNodeList(Application application) {
@@ -118,7 +123,7 @@ public class ApplicationMapBuilder {
 
         NodeHistogramAppender nodeHistogramAppender = nodeHistogramAppenderFactory.create(nodeHistogramFactory);
         final TimeoutWatcher timeoutWatcher = new TimeoutWatcher(timeoutMillis);
-        nodeHistogramAppender.appendNodeHistogram(range, nodeList, linkList, timeoutWatcher.remainingTimeMillis());
+        nodeHistogramAppender.appendNodeHistogram(timeWindow, nodeList, linkList, timeoutWatcher.remainingTimeMillis());
 
         ServerGroupListFactory serverGroupListFactory = this.serverGroupListFactory;
         if (serverGroupListFactory == null) {

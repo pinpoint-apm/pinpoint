@@ -90,9 +90,11 @@ public class ResponseTimeController {
     ) {
         final Range range = Range.between(from, to);
         this.rangeValidator.validate(range);
+        TimeWindow timeWindow = new TimeWindow(range);
+
         Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
 
-        ResponseTimeHistogramServiceOption option = createWasOptionBuilder(application, range)
+        ResponseTimeHistogramServiceOption option = createWasOptionBuilder(application, timeWindow)
                 .setUseStatisticsAgentState(false) //set useStatisticsAgentState to false for agent data
                 .build();
         NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
@@ -109,9 +111,11 @@ public class ResponseTimeController {
     ) {
         final Range range = Range.between(from, to);
         this.rangeValidator.validate(range);
+        TimeWindow timeWindow = new TimeWindow(range);
+
         Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
 
-        ResponseTimeHistogramServiceOption option = createWasOptionBuilder(application, range)
+        ResponseTimeHistogramServiceOption option = createWasOptionBuilder(application, timeWindow)
                 .setUseStatisticsAgentState(true)
                 .build();
         NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
@@ -141,10 +145,12 @@ public class ResponseTimeController {
     ) {
         final Range range = Range.between(from, to);
         this.rangeValidator.validate(range);
+        TimeWindow timeWindow = new TimeWindow(range);
+
         Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
         TimeHistogramType timeHistogramType = TimeHistogramType.valueOf(type);
 
-        ResponseTimeHistogramServiceOption option = createWasOptionBuilder(application, range)
+        ResponseTimeHistogramServiceOption option = createWasOptionBuilder(application, timeWindow)
                 .setUseStatisticsAgentState(true)
                 .build();
         NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
@@ -163,20 +169,22 @@ public class ResponseTimeController {
     ) {
         final Range range = Range.between(from, to);
         this.rangeValidator.validate(range);
+        TimeWindow timeWindow = new TimeWindow(range);
+
         Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
 
-        ResponseTimeHistogramServiceOption option = createWasOptionBuilder(application, range)
+        ResponseTimeHistogramServiceOption option = createWasOptionBuilder(application, timeWindow)
                 .setUseStatisticsAgentState(true)
                 .build();
         NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
         return HistogramView.view(nodeHistogramSummary);
     }
 
-    private ResponseTimeHistogramServiceOption.Builder createWasOptionBuilder(Application application, Range range) {
+    private ResponseTimeHistogramServiceOption.Builder createWasOptionBuilder(Application application, TimeWindow timeWindow) {
         if (!application.getServiceType().isWas()) {
             throw new IllegalArgumentException("application is not WAS. application:" + application + ", serviceTypeCode:" + application.getServiceType());
         }
-        return new ResponseTimeHistogramServiceOption.Builder(application, range, Collections.emptyList(), Collections.emptyList());
+        return new ResponseTimeHistogramServiceOption.Builder(application, timeWindow, Collections.emptyList(), Collections.emptyList());
     }
 
     @PostMapping(value = "/getNode/serverHistogramData")
@@ -190,9 +198,11 @@ public class ResponseTimeController {
     ) {
         final Range range = Range.between(from, to);
         this.rangeValidator.validate(range);
+        TimeWindow timeWindow = new TimeWindow(range);
+
         Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
 
-        ResponseTimeHistogramServiceOption option = createOptionBuilder(application, range, applicationPairs)
+        ResponseTimeHistogramServiceOption option = createOptionBuilder(application, timeWindow, applicationPairs)
                 .setUseStatisticsAgentState(false) //set useStatisticsAgentState to false for agent data
                 .build();
         NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
@@ -210,9 +220,11 @@ public class ResponseTimeController {
     ) {
         final Range range = Range.between(from, to);
         this.rangeValidator.validate(range);
+        TimeWindow timeWindow = new TimeWindow(range);
+
         Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
 
-        ResponseTimeHistogramServiceOption option = createOptionBuilder(application, range, applicationPairs)
+        ResponseTimeHistogramServiceOption option = createOptionBuilder(application, timeWindow, applicationPairs)
                 .setUseStatisticsAgentState(true)
                 .build();
         NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
@@ -232,10 +244,12 @@ public class ResponseTimeController {
     ) {
         final Range range = Range.between(from, to);
         this.rangeValidator.validate(range);
+        TimeWindow timeWindow = new TimeWindow(range);
+
         Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
         TimeHistogramType timeHistogramType = TimeHistogramType.valueOf(type);
 
-        ResponseTimeHistogramServiceOption option = createOptionBuilder(application, range, applicationPairs)
+        ResponseTimeHistogramServiceOption option = createOptionBuilder(application, timeWindow, applicationPairs)
                 .setUseStatisticsAgentState(true)
                 .build();
         NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
@@ -309,11 +323,11 @@ public class ResponseTimeController {
         return chartView(histogram, timeHistogramType);
     }
 
-    private ResponseTimeHistogramServiceOption.Builder createOptionBuilder(Application application, Range range,
+    private ResponseTimeHistogramServiceOption.Builder createOptionBuilder(Application application, TimeWindow timeWindow,
                                                                            ApplicationPairs applicationPairs) {
         List<Application> fromApplications = mapApplicationPairsToApplications(applicationPairs.getFromApplications());
         List<Application> toApplications = mapApplicationPairsToApplications(applicationPairs.getToApplications());
-        return new ResponseTimeHistogramServiceOption.Builder(application, range, fromApplications, toApplications);
+        return new ResponseTimeHistogramServiceOption.Builder(application, timeWindow, fromApplications, toApplications);
     }
 
     private List<Application> mapApplicationPairsToApplications(List<ApplicationPair> applicationPairs) {
