@@ -15,12 +15,12 @@ import {
 } from 'echarts/components';
 // 등록
 echarts.use([
-  CanvasRenderer,       // 캔버스 렌더링
-  HeatmapChartEcharts,  // 히트맵 차트
-  GridComponent,        // 기본 그리드
-  TooltipComponent,     // 마우스 오버 툴팁
-  VisualMapComponent,   // 색상 범례
-  GraphicComponent,     // 커스텀 그래픽 (선, 박스 등)
+  CanvasRenderer, // 캔버스 렌더링
+  HeatmapChartEcharts, // 히트맵 차트
+  GridComponent, // 기본 그리드
+  TooltipComponent, // 마우스 오버 툴팁
+  VisualMapComponent, // 색상 범례
+  GraphicComponent, // 커스텀 그래픽 (선, 박스 등)
 ]);
 
 type DataValue = [string, string, number];
@@ -148,7 +148,6 @@ const HeatmapChart = React.forwardRef(
         });
       });
 
-
       const xAxisData = heatmapData?.map((row) => String(row.timestamp)) || [];
       const yAxisData =
         heatmapData?.[heatmapData?.length - 1].cellDataList
@@ -160,6 +159,7 @@ const HeatmapChart = React.forwardRef(
 
       chartInstanceRef.current.setOption({
         grid: {
+          show: true,
           left: setting.yMax.toString().length * 10,
           right: '16px',
           top: '20px',
@@ -180,7 +180,7 @@ const HeatmapChart = React.forwardRef(
         yAxis: {
           type: 'category',
           data: yAxisData,
-          offset: 1,
+          offset: 0.5,
           axisLabel: {
             interval: (index: number, value: string) => {
               if (yAxisData.length <= 5) {
@@ -228,6 +228,10 @@ const HeatmapChart = React.forwardRef(
             inRange: {
               color: [colors.green[100], colors.green[900]],
             },
+            handleStyle: {
+              borderColor: colors.gray[300],
+              borderWidth: 2,
+            },
           },
           {
             id: 'fail',
@@ -248,6 +252,10 @@ const HeatmapChart = React.forwardRef(
             },
             inRange: {
               color: [colors.red[100], colors.red[900]],
+            },
+            handleStyle: {
+              borderColor: colors.gray[300],
+              borderWidth: 2,
             },
           },
           {
@@ -312,7 +320,7 @@ const HeatmapChart = React.forwardRef(
                 left: 0,
                 top: 0,
                 shape: { r: 6 },
-                style: { fill: '#34D399' }
+                style: { fill: '#34D399' },
               },
               {
                 type: 'text',
@@ -322,8 +330,8 @@ const HeatmapChart = React.forwardRef(
                   text: 'Success',
                   fontSize: 14,
                   fill: '#6B7280',
-                  fontFamily: 'sans-serif'
-                }
+                  fontFamily: 'sans-serif',
+                },
               },
               {
                 type: 'text',
@@ -334,10 +342,10 @@ const HeatmapChart = React.forwardRef(
                   fontSize: 18,
                   fontWeight: 'bold',
                   fill: '#111827',
-                  fontFamily: 'sans-serif'
-                }
-              }
-            ]
+                  fontFamily: 'sans-serif',
+                },
+              },
+            ],
           },
           {
             type: 'group',
@@ -349,7 +357,7 @@ const HeatmapChart = React.forwardRef(
                 left: 0,
                 top: 0,
                 shape: { r: 6 },
-                style: { fill: '#EF4444' }
+                style: { fill: '#EF4444' },
               },
               {
                 type: 'text',
@@ -359,8 +367,8 @@ const HeatmapChart = React.forwardRef(
                   text: 'Failed',
                   fontSize: 14,
                   fill: '#6B7280',
-                  fontFamily: 'sans-serif'
-                }
+                  fontFamily: 'sans-serif',
+                },
               },
               {
                 type: 'text',
@@ -371,11 +379,11 @@ const HeatmapChart = React.forwardRef(
                   fontSize: 18,
                   fontWeight: 'bold',
                   fill: '#111827',
-                  fontFamily: 'sans-serif'
-                }
-              }
-            ]
-          }
+                  fontFamily: 'sans-serif',
+                },
+              },
+            ],
+          },
         ],
         series: [
           {
@@ -472,8 +480,29 @@ const HeatmapChart = React.forwardRef(
       });
     }, [startCell, endCell]);
 
+    const timeGap = React.useMemo(() => {
+      try {
+        if (!data) {
+          return 0;
+        }
+
+        const { heatmapData } = data;
+        const firstTimestamp = heatmapData?.[0]?.timestamp;
+        const secondTimestamp = heatmapData?.[1]?.timestamp;
+
+        return Math.abs(Number(firstTimestamp) - Number(secondTimestamp)) || 0;
+      } catch (err) {
+        return 0;
+      }
+    }, [data]);
+
     const handleDragEnd = React.useCallback(() => {
-      if (!startCell || !endCell) {
+      if (
+        !startCell ||
+        !endCell ||
+        startCell?.componentType !== 'series' ||
+        endCell?.componentType !== 'series'
+      ) {
         return;
       }
 
@@ -485,7 +514,7 @@ const HeatmapChart = React.forwardRef(
       const failRange = (visualMaps as any)?.find((vm: any) => vm.id === 'fail')?.range;
 
       const x1 = Math.min(startX, endX);
-      const x2 = Math.max(startX, endX);
+      const x2 = Math.max(startX, endX) + timeGap - 1;
 
       const y1 = Math.max(startY, endY);
 
@@ -514,7 +543,7 @@ const HeatmapChart = React.forwardRef(
         },
         checkedLegends,
       );
-    }, [startCell, endCell]);
+    }, [startCell, endCell, timeGap]);
 
     return (
       <div

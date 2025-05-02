@@ -24,6 +24,7 @@ import {
   currentServerAtom,
   scatterDataAtom,
   CurrentTarget,
+  serverMapChartTypeAtom,
 } from '@pinpoint-fe/ui/src/atoms';
 import {
   FilteredMapType as FilteredMap,
@@ -57,7 +58,6 @@ import {
   HelpPopover,
   ApplicationCombinedListProps,
   ChartTypeButtons,
-  useServerMapChartType,
 } from '@pinpoint-fe/ui';
 import { Edge, Node } from '@pinpoint-fe/server-map';
 import { PiTreeStructureDuotone, PiArrowSquareOut } from 'react-icons/pi';
@@ -89,7 +89,7 @@ export const ServerMapPage = ({
   const [openServerViewTransitionEnd, setServerViewTransitionEnd] = React.useState(false);
   const [showFilter, setShowFilter] = React.useState(false);
   const [filter, setFilter] = React.useState<FilteredMap.FilterState>();
-  const [chartType] = useServerMapChartType();
+  const chartType = useAtomValue(serverMapChartTypeAtom);
   const [isScatterDataOutdated, setIsScatterDataOutdated] = React.useState(chartType !== 'scatter');
   const scatterData = useAtomValue(scatterDataAtom);
   const { t } = useTranslation();
@@ -527,8 +527,12 @@ export const ServerMapPage = ({
                               selectedAgentId={currentServer?.agentId || ''}
                             />
                             {isScatterDataOutdated && (
-                              <div className="absolute top-0 left-0 z-[1000] flex items-center justify-center w-full h-[calc(100%+48px)] bg-background/50 text-center whitespace-normal break-words">
-                                {t('SERVER_MAP.SCATTER_CHART_STATIC_WARN')}
+                              <div className="absolute top-0 left-0 z-[1000] flex flex-col items-center justify-center w-full h-[calc(100%+48px)] bg-background/50 text-center">
+                                {t('SERVER_MAP.SCATTER_CHART_STATIC_WARN')
+                                  .split('\n')
+                                  .map((txt, i) => (
+                                    <p key={i}>{txt}</p>
+                                  ))}
                               </div>
                             )}
                           </div>

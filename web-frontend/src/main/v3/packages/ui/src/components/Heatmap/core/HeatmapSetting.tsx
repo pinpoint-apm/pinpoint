@@ -10,6 +10,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  Separator,
 } from '@pinpoint-fe/ui/src/components/ui';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -32,7 +33,7 @@ export const DefaultValue = {
 
 const FormSchema = z.object({
   yMin: z.coerce.number().min(0),
-  yMax: z.coerce.number().min(1),
+  yMax: z.coerce.number().min(200),
   visualMapSuccessMax: z.coerce.number().min(1).optional(),
   visualMapFailMax: z.coerce.number().min(1).optional(),
 });
@@ -116,7 +117,7 @@ export const HeatmapSetting = ({
                     type="number"
                     className="w-24 h-7"
                     onKeyDown={handleKeyDown}
-                    min={1}
+                    min={200}
                     {...field}
                   />
                 </FormControl>
@@ -126,6 +127,7 @@ export const HeatmapSetting = ({
           />
           {isRealtime && (
             <>
+              <Separator />
               <FormField
                 control={form.control}
                 name="visualMapSuccessMax"
