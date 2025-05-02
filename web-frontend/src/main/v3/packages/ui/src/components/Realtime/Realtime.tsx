@@ -19,7 +19,6 @@ import {
   ErrorBoundary,
   Heatmap,
   ChartTypeButtons,
-  useServerMapChartType,
 } from '..';
 import { useServerMapSearchParameters, useTabFocus } from '@pinpoint-fe/ui/src/hooks';
 import {
@@ -27,6 +26,7 @@ import {
   serverMapCurrentTargetAtom,
   serverMapCurrentTargetDataAtom,
   serverMapDataAtom,
+  serverMapChartTypeAtom,
 } from '@pinpoint-fe/ui/src/atoms';
 import { APP_SETTING_KEYS, ApplicationType, GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import { getServerImagePath } from '@pinpoint-fe/ui/src/utils';
@@ -34,7 +34,7 @@ import { getServerImagePath } from '@pinpoint-fe/ui/src/utils';
 export interface RealtimeProps {}
 
 export const Realtime = () => {
-  const [chartType] = useServerMapChartType();
+  const chartType = useAtomValue(serverMapChartTypeAtom);
   const isFocus = useTabFocus();
   const containerRef = React.useRef<HTMLDivElement>(null);
   const { application } = useServerMapSearchParameters();
