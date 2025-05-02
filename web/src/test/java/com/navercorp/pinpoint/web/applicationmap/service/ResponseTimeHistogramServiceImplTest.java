@@ -136,15 +136,15 @@ public class ResponseTimeHistogramServiceImplTest {
     }
 
     private ResponseTime createResponseTime(Application application, long timestamp) {
-        ResponseTime responseTime = new ResponseTime(application.getName(), application.getServiceType(), timestamp);
+        ResponseTime.Builder responseTimeBuilder = ResponseTime.newBuilder(application.getName(), application.getServiceType(), timestamp);
         HistogramSchema schema = application.getServiceType().getHistogramSchema();
-        responseTime.addResponseTime("agentId", schema.getFastSlot().getSlotTime(), 1L);
-        responseTime.addResponseTime("agentId", schema.getNormalSlot().getSlotTime(), 2L);
-        responseTime.addResponseTime("agentId", schema.getSlowSlot().getSlotTime(), 3L);
-        responseTime.addResponseTime("agentId", schema.getErrorSlot().getSlotTime(), 4L);
-        responseTime.addResponseTime("agentId", schema.getSumStatSlot().getSlotTime(), 1000L);
-        responseTime.addResponseTime("agentId", schema.getMaxStatSlot().getSlotTime(), 2000L);
-        return responseTime;
+        responseTimeBuilder.addResponseTime("agentId", schema.getFastSlot().getSlotTime(), 1L);
+        responseTimeBuilder.addResponseTime("agentId", schema.getNormalSlot().getSlotTime(), 2L);
+        responseTimeBuilder.addResponseTime("agentId", schema.getSlowSlot().getSlotTime(), 3L);
+        responseTimeBuilder.addResponseTime("agentId", schema.getErrorSlot().getSlotTime(), 4L);
+        responseTimeBuilder.addResponseTime("agentId", schema.getSumStatSlot().getSlotTime(), 1000L);
+        responseTimeBuilder.addResponseTime("agentId", schema.getMaxStatSlot().getSlotTime(), 2000L);
+        return responseTimeBuilder.build();
     }
 
     /**

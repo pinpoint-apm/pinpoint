@@ -76,9 +76,10 @@ public class ApplicationAgentListServiceImplTest {
 
         testAgentStatus = new AgentStatus(testAgentId, AgentLifeCycleState.RUNNING, 2000);
 
-        testResponseTime = new ResponseTime(testApplicationName, ServiceType.TEST, 3000);
+        ResponseTime.Builder builder = ResponseTime.newBuilder(testApplicationName, ServiceType.TEST, 3000);
         HistogramSlot testServicePingSlot = ServiceType.TEST.getHistogramSchema().getPingSlot();
-        testResponseTime.addResponseTime(testAgentId, testServicePingSlot.getSlotTime(), 1);
+        builder.addResponseTime(testAgentId, testServicePingSlot.getSlotTime(), 1);
+        this.testResponseTime = builder.build();
 
         LegacyAgentCompatibility legacyAgentCompatibility = mock(LegacyAgentCompatibility.class);
         lenient().when(legacyAgentCompatibility.isLegacyAgent(ArgumentMatchers.anyShort(), ArgumentMatchers.any())).thenReturn(false);

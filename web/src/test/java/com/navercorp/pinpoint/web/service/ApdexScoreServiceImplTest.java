@@ -51,11 +51,11 @@ public class ApdexScoreServiceImplTest {
     }
 
     private ResponseTime createResponseTime(long timeStamp) {
-        ResponseTime responseTime = new ResponseTime(testApplication.getName(), testApplication.getServiceType(), timeStamp);
+        ResponseTime.Builder responseTimeBuilder = ResponseTime.newBuilder(testApplication.getName(), testApplication.getServiceType(), timeStamp);
         for (String agentId : agentIdList) {
-            responseTime.addResponseTime(agentId, createTestHistogram(1, 2, 3, 4, 5));
+            responseTimeBuilder.addResponseTime(agentId, createTestHistogram(1, 2, 3, 4, 5));
         }
-        return responseTime;
+        return responseTimeBuilder.build();
     }
 
     private Histogram createTestHistogram(long fast, long normal, long slow, long verySlow, long error) {

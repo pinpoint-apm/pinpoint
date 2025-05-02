@@ -48,7 +48,7 @@ public class ErrorRateCheckerTest {
             @Override
             public List<ResponseTime> selectResponseTime(Application application, Range range) {
                 long timeStamp = 1409814914298L;
-                ResponseTime responseTime = new ResponseTime(SERVICE_NAME, ServiceType.STAND_ALONE, timeStamp);
+                ResponseTime.Builder responseTime = ResponseTime.newBuilder(SERVICE_NAME, ServiceType.STAND_ALONE, timeStamp);
 
                 TimeHistogram histogram;
                 for (int i = 0; i < 5; i++) {
@@ -65,7 +65,7 @@ public class ErrorRateCheckerTest {
                     timeStamp += 1;
                 }
 
-                return List.of(responseTime);
+                return List.of(responseTime.build());
             }
         };
     }

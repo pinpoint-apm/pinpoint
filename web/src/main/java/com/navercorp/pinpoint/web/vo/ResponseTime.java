@@ -36,13 +36,17 @@ public class ResponseTime {
     private final long timeStamp;
 
     // agentId is the key
-    private final Map<String, TimeHistogram> responseHistogramMap = new HashMap<>();
+    private final Map<String, TimeHistogram> responseHistogramMap;
 
 
-    public ResponseTime(String applicationName, ServiceType applicationServiceType, long timeStamp) {
+    ResponseTime(String applicationName,
+                        ServiceType applicationServiceType,
+                        long timeStamp,
+                        Map<String, TimeHistogram> responseHistogramMap) {
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.applicationServiceType = Objects.requireNonNull(applicationServiceType, "applicationServiceType");
         this.timeStamp = timeStamp;
+        this.responseHistogramMap = Objects.requireNonNull(responseHistogramMap, "responseHistogramMap");
     }
 
 
@@ -62,30 +66,6 @@ public class ResponseTime {
         Objects.requireNonNull(agentId, "agentId");
 
         return responseHistogramMap.get(agentId);
-    }
-
-    private Histogram getHistogram(String agentId) {
-        Objects.requireNonNull(agentId, "agentId");
-
-        return responseHistogramMap.computeIfAbsent(agentId, k -> new TimeHistogram(applicationServiceType, timeStamp));
-    }
-
-    public void addResponseTime(String agentId, short slotNumber, long count) {
-        Histogram histogram = getHistogram(agentId);
-        histogram.addCallCount(slotNumber, count);
-    }
-
-
-    public void addResponseTime(String agentId, Histogram copyHistogram) {
-        Objects.requireNonNull(copyHistogram, "copyHistogram");
-        
-        Histogram histogram = getHistogram(agentId);
-        histogram.add(copyHistogram);
-    }
-
-    public void addResponseTime(String agentId, int elapsedTime, boolean error) {
-        Histogram histogram = getHistogram(agentId);
-        histogram.addCallCountByElapsedTime(elapsedTime, error);
     }
 
     public Set<String> getAgentIds() {
@@ -113,5 +93,53 @@ public class ResponseTime {
                 ", timeStamp=" + timeStamp +
                 ", responseHistogramMap=" + responseHistogramMap +
                 '}';
+    }
+
+    public static Builder newBuilder(String applicationName, ServiceType applicationServiceType, long timeStamp) {
+        return new Builder(applicationName, applicationServiceType, timeStamp);
+    }
+
+    public static class Builder {
+
+        // agentId is the key
+        private final Map<String, TimeHistogram> responseHistogramMap = new HashMap<>();
+
+        private final String applicationName;
+        private final ServiceType applicationServiceType;
+        private final long timeStamp;
+
+        public Builder(String applicationName, ServiceType applicationServiceType, long timeStamp) {
+            this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+            this.applicationServiceType = Objects.requireNonNull(applicationServiceType, "applicationServiceType");
+            this.timeStamp = timeStamp;
+        }
+
+        public void addResponseTime(String agentId, short slotNumber, long count) {
+            Histogram histogram = getHistogram(agentId);
+            histogram.addCallCount(slotNumber, count);
+        }
+
+
+        public void addResponseTime(String agentId, Histogram copyHistogram) {
+            Objects.requireNonNull(copyHistogram, "copyHistogram");
+
+            Histogram histogram = getHistogram(agentId);
+            histogram.add(copyHistogram);
+        }
+
+        public void addResponseTime(String agentId, int elapsedTime, boolean error) {
+            Histogram histogram = getHistogram(agentId);
+            histogram.addCallCountByElapsedTime(elapsedTime, error);
+        }
+
+        private Histogram getHistogram(String agentId) {
+            Objects.requireNonNull(agentId, "agentId");
+
+            return responseHistogramMap.computeIfAbsent(agentId, k -> new TimeHistogram(applicationServiceType, timeStamp));
+        }
+
+        public ResponseTime build() {
+            return new ResponseTime(applicationName, applicationServiceType, timeStamp, this.responseHistogramMap);
+        }
     }
 }

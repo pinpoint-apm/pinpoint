@@ -101,9 +101,9 @@ public class ApplicationMapBuilderTest {
                 String applicationName = application.getName();
                 ServiceType applicationServiceType = application.getServiceType();
                 int depth = ApplicationMapBuilderTestHelper.getDepthFromApplicationName(applicationName);
-                ResponseTime responseTime = new ResponseTime(application.getName(), application.getServiceType(), timestamp);
-                responseTime.addResponseTime(ApplicationMapBuilderTestHelper.createAgentIdFromDepth(depth), applicationServiceType.getHistogramSchema().getNormalSlot().getSlotTime(), 1);
-                return List.of(responseTime);
+                ResponseTime.Builder responseTimeBuilder = ResponseTime.newBuilder(application.getName(), application.getServiceType(), timestamp);
+                responseTimeBuilder.addResponseTime(ApplicationMapBuilderTestHelper.createAgentIdFromDepth(depth), applicationServiceType.getHistogramSchema().getNormalSlot().getSlotTime(), 1);
+                return List.of(responseTimeBuilder.build());
             }
         };
         when(mapResponseDao.selectResponseTime(any(Application.class), any(Range.class))).thenAnswer(responseTimeAnswer);

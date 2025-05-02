@@ -71,7 +71,7 @@ public class FilteredMapBuilderTest {
         // Given
         final Range range = Range.between(1, 200000);
         TimeWindow timeWindow = new TimeWindow(range);
-        final FilteredMapBuilder builder = new FilteredMapBuilder(applicationFactory, registry, timeWindow.getWindowRange());
+        final FilteredMapBuilder builder = new FilteredMapBuilder(applicationFactory, registry, timeWindow);
 
         // root app span
         long rootSpanId = RANDOM.nextLong();
