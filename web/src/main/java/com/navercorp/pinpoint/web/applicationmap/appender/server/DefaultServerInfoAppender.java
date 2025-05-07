@@ -44,8 +44,6 @@ public class DefaultServerInfoAppender implements ServerInfoAppender {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final ServerGroupList EMPTY = ServerGroupList.empty();
-
     private final ServerGroupListFactory serverGroupListFactory;
 
     private final Executor executor;
@@ -141,16 +139,13 @@ public class DefaultServerInfoAppender implements ServerInfoAppender {
 
     private void bind(List<ServerGroupRequest> serverGroupRequest) {
         for (ServerGroupRequest pair : serverGroupRequest) {
-            Node node = pair.node();
             CompletableFuture<ServerGroupList> future = pair.future();
             try {
-                ServerGroupList serverGroupList = future.getNow(EMPTY);
-                if (serverGroupList == EMPTY) {
-                    serverGroupList = serverGroupListFactory.createEmptyNodeInstanceList();
-                }
+                ServerGroupList serverGroupList = future.getNow(ServerGroupList.empty());
+                Node node = pair.node();
                 node.setServerGroupList(serverGroupList);
             } catch (Throwable th) {
-                logger.warn("Failed to get server info for node {}", node);
+                logger.warn("Failed to get server info for node {}", pair.node());
                 throw new RuntimeException("Unexpected error", th);
             }
         }
