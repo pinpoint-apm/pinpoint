@@ -120,6 +120,7 @@
         <module>spring-stub</module>
         <module>ktor</module>
         <module>pulsar</module>
+        <module>aws-sdk-s3</module>
     </modules>
 
 
