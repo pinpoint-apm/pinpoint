@@ -44,15 +44,12 @@ public class ElasticsearchExecutorInterceptor extends SpanEventSimpleAroundInter
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         recorder.recordServiceType(ElasticsearchConstants.ELASTICSEARCH_EXECUTOR);
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result,
-                                  Throwable throwable) {
-
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(getMethodDescriptor());
         recorder.recordDestinationId("ElasticSearch");
 
@@ -67,7 +64,6 @@ public class ElasticsearchExecutorInterceptor extends SpanEventSimpleAroundInter
 
     //TODO max dsl limit need
     private void recordeESattributes(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-
         if (recordESVersion) {
             if (target instanceof ClusterInfoAccessor) {
                 //record elasticsearch version and cluster name.
@@ -75,26 +71,22 @@ public class ElasticsearchExecutorInterceptor extends SpanEventSimpleAroundInter
             }
         }
         if (recordDsl) {
+            if (args == null || args.length == 0) {
+                return;
+            }
 
             if (args[0] instanceof SearchRequest) {
                 SearchRequest request = (SearchRequest) args[0];
                 recorder.recordAttribute(ElasticsearchConstants.ARGS_DSL_ANNOTATION_KEY, StringUtils.abbreviate(request.source().toString(), 256));
             } else if (args[0] instanceof GetRequest) {
-//                GetRequest request = (GetRequest) args[0];
                 recorder.recordAttribute(ElasticsearchConstants.ARGS_DSL_ANNOTATION_KEY, StringUtils.abbreviate(args[0].toString(), 256));
             } else if (args[0] instanceof IndexRequest) {
-//                IndexRequest request = (IndexRequest) args[0];
                 recorder.recordAttribute(ElasticsearchConstants.ARGS_DSL_ANNOTATION_KEY, StringUtils.abbreviate(args[0].toString(), 256));
             } else if (args[0] instanceof DeleteRequest) {
-//                DeleteRequest request = (DeleteRequest) args[0];
                 recorder.recordAttribute(ElasticsearchConstants.ARGS_DSL_ANNOTATION_KEY, StringUtils.abbreviate(args[0].toString(), 256));
             } else if (args[0] instanceof UpdateRequest) {
-//                UpdateRequest request = (UpdateRequest) args[0];
                 recorder.recordAttribute(ElasticsearchConstants.ARGS_DSL_ANNOTATION_KEY, StringUtils.abbreviate(args[0].toString(), 256));
             }
         }
-
-
     }
-
 }
