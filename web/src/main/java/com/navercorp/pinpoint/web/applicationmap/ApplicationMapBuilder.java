@@ -99,9 +99,10 @@ public class ApplicationMapBuilder {
         if (serverGroupListFactory == null) {
             return NodeList.of();
         }
-        Node node = new Node(application);
-        ServerGroupList runningInstances = serverGroupListFactory.createWasNodeInstanceList(node, range.getTo());
+        Node query = new Node(application);
+        ServerGroupList runningInstances = serverGroupListFactory.createWasNodeInstanceList(query, range.getTo());
         if (runningInstances.hasServerInstance()) {
+            Node node = new Node(application);
             node.setServerGroupList(runningInstances);
             return NodeList.of(node);
         }
