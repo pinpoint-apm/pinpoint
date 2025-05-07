@@ -98,6 +98,7 @@
         <module>spring-restclient-plugin-testweb</module>
         <module>pulsar-plugin-testweb</module>
         <module>spring-kafka-plugin-testweb</module>
+        <module>aws-sdk-s3-plugin-testweb</module>
     </modules>
 
     <dependencyManagement>

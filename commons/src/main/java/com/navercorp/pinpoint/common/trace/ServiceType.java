@@ -152,6 +152,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
  * <tr><td>2753</td><td>R2DBC_H2_EXECUTE_QUERY</td></tr>
  * <tr><td>2800</td><td>CLICK_HOUSE</td></tr>
  * <tr><td>2801</td><td>CLICK_HOUSE_EXECUTE_QUERY</td></tr>
+ * <tr><td>2810</td><td>AWS_SDK_S3</td></tr>
+ * <tr><td>2811</td><td>AWS_SDK_S3_INTERNAL</td></tr>
  * </table>
  *
  * <h3>Database Sandbox (2900 ~ 2999)</h3>
