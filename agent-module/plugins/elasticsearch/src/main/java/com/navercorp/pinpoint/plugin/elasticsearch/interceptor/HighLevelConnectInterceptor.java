@@ -34,7 +34,6 @@ import java.util.List;
  * @author Roy Kim
  */
 public class HighLevelConnectInterceptor implements AroundInterceptor {
-
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -43,23 +42,25 @@ public class HighLevelConnectInterceptor implements AroundInterceptor {
 
     @Override
     public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logBeforeInterceptor(target, args);
-        }
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
-            logAfterInterceptor(target, args, result, throwable);
+            logger.afterInterceptor(target, args, result, throwable);
         }
 
-        if (args == null) {
+        if (args == null || args.length == 0) {
             return;
         }
 
-        getEndPoint(args, target);
-//        getClusterInfoPoint(target);
+        try {
+            getEndPoint(args, target);
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
+            }
+        }
     }
 
     private void getEndPoint(Object[] args, Object target) {
@@ -78,15 +79,6 @@ public class HighLevelConnectInterceptor implements AroundInterceptor {
         }
         return String.join(",", host);
     }
-
-    private void logBeforeInterceptor(Object target, Object[] args) {
-        logger.beforeInterceptor(target, args);
-    }
-
-    private void logAfterInterceptor(Object target, Object[] args, Object result, Throwable throwable) {
-        logger.afterInterceptor(target, args, result, throwable);
-    }
-
 
     private List<String> getHostList(Object arg) {
         if (!(arg instanceof RestClient)) {
@@ -116,117 +108,4 @@ public class HighLevelConnectInterceptor implements AroundInterceptor {
 
         return hostList;
     }
-
-    //TODO leave code as comment for future needs for Cluster Information
-//    private void getClusterInfoPoint(Object target) {
-//
-//        StringBuilder clusterInfo = new StringBuilder();
-//
-//        if (target instanceof RestHighLevelClient && target instanceof ClusterInfoAccessor) {
-//            if (((ClusterInfoAccessor) target)._$PINPOINT$_getClusterInfo() == null) {
-//
-//                /**
-//                 v6.0 ~ v6.3
-//                 org.elasticsearch.action.main.MainResponse response = ((RestHighLevelClient) target).info();
-//
-//                 v6.4 ~ v7.1
-//                 org.elasticsearch.action.main.MainResponse response = ((RestHighLevelClient) target).info(RequestOptions.DEFAULT);
-//
-//                 7.2 ~
-//                 org.elasticsearch.client.core.MainResponse response = ((RestHighLevelClient) target).info(RequestOptions.DEFAULT);
-//                 **/
-//
-//                //finding method
-//                Method method = null;
-//                //invoked method
-//                Object mainResponse = null;
-//
-//                try {
-//                    //v7.2 ~
-//                    method = RestHighLevelClient.class.getMethod("info", Class.forName("org.elasticsearch.client.RequestOptions.class"));
-//                    mainResponse = method.invoke(target, RequestOptions.DEFAULT);
-//                } catch (NoSuchMethodException e) {
-//                    e.printStackTrace();
-//                } catch (ClassNotFoundException e) {
-//                    e.printStackTrace();
-//                } catch (IllegalAccessException e) {
-//                    e.printStackTrace();
-//                } catch (InvocationTargetException e) {
-//                    e.printStackTrace();
-//                }
-//                if (method == null) {
-//                    //v6.0 ~ v6.3
-//                    try {
-//                        method = RestHighLevelClient.class.getMethod("info", Class.forName("[Lorg.apache.http.Header;"));
-//                        mainResponse = method.invoke(target, (Object) new Header[]{});
-//                    } catch (NoSuchMethodException e) {
-//                        e.printStackTrace();
-//                    } catch (ClassNotFoundException e) {
-//                        e.printStackTrace();
-//                    } catch (IllegalAccessException e) {
-//                        e.printStackTrace();
-//                    } catch (InvocationTargetException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//
-//                //Casting Class find
-//                Class mainResponseClass = null;
-//                try {
-//                    //7.2~
-//                    mainResponseClass = Class.forName("org.elasticsearch.client.core.MainResponse");
-//                } catch (ClassNotFoundException e) {
-//                    e.printStackTrace();
-//                }
-//                if (mainResponseClass == null) {
-//                    try {
-//                        //6.0~7.2
-//                        mainResponseClass = Class.forName("org.elasticsearch.action.main.MainResponse");
-//                    } catch (ClassNotFoundException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//
-//                System.out.println("mainResponse" + mainResponse);
-//                System.out.println("mainResponseClass" + mainResponseClass);
-//
-//                mainResponseClass.cast(mainResponse);
-//
-//                try {
-//                    clusterInfo.append("ClusterName: ");
-//                    clusterInfo.append(mainResponse.getClass().getMethod("getClusterName").invoke(mainResponse));
-//                    clusterInfo.append(", Version: ");
-//                    if (mainResponseClass.getName().equals("org.elasticsearch.client.core.MainResponse")) {
-//                        Object object = mainResponse.getClass().getMethod("getVersion").invoke(mainResponse);
-//
-//                        Class version = null;
-//                        try {
-//                            version = Class.forName("org.elasticsearch.action.main.MainResponse$Version");
-//                        } catch (ClassNotFoundException e) {
-//                            e.printStackTrace();
-//                        }
-//                        version.cast(object);
-//                        clusterInfo.append(object.getClass().getMethod("getNumber").invoke(object));
-//
-//                    } else {
-//                        clusterInfo.append(mainResponse.getClass().getMethod("getVersion").invoke(mainResponse));
-//                    }
-//
-//                } catch (IllegalAccessException e) {
-//                    e.printStackTrace();
-//                } catch (InvocationTargetException e) {
-//                    e.printStackTrace();
-//                } catch (NoSuchMethodException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        } else {
-//            clusterInfo.append("ClusterName: ");
-//            clusterInfo.append("not found");
-//            clusterInfo.append(", Version: ");
-//            clusterInfo.append("not found");
-//        }
-//
-//        ((ClusterInfoAccessor) target)._$PINPOINT$_setClusterInfo(clusterInfo.toString());
-//    }
 }

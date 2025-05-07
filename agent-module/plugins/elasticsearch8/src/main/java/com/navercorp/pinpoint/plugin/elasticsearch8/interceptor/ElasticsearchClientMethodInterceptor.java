@@ -42,13 +42,12 @@ public class ElasticsearchClientMethodInterceptor extends SpanEventSimpleAroundI
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         recorder.recordServiceType(Elasticsearch8Constants.ELASTICSEARCH_EXECUTOR);
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(getMethodDescriptor());
         recorder.recordDestinationId("ElasticSearch");
 
@@ -71,6 +70,10 @@ public class ElasticsearchClientMethodInterceptor extends SpanEventSimpleAroundI
         }
 
         if (recordDsl) {
+            if (args == null || args.length == 0) {
+                return;
+            }
+
             if (args[0] instanceof SearchRequest) {
                 SearchRequest request = (SearchRequest) args[0];
                 recorder.recordAttribute(Elasticsearch8Constants.ARGS_DSL_ANNOTATION_KEY, StringUtils.abbreviate(request.source().toString(), 256));
