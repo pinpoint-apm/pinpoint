@@ -27,7 +27,6 @@ import org.apache.http.HttpHost;
  * @author Roy Kim
  */
 public class RestClientConnectInterceptor implements AroundInterceptor {
-
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -36,9 +35,6 @@ public class RestClientConnectInterceptor implements AroundInterceptor {
 
     @Override
     public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
     }
 
     @Override
@@ -49,8 +45,9 @@ public class RestClientConnectInterceptor implements AroundInterceptor {
 
         if (target instanceof HttpHostInfoAccessor) {
             HttpHost[] httpHosts = ArrayArgumentUtils.getArgument(args, 3, HttpHost[].class);
-            ((HttpHostInfoAccessor) target)._$PINPOINT$_setHttpHostInfo(httpHosts);
+            if (httpHosts != null) {
+                ((HttpHostInfoAccessor) target)._$PINPOINT$_setHttpHostInfo(httpHosts);
+            }
         }
-
     }
 }

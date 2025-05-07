@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ElasticsearchClientConstructorInterceptor implements AroundInterceptor {
-
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -39,31 +38,28 @@ public class ElasticsearchClientConstructorInterceptor implements AroundIntercep
 
     @Override
     public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logBeforeInterceptor(target, args);
-        }
     }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
-            logAfterInterceptor(target, args, result, throwable);
+            logger.afterInterceptor(target, args, result, throwable);
         }
 
-        if (args == null) {
-            return;
-        }
+        try {
+            final RestClientTransport restClientTransport = ArrayArgumentUtils.getArgument(args, 0, RestClientTransport.class);
+            if (restClientTransport != null) {
+                final List<String> hostList = getHostList(restClientTransport.restClient());
 
-        getEndPoint(args, target);
-    }
-
-    private void getEndPoint(Object[] args, Object target) {
-        final RestClientTransport restClientTransport = ArrayArgumentUtils.getArgument(args, 0, RestClientTransport.class);
-        final List<String> hostList = getHostList(restClientTransport.restClient());
-
-        if (target instanceof EndPointAccessor) {
-            if (((EndPointAccessor) target)._$PINPOINT$_getEndPoint() == null) {
-                ((EndPointAccessor) target)._$PINPOINT$_setEndPoint(merge(hostList));
+                if (target instanceof EndPointAccessor) {
+                    if (((EndPointAccessor) target)._$PINPOINT$_getEndPoint() == null) {
+                        ((EndPointAccessor) target)._$PINPOINT$_setEndPoint(merge(hostList));
+                    }
+                }
+            }
+        } catch (Throwable th) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
             }
         }
     }
@@ -85,13 +81,4 @@ public class ElasticsearchClientConstructorInterceptor implements AroundIntercep
         }
         return String.join(",", host);
     }
-
-    private void logBeforeInterceptor(Object target, Object[] args) {
-        logger.beforeInterceptor(target, args);
-    }
-
-    private void logAfterInterceptor(Object target, Object[] args, Object result, Throwable throwable) {
-        logger.afterInterceptor(target, args, result, throwable);
-    }
-
 }
