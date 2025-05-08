@@ -40,6 +40,7 @@ import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapResponseTimeD
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.MapScanFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResultExtractorFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.RowMapperFactory;
+import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
@@ -134,12 +135,14 @@ public class MapHbaseConfiguration {
     public MapResponseDao mapResponseDao(@Qualifier("mapHbaseTemplate")
                                          HbaseTemplate hbaseTemplate,
                                          TableNameProvider tableNameProvider,
-                                         @Qualifier("responseTimeResultExtract")
+                                         @Qualifier("responseTimeResultExtractor")
                                          ResultExtractorFactory<List<ResponseTime>> resultExtractFactory,
+                                         @Qualifier("applicationResponseTimeResultExtractor")
+                                         ResultExtractorFactory<ApplicationHistogram> applicationHistogramResultExtractor,
                                          MapScanFactory mapScanFactory,
                                          @Qualifier("mapSelfRowKeyDistributor")
                                          RowKeyDistributorByHashPrefix rowKeyDistributor) {
-        return new HbaseMapResponseTimeDao(hbaseTemplate, tableNameProvider, resultExtractFactory, mapScanFactory, rowKeyDistributor);
+        return new HbaseMapResponseTimeDao(hbaseTemplate, tableNameProvider, resultExtractFactory, applicationHistogramResultExtractor, mapScanFactory, rowKeyDistributor);
     }
 
     @Bean

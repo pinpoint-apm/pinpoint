@@ -59,6 +59,8 @@ public class NodeView {
 
         public static final String AGENT_TIME_SERIES_HISTOGRAM = "agentTimeSeriesHistogram";
 
+        public static final String AGENTID_NAME_MAP_KEY = "agentIdNameMap";
+
         @Override
         public void serialize(NodeView nodeView, JsonGenerator jgen, SerializerProvider provider) throws IOException {
             Node node = nodeView.getNode();
@@ -101,46 +103,59 @@ public class NodeView {
                 serverGroupList = null;
             }
 
-            final String agentIdNameMapKey = "agentIdNameMap";
             final MapViews activeView = nodeView.getActiveView();
             if (serverGroupList == null) {
                 jgen.writeNumberField("instanceCount", 0);
                 jgen.writeNumberField("instanceErrorCount", 0);
                 JacksonWriterUtils.writeEmptyArray(jgen, "agentIds");
-                JacksonWriterUtils.writeEmptyObject(jgen, agentIdNameMapKey);
+                JacksonWriterUtils.writeEmptyObject(jgen, AGENTID_NAME_MAP_KEY);
 
                 if (activeView.isDetailed()) {
                     JacksonWriterUtils.writeEmptyObject(jgen, "serverList");
                 }
             } else {
                 jgen.writeNumberField("instanceCount", serverGroupList.getInstanceCount());
-                long instanceErrorCount = 0;
-                NodeHistogram nodeHistogram = node.getNodeHistogram();
-                if (nodeHistogram != null) {
-                    Map<String, Histogram> agentHistogramMap = node.getNodeHistogram().getAgentHistogramMap();
-                    if (agentHistogramMap != null) {
-                        instanceErrorCount = agentHistogramMap.values().stream()
-                                .filter(agentHistogram -> agentHistogram.getTotalErrorCount() > 0)
-                                .count();
-                    }
-                }
+                long instanceErrorCount = getInstanceErrorCount(node);
                 jgen.writeNumberField("instanceErrorCount", instanceErrorCount);
-                jgen.writeArrayFieldStart("agentIds");
-                for (String agentId : serverGroupList.getAgentIdList()) {
-                    jgen.writeString(agentId);
-                }
-                jgen.writeEndArray();
-
-                jgen.writeObjectFieldStart(agentIdNameMapKey);
-                for (Map.Entry<String, String> entry : serverGroupList.getAgentIdNameMap().entrySet()) {
-                    jgen.writeStringField(entry.getKey(), entry.getValue());
-                }
-                jgen.writeEndObject();
+                writeAgentIds(jgen, serverGroupList);
+                writeAgentIdMap(jgen, serverGroupList);
 
                 if (activeView.isDetailed()) {
                     jgen.writeObjectField("serverList", new ServerGroupListView(serverGroupList, nodeView.getHyperLinkFactory()));
                 }
             }
+        }
+
+        private void writeAgentIds(JsonGenerator jgen, ServerGroupList serverGroupList) throws IOException {
+            jgen.writeArrayFieldStart("agentIds");
+            for (String agentId : serverGroupList.getAgentIdList()) {
+                jgen.writeString(agentId);
+            }
+            jgen.writeEndArray();
+        }
+
+        private void writeAgentIdMap(JsonGenerator jgen, ServerGroupList serverGroupList) throws IOException {
+            jgen.writeObjectFieldStart(AGENTID_NAME_MAP_KEY);
+            for (Map.Entry<String, String> entry : serverGroupList.getAgentIdNameMap().entrySet()) {
+                jgen.writeStringField(entry.getKey(), entry.getValue());
+            }
+            jgen.writeEndObject();
+        }
+
+        private long getInstanceErrorCount(Node node) {
+            final NodeHistogram nodeHistogram = node.getNodeHistogram();
+            if (nodeHistogram == null) {
+                return 0;
+            }
+
+            final Map<String, Histogram> agentHistogramMap = node.getNodeHistogram().getAgentHistogramMap();
+            if (agentHistogramMap == null) {
+                return 0;
+            }
+
+            return agentHistogramMap.values().stream()
+                    .filter(agentHistogram -> agentHistogram.getTotalErrorCount() > 0)
+                    .count();
         }
 
         private void writeHistogram(NodeView nodeView, JsonGenerator jgen, SerializerProvider provider) throws IOException {

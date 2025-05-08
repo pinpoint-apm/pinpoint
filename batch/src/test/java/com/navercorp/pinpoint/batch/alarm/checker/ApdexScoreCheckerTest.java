@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.batch.alarm.checker;
 
 import com.navercorp.pinpoint.batch.alarm.collector.ResponseTimeDataCollector;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
@@ -42,24 +43,27 @@ public class ApdexScoreCheckerTest {
 
     @BeforeAll
     public static void before() {
-        mockMapResponseDAO = (application, range) -> {
-            long timeStamp = 1409814914298L;
-            ResponseTime.Builder responseTime = ResponseTime.newBuilder(SERVICE_NAME, ServiceType.STAND_ALONE, timeStamp);
+        mockMapResponseDAO = new MapResponseDao() {
+            @Override
+            public List<ResponseTime> selectResponseTime(Application application, TimeWindow timeWindow) {
+                long timeStamp = 1409814914298L;
+                ResponseTime.Builder responseTime = ResponseTime.newBuilder(SERVICE_NAME, ServiceType.STAND_ALONE, timeStamp);
 
-            for (int i=0 ; i < 5; i++) {
-                for (int j=0 ; j < 5; j++) {
-                    TimeHistogram histogram = new TimeHistogram(ServiceType.STAND_ALONE, timeStamp);
-                    histogram.addCallCountByElapsedTime(1000, false);
-                    histogram.addCallCountByElapsedTime(1000, false);
-                    histogram.addCallCountByElapsedTime(1000, false);
-                    histogram.addCallCountByElapsedTime(1000, false);
-                    histogram.addCallCountByElapsedTime(6000, false);
-                    responseTime.addResponseTime("agent_" + i + "_" + j, histogram);
+                for (int i = 0; i < 5; i++) {
+                    for (int j = 0; j < 5; j++) {
+                        TimeHistogram histogram = new TimeHistogram(ServiceType.STAND_ALONE, timeStamp);
+                        histogram.addCallCountByElapsedTime(1000, false);
+                        histogram.addCallCountByElapsedTime(1000, false);
+                        histogram.addCallCountByElapsedTime(1000, false);
+                        histogram.addCallCountByElapsedTime(1000, false);
+                        histogram.addCallCountByElapsedTime(6000, false);
+                        responseTime.addResponseTime("agent_" + i + "_" + j, histogram);
+                    }
+                    timeStamp += 1;
                 }
-                timeStamp += 1;
-            }
 
-            return List.of(responseTime.build());
+                return List.of(responseTime.build());
+            }
         };
     }
 

@@ -24,8 +24,9 @@ import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.SimplifiedNodeHistogramFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseNodeHistogramDataSource;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapApplicationResponseNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseSimplifiedNodeHistogramDataSource;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.StatisticsServerGroupListFactory;
@@ -97,7 +98,7 @@ public class MapServiceImpl implements MapService {
         logger.debug("SelectApplicationMap");
 
         StopWatch watch = new StopWatch("ApplicationMap");
-        watch.start("ApplicationMap Hbase Io Fetch(Out,In) Time");
+        watch.start("ApplicationMap Link Fetch(Out,In) Time");
 
         final SearchOption searchOption = option.getSearchOption();
         LinkSelectorType linkSelectorType = searchOption.getLinkSelectorType();
@@ -150,9 +151,11 @@ public class MapServiceImpl implements MapService {
 
     private NodeHistogramFactory newNodeHistogramFactory(MapServiceOption option) {
         if (option.isSimpleResponseHistogram()) {
-            return new SimplifiedNodeHistogramFactory(new MapResponseSimplifiedNodeHistogramDataSource(mapResponseDao));
+            WasNodeHistogramDataSource dataSource = new MapResponseSimplifiedNodeHistogramDataSource(mapResponseDao);
+            return new SimplifiedNodeHistogramFactory(dataSource);
         } else {
-            return new DefaultNodeHistogramFactory(new MapResponseNodeHistogramDataSource(mapResponseDao));
+            WasNodeHistogramDataSource dataSource = new MapApplicationResponseNodeHistogramDataSource(mapResponseDao);
+            return new DefaultNodeHistogramFactory(dataSource);
         }
     }
 
