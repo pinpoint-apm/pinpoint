@@ -154,29 +154,21 @@ public class NodeHistogram {
         final Application application;
         final Range range;
 
-        // ApplicationLevelHistogram
-        Histogram applicationHistogram;
-
+        AgentTimeHistogram agentTimeHistogram;
         // key is agentId
         Map<String, Histogram> agentHistogramMap = Collections.emptyMap();
 
+        // ApplicationLevelHistogram
+        Histogram applicationHistogram;
         ApplicationTimeHistogram applicationTimeHistogram;
 
-        AgentTimeHistogram agentTimeHistogram;
 
         Builder(Application application, Range range) {
             this.application = Objects.requireNonNull(application, "application");
             this.range = Objects.requireNonNull(range, "range");
         }
 
-        public void setApplicationTimeHistogram(ApplicationTimeHistogram applicationTimeHistogram) {
-            this.applicationTimeHistogram = applicationTimeHistogram;
-        }
-
-        public void setApplicationHistogram(Histogram applicationHistogram) {
-            this.applicationHistogram = Objects.requireNonNull(applicationHistogram, "applicationHistogram");
-        }
-
+        // agent -----------------
         public void setAgentTimeHistogram(AgentTimeHistogram agentTimeHistogram) {
             this.agentTimeHistogram = agentTimeHistogram;
         }
@@ -185,29 +177,43 @@ public class NodeHistogram {
             this.agentHistogramMap = agentHistogramMap;
         }
 
-        public void setApplicationHistogram(List<ResponseTime> responseTimeList) {
-            Objects.requireNonNull(responseTimeList, "responseTimeList");
-            this.applicationHistogram = createApplicationLevelResponseTime(responseTimeList);
-        }
-
         public void setAgentHistogramMap(List<ResponseTime> responseTimeList) {
             Objects.requireNonNull(responseTimeList, "responseTimeList");
             this.agentHistogramMap = createAgentLevelResponseTime(responseTimeList);
         }
 
+        // application ----------------
+
+        public void setApplicationHistogram(Histogram applicationHistogram) {
+            this.applicationHistogram = Objects.requireNonNull(applicationHistogram, "applicationHistogram");
+        }
+
+        public void setApplicationHistogram(List<ResponseTime> responseTimeList) {
+            Objects.requireNonNull(responseTimeList, "responseTimeList");
+            this.applicationHistogram = createApplicationLevelResponseTime(responseTimeList);
+        }
+
+        public void setApplicationTimeHistogram(ApplicationTimeHistogram applicationTimeHistogram) {
+            this.applicationTimeHistogram = applicationTimeHistogram;
+        }
+
+        public void setApplicationResponseHistogram(List<ResponseTime> responseHistogramList) {
+            this.applicationTimeHistogram = createApplicationLevelTimeSeriesResponseTime(responseHistogramList);
+            this.applicationHistogram = createApplicationLevelResponseTime(responseHistogramList);
+        }
+
+        // all ----
         public void setResponseHistogram(List<ResponseTime> responseHistogramList) {
             this.agentTimeHistogram = createAgentLevelTimeSeriesResponseTime(responseHistogramList);
             this.agentHistogramMap = createAgentLevelResponseTime(responseHistogramList);
 
-            this.applicationTimeHistogram = createApplicationLevelTimeSeriesResponseTime(responseHistogramList);
-            this.applicationHistogram = createApplicationLevelResponseTime(responseHistogramList);
+            setApplicationResponseHistogram(responseHistogramList);
         }
 
         private ApplicationTimeHistogram createApplicationLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
             ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(application, range);
             return builder.build(responseHistogramList);
         }
-
 
         private AgentTimeHistogram createAgentLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
             AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(application, range);

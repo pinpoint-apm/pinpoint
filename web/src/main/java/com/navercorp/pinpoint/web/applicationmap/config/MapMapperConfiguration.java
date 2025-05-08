@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.web.applicationmap.config;
 
 
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ApplicationResponseTimeResultExtractor;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.InLinkMapper;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.LinkFilter;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.OutLinkMapper;
@@ -9,6 +10,7 @@ import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResponseTimeMapper;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResponseTimeResultExtractor;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResultExtractorFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.RowMapperFactory;
+import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
@@ -45,10 +47,17 @@ public class MapMapperConfiguration {
     }
 
     @Bean
-    public ResultExtractorFactory<List<ResponseTime>> responseTimeResultExtract(ServiceTypeRegistryService registry,
+    public ResultExtractorFactory<List<ResponseTime>> responseTimeResultExtractor(ServiceTypeRegistryService registry,
                                                                                 @Qualifier("mapSelfRowKeyDistributor")
                                                       RowKeyDistributorByHashPrefix rowKeyDistributor) {
         return (windowFunction) -> new ResponseTimeResultExtractor(registry, rowKeyDistributor, windowFunction);
+    }
+
+    @Bean
+    public ResultExtractorFactory<ApplicationHistogram> applicationResponseTimeResultExtractor(ServiceTypeRegistryService registry,
+                                                                                @Qualifier("mapSelfRowKeyDistributor")
+                                                                                RowKeyDistributorByHashPrefix rowKeyDistributor) {
+        return (windowFunction) -> new ApplicationResponseTimeResultExtractor(registry, rowKeyDistributor, windowFunction);
     }
 
 }

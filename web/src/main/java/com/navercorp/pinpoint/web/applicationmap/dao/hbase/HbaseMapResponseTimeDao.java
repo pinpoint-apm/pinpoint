@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResultExtractorFactory;
+import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
@@ -58,15 +59,18 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
     private final MapScanFactory scanFactory;
 
     private final RowKeyDistributorByHashPrefix rowKeyDistributor;
+    private final ResultExtractorFactory<ApplicationHistogram> applicationHistogramResultExtractor;
 
     public HbaseMapResponseTimeDao(HbaseOperations hbaseOperations,
                                    TableNameProvider tableNameProvider,
                                    ResultExtractorFactory<List<ResponseTime>> resultExtractMapperFactory,
+                                   ResultExtractorFactory<ApplicationHistogram> applicationHistogramResultExtractor,
                                    MapScanFactory scanFactory,
                                    RowKeyDistributorByHashPrefix rowKeyDistributor) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.resultExtractFactory = Objects.requireNonNull(resultExtractMapperFactory, "resultExtractMapperFactory");
+        this.applicationHistogramResultExtractor = Objects.requireNonNull(applicationHistogramResultExtractor, "applicationHistogramResultExtractor");
 
         this.scanFactory = Objects.requireNonNull(scanFactory, "scanFactory");
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
@@ -94,5 +98,27 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
             return List.of();
         }
         return responseTimeList;
+    }
+
+    @Override
+    public ApplicationHistogram selectApplicationResponseTime(Application application, TimeWindow timeWindow) {
+        Objects.requireNonNull(application, "application");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("selectResponseTime applicationName:{}, {}", application, timeWindow);
+        }
+
+        Range windowRange = timeWindow.getWindowRange();
+        Scan scan = scanFactory.createScan("MapSelfScan", application, windowRange, DESCRIPTOR.getName());
+
+        ResultsExtractor<ApplicationHistogram> mapper = applicationHistogramResultExtractor.newMapper(timeWindow);
+        TableName mapStatisticsSelfTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+
+        ApplicationHistogram histogram = hbaseOperations.findParallel(mapStatisticsSelfTableName, scan, rowKeyDistributor,
+                mapper, MAP_STATISTICS_SELF_VER2_NUM_PARTITIONS);
+        if (histogram == null) {
+            return ApplicationHistogram.newBuilder(application.getName(), application.getServiceType()).build();
+        }
+        return histogram;
     }
 }
