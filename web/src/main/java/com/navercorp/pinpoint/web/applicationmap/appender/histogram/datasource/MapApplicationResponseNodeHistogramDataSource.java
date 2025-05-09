@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
-import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogramBuilder;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
@@ -45,9 +45,9 @@ public class MapApplicationResponseNodeHistogramDataSource implements WasNodeHis
 
     @Override
     public NodeHistogram createNodeHistogram(Application application, TimeWindow timeWindow) {
-        ApplicationHistogram applicationHistogram = mapResponseDao.selectApplicationResponseTime(application, timeWindow);
+        ApplicationResponse applicationResponse = mapResponseDao.selectApplicationResponse(application, timeWindow);
 
-        ApplicationTimeHistogram applicationTimeHistogram = buildApplicationTimeHistogram(application, timeWindow, applicationHistogram);
+        ApplicationTimeHistogram applicationTimeHistogram = buildApplicationTimeHistogram(application, timeWindow, applicationResponse);
 
         Range windowRange = timeWindow.getWindowRange();
         NodeHistogram.Builder builder = NodeHistogram.newBuilder(application, windowRange);
@@ -56,13 +56,13 @@ public class MapApplicationResponseNodeHistogramDataSource implements WasNodeHis
         Histogram appHistogram = getHistogram(application, applicationTimeHistogram);
         builder.setApplicationHistogram(appHistogram);
 
-        Map<String, Histogram> agentMap = getAgentIdMap(application, applicationHistogram.getAgentIds());
+        Map<String, Histogram> agentMap = getAgentIdMap(application, applicationResponse.getAgentIds());
         builder.setAgentHistogramMap(agentMap);
         return builder.build();
     }
 
-    private ApplicationTimeHistogram buildApplicationTimeHistogram(Application application, TimeWindow timeWindow, ApplicationHistogram applicationHistogram) {
-        List<TimeHistogram> histogram = applicationHistogram.getApplicationHistograms();
+    private ApplicationTimeHistogram buildApplicationTimeHistogram(Application application, TimeWindow timeWindow, ApplicationResponse applicationResponse) {
+        List<TimeHistogram> histogram = applicationResponse.getApplicationHistograms();
 
         ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(application, timeWindow);
         return builder.buildFromTimeHistogram(histogram);

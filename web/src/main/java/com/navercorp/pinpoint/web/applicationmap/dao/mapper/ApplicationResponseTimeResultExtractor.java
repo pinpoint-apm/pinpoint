@@ -26,7 +26,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationHistogram;
+import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
+import com.navercorp.pinpoint.web.vo.Application;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -42,7 +43,7 @@ import java.util.Objects;
 /**
  * @author emeroad
  */
-public class ApplicationResponseTimeResultExtractor implements ResultsExtractor<ApplicationHistogram> {
+public class ApplicationResponseTimeResultExtractor implements ResultsExtractor<ApplicationResponse> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -61,8 +62,8 @@ public class ApplicationResponseTimeResultExtractor implements ResultsExtractor<
         this.timeWindowFunction = Objects.requireNonNull(timeWindowFunction, "timeWindowFunction");
     }
 
-    public ApplicationHistogram extractData(ResultScanner results) throws Exception {
-        ApplicationHistogram.Builder builder = null;
+    public ApplicationResponse extractData(ResultScanner results) throws Exception {
+        ApplicationResponse.Builder builder = null;
         for (Result result : results) {
             builder = this.mapRow(builder, result);
         }
@@ -73,22 +74,19 @@ public class ApplicationResponseTimeResultExtractor implements ResultsExtractor<
     }
 
 
-    private ApplicationHistogram.Builder mapRow(ApplicationHistogram.Builder builder, Result result) {
+    private ApplicationResponse.Builder mapRow(ApplicationResponse.Builder builder, Result result) {
         if (result.isEmpty()) {
             return null;
         }
-
         final byte[] rowKey = getOriginalKey(result.getRow());
 
         Record record = createResponseTimeBuilder(rowKey);
+        Application application = new Application(record.applicationName, record.serviceType);
         if (builder == null) {
-            builder = ApplicationHistogram.newBuilder(record.applicationName(), record.serviceType());
+            builder = ApplicationResponse.newBuilder(application);
         } else {
-            if (!builder.getApplicationName().equals(record.applicationName())) {
-                throw new IllegalArgumentException("applicationName must match");
-            }
-            if (!builder.getApplicationServiceType().equals(record.serviceType())) {
-                throw new IllegalArgumentException("serviceType must match");
+            if (!builder.getApplication().equals(application)) {
+                throw new IllegalArgumentException("application must match");
             }
         }
         for (Cell cell : result.rawCells()) {
@@ -104,7 +102,7 @@ public class ApplicationResponseTimeResultExtractor implements ResultsExtractor<
         return builder;
     }
 
-    void recordColumn(ApplicationHistogram.Builder responseTimeBuilder, long timestamp, Cell cell) {
+    void recordColumn(ApplicationResponse.Builder responseTimeBuilder, long timestamp, Cell cell) {
 
         final byte[] qArray = cell.getQualifierArray();
         final int qOffset = cell.getQualifierOffset();
