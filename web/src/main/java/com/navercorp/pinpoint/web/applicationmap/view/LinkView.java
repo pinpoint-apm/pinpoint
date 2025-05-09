@@ -75,13 +75,7 @@ public class LinkView {
             writeSimpleNode("sourceInfo", link.getFrom(), jgen);
             writeSimpleNode("targetInfo", link.getTo(), jgen);
 
-            Application filterApplication = link.getFilterApplication();
-            jgen.writeStringField("filterApplicationName", filterApplication.getName());
-            jgen.writeNumberField("filterApplicationServiceTypeCode", filterApplication.getServiceTypeCode());
-            jgen.writeStringField("filterApplicationServiceTypeName", filterApplication.getServiceType().getName());
-            if (link.isWasToWasLink()) {
-                writeWasToWasTargetRpcList(link, jgen);
-            }
+            writerFilterHint(link, jgen);
 
             Histogram histogram = link.getHistogram();
             jgen.writeNumberField("totalCount", histogram.getTotalCount()); // for go.js
@@ -117,6 +111,26 @@ public class LinkView {
 //        jgen.writeStringField("state", state); // for go.js
             jgen.writeBooleanField("hasAlert", link.getLinkAlert()); // for go.js
 
+            jgen.writeEndObject();
+        }
+
+        private void writerFilterHint(Link link, JsonGenerator jgen) throws IOException {
+            Application filterApplication = link.getFilterApplication();
+            jgen.writeStringField("filterApplicationName", filterApplication.getName());
+            jgen.writeNumberField("filterApplicationServiceTypeCode", filterApplication.getServiceTypeCode());
+            jgen.writeStringField("filterApplicationServiceTypeName", filterApplication.getServiceType().getName());
+            if (link.isWasToWasLink()) {
+                writeWasToWasTargetRpcList("filterTargetRpcList", link, jgen);
+            }
+
+            jgen.writeFieldName("filter");
+            jgen.writeStartObject();
+            jgen.writeStringField("applicationName", filterApplication.getName());
+            jgen.writeNumberField("serviceTypeCode", filterApplication.getServiceTypeCode());
+            jgen.writeStringField("serviceTypeName", filterApplication.getServiceType().getName());
+            if (link.isWasToWasLink()) {
+                writeWasToWasTargetRpcList("outRpcList", link, jgen);
+            }
             jgen.writeEndObject();
         }
 
@@ -166,9 +180,9 @@ public class LinkView {
             }
         }
 
-        private void writeWasToWasTargetRpcList(Link link, JsonGenerator jgen) throws IOException {
+        private void writeWasToWasTargetRpcList(String fieldName, Link link, JsonGenerator jgen) throws IOException {
             // write additional information to be used for filtering failed WAS -> WAS call events.
-            jgen.writeFieldName("filterTargetRpcList");
+            jgen.writeFieldName(fieldName);
             jgen.writeStartArray();
             Collection<Application> sourceLinkTargetAgentList = link.getSourceLinkTargetAgentList();
             for (Application application : sourceLinkTargetAgentList) {
