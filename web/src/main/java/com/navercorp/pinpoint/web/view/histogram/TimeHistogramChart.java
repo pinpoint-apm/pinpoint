@@ -1,9 +1,9 @@
 package com.navercorp.pinpoint.web.view.histogram;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.navercorp.pinpoint.web.view.TimeSeries.TimeSeriesValueGroupView;
 import com.navercorp.pinpoint.web.view.TimeSeries.TimeSeriesView;
 import jakarta.annotation.Nullable;
-import org.apache.hadoop.hbase.shaded.com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.List;
 import java.util.Objects;
