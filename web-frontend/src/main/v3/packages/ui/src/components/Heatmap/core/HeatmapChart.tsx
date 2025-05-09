@@ -531,7 +531,7 @@ const HeatmapChart = React.forwardRef(
       }
 
       if (!failRange || Math.floor(failRange?.[1]) !== 0) {
-        checkedLegends.push('fail');
+        checkedLegends.push('failed');
       }
 
       onDragEnd?.(
