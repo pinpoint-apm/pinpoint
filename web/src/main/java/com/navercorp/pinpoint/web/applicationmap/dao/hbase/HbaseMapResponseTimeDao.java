@@ -23,9 +23,9 @@ import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResultExtractorFactory;
-import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
@@ -59,12 +59,12 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
     private final MapScanFactory scanFactory;
 
     private final RowKeyDistributorByHashPrefix rowKeyDistributor;
-    private final ResultExtractorFactory<ApplicationHistogram> applicationHistogramResultExtractor;
+    private final ResultExtractorFactory<ApplicationResponse> applicationHistogramResultExtractor;
 
     public HbaseMapResponseTimeDao(HbaseOperations hbaseOperations,
                                    TableNameProvider tableNameProvider,
                                    ResultExtractorFactory<List<ResponseTime>> resultExtractMapperFactory,
-                                   ResultExtractorFactory<ApplicationHistogram> applicationHistogramResultExtractor,
+                                   ResultExtractorFactory<ApplicationResponse> applicationHistogramResultExtractor,
                                    MapScanFactory scanFactory,
                                    RowKeyDistributorByHashPrefix rowKeyDistributor) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
@@ -101,7 +101,7 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
     }
 
     @Override
-    public ApplicationHistogram selectApplicationResponseTime(Application application, TimeWindow timeWindow) {
+    public ApplicationResponse selectApplicationResponse(Application application, TimeWindow timeWindow) {
         Objects.requireNonNull(application, "application");
 
         if (logger.isDebugEnabled()) {
@@ -111,13 +111,13 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
         Range windowRange = timeWindow.getWindowRange();
         Scan scan = scanFactory.createScan("MapSelfScan", application, windowRange, DESCRIPTOR.getName());
 
-        ResultsExtractor<ApplicationHistogram> mapper = applicationHistogramResultExtractor.newMapper(timeWindow);
+        ResultsExtractor<ApplicationResponse> mapper = applicationHistogramResultExtractor.newMapper(timeWindow);
         TableName mapStatisticsSelfTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
 
-        ApplicationHistogram histogram = hbaseOperations.findParallel(mapStatisticsSelfTableName, scan, rowKeyDistributor,
+        ApplicationResponse histogram = hbaseOperations.findParallel(mapStatisticsSelfTableName, scan, rowKeyDistributor,
                 mapper, MAP_STATISTICS_SELF_VER2_NUM_PARTITIONS);
         if (histogram == null) {
-            return ApplicationHistogram.newBuilder(application.getName(), application.getServiceType()).build();
+            return ApplicationResponse.newBuilder(application).build();
         }
         return histogram;
     }
