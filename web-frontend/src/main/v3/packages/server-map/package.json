@@ -10,7 +10,7 @@
   "scripts": {
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint": "yarn format && eslint ./src/**/*.ts --config .eslintrc.cjs",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "storybook": "start-storybook -p 6008",
     "build-storybook": "build-storybook",
     "build": "yarn lint && tsc",

@@ -11,7 +11,7 @@ module.exports = {
   ],
   moduleNameMapper: {
     '\\.(css|scss)$': '<rootDir>/src/test/mock/styleMock.ts',
-    '^.+\\.svg$': '<rootDir>/src/test/mock/svgMock.tsx',
+    '^.+\\.svg\\?react$': '<rootDir>/src/test/mock/svgMock.tsx',
     '^@/components/(.*)$': '<rootDir>/src/components/$1',
     '^@/constants/(.*)$': '<rootDir>/src/constants/$1',
     '^@/utils/(.*)$': '<rootDir>/src/utils/$1',

@@ -12,7 +12,9 @@
     "clean": "yarn clean:dist && yarn clean:node_modules",
     "clean:node_modules": "rm -rf node_modules",
     "clean:dist": "rm -rf dist",
-    "move:dist": "cpx \"./dist/**\" \"../../../../../target/classes/static/\""
+    "move:dist": "cpx \"./dist/**\" \"../../../../../target/classes/static/\"",
+    "test": "exit 0",
+    "test:e2e": "yarn playwright test"
   },
   "dependencies": {
     "@pinpoint-fe/ui": "*",
@@ -31,6 +33,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.52.0",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
     "@types/react-router-dom": "^5.3.3",
