@@ -19,13 +19,12 @@ package com.navercorp.pinpoint.batch.alarm.collector;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
+import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.ResponseTime;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -67,11 +66,10 @@ public class ResponseTimeDataCollector extends DataCollector {
 
         Range range = Range.between(timeSlotEndTime - slotInterval, timeSlotEndTime);
         TimeWindow timeWindow = new TimeWindow(range);
-        List<ResponseTime> responseTimes = responseDao.selectResponseTime(application, timeWindow);
 
-        for (ResponseTime responseTime : responseTimes) {
-            sum(responseTime.getAgentResponseHistogramList());
-        }
+        ApplicationResponse applicationResponse = responseDao.selectApplicationResponse(application, timeWindow);
+        sum(applicationResponse.getApplicationHistograms());
+
 
         setSlowRate();
         setErrorRate();

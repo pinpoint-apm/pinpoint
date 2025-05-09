@@ -5,6 +5,7 @@ import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApdexScore;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
@@ -49,6 +50,18 @@ public class ApdexScoreServiceImplTest {
         MapResponseDao mapResponseDao = mock(MapResponseDao.class);
         when(mapResponseDao.selectResponseTime(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Collections.emptyList());
         when(mapResponseDao.selectResponseTime(ArgumentMatchers.eq(testApplication), ArgumentMatchers.any())).thenReturn(responseTimeList);
+
+        ApplicationResponse.Builder emptyBuilder = ApplicationResponse.newBuilder(testApplication);
+        ApplicationResponse empty = emptyBuilder.build();
+        when(mapResponseDao.selectApplicationResponse(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(empty);
+
+        ApplicationResponse.Builder builder = ApplicationResponse.newBuilder(testApplication);
+        for (ResponseTime responseTime : responseTimeList) {
+            Histogram histogram = responseTime.getApplicationResponseHistogram();
+            builder.addResponseTime(responseTime.getApplicationName(), responseTime.getTimeStamp(), histogram);
+        }
+
+        when(mapResponseDao.selectApplicationResponse(ArgumentMatchers.eq(testApplication), ArgumentMatchers.any())).thenReturn(builder.build());
 
         apdexScoreService = new ApdexScoreServiceImpl(mapResponseDao);
     }

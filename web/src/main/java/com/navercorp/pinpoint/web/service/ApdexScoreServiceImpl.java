@@ -2,12 +2,12 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogramBuilder;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApdexScore;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import com.navercorp.pinpoint.web.vo.stat.SampledApdexScore;
@@ -19,7 +19,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,8 +37,8 @@ public class ApdexScoreServiceImpl implements ApdexScoreService {
         ServiceType applicationServiceType = application.getServiceType();
 
         if (applicationServiceType.isWas()) {
-            List<ResponseTime> responseTimeList = mapResponseDao.selectResponseTime(application, timeWindow);
-            Histogram applicationHistogram = createApplicationHistogram(responseTimeList, applicationServiceType);
+            ApplicationResponse response = mapResponseDao.selectApplicationResponse(application, timeWindow);
+            Histogram applicationHistogram = response.getApplicationTotalHistogram();
 
             return ApdexScore.newApdexScore(applicationHistogram);
         } else {
@@ -61,15 +60,6 @@ public class ApdexScoreServiceImpl implements ApdexScoreService {
             logger.debug("application service type isWas:{}", applicationServiceType.isWas());
             return ApdexScore.newApdexScore(new Histogram(applicationServiceType));
         }
-    }
-
-    private Histogram createApplicationHistogram(List<ResponseTime> responseHistogram, ServiceType applicationServiceType) {
-        final Histogram applicationHistogram = new Histogram(applicationServiceType);
-        for (ResponseTime responseTime : responseHistogram) {
-            final Collection<TimeHistogram> histogramList = responseTime.getAgentResponseHistogramList();
-            applicationHistogram.addAll(histogramList);
-        }
-        return applicationHistogram;
     }
 
     private Histogram createAgentHistogram(List<ResponseTime> responseHistogram, String agentId, ServiceType applicationServiceType) {
