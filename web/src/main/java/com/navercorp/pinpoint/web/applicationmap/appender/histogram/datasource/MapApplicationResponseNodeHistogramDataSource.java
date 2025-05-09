@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogramBuilder;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
@@ -46,8 +47,7 @@ public class MapApplicationResponseNodeHistogramDataSource implements WasNodeHis
     public NodeHistogram createNodeHistogram(Application application, TimeWindow timeWindow) {
         ApplicationHistogram applicationHistogram = mapResponseDao.selectApplicationResponseTime(application, timeWindow);
 
-        List<TimeHistogram> histogram = applicationHistogram.getApplicationHistograms();
-        ApplicationTimeHistogram applicationTimeHistogram = new ApplicationTimeHistogram(application, histogram);
+        ApplicationTimeHistogram applicationTimeHistogram = buildApplicationTimeHistogram(application, timeWindow, applicationHistogram);
 
         Range windowRange = timeWindow.getWindowRange();
         NodeHistogram.Builder builder = NodeHistogram.newBuilder(application, windowRange);
@@ -59,6 +59,13 @@ public class MapApplicationResponseNodeHistogramDataSource implements WasNodeHis
         Map<String, Histogram> agentMap = getAgentIdMap(application, applicationHistogram.getAgentIds());
         builder.setAgentHistogramMap(agentMap);
         return builder.build();
+    }
+
+    private ApplicationTimeHistogram buildApplicationTimeHistogram(Application application, TimeWindow timeWindow, ApplicationHistogram applicationHistogram) {
+        List<TimeHistogram> histogram = applicationHistogram.getApplicationHistograms();
+
+        ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(application, timeWindow);
+        return builder.buildFromTimeHistogram(histogram);
     }
 
     private Histogram getHistogram(Application application, ApplicationTimeHistogram applicationTimeHistogram) {

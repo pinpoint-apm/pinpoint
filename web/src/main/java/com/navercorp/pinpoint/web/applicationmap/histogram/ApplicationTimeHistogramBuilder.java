@@ -49,6 +49,11 @@ public class ApplicationTimeHistogramBuilder {
         this.window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
     }
 
+    public ApplicationTimeHistogramBuilder(Application application, TimeWindow window) {
+        this.application = Objects.requireNonNull(application, "application");
+        this.window = Objects.requireNonNull(window, "window");
+    }
+
     public ApplicationTimeHistogram build(List<ResponseTime> responseHistogramList) {
         Objects.requireNonNull(responseHistogramList, "responseHistogramList");
 
@@ -66,9 +71,13 @@ public class ApplicationTimeHistogramBuilder {
             timeHistogram.add(applicationResponseHistogram);
         }
 
+        return buildFromTimeHistogram(applicationLevelHistogram.values());
+    }
 
-//        Collections.sort(histogramList, TimeHistogram.TIME_STAMP_ASC_COMPARATOR);
-        List<TimeHistogram> histogramList = interpolation(applicationLevelHistogram.values());
+    public ApplicationTimeHistogram buildFromTimeHistogram(Collection<TimeHistogram> applicationHistograms) {
+        Objects.requireNonNull(applicationHistograms, "applicationHistograms");
+
+        List<TimeHistogram> histogramList = interpolation(applicationHistograms);
         if (logger.isTraceEnabled()) {
             for (TimeHistogram histogram : histogramList) {
                 logger.trace("applicationLevel histogram:{}", histogram);
@@ -91,14 +100,7 @@ public class ApplicationTimeHistogramBuilder {
             }
         }
 
-        List<TimeHistogram> histogramList = interpolation(applicationLevelHistogram.values());
-        if (logger.isTraceEnabled()) {
-            for (TimeHistogram histogram : histogramList) {
-                logger.trace("applicationLevel histogram:{}", histogram);
-            }
-        }
-        return new ApplicationTimeHistogram(application, histogramList);
-
+        return buildFromTimeHistogram(applicationLevelHistogram.values());
     }
 
     private List<TimeHistogram> interpolation(Collection<TimeHistogram> histogramList) {
@@ -108,7 +110,6 @@ public class ApplicationTimeHistogramBuilder {
         for (Long time : window) {
             resultMap.put(time, new TimeHistogram(application.getServiceType(), time));
         }
-
 
         for (TimeHistogram timeHistogram : histogramList) {
             long time = window.refineTimestamp(timeHistogram.getTimeStamp());
