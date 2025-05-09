@@ -45,7 +45,7 @@ public class AgentHistogramTest {
         histogram.addCallCount(ServiceType.STAND_ALONE.getHistogramSchema().getFastErrorSlot().getSlotTime(), 1);
         agentHistogram.addTimeHistogram(histogram);
 
-        AgentHistogram copy = new AgentHistogram(agentHistogram);
+        AgentHistogram copy = AgentHistogram.copyOf(agentHistogram);
         Assertions.assertEquals(1, copy.getHistogram().getTotalErrorCount());
 
         TimeHistogram histogram2 = new TimeHistogram(ServiceType.STAND_ALONE, 0);
@@ -65,7 +65,7 @@ public class AgentHistogramTest {
         histogram.addCallCount(ServiceType.STAND_ALONE.getHistogramSchema().getFastErrorSlot().getSlotTime(), 1);
         agentHistogram.addTimeHistogram(histogram);
 
-        AgentHistogram copy = new AgentHistogram(agentHistogram);
+        AgentHistogram copy = AgentHistogram.copyOf(agentHistogram);
         logger.debug(copy.getHistogram().toString());
         Assertions.assertEquals(1, copy.getHistogram().getTotalErrorCount());
 
