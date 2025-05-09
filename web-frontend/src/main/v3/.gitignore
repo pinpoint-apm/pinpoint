@@ -33,7 +33,7 @@ yarn-error.log*
 .turbo
 
 # jest
-__snapshots__
+# __snapshots__
 
 # storybook
 storybook-static

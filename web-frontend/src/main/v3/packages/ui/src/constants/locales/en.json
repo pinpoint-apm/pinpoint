@@ -45,8 +45,8 @@
   "APP_SELECT": {
     "FAVORITE_APP_LIST": "Favorite List",
     "APP_LIST": "Application List",
-    "SELECT_YOUR_APP": "Select your application",
-    "INPUT_APP_NAME_PLACE_HOLDER": "Input application name"
+    "SELECT_YOUR_APP": "Select your application.",
+    "INPUT_APP_NAME_PLACE_HOLDER": "Input application name."
   },
   "DATE_RANGE_PICKER": {
     "MAX_SEARCH_PERIOD": "Search duration may not be greater than {{maxSearchPeriod}}days."
