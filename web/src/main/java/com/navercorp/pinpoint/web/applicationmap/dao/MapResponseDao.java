@@ -17,11 +17,12 @@
 package com.navercorp.pinpoint.web.applicationmap.dao;
 
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
-import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationHistogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -32,7 +33,16 @@ import java.util.List;
 public interface MapResponseDao {
     List<ResponseTime> selectResponseTime(Application application, TimeWindow timeWindow);
 
-    default ApplicationHistogram selectApplicationResponseTime(Application application, TimeWindow timeWindow) {
-        return null;
+    default ApplicationResponse selectApplicationResponse(Application application, TimeWindow timeWindow) {
+        List<ResponseTime> responseTimes = selectResponseTime(application, timeWindow);
+        ApplicationResponse.Builder builder = ApplicationResponse.newBuilder(application);
+        for (ResponseTime responseTime : responseTimes) {
+            for (Map.Entry<String, TimeHistogram> entry : responseTime.getAgentHistogram()) {
+                String agentId = entry.getKey();
+                TimeHistogram timeHistogram = entry.getValue();
+                builder.addResponseTime(agentId, timeHistogram.getTimeStamp(), timeHistogram);
+            }
+        }
+        return builder.build();
     }
 }

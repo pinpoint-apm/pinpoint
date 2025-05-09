@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.applicationmap.histogram;
+package com.navercorp.pinpoint.web.applicationmap.dao;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
+import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -30,32 +33,24 @@ import java.util.Set;
 /**
  * @author emeroad
  */
-public class ApplicationHistogram {
+public class ApplicationResponse {
     // rowKey
-    private final String applicationName;
-    private final ServiceType applicationServiceType;
+    private final Application application;
     // agentId is the key
     private final List<TimeHistogram> histograms;
     private final Set<String> agentIdMap;
 
 
-    ApplicationHistogram(String applicationName,
-                         ServiceType applicationServiceType,
-                         List<TimeHistogram> histograms,
-                         Set<String> agentIdMap) {
-        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
-        this.applicationServiceType = Objects.requireNonNull(applicationServiceType, "applicationServiceType");
+    ApplicationResponse(Application application,
+                        List<TimeHistogram> histograms,
+                        Set<String> agentIdMap) {
+        this.application = Objects.requireNonNull(application, "application");
         this.histograms = Objects.requireNonNull(histograms, "histograms");
         this.agentIdMap = Objects.requireNonNull(agentIdMap, "agentIdMap");
     }
 
-
-    public String getApplicationName() {
-        return applicationName;
-    }
-
-    public int getApplicationServiceType() {
-        return applicationServiceType.getCode();
+    public Application getApplication() {
+        return application;
     }
 
     public Set<String> getAgentIds() {
@@ -67,18 +62,23 @@ public class ApplicationHistogram {
         return histograms;
     }
 
+    public Histogram getApplicationTotalHistogram() {
+        Histogram histogram = new Histogram(application.getServiceType());
+        histogram.addAll(histograms);
+        return histogram;
+    }
+
     @Override
     public String toString() {
         return "ApplicationHistogram{" +
-                "applicationName='" + applicationName + '\'' +
-                ", applicationServiceType=" + applicationServiceType +
+                "application='" + application + '\'' +
                 ", histograms=" + histograms +
                 ", agentIdMap=" + agentIdMap +
                 '}';
     }
 
-    public static Builder newBuilder(String applicationName, ServiceType applicationServiceType) {
-        return new Builder(applicationName, applicationServiceType);
+    public static Builder newBuilder(Application application) {
+        return new Builder(application);
     }
 
     public static class Builder {
@@ -87,22 +87,24 @@ public class ApplicationHistogram {
         // agentId is the key
         private final Set<String> agentIdMap;
 
-        private final String applicationName;
-        private final ServiceType applicationServiceType;
+        private final Application application;
 
-        Builder(String applicationName, ServiceType applicationServiceType) {
-            this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
-            this.applicationServiceType = Objects.requireNonNull(applicationServiceType, "applicationServiceType");
+        Builder(Application application) {
+            this.application = Objects.requireNonNull(application, "application");
             this.histogramMap = new HashMap<>();
             this.agentIdMap = new HashSet<>();
         }
 
+        public Application getApplication() {
+            return application;
+        }
+
         public String getApplicationName() {
-            return applicationName;
+            return application.getName();
         }
 
         public ServiceType getApplicationServiceType() {
-            return applicationServiceType;
+            return application.getServiceType();
         }
 
         public void addResponseTime(String agentId, long timeStamp, short slotNumber, long count) {
@@ -112,7 +114,7 @@ public class ApplicationHistogram {
         }
 
         private TimeHistogram getTimeHistogram(long timeStamp) {
-            return this.histogramMap.computeIfAbsent(timeStamp, k -> new TimeHistogram(applicationServiceType, timeStamp));
+            return this.histogramMap.computeIfAbsent(timeStamp, k -> new TimeHistogram(application.getServiceType(), timeStamp));
         }
 
 
@@ -134,10 +136,10 @@ public class ApplicationHistogram {
             histogram.addCallCountByElapsedTime(elapsedTime, error);
         }
 
-        public ApplicationHistogram build() {
+        public ApplicationResponse build() {
             List<TimeHistogram> list = new ArrayList<>(this.histogramMap.values());
             list.sort(Comparator.comparing(TimeHistogram::getTimeStamp));
-            return new ApplicationHistogram(applicationName, applicationServiceType, list, this.agentIdMap);
+            return new ApplicationResponse(application, list, this.agentIdMap);
         }
     }
 }

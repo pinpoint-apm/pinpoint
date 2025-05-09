@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.common.hbase.scan.ResultScannerFactory;
 import com.navercorp.pinpoint.common.hbase.util.ScanMetricReporter;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
+import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
@@ -40,7 +41,6 @@ import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapResponseTimeD
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.MapScanFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResultExtractorFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.RowMapperFactory;
-import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
@@ -138,7 +138,7 @@ public class MapHbaseConfiguration {
                                          @Qualifier("responseTimeResultExtractor")
                                          ResultExtractorFactory<List<ResponseTime>> resultExtractFactory,
                                          @Qualifier("applicationResponseTimeResultExtractor")
-                                         ResultExtractorFactory<ApplicationHistogram> applicationHistogramResultExtractor,
+                                         ResultExtractorFactory<ApplicationResponse> applicationHistogramResultExtractor,
                                          MapScanFactory mapScanFactory,
                                          @Qualifier("mapSelfRowKeyDistributor")
                                          RowKeyDistributorByHashPrefix rowKeyDistributor) {
