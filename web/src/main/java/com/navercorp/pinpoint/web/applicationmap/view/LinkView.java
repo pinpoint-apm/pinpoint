@@ -65,8 +65,12 @@ public class LinkView {
             writeAgentId("toAgent", link.getTo(), jgen);
 
             //for FilterWizard. show agent name as tooltip on instance
-            writeAgentIdNameMap("fromAgentIdNameMap", link.getFrom(), jgen);
-            writeAgentIdNameMap("toAgentIdNameMap", link.getTo(), jgen);
+//            writeAgentIdNameMap("fromAgentIdNameMap", link.getFrom(), jgen);
+//            writeAgentIdNameMap("toAgentIdNameMap", link.getTo(), jgen);
+
+            // for FilterWizard, to agent mapping data
+            writeAgents("fromAgents", link.getFrom(), jgen);
+            writeAgents("toAgents", link.getFrom(), jgen);
 
             writeSimpleNode("sourceInfo", link.getFrom(), jgen);
             writeSimpleNode("targetInfo", link.getTo(), jgen);
@@ -130,6 +134,7 @@ public class LinkView {
             }
         }
 
+        @Deprecated
         private void writeAgentIdNameMap(String fieldName, Node node, JsonGenerator jgen) throws IOException {
             if (node.getServiceType().isWas()) {
                 jgen.writeFieldName(fieldName);
@@ -141,6 +146,23 @@ public class LinkView {
                     }
                 }
                 jgen.writeEndObject();
+            }
+        }
+
+        private void writeAgents(String fieldName, Node node, JsonGenerator jgen) throws IOException {
+            if (node.getServiceType().isWas()) {
+                jgen.writeFieldName(fieldName);
+                jgen.writeStartArray();
+                ServerGroupList serverGroupList = node.getServerGroupList();
+                if (serverGroupList != null) {
+                    for (Map.Entry<String, String> entry : serverGroupList.getAgentIdNameMap().entrySet()) {
+                        jgen.writeStartObject();
+                        jgen.writeStringField("id", entry.getKey());
+                        jgen.writeStringField("name", entry.getValue());
+                        jgen.writeEndObject();
+                    }
+                }
+                jgen.writeEndArray();
             }
         }
 
