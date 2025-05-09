@@ -108,7 +108,8 @@ public class NodeView {
                 jgen.writeNumberField("instanceCount", 0);
                 jgen.writeNumberField("instanceErrorCount", 0);
                 JacksonWriterUtils.writeEmptyArray(jgen, "agentIds");
-                JacksonWriterUtils.writeEmptyObject(jgen, AGENTID_NAME_MAP_KEY);
+//                JacksonWriterUtils.writeEmptyObject(jgen, AGENTID_NAME_MAP_KEY);
+                JacksonWriterUtils.writeEmptyObject(jgen, "agents");
 
                 if (activeView.isDetailed()) {
                     JacksonWriterUtils.writeEmptyObject(jgen, "serverList");
@@ -117,8 +118,9 @@ public class NodeView {
                 jgen.writeNumberField("instanceCount", serverGroupList.getInstanceCount());
                 long instanceErrorCount = getInstanceErrorCount(node);
                 jgen.writeNumberField("instanceErrorCount", instanceErrorCount);
-                writeAgentIds(jgen, serverGroupList);
-                writeAgentIdMap(jgen, serverGroupList);
+                writeAgentIds("agentIds", serverGroupList, jgen);
+//                writeAgentIdMap(AGENTID_NAME_MAP_KEY, serverGroupList, jgen);
+                writeAgentList("agents", serverGroupList, jgen);
 
                 if (activeView.isDetailed()) {
                     jgen.writeObjectField("serverList", new ServerGroupListView(serverGroupList, nodeView.getHyperLinkFactory()));
@@ -126,20 +128,33 @@ public class NodeView {
             }
         }
 
-        private void writeAgentIds(JsonGenerator jgen, ServerGroupList serverGroupList) throws IOException {
-            jgen.writeArrayFieldStart("agentIds");
+        private void writeAgentIds(String fieldName, ServerGroupList serverGroupList, JsonGenerator jgen) throws IOException {
+            jgen.writeArrayFieldStart(fieldName);
             for (String agentId : serverGroupList.getAgentIdList()) {
                 jgen.writeString(agentId);
             }
             jgen.writeEndArray();
         }
 
-        private void writeAgentIdMap(JsonGenerator jgen, ServerGroupList serverGroupList) throws IOException {
-            jgen.writeObjectFieldStart(AGENTID_NAME_MAP_KEY);
+        @Deprecated
+        private void writeAgentIdMap(String fieldName, ServerGroupList serverGroupList, JsonGenerator jgen) throws IOException {
+            jgen.writeObjectFieldStart(fieldName);
             for (Map.Entry<String, String> entry : serverGroupList.getAgentIdNameMap().entrySet()) {
                 jgen.writeStringField(entry.getKey(), entry.getValue());
             }
             jgen.writeEndObject();
+        }
+
+        private void writeAgentList(String fieldName, ServerGroupList serverGroupList, JsonGenerator jgen) throws IOException {
+            jgen.writeFieldName(fieldName);
+            jgen.writeStartArray();
+            for (Map.Entry<String, String> entry : serverGroupList.getAgentIdNameMap().entrySet()) {
+                jgen.writeStartObject();
+                jgen.writeStringField("id", entry.getKey());
+                jgen.writeStringField("name", entry.getValue());
+                jgen.writeEndObject();
+            }
+            jgen.writeEndArray();
         }
 
         private long getInstanceErrorCount(Node node) {
