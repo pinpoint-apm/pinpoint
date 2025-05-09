@@ -46,7 +46,11 @@ public class AgentHistogram {
         this.timeHistogramMap = new HashMap<>();
     }
 
-    public AgentHistogram(AgentHistogram copyAgentHistogram) {
+    static AgentHistogram copyOf(AgentHistogram copyAgentHistogram) {
+        return new AgentHistogram(copyAgentHistogram);
+    }
+
+    private AgentHistogram(AgentHistogram copyAgentHistogram) {
         Objects.requireNonNull(copyAgentHistogram, "copyAgentHistogram");
 
         this.agentId = copyAgentHistogram.agentId;
