@@ -73,7 +73,7 @@ public class ResponseTimeResultExtractor implements ResultsExtractor<List<Respon
         return build(rs);
     }
 
-    public List<ResponseTime> build(Map<Key, ResponseTime.Builder> responseTimeMap) throws Exception {
+    private List<ResponseTime> build(Map<Key, ResponseTime.Builder> responseTimeMap) {
         Collection<ResponseTime.Builder> builders = responseTimeMap.values();
         List<ResponseTime> result = new ArrayList<>(builders.size());
         for (ResponseTime.Builder builder : builders) {
@@ -83,9 +83,9 @@ public class ResponseTimeResultExtractor implements ResultsExtractor<List<Respon
         return result;
     }
 
-    private ResponseTime mapRow(Map<Key, ResponseTime.Builder> map, Result result) {
+    private void mapRow(Map<Key, ResponseTime.Builder> map, Result result) {
         if (result.isEmpty()) {
-            return null;
+            return;
         }
 
         final byte[] rowKey = getOriginalKey(result.getRow());
@@ -101,7 +101,7 @@ public class ResponseTimeResultExtractor implements ResultsExtractor<List<Respon
                 logger.trace("unknown column family:{}", columnFamily);
             }
         }
-        return responseTimeBuilder.build();
+
     }
 
     void recordColumn(ResponseTime.Builder responseTimeBuilder, Cell cell) {
