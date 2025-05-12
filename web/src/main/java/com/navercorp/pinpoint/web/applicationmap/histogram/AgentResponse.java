@@ -5,7 +5,6 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +72,7 @@ public class AgentResponse {
         public AgentResponse build() {
             for (Map.Entry<Application, List<TimeHistogram>> entry : map.entrySet()) {
                 List<TimeHistogram> histogramList = entry.getValue();
-                histogramList.sort(Comparator.comparing(TimeHistogram::getTimeStamp));
+                histogramList.sort(TimeHistogram.TIME_STAMP_ASC_COMPARATOR);
             }
             return new AgentResponse(application, map);
         }
