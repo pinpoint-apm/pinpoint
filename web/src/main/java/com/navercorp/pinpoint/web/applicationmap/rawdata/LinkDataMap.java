@@ -87,6 +87,15 @@ public class LinkDataMap {
         return linkDataMap.size();
     }
 
+    public int getLinkDataSize() {
+        int size = 0;
+        for (Map.Entry<LinkKey, LinkData> entry : linkDataMap.entrySet()) {
+            LinkData value = entry.getValue();
+            size += value.size();
+        }
+        return size;
+    }
+
     public LinkData getLinkData(LinkKey findLinkKey) {
         Objects.requireNonNull(findLinkKey, "findLinkKey");
 

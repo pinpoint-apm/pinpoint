@@ -118,6 +118,10 @@ public class LinkData {
         return totalCount;
     }
 
+    public int size() {
+        return this.linkCallDataMap.size();
+    }
+
     @Override
     public String toString() {
         return "LinkData{" +
