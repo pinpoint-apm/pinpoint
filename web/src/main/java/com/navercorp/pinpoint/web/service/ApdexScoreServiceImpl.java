@@ -4,6 +4,7 @@ import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
+import com.navercorp.pinpoint.web.applicationmap.histogram.AgentResponse;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogramBuilder;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApdexScore;
@@ -52,25 +53,15 @@ public class ApdexScoreServiceImpl implements ApdexScoreService {
         ServiceType applicationServiceType = application.getServiceType();
 
         if (applicationServiceType.isWas()) {
-            List<ResponseTime> responseTimeList = mapResponseDao.selectResponseTime(application, timeWindow);
-            Histogram agentHistogram = createAgentHistogram(responseTimeList, agentId, applicationServiceType);
+            AgentResponse agentHistogramList = mapResponseDao.selectAgentResponse(application, timeWindow);
+            Application searchAgent = new Application(agentId, application.getServiceType());
+            Histogram agentHistogram = agentHistogramList.getAgentTotalHistogram(searchAgent);
 
             return ApdexScore.newApdexScore(agentHistogram);
         } else {
             logger.debug("application service type isWas:{}", applicationServiceType.isWas());
             return ApdexScore.newApdexScore(new Histogram(applicationServiceType));
         }
-    }
-
-    private Histogram createAgentHistogram(List<ResponseTime> responseHistogram, String agentId, ServiceType applicationServiceType) {
-        final Histogram agentHistogram = new Histogram(applicationServiceType);
-        for (ResponseTime responseTime : responseHistogram) {
-            Histogram histogram = responseTime.findHistogram(agentId);
-            if (histogram != null) {
-                agentHistogram.add(histogram);
-            }
-        }
-        return agentHistogram;
     }
 
     @Override

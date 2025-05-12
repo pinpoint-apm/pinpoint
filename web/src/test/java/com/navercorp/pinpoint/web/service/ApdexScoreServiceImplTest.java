@@ -7,6 +7,7 @@ import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
+import com.navercorp.pinpoint.web.applicationmap.histogram.AgentResponse;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApdexScore;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -51,6 +52,7 @@ public class ApdexScoreServiceImplTest {
         when(mapResponseDao.selectResponseTime(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Collections.emptyList());
         when(mapResponseDao.selectResponseTime(ArgumentMatchers.eq(testApplication), ArgumentMatchers.any())).thenReturn(responseTimeList);
 
+        // ApplicationResponse -----------
         ApplicationResponse.Builder emptyBuilder = ApplicationResponse.newBuilder(testApplication);
         ApplicationResponse empty = emptyBuilder.build();
         when(mapResponseDao.selectApplicationResponse(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(empty);
@@ -62,6 +64,11 @@ public class ApdexScoreServiceImplTest {
         }
 
         when(mapResponseDao.selectApplicationResponse(ArgumentMatchers.eq(testApplication), ArgumentMatchers.any())).thenReturn(builder.build());
+
+        // AgentResponse -----------
+        AgentResponse.Builder agentBuilder = AgentResponse.newBuilder(testApplication);
+        agentBuilder.addAgentResponse(responseTimeList);
+        when(mapResponseDao.selectAgentResponse(ArgumentMatchers.eq(testApplication), ArgumentMatchers.any())).thenReturn(agentBuilder.build());
 
         apdexScoreService = new ApdexScoreServiceImpl(mapResponseDao);
     }
