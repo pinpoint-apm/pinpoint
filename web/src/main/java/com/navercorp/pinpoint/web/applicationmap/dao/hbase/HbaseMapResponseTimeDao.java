@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResultExtractorFactory;
+import com.navercorp.pinpoint.web.applicationmap.histogram.AgentResponse;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
@@ -101,11 +102,28 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
     }
 
     @Override
+    public AgentResponse selectAgentResponse(Application application, TimeWindow timeWindow) {
+        Objects.requireNonNull(application, "application");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("selectAgentResponse applicationName:{}, {}", application, timeWindow);
+        }
+
+        List<ResponseTime> responseTimes = selectResponseTime(application, timeWindow);
+        if (responseTimes.isEmpty()) {
+            return AgentResponse.newBuilder(application).build();
+        }
+        AgentResponse.Builder builder = AgentResponse.newBuilder(application);
+        builder.addAgentResponse(responseTimes);
+        return builder.build();
+    }
+
+    @Override
     public ApplicationResponse selectApplicationResponse(Application application, TimeWindow timeWindow) {
         Objects.requireNonNull(application, "application");
 
         if (logger.isDebugEnabled()) {
-            logger.debug("selectResponseTime applicationName:{}, {}", application, timeWindow);
+            logger.debug("selectApplicationResponse applicationName:{}, {}", application, timeWindow);
         }
 
         Range windowRange = timeWindow.getWindowRange();

@@ -4,13 +4,12 @@ import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.service.component.LegacyAgentCompatibility;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.ResponseTime;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilters;
@@ -40,15 +39,13 @@ public class ApplicationAgentListServiceImpl implements ApplicationAgentListServ
     private final AgentInfoDao agentInfoDao;
 
     private final AgentLifeCycleDao agentLifeCycleDao;
-    private final LegacyAgentCompatibility legacyAgentCompatibility;
 
     private final MapResponseDao mapResponseDao;
 
-    public ApplicationAgentListServiceImpl(ApplicationIndexDao applicationIndexDao, AgentInfoDao agentInfoDao, AgentLifeCycleDao agentLifeCycleDao, LegacyAgentCompatibility legacyAgentCompatibility, MapResponseDao mapResponseDao) {
+    public ApplicationAgentListServiceImpl(ApplicationIndexDao applicationIndexDao, AgentInfoDao agentInfoDao, AgentLifeCycleDao agentLifeCycleDao, MapResponseDao mapResponseDao) {
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
-        this.legacyAgentCompatibility = legacyAgentCompatibility;
         this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
     }
 
@@ -153,11 +150,8 @@ public class ApplicationAgentListServiceImpl implements ApplicationAgentListServ
     }
 
     private Set<String> getAgentIdsFromStatistics(Application application, TimeWindow timeWindow) {
-        List<ResponseTime> responseTimes = mapResponseDao.selectResponseTime(application, timeWindow);
-        return responseTimes.stream()
-                .map(ResponseTime::getAgentIds)
-                .flatMap(Set::stream)
-                .collect(Collectors.toSet());
+        ApplicationResponse response = mapResponseDao.selectApplicationResponse(application, timeWindow);
+        return response.getAgentIds();
     }
 
     private List<AgentInfo> getNullHandledAgentInfo(String applicationName, ServiceType serviceType, List<String> agentIds, long toTimestamp) {

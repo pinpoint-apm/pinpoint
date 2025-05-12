@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.dao;
 
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.web.applicationmap.histogram.AgentResponse;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
@@ -32,6 +33,10 @@ import java.util.Map;
  */
 public interface MapResponseDao {
     List<ResponseTime> selectResponseTime(Application application, TimeWindow timeWindow);
+
+    default AgentResponse selectAgentResponse(Application application, TimeWindow timeWindow) {
+        return null;
+    }
 
     default ApplicationResponse selectApplicationResponse(Application application, TimeWindow timeWindow) {
         List<ResponseTime> responseTimes = selectResponseTime(application, timeWindow);

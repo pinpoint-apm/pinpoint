@@ -65,14 +65,15 @@ public class AgentTimeHistogramBuilder {
     }
 
 
-    private AgentTimeHistogram build(AgentHistogramList agentHistogramList) {
-        AgentHistogramList histogramList = interpolation(agentHistogramList, window);
+    public AgentTimeHistogram build(AgentHistogramList agentHistogramList) {
+        List<AgentHistogram> agentHistograms = agentHistogramList.getAgentHistogramList();
+        AgentHistogramList histogramList = interpolation(agentHistograms, window);
         return new AgentTimeHistogram(application, histogramList);
     }
 
 
-    private AgentHistogramList interpolation(AgentHistogramList agentHistogramList, TimeWindow window) {
-        if (agentHistogramList.size() == 0) {
+    private AgentHistogramList interpolation(List<AgentHistogram> agentHistograms, TimeWindow window) {
+        if (agentHistograms.isEmpty()) {
             return new AgentHistogramList();
         }
 
@@ -80,7 +81,7 @@ public class AgentTimeHistogramBuilder {
         // could've been a list, but since range overflow may occur when applying filters, we use a map instead.
         // TODO: find better structure
         final AgentHistogramList.Builder resultAgentHistogramBuilder = AgentHistogramList.newBuilder();
-        for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
+        for (AgentHistogram agentHistogram : agentHistograms) {
             List<TimeHistogram> timeHistogramList = new ArrayList<>();
             for (Long time : window) {
                 timeHistogramList.add(new TimeHistogram(application.getServiceType(), time));
@@ -89,7 +90,7 @@ public class AgentTimeHistogramBuilder {
             resultAgentHistogramBuilder.addTimeHistogram(agentId, timeHistogramList);
         }
 
-        for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
+        for (AgentHistogram agentHistogram : agentHistograms) {
             for (TimeHistogram timeHistogram : agentHistogram.getTimeHistogram()) {
                 final long time = window.refineTimestamp(timeHistogram.getTimeStamp());
                 Application agentId = agentHistogram.getAgentId();
