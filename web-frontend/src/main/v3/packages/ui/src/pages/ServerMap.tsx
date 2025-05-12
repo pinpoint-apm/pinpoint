@@ -332,7 +332,7 @@ export const ServerMapPage = ({
                               .nodeDataArray as GetServerMap.NodeData[]
                           ).find((n) => n.key === nodeData.id);
                           serverInfos = {
-                            agents: node?.agentIds,
+                            agents: node?.agents?.map((agent) => agent?.id),
                           };
                         } else if ('source' in data) {
                           const edgeData = data as Edge;
@@ -341,8 +341,8 @@ export const ServerMapPage = ({
                               .linkDataArray as GetServerMap.LinkData[]
                           ).find((l) => l.key === edgeData.id);
                           serverInfos = {
-                            fromAgents: link?.fromAgent,
-                            toAgents: link?.toAgent,
+                            fromAgents: link?.fromAgents?.map((agent) => agent?.id),
+                            toAgents: link?.toAgents?.map((agent) => agent?.id),
                           };
                         }
                         setShowFilter(true);

@@ -1,5 +1,9 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 export namespace FilteredMapType {
+  export interface Agent {
+    id: string;
+    name: string;
+  }
   export interface FilterState {
     fromApplication?: SearchParameters['fa']; // from applicationName
     fromServiceType?: SearchParameters['fst']; // from serviceType
@@ -106,10 +110,12 @@ export namespace FilteredMapType {
     key: string;
     from: string;
     to: string;
-    fromAgent?: string[];
-    toAgent?: string[];
-    fromAgentIdNameMap?: FromAgentIdNameMap;
-    toAgentIdNameMap?: ToAgentIdNameMap;
+    // fromAgent?: string[]; // Deprecated;
+    // toAgent?: string[]; // Deprecated;
+    fromAgents: Agent[];
+    toAgents: Agent[];
+    // fromAgentIdNameMap?: FromAgentIdNameMap;
+    // toAgentIdNameMap?: ToAgentIdNameMap;
     sourceInfo: SourceInfo;
     targetInfo: TargetInfo;
     filterApplicationName: string;
@@ -221,8 +227,8 @@ export namespace FilteredMapType {
     agentTimeSeriesHistogram: AgentTimeSeriesHistogram;
     instanceCount: number;
     instanceErrorCount: number;
-    agentIds: string[];
-    agentIdNameMap: AgentIdNameMap;
+    // agentIds: string[];
+    agents: Agent[];
     serverList: ServerList;
   }
 
