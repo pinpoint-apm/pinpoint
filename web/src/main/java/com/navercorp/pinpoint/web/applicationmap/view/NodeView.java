@@ -109,7 +109,7 @@ public class NodeView {
                 jgen.writeNumberField("instanceErrorCount", 0);
                 JacksonWriterUtils.writeEmptyArray(jgen, "agentIds");
 //                JacksonWriterUtils.writeEmptyObject(jgen, AGENTID_NAME_MAP_KEY);
-                JacksonWriterUtils.writeEmptyObject(jgen, "agents");
+                JacksonWriterUtils.writeEmptyArray(jgen, "agents");
 
                 if (activeView.isDetailed()) {
                     JacksonWriterUtils.writeEmptyObject(jgen, "serverList");
