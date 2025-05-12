@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -138,7 +137,7 @@ public class ApplicationResponse {
 
         public ApplicationResponse build() {
             List<TimeHistogram> list = new ArrayList<>(this.histogramMap.values());
-            list.sort(Comparator.comparing(TimeHistogram::getTimeStamp));
+            list.sort(TimeHistogram.TIME_STAMP_ASC_COMPARATOR);
             return new ApplicationResponse(application, list, this.agentIdMap);
         }
     }

@@ -80,6 +80,10 @@ public class ApplicationAgentHostList {
     }
 
     public static class Builder {
+
+        private static final Comparator<ApplicationInfo> APPLICATION_NAME_COMPARATOR = Comparator.comparing(ApplicationInfo::applicationName);
+        private static final Comparator<AgentHost> AGENTID_COMPARING = Comparator.comparing(AgentHost::agentId);
+
         private final int startApplicationIndex;
         private final int endApplicationIndex;
         private final int totalApplications;
@@ -129,7 +133,7 @@ public class ApplicationAgentHostList {
         private List<ApplicationInfo> buildApplicationInfo(Map<String, List<AgentHost>> map) {
             List<ApplicationInfo> applications = map.entrySet().stream()
                     .map(Builder::newApplication)
-                    .sorted(Comparator.comparing(ApplicationInfo::applicationName))
+                    .sorted(APPLICATION_NAME_COMPARATOR)
                     .collect(Collectors.toList());
             return applications;
         }
@@ -139,7 +143,7 @@ public class ApplicationAgentHostList {
             String applicationName = entry.getKey();
 
             List<AgentHost> agentHosts = entry.getValue();
-            agentHosts.sort(Comparator.comparing(AgentHost::agentId));
+            agentHosts.sort(AGENTID_COMPARING);
 
             return new ApplicationInfo(applicationName, agentHosts);
         }

@@ -24,6 +24,8 @@ import java.util.List;
  * @author minwoo-jung
  */
 public class TagCluster {
+    private static final Comparator<FieldAndUnit> FIELD_NAME_COMPARING = Comparator.comparing(FieldAndUnit::fieldName);
+
     private final String tagGroup;
     private final List<FieldAndUnit> fieldAndUnitList;
 
@@ -35,7 +37,7 @@ public class TagCluster {
     public void addFieldAndUnit(String fieldName, String unit) {
         FieldAndUnit fieldAndUnit = new FieldAndUnit(fieldName, unit);
         fieldAndUnitList.add(fieldAndUnit);
-        fieldAndUnitList.sort(Comparator.comparing(FieldAndUnit::fieldName));
+        fieldAndUnitList.sort(FIELD_NAME_COMPARING);
     }
 
     public List<FieldAndUnit> getFieldAndUnitList() {

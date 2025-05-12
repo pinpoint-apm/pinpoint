@@ -15,6 +15,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class LinkList implements Iterable<Link> {
+
+    private static final Comparator<Link> STARTTIME_COMPARATOR = Comparator.comparingLong(Link::getStartTimeMillis);
+
     private final List<Link> linkList;
 
     public LinkList() {
@@ -92,7 +95,7 @@ public class LinkList implements Iterable<Link> {
             return null;
         }
 
-        linkList.sort(Comparator.comparingLong(Link::getStartTimeMillis));
+        linkList.sort(STARTTIME_COMPARATOR);
 
         Optional<Link> first = linkList.stream()
                 .filter(LinkList.startTimeFilter(span))
