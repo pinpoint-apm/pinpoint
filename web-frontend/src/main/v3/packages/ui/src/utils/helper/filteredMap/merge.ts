@@ -102,7 +102,7 @@ function mergeLinkAgentIds(
   const newAgents = neo[type];
   if (newAgents) {
     newAgents?.forEach((agent: FilteredMap.Agent) => {
-      const oldAgentIndex = oldAgents.findIndex((oldAgent) => oldAgent.id === agent.id);
+      const oldAgentIndex = oldAgents?.findIndex((oldAgent) => oldAgent.id === agent.id);
       if (oldAgentIndex === -1) {
         old[type]?.push(agent);
       }

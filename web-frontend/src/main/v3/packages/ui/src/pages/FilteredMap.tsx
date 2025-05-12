@@ -307,7 +307,7 @@ export const FilteredMapPage = ({
                             addedHint =
                               link.sourceInfo.isWas && link.targetInfo.isWas
                                 ? {
-                                    [link.targetInfo.applicationName]: link.filterTargetRpcList,
+                                    [link.targetInfo.applicationName]: link.filter?.outRpcList,
                                   }
                                 : {};
                           }
@@ -376,7 +376,7 @@ export const FilteredMapPage = ({
                         const addedHint =
                           link?.sourceInfo.isWas && link.targetInfo.isWas
                             ? {
-                                [link.targetInfo.applicationName]: link.filterTargetRpcList,
+                                [link.targetInfo.applicationName]: link.filter?.outRpcList,
                               }
                             : // eslint-disable-next-line @typescript-eslint/no-explicit-any
                               ({} as any);

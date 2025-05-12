@@ -290,7 +290,7 @@ export const ServerMapPage = ({
                               addedHint =
                                 link.sourceInfo.isWas && link.targetInfo.isWas
                                   ? {
-                                      [link.targetInfo.applicationName]: link.filterTargetRpcList,
+                                      [link.targetInfo.applicationName]: link.filter?.outRpcList,
                                     }
                                   : {};
                             }
@@ -355,7 +355,7 @@ export const ServerMapPage = ({
                         const addedHint =
                           link?.sourceInfo.isWas && link.targetInfo.isWas
                             ? {
-                                [link.targetInfo.applicationName]: link.filterTargetRpcList,
+                                [link.targetInfo.applicationName]: link.filter?.outRpcList,
                               }
                             : // eslint-disable-next-line @typescript-eslint/no-explicit-any
                               ({} as any);

@@ -179,9 +179,11 @@ export namespace TransactionInfoType {
     fromAgentIdNameMap?: FromAgentIdNameMap;
     sourceInfo: SourceInfo;
     targetInfo: TargetInfo;
-    filterApplicationName: string;
-    filterApplicationServiceTypeCode: number;
-    filterApplicationServiceTypeName: string;
+    filter: {
+      applicationName: string;
+      serviceTypeCode: number;
+      serviceTypeName: string;
+    };
     totalCount: number;
     errorCount: number;
     slowCount: number;

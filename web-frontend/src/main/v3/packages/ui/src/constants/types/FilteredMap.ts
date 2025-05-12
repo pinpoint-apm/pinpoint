@@ -110,18 +110,16 @@ export namespace FilteredMapType {
     key: string;
     from: string;
     to: string;
-    // fromAgent?: string[]; // Deprecated;
-    // toAgent?: string[]; // Deprecated;
-    fromAgents: Agent[];
-    toAgents: Agent[];
-    // fromAgentIdNameMap?: FromAgentIdNameMap;
-    // toAgentIdNameMap?: ToAgentIdNameMap;
+    fromAgents?: Agent[];
+    toAgents?: Agent[];
     sourceInfo: SourceInfo;
     targetInfo: TargetInfo;
-    filterApplicationName: string;
-    filterApplicationServiceTypeCode: number;
-    filterApplicationServiceTypeName: string;
-    filterTargetRpcList?: FilterTargetRpcList[];
+    filter: {
+      applicationName: string;
+      serviceTypeCode: number;
+      serviceTypeName: string;
+      outRpcList?: FilterTargetRpcList[];
+    };
     totalCount: number;
     errorCount: number;
     slowCount: number;
@@ -227,7 +225,6 @@ export namespace FilteredMapType {
     agentTimeSeriesHistogram: AgentTimeSeriesHistogram;
     instanceCount: number;
     instanceErrorCount: number;
-    // agentIds: string[];
     agents: Agent[];
     serverList: ServerList;
   }
