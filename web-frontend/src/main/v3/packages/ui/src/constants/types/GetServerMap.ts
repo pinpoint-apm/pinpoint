@@ -39,16 +39,16 @@ export namespace GetServerMap {
     key: string;
     from: string;
     to: string;
-    // fromAgent?: string[]; // Deprecated
-    // toAgent?: string[]; // Deprecated
-    fromAgents: Agent[];
-    toAgents: Agent[];
+    fromAgents?: Agent[];
+    toAgents?: Agent[];
     sourceInfo: SourceInfo;
     targetInfo: TargetInfo;
-    filterApplicationName: string;
-    filterApplicationServiceTypeCode: number;
-    filterApplicationServiceTypeName: string;
-    filterTargetRpcList?: FilterTargetRpcList[];
+    filter: {
+      applicationName: string;
+      serviceTypeCode: number;
+      serviceTypeName: string;
+      outRpcList?: FilterTargetRpcList[];
+    };
     totalCount: number;
     errorCount: number;
     slowCount: number;
@@ -126,7 +126,6 @@ export namespace GetServerMap {
     timeSeriesHistogram: TimeSeriesHistogram[];
     instanceCount: number;
     instanceErrorCount: number;
-    // agentIds: string[]; // Deprecated
     agents: Agent[];
     isMerged?: boolean;
     mergedNodes?: any[];
