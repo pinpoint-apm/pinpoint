@@ -123,6 +123,10 @@ public class LinkCallDataMap {
         return sourceBuilder.build();
     }
 
+    public int size() {
+        return linkDataMap.size();
+    }
+
     @Override
     public String toString() {
         return "LinkCallDataMap{"
