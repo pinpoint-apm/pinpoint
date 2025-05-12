@@ -30,14 +30,19 @@ export namespace GetServerMap {
     toDateTime: string;
   }
 
+  export interface Agent {
+    id: string;
+    name: string;
+  }
+
   export interface LinkData {
     key: string;
     from: string;
     to: string;
-    fromAgent?: string[];
-    toAgent?: string[];
-    fromAgentIdNameMap?: FromAgentIdNameMap;
-    toAgentIdNameMap?: ToAgentIdNameMap;
+    // fromAgent?: string[]; // Deprecated
+    // toAgent?: string[]; // Deprecated
+    fromAgents: Agent[];
+    toAgents: Agent[];
     sourceInfo: SourceInfo;
     targetInfo: TargetInfo;
     filterApplicationName: string;
@@ -121,8 +126,8 @@ export namespace GetServerMap {
     timeSeriesHistogram: TimeSeriesHistogram[];
     instanceCount: number;
     instanceErrorCount: number;
-    agentIds: string[];
-    agentIdNameMap: AgentIdNameMap;
+    // agentIds: string[]; // Deprecated
+    agents: Agent[];
     isMerged?: boolean;
     mergedNodes?: any[];
     topCountNodes?: any[];

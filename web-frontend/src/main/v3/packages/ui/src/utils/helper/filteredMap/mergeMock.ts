@@ -8,7 +8,7 @@ export const nextTimestamp = [
   1699604100000, 1699604160000, 1699604220000, 1699604280000, 1699604340000, 1699604400000,
 ];
 
-export const prevNode = {
+export const prevNode: FilteredMap.NodeData = {
   key: 'key',
   applicationName: 'application',
   category: 'UNAUTHORIZED',
@@ -83,10 +83,12 @@ export const prevNode = {
   agentTimeSeriesHistogram: {},
   instanceCount: 1,
   instanceErrorCount: 0,
-  agentIds: ['UNAUTHORIZED_AGENT'],
-  agentIdNameMap: {
-    UNAUTHORIZED_AGENT: null,
-  },
+  agents: [
+    {
+      id: 'UNAUTHORIZED_AGENT',
+      name: '',
+    },
+  ],
   serverList: {
     UNAUTHORIZED_AGENT: {
       name: 'UNAUTHORIZED_AGENT',
@@ -108,7 +110,7 @@ export const prevNode = {
   },
 };
 
-export const newNode = {
+export const newNode: FilteredMap.NodeData = {
   key: 'key',
   applicationName: 'application',
   category: 'UNAUTHORIZED',
@@ -183,10 +185,12 @@ export const newNode = {
   agentTimeSeriesHistogram: {},
   instanceCount: 1,
   instanceErrorCount: 0,
-  agentIds: ['UNAUTHORIZED_AGENT'],
-  agentIdNameMap: {
-    UNAUTHORIZED_AGENT: null,
-  },
+  agents: [
+    {
+      id: 'UNAUTHORIZED_AGENT',
+      name: '',
+    },
+  ],
   serverList: {
     UNAUTHORIZED_AGENT: {
       name: 'UNAUTHORIZED_AGENT',
@@ -208,7 +212,7 @@ export const newNode = {
   },
 };
 
-export const resultNode = {
+export const resultNode: FilteredMap.NodeData = {
   key: 'key',
   applicationName: 'application',
   category: 'UNAUTHORIZED',
@@ -283,10 +287,12 @@ export const resultNode = {
   agentTimeSeriesHistogram: {},
   instanceCount: 1,
   instanceErrorCount: 0,
-  agentIds: ['UNAUTHORIZED_AGENT'],
-  agentIdNameMap: {
-    UNAUTHORIZED_AGENT: null,
-  },
+  agents: [
+    {
+      id: 'UNAUTHORIZED_AGENT',
+      name: '',
+    },
+  ],
   serverList: {
     UNAUTHORIZED_AGENT: {
       name: 'UNAUTHORIZED_AGENT',
@@ -312,15 +318,22 @@ export const prevLink: FilteredMap.LinkData = {
   key: 'key',
   from: 'fromApp',
   to: 'toApp^UNAUTHORIZED',
-  fromAgent: ['fromAgent', 'toAgent'],
-  toAgent: ['UNAUTHORIZED_AGENT'],
-  fromAgentIdNameMap: {
-    fromAgent: '',
-    toAgent: '',
-  },
-  toAgentIdNameMap: {
-    UNAUTHORIZED_AGENT: null,
-  },
+  fromAgents: [
+    {
+      id: 'fromAgent',
+      name: '',
+    },
+    {
+      id: 'toAgent',
+      name: '',
+    },
+  ],
+  toAgents: [
+    {
+      id: 'UNAUTHORIZED_AGENT',
+      name: '',
+    },
+  ],
   sourceInfo: {
     applicationName: 'app3',
     serviceType: 'VERTX',
@@ -398,19 +411,26 @@ export const prevLink: FilteredMap.LinkData = {
   targetResponseStatistics: {},
   hasAlert: false,
 };
-export const newLink = {
+export const newLink: FilteredMap.LinkData = {
   key: 'key',
   from: 'fromApp',
   to: 'toApp^UNAUTHORIZED',
-  fromAgent: ['fromAgent', 'toAgent'],
-  toAgent: ['UNAUTHORIZED_AGENT'],
-  fromAgentIdNameMap: {
-    fromAgent: '',
-    toAgent: '',
-  },
-  toAgentIdNameMap: {
-    UNAUTHORIZED_AGENT: null,
-  },
+  fromAgents: [
+    {
+      id: 'fromAgent',
+      name: '',
+    },
+    {
+      id: 'toAgent',
+      name: '',
+    },
+  ],
+  toAgents: [
+    {
+      id: 'UNAUTHORIZED_AGENT',
+      name: '',
+    },
+  ],
   sourceInfo: {
     applicationName: 'app3',
     serviceType: 'VERTX',
@@ -488,19 +508,27 @@ export const newLink = {
   targetResponseStatistics: {},
   hasAlert: false,
 };
-export const resultLink = {
+export const resultLink: FilteredMap.LinkData = {
   key: 'key',
   from: 'fromApp',
   to: 'toApp^UNAUTHORIZED',
-  fromAgent: ['fromAgent', 'toAgent'],
-  toAgent: ['UNAUTHORIZED_AGENT'],
-  fromAgentIdNameMap: {
-    fromAgent: '',
-    toAgent: '',
-  },
-  toAgentIdNameMap: {
-    UNAUTHORIZED_AGENT: null,
-  },
+
+  fromAgents: [
+    {
+      id: 'fromAgent',
+      name: '',
+    },
+    {
+      id: 'toAgent',
+      name: '',
+    },
+  ],
+  toAgents: [
+    {
+      id: 'UNAUTHORIZED_AGENT',
+      name: '',
+    },
+  ],
   sourceInfo: {
     applicationName: 'app3',
     serviceType: 'VERTX',

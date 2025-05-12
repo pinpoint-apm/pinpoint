@@ -106,10 +106,9 @@ export const FilteredMapPage = ({
         if (prevFilter.applicationName && prevFilter.serviceType) {
           return {
             ...prevFilter,
-            agents: (
-              serverMapData?.applicationMapData.nodeDataArray as FilteredMap.NodeData[]
-            )?.find((n) => n.key === `${prevFilter.applicationName}^${prevFilter.serviceType}`)
-              ?.agentIds,
+            agents: (serverMapData?.applicationMapData.nodeDataArray as FilteredMap.NodeData[])
+              ?.find((n) => n.key === `${prevFilter.applicationName}^${prevFilter.serviceType}`)
+              ?.agents?.map((agent) => agent.id),
           };
         } else if (
           prevFilter.fromApplication &&
@@ -127,8 +126,8 @@ export const FilteredMapPage = ({
 
           return {
             ...prevFilter,
-            fromAgents: linkData?.fromAgent,
-            toAgents: linkData?.toAgent,
+            fromAgents: linkData?.fromAgents?.map((agent) => agent.id),
+            toAgents: linkData?.toAgents?.map((agent) => agent.id),
           };
         }
         return prevFilter;
@@ -354,7 +353,7 @@ export const FilteredMapPage = ({
                               .nodeDataArray as FilteredMap.NodeData[]
                           ).find((n) => n.key === nodeData.id);
                           serverInfos = {
-                            agents: node?.agentIds,
+                            agents: node?.agents?.map((agent) => agent.id),
                           };
                         } else if ('source' in data) {
                           const edgeData = data as Edge;
@@ -363,8 +362,8 @@ export const FilteredMapPage = ({
                               .linkDataArray as FilteredMap.LinkData[]
                           ).find((l) => l.key === edgeData.id);
                           serverInfos = {
-                            fromAgents: link?.fromAgent,
-                            toAgents: link?.toAgent,
+                            fromAgents: link?.fromAgents?.map((agent) => agent.id),
+                            toAgents: link?.toAgents?.map((agent) => agent.id),
                           };
                         }
                         setFilter(getDefaultFilters(data, serverInfos));

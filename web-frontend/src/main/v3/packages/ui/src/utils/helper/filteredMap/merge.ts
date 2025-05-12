@@ -21,7 +21,7 @@ export const mergeFilteredMapNodeData = (
   acc.instanceErrorCount = Math.max(acc.instanceErrorCount, neo.instanceErrorCount);
 
   mergeAgentIds(acc, neo);
-  mergeNodeAgentIdNameMap(acc, neo);
+  // mergeNodeAgentIdNameMap(acc, neo);
   mergeHistogram(acc, neo);
   mergeResponseStatistics(acc, neo);
   mergeAgentHistogram(acc, neo);
@@ -59,11 +59,11 @@ export const mergeFilteredMapLinkData = (
   acc.errorCount += neo.errorCount;
   acc.totalCount += neo.totalCount;
 
-  mergeLinkAgentIdNameMap(acc, neo, 'fromAgentIdNameMap');
-  mergeLinkAgentIdNameMap(acc, neo, 'toAgentIdNameMap');
+  // mergeLinkAgentIdNameMap(acc, neo, 'fromAgentIdNameMap');
+  // mergeLinkAgentIdNameMap(acc, neo, 'toAgentIdNameMap');
   mergeHistogram(acc, neo);
-  mergeLinkAgentIds(acc, neo, 'fromAgent');
-  mergeLinkAgentIds(acc, neo, 'toAgent');
+  mergeLinkAgentIds(acc, neo, 'fromAgents');
+  mergeLinkAgentIds(acc, neo, 'toAgents');
   mergeResponseStatistics(acc, neo);
   mergeTimeSeriesHistogram(current, newNode);
   mergeAgentTimeSeriesHistogramByType(
@@ -85,54 +85,26 @@ export const mergeFilteredMapLinkData = (
 };
 
 function mergeAgentIds(old: FilteredMap.NodeData, neo: FilteredMap.NodeData): void {
-  neo.agentIds.forEach((agentId: string) => {
-    if (old.agentIds.indexOf(agentId) === -1) {
-      old.agentIds.push(agentId);
+  neo.agents.forEach((agent: FilteredMap.Agent) => {
+    const oldAgentIndex = old.agents.findIndex((oldAgent) => oldAgent.id === agent.id);
+    if (oldAgentIndex === -1) {
+      old.agents.push(agent);
     }
   });
-}
-
-function mergeLinkAgentIdNameMap(
-  old: FilteredMap.LinkData,
-  neo: FilteredMap.LinkData,
-  type: keyof FilteredMap.LinkData,
-): void {
-  const oldMap = old[type] as FilteredMap.FromAgentIdNameMap | FilteredMap.ToAgentIdNameMap;
-  const newMap = neo[type] as FilteredMap.FromAgentIdNameMap | FilteredMap.ToAgentIdNameMap;
-  if (newMap) {
-    const oldIds = Object.keys(oldMap!);
-    const newIds = Object.keys(newMap);
-    newIds.forEach((agentId: string) => {
-      if (oldIds.indexOf(agentId) === -1) {
-        oldMap[agentId] = newMap[agentId];
-      }
-    });
-  }
-}
-
-function mergeNodeAgentIdNameMap(old: FilteredMap.NodeData, neo: FilteredMap.NodeData): void {
-  if (neo.agentIdNameMap) {
-    const oldIds = Object.keys(old.agentIdNameMap);
-    const newIds = Object.keys(neo.agentIdNameMap);
-    newIds.forEach((agentId: string) => {
-      if (oldIds.indexOf(agentId) === -1) {
-        old.agentIdNameMap[agentId] = neo.agentIdNameMap[agentId];
-      }
-    });
-  }
 }
 
 function mergeLinkAgentIds(
   old: FilteredMap.LinkData,
   neo: FilteredMap.LinkData,
-  type: 'fromAgent' | 'toAgent',
+  type: 'fromAgents' | 'toAgents',
 ): void {
-  const oldIds = old[type];
-  const newIds = neo[type];
-  if (newIds) {
-    newIds?.forEach((agentId: string) => {
-      if (oldIds?.indexOf(agentId) === -1) {
-        old[type]?.push(agentId);
+  const oldAgents = old[type];
+  const newAgents = neo[type];
+  if (newAgents) {
+    newAgents?.forEach((agent: FilteredMap.Agent) => {
+      const oldAgentIndex = oldAgents.findIndex((oldAgent) => oldAgent.id === agent.id);
+      if (oldAgentIndex === -1) {
+        old[type]?.push(agent);
       }
     });
   }
