@@ -343,6 +343,62 @@
         }
       ]
     },
+    "HEATMAP": {
+      "TITLE": "Response Time Heatmap Chart",
+      "DESC": "",
+      "CATEGORY": [
+        {
+          "TITLE": "Legend",
+          "ITEMS": [
+            {
+              "NAME": "<FaCircle color=\"#2EB089\" size=\"15\"/>",
+              "DESC": "Successful Transaction"
+            },
+            {
+              "NAME": "<FaCircle color=\"#E64A4F\" size=\"15\"/>",
+              "DESC": "Failed Transaction"
+            },
+            {
+              "NAME": "X-Axis",
+              "DESC": "Transaction Timestamp"
+            },
+            {
+              "NAME": "Y-Axis",
+              "DESC": "Response Time"
+            }
+          ]
+        },
+        {
+          "TITLE": "Usage",
+          "ITEMS": [
+            {
+              "NAME": "<FaRegHandPointer/>",
+              "DESC": "Drag on the heatmap chart to show detailed information on selected transactions."
+            },
+            {
+              "NAME": "<BsGearFill/>",
+              "DESC": "Set the min/max value of the Y-axis (Response Time)."
+            },
+            {
+              "NAME": "<FaDownload/>",
+              "DESC": "Download the chart as an image file."
+            },
+            {
+              "NAME": "<FaExpandArrowsAlt/>",
+              "DESC": "Open the chart in a new window."
+            },
+            {
+              "NAME": "<HeatmapVisualMapIcon type=\"success\"/>",
+              "DESC": "Among all cells in the heatmap, the maximum and minimum success count values are displayed.<br/>Use the handlebar to filter cells by specifying a success count range."
+            },
+            {
+              "NAME": "<HeatmapVisualMapIcon type=\"fail\"/>",
+              "DESC": "Among all cells in the heatmap, the maximum and minimum fail count values are displayed.<br/>Use the handlebar to filter cells by specifying a fail count range."
+            }
+          ]
+        }
+      ]
+    },
     "RESPONSE_SUMMARY": {
       "TITLE": "Response Summary Chart",
       "DESC": "",

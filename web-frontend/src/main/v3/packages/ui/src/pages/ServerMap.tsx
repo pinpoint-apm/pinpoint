@@ -58,6 +58,7 @@ import {
   HelpPopover,
   ApplicationCombinedListProps,
   ChartTypeButtons,
+  cn,
 } from '@pinpoint-fe/ui';
 import { Edge, Node } from '@pinpoint-fe/server-map';
 import { PiTreeStructureDuotone, PiArrowSquareOut } from 'react-icons/pi';
@@ -440,26 +441,29 @@ export const ServerMapPage = ({
                           ) : null}
                           {!shouldHideScatter() && (
                             <>
-                              {chartType === 'scatter' ? (
-                                <div className="w-full p-5 mb-12 aspect-[1.618]">
-                                  <div className="h-7">
-                                    <ApdexScore
-                                      nodeData={
-                                        (currentTargetData as GetServerMap.NodeData) || application
-                                      }
-                                    />
-                                  </div>
-                                  <ScatterChart node={serverMapCurrentTarget || application} />
-                                </div>
-                              ) : (
-                                <div className="w-full p-5 aspect-[1.3]">
-                                  <Heatmap
+                              <div
+                                className={cn('w-full p-5', {
+                                  'mb-12 aspect-[1.618]': chartType === 'scatter',
+                                  'aspect-[1.4]': chartType === 'heatmap',
+                                })}
+                              >
+                                <div className="h-7">
+                                  <ApdexScore
                                     nodeData={
                                       (currentTargetData as GetServerMap.NodeData) || application
                                     }
                                   />
                                 </div>
-                              )}
+                                {chartType === 'scatter' ? (
+                                  <ScatterChart node={serverMapCurrentTarget || application} />
+                                ) : (
+                                  <Heatmap
+                                    nodeData={
+                                      (currentTargetData as GetServerMap.NodeData) || application
+                                    }
+                                  />
+                                )}
+                              </div>
                               <Separator />
                             </>
                           )}

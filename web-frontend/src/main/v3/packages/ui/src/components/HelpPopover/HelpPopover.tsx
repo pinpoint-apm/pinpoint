@@ -16,6 +16,7 @@ import {
   FaSmileBeam,
   FaCalendarAlt,
   FaClock,
+  FaRegHandPointer,
 } from 'react-icons/fa';
 import { BsGearFill } from 'react-icons/bs';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
@@ -23,6 +24,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { Separator } from '../../components/ui/separator';
 import { BiSolidServer } from 'react-icons/bi';
 import { PiHardDriveFill } from 'react-icons/pi';
+import HeatmapVisualMapIcon from './HeatmapVisualMapIcon';
 
 export type HelpContent = {
   TITLE?: string;
@@ -56,6 +58,8 @@ const components = {
   FaClock: <FaClock />,
   FaCalendarAlt: <FaCalendarAlt />,
   Lt: <>{'<'}</>,
+  FaRegHandPointer: <FaRegHandPointer />,
+  HeatmapVisualMapIcon: <HeatmapVisualMapIcon />,
 };
 
 export const HelpPopover = ({

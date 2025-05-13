@@ -30,6 +30,7 @@ import {
 } from '@pinpoint-fe/ui/src/atoms';
 import { APP_SETTING_KEYS, ApplicationType, GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import { getServerImagePath } from '@pinpoint-fe/ui/src/utils';
+import { cn } from '@pinpoint-fe/ui/src/lib';
 
 export interface RealtimeProps {}
 
@@ -154,27 +155,32 @@ export const Realtime = () => {
               ) : null}
               {!shouldHideScatter() && isFocus && (
                 <>
-                  {chartType === 'scatter' ? (
-                    <div className="w-full p-5 mb-12 aspect-[1.618]">
-                      <div className="h-7">
-                        <ApdexScore
-                          shouldPoll={true}
-                          nodeData={currentTargetData || application}
-                        ></ApdexScore>
-                      </div>
+                  <div
+                    className={cn('w-full p-5', {
+                      'aspect-[1.618] mb-12 ': chartType === 'scatter',
+                      'aspect-[1.4]': chartType === 'heatmap',
+                    })}
+                  >
+                    <div className="h-7">
+                      <ApdexScore
+                        shouldPoll={true}
+                        nodeData={currentTargetData || application}
+                      ></ApdexScore>
+                    </div>
+                    {chartType === 'scatter' ? (
                       <ScatterChart
                         node={serverMapCurrentTarget || (application as ApplicationType)}
                         realtime={true}
                       />
-                    </div>
-                  ) : (
-                    <div className="w-full pl-3 pt-5 pr-10 pb-8 aspect-[1.3]">
+                    ) : (
+                      // <div className="w-full pl-3 pt-5 pr-10 pb-8 aspect-[1.3]">
                       <Heatmap
                         nodeData={currentTargetData || (application as ApplicationType)}
                         realtime={true}
                       />
-                    </div>
-                  )}
+                      // </div>
+                    )}
+                  </div>
                   <Separator />
                 </>
               )}

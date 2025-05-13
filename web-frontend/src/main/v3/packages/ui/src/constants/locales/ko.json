@@ -343,6 +343,62 @@
         }
       ]
     },
+    "HEATMAP": {
+      "TITLE": "Response Time Heatmap Chart",
+      "DESC": "수집된 트랜잭션의 응답시간 분포도입니다.",
+      "CATEGORY": [
+        {
+          "TITLE": "범례",
+          "ITEMS": [
+            {
+              "NAME": "<FaCircle color=\"#2EB089\" size=\"15\"/>",
+              "DESC": "성공한 트랜잭션"
+            },
+            {
+              "NAME": "<FaCircle color=\"#E64A4F\" size=\"15\"/>",
+              "DESC": "실패한 트랜잭션"
+            },
+            {
+              "NAME": "X축",
+              "DESC": "트랜잭션이 실행된 시간"
+            },
+            {
+              "NAME": "Y축",
+              "DESC": "트랜잭션의 응답 속도"
+            }
+          ]
+        },
+        {
+          "TITLE": "기능",
+          "ITEMS": [
+            {
+              "NAME": "<FaRegHandPointer/>",
+              "DESC": "마우스로 영역을 드래그하여 드래그 된 영역에 속한 트랜잭션의 상세정보를 조회할 수 있습니다."
+            },
+            {
+              "NAME": "<BsGearFill/>",
+              "DESC": "응답시간(Y축)의 최소 또는 최대값을 변경할 수 있습니다."
+            },
+            {
+              "NAME": "<FaDownload/>",
+              "DESC": "차트를 이미지 파일로 저장할 수 있습니다."
+            },
+            {
+              "NAME": "<FaExpandArrowsAlt/>",
+              "DESC": "차트를 새창으로 볼 수 있습니다."
+            },
+            {
+              "NAME": "<HeatmapVisualMapIcon type=\"success\"/>",
+              "DESC": "heatmap의 모든 셀에서, success count값의 최대 최소값을 표현합니다.<br/>handleBar 위치를 조정하여 cell 표시 범위를 지정할 수 있습니다."
+            },
+            {
+              "NAME": "<HeatmapVisualMapIcon type=\"fail\"/>",
+              "DESC": "heatmap의 모든 셀에서, fail count값의 최대 최소값을 표현합니다.<br/>handleBar 위치를 조정하여 cell 표시 범위를 지정할 수 있습니다."
+            }
+          ]
+        }
+      ]
+    },
     "RESPONSE_SUMMARY": {
       "TITLE": "Response Summary Chart",
       "DESC": "응답결과 요약입니다.",
