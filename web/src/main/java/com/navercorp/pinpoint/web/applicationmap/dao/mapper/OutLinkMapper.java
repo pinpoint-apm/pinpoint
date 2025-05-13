@@ -90,7 +90,9 @@ public class OutLinkMapper implements RowMapper<LinkDataMap> {
             String inHost = buffer.readPrefixedString();
             short histogramSlot = buffer.readShort();
 
-            String outAgentId = buffer.readPrefixedString();
+//            String outAgentId = buffer.readPrefixedString();
+            skipOutAgentId(buffer);
+            String outAgentId = "EMPTY_AGENT_ID";
 
             long requestCount = CellUtils.valueToLong(cell);
             if (logger.isDebugEnabled()) {
@@ -105,6 +107,12 @@ public class OutLinkMapper implements RowMapper<LinkDataMap> {
         }
 
         return linkDataMap;
+    }
+
+    private void skipOutAgentId(Buffer buffer) {
+        // skip outAgentId
+        int bodySize = buffer.readSVInt();
+        buffer.setOffset(buffer.getOffset() + bodySize);
     }
 
 
