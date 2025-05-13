@@ -162,7 +162,7 @@ const HeatmapChart = React.forwardRef(
         grid: {
           show: true,
           left: setting.yMax.toString().length * 10,
-          right: '16px',
+          right: '22px',
           top: '20px',
           bottom: '100px',
         },
