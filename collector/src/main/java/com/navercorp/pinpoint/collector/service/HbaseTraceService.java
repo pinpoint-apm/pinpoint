@@ -48,6 +48,8 @@ import java.util.concurrent.Executor;
 public class HbaseTraceService implements TraceService {
     private final Logger logger = LogManager.getLogger(getClass());
 
+    private static final String MERGE_AGENT = "_ALL_";
+
     private final ThrottledLogger throttledLogger = ThrottledLogger.getLogger(logger, 10000);
 
     private final TraceDao traceDao;
@@ -177,12 +179,12 @@ public class HbaseTraceService implements TraceService {
                         span.getAcceptorHost(), spanServiceType, span.getAgentId(), span.getElapsed(), span.hasError());
             } else {
                 // create virtual user
-                linkService.updateOutLink(span.getCollectorAcceptTime(), span.getApplicationName(), ServiceType.USER, span.getAgentId(),
-                        span.getApplicationName(), applicationServiceType, span.getAgentId(), span.getElapsed(), span.hasError());
+                linkService.updateOutLink(span.getCollectorAcceptTime(), span.getApplicationName(), ServiceType.USER, MERGE_AGENT,
+                        span.getApplicationName(), applicationServiceType, MERGE_AGENT, span.getElapsed(), span.hasError());
 
                 // update the span information of the current node (self)
                 linkService.updateInLink(span.getCollectorAcceptTime(), span.getApplicationName(), applicationServiceType,
-                        span.getApplicationName(), ServiceType.USER, span.getAgentId(), span.getElapsed(), span.hasError());
+                        span.getApplicationName(), ServiceType.USER, MERGE_AGENT, span.getElapsed(), span.hasError());
             }
             bugCheck++;
         }
@@ -280,7 +282,7 @@ public class HbaseTraceService implements TraceService {
              * save information to draw a server map based on statistics
              */
             // save the information of outLink (the spanevent that called span)
-            linkService.updateOutLink(requestTime, applicationName, applicationServiceType, agentId,
+            linkService.updateOutLink(requestTime, applicationName, applicationServiceType, MERGE_AGENT,
                     spanEventApplicationName, spanEventType, spanEventEndPoint, elapsed, hasException);
 
             // save the information of inLink (the span that spanevent called)
