@@ -3,7 +3,7 @@ package com.navercorp.pinpoint.collector.applicationmap.service;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import jakarta.validation.constraints.NotBlank;
 
-public interface StatisticsService {
+public interface LinkService {
 
     /**
      * Calling MySQL from Tomcat generates the following message for the caller(Tomcat) :<br/>

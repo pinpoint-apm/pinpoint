@@ -30,12 +30,12 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 @Validated
-public class StatisticsServiceImpl implements StatisticsService {
+public class LinkServiceImpl implements LinkService {
     private final MapInLinkDao inLinkDao;
     private final MapOutLinkDao outLinkDao;
     private final MapResponseTimeDao responseTimeDao;
 
-    public StatisticsServiceImpl(MapInLinkDao inLinkDao, MapOutLinkDao outLinkDao, MapResponseTimeDao responseTimeDao) {
+    public LinkServiceImpl(MapInLinkDao inLinkDao, MapOutLinkDao outLinkDao, MapResponseTimeDao responseTimeDao) {
         this.inLinkDao = Objects.requireNonNull(inLinkDao, "inLinkDao");
         this.outLinkDao = Objects.requireNonNull(outLinkDao, "outLinkDao");
         this.responseTimeDao = Objects.requireNonNull(responseTimeDao, "responseTimeDao");

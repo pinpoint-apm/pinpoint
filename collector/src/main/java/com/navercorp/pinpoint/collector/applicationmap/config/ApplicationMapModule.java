@@ -3,8 +3,8 @@ package com.navercorp.pinpoint.collector.applicationmap.config;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapResponseTimeDao;
-import com.navercorp.pinpoint.collector.applicationmap.service.StatisticsService;
-import com.navercorp.pinpoint.collector.applicationmap.service.StatisticsServiceImpl;
+import com.navercorp.pinpoint.collector.applicationmap.service.LinkService;
+import com.navercorp.pinpoint.collector.applicationmap.service.LinkServiceImpl;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.config.BulkConfiguration;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.config.BulkFactory;
 import org.apache.logging.log4j.LogManager;
@@ -36,9 +36,9 @@ public class ApplicationMapModule {
 
     @Bean
     @Validated
-    public StatisticsService statisticsService(MapInLinkDao inLinkDao,
-                                               MapOutLinkDao outLinkDao,
-                                               MapResponseTimeDao responseTimeDao) {
-        return new StatisticsServiceImpl(inLinkDao, outLinkDao, responseTimeDao);
+    public LinkService statisticsService(MapInLinkDao inLinkDao,
+                                         MapOutLinkDao outLinkDao,
+                                         MapResponseTimeDao responseTimeDao) {
+        return new LinkServiceImpl(inLinkDao, outLinkDao, responseTimeDao);
     }
 }
