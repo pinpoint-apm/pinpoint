@@ -327,7 +327,7 @@ public class FilteredMapBuilder {
     }
 
     private short getHistogramSlotTime(SpanBo span, ServiceType serviceType) {
-        boolean allException = span.getErrCode() != 0;
+        boolean allException = span.hasError();
         return getHistogramSlotTime(allException, span.getElapsed(), serviceType);
     }
 

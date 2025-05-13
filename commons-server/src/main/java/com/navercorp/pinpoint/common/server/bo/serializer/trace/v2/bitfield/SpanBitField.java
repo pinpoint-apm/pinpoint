@@ -58,7 +58,7 @@ public class SpanBitField {
         if (spanBo.getParentSpanId() == ROOT_PARENT_SPAN_ID) {
             spanBitField.setRoot(true);
         }
-        if (spanBo.getErrCode() != 0) {
+        if (spanBo.hasError()) {
             spanBitField.setErrorCode(true);
         }
 

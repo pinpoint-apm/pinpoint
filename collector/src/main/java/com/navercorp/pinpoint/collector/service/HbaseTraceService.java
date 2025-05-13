@@ -166,24 +166,23 @@ public class HbaseTraceService implements TraceService {
         final ServiceType applicationServiceType = getApplicationServiceType(span);
         final ServiceType spanServiceType = registry.findServiceType(span.getServiceType());
 
-        final boolean isError = span.getErrCode() != 0;
         int bugCheck = 0;
         if (span.getParentSpanId() == -1) {
             if (spanServiceType.isQueue()) {
                 // create virtual queue node
                 linkService.updateOutLink(span.getCollectorAcceptTime(), span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(),
-                        span.getApplicationName(), applicationServiceType, span.getEndPoint(), span.getElapsed(), isError);
+                        span.getApplicationName(), applicationServiceType, span.getEndPoint(), span.getElapsed(), span.hasError());
 
                 linkService.updateInLink(span.getCollectorAcceptTime(), span.getApplicationName(), applicationServiceType,
-                        span.getAcceptorHost(), spanServiceType, span.getAgentId(), span.getElapsed(), isError);
+                        span.getAcceptorHost(), spanServiceType, span.getAgentId(), span.getElapsed(), span.hasError());
             } else {
                 // create virtual user
                 linkService.updateOutLink(span.getCollectorAcceptTime(), span.getApplicationName(), ServiceType.USER, span.getAgentId(),
-                        span.getApplicationName(), applicationServiceType, span.getAgentId(), span.getElapsed(), isError);
+                        span.getApplicationName(), applicationServiceType, span.getAgentId(), span.getElapsed(), span.hasError());
 
                 // update the span information of the current node (self)
                 linkService.updateInLink(span.getCollectorAcceptTime(), span.getApplicationName(), applicationServiceType,
-                        span.getApplicationName(), ServiceType.USER, span.getAgentId(), span.getElapsed(), isError);
+                        span.getApplicationName(), ServiceType.USER, span.getAgentId(), span.getElapsed(), span.hasError());
             }
             bugCheck++;
         }
@@ -206,7 +205,7 @@ public class HbaseTraceService implements TraceService {
                             parentApplicationName, parentApplicationType.getCode());
                     // emulate virtual queue node's send SpanEvent
                     linkService.updateOutLink(span.getCollectorAcceptTime(), span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(),
-                            span.getApplicationName(), applicationServiceType, span.getEndPoint(), span.getElapsed(), isError);
+                            span.getApplicationName(), applicationServiceType, span.getEndPoint(), span.getElapsed(), span.hasError());
 
                     parentApplicationName = span.getAcceptorHost();
                     parentApplicationType = spanServiceType;
@@ -214,7 +213,7 @@ public class HbaseTraceService implements TraceService {
             }
 
             linkService.updateInLink(span.getCollectorAcceptTime(), span.getApplicationName(), applicationServiceType,
-                    parentApplicationName, parentApplicationType, span.getAgentId(), span.getElapsed(), isError);
+                    parentApplicationName, parentApplicationType, span.getAgentId(), span.getElapsed(), span.hasError());
             bugCheck++;
         }
 
@@ -223,7 +222,7 @@ public class HbaseTraceService implements TraceService {
         // it is odd to record reversely, because of already recording the caller data at previous node.
         // the data may be different due to timeout or network error.
 
-        linkService.updateResponseTime(span.getCollectorAcceptTime(), span.getApplicationName(), applicationServiceType, span.getAgentId(), span.getElapsed(), isError);
+        linkService.updateResponseTime(span.getCollectorAcceptTime(), span.getApplicationName(), applicationServiceType, span.getAgentId(), span.getElapsed(), span.hasError());
 
         if (bugCheck != 1) {
             logger.info("ambiguous span found(bug). span:{}", span);

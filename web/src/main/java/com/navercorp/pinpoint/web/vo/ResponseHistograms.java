@@ -70,7 +70,7 @@ public class ResponseHistograms {
         }
 
         private boolean isError(SpanBo span) {
-            if (span.getErrCode() != 0) {
+            if (span.hasError()) {
                 return true;
             }
             return false;

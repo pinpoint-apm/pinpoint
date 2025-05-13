@@ -29,4 +29,13 @@ class SpanBoTest {
 
         Assertions.assertFalse(spanBo.hasApplicationServiceType());
     }
+
+    @Test
+    void hasError() {
+        SpanBo spanBo = new SpanBo();
+        Assertions.assertFalse(spanBo.hasError());
+
+        spanBo.setErrCode(1);
+        Assertions.assertTrue(spanBo.hasError());
+    }
 }

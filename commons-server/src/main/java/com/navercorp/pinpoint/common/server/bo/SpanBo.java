@@ -289,6 +289,10 @@ public class SpanBo implements Event, BasicSpan {
         this.errCode = errCode;
     }
 
+    public boolean hasError() {
+        return errCode > 0;
+    }
+
     public String getAcceptorHost() {
         return acceptorHost;
     }
