@@ -4,6 +4,7 @@ import { defaultTickFormatter } from '@pinpoint-fe/ui/src/components/ReChart';
 import { capitalize } from 'lodash';
 import { HeatmapSettingType } from './HeatmapSetting';
 
+import { format } from 'date-fns';
 import * as echarts from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import { HeatmapChart as HeatmapChartEcharts } from 'echarts/charts';
@@ -169,11 +170,11 @@ const HeatmapChart = React.forwardRef(
           type: 'category',
           data: xAxisData?.sort((a, b) => Number(a) - Number(b)),
           axisLabel: {
-            interval: 'auto',
+            interval: '1',
             showMaxLabel: true,
             showMinLabel: true,
             formatter: (value: string) => {
-              return defaultTickFormatter(Number(value));
+              return `${format(Number(value), 'yyyy.MM.dd')}\n${format(Number(value), 'HH:mm:ss')}`;
             },
           },
         },
@@ -406,6 +407,7 @@ const HeatmapChart = React.forwardRef(
                 borderWidth: 1,
               },
             },
+            cursor: 'crosshair',
           },
         ],
       });

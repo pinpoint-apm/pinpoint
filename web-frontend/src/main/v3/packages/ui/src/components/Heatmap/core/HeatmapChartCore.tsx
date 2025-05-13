@@ -3,7 +3,6 @@ import html2canvas from 'html2canvas';
 import {
   APP_SETTING_KEYS,
   BASE_PATH,
-  colors,
   GetHeatmapAppData,
   GetServerMap,
   ApplicationType,
@@ -11,7 +10,6 @@ import {
 import HeatmapChart from './HeatmapChart';
 import {
   HelpPopover,
-  cn,
   convertParamsToQueryString,
   getFormattedDateRange,
   getHeatmapFullScreenPath,
@@ -124,15 +122,13 @@ const HeatmapChartCore = ({
 
   return (
     <div className="relative flex flex-col w-full h-full gap-2">
-      <div className={cn('flex flex-row justify-end')}>
-        <div className="flex flex-row items-center justify-end gap-2 px-4 font-normal text-gray-400">
-          <BsGearFill className="text-base cursor-pointer" onClick={() => setShowSetting(true)} />
-          <FaDownload className="text-base cursor-pointer" onClick={handleCaptureImage} />
-          {!toolbarOption?.expand?.hide && (
-            <FaExpandArrowsAlt className="text-base cursor-pointer" onClick={handleExpand} />
-          )}
-          {/* <HelpPopover helpKey="HELP_VIEWER.SCATTER" /> */}
-        </div>
+      <div className="absolute flex flex-row items-center justify-end gap-2 px-4 font-normal text-gray-400 -top-5 right-3">
+        <BsGearFill className="text-base cursor-pointer" onClick={() => setShowSetting(true)} />
+        <FaDownload className="text-base cursor-pointer" onClick={handleCaptureImage} />
+        {!toolbarOption?.expand?.hide && (
+          <FaExpandArrowsAlt className="text-base cursor-pointer" onClick={handleExpand} />
+        )}
+        <HelpPopover helpKey="HELP_VIEWER.HEATMAP" />
       </div>
       <HeatmapChart
         ref={chartContainerRef}
