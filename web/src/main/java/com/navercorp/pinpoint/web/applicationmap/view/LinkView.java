@@ -60,14 +60,6 @@ public class LinkView {
             jgen.writeObjectField("from", link.getFrom().getNodeName());  // necessary for go.js
             jgen.writeObjectField("to", link.getTo().getNodeName()); // necessary for go.js
 
-            // for FilterWizard. from, to agent mapping data
-            writeAgentId("fromAgent", link.getFrom(), jgen);
-            writeAgentId("toAgent", link.getTo(), jgen);
-
-            //for FilterWizard. show agent name as tooltip on instance
-//            writeAgentIdNameMap("fromAgentIdNameMap", link.getFrom(), jgen);
-//            writeAgentIdNameMap("toAgentIdNameMap", link.getTo(), jgen);
-
             // for FilterWizard, to agent mapping data
             writeAgents("fromAgents", link.getFrom(), jgen);
             writeAgents("toAgents", link.getFrom(), jgen);
@@ -116,13 +108,6 @@ public class LinkView {
 
         private void writerFilterHint(Link link, JsonGenerator jgen) throws IOException {
             Application filterApplication = link.getFilterApplication();
-            jgen.writeStringField("filterApplicationName", filterApplication.getName());
-            jgen.writeNumberField("filterApplicationServiceTypeCode", filterApplication.getServiceTypeCode());
-            jgen.writeStringField("filterApplicationServiceTypeName", filterApplication.getServiceType().getName());
-            if (link.isWasToWasLink()) {
-                writeWasToWasTargetRpcList("filterTargetRpcList", link, jgen);
-            }
-
             jgen.writeFieldName("filter");
             jgen.writeStartObject();
             jgen.writeStringField("applicationName", filterApplication.getName());
@@ -145,21 +130,6 @@ public class LinkView {
                     }
                 }
                 jgen.writeEndArray();
-            }
-        }
-
-        @Deprecated
-        private void writeAgentIdNameMap(String fieldName, Node node, JsonGenerator jgen) throws IOException {
-            if (node.getServiceType().isWas()) {
-                jgen.writeFieldName(fieldName);
-                jgen.writeStartObject();
-                ServerGroupList serverGroupList = node.getServerGroupList();
-                if (serverGroupList != null) {
-                    for (Map.Entry<String, String> entry : serverGroupList.getAgentIdNameMap().entrySet()) {
-                        jgen.writeStringField(entry.getKey(), entry.getValue());
-                    }
-                }
-                jgen.writeEndObject();
             }
         }
 

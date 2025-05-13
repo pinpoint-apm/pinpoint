@@ -59,14 +59,12 @@ public class NodeView {
 
         public static final String AGENT_TIME_SERIES_HISTOGRAM = "agentTimeSeriesHistogram";
 
-        public static final String AGENTID_NAME_MAP_KEY = "agentIdNameMap";
-
         @Override
         public void serialize(NodeView nodeView, JsonGenerator jgen, SerializerProvider provider) throws IOException {
             Node node = nodeView.getNode();
 
             jgen.writeStartObject();
-//        jgen.writeStringField("id", node.getNodeName());serverInstanceList
+//        jgen.writeStringField("id", node.getNodeName()); serverInstanceList
             jgen.writeObjectField("key", node.getNodeName()); // necessary for go.js
 
             jgen.writeStringField("applicationName", node.getApplicationTextName()); // for go.js
@@ -75,13 +73,6 @@ public class NodeView {
             jgen.writeStringField("serviceType", node.getServiceType().toString());
 
             final ServiceType serviceType = node.getApplication().getServiceType();
-//        if (serviceType.isUser()) {
-//            jgen.writeStringField("fig", "Ellipse");
-//        } else if(serviceType.isWas()) {
-//            jgen.writeStringField("fig", "RoundedRectangle");
-//        } else {
-//            jgen.writeStringField("fig", "Rectangle");
-//        }
 
             jgen.writeNumberField("serviceTypeCode", serviceType.getCode());
 //        jgen.writeStringField("terminal", Boolean.toString(serviceType.isTerminal()));
@@ -107,8 +98,6 @@ public class NodeView {
             if (serverGroupList == null) {
                 jgen.writeNumberField("instanceCount", 0);
                 jgen.writeNumberField("instanceErrorCount", 0);
-                JacksonWriterUtils.writeEmptyArray(jgen, "agentIds");
-//                JacksonWriterUtils.writeEmptyObject(jgen, AGENTID_NAME_MAP_KEY);
                 JacksonWriterUtils.writeEmptyArray(jgen, "agents");
 
                 if (activeView.isDetailed()) {
@@ -118,31 +107,12 @@ public class NodeView {
                 jgen.writeNumberField("instanceCount", serverGroupList.getInstanceCount());
                 long instanceErrorCount = getInstanceErrorCount(node);
                 jgen.writeNumberField("instanceErrorCount", instanceErrorCount);
-                writeAgentIds("agentIds", serverGroupList, jgen);
-//                writeAgentIdMap(AGENTID_NAME_MAP_KEY, serverGroupList, jgen);
                 writeAgentList("agents", serverGroupList, jgen);
 
                 if (activeView.isDetailed()) {
                     jgen.writeObjectField("serverList", new ServerGroupListView(serverGroupList, nodeView.getHyperLinkFactory()));
                 }
             }
-        }
-
-        private void writeAgentIds(String fieldName, ServerGroupList serverGroupList, JsonGenerator jgen) throws IOException {
-            jgen.writeArrayFieldStart(fieldName);
-            for (String agentId : serverGroupList.getAgentIdList()) {
-                jgen.writeString(agentId);
-            }
-            jgen.writeEndArray();
-        }
-
-        @Deprecated
-        private void writeAgentIdMap(String fieldName, ServerGroupList serverGroupList, JsonGenerator jgen) throws IOException {
-            jgen.writeObjectFieldStart(fieldName);
-            for (Map.Entry<String, String> entry : serverGroupList.getAgentIdNameMap().entrySet()) {
-                jgen.writeStringField(entry.getKey(), entry.getValue());
-            }
-            jgen.writeEndObject();
         }
 
         private void writeAgentList(String fieldName, ServerGroupList serverGroupList, JsonGenerator jgen) throws IOException {
