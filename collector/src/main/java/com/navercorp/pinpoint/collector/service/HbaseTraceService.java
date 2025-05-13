@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.service;
 
-import com.navercorp.pinpoint.collector.applicationmap.service.StatisticsService;
+import com.navercorp.pinpoint.collector.applicationmap.service.LinkService;
 import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.collector.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.collector.dao.TraceDao;
@@ -56,7 +56,7 @@ public class HbaseTraceService implements TraceService {
 
     private final HostApplicationMapDao hostApplicationMapDao;
 
-    private final StatisticsService statisticsService;
+    private final LinkService linkService;
 
     private final ServiceTypeRegistryService registry;
 
@@ -66,14 +66,14 @@ public class HbaseTraceService implements TraceService {
     public HbaseTraceService(TraceDao traceDao,
                              ApplicationTraceIndexDao applicationTraceIndexDao,
                              HostApplicationMapDao hostApplicationMapDao,
-                             StatisticsService statisticsService,
+                             LinkService linkService,
                              ServiceTypeRegistryService registry,
                              SpanStorePublisher spanStorePublisher,
                              @Qualifier("grpcSpanServerExecutor") Executor grpcSpanServerExecutor) {
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
         this.hostApplicationMapDao = Objects.requireNonNull(hostApplicationMapDao, "hostApplicationMapDao");
-        this.statisticsService = Objects.requireNonNull(statisticsService, "statisticsService");
+        this.linkService = Objects.requireNonNull(linkService, "statisticsService");
         this.registry = Objects.requireNonNull(registry, "registry");
         this.publisher = Objects.requireNonNull(spanStorePublisher, "spanStorePublisher");
         this.grpcSpanServerExecutor = Objects.requireNonNull(grpcSpanServerExecutor, "grpcSpanServerExecutor");
@@ -171,18 +171,18 @@ public class HbaseTraceService implements TraceService {
         if (span.getParentSpanId() == -1) {
             if (spanServiceType.isQueue()) {
                 // create virtual queue node
-                statisticsService.updateOutLink(span.getCollectorAcceptTime(), span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(),
+                linkService.updateOutLink(span.getCollectorAcceptTime(), span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(),
                         span.getApplicationName(), applicationServiceType, span.getEndPoint(), span.getElapsed(), isError);
 
-                statisticsService.updateInLink(span.getCollectorAcceptTime(), span.getApplicationName(), applicationServiceType,
+                linkService.updateInLink(span.getCollectorAcceptTime(), span.getApplicationName(), applicationServiceType,
                         span.getAcceptorHost(), spanServiceType, span.getAgentId(), span.getElapsed(), isError);
             } else {
                 // create virtual user
-                statisticsService.updateOutLink(span.getCollectorAcceptTime(), span.getApplicationName(), ServiceType.USER, span.getAgentId(),
+                linkService.updateOutLink(span.getCollectorAcceptTime(), span.getApplicationName(), ServiceType.USER, span.getAgentId(),
                         span.getApplicationName(), applicationServiceType, span.getAgentId(), span.getElapsed(), isError);
 
                 // update the span information of the current node (self)
-                statisticsService.updateInLink(span.getCollectorAcceptTime(), span.getApplicationName(), applicationServiceType,
+                linkService.updateInLink(span.getCollectorAcceptTime(), span.getApplicationName(), applicationServiceType,
                         span.getApplicationName(), ServiceType.USER, span.getAgentId(), span.getElapsed(), isError);
             }
             bugCheck++;
@@ -205,7 +205,7 @@ public class HbaseTraceService implements TraceService {
                     hostApplicationMapDao.insert(span.getCollectorAcceptTime(), span.getRemoteAddr(), span.getAcceptorHost(), spanServiceType.getCode(),
                             parentApplicationName, parentApplicationType.getCode());
                     // emulate virtual queue node's send SpanEvent
-                    statisticsService.updateOutLink(span.getCollectorAcceptTime(), span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(),
+                    linkService.updateOutLink(span.getCollectorAcceptTime(), span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(),
                             span.getApplicationName(), applicationServiceType, span.getEndPoint(), span.getElapsed(), isError);
 
                     parentApplicationName = span.getAcceptorHost();
@@ -213,7 +213,7 @@ public class HbaseTraceService implements TraceService {
                 }
             }
 
-            statisticsService.updateInLink(span.getCollectorAcceptTime(), span.getApplicationName(), applicationServiceType,
+            linkService.updateInLink(span.getCollectorAcceptTime(), span.getApplicationName(), applicationServiceType,
                     parentApplicationName, parentApplicationType, span.getAgentId(), span.getElapsed(), isError);
             bugCheck++;
         }
@@ -223,7 +223,7 @@ public class HbaseTraceService implements TraceService {
         // it is odd to record reversely, because of already recording the caller data at previous node.
         // the data may be different due to timeout or network error.
 
-        statisticsService.updateResponseTime(span.getCollectorAcceptTime(), span.getApplicationName(), applicationServiceType, span.getAgentId(), span.getElapsed(), isError);
+        linkService.updateResponseTime(span.getCollectorAcceptTime(), span.getApplicationName(), applicationServiceType, span.getAgentId(), span.getElapsed(), isError);
 
         if (bugCheck != 1) {
             logger.info("ambiguous span found(bug). span:{}", span);
@@ -278,11 +278,11 @@ public class HbaseTraceService implements TraceService {
              * save information to draw a server map based on statistics
              */
             // save the information of outLink (the spanevent that called span)
-            statisticsService.updateOutLink(requestTime, applicationName, applicationServiceType, agentId,
+            linkService.updateOutLink(requestTime, applicationName, applicationServiceType, agentId,
                     spanEventApplicationName, spanEventType, spanEventEndPoint, elapsed, hasException);
 
             // save the information of inLink (the span that spanevent called)
-            statisticsService.updateInLink(requestTime, spanEventApplicationName, spanEventType,
+            linkService.updateInLink(requestTime, spanEventApplicationName, spanEventType,
                     applicationName, applicationServiceType, endPoint, elapsed, hasException);
         }
     }

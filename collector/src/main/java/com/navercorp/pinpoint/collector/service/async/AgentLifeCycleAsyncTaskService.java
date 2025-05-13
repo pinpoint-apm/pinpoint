@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.service.async;
 
-import com.navercorp.pinpoint.collector.applicationmap.service.StatisticsService;
+import com.navercorp.pinpoint.collector.applicationmap.service.LinkService;
 import com.navercorp.pinpoint.collector.config.CollectorProperties;
 import com.navercorp.pinpoint.collector.service.AgentLifeCycleService;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
@@ -41,16 +41,16 @@ public class AgentLifeCycleAsyncTaskService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AgentLifeCycleService agentLifeCycleService;
-    private final StatisticsService statisticsService;
+    private final LinkService linkService;
     private final ServiceTypeRegistryService registry;
     private final CollectorProperties collectorProperties;
 
     public AgentLifeCycleAsyncTaskService(AgentLifeCycleService agentLifeCycleService,
-                                          StatisticsService statisticsService,
+                                          LinkService linkService,
                                           ServiceTypeRegistryService registry,
                                           CollectorProperties collectorProperties) {
         this.agentLifeCycleService = agentLifeCycleService;
-        this.statisticsService = statisticsService;
+        this.linkService = linkService;
         this.registry = registry;
         this.collectorProperties = collectorProperties;
     }
@@ -83,7 +83,7 @@ public class AgentLifeCycleAsyncTaskService {
     private void updateAgentState(int serviceTypeCode, long eventTimestamp, String applicationName, String agentId) {
         final ServiceType serviceType = registry.findServiceType(serviceTypeCode);
         if (isUpdateAgentState(serviceType)) {
-            statisticsService.updateAgentState(eventTimestamp, applicationName, serviceType, agentId);
+            linkService.updateAgentState(eventTimestamp, applicationName, serviceType, agentId);
         }
     }
 
