@@ -53,7 +53,7 @@ public class BusinessTransaction {
     }
 
     private void addError(SpanBo span) {
-        if (span.getErrCode() > 0) {
+        if (span.hasError()) {
             error++;
         }
     }

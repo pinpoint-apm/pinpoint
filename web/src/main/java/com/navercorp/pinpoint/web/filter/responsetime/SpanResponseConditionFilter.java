@@ -61,7 +61,7 @@ public class SpanResponseConditionFilter implements Filter<SpanBo> {
     }
 
     protected boolean hasErrorSpan(SpanBo span) {
-        return span.getErrCode() > 0;
+        return span.hasError();
     }
 
     private boolean hasErrorSpanEvent(SpanBo spanBo) {
