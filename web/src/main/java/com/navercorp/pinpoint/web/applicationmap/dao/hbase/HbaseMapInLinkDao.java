@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.LinkTimeWindowReducer;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.RowMapperFactory;
-import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMapUtils;
 import com.navercorp.pinpoint.web.mapper.RowMapReduceResultExtractor;
@@ -104,7 +103,7 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
         TableName inLinkTableName = tableNameProvider.getTableName(table);
         LinkDataMap linkDataMap = hbaseTemplate.findParallel(inLinkTableName, scan, rowKeyDistributor, resultExtractor, parallel);
         if (logger.isDebugEnabled()) {
-            logger.debug("{} {} data: {}", LinkDirection.IN_LINK, inLinkTableName.getNameAsString(), linkDataMap);
+            logger.debug("IN_LINK {} data: {}", inLinkTableName.getNameAsString(), linkDataMap);
         }
         if (LinkDataMapUtils.hasLength(linkDataMap)) {
             return linkDataMap;

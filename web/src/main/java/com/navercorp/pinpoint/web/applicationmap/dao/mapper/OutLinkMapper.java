@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.util.TimeUtils;
-import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -94,8 +93,8 @@ public class OutLinkMapper implements RowMapper<LinkDataMap> {
 
             long requestCount = CellUtils.valueToLong(cell);
             if (logger.isDebugEnabled()) {
-                logger.debug("    Fetched {}.(New) {} {} -> {} (slot:{}/{}) inHost:{}",
-                        LinkDirection.OUT_LINK, outApplication, outAgentId, inApplication, histogramSlot, requestCount, inHost);
+                logger.debug("    Fetched OUT_LINK {} {} -> {} (slot:{}/{}) inHost:{}",
+                        outApplication, outAgentId, inApplication, histogramSlot, requestCount, inHost);
             }
 
             if (StringUtils.isEmpty(inHost)) {
