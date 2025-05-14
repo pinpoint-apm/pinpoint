@@ -79,7 +79,9 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
         if (result.isEmpty()) {
             return new LinkDataMap();
         }
-        logger.debug("mapRow:{}", rowNum);
+        if (logger.isDebugEnabled()) {
+            logger.debug("mapRow num:{} size:{}", rowNum, result.size());
+        }
 
         final byte[] rowKey = getOriginalKey(result.getRow());
 

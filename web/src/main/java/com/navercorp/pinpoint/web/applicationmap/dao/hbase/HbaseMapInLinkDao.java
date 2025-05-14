@@ -88,7 +88,11 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
 
         final Scan scan = scanFactory.createScan("MapInLinkScan", inApplication, timeWindow.getWindowRange(), DESCRIPTOR.getName());
 
-        return selectInLink(scan, DESCRIPTOR.getTable(), resultExtractor, MAP_STATISTICS_CALLER_VER2_NUM_PARTITIONS);
+        final LinkDataMap linkDataMap = selectInLink(scan, DESCRIPTOR.getTable(), resultExtractor, MAP_STATISTICS_CALLER_VER2_NUM_PARTITIONS);
+        if (logger.isDebugEnabled()) {
+            logger.debug("selectInLink {} {}", inApplication, linkDataMap.getLinkDataSize());
+        }
+        return linkDataMap;
     }
 
     private TimeWindowFunction newTimeWindow(boolean timeAggregated) {

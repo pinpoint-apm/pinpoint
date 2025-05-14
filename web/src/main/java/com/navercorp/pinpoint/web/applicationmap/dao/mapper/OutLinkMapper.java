@@ -42,6 +42,8 @@ import java.util.Objects;
  */
 public class OutLinkMapper implements RowMapper<LinkDataMap> {
 
+    private static final String MERGE_AGENT = "_ALL_";
+
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final LinkFilter filter;
@@ -69,7 +71,9 @@ public class OutLinkMapper implements RowMapper<LinkDataMap> {
         if (result.isEmpty()) {
             return new LinkDataMap();
         }
-        logger.debug("mapRow:{}", rowNum);
+        if (logger.isDebugEnabled()) {
+            logger.debug("mapRow num:{} size:{}", rowNum, result.size());
+        }
 
         final byte[] rowKey = getOriginalKey(result.getRow());
 
@@ -89,7 +93,8 @@ public class OutLinkMapper implements RowMapper<LinkDataMap> {
             String inHost = buffer.readPrefixedString();
             short histogramSlot = buffer.readShort();
 
-            String outAgentId = buffer.readPrefixedString();
+            String outAgentId = readOutAgentId(buffer);
+
 
             long requestCount = CellUtils.valueToLong(cell);
             if (logger.isDebugEnabled()) {
@@ -104,6 +109,15 @@ public class OutLinkMapper implements RowMapper<LinkDataMap> {
         }
 
         return linkDataMap;
+    }
+
+    private String readOutAgentId(Buffer buffer) {
+        String outAgentId = buffer.readPrefixedString();
+        if (MERGE_AGENT.equals(outAgentId)) {
+            // for gc
+            return MERGE_AGENT;
+        }
+        return outAgentId;
     }
 
 
