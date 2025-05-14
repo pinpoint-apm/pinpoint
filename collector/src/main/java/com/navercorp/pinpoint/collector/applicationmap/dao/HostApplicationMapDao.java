@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.dao;
+package com.navercorp.pinpoint.collector.applicationmap.dao;
 
 /**
  * 
