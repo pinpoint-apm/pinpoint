@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.LinkTimeWindowReducer;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.RowMapperFactory;
-import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMapUtils;
 import com.navercorp.pinpoint.web.mapper.RowMapReduceResultExtractor;
@@ -102,7 +101,7 @@ public class HbaseMapOutLinkDao implements MapOutLinkDao {
         TableName outLinkTableName = tableNameProvider.getTableName(table);
         LinkDataMap linkDataMap = this.hbaseTemplate.findParallel(outLinkTableName, scan, rowKeyDistributor, resultExtractor, parallel);
         if (logger.isDebugEnabled()) {
-            logger.debug("{} {} data: {}", LinkDirection.OUT_LINK, outLinkTableName.getNameAsString(), linkDataMap);
+            logger.debug("OUT_LINK {} data: {}", outLinkTableName.getNameAsString(), linkDataMap);
         }
         if (LinkDataMapUtils.hasLength(linkDataMap)) {
             return linkDataMap;

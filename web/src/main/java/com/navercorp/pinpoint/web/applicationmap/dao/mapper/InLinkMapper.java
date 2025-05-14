@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -109,14 +108,14 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
             }
 
             if (logger.isDebugEnabled()) {
-                logger.debug("    Fetched {}. {} outHost:{} -> {} (slot:{}/{}),  ",
-                        LinkDirection.IN_LINK, in, outHost, inApplication, histogramSlot, requestCount);
+                logger.debug("    Fetched IN_LINK {} outHost:{} -> {} (slot:{}/{})",
+                        in, outHost, inApplication, histogramSlot, requestCount);
             }
 
             linkDataMap.addLinkData(in, in.getName(), inApplication, outHost, timestamp, histogramSlot, requestCount);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("    Fetched {}. statistics:{}", LinkDirection.IN_LINK, linkDataMap);
+            if (logger.isTraceEnabled()) {
+                logger.trace("    Fetched IN_LINK inLink:{}", linkDataMap);
             }
         }
 
