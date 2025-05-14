@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.collector.service;
 
+import com.navercorp.pinpoint.collector.applicationmap.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.collector.applicationmap.service.LinkService;
 import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
-import com.navercorp.pinpoint.collector.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.collector.dao.TraceDao;
 import com.navercorp.pinpoint.collector.event.SpanStorePublisher;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
@@ -120,12 +120,12 @@ public class HbaseTraceService implements TraceService {
     private void insertAcceptorHost(long requestTime, SpanEventBo spanEvent, String applicationName, ServiceType serviceType) {
         final String endPoint = spanEvent.getEndPoint();
         if (endPoint == null) {
-            logger.debug("endPoint is null. spanEvent:{}", spanEvent);
+            logger.debug("endPoint is null. appName:{} spanEvent:{}", applicationName, spanEvent);
             return;
         }
         final String destinationId = spanEvent.getDestinationId();
         if (destinationId == null) {
-            logger.debug("destinationId is null. spanEvent:{}", spanEvent);
+            logger.debug("destinationId is null. appName:{} spanEvent:{}", applicationName, spanEvent);
             return;
         }
         hostApplicationMapDao.insert(requestTime, endPoint, destinationId, (short) spanEvent.getServiceType(),
@@ -137,7 +137,7 @@ public class HbaseTraceService implements TraceService {
         // acceptor host is set at profiler module only when the span is not the kind of root span
         final String acceptorHost = span.getAcceptorHost();
         if (acceptorHost == null) {
-            logger.debug("acceptorHost is null {}", span);
+            logger.debug("acceptorHost is null agent: {}/{}", span.getApplicationName(), span.getAgentName());
             return;
         }
         final String spanApplicationName = span.getApplicationName();
@@ -191,7 +191,7 @@ public class HbaseTraceService implements TraceService {
         // when drawing server map based on statistics info, you must know the application name of the previous node.
         if (span.getParentApplicationName() != null) {
             String parentApplicationName = span.getParentApplicationName();
-            logger.debug("Received parent application name. {}", parentApplicationName);
+            logger.debug("Received parent application name. parentAppName:{} appName:{}", parentApplicationName, span.getApplicationName());
 
             ServiceType parentApplicationType = registry.findServiceType(span.getParentApplicationServiceType());
 
@@ -225,7 +225,10 @@ public class HbaseTraceService implements TraceService {
         linkService.updateResponseTime(span.getCollectorAcceptTime(), span.getApplicationName(), applicationServiceType, span.getAgentId(), span.getElapsed(), span.hasError());
 
         if (bugCheck != 1) {
-            logger.info("ambiguous span found(bug). span:{}", span);
+            logger.info("ambiguous span found(bug). span {}/{}", span.getApplicationName(), span.getAgentName());
+            if (logger.isDebugEnabled()) {
+                logger.debug("ambiguous span found(bug). detailed span {}", span);
+            }
         }
     }
 

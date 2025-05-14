@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.dao.hbase;
+package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
@@ -36,8 +36,10 @@ public class HbaseHostApplicationMapDaoTest {
 
     @Test
     public void testCreateRowKey() {
+        String parentApp = "parentApp";
         long statisticsRowSlot = timeSlot.getTimeSlot(System.currentTimeMillis());
-        byte[] parentApps = HbaseHostApplicationMapDao.createRowKey0("parentApp", ServiceType.STAND_ALONE.getCode(), statisticsRowSlot, null);
+        ServiceType standAlone = ServiceType.STAND_ALONE;
+        byte[] parentApps = HbaseHostApplicationMapDao.createRowKey0(parentApp, standAlone.getCode(), statisticsRowSlot, null);
         logger.debug("rowKey size:{}", parentApps.length);
 
         Buffer readBuffer = new FixedBuffer(parentApps);
@@ -45,8 +47,8 @@ public class HbaseHostApplicationMapDaoTest {
         short code = readBuffer.readShort();
         long time = TimeUtils.recoveryTimeMillis(readBuffer.readLong());
 
-        Assertions.assertEquals(appName, "parentApp", "applicationName check");
-        Assertions.assertEquals(code, ServiceType.STAND_ALONE.getCode(), "serviceType check");
+        Assertions.assertEquals(parentApp, appName, "applicationName check");
+        Assertions.assertEquals(standAlone.getCode(), code, "serviceType check");
         Assertions.assertEquals(statisticsRowSlot, time, "time check");
     }
 }
