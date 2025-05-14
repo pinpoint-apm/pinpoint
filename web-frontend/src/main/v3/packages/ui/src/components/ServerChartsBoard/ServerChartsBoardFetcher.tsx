@@ -86,7 +86,12 @@ export const ServerChartsBoardFetcher = ({
     return {
       histogram: data?.agentHistogram[agentId],
       responseStatistics: data?.agentResponseStatistics[agentId],
-      timeSeriesHistogram: data?.agentTimeSeriesHistogram[agentId],
+      timeSeriesHistogram: data?.agentTimeSeriesHistogram[agentId]?.map((tsh) => {
+        return {
+          ...tsh,
+          values: tsh?.values?.map((v) => v?.[1]),
+        };
+      }),
     };
   }, [data, currentServer?.agentId]);
   const serverData = getServerData();
