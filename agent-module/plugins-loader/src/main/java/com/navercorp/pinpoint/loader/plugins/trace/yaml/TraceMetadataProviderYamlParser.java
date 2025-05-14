@@ -44,6 +44,7 @@ import java.util.List;
 public class TraceMetadataProviderYamlParser implements TraceMetadataProviderParser {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
+    private final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
     @Override
     public ParsedTraceMetadataProvider parse(URL url) {
@@ -63,7 +64,6 @@ public class TraceMetadataProviderYamlParser implements TraceMetadataProviderPar
 
     private ParsedTraceMetadata parse0(URL metaUrl) throws IOException {
         try (InputStream inputStream = metaUrl.openStream()) {
-            ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
             ParsedTraceMetadata parsedTraceMetadata = mapper.readValue(inputStream, ParsedTraceMetadata.class);
             if (parsedTraceMetadata == null) {
                 logger.warn("Empty type provider definition. Skipping : {}", metaUrl.toExternalForm());
