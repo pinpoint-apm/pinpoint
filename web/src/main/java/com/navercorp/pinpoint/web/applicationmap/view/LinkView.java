@@ -62,7 +62,7 @@ public class LinkView {
 
             // for FilterWizard, to agent mapping data
             writeAgents("fromAgents", link.getFrom(), jgen);
-            writeAgents("toAgents", link.getFrom(), jgen);
+            writeAgents("toAgents", link.getTo(), jgen);
 
             writeSimpleNode("sourceInfo", link.getFrom(), jgen);
             writeSimpleNode("targetInfo", link.getTo(), jgen);
