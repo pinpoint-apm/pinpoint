@@ -32,15 +32,15 @@ public class HbaseApplicationNameDao implements ApplicationNameDao {
     private final TableNameProvider tableNameProvider;
 
     private final RowMapper<String> applicationNameValueMapper;
-    private final RowMapper<HbaseCellData> applicationNameKeyMapper;
+    private final RowMapper<HbaseCellData> applicationNameCellMapper;
 
     public HbaseApplicationNameDao(HbaseOperations hbaseOperations, TableNameProvider tableNameProvider,
                                    @Qualifier("applicationNameValueMapper") RowMapper<String> applicationNameValueMapper,
-                                   @Qualifier("applicationNameRowMapper") RowMapper<HbaseCellData> applicationNameKeyMapper) {
+                                   @Qualifier("applicationNameCellMapper") RowMapper<HbaseCellData> applicationNameCellMapper) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.applicationNameValueMapper = Objects.requireNonNull(applicationNameValueMapper, "applicationNameValueMapper");
-        this.applicationNameKeyMapper = Objects.requireNonNull(applicationNameKeyMapper, "applicationNameKeyMapper");
+        this.applicationNameCellMapper = Objects.requireNonNull(applicationNameCellMapper, "applicationNameCellMapper");
     }
 
     @Override
@@ -68,11 +68,12 @@ public class HbaseApplicationNameDao implements ApplicationNameDao {
     public List<HbaseCellData> selectCellData(@Nullable ServiceUid serviceUid) {
         Scan scan = new Scan();
         scan.setCaching(30);
+        scan.addColumn(NAME.getName(), NAME.getName());
         if (serviceUid != null) {
             scan.setStartStopRowForPrefixScan(ApplicationUidRowKeyUtils.makeRowKey(serviceUid));
         }
 
         TableName applicationNameTableName = tableNameProvider.getTableName(NAME.getTable());
-        return hbaseOperations.find(applicationNameTableName, scan, applicationNameKeyMapper);
+        return hbaseOperations.find(applicationNameTableName, scan, applicationNameCellMapper);
     }
 }

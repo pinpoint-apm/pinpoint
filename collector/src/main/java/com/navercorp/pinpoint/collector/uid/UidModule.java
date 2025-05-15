@@ -36,12 +36,6 @@ public class UidModule {
     }
 
     @Bean
-    @ConditionalOnMissingBean(ApplicationUidService.class)
-    public ApplicationUidService emptyApplicationUidService() {
-        return new EmptyApplicationUidService();
-    }
-
-    @Bean
     @ConditionalOnMissingBean(ServiceGroupService.class)
     public ServiceGroupService defaultServiceGroupService(@Value("${collector.service.uid.default.value:0}") int staticServiceUid) {
         return new StaticServiceGroupService(staticServiceUid);

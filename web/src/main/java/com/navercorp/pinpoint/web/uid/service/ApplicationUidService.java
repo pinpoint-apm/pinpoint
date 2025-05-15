@@ -2,6 +2,8 @@ package com.navercorp.pinpoint.web.uid.service;
 
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
+import jakarta.annotation.Nullable;
 
 import java.util.List;
 
@@ -15,6 +17,7 @@ public interface ApplicationUidService {
 
     void deleteApplication(ServiceUid serviceUid, String applicationName);
 
-    int cleanupInconsistentApplicationName(ServiceUid serviceUid);
+    int cleanupEmptyApplication(@Nullable ServiceUid serviceUid, long fromTimestamp);
 
+    int cleanupInconsistentApplicationName(@Nullable ServiceUid serviceUid);
 }
