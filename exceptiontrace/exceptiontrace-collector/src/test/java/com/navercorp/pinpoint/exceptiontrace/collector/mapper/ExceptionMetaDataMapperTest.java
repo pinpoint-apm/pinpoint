@@ -5,8 +5,6 @@ import com.navercorp.pinpoint.common.server.mapper.MapStructUtils;
 import com.navercorp.pinpoint.exceptiontrace.collector.entity.ExceptionMetaDataEntity;
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
 import com.navercorp.pinpoint.exceptiontrace.common.model.StackTraceElementWrapper;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,7 +15,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -34,7 +31,6 @@ import java.util.stream.Collectors;
 @ExtendWith(SpringExtension.class)
 class ExceptionMetaDataMapperTest {
 
-    private final Logger logger = LogManager.getLogger(getClass());
     private final Random random = new Random();
 
 
