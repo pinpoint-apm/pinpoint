@@ -11,10 +11,6 @@ export const useExperimentals = (initialValue?: Configuration) => {
     EXPERIMENTAL_CONFIG_KEYS.USE_STATISTICS_AGENT_STATE,
     !!initialValue?.['experimental.useStatisticsAgentState.value'],
   );
-  const [enableHeatmap, setEnableHeatmap] = useLocalStorage(
-    EXPERIMENTAL_CONFIG_KEYS.ENABLE_HEATMAP,
-    !!initialValue?.['experimental.enableHeatmap.value'],
-  );
 
   useUpdateEffect(() => {
     enableServerMapRealTime ??
@@ -25,7 +21,6 @@ export const useExperimentals = (initialValue?: Configuration) => {
       setUseStatisticsAgentState(
         initialValue?.['experimental.useStatisticsAgentState.value'] || false,
       );
-    enableHeatmap ?? setEnableHeatmap(initialValue?.['experimental.enableHeatmap.value'] || false);
   }, [initialValue]);
 
   const experimentalMap = {
@@ -38,11 +33,6 @@ export const useExperimentals = (initialValue?: Configuration) => {
       description: initialValue?.['experimental.useStatisticsAgentState.description'],
       value: useStatisticsAgentState,
       setter: setUseStatisticsAgentState,
-    },
-    [EXPERIMENTAL_CONFIG_KEYS.ENABLE_HEATMAP]: {
-      description: initialValue?.['experimental.enableHeatmap.description'],
-      value: enableHeatmap,
-      setter: setEnableHeatmap,
     },
   };
 

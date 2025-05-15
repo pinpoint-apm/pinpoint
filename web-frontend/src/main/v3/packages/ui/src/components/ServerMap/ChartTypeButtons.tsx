@@ -1,30 +1,11 @@
-import React from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { Button } from '..';
-import { configurationAtom, serverMapChartTypeAtom } from '@pinpoint-fe/ui/src/atoms';
-import { useLocalStorage } from '@pinpoint-fe/ui/src/hooks';
-import { EXPERIMENTAL_CONFIG_KEYS } from '@pinpoint-fe/ui/src/constants';
+import { serverMapChartTypeAtom } from '@pinpoint-fe/ui/src/atoms';
 import { PiChartScatterBold } from 'react-icons/pi';
 import { AiOutlineTable } from 'react-icons/ai';
 
 export const ChartTypeButtons = () => {
-  const configuration = useAtomValue(configurationAtom);
-  const [enableHeatmap] = useLocalStorage(
-    EXPERIMENTAL_CONFIG_KEYS.ENABLE_HEATMAP,
-    !!configuration?.['experimental.enableHeatmap.value'],
-  );
-
   const [chartType, setChartType] = useAtom(serverMapChartTypeAtom);
-
-  React.useEffect(() => {
-    if (!enableHeatmap) {
-      setChartType('scatter');
-    }
-  }, [enableHeatmap]);
-
-  if (!enableHeatmap) {
-    return null;
-  }
 
   return (
     <div>
