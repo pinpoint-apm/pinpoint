@@ -70,6 +70,4 @@ export const currentServerAgentIdAtom = atom<string | undefined>((get) => {
 
 export const realtimeDateRanage = atom<{ from: Date; to: Date } | undefined>(undefined);
 
-export const serverMapChartTypeAtom = atom<'scatter' | 'heatmap'>(
-  window?.localStorage?.getItem(EXPERIMENTAL_CONFIG_KEYS.ENABLE_HEATMAP) ? 'heatmap' : 'scatter',
-);
+export const serverMapChartTypeAtom = atom<'scatter' | 'heatmap'>('heatmap');
