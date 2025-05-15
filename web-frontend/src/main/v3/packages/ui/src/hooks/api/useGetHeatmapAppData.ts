@@ -6,10 +6,10 @@ import { queryFn } from './reactQueryHelper';
 
 export const useGetHeatmapAppData = (parameters: GetHeatmapAppData.Parameters) => {
   const queryString = `?${convertParamsToQueryString(parameters)}`;
-  const { data, isLoading, refetch } = useQuery<GetHeatmapAppData.Response>({
+  const { data, isLoading, refetch, error } = useQuery<GetHeatmapAppData.Response>({
     queryKey: [END_POINTS.HEATMAP_APP_DATA, parameters],
     queryFn: queryFn(`${END_POINTS.HEATMAP_APP_DATA}${queryString}`),
     enabled: !!queryString,
   });
-  return { data, isLoading, refetch };
+  return { data, isLoading, refetch, error };
 };

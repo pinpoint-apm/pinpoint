@@ -6,6 +6,7 @@ import {
   useGetHeatmapAppData,
 } from '@pinpoint-fe/ui/src/hooks';
 import { APP_SETTING_KEYS, GetHeatmapAppData } from '@pinpoint-fe/ui/src/constants';
+import { useTranslation } from 'react-i18next';
 
 const DefaultAxisY = [0, 10000];
 
@@ -14,6 +15,7 @@ export type HeatmapFetcherProps = {
 } & Pick<HeatmapChartCoreProps, 'toolbarOption' | 'nodeData'>;
 
 export const HeatmapFetcher = ({ nodeData, agentId, ...props }: HeatmapFetcherProps) => {
+  const { t } = useTranslation();
   const { dateRange } = useServerMapSearchParameters();
   const [setting] = useStoragedSetting(APP_SETTING_KEYS.HEATMAP_SETTING);
 
@@ -25,7 +27,7 @@ export const HeatmapFetcher = ({ nodeData, agentId, ...props }: HeatmapFetcherPr
     maxElapsedTime: Number(setting?.yMax) || DefaultAxisY[1],
     agentId: agentId,
   });
-  const { data, isLoading } = useGetHeatmapAppData(parameters);
+  const { data, isLoading, error } = useGetHeatmapAppData(parameters);
 
   React.useEffect(() => {
     setParameters({
@@ -45,5 +47,26 @@ export const HeatmapFetcher = ({ nodeData, agentId, ...props }: HeatmapFetcherPr
     agentId,
   ]);
 
-  return <HeatmapChartCore isLoading={isLoading} data={data} nodeData={nodeData} {...props} />;
+  return (
+    <div className="relative w-full h-full">
+      {error && (
+        <div className="absolute inset-0 z-[1000] flex items-center justify-center">
+          <div className="absolute inset-0 opacity-50 bg-background"></div>
+          <div className="z-10 text-red-500">
+            {t('SERVER_MAP.HEATMAP_API_ERROR_MESSAGE')
+              .split('\n')
+              .map((txt, i) => (
+                <p key={i}>{txt}</p>
+              ))}
+          </div>
+        </div>
+      )}
+      <HeatmapChartCore
+        isLoading={isLoading}
+        data={data || ({} as GetHeatmapAppData.Response)}
+        nodeData={nodeData}
+        {...props}
+      />
+    </div>
+  );
 };

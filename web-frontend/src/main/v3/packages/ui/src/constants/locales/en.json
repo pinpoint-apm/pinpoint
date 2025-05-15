@@ -55,7 +55,8 @@
     "SELECT_URL_INFO": "Select a path info below"
   },
   "SERVER_MAP": {
-    "SCATTER_CHART_STATIC_WARN": "To view the scatter chart by agent,\nplease switch the heatmap to a scatter chart."
+    "SCATTER_CHART_STATIC_WARN": "To view the scatter chart by agent,\nplease switch the heatmap to a scatter chart.",
+    "HEATMAP_API_ERROR_MESSAGE": "If the heatmap call error persists,\nplease refer to the scatter chart."
   },
   "TRANSACTION_LIST": {
     "SELECT_TRANSACTION": "Select your transaction",

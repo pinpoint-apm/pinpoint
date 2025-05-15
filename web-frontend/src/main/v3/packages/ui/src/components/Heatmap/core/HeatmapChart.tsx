@@ -151,7 +151,7 @@ const HeatmapChart = React.forwardRef(
 
       const xAxisData = heatmapData?.map((row) => String(row.timestamp)) || [];
       const yAxisData =
-        heatmapData?.[heatmapData?.length - 1].cellDataList
+        heatmapData?.[heatmapData?.length - 1]?.cellDataList
           ?.map((cell) => String(cell.elapsedTime))
           ?.filter((yValue) => Number(yValue) >= setting.yMin && Number(yValue) <= setting.yMax) ||
         [];
