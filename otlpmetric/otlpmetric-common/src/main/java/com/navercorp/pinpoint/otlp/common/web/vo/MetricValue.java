@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.otlp.common.web.model;
+package com.navercorp.pinpoint.otlp.common.web.vo;
 
 import java.util.List; /**
  * @author minwoo-jung

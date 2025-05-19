@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.otlp.web.view;
+package com.navercorp.pinpoint.otlp.common.web.vo.view;
 
 import com.navercorp.pinpoint.otlp.common.web.definition.property.ChartType;
-import com.navercorp.pinpoint.otlp.common.web.model.MetricValue;
-import com.navercorp.pinpoint.otlp.web.vo.MetricData;
+import com.navercorp.pinpoint.otlp.common.web.vo.MetricData;
+import com.navercorp.pinpoint.otlp.common.web.vo.MetricValue;
 
 import java.util.List;
 import java.util.stream.Collectors;

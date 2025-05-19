@@ -5,7 +5,7 @@ import com.navercorp.pinpoint.otlp.common.web.defined.PrimaryForFieldAndTagRelat
 import com.navercorp.pinpoint.otlp.common.web.definition.property.AggregationFunction;
 import com.navercorp.pinpoint.otlp.common.web.definition.property.ChartType;
 import com.navercorp.pinpoint.otlp.web.view.legacy.OtlpChartView;
-import com.navercorp.pinpoint.otlp.web.vo.MetricData;
+import com.navercorp.pinpoint.otlp.common.web.vo.MetricData;
 
 import java.util.List;
 
