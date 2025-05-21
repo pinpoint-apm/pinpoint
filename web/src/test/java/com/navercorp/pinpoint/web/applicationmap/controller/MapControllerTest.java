@@ -5,6 +5,8 @@ import com.navercorp.pinpoint.web.applicationmap.service.MapService;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.util.ApplicationValidator;
 import com.navercorp.pinpoint.web.vo.Application;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 @ExtendWith(MockitoExtension.class)
 class MapControllerTest {
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Mock
     MapService mapService;
@@ -57,6 +60,6 @@ class MapControllerTest {
                 .andDo(print());
 //                .andExpect(status().isOk());
 
-        System.out.println(resultActions.andReturn().getResponse().getContentAsString());
+        logger.info("resultActions: {}", resultActions.andReturn().getResponse().getContentAsString());
     }
 }

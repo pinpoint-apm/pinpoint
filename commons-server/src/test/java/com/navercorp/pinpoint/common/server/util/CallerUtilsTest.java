@@ -42,21 +42,18 @@ class CallerUtilsTest {
             }
         };
         logger.debug("getCallerMethodName_inner: {}", callable);
-//        System.out.println(callable);
     }
 
     @Test
     void getCallerMethodName_lambda() {
         Callable<String> callable = () -> CallerUtils.getCallerMethodName();
         logger.debug("getCallerMethodName_lambda: {}", callable);
-//        System.out.println(callable);
     }
 
     @Test
     void getCallerMethodName_methodRef() {
         Callable<String> callable = CallerUtils::getCallerMethodName;
         logger.debug("getCallerMethodName_methodRef: {}", callable);
-//        System.out.println(callable);
     }
 
 }
