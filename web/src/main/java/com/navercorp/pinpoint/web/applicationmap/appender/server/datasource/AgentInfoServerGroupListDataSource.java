@@ -64,7 +64,7 @@ public class AgentInfoServerGroupListDataSource implements ServerGroupListDataSo
         Application application = node.getApplication();
         Set<AgentInfo> agentInfos = agentInfoService.getAgentsByApplicationNameWithoutStatus(application.getName(), timestamp);
         if (CollectionUtils.isEmpty(agentInfos)) {
-            logger.warn("agentInfo not found. application:{}", application);
+            logger.info("agentInfo not found. application:{}", application);
             return ServerGroupList.empty();
         }
 
