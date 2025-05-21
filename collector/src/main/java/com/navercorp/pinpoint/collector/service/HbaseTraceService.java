@@ -213,9 +213,11 @@ public class HbaseTraceService implements TraceService {
                     parentApplicationType = spanServiceType;
                 }
             }
-
+            if (logger.isDebugEnabled()) {
+                logger.debug("child-span updateInLink child:{}/{} <- parentAppName:{}", span.getApplicationName(), span.getAgentId(), parentApplicationName);
+            }
             linkService.updateInLink(span.getCollectorAcceptTime(), span.getApplicationName(), applicationServiceType,
-                    parentApplicationName, parentApplicationType, span.getAgentId(), span.getElapsed(), span.hasError());
+                    parentApplicationName, parentApplicationType, MERGE_AGENT, span.getElapsed(), span.hasError());
             bugCheck++;
         }
 
