@@ -1,0 +1,17 @@
+serviceTypes:
+    - code: 2810
+      name: 'AWS_SDK_S3'
+      desc: 'S3'
+      property:
+        terminal: true
+        recordStatistics: true
+        includeDestinationId: true
+      matcher:
+        type: 'exact'
+        code: 40 # http.url
+    - code: 2811
+      name: 'AWS_SDK_S3_INTERNAL'
+      desc: 'S3'
+      matcher:
+        type: 'exact'
+        code: 48 # http.internal.display

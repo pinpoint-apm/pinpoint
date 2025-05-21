@@ -118,6 +118,7 @@
         <module>spring-cloud-sleuth</module>
         <module>spring-stub</module>
         <module>ktor</module>
+        <module>aws-sdk-s3</module>
     </modules>
 
 
