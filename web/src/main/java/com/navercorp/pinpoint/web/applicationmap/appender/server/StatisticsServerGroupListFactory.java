@@ -37,6 +37,8 @@ import java.util.Set;
 public class StatisticsServerGroupListFactory implements ServerGroupListFactory {
     private final ServerGroupListDataSource serverGroupListDataSource;
 
+    private final boolean agentInfoInterpolation = false;
+
     public StatisticsServerGroupListFactory(ServerGroupListDataSource serverGroupListDataSource) {
         this.serverGroupListDataSource = Objects.requireNonNull(serverGroupListDataSource, "serverGroupListDataSource");
     }
@@ -45,8 +47,10 @@ public class StatisticsServerGroupListFactory implements ServerGroupListFactory 
     public ServerGroupList createWasNodeInstanceList(Node wasNode, long timestamp) {
         ServerGroupList serverGroupList = createWasNodeInstanceListFromHistogram(wasNode, timestamp);
         if (serverGroupList.getServerGroupList().isEmpty()) {
-            // When there is no transaction information, agentInfo information is used.
-            serverGroupList = createWasNodeInstanceListFromAgentInfo(wasNode, timestamp);
+            if (agentInfoInterpolation) {
+                // When there is no transaction information, agentInfo information is used.
+                serverGroupList = createWasNodeInstanceListFromAgentInfo(wasNode, timestamp);
+            }
         }
         return serverGroupList;
     }
