@@ -437,6 +437,11 @@
             <artifactId>pinpoint-ktor-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-aws-sdk-s3-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 <!--        <dependency>-->
 <!--            <groupId>com.navercorp.pinpoint</groupId>-->
 <!--            <artifactId>pinpoint-spring-stub</artifactId>-->
