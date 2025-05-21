@@ -125,7 +125,7 @@ public class ApplicationMapModule {
     }
 
     @Bean
-    public Supplier<LinkDataMapProcessor> applicationLimiterProcessorFactory(@Value("${pinpoint.server-map.read-limit:100}") int limit) {
+    public Supplier<LinkDataMapProcessor> applicationLimiterProcessorFactory(@Value("${pinpoint.server-map.read-limit:200}") int limit) {
         return new ApplicationLimiterProcessorFactory(limit);
     }
 
