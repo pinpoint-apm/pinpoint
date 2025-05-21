@@ -1,7 +1,9 @@
 package com.navercorp.pinpoint.web.applicationmap.dao.hbase;
 
+import com.google.common.primitives.Ints;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.window.DefaultTimeSlot;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
 import org.apache.hadoop.hbase.client.Scan;
@@ -13,19 +15,19 @@ import java.util.Objects;
 public class MapScanFactory {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    public static final int SCAN_CACHE_SIZE = 40;
+    public static final int SCAN_CACHE_SIZE_MIN = 8;
+    public static final int SCAN_CACHE_SIZE_MAX = 1024;
+
+    private long slotSize = DefaultTimeSlot.ONE_MIN_RESOLUTION;
 
     private final RangeFactory rangeFactory;
 
-    private int scanCacheSize;
-
     public MapScanFactory(RangeFactory rangeFactory) {
         this.rangeFactory = Objects.requireNonNull(rangeFactory, "rangeFactory");
-        this.scanCacheSize = SCAN_CACHE_SIZE;
     }
 
-    public void setScanCacheSize(int scanCacheSize) {
-        this.scanCacheSize = scanCacheSize;
+    public void setSlotSize(long slotSize) {
+        this.slotSize = slotSize;
     }
 
     public Scan createScan(String id, Application application, Range range, byte[] family) {
@@ -33,7 +35,6 @@ public class MapScanFactory {
         if (logger.isDebugEnabled()) {
             logger.debug("scan time:{} ", range.prettyToString());
         }
-
         // start key is replaced by end key because timestamp has been reversed
         byte[] startKey = ApplicationMapStatisticsUtils
                 .makeRowKey(application.getName(), (short) application.getServiceTypeCode(), range.getTo());
@@ -41,12 +42,23 @@ public class MapScanFactory {
                 .makeRowKey(application.getName(), (short) application.getServiceTypeCode(), range.getFrom());
 
         final Scan scan = new Scan();
-        scan.setCaching(this.scanCacheSize);
+
+        final int scannerCaching = computeScannerCaching(range);
+        scan.setCaching(scannerCaching);
         scan.withStartRow(startKey);
         scan.withStopRow(endKey);
         scan.addFamily(family);
         scan.setId(id);
 
         return scan;
+    }
+
+    private int computeScannerCaching(Range range) {
+        int windowCount = (int)(range.durationMillis() / slotSize) + 1;
+        int scannerCaching = Ints.constrainToRange(windowCount, SCAN_CACHE_SIZE_MIN, SCAN_CACHE_SIZE_MAX);
+        if (logger.isDebugEnabled()) {
+            logger.debug("ScannerCaching:{} windowCount:{}", scannerCaching, windowCount);
+        }
+        return scannerCaching;
     }
 }

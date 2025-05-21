@@ -24,7 +24,7 @@ import com.google.common.base.Preconditions;
  */
 public class DefaultTimeSlot implements TimeSlot {
 
-    private static final long ONE_MIN_RESOLUTION =  60000; // 1min
+    public static final long ONE_MIN_RESOLUTION =  60000; // 1min
 
     private final long resolution;
 

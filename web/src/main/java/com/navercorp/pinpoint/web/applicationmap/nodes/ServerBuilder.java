@@ -20,10 +20,12 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
+import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -97,7 +99,13 @@ public class ServerBuilder {
     public ServerGroupList build() {
         if (!agentSet.isEmpty()) {
             // if agent name exists (physical server exists)
-            this.logger.debug("buildPhysicalServer:{}", agentSet);
+            if (logger.isDebugEnabled()) {
+                List<String> agents = agentSet.stream()
+                        .map(AgentAndStatus::getAgentInfo)
+                        .map(AgentInfo::getAgentId)
+                        .toList();
+                this.logger.debug("buildPhysicalServer: {}", agents);
+            }
             return buildPhysicalServer(agentSet);
         } else {
             // otherwise, create logical name
