@@ -47,7 +47,7 @@ public class TimeWindow implements Iterable<Long>, TimeWindowFunction {
     TimeWindow(long rangeFrom, long rangeTo, TimeWindowSampler sampler) {
         Objects.requireNonNull(sampler, "sampler");
         this.windowSlotSize = sampler.getWindowSize(duration(rangeTo, rangeFrom));
-        this.from = refineTimestamp(rangeFrom);
+        this.from = this.refineTimestamp(rangeFrom);
         this.to = this.refineTimestamp(rangeTo);
         this.windowRangeCount = computeWindowRangeCount(duration(to, from), windowSlotSize);
     }
@@ -111,4 +111,13 @@ public class TimeWindow implements Iterable<Long>, TimeWindowFunction {
         return (int) index;
     }
 
+    @Override
+    public String toString() {
+        return "TimeWindow{" +
+                "windowSlotSize=" + windowSlotSize +
+                ", from=" + from +
+                ", to=" + to +
+                ", windowRangeCount=" + windowRangeCount +
+                '}';
+    }
 }
