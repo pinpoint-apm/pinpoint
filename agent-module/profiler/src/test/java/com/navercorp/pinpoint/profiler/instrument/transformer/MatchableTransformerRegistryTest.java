@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.profiler.plugin.Foo;
 import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.profiler.sender.Bar;
 import com.navercorp.pinpoint.profiler.util.BytecodeUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 
 import java.lang.instrument.ClassFileTransformer;
@@ -41,6 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author jaehong.kim
  */
 public class MatchableTransformerRegistryTest {
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     public void findTransformer() {
@@ -64,7 +67,7 @@ public class MatchableTransformerRegistryTest {
         clazz = Bar.class;
         classFileByteCodes = BytecodeUtils.getClassFile(classLoader, clazz.getName());
         classFileTransformer = registry.findTransformer(classLoader, "com/navercorp/pinpoint/profiler/sender/Bar", classFileByteCodes);
-        System.out.println(classFileTransformer.toString());
+        logger.info("classFileTransformer : {}", classFileTransformer);
     }
 
     @Test

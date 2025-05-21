@@ -133,7 +133,8 @@ public class RedisTimeseriesAsyncCommandsTest {
 
         RedisFuture<TimestampValuePair> test1 = commands.tsGet("test1");
         TimestampValuePair pair = LettuceFutures.awaitOrCancel(test1, 1000, TimeUnit.MILLISECONDS);
-        System.out.println(pair);
+
+        logger.warn("Pair {}", pair);
     }
 
 }

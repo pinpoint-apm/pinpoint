@@ -1,9 +1,12 @@
 package com.navercorp.pinpoint.common.trace;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class ServiceTypeCategoryTest {
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
     void findCategory() {
@@ -24,9 +27,9 @@ class ServiceTypeCategoryTest {
     void findCategory_error() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> ServiceTypeCategory.findCategory(-1000));
 
-        System.out.println(Byte.toUnsignedInt((byte)1));
-        System.out.println(Byte.toUnsignedInt((byte)-1));
-        System.out.println(Byte.toUnsignedInt(Byte.MAX_VALUE));
-        System.out.println(Byte.toUnsignedInt(Byte.MIN_VALUE));
+        logger.info("{}", Byte.toUnsignedInt((byte)1));
+        logger.info("{}", Byte.toUnsignedInt((byte)-1));
+        logger.info("{}", Byte.toUnsignedInt(Byte.MAX_VALUE));
+        logger.info("{}", Byte.toUnsignedInt(Byte.MIN_VALUE));
     }
 }
