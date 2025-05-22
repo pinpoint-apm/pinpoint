@@ -17,11 +17,11 @@
 
 package com.navercorp.pinpoint.web.applicationmap.map;
 
+import com.navercorp.pinpoint.web.applicationmap.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.LinkDataMapProcessor;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.LinkDataMapProcessors;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.RpcCallProcessor;
 import com.navercorp.pinpoint.web.applicationmap.service.LinkDataMapService;
-import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import org.springframework.stereotype.Component;
 

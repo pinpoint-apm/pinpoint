@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppen
 import com.navercorp.pinpoint.web.applicationmap.controller.FilteredMapController;
 import com.navercorp.pinpoint.web.applicationmap.controller.MapController;
 import com.navercorp.pinpoint.web.applicationmap.controller.MapHistogramController;
+import com.navercorp.pinpoint.web.applicationmap.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.applicationmap.map.ApplicationsMapCreatorFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.ApplicationLimiterProcessorFactory;
@@ -37,7 +38,6 @@ import com.navercorp.pinpoint.web.applicationmap.service.MapService;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
-import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;

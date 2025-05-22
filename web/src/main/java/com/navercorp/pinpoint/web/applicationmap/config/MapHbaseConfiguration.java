@@ -18,7 +18,9 @@
 package com.navercorp.pinpoint.web.applicationmap.config;
 
 import com.navercorp.pinpoint.common.hbase.ConnectionFactoryBean;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.TableFactory;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.AsyncConnectionFactoryBean;
@@ -31,19 +33,24 @@ import com.navercorp.pinpoint.common.hbase.scan.ResultScannerFactory;
 import com.navercorp.pinpoint.common.hbase.util.ScanMetricReporter;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
+import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
+import com.navercorp.pinpoint.web.applicationmap.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseHostApplicationMapDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapInLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapOutLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapResponseTimeDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.MapScanFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResultExtractorFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.RowMapperFactory;
+import com.navercorp.pinpoint.web.applicationmap.map.AcceptApplication;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
+import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.AsyncConnection;
@@ -60,6 +67,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 @org.springframework.context.annotation.Configuration
@@ -167,6 +175,17 @@ public class MapHbaseConfiguration {
                                        @Qualifier("mapOutLinkRowKeyDistributor")
                                        RowKeyDistributorByHashPrefix rowKeyDistributor) {
         return new HbaseMapOutLinkDao(hbaseTemplate, tableNameProvider, outLinkMapper, mapScanFactory, rowKeyDistributor);
+    }
+
+    @Bean
+    public HostApplicationMapDao hostApplicationMapDao(HbaseOperations hbaseOperations,
+                                                       TableNameProvider tableNameProvider,
+                                                       @Qualifier("hostApplicationResultExtractor")
+                                                       ResultsExtractor<Set<AcceptApplication>> hostApplicationResultExtractor,
+                                                       TimeSlot timeSlot,
+                                                       @Qualifier("acceptApplicationRowKeyDistributor")
+                                                       AbstractRowKeyDistributor acceptApplicationRowKeyDistributor) {
+        return new HbaseHostApplicationMapDao(hbaseOperations, tableNameProvider, hostApplicationResultExtractor, timeSlot, acceptApplicationRowKeyDistributor);
     }
 }
 
