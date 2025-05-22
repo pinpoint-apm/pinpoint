@@ -42,7 +42,7 @@ import java.util.Objects;
  */
 public class OutLinkMapper implements RowMapper<LinkDataMap> {
 
-    private static final String MERGE_AGENT = "_ALL_";
+    static final String MERGE_AGENT = "_ALL_";
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 

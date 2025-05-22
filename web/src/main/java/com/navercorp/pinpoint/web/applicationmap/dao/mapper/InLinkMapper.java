@@ -47,6 +47,8 @@ import java.util.Objects;
  */
 public class InLinkMapper implements RowMapper<LinkDataMap> {
 
+    static final String MERGE_AGENT = OutLinkMapper.MERGE_AGENT;
+
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final LinkFilter filter;
@@ -101,7 +103,7 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
             long requestCount = CellUtils.valueToLong(cell);
             short histogramSlot = ApplicationMapStatisticsUtils.getHistogramSlotFromColumnName(qualifier);
 
-            String outHost = ApplicationMapStatisticsUtils.getHost(qualifier);
+            String outHost = readOutHost(qualifier);
             // There may be no outHost for virtual queue nodes from user-defined entry points.
             // Terminal nodes, such as httpclient will not have outHost set as well, but since they're terminal
             // nodes, they would not have reached here in the first place.
@@ -122,6 +124,14 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
         }
 
         return linkDataMap;
+    }
+
+    private String readOutHost(byte[] qualifier) {
+        String outHost = ApplicationMapStatisticsUtils.getHost(qualifier);
+        if (MERGE_AGENT.equals(outHost)) {
+            return MERGE_AGENT;
+        }
+        return outHost;
     }
 
     private Application readOutApplication(byte[] qualifier, ServiceType outServiceType) {
