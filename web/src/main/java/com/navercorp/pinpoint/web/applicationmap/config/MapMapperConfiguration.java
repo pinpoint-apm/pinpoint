@@ -1,9 +1,11 @@
 package com.navercorp.pinpoint.web.applicationmap.config;
 
 
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ApplicationResponseTimeResultExtractor;
+import com.navercorp.pinpoint.web.applicationmap.dao.mapper.HostApplicationMapper;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.InLinkMapper;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.LinkFilter;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.OutLinkMapper;
@@ -11,6 +13,7 @@ import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResponseTimeMapper;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResponseTimeResultExtractor;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResultExtractorFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.RowMapperFactory;
+import com.navercorp.pinpoint.web.applicationmap.map.AcceptApplication;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
@@ -20,9 +23,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
+import java.util.Set;
 
 @Configuration
 public class MapMapperConfiguration {
+
+    @Bean
+    public ResultsExtractor<Set<AcceptApplication>> hostApplicationResultExtractor(ApplicationFactory applicationFactory) {
+        return new HostApplicationMapper(applicationFactory);
+    }
 
     @Bean
     public RowMapperFactory<LinkDataMap> mapOutLinkMapper(ApplicationFactory applicationFactory,

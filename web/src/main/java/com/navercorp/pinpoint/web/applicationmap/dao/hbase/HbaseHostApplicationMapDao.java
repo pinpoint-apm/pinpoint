@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.dao.hbase;
+package com.navercorp.pinpoint.web.applicationmap.dao.hbase;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
-import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.common.util.TimeUtils;
+import com.navercorp.pinpoint.web.applicationmap.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.applicationmap.map.AcceptApplication;
-import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.commons.collections4.CollectionUtils;
@@ -35,12 +35,9 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -56,13 +53,13 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     private static final int HOST_APPLICATION_MAP_VER2_NUM_PARTITIONS = 4;
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private int scanCacheSize = 10;
+    private int scanCacheSize = 32;
 
     private final HbaseOperations hbaseOperations;
 
     private final TableNameProvider tableNameProvider;
 
-    private final RowMapper<List<AcceptApplication>> hostApplicationMapper;
+    private final ResultsExtractor<Set<AcceptApplication>> hostApplicationResultExtractor;
 
     private final TimeSlot timeSlot;
 
@@ -70,11 +67,12 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     public HbaseHostApplicationMapDao(HbaseOperations hbaseOperations,
                                       TableNameProvider tableNameProvider,
-                                      @Qualifier("hostApplicationMapper") RowMapper<List<AcceptApplication>> hostApplicationMapper,
-                                      TimeSlot timeSlot, @Qualifier("acceptApplicationRowKeyDistributor") AbstractRowKeyDistributor acceptApplicationRowKeyDistributor) {
+                                      ResultsExtractor<Set<AcceptApplication>> hostApplicationResultExtractor,
+                                      TimeSlot timeSlot,
+                                      AbstractRowKeyDistributor acceptApplicationRowKeyDistributor) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
-        this.hostApplicationMapper = Objects.requireNonNull(hostApplicationMapper, "hostApplicationMapper");
+        this.hostApplicationResultExtractor = Objects.requireNonNull(hostApplicationResultExtractor, "hostApplicationResultExtractor");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
         this.acceptApplicationRowKeyDistributor = Objects.requireNonNull(acceptApplicationRowKeyDistributor, "acceptApplicationRowKeyDistributor");
     }
@@ -86,14 +84,10 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         final Scan scan = createScan(fromApplication, range);
 
         TableName hostApplicationMapTableName = tableNameProvider.getTableName(HbaseTable.HOST_APPLICATION_MAP_VER2);
-        final List<List<AcceptApplication>> result = hbaseOperations.findParallel(hostApplicationMapTableName, scan, acceptApplicationRowKeyDistributor, hostApplicationMapper, HOST_APPLICATION_MAP_VER2_NUM_PARTITIONS);
+        final Set<AcceptApplication> result = hbaseOperations.findParallel(hostApplicationMapTableName, scan, acceptApplicationRowKeyDistributor, hostApplicationResultExtractor, HOST_APPLICATION_MAP_VER2_NUM_PARTITIONS);
         if (CollectionUtils.isNotEmpty(result)) {
-            final Set<AcceptApplication> resultSet = new HashSet<>();
-            for (List<AcceptApplication> resultList : result) {
-                resultSet.addAll(resultList);
-            }
-            logger.debug("findAcceptApplicationName result:{}", resultSet);
-            return resultSet;
+            logger.debug("findAcceptApplicationName result:{}", result);
+            return result;
         } else {
             return Collections.emptySet();
         }

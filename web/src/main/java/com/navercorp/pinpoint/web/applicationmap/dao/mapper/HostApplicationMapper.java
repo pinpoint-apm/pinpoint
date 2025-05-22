@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.mapper;
+package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
-import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.web.applicationmap.map.AcceptApplication;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * 
@@ -39,7 +39,7 @@ import java.util.Objects;
  * 
  */
 @Component
-public class HostApplicationMapper implements RowMapper<List<AcceptApplication>> {
+public class HostApplicationMapper implements ResultsExtractor<Set<AcceptApplication>> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -50,18 +50,23 @@ public class HostApplicationMapper implements RowMapper<List<AcceptApplication>>
     }
 
     @Override
-    public List<AcceptApplication> mapRow(Result result, int rowNum) throws Exception {
-        if (result.isEmpty()) {
-            return Collections.emptyList();
+    public Set<AcceptApplication> extractData(ResultScanner results) throws Exception {
+        Set<AcceptApplication> applicationSet = new HashSet<>(16);
+        for (Result result : results) {
+            mapRow(result, applicationSet);
         }
-//       readRowKey(result.getRow());
+        return applicationSet;
+    }
 
-        final List<AcceptApplication> acceptApplicationList = new ArrayList<>(result.size());
+
+    private void mapRow(Result result, Set<AcceptApplication> acceptApplicationSet) throws Exception {
+        if (result.isEmpty()) {
+            return;
+        }
         for (Cell cell : result.rawCells()) {
             AcceptApplication acceptedApplication = createAcceptedApplication(cell);
-            acceptApplicationList.add(acceptedApplication);
+            acceptApplicationSet.add(acceptedApplication);
         }
-        return acceptApplicationList;
     }
 
 //    private void readRowKey(byte[] rowKey) {
