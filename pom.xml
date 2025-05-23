@@ -179,7 +179,7 @@
         <spring-boot.version>${spring-boot3.version}</spring-boot.version>
 
         <!-- spring boot3 dependency -->
-        <spring6.version>6.1.16</spring6.version>
+        <spring6.version>6.1.20</spring6.version>
         <spring-boot3.version>3.3.11</spring-boot3.version>
         <spring-shell.version>3.2.3</spring-shell.version>
 
