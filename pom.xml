@@ -172,7 +172,7 @@
         <spring5.version>5.3.39</spring5.version>
         <spring.batch.version>5.1.2</spring.batch.version>
 
-        <spring.security.version>6.4.2</spring.security.version>
+        <spring.security.version>6.4.6</spring.security.version>
         <spring-boot2.version>2.7.18</spring-boot2.version>
 
         <spring.version>${spring6.version}</spring.version>
