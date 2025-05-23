@@ -48,6 +48,7 @@ public class Log4jIT {
 
         Assertions.assertNotNull(MDC.get("PtxId"), "txId");
         Assertions.assertNotNull(MDC.get("PspanId"), "spanId");
+        Assertions.assertNotNull(MDC.get("PreqId"), "reqId");
     }
 
     @Test

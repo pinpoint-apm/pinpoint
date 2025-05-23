@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.kafka.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.bootstrap.context.RequestId;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -39,7 +40,7 @@ public class ProducerAddHeaderInterceptor implements AroundInterceptor {
 
     private final PluginLogger logger = PluginLogManager.getLogger(getClass());
 
-    private final DefaultHeaderSetter headerSetter = new DefaultHeaderSetter();
+    private final DefaultHeaderSetter headerSetter;
 
     private final TraceContext traceContext;
 
@@ -49,6 +50,7 @@ public class ProducerAddHeaderInterceptor implements AroundInterceptor {
         this.traceContext = traceContext;
         KafkaConfig config = new KafkaConfig(traceContext.getProfilerConfig());
         this.headerEnable = config.isHeaderEnable();
+        this.headerSetter = new DefaultHeaderSetter(config);
     }
 
     @Override
@@ -109,6 +111,12 @@ public class ProducerAddHeaderInterceptor implements AroundInterceptor {
 
     private static class DefaultHeaderSetter {
 
+        private final boolean sendRequestId;
+
+        public DefaultHeaderSetter(KafkaConfig kafkaConfig) {
+            this.sendRequestId = kafkaConfig.isHeaderRequestIdEnable();
+        }
+
         public void setPinpointHeaders(SpanEventRecorder recorder, Trace trace, org.apache.kafka.common.header.Headers headers, boolean sample, String applicationName, short serverTypeCode) {
             if (headers == null) {
                 return;
@@ -127,6 +135,10 @@ public class ProducerAddHeaderInterceptor implements AroundInterceptor {
                 headers.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(serverTypeCode).getBytes(KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET)));
             } else {
                 headers.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE.getBytes(KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET)));
+            }
+            final RequestId requestId = trace.getRequestId();
+            if (sendRequestId && requestId != null && requestId.isSet()) {
+                headers.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_REQUEST_ID.toString(), String.valueOf(requestId.toId()).getBytes(KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET)));
             }
         }
 
