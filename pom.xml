@@ -258,7 +258,6 @@
         <plugin.shade.version>3.4.1</plugin.shade.version>
         <plugin.assembly.version>3.6.0</plugin.assembly.version>
         <plugin.jar.version>3.3.0</plugin.jar.version>
-        <plugin.antrun.version>3.0.0</plugin.antrun.version>
         <plugin.build-helper.version>3.4.0</plugin.build-helper.version>
         <plugin.javadoc.version>3.6.3</plugin.javadoc.version>
         <plugin.protobuf.version>0.6.1</plugin.protobuf.version>
@@ -1685,11 +1684,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>${plugin.assembly.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>${plugin.antrun.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
