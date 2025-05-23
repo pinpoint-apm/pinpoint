@@ -180,7 +180,7 @@
 
         <!-- spring boot3 dependency -->
         <spring6.version>6.1.16</spring6.version>
-        <spring-boot3.version>3.3.7</spring-boot3.version>
+        <spring-boot3.version>3.3.11</spring-boot3.version>
         <spring-shell.version>3.2.3</spring-shell.version>
 
         <spring-cloud3.version>3.1.9</spring-cloud3.version>
@@ -188,7 +188,7 @@
         <spring-cloud.version>${spring-cloud4.version}</spring-cloud.version>
 
         <spring-data2.version>2.7.18</spring-data2.version>
-        <spring-data3.version>3.3.11</spring-data3.version>
+        <spring-data3.version>3.3.7</spring-data3.version>
         <spring-data.version>${spring-data3.version}</spring-data.version>
 
         <spring.kafka.version>3.2.4</spring.kafka.version>
