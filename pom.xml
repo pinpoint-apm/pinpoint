@@ -265,7 +265,7 @@
         <plugin.spotbugs.version>4.7.3.6</plugin.spotbugs.version>
         <plugin.pmd.version>3.21.2</plugin.pmd.version>
 
-        <plugin.enforcer.version>3.3.0</plugin.enforcer.version>
+        <plugin.enforcer.version>3.5.0</plugin.enforcer.version>
 
         <!-- frontend-plugin -->
         <plugin.frontend.version>1.13.4</plugin.frontend.version>
@@ -1923,21 +1923,27 @@
                             <rules>
                                 <requireMavenVersion>
                                     <version>3.5</version>
+                                    <message>Requires Maven 3.5 or higher</message>
                                 </requireMavenVersion>
                                 <requireJavaVersion>
                                     <version>1.8</version>
+                                    <message>Requires Java 8 or higher</message>
                                 </requireJavaVersion>
                                 <requireEnvironmentVariable>
                                     <variableName>JAVA_HOME</variableName>
+                                    <message>Requires JAVA_HOME to be set</message>
                                 </requireEnvironmentVariable>
                                 <requireEnvironmentVariable>
                                     <variableName>JAVA_8_HOME</variableName>
+                                    <message>Requires JAVA_8_HOME to be set</message>
                                 </requireEnvironmentVariable>
                                 <requireEnvironmentVariable>
                                     <variableName>JAVA_11_HOME</variableName>
+                                    <message>Requires JAVA_11_HOME to be set</message>
                                 </requireEnvironmentVariable>
                                 <requireEnvironmentVariable>
                                     <variableName>JAVA_17_HOME</variableName>
+                                    <message>Requires JAVA_17_HOME to be set</message>
                                 </requireEnvironmentVariable>
                             </rules>
                             <fail>true</fail>
