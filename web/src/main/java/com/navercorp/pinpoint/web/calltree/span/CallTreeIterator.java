@@ -245,7 +245,7 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
     }
 
     public List<Align> values() {
-        List<Align> values = new ArrayList<>();
+        List<Align> values = new ArrayList<>(nodes.size());
         for (CallTreeNode node : nodes) {
             values.add(node.getAlign());
         }

@@ -138,7 +138,7 @@ public class Node {
             return Collections.emptyList();
         }
 
-        List<Align> alignList = new ArrayList<>();
+        List<Align> alignList = new ArrayList<>(spanEventBoList.size());
         for (SpanEventBo spanEventBo : spanEventBoList) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Populate spanEvent{seq={}, depth={}, event={}}", spanEventBo.getSequence(), spanEventBo.getDepth(), spanEventBo);

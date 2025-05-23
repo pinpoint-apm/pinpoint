@@ -49,14 +49,14 @@ public class MetaSpanCallTreeFactory {
         rootSpan.setStartTime(startTimeMillis);
         rootSpan.setServiceType(ServiceType.UNKNOWN.getCode());
 
-        List<AnnotationBo> annotations = new ArrayList<>();
         ApiMetaDataBo apiMetaData = new ApiMetaDataBo(UNKNOWN_AGENT_ID, AGENT_START_TIME, 0, LineNumber.NO_LINE_NUMBER,
                 MethodTypeEnum.WEB_REQUEST, "Unknown");
-
         final AnnotationBo apiMetaDataAnnotation = AnnotationBo.of(AnnotationKey.API_METADATA.getCode(), apiMetaData);
-        annotations.add(apiMetaDataAnnotation);
 
         final AnnotationBo argumentAnnotation = AnnotationBo.of(AnnotationKeyUtils.getArgs(0).getCode(), "No Agent Data");
+
+        List<AnnotationBo> annotations = new ArrayList<>();
+        annotations.add(apiMetaDataAnnotation);
         annotations.add(argumentAnnotation);
         rootSpan.setAnnotationBoList(annotations);
 
@@ -74,18 +74,16 @@ public class MetaSpanCallTreeFactory {
         rootSpan.setApplicationName("CORRUPTED");
         rootSpan.setServiceType(ServiceType.UNKNOWN.getCode());
 
-        List<AnnotationBo> annotations = new ArrayList<>();
-
         ApiMetaDataBo apiMetaData = new ApiMetaDataBo(CORRUPTED_AGENT_ID, AGENT_START_TIME, 0, LineNumber.NO_LINE_NUMBER,
                 MethodTypeEnum.CORRUPTED, "...");
-
         final AnnotationBo apiMetaDataAnnotation = AnnotationBo.of(AnnotationKey.API_METADATA.getCode(), apiMetaData);
-        annotations.add(apiMetaDataAnnotation);
-
 
         int key = AnnotationKeyUtils.getArgs(0).getCode();
         String errorMessage = getErrorMessage(title, startTimeMillis);
         final AnnotationBo argumentAnnotation = AnnotationBo.of(key, errorMessage);
+
+        List<AnnotationBo> annotations = new ArrayList<>();
+        annotations.add(apiMetaDataAnnotation);
         annotations.add(argumentAnnotation);
         rootSpan.setAnnotationBoList(annotations);
         return new MetaSpanCallTree(new SpanAlign(rootSpan, true));

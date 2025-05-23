@@ -75,7 +75,7 @@ public class ProxyRequestTypeRegistryServiceImpl implements ProxyRequestTypeRegi
     public void init() {
         final ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
         final ServiceLoader<ProxyRequestMetadataProvider> serviceLoader = ServiceLoader.load(ProxyRequestMetadataProvider.class, classLoader);
-        final List<ProxyRequestType> proxyRequestTypeList = new ArrayList<ProxyRequestType>();
+        final List<ProxyRequestType> proxyRequestTypeList = new ArrayList<>();
         for (ProxyRequestMetadataProvider provider : serviceLoader) {
             final ProxyRequestMetadataSetupContext context = new ProxyRequestMetadataSetupContext() {
                 @Override

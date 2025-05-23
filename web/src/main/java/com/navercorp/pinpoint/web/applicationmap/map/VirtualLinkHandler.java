@@ -59,7 +59,7 @@ public class VirtualLinkHandler {
             return linkDataDuplexMap;
         }
         logger.debug("Virtual link size : {}", virtualLinkDataSet.size());
-        List<Application> unpopulatedEmulatedNodes = getUnpopulatedEmulatedNodes(linkDataDuplexMap.getTargetLinkDataMap(), virtualLinkDataSet);
+        Collection<Application> unpopulatedEmulatedNodes = getUnpopulatedEmulatedNodes(linkDataDuplexMap.getTargetLinkDataMap(), virtualLinkDataSet);
         if (unpopulatedEmulatedNodes.isEmpty()) {
             logger.debug("unpopulated emulated node not found");
         } else {
@@ -75,7 +75,7 @@ public class VirtualLinkHandler {
         return linkDataDuplexMap;
     }
 
-    private List<Application> getUnpopulatedEmulatedNodes(LinkDataMap targetLinkDataMap, Set<LinkData> virtualLinkDataSet) {
+    private Collection<Application> getUnpopulatedEmulatedNodes(LinkDataMap targetLinkDataMap, Set<LinkData> virtualLinkDataSet) {
         Set<Application> unpopulatedEmulatedNodes = new HashSet<>();
         for (LinkData virtualLinkData : virtualLinkDataSet) {
             Application toApplication = virtualLinkData.getToApplication();
@@ -83,7 +83,7 @@ public class VirtualLinkHandler {
                 unpopulatedEmulatedNodes.add(toApplication);
             }
         }
-        return new ArrayList<>(unpopulatedEmulatedNodes);
+        return unpopulatedEmulatedNodes;
     }
 
     private Collection<LinkData> getEmulatedNodeInLinkData(LinkVisitChecker linkVisitChecker, Application emulatedNode, TimeWindow timeWindow) {
@@ -95,12 +95,16 @@ public class VirtualLinkHandler {
             Application fromApplication = inLinkData.getFromApplication();
             // filter callee link data from non-WAS nodes
             if (!fromApplication.getServiceType().isWas()) {
-                logger.trace("filtered {} as {} is not a WAS node", inLinkData, fromApplication);
+                if (logger.isTraceEnabled()) {
+                    logger.trace("filtered {} as {} is not a WAS node", inLinkData, fromApplication);
+                }
                 continue;
             }
             // filter callee link data from nodes that haven't been visited as we don't need them
             if (!linkVisitChecker.isVisitedOut(fromApplication)) {
-                logger.trace("filtered {} as {} is not in scope of the current server map", inLinkData, fromApplication);
+                if (logger.isTraceEnabled()) {
+                    logger.trace("filtered {} as {} is not in scope of the current server map", inLinkData, fromApplication);
+                }
                 continue;
             }
             logger.debug("emulated node [{}] inLink LinkData:{}", emulatedNode, inLinkData);
