@@ -55,6 +55,12 @@ public interface BasicSpan {
     TransactionId getTransactionId();
 //    void setTransactionId(TransactionId transactionId);
 
+    int getApplicationServiceType();
+    void setApplicationServiceType(int applicationServiceType);
+    boolean hasApplicationServiceType();
+
+    long getCollectorAcceptTime();
+    void setCollectorAcceptTime(long collectorAcceptTime);
 
 //    List<SpanEventBo> getSpanEventBoList();
 }

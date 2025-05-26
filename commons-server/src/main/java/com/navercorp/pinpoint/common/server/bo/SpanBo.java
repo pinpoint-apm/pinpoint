@@ -31,6 +31,8 @@ import java.util.List;
  */
 public class SpanBo implements Event, BasicSpan {
 
+    private static final int UNDEFINED = ServiceType.UNDEFINED.getCode();
+
     // version 0 means that the type of prefix's size is int
     private byte version = 0;
 
@@ -309,10 +311,12 @@ public class SpanBo implements Event, BasicSpan {
         this.remoteAddr = remoteAddr;
     }
 
+    @Override
     public long getCollectorAcceptTime() {
         return collectorAcceptTime;
     }
 
+    @Override
     public void setCollectorAcceptTime(long collectorAcceptTime) {
         this.collectorAcceptTime = collectorAcceptTime;
     }
@@ -348,14 +352,17 @@ public class SpanBo implements Event, BasicSpan {
         this.exceptionClass = exceptionClass;
     }
 
+    @Override
     public void setApplicationServiceType(int applicationServiceType) {
         this.applicationServiceType = applicationServiceType;
     }
 
+    @Override
     public boolean hasApplicationServiceType() {
-        return applicationServiceType != 0 && applicationServiceType != ServiceType.UNDEFINED.getCode();
+        return applicationServiceType != 0 && applicationServiceType != UNDEFINED;
     }
 
+    @Override
     public int getApplicationServiceType() {
         if (hasApplicationServiceType()) {
             return this.applicationServiceType;

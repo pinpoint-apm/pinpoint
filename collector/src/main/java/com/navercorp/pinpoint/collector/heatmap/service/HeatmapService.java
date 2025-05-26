@@ -43,7 +43,7 @@ public class HeatmapService implements TraceService {
 
     @Override
     public void insertSpan(SpanBo spanBo) {
-        HeatmapStat heatmapStat = new HeatmapStat(spanBo.getApplicationId(), spanBo.getAgentId(), spanBo.getCollectorAcceptTime(), spanBo.getElapsed(), spanBo.getErrCode());
+        HeatmapStat heatmapStat = new HeatmapStat(spanBo.getApplicationName(), spanBo.getAgentId(), spanBo.getCollectorAcceptTime(), spanBo.getElapsed(), spanBo.getErrCode());
         heatmapDao.insert(heatmapStat);
     }
 }

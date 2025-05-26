@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.server.bo;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.util.ByteUtils;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 
@@ -29,6 +30,8 @@ import java.util.List;
  * @author Woonduk Kang(emeroad)
  */
 public class SpanChunkBo implements BasicSpan {
+
+    private static final int UNDEFINED = ServiceType.UNDEFINED.getCode();
 
     private byte version = 0;
 
@@ -147,20 +150,29 @@ public class SpanChunkBo implements BasicSpan {
         this.endPoint = endPoint;
     }
 
+    @Override
     public long getCollectorAcceptTime() {
         return collectorAcceptTime;
     }
 
+    @Override
     public void setCollectorAcceptTime(long collectorAcceptTime) {
         this.collectorAcceptTime = collectorAcceptTime;
     }
 
+    @Override
     public void setApplicationServiceType(int applicationServiceType) {
         this.applicationServiceType  = applicationServiceType;
     }
 
+    @Override
     public int getApplicationServiceType() {
         return this.applicationServiceType;
+    }
+
+    @Override
+    public boolean hasApplicationServiceType() {
+        return applicationServiceType != 0 && applicationServiceType != UNDEFINED;
     }
 
     public List<SpanEventBo> getSpanEventBoList() {
