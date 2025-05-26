@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.uid.cache.CaffeineCacheProperties;
+import com.navercorp.pinpoint.common.server.uid.cache.NullServiceUidExpiry;
 import com.navercorp.pinpoint.service.dao.ServiceDao;
 import com.navercorp.pinpoint.service.vo.ServiceEntry;
 import org.apache.logging.log4j.LogManager;
@@ -30,12 +31,6 @@ import java.util.Objects;
 @EnableCaching
 @ConditionalOnProperty(name = "pinpoint.modules.service.dao.type", havingValue = "mysql")
 public class ServiceUidMysqlCacheConfig {
-
-    private final Logger logger = LogManager.getLogger(this.getClass());
-
-    public ServiceUidMysqlCacheConfig() {
-        logger.info("Install {}", ServiceUidMysqlCacheConfig.class.getSimpleName());
-    }
 
     public static final String SERVICE_UID_CACHE_NAME = "serviceUidCache";
 

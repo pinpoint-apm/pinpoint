@@ -4,6 +4,7 @@ import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.service.component.StaticServiceRegistry;
 import com.navercorp.pinpoint.service.service.ServiceInfoService;
 import com.navercorp.pinpoint.service.vo.ServiceInfo;
+import com.navercorp.pinpoint.web.uid.service.ServiceUidCachedService;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api")
@@ -24,10 +26,12 @@ public class ServiceInfoController {
 
     private final StaticServiceRegistry staticServiceRegistry;
     private final ServiceInfoService serviceInfoService;
+    private final ServiceUidCachedService serviceUidCachedService;
 
-    public ServiceInfoController(StaticServiceRegistry staticServiceRegistry, ServiceInfoService serviceInfoService) {
-        this.staticServiceRegistry = staticServiceRegistry;
-        this.serviceInfoService = serviceInfoService;
+    public ServiceInfoController(StaticServiceRegistry staticServiceRegistry, ServiceInfoService serviceInfoService, ServiceUidCachedService serviceUidCachedService) {
+        this.staticServiceRegistry = Objects.requireNonNull(staticServiceRegistry, "staticServiceRegistry");
+        this.serviceInfoService = Objects.requireNonNull(serviceInfoService, "serviceInfoService");
+        this.serviceUidCachedService = Objects.requireNonNull(serviceUidCachedService, "serviceUidCacheService");
     }
 
     @GetMapping(value = "/staticServiceNames")
@@ -42,10 +46,30 @@ public class ServiceInfoController {
                 .toList();
     }
 
+    @GetMapping(value = "/service/name")
+    public ResponseEntity<String> getServiceName(@RequestParam("serviceUid") int serviceUid) {
+        String serviceName = serviceUidCachedService.getServiceName(ServiceUid.of(serviceUid));
+        if (serviceName != null) {
+            return ResponseEntity.ok(serviceName);
+        }
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @Deprecated
+    @GetMapping(value = "/service/uid")
+    public ResponseEntity<Integer> getServiceUid(@RequestParam("serviceName") @NotBlank String serviceName) {
+        ServiceUid serviceUid = serviceUidCachedService.getServiceUid(serviceName);
+        if (serviceUid == null) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(serviceUid.getUid());
+    }
+
     @PostMapping(value = "/service")
-    public ResponseEntity insertServiceGroup(@RequestParam("serviceName") @NotBlank String serviceName,
-                                             @RequestBody(required = false) Map<String, String> configuration) {
-        if (staticServiceRegistry.getServiceUid(serviceName) != null) {
+    public ResponseEntity<String> insertServiceGroup(@RequestParam("serviceName") @NotBlank String serviceName,
+                                                     @RequestBody(required = false) Map<String, String> configuration) {
+        if (staticServiceRegistry.contains(serviceName)) {
             return ResponseEntity.badRequest().body("Cannot use reserved names: " + staticServiceRegistry.getServiceNames());
         }
         serviceInfoService.insertService(serviceName, configuration);
@@ -61,34 +85,10 @@ public class ServiceInfoController {
         return ResponseEntity.ok(serviceInfo);
     }
 
-    @GetMapping(value = "/service/name")
-    public ResponseEntity<String> getServiceName(@RequestParam("serviceUid") int serviceUid) {
-        String staticServiceName = staticServiceRegistry.getServiceName(serviceUid);
-        if (staticServiceName != null) {
-            return ResponseEntity.ok(staticServiceName);
-        }
-        String serviceName = serviceInfoService.getServiceName(serviceUid);
-        if (serviceName != null) {
-            return ResponseEntity.ok(serviceName);
-        }
-
-        return ResponseEntity.noContent().build();
-    }
-
-    @Deprecated
-    @GetMapping(value = "/service/uid")
-    public ResponseEntity<Integer> getServiceUid(@RequestParam("serviceName") @NotBlank String serviceName) {
-        ServiceUid serviceUid = serviceInfoService.getServiceUid(serviceName);
-        if (serviceUid == null) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(serviceUid.getUid());
-    }
-
     @PutMapping(value = "/service")
     public ResponseEntity<String> updateServiceInfo(@RequestParam("serviceName") @NotBlank String serviceName,
                                                     @RequestBody() Map<String, String> configuration) {
-        if (staticServiceRegistry.getServiceUid(serviceName) != null) {
+        if (staticServiceRegistry.contains(serviceName)) {
             return ResponseEntity.badRequest().body("Cannot update service: " + serviceName);
         }
 
@@ -99,21 +99,25 @@ public class ServiceInfoController {
     @PutMapping(value = "/service/name")
     public ResponseEntity<String> updateServiceInfo(@RequestParam("serviceName") @NotBlank String serviceName,
                                                     @RequestBody(required = false) @NotBlank String newServiceName) {
-        if (staticServiceRegistry.getServiceUid(serviceName) != null) {
+        if (staticServiceRegistry.contains(serviceName)) {
             return ResponseEntity.badRequest().body("Cannot update service: " + serviceName);
         }
-
         serviceInfoService.updateServiceName(serviceName, newServiceName);
+
+        ServiceUid cachedServiceUid = serviceUidCachedService.getServiceUid(serviceName);
+        serviceUidCachedService.serviceUidCacheEvict(serviceName);
+        serviceUidCachedService.serviceNameCacheEvict(cachedServiceUid);
         return ResponseEntity.ok("updated: " + serviceName + " to new service name: " + newServiceName);
     }
 
     @DeleteMapping(value = "/service")
     public ResponseEntity<String> deleteServiceInfo(@RequestParam("serviceName") @NotBlank String serviceName) {
-        if (staticServiceRegistry.getServiceUid(serviceName) != null) {
+        if (staticServiceRegistry.contains(serviceName)) {
             return ResponseEntity.badRequest().body("Cannot delete service: " + serviceName);
         }
 
         serviceInfoService.deleteService(serviceName);
+        serviceUidCachedService.serviceUidCacheEvict(serviceName);
         return ResponseEntity.ok("deleted: " + serviceName);
     }
 }

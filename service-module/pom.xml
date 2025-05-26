@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>pinpoint-service-module</artifactId>
-    <name>service-module</name>
+    <name>pinpoint-service-module</name>
     <packaging>jar</packaging>
 
     <properties>

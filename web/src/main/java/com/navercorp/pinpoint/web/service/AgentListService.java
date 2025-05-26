@@ -8,9 +8,6 @@ import com.navercorp.pinpoint.web.vo.agent.AgentListEntry;
 import java.util.List;
 
 public interface AgentListService {
-    List<AgentListEntry> getAllAgentList(ServiceUid serviceUid);
-
-    List<AgentListEntry> getAllAgentList(ServiceUid serviceUid, Range range);
 
     List<AgentListEntry> getApplicationAgentList(ServiceUid serviceUid, ApplicationUid applicationUid);
 

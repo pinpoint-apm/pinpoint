@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.service.component;
 
+import com.google.common.collect.ImmutableMap;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 
 import java.lang.reflect.Field;
@@ -33,7 +34,7 @@ public class StaticServiceRegistry {
         } catch (IllegalAccessException e) {
             throw new IllegalStateException("static serviceUid map initialization fail", e);
         }
-        return map;
+        return ImmutableMap.copyOf(map);
     }
 
     private Map<Integer, String> createUidLookupTable(Map<String, ServiceUid> serviceNameToUidMap) {
@@ -41,7 +42,7 @@ public class StaticServiceRegistry {
         for (Map.Entry<String, ServiceUid> entry : serviceNameToUidMap.entrySet()) {
             map.put(entry.getValue().getUid(), entry.getKey());
         }
-        return map;
+        return ImmutableMap.copyOf(map);
     }
 
     // ignore case for serviceName
@@ -59,5 +60,13 @@ public class StaticServiceRegistry {
 
     public List<String> getServiceNames() {
         return new ArrayList<>(serviceNameLookupMap.keySet());
+    }
+
+    public boolean contains(String serviceName) {
+        return serviceNameLookupMap.containsKey(serviceName.toUpperCase());
+    }
+
+    public boolean contains(ServiceUid serviceUid) {
+        return serviceUidLookupMap.containsKey(serviceUid.getUid());
     }
 }

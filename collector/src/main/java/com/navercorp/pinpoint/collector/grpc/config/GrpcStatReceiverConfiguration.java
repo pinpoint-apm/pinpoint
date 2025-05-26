@@ -75,8 +75,8 @@ public class GrpcStatReceiverConfiguration {
     }
 
     @Bean
-    public UidFetcherStreamService fetcherStreamService(ApplicationUidService applicationUidService) {
-        return new UidFetcherStreamService(applicationUidService);
+    public UidFetcherStreamService fetcherStreamService(ApplicationUidService applicationUidCacheService) {
+        return new UidFetcherStreamService(applicationUidCacheService);
     }
 
     @Bean

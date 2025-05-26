@@ -46,8 +46,8 @@ public class ServiceInfoServiceImpl implements ServiceInfoService {
     }
 
     @Override
-    public String getServiceName(int uid) {
-        ServiceEntry serviceEntry = serviceDao.selectServiceEntry(uid);
+    public String getServiceName(ServiceUid serviceUid) {
+        ServiceEntry serviceEntry = serviceDao.selectServiceEntry(serviceUid.getUid());
         if (serviceEntry != null) {
             return serviceEntry.getName();
         }
