@@ -4,10 +4,11 @@ import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.service.AgentListService;
-import com.navercorp.pinpoint.web.uid.service.ApplicationUidService;
+import com.navercorp.pinpoint.web.uid.service.CachedApplicationUidService;
 import com.navercorp.pinpoint.web.vo.agent.AgentListEntry;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,14 +24,15 @@ import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api/agentList")
+@ConditionalOnProperty(name = "pinpoint.modules.uid.enabled", havingValue = "true")
 public class UidAgentListController {
 
     private final AgentListService agentListService;
-    private final ApplicationUidService applicationUidService;
+    private final CachedApplicationUidService cachedApplicationUidService;
 
-    public UidAgentListController(AgentListService agentListService, ApplicationUidService applicationUidService) {
+    public UidAgentListController(AgentListService agentListService, CachedApplicationUidService cachedApplicationUidService) {
         this.agentListService = Objects.requireNonNull(agentListService, "agentListService");
-        this.applicationUidService = Objects.requireNonNull(applicationUidService, "applicationUidService");
+        this.cachedApplicationUidService = Objects.requireNonNull(cachedApplicationUidService, "applicationUidService");
     }
 
     @GetMapping(value = "")
@@ -38,7 +40,7 @@ public class UidAgentListController {
                                              @RequestParam(value = "applicationName") @NotBlank String applicationName,
                                              @RequestParam(value = "orderBy", required = false, defaultValue = "NO_OP") String orderBy) {
         ServiceUid serviceUidObject = ServiceUid.of(serviceUid);
-        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUidObject, applicationName);
+        ApplicationUid applicationUid = cachedApplicationUidService.getApplicationUid(serviceUidObject, applicationName);
         if (applicationUid == null) {
             return Collections.emptyList();
         }
@@ -56,7 +58,7 @@ public class UidAgentListController {
                                              @RequestParam(value = "orderBy", required = false, defaultValue = "NO_OP") String orderBy) {
         ServiceUid serviceUidObject = ServiceUid.of(serviceUid);
         Range range = Range.between(from, to);
-        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUidObject, applicationName);
+        ApplicationUid applicationUid = cachedApplicationUidService.getApplicationUid(serviceUidObject, applicationName);
         if (applicationUid == null) {
             return Collections.emptyList();
         }

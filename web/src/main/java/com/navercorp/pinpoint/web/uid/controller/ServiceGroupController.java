@@ -4,7 +4,7 @@ import com.navercorp.pinpoint.common.server.response.Response;
 import com.navercorp.pinpoint.common.server.response.SimpleResponse;
 import com.navercorp.pinpoint.common.server.uid.ServiceInfo;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.web.uid.service.ServiceGroupService;
+import com.navercorp.pinpoint.uid.service.ServiceGroupService;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +22,7 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/api")
-@ConditionalOnProperty(name = "pinpoint.web.v4.enable", havingValue = "true")
+@ConditionalOnProperty(name = "pinpoint.modules.uid.enabled", havingValue = "true")
 public class ServiceGroupController {
 
     private final ServiceGroupService serviceGroupService;
@@ -45,7 +45,7 @@ public class ServiceGroupController {
 
     @GetMapping(value = "/service")
     public ResponseEntity<ServiceInfo> getServiceInfo(@RequestParam("serviceName") @NotBlank String serviceName) {
-        ServiceUid serviceUid = serviceGroupService.selectServiceUid(serviceName);
+        ServiceUid serviceUid = serviceGroupService.getServiceUid(serviceName);
         if (serviceUid == null) {
             return ResponseEntity.noContent().build();
         }
@@ -63,7 +63,7 @@ public class ServiceGroupController {
 
     @GetMapping(value = "/service/uid")
     public ResponseEntity<Integer> getServiceUid(@RequestParam("serviceName") @NotBlank String serviceName) {
-        ServiceUid serviceUid = serviceGroupService.selectServiceUid(serviceName);
+        ServiceUid serviceUid = serviceGroupService.getServiceUid(serviceName);
         if (serviceUid == null) {
             return ResponseEntity.noContent().build();
         }

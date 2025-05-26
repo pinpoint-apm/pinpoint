@@ -4,13 +4,14 @@ import com.navercorp.pinpoint.common.server.uid.AgentIdentifier;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.uid.service.AgentNameService;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
-import com.navercorp.pinpoint.web.uid.service.AgentNameService;
 import com.navercorp.pinpoint.web.vo.agent.AgentListEntry;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilters;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
+@ConditionalOnProperty(name = "pinpoint.modules.uid.enabled", havingValue = "true")
 public class AgentListServiceImpl implements AgentListService {
 
     private final AgentNameService agentNameService;
@@ -28,23 +30,6 @@ public class AgentListServiceImpl implements AgentListService {
     public AgentListServiceImpl(AgentNameService agentNameService, AgentLifeCycleDao agentLifeCycleDao) {
         this.agentNameService = Objects.requireNonNull(agentNameService, "uidAgentListService");
         this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
-    }
-
-    @Override
-    public List<AgentListEntry> getAllAgentList(ServiceUid serviceUid) {
-        List<AgentIdentifier> agentList = agentNameService.getAgentIdentifier(serviceUid);
-        return createAgentListEntryWithNullStatus(agentList);
-    }
-
-    @Override
-    public List<AgentListEntry> getAllAgentList(ServiceUid serviceUid, Range range) {
-        List<AgentIdentifier> agentList = agentNameService.getAgentIdentifier(serviceUid);
-        List<AgentListEntry> agentListEntries = createAgentListEntry(agentList, range);
-
-        AgentStatusFilter activeStatusPredicate = AgentStatusFilters.recentStatus(range.getFrom());
-        return agentListEntries.stream()
-                .filter(agentAndStatus -> activeStatusPredicate.test(agentAndStatus.getAgentStatus()))
-                .toList();
     }
 
     @Override
