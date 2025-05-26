@@ -48,7 +48,7 @@ import java.util.concurrent.Executor;
 public class HbaseTraceService implements TraceService {
     private final Logger logger = LogManager.getLogger(getClass());
 
-    private static final String MERGE_AGENT = "_ALL_";
+    private static final String MERGE_AGENT = "_";
 
     private final ThrottledLogger throttledLogger = ThrottledLogger.getLogger(logger, 10000);
 
