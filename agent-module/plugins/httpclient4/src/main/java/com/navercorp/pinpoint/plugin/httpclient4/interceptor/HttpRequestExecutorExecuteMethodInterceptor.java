@@ -23,11 +23,9 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventBlockSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
@@ -61,13 +59,7 @@ import org.apache.http.StatusLine;
  * @author minwoo.jung
  * @author jaehong.kim
  */
-public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterceptor {
-    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final TraceContext traceContext;
-    private final MethodDescriptor methodDescriptor;
-
+public class HttpRequestExecutorExecuteMethodInterceptor extends SpanEventBlockSimpleAroundInterceptorForPlugin {
     private final boolean statusCode;
     private final InterceptorScope interceptorScope;
     private final boolean io;
@@ -78,8 +70,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
     private final boolean markError;
 
     public HttpRequestExecutorExecuteMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
-        this.traceContext = traceContext;
-        this.methodDescriptor = methodDescriptor;
+        super(traceContext, methodDescriptor);
         this.interceptorScope = interceptorScope;
 
         boolean param = HttpClient4PluginConfig.isParam(traceContext.getProfilerConfig());
@@ -101,38 +92,51 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
-        final Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
-            return;
-        }
+    public Trace currentTrace() {
+        return traceContext.currentRawTraceObject();
+    }
 
+    @Override
+    public boolean checkBeforeTraceBlockBegin(Trace trace, Object target, Object[] args) {
         final HttpRequest httpRequest = getHttpRequest(args);
-        final NameIntValuePair<String> host = getHost();
-        final boolean sampling = trace.canSampled();
-        if (!sampling) {
-            if (httpRequest != null) {
-                this.requestTraceWriter.write(httpRequest);
-            }
+        if (httpRequest == null) {
+            return false;
+        }
+
+        if (requestTraceWriter.isNested(httpRequest)) {
+            return false;
+        }
+
+        if (Boolean.FALSE == trace.canSampled()) {
+            this.requestTraceWriter.write(httpRequest);
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public void beforeTrace(Trace trace, SpanEventRecorder recorder, Object target, Object[] args) {
+        final HttpRequest httpRequest = getHttpRequest(args);
+        if (httpRequest == null) {
             return;
         }
 
-        final SpanEventRecorder recorder = trace.traceBlockBegin();
+        final NameIntValuePair<String> host = getHost();
         TraceId nextId = trace.getTraceId().getNextTraceId();
         recorder.recordNextSpanId(nextId.getSpanId());
-        recorder.recordServiceType(HttpClient4Constants.HTTP_CLIENT_4);
-        if (httpRequest != null) {
-            final String hostString = getHostString(host.getName(), host.getValue());
-            this.requestTraceWriter.write(httpRequest, nextId, hostString);
-        }
+
+        final String hostString = getHostString(host.getName(), host.getValue());
+        this.requestTraceWriter.write(httpRequest, nextId, hostString);
 
         InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
         if (invocation != null) {
             invocation.getOrCreateAttachment(HttpCallContextFactory.HTTPCALL_CONTEXT_FACTORY);
         }
+    }
+
+    @Override
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
     }
 
     private String getHostString(String hostName, int port) {
@@ -157,51 +161,38 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args);
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
+        recorder.recordServiceType(HttpClient4Constants.HTTP_CLIENT_4);
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(markError, throwable);
+
+        final HttpRequest httpRequest = getHttpRequest(args);
+        final NameIntValuePair<String> host = getHost();
+        if (httpRequest != null) {
+            ClientRequestWrapper clientRequest = new HttpClient4RequestWrapper(httpRequest, host.getName(), host.getValue());
+            this.clientRequestRecorder.record(recorder, clientRequest, throwable);
+            this.cookieRecorder.record(recorder, httpRequest, throwable);
         }
 
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
+        if (statusCode) {
+            final Integer statusCodeValue = getStatusCode(result);
+            if (statusCodeValue != null) {
+                recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, statusCodeValue);
+            }
+            recordResponseHeader(recorder, result);
         }
 
-        try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            final HttpRequest httpRequest = getHttpRequest(args);
-            final NameIntValuePair<String> host = getHost();
-            if (httpRequest != null) {
-                ClientRequestWrapper clientRequest = new HttpClient4RequestWrapper(httpRequest, host.getName(), host.getValue());
-                this.clientRequestRecorder.record(recorder, clientRequest, throwable);
-                this.cookieRecorder.record(recorder, httpRequest, throwable);
+        final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
+        final Object attachment = getAttachment(invocation);
+        if (attachment instanceof HttpCallContext) {
+            final HttpCallContext callContext = (HttpCallContext) attachment;
+            logger.debug("Check call context {}", callContext);
+            if (io) {
+                final IntBooleanIntBooleanValue value = new IntBooleanIntBooleanValue((int) callContext.getWriteElapsedTime(), callContext.isWriteFail(), (int) callContext.getReadElapsedTime(), callContext.isReadFail());
+                recorder.recordAttribute(AnnotationKey.HTTP_IO, value);
             }
-
-            if (statusCode) {
-                final Integer statusCodeValue = getStatusCode(result);
-                if (statusCodeValue != null) {
-                    recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, statusCodeValue);
-                }
-                recordResponseHeader(recorder, result);
-            }
-
-            recorder.recordApi(methodDescriptor);
-            recorder.recordException(markError, throwable);
-
-            final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-            final Object attachment = getAttachment(invocation);
-            if (attachment instanceof HttpCallContext) {
-                final HttpCallContext callContext = (HttpCallContext) attachment;
-                logger.debug("Check call context {}", callContext);
-                if (io) {
-                    final IntBooleanIntBooleanValue value = new IntBooleanIntBooleanValue((int) callContext.getWriteElapsedTime(), callContext.isWriteFail(), (int) callContext.getReadElapsedTime(), callContext.isReadFail());
-                    recorder.recordAttribute(AnnotationKey.HTTP_IO, value);
-                }
-                // clear
-                invocation.removeAttachment();
-            }
-        } finally {
-            trace.traceBlockEnd();
+            // clear
+            invocation.removeAttachment();
         }
     }
 

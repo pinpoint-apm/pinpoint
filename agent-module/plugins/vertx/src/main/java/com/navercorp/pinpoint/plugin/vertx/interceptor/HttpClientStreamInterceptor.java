@@ -19,9 +19,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.ApiIdAwareAroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventBlockApiIdAwareAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
@@ -44,17 +42,13 @@ import io.netty.handler.codec.http.HttpRequest;
 /**
  * @author jaehong.kim
  */
-public class HttpClientStreamInterceptor implements ApiIdAwareAroundInterceptor {
-    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private TraceContext traceContext;
+public class HttpClientStreamInterceptor extends SpanEventBlockApiIdAwareAroundInterceptorForPlugin {
     private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
     private final CookieRecorder<HttpRequest> cookieRecorder;
     private final RequestTraceWriter<HttpRequest> requestTraceWriter;
 
     public HttpClientStreamInterceptor(TraceContext traceContext) {
-        this.traceContext = traceContext;
+        super(traceContext);
 
         final VertxHttpClientConfig config = new VertxHttpClientConfig(traceContext.getProfilerConfig());
         ClientRequestAdaptor<ClientRequestWrapper> clientRequestAdaptor = ClientRequestWrapperAdaptor.INSTANCE;
@@ -68,43 +62,57 @@ public class HttpClientStreamInterceptor implements ApiIdAwareAroundInterceptor 
     }
 
     @Override
-    public void before(Object target, int apiId, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
+    public Trace currentTrace() {
+        return traceContext.currentRawTraceObject();
+    }
+
+    @Override
+    public boolean checkBeforeTraceBlockBegin(Trace trace, Object target, int apiId, Object[] args) {
+        if (!validate(args)) {
+            return false;
         }
 
-        final Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
+        final HttpRequest request = (HttpRequest) args[0];
+        final HttpHeaders headers = request.headers();
+        if (headers == null) {
+            // defense code.
+            return false;
+        }
+
+        if (requestTraceWriter.isNested(request)) {
+            return false;
+        }
+
+        if (Boolean.FALSE == trace.canSampled()) {
+            requestTraceWriter.write(request);
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public void beforeTrace(Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
+        if (!validate(args)) {
             return;
         }
 
-        try {
-            final SpanEventRecorder recorder = trace.traceBlockBegin();
-            if (!validate(args)) {
-                return;
-            }
-
-            final HttpRequest request = (HttpRequest) args[0];
-            final HttpHeaders headers = request.headers();
-            if (headers == null) {
-                // defense code.
-                return;
-            }
-
-            if (trace.canSampled()) {
-                final String host = (String) args[1];
-                // generate next trace id.
-                final TraceId nextId = trace.getTraceId().getNextTraceId();
-                recorder.recordNextSpanId(nextId.getSpanId());
-                requestTraceWriter.write(request, nextId, host);
-            } else {
-                requestTraceWriter.write(request);
-            }
-        } catch (Throwable t) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("BEFORE. Caused:{}", t.getMessage(), t);
-            }
+        final HttpRequest request = (HttpRequest) args[0];
+        final HttpHeaders headers = request.headers();
+        if (headers == null) {
+            // defense code.
+            return;
         }
+
+        final String host = (String) args[1];
+        // generate next trace id.
+        final TraceId nextId = trace.getTraceId().getNextTraceId();
+        recorder.recordNextSpanId(nextId.getSpanId());
+        requestTraceWriter.write(request, nextId, host);
+    }
+
+    @Override
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) throws Exception {
     }
 
     private boolean validate(final Object[] args) {
@@ -124,44 +132,24 @@ public class HttpClientStreamInterceptor implements ApiIdAwareAroundInterceptor 
     }
 
     @Override
-    public void after(Object target, int apiId, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args, result, throwable);
-        }
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) throws Exception {
+        recorder.recordApiId(apiId);
+        recorder.recordException(throwable);
+        recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT);
 
-        final Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
+        if (!validate(args)) {
             return;
         }
 
-        try {
-            if (trace.canSampled()) {
-                final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-                recorder.recordApiId(apiId);
-                recorder.recordException(throwable);
-                recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT);
-
-                if (!validate(args)) {
-                    return;
-                }
-
-                final HttpRequest request = (HttpRequest) args[0];
-                final HttpHeaders headers = request.headers();
-                if (headers == null) {
-                    return;
-                }
-
-                final String host = (String) args[1];
-                ClientRequestWrapper clientRequest = new VertxHttpClientRequestWrapper(request, host);
-                this.clientRequestRecorder.record(recorder, clientRequest, throwable);
-                this.cookieRecorder.record(recorder, request, throwable);
-            }
-        } catch (Throwable t) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("AFTER. Caused:{}", t.getMessage(), t);
-            }
-        } finally {
-            trace.traceBlockEnd();
+        final HttpRequest request = (HttpRequest) args[0];
+        final HttpHeaders headers = request.headers();
+        if (headers == null) {
+            return;
         }
+
+        final String host = (String) args[1];
+        ClientRequestWrapper clientRequest = new VertxHttpClientRequestWrapper(request, host);
+        this.clientRequestRecorder.record(recorder, clientRequest, throwable);
+        this.cookieRecorder.record(recorder, request, throwable);
     }
 }

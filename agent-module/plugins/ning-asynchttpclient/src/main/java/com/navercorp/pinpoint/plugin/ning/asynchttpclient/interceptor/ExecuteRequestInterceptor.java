@@ -21,9 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventBlockSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
@@ -52,13 +50,7 @@ import com.ning.http.client.Request;
  * @author netspider
  * @author jaehong.kim
  */
-public class ExecuteRequestInterceptor implements AroundInterceptor {
-    private final PluginLogger logger = PluginLogManager.getLogger(ExecuteRequestInterceptor.class);
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final TraceContext traceContext;
-    private final MethodDescriptor descriptor;
-
+public class ExecuteRequestInterceptor extends SpanEventBlockSimpleAroundInterceptorForPlugin {
     private final ClientRequestRecorder<Request> clientRequestRecorder;
     private final CookieRecorder<Request> cookieRecorder;
     private final EntityRecorder<Request> entityRecorder;
@@ -68,8 +60,7 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
 
     // for 1.8.x and 1.9.x
     public ExecuteRequestInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        this.traceContext = traceContext;
-        this.descriptor = descriptor;
+        super(traceContext, descriptor);
 
         boolean param = NingAsyncHttpClientPluginConfig.isParam(traceContext.getProfilerConfig());
         HttpDumpConfig httpDumpConfig = NingAsyncHttpClientPluginConfig.getHttpDumpConfig(traceContext.getProfilerConfig());
@@ -88,36 +79,45 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
+    public Trace currentTrace() {
+        return traceContext.currentRawTraceObject();
+    }
+
+    @Override
+    public boolean checkBeforeTraceBlockBegin(Trace trace, Object target, Object[] args) {
+        Request httpRequest = getHttpReqeust(args);
+        if (httpRequest == null) {
+            return false;
         }
 
-        final Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
+        if (requestTraceWriter.isNested(httpRequest)) {
+            return false;
+        }
+
+        if (Boolean.FALSE == trace.canSampled()) {
+            this.requestTraceWriter.write(httpRequest);
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public void beforeTrace(Trace trace, SpanEventRecorder recorder, Object target, Object[] args) {
+        Request httpRequest = getHttpReqeust(args);
+        if (httpRequest == null) {
             return;
         }
 
-        try {
-            Request httpRequest = getHttpReqeust(args);
-            if (httpRequest == null) {
-                return;
-            }
+        final TraceId nextId = trace.getTraceId().getNextTraceId();
+        recorder.recordNextSpanId(nextId.getSpanId());
 
-            final SpanEventRecorder recorder = trace.traceBlockBegin();
-            if (trace.canSampled()) {
-                final TraceId nextId = trace.getTraceId().getNextTraceId();
-                recorder.recordNextSpanId(nextId.getSpanId());
-                recorder.recordServiceType(NingAsyncHttpClientConstants.ASYNC_HTTP_CLIENT);
+        String host = getHost(httpRequest);
+        requestTraceWriter.write(httpRequest, nextId, host);
+    }
 
-                String host = getHost(httpRequest);
-                requestTraceWriter.write(httpRequest, nextId, host);
-            } else {
-                this.requestTraceWriter.write(httpRequest);
-            }
-        } catch (Throwable t) {
-            logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
-        }
+    @Override
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
     }
 
     private String getHost(Request httpRequest) {
@@ -125,47 +125,24 @@ public class ExecuteRequestInterceptor implements AroundInterceptor {
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            // Do not log result
-            logger.afterInterceptor(target, args);
-        }
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
+        recorder.recordServiceType(NingAsyncHttpClientConstants.ASYNC_HTTP_CLIENT);
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(markError, throwable);
 
-        final Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
+        Request httpRequest = getHttpReqeust(args);
+        if (httpRequest == null) {
             return;
         }
 
-        try {
-            Request httpReqeust = getHttpReqeust(args);
-            if (httpReqeust == null) {
-                return;
-            }
-
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            if (trace.canSampled()) {
-                final Request httpRequest = (Request) args[0];
-                // Accessing httpRequest here not BEFORE() because it can cause side effect.
-                this.clientRequestRecorder.record(recorder, httpRequest, throwable);
-                this.cookieRecorder.record(recorder, httpRequest, throwable);
-                this.entityRecorder.record(recorder, httpRequest, throwable);
-
-                recorder.recordApi(descriptor);
-                recorder.recordException(markError, throwable);
-            }
-        } finally {
-            trace.traceBlockEnd();
-        }
+        // Accessing httpRequest here not BEFORE() because it can cause side effect.
+        this.clientRequestRecorder.record(recorder, httpRequest, throwable);
+        this.cookieRecorder.record(recorder, httpRequest, throwable);
+        this.entityRecorder.record(recorder, httpRequest, throwable);
     }
 
     private Request getHttpReqeust(final Object[] args) {
         final Request request = ArrayArgumentUtils.getArgument(args, 0, Request.class);
-        if (request == null) {
-            if (isDebug) {
-                logger.debug("Invalid args[0] object. args={}.", args);
-            }
-        }
-
         return request;
     }
 }

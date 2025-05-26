@@ -30,15 +30,25 @@ public class HttpClientRequestHeaderAdaptor implements ClientHeaderAdaptor<HttpC
 
     @Override
     public void setHeader(final HttpClientRequest request, final String name, final String value) {
-        if (request != null) {
-            try {
+        try {
+            if (request != null) {
                 request.header(name, value);
-            } catch (IllegalStateException|UnsupportedOperationException e) {
-                logger.warn("Set header {}={} failed, because {}", name, value, e.getMessage());
+                if (isDebug) {
+                    logger.debug("Set header {}={}", name, value);
+                }
             }
-            if (isDebug) {
-                logger.debug("Set header {}={}", name, value);
-            }
+        } catch (Exception ignored) {
         }
+    }
+
+    @Override
+    public boolean contains(HttpClientRequest header, String name) {
+        try {
+            if (header != null) {
+                return header.requestHeaders().contains(name);
+            }
+        } catch (Exception ignored) {
+        }
+        return false;
     }
 }

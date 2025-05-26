@@ -327,9 +327,8 @@ public class DefaultTrace implements Trace {
     }
 
     @Override
-    public TraceBlock traceBlockBeginAndGet() {
-        final SpanEvent spanEvent = traceBlockBegin0(DEFAULT_STACKID);
-        return new DefaultTraceBlock(this, spanEvent, wrappedSpanEventRecorder);
+    public TraceBlock getTraceBlock() {
+        return new DefaultTraceBlock(this);
     }
 
     @Override

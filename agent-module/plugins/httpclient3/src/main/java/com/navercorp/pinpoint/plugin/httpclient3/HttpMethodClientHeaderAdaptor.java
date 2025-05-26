@@ -31,9 +31,22 @@ public class HttpMethodClientHeaderAdaptor implements ClientHeaderAdaptor<HttpMe
 
     @Override
     public void setHeader(HttpMethod httpMethod, String name, String value) {
-        httpMethod.setRequestHeader(name, value);
-        if (isDebug) {
-            logger.debug("Set header {}={}", name, value);
+        try {
+            httpMethod.setRequestHeader(name, value);
+            if (isDebug) {
+                logger.debug("Set header {}={}", name, value);
+            }
+        } catch (Exception ignored) {
         }
+    }
+
+    @Override
+    public boolean contains(HttpMethod header, String name) {
+        try {
+            return header.getRequestHeader(name) != null;
+        } catch (Exception ignored) {
+        }
+
+        return false;
     }
 }

@@ -30,9 +30,21 @@ public class HttpRequest4ClientHeaderAdaptor implements ClientHeaderAdaptor<Http
 
     @Override
     public void setHeader(HttpRequest request, String name, String value) {
-        request.setHeader(name, value);
-        if (isDebug) {
-            logger.debug("Set header {}={}", name, value);
+        try {
+            request.setHeader(name, value);
+            if (isDebug) {
+                logger.debug("Set header {}={}", name, value);
+            }
+        } catch (Exception ignored) {
         }
+    }
+
+    @Override
+    public boolean contains(HttpRequest header, String name) {
+        try {
+            return header.containsHeader(name);
+        } catch (Exception ignored) {
+        }
+        return false;
     }
 }

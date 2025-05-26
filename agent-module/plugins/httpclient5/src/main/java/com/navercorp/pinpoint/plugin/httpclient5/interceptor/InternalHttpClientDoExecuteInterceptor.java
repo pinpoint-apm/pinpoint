@@ -22,9 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventBlockSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
@@ -51,12 +49,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 
-public class InternalHttpClientDoExecuteInterceptor implements AroundInterceptor {
-    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final TraceContext traceContext;
-    private final MethodDescriptor methodDescriptor;
+public class InternalHttpClientDoExecuteInterceptor extends SpanEventBlockSimpleAroundInterceptorForPlugin {
     private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
     private final CookieRecorder<HttpRequest> cookieRecorder;
     private final EntityRecorder<HttpRequest> entityRecorder;
@@ -65,8 +58,7 @@ public class InternalHttpClientDoExecuteInterceptor implements AroundInterceptor
     private final boolean markError;
 
     public InternalHttpClientDoExecuteInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        this.traceContext = traceContext;
-        this.methodDescriptor = methodDescriptor;
+        super(traceContext, methodDescriptor);
 
         final boolean param = HttpClient5PluginConfig.isParam(traceContext.getProfilerConfig());
         final HttpDumpConfig httpDumpConfig = HttpClient5PluginConfig.getHttpDumpConfig(traceContext.getProfilerConfig());
@@ -83,80 +75,70 @@ public class InternalHttpClientDoExecuteInterceptor implements AroundInterceptor
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
-
-        final Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        try {
-            final HttpHost httpHost = ArrayArgumentUtils.getArgument(args, 0, HttpHost.class);
-            final HttpRequest httpRequest = ArrayArgumentUtils.getArgument(args, 1, HttpRequest.class);
-            if (httpRequest == null) {
-                return;
-            }
-
-            final String host = HostUtils.get(httpHost, httpRequest);
-            final boolean sampling = trace.canSampled();
-            if (!sampling) {
-                if (httpRequest != null) {
-                    this.requestTraceWriter.write(httpRequest);
-                }
-                return;
-            }
-
-            final SpanEventRecorder recorder = trace.traceBlockBegin();
-            // set remote trace
-            final TraceId nextId = trace.getTraceId().getNextTraceId();
-            recorder.recordNextSpanId(nextId.getSpanId());
-            recorder.recordServiceType(HttpClient5Constants.HTTP_CLIENT5);
-            this.requestTraceWriter.write(httpRequest, nextId, host);
-        } catch (Throwable t) {
-            logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
-        }
+    public Trace currentTrace() {
+        return traceContext.currentRawTraceObject();
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args);
+    public boolean checkBeforeTraceBlockBegin(Trace trace, Object target, Object[] args) {
+        final HttpRequest httpRequest = ArrayArgumentUtils.getArgument(args, 1, HttpRequest.class);
+        if (httpRequest == null) {
+            return false;
         }
 
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
+        if (requestTraceWriter.isNested(httpRequest)) {
+            return false;
+        }
+
+        if (Boolean.FALSE == trace.canSampled()) {
+            this.requestTraceWriter.write(httpRequest);
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public void beforeTrace(Trace trace, SpanEventRecorder recorder, Object target, Object[] args) {
+        final HttpHost httpHost = ArrayArgumentUtils.getArgument(args, 0, HttpHost.class);
+        final HttpRequest httpRequest = ArrayArgumentUtils.getArgument(args, 1, HttpRequest.class);
+        if (httpRequest == null) {
             return;
         }
+        // set remote trace
+        final TraceId nextId = trace.getTraceId().getNextTraceId();
+        recorder.recordNextSpanId(nextId.getSpanId());
+        final String host = HostUtils.get(httpHost, httpRequest);
+        this.requestTraceWriter.write(httpRequest, nextId, host);
+    }
 
-        try {
-            final HttpHost httpHost = ArrayArgumentUtils.getArgument(args, 0, HttpHost.class);
-            final HttpRequest httpRequest = ArrayArgumentUtils.getArgument(args, 1, HttpRequest.class);
-            if (httpRequest == null) {
-                return;
-            }
-            final String host = HostUtils.get(httpHost, httpRequest);
-            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            // Accessing httpRequest here not BEFORE() because it can cause side effect.
-            ClientRequestWrapper clientRequest = new HttpClient5RequestWrapper(httpRequest, host);
-            this.clientRequestRecorder.record(recorder, clientRequest, throwable);
-            this.cookieRecorder.record(recorder, httpRequest, throwable);
-            this.entityRecorder.record(recorder, httpRequest, throwable);
-            recorder.recordApi(methodDescriptor);
-            recorder.recordException(markError, throwable);
+    @Override
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+    }
 
-            if (statusCode) {
-                final Integer statusCodeValue = getStatusCodeFromHttpResponse(result);
-                if (statusCodeValue != null) {
-                    recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, statusCodeValue);
-                }
+    @Override
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
+        recorder.recordServiceType(HttpClient5Constants.HTTP_CLIENT5);
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(markError, throwable);
+
+        final HttpHost httpHost = ArrayArgumentUtils.getArgument(args, 0, HttpHost.class);
+        final HttpRequest httpRequest = ArrayArgumentUtils.getArgument(args, 1, HttpRequest.class);
+        if (httpRequest == null) {
+            return;
+        }
+        final String host = HostUtils.get(httpHost, httpRequest);
+        // Accessing httpRequest here not BEFORE() because it can cause side effect.
+        ClientRequestWrapper clientRequest = new HttpClient5RequestWrapper(httpRequest, host);
+        this.clientRequestRecorder.record(recorder, clientRequest, throwable);
+        this.cookieRecorder.record(recorder, httpRequest, throwable);
+        this.entityRecorder.record(recorder, httpRequest, throwable);
+
+        if (statusCode) {
+            final Integer statusCodeValue = getStatusCodeFromHttpResponse(result);
+            if (statusCodeValue != null) {
+                recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, statusCodeValue);
             }
-        } catch (Throwable t) {
-            logger.warn("Failed to AFTER process. {}", t.getMessage(), t);
-        } finally {
-            trace.traceBlockEnd();
         }
     }
 

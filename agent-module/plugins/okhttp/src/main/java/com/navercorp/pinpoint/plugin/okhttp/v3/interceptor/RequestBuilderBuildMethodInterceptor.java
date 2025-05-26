@@ -69,6 +69,10 @@ public class RequestBuilderBuildMethodInterceptor implements AroundInterceptor {
                 return;
             }
             final Request.Builder builder = ((Request.Builder) target);
+            if (requestTraceWriter.isNested(builder)) {
+                return;
+            }
+
             if (trace.canSampled()) {
                 final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
                 final Object attachment = getAttachment(invocation);

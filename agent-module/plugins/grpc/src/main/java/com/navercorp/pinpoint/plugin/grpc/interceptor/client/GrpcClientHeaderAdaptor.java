@@ -31,11 +31,23 @@ class GrpcClientHeaderAdaptor implements ClientHeaderAdaptor<Metadata> {
 
     @Override
     public void setHeader(Metadata header, String name, String value) {
-        final Metadata.Key<String> key = Metadata.Key.of(name, Metadata.ASCII_STRING_MARSHALLER);
-        header.put(key, value);
-        if (isDebug) {
-            logger.debug("Set header {}={}", name, value);
+        try {
+            final Metadata.Key<String> key = Metadata.Key.of(name, Metadata.ASCII_STRING_MARSHALLER);
+            header.put(key, value);
+            if (isDebug) {
+                logger.debug("Set header {}={}", name, value);
+            }
+        } catch (Exception ignored) {
         }
     }
 
+    @Override
+    public boolean contains(Metadata header, String name) {
+        try {
+            final Metadata.Key<String> key = Metadata.Key.of(name, Metadata.ASCII_STRING_MARSHALLER);
+            return header.containsKey(key);
+        } catch (Exception ignored) {
+        }
+        return false;
+    }
 }

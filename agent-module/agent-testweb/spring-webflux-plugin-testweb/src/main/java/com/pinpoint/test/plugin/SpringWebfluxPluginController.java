@@ -18,7 +18,24 @@ package com.pinpoint.test.plugin;
 
 import com.pinpoint.test.common.view.ApiLinkPage;
 import com.pinpoint.test.common.view.HrefTag;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.http.DefaultFullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpClientCodec;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 import org.apache.commons.io.IOUtils;
@@ -56,6 +73,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 @RestController
@@ -305,6 +323,7 @@ public class SpringWebfluxPluginController {
 
         return "OK";
     }
+
     @RequestMapping(value = "/jdk/connect/https")
     public String getHttps() {
 
@@ -318,6 +337,7 @@ public class SpringWebfluxPluginController {
 
         return "OK";
     }
+
     @RequestMapping(value = "/jdk/connect/duplicated")
     public String getDuplicated() {
 
@@ -351,6 +371,7 @@ public class SpringWebfluxPluginController {
         return "OK";
     }
 
+
     @RequestMapping(value = "/jdk/connect2/https")
     public String get2Https() {
 
@@ -382,4 +403,82 @@ public class SpringWebfluxPluginController {
             throw new IllegalArgumentException("invalid url" + spec, exception);
         }
     }
+
+    @RequestMapping(value = "/netty/listener")
+    public String nettyListener() throws Exception {
+        final CountDownLatch awaitLatch = new CountDownLatch(1);
+        EventLoopGroup workerGroup = new NioEventLoopGroup(2);
+        Bootstrap bootstrap = client(workerGroup);
+        Channel channel = bootstrap.connect("httpbin.org", 80).sync().channel();
+
+        channel.pipeline().addLast(new SimpleChannelInboundHandler<FullHttpResponse>() {
+            @Override
+            protected void channelRead0(ChannelHandlerContext ctx, FullHttpResponse msg) {
+                awaitLatch.countDown();
+            }
+        });
+
+        try {
+            HttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, io.netty.handler.codec.http.HttpMethod.GET, "/");
+            channel.writeAndFlush(request);
+            boolean await = awaitLatch.await(3000, TimeUnit.MILLISECONDS);
+        } finally {
+            channel.close().sync();
+            workerGroup.shutdownGracefully().sync();
+        }
+
+        return "OK";
+    }
+
+    @RequestMapping(value = "/netty/write")
+    public String nettyWrite() throws Exception {
+        final CountDownLatch awaitLatch = new CountDownLatch(1);
+
+        EventLoopGroup workerGroup = new NioEventLoopGroup(2);
+        Bootstrap bootstrap = client(workerGroup);
+        final ChannelFuture connect = bootstrap.connect("httpbin.org", 80);
+
+        connect.addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if (future.isSuccess()) {
+                    Channel channel = future.channel();
+                    channel.pipeline().addLast(new SimpleChannelInboundHandler() {
+
+                        @Override
+                        protected void channelRead0(ChannelHandlerContext ctx, Object msg) {
+                            awaitLatch.countDown();
+                        }
+
+                    });
+                    HttpRequest request = new DefaultFullHttpRequest(
+                            HttpVersion.HTTP_1_1, io.netty.handler.codec.http.HttpMethod.GET, "/");
+                    future.channel().writeAndFlush(request);
+                }
+            }
+
+        });
+
+        boolean await = awaitLatch.await(3000, TimeUnit.MILLISECONDS);
+
+        final Channel channel = connect.channel();
+        channel.close().sync();
+        workerGroup.shutdownGracefully().sync();
+
+        return "OK";
+    }
+
+    public Bootstrap client(EventLoopGroup workerGroup) {
+        Bootstrap bootstrap = new Bootstrap();
+        bootstrap.group(workerGroup).channel(NioSocketChannel.class)
+                .handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel ch) throws Exception {
+                        ch.pipeline().addLast(new HttpClientCodec());
+                        ch.pipeline().addLast(new HttpObjectAggregator(65535));
+                    }
+                });
+        return bootstrap;
+    }
+
 }

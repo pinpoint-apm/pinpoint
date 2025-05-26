@@ -33,15 +33,32 @@ public class ClientHttpRequestClientHeaderAdaptor implements ClientHeaderAdaptor
 
     @Override
     public void setHeader(final ClientHttpRequest request, final String name, final String value) {
-        if (request != null) {
-            final HttpHeaders headers = request.getHeaders();
-            if (headers != null) {
-                final HttpHeaders httpHeaders = headers;
-                httpHeaders.put(name, Arrays.asList(value));
-                if (isDebug) {
-                    logger.debug("Set header {}={}", name, value);
+        try {
+            if (request != null) {
+                final HttpHeaders headers = request.getHeaders();
+                if (headers != null) {
+                    final HttpHeaders httpHeaders = headers;
+                    httpHeaders.put(name, Arrays.asList(value));
+                    if (isDebug) {
+                        logger.debug("Set header {}={}", name, value);
+                    }
                 }
             }
+        } catch (Exception ignored) {
         }
+    }
+
+    @Override
+    public boolean contains(ClientHttpRequest header, String name) {
+        try {
+            if (header != null) {
+                final HttpHeaders headers = header.getHeaders();
+                if (headers != null) {
+                    return headers.containsKey(name);
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return false;
     }
 }

@@ -31,9 +31,23 @@ public class RequestBuilder2ClientHeaderAdaptor implements ClientHeaderAdaptor<R
 
     @Override
     public void setHeader(Request.Builder builder, String name, String value) {
-        builder.header(name, value);
-        if (isDebug) {
-            logger.debug("Set header {}={}", name, value);
+        try {
+            builder.header(name, value);
+            if (isDebug) {
+                logger.debug("Set header {}={}", name, value);
+            }
+        } catch (Exception ignored) {
         }
+    }
+
+    @Override
+    public boolean contains(Request.Builder header, String name) {
+        try {
+            if (header != null) {
+                return header.build().headers().get(name) != null;
+            }
+        } catch (Exception ignored) {
+        }
+        return false;
     }
 }

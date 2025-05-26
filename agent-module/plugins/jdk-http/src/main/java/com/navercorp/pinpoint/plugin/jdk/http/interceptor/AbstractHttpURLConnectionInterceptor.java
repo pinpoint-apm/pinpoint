@@ -21,11 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventBlockSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
@@ -43,24 +39,14 @@ import java.net.HttpURLConnection;
  * @author emeroad
  * @author yjqg6666
  */
-public abstract class AbstractHttpURLConnectionInterceptor implements AroundInterceptor {
-    private static final Object TRACE_BLOCK_BEGIN_MARKER = new Object();
-    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final TraceContext traceContext;
-    private final MethodDescriptor descriptor;
-    private final InterceptorScope scope;
-
+public abstract class AbstractHttpURLConnectionInterceptor extends SpanEventBlockSimpleAroundInterceptorForPlugin {
     private final ClientRequestRecorder<HttpURLConnection> clientRequestRecorder;
     private final RequestTraceWriter<HttpURLConnection> requestTraceWriter;
     private final ClientRequestAdaptor<HttpURLConnection> clientRequestAdaptor = new JdkHttpClientRequestAdaptor();
     private final boolean markError;
 
-    public AbstractHttpURLConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope) {
-        this.traceContext = traceContext;
-        this.descriptor = descriptor;
-        this.scope = scope;
+    public AbstractHttpURLConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+        super(traceContext, descriptor);
 
         boolean param = JdkHttpPluginConfig.isParam(traceContext.getProfilerConfig());
         this.clientRequestRecorder = new ClientRequestRecorder<>(param, clientRequestAdaptor);
@@ -70,82 +56,53 @@ public abstract class AbstractHttpURLConnectionInterceptor implements AroundInte
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
-
-        Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        try {
-            final HttpURLConnection request = (HttpURLConnection) target;
-            final boolean canSample = trace.canSampled();
-            if (canSample) {
-                final TraceId nextId = trace.getTraceId().getNextTraceId();
-                String host = this.clientRequestAdaptor.getDestinationId(request);
-                try {
-                    this.requestTraceWriter.write(request, nextId, host);
-                } catch (Exception e) {
-                    // It happens if it is already connected or connected.
-                    if (isDebug) {
-                        logger.debug("Failed to requestTraceWriter, already connected or connected");
-                    }
-                    return;
-                }
-                scope.getCurrentInvocation().setAttachment(TRACE_BLOCK_BEGIN_MARKER);
-                final SpanEventRecorder recorder = trace.traceBlockBegin();
-                recorder.recordServiceType(JdkHttpConstants.SERVICE_TYPE);
-                recorder.recordNextSpanId(nextId.getSpanId());
-            } else {
-                try {
-                    this.requestTraceWriter.write(request);
-                } catch (Exception ignored) {
-                    // It happens if it is already connected or connected.
-                    if (isDebug) {
-                        logger.debug("Failed to requestTraceWriter, already connected or connected");
-                    }
-                }
-            }
-        } catch (Throwable th) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
-            }
-        }
+    public Trace currentTrace() {
+        return traceContext.currentRawTraceObject();
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            // do not log result
-            logger.afterInterceptor(target, args);
+    public boolean checkBeforeTraceBlockBegin(Trace trace, Object target, Object[] args) {
+        final HttpURLConnection request = (HttpURLConnection) target;
+        if (request == null) {
+            return false;
         }
 
-        Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
+        if (requestTraceWriter.isNested(request)) {
+            return false;
+        }
+
+        if (Boolean.FALSE == trace.canSampled()) {
+            this.requestTraceWriter.write(request);
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public void beforeTrace(Trace trace, SpanEventRecorder recorder, Object target, Object[] args) {
+        final HttpURLConnection request = (HttpURLConnection) target;
+        if (request == null) {
             return;
         }
 
-        final InterceptorScopeInvocation currentInvocation = scope.getCurrentInvocation();
-        if (TRACE_BLOCK_BEGIN_MARKER != currentInvocation.getAttachment()) {
-            return;
-        }
+        final TraceId nextId = trace.getTraceId().getNextTraceId();
+        recorder.recordNextSpanId(nextId.getSpanId());
+        String host = this.clientRequestAdaptor.getDestinationId(request);
+        this.requestTraceWriter.write(request, nextId, host);
+    }
 
-        try {
-            final HttpURLConnection request = (HttpURLConnection) target;
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(descriptor);
-            recorder.recordException(markError, throwable);
-            this.clientRequestRecorder.record(recorder, request, throwable);
-        } catch (Throwable th) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
-            }
-        } finally {
-            currentInvocation.removeAttachment();
-            trace.traceBlockEnd();
-        }
+    @Override
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+    }
+
+    @Override
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
+        recorder.recordServiceType(JdkHttpConstants.SERVICE_TYPE);
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(markError, throwable);
+
+        final HttpURLConnection request = (HttpURLConnection) target;
+        this.clientRequestRecorder.record(recorder, request, throwable);
     }
 }

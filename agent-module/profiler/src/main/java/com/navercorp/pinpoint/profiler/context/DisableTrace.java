@@ -204,7 +204,7 @@ public class DisableTrace implements Trace {
     }
 
     @Override
-    public TraceBlock traceBlockBeginAndGet() {
+    public TraceBlock getTraceBlock() {
         return new DisableTraceBlock(this, spanEventRecorder);
     }
 }

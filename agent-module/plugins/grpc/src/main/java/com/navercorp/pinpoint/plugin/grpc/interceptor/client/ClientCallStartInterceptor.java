@@ -21,134 +21,83 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventBlockSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapperAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.grpc.GrpcConstants;
-import com.navercorp.pinpoint.plugin.grpc.field.accessor.MethodNameAccessor;
-import com.navercorp.pinpoint.plugin.grpc.field.accessor.RemoteAddressAccessor;
 import io.grpc.Metadata;
-
-import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
-public class ClientCallStartInterceptor implements AroundInterceptor {
-
-    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final TraceContext traceContext;
-    private final MethodDescriptor descriptor;
+public class ClientCallStartInterceptor extends SpanEventBlockSimpleAroundInterceptorForPlugin {
+    private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
     private final RequestTraceWriter requestTraceWriter;
 
     public ClientCallStartInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        this.traceContext = traceContext;
-        this.descriptor = descriptor;
+        super(traceContext, descriptor);
+
+        ClientRequestAdaptor<ClientRequestWrapper> clientRequestAdaptor = ClientRequestWrapperAdaptor.INSTANCE;
+        this.clientRequestRecorder = new ClientRequestRecorder<>(Boolean.FALSE, clientRequestAdaptor);
 
         GrpcClientHeaderAdaptor grpcClientHeaderAdaptor = new GrpcClientHeaderAdaptor();
         this.requestTraceWriter = new DefaultRequestTraceWriter<>(grpcClientHeaderAdaptor, traceContext);
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
+    public Trace currentTrace() {
+        return traceContext.currentRawTraceObject();
+    }
+
+    @Override
+    public boolean checkBeforeTraceBlockBegin(Trace trace, Object target, Object[] args) {
+        final Metadata metadata = ArrayArgumentUtils.getArgument(args, 1, Metadata.class);
+        if (metadata == null) {
+            return false;
         }
 
-        final Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
-            return;
+        if (requestTraceWriter.isNested(metadata)) {
+            return false;
         }
 
-        if (ArrayUtils.getLength(args) != 2) {
-            return;
-        }
-
-        if (!(args[1] instanceof Metadata)) {
-            return;
-        }
-
-        Metadata metadata = (Metadata) args[1];
-        if (!trace.canSampled()) {
+        if (Boolean.FALSE == trace.canSampled()) {
             requestTraceWriter.write(metadata);
-            return;
+            return false;
         }
 
-        SpanEventRecorder recorder = trace.traceBlockBegin();
+        return true;
+    }
 
-        recorder.recordApi(descriptor);
-        recorder.recordServiceType(GrpcConstants.SERVICE_TYPE);
+    @Override
+    public void beforeTrace(Trace trace, SpanEventRecorder recorder, Object target, Object[] args) {
+        Metadata metadata = ArrayArgumentUtils.getArgument(args, 1, Metadata.class);
+        if (metadata == null) {
+            return;
+        }
 
         final TraceId nextId = trace.getTraceId().getNextTraceId();
         recorder.recordNextSpanId(nextId.getSpanId());
 
-        String remoteAddress = getEndPoint(target);
-        recorder.recordEndPoint(remoteAddress);
-        recorder.recordDestinationId(remoteAddress);
-
-        String methodName = getMethodName(target);
-        recorder.recordAttribute(AnnotationKey.HTTP_URL, combineAddressAndMethodName(remoteAddress, methodName));
-
-        requestTraceWriter.write(metadata, nextId, remoteAddress);
+        ClientRequestWrapper clientRequestWrapper = new GrpcClientRequestWrapper(target);
+        requestTraceWriter.write(metadata, nextId, clientRequestWrapper.getDestinationId());
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args);
-        }
-
-        Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        try {
-            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            if (throwable != null) {
-                recorder.recordException(throwable);
-            }
-        } finally {
-            trace.traceBlockEnd();
-        }
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
     }
 
+    @Override
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
+        recorder.recordApi(methodDescriptor);
+        recorder.recordServiceType(GrpcConstants.SERVICE_TYPE);
+        recorder.recordException(throwable);
 
-    private String combineAddressAndMethodName(String remoteAddress, String methodName) {
-        Objects.requireNonNull(remoteAddress, "remoteAddress");
-        Objects.requireNonNull(methodName, "methodName");
-
-        if (remoteAddress.startsWith("http")) {
-            return remoteAddress + "/" + methodName;
-        } else {
-            return "http://" + remoteAddress + "/" + methodName;
-        }
+        final ClientRequestWrapper clientRequestWrapper = new GrpcClientRequestWrapper(target);
+        clientRequestRecorder.record(recorder, clientRequestWrapper, throwable);
     }
-
-    private String getMethodName(Object target) {
-        if (target instanceof MethodNameAccessor) {
-            String methodName = ((MethodNameAccessor) target)._$PINPOINT$_getMethodName();
-            if (methodName != null) {
-                return methodName;
-            }
-        }
-        return GrpcConstants.UNKNOWN_METHOD;
-    }
-
-    public static String getEndPoint(Object target) {
-        if (target instanceof RemoteAddressAccessor) {
-            String remoteAddress = ((RemoteAddressAccessor) target)._$PINPOINT$_getRemoteAddress();
-            if (remoteAddress != null) {
-                return remoteAddress;
-            }
-        }
-        return GrpcConstants.UNKNOWN_ADDRESS;
-    }
-
 }

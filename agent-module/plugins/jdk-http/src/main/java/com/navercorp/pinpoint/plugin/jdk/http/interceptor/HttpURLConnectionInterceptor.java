@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 
 public class HttpURLConnectionInterceptor extends AbstractHttpURLConnectionInterceptor {
-    public HttpURLConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope) {
-        super(traceContext, descriptor, scope);
+    public HttpURLConnectionInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+        super(traceContext, descriptor);
     }
 }

@@ -20,6 +20,10 @@ public interface TraceBlock extends SpanEventRecorder, AutoCloseable {
 
     Trace getTrace();
 
+    void begin();
+
+    boolean isBegin();
+
     @Override
     void close();
 }

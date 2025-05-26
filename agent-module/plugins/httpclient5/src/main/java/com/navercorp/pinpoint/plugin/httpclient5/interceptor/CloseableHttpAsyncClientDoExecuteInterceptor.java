@@ -25,9 +25,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventBlockSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
@@ -53,12 +51,7 @@ import com.navercorp.pinpoint.plugin.httpclient5.HttpRequestGetter;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 
-public class CloseableHttpAsyncClientDoExecuteInterceptor implements AroundInterceptor {
-    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final TraceContext traceContext;
-    private final MethodDescriptor methodDescriptor;
+public class CloseableHttpAsyncClientDoExecuteInterceptor extends SpanEventBlockSimpleAroundInterceptorForPlugin {
     private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
     private final CookieRecorder<HttpRequest> cookieRecorder;
     private final EntityRecorder<HttpRequest> entityRecorder;
@@ -67,8 +60,7 @@ public class CloseableHttpAsyncClientDoExecuteInterceptor implements AroundInter
     private final boolean markError;
 
     public CloseableHttpAsyncClientDoExecuteInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        this.traceContext = traceContext;
-        this.methodDescriptor = methodDescriptor;
+        super(traceContext, methodDescriptor);
 
         final boolean param = HttpClient5PluginConfig.isParam(traceContext.getProfilerConfig());
         final HttpDumpConfig httpDumpConfig = HttpClient5PluginConfig.getHttpDumpConfig(traceContext.getProfilerConfig());
@@ -89,86 +81,77 @@ public class CloseableHttpAsyncClientDoExecuteInterceptor implements AroundInter
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
+    public Trace currentTrace() {
+        return traceContext.currentRawTraceObject();
+    }
+
+    @Override
+    public boolean checkBeforeTraceBlockBegin(Trace trace, Object target, Object[] args) {
+        final HttpRequest httpRequest = getHttpRequest(args);
+        if (httpRequest == null) {
+            return false;
         }
 
-        final Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
+        if (requestTraceWriter.isNested(httpRequest)) {
+            return false;
+        }
+
+        if (Boolean.FALSE == trace.canSampled()) {
+            this.requestTraceWriter.write(httpRequest);
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public void beforeTrace(Trace trace, SpanEventRecorder recorder, Object target, Object[] args) {
+        final HttpHost httpHost = ArrayArgumentUtils.getArgument(args, 0, HttpHost.class);
+        final HttpRequest httpRequest = getHttpRequest(args);
+        if (httpRequest == null) {
             return;
         }
 
-        try {
-            final HttpHost httpHost = ArrayArgumentUtils.getArgument(args, 0, HttpHost.class);
-            final HttpRequest httpRequest = getHttpRequest(args);
-            if (httpRequest == null) {
-                return;
-            }
-
-            final String host = HostUtils.get(httpHost, httpRequest);
-            final boolean sampling = trace.canSampled();
-            if (!sampling) {
-                if (httpRequest != null) {
-                    this.requestTraceWriter.write(httpRequest);
-                }
-                return;
-            }
-
-            final SpanEventRecorder recorder = trace.traceBlockBegin();
-            // set remote trace
-            final TraceId nextId = trace.getTraceId().getNextTraceId();
-            recorder.recordNextSpanId(nextId.getSpanId());
-            recorder.recordServiceType(HttpClient5Constants.HTTP_CLIENT5);
-            this.requestTraceWriter.write(httpRequest, nextId, host);
-            // HttpContext
-            final AsyncContextAccessor asyncContextAccessor = ArrayArgumentUtils.getArgument(args, 4, AsyncContextAccessor.class);
-            if (asyncContextAccessor != null) {
-                final AsyncContext asyncContext = recorder.recordNextAsyncContext();
-                asyncContextAccessor._$PINPOINT$_setAsyncContext(asyncContext);
-            }
-        } catch (Throwable t) {
-            logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
+        final String host = HostUtils.get(httpHost, httpRequest);
+        // set remote trace
+        final TraceId nextId = trace.getTraceId().getNextTraceId();
+        recorder.recordNextSpanId(nextId.getSpanId());
+        this.requestTraceWriter.write(httpRequest, nextId, host);
+        // HttpContext
+        final AsyncContextAccessor asyncContextAccessor = ArrayArgumentUtils.getArgument(args, 4, AsyncContextAccessor.class);
+        if (asyncContextAccessor != null) {
+            final AsyncContext asyncContext = recorder.recordNextAsyncContext();
+            asyncContextAccessor._$PINPOINT$_setAsyncContext(asyncContext);
         }
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args);
-        }
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+    }
 
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
+    @Override
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
+        recorder.recordServiceType(HttpClient5Constants.HTTP_CLIENT5);
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(markError, throwable);
+
+        final HttpHost httpHost = ArrayArgumentUtils.getArgument(args, 0, HttpHost.class);
+        final HttpRequest httpRequest = getHttpRequest(args);
+        if (httpRequest == null) {
             return;
         }
-
-        try {
-            final HttpHost httpHost = ArrayArgumentUtils.getArgument(args, 0, HttpHost.class);
-            final HttpRequest httpRequest = getHttpRequest(args);
-            if (httpRequest == null) {
-                return;
+        final String host = HostUtils.get(httpHost, httpRequest);
+        // Accessing httpRequest here not BEFORE() because it can cause side effect.
+        ClientRequestWrapper clientRequest = new HttpClient5RequestWrapper(httpRequest, host);
+        this.clientRequestRecorder.record(recorder, clientRequest, throwable);
+        this.cookieRecorder.record(recorder, httpRequest, throwable);
+        this.entityRecorder.record(recorder, httpRequest, throwable);
+        if (result instanceof AsyncContextAccessor) {
+            // HttpContext
+            final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 4);
+            if (asyncContext != null) {
+                ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
             }
-            final String host = HostUtils.get(httpHost, httpRequest);
-            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            // Accessing httpRequest here not BEFORE() because it can cause side effect.
-            ClientRequestWrapper clientRequest = new HttpClient5RequestWrapper(httpRequest, host);
-            this.clientRequestRecorder.record(recorder, clientRequest, throwable);
-            this.cookieRecorder.record(recorder, httpRequest, throwable);
-            this.entityRecorder.record(recorder, httpRequest, throwable);
-            recorder.recordApi(methodDescriptor);
-            recorder.recordException(markError, throwable);
-            if (result instanceof AsyncContextAccessor) {
-                // HttpContext
-                final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args, 4);
-                if (asyncContext != null) {
-                    ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
-                }
-            }
-        } catch (Throwable t) {
-            logger.warn("Failed to AFTER process. {}", t.getMessage(), t);
-        } finally {
-            trace.traceBlockEnd();
         }
     }
 
