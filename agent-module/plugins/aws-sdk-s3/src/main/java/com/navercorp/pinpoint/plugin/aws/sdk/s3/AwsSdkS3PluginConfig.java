@@ -30,7 +30,7 @@ public class AwsSdkS3PluginConfig {
     }
 
     public static boolean isMarkError(ProfilerConfig config) {
-        return config.readBoolean("profiler.aws.sdk.s3.mark.error", Boolean.TRUE);
+        return config.readBoolean("profiler.aws.sdk.s3.mark.error", Boolean.FALSE);
     }
 
     public AwsSdkS3PluginConfig(ProfilerConfig config) {
