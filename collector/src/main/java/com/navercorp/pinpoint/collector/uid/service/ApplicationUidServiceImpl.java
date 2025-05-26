@@ -1,98 +1,50 @@
 package com.navercorp.pinpoint.collector.uid.service;
 
-import com.navercorp.pinpoint.collector.uid.dao.ApplicationNameDao;
-import com.navercorp.pinpoint.collector.uid.dao.ApplicationUidDao;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.common.server.util.IdGenerator;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.navercorp.pinpoint.uid.service.BaseApplicationUidService;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Service;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.interceptor.SimpleKeyGenerator;
 
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
-@Service
-@ConditionalOnProperty(value = "pinpoint.collector.application.uid.enable", havingValue = "true")
+import static com.navercorp.pinpoint.collector.uid.config.CollectorApplicationUidConfig.APPLICATION_UID_CACHE_NAME;
+
 public class ApplicationUidServiceImpl implements ApplicationUidService {
 
-    private final Logger logger = LogManager.getLogger(this.getClass());
+    private final BaseApplicationUidService baseApplicationUidService;
 
-    private final ApplicationUidDao applicationUidDao;
-    private final ApplicationNameDao applicationNameDao;
-    private final IdGenerator<ApplicationUid> applicationUidGenerator;
+    private final Cache applicationUidCache;
 
-    public ApplicationUidServiceImpl(ApplicationUidDao applicationUidDao, ApplicationNameDao applicationNameDao,
-                                     @Qualifier("applicationUidGenerator") IdGenerator<ApplicationUid> applicationUidGenerator) {
-        this.applicationUidDao = Objects.requireNonNull(applicationUidDao, "applicationIdDao");
-        this.applicationNameDao = Objects.requireNonNull(applicationNameDao, "applicationInfoDao");
-        this.applicationUidGenerator = Objects.requireNonNull(applicationUidGenerator, "applicationIdGenerator");
+    public ApplicationUidServiceImpl(BaseApplicationUidService baseApplicationUidService,
+                                     @Qualifier(APPLICATION_UID_CACHE_NAME) CacheManager cacheManager) {
+        this.baseApplicationUidService = Objects.requireNonNull(baseApplicationUidService, "baseApplicationUidService");
+        this.applicationUidCache = Objects.requireNonNull(cacheManager, "cacheManager").getCache("applicationUidCache");
+    }
+
+    protected Object createSimpleCacheKey(Object... params) {
+        return SimpleKeyGenerator.generateKey(params);
     }
 
     @Override
+    @Cacheable(cacheNames = "applicationUidCache", cacheManager = APPLICATION_UID_CACHE_NAME, unless = "#result == null")
     public ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName) {
-        Objects.requireNonNull(serviceUid, "serviceUid");
-        Objects.requireNonNull(applicationName, "applicationName");
-        return applicationUidDao.selectApplicationUid(serviceUid, applicationName);
+        return baseApplicationUidService.getApplicationUid(serviceUid, applicationName);
     }
 
     @Override
+    @Cacheable(cacheNames = "applicationUidCache", cacheManager = APPLICATION_UID_CACHE_NAME, unless = "#result == null")
     public ApplicationUid getOrCreateApplicationUid(ServiceUid serviceUid, String applicationName) {
-        Objects.requireNonNull(serviceUid, "serviceUid");
-        Objects.requireNonNull(applicationName, "applicationName");
-
-        ApplicationUid applicationUid = applicationUidDao.selectApplicationUid(serviceUid, applicationName);
-        if (applicationUid != null) {
-            return applicationUid;
-        }
-
-        ApplicationUid newApplicationUid = tryInsertApplicationUid(serviceUid, applicationName);
-        if (newApplicationUid != null) {
-            return newApplicationUid;
-        }
-
-        return applicationUidDao.selectApplicationUid(serviceUid, applicationName);
+        return baseApplicationUidService.getOrCreateApplicationUid(serviceUid, applicationName);
     }
 
-    private ApplicationUid tryInsertApplicationUid(ServiceUid serviceUid, String applicationName) {
-        ApplicationUid newApplicationUid = insertApplicationNameWithRetries(serviceUid, applicationName, 3);
-        if (newApplicationUid == null) {
-            return null;
-        }
-        logger.debug("saved ({}, {} -> name:{})", serviceUid, newApplicationUid, applicationName);
-        return insertApplicationUidWithRollback(serviceUid, applicationName, newApplicationUid);
-    }
-
-    private ApplicationUid insertApplicationUidWithRollback(ServiceUid serviceUid, String applicationName, ApplicationUid newApplicationUid) {
-        try {
-            boolean success = applicationUidDao.insertApplicationUidIfNotExists(serviceUid, applicationName, newApplicationUid);
-            if (success) {
-                logger.info("saved ({}, name:{} -> {})", serviceUid, applicationName, newApplicationUid);
-                return newApplicationUid;
-            }
-        } catch (Throwable throwable) {
-            logger.error("Failed to insert applicationUid. {}, name:{}, {}", serviceUid, applicationName, newApplicationUid, throwable);
-        }
-
-        logger.debug("rollback. {}, {}, name:{}", serviceUid, newApplicationUid, applicationName);
-        try {
-            applicationNameDao.deleteApplicationName(serviceUid, newApplicationUid);
-        } catch (Throwable throwable) {
-            logger.error("Failed to delete applicationName. {}, name:{}, {}", serviceUid, applicationName, newApplicationUid, throwable);
-        }
-        return null;
-    }
-
-    private ApplicationUid insertApplicationNameWithRetries(ServiceUid serviceUid, String applicationName, int maxRetries) {
-        for (int i = 0; i < maxRetries; i++) {
-            ApplicationUid newApplicationUid = applicationUidGenerator.generate();
-            boolean nameInsertResult = applicationNameDao.insertApplicationNameIfNotExists(serviceUid, newApplicationUid, applicationName);
-            if (nameInsertResult) {
-                return newApplicationUid;
-            }
-        }
-        logger.error("ApplicationUid collision. applicationName: {}, maxRetries: {}", applicationName, maxRetries);
-        return null;
+    @Override
+    public CompletableFuture<ApplicationUid> asyncGetOrCreateApplicationUid(ServiceUid serviceUid, String applicationName) {
+        return applicationUidCache.retrieve(createSimpleCacheKey(serviceUid, applicationName),
+                () -> baseApplicationUidService.asyncGetOrCreateApplicationUid(serviceUid, applicationName));
     }
 }
