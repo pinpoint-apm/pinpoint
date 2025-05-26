@@ -20,6 +20,7 @@ package com.navercorp.pinpoint.common.util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.StringTokenizer;
 
 public final class StringUtils {
@@ -35,6 +36,11 @@ public final class StringUtils {
     private StringUtils() {
     }
 
+    /**
+     *
+     * @deprecated Since 3.1.0. Use {@link Objects#toString(Object, String)}
+     */
+    @Deprecated
     public static String defaultString(final String str, final String defaultStr) {
         return str == null ? defaultStr : str;
     }

@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 
 import java.util.Objects;
@@ -44,7 +43,7 @@ public class ApplicationMapStatisticsUtils {
 
     public static byte[] makeColumnName(short serviceType, String applicationName, String destHost, short slotNumber) {
         Objects.requireNonNull(applicationName, "applicationName");
-        destHost = StringUtils.defaultString(destHost, "");
+        destHost = Objects.toString(destHost, "");
 
         // approximate size of destHost
         final Buffer buffer = new AutomaticBuffer(BytesUtils.SHORT_BYTE_LENGTH + PinpointConstants.APPLICATION_NAME_MAX_LEN + destHost.length() + BytesUtils.SHORT_BYTE_LENGTH);

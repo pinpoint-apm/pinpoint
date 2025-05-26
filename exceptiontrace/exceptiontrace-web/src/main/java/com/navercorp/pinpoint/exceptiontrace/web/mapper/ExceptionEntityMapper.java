@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.exceptiontrace.web.mapper;
 
 import com.navercorp.pinpoint.common.server.mapper.MapStructUtils;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionChartValueViewEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionGroupSummaryEntity;
@@ -40,6 +39,7 @@ import org.mapstruct.Named;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
+import java.util.Objects;
 
 import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.makeReadableString;
 import static com.navercorp.pinpoint.exceptiontrace.web.mapper.CLPMapper.replacePlaceHolders;
@@ -134,6 +134,6 @@ public interface ExceptionEntityMapper {
     }
 
     default String checkIfNull(String s) {
-        return StringUtils.defaultString(s, "null");
+        return Objects.toString(s, "null");
     }
 }

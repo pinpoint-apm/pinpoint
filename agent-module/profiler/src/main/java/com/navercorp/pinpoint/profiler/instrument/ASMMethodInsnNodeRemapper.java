@@ -15,11 +15,11 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
-import com.navercorp.pinpoint.common.util.StringUtils;
 import org.objectweb.asm.tree.MethodInsnNode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -38,16 +38,16 @@ public class ASMMethodInsnNodeRemapper {
     }
 
     private String mapOwner(final String ownerClassInternalName) {
-        return StringUtils.defaultString(this.owner, ownerClassInternalName);
+        return Objects.toString(this.owner, ownerClassInternalName);
     }
 
     private String mapName(final String name) {
-        return StringUtils.defaultString(this.name, name);
+        return Objects.toString(this.name, name);
     }
 
 
     private String mapDesc(final String desc) {
-        return StringUtils.defaultString(this.desc, desc);
+        return Objects.toString(this.desc, desc);
     }
 
     public void mapping(final MethodInsnNode methodInsnNode) {

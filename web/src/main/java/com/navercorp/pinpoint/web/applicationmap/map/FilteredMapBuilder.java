@@ -39,7 +39,6 @@ import com.navercorp.pinpoint.web.service.DotExtractor;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.LinkedMultiValueMap;
@@ -282,7 +281,7 @@ public class FilteredMapBuilder {
             return;
         }
 
-        String dest = StringUtils.defaultString(spanEvent.getDestinationId(), "Unknown");
+        String dest = Objects.toString(spanEvent.getDestinationId(), "Unknown");
 
         // convert to Unknown if destServiceType is a rpc client and there is no acceptor.
         // acceptor exists if there is a span with spanId identical to the current spanEvent's next spanId.
@@ -313,7 +312,7 @@ public class FilteredMapBuilder {
             logger.trace("spanEvent  src:{} {} -> dest:{} {}", srcApplication, span.getAgentId(), destApplication, spanEvent.getEndPoint());
         }
         // endPoint may be null
-        final String destinationAgentId = StringUtils.defaultString(spanEvent.getEndPoint(), destApplication.getName());
+        final String destinationAgentId = Objects.toString(spanEvent.getEndPoint(), destApplication.getName());
         sourceLinkDataMap.addLinkData(srcApplication, span.getAgentId(), destApplication, destinationAgentId, spanEventTimeStamp, slotTime, 1);
     }
 

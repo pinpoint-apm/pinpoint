@@ -99,7 +99,7 @@ public class CubridJdbcUrlParser implements JdbcUrlParserV2 {
 //                logger.info("cubrid portString parsing fail. portString:{}, url:{}", portString, jdbcUrl);
 //            }
 //        }
-//        user = StringUtils.defaultString(user, DEFAULT_USER);
+//        user = Objects.toString(user, DEFAULT_USER);
 
 //        if (pass == null) {
 //            pass = DEFAULT_PASSWORD;

@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.exceptiontrace.common.model;
 
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.exceptiontrace.common.util.HashUtils;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author intr3p1d
@@ -77,7 +77,7 @@ public class ExceptionMetaData {
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         this.uriTemplate = uriTemplate;
         this.errorClassName = StringPrecondition.requireHasLength(errorClassName, "errorClassName");
-        this.errorMessage = StringUtils.defaultString(errorMessage, "null");
+        this.errorMessage = Objects.toString(errorMessage, "null");
         this.exceptionDepth = exceptionDepth;
         this.stackTrace = stackTrace;
         this.stackTraceHash = stackTraceHash;

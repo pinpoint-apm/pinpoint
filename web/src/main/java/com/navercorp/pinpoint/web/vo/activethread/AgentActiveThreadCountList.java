@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.web.vo.activethread;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.view.AgentActiveThreadCountListSerializer;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -42,7 +42,7 @@ public class AgentActiveThreadCountList {
 
     public List<AgentActiveThreadCount> getAgentActiveThreadRepository() {
         // sort agentId
-        agentActiveThreadRepository.sort(Comparator.comparing(threadCount -> StringUtils.defaultString(threadCount.getAgentId())));
+        agentActiveThreadRepository.sort(Comparator.comparing(threadCount -> Objects.toString(threadCount.getAgentId())));
 
         return agentActiveThreadRepository;
     }
