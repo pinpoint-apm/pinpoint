@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationComparator;
 import com.navercorp.pinpoint.common.server.bo.AnnotationFactory;
+import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -150,8 +151,9 @@ public class GrpcSpanBinder {
         // FIXME span.errCode contains error of span and spanEvent
         // because exceptionInfo is the error information of span itself, exceptionInfo can be null even if errCode is not 0
         if (pSpan.hasExceptionInfo()) {
-            final PIntStringValue exceptionInfo = pSpan.getExceptionInfo();
-            spanBo.setExceptionInfo(exceptionInfo.getIntValue(), getExceptionMessage(exceptionInfo));
+            final PIntStringValue pException = pSpan.getExceptionInfo();
+            ExceptionInfo exceptionInfo = new ExceptionInfo(pException.getIntValue(), getExceptionMessage(pException));
+            spanBo.setExceptionInfo(exceptionInfo);
         }
 
         List<AnnotationBo> annotationBoList = buildAnnotationList(pSpan.getAnnotationList());
@@ -213,8 +215,9 @@ public class GrpcSpanBinder {
         spanEvent.setAnnotationBoList(annotationList);
 
         if (pSpanEvent.hasExceptionInfo()) {
-            final PIntStringValue exceptionInfo = pSpanEvent.getExceptionInfo();
-            spanEvent.setExceptionInfo(exceptionInfo.getIntValue(), getExceptionMessage(exceptionInfo));
+            final PIntStringValue pException = pSpanEvent.getExceptionInfo();
+            ExceptionInfo exceptionInfo = new ExceptionInfo(pSpanEvent.getExceptionInfo().getIntValue(), getExceptionMessage(pException));
+            spanEvent.setExceptionInfo(exceptionInfo);
         }
     }
 

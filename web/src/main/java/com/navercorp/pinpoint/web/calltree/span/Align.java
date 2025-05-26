@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.calltree.span;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 
@@ -90,13 +91,11 @@ public interface Align {
 
     boolean hasException();
 
-    int getExceptionId();
+    ExceptionInfo getExceptionInfo();
 
     String getExceptionClass();
 
     void setExceptionClass(String exceptionClass);
-
-    String getExceptionMessage();
 
     String getRemoteAddr();
 

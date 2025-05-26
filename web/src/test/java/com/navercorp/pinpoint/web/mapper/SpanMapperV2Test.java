@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.web.mapper;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
@@ -33,10 +34,10 @@ public class SpanMapperV2Test {
 
         SpanBo span = new SpanBo();
         span.setServiceType((short) 1000);
-        span.setExceptionInfo(1, "spanException");
+        span.setExceptionInfo(new ExceptionInfo(1, "spanException"));
 
         SpanEventBo firstSpanEventBo = new SpanEventBo();
-        firstSpanEventBo.setExceptionInfo(2, "first");
+        firstSpanEventBo.setExceptionInfo(new ExceptionInfo(2, "first"));
         firstSpanEventBo.setEndElapsed(100);
 
         AnnotationBo annotationBo = AnnotationBo.of(200, "annotation");
@@ -71,8 +72,9 @@ public class SpanMapperV2Test {
         // span
         Assertions.assertEquals(1000, readSpan.getServiceType());
         Assertions.assertTrue(readSpan.hasException());
-        Assertions.assertEquals(1, readSpan.getExceptionId());
-        Assertions.assertEquals("spanException", readSpan.getExceptionMessage());
+        final ExceptionInfo exceptionInfo = readSpan.getExceptionInfo();
+        Assertions.assertEquals(1, exceptionInfo.id());
+        Assertions.assertEquals("spanException", exceptionInfo.message());
 
         List<SpanEventBo> spanEventBoList = readSpan.getSpanEventBoList();
         SpanEventBo readFirst = spanEventBoList.get(0);
@@ -81,8 +83,9 @@ public class SpanMapperV2Test {
         Assertions.assertEquals(100, readFirst.getEndElapsed());
         Assertions.assertEquals(200, readNext.getEndElapsed());
 
-        Assertions.assertEquals(2, readFirst.getExceptionId());
-        Assertions.assertFalse(readNext.hasException());
+        ExceptionInfo exceptionInfo2 = readFirst.getExceptionInfo();
+        Assertions.assertEquals(2, exceptionInfo2.id());
+        Assertions.assertEquals("first", exceptionInfo2.message());
 
         Assertions.assertEquals(1003, readFirst.getServiceType());
         Assertions.assertEquals(2003, readNext.getServiceType());

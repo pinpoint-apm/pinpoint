@@ -77,8 +77,9 @@ public class SpanFactoryAssert {
         Assertions.assertEquals(hasException, spanBo.hasException());
         if (hasException) {
             PIntStringValue exceptionInfo = pSpan.getExceptionInfo();
-            Assertions.assertEquals(exceptionInfo.getIntValue(), spanBo.getExceptionId());
-            Assertions.assertEquals(exceptionInfo.getStringValue().getValue(), spanBo.getExceptionMessage());
+            ExceptionInfo exceptionInfoBo = spanBo.getExceptionInfo();
+            Assertions.assertEquals(exceptionInfo.getIntValue(), exceptionInfoBo.id());
+            Assertions.assertEquals(exceptionInfo.getStringValue().getValue(), exceptionInfoBo.message());
         }
 
         Assertions.assertEquals(pSpan.getLoggingTransactionInfo(), spanBo.getLoggingTransactionInfo());
@@ -133,8 +134,9 @@ public class SpanFactoryAssert {
         Assertions.assertEquals(hasException, spanEventBo.hasException());
         if (hasException) {
             PIntStringValue exceptionInfo = pSpanEvent.getExceptionInfo();
-            Assertions.assertEquals(exceptionInfo.getIntValue(), spanEventBo.getExceptionId());
-            Assertions.assertEquals(exceptionInfo.getStringValue().getValue(), spanEventBo.getExceptionMessage());
+            ExceptionInfo exceptionInfoBo = spanEventBo.getExceptionInfo();
+            Assertions.assertEquals(exceptionInfo.getIntValue(), exceptionInfoBo.id());
+            Assertions.assertEquals(exceptionInfo.getStringValue().getValue(), exceptionInfoBo.message());
         }
 
         Assertions.assertEquals(pSpanEvent.getAsyncEvent(), spanEventBo.getNextAsyncId());

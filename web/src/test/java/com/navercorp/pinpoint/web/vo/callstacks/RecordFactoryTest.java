@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.profiler.trace.TraceMetadataLoader;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -94,7 +95,7 @@ public class RecordFactoryTest {
 
         SpanBo spanBo = new SpanBo();
         spanBo.setTransactionId(TransactionId.of("test", 0, 0));
-        spanBo.setExceptionInfo(1, null);
+        spanBo.setExceptionInfo(new ExceptionInfo(1, null));
         Align align = new SpanAlign(spanBo);
 
 

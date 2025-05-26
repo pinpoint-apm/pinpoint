@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.profiler.sql.SqlNormalizer;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
+import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
@@ -498,7 +499,8 @@ public class SpanServiceImpl implements SpanService {
     private void transitionException(List<Align> alignList) {
         for (Align align : alignList) {
             if (align.hasException()) {
-                StringMetaDataBo stringMetaData = selectStringMetaData(align.getAgentId(), align.getExceptionId(), align.getAgentStartTime());
+                ExceptionInfo exceptionInfo = align.getExceptionInfo();
+                StringMetaDataBo stringMetaData = selectStringMetaData(align.getAgentId(), exceptionInfo.id(), align.getAgentStartTime());
                 align.setExceptionClass(stringMetaData.getStringValue());
             }
         }

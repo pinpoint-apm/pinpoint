@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.calltree.span;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 
@@ -35,7 +36,6 @@ public class SpanEventAlign implements Align {
     private long gap;
     private int depth;
     private long executionMilliseconds;
-
 
     public SpanEventAlign(SpanBo spanBo, SpanEventBo spanEventBo) {
         this.spanBo = Objects.requireNonNull(spanBo, "spanBo");
@@ -196,8 +196,8 @@ public class SpanEventAlign implements Align {
     }
 
     @Override
-    public int getExceptionId() {
-        return spanEventBo.getExceptionId();
+    public ExceptionInfo getExceptionInfo() {
+        return spanEventBo.getExceptionInfo();
     }
 
     @Override
@@ -208,11 +208,6 @@ public class SpanEventAlign implements Align {
     @Override
     public void setExceptionClass(String exceptionClass) {
         spanEventBo.setExceptionClass(exceptionClass);
-    }
-
-    @Override
-    public String getExceptionMessage() {
-        return spanEventBo.getExceptionMessage();
     }
 
     @Override

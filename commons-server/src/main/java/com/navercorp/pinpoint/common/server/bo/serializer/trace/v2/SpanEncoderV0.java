@@ -5,6 +5,7 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationTranscoder;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
+import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -181,8 +182,11 @@ public class SpanEncoderV0 implements SpanEncoder {
         }
 
         if (bitField.isSetHasException()) {
-            buffer.putSVInt(span.getExceptionId());
-            buffer.putPrefixedString(span.getExceptionMessage());
+            if (span.hasException()) {
+                ExceptionInfo exceptionInfo = span.getExceptionInfo();
+                buffer.putSVInt(exceptionInfo.id());
+                buffer.putPrefixedString(exceptionInfo.message());
+            }
         }
 
         if (bitField.isSetFlag()) {
@@ -235,8 +239,11 @@ public class SpanEncoderV0 implements SpanEncoder {
         }
 
         if (bitField.isSetHasException()) {
-            buffer.putSVInt(spanEventBo.getExceptionId());
-            buffer.putPrefixedString(spanEventBo.getExceptionMessage());
+            ExceptionInfo exceptionInfo = spanEventBo.getExceptionInfo();
+            if (exceptionInfo!= null) {
+                buffer.putSVInt(exceptionInfo.id());
+                buffer.putPrefixedString(exceptionInfo.message());
+            }
         }
 
         if (bitField.isSetAnnotation()) {
@@ -322,8 +329,11 @@ public class SpanEncoderV0 implements SpanEncoder {
         }
 
         if (bitField.isSetHasException()) {
-            buffer.putSVInt(spanEventBo.getExceptionId());
-            buffer.putPrefixedString(spanEventBo.getExceptionMessage());
+            ExceptionInfo exceptionInfo = spanEventBo.getExceptionInfo();
+            if (exceptionInfo != null) {
+                buffer.putSVInt(exceptionInfo.id());
+                buffer.putPrefixedString(exceptionInfo.message());
+            }
         }
 
         if (bitField.isSetAnnotation()) {
