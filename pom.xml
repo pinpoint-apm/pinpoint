@@ -120,6 +120,7 @@
         <module>redis-timeseries</module>
         <module>feature-flag</module>
         <module>service-module</module>
+        <module>hbase-uid-module</module>
     </modules>
 
     <properties>
@@ -595,6 +596,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-service-module</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-hbase-uid-module</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

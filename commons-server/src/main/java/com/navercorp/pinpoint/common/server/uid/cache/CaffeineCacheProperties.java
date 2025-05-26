@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.common.server.uid.cache;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.lang.Nullable;
 
 import java.time.Duration;
 

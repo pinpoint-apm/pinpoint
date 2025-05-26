@@ -1,17 +1,16 @@
 package com.navercorp.pinpoint.collector.uid.service;
 
-import com.navercorp.pinpoint.collector.uid.config.ServiceUidMysqlCacheConfig;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.service.component.StaticServiceRegistry;
 import com.navercorp.pinpoint.service.service.ServiceInfoService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.support.NoOpCache;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
-import java.util.Optional;
+
+import static com.navercorp.pinpoint.collector.uid.config.ServiceUidMysqlCacheConfig.SERVICE_UID_CACHE_NAME;
 
 @Service
 public class ServiceUidService {
@@ -22,12 +21,11 @@ public class ServiceUidService {
 
     public ServiceUidService(StaticServiceRegistry staticServiceRegistry,
                              ServiceInfoService serviceInfoService,
-                             @Qualifier("serviceUidCache") Optional<CacheManager> optionalCacheManager) {
+                             @Qualifier("serviceUidCache") CacheManager serviceUidCacheManager) {
         this.registry = Objects.requireNonNull(staticServiceRegistry, "staticServiceRegistry");
         this.serviceInfoService = Objects.requireNonNull(serviceInfoService, "serviceService");
-        this.serviceUidCache = optionalCacheManager
-                .map(cacheManager -> cacheManager.getCache(ServiceUidMysqlCacheConfig.SERVICE_UID_CACHE_NAME))
-                .orElse(new NoOpCache(ServiceUidMysqlCacheConfig.SERVICE_UID_CACHE_NAME));
+        Objects.requireNonNull(serviceUidCacheManager, "serviceUidCacheManager");
+        this.serviceUidCache = Objects.requireNonNull(serviceUidCacheManager.getCache(SERVICE_UID_CACHE_NAME), "serviceUidCache");
     }
 
     public ServiceUid getServiceUid(String serviceName) {

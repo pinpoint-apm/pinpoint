@@ -6,11 +6,13 @@ import com.navercorp.pinpoint.common.server.uid.AgentIdentifier;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
-import com.navercorp.pinpoint.web.service.AgentListService;
-import com.navercorp.pinpoint.web.uid.service.AgentNameService;
+import com.navercorp.pinpoint.uid.service.AgentNameService;
+import com.navercorp.pinpoint.uid.service.ApplicationCleanupService;
 import com.navercorp.pinpoint.web.uid.service.ApplicationUidService;
+import com.navercorp.pinpoint.web.service.AgentListService;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,26 +26,21 @@ import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping(value = "/api/admin")
+@ConditionalOnProperty(name = "pinpoint.modules.uid.enabled", havingValue = "true")
 public class UidAdminController {
     private final ApplicationUidService applicationUidService;
+    private final ApplicationCleanupService applicationUidCleanupService;
     private final AgentNameService agentNameService;
 
     private final AgentListService agentListService;
 
-    public UidAdminController(ApplicationUidService applicationUidService, AgentNameService agentNameService, AgentListService agentListService) {
+    public UidAdminController(ApplicationUidService applicationUidService,
+                              ApplicationCleanupService applicationCleanupService,
+                              AgentNameService agentNameService, AgentListService agentListService) {
         this.applicationUidService = Objects.requireNonNull(applicationUidService, "applicationUidService");
+        this.applicationUidCleanupService = Objects.requireNonNull(applicationCleanupService, "applicationCleanupService");
         this.agentNameService = Objects.requireNonNull(agentNameService, "agentNameService");
         this.agentListService = Objects.requireNonNull(agentListService, "agentListService");
-    }
-
-    // debug
-    @GetMapping(value = "/debug/agent", params = "agentId")
-    public List<AgentIdentifier> getAgent(@RequestParam(value = "serviceUid", required = false, defaultValue = "0") int serviceUid,
-                                          @RequestParam(value = "applicationName") @NotBlank String applicationName,
-                                          @RequestParam(value = "agentId") @NotBlank String agentId) {
-        ServiceUid serviceUidObject = ServiceUid.of(serviceUid);
-        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUidObject, applicationName);
-        return agentNameService.getAgentIdentifier(serviceUidObject, applicationUid, agentId);
     }
 
     @GetMapping(value = "/debug/agent")
@@ -106,7 +103,7 @@ public class UidAdminController {
             ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUidObject, applicationName);
             agentListService.cleanupInactiveAgent(serviceUidObject, applicationUid, range);
         }
-        int applicationCleanupCount = applicationUidService.cleanupEmptyApplication(serviceUidObject, from);
+        int applicationCleanupCount = applicationUidCleanupService.cleanupEmptyApplication(serviceUidObject, from);
         return SimpleResponse.ok("applicationCleanupCount: " + applicationCleanupCount);
     }
 
@@ -114,7 +111,7 @@ public class UidAdminController {
     @GetMapping(value = "/cleanup/inconsistentApplicationUid")
     public Response cleanupInconsistentApplicationUid(@RequestParam(value = "serviceUid") Optional<Integer> serviceUid) {
         ServiceUid serviceUidObject = serviceUid.map(ServiceUid::of).orElse(null);
-        int cleanupCount = applicationUidService.cleanupInconsistentApplicationName(serviceUidObject);
+        int cleanupCount = applicationUidCleanupService.cleanupInconsistentApplicationUid(serviceUidObject);
         return SimpleResponse.ok("cleanupCount: " + cleanupCount);
     }
 

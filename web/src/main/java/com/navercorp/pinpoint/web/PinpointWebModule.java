@@ -16,7 +16,7 @@ import com.navercorp.pinpoint.web.heatmap.HeatmapWebModule;
 import com.navercorp.pinpoint.web.install.InstallModule;
 import com.navercorp.pinpoint.web.query.QueryServiceConfiguration;
 import com.navercorp.pinpoint.web.realtime.RealtimeConfig;
-import com.navercorp.pinpoint.web.uid.UidModule;
+import com.navercorp.pinpoint.web.uid.WebUidConfiguration;
 import com.navercorp.pinpoint.web.webhook.WebhookFacadeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -52,7 +52,7 @@ import org.springframework.core.env.StandardEnvironment;
         FrontendConfigExportConfiguration.class,
         QueryServiceConfiguration.class,
 
-        UidModule.class,
+        WebUidConfiguration.class,
         HeatmapWebModule.class
 })
 @ComponentScan(basePackages = {

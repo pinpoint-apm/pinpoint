@@ -5,6 +5,7 @@ import com.navercorp.pinpoint.common.server.response.SimpleResponse;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.web.uid.service.ApplicationUidService;
+import com.navercorp.pinpoint.web.uid.service.ServiceUidCachedService;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
@@ -19,26 +20,28 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/api")
-@ConditionalOnProperty(name = "pinpoint.web.application.uid.enable", havingValue = "true")
+@ConditionalOnProperty(name = "pinpoint.modules.uid.enabled", havingValue = "true")
 public class ApplicationUidController {
 
+    private final ServiceUidCachedService serviceUidCachedService;
     private final ApplicationUidService applicationUidService;
 
-    public ApplicationUidController(ApplicationUidService applicationUidService) {
-        this.applicationUidService = Objects.requireNonNull(applicationUidService, "applicationInfoService");
+    public ApplicationUidController(ServiceUidCachedService serviceUidCachedService, ApplicationUidService applicationUidService) {
+        this.serviceUidCachedService = Objects.requireNonNull(serviceUidCachedService, "serviceUidCachedService");
+        this.applicationUidService = Objects.requireNonNull(applicationUidService, "cachedApplicationUidService");
     }
 
     @GetMapping(value = "/applicationNames")
-    public List<String> getApplications(@RequestParam(value = "serviceUid", required = false, defaultValue = "0") int serviceUid) {
-        ServiceUid serviceUidObject = ServiceUid.of(serviceUid);
-        return applicationUidService.getApplicationNames(serviceUidObject);
+    public List<String> getApplications(@RequestParam(value = "serviceName", required = false, defaultValue = ServiceUid.DEFAULT_SERVICE_UID_NAME) String serviceName) {
+        ServiceUid serviceUid = serviceUidCachedService.getServiceUid(serviceName);
+        return applicationUidService.getApplicationNames(serviceUid);
     }
 
     @GetMapping(value = "/application/uid")
-    public ResponseEntity<Long> getApplicationUid(@RequestParam(value = "serviceUid", required = false, defaultValue = "0") int serviceUid,
+    public ResponseEntity<Long> getApplicationUid(@RequestParam(value = "serviceName", required = false, defaultValue = ServiceUid.DEFAULT_SERVICE_UID_NAME) String serviceName,
                                                   @RequestParam(value = "applicationName") @NotBlank String applicationName) {
-        ServiceUid serviceUidObject = ServiceUid.of(serviceUid);
-        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUidObject, applicationName);
+        ServiceUid serviceUid = serviceUidCachedService.getServiceUid(serviceName);
+        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, applicationName);
         if (applicationUid == null) {
             return ResponseEntity.noContent().build();
         }
@@ -46,9 +49,9 @@ public class ApplicationUidController {
     }
 
     @GetMapping(value = "/application/name")
-    public ResponseEntity<String> getApplicationName(@RequestParam(value = "serviceUid", required = false, defaultValue = "0") int serviceUid,
+    public ResponseEntity<String> getApplicationName(@RequestParam(value = "serviceName", required = false, defaultValue = ServiceUid.DEFAULT_SERVICE_UID_NAME) String serviceName,
                                                      @RequestParam(value = "applicationUid") long applicationUid) {
-        ServiceUid serviceUidObject = ServiceUid.of(serviceUid);
+        ServiceUid serviceUidObject = serviceUidCachedService.getServiceUid(serviceName);
         ApplicationUid applicationUidObject = ApplicationUid.of(applicationUid);
         String applicationName = applicationUidService.getApplicationName(serviceUidObject, applicationUidObject);
         if (applicationName == null) {
@@ -58,9 +61,10 @@ public class ApplicationUidController {
     }
 
     @DeleteMapping(value = "/application")
-    public Response deleteApplication(@RequestParam(value = "serviceUid", required = false, defaultValue = "0") int serviceUid,
+    public Response deleteApplication(@RequestParam(value = "serviceName", required = false, defaultValue = ServiceUid.DEFAULT_SERVICE_UID_NAME) String serviceName,
                                       @RequestParam(value = "applicationName") @NotBlank String applicationName) {
-        applicationUidService.deleteApplication(ServiceUid.of(serviceUid), applicationName);
+        ServiceUid serviceUid = serviceUidCachedService.getServiceUid(serviceName);
+        applicationUidService.deleteApplication(serviceUid, applicationName);
         return SimpleResponse.ok();
     }
 

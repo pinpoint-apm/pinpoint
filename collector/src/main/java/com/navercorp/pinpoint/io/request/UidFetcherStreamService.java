@@ -8,15 +8,15 @@ import java.util.Objects;
 
 public class UidFetcherStreamService {
 
-    private final ApplicationUidService applicationUidService;
+    private final ApplicationUidService applicationUidCacheService;
 
-    public UidFetcherStreamService(ApplicationUidService applicationUidService) {
-        this.applicationUidService = Objects.requireNonNull(applicationUidService, "applicationUidService");
+    public UidFetcherStreamService(ApplicationUidService applicationUidCacheService) {
+        this.applicationUidCacheService = Objects.requireNonNull(applicationUidCacheService, "applicationUidService");
     }
 
     public UidFetcher newUidFetcher() {
         UidCache cache = new SingleEntryUidCacheV1();
-        return new UidFetcherV1(applicationUidService, cache);
+        return new UidFetcherV1(applicationUidCacheService, cache);
     }
 
 }

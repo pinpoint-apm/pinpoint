@@ -16,7 +16,7 @@ public interface ServiceInfoService {
 
     ServiceUid getServiceUid(String serviceName);
 
-    String getServiceName(int uid);
+    String getServiceName(ServiceUid serviceUid);
 
     void updateServiceConfig(String serviceName, Map<String, String> newConfiguration);
 

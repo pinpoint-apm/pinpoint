@@ -14,7 +14,6 @@ import org.springframework.cache.CacheManager;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.Optional;
 
 public class ServiceUidServiceTest {
 
@@ -29,7 +28,7 @@ public class ServiceUidServiceTest {
         String defaultServiceName = ServiceUid.DEFAULT_SERVICE_UID_NAME;
         ServiceInfoService serviceInfoService = Mockito.mock(ServiceInfoService.class);
         CacheManager cacheManager = cacheConfig.serviceUidCache(properties, Duration.of(1, ChronoUnit.MINUTES));
-        ServiceUidService serviceUidService = new ServiceUidService(staticServiceRegistry, serviceInfoService, Optional.of(cacheManager));
+        ServiceUidService serviceUidService = new ServiceUidService(staticServiceRegistry, serviceInfoService, cacheManager);
 
         Assertions.assertThat(serviceUidService.getServiceUid(defaultServiceName)).isEqualTo(ServiceUid.DEFAULT);
     }
@@ -40,7 +39,7 @@ public class ServiceUidServiceTest {
         String serviceName = "serviceName";
         ServiceInfoService serviceInfoService = Mockito.mock(ServiceInfoService.class);
         CacheManager cacheManager = cacheConfig.serviceUidCache(properties, Duration.of(1, ChronoUnit.MINUTES));
-        ServiceUidService serviceUidService = new ServiceUidService(staticServiceRegistry, serviceInfoService, Optional.of(cacheManager));
+        ServiceUidService serviceUidService = new ServiceUidService(staticServiceRegistry, serviceInfoService, cacheManager);
 
         Mockito.when(serviceInfoService.getServiceUid(serviceName)).thenReturn(ServiceUid.of(100001));
         serviceUidService.getServiceUid(serviceName);
@@ -54,7 +53,7 @@ public class ServiceUidServiceTest {
         String unRegisteredServiceName = "unRegisteredServiceName";
         ServiceInfoService serviceInfoService = Mockito.mock(ServiceInfoService.class);
         CacheManager cacheManager = cacheConfig.serviceUidCache(properties, Duration.of(1, ChronoUnit.MINUTES));
-        ServiceUidService serviceUidService = new ServiceUidService(staticServiceRegistry, serviceInfoService, Optional.of(cacheManager));
+        ServiceUidService serviceUidService = new ServiceUidService(staticServiceRegistry, serviceInfoService, cacheManager);
         Cache cache = cacheManager.getCache(ServiceUidMysqlCacheConfig.SERVICE_UID_CACHE_NAME);
 
         Mockito.when(serviceInfoService.getServiceUid(unRegisteredServiceName)).thenReturn(null);
@@ -72,7 +71,7 @@ public class ServiceUidServiceTest {
         String unRegisteredServiceName = "unRegisteredServiceName";
         ServiceInfoService serviceInfoService = Mockito.mock(ServiceInfoService.class);
         CacheManager cacheManager = cacheConfig.serviceUidCache(properties, Duration.ZERO);
-        ServiceUidService serviceUidService = new ServiceUidService(staticServiceRegistry, serviceInfoService, Optional.of(cacheManager));
+        ServiceUidService serviceUidService = new ServiceUidService(staticServiceRegistry, serviceInfoService, cacheManager);
         Cache cache = cacheManager.getCache(ServiceUidMysqlCacheConfig.SERVICE_UID_CACHE_NAME);
 
         Mockito.when(serviceInfoService.getServiceUid(serviceName)).thenReturn(ServiceUid.of(100001));

@@ -18,12 +18,12 @@ package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.dao.AgentInfoDao;
 import com.navercorp.pinpoint.collector.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.collector.uid.dao.AgentNameDao;
 import com.navercorp.pinpoint.collector.uid.service.ApplicationUidService;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.io.request.UidException;
+import com.navercorp.pinpoint.uid.dao.AgentNameDao;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -50,17 +50,17 @@ public class AgentInfoService {
     private final AgentInfoDao agentInfoDao;
     private final ApplicationIndexDao applicationIndexDao;
 
-    private final ApplicationUidService applicationUidService;
+    private final ApplicationUidService applicationUidCacheService;
     private final AgentNameDao agentNameDao;
 
     private final boolean uidAgentListEnable;
 
     public AgentInfoService(AgentInfoDao agentInfoDao, ApplicationIndexDao applicationIndexDao,
-                            ApplicationUidService applicationUidService, Optional<AgentNameDao> agentNameDao,
+                            ApplicationUidService applicationUidCacheService, Optional<AgentNameDao> agentNameDao,
                             @Value("${pinpoint.collector.application.uid.agent.list.enable:false}") boolean uidAgentListEnable) {
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
-        this.applicationUidService = Objects.requireNonNull(applicationUidService, "applicationUidService");
+        this.applicationUidCacheService = Objects.requireNonNull(applicationUidCacheService, "applicationUidService");
         this.agentNameDao = agentNameDao.orElse(null);
         this.uidAgentListEnable = uidAgentListEnable;
     }
@@ -84,7 +84,7 @@ public class AgentInfoService {
         try {
             return applicationUidSupplier.get();
         } catch (UidException exception) {
-            return applicationUidService.getOrCreateApplicationUid(serviceUid, agentInfoBo.getApplicationName());
+            return applicationUidCacheService.getOrCreateApplicationUid(serviceUid, agentInfoBo.getApplicationName());
         }
     }
 
