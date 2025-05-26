@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.collector.dao.TraceDao;
 import com.navercorp.pinpoint.collector.event.SpanStorePublisher;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
+import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -96,8 +97,8 @@ public class HbaseTraceService implements TraceService {
         publisher.publishEvent(event, true);
     }
 
-    private ServiceType getApplicationServiceType(SpanChunkBo spanChunk) {
-        final int applicationServiceTypeCode = spanChunk.getApplicationServiceType();
+    private ServiceType getApplicationServiceType(BasicSpan basicSpan) {
+        final int applicationServiceTypeCode = basicSpan.getApplicationServiceType();
         return registry.findServiceType(applicationServiceTypeCode);
     }
 
@@ -156,12 +157,6 @@ public class HbaseTraceService implements TraceService {
             hostApplicationMapDao.insert(span.getCollectorAcceptTime(), acceptorHost, spanApplicationName, applicationServiceTypeCode,
                     parentApplicationName, parentServiceType);
         }
-    }
-
-    private ServiceType getApplicationServiceType(SpanBo span) {
-        // Check if applicationServiceType is set. If not, use span's service type.
-        final int applicationServiceTypeCode = span.getApplicationServiceType();
-        return registry.findServiceType(applicationServiceTypeCode);
     }
 
     private void insertSpanStat(SpanBo span) {
