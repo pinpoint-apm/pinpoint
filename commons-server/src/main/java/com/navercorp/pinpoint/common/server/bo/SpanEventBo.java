@@ -46,9 +46,7 @@ public class SpanEventBo implements Event {
     private int depth = -1;
     private long nextSpanId = -1;
 
-    private boolean hasException;
-    private int exceptionId;
-    private String exceptionMessage;
+    private ExceptionInfo exceptionInfo;
 
     // should get exceptionClass from dao
     private String exceptionClass;
@@ -154,27 +152,20 @@ public class SpanEventBo implements Event {
     }
 
     public boolean hasException() {
-        return hasException;
+        return exceptionInfo != null;
     }
 
-    public int getExceptionId() {
-        return exceptionId;
+    public ExceptionInfo getExceptionInfo() {
+        return exceptionInfo;
     }
 
-    public String getExceptionMessage() {
-        return exceptionMessage;
+    public void setExceptionInfo(ExceptionInfo exceptionInfo) {
+        this.exceptionInfo = exceptionInfo;
     }
 
     public String getExceptionClass() {
         return exceptionClass;
     }
-
-    public void setExceptionInfo(int exceptionId, String exceptionMessage) {
-        this.hasException = true;
-        this.exceptionId = exceptionId;
-        this.exceptionMessage = exceptionMessage;
-    }
-
 
     public void setExceptionClass(String exceptionClass) {
         this.exceptionClass = exceptionClass;
@@ -203,9 +194,7 @@ public class SpanEventBo implements Event {
                 ", annotationBoList=" + annotationBoList +
                 ", depth=" + depth +
                 ", nextSpanId=" + nextSpanId +
-                ", hasException=" + hasException +
-                ", exceptionId=" + exceptionId +
-                ", exceptionMessage='" + exceptionMessage + '\'' +
+                ", exceptionInfo=" + exceptionInfo +
                 ", exceptionClass='" + exceptionClass + '\'' +
                 ", nextAsyncId=" + nextAsyncId +
                 '}';
@@ -230,7 +219,7 @@ public class SpanEventBo implements Event {
         private String endPoint;
         private int apiId;
 
-        private List<AnnotationBo> annotationBoList = new ArrayList<>();
+        private final List<AnnotationBo> annotationBoList = new ArrayList<>();
 
         private int depth = -1;
         private long nextSpanId = -1;

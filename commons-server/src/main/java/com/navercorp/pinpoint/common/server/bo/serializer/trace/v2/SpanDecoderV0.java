@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationTranscoder;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
+import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -149,7 +150,8 @@ public class SpanDecoderV0 implements SpanDecoder {
         if (bitField.isSetHasException()) {
             int exceptionId = buffer.readSVInt();
             String exceptionMessage = buffer.readPrefixedString();
-            span.setExceptionInfo(exceptionId, exceptionMessage);
+            ExceptionInfo exceptionInfo = new ExceptionInfo(exceptionId, exceptionMessage);
+            span.setExceptionInfo(exceptionInfo);
         }
 
         if (bitField.isSetFlag()) {
@@ -268,7 +270,8 @@ public class SpanDecoderV0 implements SpanDecoder {
         if (bitField.isSetHasException()) {
             int exceptionId = buffer.readSVInt();
             String exceptionMessage = buffer.readPrefixedString();
-            spanEventBo.setExceptionInfo(exceptionId, exceptionMessage);
+            ExceptionInfo exceptionInfo = new ExceptionInfo(exceptionId, exceptionMessage);
+            spanEventBo.setExceptionInfo(exceptionInfo);
         }
 
         if (bitField.isSetAnnotation()) {
@@ -310,7 +313,8 @@ public class SpanDecoderV0 implements SpanDecoder {
         if (bitField.isSetHasException()) {
             int exceptionId = buffer.readSVInt();
             String exceptionMessage = buffer.readPrefixedString();
-            firstSpanEvent.setExceptionInfo(exceptionId, exceptionMessage);
+            ExceptionInfo exceptionInfo = new ExceptionInfo(exceptionId, exceptionMessage);
+            firstSpanEvent.setExceptionInfo(exceptionInfo);
         }
 
         if (bitField.isSetAnnotation()) {

@@ -72,9 +72,8 @@ public class SpanBo implements Event, BasicSpan {
 
     private long collectorAcceptTime;
 
-    private boolean hasException = false;
-    private int exceptionId;
-    private String exceptionMessage;
+    private ExceptionInfo exceptionInfo;
+
     private String exceptionClass;
 
     private int applicationServiceType;
@@ -325,24 +324,17 @@ public class SpanBo implements Event, BasicSpan {
         return -1L == parentSpanId;
     }
 
+    public ExceptionInfo getExceptionInfo() {
+        return exceptionInfo;
+    }
+
     public boolean hasException() {
-        return hasException;
+        return exceptionInfo != null;
     }
 
-    public int getExceptionId() {
-        return exceptionId;
+    public void setExceptionInfo(ExceptionInfo exceptionInfo) {
+        this.exceptionInfo = exceptionInfo;
     }
-
-    public String getExceptionMessage() {
-        return exceptionMessage;
-    }
-
-    public void setExceptionInfo(int exceptionId, String exceptionMessage) {
-        this.hasException = true;
-        this.exceptionId = exceptionId;
-        this.exceptionMessage = exceptionMessage;
-    }
-
 
     public String getExceptionClass() {
         return exceptionClass;
@@ -425,9 +417,7 @@ public class SpanBo implements Event, BasicSpan {
                 ", spanEventBoList=" + spanEventBoList +
                 ", spanChunkBoList=" + spanChunkBoList +
                 ", collectorAcceptTime=" + collectorAcceptTime +
-                ", hasException=" + hasException +
-                ", exceptionId=" + exceptionId +
-                ", exceptionMessage='" + exceptionMessage + '\'' +
+                ", exceptionInfo=" + exceptionInfo +
                 ", exceptionClass='" + exceptionClass + '\'' +
                 ", applicationServiceType=" + applicationServiceType +
                 ", acceptorHost='" + acceptorHost + '\'' +
@@ -475,8 +465,7 @@ public class SpanBo implements Event, BasicSpan {
 
         private long collectorAcceptTime;
 
-        private int exceptionId;
-        private String exceptionMessage;
+        private ExceptionInfo exceptionInfo;
         private String exceptionClass;
 
         private int applicationServiceType;
@@ -485,6 +474,7 @@ public class SpanBo implements Event, BasicSpan {
         private String remoteAddr; // optional
 
         private byte loggingTransactionInfo; //optional
+
 
         Builder(long spanId) {
             this.spanId = spanId;
@@ -588,13 +578,8 @@ public class SpanBo implements Event, BasicSpan {
             return this;
         }
 
-        public Builder setExceptionId(int exceptionId) {
-            this.exceptionId = exceptionId;
-            return this;
-        }
-
-        public Builder setExceptionMessage(String exceptionMessage) {
-            this.exceptionMessage = exceptionMessage;
+        public Builder setExceptionInfo(ExceptionInfo exceptionInfo) {
+            this.exceptionInfo = exceptionInfo;
             return this;
         }
 
@@ -655,8 +640,8 @@ public class SpanBo implements Event, BasicSpan {
             result.setErrCode(this.errCode);
             result.setCollectorAcceptTime(this.collectorAcceptTime);
             result.setExceptionClass(this.exceptionClass);
-            if (this.exceptionMessage != null) {
-                result.setExceptionInfo(this.exceptionId, this.exceptionMessage);
+            if (this.exceptionInfo != null) {
+                result.setExceptionInfo(exceptionInfo);
             }
             result.setApplicationServiceType(this.applicationServiceType);
             result.setAcceptorHost(this.acceptorHost);

@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield;
 
+import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import org.apache.logging.log4j.LogManager;
@@ -14,7 +15,7 @@ public class SpanBitFieldTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
-    public void testRoot_1() throws Exception {
+    public void testRoot_1() {
         SpanBo spanBo = new SpanBo();
         spanBo.setParentSpanId(-1);
 
@@ -23,11 +24,10 @@ public class SpanBitFieldTest {
 
         spanBitField.setRoot(false);
         Assertions.assertFalse(spanBitField.isRoot());
-
     }
 
     @Test
-    public void testRoot_2() throws Exception {
+    public void testRoot_2() {
         SpanBo spanBo = new SpanBo();
         spanBo.setParentSpanId(0);
 
@@ -72,7 +72,7 @@ public class SpanBitFieldTest {
 
         SpanBitField spanBitField = SpanBitField.build(spanBo);
 
-        Assertions.assertEquals(spanBitField.getApplicationServiceTypeEncodingStrategy(), ServiceTypeEncodingStrategy.PREV_EQUALS);
+        Assertions.assertEquals(ServiceTypeEncodingStrategy.PREV_EQUALS, spanBitField.getApplicationServiceTypeEncodingStrategy());
     }
 
     @Test
@@ -83,19 +83,19 @@ public class SpanBitFieldTest {
 
         SpanBitField spanBitField = SpanBitField.build(spanBo);
 
-        Assertions.assertEquals(spanBitField.getApplicationServiceTypeEncodingStrategy(), ServiceTypeEncodingStrategy.RAW);
+        Assertions.assertEquals(ServiceTypeEncodingStrategy.RAW, spanBitField.getApplicationServiceTypeEncodingStrategy());
 
         spanBitField.maskAll();
-        Assertions.assertEquals(spanBitField.getApplicationServiceTypeEncodingStrategy(), ServiceTypeEncodingStrategy.RAW);
+        Assertions.assertEquals(ServiceTypeEncodingStrategy.RAW, spanBitField.getApplicationServiceTypeEncodingStrategy());
         spanBitField.setApplicationServiceTypeEncodingStrategy(ServiceTypeEncodingStrategy.PREV_EQUALS);
-        Assertions.assertEquals(spanBitField.getApplicationServiceTypeEncodingStrategy(), ServiceTypeEncodingStrategy.PREV_EQUALS);
+        Assertions.assertEquals(ServiceTypeEncodingStrategy.PREV_EQUALS, spanBitField.getApplicationServiceTypeEncodingStrategy());
     }
 
 
     @Test
     public void testHasException_1() {
         SpanBo spanBo = new SpanBo();
-        spanBo.setExceptionInfo(1, "error");
+        spanBo.setExceptionInfo(new ExceptionInfo(1, "error"));
 
         SpanBitField spanBitField = SpanBitField.build(spanBo);
 

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.vo.callstacks;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.calltree.span.Align;
@@ -39,7 +40,7 @@ public class ExceptionRecord extends BaseRecord {
         this.id = id;
         this.parentId = parentId;
         this.title = toSimpleExceptionName(align.getExceptionClass());
-        this.arguments = buildArgument(align.getExceptionMessage());
+        this.arguments = buildArgument(align);
         this.isAuthorized = true;
         this.hasException = !align.isSpan();
         this.agentId = align.getAgentId();
@@ -69,7 +70,11 @@ public class ExceptionRecord extends BaseRecord {
         return -1;
     }
 
-    String buildArgument(String exceptionMessage) {
-        return Objects.toString(exceptionMessage, "");
+    String buildArgument(Align align) {
+        final ExceptionInfo exceptionInfo = align.getExceptionInfo();
+        if (exceptionInfo == null) {
+            return "";
+        }
+        return Objects.toString(exceptionInfo.message(), "");
     }
 }
