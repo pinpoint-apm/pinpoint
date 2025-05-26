@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -37,6 +38,9 @@ public class LinkDataMap {
         this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
     }
 
+    public Map<LinkKey, LinkData> getLinkDataMap() {
+        return Collections.unmodifiableMap(linkDataMap);
+    }
 
     public Collection<LinkData> getLinkDataList() {
         return linkDataMap.values();

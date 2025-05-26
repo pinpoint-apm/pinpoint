@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.ApplicationLimiterProcessorFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.LinkDataMapProcessor;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
+import com.navercorp.pinpoint.web.applicationmap.service.HistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.LinkDataMapService;
 import com.navercorp.pinpoint.web.applicationmap.service.MapService;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
@@ -87,12 +88,13 @@ public class ApplicationMapModule {
 
     @Bean
     public MapHistogramController mapHistogramController(ResponseTimeHistogramService responseTimeHistogramService,
+                                                         HistogramService histogramService,
                                                          ApplicationFactory applicationFactory,
                                                          ApplicationValidator applicationValidator,
                                                          HyperLinkFactory hyperLinkFactory,
                                                          ConfigProperties configProperties) {
         Duration maxPeriod = Duration.ofDays(configProperties.getServerMapPeriodMax());
-        return new MapHistogramController(responseTimeHistogramService, applicationFactory, applicationValidator, hyperLinkFactory, maxPeriod);
+        return new MapHistogramController(responseTimeHistogramService, histogramService, applicationFactory, applicationValidator, hyperLinkFactory, maxPeriod);
     }
 
     @Bean
