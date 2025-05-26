@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.callstacks;
 
-import org.apache.commons.lang3.StringUtils;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -33,6 +33,6 @@ public class ParameterRecord extends BaseRecord {
     }
 
     String buildArgument(String argument) {
-        return StringUtils.defaultString(argument, "null");
+        return Objects.toString(argument, "null");
     }
 }

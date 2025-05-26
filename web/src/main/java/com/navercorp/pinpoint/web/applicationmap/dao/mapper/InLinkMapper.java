@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
@@ -108,7 +107,7 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
             // Terminal nodes, such as httpclient will not have outHost set as well, but since they're terminal
             // nodes, they would not have reached here in the first place.
             if (inApplication.getServiceType().isQueue()) {
-                outHost = StringUtils.defaultString(outHost);
+                outHost = Objects.toString(outHost);
             }
 
             if (logger.isDebugEnabled()) {

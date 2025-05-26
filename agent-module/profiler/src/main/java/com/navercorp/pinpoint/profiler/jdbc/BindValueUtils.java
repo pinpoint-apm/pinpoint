@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.util.MapUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * duplicate : com.navercorp.pinpoint.profiler.modifier.db.interceptor.BindValueUtils
@@ -92,7 +93,7 @@ public final class BindValueUtils {
                 appendLength(sb, length);
                 break;
             }
-            final String bindValue = StringUtils.defaultString(bindValueArray[i], "");
+            final String bindValue = Objects.toString(bindValueArray[i], "");
             StringUtils.appendAbbreviate(sb, bindValue, limit);
             if (i < end) {
                 sb.append(", ");

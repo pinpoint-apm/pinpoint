@@ -20,9 +20,9 @@ import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.calltree.span.Align;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -70,6 +70,6 @@ public class ExceptionRecord extends BaseRecord {
     }
 
     String buildArgument(String exceptionMessage) {
-        return StringUtils.defaultString(exceptionMessage, "");
+        return Objects.toString(exceptionMessage, "");
     }
 }

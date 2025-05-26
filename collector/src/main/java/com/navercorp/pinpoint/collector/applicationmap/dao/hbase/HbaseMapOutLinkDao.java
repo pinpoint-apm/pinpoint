@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.collector.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -74,7 +73,7 @@ public class HbaseMapOutLinkDao implements MapOutLinkDao {
         }
 
         // there may be no endpoint in case of httpclient
-        inHost = StringUtils.defaultString(inHost);
+        inHost = Objects.toString(inHost);
 
         // make row key. rowkey is me
         final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);

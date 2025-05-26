@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.inspector.web.definition;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.common.util.ObjectUtils;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.inspector.web.definition.metric.EmptyPostProcessor;
 import com.navercorp.pinpoint.inspector.web.definition.metric.EmptyPreProcessor;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.Field;
@@ -56,8 +55,8 @@ public class MetricDefinition {
         this.metricName = Objects.requireNonNull(metricName, "metricName");
         this.title = Objects.requireNonNull(title, "title");
         this.groupingRule = ObjectUtils.defaultIfNull(groupingRule, GroupingRule.UNKNOWN);
-        this.preProcess = StringUtils.defaultString(preProcess, EmptyPreProcessor.INSTANCE.getName());
-        this.postProcess = StringUtils.defaultString(postProcess, EmptyPostProcessor.INSTANCE.getName());
+        this.preProcess = Objects.toString(preProcess, EmptyPreProcessor.INSTANCE.getName());
+        this.postProcess = Objects.toString(postProcess, EmptyPostProcessor.INSTANCE.getName());
         this.fields = Objects.requireNonNull(fields, "fields");
     }
 

@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.web.vo.tree;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 
 import java.util.ArrayList;
@@ -116,9 +115,9 @@ public class ApplicationAgentHostList {
         }
 
         private AgentHost newAgentHost(AgentInfo agentInfo) {
-            String agentId = StringUtils.defaultString(agentInfo.getAgentId(), "");
-            String hostName = StringUtils.defaultString(agentInfo.getHostName(), "");
-            String ip = StringUtils.defaultString(agentInfo.getIp(), "");
+            String agentId = Objects.toString(agentInfo.getAgentId(), "");
+            String hostName = Objects.toString(agentInfo.getHostName(), "");
+            String ip = Objects.toString(agentInfo.getIp(), "");
             String serviceType = agentInfo.getServiceType().getDesc();
             return new AgentHost(agentId, hostName, ip, serviceType);
         }

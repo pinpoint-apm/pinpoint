@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.collector.dao.hbase.IgnoreStatFilter;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -78,7 +77,7 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
         }
 
         // there may be no endpoint in case of httpclient
-        outHost = StringUtils.defaultString(outHost);
+        outHost = Objects.toString(outHost);
 
         // TODO callee, caller parameter normalization
         if (ignoreStatFilter.filter(inServiceType, outHost)) {

@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.inspector.web.definition.metric.field;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.inspector.web.definition.AggregationFunction;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.TagUtils;
@@ -52,13 +51,13 @@ public class Field {
                  @JsonProperty("unit") String unit,
                  @JsonProperty("postProcess") String postProcess){
         this.fieldName = Objects.requireNonNull(fieldName, "fieldName");
-        this.fieldAlias = StringUtils.defaultString(fieldAlias, fieldName);
+        this.fieldAlias = Objects.toString(fieldAlias, fieldName);
         this.tags = TagUtils.defaultTags(tags);
         this.matchingRule = Objects.requireNonNull(matchingRule, "matchingRule");
         this.aggregationFunction = Objects.requireNonNull(aggregationFunction, "aggregationFunction");
-        this.chartType = StringUtils.defaultString(chartType, "");
-        this.unit = StringUtils.defaultString(unit, "");
-        this.postProcess = StringUtils.defaultString(postProcess, EmptyPostProcessor.INSTANCE.getName());
+        this.chartType = Objects.toString(chartType, "");
+        this.unit = Objects.toString(unit, "");
+        this.postProcess = Objects.toString(postProcess, EmptyPostProcessor.INSTANCE.getName());
     }
 
 

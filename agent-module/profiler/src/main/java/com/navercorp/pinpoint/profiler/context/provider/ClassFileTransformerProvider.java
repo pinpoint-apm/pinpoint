@@ -92,7 +92,7 @@ public class ClassFileTransformerProvider implements Provider<ClassFileTransform
 
         final TransformerRegistry transformerRegistry = newTransformerRegistry();
 
-        final String classFilterBasePackage = StringUtils.defaultString(instrumentConfig.getPinpointBasePackage(), PinpointClassFilter.DEFAULT_PACKAGE);
+        final String classFilterBasePackage = Objects.toString(instrumentConfig.getPinpointBasePackage(), PinpointClassFilter.DEFAULT_PACKAGE);
         List<String> excludeSub = StringUtils.tokenizeToStringList(instrumentConfig.getPinpointExcludeSubPackage(), ",");
         if (excludeSub.isEmpty()) {
             excludeSub = PinpointClassFilter.DEFAULT_EXCLUDES;

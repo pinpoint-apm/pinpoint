@@ -36,6 +36,7 @@ public class StringUtilsTest {
     private final String shortString = "This is ashort string.";
 
     @Test
+    @SuppressWarnings("deprecation")
     public void defaultString() {
         Assertions.assertNull(StringUtils.defaultString(null, null));
         Assertions.assertEquals(StringUtils.defaultString(null, shortString), shortString);
