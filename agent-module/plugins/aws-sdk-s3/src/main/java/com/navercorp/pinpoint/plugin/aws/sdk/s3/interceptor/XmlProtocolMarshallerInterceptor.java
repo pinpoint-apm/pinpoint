@@ -21,9 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventBlockSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientDatabaseRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientDatabaseRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientDatabaseRequestWrapper;
@@ -41,18 +39,12 @@ import software.amazon.awssdk.http.SdkHttpFullRequest;
 
 import java.net.URI;
 
-public class XmlProtocolMarshallerInterceptor implements AroundInterceptor {
-    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final TraceContext traceContext;
-    private final MethodDescriptor methodDescriptor;
+public class XmlProtocolMarshallerInterceptor extends SpanEventBlockSimpleAroundInterceptorForPlugin {
     private final ClientDatabaseRequestRecorder<ClientDatabaseRequestWrapper> clientRequestRecorder;
     private final RequestTraceWriter<SdkHttpFullRequest.Builder> requestTraceWriter;
 
     public XmlProtocolMarshallerInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        this.traceContext = traceContext;
-        this.methodDescriptor = methodDescriptor;
+        super(traceContext, methodDescriptor);
 
         final ClientDatabaseRequestAdaptor<ClientDatabaseRequestWrapper> clientRequestAdaptor = ClientDatabaseRequestWrapperAdaptor.INSTANCE;
         this.clientRequestRecorder = new ClientDatabaseRequestRecorder<>(clientRequestAdaptor);
@@ -61,82 +53,75 @@ public class XmlProtocolMarshallerInterceptor implements AroundInterceptor {
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
-
-        final Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        try {
-            if (Boolean.FALSE == (target instanceof RequestBuilderGetter) || Boolean.FALSE == (target instanceof URIGetter)) {
-                return;
-            }
-
-            final SdkHttpFullRequest.Builder builder = ((RequestBuilderGetter) target)._$PINPOINT$_getRequestBuilder();
-            final URI uri = ((URIGetter) target)._$PINPOINT$_getURI();
-            if (builder == null || uri == null) {
-                return;
-            }
-
-            final boolean sampling = trace.canSampled();
-            if (!sampling) {
-                this.requestTraceWriter.write(builder);
-                return;
-            }
-
-            final SpanEventRecorder recorder = trace.traceBlockBegin();
-            // set remote trace
-            final TraceId nextId = trace.getTraceId().getNextTraceId();
-            recorder.recordNextSpanId(nextId.getSpanId());
-            recorder.recordServiceType(AwsSdkS3Constants.AWS_SDK_S3);
-            final ClientDatabaseRequestWrapper clientRequest = new S3ClientDatabaseRequestWrapper(uri);
-            this.requestTraceWriter.write(builder, nextId, clientRequest.getEndPoint());
-        } catch (Throwable th) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
-            }
-        }
+    public Trace currentTrace() {
+        return traceContext.currentRawTraceObject();
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args);
+    public boolean checkBeforeTraceBlockBegin(Trace trace, Object target, Object[] args) {
+        if (Boolean.FALSE == (target instanceof RequestBuilderGetter) || Boolean.FALSE == (target instanceof URIGetter)) {
+            return false;
         }
 
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
+        final SdkHttpFullRequest.Builder builder = ((RequestBuilderGetter) target)._$PINPOINT$_getRequestBuilder();
+        if (builder == null) {
+            return false;
+        }
+
+        if (requestTraceWriter.isNested(builder)) {
+            return false;
+        }
+
+        if (Boolean.FALSE == trace.canSampled()) {
+            this.requestTraceWriter.write(builder);
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public void beforeTrace(Trace trace, SpanEventRecorder recorder, Object target, Object[] args) {
+        if (Boolean.FALSE == (target instanceof RequestBuilderGetter) || Boolean.FALSE == (target instanceof URIGetter)) {
             return;
         }
 
-        try {
-            final SdkHttpFullRequest.Builder builder = ((RequestBuilderGetter) target)._$PINPOINT$_getRequestBuilder();
-            final URI uri = ((URIGetter) target)._$PINPOINT$_getURI();
-            if (builder == null || uri == null) {
-                return;
-            }
+        final SdkHttpFullRequest.Builder builder = ((RequestBuilderGetter) target)._$PINPOINT$_getRequestBuilder();
+        final URI uri = ((URIGetter) target)._$PINPOINT$_getURI();
+        if (builder == null || uri == null) {
+            return;
+        }
 
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(methodDescriptor);
-            recorder.recordException(throwable);
-            // Accessing httpRequest here not BEFORE() because it can cause side effect.
-            final ClientDatabaseRequestWrapper clientRequest = new S3ClientDatabaseRequestWrapper(uri);
-            this.clientRequestRecorder.record(recorder, clientRequest);
-            final String url = getUrl(uri);
-            if (url != null) {
-                final String httpUrl = InterceptorUtils.getHttpUrl(url, Boolean.FALSE);
-                recorder.recordAttribute(AnnotationKey.HTTP_URL, httpUrl);
-            }
-        } catch (Throwable th) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
-            }
-        } finally {
-            trace.traceBlockEnd();
+        // set remote trace
+        final TraceId nextId = trace.getTraceId().getNextTraceId();
+        recorder.recordNextSpanId(nextId.getSpanId());
+        final ClientDatabaseRequestWrapper clientRequest = new S3ClientDatabaseRequestWrapper(uri);
+        this.requestTraceWriter.write(builder, nextId, clientRequest.getEndPoint());
+    }
+
+    @Override
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+    }
+
+    @Override
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
+        recorder.recordServiceType(AwsSdkS3Constants.AWS_SDK_S3);
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(throwable);
+
+        final SdkHttpFullRequest.Builder builder = ((RequestBuilderGetter) target)._$PINPOINT$_getRequestBuilder();
+        final URI uri = ((URIGetter) target)._$PINPOINT$_getURI();
+        if (builder == null || uri == null) {
+            return;
+        }
+
+        // Accessing httpRequest here not BEFORE() because it can cause side effect.
+        final ClientDatabaseRequestWrapper clientRequest = new S3ClientDatabaseRequestWrapper(uri);
+        this.clientRequestRecorder.record(recorder, clientRequest);
+        final String url = getUrl(uri);
+        if (url != null) {
+            final String httpUrl = InterceptorUtils.getHttpUrl(url, Boolean.FALSE);
+            recorder.recordAttribute(AnnotationKey.HTTP_URL, httpUrl);
         }
     }
 

@@ -73,7 +73,8 @@ public class FluxAndMonoSubscribeMethodInterceptor implements BlockApiIdAwareAro
                 return null;
             }
 
-            final TraceBlock traceBlock = trace.traceBlockBeginAndGet();
+            final TraceBlock traceBlock = trace.getTraceBlock();
+            traceBlock.begin();
             final AsyncContext nextAsyncContext = traceBlock.recordNextAsyncContext();
             // set reactorSubscriber to args[0]
             final ReactorSubscriber reactorSubscriber = new ReactorSubscriber(nextAsyncContext);
@@ -107,9 +108,11 @@ public class FluxAndMonoSubscribeMethodInterceptor implements BlockApiIdAwareAro
         }
 
         try (final TraceBlock traceBlock = block) {
-            traceBlock.recordApiId(apiId);
-            traceBlock.recordServiceType(ReactorConstants.REACTOR);
-            traceBlock.recordException(throwable);
+            if (traceBlock.isBegin()) {
+                traceBlock.recordApiId(apiId);
+                traceBlock.recordServiceType(ReactorConstants.REACTOR);
+                traceBlock.recordException(throwable);
+            }
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("AFTER error. Caused:{}", th.getMessage(), th);

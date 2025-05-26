@@ -83,4 +83,18 @@ public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
             clientHeaderAdaptor.setHeader(header, Header.HTTP_HOST.toString(), host);
         }
     }
+
+    public boolean isNested(T header) {
+        if (clientHeaderAdaptor.contains(header, Header.HTTP_TRACE_ID.toString())) {
+            // sampled
+            return true;
+        }
+
+        if (clientHeaderAdaptor.contains(header, Header.HTTP_SAMPLED.toString())) {
+            // unsampled
+            return true;
+        }
+
+        return false;
+    }
 }

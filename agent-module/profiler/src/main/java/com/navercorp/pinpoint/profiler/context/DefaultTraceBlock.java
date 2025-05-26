@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.bootstrap.context.TraceBlock;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.DataType;
-import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -37,20 +36,34 @@ public class DefaultTraceBlock implements TraceBlock {
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final Trace trace;
-    private final WrappedSpanEventRecorder wrappedSpanEventRecorder;
+    private boolean begin;
 
-    private final SpanEvent spanEvent;
-
-    public DefaultTraceBlock(Trace trace, SpanEvent spanEvent, WrappedSpanEventRecorder wrappedSpanEventRecorder) {
+    public DefaultTraceBlock(Trace trace) {
         this.trace = Objects.requireNonNull(trace, "trace");
-        this.spanEvent = Objects.requireNonNull(spanEvent, "spanEvent");
-        this.wrappedSpanEventRecorder = Objects.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder");
     }
 
     @Override
     public void close() {
         // AutoCloseable
-        trace.traceBlockEnd();
+        if (begin) {
+            trace.traceBlockEnd();
+        }
+    }
+
+    @Override
+    public void begin() {
+        if (begin) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("TraceBlock already begin. trace={}", trace);
+            }
+            return;
+        }
+        trace.traceBlockBegin();
+        begin = true;
+    }
+
+    public boolean isBegin() {
+        return begin;
     }
 
     @Override
@@ -219,7 +232,6 @@ public class DefaultTraceBlock implements TraceBlock {
     }
 
     private SpanEventRecorder getSpanEventRecorder() {
-        wrappedSpanEventRecorder.setWrapped(spanEvent);
-        return wrappedSpanEventRecorder;
+        return trace.currentSpanEventRecorder();
     }
 }

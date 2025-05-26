@@ -18,11 +18,10 @@ package com.navercorp.pinpoint.plugin.jdk.http.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 
 public class HttpsURLConnectionImplInterceptor extends AbstractHttpURLConnectionInterceptor {
 
-    public HttpsURLConnectionImplInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope) {
-        super(traceContext, descriptor, scope);
+    public HttpsURLConnectionImplInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+        super(traceContext, descriptor);
     }
 }

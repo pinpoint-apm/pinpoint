@@ -35,4 +35,13 @@ public class SdkHttpFullRequestHeaderAdaptor implements ClientHeaderAdaptor<SdkH
         } catch (Exception ignored) {
         }
     }
+
+    @Override
+    public boolean contains(SdkHttpFullRequest.Builder header, String name) {
+        try {
+            return header.headers().containsKey(name);
+        } catch (Exception ignored) {
+        }
+        return false;
+    }
 }

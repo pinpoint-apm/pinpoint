@@ -21,4 +21,6 @@ package com.navercorp.pinpoint.bootstrap.plugin.request;
  */
 public interface ClientHeaderAdaptor<T> {
     void setHeader(T header, String name, String value);
+
+    boolean contains(T header, String name);
 }

@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
@@ -46,7 +46,7 @@ import com.navercorp.pinpoint.plugin.jdk.httpclient.JdkHttpClientEntityExtractor
 import com.navercorp.pinpoint.plugin.jdk.httpclient.JdkHttpClientPluginConfig;
 import jdk.internal.net.http.HttpRequestImpl;
 
-public class MultiExchangeResponseAsyncImplInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class MultiExchangeResponseAsyncImplInterceptor extends AsyncContextSpanEventBlockSimpleAroundInterceptor {
     private final ClientRequestRecorder<HttpRequestImpl> clientRequestRecorder;
 
     private final RequestTraceWriter<HttpRequestImpl> requestTraceWriter;
@@ -77,6 +77,29 @@ public class MultiExchangeResponseAsyncImplInterceptor extends AsyncContextSpanE
     }
 
     @Override
+    public boolean checkBeforeTraceBlockBegin(AsyncContext asyncContext, Trace trace, Object target, Object[] args) {
+        if (Boolean.FALSE == (target instanceof HttpRequestImplGetter)) {
+            return false;
+        }
+
+        final HttpRequestImpl request = ((HttpRequestImplGetter) target)._$PINPOINT$_getCurrentreq();
+        if (request == null) {
+            return false;
+        }
+
+        if (requestTraceWriter.isNested(request)) {
+            return false;
+        }
+
+        if (Boolean.FALSE == trace.canSampled()) {
+            this.requestTraceWriter.write(request);
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
     public void beforeTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args) {
         if (Boolean.FALSE == (target instanceof HttpRequestImplGetter)) {
             return;
@@ -87,20 +110,10 @@ public class MultiExchangeResponseAsyncImplInterceptor extends AsyncContextSpanE
             return;
         }
 
-        final boolean sampling = trace.canSampled();
-        if (!sampling) {
-            this.requestTraceWriter.write(request);
-            return;
-        }
-
-        try {
-            final TraceId nextId = trace.getTraceId().getNextTraceId();
-            recorder.recordNextSpanId(nextId.getSpanId());
-            final String host = HttpRequestImplClientRequestAdaptor.getHost(request);
-            this.requestTraceWriter.write(request, nextId, host);
-        } catch (Throwable t) {
-            logger.warn("Failed to trace write", t);
-        }
+        final TraceId nextId = trace.getTraceId().getNextTraceId();
+        recorder.recordNextSpanId(nextId.getSpanId());
+        final String host = HttpRequestImplClientRequestAdaptor.getHost(request);
+        this.requestTraceWriter.write(request, nextId, host);
 
         if (request instanceof AsyncContextAccessor) {
             final AsyncContext nextAsyncContext = recorder.recordNextAsyncContext();
@@ -116,7 +129,11 @@ public class MultiExchangeResponseAsyncImplInterceptor extends AsyncContextSpanE
     }
 
     @Override
-    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordServiceType(JdkHttpClientConstants.JDK_HTTP_CLIENT);
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(markError, throwable);
+
         if (Boolean.FALSE == (target instanceof HttpRequestImplGetter)) {
             return;
         }
@@ -126,24 +143,8 @@ public class MultiExchangeResponseAsyncImplInterceptor extends AsyncContextSpanE
             return;
         }
 
-        final boolean sampling = trace.canSampled();
-        if (!sampling) {
-            return;
-        }
-
-        try {
-            this.clientRequestRecorder.record(recorder, request, throwable);
-            this.cookieRecorder.record(recorder, request, throwable);
-            this.entityRecorder.record(recorder, request, throwable);
-        } catch (Throwable t) {
-            logger.warn("Failed to record", t);
-        }
-    }
-
-    @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(JdkHttpClientConstants.JDK_HTTP_CLIENT);
-        recorder.recordApi(methodDescriptor);
-        recorder.recordException(markError, throwable);
+        this.clientRequestRecorder.record(recorder, request, throwable);
+        this.cookieRecorder.record(recorder, request, throwable);
+        this.entityRecorder.record(recorder, request, throwable);
     }
 }

@@ -35,12 +35,27 @@ public class RequestHeaderAdaptorV1 implements ClientHeaderAdaptor<Request> {
     
     @Override
     public void setHeader(Request request, String name, String value) {
-        final FluentCaseInsensitiveStringsMap httpRequestHeaders = request.getHeaders();
-        final List<String> valueList = new ArrayList<>();
-        valueList.add(value);
-        httpRequestHeaders.put(name, valueList);
-        if (isDebug) {
-            logger.debug("Set header {}={}", name, value);
+        try {
+            final FluentCaseInsensitiveStringsMap httpRequestHeaders = request.getHeaders();
+            final List<String> valueList = new ArrayList<>();
+            valueList.add(value);
+            httpRequestHeaders.put(name, valueList);
+            if (isDebug) {
+                logger.debug("Set header {}={}", name, value);
+            }
+        } catch (Exception ignored) {
         }
+    }
+
+    @Override
+    public boolean contains(Request header, String name) {
+        try {
+            final FluentCaseInsensitiveStringsMap httpRequestHeaders = header.getHeaders();
+            if (httpRequestHeaders != null) {
+                return httpRequestHeaders.containsKey(name);
+            }
+        } catch (Exception ignored) {
+        }
+        return false;
     }
 }

@@ -24,9 +24,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventBlockSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
@@ -59,12 +57,7 @@ import org.apache.http.nio.protocol.HttpAsyncRequestProducer;
  * @author minwoo.jung
  * @author jaehong.kim
  */
-public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements AroundInterceptor {
-    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final TraceContext traceContext;
-    private final MethodDescriptor methodDescriptor;
+public class DefaultClientExchangeHandlerImplStartMethodInterceptor extends SpanEventBlockSimpleAroundInterceptorForPlugin {
     private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
     private final CookieRecorder<HttpRequest> cookieRecorder;
     private final EntityRecorder<HttpRequest> entityRecorder;
@@ -73,8 +66,7 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
     private final boolean markError;
 
     public DefaultClientExchangeHandlerImplStartMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        this.traceContext = traceContext;
-        this.methodDescriptor = methodDescriptor;
+        super(traceContext, methodDescriptor);
 
         final boolean param = HttpClient4PluginConfig.isParam(traceContext.getProfilerConfig());
         final HttpDumpConfig httpDumpConfig = HttpClient4PluginConfig.getHttpDumpConfig(traceContext.getProfilerConfig());
@@ -94,52 +86,57 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
+    public Trace currentTrace() {
+        return traceContext.currentRawTraceObject();
+    }
 
-        final Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
-            return;
-        }
-
+    @Override
+    public boolean checkBeforeTraceBlockBegin(Trace trace, Object target, Object[] args) {
         final HttpRequest httpRequest = getHttpRequest(target);
-        final NameIntValuePair<String> host = getHost(target);
-        final boolean sampling = trace.canSampled();
-        if (!sampling) {
-            if (httpRequest != null) {
-                this.requestTraceWriter.write(httpRequest);
-            }
-            return;
+        if (httpRequest == null) {
+            return false;
         }
 
-        final SpanEventRecorder recorder = trace.traceBlockBegin();
+        if (requestTraceWriter.isNested(httpRequest)) {
+            return false;
+        }
+
+        if (Boolean.FALSE == trace.canSampled()) {
+            this.requestTraceWriter.write(httpRequest);
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public void beforeTrace(Trace trace, SpanEventRecorder recorder, Object target, Object[] args) {
+        final HttpRequest httpRequest = getHttpRequest(target);
+        if (httpRequest == null) {
+            return;
+        }
+        final NameIntValuePair<String> host = getHost(target);
         // set remote trace
         final TraceId nextId = trace.getTraceId().getNextTraceId();
         recorder.recordNextSpanId(nextId.getSpanId());
-        recorder.recordServiceType(HttpClient4Constants.HTTP_CLIENT_4);
 
-        if (httpRequest != null) {
-            final String hostString = getHostString(host.getName(), host.getValue());
-            this.requestTraceWriter.write(httpRequest, nextId, hostString);
-        }
+        final String hostString = getHostString(host.getName(), host.getValue());
+        this.requestTraceWriter.write(httpRequest, nextId, hostString);
 
-        try {
-            if (isAsynchronousInvocation(target, args)) {
-                // set asynchronous trace
-                final AsyncContext asyncContext = recorder.recordNextAsyncContext();
-                // check type isAsynchronousInvocation()
-                ((AsyncContextAccessor) ((ResultFutureGetter) target)._$PINPOINT$_getResultFuture())._$PINPOINT$_setAsyncContext(asyncContext);
-                if (isDebug) {
-                    logger.debug("Set AsyncContext {}", asyncContext);
-                }
+        if (isAsynchronousInvocation(target, args)) {
+            // set asynchronous trace
+            final AsyncContext asyncContext = recorder.recordNextAsyncContext();
+            // check type isAsynchronousInvocation()
+            ((AsyncContextAccessor) ((ResultFutureGetter) target)._$PINPOINT$_getResultFuture())._$PINPOINT$_setAsyncContext(asyncContext);
+            if (isDebug) {
+                logger.debug("Set AsyncContext {}", asyncContext);
             }
-        } catch (Throwable t) {
-            logger.warn("Failed to BEFORE process. {}", t.getMessage(), t);
         }
     }
 
+    @Override
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+    }
 
     private String getHostString(String hostName, int port) {
         if (hostName != null) {
@@ -192,31 +189,19 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args);
-        }
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
+        recorder.recordServiceType(HttpClient4Constants.HTTP_CLIENT_4);
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(markError, throwable);
 
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        try {
-            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            final HttpRequest httpRequest = getHttpRequest(target);
-            final NameIntValuePair<String> host = getHost(target);
-            if (httpRequest != null) {
-                // Accessing httpRequest here not BEFORE() because it can cause side effect.
-                ClientRequestWrapper clientRequest = new HttpClient4RequestWrapper(httpRequest, host.getName(), host.getValue());
-                this.clientRequestRecorder.record(recorder, clientRequest, throwable);
-                this.cookieRecorder.record(recorder, httpRequest, throwable);
-                this.entityRecorder.record(recorder, httpRequest, throwable);
-            }
-            recorder.recordApi(methodDescriptor);
-            recorder.recordException(markError, throwable);
-        } finally {
-            trace.traceBlockEnd();
+        final HttpRequest httpRequest = getHttpRequest(target);
+        final NameIntValuePair<String> host = getHost(target);
+        if (httpRequest != null) {
+            // Accessing httpRequest here not BEFORE() because it can cause side effect.
+            ClientRequestWrapper clientRequest = new HttpClient4RequestWrapper(httpRequest, host.getName(), host.getValue());
+            this.clientRequestRecorder.record(recorder, clientRequest, throwable);
+            this.cookieRecorder.record(recorder, httpRequest, throwable);
+            this.entityRecorder.record(recorder, httpRequest, throwable);
         }
     }
 }

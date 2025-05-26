@@ -33,8 +33,8 @@ public interface StackOperation {
     void traceBlockEnd(int stackId);
 
     boolean isRootStack();
-    
+
     int getCallStackFrameId();
 
-    TraceBlock traceBlockBeginAndGet();
+    TraceBlock getTraceBlock();
 }

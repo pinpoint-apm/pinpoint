@@ -104,6 +104,10 @@ public abstract class Http1xClientConnectionCreateRequestInterceptor implements 
                 return;
             }
 
+            if (requestTraceWriter.isNested(request)) {
+                return;
+            }
+
             if (trace.canSampled()) {
                 final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
                 recorder.recordApiId(apiId);

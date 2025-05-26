@@ -22,11 +22,9 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventBlockSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
-import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
@@ -64,12 +62,7 @@ import java.util.Objects;
  * @author Minwoo Jung
  * @author jaehong.kim
  */
-public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor {
-    private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final TraceContext traceContext;
-    private final MethodDescriptor descriptor;
+public class HttpMethodBaseExecuteMethodInterceptor extends SpanEventBlockSimpleAroundInterceptorForPlugin {
     private final InterceptorScope interceptorScope;
     private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
     private final RequestTraceWriter<HttpMethod> requestTraceWriter;
@@ -81,8 +74,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
     private final boolean markError;
 
     public HttpMethodBaseExecuteMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope interceptorScope) {
-        this.traceContext = Objects.requireNonNull(traceContext, "traceContext");
-        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        super(traceContext, descriptor);
         this.interceptorScope = Objects.requireNonNull(interceptorScope, "interceptorScope");
 
         final boolean param = HttpClient3PluginConfig.isParam(traceContext.getProfilerConfig());
@@ -107,41 +99,51 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
+    public Trace currentTrace() {
+        return traceContext.currentRawTraceObject();
+    }
+
+    @Override
+    public boolean checkBeforeTraceBlockBegin(Trace trace, Object target, Object[] args) {
+        if (Boolean.FALSE == (target instanceof HttpMethod)) {
+            return false;
         }
 
-        final Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
+        final HttpMethod httpMethod = (HttpMethod) target;
+        if (requestTraceWriter.isNested(httpMethod)) {
+            return false;
+        }
+
+        if (Boolean.FALSE == trace.canSampled()) {
+            this.requestTraceWriter.write(httpMethod);
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public void beforeTrace(Trace trace, SpanEventRecorder recorder, Object target, Object[] args) {
+        if (Boolean.FALSE == (target instanceof HttpMethod)) {
             return;
         }
+        final HttpMethod httpMethod = (HttpMethod) target;
 
-        if (!trace.canSampled()) {
-            if (target instanceof HttpMethod) {
-                final HttpMethod httpMethod = (HttpMethod) target;
-                this.requestTraceWriter.write(httpMethod);
-            }
-            return;
-        }
-
-        final SpanEventRecorder recorder = trace.traceBlockBegin();
         // generate next trace id.
         final TraceId nextId = trace.getTraceId().getNextTraceId();
         recorder.recordNextSpanId(nextId.getSpanId());
-        recorder.recordServiceType(HttpClient3Constants.HTTP_CLIENT_3);
-        // set http header for trace.
-        if (target instanceof HttpMethod) {
-            final HttpMethod httpMethod = (HttpMethod) target;
-            final HttpConnection httpConnection = getHttpConnection(args);
-            final String host = getHost(httpMethod, httpConnection);
-            this.requestTraceWriter.write(httpMethod, nextId, host);
-        }
 
+        // set http header for trace.
+        final HttpConnection httpConnection = getHttpConnection(args);
+        final String host = getHost(httpMethod, httpConnection);
+        this.requestTraceWriter.write(httpMethod, nextId, host);
         // init attachment for io(read/write).
         initAttachment();
     }
 
+    @Override
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+    }
 
     private String getHost(HttpMethod httpMethod, HttpConnection httpConnection) {
         try {
@@ -168,40 +170,28 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args);
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
+        recorder.recordServiceType(HttpClient3Constants.HTTP_CLIENT_3);
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(markError, throwable);
+
+        if (target instanceof HttpMethod) {
+            final HttpMethod httpMethod = (HttpMethod) target;
+            final HttpConnection httpConnection = getHttpConnection(args);
+            final ClientRequestWrapper requestWrapper = new HttpClient3RequestWrapper(httpMethod, httpConnection);
+            this.clientRequestRecorder.record(recorder, requestWrapper, throwable);
+            this.cookieRecorder.record(recorder, httpMethod, throwable);
+            this.entityRecorder.record(recorder, httpMethod, throwable);
+            this.responseHeaderRecorder.recordHeader(recorder, httpMethod);
         }
 
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
+        if (result != null) {
+            recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, result);
         }
 
-        try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(descriptor);
-            recorder.recordException(markError, throwable);
-            if (target instanceof HttpMethod) {
-                final HttpMethod httpMethod = (HttpMethod) target;
-                final HttpConnection httpConnection = getHttpConnection(args);
-                final ClientRequestWrapper requestWrapper = new HttpClient3RequestWrapper(httpMethod, httpConnection);
-                this.clientRequestRecorder.record(recorder, requestWrapper, throwable);
-                this.cookieRecorder.record(recorder, httpMethod, throwable);
-                this.entityRecorder.record(recorder, httpMethod, throwable);
-                this.responseHeaderRecorder.recordHeader(recorder, httpMethod);
-            }
-
-            if (result != null) {
-                recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, result);
-            }
-
-            final HttpClient3CallContext callContext = getAndCleanAttachment();
-            if (callContext != null) {
-                recordIo(recorder, callContext);
-            }
-        } finally {
-            trace.traceBlockEnd();
+        final HttpClient3CallContext callContext = getAndCleanAttachment();
+        if (callContext != null) {
+            recordIo(recorder, callContext);
         }
     }
 

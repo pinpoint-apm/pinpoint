@@ -31,12 +31,27 @@ public class HttpMessageClientHeaderAdaptor implements ClientHeaderAdaptor<HttpM
 
     @Override
     public void setHeader(HttpMessage httpMessage, String name, String value) {
-        final HttpHeaders headers = httpMessage.headers();
-        if (headers != null && !headers.contains(name)) {
-            headers.set(name, value);
-            if (isDebug) {
-                logger.debug("Set header {}={}", name, value);
+        try {
+            final HttpHeaders headers = httpMessage.headers();
+            if (headers != null && !headers.contains(name)) {
+                headers.set(name, value);
+                if (isDebug) {
+                    logger.debug("Set header {}={}", name, value);
+                }
             }
+        } catch (Exception ignored) {
         }
+    }
+
+    @Override
+    public boolean contains(HttpMessage header, String name) {
+        try {
+            final HttpHeaders headers = header.headers();
+            if (headers != null) {
+                return headers.contains(name);
+            }
+        } catch (Exception ignored) {
+        }
+        return false;
     }
 }

@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventBlockSimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
@@ -33,18 +33,15 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorderFactory;
-import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.ArrayArgumentUtils;
 import com.navercorp.pinpoint.plugin.spring.webflux.SpringWebFluxConstants;
 import com.navercorp.pinpoint.plugin.spring.webflux.SpringWebFluxPluginConfig;
 import org.springframework.http.client.reactive.ClientHttpRequest;
 
-import java.net.URI;
-
 /**
  * @author jaehong.kim
  */
-public class BodyInserterRequestBuilderWriteToInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class BodyInserterRequestBuilderWriteToInterceptor extends AsyncContextSpanEventBlockSimpleAroundInterceptor {
     private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
     private final CookieRecorder<ClientHttpRequest> cookieRecorder;
     private final RequestTraceWriter<ClientHttpRequest> requestTraceWriter;
@@ -64,48 +61,18 @@ public class BodyInserterRequestBuilderWriteToInterceptor extends AsyncContextSp
     }
 
     @Override
-    public void beforeTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args) {
-        if (!validate(args)) {
-            return;
-        }
-
-        final ClientHttpRequest request = (ClientHttpRequest) args[0];
-        if (trace.canSampled()) {
-            if (!validate(args)) {
-                return;
-            }
-
-            final TraceId nextId = trace.getTraceId().getNextTraceId();
-            recorder.recordNextSpanId(nextId.getSpanId());
-            recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX_CLIENT);
-
-            final URI url = request.getURI();
-            String host = null;
-            if (url != null) {
-                host = HostAndPort.toHostAndPortString(url.getHost(), url.getPort());
-            }
-            requestTraceWriter.write(request, nextId, host);
-        } else {
-            requestTraceWriter.write(request);
-        }
-    }
-
-    @Override
-    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
-    }
-
-    private boolean validate(final Object[] args) {
-        if (ArrayUtils.isEmpty(args)) {
-            if (isDebug) {
-                logger.debug("Invalid args object. args={}.", args);
-            }
+    public boolean checkBeforeTraceBlockBegin(AsyncContext asyncContext, Trace trace, Object target, Object[] args) {
+        final ClientHttpRequest request = ArrayArgumentUtils.getArgument(args, 0, ClientHttpRequest.class);
+        if (request == null) {
             return false;
         }
 
-        if (!(args[0] instanceof ClientHttpRequest)) {
-            if (isDebug) {
-                logger.debug("Invalid args[0] object. Need ClientHttpRequest, args[0]={}.", args[0]);
-            }
+        if (requestTraceWriter.isNested(request)) {
+            return false;
+        }
+
+        if (Boolean.FALSE == trace.canSampled()) {
+            requestTraceWriter.write(request);
             return false;
         }
 
@@ -113,27 +80,39 @@ public class BodyInserterRequestBuilderWriteToInterceptor extends AsyncContextSp
     }
 
     @Override
-    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        if (!validate(args)) {
+    public void beforeTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args) {
+        final ClientHttpRequest request = ArrayArgumentUtils.getArgument(args, 0, ClientHttpRequest.class);
+        if (request == null) {
             return;
         }
 
-        if (trace.canSampled()) {
-            recorder.recordApi(methodDescriptor);
-            recorder.recordException(throwable);
+        final TraceId nextId = trace.getTraceId().getNextTraceId();
+        recorder.recordNextSpanId(nextId.getSpanId());
+        final ClientRequestWrapper clientRequestWrapper = new WebClientRequestWrapper(request);
+        requestTraceWriter.write(request, nextId, clientRequestWrapper.getDestinationId());
+    }
 
-            final ClientHttpRequest request = (ClientHttpRequest) args[0];
-            final ClientRequestWrapper clientRequestWrapper = new WebClientRequestWrapper(request);
-            this.clientRequestRecorder.record(recorder, clientRequestWrapper, throwable);
-            this.cookieRecorder.record(recorder, request, throwable);
+    @Override
+    public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+    }
 
-            if (isAsync(result)) {
-                // make asynchronous trace-id
-                final AsyncContext nextAsyncContext = recorder.recordNextAsyncContext();
-                ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(nextAsyncContext);
-                if (isDebug) {
-                    logger.debug("Set closeable-AsyncContext {}", nextAsyncContext);
-                }
+    @Override
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX_CLIENT);
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(throwable);
+
+        final ClientHttpRequest request = ArrayArgumentUtils.getArgument(args, 0, ClientHttpRequest.class);
+        final ClientRequestWrapper clientRequestWrapper = new WebClientRequestWrapper(request);
+        this.clientRequestRecorder.record(recorder, clientRequestWrapper, throwable);
+        this.cookieRecorder.record(recorder, request, throwable);
+
+        if (isAsync(result)) {
+            // make asynchronous trace-id
+            final AsyncContext nextAsyncContext = recorder.recordNextAsyncContext();
+            ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(nextAsyncContext);
+            if (isDebug) {
+                logger.debug("Set closeable-AsyncContext {}", nextAsyncContext);
             }
         }
     }
@@ -146,9 +125,5 @@ public class BodyInserterRequestBuilderWriteToInterceptor extends AsyncContextSp
             return false;
         }
         return true;
-    }
-    
-    @Override
-    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
     }
 }

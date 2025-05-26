@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventBlockApiIdAwareAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
@@ -36,7 +36,7 @@ import reactor.netty.http.client.HttpClientRequest;
 /**
  * @author jaehong.kim
  */
-public class HttpClientOperationsSendInterceptor extends AsyncContextSpanEventApiIdAwareAroundInterceptor {
+public class HttpClientOperationsSendInterceptor extends AsyncContextSpanEventBlockApiIdAwareAroundInterceptor {
     private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
     private final RequestTraceWriter<HttpClientRequest> requestTraceWriter;
 
@@ -62,19 +62,27 @@ public class HttpClientOperationsSendInterceptor extends AsyncContextSpanEventAp
     }
 
     @Override
+    public boolean checkBeforeTraceBlockBegin(AsyncContext asyncContext, Trace trace, Object target, int apiId, Object[] args) {
+        final HttpClientRequest request = (HttpClientRequest) target;
+        if (requestTraceWriter.isNested(request)) {
+            return false;
+        }
+
+        if (Boolean.FALSE == trace.canSampled()) {
+            this.requestTraceWriter.write(request);
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
     public void beforeTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
         final HttpClientRequest request = (HttpClientRequest) target;
-        if (trace.canSampled()) {
-            final TraceId nextId = trace.getTraceId().getNextTraceId();
-            recorder.recordNextSpanId(nextId.getSpanId());
-            recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT);
-
-            final ClientRequestWrapper clientRequestWrapper = new HttpClientRequestWrapper(request);
-            this.requestTraceWriter.write(request, nextId, clientRequestWrapper.getDestinationId());
-        } else {
-            // Set sampling rate to false
-            this.requestTraceWriter.write(request);
-        }
+        final TraceId nextId = trace.getTraceId().getNextTraceId();
+        recorder.recordNextSpanId(nextId.getSpanId());
+        final ClientRequestWrapper clientRequestWrapper = new HttpClientRequestWrapper(request);
+        this.requestTraceWriter.write(request, nextId, clientRequestWrapper.getDestinationId());
     }
 
     @Override
@@ -92,26 +100,18 @@ public class HttpClientOperationsSendInterceptor extends AsyncContextSpanEventAp
     }
 
     @Override
-    public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
-        if (trace.canSampled()) {
-            recorder.recordApiId(apiId);
-            recorder.recordException(throwable);
-
-            final HttpClientRequest request = (HttpClientRequest) target;
-            final ClientRequestWrapper clientRequestWrapper = new HttpClientRequestWrapper(request);
-            this.clientRequestRecorder.record(recorder, clientRequestWrapper, throwable);
-        }
-    }
-
-    @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
+        recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT);
+        recorder.recordApiId(apiId);
+        recorder.recordException(throwable);
+
+        final HttpClientRequest request = (HttpClientRequest) target;
+        final ClientRequestWrapper clientRequestWrapper = new HttpClientRequestWrapper(request);
+        this.clientRequestRecorder.record(recorder, clientRequestWrapper, throwable);
     }
 
     private boolean validate(final Object target) {
         if (Boolean.FALSE == (target instanceof HttpClientRequest)) {
-            if (isDebug) {
-                logger.debug("Invalid target object. Need ClientHttpRequest, target={}.", target);
-            }
             return false;
         }
 

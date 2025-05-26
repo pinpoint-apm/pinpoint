@@ -1,11 +1,11 @@
 /*
- * Copyright 2024 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,20 +16,26 @@
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceBlock;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.util.ScopeUtils;
 
-public abstract class AsyncContextSpanEventBlockApiIdAwareAroundInterceptor extends AbstractAsyncContextSpanEventInterceptor implements BlockApiIdAwareAroundInterceptor {
+import java.util.Objects;
 
-    public AsyncContextSpanEventBlockApiIdAwareAroundInterceptor(TraceContext traceContext) {
+public abstract class AsyncContextSpanEventBlockSimpleAroundInterceptor extends AbstractAsyncContextSpanEventInterceptor implements BlockAroundInterceptor {
+
+    protected final MethodDescriptor methodDescriptor;
+
+    public AsyncContextSpanEventBlockSimpleAroundInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext);
+        this.methodDescriptor = Objects.requireNonNull(methodDescriptor, "methodDescriptor");
     }
 
     @Override
-    public TraceBlock before(Object target, int apiId, Object[] args) {
+    public TraceBlock before(Object target, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
@@ -44,15 +50,14 @@ public abstract class AsyncContextSpanEventBlockApiIdAwareAroundInterceptor exte
             return null;
         }
 
-        // entry scope.
         ScopeUtils.entryAsyncTraceScope(trace);
 
         final TraceBlock traceBlock = trace.getTraceBlock();
         try {
-            if (checkBeforeTraceBlockBegin(asyncContext, trace, target, apiId, args)) {
+            if (checkBeforeTraceBlockBegin(asyncContext, trace, target, args)) {
                 traceBlock.begin();
-                beforeTrace(asyncContext, trace, traceBlock, target, apiId, args);
-                doInBeforeTrace(traceBlock, asyncContext, target, apiId, args);
+                beforeTrace(asyncContext, trace, traceBlock, target, args);
+                doInBeforeTrace(traceBlock, asyncContext, target, args);
             }
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -63,17 +68,17 @@ public abstract class AsyncContextSpanEventBlockApiIdAwareAroundInterceptor exte
         return traceBlock;
     }
 
-    protected boolean checkBeforeTraceBlockBegin(AsyncContext asyncContext, Trace trace, Object target, int apiId, Object[] args) {
+    protected boolean checkBeforeTraceBlockBegin(AsyncContext asyncContext, Trace trace, Object target, Object[] args) {
         return true;
     }
 
-    protected void beforeTrace(final AsyncContext asyncContext, final Trace trace, final SpanEventRecorder recorder, final Object target, int apiId, final Object[] args) {
+    protected void beforeTrace(final AsyncContext asyncContext, final Trace trace, final SpanEventRecorder recorder, final Object target, final Object[] args) {
     }
 
-    protected abstract void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args);
+    protected abstract void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args);
 
     @Override
-    public void after(TraceBlock block, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
+    public void after(TraceBlock block, Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
@@ -104,8 +109,8 @@ public abstract class AsyncContextSpanEventBlockApiIdAwareAroundInterceptor exte
 
         try (TraceBlock traceBlock = block) {
             if (traceBlock.isBegin()) {
-                afterTrace(asyncContext, trace, traceBlock, target, apiId, args, result, throwable);
-                doInAfterTrace(traceBlock, target, apiId, args, result, throwable);
+                afterTrace(asyncContext, trace, traceBlock, target, args, result, throwable);
+                doInAfterTrace(traceBlock, target, args, result, throwable);
             }
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -118,8 +123,8 @@ public abstract class AsyncContextSpanEventBlockApiIdAwareAroundInterceptor exte
         }
     }
 
-    protected void afterTrace(final AsyncContext asyncContext, final Trace trace, final SpanEventRecorder recorder, final Object target, int apiId, final Object[] args, final Object result, final Throwable throwable) {
+    protected void afterTrace(final AsyncContext asyncContext, final Trace trace, final SpanEventRecorder recorder, final Object target, final Object[] args, final Object result, final Throwable throwable) {
     }
 
-    protected abstract void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable);
+    protected abstract void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable);
 }

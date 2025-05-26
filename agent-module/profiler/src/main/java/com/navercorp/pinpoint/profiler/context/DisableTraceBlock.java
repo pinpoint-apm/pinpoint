@@ -37,6 +37,7 @@ public class DisableTraceBlock implements TraceBlock {
 
     private final Trace trace;
     private final SpanEventRecorder spanEventRecorder;
+    private boolean begin;
 
     public DisableTraceBlock(Trace trace, SpanEventRecorder spanEventRecorder) {
         this.trace = Objects.requireNonNull(trace, "trace");
@@ -46,6 +47,22 @@ public class DisableTraceBlock implements TraceBlock {
     @Override
     public Trace getTrace() {
         return trace;
+    }
+
+    @Override
+    public void begin() {
+        if (begin) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("TraceBlock already begin. trace={}", trace);
+            }
+            return;
+        }
+        begin = true;
+    }
+
+    @Override
+    public boolean isBegin() {
+        return begin;
     }
 
     @Override
