@@ -31,7 +31,8 @@ public class HeatmapProperties {
     private int heatMapTopicPaddingLength;
     @Value("${kafka.heatmap.topic.count}")
     private int heatmapTopicCount;
-
+    @Value("${kafka.heatmap.key.partition.count}")
+    private int heatmapKeyPartitionCount;
 
     public String getHeatmapTopicPrefix() {
         return heatmapTopicPrefix;
@@ -43,5 +44,9 @@ public class HeatmapProperties {
 
     public int getHeatmapTopicCount() {
         return heatmapTopicCount;
+    }
+
+    public int getHeatmapKeyPartitionCount() {
+        return heatmapKeyPartitionCount;
     }
 }
