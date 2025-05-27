@@ -31,7 +31,7 @@ public class TimeseriesHistogramViewModelBuilder {
         result.add(new TimeseriesHistogramViewModel(schema.getNormalSlot().getSlotName(),  getColumnValue(histogramList, Histogram::getNormalCount)));
         result.add(new TimeseriesHistogramViewModel(schema.getSlowSlot().getSlotName(),  getColumnValue(histogramList, Histogram::getSlowCount)));
         result.add(new TimeseriesHistogramViewModel(schema.getVerySlowSlot().getSlotName(),  getColumnValue(histogramList, Histogram::getVerySlowCount)));
-        result.add(new TimeseriesHistogramViewModel(schema.getErrorSlot().getSlotName(),  getColumnValue(histogramList, Histogram::getTotalErrorCount)));
+        result.add(new TimeseriesHistogramViewModel(schema.getTotalErrorView().getSlotName(),  getColumnValue(histogramList, Histogram::getTotalErrorCount)));
 
         result.add(new TimeseriesHistogramViewModel(ResponseTimeStatics.AVG_ELAPSED_TIME,  getColumnValue(histogramList, Histogram::getAvgElapsed)));
 

@@ -117,7 +117,7 @@ public class ApplicationTimeHistogramTest {
         Assertions.assertEquals(expect.getFastCount(), aggregatedResult.getFastCount());
         Assertions.assertEquals(expect.getNormalCount(), aggregatedResult.getNormalCount());
         Assertions.assertEquals(expect.getSlowCount(), aggregatedResult.getSlowCount());
-        Assertions.assertEquals(expect.getErrorCount(), aggregatedResult.getErrorCount());
+        Assertions.assertEquals(expect.getTotalErrorCount(), aggregatedResult.getTotalErrorCount());
         Assertions.assertEquals(expect.getSumElapsed(), aggregatedResult.getSumElapsed());
         Assertions.assertEquals(expect.getMaxElapsed(), aggregatedResult.getMaxElapsed());
     }
@@ -130,7 +130,7 @@ public class ApplicationTimeHistogramTest {
         linkCallData.addCallData(timeStamp, schema.getFastSlot().getSlotTime(), 1L);
         linkCallData.addCallData(timeStamp, schema.getNormalSlot().getSlotTime(), 2L);
         linkCallData.addCallData(timeStamp, schema.getSlowSlot().getSlotTime(), 3L);
-        linkCallData.addCallData(timeStamp, schema.getErrorSlot().getSlotTime(), 4L);
+        linkCallData.addCallData(timeStamp, schema.getSlowErrorSlot().getSlotTime(), 4L);
         linkCallData.addCallData(timeStamp, schema.getSumStatSlot().getSlotTime(), 1000L);
         linkCallData.addCallData(timeStamp, schema.getMaxStatSlot().getSlotTime(), 2000L);
 

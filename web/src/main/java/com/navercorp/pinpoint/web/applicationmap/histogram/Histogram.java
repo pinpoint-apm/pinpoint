@@ -44,8 +44,6 @@ public class Histogram implements StatisticsHistogram {
     private long slowCount;
     private long verySlowCount;
 
-    @Deprecated
-    private long errorCount; // for backward compatibility.
 
     private long fastErrorCount;
     private long normalErrorCount;
@@ -112,8 +110,10 @@ public class Histogram implements StatisticsHistogram {
             return;
         }
 
-        if (slotTime <= schema.getErrorSlot().getSlotTime()) { // -1 is error
-            this.errorCount += count;
+        if (slotTime <= schema.getTotalErrorView().getSlotTime()) { // -1 is error
+            LOGGER.info("Backward compatibility ErrorView schema={}", schema);
+            // this is for backward compatibility
+            this.fastErrorCount += count;
             return;
         }
 
@@ -152,12 +152,7 @@ public class Histogram implements StatisticsHistogram {
 
     public long getTotalErrorCount() {
         // Skip ping count
-        return errorCount + fastErrorCount + normalErrorCount + slowErrorCount + verySlowErrorCount;
-    }
-
-    @Deprecated
-    public long getErrorCount() {
-        return errorCount;
+        return fastErrorCount + normalErrorCount + slowErrorCount + verySlowErrorCount;
     }
 
     public long getFastCount() {
@@ -231,7 +226,6 @@ public class Histogram implements StatisticsHistogram {
             throw new IllegalArgumentException("schema not equals. this=" + this + ", histogram=" + histogram);
 
         }
-        this.errorCount += histogram.getErrorCount();
         this.fastCount += histogram.getFastCount();
         this.fastErrorCount += histogram.getFastErrorCount();
         this.normalCount += histogram.getNormalCount();
@@ -270,7 +264,6 @@ public class Histogram implements StatisticsHistogram {
                 ", normalCount=" + normalCount +
                 ", slowCount=" + slowCount +
                 ", verySlowCount=" + verySlowCount +
-                ", errorCount=" + errorCount +
                 ", fastErrorCount=" + fastErrorCount +
                 ", normalErrorCount=" + normalErrorCount +
                 ", slowErrorCount=" + slowErrorCount +

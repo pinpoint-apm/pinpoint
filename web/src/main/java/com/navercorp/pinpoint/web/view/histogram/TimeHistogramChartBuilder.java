@@ -67,7 +67,7 @@ public class TimeHistogramChartBuilder {
                 new TimeHistogramValueView(schema.getNormalSlot().getSlotName(), LongArray.asList(histogramList, Histogram::getNormalCount)),
                 new TimeHistogramValueView(schema.getSlowSlot().getSlotName(), LongArray.asList(histogramList, Histogram::getSlowCount)),
                 new TimeHistogramValueView(schema.getVerySlowSlot().getSlotName(), LongArray.asList(histogramList, Histogram::getVerySlowCount)),
-                new TimeHistogramValueView(schema.getErrorSlot().getSlotName(), LongArray.asList(histogramList, Histogram::getErrorCount))
+                new TimeHistogramValueView(schema.getTotalErrorView().getSlotName(), LongArray.asList(histogramList, Histogram::getTotalErrorCount))
         );
     }
 

@@ -30,7 +30,8 @@ public class ResponseTimeViewModelBuilder {
         result.add(new ResponseTimeViewModel(schema.getNormalSlot().getSlotName(), getColumnValue(histogramList, Histogram::getNormalCount)));
         result.add(new ResponseTimeViewModel(schema.getSlowSlot().getSlotName(), getColumnValue(histogramList, Histogram::getSlowCount)));
         result.add(new ResponseTimeViewModel(schema.getVerySlowSlot().getSlotName(), getColumnValue(histogramList, Histogram::getVerySlowCount)));
-        result.add(new ResponseTimeViewModel(schema.getErrorSlot().getSlotName(), getColumnValue(histogramList, Histogram::getTotalErrorCount)));
+
+        result.add(new ResponseTimeViewModel(schema.getTotalErrorView().getSlotName(), getColumnValue(histogramList, Histogram::getTotalErrorCount)));
 
         result.add(new ResponseTimeViewModel(ResponseTimeStatics.AVG_ELAPSED_TIME, getColumnValue(histogramList, Histogram::getAvgElapsed)));
         result.add(new ResponseTimeViewModel(ResponseTimeStatics.MAX_ELAPSED_TIME, getColumnValue(histogramList, Histogram::getMaxElapsed)));

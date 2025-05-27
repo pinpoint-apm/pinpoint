@@ -45,7 +45,7 @@ public class HistogramTest {
         histogram.addCallCount(BaseHistogramSchema.NORMAL_SCHEMA.getPingSlot().getSlotTime(), 1);
         Assertions.assertEquals(1, histogram.getPingCount());
 
-        Assertions.assertEquals(0, histogram.getErrorCount());
+        Assertions.assertEquals(0, histogram.getTotalErrorCount());
     }
 
     @Test
@@ -54,14 +54,14 @@ public class HistogramTest {
         histogram.addCallCount(BaseHistogramSchema.NORMAL_SCHEMA.getMaxStatSlot().getSlotTime(), 1000);
         Assertions.assertEquals(1000, histogram.getMaxElapsed());
 
-        Assertions.assertEquals(0, histogram.getErrorCount());
+        Assertions.assertEquals(0, histogram.getTotalErrorCount());
     }
 
     @Test
     public void errorSlot() {
         Histogram histogram = new Histogram(ServiceType.STAND_ALONE);
-        histogram.addCallCount(BaseHistogramSchema.NORMAL_SCHEMA.getErrorSlot().getSlotTime(), 1);
-        Assertions.assertEquals(1, histogram.getErrorCount());
+        histogram.addCallCount(BaseHistogramSchema.NORMAL_SCHEMA.getSlowErrorSlot().getSlotTime(), 1);
+        Assertions.assertEquals(1, histogram.getSlowErrorCount());
         Assertions.assertEquals(0, histogram.getSuccessCount());
     }
 
@@ -108,6 +108,6 @@ public class HistogramTest {
         Map<String, Object> map = objectMapper.readValue(json, TypeRef.map());
 
         Assertions.assertEquals(100, map.get(schema.getFastSlot().getSlotName()));
-        Assertions.assertEquals(0, map.get(schema.getErrorSlot().getSlotName()));
+        Assertions.assertEquals(0, map.get(schema.getTotalErrorView().getSlotName()));
     }
 }
