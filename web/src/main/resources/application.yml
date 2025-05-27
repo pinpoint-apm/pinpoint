@@ -16,6 +16,11 @@ server:
     whitelabel:
       enabled: true
   max-http-request-header-size: 32678
+  compression:
+    enabled: true
+    mime-types: application/json
+    min-response-size: 2KB
+
 
 pinpoint:
   modules:
