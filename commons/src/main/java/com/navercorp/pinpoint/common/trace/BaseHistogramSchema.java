@@ -117,7 +117,7 @@ public class BaseHistogramSchema implements HistogramSchema {
         return success.getVerySlowSlot();
     }
 
-    public HistogramSlot getErrorSlot() {
+    public HistogramSlot getTotalErrorView() {
         return errorSlot;
     }
 
@@ -177,15 +177,4 @@ public class BaseHistogramSchema implements HistogramSchema {
                 '}';
     }
 
-    public static HistogramSchema getDefaultHistogramSchemaByTypeCode(int typeCode) {
-        final Schema schema = Schema.getSchema(typeCode);
-        switch (schema) {
-            case FAST:
-                return FAST_SCHEMA;
-            case NORMAL:
-                return NORMAL_SCHEMA;
-            default:
-                throw new IllegalArgumentException("Unknown type code: " + typeCode);
-        }
-    }
 }

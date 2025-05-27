@@ -89,7 +89,7 @@ public class ApdexScoreServiceImplTest {
         histogram.addCallCount(schema.getNormalSlot().getSlotTime(), normal);
         histogram.addCallCount(schema.getSlowSlot().getSlotTime(), slow);
         histogram.addCallCount(schema.getVerySlowSlot().getSlotTime(), verySlow);
-        histogram.addCallCount(schema.getErrorSlot().getSlotTime(), error);
+        histogram.addCallCount(schema.getSlowErrorSlot().getSlotTime(), error);
         return histogram;
     }
 

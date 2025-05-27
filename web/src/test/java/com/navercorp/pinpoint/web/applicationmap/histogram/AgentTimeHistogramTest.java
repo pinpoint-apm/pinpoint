@@ -160,7 +160,7 @@ public class AgentTimeHistogramTest {
             assertThat(aggregatedResult.get(sourceAgentId).getFastCount()).isEqualTo(defaultResult.get(sourceAgentId).getFastCount());
             assertThat(aggregatedResult.get(sourceAgentId).getNormalCount()).isEqualTo(defaultResult.get(sourceAgentId).getNormalCount());
             assertThat(aggregatedResult.get(sourceAgentId).getSlowCount()).isEqualTo(defaultResult.get(sourceAgentId).getSlowCount());
-            assertThat(aggregatedResult.get(sourceAgentId).getErrorCount()).isEqualTo(defaultResult.get(sourceAgentId).getErrorCount());
+            assertThat(aggregatedResult.get(sourceAgentId).getSlowErrorCount()).isEqualTo(defaultResult.get(sourceAgentId).getSlowErrorCount());
             assertThat(aggregatedResult.get(sourceAgentId).getSumElapsed()).isEqualTo(defaultResult.get(sourceAgentId).getSumElapsed());
             assertThat(aggregatedResult.get(sourceAgentId).getMaxElapsed()).isEqualTo(defaultResult.get(sourceAgentId).getMaxElapsed());
         }
@@ -173,7 +173,7 @@ public class AgentTimeHistogramTest {
         linkCallDataMap.addCallData(sourceAgentId, ServiceType.STAND_ALONE, "targetAgentId", ServiceType.STAND_ALONE, timeStamp, schema.getFastSlot().getSlotTime(), 1L);
         linkCallDataMap.addCallData(sourceAgentId, ServiceType.STAND_ALONE, "targetAgentId", ServiceType.STAND_ALONE, timeStamp, schema.getNormalSlot().getSlotTime(), 2L);
         linkCallDataMap.addCallData(sourceAgentId, ServiceType.STAND_ALONE, "targetAgentId", ServiceType.STAND_ALONE, timeStamp, schema.getSlowErrorSlot().getSlotTime(), 3L);
-        linkCallDataMap.addCallData(sourceAgentId, ServiceType.STAND_ALONE, "targetAgentId", ServiceType.STAND_ALONE, timeStamp, schema.getErrorSlot().getSlotTime(), 4L);
+        linkCallDataMap.addCallData(sourceAgentId, ServiceType.STAND_ALONE, "targetAgentId", ServiceType.STAND_ALONE, timeStamp, schema.getSlowErrorSlot().getSlotTime(), 4L);
         linkCallDataMap.addCallData(sourceAgentId, ServiceType.STAND_ALONE, "targetAgentId", ServiceType.STAND_ALONE, timeStamp, schema.getSumStatSlot().getSlotTime(), 1000L);
         linkCallDataMap.addCallData(sourceAgentId, ServiceType.STAND_ALONE, "targetAgentId", ServiceType.STAND_ALONE, timeStamp, schema.getMaxStatSlot().getSlotTime(), 2000L);
         return linkCallDataMap;

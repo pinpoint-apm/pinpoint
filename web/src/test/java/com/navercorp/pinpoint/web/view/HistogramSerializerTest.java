@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
+import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import org.apache.logging.log4j.LogManager;
@@ -52,45 +53,29 @@ public class HistogramSerializerTest {
         String jacksonJson = objectMapper.writeValueAsString(original);
         Map<String, Object> objectMapperHashMap = objectMapper.readValue(jacksonJson, TypeRef.map());
 
-        logger.debug(jacksonJson);
+        logger.debug("{}", jacksonJson);
 
-        String internalJson = internalJson(original);
-        Map<String, Object> hashMap = objectMapper.readValue(internalJson, TypeRef.map());
+        Map<String, Object> hashMap = internalJson(original);
 
         Assertions.assertEquals(objectMapperHashMap, hashMap);
     }
 
     /**
      * moved this testcase for testing the old version histogram with manually created json code
-     * @param histogram
-     * @return
      */
-    public String internalJson(Histogram histogram) {
+    public Map<String, Object> internalJson(Histogram histogram) {
         HistogramSchema histogramSchema = histogram.getHistogramSchema();
-        final StringBuilder sb = new StringBuilder(128);
-        sb.append("{ ");
 
-        appendSlotTimeAndCount(sb, histogramSchema.getFastSlot().getSlotName(), histogram.getFastCount());
-        sb.append(", ");
-        appendSlotTimeAndCount(sb, histogramSchema.getNormalSlot().getSlotName(), histogram.getNormalCount());
-        sb.append(", ");
-        appendSlotTimeAndCount(sb, histogramSchema.getSlowSlot().getSlotName(), histogram.getSlowCount());
-        sb.append(", ");
-
-        // very slow means 0, so should use slow
-        appendSlotTimeAndCount(sb, histogramSchema.getVerySlowSlot().getSlotName(), histogram.getVerySlowCount());
-        sb.append(", ");
-        appendSlotTimeAndCount(sb, histogramSchema.getErrorSlot().getSlotName(), histogram.getTotalErrorCount());
-        sb.append(" }");
-
-        return sb.toString();
+        return Map.ofEntries(entry(histogramSchema.getFastSlot(), histogram.getFastCount()),
+                entry(histogramSchema.getNormalSlot(), histogram.getNormalCount()),
+                entry(histogramSchema.getSlowSlot(), histogram.getSlowCount()),
+                entry(histogramSchema.getVerySlowSlot(), histogram.getVerySlowCount()),
+                entry(histogramSchema.getTotalErrorView(), histogram.getTotalErrorCount())
+        );
     }
 
-    private void appendSlotTimeAndCount(StringBuilder sb, String slotTimeName, long count) {
-        sb.append('"');
-        sb.append(slotTimeName);
-        sb.append('"');
-        sb.append(":");
-        sb.append(count);
+    private Map.Entry<String, Integer> entry(HistogramSlot histogramSchema, long histogram) {
+        return Map.entry(histogramSchema.getSlotName(), (int) histogram);
     }
+
 }

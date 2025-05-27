@@ -137,7 +137,6 @@ public class ApplicationMapVerifier {
         Assertions.assertEquals(histogram1.getHistogramSchema(), histogram2.getHistogramSchema());
         Assertions.assertEquals(histogram1.getTotalCount(), histogram2.getTotalCount());
         Assertions.assertEquals(histogram1.getSuccessCount(), histogram2.getSuccessCount());
-        Assertions.assertEquals(histogram1.getErrorCount(), histogram2.getErrorCount());
         Assertions.assertEquals(histogram1.getFastCount(), histogram2.getFastCount());
         Assertions.assertEquals(histogram1.getFastErrorCount(), histogram2.getFastErrorCount());
         Assertions.assertEquals(histogram1.getNormalCount(), histogram2.getNormalCount());

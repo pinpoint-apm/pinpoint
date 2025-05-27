@@ -143,7 +143,7 @@ public class ResponseTimeHistogramServiceImplTest {
         responseTimeBuilder.addResponseTime("agentId", schema.getFastSlot().getSlotTime(), 1L);
         responseTimeBuilder.addResponseTime("agentId", schema.getNormalSlot().getSlotTime(), 2L);
         responseTimeBuilder.addResponseTime("agentId", schema.getSlowSlot().getSlotTime(), 3L);
-        responseTimeBuilder.addResponseTime("agentId", schema.getErrorSlot().getSlotTime(), 4L);
+        responseTimeBuilder.addResponseTime("agentId", schema.getSlowErrorSlot().getSlotTime(), 4L);
         responseTimeBuilder.addResponseTime("agentId", schema.getSumStatSlot().getSlotTime(), 1000L);
         responseTimeBuilder.addResponseTime("agentId", schema.getMaxStatSlot().getSlotTime(), 2000L);
         return responseTimeBuilder.build();
@@ -602,7 +602,7 @@ public class ResponseTimeHistogramServiceImplTest {
         linkData.addLinkData("sourceAgentId", sourceServiceType, "destinationAgentId", destinationServiceType, timestamp, schema.getFastSlot().getSlotTime(), 1L);
         linkData.addLinkData("sourceAgentId", sourceServiceType, "destinationAgentId", destinationServiceType, timestamp, schema.getNormalSlot().getSlotTime(), 2L);
         linkData.addLinkData("sourceAgentId", sourceServiceType, "destinationAgentId", destinationServiceType, timestamp, schema.getSlowSlot().getSlotTime(), 3L);
-        linkData.addLinkData("sourceAgentId", sourceServiceType, "destinationAgentId", destinationServiceType, timestamp, schema.getErrorSlot().getSlotTime(), 4L);
+        linkData.addLinkData("sourceAgentId", sourceServiceType, "destinationAgentId", destinationServiceType, timestamp, schema.getSlowErrorSlot().getSlotTime(), 4L);
         linkData.addLinkData("sourceAgentId", sourceServiceType, "destinationAgentId", destinationServiceType, timestamp, schema.getSumStatSlot().getSlotTime(), 1000L);
         linkData.addLinkData("sourceAgentId", sourceServiceType, "destinationAgentId", destinationServiceType, timestamp, schema.getMaxStatSlot().getSlotTime(), 2000L);
 
@@ -613,7 +613,7 @@ public class ResponseTimeHistogramServiceImplTest {
         Assertions.assertThat(histogram.getFastCount()).isEqualTo(number * 1L);
         Assertions.assertThat(histogram.getNormalCount()).isEqualTo(number * 2L);
         Assertions.assertThat(histogram.getSlowCount()).isEqualTo(number * 3L);
-        Assertions.assertThat(histogram.getErrorCount()).isEqualTo(number * 4L);
+        Assertions.assertThat(histogram.getSlowErrorCount()).isEqualTo(number * 4L);
         Assertions.assertThat(histogram.getSumElapsed()).isEqualTo(number * 1000L);
         if (number == 0L) {
             Assertions.assertThat(histogram.getMaxElapsed()).isEqualTo(0L);

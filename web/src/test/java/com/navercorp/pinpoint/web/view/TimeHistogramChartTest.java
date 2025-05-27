@@ -19,11 +19,11 @@ package com.navercorp.pinpoint.web.view;
 import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
-import com.navercorp.pinpoint.web.view.histogram.TimeHistogramChartBuilder;
-import com.navercorp.pinpoint.web.view.histogram.TimeHistogramType;
 import com.navercorp.pinpoint.web.view.TimeSeries.TimeSeriesValueGroupView;
 import com.navercorp.pinpoint.web.view.TimeSeries.TimeSeriesValueView;
 import com.navercorp.pinpoint.web.view.TimeSeries.TimeSeriesView;
+import com.navercorp.pinpoint.web.view.histogram.TimeHistogramChartBuilder;
+import com.navercorp.pinpoint.web.view.histogram.TimeHistogramType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.assertj.core.api.Assertions;
@@ -51,13 +51,13 @@ public class TimeHistogramChartTest {
         timeHistogram1.addCallCount(schema.getNormalSlot().getSlotTime(), 2);
         timeHistogram1.addCallCount(schema.getSlowSlot().getSlotTime(), 3);
         timeHistogram1.addCallCount(schema.getVerySlowSlot().getSlotTime(), 4);
-        timeHistogram1.addCallCount(schema.getErrorSlot().getSlotTime(), 5);
+        timeHistogram1.addCallCount(schema.getSlowErrorSlot().getSlotTime(), 5);
 
         timeHistogram2.addCallCount(schema.getFastSlot().getSlotTime(), 6);
         timeHistogram2.addCallCount(schema.getNormalSlot().getSlotTime(), 7);
         timeHistogram2.addCallCount(schema.getSlowSlot().getSlotTime(), 8);
         timeHistogram2.addCallCount(schema.getVerySlowSlot().getSlotTime(), 9);
-        timeHistogram2.addCallCount(schema.getErrorSlot().getSlotTime(), 10);
+        timeHistogram2.addCallCount(schema.getSlowErrorSlot().getSlotTime(), 10);
 
         timeHistogramList = List.of(timeHistogram1, timeHistogram2);
     }
@@ -78,7 +78,7 @@ public class TimeHistogramChartTest {
         HistogramSchema schema = BaseHistogramSchema.NORMAL_SCHEMA;
         Assertions.assertThat(metricValues.get(0).getFieldName()).isEqualTo(schema.getFastSlot().getSlotName());
         Assertions.assertThat(metricValues.get(0).getValues()).isEqualTo(List.of(1L, 6L));
-        Assertions.assertThat(metricValues.get(4).getFieldName()).isEqualTo(schema.getErrorSlot().getSlotName());
+        Assertions.assertThat(metricValues.get(4).getFieldName()).isEqualTo(schema.getTotalErrorView().getSlotName());
         Assertions.assertThat(metricValues.get(4).getValues()).isEqualTo(List.of(5L, 10L));
     }
 }
