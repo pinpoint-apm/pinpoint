@@ -26,6 +26,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author minwoo-jung
@@ -36,10 +37,12 @@ public class PinotHeatmapDao implements HeatmapDao {
     private final Logger logger = LogManager.getLogger(getClass());
     private final KafkaTemplate<String, HeatmapStat> kafkaHeatmapStatTemplate;
     private final TopicNameManager topicNameManager;
+    private final int keyPartitionCount;
 
     public PinotHeatmapDao(KafkaTemplate<String, HeatmapStat> kafkaHeatmapStatTemplate, HeatmapProperties heatmapProperties) {
         this.kafkaHeatmapStatTemplate = Objects.requireNonNull(kafkaHeatmapStatTemplate, "kafkaHeatmapStatTemplate");
         this.topicNameManager = new TopicNameManager(heatmapProperties.getHeatmapTopicPrefix(), heatmapProperties.getHeatMapTopicPaddingLength(), heatmapProperties.getHeatmapTopicCount());
+        this.keyPartitionCount = heatmapProperties.getHeatmapKeyPartitionCount();
     }
 
     @Override
@@ -49,6 +52,14 @@ public class PinotHeatmapDao implements HeatmapDao {
             return;
         }
         String topic = topicNameManager.getTopicName(heatmapStat.getApplicationName());
-        kafkaHeatmapStatTemplate.send(topic, heatmapStat.getAgentId(), heatmapStat);
+        kafkaHeatmapStatTemplate.send(topic, heatmapStat.getSortKey() + "#" + randomPartitionSuffix(), heatmapStat);
+    }
+
+    private int randomPartitionSuffix() {
+        if (keyPartitionCount <= 1) {
+            return 0;
+        }
+        int nonNegativeRandom = ThreadLocalRandom.current().nextInt() & 0x7fffffff;
+        return nonNegativeRandom % keyPartitionCount;
     }
 }
