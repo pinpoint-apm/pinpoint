@@ -59,7 +59,6 @@ public class PinotHeatmapDao implements HeatmapDao {
         if (keyPartitionCount <= 1) {
             return 0;
         }
-        int nonNegativeRandom = ThreadLocalRandom.current().nextInt() & 0x7fffffff;
-        return nonNegativeRandom % keyPartitionCount;
+        return ThreadLocalRandom.current().nextInt(keyPartitionCount);
     }
 }
