@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.bootstrap.BootLogger;
 import com.navercorp.pinpoint.bootstrap.util.ProfileConstants;
+import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -116,12 +117,7 @@ class ProfilePropertyLoader implements PropertyLoader {
 
 
     private String getActiveProfile(Properties defaultProperties) {
-//        env option support??
-//        String envProfile = System.getenv(ACTIVE_PROFILE_KEY);
-        String profile = javaSystemProperty.getProperty(ProfileConstants.ACTIVE_PROFILE_KEY);
-        if (profile == null) {
-            profile = defaultProperties.getProperty(ProfileConstants.ACTIVE_PROFILE_KEY);
-        }
+        String profile = getProfileProperties(defaultProperties, ProfileConstants.ACTIVE_PROFILE_KEY);
         if (profile == null) {
             throw new RuntimeException("Failed to detect pinpoint profile. Please add -D" +
                     ProfileConstants.ACTIVE_PROFILE_KEY +
@@ -134,11 +130,46 @@ class ProfilePropertyLoader implements PropertyLoader {
                 return supportedProfile.toString();
             }
         }
+
+        // handle alias
+        for (Path supportedProfile : supportedProfiles) {
+            String supportedProfileName = supportedProfile.toString();
+            String aliasesStr = getProfileProperties(defaultProperties, ProfileConstants.PROFILE_ALIAS_KEY_PREFIX + supportedProfileName);
+            if (containsAlias(aliasesStr, profile)) {
+                logger.info(String.format("resolved profile alias '%s' to supported profile '%s'", profile, supportedProfileName));
+                return supportedProfileName;
+            }
+        }
         throw new IllegalStateException("unsupported profile:" + profile);
     }
+
+    private String getProfileProperties(Properties defaultProperties, String key) {
+//        env option support??
+//        String envProfile = System.getenv(ACTIVE_PROFILE_KEY);
+        String value = javaSystemProperty.getProperty(key);
+        if (value == null) {
+            value = defaultProperties.getProperty(key);
+        }
+        return value;
+    }
+
 
     private void loadProperties(Properties dstProperties, Properties property) {
         Map<Object, Object> copy = PropertyLoaderUtils.filterAllowedPrefix(property);
         dstProperties.putAll(copy);
+    }
+
+    private boolean containsAlias(String aliasesStr, String profile) {
+        if (StringUtils.isEmpty(aliasesStr)) {
+            return false;
+        }
+
+        String[] aliases = aliasesStr.split(",");
+        for (String alias : aliases) {
+            if (profile.equalsIgnoreCase(alias.trim())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
