@@ -23,13 +23,10 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.navercorp.pinpoint.metric.collector.model.TelegrafMetric;
 import com.navercorp.pinpoint.metric.collector.model.TelegrafMetrics;
-import com.navercorp.pinpoint.metric.common.model.Tag;
-import com.navercorp.pinpoint.metric.common.model.TagComparator;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -38,7 +35,8 @@ import java.util.List;
 @Component
 public class TelegrafJsonDeserializer extends JsonDeserializer<TelegrafMetrics> {
 
-    private final static Comparator<Tag> TAG_COMPARATOR = TagComparator.INSTANCE;
+    private static final TypeReference<List<TelegrafMetric>> REF_BATCH = new TypeReference<>() {
+    };
 
     public TelegrafJsonDeserializer() {
     }
@@ -54,9 +52,7 @@ public class TelegrafJsonDeserializer extends JsonDeserializer<TelegrafMetrics> 
             if (jp.nextToken() != JsonToken.START_ARRAY) {
                 ctxt.handleUnexpectedToken(TelegrafMetrics.class, jp);
             }
-            TypeReference<List<TelegrafMetric>> batch = new TypeReference<>() {
-            };
-            List<TelegrafMetric> metrics = jp.readValueAs(batch);
+            List<TelegrafMetric> metrics = jp.readValueAs(REF_BATCH);
             return new TelegrafMetrics(metrics);
         } else {
             // standard

@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.common.server.mapper;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -37,13 +37,19 @@ import java.util.Objects;
 
 @Component
 public class MapStructUtils {
+
     private final ObjectMapper mapper;
 
-    private final JavaType listLongJavaType;
+    private final ObjectReader integerListReader;
+    private final ObjectReader longListReader;
+    private final ObjectReader stringListReader;
 
     public MapStructUtils(ObjectMapper mapper) {
         this.mapper = Objects.requireNonNull(mapper, "mapper");
-        this.listLongJavaType = mapper.getTypeFactory().constructCollectionType(List.class, Long.class);
+
+        this.integerListReader = mapper.readerForListOf(Integer.class);
+        this.longListReader = mapper.readerForListOf(Long.class);
+        this.stringListReader = mapper.readerForListOf(String.class);
     }
 
 
@@ -63,23 +69,46 @@ public class MapStructUtils {
 
 
     @JsonStrToList
-    public <T> List<T> jsonStrToList(String s) {
-        if (StringUtils.isEmpty(s)) {
+    @Deprecated
+    public <T> List<T> jsonStrToList(String json) {
+        if (StringUtils.isEmpty(json)) {
             return Collections.emptyList();
         }
         try {
-            return mapper.readValue(s, new TypeReference<>() {});
+            return mapper.readValue(json, new TypeReference<>() {});
         } catch (JacksonException e) {
             throw new JsonRuntimeException("Json read error", e);
         }
     }
 
-    public List<Long> jsonStrToLongList(String s) {
-        if (StringUtils.isEmpty(s)) {
+    public List<String> jsonToStringList(String json) {
+        if (StringUtils.isEmpty(json)) {
             return Collections.emptyList();
         }
         try {
-            return mapper.readValue(s, listLongJavaType);
+            return stringListReader.readValue(json);
+        } catch (JacksonException e) {
+            throw new JsonRuntimeException("Json read error", e);
+        }
+    }
+
+    public List<Integer> jsonToIntegerList(String json) {
+        if (StringUtils.isEmpty(json)) {
+            return Collections.emptyList();
+        }
+        try {
+            return integerListReader.readValue(json);
+        } catch (JacksonException e) {
+            throw new JsonRuntimeException("Json read error", e);
+        }
+    }
+
+    public List<Long> jsonToLongList(String json) {
+        if (StringUtils.isEmpty(json)) {
+            return Collections.emptyList();
+        }
+        try {
+            return longListReader.readValue(json);
         } catch (JacksonException e) {
             throw new JsonRuntimeException("Json read error", e);
         }

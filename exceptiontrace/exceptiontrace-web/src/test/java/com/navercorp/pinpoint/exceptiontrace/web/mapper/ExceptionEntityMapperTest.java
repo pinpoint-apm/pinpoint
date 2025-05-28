@@ -8,9 +8,9 @@ import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionChartValueViewE
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionGroupSummaryEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.ExceptionMetaDataEntity;
 import com.navercorp.pinpoint.exceptiontrace.web.entity.GroupedFieldNameEntity;
-import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.model.ExceptionGroupSummary;
 import com.navercorp.pinpoint.exceptiontrace.web.util.GroupByAttributes;
+import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionChartValueView;
 import com.navercorp.pinpoint.exceptiontrace.web.view.ExceptionDetailView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -82,10 +82,10 @@ class ExceptionEntityMapperTest {
         String lineNumbers = expected.getStackTraceLineNumber();
         String methodNames = expected.getStackTraceMethodName();
 
-        List<String> classNameIter = convertToList(classNames);
-        List<String> fileNameIter = convertToList(fileNames);
-        List<Integer> lineNumberIter = convertToList(lineNumbers);
-        List<String> methodNameIter = convertToList(methodNames);
+        List<String> classNameIter = mapStructUtils.jsonToStringList(classNames);
+        List<String> fileNameIter = mapStructUtils.jsonToStringList(fileNames);
+        List<Integer> lineNumberIter = mapStructUtils.jsonToIntegerList(lineNumbers);
+        List<String> methodNameIter = mapStructUtils.jsonToStringList(methodNames);
 
         List<StackTraceElementWrapper> actualStackTrace = actual.getStackTrace();
 
@@ -128,10 +128,10 @@ class ExceptionEntityMapperTest {
         String lineNumbers = expected.getStackTraceLineNumber();
         String methodNames = expected.getStackTraceMethodName();
 
-        List<String> classNameIter = convertToList(classNames);
-        List<String> fileNameIter = convertToList(fileNames);
-        List<Integer> lineNumberIter = convertToList(lineNumbers);
-        List<String> methodNameIter = convertToList(methodNames);
+        List<String> classNameIter = mapStructUtils.jsonToStringList(classNames);
+        List<String> fileNameIter = mapStructUtils.jsonToStringList(fileNames);
+        List<Integer> lineNumberIter = mapStructUtils.jsonToIntegerList(lineNumbers);
+        List<String> methodNameIter = mapStructUtils.jsonToStringList(methodNames);
 
         List<StackTraceElementWrapper> actualStackTrace = actual.getStackTrace();
 
@@ -171,10 +171,6 @@ class ExceptionEntityMapperTest {
     private <T> String toFlattenedString(List<StackTraceElement> elements, Function<StackTraceElement, T> getter) {
         List<T> collect = elements.stream().map(getter).collect(Collectors.toList());
         return mapStructUtils.listToJsonStr(collect);
-    }
-
-    public <T> List<T> convertToList(String json) {
-        return mapStructUtils.jsonStrToList(json);
     }
 
     @Test
