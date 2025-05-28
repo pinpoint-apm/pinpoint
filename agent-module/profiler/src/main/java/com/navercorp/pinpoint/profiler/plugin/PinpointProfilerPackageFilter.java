@@ -16,9 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -27,9 +24,6 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class PinpointProfilerPackageFilter implements ClassNameFilter {
-
-    private final Logger logger = LogManager.getLogger(this.getClass());
-    private final boolean debug = logger.isDebugEnabled();
 
     private final String[] packageList;
 

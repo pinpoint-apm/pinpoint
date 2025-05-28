@@ -8,6 +8,9 @@ import java.util.concurrent.CompletionException;
 import java.util.function.Supplier;
 
 public final class FutureUtils {
+
+    private static final CompletableFuture<?>[] FUTURE_EMPTY_ARRAY =new CompletableFuture<?>[0];
+
     private FutureUtils() {
     }
 
@@ -45,7 +48,7 @@ public final class FutureUtils {
     public static <T> List<T> allOf(List<CompletableFuture<T>> futures) {
         Objects.requireNonNull(futures, "futures");
 
-        CompletableFuture<T>[] futuresArray = (CompletableFuture<T>[]) futures.toArray(new CompletableFuture<?>[0]);
+        CompletableFuture<T>[] futuresArray = (CompletableFuture<T>[]) futures.toArray(FUTURE_EMPTY_ARRAY);
         return allOf(futuresArray);
     }
 
@@ -64,7 +67,7 @@ public final class FutureUtils {
     public static <T> CompletableFuture<List<T>> allOfAsync(List<CompletableFuture<T>> futures) {
         Objects.requireNonNull(futures, "futures");
 
-        final CompletableFuture<T>[] futuresArray = (CompletableFuture<T>[]) futures.toArray(new CompletableFuture<?>[0]);
+        final CompletableFuture<T>[] futuresArray = (CompletableFuture<T>[]) futures.toArray(FUTURE_EMPTY_ARRAY);
         return allOfAsync(futuresArray);
     }
 
