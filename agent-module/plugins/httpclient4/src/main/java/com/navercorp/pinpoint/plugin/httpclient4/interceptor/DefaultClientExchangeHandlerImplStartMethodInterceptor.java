@@ -107,6 +107,9 @@ public class DefaultClientExchangeHandlerImplStartMethodInterceptor implements A
         final HttpRequest httpRequest = getHttpRequest(target);
         final NameIntValuePair<String> host = getHost(target);
         final boolean sampling = trace.canSampled();
+        if (httpRequest != null) {
+            this.requestTraceWriter.write(httpRequest, trace.getRequestId());
+        }
         if (!sampling) {
             if (httpRequest != null) {
                 this.requestTraceWriter.write(httpRequest);
