@@ -38,6 +38,8 @@ import java.util.concurrent.ExecutorService;
  */
 public class ParallelResultScanner implements ResultScanner {
 
+    private static final Result[] RESULT_EMPTY_ARRAY = {};
+
     private final AbstractRowKeyDistributor keyDistributor;
     private final List<ScanTask> scanTasks;
     private final Result[] nextResults;
@@ -154,7 +156,7 @@ public class ParallelResultScanner implements ResultScanner {
                 break;
             }
         }
-        return resultSets.toArray(new Result[0]);
+        return resultSets.toArray(RESULT_EMPTY_ARRAY);
     }
 
     @Override

@@ -114,6 +114,8 @@ public class ASMClassNodeAdapter {
         return null;
     }
 
+    private static final String[] EMPTY_STRING_ARRAY = new String[0];
+
     private final ClassInputStreamProvider pluginInputStreamProvider;
     private final ClassLoader classLoader;
     private final ProtectionDomain protectionDomain;
@@ -167,7 +169,7 @@ public class ASMClassNodeAdapter {
     public String[] getInterfaceNames() {
         final List<String> interfaces = this.classNode.interfaces;
         if (CollectionUtils.isEmpty(interfaces)) {
-            return new String[0];
+            return EMPTY_STRING_ARRAY;
         }
 
         final List<String> list = new ArrayList<>(interfaces.size());
@@ -177,7 +179,7 @@ public class ASMClassNodeAdapter {
             }
         }
 
-        return list.toArray(new String[0]);
+        return list.toArray(EMPTY_STRING_ARRAY);
     }
 
     public ASMMethodNodeAdapter getDeclaredMethod(final String methodName, final String desc) {
@@ -377,7 +379,7 @@ public class ASMClassNodeAdapter {
         if (superMethodNodeExceptions == null) {
             return null;
         }
-        return superMethodNodeExceptions.toArray(new String[0]);
+        return superMethodNodeExceptions.toArray(EMPTY_STRING_ARRAY);
     }
 
     public void addGetterMethod(final String methodName, final ASMFieldNodeAdapter fieldNode) {

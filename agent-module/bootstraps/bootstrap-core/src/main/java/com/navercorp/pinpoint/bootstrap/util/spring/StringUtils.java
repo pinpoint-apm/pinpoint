@@ -46,6 +46,8 @@ import java.util.StringTokenizer;
  */
 class StringUtils {
 
+    private static final String[] EMPTY_STRING_ARRAY = new String[0];
+
     /**
      * Check whether the given {@code CharSequence} contains actual <em>text</em>.
      * <p>More specifically, this method returns {@code true} if the
@@ -149,7 +151,7 @@ class StringUtils {
             if (trimTokens) {
                 token = token.trim();
             }
-            if (!ignoreEmptyTokens || token.length() > 0) {
+            if (!ignoreEmptyTokens || !token.isEmpty()) {
                 tokens.add(token);
             }
         }
@@ -168,7 +170,7 @@ class StringUtils {
         if (collection == null) {
             return null;
         }
-        return collection.toArray(new String[0]);
+        return collection.toArray(EMPTY_STRING_ARRAY);
     }
 
 }

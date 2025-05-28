@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
+import com.google.common.net.InetAddresses;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import com.google.common.net.InetAddresses;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public final class InetAddressUtils {
         if (CollectionUtils.isEmpty(addressList)) {
             return Collections.emptyList();
         }
-        final List<InetAddress> inetAddressList = new ArrayList<InetAddress>(addressList.size());
+        final List<InetAddress> inetAddressList = new ArrayList<>(addressList.size());
         for (String ignoreAddress : addressList) {
             if (StringUtils.isBlank(ignoreAddress)) {
                 continue;

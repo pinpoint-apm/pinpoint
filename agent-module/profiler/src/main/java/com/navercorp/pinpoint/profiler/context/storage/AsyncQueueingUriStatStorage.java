@@ -95,6 +95,8 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
 
     static class UriStatConsumer implements MultiConsumer<UriStatInfo> {
 
+        private final UriStatInfo[] uriStatInfos = new UriStatInfo[0];
+
         private static final int DEFAULT_COLLECT_INTERVAL = 30000; // 30s
 
         private static final int SNAPSHOT_LIMIT = 4;
@@ -126,9 +128,9 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
 
             AgentUriStatData agentUriStatData = snapshotManager.getCurrent(currentBaseTimestamp);
 
-            Object[] dataList = messageList.toArray();
+            UriStatInfo[] dataList = messageList.toArray(uriStatInfos);
             for (int i = 0; i < CollectionUtils.nullSafeSize(messageList); i++) {
-                addUriData(agentUriStatData, (UriStatInfo) dataList[i]);
+                addUriData(agentUriStatData, dataList[i]);
             }
         }
 
