@@ -40,6 +40,7 @@ import com.navercorp.pinpoint.web.applicationmap.map.processor.WasOnlyProcessor;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.service.ServerInstanceDatasourceService;
+import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.SearchOption;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -126,7 +127,7 @@ public class MapServiceImpl implements MapService {
         ApplicationMapBuilder builder = createApplicationMapBuilder(option);
         ApplicationMap map = builder.build(linkDataDuplexMap, buildTimeoutMillis);
         if (map.getNodes().isEmpty()) {
-            map = builder.build(option.getSourceApplication(), buildTimeoutMillis);
+            map = buildForNoRequest(option.getSourceApplication(), builder);
         }
         watch.stop();
         if (logger.isInfoEnabled()) {
@@ -138,19 +139,25 @@ public class MapServiceImpl implements MapService {
         return map;
     }
 
+    private ApplicationMap buildForNoRequest(Application source, ApplicationMapBuilder builder) {
+        // If no nodes are found, we still need to build the map with the source application.
+        builder.includeServerInfo(newServerGroupListFactory(false));
+        return builder.build(source, buildTimeoutMillis);
+    }
+
     private ApplicationMapBuilder createApplicationMapBuilder(MapServiceOption option) {
         ApplicationMapBuilder builder = applicationMapBuilderFactory.createApplicationMapBuilder(option.getTimeWindow());
 
-        final NodeHistogramFactory nodeHistogramFactory = newNodeHistogramFactory(option);
+        final NodeHistogramFactory nodeHistogramFactory = newNodeHistogramFactory(option.isSimpleResponseHistogram());
         builder.includeNodeHistogram(nodeHistogramFactory);
 
-        final ServerGroupListFactory serverGroupListFactory = newServerGroupListFactory(option);
+        final ServerGroupListFactory serverGroupListFactory = newServerGroupListFactory(option.isUseStatisticsAgentState());
         builder.includeServerInfo(serverGroupListFactory);
         return builder;
     }
 
-    private NodeHistogramFactory newNodeHistogramFactory(MapServiceOption option) {
-        if (option.isSimpleResponseHistogram()) {
+    private NodeHistogramFactory newNodeHistogramFactory(boolean isSimpleResponseHistogram) {
+        if (isSimpleResponseHistogram) {
             WasNodeHistogramDataSource dataSource = new MapResponseSimplifiedNodeHistogramDataSource(mapResponseDao);
             return new SimplifiedNodeHistogramFactory(dataSource);
         } else {
@@ -159,9 +166,9 @@ public class MapServiceImpl implements MapService {
         }
     }
 
-    private ServerGroupListFactory newServerGroupListFactory(MapServiceOption option) {
+    private ServerGroupListFactory newServerGroupListFactory(boolean isUseStatisticsAgentState) {
         ServerGroupListDataSource serverGroupListDataSource = serverInstanceDatasourceService.getServerGroupListDataSource();
-        if (option.isUseStatisticsAgentState()) {
+        if (isUseStatisticsAgentState) {
             return new StatisticsServerGroupListFactory(serverGroupListDataSource);
         } else {
             return new DefaultServerGroupListFactory(serverGroupListDataSource);
