@@ -50,10 +50,10 @@ public class StackTraceMapper {
 
     @StringsToStackTrace
     public List<StackTraceElementWrapper> stackTrace(ExceptionMetaDataEntity entity) {
-        List<String> classNameIterable = mapStructUtils.jsonStrToList(entity.getStackTraceClassName());
-        List<String> fileNameIterable = mapStructUtils.jsonStrToList(entity.getStackTraceFileName());
-        List<Integer> lineNumberIterable = mapStructUtils.jsonStrToList(entity.getStackTraceLineNumber());
-        List<String> methodNameIterable = mapStructUtils.jsonStrToList(entity.getStackTraceMethodName());
+        List<String> classNameIterable = mapStructUtils.jsonToStringList(entity.getStackTraceClassName());
+        List<String> fileNameIterable = mapStructUtils.jsonToStringList(entity.getStackTraceFileName());
+        List<Integer> lineNumberIterable = mapStructUtils.jsonToIntegerList(entity.getStackTraceLineNumber());
+        List<String> methodNameIterable = mapStructUtils.jsonToStringList(entity.getStackTraceMethodName());
 
         List<StackTraceElementWrapper> wrappers = new ArrayList<>();
         for (int i = 0; i < classNameIterable.size(); i++) {

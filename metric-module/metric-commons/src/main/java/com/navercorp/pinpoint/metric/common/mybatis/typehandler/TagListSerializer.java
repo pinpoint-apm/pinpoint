@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.metric.common.mybatis.typehandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.Tags;
@@ -35,18 +36,19 @@ public class TagListSerializer {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ObjectMapper mapper;
+    private final ObjectWriter writer;
     private final ObjectReader reader;
 
     public TagListSerializer(ObjectMapper mapper) {
-        this.mapper = Objects.requireNonNull(mapper, "mapper");
-        reader = mapper.readerFor(Tags.class);
+        Objects.requireNonNull(mapper, "mapper");
+        this.writer = mapper.writerFor(Tags.class);
+        this.reader = mapper.readerFor(Tags.class);
     }
 
     public String serialize(List<Tag> tagList) {
         try {
             Tags tags = new Tags(tagList);
-            return mapper.writeValueAsString(tags);
+            return writer.writeValueAsString(tags);
         } catch (JsonProcessingException e) {
             logger.error("Error serializing List<Tag> : {}", tagList, e);
             throw new JsonRuntimeException("Error serializing tagList", e);

@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.otlp.web.dao.mysql;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
 import com.navercorp.pinpoint.otlp.common.web.defined.AppMetricDefinition;
 import com.navercorp.pinpoint.otlp.web.dao.AppMetricDefinitionDao;
@@ -65,18 +67,18 @@ public class MysqlAppMetricDefinitionDao implements AppMetricDefinitionDao {
     }
 
     static class Mapper {
-        private final ObjectMapper mapper;
-        private final TypeReference<List<AppMetricDefinition>> REF_LIST_APP_METRIC_DEFINITION = new TypeReference<>() {};
+        private final ObjectWriter writer;
+        private final ObjectReader reader;
 
         public Mapper(ObjectMapper mapper) {
-            this.mapper = Objects.requireNonNull(mapper, "mapper");
+            this.writer = mapper.writerFor(new TypeReference<List<AppMetricDefinition>>() {});
+            this.reader = mapper.readerForListOf(AppMetricDefinition.class);
         }
 
         public AppMetricDefDto toDto(String applicationName, List<AppMetricDefinition> appMetricDefinitionList) {
             Objects.requireNonNull(appMetricDefinitionList, "appMetricDefinitionList");
-
             try {
-                String metricConfigJson = mapper.writeValueAsString(appMetricDefinitionList);
+                String metricConfigJson = writer.writeValueAsString(appMetricDefinitionList);
                 return new AppMetricDefDto(applicationName, metricConfigJson, AppMetricDefinition.SCHEMA_VERSION);
             } catch (JsonProcessingException e) {
                 throw new JsonRuntimeException("can not convert appMetricDefinitionList to json :" + appMetricDefinitionList, e);
@@ -89,8 +91,7 @@ public class MysqlAppMetricDefinitionDao implements AppMetricDefinitionDao {
             }
 
             try {
-                List<AppMetricDefinition> appMetricDefinitionList = mapper.readValue(appMetricDefDto.metricDefinition(), REF_LIST_APP_METRIC_DEFINITION);
-                return appMetricDefinitionList;
+                return reader.readValue(appMetricDefDto.metricDefinition());
             } catch (JsonProcessingException e) {
                 throw new JsonRuntimeException("can not convert appMetricDefDto to model :" + appMetricDefDto, e);
             }

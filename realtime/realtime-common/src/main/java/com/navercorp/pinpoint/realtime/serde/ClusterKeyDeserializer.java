@@ -36,7 +36,7 @@ public class ClusterKeyDeserializer extends StdDeserializer<ClusterKey> {
 
     @Override
     public ClusterKey deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
-        TreeNode root = parser.getCodec().readTree(parser);
+        TreeNode root = parser.readValueAsTree();
         String applicationName = ((TextNode) root.get("applicationName")).asText();
         String agentId = ((TextNode) root.get("agentId")).asText();
         long startTimestamp = ((LongNode) root.get("startTimestamp")).asLong();
