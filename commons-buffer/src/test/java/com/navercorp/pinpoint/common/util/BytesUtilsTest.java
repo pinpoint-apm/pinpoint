@@ -306,17 +306,20 @@ public class BytesUtilsTest {
      * bound 4->2097152
      * bound 5->268435456
      */
-//    @Test
+    @Test
     public void testBoundaryValueVar32() {
-        int boundSize = 0;
-        for (int i = 0; i < Integer.MAX_VALUE; i++) {
-            final int size = BytesUtils.computeVar32Size(i);
-            if (size > boundSize) {
-                boundSize = size;
-                logger.debug("bound {}->{}", boundSize, i);
-            }
+        Assertions.assertEquals(1, BytesUtils.computeVar32Size(0));
 
-        }
+        Assertions.assertEquals(1, BytesUtils.computeVar32Size(127));
+
+        Assertions.assertEquals(2, BytesUtils.computeVar32Size(128));
+        Assertions.assertEquals(2, BytesUtils.computeVar32Size(16383));
+
+        Assertions.assertEquals(3, BytesUtils.computeVar32Size(16384));
+        Assertions.assertEquals(4, BytesUtils.computeVar32Size(2097152));
+        Assertions.assertEquals(5, BytesUtils.computeVar32Size(268435456));
+
+        Assertions.assertEquals(5, BytesUtils.computeVar32Size(-1));
     }
 
     /**
@@ -331,16 +334,20 @@ public class BytesUtilsTest {
      * bound 9->?
      * bound 10->?
      */
-//    @Test
-    public void testBoundaryValueVar64() {
-        int boundSize = 0;
-        for (long i = 0; i < Long.MAX_VALUE; i++) {
-            final int size = BytesUtils.computeVar64Size(i);
-            if (size > boundSize) {
-                boundSize = size;
-                logger.debug("bound {}->{}", boundSize, i);
-            }
-        }
+    @Test
+    public void testComputeVar64Size() {
+        Assertions.assertEquals(1, BytesUtils.computeVar64Size(0));
+        Assertions.assertEquals(1, BytesUtils.computeVar64Size(127));
+
+        Assertions.assertEquals(2, BytesUtils.computeVar64Size(128));
+        Assertions.assertEquals(2, BytesUtils.computeVar64Size(16383));
+
+        Assertions.assertEquals(3, BytesUtils.computeVar64Size(16384));
+        Assertions.assertEquals(4, BytesUtils.computeVar64Size(2097152));
+        Assertions.assertEquals(5, BytesUtils.computeVar64Size(268435456));
+        Assertions.assertEquals(6, BytesUtils.computeVar64Size(34359738368L));
+
+        Assertions.assertEquals(10, BytesUtils.computeVar64Size(-1));
     }
 
     @Test
@@ -368,6 +375,13 @@ public class BytesUtilsTest {
         assertVar32(-16384);
         assertVar32(-268435455);
         assertVar32(-268435456);
+    }
+
+    @Test
+    public void testVar32_indexCheck() {
+        final byte[] bytes = new byte[1];
+        Assertions.assertThrows(ArrayIndexOutOfBoundsException.class,
+                () -> BytesUtils.writeVar32(256, bytes, 0));
     }
 
     private void assertVar32(int value) {
@@ -421,6 +435,13 @@ public class BytesUtilsTest {
         assertVar64(-2097152);
         assertVar64(-34359738367L);
         assertVar64(-34359738368L);
+    }
+
+    @Test
+    public void testVar64_indexCheck() {
+        final byte[] bytes = new byte[1];
+        Assertions.assertThrows(ArrayIndexOutOfBoundsException.class,
+                () -> BytesUtils.writeVar64(256, bytes, 0));
     }
 
     @Test
