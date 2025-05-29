@@ -24,8 +24,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * @author Hyunjoon Cho
@@ -40,10 +40,10 @@ public class TagUtils {
 
     public static List<Tag> parseTags(List<String> tags) {
         if (CollectionUtils.isEmpty(tags)) {
-            return new ArrayList<>();
+            return List.of();
         }
 
-        List<Tag> tagList = new ArrayList<>();
+        List<Tag> tagList = new ArrayList<>(tags.size());
         for (String tagString : tags) {
             Tag tag = parseTag(tagString);
             tagList.add(tag);
@@ -53,12 +53,12 @@ public class TagUtils {
 
     public static List<Tag> parseTags(String tagStrings) {
         if (tagStrings == null || tagStrings.contains("null")) {
-            return new ArrayList<>();
+            return List.of();
         }
 
-        List<Tag> tagList = new ArrayList<>();
-
         String[] tagStrArray = parseMultiValueFieldList(tagStrings);
+
+        List<Tag> tagList = new ArrayList<>(tagStrArray.length);
         for (String tagString : tagStrArray) {
             Tag tag = parseTag(tagString);
             tagList.add(tag);
@@ -94,8 +94,10 @@ public class TagUtils {
     }
 
     public static String toTagString(List<Tag> tagList) {
-        return tagList.stream()
-                .map(Tag::toString)
-                .collect(Collectors.joining(","));
+        StringJoiner joiner = new StringJoiner(",");
+        for (Tag tag : tagList) {
+            joiner.add(tag.toString());
+        }
+        return joiner.toString();
     }
 }
