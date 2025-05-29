@@ -315,7 +315,8 @@ public final class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf");
         }
-        checkBounds(buf, offset);
+        final int length = computeVar32Size(value);
+        checkBounds(buf, offset, length);
         while (true) {
             if ((value & ~0x7F) == 0) {
                 buf[offset++] = (byte)value;
@@ -367,7 +368,8 @@ public final class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf");
         }
-        checkBounds(buf, offset);
+        final int length = computeVar64Size(value);
+        checkBounds(buf, offset, length);
 
         while (true) {
             if ((value & ~0x7FL) == 0) {
