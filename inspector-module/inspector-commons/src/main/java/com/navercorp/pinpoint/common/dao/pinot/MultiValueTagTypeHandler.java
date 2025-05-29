@@ -17,11 +17,12 @@
 package com.navercorp.pinpoint.common.dao.pinot;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.util.TagUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 
@@ -30,15 +31,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author minwoo.jung
  */
 public class MultiValueTagTypeHandler implements TypeHandler<List<Tag>> {
 
-    private final static ObjectMapper MAPPER = getMapper();
-    private final static JavaType LISTSTRING_JavaType = MAPPER.getTypeFactory().constructCollectionType(List.class, String.class);
+    private final static ObjectReader READER = getMapper().readerForListOf(String.class);
 
     private static ObjectMapper getMapper() {
         return Jackson.newBuilder()
@@ -52,12 +51,13 @@ public class MultiValueTagTypeHandler implements TypeHandler<List<Tag>> {
 
     @Override
     public List<Tag> getResult(ResultSet rs, String columnName) throws SQLException {
-        String json = rs.getString(columnName);
+        final String json = rs.getString(columnName);
+        if (StringUtils.isEmpty(json)) {
+            return List.of();
+        }
         try {
-            List<String> tags = MAPPER.readValue(json, LISTSTRING_JavaType);
-            return tags.stream()
-                    .map(TagUtils::parseTag)
-                    .collect(Collectors.toList());
+            List<String> tags = READER.readValue(json);
+            return TagUtils.parseTags(tags);
         } catch (JsonProcessingException e) {
             throw new SQLException(e);
         }
