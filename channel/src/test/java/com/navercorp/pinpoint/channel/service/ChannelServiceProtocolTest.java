@@ -19,7 +19,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.channel.ChannelProviderRegistry;
 import com.navercorp.pinpoint.channel.ChannelProviderRepository;
 import com.navercorp.pinpoint.channel.MemoryChannelProvider;
-import com.navercorp.pinpoint.channel.serde.JacksonSerde;
+import com.navercorp.pinpoint.channel.serde.JacksonSerdeFactory;
+import com.navercorp.pinpoint.channel.serde.JsonSerdeFactory;
 import com.navercorp.pinpoint.channel.service.client.ChannelServiceClient;
 import com.navercorp.pinpoint.channel.service.client.MonoChannelServiceClient;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author youngjin.kim2
  */
 public class ChannelServiceProtocolTest {
+    JsonSerdeFactory factory = new JacksonSerdeFactory(new ObjectMapper());
 
     @Test
     public void shouldThrowWithWrongSerde() {
@@ -41,12 +43,11 @@ public class ChannelServiceProtocolTest {
                 ChannelProviderRegistry.of("mem", new MemoryChannelProvider())
         ));
 
-        ObjectMapper objectMapper = new ObjectMapper();
         MonoChannelServiceProtocol<Foo, Bar> protocol = ChannelServiceProtocol.<Foo, Bar>builder()
-                .setDemandSerde(JacksonSerde.byParameterized(objectMapper, Bar.class))
+                .setDemandSerde(factory.byParameterized(Bar.class))
                 .setDemandPubChannelURIProvider(el -> URI.create("mem:demand"))
                 .setDemandSubChannelURI(URI.create("mem:demand"))
-                .setSupplySerde(JacksonSerde.byClass(objectMapper, Bar.class))
+                .setSupplySerde(factory.byClass(Bar.class))
                 .setSupplyChannelURIProvider(el -> URI.create("mem:supply"))
                 .setRequestTimeout(Duration.ofSeconds(1))
                 .buildMono();

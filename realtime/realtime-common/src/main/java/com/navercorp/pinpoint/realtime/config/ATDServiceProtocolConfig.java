@@ -15,16 +15,13 @@
  */
 package com.navercorp.pinpoint.realtime.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.navercorp.pinpoint.channel.redis.pubsub.RedisPubSubConfig;
 import com.navercorp.pinpoint.channel.redis.pubsub.RedisPubSubConstants;
-import com.navercorp.pinpoint.channel.serde.JacksonSerde;
+import com.navercorp.pinpoint.channel.serde.JsonSerdeFactory;
 import com.navercorp.pinpoint.channel.service.ChannelServiceProtocol;
 import com.navercorp.pinpoint.channel.service.MonoChannelServiceProtocol;
 import com.navercorp.pinpoint.realtime.dto.ATDDemand;
 import com.navercorp.pinpoint.realtime.dto.ATDSupply;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -42,15 +39,13 @@ public class ATDServiceProtocolConfig {
 
     @Bean
     MonoChannelServiceProtocol<ATDDemand, ATDSupply> atdProtocol(
-            ObjectMapper objectMapper,
-            @Qualifier("clusterKeyDeserializer") SimpleModule clusterKeyJacksonModule
+            JsonSerdeFactory factory
     ) {
-        objectMapper.registerModule(clusterKeyJacksonModule);
         return ChannelServiceProtocol.<ATDDemand, ATDSupply>builder()
-                .setDemandSerde(JacksonSerde.byClass(objectMapper, ATDDemand.class))
+                .setDemandSerde(factory.byClass(ATDDemand.class))
                 .setDemandPubChannelURIProvider(demand -> URI.create(RedisPubSubConstants.SCHEME + ":demand:atd-2"))
                 .setDemandSubChannelURI(URI.create(RedisPubSubConstants.SCHEME + ":demand:atd-2"))
-                .setSupplySerde(JacksonSerde.byClass(objectMapper, ATDSupply.class))
+                .setSupplySerde(factory.byClass(ATDSupply.class))
                 .setSupplyChannelURIProvider(
                         demand -> URI.create(RedisPubSubConstants.SCHEME + ":supply:atd-2:" + demand.getId()))
                 .setRequestTimeout(Duration.ofSeconds(3))

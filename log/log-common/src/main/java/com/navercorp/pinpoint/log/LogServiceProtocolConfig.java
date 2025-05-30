@@ -15,11 +15,10 @@
  */
 package com.navercorp.pinpoint.log;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.channel.ChannelSpringConfig;
 import com.navercorp.pinpoint.channel.redis.pubsub.RedisPubSubConfig;
 import com.navercorp.pinpoint.channel.redis.stream.RedisStreamConfig;
-import com.navercorp.pinpoint.channel.serde.JacksonSerde;
+import com.navercorp.pinpoint.channel.serde.JsonSerdeFactory;
 import com.navercorp.pinpoint.channel.service.ChannelServiceProtocol;
 import com.navercorp.pinpoint.channel.service.FluxChannelServiceProtocol;
 import com.navercorp.pinpoint.channel.service.client.ChannelState;
@@ -40,12 +39,12 @@ import java.time.Duration;
 public class LogServiceProtocolConfig {
 
     @Bean
-    FluxChannelServiceProtocol<FileKey, LogPile> logProtocol(ObjectMapper objectMapper) {
+    FluxChannelServiceProtocol<FileKey, LogPile> logProtocol(JsonSerdeFactory factory) {
         return ChannelServiceProtocol.<FileKey, LogPile>builder()
-                .setDemandSerde(JacksonSerde.byClass(objectMapper, FileKey.class))
+                .setDemandSerde(factory.byClass(FileKey.class))
                 .setDemandPubChannelURIProvider(demand -> URI.create("pubsub:log:demand:" + demand))
                 .setDemandSubChannelURI(URI.create("pubsub:log:demand:*"))
-                .setSupplySerde(JacksonSerde.byClass(objectMapper, LogPile.class))
+                .setSupplySerde(factory.byClass(LogPile.class))
                 .setSupplyChannelURIProvider(demand -> URI.create("stream:log:supply:" + demand))
                 .setDemandInterval(Duration.ofSeconds(5))
                 .setBufferSize(4)

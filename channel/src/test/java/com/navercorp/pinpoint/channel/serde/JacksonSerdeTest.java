@@ -17,6 +17,8 @@ package com.navercorp.pinpoint.channel.serde;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class JacksonSerdeTest {
 
+    ObjectMapper objectMapper = new ObjectMapper();
     Random random = new Random();
 
     @Test
@@ -51,7 +54,7 @@ public class JacksonSerdeTest {
         assertThat(result.getBar().getBar()).isEqualTo("Hello");
     }
 
-    private static Foo<Foo<String>> makeFooFooString(int p0, int p1, String p2) {
+    private Foo<Foo<String>> makeFooFooString(int p0, int p1, String p2) {
         Foo<Foo<String>> target = new Foo<>();
         target.setFoo(p0);
         target.setBar(new Foo<>());
@@ -60,12 +63,15 @@ public class JacksonSerdeTest {
         return target;
     }
 
-    private static Serde<Foo<Foo<String>>> getSerde() {
-        ObjectMapper objectMapper = new ObjectMapper();
+    private Serde<Foo<Foo<String>>> getSerde() {
+
         TypeFactory typeFactory = objectMapper.getTypeFactory();
         JavaType t1 = typeFactory.constructParametricType(Foo.class, String.class);
         JavaType t2 = typeFactory.constructParametricType(Foo.class, t1);
-        return new JacksonSerde<>(objectMapper, t2);
+
+        ObjectReader reader = objectMapper.readerFor(t2);
+        ObjectWriter writer = objectMapper.writerFor(t2);
+        return new JacksonSerde<>(reader, writer);
     }
 
     private static class Foo<T> {

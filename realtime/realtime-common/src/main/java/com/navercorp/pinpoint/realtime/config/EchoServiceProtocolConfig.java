@@ -15,17 +15,14 @@
  */
 package com.navercorp.pinpoint.realtime.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.navercorp.pinpoint.channel.redis.pubsub.RedisPubSubConfig;
 import com.navercorp.pinpoint.channel.redis.pubsub.RedisPubSubConstants;
-import com.navercorp.pinpoint.channel.serde.JacksonSerde;
+import com.navercorp.pinpoint.channel.serde.JsonSerdeFactory;
 import com.navercorp.pinpoint.channel.service.ChannelServiceProtocol;
 import com.navercorp.pinpoint.channel.service.MonoChannelServiceProtocol;
-import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.realtime.dto.Echo;
 import com.navercorp.pinpoint.realtime.serde.ClusterKeyDeserializer;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -40,24 +37,22 @@ import java.time.Duration;
 @Import(RedisPubSubConfig.class)
 public class EchoServiceProtocolConfig {
 
-    @Bean("clusterKeyDeserializer")
-    SimpleModule clusterKeyDeserializer() {
-        SimpleModule jacksonModule = new SimpleModule();
-        jacksonModule.addDeserializer(ClusterKey.class, new ClusterKeyDeserializer());
-        return jacksonModule;
+    @Bean
+    public Jackson2ObjectMapperBuilderCustomizer clusterKeyDeserializerCustomizer() {
+        return builder -> {
+            builder.deserializers(new ClusterKeyDeserializer());
+        };
     }
 
     @Bean
     MonoChannelServiceProtocol<Echo, Echo> echoProtocol(
-            ObjectMapper objectMapper,
-            @Qualifier("clusterKeyDeserializer") SimpleModule clusterKeyJacksonModule
+            JsonSerdeFactory factory
     ) {
-        objectMapper.registerModule(clusterKeyJacksonModule);
         return ChannelServiceProtocol.<Echo, Echo>builder()
-                .setDemandSerde(JacksonSerde.byClass(objectMapper, Echo.class))
+                .setDemandSerde(factory.byClass(Echo.class))
                 .setDemandPubChannelURIProvider(demand -> URI.create(RedisPubSubConstants.SCHEME + ":demand:echo-2"))
                 .setDemandSubChannelURI(URI.create(RedisPubSubConstants.SCHEME + ":demand:echo-2"))
-                .setSupplySerde(JacksonSerde.byClass(objectMapper, Echo.class))
+                .setSupplySerde(factory.byClass(Echo.class))
                 .setSupplyChannelURIProvider(
                         demand -> URI.create(RedisPubSubConstants.SCHEME + ":supply:echo-2:" + demand.getId()))
                 .setRequestTimeout(Duration.ofSeconds(3))
