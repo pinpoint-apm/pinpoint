@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.pinot.kafka;
 
+import org.apache.kafka.clients.producer.internals.DefaultPartitioner;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
@@ -9,6 +10,7 @@ public class KafkaProperties {
     private String keySerializer = StringSerializer.class.getName();
     private String byteArrayKeySerializer = ByteArraySerializer.class.getName();
     private String valueSerializer = JsonSerializer.class.getName();
+    private String partitionerClass = DefaultPartitioner.class.getName();
     private String acks = "1";
     private String compressionType = "zstd";
 
@@ -41,6 +43,14 @@ public class KafkaProperties {
         this.valueSerializer = valueSerializer;
     }
 
+    public String getPartitionerClass() {
+        return partitionerClass;
+    }
+
+    public void setPartitionerClass(String partitionerClass) {
+        this.partitionerClass = partitionerClass;
+    }
+
     public String getAcks() {
         return acks;
     }
@@ -64,6 +74,7 @@ public class KafkaProperties {
                 "bootstrapServers='" + bootstrapServers + '\'' +
                 ", keySerializer='" + keySerializer + '\'' +
                 ", valueSerializer='" + valueSerializer + '\'' +
+                ", partitionerClass='" + partitionerClass + '\'' +
                 ", acks='" + acks + '\'' +
                 ", compressionType='" + compressionType + '\'' +
                 '}';
