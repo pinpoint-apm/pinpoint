@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.metric.collector.service;
 
-import com.navercorp.pinpoint.metric.common.model.SystemMetric;
+import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
 
 /**
  * @author minwoo.jung
  */
 public interface SystemMetricDataTypeService {
 
-    void saveMetricDataType(SystemMetric systemMetric);
+    void saveMetricDataType(DoubleMetric systemMetric);
 }

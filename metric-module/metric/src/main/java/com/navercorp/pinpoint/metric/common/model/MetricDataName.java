@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.metric.common.model;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.timeseries.time.DateTimeUtils;
 
-import java.util.Objects;
-
 /**
  * @author minwoo.jung
  */
@@ -50,15 +48,18 @@ public class MetricDataName {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         MetricDataName that = (MetricDataName) o;
         return saveTime == that.saveTime && fieldName.equals(that.fieldName) && metricName.equals(that.metricName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(fieldName, metricName, saveTime);
+        int result = fieldName.hashCode();
+        result = 31 * result + metricName.hashCode();
+        result = 31 * result + Long.hashCode(saveTime);
+        return result;
     }
 
     public static long createSaveTime() {

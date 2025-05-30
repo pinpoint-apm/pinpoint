@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.metric.collector.controller;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.metric.collector.model.TelegrafMetric;
 import com.navercorp.pinpoint.metric.collector.model.TelegrafMetrics;
 import com.navercorp.pinpoint.metric.collector.service.SystemMetricDataTypeService;
@@ -24,12 +25,13 @@ import com.navercorp.pinpoint.metric.collector.service.SystemMetricService;
 import com.navercorp.pinpoint.metric.collector.service.SystemMetricTagService;
 import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
 import com.navercorp.pinpoint.metric.common.model.Metrics;
-import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.model.validation.SimpleErrorMessage;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -38,12 +40,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Hyunjoon Cho
@@ -58,7 +58,7 @@ public class TelegrafMetricController {
     private final SystemMetricTagService systemMetricTagService;
     private final TenantProvider tenantProvider;
 
-    private static final List<String> ignoreTags = Collections.singletonList("host");
+    private static final String[] ignoreTags = {"host"};
 
     public TelegrafMetricController(SystemMetricService systemMetricService,
                                     SystemMetricDataTypeService systemMetricMetadataService,
@@ -83,6 +83,12 @@ public class TelegrafMetricController {
         }
 
         String hostName = getHost(telegrafMetrics);
+        if (StringUtils.isEmpty(hostName)) {
+            // hostname null check
+            logger.info("hostName is empty. hostGroupName={}", hostGroupName);
+            return ResponseEntity.badRequest().build();
+        }
+
 
         if (logger.isDebugEnabled()) {
             logger.debug("hostGroupName:{} host:{} size:{}", hostGroupName, hostName, telegrafMetrics.size());
@@ -101,7 +107,7 @@ public class TelegrafMetricController {
     private String getHost(TelegrafMetrics metrics) {
         List<TelegrafMetric> metricList = metrics.getMetrics();
         if (CollectionUtils.isEmpty(metricList)) {
-            return "";
+            return null;
         }
         List<Tag> tags = metricList.get(0).getTags();
         Tag host = getHost(tags);
@@ -114,14 +120,20 @@ public class TelegrafMetricController {
     private Metrics toMetrics(String tenantId, String hostGroupName, String hostName, TelegrafMetrics telegrafMetrics) {
         List<TelegrafMetric> metrics = telegrafMetrics.getMetrics();
 
-        List<SystemMetric> metricList = metrics.stream()
-                .flatMap(this::toMetric)
-                .collect(Collectors.toList());
+        List<DoubleMetric> metricList = toDoubleMetric(metrics);
 
         return new Metrics(tenantId, hostGroupName, hostName, metricList);
     }
 
-    Stream<SystemMetric> toMetric(TelegrafMetric tMetric) {
+    private @NotNull List<DoubleMetric> toDoubleMetric(List<TelegrafMetric> metrics) {
+        List<DoubleMetric> result = new ArrayList<>();
+        for (TelegrafMetric metric : metrics) {
+            result.addAll(toMetric(metric));
+        }
+        return result;
+    }
+
+    List<DoubleMetric> toMetric(TelegrafMetric tMetric) {
         List<Tag> tTags = tMetric.getTags();
 
         final Tag hostTag = getHost(tTags);
@@ -133,26 +145,37 @@ public class TelegrafMetricController {
 
         final long timestamp = TimeUnit.SECONDS.toMillis(tMetric.getTimestamp());
 
-
         List<TelegrafMetric.Field> fields = tMetric.getFields();
-        return fields.stream()
-                .map(field -> new DoubleMetric(tMetric.getName(), hostTag.getValue(), field.getName(), field.getValue(), tag, timestamp));
+
+        List<DoubleMetric> list = new ArrayList<>(fields.size());
+        for (TelegrafMetric.Field field : fields) {
+            DoubleMetric doubleMetric = new DoubleMetric(tMetric.getName(), hostTag.getValue(), field.name(), field.value(), tag, timestamp);
+            list.add(doubleMetric);
+        }
+        return list;
     }
 
     private Tag getHost(List<Tag> tTags) {
-        return tTags.stream()
-                .filter(tag -> tag.getName().equals("host"))
-                .findFirst().orElse(null);
+        for (Tag tag : tTags) {
+            if ("host".equals(tag.getName())) {
+                return tag;
+            }
+        }
+        return null;
     }
 
-    private List<Tag> filterTag(List<Tag> tTags, List<String> ignoreTagName) {
-        return tTags.stream()
-                .filter(entry -> !ignoreTagName.contains(entry.getName()))
-                .collect(Collectors.toList());
+    static List<Tag> filterTag(List<Tag> tTags, String[] ignoreTagName) {
+        List<Tag> copy = new ArrayList<>(tTags.size());
+        for (Tag entry : tTags) {
+            if (!ArrayUtils.contains(ignoreTagName, entry.getName())) {
+                copy.add(entry);
+            }
+        }
+        return copy;
     }
 
     private void updateMetadata(Metrics systemMetrics) {
-        for (SystemMetric systemMetric : systemMetrics) {
+        for (DoubleMetric systemMetric : systemMetrics) {
             systemMetricMetadataService.saveMetricDataType(systemMetric);
             systemMetricTagService.saveMetricTag(systemMetrics.getTenantId(), systemMetrics.getHostGroupName(), systemMetric);
         }

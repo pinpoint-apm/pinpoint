@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.metric.common.model;
 
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 
-import java.util.Objects;
-
 /**
  * @author minwoo.jung
  */
@@ -67,15 +65,21 @@ public class MetricTagKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         MetricTagKey that = (MetricTagKey) o;
         return saveTime == that.saveTime && tenantId.equals(that.tenantId) && hostGroupName.equals(that.hostGroupName) && hostName.equals(that.hostName) && metricName.equals(that.metricName) && fieldName.equals(that.fieldName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(tenantId, hostGroupName, hostName, metricName, fieldName, saveTime);
+        int result = tenantId.hashCode();
+        result = 31 * result + hostGroupName.hashCode();
+        result = 31 * result + hostName.hashCode();
+        result = 31 * result + metricName.hashCode();
+        result = 31 * result + fieldName.hashCode();
+        result = 31 * result + Long.hashCode(saveTime);
+        return result;
     }
 
     @Override

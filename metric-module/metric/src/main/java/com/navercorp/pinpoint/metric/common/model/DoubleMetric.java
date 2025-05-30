@@ -16,14 +16,13 @@ public class DoubleMetric extends SystemMetric {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DoubleMetric{");
-        sb.append("metric=").append(metricName);
-        sb.append(", host=").append(hostName);
-        sb.append(", field=").append(fieldName);
-        sb.append(", value=").append(fieldValue);
-        sb.append(", tags=").append(tags);
-        sb.append(", eventTime=").append(eventTime);
-        sb.append('}');
-        return sb.toString();
+        return "DoubleMetric{" +
+                "metric=" + metricName +
+                ", host=" + hostName +
+                ", field=" + fieldName +
+                ", value=" + fieldValue +
+                ", tags=" + tags +
+                ", eventTime=" + eventTime +
+                '}';
     }
 }

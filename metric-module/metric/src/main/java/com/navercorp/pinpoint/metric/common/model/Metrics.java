@@ -6,17 +6,16 @@ import jakarta.validation.Valid;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Stream;
 
-public class Metrics implements Iterable<SystemMetric> {
+public class Metrics implements Iterable<DoubleMetric> {
     private final String tenantId;
     private final String hostGroupName;
     private final String hostName;
 
     @Valid
-    private final List<SystemMetric> metrics;
+    private final List<DoubleMetric> metrics;
 
-    public Metrics(String tenantId, String hostGroupName, String hostName, List<SystemMetric> metrics) {
+    public Metrics(String tenantId, String hostGroupName, String hostName, List<DoubleMetric> metrics) {
         this.tenantId = Objects.requireNonNull(tenantId, "tenantId");
         this.hostGroupName = Objects.requireNonNull(hostGroupName, "hostGroupName");
         this.hostName = Objects.requireNonNull(hostName, "hostName");
@@ -35,17 +34,13 @@ public class Metrics implements Iterable<SystemMetric> {
         return tenantId;
     }
 
-    public List<SystemMetric> getMetrics() {
+    public List<DoubleMetric> getMetrics() {
         return metrics;
     }
 
     @Override
-    public Iterator<SystemMetric> iterator() {
+    public Iterator<DoubleMetric> iterator() {
         return metrics.iterator();
-    }
-
-    public Stream<SystemMetric> stream() {
-        return metrics.stream();
     }
 
     public int size() {

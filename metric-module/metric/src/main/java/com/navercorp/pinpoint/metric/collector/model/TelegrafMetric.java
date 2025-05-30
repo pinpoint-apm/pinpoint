@@ -38,47 +38,17 @@ public class TelegrafMetric {
 
     }
 
-    public static class Field {
-        private final String name;
-        private final double value;
+    public record Field(String name, double value) {
+            public Field(String name, double value) {
+                this.name = Objects.requireNonNull(name, "name");
+                this.value = value;
+            }
 
-        public Field(String name, double value) {
-            this.name = Objects.requireNonNull(name, "name");
-            this.value = value;
+            @Override
+            public String toString() {
+                return name + "=" + value;
+            }
         }
-
-        public String getName() {
-            return name;
-        }
-
-        public double getValue() {
-            return value;
-        }
-
-        @Override
-        public String toString() {
-            return name + "=" + value;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            Field field = (Field) o;
-
-            if (Double.compare(field.value, value) != 0) return false;
-            return name.equals(field.name);
-        }
-
-        @Override
-        public int hashCode() {
-            int result;
-            result = name.hashCode();
-            result = 31 * result + Double.hashCode(value);
-            return result;
-        }
-    }
 
 
     public List<Field> getFields() {

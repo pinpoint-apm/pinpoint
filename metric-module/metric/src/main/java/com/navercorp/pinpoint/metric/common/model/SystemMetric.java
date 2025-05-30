@@ -74,13 +74,12 @@ public class SystemMetric {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("SystemMetric{");
-        sb.append("metric=").append(metricName);
-        sb.append(", host=").append(hostName);
-        sb.append(", field=").append(fieldName);
-        sb.append(", tags=").append(tags);
-        sb.append(", eventTime=").append(eventTime);
-        sb.append('}');
-        return sb.toString();
+        return "SystemMetric{" +
+                "metric=" + metricName +
+                ", host=" + hostName +
+                ", field=" + fieldName +
+                ", tags=" + tags +
+                ", eventTime=" + eventTime +
+                '}';
     }
 }
