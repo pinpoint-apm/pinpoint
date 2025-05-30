@@ -15,8 +15,6 @@
  */
 package com.navercorp.pinpoint.web.realtime.activethread.count.websocket;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.channel.serde.JacksonSerde;
 import com.navercorp.pinpoint.web.realtime.activethread.count.dto.ActiveThreadCountResponse;
 import com.navercorp.pinpoint.web.realtime.activethread.count.service.ActiveThreadCountService;
 import org.apache.logging.log4j.LogManager;
@@ -44,10 +42,10 @@ public class RedisActiveThreadCountWebSocketHandler {
 
     public RedisActiveThreadCountWebSocketHandler(
             ActiveThreadCountService atcSessionFactory,
-            ObjectMapper objectMapper
+            Serializer<ActiveThreadCountResponse> responseSerializer
     ) {
         this.atcService = Objects.requireNonNull(atcSessionFactory, "atcSessionFactory");
-        this.responseSerializer = JacksonSerde.byClass(objectMapper, ActiveThreadCountResponse.class);
+        this.responseSerializer = Objects.requireNonNull(responseSerializer, "responseSerializer");
     }
 
     public void afterConnectionEstablished(@NonNull WebSocketSession session) {

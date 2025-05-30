@@ -15,8 +15,8 @@
  */
 package com.navercorp.pinpoint.channel.serde;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import jakarta.annotation.Nonnull;
 
 import java.io.IOException;
@@ -27,38 +27,25 @@ import java.util.Objects;
 /**
  * @author youngjin.kim2
  */
-public class JacksonSerde<T> implements Serde<T> {
+class JacksonSerde<T> implements Serde<T> {
 
-    private final ObjectMapper objectMapper;
-    private final JavaType javaType;
+    private final ObjectReader reader;
+    private final ObjectWriter writer;
 
-    public JacksonSerde(ObjectMapper objectMapper, JavaType javaType) {
-        this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper");
-        this.javaType = Objects.requireNonNull(javaType, "javaType");
-    }
-
-    public static <T> Serde<T> byClass(ObjectMapper objectMapper, Class<T> clazz) {
-        return new JacksonSerde<>(objectMapper, objectMapper.constructType(clazz));
-    }
-
-    public static <T> Serde<T> byParameterized(
-            ObjectMapper objectMapper,
-            Class<?> parameterized,
-            Class<?> ...parameterizedClasses
-    ) {
-        JavaType type = objectMapper.getTypeFactory().constructParametricType(parameterized, parameterizedClasses);
-        return new JacksonSerde<>(objectMapper, type);
+    public JacksonSerde(ObjectReader reader, ObjectWriter writer) {
+        this.reader = Objects.requireNonNull(reader, "reader");
+        this.writer = Objects.requireNonNull(writer, "writer");
     }
 
     @Override
     @Nonnull
     public T deserialize(@Nonnull InputStream inputStream) throws IOException {
-        return this.objectMapper.readValue(inputStream, this.javaType);
+        return reader.readValue(inputStream);
     }
 
     @Override
     public void serialize(@Nonnull T object, @Nonnull OutputStream outputStream) throws IOException {
-        this.objectMapper.writeValue(outputStream, object);
+        this.writer.writeValue(outputStream, object);
     }
 
 }

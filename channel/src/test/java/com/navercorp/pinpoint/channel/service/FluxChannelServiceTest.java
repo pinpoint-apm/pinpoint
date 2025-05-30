@@ -19,7 +19,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.channel.ChannelProviderRegistry;
 import com.navercorp.pinpoint.channel.ChannelProviderRepository;
 import com.navercorp.pinpoint.channel.MemoryChannelProvider;
-import com.navercorp.pinpoint.channel.serde.JacksonSerde;
+import com.navercorp.pinpoint.channel.serde.JacksonSerdeFactory;
+import com.navercorp.pinpoint.channel.serde.JsonSerdeFactory;
 import com.navercorp.pinpoint.channel.service.client.ChannelServiceClient;
 import com.navercorp.pinpoint.channel.service.client.ChannelState;
 import com.navercorp.pinpoint.channel.service.server.ChannelServiceServer;
@@ -39,6 +40,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class FluxChannelServiceTest {
 
+    JsonSerdeFactory factory = new JacksonSerdeFactory(new ObjectMapper());
+
     @Test
     @DisplayName("basic flux service scenario")
     public void testBasicFluxScenario() {
@@ -54,13 +57,12 @@ public class FluxChannelServiceTest {
         assertThat(response).hasSameElementsAs(List.of("Foo", "Bar", "Hello", "World"));
     }
 
-    private static FluxChannelServiceProtocol<String, String> defineProtocol() {
-        ObjectMapper objectMapper = new ObjectMapper();
+    private FluxChannelServiceProtocol<String, String> defineProtocol() {
         return ChannelServiceProtocol.<String, String>builder()
-                .setDemandSerde(JacksonSerde.byClass(objectMapper, String.class))
+                .setDemandSerde(factory.byClass(String.class))
                 .setDemandPubChannelURIProvider(d -> URI.create("mem:split:demand"))
                 .setDemandSubChannelURI(URI.create("mem:split:demand"))
-                .setSupplySerde(JacksonSerde.byClass(objectMapper, String.class))
+                .setSupplySerde(factory.byClass(String.class))
                 .setSupplyChannelURIProvider(d -> URI.create("mem:split:supply"))
                 .setDemandInterval(Duration.ZERO)
                 .setBufferSize(4)

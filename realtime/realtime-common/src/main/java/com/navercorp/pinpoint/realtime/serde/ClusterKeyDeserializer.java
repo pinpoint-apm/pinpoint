@@ -16,11 +16,9 @@
 package com.navercorp.pinpoint.realtime.serde;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.node.LongNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 
 import java.io.IOException;
@@ -36,10 +34,11 @@ public class ClusterKeyDeserializer extends StdDeserializer<ClusterKey> {
 
     @Override
     public ClusterKey deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
-        TreeNode root = parser.readValueAsTree();
-        String applicationName = ((TextNode) root.get("applicationName")).asText();
-        String agentId = ((TextNode) root.get("agentId")).asText();
-        long startTimestamp = ((LongNode) root.get("startTimestamp")).asLong();
+        JsonNode clusterNode = parser.readValueAsTree();
+
+        String applicationName = clusterNode.get("applicationName").asText();
+        String agentId = clusterNode.get("agentId").asText();
+        long startTimestamp = clusterNode.get("startTimestamp").asLong();
         return new ClusterKey(applicationName, agentId, startTimestamp);
     }
 
