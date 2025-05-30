@@ -19,7 +19,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.channel.ChannelProviderRegistry;
 import com.navercorp.pinpoint.channel.ChannelProviderRepository;
 import com.navercorp.pinpoint.channel.MemoryChannelProvider;
-import com.navercorp.pinpoint.channel.serde.JacksonSerde;
+import com.navercorp.pinpoint.channel.serde.JacksonSerdeFactory;
+import com.navercorp.pinpoint.channel.serde.JsonSerdeFactory;
 import com.navercorp.pinpoint.channel.service.client.ChannelServiceClient;
 import com.navercorp.pinpoint.channel.service.client.MonoChannelServiceClient;
 import com.navercorp.pinpoint.channel.service.server.ChannelServiceServer;
@@ -38,6 +39,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author youngjin.kim2
  */
 public class MonoChannelServiceTest {
+
+    JsonSerdeFactory factory = new JacksonSerdeFactory(new ObjectMapper());
 
     @Test
     @DisplayName("basic mono service scenario")
@@ -84,18 +87,17 @@ public class MonoChannelServiceTest {
         assertThatThrownBy(() -> client.request("Hi").block(Duration.ofMillis(100)));
     }
 
-    private static ChannelProviderRepository getChannelProviderRepository() {
+    private ChannelProviderRepository getChannelProviderRepository() {
         ChannelProviderRegistry memChannel = ChannelProviderRegistry.of("mem", new MemoryChannelProvider());
         return new ChannelProviderRepository(List.of(memChannel));
     }
 
-    private static MonoChannelServiceProtocol<String, String> defineProtocol() {
-        ObjectMapper objectMapper = new ObjectMapper();
+    private MonoChannelServiceProtocol<String, String> defineProtocol() {
         return ChannelServiceProtocol.<String, String>builder()
-                .setDemandSerde(JacksonSerde.byClass(objectMapper, String.class))
+                .setDemandSerde(factory.byClass(String.class))
                 .setDemandPubChannelURIProvider(d -> URI.create("mem:hello:demand"))
                 .setDemandSubChannelURI(URI.create("mem:hello:demand"))
-                .setSupplySerde(JacksonSerde.byClass(objectMapper, String.class))
+                .setSupplySerde(factory.byClass(String.class))
                 .setSupplyChannelURIProvider(d -> URI.create("mem:hello:supply"))
                 .setRequestTimeout(Duration.ofSeconds(1))
                 .buildMono();

@@ -15,6 +15,10 @@
  */
 package com.navercorp.pinpoint.channel;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.channel.serde.JacksonSerdeFactory;
+import com.navercorp.pinpoint.channel.serde.JsonSerdeFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -27,8 +31,18 @@ import java.util.List;
 public class ChannelSpringConfig {
 
     @Bean
-    ChannelProviderRepository channelProviderRepository(List<ChannelProviderRegistry> registries) {
+    @ConditionalOnMissingBean(ObjectMapper.class)
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
+    }
+
+    @Bean
+    public ChannelProviderRepository channelProviderRepository(List<ChannelProviderRegistry> registries) {
         return new ChannelProviderRepository(registries);
     }
 
+    @Bean
+    public JsonSerdeFactory jsonSerdeFactory(ObjectMapper objectMapper) {
+        return new JacksonSerdeFactory(objectMapper);
+    }
 }
