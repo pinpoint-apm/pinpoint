@@ -15,8 +15,7 @@
  */
 package com.navercorp.pinpoint.log.web.websocket;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.channel.serde.JacksonSerde;
+import com.navercorp.pinpoint.channel.serde.JsonSerdeFactory;
 import com.navercorp.pinpoint.log.web.service.LiveTailService;
 import com.navercorp.pinpoint.log.web.service.LogServiceConfig;
 import com.navercorp.pinpoint.log.web.vo.LiveTailBatch;
@@ -37,11 +36,11 @@ public class LogWebSocketConfig {
     @Bean
     PinpointWebSocketHandler logWebSocketHandler(
             LiveTailService liveTailService,
-            ObjectMapper objectMapper
+            JsonSerdeFactory factory
     ) {
         return new LogWebSocketHandler(
                 liveTailService,
-                JacksonSerde.byParameterized(objectMapper, List.class, LiveTailBatch.class)
+                factory.byParameterized(List.class, LiveTailBatch.class)
         );
     }
 
