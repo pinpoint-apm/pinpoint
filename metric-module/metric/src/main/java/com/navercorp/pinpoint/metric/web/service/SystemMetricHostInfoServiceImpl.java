@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.metric.web.mapping.Field;
 import com.navercorp.pinpoint.metric.web.model.MetricDataSearchKey;
 import com.navercorp.pinpoint.metric.web.model.MetricInfo;
 import com.navercorp.pinpoint.metric.web.model.basic.metric.group.MatchingRule;
+import com.navercorp.pinpoint.metric.web.util.TagListUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -144,10 +145,7 @@ public class SystemMetricHostInfoServiceImpl implements SystemMetricHostInfoServ
 
         for (MetricTag metricTag : metricTagList) {
             List<Tag> collectedTagList = metricTag.getTags();
-            if (tagList.size() != collectedTagList.size()) {
-                continue;
-            }
-            if (collectedTagList.containsAll(tagList)) {
+            if (TagListUtils.containsAll(collectedTagList, tagList)) {
                 exactMetricTagList.add(metricTag.copy());
             }
         }

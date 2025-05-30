@@ -17,14 +17,12 @@
 package com.navercorp.pinpoint.metric.collector.service;
 
 import com.navercorp.pinpoint.metric.collector.dao.SystemMetricDao;
-
 import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
 import com.navercorp.pinpoint.metric.common.model.Metrics;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author Hyunjoon Cho
@@ -37,16 +35,10 @@ public class SystemMetricService {
         this.systemMetricDoubleDao = Objects.requireNonNull(systemMetricDoubleDao, "systemMetricDoubleDao");
     }
 
-    public void insert(Metrics systemMetrics) {
-        Objects.requireNonNull(systemMetrics, "systemMetrics");
-        List<DoubleMetric> doubleMetrics = filterDoubleCounter(systemMetrics);
-        systemMetricDoubleDao.insert(systemMetrics.getTenantId(), systemMetrics.getHostGroupName(), systemMetrics.getHostName(), doubleMetrics);
+    public void insert(Metrics metrics) {
+        Objects.requireNonNull(metrics, "metrics");
+        List<DoubleMetric> doubleMetrics = metrics.getMetrics();
+        systemMetricDoubleDao.insert(metrics.getTenantId(), metrics.getHostGroupName(), metrics.getHostName(), doubleMetrics);
     }
 
-    public List<DoubleMetric> filterDoubleCounter(Metrics systemMetrics) {
-        return systemMetrics.stream()
-                .filter(DoubleMetric.class::isInstance)
-                .map(DoubleMetric.class::cast)
-                .collect(Collectors.toList());
-    }
 }

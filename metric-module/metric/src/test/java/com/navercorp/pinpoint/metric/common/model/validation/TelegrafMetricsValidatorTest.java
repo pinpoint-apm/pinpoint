@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.metric.common.model.validation;
 
+import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
 import com.navercorp.pinpoint.metric.common.model.Metrics;
-import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validation;
@@ -25,7 +25,7 @@ public class TelegrafMetricsValidatorTest {
         ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
         final Validator validator = validatorFactory.getValidator();
 
-        SystemMetric systemMetric = new SystemMetric("", "fieldname", "hostName", Collections.emptyList(), System.currentTimeMillis());
+        DoubleMetric systemMetric = new DoubleMetric("", "fieldname", "hostName", 0, Collections.emptyList(), System.currentTimeMillis());
         Metrics metrics = new Metrics("tenantId", "hostGroupName", "hostName", List.of(systemMetric));
 
         Set<ConstraintViolation<Metrics>> result = validator.validate(metrics);

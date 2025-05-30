@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.metric.common.model.DoubleMetric;
 import com.navercorp.pinpoint.metric.common.model.MetricData;
 import com.navercorp.pinpoint.metric.common.model.MetricDataName;
 import com.navercorp.pinpoint.metric.common.model.MetricDataType;
-import com.navercorp.pinpoint.metric.common.model.SystemMetric;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -43,7 +42,7 @@ public class SystemMetricDataTypeServiceImpl implements SystemMetricDataTypeServ
     }
 
     @Override
-    public void saveMetricDataType(SystemMetric systemMetric) {
+    public void saveMetricDataType(DoubleMetric systemMetric) {
         MetricDataName metricDataName = new MetricDataName(systemMetric.getMetricName(), systemMetric.getFieldName());
         MetricData metricData = metricDataTypeCache.getMetricDataType(metricDataName);
 
@@ -52,12 +51,9 @@ public class SystemMetricDataTypeServiceImpl implements SystemMetricDataTypeServ
             return;
         }
 
-        if (systemMetric instanceof DoubleMetric) {
-            long saveTime = DateTimeUtils.previousOrSameSundayToMillis();
-            MetricData metric = new MetricData(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.DOUBLE, saveTime);
-            metricDataTypeCache.saveMetricDataType(metricDataName, metric);
-        } else {
-            logger.error("can not find metric data type.  systemMetric : {}", systemMetric);
-        }
+        long saveTime = DateTimeUtils.previousOrSameSundayToMillis();
+        MetricData metric = new MetricData(systemMetric.getMetricName(), systemMetric.getFieldName(), MetricDataType.DOUBLE, saveTime);
+        metricDataTypeCache.saveMetricDataType(metricDataName, metric);
+
     }
 }

@@ -131,19 +131,19 @@ public class SystemMetricTagServiceImplTest {
         );
 
         MetricTagCollection metricTagCollection = systemMetricTagService.createMetricTagCollection(tenantId, applicationName, hostName, metricName, fieldName, tagList, saveTime);
-        Assertions.assertEquals(metricTagCollection.getHostGroupName(), applicationName);
-        Assertions.assertEquals(metricTagCollection.getHostName(), hostName);
-        Assertions.assertEquals(metricTagCollection.getMetricName(), metricName);
-        Assertions.assertEquals(metricTagCollection.getFieldName(), fieldName);
+        Assertions.assertEquals(applicationName, metricTagCollection.getHostGroupName());
+        Assertions.assertEquals(hostName, metricTagCollection.getHostName());
+        Assertions.assertEquals(metricName, metricTagCollection.getMetricName());
+        Assertions.assertEquals(fieldName, metricTagCollection.getFieldName());
 
         List<MetricTag> metricTagList = metricTagCollection.getMetricTagList();
 
         assertThat(metricTagList).hasSize(1);
         MetricTag metricTag = metricTagList.get(0);
-        Assertions.assertEquals(metricTag.getHostGroupName(), applicationName);
-        Assertions.assertEquals(metricTag.getHostName(), hostName);
-        Assertions.assertEquals(metricTag.getMetricName(), metricName);
-        Assertions.assertEquals(metricTag.getFieldName(), fieldName);
+        Assertions.assertEquals(applicationName, metricTag.getHostGroupName());
+        Assertions.assertEquals(hostName, metricTag.getHostName());
+        Assertions.assertEquals(metricName, metricTag.getMetricName());
+        Assertions.assertEquals(fieldName, metricTag.getFieldName());
 
         List<Tag> tags = metricTag.getTags();
 
@@ -188,10 +188,10 @@ public class SystemMetricTagServiceImplTest {
         MetricTagCollection mtc = new MetricTagCollection(tenantId, applicationName, hostName, metricName, fieldName, metricTagList);
         MetricTagCollection metricTagCollection = systemMetricTagService.createMetricTagCollection(mtc, tagList4, saveTime);
 
-        Assertions.assertEquals(metricTagCollection.getHostGroupName(), applicationName);
-        Assertions.assertEquals(metricTagCollection.getHostName(), hostName);
-        Assertions.assertEquals(metricTagCollection.getMetricName(), metricName);
-        Assertions.assertEquals(metricTagCollection.getFieldName(), fieldName);
+        Assertions.assertEquals(applicationName, metricTagCollection.getHostGroupName());
+        Assertions.assertEquals(hostName, metricTagCollection.getHostName());
+        Assertions.assertEquals(metricName, metricTagCollection.getMetricName());
+        Assertions.assertEquals(fieldName, metricTagCollection.getFieldName());
 
         List<MetricTag> mtList = metricTagCollection.getMetricTagList();
         assertThat(mtList).hasSize(4);

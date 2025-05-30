@@ -38,7 +38,7 @@ import com.navercorp.pinpoint.metric.web.model.MetricValue;
 import com.navercorp.pinpoint.metric.web.model.MetricValueGroup;
 import com.navercorp.pinpoint.metric.web.model.SystemMetricData;
 import com.navercorp.pinpoint.metric.web.model.basic.metric.group.GroupingRule;
-import org.apache.commons.lang3.time.StopWatch;
+import com.navercorp.pinpoint.metric.web.util.TagListUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -212,13 +212,7 @@ public class SystemMetricDataServiceImpl implements SystemMetricDataService {
         List<Tag> tagList1 = tagGroup1.tagList();
         List<Tag> tagList2 = tagGroup2.tagList();
 
-        if (tagList1.size() == tagList2.size()) {
-            if (tagList1.containsAll(tagList2)) {
-                return true;
-            }
-        }
-
-        return false;
+        return TagListUtils.containsAll(tagList1, tagList2);
     }
 
     private record TagGroup(List<Tag> tagList) {
