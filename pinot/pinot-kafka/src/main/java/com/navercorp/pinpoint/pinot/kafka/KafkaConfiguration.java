@@ -27,6 +27,7 @@ public class KafkaConfiguration {
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, properties.getKeySerializer());
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, properties.getValueSerializer());
 
+        config.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, properties.getPartitionerClass());
         config.put(ProducerConfig.ACKS_CONFIG, properties.getAcks());
         config.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, properties.getCompressionType());
 
