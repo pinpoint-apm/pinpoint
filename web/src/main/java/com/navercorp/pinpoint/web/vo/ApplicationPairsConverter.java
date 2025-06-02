@@ -17,22 +17,30 @@ package com.navercorp.pinpoint.web.vo;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.common.server.util.json.Jackson;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
 import org.springframework.core.convert.converter.Converter;
+
+import java.util.Objects;
 
 /**
  * @author intr3p1d
  */
 public class ApplicationPairsConverter implements Converter<String, ApplicationPairs> {
 
-    private final static ObjectMapper OBJECT_MAPPER = Jackson.newMapper();
+    private final ObjectReader reader;
+
+    public ApplicationPairsConverter(ObjectMapper mapper) {
+        Objects.requireNonNull(mapper, "mapper");
+        this.reader = mapper.readerFor(ApplicationPairs.class);
+    }
 
     @Override
     public ApplicationPairs convert(String source) {
         try {
-            return OBJECT_MAPPER.readValue(source, ApplicationPairs.class);
+            return reader.readValue(source);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new JsonRuntimeException("ApplicationPairs error", e);
         }
     }
 }
