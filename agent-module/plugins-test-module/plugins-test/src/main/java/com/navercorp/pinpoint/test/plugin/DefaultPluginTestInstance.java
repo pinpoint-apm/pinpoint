@@ -103,7 +103,8 @@ public class DefaultPluginTestInstance implements PluginTestInstance {
 
     private <T> T await(Future<T> future) {
         try {
-            return future.get(30L, TimeUnit.SECONDS);
+            // Wait for docker image to be ready
+            return future.get(300L, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new JUnitException(this.id + " failed", e);
