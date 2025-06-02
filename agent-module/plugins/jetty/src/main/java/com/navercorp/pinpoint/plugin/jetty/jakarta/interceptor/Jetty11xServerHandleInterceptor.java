@@ -39,7 +39,7 @@ public class Jetty11xServerHandleInterceptor extends AbstractServerHandleInterce
 
     @Override
     HttpServletRequest toHttpServletRequest(Object[] args) {
-        HttpChannel<?> channel = getArgument(args);
+        HttpChannel channel = getArgument(args);
         if (channel != null) {
             Request request = channel.getRequest();
             if (request instanceof HttpServletRequest) {
@@ -51,7 +51,7 @@ public class Jetty11xServerHandleInterceptor extends AbstractServerHandleInterce
 
     @Override
     HttpServletResponse toHttpServletResponse(Object[] args) {
-        HttpChannel<?> channel = getArgument(args);
+        HttpChannel channel = getArgument(args);
         if (channel != null) {
             Response response = channel.getResponse();
             if (response instanceof HttpServletResponse) {

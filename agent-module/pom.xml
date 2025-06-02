@@ -47,6 +47,11 @@
         <module>agent-tools</module>
     </modules>
 
+    <properties>
+        <jetty9-version>9.4.57.v20241219</jetty9-version>
+    </properties>
+
+
     <dependencyManagement>
         <dependencies>
             <dependency>

@@ -16,7 +16,6 @@
         <pinpoint.agent.jvmargument>
             ${pinpoint.agent.default.jvmargument}
         </pinpoint.agent.jvmargument>
-        <jetty.version>9.4.42.v20210604</jetty.version>
     </properties>
 
     <dependencies>
@@ -29,7 +28,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>${jetty.version}</version>
+            <version>${jetty9-version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>javax.servlet</groupId>
@@ -40,7 +39,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlet</artifactId>
-            <version>${jetty.version}</version>
+            <version>${jetty9-version}</version>
         </dependency>
     </dependencies>
 
