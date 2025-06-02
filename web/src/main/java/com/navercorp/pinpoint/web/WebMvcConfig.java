@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.web;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.web.interceptor.AdminAuthInterceptor;
 import com.navercorp.pinpoint.web.vo.ApplicationPairsConverter;
 import com.navercorp.pinpoint.web.vo.tree.SortByRequestConverter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
@@ -59,6 +61,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Value("${admin.password:}")
     private String password;
 
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    public void setObjectMapper(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         // For using like WelcomePageHandler
@@ -72,7 +81,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/admin/**");
     }
 
-    public ResourceHandlerConfigure newResourceHandlerConfigure() {
+    private ResourceHandlerConfigure newResourceHandlerConfigure() {
         return new ResourceHandlerConfigure(cacheResource);
     }
 
@@ -124,8 +133,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addFormatters(FormatterRegistry registry) {
-        WebMvcConfigurer.super.addFormatters(registry);
+
         registry.addConverter(new SortByRequestConverter());
-        registry.addConverter(new ApplicationPairsConverter());
+        registry.addConverter(new ApplicationPairsConverter(objectMapper));
     }
 }
