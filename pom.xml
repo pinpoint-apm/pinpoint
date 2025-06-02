@@ -161,8 +161,8 @@
         <fastxml.jackson.version>2.16.2</fastxml.jackson.version>
         <mapstruct.version>1.6.3</mapstruct.version>
 
-        <httpcomponents.version>4.5.13</httpcomponents.version>
-        <httpcomponents-core.version>4.4.14</httpcomponents-core.version>
+        <httpcomponents.version>4.5.14</httpcomponents.version>
+        <httpcomponents-core.version>4.4.16</httpcomponents-core.version>
 
         <httpcomponents5.version>5.2.3</httpcomponents5.version>
 
@@ -1211,6 +1211,11 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpcore</artifactId>
+                <version>${httpcomponents-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore-nio</artifactId>
                 <version>${httpcomponents-core.version}</version>
             </dependency>
 
