@@ -168,7 +168,7 @@ public interface AnnotationKey {
 //    2147483647
 //    -2147483648
 
-//    @Deprecated  // moved apiId to spanEvent and span. dump by int
+    //    @Deprecated  // moved apiId to spanEvent and span. dump by int
 //    API_DID(10, "API-DID"),
 //    @Deprecated  // you should remove static API code. Use only API-DID. dump by int
 //    API_ID(11, "API-ID"),
@@ -210,6 +210,8 @@ public interface AnnotationKey {
     AnnotationKey HTTP_REQUEST_HEADER = AnnotationKeyFactory.of(47, "http.req.header", VIEW_IN_RECORD_SET);
     AnnotationKey HTTP_INTERNAL_DISPLAY = AnnotationKeyFactory.of(48, "http.internal.display");
     AnnotationKey HTTP_IO = AnnotationKeyFactory.of(49, "http.io", VIEW_IN_RECORD_SET);
+    AnnotationKey HTTP_METHOD = AnnotationKeyFactory.of(50, "http.method", VIEW_IN_RECORD_SET);
+    AnnotationKey HTTP_SECURE = AnnotationKeyFactory.of(51, "http.secure", VIEW_IN_RECORD_SET);
     AnnotationKey HTTP_RESPONSE_HEADER = AnnotationKeyFactory.of(55, "http.resp.header", VIEW_IN_RECORD_SET);
     // post method parameter of httpclient
 

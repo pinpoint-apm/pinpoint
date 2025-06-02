@@ -39,6 +39,9 @@ public class AnnotationRecordFormatter {
     private static final long MINUTE = TimeUnit.MINUTES.toMillis(1);
     private static final long SECOND = TimeUnit.SECONDS.toMillis(1);
     private final ProxyRequestTypeRegistryService proxyRequestTypeRegistryService;
+    private static final String[] METHODS = {
+            "GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH", "TRACE", "CONNECT"
+    };
 
     public AnnotationRecordFormatter(final ProxyRequestTypeRegistryService proxyRequestTypeRegistryService) {
         this.proxyRequestTypeRegistryService = proxyRequestTypeRegistryService;
@@ -67,7 +70,34 @@ public class AnnotationRecordFormatter {
             if (annotationBo.getValue() instanceof IntBooleanIntBooleanValue value) {
                 return buildHttpIoArguments(value);
             }
+        } else if (annotationKey.getCode() == AnnotationKey.HTTP_STATUS_CODE.getCode()) {
+            if (annotationBo.getValue() instanceof Integer) {
+                final Integer statusCode = (Integer) annotationBo.getValue();
+                if (statusCode == null || statusCode < 0) {
+                    return "UNKNOWN(invalid status code)";
+                }
+                return String.valueOf(statusCode);
+            }
+        } else if (annotationKey.getCode() == AnnotationKey.HTTP_METHOD.getCode()) {
+            if (annotationBo.getValue() instanceof String) {
+                final String method = (String) annotationBo.getValue();
+                if (StringUtils.hasLength(method)) {
+                    for (String m : METHODS) {
+                        if (m.equalsIgnoreCase(method)) {
+                            return method.toUpperCase();
+                        }
+                    }
+                }
+            }
+            return "UNKNOWN(invalid method)";
+        } else if (annotationKey.getCode() == AnnotationKey.HTTP_SECURE.getCode()) {
+            if (annotationBo.getValue() instanceof Boolean) {
+                final Boolean secure = (Boolean) annotationBo.getValue();
+                return secure ? "HTTPS" : "HTTP";
+            }
+            return "UNKNOWN";
         }
+
         // TODO complext-type formatting
         final Object value = annotationBo.getValue();
         if (value instanceof StringStringValue stringStringValue) {
