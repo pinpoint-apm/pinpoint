@@ -124,7 +124,6 @@ public abstract class GrpcITBase {
         eventBuilder.setMethodSignature("io.grpc.internal.ClientCallImpl.start(io.grpc.ClientCall$Listener, io.grpc.Metadata)");
 
         String remoteAddress = "127.0.0.1:" + server.getBindPort();
-        eventBuilder.setEndPoint(remoteAddress);
         eventBuilder.setDestinationId(remoteAddress);
         eventBuilder.setAnnotations(annotation("http.url", "http://" + remoteAddress + "/" + server.getMethodName()));
 
