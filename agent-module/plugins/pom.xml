@@ -85,7 +85,6 @@
         <module>hystrix</module>
         <module>jboss</module>
         <module>vertx</module>
-        <module>resin</module>
         <module>jsp</module>
         <module>rxjava</module>
         <module>rabbitmq</module>
