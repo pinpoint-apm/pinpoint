@@ -34,7 +34,7 @@ import org.testcontainers.utility.DockerImageName;
  * @author youngjin.kim2
  */
 @DisplayName("stream channel test")
-@ContextConfiguration(classes = {ChannelSpringConfig.class, RedisStreamConfig.class})
+@ContextConfiguration(classes = {ChannelSpringConfig.class, RedisStreamConfig.class, ObjectMapperConfig.class})
 @SpringBootTest
 @Testcontainers
 public class StreamChannelTest {
@@ -62,5 +62,4 @@ public class StreamChannelTest {
     public void testRedisPubSubChannel() {
         ChannelProviderTest.testChannelProvider(registry.getProvider());
     }
-
 }

@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.redis;
 
 import com.navercorp.pinpoint.channel.ChannelSpringConfig;
+import com.navercorp.pinpoint.channel.redis.ObjectMapperConfig;
 import com.navercorp.pinpoint.redis.value.RedisValueConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author youngjin.kim2
  */
 @DisplayName("redis key-value test")
-@ContextConfiguration(classes = {ChannelSpringConfig.class, RedisValueConfig.class})
+@ContextConfiguration(classes = {ChannelSpringConfig.class, RedisValueConfig.class, ObjectMapperConfig.class})
 @SpringBootTest
 @Testcontainers
 public class RedisKeyValueTest {

@@ -66,6 +66,7 @@ public final class Jackson {
     }
 
 
+    @Deprecated
     public static YAMLMapper newYamlMapper() {
         YAMLMapper mapper = new YAMLMapper();
 
