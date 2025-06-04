@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.pinot.kafka;
 
+import org.springframework.util.StringUtils;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,7 +28,9 @@ public class KafkaConfiguration {
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, properties.getKeySerializer());
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, properties.getValueSerializer());
 
-        config.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, properties.getPartitionerClass());
+        if (StringUtils.hasText(properties.getPartitionerClass())) {
+            config.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, properties.getPartitionerClass());
+        }
         config.put(ProducerConfig.ACKS_CONFIG, properties.getAcks());
         config.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, properties.getCompressionType());
 
@@ -63,6 +66,7 @@ public class KafkaConfiguration {
         bindProperties(env, "pinpoint.metric.kafka.value.serializer", properties::setValueSerializer);
         bindProperties(env, "pinpoint.metric.kafka.acks", properties::setAcks);
         bindProperties(env, "pinpoint.metric.kafka.compressionType", properties::setCompressionType);
+        bindProperties(env, "pinpoint.metric.kafka.partitionerClass", properties::setPartitionerClass);
 
         return properties;
     }
