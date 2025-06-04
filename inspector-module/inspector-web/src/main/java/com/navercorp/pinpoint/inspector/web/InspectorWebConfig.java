@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.inspector.web;
 
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import com.navercorp.pinpoint.common.server.config.YAMLMapper;
 import com.navercorp.pinpoint.common.server.config.YamlConfiguration;
 import com.navercorp.pinpoint.inspector.web.config.InspectorPropertySources;
 import com.navercorp.pinpoint.inspector.web.config.InspectorWebPinotDaoConfiguration;
@@ -59,17 +59,17 @@ public class InspectorWebConfig {
 
         InputStream stream = inspectorMetric.getInputStream();
 
-        return mapper.readValue(stream, Mappings.class);
+        return mapper.mapper().readValue(stream, Mappings.class);
     }
 
     @Bean
     public Mappings applicationInspectorDefinition(@Value(YMLInspectorManager.APPLICATION_DEFINITION_YML_PATH)
                                              Resource inspectorMetric,
-                                             YAMLMapper mapper) throws IOException {
+                                                   YAMLMapper mapper) throws IOException {
 
         InputStream stream = inspectorMetric.getInputStream();
 
-        return mapper.readValue(stream, Mappings.class);
+        return mapper.mapper().readValue(stream, Mappings.class);
     }
 
     @Bean

@@ -34,7 +34,7 @@ import org.testcontainers.utility.DockerImageName;
  * @author youngjin.kim2
  */
 @DisplayName("pubsub channel test")
-@ContextConfiguration(classes = {ChannelSpringConfig.class, RedisPubSubConfig.class})
+@ContextConfiguration(classes = {ChannelSpringConfig.class, RedisPubSubConfig.class, ObjectMapperConfig.class})
 @SpringBootTest
 @Testcontainers
 public class PubSubChannelTest {

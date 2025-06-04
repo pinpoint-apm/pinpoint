@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.metric.web.config;
 
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import com.navercorp.pinpoint.common.server.config.YAMLMapper;
 import com.navercorp.pinpoint.metric.web.mapping.Mappings;
 import com.navercorp.pinpoint.metric.web.service.YMLSystemMetricBasicGroupManager;
 import com.navercorp.pinpoint.mybatis.MyBatisConfiguration;
@@ -96,6 +96,6 @@ public class MetricWebPinotDaoConfiguration {
 
         InputStream stream = telegrafMetric.getInputStream();
 
-        return mapper.readValue(stream, Mappings.class);
+        return mapper.mapper().readValue(stream, Mappings.class);
     }
 }
