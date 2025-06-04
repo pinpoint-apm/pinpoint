@@ -41,10 +41,6 @@ public interface ApplicationTraceIndexDao {
 
     LimitedScanResult<List<TransactionId>> scanTraceIndex(String applicationName, DragArea dragArea, int limit);
 
-
-    @Deprecated
-    LimitedScanResult<List<Dot>> scanScatterData(String applicationName, DragAreaQuery dragAreaQuery, int limit);
-
     LimitedScanResult<List<DotMetaData>> scanScatterDataV2(String applicationName, DragAreaQuery dragAreaQuery, int limit);
 
 }

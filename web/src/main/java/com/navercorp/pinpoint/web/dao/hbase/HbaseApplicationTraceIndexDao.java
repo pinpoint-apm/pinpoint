@@ -33,7 +33,6 @@ import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.config.ScatterChartProperties;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.mapper.TraceIndexMetaScatterMapper;
-import com.navercorp.pinpoint.web.mapper.TraceIndexScatterMapper;
 import com.navercorp.pinpoint.web.mapper.TransactionIdMapper;
 import com.navercorp.pinpoint.web.scatter.DragArea;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
@@ -280,19 +279,6 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         final long lastTime = getLastTime(range, limit, lastRowAccessor, transactionIdSum);
 
         return new LimitedScanResult<>(lastTime, transactionIdSum);
-    }
-
-    @Deprecated
-    @Override
-    public LimitedScanResult<List<Dot>> scanScatterData(String applicationName, DragAreaQuery dragAreaQuery, int limit) {
-        Objects.requireNonNull(applicationName, "applicationName");
-        Objects.requireNonNull(dragAreaQuery, "dragAreaQuery");
-
-        Predicate<Dot> filter = buildDotPredicate(dragAreaQuery);
-
-        RowMapper<List<Dot>> mapper = new TraceIndexScatterMapper(filter);
-
-        return scanScatterData0(applicationName, dragAreaQuery, limit, false, mapper);
     }
 
     private Predicate<Dot> buildDotPredicate(DragAreaQuery dragAreaQuery) {
