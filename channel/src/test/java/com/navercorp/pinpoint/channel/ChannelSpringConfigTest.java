@@ -15,9 +15,12 @@
  */
 package com.navercorp.pinpoint.channel;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author youngjin.kim2
  */
-@ContextConfiguration(classes = {ChannelSpringConfig.class})
+@ContextConfiguration(classes = {ChannelSpringConfig.class, ChannelSpringConfigTest.ObjectMapperConfig.class})
 @SpringBootTest
 public class ChannelSpringConfigTest {
 
@@ -37,6 +40,13 @@ public class ChannelSpringConfigTest {
         assertThat(repository).isNotNull();
     }
 
+    @Configuration
+    static class ObjectMapperConfig {
+        @Bean
+        public ObjectMapper objectMapper() {
+            return new ObjectMapper();
+        }
+    }
 }
 
 
