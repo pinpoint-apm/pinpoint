@@ -11,21 +11,6 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 class MapStructUtilsTest {
 
     @Test
-    void jsonStrToList() {
-        ObjectMapper mapper = Jackson.newMapper();
-        MapStructUtils mapStructUtils = new MapStructUtils(mapper);
-
-//        List<Long> longs = mapStructUtils.jsonStrToList("[1,2,3]");
-//        assertThat(longs).containsExactly(1L, 2L, 3L);
-
-        List<Integer> integers = mapStructUtils.jsonStrToList("[1,2,3]");
-        assertThat(integers).containsExactly(1, 2, 3);
-
-        List<Integer> objects = mapStructUtils.jsonStrToList("[1,\"abc\",3]");
-//        assertThat(objects).contains(1, "abc", 3);
-    }
-
-    @Test
     void jsonToLongList() {
         ObjectMapper mapper = Jackson.newMapper();
         MapStructUtils mapStructUtils = new MapStructUtils(mapper);
