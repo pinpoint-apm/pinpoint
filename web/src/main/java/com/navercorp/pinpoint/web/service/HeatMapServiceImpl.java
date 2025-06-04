@@ -9,7 +9,6 @@ import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
 import com.navercorp.pinpoint.web.scatter.heatmap.HeatMap;
 import com.navercorp.pinpoint.web.scatter.heatmap.HeatMapBuilder;
-import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.SpanHint;
@@ -17,6 +16,7 @@ import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -26,12 +26,18 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @Service
 public class HeatMapServiceImpl implements HeatMapService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
+
+    private static final Predicate<DotMetaData> legacyTablePredicate = new Predicate<>() {
+        @Override
+        public boolean test(DotMetaData dotMetaData) {
+            return dotMetaData.getStartTime() == 0;
+        }
+    };
 
     private final ApplicationTraceIndexDao applicationTraceIndexDao;
 
@@ -46,26 +52,6 @@ public class HeatMapServiceImpl implements HeatMapService {
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
     }
 
-    @Override
-    public LimitedScanResult<List<SpanBo>> dragScatterData(String applicationName, DragAreaQuery dragAreaQuery, int limit) {
-        Objects.requireNonNull(applicationName, "applicationName");
-        Objects.requireNonNull(dragAreaQuery, "dragAreaQuery");
-
-
-        LimitedScanResult<List<Dot>> scanResult = applicationTraceIndexDao.scanScatterData(applicationName, dragAreaQuery, limit);
-
-        logger.debug("dragScatterArea applicationName:{} dots:{}", applicationName, scanResult);
-//        boolean requestComplete = scatterData.getDotSize() < limit;
-        List<GetTraceInfo> query = buildQuery(applicationName, scanResult.scanData());
-
-        final List<List<SpanBo>> selectedSpans = traceDao.selectSpans(query);
-
-        List<SpanBo> spanList = ListListUtils.toList(selectedSpans, selectedSpans.size());
-        spanService.populateAgentName(spanList);
-
-        logger.debug("dragScatterArea span:{}", spanList.size());
-        return new LimitedScanResult<>(scanResult.limitedTime(), spanList);
-    }
 
     @Override
     public LimitedScanResult<List<DotMetaData>> dragScatterDataV2(String applicationName, DragAreaQuery dragAreaQuery, int limit) {
@@ -74,31 +60,30 @@ public class HeatMapServiceImpl implements HeatMapService {
 
 
         LimitedScanResult<List<DotMetaData>> scanResult = applicationTraceIndexDao.scanScatterDataV2(applicationName, dragAreaQuery, limit);
-        scanResult = legacyCompatibilityCheck(applicationName, scanResult);
-
+        List<DotMetaData> scanData = scanResult.scanData();
         logger.debug("dragScatterArea applicationName:{} dots:{}", applicationName, scanResult);
+
+        if (hasOldVersion(scanData)) {
+            return filterCompatibility(applicationName, scanResult);
+        }
         return scanResult;
     }
 
-    private LimitedScanResult<List<DotMetaData>> legacyCompatibilityCheck(String applicationName, LimitedScanResult<List<DotMetaData>> scanResult) {
-        Predicate<DotMetaData> legacyTablePredicate = legacyTablePredicate();
-
-        List<DotMetaData> scanData = scanResult.scanData();
+    private boolean hasOldVersion(List<DotMetaData> scanData) {
         Optional<DotMetaData> oldVersion = scanData.stream()
                 .filter(legacyTablePredicate)
                 .findAny();
-        if (!oldVersion.isPresent()) {
-            return scanResult;
-        }
-        //
-        List<Dot> dots = scanData.stream()
-                .filter(legacyTablePredicate)
-                .map(DotMetaData::getDot)
-                .collect(Collectors.toList());
+        return oldVersion.isPresent();
+    }
+
+    private LimitedScanResult<List<DotMetaData>> filterCompatibility(String applicationName, LimitedScanResult<List<DotMetaData>> scanResult) {
+        List<DotMetaData> scanData = scanResult.scanData();
+
+        List<Dot> dots = filterLegacyTablePredicate(scanData, legacyTablePredicate);
 
         List<GetTraceInfo> query = buildQuery(applicationName, dots);
         final List<List<SpanBo>> selectedSpans = traceDao.selectSpans(query);
-        //List<SpanBo> spanList = ListListUtils.toList(selectedSpans, selectedSpans.size());
+
         List<SpanBo> spanList = pickFirst(selectedSpans);
         spanService.populateAgentName(spanList);
 
@@ -131,13 +116,15 @@ public class HeatMapServiceImpl implements HeatMapService {
         return new LimitedScanResult<>(scanResult.limitedTime(), result);
     }
 
-    private Predicate<DotMetaData> legacyTablePredicate() {
-        return new Predicate<DotMetaData>() {
-            @Override
-            public boolean test(DotMetaData dotMetaData) {
-                return dotMetaData.getStartTime() == 0;
+    private @NotNull List<Dot> filterLegacyTablePredicate(List<DotMetaData> scanData, Predicate<DotMetaData> legacyTablePredicate) {
+        List<Dot> dots = new ArrayList<>(scanData.size());
+        for (DotMetaData scanDatum : scanData) {
+            if (legacyTablePredicate.test(scanDatum)) {
+                Dot dot = scanDatum.getDot();
+                dots.add(dot);
             }
-        };
+        }
+        return dots;
     }
 
     @Override
@@ -164,9 +151,12 @@ public class HeatMapServiceImpl implements HeatMapService {
         if (CollectionUtils.isEmpty(dots)) {
             return Collections.emptyList();
         }
-        return dots.stream()
-                .map(dot -> dotToGetTraceInfo(applicationName, dot))
-                .collect(Collectors.toList());
+        List<GetTraceInfo> list = new ArrayList<>(dots.size());
+        for (Dot dot : dots) {
+            GetTraceInfo getTraceInfo = dotToGetTraceInfo(applicationName, dot);
+            list.add(getTraceInfo);
+        }
+        return list;
     }
 
     private GetTraceInfo dotToGetTraceInfo(String applicationName, Dot dot) {
