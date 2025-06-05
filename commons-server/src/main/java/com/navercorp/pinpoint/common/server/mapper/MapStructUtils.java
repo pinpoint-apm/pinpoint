@@ -18,7 +18,6 @@
 package com.navercorp.pinpoint.common.server.mapper;
 
 import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
@@ -52,35 +51,6 @@ public class MapStructUtils {
         this.stringListReader = mapper.readerForListOf(String.class);
     }
 
-
-    @Qualifier
-    @Target(ElementType.METHOD)
-    @Retention(RetentionPolicy.CLASS)
-    public @interface JsonStrToList {
-
-    }
-
-    @Qualifier
-    @Target(ElementType.METHOD)
-    @Retention(RetentionPolicy.CLASS)
-    public @interface listToJsonStr {
-
-    }
-
-
-    @JsonStrToList
-    @Deprecated
-    public <T> List<T> jsonStrToList(String json) {
-        if (StringUtils.isEmpty(json)) {
-            return Collections.emptyList();
-        }
-        try {
-            return mapper.readValue(json, new TypeReference<>() {});
-        } catch (JacksonException e) {
-            throw new JsonRuntimeException("Json read error", e);
-        }
-    }
-
     public List<String> jsonToStringList(String json) {
         if (StringUtils.isEmpty(json)) {
             return Collections.emptyList();
@@ -92,6 +62,14 @@ public class MapStructUtils {
         }
     }
 
+    @Qualifier
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.CLASS)
+    public @interface JsonToIntegerList {
+
+    }
+
+    @JsonToIntegerList
     public List<Integer> jsonToIntegerList(String json) {
         if (StringUtils.isEmpty(json)) {
             return Collections.emptyList();
@@ -103,6 +81,14 @@ public class MapStructUtils {
         }
     }
 
+    @Qualifier
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.CLASS)
+    public @interface JsonToLongList {
+
+    }
+
+    @JsonToLongList
     public List<Long> jsonToLongList(String json) {
         if (StringUtils.isEmpty(json)) {
             return Collections.emptyList();
@@ -114,7 +100,14 @@ public class MapStructUtils {
         }
     }
 
-    @listToJsonStr
+    @Qualifier
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.CLASS)
+    public @interface ListToJsonStr {
+
+    }
+
+    @ListToJsonStr
     public <T> String listToJsonStr(List<T> lists) {
         if (CollectionUtils.isEmpty(lists)) {
             return "";
@@ -125,5 +118,4 @@ public class MapStructUtils {
             throw new JsonRuntimeException("Json Write error", e);
         }
     }
-
 }

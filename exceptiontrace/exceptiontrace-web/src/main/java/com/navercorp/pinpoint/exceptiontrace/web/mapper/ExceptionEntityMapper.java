@@ -67,7 +67,7 @@ public interface ExceptionEntityMapper {
     @Retention(RetentionPolicy.CLASS)
     @Mapping(target = "groupedFieldName", ignore = true)
     @Mapping(target = "groupFilterParams", ignore = true)
-    @Mapping(source = "entity.values", target = "values", qualifiedBy = MapStructUtils.JsonStrToList.class)
+    @Mapping(source = "entity.values", target = "values", qualifiedBy = MapStructUtils.JsonToIntegerList.class)
     public @interface ToGrouped {
     }
 
