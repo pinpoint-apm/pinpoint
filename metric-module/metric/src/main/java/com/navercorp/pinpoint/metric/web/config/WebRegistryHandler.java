@@ -14,7 +14,6 @@ import com.navercorp.pinpoint.metric.web.mybatis.typehandler.DoubleToLongTypeHan
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.DoubleTypeHandler;
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.LongTypeHandler;
 import com.navercorp.pinpoint.metric.web.mybatis.typehandler.TagListTypeHandler;
-import com.navercorp.pinpoint.metric.web.util.MetricsQueryParameter;
 import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandlerRegistry;
@@ -33,7 +32,6 @@ public class WebRegistryHandler implements MyBatisRegistryHandler {
         registryHandler.registerTypeAlias(typeAliasRegistry);
 
         typeAliasRegistry.registerAlias(Range.class);
-        typeAliasRegistry.registerAlias(MetricsQueryParameter.class);
 
         typeAliasRegistry.registerAlias("DoubleHandler", DoubleTypeHandler.class);
         typeAliasRegistry.registerAlias("LongHandler", LongTypeHandler.class);
