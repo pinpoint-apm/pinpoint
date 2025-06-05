@@ -77,7 +77,7 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
         }
 
         // there may be no endpoint in case of httpclient
-        outHost = Objects.toString(outHost);
+        outHost = Objects.toString(outHost, "");
 
         // TODO callee, caller parameter normalization
         if (ignoreStatFilter.filter(inServiceType, outHost)) {

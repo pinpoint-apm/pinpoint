@@ -107,7 +107,7 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
             // Terminal nodes, such as httpclient will not have outHost set as well, but since they're terminal
             // nodes, they would not have reached here in the first place.
             if (inApplication.getServiceType().isQueue()) {
-                outHost = Objects.toString(outHost);
+                outHost = Objects.toString(outHost, "");
             }
 
             if (logger.isDebugEnabled()) {

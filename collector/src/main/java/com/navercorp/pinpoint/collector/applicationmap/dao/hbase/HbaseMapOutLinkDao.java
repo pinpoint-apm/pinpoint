@@ -73,7 +73,7 @@ public class HbaseMapOutLinkDao implements MapOutLinkDao {
         }
 
         // there may be no endpoint in case of httpclient
-        inHost = Objects.toString(inHost);
+        inHost = Objects.toString(inHost, "");
 
         // make row key. rowkey is me
         final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
