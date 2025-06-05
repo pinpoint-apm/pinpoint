@@ -24,6 +24,7 @@
     "DELETE_CONFIRM_QUESTION": "Are you sure you want to delete \"{{target}}\"?",
     "DELETE_CONFIRM_DESCRIPTION": "This action cannot be undone. This will permanently delete your {{target}} from server.",
     "CANCEL": "Cancel",
+    "CLOSE": "Close",
     "CONTINUE": "Continue",
     "EDIT": "Edit",
     "OPTIONAL": "Optional",
