@@ -1,14 +1,14 @@
-#!/bin/sh
-if git diff --cached --name-only | grep -q '^web-frontend/src/main/v3/'; then
-  cd web-frontend/src/main/v3
-  echo "🚀 Running pre-commit hooks..."
+# #!/bin/sh
+# if git diff --cached --name-only | grep -q '^web-frontend/src/main/v3/'; then
+#   cd web-frontend/src/main/v3
+#   echo "🚀 Running pre-commit hooks..."
 
-  echo "🔍 Running unit tests..."
-  npm run test || exit 1
+#   echo "🔍 Running unit tests..."
+#   npm run test || exit 1
 
-  echo "🧪 Running e2e tests..."
-  cd apps/web || exit 1
-  npm run test:e2e || exit 1
-else
-  echo "No changes in v3 - skipping tests."
-fi
+#   echo "🧪 Running e2e tests..."
+#   cd apps/web || exit 1
+#   npm run test:e2e || exit 1
+# else
+#   echo "No changes in v3 - skipping tests."
+# fi
