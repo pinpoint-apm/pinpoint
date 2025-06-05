@@ -30,6 +30,9 @@ import java.util.Objects;
 @JsonSerialize(using = AgentActiveThreadCountListSerializer.class)
 public class AgentActiveThreadCountList {
 
+    private static final Comparator<AgentActiveThreadCount> AGENT_ID_COMPARING =
+            Comparator.comparing(threadCount -> Objects.toString(threadCount.getAgentId(), ""));
+
     private final List<AgentActiveThreadCount> agentActiveThreadRepository;
 
     public AgentActiveThreadCountList(int initialCapacity) {
@@ -42,7 +45,8 @@ public class AgentActiveThreadCountList {
 
     public List<AgentActiveThreadCount> getAgentActiveThreadRepository() {
         // sort agentId
-        agentActiveThreadRepository.sort(Comparator.comparing(threadCount -> Objects.toString(threadCount.getAgentId())));
+
+        agentActiveThreadRepository.sort(AGENT_ID_COMPARING);
 
         return agentActiveThreadRepository;
     }
