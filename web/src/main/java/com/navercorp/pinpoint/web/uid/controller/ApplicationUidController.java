@@ -4,7 +4,8 @@ import com.navercorp.pinpoint.common.server.response.Response;
 import com.navercorp.pinpoint.common.server.response.SimpleResponse;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.web.uid.service.ApplicationUidService;
+import com.navercorp.pinpoint.uid.service.ApplicationUidService;
+import com.navercorp.pinpoint.web.uid.service.CachedApplicationUidService;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +20,15 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/api")
-@ConditionalOnProperty(name = "pinpoint.web.application.uid.enable", havingValue = "true")
+@ConditionalOnProperty(name = "pinpoint.modules.uid.enabled", havingValue = "true")
 public class ApplicationUidController {
 
     private final ApplicationUidService applicationUidService;
+    private final CachedApplicationUidService cachedApplicationUidService;
 
-    public ApplicationUidController(ApplicationUidService applicationUidService) {
+    public ApplicationUidController(ApplicationUidService applicationUidService, CachedApplicationUidService cachedApplicationUidService) {
         this.applicationUidService = Objects.requireNonNull(applicationUidService, "applicationInfoService");
+        this.cachedApplicationUidService = Objects.requireNonNull(cachedApplicationUidService, "cachedApplicationUidService");
     }
 
     @GetMapping(value = "/applicationNames")
@@ -38,7 +41,7 @@ public class ApplicationUidController {
     public ResponseEntity<Long> getApplicationUid(@RequestParam(value = "serviceUid", required = false, defaultValue = "0") int serviceUid,
                                                   @RequestParam(value = "applicationName") @NotBlank String applicationName) {
         ServiceUid serviceUidObject = ServiceUid.of(serviceUid);
-        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUidObject, applicationName);
+        ApplicationUid applicationUid = cachedApplicationUidService.getApplicationUid(serviceUidObject, applicationName);
         if (applicationUid == null) {
             return ResponseEntity.noContent().build();
         }
@@ -50,7 +53,7 @@ public class ApplicationUidController {
                                                      @RequestParam(value = "applicationUid") long applicationUid) {
         ServiceUid serviceUidObject = ServiceUid.of(serviceUid);
         ApplicationUid applicationUidObject = ApplicationUid.of(applicationUid);
-        String applicationName = applicationUidService.getApplicationName(serviceUidObject, applicationUidObject);
+        String applicationName = cachedApplicationUidService.getApplicationName(serviceUidObject, applicationUidObject);
         if (applicationName == null) {
             return ResponseEntity.noContent().build();
         }
