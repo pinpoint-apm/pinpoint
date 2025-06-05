@@ -24,6 +24,7 @@
     "DELETE_CONFIRM_QUESTION": "정말로 \"{{target}}\"을(를) 삭제하시겠습니까?",
     "DELETE_CONFIRM_DESCRIPTION": "이 작업은 취소할 수 없습니다. {{target}}은(는) 서버에서 영구적으로 삭제됩니다.",
     "CANCEL": "취소",
+    "CLOSE": "닫기",
     "CONTINUE": "계속",
     "EDIT": "수정",
     "OPTIONAL": "선택",
