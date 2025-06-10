@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import com.navercorp.pinpoint.bootstrap.config.SystemPropertyManager;
+import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+
 import java.lang.reflect.Constructor;
 import java.util.Map;
 import java.util.Objects;
@@ -40,23 +43,26 @@ public class AgentBootLoader {
     }
 
     public Object boot(final AgentOption agentOption) {
-
         final Class<?> agentClazz = getBootStrapClass("com.navercorp.pinpoint.profiler.Agent");
         final Class<?> bootStrapClazz = getBootStrapClass(bootClass);
         if (!agentClazz.isAssignableFrom(bootStrapClazz)) {
             throw new IllegalStateException("Invalid AgentClass:" + bootStrapClazz);
         }
+        final SystemPropertyManager systemPropertyManager = new SystemPropertyManager();
 
         return executeTemplate.execute(new Callable<Object>() {
             @Override
             public Object call() throws Exception {
                 try {
+                    systemPropertyManager.backup(agentOption);
                     Constructor<?> constructor = bootStrapClazz.getDeclaredConstructor(Map.class);
                     return constructor.newInstance(agentOption.toMap());
                 } catch (InstantiationException e) {
                     throw new BootStrapException("boot create failed. Error:" + e.getMessage(), e);
                 } catch (IllegalAccessException e) {
                     throw new BootStrapException("boot method invoke failed. Error:" + e.getMessage(), e);
+                } finally {
+                    systemPropertyManager.restore();
                 }
             }
         });
@@ -69,5 +75,4 @@ public class AgentBootLoader {
             throw new BootStrapException("boot class not found. bootClass:" + bootClass + " Error:" + e.getMessage(), e);
         }
     }
-
 }
