@@ -76,6 +76,9 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
  * <tr><td>1160</td><td>KSTOR</td></tr>
  * <tr><td>1161</td><td>KSTOR_INTERNAL</td></tr>
  *
+ * <tr><td>1200</td><td>RESIN @Deprecated Since 3.1.0</td></tr>
+ * <tr><td>1201</td><td>RESIN_METHOD @Deprecated Since 3.1.0</td></tr>
+ *
  * <tr><td>1300</td><td>C_CPP</td></tr>
  * <tr><td>1301</td><td>C_CPP_METHOD</td></tr>
  *
@@ -305,7 +308,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
  * <tr><td>9998</td><td>AKKA_HTTP_SERVER_INTERNAL_LEGACY</td></tr>
  * 
  * <tr><td></td><td></td></tr>
- * 
+ *
  * @author emeroad
  * @author netspider
  * @author Jongho Moon
