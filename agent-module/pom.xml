@@ -45,6 +45,7 @@
         <module>profiler-test</module>
 
         <module>agent-tools</module>
+        <module>profiler-thirdparty</module>
     </modules>
 
     <properties>
@@ -147,6 +148,17 @@
                 <artifactId>pinpoint-testcase</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-shaded-guice</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-shaded-guava</artifactId>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

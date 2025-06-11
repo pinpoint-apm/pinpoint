@@ -67,6 +67,10 @@
                 <exclude>com.navercorp.pinpoint:pinpoint-profiler-test</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-plugins-assembly</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-agent-tools</exclude>
+                <!-- replace com.navercorp.pinpoint:pinpoint-shaded-guice -->
+                <exclude>com.google.inject:guice</exclude>
+                <!-- replace com.navercorp.pinpoint:pinpoint-shaded-guava -->
+                <exclude>com.google.guava:guava</exclude>
 <!--                <exclude>*:pom</exclude>-->
             </excludes>
             <outputDirectory>lib</outputDirectory>

@@ -48,6 +48,7 @@ import static org.mockito.Mockito.mock;
 public class DefaultApplicationContextTest {
 
     private static final String PINPOINT_PACKAGE_PREFIX = "com.navercorp.pinpoint.";
+    private static final String PINPOINT_LOGGING_PREFIX = "com.navercorp.pinpoint.profiler.logging.jul";
 
     @Test
     public void test() {
@@ -72,8 +73,13 @@ public class DefaultApplicationContextTest {
     private boolean isPinpointBinding(Key<?> key) {
         TypeLiteral<?> typeLiteral = key.getTypeLiteral();
         if (typeLiteral != null && typeLiteral.toString().startsWith(PINPOINT_PACKAGE_PREFIX)) {
+            if(typeLiteral.toString().startsWith(PINPOINT_LOGGING_PREFIX)) {
+                // Skip JUL logging
+                return false;
+            }
             return true;
         }
+
         Class<? extends Annotation> annotationType = key.getAnnotationType();
         if (annotationType != null) {
             return annotationType.getName().startsWith(PINPOINT_PACKAGE_PREFIX);

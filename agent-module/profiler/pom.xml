@@ -68,12 +68,12 @@
             <artifactId>pinpoint-plugins-loader</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-shaded-guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-shaded-guice</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.inject.extensions</groupId>
