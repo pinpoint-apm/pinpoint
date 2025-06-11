@@ -2,7 +2,7 @@ import React from 'react';
 import { useCopyToClipboard } from 'usehooks-ts';
 import { FaRegCopy } from 'react-icons/fa';
 import { MdOutlineDone } from 'react-icons/md';
-import { Button } from '../ui';
+import { Button, ButtonProps } from '../ui';
 import { cn } from '../../lib';
 import { useReactToastifyToast } from '../Toast';
 
@@ -13,6 +13,7 @@ export interface ClipboardCopyButtonProps {
   children?: React.ReactNode;
   hoverable?: boolean;
   onClickCopy?: () => void;
+  buttonProps?: ButtonProps;
 }
 
 export const ClipboardCopyButton = ({
@@ -22,6 +23,7 @@ export const ClipboardCopyButton = ({
   btnClassName,
   hoverable,
   children,
+  buttonProps,
 }: ClipboardCopyButtonProps) => {
   const toast = useReactToastifyToast();
   const [, copy] = useCopyToClipboard();
@@ -58,6 +60,7 @@ export const ClipboardCopyButton = ({
           'cursor-default': copied,
         })}
         onClick={handleClickCopy}
+        {...buttonProps}
       >
         {copied ? <MdOutlineDone className="w-3 h-3" /> : <FaRegCopy className="w-3 h-3" />}
       </Button>
