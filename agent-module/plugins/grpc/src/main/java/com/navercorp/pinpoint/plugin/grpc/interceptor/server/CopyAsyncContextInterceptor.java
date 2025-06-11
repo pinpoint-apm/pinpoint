@@ -23,13 +23,17 @@ import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.grpc.field.accessor.ServerStreamGetter;
+import io.grpc.ForwardingServerCall;
 import io.grpc.internal.ServerStream;
+
+import java.lang.reflect.Method;
 
 /**
  * @author Taejin Koo
+ * @author shofee
  */
 public class CopyAsyncContextInterceptor implements AroundInterceptor {
-
+    private static final int MAX_DELEGATE_CALLS = 10;
     private final PluginLogger logger = PluginLogManager.getLogger(CopyAsyncContextInterceptor.class);
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -60,6 +64,21 @@ public class CopyAsyncContextInterceptor implements AroundInterceptor {
     }
 
     AsyncContext getAsyncContext(Object object) {
+        Object target = object;
+        try {
+            int count = 0;
+            while (!(target instanceof ServerStreamGetter) && (target instanceof ForwardingServerCall)) {
+                Method delegateMethod = ForwardingServerCall.class.getDeclaredMethod("delegate");
+                delegateMethod.setAccessible(true);
+                target = delegateMethod.invoke(target);
+                if (count++ >= MAX_DELEGATE_CALLS) {
+                    return null;
+                }
+            }
+        } catch (Exception ignored) {
+            return null;
+        }
+
         if (object instanceof ServerStreamGetter) {
             ServerStream serverStream = ((ServerStreamGetter) object)._$PINPOINT$_getServerStream();
             if (serverStream instanceof AsyncContextAccessor) {
@@ -68,5 +87,4 @@ public class CopyAsyncContextInterceptor implements AroundInterceptor {
         }
         return null;
     }
-
 }
