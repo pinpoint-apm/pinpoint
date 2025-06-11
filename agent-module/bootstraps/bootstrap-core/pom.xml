@@ -6,7 +6,7 @@
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint-bootstrap-parent</artifactId>
         <relativePath>../bootstrap-parent</relativePath>
-        <version>3.0.3</version>
+        <version>3.0.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-bootstrap-core</artifactId>
