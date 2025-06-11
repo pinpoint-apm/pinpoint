@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.profiler.concurrent.executor;
 
 import java.util.AbstractCollection;
+import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -37,8 +38,7 @@ class UnsafeArrayCollection<E> extends AbstractCollection<E> {
             throw new IndexOutOfBoundsException("size:" + this.size + " array.length:" + array.length);
         }
         // do not check array bound
-        array[size] = o;
-        size++;
+        array[size++] = o;
         return true;
     }
 
@@ -57,13 +57,27 @@ class UnsafeArrayCollection<E> extends AbstractCollection<E> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Iterator<E> iterator() {
-        throw new UnsupportedOperationException();
+        return Arrays.stream((E[])array).limit(size).iterator();
     }
 
     @Override
     public int size() {
         return size;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T[] toArray(T[] a) {
+        if (a.length < size) {
+            return (T[]) Arrays.copyOf(array, size, a.getClass());
+        }
+        System.arraycopy(array, 0, a, 0, size);
+        if (a.length > size) {
+            a[size] = null;
+        }
+        return a;
     }
 
     @Override
