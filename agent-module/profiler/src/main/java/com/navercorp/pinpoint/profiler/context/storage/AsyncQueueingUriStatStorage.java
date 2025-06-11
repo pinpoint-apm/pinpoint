@@ -128,9 +128,10 @@ public class AsyncQueueingUriStatStorage extends AsyncQueueingExecutor<UriStatIn
 
             AgentUriStatData agentUriStatData = snapshotManager.getCurrent(currentBaseTimestamp);
 
-            UriStatInfo[] dataList = messageList.toArray(uriStatInfos);
+            // Don't change messageList.toArray(T[]);
+            Object[] dataList = messageList.toArray();
             for (int i = 0; i < CollectionUtils.nullSafeSize(messageList); i++) {
-                addUriData(agentUriStatData, dataList[i]);
+                addUriData(agentUriStatData, (UriStatInfo) dataList[i]);
             }
         }
 
