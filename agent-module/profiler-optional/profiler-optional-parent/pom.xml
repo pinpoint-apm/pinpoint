@@ -9,7 +9,7 @@
 <!--        <relativePath>../../../pom.xml</relativePath>-->
         <artifactId>pinpoint-agent-module</artifactId>
         <relativePath>../../pom.xml</relativePath>
-        <version>3.0.3-SNAPSHOT</version>
+        <version>3.0.3</version>
     </parent>
 
     <artifactId>pinpoint-profiler-optional-parent</artifactId>
