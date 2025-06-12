@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.io.request;
 
 import com.navercorp.pinpoint.collector.receiver.grpc.cache.UidCache;
-import com.navercorp.pinpoint.collector.uid.service.ApplicationUidService;
+import com.navercorp.pinpoint.collector.uid.service.CachedApplicationUidService;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.io.request.supplier.UidSuppliers;
@@ -22,12 +22,12 @@ public class UidFetcherV1 implements UidFetcher {
 
     private volatile ApplicationUid applicationUid;
 
-    private final ApplicationUidService applicationUidService;
+    private final CachedApplicationUidService cachedApplicationUidService;
 
     private final ReentrantLock lock = new ReentrantLock();
 
-    public UidFetcherV1(ApplicationUidService applicationUidService, UidCache cache) {
-        this.applicationUidService = Objects.requireNonNull(applicationUidService, "applicationUidService");
+    public UidFetcherV1(CachedApplicationUidService cachedApplicationUidService, UidCache cache) {
+        this.cachedApplicationUidService = Objects.requireNonNull(cachedApplicationUidService, "applicationUidService");
         this.cache = cache;
     }
 
@@ -70,8 +70,7 @@ public class UidFetcherV1 implements UidFetcher {
             if (copy != null) {
                 // already fetched
                 return copy;
-            }
-            else {
+            } else {
                 // fetch serviceUid & applicationUid from server
                 ApplicationUid applicationId = fetchApplicationUid(applicationName);
                 this.cache.put(DEFAULT_SERVICE_UID, applicationName, applicationId);
@@ -85,7 +84,7 @@ public class UidFetcherV1 implements UidFetcher {
 
     private ApplicationUid fetchApplicationUid(String applicationName) {
         try {
-            return this.applicationUidService.getOrCreateApplicationUid(DEFAULT_SERVICE_UID, applicationName);
+            return this.cachedApplicationUidService.getOrCreateApplicationUid(DEFAULT_SERVICE_UID, applicationName);
         } catch (Throwable e) {
             logger.info("Failed to fetch applicationId. applicationName:{}", applicationName, e);
             return ApplicationUid.ERROR_APPLICATION_UID;
