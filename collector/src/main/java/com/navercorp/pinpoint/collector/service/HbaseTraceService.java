@@ -174,8 +174,8 @@ public class HbaseTraceService implements TraceService {
                         span.getAcceptorHost(), spanServiceType, span.getAgentId(), span.getElapsed(), span.hasError());
             } else {
                 // create virtual user
-                linkService.updateOutLink(span.getCollectorAcceptTime(), span.getApplicationName(), ServiceType.USER, MERGE_AGENT,
-                        span.getApplicationName(), applicationServiceType, MERGE_AGENT, span.getElapsed(), span.hasError());
+//                linkService.updateOutLink(span.getCollectorAcceptTime(), span.getApplicationName(), ServiceType.USER, MERGE_AGENT,
+//                        span.getApplicationName(), applicationServiceType, MERGE_AGENT, span.getElapsed(), span.hasError());
 
                 // update the span information of the current node (self)
                 linkService.updateInLink(span.getCollectorAcceptTime(), span.getApplicationName(), applicationServiceType,
