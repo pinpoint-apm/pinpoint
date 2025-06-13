@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
+import com.navercorp.pinpoint.collector.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -34,14 +35,26 @@ public class InLinkColumnName implements ColumnName {
     private final String callHost;
     private final short columnSlotNumber;
 
+    public static ColumnName histogram(String outAgentId, Vertex inVertex, String callHost, short columnSlotNumber) {
+        return histogram(outAgentId, inVertex.serviceType(), inVertex.applicationName(), callHost, columnSlotNumber);
+    }
 
     public static ColumnName histogram(String outAgentId, ServiceType inServiceType, String inApplicationName, String callHost, short columnSlotNumber) {
         return new InLinkColumnName(outAgentId, inServiceType.getCode(), inApplicationName, callHost, columnSlotNumber);
     }
 
+    public static ColumnName sum(String outAgentId, Vertex inVertex, String callHost, ServiceType outServiceType) {
+        return sum(outAgentId, inVertex.serviceType(), inVertex.applicationName(), callHost, outServiceType);
+    }
+
     public static ColumnName sum(String outAgentId, ServiceType inServiceType, String inApplicationName, String callHost, ServiceType outServiceType) {
         final short slotTime = outServiceType.getHistogramSchema().getSumStatSlot().getSlotTime();
         return histogram(outAgentId, inServiceType, inApplicationName, callHost, slotTime);
+    }
+
+    public static ColumnName max(String outAgentId, Vertex inVertex, String callHost, ServiceType outServiceType) {
+        final short slotTime = outServiceType.getHistogramSchema().getMaxStatSlot().getSlotTime();
+        return histogram(outAgentId, inVertex.serviceType(), inVertex.applicationName(), callHost, slotTime);
     }
 
     public static ColumnName max(String outAgentId, ServiceType inServiceType, String inApplicationName, String callHost, ServiceType outServiceType) {

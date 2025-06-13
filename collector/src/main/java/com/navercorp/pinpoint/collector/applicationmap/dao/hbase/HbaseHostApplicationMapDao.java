@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 
+import com.navercorp.pinpoint.collector.applicationmap.Vertex;
 import com.navercorp.pinpoint.collector.applicationmap.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.collector.util.AtomicLongUpdateMap;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
@@ -73,27 +74,27 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
 
     @Override
-    public void insert(long requestTime, String host, String bindApplicationName, short bindServiceType,
-                       String parentApplicationName, short parentServiceType) {
+    public void insert(long requestTime, String host, Vertex selfVertex,
+            String parentApplicationName, short parentServiceType) {
         Objects.requireNonNull(host, "host");
-        Objects.requireNonNull(bindApplicationName, "bindApplicationName");
+        Objects.requireNonNull(selfVertex, "selfVertex");
         if (logger.isDebugEnabled()) {
-            logger.debug("insert HostApplicationMap, host:{}, app:{},SType:{},parentApp:{},parentAppSType{}", host, bindApplicationName, bindServiceType, parentApplicationName, parentServiceType);
+            logger.debug("insert HostApplicationMap host:{}, self:{} parent:{}/{}", host, selfVertex, parentApplicationName, parentServiceType);
         }
 
         final long statisticsRowSlot = timeSlot.getTimeSlot(requestTime);
 
-        final CacheKey cacheKey = new CacheKey(host, bindApplicationName, bindServiceType, parentApplicationName, parentServiceType);
+        final CacheKey cacheKey = new CacheKey(host, selfVertex.applicationName(), selfVertex.serviceType().getCode(), parentApplicationName, parentServiceType);
         final boolean needUpdate = updater.update(cacheKey, statisticsRowSlot);
         if (needUpdate) {
-            insertHostVer2(host, bindApplicationName, bindServiceType, statisticsRowSlot, parentApplicationName, parentServiceType);
+            insertHostVer2(host, selfVertex, statisticsRowSlot, parentApplicationName, parentServiceType);
         }
     }
 
-    private void insertHostVer2(String host, String bindApplicationName, short bindServiceType, long statisticsRowSlot, String parentApplicationName, short parentServiceType) {
+    private void insertHostVer2(String host, Vertex selfVertex, long statisticsRowSlot, String parentApplicationName, short parentServiceType) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Insert host-application map. host={}, bindApplicationName={}, bindServiceType={}, parentApplicationName={}, parentServiceType={}",
-                    host, bindApplicationName, bindServiceType, parentApplicationName, parentServiceType);
+            logger.debug("Insert HostApplicationMap Ver2 host={}, self={}, parent={}/{}",
+                    host, selfVertex, parentApplicationName, parentServiceType);
         }
 
         // TODO should consider to add bellow codes again later.
@@ -101,7 +102,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         //final byte[] rowKey = createRowKey(parentApplicationName, parentServiceType, statisticsRowSlot, parentAgentId);
         final byte[] rowKey = createRowKey(parentApplicationName, parentServiceType, statisticsRowSlot, null);
 
-        byte[] columnName = createColumnName(host, bindApplicationName, bindServiceType);
+        byte[] columnName = createColumnName(host, selfVertex);
 
         TableName hostApplicationMapTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
 
@@ -110,11 +111,11 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     }
 
-    private byte[] createColumnName(String host, String bindApplicationName, short bindServiceType) {
+    private byte[] createColumnName(String host, Vertex self) {
         Buffer buffer = new AutomaticBuffer(64);
         buffer.putPrefixedString(host);
-        buffer.putPrefixedString(bindApplicationName);
-        buffer.putShort(bindServiceType);
+        buffer.putPrefixedString(self.applicationName());
+        buffer.putShort(self.serviceType().getCode());
         return buffer.getBuffer();
     }
 

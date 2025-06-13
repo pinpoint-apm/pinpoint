@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.service;
 
+import com.navercorp.pinpoint.collector.applicationmap.Vertex;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapResponseTimeDao;
@@ -44,41 +45,35 @@ public class LinkServiceImpl implements LinkService {
     @Override
     public void updateOutLink(
             long requestTime,
-            @NotBlank String outApplicationName,
-            ServiceType outServiceType,
+            Vertex outVertex,
             @NotBlank String outAgentId,
-            @NotBlank String inApplicationName,
-            ServiceType inServiceType,
+            Vertex inVertex,
             String inHost,
             int elapsed, boolean isError
     ) {
-        outLinkDao.outLink(requestTime, outApplicationName, outServiceType, outAgentId,
-                inApplicationName, inServiceType, inHost, elapsed, isError);
+        outLinkDao.outLink(requestTime, outVertex, outAgentId,
+                inVertex, inHost, elapsed, isError);
     }
 
     @Override
     public void updateInLink(
             long requestTime,
-            @NotBlank String inApplicationName,
-            ServiceType inServiceType,
-            @NotBlank String outApplicationName,
-            ServiceType outServiceType,
+            Vertex inVertex,
+            Vertex outVertex,
             String outHost,
             int elapsed, boolean isError
     ) {
-        inLinkDao.inLink(requestTime, inApplicationName, inServiceType,
-                outApplicationName, outServiceType, outHost, elapsed, isError);
+        inLinkDao.inLink(requestTime, inVertex, outVertex, outHost, elapsed, isError);
     }
 
     @Override
     public void updateResponseTime(
             long requestTime,
-            @NotBlank String applicationName,
-            ServiceType serviceType,
+            Vertex selfVertex,
             String agentId,
             int elapsed, boolean isError
     ) {
-        responseTimeDao.received(requestTime, applicationName, serviceType, agentId, elapsed, isError);
+        responseTimeDao.received(requestTime, selfVertex, agentId, elapsed, isError);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.collector.applicationmap.service;
 
+import com.navercorp.pinpoint.collector.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import jakarta.validation.constraints.NotBlank;
 
@@ -12,21 +13,18 @@ public interface LinkService {
      * The following message is generated for the in(MySQL) :<br/>
      * MySQL (MYSQL) <- emeroad-app (TOMCAT)[localhost:8080]
      *
-     * @param outApplicationName outApplicationName
-     * @param outServiceType     outServiceType
-     * @param inApplicationName  inApplicationName
-     * @param inServiceType      inServiceType
-     * @param inHost             inHost
-     * @param elapsed            elapsed
-     * @param isError            isError
+     * @param outVertex  outVertex
+     * @param outAgentId outAgentId
+     * @param inVertex   inVertex
+     * @param inHost     inHost
+     * @param elapsed    elapsed
+     * @param isError    isError
      */
     void updateOutLink(
             long requestTime,
-            @NotBlank String outApplicationName,
-            ServiceType outServiceType,
+            Vertex outVertex,
             @NotBlank String outAgentId,
-            @NotBlank String inApplicationName,
-            ServiceType inServiceType,
+            Vertex inVertex,
             String inHost,
             int elapsed, boolean isError
     );
@@ -38,28 +36,23 @@ public interface LinkService {
      * The following message is generated for the out(Tomcat) :<br/>
      * emeroad-app (TOMCAT) -> MySQL (MYSQL)[10.25.141.69:3306]
      *
-     * @param inApplicationName  inApplicationName
-     * @param inServiceType      inServiceType
-     * @param outApplicationName outApplicationName
-     * @param outServiceType     outServiceType
-     * @param outHost            outHost
-     * @param elapsed            elapsed
-     * @param isError            isError
+     * @param inVertex  inVertex
+     * @param outVertex outVertex
+     * @param outHost   outHost
+     * @param elapsed   elapsed
+     * @param isError   isError
      */
     void updateInLink(
             long requestTime,
-            @NotBlank String inApplicationName,
-            ServiceType inServiceType,
-            @NotBlank String outApplicationName,
-            ServiceType outServiceType,
+            Vertex inVertex,
+            Vertex outVertex,
             String outHost,
             int elapsed, boolean isError
     );
 
     void updateResponseTime(
             long requestTime,
-            @NotBlank String applicationName,
-            ServiceType serviceType,
+            Vertex appVertex,
             String agentId,
             int elapsed, boolean isError
     );
