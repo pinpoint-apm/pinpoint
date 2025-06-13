@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.dao;
 
+import com.navercorp.pinpoint.collector.applicationmap.Vertex;
 import com.navercorp.pinpoint.collector.dao.CachedStatisticsDao;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * 
@@ -25,6 +25,5 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * @author emeroad
  */
 public interface MapInLinkDao extends CachedStatisticsDao {
-    void inLink(long requestTime, String inApplicationName, ServiceType inServiceType,
-                String outApplicationName, ServiceType outServiceType, String outHost, int elapsed, boolean isError);
+    void inLink(long requestTime, Vertex inVertex, Vertex outVertex, String outHost, int elapsed, boolean isError);
 }

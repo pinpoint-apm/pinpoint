@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
+import com.navercorp.pinpoint.collector.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
@@ -28,6 +29,10 @@ public class LinkRowKey implements RowKey {
     private final String applicationName;
     private final short serviceType;
     private final long rowTimeSlot;
+
+    public static RowKey of(Vertex vertex, long rowTimeSlot) {
+        return new LinkRowKey(vertex.applicationName(), vertex.serviceType().getCode(), rowTimeSlot);
+    }
 
     public static RowKey of(String applicationName, ServiceType serviceType, long rowTimeSlot) {
         return new LinkRowKey(applicationName, serviceType.getCode(), rowTimeSlot);

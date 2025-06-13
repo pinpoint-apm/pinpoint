@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
+import com.navercorp.pinpoint.collector.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
@@ -31,13 +32,25 @@ public class OutLinkColumnName implements ColumnName {
     private final String outHost;
     private final short columnSlotNumber;
 
+    public static ColumnName histogram(Vertex outVertex, String outHost, short columnSlotNumber) {
+        return histogram(outVertex.applicationName(), outVertex.serviceType(), outHost, columnSlotNumber);
+    }
+
     public static ColumnName histogram(String outApplicationName, ServiceType outServiceType, String outHost, short columnSlotNumber) {
         return new OutLinkColumnName(outApplicationName, outServiceType.getCode(), outHost, columnSlotNumber);
+    }
+
+    public static ColumnName sum(Vertex outVertex, String outHost, ServiceType inServiceType) {
+        return sum(outVertex.applicationName(), outVertex.serviceType(), outHost, inServiceType);
     }
 
     public static ColumnName sum(String outApplicationName, ServiceType outServiceType, String outHost, ServiceType inServiceType) {
         final short slotTime = inServiceType.getHistogramSchema().getSumStatSlot().getSlotTime();
         return histogram(outApplicationName, outServiceType, outHost, slotTime);
+    }
+
+    public static ColumnName max(Vertex outVertex, String outHost, ServiceType inServiceType) {
+        return max(outVertex.applicationName(), outVertex.serviceType(), outHost, inServiceType);
     }
 
     public static ColumnName max(String outApplicationName, ServiceType outServiceType, String outHost, ServiceType inServiceType) {
