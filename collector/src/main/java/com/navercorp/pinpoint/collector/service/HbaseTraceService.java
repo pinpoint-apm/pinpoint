@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.service;
 
+import com.navercorp.pinpoint.collector.applicationmap.Vertex;
 import com.navercorp.pinpoint.collector.applicationmap.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.collector.applicationmap.service.LinkService;
 import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
@@ -87,15 +88,22 @@ public class HbaseTraceService implements TraceService {
     public void insertSpanChunk(@Valid final SpanChunkBo spanChunkBo) {
         SpanChunkInsertEvent event = publisher.captureContext(spanChunkBo);
         traceDao.insertSpanChunk(spanChunkBo);
-        final ServiceType applicationServiceType = getApplicationServiceType(spanChunkBo);
+
+        Vertex spanVertex = getSpanVertex(spanChunkBo);
+
         final List<SpanEventBo> spanEventList = spanChunkBo.getSpanEventBoList();
         if (spanEventList != null) {
             // TODO need to batch update later.
-            insertSpanEventList(spanEventList, applicationServiceType, spanChunkBo.getApplicationName(), spanChunkBo.getAgentId(), spanChunkBo.getEndPoint(), spanChunkBo.getCollectorAcceptTime());
+            insertSpanEventList(spanEventList, spanVertex, spanChunkBo.getAgentId(), spanChunkBo.getEndPoint(), spanChunkBo.getCollectorAcceptTime());
         }
 
         // TODO should be able to tell whether the span chunk is successfully inserted
         publisher.publishEvent(event, true);
+    }
+
+    private Vertex getSpanVertex(BasicSpan basicSpan) {
+        final ServiceType applicationServiceType = getApplicationServiceType(basicSpan);
+        return Vertex.of(basicSpan.getApplicationName(), applicationServiceType);
     }
 
     private ServiceType getApplicationServiceType(BasicSpan basicSpan) {
@@ -108,9 +116,12 @@ public class HbaseTraceService implements TraceService {
         SpanInsertEvent event = publisher.captureContext(spanBo);
         CompletableFuture<Void> future = traceDao.asyncInsert(spanBo);
         applicationTraceIndexDao.insert(spanBo);
-        insertAcceptorHost(spanBo);
-        insertSpanStat(spanBo);
-        insertSpanEventStat(spanBo);
+
+        final Vertex spanVertex = getSpanVertex(spanBo);
+
+        insertAcceptorHost(spanBo, spanVertex);
+        insertSpanStat(spanBo, spanVertex);
+        insertSpanEventStat(spanBo, spanVertex);
 
         future.whenCompleteAsync((unused, throwable) -> {
             final boolean result = throwable == null;
@@ -121,22 +132,23 @@ public class HbaseTraceService implements TraceService {
         }, grpcSpanServerExecutor);
     }
 
-    private void insertAcceptorHost(long requestTime, SpanEventBo spanEvent, String applicationName, ServiceType serviceType) {
+    private void insertAcceptorHost(long requestTime, SpanEventBo spanEvent, Vertex spanVertex) {
         final String endPoint = spanEvent.getEndPoint();
         if (endPoint == null) {
-            logger.debug("endPoint is null. appName:{} spanEvent:{}", applicationName, spanEvent);
+            logger.debug("endPoint is null. appName:{} spanEvent:{}", spanVertex, spanEvent);
             return;
         }
         final String destinationId = spanEvent.getDestinationId();
         if (destinationId == null) {
-            logger.debug("destinationId is null. appName:{} spanEvent:{}", applicationName, spanEvent);
+            logger.debug("destinationId is null. appName:{} spanEvent:{}", spanVertex, spanEvent);
             return;
         }
-        hostApplicationMapDao.insert(requestTime, endPoint, destinationId, (short) spanEvent.getServiceType(),
-                applicationName, serviceType.getCode());
+        ServiceType serviceType = registry.findServiceType(spanEvent.getServiceType());
+        Vertex selfVertex = Vertex.of(destinationId, serviceType);
+        hostApplicationMapDao.insert(requestTime, endPoint, selfVertex, spanVertex.applicationName(), spanVertex.serviceType().getCode());
     }
 
-    private void insertAcceptorHost(SpanBo span) {
+    private void insertAcceptorHost(SpanBo span, Vertex spanVertex) {
         // save host application map
         // acceptor host is set at profiler module only when the span is not the kind of root span
         final String acceptorHost = span.getAcceptorHost();
@@ -144,47 +156,49 @@ public class HbaseTraceService implements TraceService {
             logger.debug("acceptorHost is null agent: {}/{}", span.getApplicationName(), span.getAgentName());
             return;
         }
-        final String spanApplicationName = span.getApplicationName();
-        final short applicationServiceTypeCode = getApplicationServiceType(span).getCode();
 
         final String parentApplicationName = span.getParentApplicationName();
         final short parentServiceType = span.getParentApplicationServiceType();
 
         final ServiceType spanServiceType = registry.findServiceType(span.getServiceType());
         if (spanServiceType.isQueue()) {
-            hostApplicationMapDao.insert(span.getCollectorAcceptTime(), span.getEndPoint(), spanApplicationName, applicationServiceTypeCode,
-                    parentApplicationName, parentServiceType);
+            hostApplicationMapDao.insert(span.getCollectorAcceptTime(), span.getEndPoint(), spanVertex, parentApplicationName, parentServiceType);
         } else {
-            hostApplicationMapDao.insert(span.getCollectorAcceptTime(), acceptorHost, spanApplicationName, applicationServiceTypeCode,
-                    parentApplicationName, parentServiceType);
+            hostApplicationMapDao.insert(span.getCollectorAcceptTime(), acceptorHost, spanVertex, parentApplicationName, parentServiceType);
         }
     }
 
-    private void insertSpanStat(SpanBo span) {
-        final ServiceType applicationServiceType = getApplicationServiceType(span);
+    private Vertex getParentVertex(SpanBo span) {
+        String parentApplicationName = span.getParentApplicationName();
+        ServiceType parentApplicationType = registry.findServiceType(span.getParentApplicationServiceType());
+        return Vertex.of(parentApplicationName, parentApplicationType);
+    }
+
+    private void insertSpanStat(SpanBo span, Vertex spanVertex) {
+
         final ServiceType spanServiceType = registry.findServiceType(span.getServiceType());
 
         int bugCheck = 0;
         if (span.getParentSpanId() == -1) {
             if (spanServiceType.isQueue()) {
                 // create virtual queue node
-                linkService.updateOutLink(span.getCollectorAcceptTime(), span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(),
-                        span.getApplicationName(), applicationServiceType, MERGE_QUEUE, span.getElapsed(), span.hasError());
+                Vertex acceptVertex = Vertex.of(span.getAcceptorHost(), spanServiceType);
+                linkService.updateOutLink(span.getCollectorAcceptTime(), acceptVertex, span.getRemoteAddr(),
+                        spanVertex, MERGE_QUEUE, span.getElapsed(), span.hasError());
 
                 if (logger.isDebugEnabled()) {
-                    logger.debug("[InLink] root-queue {}/{} <- {}/{}/{}", span.getApplicationName(), applicationServiceType,
-                            span.getAcceptorHost(), spanServiceType, span.getAgentId());
+                    logger.debug("[InLink] root-queue {} <- {}/{}", spanVertex, acceptVertex, span.getAgentId());
                 }
-                linkService.updateInLink(span.getCollectorAcceptTime(), span.getApplicationName(), applicationServiceType,
-                        span.getAcceptorHost(), spanServiceType, MERGE_QUEUE, span.getElapsed(), span.hasError());
+                linkService.updateInLink(span.getCollectorAcceptTime(), spanVertex,
+                        acceptVertex, MERGE_QUEUE, span.getElapsed(), span.hasError());
             } else {
                 // create virtual user
-//                linkService.updateOutLink(span.getCollectorAcceptTime(), span.getApplicationName(), ServiceType.USER, MERGE_AGENT,
-//                        span.getApplicationName(), applicationServiceType, MERGE_AGENT, span.getElapsed(), span.hasError());
+//                linkService.updateOutLink(span.getCollectorAcceptTime(), Link.of(span.getApplicationName(), ServiceType.USER), MERGE_AGENT,
+//                        spanLink, MERGE_AGENT, span.getElapsed(), span.hasError());
 
                 // update the span information of the current node (self)
-                linkService.updateInLink(span.getCollectorAcceptTime(), span.getApplicationName(), applicationServiceType,
-                        span.getApplicationName(), ServiceType.USER, MERGE_AGENT, span.getElapsed(), span.hasError());
+                Vertex userVertex = Vertex.of(span.getApplicationName(), ServiceType.USER);
+                linkService.updateInLink(span.getCollectorAcceptTime(), spanVertex, userVertex, MERGE_AGENT, span.getElapsed(), span.hasError());
             }
             bugCheck++;
         }
@@ -192,41 +206,41 @@ public class HbaseTraceService implements TraceService {
         // save statistics info only when parentApplicationContext exists
         // when drawing server map based on statistics info, you must know the application name of the previous node.
         if (span.getParentApplicationName() != null) {
-            String parentApplicationName = span.getParentApplicationName();
-            logger.debug("Received parent application name. parentAppName:{} appName:{}", parentApplicationName, span.getApplicationName());
 
-            ServiceType parentApplicationType = registry.findServiceType(span.getParentApplicationServiceType());
+            Vertex parentVertex = getParentVertex(span);
+            logger.debug("Received parent application name. parentName:{} appName:{}", parentVertex, span.getApplicationName());
 
             // create virtual queue node if current' span's service type is a queue AND :
             // 1. parent node's application service type is not a queue (it may have come from a queue that is traced)
             // 2. current node's application service type is not a queue (current node may be a queue that is traced)
             if (spanServiceType.isQueue()) {
-                if (!applicationServiceType.isQueue() && !parentApplicationType.isQueue()) {
+                if (!spanVertex.serviceType().isQueue() && !parentVertex.serviceType().isQueue()) {
                     // emulate virtual queue node's accept Span and record it's acceptor host
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("[Bind] child-queue {}/{}/{} <- {}/{}", span.getRemoteAddr(), spanServiceType, span.getAcceptorHost(),
-                                parentApplicationName, parentApplicationType.getCode());
-                    }
-                    hostApplicationMapDao.insert(span.getCollectorAcceptTime(), span.getRemoteAddr(), span.getAcceptorHost(), spanServiceType.getCode(),
-                            parentApplicationName, parentApplicationType.getCode());
-                    // emulate virtual queue node's send SpanEvent
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("[OutLink] child-queue {}/{}/{} -> {}/{}/{}", span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(),
-                                span.getApplicationName(), applicationServiceType, span.getEndPoint());
-                    }
-                    linkService.updateOutLink(span.getCollectorAcceptTime(), span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(),
-                            span.getApplicationName(), applicationServiceType, MERGE_QUEUE, span.getElapsed(), span.hasError());
+                    final Vertex queueAcceptVertex = Vertex.of(span.getAcceptorHost(), spanServiceType);
 
-                    parentApplicationName = span.getAcceptorHost();
-                    parentApplicationType = spanServiceType;
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("[Bind] child-queue {}/{} <- {}", queueAcceptVertex, span.getRemoteAddr(),
+                                parentVertex);
+                    }
+                    hostApplicationMapDao.insert(span.getCollectorAcceptTime(), span.getRemoteAddr(), queueAcceptVertex, parentVertex.applicationName(), parentVertex.serviceType().getCode());
+                    // emulate virtual queue node's send SpanEvent
+
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("[OutLink] child-queue {}/{} -> {}/{}", queueAcceptVertex, span.getRemoteAddr(),
+                                spanVertex, span.getEndPoint());
+                    }
+                    linkService.updateOutLink(span.getCollectorAcceptTime(), queueAcceptVertex, span.getRemoteAddr(),
+                            spanVertex, MERGE_QUEUE, span.getElapsed(), span.hasError());
+
+                    parentVertex = queueAcceptVertex;
                 }
             }
             if (logger.isDebugEnabled()) {
-                logger.debug("child-span updateInLink child:{}/{}/{} <- parentAppName:{}/{}",
-                        span.getApplicationName(), spanServiceType, span.getAgentId(), parentApplicationName, parentApplicationType);
+                logger.debug("child-span updateInLink child:{}/{} <- parentAppName:{}",
+                        spanVertex, span.getAgentId(), parentVertex);
             }
-            linkService.updateInLink(span.getCollectorAcceptTime(), span.getApplicationName(), applicationServiceType,
-                    parentApplicationName, parentApplicationType, MERGE_AGENT, span.getElapsed(), span.hasError());
+            linkService.updateInLink(span.getCollectorAcceptTime(), spanVertex,
+                    parentVertex, MERGE_AGENT, span.getElapsed(), span.hasError());
             bugCheck++;
         }
 
@@ -235,7 +249,7 @@ public class HbaseTraceService implements TraceService {
         // it is odd to record reversely, because of already recording the caller data at previous node.
         // the data may be different due to timeout or network error.
 
-        linkService.updateResponseTime(span.getCollectorAcceptTime(), span.getApplicationName(), applicationServiceType, span.getAgentId(), span.getElapsed(), span.hasError());
+        linkService.updateResponseTime(span.getCollectorAcceptTime(), spanVertex, span.getAgentId(), span.getElapsed(), span.hasError());
 
         if (bugCheck != 1) {
             logger.info("ambiguous span found(bug). span {}/{}", span.getApplicationName(), span.getAgentName());
@@ -245,7 +259,7 @@ public class HbaseTraceService implements TraceService {
         }
     }
 
-    private void insertSpanEventStat(SpanBo span) {
+    private void insertSpanEventStat(SpanBo span, Vertex spanVertex) {
 
         final List<SpanEventBo> spanEventList = span.getSpanEventBoList();
         if (CollectionUtils.isEmpty(spanEventList)) {
@@ -255,19 +269,18 @@ public class HbaseTraceService implements TraceService {
             logger.debug("handle spanEvent {}/{} size:{}", span.getApplicationName(), span.getAgentId(), spanEventList.size());
         }
 
-        final ServiceType applicationServiceType = getApplicationServiceType(span);
         // TODO need to batch update later.
-        insertSpanEventList(spanEventList, applicationServiceType, span.getApplicationName(), span.getAgentId(), span.getEndPoint(), span.getCollectorAcceptTime());
+        insertSpanEventList(spanEventList, spanVertex, span.getAgentId(), span.getEndPoint(), span.getCollectorAcceptTime());
     }
 
-    private void insertSpanEventList(List<SpanEventBo> spanEventList, ServiceType applicationServiceType, String applicationName,
+    private void insertSpanEventList(List<SpanEventBo> spanEventList, Vertex spanVertex,
                                      String agentId, String endPoint, long requestTime) {
 
         for (SpanEventBo spanEvent : spanEventList) {
             final ServiceType spanEventType = registry.findServiceType(spanEvent.getServiceType());
 
             if (isAlias(spanEventType, spanEvent)) {
-                insertAcceptorHost(requestTime, spanEvent, applicationName, applicationServiceType);
+                insertAcceptorHost(requestTime, spanEvent, spanVertex);
                 continue;
             }
 
@@ -282,23 +295,24 @@ public class HbaseTraceService implements TraceService {
             final int elapsed = spanEvent.getEndElapsed();
             final boolean hasException = spanEvent.hasException();
 
-            if (applicationName == null || spanEventApplicationName == null) {
+            if (spanEventApplicationName == null) {
                 throttledLogger.info("Failed to insert statistics. Cause:SpanEvent has invalid format " +
-                                "spanApplication:{}/{}/{}, spanEventApplication:{}/{}",
-                        applicationName, applicationServiceType, agentId, spanEventApplicationName, spanEventType);
+                                     "spanApplication:{}/{}, spanEventApplication:{}/{}",
+                        spanVertex, agentId, spanEventApplicationName, spanEventType);
                 continue;
             }
 
+            Vertex spanEventVertex = Vertex.of(spanEventApplicationName, spanEventType);
             /*
              * save information to draw a server map based on statistics
              */
             // save the information of outLink (the spanevent that called span)
-            linkService.updateOutLink(requestTime, applicationName, applicationServiceType, MERGE_AGENT,
-                    spanEventApplicationName, spanEventType, spanEventEndPoint, elapsed, hasException);
+            linkService.updateOutLink(requestTime, spanVertex, MERGE_AGENT,
+                    spanEventVertex, spanEventEndPoint, elapsed, hasException);
 
             // save the information of inLink (the span that spanevent called)
-            linkService.updateInLink(requestTime, spanEventApplicationName, spanEventType,
-                    applicationName, applicationServiceType, endPoint, elapsed, hasException);
+            linkService.updateInLink(requestTime, spanEventVertex,
+                    spanVertex, endPoint, elapsed, hasException);
         }
     }
 

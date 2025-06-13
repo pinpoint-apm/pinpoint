@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 
+import com.navercorp.pinpoint.collector.applicationmap.Vertex;
 import com.navercorp.pinpoint.collector.applicationmap.config.MapLinkConfiguration;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapResponseTimeDao;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
@@ -61,29 +62,28 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 
 
     @Override
-    public void received(long requestTime, String applicationName, ServiceType applicationServiceType, String agentId, int elapsed, boolean isError) {
-        Objects.requireNonNull(applicationName, "applicationName");
-        Objects.requireNonNull(agentId, "agentId");
+    public void received(long requestTime, Vertex selfVertex, String agentId, int elapsed, boolean isError) {
+        Objects.requireNonNull(selfVertex, "selfVertex");
 
         if (logger.isDebugEnabled()) {
-            logger.debug("[Self] {} ({})[{}]", applicationName, applicationServiceType, agentId);
+            logger.debug("[Self] {}/[{}]", selfVertex, agentId);
         }
 
         // make row key. rowkey is me
         final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
-        final RowKey selfRowKey = LinkRowKey.of(applicationName, applicationServiceType, rowTimeSlot);
+        final RowKey selfRowKey = LinkRowKey.of(selfVertex, rowTimeSlot);
 
-        final short slotNumber = ApplicationMapStatisticsUtils.getSlotNumber(applicationServiceType, elapsed, isError);
+        final short slotNumber = ApplicationMapStatisticsUtils.getSlotNumber(selfVertex.serviceType(), elapsed, isError);
         final ColumnName selfColumnName = ResponseColumnName.histogram(agentId, slotNumber);
         this.bulkWriter.increment(selfRowKey, selfColumnName);
 
         if (mapLinkConfiguration.isEnableAvg()) {
-            final ColumnName sumColumnName = ResponseColumnName.sum(agentId, applicationServiceType);
+            final ColumnName sumColumnName = ResponseColumnName.sum(agentId, selfVertex.serviceType());
             this.bulkWriter.increment(selfRowKey, sumColumnName, elapsed);
         }
 
         if (mapLinkConfiguration.isEnableMax()) {
-            final ColumnName maxColumnName = ResponseColumnName.max(agentId, applicationServiceType);
+            final ColumnName maxColumnName = ResponseColumnName.max(agentId, selfVertex.serviceType());
             this.bulkWriter.updateMax(selfRowKey, maxColumnName, elapsed);
         }
     }

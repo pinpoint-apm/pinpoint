@@ -39,6 +39,7 @@ public class HbaseHostApplicationMapDaoTest {
         String parentApp = "parentApp";
         long statisticsRowSlot = timeSlot.getTimeSlot(System.currentTimeMillis());
         ServiceType standAlone = ServiceType.STAND_ALONE;
+
         byte[] parentApps = HbaseHostApplicationMapDao.createRowKey0(parentApp, standAlone.getCode(), statisticsRowSlot, null);
         logger.debug("rowKey size:{}", parentApps.length);
 

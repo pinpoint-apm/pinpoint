@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 
+import com.navercorp.pinpoint.collector.applicationmap.Vertex;
 import com.navercorp.pinpoint.collector.applicationmap.config.MapLinkConfiguration;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
@@ -25,7 +26,6 @@ import com.navercorp.pinpoint.collector.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -61,15 +61,14 @@ public class HbaseMapOutLinkDao implements MapOutLinkDao {
 
 
     @Override
-    public void outLink(long requestTime, String outApplicationName, ServiceType outServiceType, String outAgentId,
-                        String inApplicationName, ServiceType inServiceType, String inHost, int elapsed, boolean isError) {
-        Objects.requireNonNull(outApplicationName, "outApplicationName");
-        Objects.requireNonNull(inApplicationName, "inApplicationName");
+    public void outLink(long requestTime, Vertex outVertex, String outAgentId,
+                        Vertex inVertex, String inHost, int elapsed, boolean isError) {
+        Objects.requireNonNull(outVertex, "outVertex");
+        Objects.requireNonNull(inVertex, "inVertex");
 
 
         if (logger.isDebugEnabled()) {
-            logger.debug("[OutLink] {}/{}/{} -> {}/{}/{}", outApplicationName, outServiceType, outAgentId,
-                    inApplicationName, inServiceType, inHost);
+            logger.debug("[OutLink] {}/{} -> {}/{}", outVertex, outAgentId, inVertex, inHost);
         }
 
         // there may be no endpoint in case of httpclient
@@ -77,19 +76,19 @@ public class HbaseMapOutLinkDao implements MapOutLinkDao {
 
         // make row key. rowkey is me
         final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
-        final RowKey outLinkRowKey = LinkRowKey.of(outApplicationName, outServiceType, rowTimeSlot);
+        final RowKey outLinkRowKey = LinkRowKey.of(outVertex, rowTimeSlot);
 
-        final short inSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(inServiceType, elapsed, isError);
+        final short inSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(inVertex.serviceType(), elapsed, isError);
 
-        final ColumnName inLink = InLinkColumnName.histogram(outAgentId, inServiceType, inApplicationName, inHost, inSlotNumber);
+        final ColumnName inLink = InLinkColumnName.histogram(outAgentId, inVertex, inHost, inSlotNumber);
         this.bulkWriter.increment(outLinkRowKey, inLink);
 
         if (mapLinkConfiguration.isEnableAvg()) {
-            final ColumnName sumInLink = InLinkColumnName.sum(outAgentId, inServiceType, inApplicationName, inHost, outServiceType);
+            final ColumnName sumInLink = InLinkColumnName.sum(outAgentId, inVertex, inHost, outVertex.serviceType());
             this.bulkWriter.increment(outLinkRowKey, sumInLink, elapsed);
         }
         if (mapLinkConfiguration.isEnableMax()) {
-            final ColumnName maxInLink = InLinkColumnName.max(outAgentId, inServiceType, inApplicationName, inHost, outServiceType);
+            final ColumnName maxInLink = InLinkColumnName.max(outAgentId, inVertex, inHost, outVertex.serviceType());
             this.bulkWriter.updateMax(outLinkRowKey, maxInLink, elapsed);
         }
 

@@ -16,11 +16,14 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.dao;
 
+import com.navercorp.pinpoint.collector.applicationmap.Vertex;
+
 /**
  * 
  * @author netspider
  * 
  */
 public interface HostApplicationMapDao {
-    void insert(long requestTime, String host, String bindApplicationName, short bindServiceType, String parentApplicationName, short parentServiceType);
+    void insert(long requestTime, String host, Vertex selfVertex, String parentApplicationName, short parentServiceType);
+
 }
