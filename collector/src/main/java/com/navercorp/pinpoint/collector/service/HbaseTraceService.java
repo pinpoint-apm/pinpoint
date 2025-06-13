@@ -50,6 +50,7 @@ public class HbaseTraceService implements TraceService {
     private final Logger logger = LogManager.getLogger(getClass());
 
     private static final String MERGE_AGENT = "_";
+    private static final String MERGE_QUEUE = "_";
 
     private final ThrottledLogger throttledLogger = ThrottledLogger.getLogger(logger, 10000);
 
@@ -168,10 +169,14 @@ public class HbaseTraceService implements TraceService {
             if (spanServiceType.isQueue()) {
                 // create virtual queue node
                 linkService.updateOutLink(span.getCollectorAcceptTime(), span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(),
-                        span.getApplicationName(), applicationServiceType, span.getEndPoint(), span.getElapsed(), span.hasError());
+                        span.getApplicationName(), applicationServiceType, MERGE_QUEUE, span.getElapsed(), span.hasError());
 
+                if (logger.isDebugEnabled()) {
+                    logger.debug("[InLink] root-queue {}/{} <- {}/{}/{}", span.getApplicationName(), applicationServiceType,
+                            span.getAcceptorHost(), spanServiceType, span.getAgentId());
+                }
                 linkService.updateInLink(span.getCollectorAcceptTime(), span.getApplicationName(), applicationServiceType,
-                        span.getAcceptorHost(), spanServiceType, span.getAgentId(), span.getElapsed(), span.hasError());
+                        span.getAcceptorHost(), spanServiceType, MERGE_QUEUE, span.getElapsed(), span.hasError());
             } else {
                 // create virtual user
 //                linkService.updateOutLink(span.getCollectorAcceptTime(), span.getApplicationName(), ServiceType.USER, MERGE_AGENT,
@@ -198,18 +203,27 @@ public class HbaseTraceService implements TraceService {
             if (spanServiceType.isQueue()) {
                 if (!applicationServiceType.isQueue() && !parentApplicationType.isQueue()) {
                     // emulate virtual queue node's accept Span and record it's acceptor host
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("[Bind] child-queue {}/{}/{} <- {}/{}", span.getRemoteAddr(), spanServiceType, span.getAcceptorHost(),
+                                parentApplicationName, parentApplicationType.getCode());
+                    }
                     hostApplicationMapDao.insert(span.getCollectorAcceptTime(), span.getRemoteAddr(), span.getAcceptorHost(), spanServiceType.getCode(),
                             parentApplicationName, parentApplicationType.getCode());
                     // emulate virtual queue node's send SpanEvent
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("[OutLink] child-queue {}/{}/{} -> {}/{}/{}", span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(),
+                                span.getApplicationName(), applicationServiceType, span.getEndPoint());
+                    }
                     linkService.updateOutLink(span.getCollectorAcceptTime(), span.getAcceptorHost(), spanServiceType, span.getRemoteAddr(),
-                            span.getApplicationName(), applicationServiceType, span.getEndPoint(), span.getElapsed(), span.hasError());
+                            span.getApplicationName(), applicationServiceType, MERGE_QUEUE, span.getElapsed(), span.hasError());
 
                     parentApplicationName = span.getAcceptorHost();
                     parentApplicationType = spanServiceType;
                 }
             }
             if (logger.isDebugEnabled()) {
-                logger.debug("child-span updateInLink child:{}/{} <- parentAppName:{}", span.getApplicationName(), span.getAgentId(), parentApplicationName);
+                logger.debug("child-span updateInLink child:{}/{}/{} <- parentAppName:{}/{}",
+                        span.getApplicationName(), spanServiceType, span.getAgentId(), parentApplicationName, parentApplicationType);
             }
             linkService.updateInLink(span.getCollectorAcceptTime(), span.getApplicationName(), applicationServiceType,
                     parentApplicationName, parentApplicationType, MERGE_AGENT, span.getElapsed(), span.hasError());
@@ -269,9 +283,9 @@ public class HbaseTraceService implements TraceService {
             final boolean hasException = spanEvent.hasException();
 
             if (applicationName == null || spanEventApplicationName == null) {
-                throttledLogger.info("Failed to insert statistics. Cause:SpanEvent has invalid format." +
-                                "(application:{}/{}[{}], spanEventApplication:{}[{}])",
-                        applicationName, agentId, applicationServiceType, spanEventApplicationName, spanEventType);
+                throttledLogger.info("Failed to insert statistics. Cause:SpanEvent has invalid format " +
+                                "spanApplication:{}/{}/{}, spanEventApplication:{}/{}",
+                        applicationName, applicationServiceType, agentId, spanEventApplicationName, spanEventType);
                 continue;
             }
 
