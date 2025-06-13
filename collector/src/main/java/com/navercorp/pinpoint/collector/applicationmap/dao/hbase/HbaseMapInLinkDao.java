@@ -72,7 +72,7 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
         Objects.requireNonNull(outApplicationName, "outApplicationName");
 
         if (logger.isDebugEnabled()) {
-            logger.debug("[InLink] {} ({}) <- {} ({})[{}]",
+            logger.debug("[InLink] {}/{} <- {}/{}/{}",
                     inApplicationName, inServiceType, outApplicationName, outServiceType, outHost);
         }
 
@@ -81,7 +81,7 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
 
         // TODO callee, caller parameter normalization
         if (ignoreStatFilter.filter(inServiceType, outHost)) {
-            logger.debug("[Ignore-InLink] {} ({}) <- {} ({})[{}]",
+            logger.debug("[Ignore-InLink] {}/{} <- {}/{}/{}",
                     inApplicationName, inServiceType, outApplicationName, outServiceType, outHost);
             return;
         }

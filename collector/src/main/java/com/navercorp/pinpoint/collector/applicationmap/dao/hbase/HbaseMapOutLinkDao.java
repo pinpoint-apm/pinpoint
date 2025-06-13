@@ -68,7 +68,7 @@ public class HbaseMapOutLinkDao implements MapOutLinkDao {
 
 
         if (logger.isDebugEnabled()) {
-            logger.debug("[OutLink] {} ({}) {} -> {} ({})[{}]", outApplicationName, outServiceType, outAgentId,
+            logger.debug("[OutLink] {}/{}/{} -> {}/{}/{}", outApplicationName, outServiceType, outAgentId,
                     inApplicationName, inServiceType, inHost);
         }
 
