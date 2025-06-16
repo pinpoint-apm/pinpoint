@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.module.ConfiguredApplicationType;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
@@ -32,19 +31,17 @@ import java.util.Objects;
  */
 public class ApplicationServerTypeProvider implements Provider<ServiceType> {
 
-    private static final ServiceType DEFAULT_APPLICATION_TYPE = ServiceType.STAND_ALONE;
+    private static final ServiceType DEFAULT_APPLICATION_TYPE = ServiceType.JAVA;
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ProfilerConfig profilerConfig;
     private final ServiceType configuredApplicationType;
     private final Provider<PluginContextLoadResult> pluginContextLoadResultProvider;
 
     @Inject
-    public ApplicationServerTypeProvider(ProfilerConfig profilerConfig,
-                                         @ConfiguredApplicationType ServiceType configuredApplicationType,
+    public ApplicationServerTypeProvider(@ConfiguredApplicationType
+                                         ServiceType configuredApplicationType,
                                          Provider<PluginContextLoadResult> pluginContextLoadResultProvider) {
-        this.profilerConfig = Objects.requireNonNull(profilerConfig, "profilerConfig");
         this.configuredApplicationType = Objects.requireNonNull(configuredApplicationType, "configuredApplicationType");
         this.pluginContextLoadResultProvider = pluginContextLoadResultProvider;
     }
