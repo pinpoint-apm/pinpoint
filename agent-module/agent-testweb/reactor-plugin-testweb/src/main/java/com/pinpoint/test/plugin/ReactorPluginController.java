@@ -47,6 +47,8 @@ import java.util.Map;
 public class ReactorPluginController {
 
     private final RequestMappingHandlerMapping handlerMapping;
+    @Autowired
+    private AsyncStorageService asyncStorageService;
 
     @Autowired
     public ReactorPluginController(RequestMappingHandlerMapping handlerMapping) {
@@ -312,4 +314,21 @@ public class ReactorPluginController {
         Mono<String> body = response.bodyToMono(String.class);
         return body.block();
     }
+
+    @GetMapping("/mono/sink")
+    public Mono<String> monoSink() {
+        HttpClient httpClient = HttpClient.create();
+        WebClient client = WebClient.builder().baseUrl("http://httpbin.org").clientConnector(new ReactorClientHttpConnector(httpClient)).build();
+
+        asyncStorageService.submitAsync(
+                "testUser",
+                false,
+                10,
+                client.method(HttpMethod.GET)
+                        .uri("").retrieve().bodyToMono(String.class).doOnError(Throwable::printStackTrace)
+        ).subscribe();
+
+        return Mono.just("OK");
+    }
+
 }
