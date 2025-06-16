@@ -109,6 +109,11 @@ public class TransactionInfoViewModel {
         return recordSet.isLoggingTransactionInfo();
     }
 
+    @JsonProperty("focusCallStackId")
+    public int getFocusCallStackId() {
+        return recordSet.getFocusCallStackId();
+    }
+
     @JsonUnwrapped
     public LogLinkView getLogLink() {
         return logLinkView;
