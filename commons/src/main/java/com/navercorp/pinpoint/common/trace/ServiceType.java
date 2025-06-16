@@ -43,6 +43,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
  * 
  * <table>
  * <tr><td>1000</td><td>STAND_ALONE</td></tr>
+ * <tr><td>1001</td><td>JAVA</td></tr>
  * <tr><td>1005</td><td>TEST_STAND_ALONE</td></tr>
  * <tr><td>1010</td><td>TOMCAT</td></tr>
  * <tr><td>1011</td><td>TOMCAT_METHOD</td></tr>
@@ -369,11 +370,13 @@ public interface ServiceType {
     ServiceType TEST = of(5, "TEST");
 
     ServiceType COLLECTOR = of(7, "COLLECTOR");
-    
+
     ServiceType ASYNC = of(100, "ASYNC");
-    
+
     // Java applications, WAS
     ServiceType STAND_ALONE = of(1000, "STAND_ALONE", RECORD_STATISTICS);
+    ServiceType JAVA = of(1001, "JAVA", RECORD_STATISTICS);
+
     ServiceType TEST_STAND_ALONE = of(1005, "TEST_STAND_ALONE", RECORD_STATISTICS);
     ServiceType UNAUTHORIZED = of(1007, "UNAUTHORIZED", RECORD_STATISTICS);
 

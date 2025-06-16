@@ -61,6 +61,7 @@ public interface ProfilerPluginSetupContext {
      * @param applicationType the applicationt type to be registered
      * @return <tt>true</tt> if the application type is registered
      */
+    @Deprecated
     boolean registerApplicationType(ServiceType applicationType);
 
     void addJdbcUrlParser(JdbcUrlParserV2 jdbcUrlParserV2);
