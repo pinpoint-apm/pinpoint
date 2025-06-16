@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.spring.boot;
 import com.navercorp.pinpoint.bootstrap.resolver.condition.MainClassCondition;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 
+import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,7 +37,12 @@ public class SpringBootDetector {
             "org.springframework.boot.loader.PropertiesLauncher"
     };
 
+    private static final String[] SPRING_APPLICATION_ANNOTATIONS = {
+            "org.springframework.boot.autoconfigure.SpringBootApplication"
+    };
+
     private final List<String> expectedMainClasses;
+    private final ClassLoader classLoader = ClassLoader.getSystemClassLoader();
 
     public SpringBootDetector(List<String> expectedMainClasses) {
         if (CollectionUtils.isEmpty(expectedMainClasses)) {
@@ -47,8 +53,43 @@ public class SpringBootDetector {
     }
 
     public boolean detect() {
-        String bootstrapMainClass = MainClassCondition.INSTANCE.getValue();
-        return expectedMainClasses.contains(bootstrapMainClass);
-}
+        final String bootstrapMainClass = getBootstrapMainClass();
+        if (expectedMainClasses.contains(bootstrapMainClass)) {
+            return true;
+        }
+        if (checkAnnotation(bootstrapMainClass, classLoader, Arrays.asList(SPRING_APPLICATION_ANNOTATIONS))) {
+            return true;
+        }
+        return false;
+    }
+
+    protected String getBootstrapMainClass() {
+        return MainClassCondition.INSTANCE.getValue();
+    }
+
+    boolean checkAnnotation(String bootstrapMainClass, ClassLoader classLoader, List<String> annotations) {
+        final Class<?> mainClass = getClass(bootstrapMainClass, classLoader);
+        if (mainClass == null) {
+            return false;
+        }
+
+        Annotation[] mainClassAnnotations = mainClass.getAnnotations();
+        for (Annotation annotation : mainClassAnnotations) {
+            String name = annotation.annotationType().getName();
+            if (annotations.contains(name)) {
+                return true;
+            }
+        }
+        return false;
+
+    }
+
+    private Class<?> getClass(String clazzName, ClassLoader classLoader) {
+        try {
+            return Class.forName(clazzName, false, classLoader);
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+    }
 
 }
