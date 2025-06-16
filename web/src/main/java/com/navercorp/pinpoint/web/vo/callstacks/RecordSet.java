@@ -39,6 +39,7 @@ public class RecordSet {
     private String applicationName;
     
     private boolean loggingTransactionInfo;
+    private int focusCallStackId = -1;
 
     public RecordSet() {
     }
@@ -138,5 +139,13 @@ public class RecordSet {
 
     public void setLoggingTransactionInfo(boolean loggingTransactionInfo) {
         this.loggingTransactionInfo = loggingTransactionInfo;
+    }
+
+    public int getFocusCallStackId() {
+        return focusCallStackId;
+    }
+
+    public void setFocusCallStackId(int focusCallStackId) {
+        this.focusCallStackId = focusCallStackId;
     }
 }

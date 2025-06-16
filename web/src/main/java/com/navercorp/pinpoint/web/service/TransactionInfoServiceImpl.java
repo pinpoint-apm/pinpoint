@@ -174,7 +174,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             // mark the record to be used as focus
             long beginTimeStamp = viewPointAlign.getStartTime();
 
-            markFocusRecord(recordList, viewPointAlign);
+            markFocusRecord(recordSet, recordList, viewPointAlign);
             recordSet.setBeginTimestamp(beginTimeStamp);
         }
 
@@ -195,18 +195,20 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         return false;
     }
 
-    private void markFocusRecord(List<Record> recordList, final Align viewPointTimeAlign) {
+    private void markFocusRecord(RecordSet recordSet, List<Record> recordList, final Align viewPointTimeAlign) {
         final String agentId = viewPointTimeAlign.getAgentId();
         for (Record record : recordList) {
             if (viewPointTimeAlign.getSpanId() == record.getSpanId() && record.getBegin() == viewPointTimeAlign.getStartTime()) {
                 if (agentId == null) {
                     if (record.getAgentId() == null) {
                         record.setFocused(true);
+                        recordSet.setFocusCallStackId(record.getId());
                         break;
                     }
                 } else {
                     if (record.getAgentId() != null && agentId.equals(record.getAgentId())) {
                         record.setFocused(true);
+                        recordSet.setFocusCallStackId(record.getId());
                         break;
                     }
                 }
