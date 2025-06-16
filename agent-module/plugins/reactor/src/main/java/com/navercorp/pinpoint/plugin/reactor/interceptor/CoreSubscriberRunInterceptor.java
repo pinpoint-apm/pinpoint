@@ -21,6 +21,9 @@ import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventBlockApiIdAwareAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorSubscriber;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorSubscriberAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.reactor.ReactorSubscriberAccessorUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public class CoreSubscriberRunInterceptor extends AsyncContextSpanEventBlockApiIdAwareAroundInterceptor {
@@ -33,7 +36,11 @@ public class CoreSubscriberRunInterceptor extends AsyncContextSpanEventBlockApiI
 
     @Override
     public AsyncContext getAsyncContext(Object target, Object[] args) {
-        return AsyncContextAccessorUtils.getAsyncContext(target);
+        final ReactorSubscriber reactorSubscriber = ReactorSubscriberAccessorUtils.get(target);
+        if (reactorSubscriber != null) {
+            return reactorSubscriber.getAsyncContext();
+        }
+        return null;
     }
 
     @Override
@@ -42,7 +49,11 @@ public class CoreSubscriberRunInterceptor extends AsyncContextSpanEventBlockApiI
 
     @Override
     public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
-        return AsyncContextAccessorUtils.getAsyncContext(target);
+        final ReactorSubscriber reactorSubscriber = ReactorSubscriberAccessorUtils.get(target);
+        if (reactorSubscriber != null) {
+            return reactorSubscriber.getAsyncContext();
+        }
+        return null;
     }
 
     @Override
