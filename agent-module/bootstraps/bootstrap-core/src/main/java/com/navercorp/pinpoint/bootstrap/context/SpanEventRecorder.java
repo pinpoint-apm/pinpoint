@@ -23,7 +23,9 @@ public interface SpanEventRecorder extends AttributeRecorder, FrameAttachment {
 
     void recordTime(boolean time);
 
-    void recordException(Throwable throwable);
+    default void recordException(Throwable throwable) {
+        recordException(true, throwable);
+    }
 
     void recordException(boolean markError, Throwable throwable);
 
@@ -66,6 +68,4 @@ public interface SpanEventRecorder extends AttributeRecorder, FrameAttachment {
      */
     @InterfaceStability.Evolving
     AsyncContext recordNextAsyncContext(boolean stateful);
-
-
 }
