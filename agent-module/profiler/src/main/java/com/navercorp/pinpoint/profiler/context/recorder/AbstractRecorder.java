@@ -54,10 +54,6 @@ public abstract class AbstractRecorder implements AttributeRecorder {
         maskErrorCode(1);
     }
 
-    public void recordException(Throwable throwable) {
-        recordException(true, throwable);
-    }
-
     public void recordException(boolean markError, Throwable throwable) {
         recordDetailedException(throwable);
         if (throwable == null) {
