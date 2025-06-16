@@ -7,10 +7,10 @@
 
 ## Latest Release (2025/03/19)
 
-We're happy to announce the release of Pinpoint v3.0.2.
-Please check the release note at (https://github.com/pinpoint-apm/pinpoint/releases/tag/v3.0.2).
+We're happy to announce the release of Pinpoint v3.0.3.
+Please check the release note at (https://github.com/pinpoint-apm/pinpoint/releases/tag/v3.0.3).
 
-The current stable version is [v3.0.2](https://github.com/pinpoint-apm/pinpoint/releases/tag/v3.0.2).
+The current stable version is [v3.0.3](https://github.com/pinpoint-apm/pinpoint/releases/tag/v3.0.3).
 
 ## Live Demo
 
