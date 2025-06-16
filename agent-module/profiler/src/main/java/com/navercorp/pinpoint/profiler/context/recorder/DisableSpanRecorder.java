@@ -72,11 +72,6 @@ public class DisableSpanRecorder implements SpanRecorder {
     }
 
     @Override
-    public void recordException(Throwable throwable) {
-        recordException(true, throwable);
-    }
-
-    @Override
     public void recordException(boolean markError, Throwable throwable) {
         if (markError) {
             if (!ignoreErrorHandler.handleError(throwable)) {
