@@ -206,7 +206,9 @@ public class MapHistogramController {
         return new NodeHistogramSummaryView(nodeHistogramSummary, serverGroupListView, format);
     }
 
-    @GetMapping(value = "/getOnlyResponseTimeHistogramDataV2")
+    @GetMapping(value = "/getResponseTimeHistogramDataV2", params = {
+            "bidirectional", "callerRange", "calleeRange", "wasOnly"
+    })
     public NodeHistogramSummaryView getResponseTimeHistogramDataV2(
             @Valid @ModelAttribute
             ApplicationForm appForm,
@@ -217,7 +219,9 @@ public class MapHistogramController {
             @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
             @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
-            boolean useStatisticsAgentState
+            boolean useStatisticsAgentState,
+            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
+            boolean useLoadHistogramFormat
     ) {
         final Range range = toRange(rangeForm);
         TimeWindow timeWindow = new TimeWindow(range);
@@ -232,7 +236,7 @@ public class MapHistogramController {
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 
-        final TimeHistogramFormat format = TimeHistogramFormat.format(true);
+        final TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
         logger.info("Select ApplicationMap {} option={}", format, option);
         final LinkDataDuplexMap map = this.histogramService.selectLinkDataDuplexMap(option);
 
