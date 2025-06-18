@@ -544,4 +544,12 @@ public class BytesUtilsTest {
         Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> BytesUtils.checkFromIndexSize(0, -1, 0));
         Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> BytesUtils.checkFromIndexSize(0, 0, -1));
     }
+
+    @Test
+    public void checkBounds_exceptionMessage() {
+        ArrayIndexOutOfBoundsException error = Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, () -> {
+            BytesUtils.checkFromIndexSize(1, 4, 0);
+        });
+        assertEquals("Out of range 5", error.getMessage());
+    }
 }
