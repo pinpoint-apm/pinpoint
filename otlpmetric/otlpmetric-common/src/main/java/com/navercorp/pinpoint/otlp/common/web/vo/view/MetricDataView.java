@@ -34,11 +34,15 @@ public class MetricDataView {
     private final String message;
 
     public MetricDataView(MetricData metricData) {
-        this.timestamp = metricData.getTimestampList();
-        this.chartType = metricData.getChartType();
-        this.unit = metricData.getUnit();
-        this.metricValueList = metricData.getMetricValueList();
-        this.message = metricData.getMessage();
+        this(metricData.getTimestampList(), metricData.getChartType(), metricData.getUnit(), metricData.getMetricValueList(), metricData.getMessage());
+    }
+
+    public MetricDataView(List<Long> timestamp, ChartType chartType, String unit, List<MetricValue> metricValueList, String message) {
+        this.timestamp = timestamp;
+        this.chartType = chartType;
+        this.unit = unit;
+        this.metricValueList = metricValueList;
+        this.message = message;
     }
 
     public List<Long> getTimestamp() {
