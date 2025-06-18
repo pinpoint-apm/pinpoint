@@ -14,6 +14,9 @@ public class CaffeineCacheProperties {
     @Nullable
     private Duration expireAfterWrite;
 
+    @Nullable
+    private Duration expireAfterAccess;
+
     public int getInitialCapacity() {
         return initialCapacity;
     }
@@ -44,5 +47,13 @@ public class CaffeineCacheProperties {
 
     public void setExpireAfterWrite(Duration expireAfterWrite) {
         this.expireAfterWrite = expireAfterWrite;
+    }
+
+    public Duration getExpireAfterAccess() {
+        return expireAfterAccess;
+    }
+
+    public void setExpireAfterAccess(Duration expireAfterAccess) {
+        this.expireAfterAccess = expireAfterAccess;
     }
 }

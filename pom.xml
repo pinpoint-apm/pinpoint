@@ -119,6 +119,7 @@
         <module>otlpmetric</module>
         <module>redis-timeseries</module>
         <module>feature-flag</module>
+        <module>service-module</module>
     </modules>
 
     <properties>
@@ -589,6 +590,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-feature-flag</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-service-module</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

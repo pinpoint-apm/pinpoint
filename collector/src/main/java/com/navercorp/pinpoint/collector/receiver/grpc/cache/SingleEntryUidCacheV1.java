@@ -12,7 +12,7 @@ public class SingleEntryUidCacheV1 implements UidCache {
 
     @Override
     public ServiceUid getServiceUid(String serviceName) {
-        return ServiceUid.DEFAULT_SERVICE_UID;
+        return ServiceUid.DEFAULT;
     }
 
     @Override

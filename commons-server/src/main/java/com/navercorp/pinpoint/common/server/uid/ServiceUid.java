@@ -9,21 +9,31 @@ public class ServiceUid {
     public static final int RESERVED_NEGATIVE_UID_COUNT = 64;
 
     public static final int DEFAULT_SERVICE_UID_CODE = 0;
+    public static final String DEFAULT_SERVICE_UID_NAME = "DEFAULT";
+    public static final String UNKNOWN_SERVICE_UID_NAME = "UNKNOWN";
 
-    public static final ServiceUid DEFAULT_SERVICE_UID = new ServiceUid(DEFAULT_SERVICE_UID_CODE);
-    public static final ServiceUid ERROR_SERVICE_UID = new ServiceUid(-1);
+    // serviceUid
+    public static final ServiceUid DEFAULT = new ServiceUid(DEFAULT_SERVICE_UID_CODE);
+    public static final ServiceUid UNKNOWN = new ServiceUid(1);
+    public static final ServiceUid TEST = new ServiceUid(5);
+
+    public static final ServiceUid ERROR = new ServiceUid(-1);
+    public static final ServiceUid UNDEFINED = new ServiceUid(-2);
 
     private final int uid;
 
+    public static boolean isReservedUid(int uid) {
+        return (-RESERVED_NEGATIVE_UID_COUNT <= uid && uid <= RESERVED_POSITIVE_UID_COUNT);
+    }
+
     public static ServiceUid of(int uid) {
-        if (uid == DEFAULT_SERVICE_UID.getUid()) {
-            return DEFAULT_SERVICE_UID;
+        if (uid == DEFAULT.getUid()) {
+            return DEFAULT;
         }
-        if (uid == ERROR_SERVICE_UID.getUid()) {
-            return ERROR_SERVICE_UID;
+        if (uid == ERROR.getUid()) {
+            return ERROR;
         }
-        // bound check
-        if (-RESERVED_NEGATIVE_UID_COUNT <= uid && uid <= RESERVED_POSITIVE_UID_COUNT) {
+        if (isReservedUid(uid)) {
             throw new IllegalArgumentException("Range check failed: " + uid + " is invalid");
         }
 
