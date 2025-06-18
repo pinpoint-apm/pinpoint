@@ -103,7 +103,7 @@ export const UrlStatisticPage = ({
                 ))}
               </TabsList>
               {TAB_LIST.map((tab) => (
-                <TabsContent key={tab.id} value={tab.id} className="h-72">
+                <TabsContent key={tab.id} value={tab.id} className="w-full h-72">
                   <UrlStatChart
                     type={tab.id}
                     emptyMessage={t('COMMON.NO_DATA')}

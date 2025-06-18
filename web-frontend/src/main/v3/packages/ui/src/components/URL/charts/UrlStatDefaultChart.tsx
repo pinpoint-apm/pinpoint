@@ -5,8 +5,6 @@ import bb, { ChartOptions, line } from 'billboard.js';
 // @ts-ignore
 import BillboardJS, { IChart } from '@billboard.js/react';
 import { cn } from '../../../lib';
-import { useAtomValue } from 'jotai';
-import { layoutWithContentSidebarAtom } from '@pinpoint-fe/ui/src/atoms/layoutWithContentSidebar';
 
 export interface UrlStatDefaultChartProps {
   className?: string;
@@ -17,7 +15,6 @@ export const UrlStatDefaultChart = ({
   className,
   emptyMessage = 'No Data',
 }: UrlStatDefaultChartProps) => {
-  const sizes = useAtomValue(layoutWithContentSidebarAtom);
   const chartComponent = React.useRef<IChart>(null);
   const options: ChartOptions = {
     data: {
@@ -53,13 +50,9 @@ export const UrlStatDefaultChart = ({
       duration: 0,
     },
     resize: {
-      timer: false,
+      auto: 'parent',
     },
   };
-
-  React.useEffect(() => {
-    chartComponent?.current?.instance?.resize();
-  }, [sizes]);
 
   return (
     <BillboardJS

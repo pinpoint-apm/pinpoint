@@ -14,7 +14,7 @@ export const ErrorAnalysisSidebar = () => {
   const navigate = useNavigate();
   const { agentId, groupBy, application, dateRange } = useErrorAnalysisSearchParameters();
   return (
-    <div className="h-full w-aurto min-w-auto">
+    <div className="w-auto h-full min-w-auto">
       <ApplicationLinkButton />
       <Separator />
       <ErrorAnalysisGroupBy />
