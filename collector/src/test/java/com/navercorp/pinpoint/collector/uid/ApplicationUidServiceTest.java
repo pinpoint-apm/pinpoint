@@ -29,7 +29,7 @@ import java.util.concurrent.ThreadFactory;
 
 public class ApplicationUidServiceTest {
 
-    private final ServiceUid testServiceUid = ServiceUid.DEFAULT_SERVICE_UID;
+    private final ServiceUid testServiceUid = ServiceUid.DEFAULT;
 
     private static ExecutorService executorService;
 

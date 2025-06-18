@@ -17,7 +17,7 @@ public class UidFetchers {
     public static class EmptyUidFetcher implements UidFetcher {
         @Override
         public Supplier<ServiceUid> getServiceUid() {
-            return () -> ServiceUid.DEFAULT_SERVICE_UID;
+            return () -> ServiceUid.DEFAULT;
         }
 
         @Override

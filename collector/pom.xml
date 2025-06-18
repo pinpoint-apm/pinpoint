@@ -91,6 +91,10 @@
             </exclusions>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-service-module</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.google.guava</groupId>

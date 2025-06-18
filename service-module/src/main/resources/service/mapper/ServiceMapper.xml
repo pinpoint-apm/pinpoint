@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.navercorp.pinpoint.service.dao.ServiceDao">
+
+    <insert id="insertService" parameterType="ServiceParam" useGeneratedKeys="true" keyProperty="uid">
+        INSERT INTO service (name, configuration)
+        VALUES (#{name}, #{configuration})
+    </insert>
+
+    <select id="selectServiceNameList" resultType="string">
+        SELECT name
+        FROM service
+    </select>
+
+    <select id="selectServiceEntryList" parameterType="int" resultType="ServiceEntry">
+        SELECT uid, name
+        FROM service
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectServiceInfo" parameterType="string" resultType="ServiceParam">
+        SELECT uid, name, configuration
+        FROM service
+        WHERE name = #{name}
+    </select>
+
+    <select id="selectServiceEntryByName" parameterType="string" resultType="ServiceEntry">
+        SELECT uid, name
+        FROM service
+        WHERE name = #{name}
+    </select>
+
+    <select id="selectServiceEntryByUid" parameterType="int" resultType="ServiceEntry">
+        SELECT uid, name
+        FROM service
+        WHERE uid = #{uid}
+    </select>
+
+    <update id="updateServiceConfig" parameterType="ServiceParam">
+        UPDATE service
+        SET configuration = #{configuration}
+        WHERE uid = #{uid}
+    </update>
+
+    <update id="updateServiceName" parameterType="ServiceParam">
+        UPDATE service
+        SET name = #{name}
+        WHERE uid = #{uid}
+    </update>
+
+    <delete id="deleteService" parameterType="int">
+        DELETE FROM service
+        WHERE uid = #{uid}
+    </delete>
+
+</mapper>

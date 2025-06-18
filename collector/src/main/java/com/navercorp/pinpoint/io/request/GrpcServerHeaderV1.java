@@ -48,7 +48,7 @@ public class GrpcServerHeaderV1 implements ServerHeader {
         }
 
         String applicationName = getApplicationName();
-        final Supplier<ApplicationUid> supplier = this.uidFetcher.getApplicationId(ServiceUid.DEFAULT_SERVICE_UID, applicationName);
+        final Supplier<ApplicationUid> supplier = this.uidFetcher.getApplicationId(ServiceUid.DEFAULT, applicationName);
         this.applicationUid = supplier;
 
         return supplier;
@@ -61,7 +61,7 @@ public class GrpcServerHeaderV1 implements ServerHeader {
 
     @Override
     public Supplier<ServiceUid> getServiceUid() {
-        return () -> ServiceUid.DEFAULT_SERVICE_UID;
+        return () -> ServiceUid.DEFAULT;
     }
 
     @Override

@@ -39,7 +39,7 @@ public class AsyncApplicationUidServiceTest {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ServiceUid testServiceUid = ServiceUid.DEFAULT_SERVICE_UID;
+    private final ServiceUid testServiceUid = ServiceUid.DEFAULT;
 
     private static ExecutorService executorService;
     private static ApplicationUidDao applicationUidDao;

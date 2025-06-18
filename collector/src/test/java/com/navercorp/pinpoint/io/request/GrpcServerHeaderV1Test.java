@@ -25,7 +25,7 @@ class GrpcServerHeaderV1Test {
         Header header = new HeaderV1("headername", "agentId", "agentName", "applicationName", 1, 0L, 0, List.of(), false, Map.of());
         UidCache cacheV1 = new SingleEntryUidCacheV1();
         ApplicationUidService service = mock(ApplicationUidService.class);
-        when(service.getOrCreateApplicationUid(ServiceUid.DEFAULT_SERVICE_UID, "applicationName"))
+        when(service.getOrCreateApplicationUid(ServiceUid.DEFAULT, "applicationName"))
                 .thenReturn(ApplicationUid.of(100));
         UidFetcher uidFetcher = new UidFetcherV1(service, cacheV1);
 
@@ -43,7 +43,7 @@ class GrpcServerHeaderV1Test {
         UidCache cacheV1 = new SingleEntryUidCacheV1();
         ApplicationUidService service = mock(ApplicationUidService.class);
 
-        cacheV1.put(ServiceUid.DEFAULT_SERVICE_UID, "applicationName", ApplicationUid.of(200));
+        cacheV1.put(ServiceUid.DEFAULT, "applicationName", ApplicationUid.of(200));
         UidFetcher uidFetcher = new UidFetcherV1(service, cacheV1);
         GrpcServerHeaderV1 serverHeader = new GrpcServerHeaderV1(header, uidFetcher);
 

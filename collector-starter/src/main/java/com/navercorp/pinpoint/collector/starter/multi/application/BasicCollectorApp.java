@@ -2,6 +2,8 @@ package com.navercorp.pinpoint.collector.starter.multi.application;
 
 import com.navercorp.pinpoint.collector.PinpointCollectorModule;
 import com.navercorp.pinpoint.collector.event.config.CollectorEventConfiguration;
+import com.navercorp.pinpoint.datasource.MainDataSourceConfiguration;
+import com.navercorp.pinpoint.datasource.MainDataSourcePropertySource;
 import com.navercorp.pinpoint.redis.RedisPropertySources;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.actuate.autoconfigure.metrics.export.otlp.OtlpMetricsExportAutoConfiguration;
@@ -10,6 +12,7 @@ import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.sql.init.SqlInitializationAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
@@ -17,6 +20,7 @@ import org.springframework.context.annotation.Import;
 
 @SpringBootConfiguration
 @EnableAutoConfiguration(exclude = {
+        DataSourceAutoConfiguration.class,
         TransactionAutoConfiguration.class,
         SqlInitializationAutoConfiguration.class,
         SpringDataWebAutoConfiguration.class,
@@ -28,6 +32,10 @@ import org.springframework.context.annotation.Import;
 })
 @Import({
         PinpointCollectorModule.class,
+
+        MainDataSourcePropertySource.class,
+        MainDataSourceConfiguration.class,
+
         RedisPropertySources.class,
         CollectorEventConfiguration.class,
 })

@@ -16,7 +16,7 @@ public class UidFetcherV1 implements UidFetcher {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final ServiceUid DEFAULT_SERVICE_UID = ServiceUid.DEFAULT_SERVICE_UID;
+    private static final ServiceUid DEFAULT_SERVICE_UID = ServiceUid.DEFAULT;
 
     private final UidCache cache;
 
