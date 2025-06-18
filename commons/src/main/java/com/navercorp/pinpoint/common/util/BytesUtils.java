@@ -399,7 +399,7 @@ public final class BytesUtils {
             throwArrayIndexOutOfBoundsException(fromIndex, size, length);
         }
         if (fromIndex > length - size) {
-            throw new ArrayIndexOutOfBoundsException("Out of range " + fromIndex + size);
+            throw new ArrayIndexOutOfBoundsException("Out of range " + (fromIndex + size));
         }
     }
 
