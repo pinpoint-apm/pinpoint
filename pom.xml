@@ -1389,6 +1389,11 @@
                 <version>${javax.annotation-api.version}</version>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+                <groupId>org.checkerframework</groupId>
+                <artifactId>checker-qual</artifactId>
+                <version>3.49.3</version>
+            </dependency>
 
             <dependency>
                 <groupId>jakarta.validation</groupId>
