@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
@@ -48,17 +48,17 @@ public class StatService extends StatGrpc.StatImplBase {
 
     private final AtomicLong serverStreamId = new AtomicLong();
 
-    private final DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler;
+    private final SimpleHandler<GeneratedMessageV3> simpleHandler;
     private final UidFetcherStreamService uidFetcherStreamService;
 
     private final ServerRequestFactory serverRequestFactory;
     private final StreamCloseOnError streamCloseOnError;
 
-    public StatService(DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
+    public StatService(SimpleHandler<GeneratedMessageV3> simpleHandler,
                        UidFetcherStreamService uidFetcherStreamService,
                        ServerRequestFactory serverRequestFactory,
                        StreamCloseOnError streamCloseOnError) {
-        this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
+        this.simpleHandler = Objects.requireNonNull(simpleHandler, "simpleHandler");
         this.uidFetcherStreamService = Objects.requireNonNull(uidFetcherStreamService, "uidFetcherStreamService");
         this.serverRequestFactory = Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
         this.streamCloseOnError = Objects.requireNonNull(streamCloseOnError, "streamCloseOnError");
@@ -108,7 +108,7 @@ public class StatService extends StatGrpc.StatImplBase {
     @SuppressWarnings("unchecked")
     private void dispatch(ServerRequest<? extends GeneratedMessageV3> request, ServerCallStream<PStatMessage, Empty> responseObserver) {
         try {
-            dispatchHandler.dispatchSendMessage((ServerRequest<GeneratedMessageV3>) request);
+            simpleHandler.handleSimple((ServerRequest<GeneratedMessageV3>) request);
         } catch (Throwable e) {
             logger.warn("Failed to request. header={}", request.getHeader(), e);
             responseObserver.onNextError(e);

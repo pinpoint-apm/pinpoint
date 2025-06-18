@@ -17,11 +17,9 @@
 package com.navercorp.pinpoint.collector.grpc.config;
 
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.collector.handler.SimpleDualHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
-import com.navercorp.pinpoint.collector.manage.HandlerManager;
-import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import com.navercorp.pinpoint.collector.receiver.DispatchHandlerFactoryBean;
-import com.navercorp.pinpoint.collector.receiver.StatDispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.SimpleHandlerProxy;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver;
 import com.navercorp.pinpoint.collector.receiver.grpc.ServerInterceptorFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.flow.RateLimitClientStreamServerInterceptor;
@@ -40,7 +38,6 @@ import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.ServerTransportFilter;
 import io.netty.buffer.ByteBufAllocator;
-import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -93,14 +90,17 @@ public class GrpcStatReceiverConfiguration {
     }
 
     @Bean
-    public ServerServiceDefinition statServerServiceDefinition(@Qualifier("grpcStatDispatchHandlerFactoryBean")
-                                                               DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
+    public ServerServiceDefinition statServerServiceDefinition(@Qualifier("grpcStatSimpleHandler")
+                                                               SimpleHandler<GeneratedMessageV3> simpleHandler,
                                                                UidFetcherStreamService uidFetcherStreamService,
                                                                @Qualifier("statStreamExecutorInterceptor")
                                                                ServerInterceptor serverInterceptor,
                                                                ServerRequestFactory serverRequestFactory,
-                                                               StreamCloseOnError streamCloseOnError) {
-        BindableService spanService = new StatService(dispatchHandler, uidFetcherStreamService, serverRequestFactory, streamCloseOnError);
+                                                               StreamCloseOnError streamCloseOnError,
+                                                               SimpleHandlerProxy simpleHandlerProxy) {
+        simpleHandler = simpleHandlerProxy.proxy(simpleHandler);
+
+        BindableService spanService = new StatService(simpleHandler, uidFetcherStreamService, serverRequestFactory, streamCloseOnError);
         return ServerInterceptors.intercept(spanService, serverInterceptor);
     }
 
@@ -143,23 +143,23 @@ public class GrpcStatReceiverConfiguration {
 
 
     @Bean
-    public StatDispatchHandler<GeneratedMessageV3, GeneratedMessageV3> grpcStatDispatchHandler(
+    public SimpleDualHandler<GeneratedMessageV3> grpcStatSimpleHandler(
             @Qualifier("grpcAgentStatHandlerV2")
             SimpleHandler<GeneratedMessageV3> spanDataHandler,
             @Qualifier("grpcAgentEventHandler")
             SimpleHandler<GeneratedMessageV3> spanChunkHandler) {
-        return new StatDispatchHandler<>(spanDataHandler, spanChunkHandler);
+        return new SimpleDualHandler<>(spanDataHandler, spanChunkHandler);
     }
 
-    @Bean
-    public FactoryBean<DispatchHandler<GeneratedMessageV3, GeneratedMessageV3>> grpcStatDispatchHandlerFactoryBean(
-            StatDispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
-            HandlerManager handlerManager) {
-        DispatchHandlerFactoryBean<GeneratedMessageV3, GeneratedMessageV3> bean = new DispatchHandlerFactoryBean<>();
-        bean.setDispatchHandler(dispatchHandler);
-        bean.setHandlerManager(handlerManager);
-        return bean;
-    }
+//    @Bean
+//    public FactoryBean<DispatchHandler<GeneratedMessageV3, GeneratedMessageV3>> grpcStatDispatchHandlerFactoryBean(
+//            StatDispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
+//            HandlerManager handlerManager) {
+//        DispatchHandlerFactoryBean<GeneratedMessageV3, GeneratedMessageV3> bean = new DispatchHandlerFactoryBean<>();
+//        bean.setDispatchHandler(dispatchHandler);
+//        bean.setHandlerManager(handlerManager);
+//        return bean;
+//    }
 
 
     @Bean

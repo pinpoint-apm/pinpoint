@@ -49,7 +49,7 @@ import java.util.Objects;
  * @author netspider
  */
 @Service
-public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
+public class GrpcSpanHandler implements SimpleHandler<PSpan> {
 
     private final Logger logger = LogManager.getLogger(getClass());
     private final LogSampler infoLog = new LogSampler(1000);
@@ -71,7 +71,7 @@ public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
     }
 
     @Override
-    public void handleSimple(ServerRequest<GeneratedMessageV3> serverRequest) {
+    public void handleSimple(ServerRequest<PSpan> serverRequest) {
         final GeneratedMessageV3 data = serverRequest.getData();
         if (data instanceof PSpan span) {
             final ServerHeader header = serverRequest.getHeader();
@@ -139,4 +139,9 @@ public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
         return log.toString();
     }
 
+
+    @Override
+    public String toString() {
+        return "GrpcSpanHandler";
+    }
 }

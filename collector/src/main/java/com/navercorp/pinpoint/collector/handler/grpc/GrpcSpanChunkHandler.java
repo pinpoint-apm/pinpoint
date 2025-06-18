@@ -33,7 +33,7 @@ import java.util.Objects;
  * @author emeroad
  */
 @Service
-public class GrpcSpanChunkHandler implements SimpleHandler<GeneratedMessageV3> {
+public class GrpcSpanChunkHandler implements SimpleHandler<PSpanChunk> {
 
     private final Logger logger = LogManager.getLogger(getClass());
     private final LogSampler infoLog = new LogSampler(1000);
@@ -55,7 +55,7 @@ public class GrpcSpanChunkHandler implements SimpleHandler<GeneratedMessageV3> {
     }
 
     @Override
-    public void handleSimple(ServerRequest<GeneratedMessageV3> serverRequest) {
+    public void handleSimple(ServerRequest<PSpanChunk> serverRequest) {
         final GeneratedMessageV3 data = serverRequest.getData();
         if (data instanceof PSpanChunk spanChunk) {
             final ServerHeader header = serverRequest.getHeader();
@@ -123,4 +123,8 @@ public class GrpcSpanChunkHandler implements SimpleHandler<GeneratedMessageV3> {
         return log.toString();
     }
 
+    @Override
+    public String toString() {
+        return "GrpcSpanChunkHandler";
+    }
 }
