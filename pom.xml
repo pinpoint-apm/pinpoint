@@ -1441,7 +1441,7 @@
             <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjweaver</artifactId>
-                <version>1.9.5</version>
+                <version>1.9.24</version>
             </dependency>
 
             <dependency>
