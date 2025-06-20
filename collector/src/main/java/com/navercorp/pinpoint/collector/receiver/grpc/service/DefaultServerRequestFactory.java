@@ -44,17 +44,6 @@ public class DefaultServerRequestFactory implements ServerRequestFactory {
         this.postProcessor = Objects.requireNonNull(postProcessor, "postProcessor");
     }
 
-    @Override
-    public <T> ServerRequest<T> newServerRequest(MessageType messageType, T data) {
-        Context context = Context.current();
-        return newServerRequest(context, UidFetchers.empty(), messageType, data);
-    }
-
-    @Override
-    public <T> ServerRequest<T> newServerRequest(UidFetcher uidFetcher, MessageType messageType, T data) {
-        Context context = Context.current();
-        return newServerRequest(context, uidFetcher, messageType, data);
-    }
 
     @Override
     public <T> ServerRequest<T> newServerRequest(Context context, MessageType messageType, T data) {
