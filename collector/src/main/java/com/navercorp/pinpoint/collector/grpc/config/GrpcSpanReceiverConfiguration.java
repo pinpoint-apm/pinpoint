@@ -97,9 +97,9 @@ public class GrpcSpanReceiverConfiguration {
     }
 
     @Bean
-    public List<ServerServiceDefinition> spanServiceList(@Qualifier("spanServerServiceDefinition")
-                                                         ServerServiceDefinition serviceDefinition) {
-        return List.of(serviceDefinition);
+    public ServerServiceDefinitions spanServiceList(@Qualifier("spanServerServiceDefinition")
+                                                    ServerServiceDefinition serviceDefinition) {
+        return ServerServiceDefinitions.of(serviceDefinition);
     }
 
     @Bean
@@ -108,7 +108,7 @@ public class GrpcSpanReceiverConfiguration {
                                          @Qualifier("monitoredByteBufAllocator") ByteBufAllocator byteBufAllocator,
                                          IgnoreAddressFilter addressFilter,
                                          @Qualifier("spanServiceList")
-                                         List<ServerServiceDefinition> spanServiceList,
+                                         ServerServiceDefinitions spanServices,
                                          @Qualifier("spanInterceptor")
                                          List<ServerInterceptor> spanInterceptorList,
                                          @Qualifier("serverTransportFilterList")
@@ -120,7 +120,7 @@ public class GrpcSpanReceiverConfiguration {
         GrpcReceiver grpcReceiver = new GrpcReceiver();
         grpcReceiver.setBindAddress(properties.getBindAddress());
         grpcReceiver.setAddressFilter(addressFilter);
-        grpcReceiver.setBindableServiceList(spanServiceList);
+        grpcReceiver.setBindableServiceList(spanServices.getDefinitions());
         grpcReceiver.setServerInterceptorList(spanInterceptorList);
         grpcReceiver.setTransportFilterList(serverTransportFilterList);
         grpcReceiver.setChannelzRegistry(channelzRegistry);

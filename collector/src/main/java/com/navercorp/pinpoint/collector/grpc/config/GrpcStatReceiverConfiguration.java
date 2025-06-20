@@ -105,9 +105,9 @@ public class GrpcStatReceiverConfiguration {
     }
 
     @Bean
-    public List<ServerServiceDefinition> statServiceList(@Qualifier("statServerServiceDefinition")
+    public ServerServiceDefinitions statServiceList(@Qualifier("statServerServiceDefinition")
                                                          ServerServiceDefinition serviceDefinition) {
-        return List.of(serviceDefinition);
+        return ServerServiceDefinitions.of(serviceDefinition);
     }
 
 
@@ -117,7 +117,7 @@ public class GrpcStatReceiverConfiguration {
                                          @Qualifier("monitoredByteBufAllocator") ByteBufAllocator byteBufAllocator,
                                          IgnoreAddressFilter addressFilter,
                                          @Qualifier("statServiceList")
-                                         List<ServerServiceDefinition> spanServiceList,
+                                         ServerServiceDefinitions statServices,
                                          @Qualifier("statInterceptor")
                                          List<ServerInterceptor> spanInterceptorList,
                                          @Qualifier("serverTransportFilterList")
@@ -129,7 +129,7 @@ public class GrpcStatReceiverConfiguration {
         GrpcReceiver grpcReceiver = new GrpcReceiver();
         grpcReceiver.setBindAddress(properties.getBindAddress());
         grpcReceiver.setAddressFilter(addressFilter);
-        grpcReceiver.setBindableServiceList(spanServiceList);
+        grpcReceiver.setBindableServiceList(statServices.getDefinitions());
         grpcReceiver.setServerInterceptorList(spanInterceptorList);
         grpcReceiver.setTransportFilterList(serverTransportFilterList);
         grpcReceiver.setChannelzRegistry(channelzRegistry);
