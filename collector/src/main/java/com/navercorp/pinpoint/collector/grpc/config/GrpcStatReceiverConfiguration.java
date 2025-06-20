@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StatService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamCloseOnError;
-import com.navercorp.pinpoint.collector.uid.service.ApplicationUidService;
+import com.navercorp.pinpoint.collector.uid.service.CachedApplicationUidService;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import com.navercorp.pinpoint.io.request.UidFetcherStreamService;
@@ -88,8 +88,8 @@ public class GrpcStatReceiverConfiguration {
     }
 
     @Bean
-    public UidFetcherStreamService fetcherStreamService(ApplicationUidService applicationUidService) {
-        return new UidFetcherStreamService(applicationUidService);
+    public UidFetcherStreamService fetcherStreamService(CachedApplicationUidService cachedApplicationUidService) {
+        return new UidFetcherStreamService(cachedApplicationUidService);
     }
 
     @Bean

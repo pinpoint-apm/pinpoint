@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.io.request;
 
 import com.navercorp.pinpoint.collector.receiver.grpc.cache.SingleEntryUidCacheV1;
 import com.navercorp.pinpoint.collector.receiver.grpc.cache.UidCache;
-import com.navercorp.pinpoint.collector.uid.service.ApplicationUidService;
+import com.navercorp.pinpoint.collector.uid.service.CachedApplicationUidService;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.grpc.Header;
@@ -24,7 +24,7 @@ class GrpcServerHeaderV1Test {
 
         Header header = new HeaderV1("headername", "agentId", "agentName", "applicationName", 1, 0L, 0, List.of(), false, Map.of());
         UidCache cacheV1 = new SingleEntryUidCacheV1();
-        ApplicationUidService service = mock(ApplicationUidService.class);
+        CachedApplicationUidService service = mock(CachedApplicationUidService.class);
         when(service.getOrCreateApplicationUid(ServiceUid.DEFAULT_SERVICE_UID, "applicationName"))
                 .thenReturn(ApplicationUid.of(100));
         UidFetcher uidFetcher = new UidFetcherV1(service, cacheV1);
@@ -41,7 +41,7 @@ class GrpcServerHeaderV1Test {
 
         Header header = new HeaderV1("headername", "agentId", "agentName", "applicationName", 1, 0L, 0, List.of(), false, Map.of());
         UidCache cacheV1 = new SingleEntryUidCacheV1();
-        ApplicationUidService service = mock(ApplicationUidService.class);
+        CachedApplicationUidService service = mock(CachedApplicationUidService.class);
 
         cacheV1.put(ServiceUid.DEFAULT_SERVICE_UID, "applicationName", ApplicationUid.of(200));
         UidFetcher uidFetcher = new UidFetcherV1(service, cacheV1);
