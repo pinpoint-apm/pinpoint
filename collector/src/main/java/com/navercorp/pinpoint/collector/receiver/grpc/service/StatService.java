@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.UidFetcher;
 import com.navercorp.pinpoint.io.request.UidFetcherStreamService;
 import com.navercorp.pinpoint.io.util.MessageType;
+import io.grpc.Context;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
@@ -79,20 +80,23 @@ public class StatService extends StatGrpc.StatImplBase {
         if (statMessage.hasAgentStat()) {
             PAgentStat agentStat = statMessage.getAgentStat();
 
+            final Context context = Context.current();
             UidFetcher fetcher = call.getUidFetcher();
-            ServerRequest<PAgentStat> request = this.serverRequestFactory.newServerRequest(fetcher, MessageType.AGENT_STAT, agentStat);
+            ServerRequest<PAgentStat> request = this.serverRequestFactory.newServerRequest(context, fetcher, MessageType.AGENT_STAT, agentStat);
             this.dispatch(request, response);
         } else if (statMessage.hasAgentStatBatch()) {
             PAgentStatBatch agentStatBatch = statMessage.getAgentStatBatch();
 
+            final Context context = Context.current();
             UidFetcher fetcher = call.getUidFetcher();
-            ServerRequest<PAgentStatBatch> request = this.serverRequestFactory.newServerRequest(fetcher, MessageType.AGENT_STAT_BATCH, agentStatBatch);
+            ServerRequest<PAgentStatBatch> request = this.serverRequestFactory.newServerRequest(context, fetcher, MessageType.AGENT_STAT_BATCH, agentStatBatch);
             this.dispatch(request, response);
         } else if (statMessage.hasAgentUriStat()) {
             PAgentUriStat agentUriStat = statMessage.getAgentUriStat();
 
+            final Context context = Context.current();
             UidFetcher fetcher = call.getUidFetcher();
-            ServerRequest<PAgentUriStat> request = this.serverRequestFactory.newServerRequest(fetcher, MessageType.AGENT_URI_STAT, agentUriStat);
+            ServerRequest<PAgentUriStat> request = this.serverRequestFactory.newServerRequest(context, fetcher, MessageType.AGENT_URI_STAT, agentUriStat);
             this.dispatch(request, response);
         } else {
             if (logger.isInfoEnabled()) {
