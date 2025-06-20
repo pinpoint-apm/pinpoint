@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.collector.receiver.grpc.monitor.BasicMonitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
+import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestPostProcessor;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamCloseOnError;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.grpc.CollectorGrpcSpanFactory;
@@ -32,6 +33,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author emeroad
@@ -44,7 +46,10 @@ public class GrpcComponentConfiguration {
 
 
     @Bean
-    public ServerRequestFactory serverRequestFactory() {
+    public ServerRequestFactory serverRequestFactory(Optional<ServerRequestPostProcessor> postProcessor) {
+        if (postProcessor.isPresent()) {
+            return new DefaultServerRequestFactory(postProcessor.get());
+        }
         return new DefaultServerRequestFactory();
     }
 

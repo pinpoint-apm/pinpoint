@@ -28,12 +28,20 @@ import com.navercorp.pinpoint.io.request.UidFetchers;
 import com.navercorp.pinpoint.io.util.MessageType;
 import io.grpc.Context;
 
+import java.util.Objects;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class DefaultServerRequestFactory implements ServerRequestFactory {
+    private final ServerRequestPostProcessor postProcessor;
 
     public DefaultServerRequestFactory() {
+        postProcessor = null;
+    }
+
+    public DefaultServerRequestFactory(ServerRequestPostProcessor postProcessor) {
+        this.postProcessor = Objects.requireNonNull(postProcessor, "postProcessor");
     }
 
     @Override
@@ -62,7 +70,18 @@ public class DefaultServerRequestFactory implements ServerRequestFactory {
         }
         long requestTime = System.currentTimeMillis();
         ServerHeader serverHeader = new GrpcServerHeaderV1(header, uidFetcher);
-        return new DefaultServerRequest<>(serverHeader, transportMetadata, requestTime, messageType, data);
+        ServerRequest<T> serverRequest = new DefaultServerRequest<>(serverHeader, transportMetadata, requestTime, messageType, data);
+
+        postProcessor(context, serverRequest);
+
+        return serverRequest;
+    }
+
+    private <T> void postProcessor(Context context, ServerRequest<T> serverRequest) {
+        final ServerRequestPostProcessor postProcessor = this.postProcessor;
+        if (postProcessor != null) {
+            postProcessor.postProcess(context, serverRequest);
+        }
     }
 
 }

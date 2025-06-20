@@ -42,7 +42,6 @@ import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskSer
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
 import io.grpc.BindableService;
 import io.grpc.ServerInterceptor;
-import io.grpc.ServerServiceDefinition;
 import io.netty.buffer.ByteBufAllocator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -87,14 +86,16 @@ public class GrpcAgentConfiguration {
 
 
     @Bean
-    public List<ServerServiceDefinition> agentServiceList(AgentService agentService,
-                                                          MetadataService metadataService,
-                                                          @Qualifier("commandService")
+    public ServerServiceDefinitions agentServiceList(AgentService agentService,
+                                                     MetadataService metadataService,
+                                                     @Qualifier("commandService")
                                                           BindableService grpcCommandService) {
         logger.info("AgentService:{}", agentService);
         logger.info("MetadataService:{}", metadataService);
         logger.info("CommandService:{}", grpcCommandService);
-        return List.of(agentService.bindService(), metadataService.bindService(), grpcCommandService.bindService());
+
+        return ServerServiceDefinitions.of(agentService.bindService(), metadataService.bindService(), grpcCommandService.bindService());
+
     }
 
     @Bean
@@ -109,7 +110,7 @@ public class GrpcAgentConfiguration {
                                           @Qualifier("monitoredByteBufAllocator") ByteBufAllocator byteBufAllocator,
                                           IgnoreAddressFilter addressFilter,
                                           @Qualifier("agentServiceList")
-                                          List<ServerServiceDefinition> spanServiceList,
+                                          ServerServiceDefinitions spanServices,
                                           @Qualifier("agentInterceptor")
                                           List<ServerInterceptor> spanInterceptorList,
                                           @Qualifier("grpcAgentServerExecutor")
@@ -120,7 +121,7 @@ public class GrpcAgentConfiguration {
         GrpcReceiver grpcReceiver = new GrpcReceiver();
         grpcReceiver.setBindAddress(properties.getBindAddress());
         grpcReceiver.setAddressFilter(addressFilter);
-        grpcReceiver.setBindableServiceList(spanServiceList);
+        grpcReceiver.setBindableServiceList(spanServices.getDefinitions());
         grpcReceiver.setServerInterceptorList(spanInterceptorList);
 
         grpcReceiver.setExecutor(grpcSpanExecutor);
