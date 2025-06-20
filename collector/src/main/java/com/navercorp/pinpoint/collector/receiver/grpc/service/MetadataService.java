@@ -65,8 +65,8 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
         if (isDebug) {
             logger.debug("Request PApiMetaData={}", debugLog(apiMetaData));
         }
-
-        ServerRequest<PApiMetaData> request = serverRequestFactory.newServerRequest(MessageType.APIMETADATA, apiMetaData);
+        Context current = Context.current();
+        ServerRequest<PApiMetaData> request = serverRequestFactory.newServerRequest(current, MessageType.APIMETADATA, apiMetaData);
         doExecutor(request, responseObserver);
     }
 
@@ -75,7 +75,8 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
         if (isDebug) {
             logger.debug("Request PSqlMetaData={}", debugLog(sqlMetaData));
         }
-        ServerRequest<PSqlMetaData> request = serverRequestFactory.newServerRequest(MessageType.SQLMETADATA, sqlMetaData);
+        Context current = Context.current();
+        ServerRequest<PSqlMetaData> request = serverRequestFactory.newServerRequest(current, MessageType.SQLMETADATA, sqlMetaData);
         doExecutor(request, responseObserver);
     }
 
@@ -84,8 +85,8 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
         if (isDebug) {
             logger.debug("Request PSqlUidMetaData={}", debugLog(sqlUidMetaData));
         }
-
-        ServerRequest<PSqlUidMetaData> request = serverRequestFactory.newServerRequest(MessageType.SQLUIDMETADATA, sqlUidMetaData);
+        Context current = Context.current();
+        ServerRequest<PSqlUidMetaData> request = serverRequestFactory.newServerRequest(current, MessageType.SQLUIDMETADATA, sqlUidMetaData);
         doExecutor(request, responseObserver);
     }
 
@@ -94,18 +95,18 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
         if (isDebug) {
             logger.debug("Request PStringMetaData={}", debugLog(stringMetaData));
         }
-
-        ServerRequest<PStringMetaData> request = serverRequestFactory.newServerRequest(MessageType.STRINGMETADATA, stringMetaData);
+        Context current = Context.current();
+        ServerRequest<PStringMetaData> request = serverRequestFactory.newServerRequest(current, MessageType.STRINGMETADATA, stringMetaData);
         doExecutor(request, responseObserver);
     }
 
     @Override
     public void requestExceptionMetaData(PExceptionMetaData exceptionMetaData, StreamObserver<PResult> responseObserver) {
         if (isDebug) {
-            logger.debug("Request PStringMetaData={}", debugLog(exceptionMetaData));
+            logger.debug("Request PExceptionMetaData={}", debugLog(exceptionMetaData));
         }
-
-        ServerRequest<PExceptionMetaData> request = serverRequestFactory.newServerRequest(MessageType.EXCEPTIONMETADATA, exceptionMetaData);
+        Context current = Context.current();
+        ServerRequest<PExceptionMetaData> request = serverRequestFactory.newServerRequest(current, MessageType.EXCEPTIONMETADATA, exceptionMetaData);
         doExecutor(request, responseObserver);
     }
 

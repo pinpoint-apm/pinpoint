@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.UidFetcher;
 import com.navercorp.pinpoint.io.request.UidFetcherStreamService;
 import com.navercorp.pinpoint.io.util.MessageType;
+import io.grpc.Context;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
@@ -80,14 +81,16 @@ public class SpanService extends SpanGrpc.SpanImplBase {
         if (spanMessage.hasSpan()) {
             PSpan span = spanMessage.getSpan();
 
+            Context current = Context.current();
             UidFetcher fetcher = call.getUidFetcher();
-            ServerRequest<PSpan> request = serverRequestFactory.newServerRequest(fetcher, MessageType.SPAN, span);
+            ServerRequest<PSpan> request = serverRequestFactory.newServerRequest(current, fetcher, MessageType.SPAN, span);
             this.dispatch(request, responseObserver);
         } else if (spanMessage.hasSpanChunk()) {
             PSpanChunk spanChunk = spanMessage.getSpanChunk();
 
+            Context current = Context.current();
             UidFetcher fetcher = call.getUidFetcher();
-            ServerRequest<PSpanChunk> request = serverRequestFactory.newServerRequest(fetcher, MessageType.SPANCHUNK, spanChunk);
+            ServerRequest<PSpanChunk> request = serverRequestFactory.newServerRequest(current, fetcher, MessageType.SPANCHUNK, spanChunk);
             this.dispatch(request, responseObserver);
         } else {
             if (logger.isInfoEnabled()) {

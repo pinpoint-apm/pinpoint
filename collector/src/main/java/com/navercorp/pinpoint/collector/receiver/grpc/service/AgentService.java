@@ -72,7 +72,8 @@ public class AgentService extends AgentGrpc.AgentImplBase {
             logger.debug("Request PAgentInfo={}", MessageFormatUtils.debugLog(agentInfo));
         }
 
-        final ServerRequest<PAgentInfo> request = this.serverRequestFactory.newServerRequest(MessageType.AGENT_INFO, agentInfo);
+        final Context current = Context.current();
+        final ServerRequest<PAgentInfo> request = this.serverRequestFactory.newServerRequest(current, MessageType.AGENT_INFO, agentInfo);
         try {
             executor.execute(new Runnable() {
                 @Override

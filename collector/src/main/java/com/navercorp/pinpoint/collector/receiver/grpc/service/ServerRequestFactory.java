@@ -26,10 +26,6 @@ import io.grpc.Context;
  */
 public interface ServerRequestFactory {
 
-    <T> ServerRequest<T> newServerRequest(MessageType messageType, T data);
-
-    <T> ServerRequest<T> newServerRequest(UidFetcher uidFetcher, MessageType messageType, T data);
-
     <T> ServerRequest<T> newServerRequest(Context context, MessageType messageType, T data);
 
     <T> ServerRequest<T> newServerRequest(Context context, UidFetcher uidFetcher, MessageType messageType, T data);
