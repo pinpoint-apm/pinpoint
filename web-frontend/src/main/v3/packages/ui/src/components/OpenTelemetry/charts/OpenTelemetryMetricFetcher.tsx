@@ -159,6 +159,7 @@ export const OpenTelemetryMetricFetcher = ({
               },
             ],
           }}
+          isAnimationActive={false}
           unit={data?.unit}
           tooltipConfig={{
             showTotal: stack && stackDetails?.showTotal,

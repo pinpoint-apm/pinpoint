@@ -13,6 +13,7 @@ export interface ReChartProps {
   chartData: Chart;
   unit?: string;
   tooltipConfig?: TooltipProps<number, string> & { showTotal?: boolean };
+  isAnimationActive?: boolean;
   xAxisTickFormatter?: (value: number) => string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   yAxisTickFormatter?: (value: any) => string;
@@ -33,6 +34,7 @@ export const ReChart = ({
   chartData,
   unit = '',
   tooltipConfig,
+  isAnimationActive = true,
   xAxisTickFormatter,
   yAxisTickFormatter: customYAxisTickFormatter,
 }: ReChartProps) => {
@@ -103,6 +105,7 @@ export const ReChart = ({
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           renderChartChildComponents((config: any) => {
             return {
+              isAnimationActive,
               strokeOpacity: !!hoverKey && hoverKey !== config?.label ? 0.3 : 1,
             };
           })
