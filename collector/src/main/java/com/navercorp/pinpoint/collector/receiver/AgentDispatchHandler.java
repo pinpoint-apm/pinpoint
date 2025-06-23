@@ -60,7 +60,7 @@ public class AgentDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES>
 
     protected RequestResponseHandler<REQ, RES> getRequestResponseHandler(ServerRequest<REQ> serverRequest) {
         MessageType messageType = serverRequest.getMessageType();
-        final short type = messageType.getCode();
+        final int type = messageType.getCode();
         RequestResponseHandler<REQ, RES> handler = this.handlerMap.get(type);
         if (handler == null) {
             throw new UnsupportedOperationException("unsupported header:" + messageType);
