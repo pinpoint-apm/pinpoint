@@ -38,7 +38,10 @@ public class MessageType {
                 if (Modifier.isStatic(field.getModifiers())) {
                     if (field.getType() == MessageType.class) {
                         MessageType messageType = (MessageType) field.get(MessageType.class);
-                        map.put(messageType.getCode(), messageType);
+                        MessageType exist = map.put(messageType.getCode(), messageType);
+                        if (exist != null) {
+                            throw new IllegalArgumentException("Duplicate code: " + messageType.getCode() + " for " + messageType + " and " + exist);
+                        }
                     }
                 }
             }
@@ -49,24 +52,18 @@ public class MessageType {
     }
 
 
-    private final short code;
+    private final int code;
 
     private  MessageType(int code) {
-        this.code = intToShort(code);
+        this.code = code;
     }
 
-    public short getCode() {
+    public int getCode() {
         return code;
     }
 
-    short intToShort(int i) {
-        if (i < Short.MIN_VALUE || i > Short.MAX_VALUE) {
-            throw new IllegalArgumentException("Int is out of range");
-        }
-        return (short) i;
-    }
 
-    public static MessageType getType(short code) {
+    public static MessageType getType(int code) {
         MessageType messageType = MAP.get(code);
         if (messageType != null) {
             return messageType;
