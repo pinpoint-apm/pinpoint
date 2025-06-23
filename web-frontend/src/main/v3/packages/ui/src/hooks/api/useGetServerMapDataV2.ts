@@ -2,7 +2,7 @@ import React from 'react';
 import { GetServerMap, END_POINTS } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useServerMapSearchParameters } from '../searchParameters';
-import { keepPreviousData, useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { queryFn } from './reactQueryHelper';
 
 const getQueryString = (queryParams: Partial<GetServerMap.Parameters>) => {
@@ -65,9 +65,7 @@ export const useGetServerMapDataV2 = ({
     useStatisticsAgentState,
   ]);
 
-  const query = shouldPoll ? useQuery : useSuspenseQuery;
-
-  const { data, isLoading } = query({
+  const { data, isLoading, error } = useQuery({
     queryKey: [END_POINTS.SERVER_MAP_DATA_V2, queryString],
     queryFn: !!queryString ? queryFn(`${END_POINTS.SERVER_MAP_DATA_V2}${queryString}`) : () => null,
     gcTime: shouldPoll ? 0 : 30000,
@@ -75,5 +73,5 @@ export const useGetServerMapDataV2 = ({
     enabled: !!queryString,
   });
 
-  return { data, isLoading };
+  return { data, isLoading, error };
 };
