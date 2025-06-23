@@ -28,7 +28,10 @@ export const ServerMapFetcher = ({ shouldPoll, ...props }: ServerMapFetcherProps
   const experimentalOption = useExperimentals();
   const useStatisticsAgentState = experimentalOption.statisticsAgentState.value || true;
 
-  const { data } = useGetServerMapDataV2({ shouldPoll: !!shouldPoll, useStatisticsAgentState });
+  const { data, isLoading, error } = useGetServerMapDataV2({
+    shouldPoll: !!shouldPoll,
+    useStatisticsAgentState,
+  });
   const { t } = useTranslation();
 
   React.useEffect(() => {
@@ -82,7 +85,9 @@ export const ServerMapFetcher = ({ shouldPoll, ...props }: ServerMapFetcherProps
 
   return (
     <ServerMapCore
-      data={data}
+      data={data || {}}
+      isLoading={isLoading}
+      error={error}
       forceLayoutUpdate={!shouldPoll}
       onClickNode={handleClickNode}
       onClickEdge={handleClickEdge}

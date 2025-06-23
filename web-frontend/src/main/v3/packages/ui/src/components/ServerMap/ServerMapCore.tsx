@@ -22,6 +22,8 @@ import { FaLocationCrosshairs, FaRotate } from 'react-icons/fa6';
 import { FaGear } from 'react-icons/fa6';
 import {
   Button,
+  ErrorBoundary,
+  ThrowError,
   Separator,
   ServerMapQueryOption,
   ServerMapQueryOptionProps,
@@ -30,10 +32,13 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
+  ServerMapSkeleton,
 } from '..';
 
 export interface ServerMapCoreProps extends Omit<ServerMapComponentProps, 'data'> {
   data?: GetServerMap.Response | FilteredMap.Response;
+  isLoading?: boolean;
+  error?: Error | null;
   onClickMenuItem?: (type: SERVERMAP_MENU_FUNCTION_TYPE, data: Node | Edge) => void;
   onMergeStateChange?: () => void;
   inputPlaceHolder?: string;
@@ -44,6 +49,8 @@ export interface ServerMapCoreProps extends Omit<ServerMapComponentProps, 'data'
 
 export const ServerMapCore = ({
   data,
+  isLoading,
+  error,
   baseNodeId,
   onClickNode,
   onClickEdge,
@@ -125,6 +132,10 @@ export const ServerMapCore = ({
   useUpdateEffect(() => {
     onMergeStateChange?.();
   }, [unCheckedServiceTypes]);
+
+  if (isLoading) {
+    return <ServerMapSkeleton className="w-full h-full" />;
+  }
 
   const getTransactionInfo = (node: GetServerMap.NodeData | FilteredMap.NodeData) => {
     const { isWas, isAuthorized } = node;
@@ -362,12 +373,16 @@ export const ServerMapCore = ({
               </div>
             </ServerMapMenu>
           )}
-          {serverMapData.nodes.length > 0 && (
-            <ServerMapComponent
-              baseNodeId={baseNodeId}
-              data={serverMapData}
-              renderNode={(node, transactionStatusSVGString) => {
-                return `
+          <ErrorBoundary>
+            {error ? (
+              <ThrowError error={error} />
+            ) : (
+              serverMapData.nodes.length > 0 && (
+                <ServerMapComponent
+                  baseNodeId={baseNodeId}
+                  data={serverMapData}
+                  renderNode={(node, transactionStatusSVGString) => {
+                    return `
                   ${transactionStatusSVGString}
                   ${
                     node.transactionInfo?.instanceCount &&
@@ -380,32 +395,34 @@ export const ServerMapCore = ({
                     >${node.transactionInfo?.instanceCount}</text>`
                   }
                 `;
-              }}
-              renderEdgeLabel={(edge: MergedEdge) => {
-                if (edge?.transactionInfo?.totalCount) {
-                  return `${addCommas(edge?.transactionInfo?.totalCount)}${
-                    edge.transactionInfo?.avgResponseTime
-                      ? ` (${edge.transactionInfo.avgResponseTime} ms)`
-                      : ''
-                  }`;
-                } else if (edge?.edges) {
-                  return `${edge.edges.reduce(
-                    (acc, curr) => acc + curr.transactionInfo?.totalCount,
-                    0,
-                  )}`;
-                }
-                return '';
-              }}
-              onClickBackground={handleClickBackground}
-              onClickNode={handleClickNode}
-              onClickEdge={handleClickEdge}
-              onDataMerged={({ types }) => setCheckedServiceTypes(types)}
-              cy={(cy) => {
-                cyRef.current = cy;
-              }}
-              {...props}
-            />
-          )}
+                  }}
+                  renderEdgeLabel={(edge: MergedEdge) => {
+                    if (edge?.transactionInfo?.totalCount) {
+                      return `${addCommas(edge?.transactionInfo?.totalCount)}${
+                        edge.transactionInfo?.avgResponseTime
+                          ? ` (${edge.transactionInfo.avgResponseTime} ms)`
+                          : ''
+                      }`;
+                    } else if (edge?.edges) {
+                      return `${edge.edges.reduce(
+                        (acc, curr) => acc + curr.transactionInfo?.totalCount,
+                        0,
+                      )}`;
+                    }
+                    return '';
+                  }}
+                  onClickBackground={handleClickBackground}
+                  onClickNode={handleClickNode}
+                  onClickEdge={handleClickEdge}
+                  onDataMerged={({ types }) => setCheckedServiceTypes(types)}
+                  cy={(cy) => {
+                    cyRef.current = cy;
+                  }}
+                  {...props}
+                />
+              )
+            )}
+          </ErrorBoundary>
         </>
       )}
     </div>
