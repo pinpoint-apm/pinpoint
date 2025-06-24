@@ -16,12 +16,7 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
-import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
-import com.navercorp.pinpoint.collector.manage.HandlerManager;
-import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import com.navercorp.pinpoint.collector.receiver.DispatchHandlerFactoryBean;
-import com.navercorp.pinpoint.collector.receiver.StatDispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver;
 import com.navercorp.pinpoint.collector.receiver.grpc.ServerInterceptorFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.flow.RateLimitClientStreamServerInterceptor;
@@ -32,6 +27,9 @@ import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamCloseOnError
 import com.navercorp.pinpoint.collector.uid.service.ApplicationUidService;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
+import com.navercorp.pinpoint.grpc.trace.PAgentStat;
+import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
+import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.io.request.UidFetcherStreamService;
 import io.github.bucket4j.Bandwidth;
 import io.grpc.BindableService;
@@ -40,7 +38,6 @@ import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.ServerTransportFilter;
 import io.netty.buffer.ByteBufAllocator;
-import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -67,22 +64,12 @@ public class GrpcStatReceiverConfiguration {
     public static class RateLimitServerInterceptorConfiguration {
 
         @Bean
-        public Bandwidth statBandwidth(@Value("${collector.receiver.grpc.stat.stream.flow-control.rate-limit.capacity:1000}") long capacity,
-                                            @Value("${collector.receiver.grpc.stat.stream.flow-control.rate-limit.refill-greedy:200}") long refillTokens) {
-            return Bandwidth
-                    .builder()
-                    .capacity(capacity)
-                    .refillGreedy(refillTokens, Duration.ofSeconds(1))
-                    .build();
+        public Bandwidth statBandwidth(@Value("${collector.receiver.grpc.stat.stream.flow-control.rate-limit.capacity:1000}") long capacity, @Value("${collector.receiver.grpc.stat.stream.flow-control.rate-limit.refill-greedy:200}") long refillTokens) {
+            return Bandwidth.builder().capacity(capacity).refillGreedy(refillTokens, Duration.ofSeconds(1)).build();
         }
 
         @Bean
-        public ServerInterceptor statStreamExecutorInterceptor(@Qualifier("grpcStatWorkerExecutor")
-                                                               Executor executor,
-                                                               @Qualifier("statBandwidth")
-                                                               Bandwidth bandwidth,
-                                                               @Qualifier("grpcStatStreamProperties")
-                                                               GrpcStreamProperties properties) {
+        public ServerInterceptor statStreamExecutorInterceptor(@Qualifier("grpcStatWorkerExecutor") Executor executor, @Qualifier("statBandwidth") Bandwidth bandwidth, @Qualifier("grpcStatStreamProperties") GrpcStreamProperties properties) {
             return new RateLimitClientStreamServerInterceptor("StatStream", executor, bandwidth, properties.getThrottledLoggerRatio());
         }
     }
@@ -93,39 +80,26 @@ public class GrpcStatReceiverConfiguration {
     }
 
     @Bean
-    public ServerServiceDefinition statServerServiceDefinition(@Qualifier("grpcStatDispatchHandlerFactoryBean")
-                                                               DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
+    public ServerServiceDefinition statServerServiceDefinition(SimpleHandler<PAgentStatBatch> statBatchHandler,
+                                                               SimpleHandler<PAgentStat> statHandler,
+                                                               SimpleHandler<PAgentUriStat> uriStatHandler,
                                                                UidFetcherStreamService uidFetcherStreamService,
-                                                               @Qualifier("statStreamExecutorInterceptor")
-                                                               ServerInterceptor serverInterceptor,
+                                                               @Qualifier("statStreamExecutorInterceptor") ServerInterceptor serverInterceptor,
                                                                ServerRequestFactory serverRequestFactory,
                                                                StreamCloseOnError streamCloseOnError) {
-        BindableService spanService = new StatService(dispatchHandler, uidFetcherStreamService, serverRequestFactory, streamCloseOnError);
+
+        BindableService spanService = new StatService(statBatchHandler, statHandler, uriStatHandler, uidFetcherStreamService, serverRequestFactory, streamCloseOnError);
         return ServerInterceptors.intercept(spanService, serverInterceptor);
     }
 
     @Bean
-    public ServerServiceDefinitions statServiceList(@Qualifier("statServerServiceDefinition")
-                                                         ServerServiceDefinition serviceDefinition) {
+    public ServerServiceDefinitions statServiceList(@Qualifier("statServerServiceDefinition") ServerServiceDefinition serviceDefinition) {
         return ServerServiceDefinitions.of(serviceDefinition);
     }
 
 
     @Bean
-    public GrpcReceiver grpcStatReceiver(@Qualifier("grpcStatReceiverProperties")
-                                         GrpcReceiverProperties properties,
-                                         @Qualifier("monitoredByteBufAllocator") ByteBufAllocator byteBufAllocator,
-                                         IgnoreAddressFilter addressFilter,
-                                         @Qualifier("statServiceList")
-                                         ServerServiceDefinitions statServices,
-                                         @Qualifier("statInterceptor")
-                                         List<ServerInterceptor> spanInterceptorList,
-                                         @Qualifier("serverTransportFilterList")
-                                         List<ServerTransportFilter> serverTransportFilterList,
-                                         ChannelzRegistry channelzRegistry,
-                                         @Qualifier("grpcStatServerExecutor")
-                                         Executor grpcSpanExecutor,
-                                         Monitor monitor) {
+    public GrpcReceiver grpcStatReceiver(@Qualifier("grpcStatReceiverProperties") GrpcReceiverProperties properties, @Qualifier("monitoredByteBufAllocator") ByteBufAllocator byteBufAllocator, IgnoreAddressFilter addressFilter, @Qualifier("statServiceList") ServerServiceDefinitions statServices, @Qualifier("statInterceptor") List<ServerInterceptor> spanInterceptorList, @Qualifier("serverTransportFilterList") List<ServerTransportFilter> serverTransportFilterList, ChannelzRegistry channelzRegistry, @Qualifier("grpcStatServerExecutor") Executor grpcSpanExecutor, Monitor monitor) {
         GrpcReceiver grpcReceiver = new GrpcReceiver();
         grpcReceiver.setBindAddress(properties.getBindAddress());
         grpcReceiver.setAddressFilter(addressFilter);
@@ -141,25 +115,6 @@ public class GrpcStatReceiverConfiguration {
         return grpcReceiver;
     }
 
-
-    @Bean
-    public StatDispatchHandler<GeneratedMessageV3, GeneratedMessageV3> grpcStatDispatchHandler(
-            @Qualifier("grpcAgentStatHandlerV2")
-            SimpleHandler<GeneratedMessageV3> spanDataHandler,
-            @Qualifier("grpcAgentEventHandler")
-            SimpleHandler<GeneratedMessageV3> spanChunkHandler) {
-        return new StatDispatchHandler<>(spanDataHandler, spanChunkHandler);
-    }
-
-    @Bean
-    public FactoryBean<DispatchHandler<GeneratedMessageV3, GeneratedMessageV3>> grpcStatDispatchHandlerFactoryBean(
-            StatDispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
-            HandlerManager handlerManager) {
-        DispatchHandlerFactoryBean<GeneratedMessageV3, GeneratedMessageV3> bean = new DispatchHandlerFactoryBean<>();
-        bean.setDispatchHandler(dispatchHandler);
-        bean.setHandlerManager(handlerManager);
-        return bean;
-    }
 
 
     @Bean

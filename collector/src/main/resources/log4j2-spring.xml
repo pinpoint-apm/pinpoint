@@ -123,11 +123,11 @@
             <Appenderref ref="rollingFile"/>
         </Logger>
 
-        <Logger name="io.grpc" level="${logger_level}" additivity="false">
+        <Logger name="io.grpc" level="INFO" additivity="false">
             <AppenderRef ref="console"/>
             <Appenderref ref="rollingFile"/>
         </Logger>
-        <Logger name="io.netty" level="${logger_level}" additivity="false">
+        <Logger name="io.netty" level="INFO" additivity="false">
             <AppenderRef ref="console"/>
             <Appenderref ref="rollingFile"/>
         </Logger>

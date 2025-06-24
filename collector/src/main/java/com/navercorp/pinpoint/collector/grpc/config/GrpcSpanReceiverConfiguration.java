@@ -16,12 +16,7 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
-import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
-import com.navercorp.pinpoint.collector.manage.HandlerManager;
-import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import com.navercorp.pinpoint.collector.receiver.DispatchHandlerFactoryBean;
-import com.navercorp.pinpoint.collector.receiver.SpanDispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver;
 import com.navercorp.pinpoint.collector.receiver.grpc.ServerInterceptorFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.flow.RateLimitClientStreamServerInterceptor;
@@ -31,6 +26,8 @@ import com.navercorp.pinpoint.collector.receiver.grpc.service.SpanService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamCloseOnError;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
+import com.navercorp.pinpoint.grpc.trace.PSpan;
+import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.io.request.UidFetcherStreamService;
 import io.github.bucket4j.Bandwidth;
 import io.grpc.BindableService;
@@ -39,7 +36,6 @@ import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.ServerTransportFilter;
 import io.netty.buffer.ByteBufAllocator;
-import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -85,14 +81,14 @@ public class GrpcSpanReceiverConfiguration {
     }
 
     @Bean
-    public ServerServiceDefinition spanServerServiceDefinition(@Qualifier("grpcSpanDispatchHandlerFactoryBean")
-                                                               DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
+    public ServerServiceDefinition spanServerServiceDefinition(SimpleHandler<PSpan> spanHandler,
+                                                               SimpleHandler<PSpanChunk> spanCheckHandler,
                                                                UidFetcherStreamService uidFetcherStreamService,
                                                                @Qualifier("spanStreamExecutorInterceptor")
                                                                ServerInterceptor serverInterceptor,
                                                                ServerRequestFactory serverRequestFactory,
                                                                StreamCloseOnError streamCloseOnError) {
-        BindableService spanService = new SpanService(dispatchHandler, uidFetcherStreamService, serverRequestFactory, streamCloseOnError);
+        BindableService spanService = new SpanService(spanHandler, spanCheckHandler, uidFetcherStreamService, serverRequestFactory, streamCloseOnError);
         return ServerInterceptors.intercept(spanService, serverInterceptor);
     }
 
@@ -130,26 +126,6 @@ public class GrpcSpanReceiverConfiguration {
         grpcReceiver.setByteBufAllocator(byteBufAllocator);
         grpcReceiver.setMonitor(monitor);
         return grpcReceiver;
-    }
-
-
-    @Bean
-    public SpanDispatchHandler<GeneratedMessageV3, GeneratedMessageV3> grpcSpanDispatchHandler(
-            @Qualifier("grpcSpanHandler")
-            SimpleHandler<GeneratedMessageV3> spanDataHandler,
-            @Qualifier("grpcSpanChunkHandler")
-            SimpleHandler<GeneratedMessageV3> spanChunkHandler) {
-        return new SpanDispatchHandler<>(spanDataHandler, spanChunkHandler);
-    }
-
-    @Bean
-    public FactoryBean<DispatchHandler<GeneratedMessageV3, GeneratedMessageV3>> grpcSpanDispatchHandlerFactoryBean(
-            SpanDispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
-            HandlerManager handlerManager) {
-        DispatchHandlerFactoryBean<GeneratedMessageV3, GeneratedMessageV3> bean = new DispatchHandlerFactoryBean<>();
-        bean.setDispatchHandler(dispatchHandler);
-        bean.setHandlerManager(handlerManager);
-        return bean;
     }
 
     @Bean

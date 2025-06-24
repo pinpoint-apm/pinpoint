@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.handler.grpc;
 
-import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.mapper.grpc.GrpcAgentInfoBoMapper;
 import com.navercorp.pinpoint.collector.service.AgentInfoService;
@@ -28,7 +27,6 @@ import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.io.util.MessageType;
-import io.grpc.Status;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -40,7 +38,7 @@ import java.util.Objects;
  * @author koo.taejin
  */
 @Service
-public class GrpcAgentInfoHandler implements RequestResponseHandler<GeneratedMessageV3, GeneratedMessageV3> {
+public class GrpcAgentInfoHandler implements RequestResponseHandler<PAgentInfo, PResult> {
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -60,16 +58,13 @@ public class GrpcAgentInfoHandler implements RequestResponseHandler<GeneratedMes
 
 
     @Override
-    public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
-        final GeneratedMessageV3 data = serverRequest.getData();
+    public void handleRequest(ServerRequest<PAgentInfo> serverRequest, ServerResponse<PResult> serverResponse) {
+        final PAgentInfo agentInfo = serverRequest.getData();
         final ServerHeader header = serverRequest.getHeader();
-        if (data instanceof PAgentInfo agentInfo) {
-            final PResult result = handleAgentInfo(header, agentInfo);
-            serverResponse.write(result);
-        } else {
-            logger.warn("Invalid request type. serverRequest={}", serverRequest);
-            throw Status.INTERNAL.withDescription("Bad Request(invalid request type)").asRuntimeException();
-        }
+
+        final PResult result = handleAgentInfo(header, agentInfo);
+        serverResponse.write(result);
+
     }
 
     private PResult handleAgentInfo(ServerHeader header, PAgentInfo agentInfo) {

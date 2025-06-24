@@ -17,6 +17,9 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.navercorp.pinpoint.io.request.ServerResponse;
+import io.grpc.Status;
+import io.grpc.StatusException;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 
 import java.util.Objects;
@@ -25,7 +28,10 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class GrpcServerResponse<T> implements ServerResponse<T> {
-    private final StreamObserver<T> responseObserver;
+
+    protected static final Status badRequest = Status.INTERNAL.withDescription("Bad Request");
+
+    protected final StreamObserver<T> responseObserver;
 
     public GrpcServerResponse(StreamObserver<T> responseObserver) {
         this.responseObserver = Objects.requireNonNull(responseObserver, "responseObserver");
@@ -37,6 +43,16 @@ public class GrpcServerResponse<T> implements ServerResponse<T> {
 
         responseObserver.onNext(message);
         responseObserver.onCompleted();
+    }
+
+    @Override
+    public void onError(Throwable throwable) {
+        if (throwable instanceof StatusException || throwable instanceof StatusRuntimeException) {
+            responseObserver.onError(throwable);
+        } else {
+            // Avoid detailed exception
+            responseObserver.onError(badRequest.asException());
+        }
     }
 
     @Override

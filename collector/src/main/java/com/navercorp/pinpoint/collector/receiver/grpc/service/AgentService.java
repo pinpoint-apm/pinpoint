@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
-import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.grpc.lifecycle.PingEventHandler;
 import com.navercorp.pinpoint.collector.grpc.lifecycle.PingSession;
-import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
@@ -29,7 +28,6 @@ import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PPing;
 import com.navercorp.pinpoint.grpc.trace.PResult;
-import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.util.MessageType;
 import io.grpc.Context;
 import io.grpc.Metadata;
@@ -50,19 +48,23 @@ public class AgentService extends AgentGrpc.AgentImplBase {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final SimpleRequestHandlerAdaptor<GeneratedMessageV3, GeneratedMessageV3> simpleRequestHandlerAdaptor;
-    private final ServerRequestFactory serverRequestFactory;
+    private final RequestResponseHandler<PAgentInfo, PResult> handler;
 
     private final PingEventHandler pingEventHandler;
+
+    private final JobRunner jobRunner;
     private final Executor executor;
 
-    public AgentService(DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
-                        PingEventHandler pingEventHandler, Executor executor, ServerRequestFactory serverRequestFactory) {
-        this.simpleRequestHandlerAdaptor = new SimpleRequestHandlerAdaptor<>(this.getClass().getName(), dispatchHandler);
-        this.serverRequestFactory = Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
+    public AgentService(RequestResponseHandler<PAgentInfo, PResult> handler,
+                        PingEventHandler pingEventHandler,
+                        Executor executor,
+                        ServerRequestFactory requestFactory,
+                        ServerResponseFactory responseFactory) {
+        this.handler = Objects.requireNonNull(handler, "handler");
 
         this.pingEventHandler = Objects.requireNonNull(pingEventHandler, "pingEventHandler");
         Objects.requireNonNull(executor, "executor");
+        this.jobRunner = new JobRunner(logger, requestFactory, responseFactory);
         this.executor = Context.currentContextExecutor(executor);
     }
 
@@ -72,21 +74,26 @@ public class AgentService extends AgentGrpc.AgentImplBase {
             logger.debug("Request PAgentInfo={}", MessageFormatUtils.debugLog(agentInfo));
         }
 
-        final Context current = Context.current();
-        final ServerRequest<PAgentInfo> request = this.serverRequestFactory.newServerRequest(current, MessageType.AGENT_INFO, agentInfo);
+        MessageType messageType = MessageType.AGENT_INFO;
+        doExecute(new Runnable() {
+            @Override
+            public void run() {
+                jobRunner.execute(messageType, agentInfo, responseObserver, handler::handleRequest);
+
+                // Update service type of PingSession
+                TransportMetadata transportMetadata = ServerContext.getTransportMetadata();
+                pingEventHandler.update(transportMetadata.getTransportId());
+            }
+        }, MessageType.AGENT_INFO);
+    }
+
+    void doExecute(Runnable runnable, MessageType messageType) {
         try {
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    simpleRequestHandlerAdaptor.request(request, responseObserver);
-                    // Update service type of PingSession
-                    TransportMetadata transportMetadata = ServerContext.getTransportMetadata();
-                    pingEventHandler.update(transportMetadata.getTransportId());
-                }
-            });
+            executor.execute(runnable);
         } catch (RejectedExecutionException ree) {
+            final Header header = ServerContext.getAgentInfo();
             // Defense code
-            logger.warn("Failed to request. Rejected execution, executor={} header:{}", executor, request.getHeader());
+            logger.warn("Failed to request. Rejected execution, {} {} executor={}", messageType, header, executor);
         }
     }
 
