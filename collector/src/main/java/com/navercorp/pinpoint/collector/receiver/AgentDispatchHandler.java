@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.collector.receiver;
 
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
-import com.navercorp.pinpoint.collector.handler.SimpleAndRequestResponseHandler;
-import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
@@ -27,7 +25,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author emeroad
@@ -37,16 +34,12 @@ public class AgentDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES>
 
     private final Logger logger = LogManager.getLogger(getClass());
 
-    private final SimpleAndRequestResponseHandler<REQ, RES> agentInfoHandler;
-
     private final IntHashMap<RequestResponseHandler<REQ, RES>> handlerMap;
 
 
-    public AgentDispatchHandler(final SimpleAndRequestResponseHandler<REQ, RES> agentInfoHandler,
-                                List<RequestResponseHandler<REQ, RES>> handlers) {
-        this.agentInfoHandler = Objects.requireNonNull(agentInfoHandler, "agentInfoHandler");
+    public AgentDispatchHandler(List<RequestResponseHandler<REQ, RES>> handlers) {
 
-        handlers.forEach(handler -> logger.info("{} {}", handler.type(), handler.getClass()));
+        handlers.forEach(handler -> logger.info("AgentDispatchHandler {} {}", handler.type(), handler.getClass()));
 
         this.handlerMap = new IntHashMap<>();
         for (RequestResponseHandler<REQ, RES> handler : handlers) {
@@ -68,19 +61,9 @@ public class AgentDispatchHandler<REQ, RES> implements DispatchHandler<REQ, RES>
         return handler;
     }
 
-    private SimpleHandler<REQ> getSimpleHandler(MessageType type) {
-        if (type == MessageType.AGENT_INFO) {
-            return agentInfoHandler;
-        }
-
-        throw new UnsupportedOperationException("unsupported header:" + type);
-    }
-
     @Override
     public void dispatchSendMessage(ServerRequest<REQ> serverRequest) {
-        MessageType messageType = serverRequest.getMessageType();
-        SimpleHandler<REQ> simpleHandler = getSimpleHandler(messageType);
-        simpleHandler.handleSimple(serverRequest);
+        throw new UnsupportedOperationException("unsupported header:" + serverRequest.getHeader());
     }
 
     @Override

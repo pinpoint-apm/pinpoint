@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.collector.grpc.lifecycle.DefaultPingSessionRegistr
 import com.navercorp.pinpoint.collector.grpc.lifecycle.PingEventHandler;
 import com.navercorp.pinpoint.collector.grpc.lifecycle.PingSessionRegistry;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
-import com.navercorp.pinpoint.collector.handler.SimpleAndRequestResponseHandler;
 import com.navercorp.pinpoint.collector.manage.HandlerManager;
 import com.navercorp.pinpoint.collector.receiver.AgentDispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
@@ -138,10 +137,8 @@ public class GrpcAgentConfiguration {
 
     @Bean
     public AgentDispatchHandler<GeneratedMessageV3, GeneratedMessageV3> grpcAgentDispatchHandler(
-            @Qualifier("grpcAgentInfoHandler")
-            SimpleAndRequestResponseHandler<GeneratedMessageV3, GeneratedMessageV3> agentInfoHandler,
             List<RequestResponseHandler<GeneratedMessageV3, GeneratedMessageV3>> handlers) {
-        return new AgentDispatchHandler<>(agentInfoHandler, handlers);
+        return new AgentDispatchHandler<>(handlers);
     }
 
     @Bean

@@ -62,6 +62,12 @@ public class MessageType {
         return code;
     }
 
+    @Override
+    public String toString() {
+        return "MessageType{" +
+               "code=" + code +
+               '}';
+    }
 
     public static MessageType getType(int code) {
         MessageType messageType = MAP.get(code);
