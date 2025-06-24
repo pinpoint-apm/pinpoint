@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
 import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.io.util.MessageType;
 import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
@@ -45,18 +46,23 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final ServerRequestFactory serverRequestFactory;
+    private final ServerRequestFactory requestFactory;
+    private final ServerResponseFactory responseFactory;
+
     private final SimpleRequestHandlerAdaptor<GeneratedMessageV3, GeneratedMessageV3> simpleRequestHandlerAdaptor;
     private final Executor executor;
 
-    public MetadataService(DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler, Executor executor, ServerRequestFactory serverRequestFactory) {
-        Objects.requireNonNull(dispatchHandler, "dispatchHandler");
-        Objects.requireNonNull(executor, "executor");
-        Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
-
-        this.executor = Context.currentContextExecutor(executor);
+    public MetadataService(DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
+                           Executor executor,
+                           ServerRequestFactory requestFactory,
+                           ServerResponseFactory responseFactory) {
         this.simpleRequestHandlerAdaptor = new SimpleRequestHandlerAdaptor<>(this.getClass().getName(), dispatchHandler);
-        this.serverRequestFactory = Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
+
+        Objects.requireNonNull(executor, "executor");
+        this.executor = Context.currentContextExecutor(executor);
+
+        this.requestFactory = Objects.requireNonNull(requestFactory, "requestFactory");
+        this.responseFactory = Objects.requireNonNull(responseFactory, "responseFactory");
     }
 
 
@@ -66,7 +72,7 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
             logger.debug("Request PApiMetaData={}", debugLog(apiMetaData));
         }
         Context current = Context.current();
-        ServerRequest<PApiMetaData> request = serverRequestFactory.newServerRequest(current, MessageType.APIMETADATA, apiMetaData);
+        ServerRequest<PApiMetaData> request = requestFactory.newServerRequest(current, MessageType.APIMETADATA, apiMetaData);
         doExecutor(request, responseObserver);
     }
 
@@ -76,7 +82,7 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
             logger.debug("Request PSqlMetaData={}", debugLog(sqlMetaData));
         }
         Context current = Context.current();
-        ServerRequest<PSqlMetaData> request = serverRequestFactory.newServerRequest(current, MessageType.SQLMETADATA, sqlMetaData);
+        ServerRequest<PSqlMetaData> request = requestFactory.newServerRequest(current, MessageType.SQLMETADATA, sqlMetaData);
         doExecutor(request, responseObserver);
     }
 
@@ -86,7 +92,7 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
             logger.debug("Request PSqlUidMetaData={}", debugLog(sqlUidMetaData));
         }
         Context current = Context.current();
-        ServerRequest<PSqlUidMetaData> request = serverRequestFactory.newServerRequest(current, MessageType.SQLUIDMETADATA, sqlUidMetaData);
+        ServerRequest<PSqlUidMetaData> request = requestFactory.newServerRequest(current, MessageType.SQLUIDMETADATA, sqlUidMetaData);
         doExecutor(request, responseObserver);
     }
 
@@ -96,7 +102,7 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
             logger.debug("Request PStringMetaData={}", debugLog(stringMetaData));
         }
         Context current = Context.current();
-        ServerRequest<PStringMetaData> request = serverRequestFactory.newServerRequest(current, MessageType.STRINGMETADATA, stringMetaData);
+        ServerRequest<PStringMetaData> request = requestFactory.newServerRequest(current, MessageType.STRINGMETADATA, stringMetaData);
         doExecutor(request, responseObserver);
     }
 
@@ -106,7 +112,7 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
             logger.debug("Request PExceptionMetaData={}", debugLog(exceptionMetaData));
         }
         Context current = Context.current();
-        ServerRequest<PExceptionMetaData> request = serverRequestFactory.newServerRequest(current, MessageType.EXCEPTIONMETADATA, exceptionMetaData);
+        ServerRequest<PExceptionMetaData> request = requestFactory.newServerRequest(current, MessageType.EXCEPTIONMETADATA, exceptionMetaData);
         doExecutor(request, responseObserver);
     }
 
@@ -116,7 +122,8 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    simpleRequestHandlerAdaptor.request(request, responseObserver);
+                    ServerResponse<? extends GeneratedMessageV3> serverResponse = responseFactory.newServerResponse(request, responseObserver);
+                    simpleRequestHandlerAdaptor.dispatch(request, serverResponse);
                 }
             });
         } catch (RejectedExecutionException ree) {

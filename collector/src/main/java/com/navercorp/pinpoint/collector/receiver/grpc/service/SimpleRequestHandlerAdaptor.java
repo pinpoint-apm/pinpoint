@@ -17,15 +17,9 @@
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import com.navercorp.pinpoint.collector.receiver.grpc.GrpcServerResponse;
-import com.navercorp.pinpoint.collector.receiver.grpc.retry.GrpcRetryFriendlyServerResponse;
 import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
-import io.grpc.Status;
-import io.grpc.StatusException;
-import io.grpc.StatusRuntimeException;
-import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -45,27 +39,15 @@ public class SimpleRequestHandlerAdaptor<REQ, RES> {
         this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
     }
 
-    public void request(ServerRequest<? extends REQ> request, StreamObserver<? extends RES> responseObserver) {
+    @SuppressWarnings("unchecked")
+    public void dispatch(ServerRequest<? extends REQ> request, ServerResponse<? extends RES> response) {
+        final ServerHeader header = request.getHeader();
         try {
-            final ServerResponse<? extends RES> response = newServerResponse(request, responseObserver);
             this.dispatchHandler.dispatchRequestMessage((ServerRequest<REQ>) request, (ServerResponse<RES>) response);
         } catch (Exception e) {
-            final ServerHeader header = request.getHeader();
             logger.warn("Failed to request. header={}", header, e);
-            if (e instanceof StatusException || e instanceof StatusRuntimeException) {
-                responseObserver.onError(e);
-            } else {
-                // Avoid detailed exception
-                responseObserver.onError(Status.INTERNAL.withDescription("Bad Request").asException());
-            }
+            response.onError(e);
         }
     }
 
-    private ServerResponse<? extends RES> newServerResponse(ServerRequest<? extends REQ> request, StreamObserver<? extends RES> responseObserver) {
-        ServerHeader header = request.getHeader();
-        if (header.isGrpcBuiltInRetry()) {
-            return new GrpcRetryFriendlyServerResponse<>(responseObserver);
-        }
-        return new GrpcServerResponse<>(responseObserver);
-    }
 }

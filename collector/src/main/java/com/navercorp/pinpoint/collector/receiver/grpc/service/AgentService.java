@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PPing;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.io.util.MessageType;
 import io.grpc.Context;
 import io.grpc.Metadata;
@@ -51,15 +52,20 @@ public class AgentService extends AgentGrpc.AgentImplBase {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final SimpleRequestHandlerAdaptor<GeneratedMessageV3, GeneratedMessageV3> simpleRequestHandlerAdaptor;
-    private final ServerRequestFactory serverRequestFactory;
+
+    private final ServerRequestFactory requestFactory;
+    private final ServerResponseFactory responseFactory;
 
     private final PingEventHandler pingEventHandler;
     private final Executor executor;
 
     public AgentService(DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
-                        PingEventHandler pingEventHandler, Executor executor, ServerRequestFactory serverRequestFactory) {
+                        PingEventHandler pingEventHandler, Executor executor,
+                        ServerRequestFactory requestFactory,
+                        ServerResponseFactory responseFactory) {
         this.simpleRequestHandlerAdaptor = new SimpleRequestHandlerAdaptor<>(this.getClass().getName(), dispatchHandler);
-        this.serverRequestFactory = Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
+        this.requestFactory = Objects.requireNonNull(requestFactory, "requestFactory");
+        this.responseFactory = Objects.requireNonNull(responseFactory, "responseFactory");
 
         this.pingEventHandler = Objects.requireNonNull(pingEventHandler, "pingEventHandler");
         Objects.requireNonNull(executor, "executor");
@@ -73,12 +79,13 @@ public class AgentService extends AgentGrpc.AgentImplBase {
         }
 
         final Context current = Context.current();
-        final ServerRequest<PAgentInfo> request = this.serverRequestFactory.newServerRequest(current, MessageType.AGENT_INFO, agentInfo);
+        final ServerRequest<PAgentInfo> request = this.requestFactory.newServerRequest(current, MessageType.AGENT_INFO, agentInfo);
         try {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    simpleRequestHandlerAdaptor.request(request, responseObserver);
+                    ServerResponse<PResult> response = responseFactory.newServerResponse(request, responseObserver);
+                    simpleRequestHandlerAdaptor.dispatch(request, response);
                     // Update service type of PingSession
                     TransportMetadata transportMetadata = ServerContext.getTransportMetadata();
                     pingEventHandler.update(transportMetadata.getTransportId());

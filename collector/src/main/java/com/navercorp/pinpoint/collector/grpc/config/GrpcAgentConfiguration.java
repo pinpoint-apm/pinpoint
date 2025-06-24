@@ -36,6 +36,7 @@ import com.navercorp.pinpoint.collector.receiver.grpc.service.AgentService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.KeepAliveService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.MetadataService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
+import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerResponseFactory;
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
@@ -70,8 +71,9 @@ public class GrpcAgentConfiguration {
                                      PingEventHandler pingEventHandler,
                                      @Qualifier("grpcAgentWorkerExecutor")
                                      Executor executor,
-                                     ServerRequestFactory serverRequestFactory) {
-        return new AgentService(dispatchHandler, pingEventHandler, executor, serverRequestFactory);
+                                     ServerRequestFactory serverRequestFactory,
+                                     ServerResponseFactory serverResponseFactory) {
+        return new AgentService(dispatchHandler, pingEventHandler, executor, serverRequestFactory, serverResponseFactory);
     }
 
     @Bean
@@ -79,8 +81,9 @@ public class GrpcAgentConfiguration {
                                            DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
                                            @Qualifier("grpcAgentWorkerExecutor")
                                            Executor executor,
-                                           ServerRequestFactory serverRequestFactory) {
-        return new MetadataService(dispatchHandler, executor, serverRequestFactory);
+                                           ServerRequestFactory serverRequestFactory,
+                                           ServerResponseFactory serverResponseFactory) {
+        return new MetadataService(dispatchHandler, executor, serverRequestFactory, serverResponseFactory);
     }
 
 

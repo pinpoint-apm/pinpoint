@@ -22,8 +22,10 @@ import com.navercorp.pinpoint.collector.receiver.BindAddress;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.AgentService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerRequestFactory;
+import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerResponseFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.MetadataService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
+import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerResponseFactory;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
@@ -48,6 +50,7 @@ public class AgentServerTestMain {
     public static final int PORT = 9997;
 
     private final ServerRequestFactory serverRequestFactory = new DefaultServerRequestFactory();
+    private final ServerResponseFactory serverResponseFactory = new DefaultServerResponseFactory();
 
     public void run() throws Exception {
         GrpcReceiver grpcReceiver = new GrpcReceiver();
@@ -60,9 +63,9 @@ public class AgentServerTestMain {
         grpcReceiver.setBindAddress(builder.build());
 
         PingEventHandler pingEventHandler = mock(PingEventHandler.class);
-        BindableService agentService = new AgentService(new MockDispatchHandler(), pingEventHandler, Executors.newFixedThreadPool(8), serverRequestFactory);
+        BindableService agentService = new AgentService(new MockDispatchHandler(), pingEventHandler, Executors.newFixedThreadPool(8), serverRequestFactory, serverResponseFactory);
 
-        MetadataService metadataService = new MetadataService(new MockDispatchHandler(), Executors.newFixedThreadPool(8), serverRequestFactory);
+        MetadataService metadataService = new MetadataService(new MockDispatchHandler(), Executors.newFixedThreadPool(8), serverRequestFactory, serverResponseFactory);
         List<ServerServiceDefinition> serviceList = List.of(agentService.bindService(), metadataService.bindService());
 
         grpcReceiver.setBindAddress(builder.build());
