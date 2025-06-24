@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.collector.handler.grpc.metric;
 
-import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.collector.handler.grpc.GrpcMetricHandler;
+import com.navercorp.pinpoint.collector.handler.SimpleHandler;
+import com.navercorp.pinpoint.collector.handler.grpc.GrpcAgentEventService;
 import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentStatBatchMapper;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
@@ -10,35 +10,36 @@ import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
-public class AgentMetricBatchHandler implements GrpcMetricHandler {
+@Service
+public class AgentMetricBatchHandler implements SimpleHandler<PAgentStatBatch> {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final GrpcAgentStatBatchMapper agentStatBatchMapper;
+    private final AgentStatGroupService agentStatGroupService;
 
-    private final AgentMetricHandler agentMetricHandler;
+    private final GrpcAgentEventService grpcAgentEventService;
 
 
     public AgentMetricBatchHandler(GrpcAgentStatBatchMapper agentStatBatchMapper,
-                                   AgentMetricHandler agentMetricHandler) {
+                                   AgentStatGroupService agentStatGroupService,
+                                   GrpcAgentEventService grpcAgentEventService) {
         this.agentStatBatchMapper = Objects.requireNonNull(agentStatBatchMapper, "agentStatBatchMapper");
-        this.agentMetricHandler = Objects.requireNonNull(agentMetricHandler, "agentStatHandler");
+        this.agentStatGroupService = Objects.requireNonNull(agentStatGroupService, "agentStatGroupService");
+        this.grpcAgentEventService = Objects.requireNonNull(grpcAgentEventService, "grpcAgentEventService");
     }
 
     @Override
-    public boolean accept(ServerRequest<GeneratedMessageV3> request) {
-        GeneratedMessageV3 message = request.getData();
-        return message instanceof PAgentStatBatch;
-    }
-
-    @Override
-    public void handle(ServerRequest<GeneratedMessageV3> request) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle PAgentStatBatch={}", MessageFormatUtils.debugLog(request.getData()));
+    public void handleSimple(ServerRequest<PAgentStatBatch> request) {
+        if (logger.isInfoEnabled()) {
+            logger.info("Handle PAgentStatBatch {}", request.getHeader());
+        } else if (logger.isDebugEnabled()) {
+            logger.debug("Handle PAgentStatBatch {} {}", request.getHeader(), MessageFormatUtils.debugLog(request.getData()));
         }
-        final PAgentStatBatch agentStatBatch = (PAgentStatBatch) request.getData();
+        final PAgentStatBatch agentStatBatch = request.getData();
 
         final ServerHeader header = request.getHeader();
         final AgentStatBo agentStatBo = this.agentStatBatchMapper.map(agentStatBatch, header);
@@ -46,6 +47,8 @@ public class AgentMetricBatchHandler implements GrpcMetricHandler {
             return;
         }
 
-        this.agentMetricHandler.handleAgentStat(agentStatBo);
+        this.agentStatGroupService.handleAgentStat(agentStatBo);
+
+        this.grpcAgentEventService.handleAgentStatBatch(header, agentStatBatch);
     }
 }

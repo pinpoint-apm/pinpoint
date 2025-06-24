@@ -1,9 +1,8 @@
 package com.navercorp.pinpoint.collector.handler.grpc.metric;
 
-import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.collector.handler.grpc.GrpcMetricHandler;
+import com.navercorp.pinpoint.collector.handler.SimpleHandler;
+import com.navercorp.pinpoint.collector.handler.grpc.GrpcAgentEventService;
 import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentStatMapper;
-import com.navercorp.pinpoint.collector.service.AgentStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
@@ -11,56 +10,45 @@ import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Objects;
 
-public class AgentMetricHandler implements GrpcMetricHandler {
+@Service
+public class AgentMetricHandler implements SimpleHandler<PAgentStat> {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final GrpcAgentStatMapper agentStatMapper;
+    private final AgentStatGroupService agentStatGroupService;
 
-    private final AgentStatService[] agentStatServiceList;
+    private final GrpcAgentEventService grpcAgentEventService;
 
     public AgentMetricHandler(GrpcAgentStatMapper agentStatMapper,
-                              List<AgentStatService> agentStatServiceList) {
+                              AgentStatGroupService agentStatServiceList,
+                              GrpcAgentEventService grpcAgentEventService) {
         this.agentStatMapper = Objects.requireNonNull(agentStatMapper, "agentStatMapper");
+        this.agentStatGroupService = Objects.requireNonNull(agentStatServiceList, "agentStatServiceList");
 
-        Objects.requireNonNull(agentStatServiceList, "agentStatServiceList");
-        this.agentStatServiceList = agentStatServiceList.toArray(new AgentStatService[0]);
-        for (AgentStatService service : this.agentStatServiceList) {
-            logger.info("{}:{}", AgentStatService.class.getSimpleName(), service.getClass().getSimpleName());
-        }
+        this.grpcAgentEventService = Objects.requireNonNull(grpcAgentEventService, "grpcAgentEventService");
     }
 
     @Override
-    public boolean accept(ServerRequest<GeneratedMessageV3> request) {
-        GeneratedMessageV3 message = request.getData();
-        return message instanceof PAgentStat;
-    }
-
-    @Override
-    public void handle(ServerRequest<GeneratedMessageV3> request) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle PAgentStat={}", MessageFormatUtils.debugLog(request.getData()));
+    public void handleSimple(ServerRequest<PAgentStat> request) {
+        if (logger.isInfoEnabled()) {
+            logger.debug("Handle PAgentStat {}", request.getHeader());
+        } else if (logger.isDebugEnabled()) {
+            logger.debug("Handle PAgentStat {} {}", request.getHeader(), MessageFormatUtils.debugLog(request.getData()));
         }
-        final PAgentStat agentStat = (PAgentStat) request.getData();
+        final PAgentStat agentStat = request.getData();
         final ServerHeader header = request.getHeader();
         final AgentStatBo agentStatBo = this.agentStatMapper.map(header, agentStat);
         if (agentStatBo == null) {
             return;
         }
 
-        handleAgentStat(agentStatBo);
+        this.agentStatGroupService.handleAgentStat(agentStatBo);
+
+        this.grpcAgentEventService.handleAgentStat(header, agentStat);
     }
 
-    public void handleAgentStat(AgentStatBo agentStatBo) {
-        for (AgentStatService agentStatService : agentStatServiceList) {
-            try {
-                agentStatService.save(agentStatBo);
-            } catch (Exception e) {
-                logger.warn("Failed to handle service={}, AgentStatBo={}", agentStatService, agentStatBo, e);
-            }
-        }
-    }
 }

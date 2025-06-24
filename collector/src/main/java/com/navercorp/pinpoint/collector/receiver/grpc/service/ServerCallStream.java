@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.collector.util.ErrorStatus;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.io.request.UidFetcher;
@@ -119,7 +120,7 @@ public class ServerCallStream<Req extends GeneratedMessageV3, Res extends Genera
             responseObserver.onError(e);
         } else {
             // Avoid detailed exception
-            StatusException statusException = Status.INTERNAL.withDescription("Bad Request").asException();
+            StatusException statusException = ErrorStatus.InternalBadRequest.asException();
             responseObserver.onError(statusException);
         }
     }

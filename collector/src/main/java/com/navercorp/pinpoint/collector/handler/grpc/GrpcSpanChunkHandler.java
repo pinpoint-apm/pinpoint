@@ -1,7 +1,6 @@
 
 package com.navercorp.pinpoint.collector.handler.grpc;
 
-import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.sampler.Sampler;
 import com.navercorp.pinpoint.collector.sampler.SpanSamplerFactory;
@@ -12,7 +11,6 @@ import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.grpc.BindAttribute;
 import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanFactory;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
@@ -20,7 +18,6 @@ import com.navercorp.pinpoint.grpc.trace.PTransactionId;
 import com.navercorp.pinpoint.io.request.BindAttributes;
 import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
-import io.grpc.Status;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -33,7 +30,7 @@ import java.util.Objects;
  * @author emeroad
  */
 @Service
-public class GrpcSpanChunkHandler implements SimpleHandler<GeneratedMessageV3> {
+public class GrpcSpanChunkHandler implements SimpleHandler<PSpanChunk> {
 
     private final Logger logger = LogManager.getLogger(getClass());
     private final LogSampler infoLog = new LogSampler(1000);
@@ -55,16 +52,11 @@ public class GrpcSpanChunkHandler implements SimpleHandler<GeneratedMessageV3> {
     }
 
     @Override
-    public void handleSimple(ServerRequest<GeneratedMessageV3> serverRequest) {
-        final GeneratedMessageV3 data = serverRequest.getData();
-        if (data instanceof PSpanChunk spanChunk) {
-            final ServerHeader header = serverRequest.getHeader();
-            final BindAttribute attribute = BindAttributes.of(header, serverRequest.getRequestTime());
-            handleSpanChunk(attribute, spanChunk);
-        } else {
-            logger.warn("Invalid request type. serverRequest={}", serverRequest);
-            throw Status.INTERNAL.withDescription("Bad Request(invalid request type)").asRuntimeException();
-        }
+    public void handleSimple(ServerRequest<PSpanChunk> serverRequest) {
+        final PSpanChunk spanChunk = serverRequest.getData();
+        final ServerHeader header = serverRequest.getHeader();
+        final BindAttribute attribute = BindAttributes.of(header, serverRequest.getRequestTime());
+        handleSpanChunk(attribute, spanChunk);
     }
 
 
@@ -100,27 +92,15 @@ public class GrpcSpanChunkHandler implements SimpleHandler<GeneratedMessageV3> {
         if (!isDebug) {
             return "";
         }
-
-        StringBuilder log = new StringBuilder(64);
-
+        long spanId = spanChunk.getSpanId();
         PTransactionId transactionId = spanChunk.getTransactionId();
-        log.append(" transactionId:");
-        log.append(MessageFormatUtils.debugLog(transactionId));
-
-        log.append(" spanId:").append(spanChunk.getSpanId());
-
         final List<PSpanEvent> spanEventList = spanChunk.getSpanEventList();
-        if (CollectionUtils.hasLength(spanEventList)) {
-            log.append(" spanEventSequence:");
-            for (PSpanEvent pSpanEvent : spanEventList) {
-                if (pSpanEvent == null) {
-                    continue;
-                }
-                log.append(pSpanEvent.getSequence()).append(" ");
-            }
-        }
 
-        return log.toString();
+        return SpanLog.debugLog(transactionId, spanId, spanEventList);
     }
 
+    @Override
+    public String toString() {
+        return "GrpcSpanChunkHandler";
+    }
 }

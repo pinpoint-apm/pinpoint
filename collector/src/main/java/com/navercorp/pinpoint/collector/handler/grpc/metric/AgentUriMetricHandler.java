@@ -1,7 +1,6 @@
 package com.navercorp.pinpoint.collector.handler.grpc.metric;
 
-import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.collector.handler.grpc.GrpcMetricHandler;
+import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentUriStatMapper;
 import com.navercorp.pinpoint.collector.service.AgentUriStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
@@ -14,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
-public class AgentUriMetricHandler implements GrpcMetricHandler {
+public class AgentUriMetricHandler implements SimpleHandler<PAgentUriStat> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -28,19 +27,12 @@ public class AgentUriMetricHandler implements GrpcMetricHandler {
     }
 
     @Override
-    public boolean accept(ServerRequest<GeneratedMessageV3> request) {
-        GeneratedMessageV3 message = request.getData();
-        return message instanceof PAgentUriStat;
-
-    }
-
-    @Override
-    public void handle(ServerRequest<GeneratedMessageV3> request) {
+    public void handleSimple(ServerRequest<PAgentUriStat> request) {
         if (logger.isDebugEnabled()) {
             logger.debug("Handle PAgentUriStat={}", MessageFormatUtils.debugLog(request.getData()));
         }
         final ServerHeader header = request.getHeader();
-        final PAgentUriStat agentUriStat = (PAgentUriStat) request.getData();
+        final PAgentUriStat agentUriStat = request.getData();
         final AgentUriStatBo agentUriStatBo = agentUriStatMapper.map(header, agentUriStat);
         agentUriStatService.save(agentUriStatBo);
     }

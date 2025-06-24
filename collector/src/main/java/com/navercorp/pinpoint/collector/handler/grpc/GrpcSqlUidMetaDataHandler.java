@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.handler.grpc;
 
-import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.service.SqlUidMetaDataService;
 import com.navercorp.pinpoint.common.server.bo.SqlUidMetaDataBo;
@@ -27,7 +26,6 @@ import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.io.util.MessageType;
-import io.grpc.Status;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -36,7 +34,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 @Service
-public class GrpcSqlUidMetaDataHandler implements RequestResponseHandler<GeneratedMessageV3, GeneratedMessageV3> {
+public class GrpcSqlUidMetaDataHandler implements RequestResponseHandler<PSqlUidMetaData, PResult> {
     private final Logger logger = LogManager.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -53,16 +51,12 @@ public class GrpcSqlUidMetaDataHandler implements RequestResponseHandler<Generat
     }
 
     @Override
-    public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
-        final GeneratedMessageV3 data = serverRequest.getData();
+    public void handleRequest(ServerRequest<PSqlUidMetaData> serverRequest, ServerResponse<PResult> serverResponse) {
+        final PSqlUidMetaData sqlUidMetaData = serverRequest.getData();
         final ServerHeader header = serverRequest.getHeader();
-        if (data instanceof PSqlUidMetaData sqlUidMetaData) {
-            PResult result = handleSqlUidMetaData(header, sqlUidMetaData);
-            serverResponse.write(result);
-        } else {
-            logger.warn("Invalid request type. serverRequest={}", serverRequest);
-            throw Status.INTERNAL.withDescription("Bad Request(invalid request type)").asRuntimeException();
-        }
+        PResult result = handleSqlUidMetaData(header, sqlUidMetaData);
+        serverResponse.write(result);
+
     }
 
     private PResult handleSqlUidMetaData(ServerHeader header, PSqlUidMetaData sqlUidMetaData) {
