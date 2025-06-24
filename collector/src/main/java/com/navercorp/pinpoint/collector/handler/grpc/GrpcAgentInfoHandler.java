@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.collector.handler.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.collector.handler.SimpleAndRequestResponseHandler;
+import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.mapper.grpc.GrpcAgentInfoBoMapper;
 import com.navercorp.pinpoint.collector.service.AgentInfoService;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
@@ -40,7 +40,7 @@ import java.util.Objects;
  * @author koo.taejin
  */
 @Service
-public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler<GeneratedMessageV3, GeneratedMessageV3> {
+public class GrpcAgentInfoHandler implements RequestResponseHandler<GeneratedMessageV3, GeneratedMessageV3> {
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -58,17 +58,6 @@ public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler<Gen
         return MessageType.AGENT_INFO;
     }
 
-    @Override
-    public void handleSimple(ServerRequest<GeneratedMessageV3> serverRequest) {
-        final GeneratedMessageV3 data = serverRequest.getData();
-        final ServerHeader header = serverRequest.getHeader();
-        if (data instanceof PAgentInfo agentInfo) {
-            handleAgentInfo(header, agentInfo);
-        } else {
-            logger.warn("Invalid request type. serverRequest={}", serverRequest);
-            throw Status.INTERNAL.withDescription("Bad Request(invalid request type)").asRuntimeException();
-        }
-    }
 
     @Override
     public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
