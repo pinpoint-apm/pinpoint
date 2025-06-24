@@ -16,15 +16,15 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
+import org.apache.logging.log4j.LogManager;
+
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class SpanClientTestMain {
-    public static final Logger logger = Logger.getLogger(SpanClientTestMain.class.getName());
-    static {
-        logger.setLevel(Level.FINE);
-    }
+
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(SpanClientTestMain.class);
+
+
     private static final int MAX = Integer.MAX_VALUE;
 
     public static void main(String[] args) throws Exception {

@@ -17,6 +17,8 @@
 
 package com.navercorp.pinpoint.collector.config;
 
+import com.navercorp.pinpoint.collector.aop.AvailabilityHandlerAop;
+import com.navercorp.pinpoint.collector.manage.HandlerManager;
 import com.navercorp.pinpoint.collector.sampler.SimpleSpanSamplerFactory;
 import com.navercorp.pinpoint.collector.sampler.SpanSamplerFactory;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
@@ -65,4 +67,9 @@ public class CollectorConfiguration {
         return new SimpleSpanSamplerFactory(collectorProperties);
     }
 
+
+    @Bean
+    public AvailabilityHandlerAop availabilityHandlerAop(HandlerManager handlerManager) {
+        return new AvailabilityHandlerAop(handlerManager);
+    }
 }

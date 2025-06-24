@@ -17,8 +17,7 @@
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.google.protobuf.Empty;
-import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
@@ -47,17 +46,21 @@ public class SpanService extends SpanGrpc.SpanImplBase {
 
     private final AtomicLong serverStreamId = new AtomicLong();
 
+    private final SimpleHandler<PSpan> spanHandler;
+    private final SimpleHandler<PSpanChunk> spanCheckHandler;
 
-    private final DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler;
     private final ServerRequestFactory serverRequestFactory;
     private final StreamCloseOnError streamCloseOnError;
     private final UidFetcherStreamService uidFetcherStreamService;
 
-    public SpanService(DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
+    public SpanService(SimpleHandler<PSpan> spanHandler,
+                       SimpleHandler<PSpanChunk> spanCheckHandler,
                        UidFetcherStreamService uidFetcherStreamService,
                        ServerRequestFactory serverRequestFactory,
                        StreamCloseOnError streamCloseOnError) {
-        this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
+        this.spanHandler = Objects.requireNonNull(spanHandler, "spanHandler");
+        this.spanCheckHandler = Objects.requireNonNull(spanCheckHandler, "spanCheckHandler");
+
         this.uidFetcherStreamService = Objects.requireNonNull(uidFetcherStreamService, "uidFetcherStreamService");
         this.serverRequestFactory = Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
         this.streamCloseOnError = Objects.requireNonNull(streamCloseOnError, "streamCloseOnError");
@@ -84,14 +87,14 @@ public class SpanService extends SpanGrpc.SpanImplBase {
             Context current = Context.current();
             UidFetcher fetcher = call.getUidFetcher();
             ServerRequest<PSpan> request = serverRequestFactory.newServerRequest(current, fetcher, MessageType.SPAN, span);
-            this.dispatch(request, responseObserver);
+            this.dispatch(this.spanHandler, request, responseObserver);
         } else if (spanMessage.hasSpanChunk()) {
             PSpanChunk spanChunk = spanMessage.getSpanChunk();
 
             Context current = Context.current();
             UidFetcher fetcher = call.getUidFetcher();
             ServerRequest<PSpanChunk> request = serverRequestFactory.newServerRequest(current, fetcher, MessageType.SPANCHUNK, spanChunk);
-            this.dispatch(request, responseObserver);
+            this.dispatch(this.spanCheckHandler, request, responseObserver);
         } else {
             if (logger.isInfoEnabled()) {
                 logger.info("Found empty span message, header:{}", ServerContext.getAgentInfo());
@@ -99,14 +102,17 @@ public class SpanService extends SpanGrpc.SpanImplBase {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private void dispatch(ServerRequest<? extends GeneratedMessageV3> request, ServerCallStream<PSpanMessage, Empty> responseObserver) {
+    private <T> void dispatch(SimpleHandler<T> handler,
+                          ServerRequest<T> request,
+                          ServerCallStream<PSpanMessage, Empty> responseObserver) {
         try {
-            dispatchHandler.dispatchSendMessage((ServerRequest<GeneratedMessageV3>) request);
+            handler.handleSimple(request);
         } catch (Throwable e) {
             logger.warn("Failed to request. header={}", request.getHeader(), e);
             responseObserver.onNextError(e);
         }
     }
+
+
 
 }

@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.collector.handler.grpc;
 
-import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.mapper.grpc.event.GrpcAgentEventBatchMapper;
 import com.navercorp.pinpoint.collector.mapper.grpc.event.GrpcAgentEventMapper;
 import com.navercorp.pinpoint.collector.service.AgentEventService;
@@ -28,10 +26,7 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
-import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.io.request.ServerHeader;
-import com.navercorp.pinpoint.io.request.ServerRequest;
-import io.grpc.Status;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -44,7 +39,7 @@ import java.util.Objects;
  * @author jaehong.kim - Add AgentEventMessageSerializerV1
  */
 @Service
-public class GrpcAgentEventHandler implements SimpleHandler<GeneratedMessageV3> {
+public class GrpcAgentEventService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final GrpcAgentEventMapper agentEventMapper;
@@ -55,7 +50,7 @@ public class GrpcAgentEventHandler implements SimpleHandler<GeneratedMessageV3> 
 
     private final AgentEventService agentEventService;
 
-    public GrpcAgentEventHandler(GrpcAgentEventMapper agentEventMapper,
+    public GrpcAgentEventService(GrpcAgentEventMapper agentEventMapper,
                                  GrpcAgentEventBatchMapper agentEventBatchMapper,
                                  AgentEventMessageSerializerV1 agentEventMessageSerializerV1,
                                  AgentEventService agentEventService) {
@@ -65,23 +60,8 @@ public class GrpcAgentEventHandler implements SimpleHandler<GeneratedMessageV3> 
         this.agentEventService = Objects.requireNonNull(agentEventService, "agentEventService");
     }
 
-    @Override
-    public void handleSimple(ServerRequest<GeneratedMessageV3> serverRequest) {
-        final GeneratedMessageV3 data = serverRequest.getData();
-        final ServerHeader header = serverRequest.getHeader();
-        if (data instanceof PAgentStat agentStat) {
-            handleAgentStat(header, agentStat);
-        } else if (data instanceof PAgentStatBatch agentStatBatch) {
-            handleAgentStatBatch(header, agentStatBatch);
-        } else if (data instanceof PAgentUriStat) {
-            // do nothing
-        } else {
-            logger.warn("Invalid request type. serverRequest={}", serverRequest);
-            throw Status.INTERNAL.withDescription("Bad Request(invalid request type)").asRuntimeException();
-        }
-    }
 
-    private void handleAgentStat(ServerHeader header, PAgentStat agentStat) {
+    public void handleAgentStat(ServerHeader header, PAgentStat agentStat) {
         if (logger.isDebugEnabled()) {
             logger.debug("Handle PAgentStat={}", MessageFormatUtils.debugLog(agentStat));
         }
@@ -98,7 +78,7 @@ public class GrpcAgentEventHandler implements SimpleHandler<GeneratedMessageV3> 
         }
     }
 
-    private void handleAgentStatBatch(ServerHeader header, PAgentStatBatch agentStatBatch) {
+    public void handleAgentStatBatch(ServerHeader header, PAgentStatBatch agentStatBatch) {
         if (logger.isDebugEnabled()) {
             logger.debug("Handle PAgentStatBatch={}", MessageFormatUtils.debugLog(agentStatBatch));
         }

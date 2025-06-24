@@ -91,4 +91,10 @@ public class GrpcServerHeaderV1 implements ServerHeader {
         return header.getProperties();
     }
 
+    @Override
+    public String toString() {
+        return "GrpcServerHeaderV1{" +
+               "header=" + header +
+               '}';
+    }
 }

@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
-import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
+import com.navercorp.pinpoint.grpc.Header;
+import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PExceptionMetaData;
@@ -25,7 +26,6 @@ import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
-import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.util.MessageType;
 import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
@@ -45,18 +45,33 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final ServerRequestFactory serverRequestFactory;
-    private final SimpleRequestHandlerAdaptor<GeneratedMessageV3, GeneratedMessageV3> simpleRequestHandlerAdaptor;
+    private final RequestResponseHandler<PApiMetaData, PResult> apiMetaDataHandler;
+    private final RequestResponseHandler<PSqlMetaData, PResult> sqlMetaDataHandler;
+    private final RequestResponseHandler<PSqlUidMetaData, PResult> sqlUidMetaDataHandler;
+    private final RequestResponseHandler<PStringMetaData, PResult> stringMetaDataHandler;
+    private final RequestResponseHandler<PExceptionMetaData, PResult> exceptionMetaDataHandler;
+
+    private final JobRunner jobRunner;
     private final Executor executor;
 
-    public MetadataService(DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler, Executor executor, ServerRequestFactory serverRequestFactory) {
-        Objects.requireNonNull(dispatchHandler, "dispatchHandler");
-        Objects.requireNonNull(executor, "executor");
-        Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
+    public MetadataService(RequestResponseHandler<PApiMetaData, PResult> apiMetaDataHandler,
+                           RequestResponseHandler<PSqlMetaData, PResult> sqlMetaDataHandler,
+                           RequestResponseHandler<PSqlUidMetaData, PResult> sqlUidMetaDataHandler,
+                           RequestResponseHandler<PStringMetaData, PResult> stringMetaDataHandler,
+                           RequestResponseHandler<PExceptionMetaData, PResult> exceptionMetaDataHandler,
+                           Executor executor,
+                           ServerRequestFactory requestFactory,
+                           ServerResponseFactory responseFactory) {
+        this.apiMetaDataHandler = Objects.requireNonNull(apiMetaDataHandler, "apiMetaDataHandler");
+        this.sqlMetaDataHandler = Objects.requireNonNull(sqlMetaDataHandler, "sqlMetaDataHandler");
+        this.sqlUidMetaDataHandler = Objects.requireNonNull(sqlUidMetaDataHandler, "sqlUidMetaDataHandler");
+        this.stringMetaDataHandler = Objects.requireNonNull(stringMetaDataHandler, "stringMetaDataHandler");
+        this.exceptionMetaDataHandler = Objects.requireNonNull(exceptionMetaDataHandler, "exceptionMetaDataHandler");
 
+
+        Objects.requireNonNull(executor, "executor");
         this.executor = Context.currentContextExecutor(executor);
-        this.simpleRequestHandlerAdaptor = new SimpleRequestHandlerAdaptor<>(this.getClass().getName(), dispatchHandler);
-        this.serverRequestFactory = Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
+        this.jobRunner = new JobRunner(logger, requestFactory, responseFactory);
     }
 
 
@@ -65,9 +80,11 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
         if (isDebug) {
             logger.debug("Request PApiMetaData={}", debugLog(apiMetaData));
         }
-        Context current = Context.current();
-        ServerRequest<PApiMetaData> request = serverRequestFactory.newServerRequest(current, MessageType.APIMETADATA, apiMetaData);
-        doExecutor(request, responseObserver);
+        MessageType messageType = MessageType.APIMETADATA;
+        doExecute(() -> {
+            jobRunner.execute(messageType, apiMetaData, responseObserver,
+                    apiMetaDataHandler::handleRequest);
+        }, messageType);
     }
 
     @Override
@@ -75,9 +92,11 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
         if (isDebug) {
             logger.debug("Request PSqlMetaData={}", debugLog(sqlMetaData));
         }
-        Context current = Context.current();
-        ServerRequest<PSqlMetaData> request = serverRequestFactory.newServerRequest(current, MessageType.SQLMETADATA, sqlMetaData);
-        doExecutor(request, responseObserver);
+        MessageType messageType = MessageType.SQLMETADATA;
+        doExecute(() -> {
+            jobRunner.execute(messageType, sqlMetaData, responseObserver,
+                    sqlMetaDataHandler::handleRequest);
+        }, messageType);
     }
 
     @Override
@@ -85,9 +104,11 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
         if (isDebug) {
             logger.debug("Request PSqlUidMetaData={}", debugLog(sqlUidMetaData));
         }
-        Context current = Context.current();
-        ServerRequest<PSqlUidMetaData> request = serverRequestFactory.newServerRequest(current, MessageType.SQLUIDMETADATA, sqlUidMetaData);
-        doExecutor(request, responseObserver);
+        MessageType messageType = MessageType.SQLUIDMETADATA;
+        doExecute(() -> {
+            jobRunner.execute(messageType, sqlUidMetaData, responseObserver,
+                    sqlUidMetaDataHandler::handleRequest);
+        }, messageType);
     }
 
     @Override
@@ -95,9 +116,11 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
         if (isDebug) {
             logger.debug("Request PStringMetaData={}", debugLog(stringMetaData));
         }
-        Context current = Context.current();
-        ServerRequest<PStringMetaData> request = serverRequestFactory.newServerRequest(current, MessageType.STRINGMETADATA, stringMetaData);
-        doExecutor(request, responseObserver);
+        MessageType messageType = MessageType.STRINGMETADATA;
+        doExecute(() -> {
+            jobRunner.execute(messageType, stringMetaData, responseObserver,
+                    stringMetaDataHandler::handleRequest);
+        }, messageType);
     }
 
     @Override
@@ -105,23 +128,22 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
         if (isDebug) {
             logger.debug("Request PExceptionMetaData={}", debugLog(exceptionMetaData));
         }
-        Context current = Context.current();
-        ServerRequest<PExceptionMetaData> request = serverRequestFactory.newServerRequest(current, MessageType.EXCEPTIONMETADATA, exceptionMetaData);
-        doExecutor(request, responseObserver);
+        MessageType messageType = MessageType.EXCEPTIONMETADATA;
+        doExecute(() -> {
+            jobRunner.execute(messageType, exceptionMetaData, responseObserver,
+                    exceptionMetaDataHandler::handleRequest);
+        }, messageType);
     }
 
 
-    void doExecutor(final ServerRequest<? extends GeneratedMessageV3> request, final StreamObserver<? extends GeneratedMessageV3> responseObserver) {
+
+    void doExecute(Runnable runnable, MessageType messageType) {
         try {
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    simpleRequestHandlerAdaptor.request(request, responseObserver);
-                }
-            });
+            executor.execute(runnable);
         } catch (RejectedExecutionException ree) {
+            final Header header = ServerContext.getAgentInfo();
             // Defense code
-            logger.warn("Failed to request. Rejected execution, executor={}", executor);
+            logger.warn("Failed to request. Rejected execution, {} {} executor={}", messageType, header, executor);
         }
     }
 }

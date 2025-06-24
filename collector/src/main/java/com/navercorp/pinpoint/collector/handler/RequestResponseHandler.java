@@ -19,13 +19,11 @@ package com.navercorp.pinpoint.collector.handler;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.io.util.MessageType;
-import org.springframework.stereotype.Service;
 
 /**
  * @author emeroad
  * @author koo.taejin
  */
-@Service
 public interface RequestResponseHandler<REQ, RES> {
 
     MessageType type();
