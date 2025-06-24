@@ -16,13 +16,8 @@
 
 package com.navercorp.pinpoint.collector.handler.grpc;
 
-import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.collector.handler.grpc.metric.AgentMetricBatchHandler;
-import com.navercorp.pinpoint.collector.handler.grpc.metric.AgentMetricHandler;
+import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.handler.grpc.metric.AgentUriMetricHandler;
-import com.navercorp.pinpoint.collector.handler.grpc.metric.DisableAgentUriGrpcMetricHandler;
-import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentStatBatchMapper;
-import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentStatMapper;
 import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentUriStatMapper;
 import com.navercorp.pinpoint.collector.service.AgentUriStatService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -37,12 +32,8 @@ import com.navercorp.pinpoint.io.request.GrpcServerHeaderV1;
 import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import io.grpc.Context;
-import io.grpc.StatusRuntimeException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.mockito.Mockito.mock;
@@ -53,32 +44,10 @@ import static org.mockito.Mockito.when;
  */
 public class GrpcAgentUriMetricHandlerV2Test {
 
-    @Test
-    public void throwExceptionTest() {
-        Assertions.assertThrows(StatusRuntimeException.class, () -> {
-            AgentUriStatService mockAgentUriStatService = mock(AgentUriStatService.class);
-            ServerRequest<GeneratedMessageV3> mockServerRequest = serverRequestMock();
 
-            GrpcAgentStatHandlerV2 handler = createMockHandler(mockAgentUriStatService, false);
-
-            handler.handleSimple(mockServerRequest);
-        });
-    }
-
-    private ServerRequest<GeneratedMessageV3> serverRequestMock() {
-        @SuppressWarnings("unchecked")
-        ServerRequest<GeneratedMessageV3> mockServerRequest = mock(ServerRequest.class);
-        return mockServerRequest;
-    }
-
-    @Test
-    public void skipTest() {
-        AgentUriStatService mockAgentUriStatService = mock(AgentUriStatService.class);
-        ServerRequest<GeneratedMessageV3> mockServerRequest = serverRequestMock();
-        when(mockServerRequest.getData()).thenReturn(PAgentUriStat.getDefaultInstance());
-
-        GrpcAgentStatHandlerV2 handler = createMockHandler(mockAgentUriStatService, false);
-        handler.handleSimple(mockServerRequest);
+    @SuppressWarnings("unchecked")
+    private <T> ServerRequest<T> serverRequestMock() {
+        return (ServerRequest<T>) mock(ServerRequest.class);
     }
 
     @Test
@@ -87,14 +56,14 @@ public class GrpcAgentUriMetricHandlerV2Test {
 
         PAgentUriStat pAgentUriStat = createPAgentUriStat();
 
-        ServerRequest<GeneratedMessageV3> mockServerRequest = serverRequestMock();
+        ServerRequest<PAgentUriStat> mockServerRequest = serverRequestMock();
         Header header = HeaderV1.simple("name", "agentId", "agentName", "applicationName",
                 ServiceType.UNKNOWN.getCode(), 0);
         ServerHeader serverHeader = new GrpcServerHeaderV1(header);
         when(mockServerRequest.getHeader()).thenReturn(serverHeader);
         when(mockServerRequest.getData()).thenReturn(pAgentUriStat);
 
-        GrpcAgentStatHandlerV2 handler = createMockHandler(mockAgentUriStatService, true);
+        SimpleHandler<PAgentUriStat> handler = createMockHandler(mockAgentUriStatService);
         handler.handleSimple(mockServerRequest);
 
     }
@@ -126,26 +95,10 @@ public class GrpcAgentUriMetricHandlerV2Test {
     }
 
 
-    private GrpcAgentStatHandlerV2 createMockHandler(AgentUriStatService agentUriStatService, boolean enableUriStat) {
+    private SimpleHandler<PAgentUriStat> createMockHandler(AgentUriStatService agentUriStatService) {
 
-        List<GrpcMetricHandler> handlers = new ArrayList<>();
-
-        GrpcAgentStatMapper mockAgentStatMapper = mock(GrpcAgentStatMapper.class);
-        GrpcAgentStatBatchMapper agentStatBatchMapper = new GrpcAgentStatBatchMapper(mockAgentStatMapper);
-
-        AgentMetricHandler statHandler = new AgentMetricHandler(mockAgentStatMapper, List.of());
-        AgentMetricBatchHandler statBatchHandler = new AgentMetricBatchHandler(agentStatBatchMapper, statHandler);
-        handlers.add(statHandler);
-        handlers.add(statBatchHandler);
-
-        if (enableUriStat) {
-            GrpcAgentUriStatMapper grpcAgentUriStatMapper = new GrpcAgentUriStatMapper();
-            AgentUriMetricHandler uriHandler = new AgentUriMetricHandler(grpcAgentUriStatMapper, agentUriStatService);
-            handlers.add(uriHandler);
-        } else {
-            handlers.add(new DisableAgentUriGrpcMetricHandler());
-        }
-        return new GrpcAgentStatHandlerV2(handlers);
+        GrpcAgentUriStatMapper grpcAgentUriStatMapper = new GrpcAgentUriStatMapper();
+        return new AgentUriMetricHandler(grpcAgentUriStatMapper, agentUriStatService);
     }
 
 }

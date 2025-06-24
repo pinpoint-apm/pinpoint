@@ -16,18 +16,17 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.retry;
 
+import com.navercorp.pinpoint.collector.receiver.grpc.GrpcServerResponse;
 import com.navercorp.pinpoint.grpc.trace.PResult;
-import com.navercorp.pinpoint.io.request.ServerResponse;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 
 import java.util.Objects;
 
-public class GrpcRetryFriendlyServerResponse<T> implements ServerResponse<T> {
-    private final StreamObserver<T> responseObserver;
+public class GrpcRetryFriendlyServerResponse<T> extends GrpcServerResponse<T> {
 
     public GrpcRetryFriendlyServerResponse(StreamObserver<T> responseObserver) {
-        this.responseObserver = Objects.requireNonNull(responseObserver, "responseObserver");
+        super(responseObserver);
     }
 
     @Override
@@ -39,13 +38,7 @@ public class GrpcRetryFriendlyServerResponse<T> implements ServerResponse<T> {
                 return;
             }
         }
-
-        responseObserver.onNext(message);
-        responseObserver.onCompleted();
+        super.write(message);
     }
 
-    @Override
-    public void finish() {
-        responseObserver.onCompleted();
-    }
 }

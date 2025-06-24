@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.handler.grpc;
 
-import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.sampler.Sampler;
 import com.navercorp.pinpoint.collector.sampler.SpanSamplerFactory;
@@ -27,7 +26,6 @@ import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.grpc.BindAttribute;
 import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanFactory;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
@@ -35,7 +33,6 @@ import com.navercorp.pinpoint.grpc.trace.PTransactionId;
 import com.navercorp.pinpoint.io.request.BindAttributes;
 import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
-import io.grpc.Status;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -49,7 +46,7 @@ import java.util.Objects;
  * @author netspider
  */
 @Service
-public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
+public class GrpcSpanHandler implements SimpleHandler<PSpan> {
 
     private final Logger logger = LogManager.getLogger(getClass());
     private final LogSampler infoLog = new LogSampler(1000);
@@ -71,16 +68,13 @@ public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
     }
 
     @Override
-    public void handleSimple(ServerRequest<GeneratedMessageV3> serverRequest) {
-        final GeneratedMessageV3 data = serverRequest.getData();
-        if (data instanceof PSpan span) {
-            final ServerHeader header = serverRequest.getHeader();
-            BindAttribute attribute = BindAttributes.of(header, serverRequest.getRequestTime());
-            handleSpan(attribute, span);
-        } else {
-            logger.warn("Invalid request type. serverRequest={}", serverRequest);
-            throw Status.INTERNAL.withDescription("Bad Request(invalid request type)").asRuntimeException();
-        }
+    public void handleSimple(ServerRequest<PSpan> serverRequest) {
+        final PSpan span = serverRequest.getData();
+
+        final ServerHeader header = serverRequest.getHeader();
+        BindAttribute attribute = BindAttributes.of(header, serverRequest.getRequestTime());
+        handleSpan(attribute, span);
+
     }
 
     private void handleSpan(BindAttribute attribute, PSpan span) {
@@ -116,27 +110,15 @@ public class GrpcSpanHandler implements SimpleHandler<GeneratedMessageV3> {
         if (!isDebug) {
             return "";
         }
-
-        StringBuilder log = new StringBuilder(64);
-
+        long spanId = span.getSpanId();
         PTransactionId transactionId = span.getTransactionId();
-        log.append(" transactionId:");
-        log.append(MessageFormatUtils.debugLog(transactionId));
-
-        log.append(" spanId:").append(span.getSpanId());
-
         final List<PSpanEvent> spanEventList = span.getSpanEventList();
-        if (CollectionUtils.hasLength(spanEventList)) {
-            log.append(" spanEventSequence:");
-            for (PSpanEvent pSpanEvent : spanEventList) {
-                if (pSpanEvent == null) {
-                    continue;
-                }
-                log.append(pSpanEvent.getSequence()).append(" ");
-            }
-        }
 
-        return log.toString();
+        return SpanLog.debugLog(transactionId, spanId, spanEventList);
     }
 
+    @Override
+    public String toString() {
+        return "GrpcSpanHandler";
+    }
 }

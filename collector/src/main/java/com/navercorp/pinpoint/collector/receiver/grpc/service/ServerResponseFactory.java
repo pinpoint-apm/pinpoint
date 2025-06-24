@@ -14,32 +14,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.receiver.grpc;
+package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
+import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import io.grpc.stub.StreamObserver;
-
-import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class GrpcServerStreamResponse<T>  implements ServerResponse<T> {
-    private final StreamObserver<T> responseObserver;
+public interface ServerResponseFactory {
 
-    public GrpcServerStreamResponse(StreamObserver<T> responseObserver) {
-        this.responseObserver = Objects.requireNonNull(responseObserver, "responseObserver");
-    }
-
-    @Override
-    public void write(final T message) {
-        Objects.requireNonNull(message, "message");
-
-        responseObserver.onNext(message);
-    }
-
-    @Override
-    public void finish() {
-        //
-    }
+    <REQ, RES> ServerResponse<RES> newServerResponse(ServerRequest<REQ> serverRequest, StreamObserver<RES> responseObserver);
 }

@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.collector.handler.grpc;
 
-import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.service.ExceptionMetaDataService;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
@@ -33,7 +32,6 @@ import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.io.util.MessageType;
-import io.grpc.Status;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -46,7 +44,7 @@ import java.util.stream.Collectors;
  * @author intr3p1d
  */
 @Service
-public class GrpcExceptionMetaDataHandler implements RequestResponseHandler<GeneratedMessageV3, GeneratedMessageV3> {
+public class GrpcExceptionMetaDataHandler implements RequestResponseHandler<PExceptionMetaData, PResult> {
 
     private static final String EMPTY = "";
     private final Logger logger = LogManager.getLogger(getClass());
@@ -64,16 +62,13 @@ public class GrpcExceptionMetaDataHandler implements RequestResponseHandler<Gene
     }
 
     @Override
-    public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
-        final GeneratedMessageV3 data = serverRequest.getData();
+    public void handleRequest(ServerRequest<PExceptionMetaData> serverRequest, ServerResponse<PResult> serverResponse) {
+        final PExceptionMetaData exceptionMetaData = serverRequest.getData();
         final ServerHeader header = serverRequest.getHeader();
-        if (data instanceof PExceptionMetaData exceptionMetaData) {
-            PResult result = handleExceptionMetaData(header, exceptionMetaData);
-            serverResponse.write(result);
-        } else {
-            logger.warn("Invalid request type. serverRequest={}", serverRequest);
-            throw Status.INTERNAL.withDescription("Bad Request(invalid request type)").asRuntimeException();
-        }
+
+        PResult result = handleExceptionMetaData(header, exceptionMetaData);
+        serverResponse.write(result);
+
     }
 
     private PResult handleExceptionMetaData(final ServerHeader header, final PExceptionMetaData exceptionMetaData) {
