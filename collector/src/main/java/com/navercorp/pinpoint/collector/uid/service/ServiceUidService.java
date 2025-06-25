@@ -1,10 +1,13 @@
 package com.navercorp.pinpoint.collector.uid.service;
 
-import com.github.benmanes.caffeine.cache.Cache;
+import com.navercorp.pinpoint.collector.uid.config.ServiceUidMysqlCacheConfig;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.service.component.StaticServiceRegistry;
 import com.navercorp.pinpoint.service.service.ServiceInfoService;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.support.NoOpCache;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -15,14 +18,16 @@ public class ServiceUidService {
 
     private final StaticServiceRegistry registry;
     private final ServiceInfoService serviceInfoService;
-    private final Cache<String, ServiceUid> serviceUidCache;
+    private final Cache serviceUidCache;
 
     public ServiceUidService(StaticServiceRegistry staticServiceRegistry,
                              ServiceInfoService serviceInfoService,
-                             @Qualifier("serviceUidCache") Optional<Cache<String, ServiceUid>> optionalCache) {
+                             @Qualifier("serviceUidCache") Optional<CacheManager> optionalCacheManager) {
         this.registry = Objects.requireNonNull(staticServiceRegistry, "staticServiceRegistry");
         this.serviceInfoService = Objects.requireNonNull(serviceInfoService, "serviceService");
-        this.serviceUidCache = optionalCache.orElse(null);
+        this.serviceUidCache = optionalCacheManager
+                .map(cacheManager -> cacheManager.getCache(ServiceUidMysqlCacheConfig.SERVICE_UID_CACHE_NAME))
+                .orElse(new NoOpCache(ServiceUidMysqlCacheConfig.SERVICE_UID_CACHE_NAME));
     }
 
     public ServiceUid getServiceUid(String serviceName) {
@@ -32,31 +37,16 @@ public class ServiceUidService {
             return staticServiceUid;
         }
 
-        return getOrLoadServiceUid(serviceName);
+        return getUsingCache(serviceName);
     }
 
-    private ServiceUid getOrLoadServiceUid(String serviceName) {
-        ServiceUid cachedResult = cacheGet(serviceName);
-        if (cachedResult != null) {
-            return cachedResult;
-        }
-
-        ServiceUid newServiceUid = serviceInfoService.getServiceUid(serviceName);
-        cachePut(serviceName, newServiceUid);
-        return newServiceUid;
-    }
-
-    private ServiceUid cacheGet(String serviceName) {
-        if (serviceUidCache == null) {
+    // handle missing cases using ServiceUid.NULL
+    private ServiceUid getUsingCache(String serviceName) {
+        ServiceUid cachedResult = serviceUidCache.get(serviceName, () ->
+                Objects.requireNonNullElse(serviceInfoService.getServiceUid(serviceName), ServiceUid.NULL));
+        if (ServiceUid.NULL.equals(cachedResult)) {
             return null;
         }
-        return serviceUidCache.getIfPresent(serviceName);
-    }
-
-    private void cachePut(String serviceName, ServiceUid serviceUid) {
-        if (serviceUidCache == null || serviceUid == null) {
-            return;
-        }
-        serviceUidCache.put(serviceName, serviceUid);
+        return cachedResult;
     }
 }
