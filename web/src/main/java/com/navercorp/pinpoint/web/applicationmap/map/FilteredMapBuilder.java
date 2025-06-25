@@ -187,6 +187,12 @@ public class FilteredMapBuilder {
             ServiceType spanServiceType = this.registry.findServiceType(span.getServiceType());
             if (spanServiceType.isQueue()) {
                 String applicationName = span.getAcceptorHost();
+                if (applicationName == null) {
+                    applicationName = span.getRemoteAddr();
+                }
+                if (applicationName == null) {
+                    applicationName = span.getApplicationName();
+                }
                 return this.applicationFactory.createApplication(applicationName, spanServiceType);
             } else {
                 String applicationName = newUserNodeName(span);
