@@ -58,7 +58,7 @@ export const AgentSearchList = ({
                 style={{
                   maxHeight: selectedAgentId ? `calc(${height}px - 2.25rem)` : `${height}px`,
                 }}
-                className="m-2 overflow-y-auto"
+                className="p-2 overflow-y-auto"
                 sortBy={sortBy}
                 filterKeyword={props.filterKeyword}
                 selectedAgentId={selectedAgentId}
