@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -32,23 +30,16 @@ public class ServiceInfoController {
         this.serviceInfoService = serviceInfoService;
     }
 
-    @GetMapping(value = "/serviceNames")
-    public List<String> getAllServiceNames(@RequestParam(value = "includeDefault", required = false, defaultValue = "true") boolean includeDefault) {
-        List<String> sorted = new ArrayList<>(serviceInfoService.getServiceNames());
-        Collections.sort(sorted);
-        if (!includeDefault) {
-            return sorted;
-        }
-
-        return addStaticServiceName(sorted);
+    @GetMapping(value = "/staticServiceNames")
+    public List<String> getStaticServiceNames() {
+        return staticServiceRegistry.getServiceNames();
     }
 
-    private List<String> addStaticServiceName(List<String> sorted) {
-        List<String> result = new ArrayList<>(sorted.size() + 1);
-        result.add(ServiceUid.DEFAULT_SERVICE_UID_NAME);
-        result.addAll(sorted);
-        //result.add(ServiceUid.UNKNOWN_SERVICE_UID_NAME);
-        return result;
+    @GetMapping(value = "/serviceNames")
+    public List<String> getAllServiceNames() {
+        return serviceInfoService.getServiceNames().stream()
+                .sorted()
+                .toList();
     }
 
     @PostMapping(value = "/service")

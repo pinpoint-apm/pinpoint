@@ -14,11 +14,11 @@ public class ServiceUid {
 
     // serviceUid
     public static final ServiceUid DEFAULT = new ServiceUid(DEFAULT_SERVICE_UID_CODE);
-    public static final ServiceUid UNKNOWN = new ServiceUid(1);
     public static final ServiceUid TEST = new ServiceUid(5);
 
     public static final ServiceUid ERROR = new ServiceUid(-1);
-    public static final ServiceUid UNDEFINED = new ServiceUid(-2);
+    public static final ServiceUid UNKNOWN = new ServiceUid(-2);
+    public static final ServiceUid NULL = new ServiceUid(-3); // use only for representing missing value in the in-memory cache
 
     private final int uid;
 
