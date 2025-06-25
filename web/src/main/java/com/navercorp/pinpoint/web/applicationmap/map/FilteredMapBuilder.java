@@ -186,7 +186,10 @@ public class FilteredMapBuilder {
         if (span.isRoot() || parentSpan == null) {
             ServiceType spanServiceType = this.registry.findServiceType(span.getServiceType());
             if (spanServiceType.isQueue()) {
-                String applicationName = span.getAcceptorHost();
+                String applicationName = span.getAcceptorHost() != null ? span.getAcceptorHost() : span.getRemoteAddr();
+                if (applicationName == null) {
+                    applicationName = span.getApplicationName() != null ? span.getApplicationName() : "UNKNOWN";
+                }
                 return this.applicationFactory.createApplication(applicationName, spanServiceType);
             } else {
                 String applicationName = newUserNodeName(span);
@@ -203,7 +206,7 @@ public class FilteredMapBuilder {
                 if (!parentApplicationServiceType.isQueue() && !spanApplicationServiceType.isQueue()) {
                     String parentApplicationName = span.getAcceptorHost();
                     if (parentApplicationName == null) {
-                        parentApplicationName = span.getRemoteAddr();
+                        parentApplicationName = span.getRemoteAddr() != null ? span.getRemoteAddr() : "UNKNOWN";
                     }
                     int parentServiceType = span.getServiceType();
                     return this.applicationFactory.createApplication(parentApplicationName, parentServiceType);
