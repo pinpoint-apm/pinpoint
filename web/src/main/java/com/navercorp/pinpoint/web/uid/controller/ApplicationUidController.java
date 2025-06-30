@@ -19,13 +19,13 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/api")
-@ConditionalOnProperty(name = "pinpoint.web.application.uid.enable", havingValue = "true")
+@ConditionalOnProperty(name = "pinpoint.modules.uid.enabled", havingValue = "true")
 public class ApplicationUidController {
 
     private final ApplicationUidService applicationUidService;
 
     public ApplicationUidController(ApplicationUidService applicationUidService) {
-        this.applicationUidService = Objects.requireNonNull(applicationUidService, "applicationInfoService");
+        this.applicationUidService = Objects.requireNonNull(applicationUidService, "cachedApplicationUidService");
     }
 
     @GetMapping(value = "/applicationNames")

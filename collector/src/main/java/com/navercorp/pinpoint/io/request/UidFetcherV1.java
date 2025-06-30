@@ -70,8 +70,7 @@ public class UidFetcherV1 implements UidFetcher {
             if (copy != null) {
                 // already fetched
                 return copy;
-            }
-            else {
+            } else {
                 // fetch serviceUid & applicationUid from server
                 ApplicationUid applicationId = fetchApplicationUid(applicationName);
                 this.cache.put(DEFAULT_SERVICE_UID, applicationName, applicationId);
