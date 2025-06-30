@@ -22,12 +22,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.navercorp.pinpoint.common.profiler.sql.ParserContext.lookAhead1;
+
 /**
  * @author emeroad
  */
 public class OutputParameterParser {
 
-    public static final char SEPARATOR = DefaultSqlNormalizer.SEPARATOR;
+    public static final char SEPARATOR = Tokens.SEPARATOR;
 
     public List<String> parseOutputParameter(String outputParams) {
         // may also need to know about the parsing result 
@@ -61,13 +63,5 @@ public class OutputParameterParser {
         return result;
     }
 
-    private int lookAhead1(String sql, int index) {
-        index++;
-        if (index < sql.length()) {
-            return sql.charAt(index);
-        } else {
-            return -1;
-        }
-    }
 
 }

@@ -23,16 +23,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import static com.navercorp.pinpoint.common.profiler.sql.ParserContext.lookAhead1;
+import static com.navercorp.pinpoint.common.profiler.sql.ParserContext.readLine;
+import static com.navercorp.pinpoint.common.profiler.sql.ParserContext.readMultiLineComment;
+import static com.navercorp.pinpoint.common.profiler.sql.Tokens.NEXT_TOKEN_NOT_EXIST;
+import static com.navercorp.pinpoint.common.profiler.sql.Tokens.NUMBER_REPLACE;
+import static com.navercorp.pinpoint.common.profiler.sql.Tokens.SYMBOL_REPLACE;
+
 /**
  * @author emeroad
  */
 public class DefaultSqlNormalizer implements SqlNormalizer {
-    public static final char SEPARATOR = ',';
-    public static final char SYMBOL_REPLACE = '$';
-    public static final char NUMBER_REPLACE = '#';
-
-    private static final int NEXT_TOKEN_NOT_EXIST = -1;
-    private static final int NORMALIZED_SQL_BUFFER = 32;
 
     private static final NormalizedSql NULL_OBJECT = new DefaultNormalizedSql("", "");
 
@@ -51,292 +52,10 @@ public class DefaultSqlNormalizer implements SqlNormalizer {
         if (sql == null) {
             return NULL_OBJECT;
         }
-
-        final int length = sql.length();
-        final StringBuilder normalized = new StringBuilder(length + NORMALIZED_SQL_BUFFER);
-        final StringBuilder parsedParameter = new StringBuilder(32);
-        boolean change = false;
-        int replaceIndex = 0;
-        boolean numberTokenStartEnable = true;
-        for (int i = 0; i < length; i++) {
-            final char ch = sql.charAt(i);
-            switch (ch) {
-                // COMMENT start check
-                case '/':
-                    // comment state
-                    final int lookAhead1Char = lookAhead1(sql, i);
-                    // multi line comment and oracle hint /*+ */
-                    if (lookAhead1Char == '*') {
-                        if (removeComments) {
-                            change = true;
-                            for (i += 2; i < length; i++) {
-                                if (sql.charAt(i) == '*' && lookAhead1(sql, i) == '/') {
-                                    i++;
-                                    break;
-                                }
-                            }
-                        } else {
-                            normalized.append("/*");
-                            for (i += 2; i < length; i++) {
-                                if (sql.charAt(i) == '*' && lookAhead1(sql, i) == '/') {
-                                    normalized.append("*/");
-                                    i++;
-                                    break;
-                                }
-                                normalized.append(sql.charAt(i));
-                            }
-                        }
-                        // single line comment
-                    } else if (lookAhead1Char == '/') {
-                        if (removeComments) {
-                            change = true;
-                            for (i += 2; i < length; i++) {
-                                if (sql.charAt(i) == '\n') {
-                                    normalized.append("\n");
-                                    break;
-                                }
-                            }
-                        } else {
-                            normalized.append("//");
-                            i += 2;
-                            i = readLine(sql, normalized, i);
-                        }
-                    } else {
-                        // unary operator
-                        numberTokenStartEnable = true;
-                        normalized.append(ch);
-                    }
-                    break;
-//                case '#'
-//                    # is a single line comment in mysql
-                case '-':
-                    // single line comment state
-                    if (lookAhead1(sql, i) == '-') {
-                        if (removeComments) {
-                            change = true;
-                            for (i += 2; i < length; i++) {
-                                if (sql.charAt(i) == '\n') {
-                                    normalized.append("\n");
-                                    break;
-                                }
-                            }
-                        } else {
-                            normalized.append("--");
-                            i += 2;
-                            i = readLine(sql, normalized, i);
-                        }
-                    } else {
-                        // unary operator
-                        numberTokenStartEnable = true;
-                        normalized.append(ch);
-                    }
-                    break;
-
-                    // SYMBOL start check
-                case '\'':
-                    // empty symbol
-                    if (lookAhead1(sql, i) == '\'') {
-                        normalized.append("''");
-                        // no need to add parameter to output as $ is not converted
-                        i += 1;
-                        break;
-                    } else {
-                        change = true;
-                        normalized.append('\'');
-                        i++;
-                        appendOutputSeparator(parsedParameter);
-                        for (; i < length; i++) {
-                            char stateCh = sql.charAt(i);
-                            if (stateCh == '\'') {
-                                // a consecutive ' is the same as \'
-                                if (lookAhead1(sql, i) == '\'') {
-                                    i++;
-                                    appendOutputParam(parsedParameter, "''");
-                                    continue;
-                                } else {
-                                    normalized.append(replaceIndex++);
-                                    normalized.append(SYMBOL_REPLACE);
-                                    normalized.append('\'');
-//                                    outputParam.append(',');
-                                    break;
-                                }
-                            }
-                            appendSeparatorCheckOutputParam(parsedParameter, stateCh);
-                        }
-                        break;
-                    }
-
-                    // number start check
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                    // http://www.h2database.com/html/grammar.html look at the state machine more
-                    if (numberTokenStartEnable) {
-                        change = true;
-                        normalized.append(replaceIndex++);
-                        normalized.append(NUMBER_REPLACE);
-                        // number token start
-                        appendOutputSeparator(parsedParameter);
-                        appendOutputParam(parsedParameter, ch);
-                        i++;
-                        tokenEnd:
-                        for (; i < length; i++) {
-                            char stateCh = sql.charAt(i);
-                            switch (stateCh) {
-                                case '0':
-                                case '1':
-                                case '2':
-                                case '3':
-                                case '4':
-                                case '5':
-                                case '6':
-                                case '7':
-                                case '8':
-                                case '9':
-                                case '.':
-                                case 'E':
-                                case 'e':
-                                    appendOutputParam(parsedParameter, stateCh);
-                                    break;
-                                default:
-                                    // should look at the token outside the loop - not here
-//                                    outputParam.append(SEPARATOR);
-                                    i--;
-                                    break tokenEnd;
-                            }
-                        }
-                        break;
-                    } else {
-                        normalized.append(ch);
-                        break;
-                    }
-
-                    // empty space
-                case ' ':
-                case '\t':
-                case '\n':
-                case '\r':
-                    numberTokenStartEnable = true;
-                    normalized.append(ch);
-                    break;
-                // http://msdn.microsoft.com/en-us/library/ms174986.aspx
-                case '*':
-                case '+':
-                case '%':
-                case '=':
-                case '<':
-                case '>':
-                case '&':
-                case '|':
-                case '^':
-                case '~':
-                case '!':
-                    numberTokenStartEnable = true;
-                    normalized.append(ch);
-                    break;
-
-                case '(':
-                case ')':
-                case ',':
-                case ';':
-                    numberTokenStartEnable = true;
-                    normalized.append(ch);
-                    break;
-
-                case '.':
-                case '_':
-                case '@': // Assignment Operator
-                case ':': // Oracle's bind variable is possible with :bindvalue
-                    numberTokenStartEnable = false;
-                    normalized.append(ch);
-                    break;
-
-                default:
-                    // what if it's in a different language??
-                    if (ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z') {
-                        numberTokenStartEnable = false;
-                    } else {
-                        numberTokenStartEnable = true;
-                    }
-                    normalized.append(ch);
-                    break;
-            }
-        }
-        if (change) {
-            String parsedParameterString;
-            if (parsedParameter.length() > 0) {
-                parsedParameterString = parsedParameter.toString();
-            } else {
-                parsedParameterString = "";
-            }
-
-            return new DefaultNormalizedSql(normalized.toString(), parsedParameterString);
-        } else {
-            // Reuse if not modified.
-            // 1. new strings are not generated
-            // 2. reuse hashcodes
-            return new DefaultNormalizedSql(sql, "");
-        }
+        ParserContext parserContext = new ParserContext(sql, removeComments);
+        return parserContext.parse();
     }
 
-    private int readLine(String sql, StringBuilder normalized, int index) {
-        final int length = sql.length();
-        for (; index < length; index++) {
-            char ch = sql.charAt(index);
-            normalized.append(ch);
-            if (ch == '\n') {
-                break;
-            }
-        }
-        return index;
-    }
-
-    private void appendOutputSeparator(StringBuilder output) {
-        if (output.length() == 0) {
-            // first parameter
-            return;
-        }
-        output.append(SEPARATOR);
-    }
-
-    private void appendOutputParam(StringBuilder output, String str) {
-        output.append(str);
-    }
-
-    private void appendSeparatorCheckOutputParam(StringBuilder output, char ch) {
-        if (ch == ',') {
-            output.append(",,");
-        } else {
-            output.append(ch);
-        }
-    }
-
-    private void appendOutputParam(StringBuilder output, char ch) {
-        output.append(ch);
-    }
-
-    /**
-     * look up the next character in a string
-     *
-     * @param sql
-     * @param index
-     * @return
-     */
-    private int lookAhead1(String sql, int index) {
-        index++;
-        if (index < sql.length()) {
-            return sql.charAt(index);
-        } else {
-            return NEXT_TOKEN_NOT_EXIST;
-        }
-    }
 
     @Override
     public String combineOutputParams(String sql, IndexedSupplier<String> outputParams) {
@@ -351,27 +70,12 @@ public class DefaultSqlNormalizer implements SqlNormalizer {
                     int lookAhead1Char = lookAhead1(sql, i);
                     // multi line comment and oracle hint /*+ */
                     if (lookAhead1Char == '*') {
-                        normalized.append("/*");
-                        i += 2;
-                        for (; i < length; i++) {
-                            char stateCh = sql.charAt(i);
-                            if (stateCh == '*') {
-                                if (lookAhead1(sql, i) == '/') {
-                                    normalized.append("*/");
-                                    i++;
-                                    break;
-                                }
-                            }
-                            normalized.append(stateCh);
-                        }
+                        i = readMultiLineComment("/*", i, sql, normalized);
                         break;
                         // single line comment
                     } else if (lookAhead1Char == '/') {
-                        normalized.append("//");
-                        i += 2;
-                        i = readLine(sql, normalized, i);
+                        i = readLine("//", i, sql, normalized);
                         break;
-
                     } else {
                         // unary operator
 //                        numberTokenStartEnable = true;
@@ -382,10 +86,8 @@ public class DefaultSqlNormalizer implements SqlNormalizer {
 //                  # is a single line comment in mysql
                 case '-':
                     // single line comment state
-                    if (lookAhead1(sql, i) == '-') {
-                        normalized.append("--");
-                        i += 2;
-                        i = readLine(sql, normalized, i);
+                    if (lookAhead1(sql, i, '-')) {
+                        i = readLine("--", i, sql, normalized);
                         break;
                     } else {
                         // unary operator
@@ -430,7 +132,7 @@ public class DefaultSqlNormalizer implements SqlNormalizer {
                             case '9':
                                 if (lookAhead1(sql, i) == NEXT_TOKEN_NOT_EXIST) {
                                     outputIndex.append(stateCh);
-                                    normalized.append(outputIndex.toString());
+                                    normalized.append(outputIndex);
                                     break tokenEnd;
                                 }
                                 outputIndex.append(stateCh);
@@ -441,8 +143,7 @@ public class DefaultSqlNormalizer implements SqlNormalizer {
                                     numberIndex = Integer.parseInt(outputIndex.toString());
                                 } catch (NumberFormatException e) {
                                     // just append for invalid parameters
-                                    normalized.append(outputIndex.toString());
-                                    normalized.append(NUMBER_REPLACE);
+                                    appendNumberToken(normalized, outputIndex);
                                     break tokenEnd;
                                 }
                                 try {
@@ -450,8 +151,7 @@ public class DefaultSqlNormalizer implements SqlNormalizer {
                                     normalized.append(replaceNumber);
                                 } catch (IndexOutOfBoundsException e) {
                                     // just append for invalid parameters
-                                    normalized.append(outputIndex.toString());
-                                    normalized.append(NUMBER_REPLACE);
+                                    appendNumberToken(normalized, outputIndex);
                                     break tokenEnd;
                                 }
                                 break tokenEnd;
@@ -462,22 +162,20 @@ public class DefaultSqlNormalizer implements SqlNormalizer {
                                     symbolIndex = Integer.parseInt(outputIndex.toString());
                                 } catch (NumberFormatException e) {
                                     // just append for invalid parameters
-                                    normalized.append(outputIndex.toString());
-                                    normalized.append(SYMBOL_REPLACE);
+                                    appendSymbolToken(normalized, outputIndex);
                                 }
                                 try {
                                     String replaceSymbol = outputParams.get(symbolIndex);
                                     normalized.append(replaceSymbol);
                                 } catch (IndexOutOfBoundsException e) {
-                                    normalized.append(outputIndex.toString());
-                                    normalized.append(SYMBOL_REPLACE);
+                                    appendSymbolToken(normalized, outputIndex);
                                 }
                                 break tokenEnd;
 
                             default:
                                 // should look at the token outside the loop - not here
 //                                    outputParam.append(SEPARATOR);
-                                normalized.append(outputIndex.toString());
+                                normalized.append(outputIndex);
                                 i--;
                                 break tokenEnd;
                         }
@@ -491,6 +189,17 @@ public class DefaultSqlNormalizer implements SqlNormalizer {
         }
 
         return normalized.toString();
+    }
+
+
+    private void appendNumberToken(StringBuilder builder, StringBuilder outputIndex) {
+        builder.append(outputIndex);
+        builder.append(NUMBER_REPLACE);
+    }
+
+    private void appendSymbolToken(StringBuilder normalized, StringBuilder outputIndex) {
+        normalized.append(outputIndex);
+        normalized.append(SYMBOL_REPLACE);
     }
 
     @Override
@@ -512,7 +221,7 @@ public class DefaultSqlNormalizer implements SqlNormalizer {
             final char ch = sql.charAt(i);
             if (inQuotes) {
                 if (((ch == '\'') || (ch == '"')) && ch == quoteChar) {
-                    if (lookAhead1(sql, i) == quoteChar) {
+                    if (lookAhead1(sql, i, quoteChar)) {
                         // inline quote.
                         result.append(ch);
                         i++;
@@ -529,24 +238,10 @@ public class DefaultSqlNormalizer implements SqlNormalizer {
                     int lookAhead1Char = lookAhead1(sql, i);
                     // multi line comment and oracle hint /*+ */
                     if (lookAhead1Char == '*') {
-                        result.append("/*");
-                        i += 2;
-                        for (; i < length; i++) {
-                            char stateCh = sql.charAt(i);
-                            if (stateCh == '*') {
-                                if (lookAhead1(sql, i) == '/') {
-                                    result.append("*/");
-                                    i++;
-                                    break;
-                                }
-                            }
-                            result.append(stateCh);
-                        }
+                        i = readMultiLineComment("/*", i, sql, result);
                         // single line comment
                     } else if (lookAhead1Char == '/') {
-                        result.append("//");
-                        i += 2;
-                        i = readLine(sql, result, i);
+                        i = readLine("//", i, sql, result);
                     } else {
                         // unary operator
                         result.append(ch);
@@ -554,9 +249,7 @@ public class DefaultSqlNormalizer implements SqlNormalizer {
                 } else if (ch == '-') {
                     // single line comment state
                     if (lookAhead1(sql, i) == '-') {
-                        result.append("--");
-                        i += 2;
-                        i = readLine(sql, result, i);
+                        i = readLine("--", i, sql, result);
                     } else {
                         // unary operator
                         result.append(ch);
@@ -565,8 +258,8 @@ public class DefaultSqlNormalizer implements SqlNormalizer {
                     inQuotes = true;
                     quoteChar = ch;
                     result.append(ch);
-                } else if(ch == '?') {
-                    if(!bindValueQueue.isEmpty()) {
+                } else if (ch == '?') {
+                    if (!bindValueQueue.isEmpty()) {
                         result.append('\'').append(bindValueQueue.poll()).append('\'');
                     }
                 } else {
