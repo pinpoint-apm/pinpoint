@@ -20,8 +20,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author emeroad
@@ -409,5 +410,22 @@ public class DefaultSqlNormalizerTest {
             logger.warn("Original :{}", expected);
             throw e;
         }
+    }
+
+    @Test
+    public void testPostSqlPositionalParameter() {
+        DefaultSqlNormalizer dut = new DefaultSqlNormalizer();
+        assertEquals("SELECT * FROM member WHERE id = $1",
+            dut.normalizeSql("SELECT * FROM member WHERE id = $1").getNormalizedSql());
+        assertEquals("SELECT * FROM member WHERE id = $122309",
+            dut.normalizeSql("SELECT * FROM member WHERE id = $122309").getNormalizedSql());
+
+        // Edge case: $ followed by non-digit (e.g., variable-like)
+        assertEquals("SELECT * FROM config WHERE key = $value",
+                dut.normalizeSql("SELECT * FROM config WHERE key = $value").getNormalizedSql());
+
+        // Edge case: $ inside string literal
+        assertEquals("SELECT * FROM logs WHERE message LIKE '0$'",
+                dut.normalizeSql("SELECT * FROM logs WHERE message LIKE '0$'").getNormalizedSql());
     }
 }
