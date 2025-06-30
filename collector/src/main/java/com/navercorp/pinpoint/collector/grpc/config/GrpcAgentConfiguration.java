@@ -16,16 +16,11 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
-import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.grpc.lifecycle.DefaultPingEventHandler;
 import com.navercorp.pinpoint.collector.grpc.lifecycle.DefaultPingSessionRegistry;
 import com.navercorp.pinpoint.collector.grpc.lifecycle.PingEventHandler;
 import com.navercorp.pinpoint.collector.grpc.lifecycle.PingSessionRegistry;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
-import com.navercorp.pinpoint.collector.manage.HandlerManager;
-import com.navercorp.pinpoint.collector.receiver.AgentDispatchHandler;
-import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import com.navercorp.pinpoint.collector.receiver.DispatchHandlerFactoryBean;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver;
 import com.navercorp.pinpoint.collector.receiver.grpc.ServerInterceptorFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.ShutdownEventListener;
@@ -36,15 +31,22 @@ import com.navercorp.pinpoint.collector.receiver.grpc.service.AgentService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.KeepAliveService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.MetadataService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
+import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerResponseFactory;
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
+import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
+import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
+import com.navercorp.pinpoint.grpc.trace.PExceptionMetaData;
+import com.navercorp.pinpoint.grpc.trace.PResult;
+import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
+import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
+import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
 import io.grpc.BindableService;
 import io.grpc.ServerInterceptor;
 import io.netty.buffer.ByteBufAllocator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -65,22 +67,34 @@ public class GrpcAgentConfiguration {
     }
 
     @Bean
-    public AgentService agentService(@Qualifier("grpcDispatchHandlerFactoryBean")
-                                     DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
+    public AgentService agentService(RequestResponseHandler<PAgentInfo, PResult> grpcAgentInfoHandler,
                                      PingEventHandler pingEventHandler,
                                      @Qualifier("grpcAgentWorkerExecutor")
                                      Executor executor,
-                                     ServerRequestFactory serverRequestFactory) {
-        return new AgentService(dispatchHandler, pingEventHandler, executor, serverRequestFactory);
+                                     ServerRequestFactory serverRequestFactory,
+                                     ServerResponseFactory serverResponseFactory) {
+        return new AgentService(grpcAgentInfoHandler, pingEventHandler, executor, serverRequestFactory, serverResponseFactory);
     }
 
     @Bean
-    public MetadataService metadataService(@Qualifier("grpcDispatchHandlerFactoryBean")
-                                           DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
+    public MetadataService metadataService(RequestResponseHandler<PApiMetaData, PResult> grpcApiMetaDataHandler,
+                                           RequestResponseHandler<PSqlMetaData, PResult> grpcSqlMetaDataHandler,
+                                           RequestResponseHandler<PStringMetaData, PResult> grpcStringMetaDataHandler,
+                                           RequestResponseHandler<PSqlUidMetaData, PResult> grpcSqlUidMetaDataHandler,
+                                           RequestResponseHandler<PExceptionMetaData, PResult> grpcExceptionMetaDataHandler,
                                            @Qualifier("grpcAgentWorkerExecutor")
                                            Executor executor,
-                                           ServerRequestFactory serverRequestFactory) {
-        return new MetadataService(dispatchHandler, executor, serverRequestFactory);
+                                           ServerRequestFactory serverRequestFactory,
+                                           ServerResponseFactory serverResponseFactory) {
+
+        return new MetadataService(
+                grpcApiMetaDataHandler,
+                grpcSqlMetaDataHandler,
+                grpcSqlUidMetaDataHandler,
+                grpcStringMetaDataHandler,
+                grpcExceptionMetaDataHandler,
+                executor,
+                serverRequestFactory, serverResponseFactory);
     }
 
 
@@ -88,7 +102,7 @@ public class GrpcAgentConfiguration {
     public ServerServiceDefinitions agentServiceList(AgentService agentService,
                                                      MetadataService metadataService,
                                                      @Qualifier("commandService")
-                                                          BindableService grpcCommandService) {
+                                                     BindableService grpcCommandService) {
         logger.info("AgentService:{}", agentService);
         logger.info("MetadataService:{}", metadataService);
         logger.info("CommandService:{}", grpcCommandService);
@@ -136,23 +150,6 @@ public class GrpcAgentConfiguration {
 
 
     @Bean
-    public AgentDispatchHandler<GeneratedMessageV3, GeneratedMessageV3> grpcAgentDispatchHandler(
-            List<RequestResponseHandler<GeneratedMessageV3, GeneratedMessageV3>> handlers) {
-        return new AgentDispatchHandler<>(handlers);
-    }
-
-    @Bean
-    public FactoryBean<DispatchHandler<GeneratedMessageV3, GeneratedMessageV3>> grpcDispatchHandlerFactoryBean(
-            AgentDispatchHandler<GeneratedMessageV3, GeneratedMessageV3> dispatchHandler,
-            HandlerManager handlerManager) {
-        DispatchHandlerFactoryBean<GeneratedMessageV3, GeneratedMessageV3> bean = new DispatchHandlerFactoryBean<>();
-        bean.setDispatchHandler(dispatchHandler);
-        bean.setHandlerManager(handlerManager);
-        return bean;
-    }
-
-
-    @Bean
     public ThreadPoolTaskScheduler grpcLifecycleScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
         scheduler.setPoolSize(1);
@@ -183,7 +180,7 @@ public class GrpcAgentConfiguration {
 
     @Bean
     public PingEventHandler pingEventHandler(PingSessionRegistry pingSessionRegistry,
-                                                   AgentLifecycleListener agentLifecycleListener) {
+                                             AgentLifecycleListener agentLifecycleListener) {
         return new DefaultPingEventHandler(pingSessionRegistry, agentLifecycleListener);
     }
 

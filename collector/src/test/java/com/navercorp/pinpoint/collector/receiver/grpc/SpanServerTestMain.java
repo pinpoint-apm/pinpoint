@@ -16,9 +16,8 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
-import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.receiver.BindAddress;
-import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.flow.RateLimitClientStreamServerInterceptor;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
@@ -29,15 +28,16 @@ import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.grpc.server.HeaderPropagationInterceptor;
 import com.navercorp.pinpoint.grpc.server.ServerHeaderReaderFactory;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
-import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
+import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.io.request.ServerRequest;
-import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.io.request.UidFetcher;
 import com.navercorp.pinpoint.io.request.UidFetcherStreamService;
 import io.github.bucket4j.Bandwidth;
 import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.net.InetAddress;
 import java.time.Duration;
@@ -49,9 +49,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -61,15 +58,12 @@ import static org.mockito.Mockito.when;
  * @author jaehong.kim
  */
 public class SpanServerTestMain {
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
     public static final String IP = "0.0.0.0";
     public static final int PORT = 9993;
 
     public void run() throws Exception {
-//        InternalLoggerFactory.setDefaultFactory(Log4J2LoggerFactory.INSTANCE);
-
-        Logger logger = Logger.getLogger("io.grpc");
-        logger.setLevel(Level.FINER);
-        logger.addHandler(new ConsoleHandler());
 
         GrpcReceiver grpcReceiver = new GrpcReceiver();
         grpcReceiver.setBeanName("TraceServer");
@@ -108,7 +102,8 @@ public class SpanServerTestMain {
         Bandwidth bandwidth = Bandwidth.builder().capacity(1000).refillGreedy(200, Duration.ofSeconds(1)).build();
         RateLimitClientStreamServerInterceptor rateLimit = new RateLimitClientStreamServerInterceptor("test-span", executor, bandwidth, 1);
 
-        MockDispatchHandler dispatchHandler = new MockDispatchHandler();
+        SimpleHandler<PSpan> handler1 = new MockSimpleHandler<>();
+        SimpleHandler<PSpanChunk> handler2 = new MockSimpleHandler<>();
         ServerRequestFactory serverRequestFactory = new DefaultServerRequestFactory();
 
         UidFetcherStreamService uidFetcherStreamService = mock(UidFetcherStreamService.class);
@@ -116,7 +111,7 @@ public class SpanServerTestMain {
         when(uidFetcherStreamService.newUidFetcher()).thenReturn(uidFetcher);
         when(uidFetcher.getApplicationId(any(), any())).thenReturn(() -> ApplicationUid.of(100));
 
-        SpanService spanService = new SpanService(dispatchHandler, uidFetcherStreamService, serverRequestFactory, StreamCloseOnError.FALSE);
+        SpanService spanService = new SpanService(handler1, handler2, uidFetcherStreamService, serverRequestFactory, StreamCloseOnError.FALSE);
         return ServerInterceptors.intercept(spanService, rateLimit);
     }
 
@@ -131,29 +126,18 @@ public class SpanServerTestMain {
         main.run();
     }
 
-    private static class MockDispatchHandler implements DispatchHandler<GeneratedMessageV3, GeneratedMessageV3> {
+    private static class MockSimpleHandler<T> implements SimpleHandler<T> {
         private static final AtomicInteger counter = new AtomicInteger(0);
 
         @Override
-        public void dispatchSendMessage(ServerRequest<GeneratedMessageV3> serverRequest) {
+        public void handleSimple(ServerRequest<T> serverRequest) {
 //            System.out.println("## Incoming " + IncomingCounter.addAndGet(1));
             try {
                 TimeUnit.SECONDS.sleep(1);
             } catch (InterruptedException ignored) {
             }
 
-            final GeneratedMessageV3 data = serverRequest.getData();
-            if (data instanceof PSpan span) {
-                System.out.println("Dispatch send message " + span.getSpanId());
-            } else {
-                System.out.println("Invalid send message " + serverRequest.getData());
-            }
-        }
-
-        @Override
-        public void dispatchRequestMessage(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
-//            System.out.println("Dispatch request message " + serverRequest + ", " + serverResponse);
-            serverResponse.write(PResult.newBuilder().setMessage("Success" + counter.getAndIncrement()).build());
+            System.out.println("Dispatch send message " + serverRequest.getData());
         }
     }
 

@@ -6,6 +6,8 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 
+import static com.navercorp.pinpoint.common.server.log.Makers.AOP;
+
 
 @Aspect
 public class PerformanceLoggingInterceptor {
@@ -34,10 +36,10 @@ public class PerformanceLoggingInterceptor {
             } else if (time > slow) {
                 warnLog(joinPoint, time, capture);
             } else {
-                if (logger.isDebugEnabled()) {
+                if (logger.isDebugEnabled(AOP)) {
                     final String className = joinPoint.getTarget().getClass().getSimpleName();
                     final String methodName = joinPoint.getSignature().getName();
-                    logger.debug("{}.{} execution time:{}ms param:{}", className, methodName, time, joinPoint.getArgs());
+                    logger.debug(AOP, "[AOP] {}.{} execution time:{}ms param:{}", className, methodName, time, joinPoint.getArgs());
                 }
             }
         }
@@ -49,9 +51,9 @@ public class PerformanceLoggingInterceptor {
             final String className = joinPoint.getTarget().getClass().getSimpleName();
             final String methodName = joinPoint.getSignature().getName();
             if (throwable != null) {
-                logger.warn("{}.{} execution time:{}ms param:{}", className, methodName, time, joinPoint.getArgs(), throwable);
+                logger.warn(AOP, "[AOP] {}.{} execution time:{}ms param:{}", className, methodName, time, joinPoint.getArgs(), throwable);
             } else {
-                logger.warn("{}.{} execution time:{}ms param:{}", className, methodName, time, joinPoint.getArgs());
+                logger.warn(AOP, "[AOP] {}.{} execution time:{}ms param:{}", className, methodName, time, joinPoint.getArgs());
             }
         }
     }

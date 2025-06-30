@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.handler.grpc;
 
-import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.service.ApiMetaDataService;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
@@ -29,7 +28,6 @@ import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.io.util.MessageType;
-import io.grpc.Status;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -40,7 +38,7 @@ import java.util.Objects;
  * @author emeroad
  */
 @Service
-public class GrpcApiMetaDataHandler implements RequestResponseHandler<GeneratedMessageV3, GeneratedMessageV3> {
+public class GrpcApiMetaDataHandler implements RequestResponseHandler<PApiMetaData, PResult> {
 
     private final Logger logger = LogManager.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -57,16 +55,11 @@ public class GrpcApiMetaDataHandler implements RequestResponseHandler<GeneratedM
     }
 
     @Override
-    public void handleRequest(ServerRequest<GeneratedMessageV3> serverRequest, ServerResponse<GeneratedMessageV3> serverResponse) {
-        final GeneratedMessageV3 data = serverRequest.getData();
+    public void handleRequest(ServerRequest<PApiMetaData> serverRequest, ServerResponse<PResult> serverResponse) {
+        final PApiMetaData apiMetaData = serverRequest.getData();
         final ServerHeader header = serverRequest.getHeader();
-        if (data instanceof PApiMetaData apiMetaData) {
-            GeneratedMessageV3 result = handleApiMetaData(header, apiMetaData);
-            serverResponse.write(result);
-        } else {
-            logger.warn("Invalid request type. serverRequest={}", serverRequest);
-            throw Status.INTERNAL.withDescription("Bad Request(invalid request type)").asRuntimeException();
-        }
+        PResult result = handleApiMetaData(header, apiMetaData);
+        serverResponse.write(result);
     }
 
     PResult handleApiMetaData(ServerHeader header, final PApiMetaData apiMetaData) {
