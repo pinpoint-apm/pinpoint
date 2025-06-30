@@ -129,6 +129,8 @@ public class DefaultSqlNormalizerTest {
         assertEqual("1.23E", "0#", "1.23E");
         // just converting numbers as it is too much work to find out if '-' represents a negative number, or is part of the SQL expression
         assertEqual("1.4e-10", "0#-1#", "1.4e,10");
+
+        assertEqual("123 ", "0# ", "123");
     }
 
     @Test
@@ -153,6 +155,14 @@ public class DefaultSqlNormalizerTest {
         assertEqual("/* * */", "/* * */", "");
         assertEqual("/* abc", "/* abc", "");
         assertEqual("select * from table", "select * from table", "");
+    }
+
+    @Test
+    public void multiLineCommentState_endTokenNotExist() {
+        assertEqual("/*", "/*", "");
+
+        assertEqual("/*  ", "/*  ", "");
+        assertEqual("/*  \n  ", "/*  \n  ", "");
     }
 
     @Test
