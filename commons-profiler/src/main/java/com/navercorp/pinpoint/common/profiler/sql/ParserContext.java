@@ -140,6 +140,15 @@ public class ParserContext {
                     normalized.append(ch);
                     break;
 
+                case '$':
+                    final int nextChar = lookAhead1(i);
+                    if (nextChar >= '0' && nextChar <= '9') {
+                        numberTokenStartEnable = false;
+                        normalized.append(nextChar);
+                        break;
+                    }
+                    // Fall through for non-positional '$' to be treated other rules.
+
                 case '.':
                 case '_':
                 case '@': // Assignment Operator
