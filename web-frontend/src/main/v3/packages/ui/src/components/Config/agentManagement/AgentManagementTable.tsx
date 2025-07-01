@@ -8,7 +8,7 @@ import { AgentManagementRemovePopup } from './AgentManagementRemovePopup';
 
 export interface AgentManagementTableProps {
   data?: SearchApplication.Instance[];
-  onRemove?: (instance: SearchApplication.Instance) => void;
+  onRemove?: (instance: SearchApplication.Instance, password?: string) => void;
 }
 
 export const AgentManagementTable = ({ data, onRemove }: AgentManagementTableProps) => {
@@ -59,7 +59,7 @@ export const AgentManagementTable = ({ data, onRemove }: AgentManagementTablePro
                 </Button>
               }
               agent={instance}
-              onClickRemove={() => onRemove?.(instance)}
+              onClickRemove={(_agent, password) => onRemove?.(instance, password)}
             />
           );
         },

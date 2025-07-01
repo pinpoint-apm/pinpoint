@@ -116,7 +116,8 @@
       "REMOVE_AGENT_DESC": "Remove the following agent.",
       "LABEL": {
         "REMOVE_APPLICATION": "Remove application"
-      }
+      },
+      "REMOVE_PASSWORD_DESCRIPTION": "If you have set a password, please enter it."
     },
     "AGENT_STATISTIC": {
       "ZOOM_GUIDE": "You can zoom in/out the chart through the mouse.",
