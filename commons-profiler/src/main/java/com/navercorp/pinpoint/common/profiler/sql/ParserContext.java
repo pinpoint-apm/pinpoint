@@ -216,34 +216,6 @@ public class ParserContext {
         normalized.append(SYMBOL_REPLACE);
     }
 
-    private int readComment(String first, int i, StringBuilder normalized) {
-        return readComment0(first, i, normalized, false);
-    }
-
-    private int skipComment(String first, int i) {
-        return readComment0(first, i, null, true);
-    }
-
-    private int readComment0(String first, int i, StringBuilder normalized, boolean skip) {
-        final int startIndex = i;
-        int end = 0;
-
-        i += first.length();
-        for (; i < this.length; i++) {
-            if (sql.charAt(i) == '*' && lookAhead1(i, '/')) {
-                i++; // look ahead 1
-                end = foundLookAhead("*/");
-                break;
-            }
-        }
-
-        if (!skip) {
-            normalized.append(sql, startIndex, i + end);
-        }
-        return i;
-    }
-
-
     private int readNumber(char first, int i) {
         final int startIndex = i;
         int end = 0;
@@ -281,64 +253,60 @@ public class ParserContext {
         return i;
     }
 
-    private int skipLine(String first, int i, StringBuilder normalized) {
-        int end = 0;
-
-        i += first.length();
-        for (; i < this.length; i++) {
-            if (sql.charAt(i) == '\n') {
-                end = 1; // token end
-                break;
-            }
-        }
-
-        if (end == 1) {
-            normalized.append('\n');
-        }
-        return i;
+    private int skipLine(String first, int index, StringBuilder normalized) {
+        return readComment(first, "\n", index, this.sql, null);
     }
 
     private int readLine(String first, int index, StringBuilder normalized) {
-        return readLine(first, index, this.sql, normalized);
+        return readComment(first, "\n", index, this.sql, normalized);
     }
 
     public static int readLine(String first, int i, String sql, StringBuilder normalized) {
+        return readComment(first, "\n", i, sql, normalized);
+    }
+
+    private int readComment(String first, int i, StringBuilder normalized) {
+        return readComment(first, "*/", i, this.sql, normalized);
+    }
+
+    private int skipComment(String first, int i) {
+        return readComment(first, "*/", i, this.sql, null);
+    }
+
+    public static int readComment(String firstToken, String endToken, int i, String sql, StringBuilder normalized) {
         final int startIndex = i;
         int end = 0;
 
-        i += first.length();
-        final int length = sql.length();
-        for (; i < length; i++) {
-            if (sql.charAt(i) == '\n') {
-                end =  1; // token end
-                break;
-            }
+        i += firstToken.length();
+//        final int length = sql.length();
+//        for (; i < length; i++) {
+//            if (lookAhead(endToken, sql, i)) {
+//                i += lookAheadLength(endToken); // look ahead 1
+//                end = 1;
+//                break;
+//            }
+//        }
+        int endIndex = sql.indexOf(endToken, i);
+        if (endIndex != -1) {
+            i = endIndex + lookAheadLength(endToken);
+            end = 1;
+        } else {
+            i = sql.length();
         }
 
-        normalized.append(sql, startIndex, i + end);
+        if (normalized != null) {
+            normalized.append(sql, startIndex, i + end);
+        }
         return i;
     }
 
-    public static int readMultiLineComment(String first, int i, String sql, StringBuilder normalized) {
-        final int startIndex = i;
-        int end = 0;
-
-        i += first.length();
-        final int length = sql.length();
-        for (; i < length; i++) {
-            if (sql.charAt(i) == '*' && lookAhead1(sql, i) == '/') {
-                i++; // look ahead 1
-                end = foundLookAhead("*/");
-                break;
-            }
-        }
-
-        normalized.append(sql, startIndex, i + end);
-        return i;
-    }
-
-    private static int foundLookAhead(String token) {
+    private static int lookAheadLength(String token) {
         return token.length() - 1;
+
+    }
+
+    private static boolean lookAhead(String token,String sql,  int i) {
+        return sql.startsWith(token, i);
     }
 
     /**
