@@ -13,7 +13,7 @@ public class ParserContext {
     private final int length;
 
     private final StringBuilder normalized;
-    //    private final StringBuilder parsedParameter;
+    // private final StringBuilder parsedParameter;
     private final ParameterBuilder parameter;
 
     private final boolean removeComments;
@@ -26,7 +26,7 @@ public class ParserContext {
         this.removeComments = removeComments;
 
         this.normalized = new StringBuilder(length + NORMALIZED_SQL_BUFFER);
-//        this.parsedParameter = new StringBuilder(32);
+        // this.parsedParameter = new StringBuilder(32);
         this.parameter = new ParameterBuilder();
     }
 
@@ -62,8 +62,8 @@ public class ParserContext {
                         normalized.append(ch);
                     }
                     break;
-//                case '#'
-//                    # is a single line comment in mysql
+                // case '#'
+                // # is a single line comment in mysql
                 case '-':
                     // single line comment state
                     if (lookAhead1(i) == '-') {
@@ -101,7 +101,7 @@ public class ParserContext {
                         appendNumberToken(normalized);
                         // number token start
                         parameter.separator();
-                        i = readNumber(ch, i);
+                        i = readNumber(i);
                         break;
                     } else {
                         normalized.append(ch);
@@ -196,7 +196,7 @@ public class ParserContext {
                     } else {
                         appendSymbolToken(normalized);
                         normalized.append('\'');
-//                                    outputParam.append(',');
+                        // outputParam.append(',');
                         break;
                     }
                 }
@@ -224,7 +224,7 @@ public class ParserContext {
         normalized.append(SYMBOL_REPLACE);
     }
 
-    private int readNumber(char first, int i) {
+    private int readNumber(int i) {
         final int startIndex = i;
         int end = 0;
 
@@ -250,7 +250,7 @@ public class ParserContext {
                     break;
                 default:
                     // should look at the token outside the loop - not here
-//                                    outputParam.append(SEPARATOR);
+                    // outputParam.append(SEPARATOR);
                     end = 1;
                     i--;
                     break tokenEnd;
@@ -313,23 +313,14 @@ public class ParserContext {
 
     }
 
-    private static boolean lookAhead(String token,String sql,  int i) {
+    private static boolean lookAhead(String token, String sql, int i) {
         return sql.startsWith(token, i);
     }
 
-    /**
-     * look up the next character in a string
-     *
-     */
     private int lookAhead1(int index) {
         return lookAhead1(this.sql, index);
     }
 
-    /**
-     * look up the next character in a string
-     *
-     * @param index
-     */
     public static int lookAhead1(String sql, int index) {
         index++;
         if (index < sql.length()) {
@@ -337,10 +328,6 @@ public class ParserContext {
         } else {
             return NEXT_TOKEN_NOT_EXIST;
         }
-    }
-
-    private boolean lookAhead1(int index, char token) {
-        return lookAhead1(index) == token;
     }
 
     public static boolean lookAhead1(String sql, int index, char token) {
