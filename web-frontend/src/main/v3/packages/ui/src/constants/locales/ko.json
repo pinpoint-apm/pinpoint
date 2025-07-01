@@ -116,7 +116,8 @@
       "REMOVE_AGENT_DESC": "다음 Agent를 삭제합니다.",
       "LABEL": {
         "REMOVE_APPLICATION": "Application 삭제"
-      }
+      },
+      "REMOVE_PASSWORD_DESCRIPTION": "설정한 비밀번호가 있다면 입력하세요."
     },
     "AGENT_STATISTIC": {
       "ZOOM_GUIDE": "마우스를 통해 차트를 Zoom In/Out 할 수 있습니다.",

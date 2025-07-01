@@ -11,12 +11,14 @@ import {
   DialogTrigger,
   DialogClose,
 } from '../ui';
+import { DialogProps } from '@radix-ui/react-dialog';
 
 export interface RemovePopupProps {
   popupTrigger: React.ReactNode;
   popupTitle?: string;
   popupDesc?: string;
   popupContents?: React.ReactNode;
+  onOpenChange?: DialogProps['onOpenChange'];
   onClickRemove?: () => void;
 }
 
@@ -25,12 +27,13 @@ export const RemovePopup = ({
   popupTitle,
   popupDesc,
   popupContents,
+  onOpenChange,
   onClickRemove,
 }: RemovePopupProps) => {
   const { t } = useTranslation();
 
   return (
-    <Dialog>
+    <Dialog onOpenChange={onOpenChange}>
       <DialogTrigger asChild>{popupTrigger}</DialogTrigger>
       <DialogContent onClick={(e) => e.stopPropagation()}>
         <DialogHeader>
