@@ -121,7 +121,10 @@ class ProfilePropertyLoader implements PropertyLoader {
         if (profile == null) {
             throw new RuntimeException("Failed to detect pinpoint profile. Please add -D" +
                     ProfileConstants.ACTIVE_PROFILE_KEY +
-                    "=<profile> to VM option. Valid profiles are \"" + supportedProfiles + "\"");
+                    "=<profile> to VM option. Valid profiles are \"" + supportedProfiles + "\". " +
+                    "Profile aliases are defined in pinpoint-root.config with the format: " +
+                    ProfileConstants.PROFILE_ALIAS_KEY_PREFIX + "<profile>=<alias1>,<alias2>..."
+            );
         }
 
         // prevent directory traversal attack
@@ -140,7 +143,7 @@ class ProfilePropertyLoader implements PropertyLoader {
                 return supportedProfileName;
             }
         }
-        throw new IllegalStateException("unsupported profile:" + profile);
+        throw new IllegalStateException("unsupported profile or profile alias:" + profile);
     }
 
     private String getProfileProperties(Properties defaultProperties, String key) {
