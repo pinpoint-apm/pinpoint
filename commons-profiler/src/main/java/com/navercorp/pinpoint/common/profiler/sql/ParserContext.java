@@ -42,20 +42,10 @@ public class ParserContext {
                     final int lookAhead1Char = lookAhead1(i);
                     // multi line comment and oracle hint /*+ */
                     if (lookAhead1Char == '*') {
-                        if (removeComments) {
-                            this.parameter.touch();
-                            i = skipComment("/*", i);
-                        } else {
-                            i = readComment("/*", i, normalized);
-                        }
-                        // single line comment
+                        i = readComment("/*", i);
+                    // single line comment
                     } else if (lookAhead1Char == '/') {
-                        if (removeComments) {
-                            this.parameter.touch();
-                            i = skipLine("//", i);
-                        } else {
-                            i = readLine("//", i, normalized);
-                        }
+                        i = readLine("//", i);
                     } else {
                         // unary operator
                         numberTokenStartEnable = true;
@@ -67,12 +57,7 @@ public class ParserContext {
                 case '-':
                     // single line comment state
                     if (lookAhead1(i) == '-') {
-                        if (removeComments) {
-                            this.parameter.touch();
-                            i = skipLine("--", i);
-                        } else {
-                            i = readLine("--", i, normalized);
-                        }
+                        i = readLine("--", i);
                     } else {
                         // unary operator
                         numberTokenStartEnable = true;
@@ -174,6 +159,24 @@ public class ParserContext {
         }
     }
 
+    private int readComment(String token, int i) {
+        if (removeComments) {
+            this.parameter.touch();
+            return readComment(token, "*/", i, null);
+        } else {
+            return readComment(token, "*/", i, normalized);
+        }
+    }
+
+    private int readLine(String token, int i) {
+        if (removeComments) {
+            this.parameter.touch();
+            return readComment(token, "\n", i, null);
+        } else {
+            return readComment(token, "\n", i, normalized);
+        }
+    }
+
     private int readSymbol(int i) {
         // empty symbol
         if (lookAhead1(i) == '\'') {
@@ -261,27 +264,16 @@ public class ParserContext {
         return i;
     }
 
-    private int skipLine(String first, int index) {
-        return readComment(first, "\n", index, this.sql, null);
+    private int readComment(String first, String end, int i, StringBuilder writer) {
+        return readComment(first, end, i, this.sql, writer);
     }
 
-    private int readLine(String first, int index, StringBuilder normalized) {
-        return readComment(first, "\n", index, this.sql, normalized);
+    public static int readLine(String first, int i, String sql, StringBuilder writer) {
+        return readComment(first, "\n", i, sql, writer);
     }
 
-    public static int readLine(String first, int i, String sql, StringBuilder normalized) {
-        return readComment(first, "\n", i, sql, normalized);
-    }
 
-    private int readComment(String first, int i, StringBuilder normalized) {
-        return readComment(first, "*/", i, this.sql, normalized);
-    }
-
-    private int skipComment(String first, int i) {
-        return readComment(first, "*/", i, this.sql, null);
-    }
-
-    public static int readComment(String firstToken, String endToken, int i, String sql, StringBuilder normalized) {
+    public static int readComment(String firstToken, String endToken, int i, String sql, StringBuilder writer) {
         final int startIndex = i;
         int end = 0;
 
@@ -302,8 +294,8 @@ public class ParserContext {
             i = sql.length();
         }
 
-        if (normalized != null) {
-            normalized.append(sql, startIndex, i + end);
+        if (writer != null) {
+            writer.append(sql, startIndex, i + end);
         }
         return i;
     }
