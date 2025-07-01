@@ -52,7 +52,7 @@ public class ParserContext {
                     } else if (lookAhead1Char == '/') {
                         if (removeComments) {
                             this.parameter.touch();
-                            i = skipLine("//", i, normalized);
+                            i = skipLine("//", i);
                         } else {
                             i = readLine("//", i, normalized);
                         }
@@ -69,7 +69,7 @@ public class ParserContext {
                     if (lookAhead1(i) == '-') {
                         if (removeComments) {
                             this.parameter.touch();
-                            i = skipLine("--", i, normalized);
+                            i = skipLine("--", i);
                         } else {
                             i = readLine("--", i, normalized);
                         }
@@ -261,7 +261,7 @@ public class ParserContext {
         return i;
     }
 
-    private int skipLine(String first, int index, StringBuilder normalized) {
+    private int skipLine(String first, int index) {
         return readComment(first, "\n", index, this.sql, null);
     }
 
