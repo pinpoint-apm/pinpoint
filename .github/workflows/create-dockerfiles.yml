@@ -56,7 +56,6 @@ jobs:
       - name: Build Docker Images
         run: |
           mvn docker:build -pl agent-module/agent
-          mvn docker:build -pl flink
           mvn docker:build -pl hbase/hbase-docker
           mvn verify spring-boot:build-image -DskipTests=true -pl collector-starter
           mvn verify spring-boot:build-image -DskipTests=true -pl web-starter
@@ -74,7 +73,6 @@ jobs:
       - name: Push to Docker Hub
         run: |
           docker push --all-tags ${{ secrets.docker_username }}/pinpoint-agent
-          docker push --all-tags ${{ secrets.docker_username }}/pinpoint-flink
           docker push --all-tags ${{ secrets.docker_username }}/pinpoint-hbase
           docker push --all-tags ${{ secrets.docker_username }}/pinpoint-batch
           docker push --all-tags ${{ secrets.docker_username }}/pinpoint-collector
