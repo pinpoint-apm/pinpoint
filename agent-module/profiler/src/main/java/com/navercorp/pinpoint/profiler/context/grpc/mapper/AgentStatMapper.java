@@ -28,7 +28,9 @@ import com.navercorp.pinpoint.grpc.trace.PFileDescriptor;
 import com.navercorp.pinpoint.grpc.trace.PJvmGc;
 import com.navercorp.pinpoint.grpc.trace.PJvmGcDetailed;
 import com.navercorp.pinpoint.grpc.trace.PLoadedClass;
+import com.navercorp.pinpoint.grpc.trace.PMonitorInfo;
 import com.navercorp.pinpoint.grpc.trace.PResponseTime;
+import com.navercorp.pinpoint.grpc.trace.PThreadDump;
 import com.navercorp.pinpoint.grpc.trace.PTotalThread;
 import com.navercorp.pinpoint.grpc.trace.PTransaction;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
@@ -41,6 +43,8 @@ import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSource;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.MonitorInfoMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.ThreadDumpMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.loadedclass.LoadedClassMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
@@ -136,6 +140,15 @@ public interface AgentStatMapper {
     @Mapping(source = "deadlockedThreadCount", target = "count")
     @Mapping(target = "threadDump", ignore = true)
     PDeadlock map(DeadlockMetricSnapshot snapshot);
+
+    @Mapping(source = "stackTrace", target = "stackTrace")
+    @Mapping(source = "lockedMonitors", target = "lockedMonitor", qualifiedByName = "toMonitorInfoList")
+    PThreadDump map(ThreadDumpMetricSnapshot snapshot);
+
+    @Named("toMonitorInfoList")
+    @Mapping(source = "stackDepth", target = "stackDepth")
+    @Mapping(source = "stackFrame", target = "stackFrame")
+    PMonitorInfo map(MonitorInfoMetricSnapshot snapshot);
 
     PFileDescriptor map(FileDescriptorMetricSnapshot snapshot);
 
