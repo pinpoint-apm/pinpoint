@@ -372,28 +372,28 @@ public class DefaultSqlNormalizerTest {
         }
     }
 
-    private void assertEqual(String expected, String actual) {
-        NormalizedSql parsingResult = sqlNormalizer.normalizeSql(expected);
+    private void assertEqual(String sql, String expectedNormalizedSql) {
+        NormalizedSql parsingResult = sqlNormalizer.normalizeSql(sql);
         String normalizedSql = parsingResult.getNormalizedSql();
         try {
-            Assertions.assertEquals(actual, normalizedSql);
+            Assertions.assertEquals(expectedNormalizedSql, normalizedSql);
         } catch (AssertionError e) {
-            logger.warn("Original :{}", expected);
+            logger.warn("Original :{}", sql);
             throw e;
         }
     }
 
-    private void assertEqual(String expected, String actual, String outputExpected) {
-        NormalizedSql parsingResult = sqlNormalizer.normalizeSql(expected);
+    private void assertEqual(String sql, String expectedNormalizedSql, String outputExpected) {
+        NormalizedSql parsingResult = sqlNormalizer.normalizeSql(sql);
         String normalizedSql = parsingResult.getNormalizedSql();
         String output = parsingResult.getParseParameter();
         List<String> outputParams = outputParameterParser.parseOutputParameter(output);
         String s = sqlNormalizer.combineOutputParams(normalizedSql, outputParams);
         logger.debug("combine:" + s);
         try {
-            Assertions.assertEquals(actual, normalizedSql, "normalizedSql check");
+            Assertions.assertEquals(expectedNormalizedSql, normalizedSql, "normalizedSql check");
         } catch (AssertionError e) {
-            logger.warn("Original :{}", expected);
+            logger.warn("Original :{}", sql);
             throw e;
         }
 
@@ -414,18 +414,14 @@ public class DefaultSqlNormalizerTest {
 
     @Test
     public void testPostSqlPositionalParameter() {
-        DefaultSqlNormalizer dut = new DefaultSqlNormalizer();
-        assertEquals("SELECT * FROM member WHERE id = $1",
-            dut.normalizeSql("SELECT * FROM member WHERE id = $1").getNormalizedSql());
-        assertEquals("SELECT * FROM member WHERE id = $122309",
-            dut.normalizeSql("SELECT * FROM member WHERE id = $122309").getNormalizedSql());
-
-        // Edge case: $ followed by non-digit (e.g., variable-like)
-        assertEquals("SELECT * FROM config WHERE key = $value",
-                dut.normalizeSql("SELECT * FROM config WHERE key = $value").getNormalizedSql());
-
-        // Edge case: $ inside string literal
-        assertEquals("SELECT * FROM logs WHERE message LIKE '0$'",
-                dut.normalizeSql("SELECT * FROM logs WHERE message LIKE '0$'").getNormalizedSql());
+        assertEqual("SELECT * FROM member WHERE user = 'Kim' AND id = $1 AND no = 10",
+            "SELECT * FROM member WHERE user = '0$' AND id = $1 AND no = 1#", "Kim,10");
+        assertEqual("SELECT * FROM member WHERE id = $122309 AND no = 122309",
+            "SELECT * FROM member WHERE id = $122309 AND no = 0#", "122309");
+        assertEqual("$value, 123", "$value, 0#");
+        assertEqual("'$123', 123", "'0$', 1#");
+        assertEqual("$; 123", "$; 0#");
+        assertEqual("$(123); 123", "$(0#); 1#");
+        assertEqual("'$''123'", "'0$'");
     }
 }
