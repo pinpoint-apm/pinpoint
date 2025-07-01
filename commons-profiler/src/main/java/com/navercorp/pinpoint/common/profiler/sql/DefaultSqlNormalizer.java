@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Queue;
 
 import static com.navercorp.pinpoint.common.profiler.sql.ParserContext.lookAhead1;
+import static com.navercorp.pinpoint.common.profiler.sql.ParserContext.readComment;
 import static com.navercorp.pinpoint.common.profiler.sql.ParserContext.readLine;
-import static com.navercorp.pinpoint.common.profiler.sql.ParserContext.readMultiLineComment;
 import static com.navercorp.pinpoint.common.profiler.sql.Tokens.NEXT_TOKEN_NOT_EXIST;
 import static com.navercorp.pinpoint.common.profiler.sql.Tokens.NUMBER_REPLACE;
 import static com.navercorp.pinpoint.common.profiler.sql.Tokens.SYMBOL_REPLACE;
@@ -70,7 +70,7 @@ public class DefaultSqlNormalizer implements SqlNormalizer {
                     int lookAhead1Char = lookAhead1(sql, i);
                     // multi line comment and oracle hint /*+ */
                     if (lookAhead1Char == '*') {
-                        i = readMultiLineComment("/*", i, sql, normalized);
+                        i = readComment("/*", "*/", i, sql, normalized);
                         break;
                         // single line comment
                     } else if (lookAhead1Char == '/') {
@@ -238,7 +238,7 @@ public class DefaultSqlNormalizer implements SqlNormalizer {
                     int lookAhead1Char = lookAhead1(sql, i);
                     // multi line comment and oracle hint /*+ */
                     if (lookAhead1Char == '*') {
-                        i = readMultiLineComment("/*", i, sql, result);
+                        i = readComment("/*", "*/", i, sql, result);
                         // single line comment
                     } else if (lookAhead1Char == '/') {
                         i = readLine("//", i, sql, result);

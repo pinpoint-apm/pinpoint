@@ -308,13 +308,13 @@ public class DefaultSqlNormalizerTest {
         Assertions.assertEquals(result2, result1);
 
         sql1 = "//comment\nselect * from table id = ?;";
-        sql2 = "\nselect * from table id = ?;";
+        sql2 = "select * from table id = ?;";
         result1 = sut.normalizeSql(sql1).getNormalizedSql();
         result2 = sut.normalizeSql(sql2).getNormalizedSql();
         Assertions.assertEquals(result2, result1);
 
         sql1 = "--comment\nselect * from table id = ?;";
-        sql2 = "\nselect * from table id = ?;";
+        sql2 = "select * from table id = ?;";
         result1 = sut.normalizeSql(sql1).getNormalizedSql();
         result2 = sut.normalizeSql(sql2).getNormalizedSql();
         Assertions.assertEquals(result2, result1);
