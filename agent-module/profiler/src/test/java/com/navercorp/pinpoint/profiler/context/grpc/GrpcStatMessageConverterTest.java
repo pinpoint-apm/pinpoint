@@ -10,6 +10,8 @@ import com.navercorp.pinpoint.profiler.context.grpc.mapper.CustomMetricMapper;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.CustomMetricMapperImpl;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.JvmGcTypeMapper;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.JvmGcTypeMapperImpl;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.ThreadDumpMapper;
+import com.navercorp.pinpoint.profiler.context.grpc.mapper.ThreadDumpMapperImpl;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.UriStatMapper;
 import com.navercorp.pinpoint.profiler.context.grpc.mapper.UriStatMapperImpl;
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
@@ -196,7 +198,8 @@ class GrpcStatMessageConverterTest {
     }
 
     private final JvmGcTypeMapper jvmGcTypeMapper = new JvmGcTypeMapperImpl();
-    private final AgentStatMapper agentStatMapper = new AgentStatMapperImpl(jvmGcTypeMapper);
+    private final ThreadDumpMapper threadDumpMapper = new ThreadDumpMapperImpl();
+    private final AgentStatMapper agentStatMapper = new AgentStatMapperImpl(jvmGcTypeMapper, threadDumpMapper);
     private final CustomMetricMapper customMetricMapper = new CustomMetricMapperImpl();
     private final UriStatMapper uriStatMapper = new UriStatMapperImpl();
 
