@@ -20,7 +20,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -62,11 +61,7 @@ public class IgnoreAddressFilter implements AddressFilter {
 
     private CidrAddressFilter createCidrAddressFilter(String address) {
         try {
-            String[] cidrAddress = address.split("/", 2);
-            String ipAddress = cidrAddress[0];
-            int cidrPrefix = Integer.parseInt(cidrAddress[1]);
-
-            return new CidrAddressFilter(ipAddress, cidrPrefix);
+            return new CidrAddressFilter(address);
         } catch (Exception e) {
             logger.warn("Failed to create CidrAddress:{}. message:{}", address, e.getMessage());
         }
@@ -86,9 +81,8 @@ public class IgnoreAddressFilter implements AddressFilter {
             return true;
         }
 
-        InetSocketAddress inetSocketAddress = new InetSocketAddress(address, 0);
         for (CidrAddressFilter cidrAddressFilter : cidrAddressFilterList) {
-            if (cidrAddressFilter.matches(inetSocketAddress)) {
+            if (cidrAddressFilter.matches(address)) {
                 return false;
             }
         }
