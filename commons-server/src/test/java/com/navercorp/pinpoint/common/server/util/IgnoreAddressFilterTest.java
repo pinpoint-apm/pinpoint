@@ -31,6 +31,9 @@ public class IgnoreAddressFilterTest {
     private final List<String> ignoreList = List.of("10.0.0.1", "10.0.0.2", "11.0.0.1");
     private final List<String> successList = List.of("100.0.0.0", "10.0.1.1", "11.0.0.2");
 
+    private final List<String> ipv6IgnoreList = List.of("2001:db8::1", "2001:db8:0:1::1");
+    private final List<String> ipv6SuccessList = List.of("2001:db8:1::1", "2001:4860:4860::8888");
+
     @Test
     public void acceptTest() {
         final List<InetAddress> ignoreAddresses = InetAddressUtils.toInetAddressList(ignoreList);
@@ -50,6 +53,26 @@ public class IgnoreAddressFilterTest {
         final List<InetAddress> successAddresses = InetAddressUtils.toInetAddressList(successList);
 
         final List<String> ignoreListForFilter = List.of("10.0.0.0/24", "11.0.0.1");
+
+        assertAddressFilter(ignoreListForFilter, ignoreAddresses, successAddresses);
+    }
+
+    @Test
+    public void acceptIpv6Test() {
+        final List<InetAddress> ignoreAddresses = InetAddressUtils.toInetAddressList(ipv6IgnoreList);
+        final List<InetAddress> successAddresses = InetAddressUtils.toInetAddressList(ipv6SuccessList);
+
+        final List<String> ignoreListForFilter = List.of("2001:db8::1", "2001:db8:0:1::1");
+
+        assertAddressFilter(ignoreListForFilter, ignoreAddresses, successAddresses);
+    }
+
+    @Test
+    public void acceptIpv6WithCidrTest() {
+        final List<InetAddress> ignoreAddresses = InetAddressUtils.toInetAddressList(ipv6IgnoreList);
+        final List<InetAddress> successAddresses = InetAddressUtils.toInetAddressList(ipv6SuccessList);
+
+        final List<String> ignoreListForFilter = List.of("2001:db8::/64", "2001:db8:0:1::1");
 
         assertAddressFilter(ignoreListForFilter, ignoreAddresses, successAddresses);
     }
