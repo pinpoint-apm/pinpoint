@@ -80,11 +80,11 @@ public class GrpcApiMetaDataHandler implements RequestResponseHandler<PApiMetaDa
                     .build();
 
             this.apiMetaDataService.insert(apiMetaDataBo);
-            return PResult.newBuilder().setSuccess(true).build();
+            return PResults.SUCCESS;
         } catch (Exception e) {
             logger.warn("Failed to handle apiMetaData={}", MessageFormatUtils.debugLog(apiMetaData), e);
             // Avoid detailed error messages.
-            return PResult.newBuilder().setSuccess(false).setMessage("Internal Server Error").build();
+            return PResults.INTERNAL_SERVER_ERROR;
         }
     }
 }
