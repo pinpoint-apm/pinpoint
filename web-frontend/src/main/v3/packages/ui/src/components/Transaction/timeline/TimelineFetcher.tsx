@@ -30,6 +30,12 @@ export const TimelineFetcher = ({ transactionInfo }: TimelineFetcherProps) => {
   const [input, setInput] = React.useState('');
   const [searchInput, setSearchInput] = React.useState('');
   const [focusedNodeId, setFocusedNodeId] = React.useState<string>();
+  const [nodeFlows, setNodeFlows] = React.useState({
+    // prev -> selected -> next node의 args.id 값
+    prev: [] as string[],
+    selected: undefined as string | undefined,
+    next: [] as string[],
+  });
 
   const { data } = useGetTraceViewerData({
     traceId: transactionInfo?.transactionId,
@@ -80,6 +86,43 @@ export const TimelineFetcher = ({ transactionInfo }: TimelineFetcherProps) => {
 
   const getTraceDataById = (id: string) => {
     return data?.traceEvents.find((ev) => ev.args.id === id);
+  };
+
+  const findNodeFlow = (node: TraceViewerData.TraceEvent | undefined) => {
+    // prev -> seledtedNode -> next 형태 flow를 찾기 위한 로직
+    const selectedArgsId = node?.args?.id;
+    const prevNodesArgsId: string[] = [];
+    const nextNodesArgsId: string[] = [];
+
+    // 클릭 된 node에서 시작 된 경우 (클릭 된 node와 args.id가 같고 ph가 's'인 경우)
+    const startBySelectedNodeIds = data?.traceEvents
+      ?.filter((ev) => {
+        return ev?.args?.id === selectedArgsId && ev?.ph === 's';
+      })
+      ?.map((ev) => ev?.id);
+
+    // 클릭 된 node로 끝나는 경우 (클릭 된 node와 args.id가 같고 ph가 'f'인 경우)
+    const finishInSelectedNodeIds = data?.traceEvents
+      ?.filter((ev) => {
+        return ev?.args?.id === selectedArgsId && ev?.ph === 'f';
+      })
+      ?.map((ev) => ev?.id);
+
+    data?.traceEvents?.forEach((ev) => {
+      if (startBySelectedNodeIds?.includes(ev?.id) && ev?.ph === 'f') {
+        // 클릭 된 node에서 시작 되어 끝나는 node 찾기
+        nextNodesArgsId.push(ev?.args?.id);
+      } else if (finishInSelectedNodeIds?.includes(ev?.id) && ev?.ph === 's') {
+        // 클릭 된 node에서 끝나는 시작 node 찾기
+        prevNodesArgsId.push(ev?.args?.id);
+      }
+    });
+
+    setNodeFlows({
+      prev: prevNodesArgsId,
+      selected: selectedArgsId,
+      next: nextNodesArgsId,
+    });
   };
 
   return (
@@ -150,6 +193,7 @@ export const TimelineFetcher = ({ transactionInfo }: TimelineFetcherProps) => {
         data={flameGraphData}
         start={transactionInfo?.callStackStart}
         end={transactionInfo?.callStackEnd}
+        nodeFlows={nodeFlows}
         customNodeStyle={(node, _color) => {
           const nodeApplicationName = node?.detail?.args?.['Application Name'] || '';
           const color = nodeApplicationName ? getColorByString(nodeApplicationName) : _color?.color;
@@ -188,6 +232,7 @@ export const TimelineFetcher = ({ transactionInfo }: TimelineFetcherProps) => {
           };
         }}
         onClickNode={(node) => {
+          findNodeFlow(node?.detail);
           setSelectedTrace(node.detail as TraceViewerData.TraceEvent);
         }}
       />
@@ -196,6 +241,11 @@ export const TimelineFetcher = ({ transactionInfo }: TimelineFetcherProps) => {
           start={transactionInfo?.callStackStart || 0}
           data={selectedTrace}
           onClose={() => {
+            setNodeFlows({
+              prev: [],
+              selected: undefined,
+              next: [],
+            });
             setSelectedTrace(undefined);
             setFocusedNodeId(undefined);
           }}
