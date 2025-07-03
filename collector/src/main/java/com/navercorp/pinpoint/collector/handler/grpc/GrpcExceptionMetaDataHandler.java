@@ -87,11 +87,11 @@ public class GrpcExceptionMetaDataHandler implements RequestResponseHandler<PExc
 
             exceptionMetaDataService.save(exceptionMetaDataBo);
 
-            return PResult.newBuilder().setSuccess(true).build();
+            return PResults.SUCCESS;
         } catch (Exception e) {
             logger.warn("Failed to handle exceptionMetaData={}", MessageFormatUtils.debugLog(exceptionMetaData), e);
             // Avoid detailed error messages.
-            return PResult.newBuilder().setSuccess(false).setMessage("Internal Server Error").build();
+            return PResults.INTERNAL_SERVER_ERROR;
         }
     }
 

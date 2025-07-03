@@ -91,12 +91,10 @@ public class GrpcSqlMetaDataHandler implements RequestResponseHandler<PSqlMetaDa
     }
 
     private static PResult newResult(boolean success) {
-        final PResult.Builder builder = PResult.newBuilder();
         if (success) {
-            builder.setSuccess(true);
+            return PResults.SUCCESS;
         } else {
-            builder.setSuccess(false).setMessage("Internal Server Error");
+            return PResults.INTERNAL_SERVER_ERROR;
         }
-        return builder.build();
     }
 }
