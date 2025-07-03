@@ -216,7 +216,11 @@ public class HbaseTraceService implements TraceService {
             if (spanServiceType.isQueue()) {
                 if (!selfVertex.serviceType().isQueue() && !parentVertex.serviceType().isQueue()) {
                     // emulate virtual queue node's accept Span and record it's acceptor host
-                    final Vertex queueAcceptVertex = Vertex.of(span.getAcceptorHost(), spanServiceType);
+                    String applicationName = span.getAcceptorHost();
+                    if(applicationName == null) {
+                        applicationName = span.getRemoteAddr();
+                    }
+                    final Vertex queueAcceptVertex = Vertex.of(applicationName, spanServiceType);
 
                     if (logger.isDebugEnabled()) {
                         logger.debug("[Bind] child-queue {}/{} <- {}", queueAcceptVertex, span.getRemoteAddr(), parentVertex);
