@@ -139,17 +139,10 @@
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
         </dependency>
-
+        <!-- for cidr filter -->
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-handler</artifactId>
-            <!-- for cidr filter -->
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>com.github.seancfoley</groupId>
+            <artifactId>ipaddress</artifactId>
         </dependency>
 
         <!-- Logging dependencies -->
