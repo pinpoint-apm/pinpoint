@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.util.Puts;
-import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import org.apache.hadoop.hbase.TableName;
@@ -56,7 +56,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     private final TimeSlot timeSlot;
 
-    private final AbstractRowKeyDistributor rowKeyDistributor;
+    private final RowKeyDistributor rowKeyDistributor;
 
     // FIXME should modify to save a cachekey at each 30~50 seconds instead of saving at each time
     private final AtomicLongUpdateMap<CacheKey> updater = new AtomicLongUpdateMap<>();
@@ -64,7 +64,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     public HbaseHostApplicationMapDao(HbaseOperations hbaseTemplate,
                                       TableNameProvider tableNameProvider,
-                                      @Qualifier("acceptApplicationRowKeyDistributor") AbstractRowKeyDistributor rowKeyDistributor,
+                                      @Qualifier("acceptApplicationRowKeyDistributor") RowKeyDistributor rowKeyDistributor,
                                       TimeSlot timeSlot) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");

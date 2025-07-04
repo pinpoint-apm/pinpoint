@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.common.hbase.parallel;
 
 import com.navercorp.pinpoint.common.hbase.HbaseAccessor;
 import com.navercorp.pinpoint.common.hbase.scan.ScanUtils;
-import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -40,12 +40,12 @@ public class ParallelResultScanner implements ResultScanner {
 
     private static final Result[] RESULT_EMPTY_ARRAY = {};
 
-    private final AbstractRowKeyDistributor keyDistributor;
+    private final RowKeyDistributor keyDistributor;
     private final List<ScanTask> scanTasks;
     private final Result[] nextResults;
     private Result next = null;
 
-    public ParallelResultScanner(TableName tableName, HbaseAccessor hbaseAccessor, ExecutorService executor, Scan originalScan, AbstractRowKeyDistributor keyDistributor, int numParallelThreads) throws IOException {
+    public ParallelResultScanner(TableName tableName, HbaseAccessor hbaseAccessor, ExecutorService executor, Scan originalScan, RowKeyDistributor keyDistributor, int numParallelThreads) throws IOException {
         Objects.requireNonNull(hbaseAccessor, "hbaseAccessor");
         Objects.requireNonNull(executor, "executor");
         Objects.requireNonNull(originalScan, "originalScan");

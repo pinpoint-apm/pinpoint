@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.config;
 
-import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanChunkSerializerV2;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
@@ -41,7 +41,7 @@ public class SpanSerializeConfiguration {
     }
 
     @Bean
-    public TraceRowKeyEncoderV2 traceRowKeyEncoderV2(@Qualifier("traceV2Distributor") AbstractRowKeyDistributor rowKeyDistributor) {
+    public TraceRowKeyEncoderV2 traceRowKeyEncoderV2(@Qualifier("traceV2Distributor") RowKeyDistributor rowKeyDistributor) {
         return new TraceRowKeyEncoderV2(rowKeyDistributor);
     }
 

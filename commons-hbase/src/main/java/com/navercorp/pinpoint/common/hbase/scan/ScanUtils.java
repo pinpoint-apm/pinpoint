@@ -18,7 +18,7 @@
 package com.navercorp.pinpoint.common.hbase.scan;
 
 import com.navercorp.pinpoint.common.hbase.HbaseSystemException;
-import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import org.apache.hadoop.hbase.client.AsyncTable;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
@@ -29,7 +29,7 @@ import java.util.function.Function;
 
 public final class ScanUtils {
 
-    public static Scan[] splitScans(Scan originalScan, AbstractRowKeyDistributor keyDistributor) throws IOException {
+    public static Scan[] splitScans(Scan originalScan, RowKeyDistributor keyDistributor) throws IOException {
         Scan[] scans = keyDistributor.getDistributedScans(originalScan);
         applyScanOptions(originalScan, scans);
         return scans;

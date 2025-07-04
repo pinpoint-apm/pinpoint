@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
-import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.util.BytesUtils;
@@ -32,9 +32,9 @@ public class TraceRowKeyEncoderV2 implements RowKeyEncoder<TransactionId> {
     public static final int AGENT_ID_MAX_LEN = PinpointConstants.AGENT_ID_MAX_LEN;
     public static final int DISTRIBUTE_HASH_SIZE = 1;
 
-    private final AbstractRowKeyDistributor rowKeyDistributor;
+    private final RowKeyDistributor rowKeyDistributor;
 
-    public TraceRowKeyEncoderV2(AbstractRowKeyDistributor rowKeyDistributor) {
+    public TraceRowKeyEncoderV2(RowKeyDistributor rowKeyDistributor) {
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
     }
 
