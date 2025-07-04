@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 
 import com.navercorp.pinpoint.collector.applicationmap.Vertex;
-import com.navercorp.pinpoint.collector.applicationmap.config.MapLinkConfiguration;
+import com.navercorp.pinpoint.collector.applicationmap.config.MapLinkProperties;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
@@ -51,13 +51,13 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
 
     private final IgnoreStatFilter ignoreStatFilter;
     private final BulkWriter bulkWriter;
-    private final MapLinkConfiguration mapLinkConfiguration;
+    private final MapLinkProperties mapLinkProperties;
 
-    public HbaseMapInLinkDao(MapLinkConfiguration mapLinkConfiguration,
+    public HbaseMapInLinkDao(MapLinkProperties mapLinkProperties,
                              IgnoreStatFilter ignoreStatFilter,
                              TimeSlot timeSlot,
                              @Qualifier("inLinkBulkWriter") BulkWriter bulkWriter) {
-        this.mapLinkConfiguration = Objects.requireNonNull(mapLinkConfiguration, "mapLinkConfiguration");
+        this.mapLinkProperties = Objects.requireNonNull(mapLinkProperties, "mapLinkConfiguration");
         this.ignoreStatFilter = Objects.requireNonNull(ignoreStatFilter, "ignoreStatFilter");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
 
@@ -93,11 +93,11 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
         final ColumnName outLink = OutLinkColumnName.histogram(outVertex, outHost, outSlotNumber);
         this.bulkWriter.increment(inLinkRowKey, outLink);
 
-        if (mapLinkConfiguration.isEnableAvg()) {
+        if (mapLinkProperties.isEnableAvg()) {
             final ColumnName sumOutLink = OutLinkColumnName.sum(outVertex, outHost, inVertex.serviceType());
             this.bulkWriter.increment(inLinkRowKey, sumOutLink, elapsed);
         }
-        if (mapLinkConfiguration.isEnableMax()) {
+        if (mapLinkProperties.isEnableMax()) {
             final ColumnName maxOutLink = OutLinkColumnName.max(outVertex, outHost, inVertex.serviceType());
             this.bulkWriter.updateMax(inLinkRowKey, maxOutLink, elapsed);
         }
