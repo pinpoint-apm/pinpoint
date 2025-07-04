@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
-import com.sematext.hbase.wd.AbstractRowKeyDistributor;
+import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.CheckAndMutate;
 import org.apache.hadoop.hbase.client.CheckAndMutateResult;

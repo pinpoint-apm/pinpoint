@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 
 import java.util.Objects;
 

@@ -18,7 +18,7 @@
 package com.navercorp.pinpoint.common.hbase.scan;
 
 import com.navercorp.pinpoint.common.hbase.HbaseSystemException;
-import com.sematext.hbase.wd.AbstractRowKeyDistributor;
+import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.client.AsyncTable;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;

@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkIncremente
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkIncrementerTestClazz.TestVerifier;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.config.BulkIncrementerFactory;
 import com.navercorp.pinpoint.collector.monitor.dao.hbase.BulkOperationReporter;
-import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;

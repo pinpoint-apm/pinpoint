@@ -17,11 +17,11 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.encode;
 
+import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.IdRowKeyEncoder;
-import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 
 import java.util.Objects;
 

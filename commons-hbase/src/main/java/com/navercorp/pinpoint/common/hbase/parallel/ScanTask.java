@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.common.hbase.parallel;
 
 import com.navercorp.pinpoint.common.hbase.TableFactory;
-import com.sematext.hbase.wd.AbstractRowKeyDistributor;
-import com.sematext.hbase.wd.DistributedScanner;
+import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
+import com.navercorp.pinpoint.common.hbase.wd.DistributedScanner;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
