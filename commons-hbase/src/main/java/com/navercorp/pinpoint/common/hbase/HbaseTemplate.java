@@ -26,8 +26,8 @@ import com.navercorp.pinpoint.common.hbase.scan.Scanner;
 import com.navercorp.pinpoint.common.hbase.util.EmptyScanMetricReporter;
 import com.navercorp.pinpoint.common.hbase.util.HBaseExceptionUtils;
 import com.navercorp.pinpoint.common.hbase.util.ScanMetricReporter;
-import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
 import com.navercorp.pinpoint.common.hbase.wd.DistributedScanner;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.IOUtils;
@@ -437,29 +437,29 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
     }
 
     @Override
-    public <T> List<T> find(TableName tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final RowMapper<T> action) {
+    public <T> List<T> find(TableName tableName, final Scan scan, final RowKeyDistributor rowKeyDistributor, final RowMapper<T> action) {
         final ResultsExtractor<List<T>> resultsExtractor = new RowMapperResultsExtractor<>(action);
         return executeDistributedScan(tableName, scan, rowKeyDistributor, resultsExtractor);
     }
 
     @Override
-    public <T> List<T> find(TableName tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final int limit, final RowMapper<T> action) {
+    public <T> List<T> find(TableName tableName, final Scan scan, final RowKeyDistributor rowKeyDistributor, final int limit, final RowMapper<T> action) {
         final ResultsExtractor<List<T>> resultsExtractor = new LimitRowMapperResultsExtractor<>(action, limit);
         return executeDistributedScan(tableName, scan, rowKeyDistributor, resultsExtractor);
     }
 
     @Override
-    public <T> List<T> find(TableName tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action, final LimitEventHandler limitEventHandler) {
+    public <T> List<T> find(TableName tableName, final Scan scan, final RowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action, final LimitEventHandler limitEventHandler) {
         final LimitRowMapperResultsExtractor<T> resultsExtractor = new LimitRowMapperResultsExtractor<>(action, limit, limitEventHandler);
         return executeDistributedScan(tableName, scan, rowKeyDistributor, resultsExtractor);
     }
 
     @Override
-    public <T> T find(TableName tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
+    public <T> T find(TableName tableName, final Scan scan, final RowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
         return executeDistributedScan(tableName, scan, rowKeyDistributor, action);
     }
 
-    protected final <T> T executeDistributedScan(TableName tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
+    protected final <T> T executeDistributedScan(TableName tableName, final Scan scan, final RowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
         assertAccessAvailable();
         if (nativeAsync) {
             return this.asyncTemplate.executeDistributedScan(tableName, scan, rowKeyDistributor, action);
@@ -467,7 +467,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
         return executeDistributedScan0(tableName, scan, rowKeyDistributor, action);
     }
 
-    protected final <T> T executeDistributedScan0(TableName tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
+    protected final <T> T executeDistributedScan0(TableName tableName, final Scan scan, final RowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
         return execute(tableName, new TableCallback<>() {
             @Override
             public T doInTable(Table table) throws Throwable {
@@ -495,7 +495,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
 
 
     @Override
-    public <T> List<T> findParallel(TableName tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, RowMapper<T> action, int numParallelThreads) {
+    public <T> List<T> findParallel(TableName tableName, Scan scan, RowKeyDistributor rowKeyDistributor, RowMapper<T> action, int numParallelThreads) {
         if (isSimpleScan(numParallelThreads)) {
             // use DistributedScanner if parallel scan is disabled or if called to use a single thread
             return find(tableName, scan, rowKeyDistributor, action);
@@ -511,7 +511,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
     }
 
     @Override
-    public <T> List<T> findParallel(TableName tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, int limit, RowMapper<T> action, int numParallelThreads) {
+    public <T> List<T> findParallel(TableName tableName, Scan scan, RowKeyDistributor rowKeyDistributor, int limit, RowMapper<T> action, int numParallelThreads) {
         if (isSimpleScan(numParallelThreads)) {
             // use DistributedScanner if parallel scan is disabled or if called to use a single thread
             return find(tableName, scan, rowKeyDistributor, limit, action);
@@ -523,7 +523,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
     }
 
     @Override
-    public <T> List<T> findParallel(TableName tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, int limit, RowMapper<T> action, LimitEventHandler limitEventHandler, int numParallelThreads) {
+    public <T> List<T> findParallel(TableName tableName, Scan scan, RowKeyDistributor rowKeyDistributor, int limit, RowMapper<T> action, LimitEventHandler limitEventHandler, int numParallelThreads) {
         if (isSimpleScan(numParallelThreads)) {
             // use DistributedScanner if parallel scan is disabled or if called to use a single thread
             return find(tableName, scan, rowKeyDistributor, limit, action, limitEventHandler);
@@ -535,7 +535,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
     }
 
     @Override
-    public <T> T findParallel(TableName tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, ResultsExtractor<T> action, int numParallelThreads) {
+    public <T> T findParallel(TableName tableName, Scan scan, RowKeyDistributor rowKeyDistributor, ResultsExtractor<T> action, int numParallelThreads) {
         if (isSimpleScan(numParallelThreads)) {
             // use DistributedScanner if parallel scan is disabled or if called to use a single thread
             return find(tableName, scan, rowKeyDistributor, action);
@@ -545,7 +545,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
         }
     }
 
-    protected final <T> T executeParallelDistributedScan(TableName tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, ResultsExtractor<T> action, int numParallelThreads) {
+    protected final <T> T executeParallelDistributedScan(TableName tableName, Scan scan, RowKeyDistributor rowKeyDistributor, ResultsExtractor<T> action, int numParallelThreads) {
         assertAccessAvailable();
         if (nativeAsync) {
             return asyncTemplate.executeParallelDistributedScan(tableName, scan, rowKeyDistributor, action, numParallelThreads);
@@ -554,7 +554,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
     }
 
 
-    protected <T> T executeParallelDistributedScan0(TableName tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, ResultsExtractor<T> action, int numParallelThreads) {
+    protected <T> T executeParallelDistributedScan0(TableName tableName, Scan scan, RowKeyDistributor rowKeyDistributor, ResultsExtractor<T> action, int numParallelThreads) {
         try {
             StopWatch watch = StopWatch.createStarted();
             final boolean debugEnabled = logger.isDebugEnabled();

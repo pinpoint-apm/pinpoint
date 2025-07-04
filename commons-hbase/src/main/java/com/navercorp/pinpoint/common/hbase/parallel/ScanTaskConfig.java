@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.common.hbase.parallel;
 
 import com.navercorp.pinpoint.common.hbase.HbaseAccessor;
 import com.navercorp.pinpoint.common.hbase.TableFactory;
-import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.TableName;
@@ -36,14 +36,14 @@ public class ScanTaskConfig {
     private final Charset charset;
     private final TableFactory tableFactory;
 
-    private final AbstractRowKeyDistributor rowKeyDistributor;
+    private final RowKeyDistributor rowKeyDistributor;
     private final int scanTaskQueueSize;
 
-    public ScanTaskConfig(TableName tableName, HbaseAccessor hbaseAccessor, AbstractRowKeyDistributor rowKeyDistributor, int scanCaching) {
+    public ScanTaskConfig(TableName tableName, HbaseAccessor hbaseAccessor, RowKeyDistributor rowKeyDistributor, int scanCaching) {
         this(tableName, hbaseAccessor.getConfiguration(), hbaseAccessor.getCharset(), hbaseAccessor.getTableFactory(), rowKeyDistributor, scanCaching);
     }
 
-    public ScanTaskConfig(TableName tableName, Configuration configuration, Charset charset, TableFactory tableFactory, AbstractRowKeyDistributor rowKeyDistributor, int scanCaching) {
+    public ScanTaskConfig(TableName tableName, Configuration configuration, Charset charset, TableFactory tableFactory, RowKeyDistributor rowKeyDistributor, int scanCaching) {
         this.tableName = Objects.requireNonNull(tableName, "tableName");
         this.configuration = configuration;
         this.charset = charset;
@@ -74,7 +74,7 @@ public class ScanTaskConfig {
         return tableFactory;
     }
 
-    public AbstractRowKeyDistributor getRowKeyDistributor() {
+    public RowKeyDistributor getRowKeyDistributor() {
         return rowKeyDistributor;
     }
 

@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.common.util.TimeUtils;
@@ -63,13 +63,13 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     private final TimeSlot timeSlot;
 
-    private final AbstractRowKeyDistributor acceptApplicationRowKeyDistributor;
+    private final RowKeyDistributor acceptApplicationRowKeyDistributor;
 
     public HbaseHostApplicationMapDao(HbaseOperations hbaseOperations,
                                       TableNameProvider tableNameProvider,
                                       ResultsExtractor<Set<AcceptApplication>> hostApplicationResultExtractor,
                                       TimeSlot timeSlot,
-                                      AbstractRowKeyDistributor acceptApplicationRowKeyDistributor) {
+                                      RowKeyDistributor acceptApplicationRowKeyDistributor) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.hostApplicationResultExtractor = Objects.requireNonNull(hostApplicationResultExtractor, "hostApplicationResultExtractor");
