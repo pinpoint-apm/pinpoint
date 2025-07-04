@@ -6,8 +6,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 @Configuration
+@Import(MapDistributorConfiguration.class)
 public class DistributorConfiguration {
 
     private final Logger logger = LogManager.getLogger(DistributorConfiguration.class);
@@ -28,60 +30,33 @@ public class DistributorConfiguration {
 
     @Bean
     public RowKeyDistributorByHashPrefix traceV2Distributor() {
-        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(32, 40, 256);
+        RowKeyDistributorByHashPrefix.Hasher hasher = new RangeOneByteSimpleHash(32, 40, 256);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
     @Bean
     public RowKeyDistributorByHashPrefix applicationStatRowKeyDistributor() {
-        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 33, 64);
+        RowKeyDistributorByHashPrefix.Hasher hasher = new RangeOneByteSimpleHash(0, 33, 64);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
     @Bean
     public RowKeyDistributorByHashPrefix agentStatV2RowKeyDistributor() {
-        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 33, 64);
+        RowKeyDistributorByHashPrefix.Hasher hasher = new RangeOneByteSimpleHash(0, 33, 64);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
     @Bean
     public RowKeyDistributorByHashPrefix metadataRowKeyDistributor() {
-        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 32, 8);
+        RowKeyDistributorByHashPrefix.Hasher hasher = new RangeOneByteSimpleHash(0, 32, 8);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
     @Bean
     public RowKeyDistributorByHashPrefix metadataRowKeyDistributor2() {
-        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 36, 32);
+        RowKeyDistributorByHashPrefix.Hasher hasher = new RangeOneByteSimpleHash(0, 36, 32);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
-    @Bean
-    public RowKeyDistributorByHashPrefix acceptApplicationRowKeyDistributor() {
-        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 24, 4);
-        return new RowKeyDistributorByHashPrefix(hasher);
-    }
-
-    @Bean
-    public RowKeyDistributorByHashPrefix mapInLinkRowKeyDistributor() {
-        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 36, 32);
-        return new RowKeyDistributorByHashPrefix(hasher);
-    }
-
-    @Bean
-    public RowKeyDistributorByHashPrefix mapOutLinkRowKeyDistributor() {
-        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 36, 32);
-        return new RowKeyDistributorByHashPrefix(hasher);
-    }
-
-    @Bean
-    public RowKeyDistributorByHashPrefix mapSelfRowKeyDistributor() {
-        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 32, 8);
-        return new RowKeyDistributorByHashPrefix(hasher);
-    }
-
-    private RowKeyDistributorByHashPrefix.Hasher newRangeOneByteSimpleHash(int start, int end, int maxBuckets) {
-        return new RangeOneByteSimpleHash(start, end, maxBuckets);
-    }
 
 }
