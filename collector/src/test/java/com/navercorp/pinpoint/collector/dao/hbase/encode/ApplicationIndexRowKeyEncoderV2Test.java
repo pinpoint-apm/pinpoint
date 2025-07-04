@@ -18,9 +18,9 @@
 package com.navercorp.pinpoint.collector.dao.hbase.encode;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
-import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
 import com.navercorp.pinpoint.common.hbase.wd.Hasher;
 import com.navercorp.pinpoint.common.hbase.wd.OneByteSimpleHash;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.jupiter.api.Assertions;
@@ -35,11 +35,11 @@ class ApplicationIndexRowKeyEncoderV2Test {
 
     @BeforeEach
     void beforeEach() {
-        AbstractRowKeyDistributor rowKeyDistributor = applicationTraceIndexDistributor();
+        RowKeyDistributor rowKeyDistributor = applicationTraceIndexDistributor();
         this.encoder = new ApplicationIndexRowKeyEncoderV2(rowKeyDistributor);
     }
 
-    private AbstractRowKeyDistributor applicationTraceIndexDistributor() {
+    private RowKeyDistributor applicationTraceIndexDistributor() {
         Hasher hasher = new OneByteSimpleHash(32);
         return new RowKeyDistributorByHashPrefix(hasher);
     }

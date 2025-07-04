@@ -14,12 +14,12 @@ import java.util.Arrays;
  *
  * @author Alex Baranau
  */
-public abstract class AbstractRowKeyDistributor implements Parametrizable {
-    public abstract byte[] getDistributedKey(byte[] originalKey);
+public interface RowKeyDistributor {
+    byte[] getDistributedKey(byte[] originalKey);
 
-    public abstract byte[] getOriginalKey(byte[] adjustedKey);
+    byte[] getOriginalKey(byte[] adjustedKey);
 
-    public abstract byte[][] getAllDistributedKeys(byte[] originalKey);
+    byte[][] getAllDistributedKeys(byte[] originalKey);
 
     /**
      * Gets all distributed intervals based on the original start & stop keys.
@@ -29,21 +29,18 @@ public abstract class AbstractRowKeyDistributor implements Parametrizable {
      * @param originalStopKey stop key
      * @return array[Pair(startKey, stopKey)]
      */
-    public Pair<byte[], byte[]>[] getDistributedIntervals(byte[] originalStartKey, byte[] originalStopKey) {
+    default Pair<byte[], byte[]>[] getDistributedIntervals(byte[] originalStartKey, byte[] originalStopKey) {
         byte[][] startKeys = getAllDistributedKeys(originalStartKey);
         byte[][] stopKeys;
         if (Arrays.equals(originalStopKey, HConstants.EMPTY_END_ROW)) {
             Arrays.sort(startKeys, Bytes.BYTES_RAWCOMPARATOR);
-            stopKeys = new byte[startKeys.length][];
-            for (int i = 0; i < stopKeys.length - 1; i++) {
-                stopKeys[i] = startKeys[i + 1];
-            }
-            stopKeys[stopKeys.length - 1] = HConstants.EMPTY_END_ROW;
+            stopKeys = stopKey(startKeys);
         } else {
             stopKeys = getAllDistributedKeys(originalStopKey);
             assert stopKeys.length == startKeys.length;
         }
 
+        @SuppressWarnings("unchecked")
         Pair<byte[], byte[]>[] intervals = new Pair[startKeys.length];
         for (int i = 0; i < startKeys.length; i++) {
             intervals[i] = new Pair<>(startKeys[i], stopKeys[i]);
@@ -52,7 +49,16 @@ public abstract class AbstractRowKeyDistributor implements Parametrizable {
         return intervals;
     }
 
-    public final Scan[] getDistributedScans(Scan original) throws IOException {
+    private byte[][] stopKey(byte[][] startKeys) {
+        byte[][] stopKeys = new byte[startKeys.length][];
+        if (stopKeys.length - 1 >= 0) {
+            System.arraycopy(startKeys, 1, stopKeys, 0, stopKeys.length - 1);
+        }
+        stopKeys[stopKeys.length - 1] = HConstants.EMPTY_END_ROW;
+        return stopKeys;
+    }
+
+    default Scan[] getDistributedScans(Scan original) throws IOException {
         Pair<byte[], byte[]>[] intervals = getDistributedIntervals(original.getStartRow(), original.getStopRow());
 
         Scan[] scans = new Scan[intervals.length];

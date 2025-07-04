@@ -17,7 +17,7 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.encode;
 
-import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
@@ -34,9 +34,9 @@ public class ApplicationIndexRowKeyEncoderV2 implements RowKeyEncoder<SpanBo> {
 
     private final ApplicationNameRowKeyEncoder rowKeyEncoder = new ApplicationNameRowKeyEncoder();
     private final FuzzyRowKeyFactory<Byte> fuzzyRowKeyFactory = new OneByteFuzzyRowKeyFactory();
-    private final AbstractRowKeyDistributor rowKeyDistributor;
+    private final RowKeyDistributor rowKeyDistributor;
 
-    public ApplicationIndexRowKeyEncoderV2(AbstractRowKeyDistributor rowKeyDistributor) {
+    public ApplicationIndexRowKeyEncoderV2(RowKeyDistributor rowKeyDistributor) {
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
     }
 

@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.common.hbase.wd;
 
 import com.navercorp.pinpoint.common.util.MathUtils;
 
-import java.util.Arrays;
-
 /**
  * Copy from sematext/HBaseWD
  * Provides handy methods to distribute
@@ -30,18 +28,8 @@ import java.util.Arrays;
 public class RangeOneByteSimpleHash implements Hasher {
     protected final int start;
     protected final int end;
-    private int mod;
+    private final int mod;
 
-    // Used to minimize # of created object instances
-    // Should not be changed. TODO: secure that
-    private static final byte[][] PREFIXES;
-
-    static {
-        PREFIXES = new byte[256][];
-        for (int i = 0; i < 256; i++) {
-            PREFIXES[i] = new byte[] {(byte) i};
-        }
-    }
 
     public RangeOneByteSimpleHash(int start, int end, int maxBuckets) {
         if (maxBuckets < 1 || maxBuckets > 256) {
@@ -62,35 +50,18 @@ public class RangeOneByteSimpleHash implements Hasher {
 
     /** Compute hash for binary data. */
     private int hashBytes(byte[] bytes) {
-        int min = Math.min(bytes.length, end);
-        int hash = 1;
-        for (int i = start; i < min; i++)
-            hash = (31 * hash) + (int) bytes[i];
-        return hash;
+        int length = Math.min(bytes.length, end);
+        return WdUtils.hashBytes(bytes, start, length);
     }
 
     @Override
     public byte[][] getAllPossiblePrefixes() {
-        return Arrays.copyOfRange(PREFIXES, 0, mod);
+        return WdUtils.OneByte.prefixes(0, mod);
     }
 
     @Override
     public int getPrefixLength(byte[] adjustedKey) {
         return 1;
-    }
-
-    @Override
-    public String getParamsToStore() {
-        return String.valueOf(mod);
-    }
-
-    @Override
-    public void init(String storedParams) {
-        this.mod = Integer.parseInt(storedParams);
-    }
-
-    protected final int getMod() {
-        return this.mod;
     }
 
 }

@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseTableNameProvider;
 import com.navercorp.pinpoint.common.hbase.LimitEventHandler;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.config.ScatterChartProperties;
@@ -64,7 +64,7 @@ public class HbaseApplicationTraceIndexDaoTest {
     private RowMapper<List<Dot>> traceIndexScatterMapper;
 
     @Mock
-    private AbstractRowKeyDistributor traceIdRowKeyDistributor;
+    private RowKeyDistributor traceIdRowKeyDistributor;
 
     @Spy
     private final TableNameProvider tableNameProvider = new HbaseTableNameProvider("default");
@@ -92,7 +92,7 @@ public class HbaseApplicationTraceIndexDaoTest {
     @Test
     public void scanTraceIndexTest() {
         final List<List<TransactionId>> scannedList = createTraceIndexList();
-        when(this.hbaseOperations.findParallel(any(TableName.class), any(Scan.class), any(AbstractRowKeyDistributor.class),
+        when(this.hbaseOperations.findParallel(any(TableName.class), any(Scan.class), any(RowKeyDistributor.class),
                 anyInt(), any(RowMapper.class), any(LimitEventHandler.class), anyInt())).thenReturn(scannedList);
         LimitedScanResult<List<TransactionId>> result =
                 this.applicationTraceIndexDao.scanTraceIndex("app", Range.between(1000L, 5000L), 20, false);
@@ -116,7 +116,7 @@ public class HbaseApplicationTraceIndexDaoTest {
     @Test
     public void scanTraceScatterDataEmptyTest() {
 
-        when(this.hbaseOperations.findParallel(any(TableName.class), any(Scan.class), any(AbstractRowKeyDistributor.class),
+        when(this.hbaseOperations.findParallel(any(TableName.class), any(Scan.class), any(RowKeyDistributor.class),
                 anyInt(), any(RowMapper.class), any(LimitEventHandler.class), anyInt())).thenReturn(List.of());
         Range range = Range.between(1000L, 5000L);
         LimitedScanResult<List<Dot>> scanResult
@@ -133,7 +133,7 @@ public class HbaseApplicationTraceIndexDaoTest {
     @Test
     public void scanTraceScatterDataTest() {
         List<List<Dot>> scatterDotList = createScatterDotList();
-        when(this.hbaseOperations.findParallel(any(TableName.class), any(Scan.class), any(AbstractRowKeyDistributor.class),
+        when(this.hbaseOperations.findParallel(any(TableName.class), any(Scan.class), any(RowKeyDistributor.class),
                 anyInt(), any(RowMapper.class), anyInt())).thenReturn(scatterDotList);
         Range range = Range.between(1000L, 5000L);
         LimitedScanResult<List<Dot>> scanResult

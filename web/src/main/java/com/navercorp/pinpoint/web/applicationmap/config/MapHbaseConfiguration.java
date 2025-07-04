@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.common.hbase.config.HbaseTemplateConfiguration;
 import com.navercorp.pinpoint.common.hbase.config.ParallelScan;
 import com.navercorp.pinpoint.common.hbase.scan.ResultScannerFactory;
 import com.navercorp.pinpoint.common.hbase.util.ScanMetricReporter;
-import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
@@ -184,7 +184,7 @@ public class MapHbaseConfiguration {
                                                        ResultsExtractor<Set<AcceptApplication>> hostApplicationResultExtractor,
                                                        TimeSlot timeSlot,
                                                        @Qualifier("acceptApplicationRowKeyDistributor")
-                                                       AbstractRowKeyDistributor acceptApplicationRowKeyDistributor) {
+                                                       RowKeyDistributor acceptApplicationRowKeyDistributor) {
         return new HbaseHostApplicationMapDao(hbaseOperations, tableNameProvider, hostApplicationResultExtractor, timeSlot, acceptApplicationRowKeyDistributor);
     }
 }

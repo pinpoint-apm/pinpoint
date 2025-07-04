@@ -2,22 +2,19 @@ package com.navercorp.pinpoint.common.hbase.wd;
 
 import org.apache.hadoop.hbase.util.Bytes;
 
+import java.util.Objects;
+
 /**
  * Copy from sematext/HBaseWD
  * Provides handy methods to distribute
  *
  * @author Alex Baranau
  */
-public class RowKeyDistributorByHashPrefix extends AbstractRowKeyDistributor {
-    private static final String DELIM = "--";
-    private Hasher hasher;
-
-    /** Constructor reflection. DO NOT USE */
-    public RowKeyDistributorByHashPrefix() {
-    }
+public class RowKeyDistributorByHashPrefix implements RowKeyDistributor {
+    private final Hasher hasher;
 
     public RowKeyDistributorByHashPrefix(Hasher hasher) {
-        this.hasher = hasher;
+        this.hasher = Objects.requireNonNull(hasher, "hasher");
     }
 
     @Override
@@ -37,7 +34,7 @@ public class RowKeyDistributorByHashPrefix extends AbstractRowKeyDistributor {
 
     @Override
     public byte[][] getAllDistributedKeys(byte[] originalKey) {
-        byte[][] allPrefixes = hasher.getAllPossiblePrefixes();
+        byte[][] allPrefixes = hasher.getAllPossiblePrefixes(originalKey);
         byte[][] keys = new byte[allPrefixes.length][];
         for (int i = 0; i < allPrefixes.length; i++) {
             keys[i] = Bytes.add(allPrefixes[i], originalKey);
@@ -46,20 +43,4 @@ public class RowKeyDistributorByHashPrefix extends AbstractRowKeyDistributor {
         return keys;
     }
 
-    @Override
-    public String getParamsToStore() {
-        String hasherParamsToStore = hasher.getParamsToStore();
-        return hasher.getClass().getName() + DELIM + (hasherParamsToStore == null ? "" : hasherParamsToStore);
-    }
-
-    @Override
-    public void init(String params) {
-        String[] parts = params.split(DELIM, 2);
-        try {
-            this.hasher = (Hasher) Class.forName(parts[0]).newInstance();
-            this.hasher.init(parts[1]);
-        } catch (Exception e) {
-            throw new RuntimeException("RoKeyDistributor initialization failed", e);
-        }
-    }
 }
