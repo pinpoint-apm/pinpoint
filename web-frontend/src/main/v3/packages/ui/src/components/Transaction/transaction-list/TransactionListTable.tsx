@@ -8,6 +8,8 @@ import {
   getTransactionTableUniqueKey,
 } from '@pinpoint-fe/ui/src/utils';
 import { useNavigate } from 'react-router-dom';
+import { useSetAtom } from 'jotai';
+import { transactionInfoCallTreeFocusId } from '@pinpoint-fe/ui/src/atoms';
 
 export interface TransactionListTableProps
   extends Pick<VirtualizedDataTableProps<Transaction, unknown>, 'onClickRow'> {
@@ -17,6 +19,8 @@ export interface TransactionListTableProps
 export const TransactionListTable = ({ data, ...props }: TransactionListTableProps) => {
   const navigate = useNavigate();
   const { transactionInfo, searchParameters, application } = useTransactionSearchParameters();
+  const setCallTreeFocusId = useSetAtom(transactionInfoCallTreeFocusId);
+
   const columns = transactionListTableColumns(application);
 
   return (
@@ -44,6 +48,8 @@ export const TransactionListTable = ({ data, ...props }: TransactionListTablePro
       columns={columns}
       columnSorting={[{ id: 'elapsed', desc: true }]}
       onClickRow={(row) => {
+        setCallTreeFocusId('');
+
         const rowData = row.original;
         navigate(
           `${getTransactionListPath(application)}?${convertParamsToQueryString({

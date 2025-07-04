@@ -26,6 +26,7 @@ export namespace TransactionInfoType {
     agentName: string;
     uri: string;
     applicationName: string;
+    focusCallStackId?: number;
   }
 
   export interface CallStackIndex {

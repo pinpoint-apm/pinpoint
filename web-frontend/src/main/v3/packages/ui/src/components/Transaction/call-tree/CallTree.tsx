@@ -65,12 +65,12 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
   const focusIdFromTimeline = useAtomValue(transactionInfoCallTreeFocusId);
 
   React.useEffect(() => {
-    setFocusRowId(undefined);
-  }, [data]);
-
-  React.useEffect(() => {
-    setFocusRowId(focusIdFromTimeline);
-  }, [focusIdFromTimeline]);
+    if (focusIdFromTimeline) {
+      setFocusRowId(focusIdFromTimeline);
+    } else {
+      setFocusRowId(String(metaData?.focusCallStackId) || undefined);
+    }
+  }, [data, focusIdFromTimeline]);
 
   useUpdateEffect(() => {
     if (filter === 'hasException') {
