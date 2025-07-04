@@ -1,7 +1,9 @@
 package com.navercorp.pinpoint.common.hbase.config;
 
-import com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash;
-import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+import com.navercorp.pinpoint.common.hbase.wd.Hasher;
+import com.navercorp.pinpoint.common.hbase.wd.OneByteSimpleHash;
+import com.navercorp.pinpoint.common.hbase.wd.RangeOneByteSimpleHash;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;
@@ -18,69 +20,69 @@ public class DistributorConfiguration {
 
     @Bean
     public RowKeyDistributorByHashPrefix applicationTraceIndexDistributor() {
-        RowKeyDistributorByHashPrefix.Hasher hasher = newOneByteSimpleHash(32);
+        Hasher hasher = newOneByteSimpleHash(32);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
-    private RowKeyDistributorByHashPrefix.Hasher newOneByteSimpleHash(int maxBuckets) {
-        return new RowKeyDistributorByHashPrefix.OneByteSimpleHash(maxBuckets);
+    private Hasher newOneByteSimpleHash(int maxBuckets) {
+        return new OneByteSimpleHash(maxBuckets);
     }
 
     @Bean
     public RowKeyDistributorByHashPrefix traceV2Distributor() {
-        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(32, 40, 256);
+        Hasher hasher = newRangeOneByteSimpleHash(32, 40, 256);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
     @Bean
     public RowKeyDistributorByHashPrefix applicationStatRowKeyDistributor() {
-        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 33, 64);
+        Hasher hasher = newRangeOneByteSimpleHash(0, 33, 64);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
     @Bean
     public RowKeyDistributorByHashPrefix agentStatV2RowKeyDistributor() {
-        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 33, 64);
+        Hasher hasher = newRangeOneByteSimpleHash(0, 33, 64);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
     @Bean
     public RowKeyDistributorByHashPrefix metadataRowKeyDistributor() {
-        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 32, 8);
+        Hasher hasher = newRangeOneByteSimpleHash(0, 32, 8);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
     @Bean
     public RowKeyDistributorByHashPrefix metadataRowKeyDistributor2() {
-        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 36, 32);
+        Hasher hasher = newRangeOneByteSimpleHash(0, 36, 32);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
     @Bean
     public RowKeyDistributorByHashPrefix acceptApplicationRowKeyDistributor() {
-        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 24, 4);
+        Hasher hasher = newRangeOneByteSimpleHash(0, 24, 4);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
     @Bean
     public RowKeyDistributorByHashPrefix mapInLinkRowKeyDistributor() {
-        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 36, 32);
+        Hasher hasher = newRangeOneByteSimpleHash(0, 36, 32);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
     @Bean
     public RowKeyDistributorByHashPrefix mapOutLinkRowKeyDistributor() {
-        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 36, 32);
+        Hasher hasher = newRangeOneByteSimpleHash(0, 36, 32);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
     @Bean
     public RowKeyDistributorByHashPrefix mapSelfRowKeyDistributor() {
-        RowKeyDistributorByHashPrefix.Hasher hasher = newRangeOneByteSimpleHash(0, 32, 8);
+        Hasher hasher = newRangeOneByteSimpleHash(0, 32, 8);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
-    private RowKeyDistributorByHashPrefix.Hasher newRangeOneByteSimpleHash(int start, int end, int maxBuckets) {
+    private Hasher newRangeOneByteSimpleHash(int start, int end, int maxBuckets) {
         return new RangeOneByteSimpleHash(start, end, maxBuckets);
     }
 

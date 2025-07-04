@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
 import com.google.common.util.concurrent.AtomicLongMap;
 import com.navercorp.pinpoint.collector.util.AtomicLongMapUtils;
-import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
 

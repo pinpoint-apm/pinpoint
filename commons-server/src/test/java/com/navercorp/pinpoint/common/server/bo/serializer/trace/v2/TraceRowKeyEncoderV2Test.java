@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
-import com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash;
+import com.navercorp.pinpoint.common.hbase.wd.Hasher;
+import com.navercorp.pinpoint.common.hbase.wd.RangeOneByteSimpleHash;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
-import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -38,7 +39,7 @@ public class TraceRowKeyEncoderV2Test {
         int startOffsetForMod = 32;
         int endOffsetForMod = 40;
         int maxBucketSize = 256;
-        RowKeyDistributorByHashPrefix.Hasher oneByteSimpleHash = new RangeOneByteSimpleHash(startOffsetForMod, endOffsetForMod, maxBucketSize);
+        Hasher oneByteSimpleHash = new RangeOneByteSimpleHash(startOffsetForMod, endOffsetForMod, maxBucketSize);
         return new RowKeyDistributorByHashPrefix(oneByteSimpleHash);
     }
 

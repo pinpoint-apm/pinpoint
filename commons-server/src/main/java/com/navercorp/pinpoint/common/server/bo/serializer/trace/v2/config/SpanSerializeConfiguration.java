@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.config;
 
+import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanChunkSerializerV2;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
@@ -7,7 +8,6 @@ import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoderV0
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanSerializerV2;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.TraceRowKeyDecoderV2;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.TraceRowKeyEncoderV2;
-import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

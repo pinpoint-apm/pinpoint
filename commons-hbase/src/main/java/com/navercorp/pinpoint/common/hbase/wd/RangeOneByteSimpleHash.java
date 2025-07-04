@@ -13,22 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.common.hbase.distributor;
+package com.navercorp.pinpoint.common.hbase.wd;
 
 
 import com.navercorp.pinpoint.common.util.MathUtils;
-import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 
 import java.util.Arrays;
 
 /**
+ * Copy from sematext/HBaseWD
  * Provides handy methods to distribute
  *
- * pinpoint copy and modify : https://github.com/sematext/HBaseWD/blob/master/src/main/java/com/sematext/hbase/wd/RowKeyDistributorByHashPrefix.java
  * @author Alex Baranau
  * @author emeroad
  */
-public class RangeOneByteSimpleHash implements RowKeyDistributorByHashPrefix.Hasher {
+public class RangeOneByteSimpleHash implements Hasher {
     protected final int start;
     protected final int end;
     private int mod;
@@ -48,6 +47,7 @@ public class RangeOneByteSimpleHash implements RowKeyDistributorByHashPrefix.Has
         if (maxBuckets < 1 || maxBuckets > 256) {
             throw new IllegalArgumentException("maxBuckets should be in 1..256 range");
         }
+
         this.start = start;
         this.end = end;
         // i.e. "real" maxBuckets value = maxBuckets or maxBuckets-1

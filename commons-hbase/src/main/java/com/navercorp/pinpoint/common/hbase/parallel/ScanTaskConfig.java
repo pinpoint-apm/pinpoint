@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.common.hbase.parallel;
 
 import com.navercorp.pinpoint.common.hbase.HbaseAccessor;
 import com.navercorp.pinpoint.common.hbase.TableFactory;
-import com.sematext.hbase.wd.AbstractRowKeyDistributor;
+import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.TableName;

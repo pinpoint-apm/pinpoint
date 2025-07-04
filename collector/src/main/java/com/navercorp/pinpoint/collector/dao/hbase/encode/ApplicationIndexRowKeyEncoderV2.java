@@ -17,12 +17,12 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.encode;
 
+import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.scatter.FuzzyRowKeyFactory;
 import com.navercorp.pinpoint.common.server.scatter.OneByteFuzzyRowKeyFactory;
-import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
