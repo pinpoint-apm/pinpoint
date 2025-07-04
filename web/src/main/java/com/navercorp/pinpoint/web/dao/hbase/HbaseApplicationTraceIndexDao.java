@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.common.hbase.LimitEventHandler;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
-import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.scatter.FuzzyRowKeyBuilder;
@@ -82,7 +82,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private final RowMapper<List<Dot>> traceIndexScatterMapper;
 
-    private final AbstractRowKeyDistributor traceIdRowKeyDistributor;
+    private final RowKeyDistributor traceIdRowKeyDistributor;
 
     private int scanCacheSize = 256;
 
@@ -93,7 +93,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
                                          TableNameProvider tableNameProvider,
                                          @Qualifier("transactionIdMapper") RowMapper<List<TransactionId>> traceIndexMapper,
                                          @Qualifier("traceIndexScatterMapper") RowMapper<List<Dot>> traceIndexScatterMapper,
-                                         @Qualifier("applicationTraceIndexDistributor") AbstractRowKeyDistributor traceIdRowKeyDistributor) {
+                                         @Qualifier("applicationTraceIndexDistributor") RowKeyDistributor traceIdRowKeyDistributor) {
         this.scatterChartProperties = Objects.requireNonNull(scatterChartProperties, "scatterChartProperties");
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");

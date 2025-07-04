@@ -10,7 +10,7 @@ import com.navercorp.pinpoint.common.hbase.config.DistributorConfiguration;
 import com.navercorp.pinpoint.common.hbase.config.HbaseNamespaceConfiguration;
 import com.navercorp.pinpoint.common.hbase.config.HbasePutWriterConfiguration;
 import com.navercorp.pinpoint.common.hbase.config.HbaseTemplateConfiguration;
-import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.server.CommonsHbaseConfiguration;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
@@ -54,14 +54,14 @@ public class CollectorHbaseModule {
     @Bean("applicationIndexRowKeyEncoder")
     @ConditionalOnProperty(name = "collector.scatter.serverside-scan", havingValue = "v1")
     public RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoderV1(@Qualifier("applicationTraceIndexDistributor")
-                                                                         AbstractRowKeyDistributor rowKeyDistributor) {
+                                                                 RowKeyDistributor rowKeyDistributor) {
         return new ApplicationIndexRowKeyEncoderV1(rowKeyDistributor);
     }
 
     @Bean("applicationIndexRowKeyEncoder")
     @ConditionalOnProperty(name = "collector.scatter.serverside-scan", havingValue = "v2", matchIfMissing = true)
     public RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoderV2(@Qualifier("applicationTraceIndexDistributor")
-                                                                         AbstractRowKeyDistributor rowKeyDistributor) {
+                                                                 RowKeyDistributor rowKeyDistributor) {
         return new ApplicationIndexRowKeyEncoderV2(rowKeyDistributor);
     }
 

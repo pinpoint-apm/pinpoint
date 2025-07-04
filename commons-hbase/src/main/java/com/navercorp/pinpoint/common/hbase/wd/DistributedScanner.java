@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Copy from sematext/HBaseWD
@@ -20,15 +21,15 @@ import java.util.List;
  * @author Alex Baranau
  */
 public class DistributedScanner implements ResultScanner {
-    private final AbstractRowKeyDistributor keyDistributor;
+    private final RowKeyDistributor keyDistributor;
     private final ResultScanner[] scanners;
     private final List<Result>[] nextOfScanners;
     private Result next = null;
 
     @SuppressWarnings("unchecked")
-    public DistributedScanner(AbstractRowKeyDistributor keyDistributor, ResultScanner[] scanners) throws IOException {
-        this.keyDistributor = keyDistributor;
-        this.scanners = scanners;
+    public DistributedScanner(RowKeyDistributor keyDistributor, ResultScanner[] scanners) {
+        this.keyDistributor = Objects.requireNonNull(keyDistributor, "keyDistributor");
+        this.scanners = Objects.requireNonNull(scanners, "scanners");
         this.nextOfScanners = new List[scanners.length];
         for (int i = 0; i < this.nextOfScanners.length; i++) {
             this.nextOfScanners[i] = new ArrayList<>();
@@ -89,7 +90,7 @@ public class DistributedScanner implements ResultScanner {
         return null;
     }
 
-    public static DistributedScanner create(Table hTable, Scan originalScan, AbstractRowKeyDistributor keyDistributor) throws IOException {
+    public static DistributedScanner create(Table hTable, Scan originalScan, RowKeyDistributor keyDistributor) throws IOException {
         Scan[] scans = keyDistributor.getDistributedScans(originalScan);
 
         ResultScanner[] rss = new ResultScanner[scans.length];

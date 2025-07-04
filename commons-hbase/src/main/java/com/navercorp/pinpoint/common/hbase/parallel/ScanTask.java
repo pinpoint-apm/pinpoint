@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.common.hbase.parallel;
 
 import com.navercorp.pinpoint.common.hbase.TableFactory;
-import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
 import com.navercorp.pinpoint.common.hbase.wd.DistributedScanner;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -40,7 +40,7 @@ public class ScanTask implements Runnable {
 
     private final TableName tableName;
     private final TableFactory tableFactory;
-    private final AbstractRowKeyDistributor rowKeyDistributor;
+    private final RowKeyDistributor rowKeyDistributor;
 
     private final Scan[] scans;
     private final BlockingQueue<Result> resultQueue;

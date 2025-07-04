@@ -30,8 +30,8 @@ import com.navercorp.pinpoint.common.hbase.scan.Scanner;
 import com.navercorp.pinpoint.common.hbase.util.HBaseExceptionUtils;
 import com.navercorp.pinpoint.common.hbase.util.MutationType;
 import com.navercorp.pinpoint.common.hbase.util.ScanMetricReporter;
-import com.navercorp.pinpoint.common.hbase.wd.AbstractRowKeyDistributor;
 import com.navercorp.pinpoint.common.hbase.wd.DistributedScanner;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.util.StopWatch;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.AdvancedScanResultConsumer;
@@ -362,7 +362,7 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
         });
     }
 
-    public <T> T executeDistributedScan(TableName tableName, final Scan scan, final AbstractRowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
+    public <T> T executeDistributedScan(TableName tableName, final Scan scan, final RowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
         Objects.requireNonNull(tableName, "tableName");
         Objects.requireNonNull(scan, "scan");
         Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
@@ -394,7 +394,7 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
         return result;
     }
 
-    public <T> T executeParallelDistributedScan(TableName tableName, Scan scan, AbstractRowKeyDistributor rowKeyDistributor, ResultsExtractor<T> action, int numParallelThreads) {
+    public <T> T executeParallelDistributedScan(TableName tableName, Scan scan, RowKeyDistributor rowKeyDistributor, ResultsExtractor<T> action, int numParallelThreads) {
         Objects.requireNonNull(tableName, "tableName");
         Objects.requireNonNull(scan, "scan");
         Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
