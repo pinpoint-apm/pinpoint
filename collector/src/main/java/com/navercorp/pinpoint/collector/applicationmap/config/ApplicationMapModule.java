@@ -6,7 +6,6 @@ import com.navercorp.pinpoint.collector.applicationmap.dao.MapResponseTimeDao;
 import com.navercorp.pinpoint.collector.applicationmap.service.LinkService;
 import com.navercorp.pinpoint.collector.applicationmap.service.LinkServiceImpl;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.config.BulkConfiguration;
-import com.navercorp.pinpoint.collector.applicationmap.statistics.config.BulkFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;
@@ -17,14 +16,12 @@ import org.springframework.validation.annotation.Validated;
 
 @Configuration
 @ComponentScan(basePackages = {
-        "com.navercorp.pinpoint.collector.applicationmap.statistics.config",
         "com.navercorp.pinpoint.collector.applicationmap.dao.hbase",
 })
 @Import(value = {
-        BulkFactory.class,
-
         BulkConfiguration.class,
-        MapLinkConfiguration.class
+
+        MapLinkProperties.class
 })
 public class ApplicationMapModule {
     private static final Logger logger = LogManager.getLogger(ApplicationMapModule.class);

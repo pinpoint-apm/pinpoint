@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 
 import com.navercorp.pinpoint.collector.applicationmap.Vertex;
-import com.navercorp.pinpoint.collector.applicationmap.config.MapLinkConfiguration;
+import com.navercorp.pinpoint.collector.applicationmap.config.MapLinkProperties;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapResponseTimeDao;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
@@ -50,12 +50,12 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 
     private final TimeSlot timeSlot;
     private final BulkWriter bulkWriter;
-    private final MapLinkConfiguration mapLinkConfiguration;
+    private final MapLinkProperties mapLinkProperties;
 
-    public HbaseMapResponseTimeDao(MapLinkConfiguration mapLinkConfiguration,
+    public HbaseMapResponseTimeDao(MapLinkProperties mapLinkProperties,
                                    TimeSlot timeSlot,
                                    @Qualifier("selfBulkWriter") BulkWriter bulkWriter) {
-        this.mapLinkConfiguration = Objects.requireNonNull(mapLinkConfiguration, "mapLinkConfiguration");
+        this.mapLinkProperties = Objects.requireNonNull(mapLinkProperties, "mapLinkConfiguration");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
         this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWrtier");
     }
@@ -77,12 +77,12 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         final ColumnName selfColumnName = ResponseColumnName.histogram(agentId, slotNumber);
         this.bulkWriter.increment(selfRowKey, selfColumnName);
 
-        if (mapLinkConfiguration.isEnableAvg()) {
+        if (mapLinkProperties.isEnableAvg()) {
             final ColumnName sumColumnName = ResponseColumnName.sum(agentId, selfVertex.serviceType());
             this.bulkWriter.increment(selfRowKey, sumColumnName, elapsed);
         }
 
-        if (mapLinkConfiguration.isEnableMax()) {
+        if (mapLinkProperties.isEnableMax()) {
             final ColumnName maxColumnName = ResponseColumnName.max(agentId, selfVertex.serviceType());
             this.bulkWriter.updateMax(selfRowKey, maxColumnName, elapsed);
         }
