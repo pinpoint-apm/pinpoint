@@ -496,6 +496,12 @@ public final class BytesUtils {
         return buf;
     }
 
+    public static byte[] add(byte prefix, byte[] data) {
+        byte[] buf = new byte[data.length + 1];
+        buf[0] = prefix;
+        System.arraycopy(data, 0, buf, 1, data.length);
+        return buf;
+    }
 
     public static byte[] toBytes(final String value) {
         if (value == null) {
@@ -628,4 +634,16 @@ public final class BytesUtils {
         return index + 1;
     }
 
+
+    public static int hashBytes(byte[] bytes) {
+        return hashBytes(bytes, 0, bytes.length);
+    }
+
+    public static int hashBytes(byte[] bytes, int offset, int length) {
+        int hash = 1;
+        for (int i = offset; i < length; i++) {
+            hash = (31 * hash) + bytes[i];
+        }
+        return hash;
+    }
 }

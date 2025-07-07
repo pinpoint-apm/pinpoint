@@ -24,16 +24,4 @@ public class WdUtils {
         }
     }
 
-
-    public static int hashBytes(byte[] bytes) {
-        return hashBytes(bytes, 0, bytes.length);
-    }
-
-    public static int hashBytes(byte[] bytes, int offset, int length) {
-        int hash = 1;
-        for (int i = offset; i < length; i++) {
-            hash = (31 * hash) + (int) bytes[i];
-        }
-        return hash;
-    }
 }

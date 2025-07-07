@@ -18,7 +18,7 @@
 package com.navercorp.pinpoint.collector.dao.hbase.encode;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
-import com.navercorp.pinpoint.common.hbase.wd.Hasher;
+import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.OneByteSimpleHash;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
@@ -40,7 +40,7 @@ class ApplicationIndexRowKeyEncoderV2Test {
     }
 
     private RowKeyDistributor applicationTraceIndexDistributor() {
-        Hasher hasher = new OneByteSimpleHash(32);
+        ByteHasher hasher = new OneByteSimpleHash(32);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
