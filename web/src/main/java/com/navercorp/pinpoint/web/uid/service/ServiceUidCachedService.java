@@ -3,8 +3,6 @@ package com.navercorp.pinpoint.web.uid.service;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.service.component.StaticServiceRegistry;
 import com.navercorp.pinpoint.service.service.ServiceInfoService;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -23,8 +21,7 @@ public class ServiceUidCachedService {
     private final ServiceInfoService serviceInfoService;
 
     public ServiceUidCachedService(StaticServiceRegistry staticServiceRegistry,
-                                   ServiceInfoService serviceInfoService,
-                                   @Qualifier("serviceUidCache") CacheManager serviceUidCacheManager) {
+                                   ServiceInfoService serviceInfoService) {
         this.registry = Objects.requireNonNull(staticServiceRegistry, "staticServiceRegistry");
         this.serviceInfoService = Objects.requireNonNull(serviceInfoService, "serviceService");
     }

@@ -1,7 +1,5 @@
 package com.navercorp.pinpoint.web.vo.agent;
 
-import jakarta.annotation.Nullable;
-
 import java.util.Objects;
 
 public class AgentListEntry {
@@ -11,7 +9,7 @@ public class AgentListEntry {
     private final long startTimestamp;
     private final AgentStatus agentStatus;
 
-    public AgentListEntry(String agentId, String agentName, long agentStartTime, @Nullable AgentStatus agentStatus) {
+    public AgentListEntry(String agentId, String agentName, long agentStartTime, AgentStatus agentStatus) {
         this.id = Objects.requireNonNull(agentId, "agentId");
         this.name = Objects.requireNonNull(agentName, "agentName");
         this.startTimestamp = agentStartTime;
