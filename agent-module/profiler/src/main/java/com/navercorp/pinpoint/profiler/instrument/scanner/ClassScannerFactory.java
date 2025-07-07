@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.instrument.scanner;
 
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.net.URL;
 import java.security.ProtectionDomain;
@@ -78,6 +79,9 @@ public class ClassScannerFactory {
             final String path = cleanupPath(codeLocation.getPath());
             final boolean isJarFile = isJarExtension(path);
             if (isJarFile) {
+                if (isNestedUrl(path)) {
+                    return null;
+                }
                 return JarFileScanner.of(path);
             }
             final boolean isDirectory = path.endsWith("/");
@@ -125,10 +129,19 @@ public class ClassScannerFactory {
         return false;
     }
 
+    static boolean isNestedUrl(String path) {
+        return path.startsWith("nested");
+    }
+
     static boolean isNestedJar(String path) {
         if (path == null) {
             return false;
         }
+
+        if(isNestedUrl(path)) {
+            return true;
+        }
+
         final String separator = "!/";
         if (!path.endsWith(separator)) {
             return false;
