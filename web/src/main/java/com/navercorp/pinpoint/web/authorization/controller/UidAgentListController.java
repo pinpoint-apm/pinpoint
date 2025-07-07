@@ -1,10 +1,7 @@
 package com.navercorp.pinpoint.web.authorization.controller;
 
-import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.service.AgentListService;
-import com.navercorp.pinpoint.web.uid.service.ApplicationUidService;
 import com.navercorp.pinpoint.web.vo.agent.AgentListEntry;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -14,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -28,42 +24,29 @@ import java.util.stream.Stream;
 public class UidAgentListController {
 
     private final AgentListService agentListService;
-    private final ApplicationUidService applicationUidService;
 
-    public UidAgentListController(AgentListService agentListService, ApplicationUidService applicationUidService) {
+    public UidAgentListController(AgentListService agentListService) {
         this.agentListService = Objects.requireNonNull(agentListService, "agentListService");
-        this.applicationUidService = Objects.requireNonNull(applicationUidService, "applicationUidService");
+
     }
 
     @GetMapping(value = "")
-    public List<AgentListEntry> getAgentList(@RequestParam(value = "serviceUid", required = false, defaultValue = "0") int serviceUid,
+    public List<AgentListEntry> getAgentList(@RequestParam(value = "serviceName", required = false) String serviceName,
                                              @RequestParam(value = "applicationName") @NotBlank String applicationName,
                                              @RequestParam(value = "orderBy", required = false, defaultValue = "NO_OP") String orderBy) {
-        ServiceUid serviceUidObject = ServiceUid.of(serviceUid);
-        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUidObject, applicationName);
-        if (applicationUid == null) {
-            return Collections.emptyList();
-        }
-
-        return agentListService.getApplicationAgentList(serviceUidObject, applicationUid).stream()
+        return agentListService.getApplicationAgentList(serviceName, applicationName).stream()
                 .sorted(OrderBy.of(orderBy))
                 .collect(Collectors.toList());
     }
 
     @GetMapping(value = "", params = {"from", "to"})
-    public List<AgentListEntry> getAgentList(@RequestParam(value = "serviceUid", required = false, defaultValue = "0") int serviceUid,
+    public List<AgentListEntry> getAgentList(@RequestParam(value = "serviceName", required = false) String serviceName,
                                              @RequestParam(value = "applicationName") @NotBlank String applicationName,
                                              @RequestParam("from") @PositiveOrZero long from,
                                              @RequestParam("to") @PositiveOrZero long to,
                                              @RequestParam(value = "orderBy", required = false, defaultValue = "NO_OP") String orderBy) {
-        ServiceUid serviceUidObject = ServiceUid.of(serviceUid);
         Range range = Range.between(from, to);
-        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUidObject, applicationName);
-        if (applicationUid == null) {
-            return Collections.emptyList();
-        }
-
-        return agentListService.getApplicationAgentList(serviceUidObject, applicationUid, range).stream()
+        return agentListService.getApplicationAgentList(serviceName, applicationName, range).stream()
                 .sorted(OrderBy.of(orderBy))
                 .collect(Collectors.toList());
     }

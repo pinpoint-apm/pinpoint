@@ -35,11 +35,6 @@ public class HbaseTables {
         }
     }
 
-    public static final HbaseColumnFamily SERVICE_UID = new HbaseColumnFamily(HbaseTable.SERVICE_UID, Bytes.toBytes("I"));
-
-    public static final HbaseColumnFamily SERVICE_NAME = new HbaseColumnFamily(HbaseTable.SERVICE_NAME, Bytes.toBytes("N"));
-
-
     public static final HbaseColumnFamily APPLICATION_UID = new HbaseColumnFamily(HbaseTable.APPLICATION_UID, Bytes.toBytes("I"));
 
     public static final HbaseColumnFamily APPLICATION_NAME = new HbaseColumnFamily(HbaseTable.APPLICATION_NAME, Bytes.toBytes("N"));

@@ -4,6 +4,7 @@ import com.navercorp.pinpoint.common.server.response.Response;
 import com.navercorp.pinpoint.common.server.response.SimpleResponse;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.uid.service.ApplicationUidService;
 import com.navercorp.pinpoint.web.uid.service.ServiceUidCachedService;
 import jakarta.validation.constraints.NotBlank;
@@ -32,15 +33,15 @@ public class ApplicationUidController {
     }
 
     @GetMapping(value = "/applicationNames")
-    public List<String> getApplications(@RequestParam(value = "serviceName", required = false, defaultValue = ServiceUid.DEFAULT_SERVICE_UID_NAME) String serviceName) {
-        ServiceUid serviceUid = serviceUidCachedService.getServiceUid(serviceName);
+    public List<String> getApplications(@RequestParam(value = "serviceName", required = false) String serviceName) {
+        ServiceUid serviceUid = getServiceUid(serviceName);
         return applicationUidService.getApplicationNames(serviceUid);
     }
 
     @GetMapping(value = "/application/uid")
-    public ResponseEntity<Long> getApplicationUid(@RequestParam(value = "serviceName", required = false, defaultValue = ServiceUid.DEFAULT_SERVICE_UID_NAME) String serviceName,
+    public ResponseEntity<Long> getApplicationUid(@RequestParam(value = "serviceName", required = false) String serviceName,
                                                   @RequestParam(value = "applicationName") @NotBlank String applicationName) {
-        ServiceUid serviceUid = serviceUidCachedService.getServiceUid(serviceName);
+        ServiceUid serviceUid = getServiceUid(serviceName);
         ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, applicationName);
         if (applicationUid == null) {
             return ResponseEntity.noContent().build();
@@ -49,11 +50,11 @@ public class ApplicationUidController {
     }
 
     @GetMapping(value = "/application/name")
-    public ResponseEntity<String> getApplicationName(@RequestParam(value = "serviceName", required = false, defaultValue = ServiceUid.DEFAULT_SERVICE_UID_NAME) String serviceName,
+    public ResponseEntity<String> getApplicationName(@RequestParam(value = "serviceName", required = false) String serviceName,
                                                      @RequestParam(value = "applicationUid") long applicationUid) {
-        ServiceUid serviceUidObject = serviceUidCachedService.getServiceUid(serviceName);
+        ServiceUid serviceUid = getServiceUid(serviceName);
         ApplicationUid applicationUidObject = ApplicationUid.of(applicationUid);
-        String applicationName = applicationUidService.getApplicationName(serviceUidObject, applicationUidObject);
+        String applicationName = applicationUidService.getApplicationName(serviceUid, applicationUidObject);
         if (applicationName == null) {
             return ResponseEntity.noContent().build();
         }
@@ -61,11 +62,18 @@ public class ApplicationUidController {
     }
 
     @DeleteMapping(value = "/application")
-    public Response deleteApplication(@RequestParam(value = "serviceName", required = false, defaultValue = ServiceUid.DEFAULT_SERVICE_UID_NAME) String serviceName,
+    public Response deleteApplication(@RequestParam(value = "serviceName", required = false) String serviceName,
                                       @RequestParam(value = "applicationName") @NotBlank String applicationName) {
-        ServiceUid serviceUid = serviceUidCachedService.getServiceUid(serviceName);
+        ServiceUid serviceUid = getServiceUid(serviceName);
         applicationUidService.deleteApplication(serviceUid, applicationName);
         return SimpleResponse.ok();
+    }
+
+    private ServiceUid getServiceUid(String serviceName) {
+        if (StringUtils.isEmpty(serviceName)) {
+            return ServiceUid.DEFAULT;
+        }
+        return serviceUidCachedService.getServiceUid(serviceName);
     }
 
 }
