@@ -552,4 +552,17 @@ public class BytesUtilsTest {
         });
         assertEquals("Out of range 5", error.getMessage());
     }
+
+
+    @Test
+    public void addBytePrefix() {
+        byte[] longBytes = new byte[8];
+        BytesUtils.writeLong(10L, longBytes, 0);
+
+        byte prefix = (byte) 10;
+
+        byte[] result = BytesUtils.add(prefix, longBytes);
+        Assertions.assertEquals(prefix, result[0]);
+        Assertions.assertArrayEquals(longBytes, Arrays.copyOfRange(result, 1, result.length));
+    }
 }

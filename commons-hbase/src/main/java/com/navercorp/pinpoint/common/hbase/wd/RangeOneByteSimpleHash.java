@@ -16,7 +16,10 @@
 package com.navercorp.pinpoint.common.hbase.wd;
 
 
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.MathUtils;
+
+import static com.navercorp.pinpoint.common.hbase.wd.OneByteSimpleHash.toModBytes;
 
 /**
  * Copy from sematext/HBaseWD
@@ -25,11 +28,12 @@ import com.navercorp.pinpoint.common.util.MathUtils;
  * @author Alex Baranau
  * @author emeroad
  */
-public class RangeOneByteSimpleHash implements Hasher {
+public class RangeOneByteSimpleHash implements ByteHasher {
     protected final int start;
     protected final int end;
     private final int mod;
 
+    private final byte[] prefix;
 
     public RangeOneByteSimpleHash(int start, int end, int maxBuckets) {
         if (maxBuckets < 1 || maxBuckets > 256) {
@@ -40,23 +44,26 @@ public class RangeOneByteSimpleHash implements Hasher {
         this.end = end;
         // i.e. "real" maxBuckets value = maxBuckets or maxBuckets-1
         this.mod = maxBuckets;
+
+        prefix = toModBytes(mod);
     }
 
+
     @Override
-    public byte[] getHashPrefix(byte[] originalKey) {
+    public byte getHashPrefix(byte[] originalKey) {
         int hash = MathUtils.fastAbs(hashBytes(originalKey));
-        return new byte[] {(byte) (hash % mod)};
+        return (byte) (hash % mod);
     }
 
     /** Compute hash for binary data. */
     private int hashBytes(byte[] bytes) {
         int length = Math.min(bytes.length, end);
-        return WdUtils.hashBytes(bytes, start, length);
+        return BytesUtils.hashBytes(bytes, start, length);
     }
 
     @Override
-    public byte[][] getAllPossiblePrefixes() {
-        return WdUtils.OneByte.prefixes(0, mod);
+    public byte[] getAllPossiblePrefixes() {
+        return prefix;
     }
 
     @Override

@@ -1,10 +1,13 @@
 package com.navercorp.pinpoint.common.hbase.wd;
 
+import com.navercorp.pinpoint.common.util.BytesUtils;
+
 /**
  * Copy from sematext/HBaseWD
  */
-public class OneByteSimpleHash implements Hasher {
+public class OneByteSimpleHash implements ByteHasher {
     private final int mod;
+    private final byte[] prefix;
 
     /**
      * Creates a new instance of this class.
@@ -17,18 +20,28 @@ public class OneByteSimpleHash implements Hasher {
         }
         // i.e. "real" maxBuckets value = maxBuckets or maxBuckets-1
         this.mod = maxBuckets;
+
+        this.prefix = toModBytes(mod);
+    }
+
+    static byte[] toModBytes(int mod) {
+        final byte[] prefix = new byte[mod];
+        for (int i = 0; i < mod; i++) {
+            prefix[i] = (byte) i;
+        }
+        return prefix;
     }
 
 
     @Override
-    public byte[] getHashPrefix(byte[] originalKey) {
-        long hash = Math.abs(WdUtils.hashBytes(originalKey));
-        return new byte[]{(byte) (hash % mod)};
+    public byte getHashPrefix(byte[] originalKey) {
+        int hash = Math.abs(BytesUtils.hashBytes(originalKey));
+        return (byte) (hash % mod);
     }
 
     @Override
-    public byte[][] getAllPossiblePrefixes() {
-        return WdUtils.OneByte.prefixes(0, mod);
+    public byte[] getAllPossiblePrefixes() {
+        return prefix;
     }
 
     @Override

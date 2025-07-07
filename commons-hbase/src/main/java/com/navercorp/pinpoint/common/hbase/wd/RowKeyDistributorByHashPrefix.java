@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.common.hbase.wd;
 
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.util.Objects;
@@ -11,16 +12,18 @@ import java.util.Objects;
  * @author Alex Baranau
  */
 public class RowKeyDistributorByHashPrefix implements RowKeyDistributor {
-    private final Hasher hasher;
+    private final ByteHasher hasher;
 
-    public RowKeyDistributorByHashPrefix(Hasher hasher) {
+    public RowKeyDistributorByHashPrefix(ByteHasher hasher) {
         this.hasher = Objects.requireNonNull(hasher, "hasher");
     }
 
     @Override
     public byte[] getDistributedKey(byte[] originalKey) {
-        return Bytes.add(hasher.getHashPrefix(originalKey), originalKey);
+        byte hashPrefix = hasher.getHashPrefix(originalKey);
+        return BytesUtils.add(hashPrefix, originalKey);
     }
+
 
     @Override
     public byte[] getOriginalKey(byte[] adjustedKey) {
@@ -34,10 +37,11 @@ public class RowKeyDistributorByHashPrefix implements RowKeyDistributor {
 
     @Override
     public byte[][] getAllDistributedKeys(byte[] originalKey) {
-        byte[][] allPrefixes = hasher.getAllPossiblePrefixes(originalKey);
+        byte[] allPrefixes = hasher.getAllPossiblePrefixes(originalKey);
+
         byte[][] keys = new byte[allPrefixes.length][];
         for (int i = 0; i < allPrefixes.length; i++) {
-            keys[i] = Bytes.add(allPrefixes[i], originalKey);
+            keys[i] = BytesUtils.add(allPrefixes[i], originalKey);
         }
 
         return keys;
