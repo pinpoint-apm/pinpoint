@@ -29,7 +29,7 @@ public class RowKeyDistributorByHashPrefix implements RowKeyDistributor {
     public byte[] getOriginalKey(byte[] adjustedKey) {
         int prefixLength = hasher.getPrefixLength(adjustedKey);
         if (prefixLength > 0) {
-            return Bytes.tail(adjustedKey, adjustedKey.length - prefixLength);
+            return Bytes.tail(adjustedKey, adjustedKey.length - 1);
         } else {
             return adjustedKey;
         }
