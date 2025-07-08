@@ -40,8 +40,8 @@ public class ServiceUidService {
 
     // handle missing cases using ServiceUid.NULL
     private ServiceUid getUsingCache(String serviceName) {
-        ServiceUid cachedResult = serviceUidCache.get(serviceName, () ->
-                Objects.requireNonNullElse(serviceInfoService.getServiceUid(serviceName), ServiceUid.NULL));
+        ServiceUid cachedResult = serviceUidCache.get(serviceName,
+                () -> Objects.requireNonNullElse(serviceInfoService.getServiceUid(serviceName), ServiceUid.NULL));
         if (ServiceUid.NULL.equals(cachedResult)) {
             return null;
         }

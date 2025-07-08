@@ -25,30 +25,25 @@ public class ApplicationUidCachedServiceImpl implements ApplicationUidService {
     private final Cache applicationUidCache;
 
     public ApplicationUidCachedServiceImpl(BaseApplicationUidService baseApplicationUidService,
-                                           @Qualifier(APPLICATION_UID_CACHE_NAME) CacheManager cacheManager) {
+                                           @Qualifier("applicationUidCache") CacheManager cacheManager) {
         this.baseApplicationUidService = Objects.requireNonNull(baseApplicationUidService, "baseApplicationUidService");
         this.applicationUidCache = Objects.requireNonNull(cacheManager, "cacheManager").getCache("applicationUidCache");
     }
 
-    protected Object createSimpleCacheKey(Object... params) {
-        return SimpleKeyGenerator.generateKey(params);
-    }
-
     @Override
-    @Cacheable(cacheNames = "applicationUidCache", cacheManager = APPLICATION_UID_CACHE_NAME, unless = "#result == null")
+    @Cacheable(cacheNames = APPLICATION_UID_CACHE_NAME, cacheManager = "applicationUidCache", unless = "#result == null")
     public ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName) {
         return baseApplicationUidService.getApplicationUid(serviceUid, applicationName);
     }
 
     @Override
-    @Cacheable(cacheNames = "applicationUidCache", cacheManager = APPLICATION_UID_CACHE_NAME, unless = "#result == null")
     public ApplicationUid getOrCreateApplicationUid(ServiceUid serviceUid, String applicationName) {
-        return baseApplicationUidService.getOrCreateApplicationUid(serviceUid, applicationName);
+        return asyncGetOrCreateApplicationUid(serviceUid, applicationName).join();
     }
 
     @Override
     public CompletableFuture<ApplicationUid> asyncGetOrCreateApplicationUid(ServiceUid serviceUid, String applicationName) {
-        return applicationUidCache.retrieve(createSimpleCacheKey(serviceUid, applicationName),
+        return applicationUidCache.retrieve(SimpleKeyGenerator.generateKey(serviceUid, applicationName),
                 () -> baseApplicationUidService.asyncGetOrCreateApplicationUid(serviceUid, applicationName));
     }
 }
