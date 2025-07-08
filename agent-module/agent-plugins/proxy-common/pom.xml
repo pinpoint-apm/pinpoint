@@ -7,7 +7,7 @@
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint-agent-plugins-parent</artifactId>
         <relativePath>../agent-plugins-parent</relativePath>
-        <version>3.0.4-alpha1</version>
+        <version>3.0.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-agent-proxy-common</artifactId>

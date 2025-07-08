@@ -21,7 +21,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint-mongodb-plugin-it</artifactId>
-        <version>3.0.4-alpha1</version>
+        <version>3.0.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-mongodb-3-plugin-it</artifactId>
