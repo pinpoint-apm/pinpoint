@@ -46,7 +46,7 @@ public class AgentListServiceImpl implements AgentListService {
     public List<AgentListEntry> getApplicationAgentList(String serviceName, String applicationName) {
         Objects.requireNonNull(applicationName, "applicationName");
         ServiceUid serviceUid = getServiceUid(serviceName);
-        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, serviceName);
+        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, applicationName);
         if (applicationUid == null) {
             return Collections.emptyList();
         }
@@ -59,7 +59,7 @@ public class AgentListServiceImpl implements AgentListService {
     public List<AgentListEntry> getApplicationAgentList(String serviceName, String applicationName, Range range) {
         Objects.requireNonNull(applicationName, "applicationName");
         ServiceUid serviceUid = getServiceUid(serviceName);
-        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, serviceName);
+        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, applicationName);
         if (applicationUid == null) {
             return Collections.emptyList();
         }
@@ -77,7 +77,7 @@ public class AgentListServiceImpl implements AgentListService {
     public int cleanupInactiveAgent(String serviceName, String applicationName, Range range) {
         Objects.requireNonNull(applicationName, "applicationName");
         ServiceUid serviceUid = getServiceUid(serviceName);
-        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, serviceName);
+        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, applicationName);
         if (applicationUid == null) {
             return 0;
         }
