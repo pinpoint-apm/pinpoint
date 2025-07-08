@@ -72,7 +72,10 @@ public class HistogramServiceImpl implements HistogramService {
         LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(linkSelectorType, outLinkProcessor, inLinkProcessor);
 
         TimeWindow timeWindow = option.getTimeWindow();
-        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(Collections.singletonList(option.getSourceApplication()), timeWindow, outSearchDepth, inSearchDepth, timeAggregate);
+        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(
+                Collections.singletonList(
+                        option.getSourceApplication()
+                ), timeWindow, outSearchDepth, inSearchDepth, timeAggregate);
         watch.stop();
         logger.debug("LinkDataDuplexMap selected in {} ms. node={}, outDepth={}, inDepth={}, count={}",
                 watch.getTotalTimeMillis(), option.getSourceApplication(), outSearchDepth, inSearchDepth, linkDataDuplexMap.size());
@@ -83,7 +86,10 @@ public class HistogramServiceImpl implements HistogramService {
     public List<Application> getFromApplications(LinkDataDuplexMap linkDataDuplexMap) {
         Objects.requireNonNull(linkDataDuplexMap, "linkDataDuplexMap");
 
-        return linkDataDuplexMap.getSourceLinkDataMap()
+        // Get the 'from' applications from the target link data map
+        // In the target link, 'from' -> 'to' where 'to' Application is the main application,
+        // so we get the 'from' applications from the target link data map.
+        return linkDataDuplexMap.getTargetLinkDataMap()
                 .getLinkDataMap()
                 .keySet()
                 .stream()
@@ -95,7 +101,10 @@ public class HistogramServiceImpl implements HistogramService {
     public List<Application> getToApplications(LinkDataDuplexMap linkDataDuplexMap) {
         Objects.requireNonNull(linkDataDuplexMap, "linkDataDuplexMap");
 
-        return linkDataDuplexMap.getTargetLinkDataMap()
+        // Get the 'to' applications from the source link data map
+        // In the source link, 'from' -> 'to' where 'from' Application is the main application,
+        // so we get the 'to' applications from the source link data map.
+        return linkDataDuplexMap.getSourceLinkDataMap()
                 .getLinkDataMap()
                 .keySet()
                 .stream()
@@ -103,4 +112,22 @@ public class HistogramServiceImpl implements HistogramService {
                 .toList();
     }
 
+    @Override
+    public Application findApplicationByName(List<Application> fromApplications, List<Application> toApplications, String nodeName) {
+        Objects.requireNonNull(fromApplications, "fromApplications");
+        Objects.requireNonNull(toApplications, "toApplications");
+        Objects.requireNonNull(nodeName, "nodeName");
+
+        for (Application application : fromApplications) {
+            if (application.getName().equals(nodeName)) {
+                return application;
+            }
+        }
+        for (Application application : toApplications) {
+            if (application.getName().equals(nodeName)) {
+                return application;
+            }
+        }
+        return null;
+    }
 }

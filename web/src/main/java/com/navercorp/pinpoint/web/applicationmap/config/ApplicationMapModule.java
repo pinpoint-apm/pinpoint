@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppen
 import com.navercorp.pinpoint.web.applicationmap.controller.FilteredMapController;
 import com.navercorp.pinpoint.web.applicationmap.controller.MapController;
 import com.navercorp.pinpoint.web.applicationmap.controller.MapHistogramController;
+import com.navercorp.pinpoint.web.applicationmap.controller.ServerMapHistogramController;
 import com.navercorp.pinpoint.web.applicationmap.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.applicationmap.map.ApplicationsMapCreatorFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorFactory;
@@ -95,6 +96,16 @@ public class ApplicationMapModule {
                                                          ConfigProperties configProperties) {
         Duration maxPeriod = Duration.ofDays(configProperties.getServerMapPeriodMax());
         return new MapHistogramController(responseTimeHistogramService, histogramService, applicationFactory, applicationValidator, hyperLinkFactory, maxPeriod);
+    }
+
+    @Bean
+    public ServerMapHistogramController serverMapHistogramController(ResponseTimeHistogramService responseTimeHistogramService,
+                                                                   HistogramService histogramService,
+                                                                   ApplicationValidator applicationValidator,
+                                                                   HyperLinkFactory hyperLinkFactory,
+                                                                   ConfigProperties configProperties) {
+        Duration maxPeriod = Duration.ofDays(configProperties.getServerMapPeriodMax());
+        return new ServerMapHistogramController(responseTimeHistogramService, histogramService, applicationValidator, hyperLinkFactory, maxPeriod);
     }
 
     @Bean

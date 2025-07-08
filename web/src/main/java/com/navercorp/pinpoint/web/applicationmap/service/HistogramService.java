@@ -27,4 +27,5 @@ public interface HistogramService {
     LinkDataDuplexMap selectLinkDataDuplexMap(MapServiceOption option);
     List<Application> getFromApplications(LinkDataDuplexMap linkDataDuplexMap);
     List<Application> getToApplications(LinkDataDuplexMap linkDataDuplexMap);
+    Application findApplicationByName(List<Application> fromApplications, List<Application> toApplications, String nodeName);
 }
