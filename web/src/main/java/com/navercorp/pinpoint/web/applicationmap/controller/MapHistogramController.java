@@ -23,15 +23,12 @@ import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.ApplicationForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.RangeForm;
-import com.navercorp.pinpoint.web.applicationmap.controller.form.SearchDepthForm;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.service.HistogramService;
-import com.navercorp.pinpoint.web.applicationmap.service.MapServiceOption;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramServiceOption;
 import com.navercorp.pinpoint.web.applicationmap.view.LinkHistogramSummaryView;
@@ -45,7 +42,6 @@ import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationPair;
 import com.navercorp.pinpoint.web.vo.ApplicationPairs;
-import com.navercorp.pinpoint.web.vo.SearchOption;
 import jakarta.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -204,58 +200,6 @@ public class MapHistogramController {
         ServerGroupList serverGroupList = nodeHistogramSummary.getServerGroupList();
         ServerGroupListView serverGroupListView = new ServerGroupListView(serverGroupList, hyperLinkFactory);
         return new NodeHistogramSummaryView(nodeHistogramSummary, serverGroupListView, format);
-    }
-
-    @GetMapping(value = "/getResponseTimeHistogramDataV2", params = {
-            "bidirectional", "callerRange", "calleeRange", "wasOnly"
-    })
-    public NodeHistogramSummaryView getResponseTimeHistogramDataV2(
-            @Valid @ModelAttribute
-            ApplicationForm appForm,
-            @Valid @ModelAttribute
-            RangeForm rangeForm,
-            @Valid @ModelAttribute
-            SearchDepthForm depthForm,
-            @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
-            @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
-            boolean useStatisticsAgentState,
-            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
-            boolean useLoadHistogramFormat
-    ) {
-        final Range range = toRange(rangeForm);
-        TimeWindow timeWindow = new TimeWindow(range);
-
-        final SearchOption searchOption = searchOptionBuilder()
-                .build(depthForm.getCallerRange(), depthForm.getCalleeRange(), bidirectional, wasOnly);
-
-        final Application application = getApplication(appForm);
-
-        final MapServiceOption option = new MapServiceOption
-                .Builder(application, timeWindow, searchOption)
-                .setUseStatisticsAgentState(useStatisticsAgentState)
-                .build();
-
-        final TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
-        logger.info("Select ApplicationMap {} option={}", format, option);
-        final LinkDataDuplexMap map = this.histogramService.selectLinkDataDuplexMap(option);
-
-        final List<Application> fromApplications = this.histogramService.getFromApplications(map);
-        final List<Application> toApplications = this.histogramService.getToApplications(map);
-        final ResponseTimeHistogramServiceOption histogramServiceOption = new ResponseTimeHistogramServiceOption
-                .Builder(application, timeWindow, fromApplications, toApplications)
-                .setUseStatisticsAgentState(useStatisticsAgentState)
-                .build();
-
-        final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(histogramServiceOption);
-
-        ServerGroupList serverGroupList = nodeHistogramSummary.getServerGroupList();
-        ServerGroupListView serverGroupListView = new ServerGroupListView(serverGroupList, hyperLinkFactory);
-        return new NodeHistogramSummaryView(nodeHistogramSummary, serverGroupListView, format);
-    }
-
-    private SearchOption.Builder searchOptionBuilder() {
-        return SearchOption.newBuilder(DEFAULT_MAX_SEARCH_DEPTH);
     }
 
     private List<Application> toApplications(List<String> applicationNames, List<Short> serviceTypeCodes) {
