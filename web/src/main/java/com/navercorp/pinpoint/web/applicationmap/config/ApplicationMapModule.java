@@ -101,11 +101,12 @@ public class ApplicationMapModule {
     @Bean
     public ServerMapHistogramController serverMapHistogramController(ResponseTimeHistogramService responseTimeHistogramService,
                                                                    HistogramService histogramService,
+                                                                   ApplicationFactory applicationFactory,
                                                                    ApplicationValidator applicationValidator,
                                                                    HyperLinkFactory hyperLinkFactory,
                                                                    ConfigProperties configProperties) {
         Duration maxPeriod = Duration.ofDays(configProperties.getServerMapPeriodMax());
-        return new ServerMapHistogramController(responseTimeHistogramService, histogramService, applicationValidator, hyperLinkFactory, maxPeriod);
+        return new ServerMapHistogramController(responseTimeHistogramService, histogramService, applicationFactory, applicationValidator, hyperLinkFactory, maxPeriod);
     }
 
     @Bean
