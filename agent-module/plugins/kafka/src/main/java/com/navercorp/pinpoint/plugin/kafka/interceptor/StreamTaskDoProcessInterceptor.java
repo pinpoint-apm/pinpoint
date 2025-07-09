@@ -24,13 +24,13 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanRecursiveAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceReader;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestRecorder;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConfig;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 import com.navercorp.pinpoint.plugin.kafka.descriptor.KafkaStreamsMethodDescriptor;
 import com.navercorp.pinpoint.plugin.kafka.field.getter.StampedRecordGetter;
 import com.navercorp.pinpoint.plugin.kafka.recorder.DefaultHeaderRecorder;
 import com.navercorp.pinpoint.plugin.kafka.recorder.HeaderRecorder;
+import com.navercorp.pinpoint.plugin.kafka.recorder.QueueServerRequestRecorder;
 import com.navercorp.pinpoint.plugin.kafka.util.KafkaRequestAdaptor;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.streams.processor.internals.StampedRecord;
@@ -41,7 +41,7 @@ public class StreamTaskDoProcessInterceptor extends SpanRecursiveAroundIntercept
 
     private final boolean headerRecorded;
     private final HeaderRecorder headerRecorder;
-    private final ServerRequestRecorder<ConsumerRecord> serverRequestRecorder;
+    private final QueueServerRequestRecorder<ConsumerRecord> serverRequestRecorder;
     private final RequestTraceReader<ConsumerRecord> requestTraceReader;
 
     public StreamTaskDoProcessInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
@@ -53,7 +53,7 @@ public class StreamTaskDoProcessInterceptor extends SpanRecursiveAroundIntercept
         this.headerRecorder = new DefaultHeaderRecorder();
 
         final RequestAdaptor<ConsumerRecord> requestAdaptor = new KafkaRequestAdaptor();
-        this.serverRequestRecorder = new ServerRequestRecorder<>(requestAdaptor);
+        this.serverRequestRecorder = new QueueServerRequestRecorder<>(requestAdaptor);
         this.requestTraceReader = new RequestTraceReader<>(traceContext, requestAdaptor, false);
     }
 
