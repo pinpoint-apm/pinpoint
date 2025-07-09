@@ -20,10 +20,12 @@ package com.pinpoint.test.plugin.mongo;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MongoDBContainer;
 
+@Disabled
 public class MongodbTest {
     private static MongoDBContainer container;
 

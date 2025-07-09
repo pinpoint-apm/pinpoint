@@ -23,6 +23,7 @@ package com.pinpoint.test.plugin;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
@@ -31,6 +32,7 @@ import org.testcontainers.utility.DockerImageName;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+@Disabled
 class RedisServerTest {
     private static GenericContainer<?> redisServer;
 

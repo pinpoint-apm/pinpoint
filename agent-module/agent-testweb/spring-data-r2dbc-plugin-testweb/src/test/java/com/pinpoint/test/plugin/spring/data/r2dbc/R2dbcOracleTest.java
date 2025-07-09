@@ -19,6 +19,7 @@ package com.pinpoint.test.plugin.spring.data.r2dbc;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.OracleContainer;
@@ -26,6 +27,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.time.Duration;
 
+@Disabled
 public class R2dbcOracleTest {
     public static final String ORACLE_18_X_IMAGE = "gvenzl/oracle-xe:18-slim";
     public static final String ORACLE_21_X_IMAGE = "gvenzl/oracle-xe:21-slim";

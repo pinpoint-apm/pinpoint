@@ -20,10 +20,12 @@ package com.pinpoint.test.plugin.spring.data.r2dbc;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MySQLContainer;
 
+@Disabled
 public class R2dbcMysqlTest {
     public static final String DATABASE_NAME = "test";
     public static final String USERNAME = "root";

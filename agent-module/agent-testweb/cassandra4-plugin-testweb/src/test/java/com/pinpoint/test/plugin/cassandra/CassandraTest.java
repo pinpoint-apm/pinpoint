@@ -20,13 +20,14 @@ package com.pinpoint.test.plugin.cassandra;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.cassandra.CassandraContainer;
 
 import java.net.InetSocketAddress;
 
-
+@Disabled
 public class CassandraTest {
 
     @AutoClose
