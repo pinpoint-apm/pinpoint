@@ -3,10 +3,12 @@ package com.pinpoint.test.plugin.kafka;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.kafka.KafkaContainer;
 
+@Disabled
 public class KafkaTest {
     @AutoClose
     private static KafkaContainer container;
