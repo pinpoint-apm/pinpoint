@@ -13,9 +13,9 @@ export const FlameArrow = ({ x1, y1, x2, y2 }: FlameArrowProps) => {
   const dx = Math.abs(x2 - x1);
   const dy = Math.abs(y2 - y1);
 
-  const cx1 = x1 + dx * 0.3;
+  const cx1 = x1 + Math.max(dx * 0.2, 50);
   const cy1 = y2 > y1 ? y1 + dy * 0.5 : y1 - dy * 0.5;
-  const cx2 = x2 - dx * 0.4 - 20;
+  const cx2 = x2 - Math.max(dx * 0.3, 50);
   const cy2 = y2 > y1 ? y2 - dy * 0.5 : y2 + dy * 0.5;
 
   return (
