@@ -49,7 +49,7 @@ public class BatchQueryParameter {
                                String fieldName,
                                List<Tag> tagList,
                                Range range) {
-        this(tableName, applicationName, agentId, metricName, fieldName, Collections.EMPTY_LIST, tagList, range);
+        this(tableName, applicationName, agentId, metricName, fieldName, Collections.emptyList(), tagList, range);
     }
 
     public BatchQueryParameter(String tableName,
@@ -68,7 +68,7 @@ public class BatchQueryParameter {
                                String metricName,
                                String fieldName,
                                Range range) {
-        this(tableName, applicationName, agentId, metricName, fieldName, Collections.EMPTY_LIST, Collections.EMPTY_LIST, range);
+        this(tableName, applicationName, agentId, metricName, fieldName, Collections.emptyList(), Collections.emptyList(), range);
     }
 
     public BatchQueryParameter(String tableName,
@@ -85,7 +85,7 @@ public class BatchQueryParameter {
                                String metricName,
                                String fieldName,
                                Range range) {
-        this(tableName, applicationName, DEFAULT_AGENT_ID, metricName, fieldName, Collections.EMPTY_LIST, Collections.EMPTY_LIST, range);
+        this(tableName, applicationName, DEFAULT_AGENT_ID, metricName, fieldName, Collections.emptyList(), Collections.emptyList(), range);
     }
 
     public BatchQueryParameter(String tableName,
@@ -93,7 +93,7 @@ public class BatchQueryParameter {
                                String metricName,
                                List<String> fieldList,
                                Range range) {
-        this(tableName, applicationName, DEFAULT_AGENT_ID, metricName, DEFAULT_FIELD_NAME, fieldList, Collections.EMPTY_LIST, range);
+        this(tableName, applicationName, DEFAULT_AGENT_ID, metricName, DEFAULT_FIELD_NAME, fieldList, Collections.emptyList(), range);
     }
 
     private BatchQueryParameter(String tableName,
