@@ -1,158 +1,182 @@
 package com.navercorp.pinpoint.collector.uid;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.navercorp.pinpoint.collector.uid.service.ApplicationUidService;
+import com.navercorp.pinpoint.collector.uid.config.ApplicationUidCacheConfig;
 import com.navercorp.pinpoint.collector.uid.service.ApplicationUidCachedServiceImpl;
+import com.navercorp.pinpoint.collector.uid.service.ApplicationUidService;
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.uid.service.BaseApplicationUidService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.cache.interceptor.SimpleKeyGenerator;
-import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.navercorp.pinpoint.collector.uid.config.ApplicationUidCacheConfig.APPLICATION_UID_CACHE_NAME;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = ApplicationUidCacheTest.TestConfig.class)
+@TestPropertySource(properties = {
+        "pinpoint.modules.uid.enabled=true",
+        "collector.application.uid.cache.maximumSize=200",
+        "collector.application.uid.cache.expireAfterWrite=300s"
+})
+@Import({
+        ApplicationUidCacheConfig.class,
+        ApplicationUidCachedServiceImpl.class
+})
 public class ApplicationUidCacheTest {
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    @Autowired
-    private ApplicationUidService cachedService;
-
-    @Autowired
-    private BaseApplicationUidService baseApplicationUidService;
+    @MockBean
+    private BaseApplicationUidService mockBaseApplicationUidService;
 
     @Autowired
     private CacheManager cacheManager;
 
+    @Autowired
+    private ApplicationUidService cachedService;
+
     private Cache cache;
 
-    @TestConfiguration
-    @EnableCaching
-    static class TestConfig {
-        @Bean
-        public CacheManager applicationUidCache() {
-            CaffeineCacheManager cacheManager = new CaffeineCacheManager("applicationUidCache");
-            cacheManager.setCaffeine(Caffeine.newBuilder()
-                    .initialCapacity(10)
-                    .maximumSize(200)
-                    .expireAfterWrite(300, TimeUnit.SECONDS));
-            cacheManager.setAsyncCacheMode(true);
-            cacheManager.setAllowNullValues(false);
-            return cacheManager;
-        }
-
-        @Bean
-        public BaseApplicationUidService applicationService() {
-            return mock(BaseApplicationUidService.class);
-        }
-
-        @Bean
-        public ApplicationUidService ApplicationUidService(BaseApplicationUidService baseApplicationUidService,
-                                                           CacheManager cacheManager) {
-            return new ApplicationUidCachedServiceImpl(baseApplicationUidService, cacheManager);
-        }
-    }
-
     @BeforeEach
-    void clearCache() {
-        cache = cacheManager.getCache(APPLICATION_UID_CACHE_NAME);
+    void setup() {
+        Mockito.reset(mockBaseApplicationUidService);
+        cache = Objects.requireNonNull(cacheManager.getCache(APPLICATION_UID_CACHE_NAME), "cache");
         cache.clear();
     }
 
     @Test
-    public void cacheTest() {
-        String testApplicationName = "cacheTest";
+    public void getApplicationUidCacheTest() {
+        String testApplicationName = "getApplicationUidCacheTest";
         ApplicationUid testApplicationUid = ApplicationUid.of(9991);
-        when(baseApplicationUidService.getApplicationUid(ServiceUid.DEFAULT, testApplicationName))
+        when(mockBaseApplicationUidService.getApplicationUid(ServiceUid.DEFAULT, testApplicationName))
                 .thenReturn(testApplicationUid);
 
         cachedService.getApplicationUid(ServiceUid.DEFAULT, testApplicationName);
         cachedService.getOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
+        cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
 
-        verify(baseApplicationUidService, times(1)).getApplicationUid(ServiceUid.DEFAULT, testApplicationName);
-        ApplicationUid cachedResult = cache.get(SimpleKeyGenerator.generateKey(ServiceUid.DEFAULT, testApplicationName), ApplicationUid.class);
-        Assertions.assertThat(cachedResult)
-                .isNotNull()
-                .isEqualTo(testApplicationUid);
+        assertCacheResult(ServiceUid.DEFAULT, testApplicationName, testApplicationUid);
     }
 
     @Test
-    public void cacheNullValueTest() {
+    public void asyncGetOrCreateApplicationUidCacheTest() {
+        String testApplicationName = "asyncGetOrCreateApplicationUidCacheTest";
+        ApplicationUid testApplicationUid = ApplicationUid.of(9992);
+        when(mockBaseApplicationUidService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName))
+                .thenReturn(CompletableFuture.completedFuture(testApplicationUid));
+
+        CompletableFuture<ApplicationUid> future = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
+        future.join();
+        cachedService.getOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
+        cachedService.getApplicationUid(ServiceUid.DEFAULT, testApplicationName);
+
+        assertCacheResult(ServiceUid.DEFAULT, testApplicationName, testApplicationUid);
+    }
+
+    @Test
+    public void cacheNullValueIgnoreTest() {
         String testApplicationName = "cacheNullValueTest";
-        when(baseApplicationUidService.getApplicationUid(ServiceUid.DEFAULT, testApplicationName))
+        when(mockBaseApplicationUidService.getApplicationUid(ServiceUid.DEFAULT, testApplicationName))
                 .thenReturn(null);
 
         cachedService.getApplicationUid(ServiceUid.DEFAULT, testApplicationName);
 
-        ApplicationUid cachedResult = cache.get(SimpleKeyGenerator.generateKey(ServiceUid.DEFAULT, testApplicationName), ApplicationUid.class);
-        Assertions.assertThat(cachedResult).isNull();
+        Cache.ValueWrapper valueWrapper = cache.get(SimpleKeyGenerator.generateKey(ServiceUid.DEFAULT, testApplicationName));
+        Assertions.assertThat(valueWrapper).isNull();
     }
 
     @Test
     public void asyncCacheTest() {
         String testApplicationName = "asyncCacheTest";
         ApplicationUid testApplicationUid = ApplicationUid.of(9992);
-        when(baseApplicationUidService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName))
+        when(mockBaseApplicationUidService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName))
                 .thenReturn(CompletableFuture.completedFuture(testApplicationUid));
 
         CompletableFuture<ApplicationUid> future = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
         future.join();
 
-        ApplicationUid cachedResult = cache.get(SimpleKeyGenerator.generateKey(ServiceUid.DEFAULT, testApplicationName), ApplicationUid.class);
-        Assertions.assertThat(cachedResult)
-                .isNotNull()
-                .isEqualTo(testApplicationUid);
+        assertCacheResult(ServiceUid.DEFAULT, testApplicationName, testApplicationUid);
     }
 
     @Test
     public void asyncCacheNullValueTest() {
         String testApplicationName = "asyncCacheNullValueTest";
-        when(baseApplicationUidService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName))
+        when(mockBaseApplicationUidService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName))
                 .thenReturn(CompletableFuture.completedFuture(null));
 
         CompletableFuture<ApplicationUid> future = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
         future.join();
 
-        ApplicationUid cachedResult = cache.get(SimpleKeyGenerator.generateKey(ServiceUid.DEFAULT, testApplicationName), ApplicationUid.class);
+        ApplicationUid cachedResult = getCachedResult(ServiceUid.DEFAULT, testApplicationName);
         Assertions.assertThat(cachedResult).isNull();
+    }
+
+    private ApplicationUid getCachedResult(ServiceUid serviceUid, String applicationName) {
+        return cache.get(SimpleKeyGenerator.generateKey(serviceUid, applicationName), ApplicationUid.class);
     }
 
     @Test
     public void asyncCacheConcurrentTest() {
         String testApplicationName = "asyncCacheConcurrentTest";
         ApplicationUid testApplicationUid = ApplicationUid.of(9993);
-        when(baseApplicationUidService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName))
-                .thenReturn(CompletableFuture.completedFuture(testApplicationUid));
 
-        CompletableFuture<ApplicationUid> future1 = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
-        CompletableFuture<ApplicationUid> future2 = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
+        ExecutorService executor = Executors.newFixedThreadPool(2, PinpointThreadFactory.createThreadFactory("async-cache-test"));
+        try {
+            when(mockBaseApplicationUidService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName))
+                    .thenAnswer(invocation -> CompletableFuture.supplyAsync(() -> delayedResponse(testApplicationUid), executor));
 
-        CompletableFuture.allOf(future1, future2).join();
-        Assertions.assertThat(future1).isEqualTo(future2);
-        ApplicationUid cachedResult = cache.get(SimpleKeyGenerator.generateKey(ServiceUid.DEFAULT, testApplicationName), ApplicationUid.class);
-        Assertions.assertThat(cachedResult)
-                .isNotNull()
-                .isEqualTo(testApplicationUid);
+            CompletableFuture<ApplicationUid> future1 = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
+            CompletableFuture<ApplicationUid> future2 = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
+            future1.join();
+            future2.join();
+
+            CompletableFuture<ApplicationUid> future3 = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
+            future3.join();
+
+            Assertions.assertThat(future1).isEqualTo(future2);
+            Assertions.assertThat(future1.join()).isEqualTo(future3.join());
+            assertCacheResult(ServiceUid.DEFAULT, testApplicationName, testApplicationUid);
+        } finally {
+            executor.shutdown();
+        }
     }
 
+    private void assertCacheResult(ServiceUid serviceUid, String cachedApplicationName, ApplicationUid expected) {
+        ApplicationUid cachedResult = cache.get(SimpleKeyGenerator.generateKey(serviceUid, cachedApplicationName), ApplicationUid.class);
+        Assertions.assertThat(cachedResult)
+                .isNotNull()
+                .isEqualTo(expected);
+        Mockito.verify(mockBaseApplicationUidService, atMost(1)).getApplicationUid(serviceUid, cachedApplicationName);
+        Mockito.verify(mockBaseApplicationUidService, atMost(1)).asyncGetOrCreateApplicationUid(serviceUid, cachedApplicationName);
+    }
+
+    private ApplicationUid delayedResponse(ApplicationUid applicationUid) {
+        logger.info("Thread : {}", Thread.currentThread().getName());
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return applicationUid;
+    }
 
 }
