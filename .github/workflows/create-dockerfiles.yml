@@ -59,11 +59,11 @@ jobs:
         run: |
           mvn docker:build -pl agent-module/agent
           mvn docker:build -pl hbase/hbase-docker
-          mvn verify spring-boot:build-image -DskipTests=true -pl collector-starter
-          mvn verify spring-boot:build-image -DskipTests=true -pl web-starter
-          mvn verify spring-boot:build-image -DskipTests=true -pl batch
-          mvn verify spring-boot:build-image -DskipTests=true -pl collector
-          mvn verify spring-boot:build-image -DskipTests=true -pl web
+          mvn jib:build -pl collector-starter
+          mvn jib:build -pl web-starter
+          mvn jib:build -pl batch
+          mvn jib:build -pl collector
+          mvn jib:build -pl web
           docker images
 
       - name: Log in to Docker Hub
