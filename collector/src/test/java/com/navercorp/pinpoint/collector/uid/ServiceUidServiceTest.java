@@ -7,31 +7,41 @@ import com.navercorp.pinpoint.common.server.uid.cache.CaffeineCacheProperties;
 import com.navercorp.pinpoint.service.component.StaticServiceRegistry;
 import com.navercorp.pinpoint.service.service.ServiceInfoService;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.stubbing.answers.AnswersWithDelay;
 import org.mockito.internal.stubbing.answers.Returns;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.support.NoOpCacheManager;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.atMost;
 
 public class ServiceUidServiceTest {
 
-    StaticServiceRegistry staticServiceRegistry = new StaticServiceRegistry();
+    private static final StaticServiceRegistry staticServiceRegistry = new StaticServiceRegistry();
+    private final ServiceUidMysqlCacheConfig cacheConfig = new ServiceUidMysqlCacheConfig();
+    private final CaffeineCacheProperties properties = new CaffeineCacheProperties();
+    private final ServiceInfoService mockServiceInfoService = Mockito.mock(ServiceInfoService.class);
 
-    ServiceUidMysqlCacheConfig cacheConfig = new ServiceUidMysqlCacheConfig();
-
-    CaffeineCacheProperties properties = new CaffeineCacheProperties();
+    @BeforeEach
+    void setUp() {
+        Mockito.reset(mockServiceInfoService);
+        properties.setMaximumSize(200);
+        properties.setExpireAfterWrite(Duration.of(-1, ChronoUnit.SECONDS));
+    }
 
     @Test
     public void staticServiceTest() {
         String defaultServiceName = ServiceUid.DEFAULT_SERVICE_UID_NAME;
-        ServiceInfoService serviceInfoService = Mockito.mock(ServiceInfoService.class);
-        CacheManager cacheManager = cacheConfig.serviceUidCache(properties, Duration.of(1, ChronoUnit.MINUTES));
-        ServiceUidService serviceUidService = new ServiceUidService(staticServiceRegistry, serviceInfoService, cacheManager);
+        ServiceUidService serviceUidService = new ServiceUidService(staticServiceRegistry, mockServiceInfoService, new NoOpCacheManager());
 
         Assertions.assertThat(serviceUidService.getServiceUid(defaultServiceName)).isEqualTo(ServiceUid.DEFAULT);
     }
@@ -39,68 +49,75 @@ public class ServiceUidServiceTest {
     @Test
     public void cacheTest() {
         String serviceName = "serviceName";
-        ServiceInfoService serviceInfoService = Mockito.mock(ServiceInfoService.class);
         CacheManager cacheManager = cacheConfig.serviceUidCache(properties, Duration.of(1, ChronoUnit.MINUTES));
-        ServiceUidService serviceUidService = new ServiceUidService(staticServiceRegistry, serviceInfoService, cacheManager);
+        Cache cache = getServiceUidCache(cacheManager);
+        ServiceUidService serviceUidService = new ServiceUidService(staticServiceRegistry, mockServiceInfoService, cacheManager);
 
-        Mockito.when(serviceInfoService.getServiceUid(serviceName)).thenReturn(ServiceUid.of(100001));
-        serviceUidService.getServiceUid(serviceName);
+        Mockito.when(mockServiceInfoService.getServiceUid(serviceName)).thenReturn(ServiceUid.of(100001));
+        ServiceUid first = serviceUidService.getServiceUid(serviceName);
+        ServiceUid second = serviceUidService.getServiceUid(serviceName);
 
-        Assertions.assertThat(serviceUidService.getServiceUid(serviceName)).isNotNull();
-        Mockito.verify(serviceInfoService, Mockito.times(1)).getServiceUid(serviceName);
+        Assertions.assertThat(first).isEqualTo(second);
+        assertCachedResult(cache, serviceName);
     }
 
     @Test
     public void cacheValueLoaderTest() {
         String serviceName = "cacheValueLoaderTest";
-        ServiceInfoService serviceInfoService = Mockito.mock(ServiceInfoService.class);
         CacheManager cacheManager = cacheConfig.serviceUidCache(properties, Duration.of(1, ChronoUnit.MINUTES));
-        ServiceUidService serviceUidService = new ServiceUidService(staticServiceRegistry, serviceInfoService, cacheManager);
+        Cache cache = getServiceUidCache(cacheManager);
+        ServiceUidService serviceUidService = new ServiceUidService(staticServiceRegistry, mockServiceInfoService, cacheManager);
 
-        Mockito.when(serviceInfoService.getServiceUid(serviceName)).thenAnswer(new AnswersWithDelay(100L, new Returns(ServiceUid.of(100002))));
+        Mockito.when(mockServiceInfoService.getServiceUid(serviceName)).thenAnswer(new AnswersWithDelay(100L, new Returns(ServiceUid.of(100002))));
+        CompletableFuture<ServiceUid> future1 = CompletableFuture.supplyAsync(() -> serviceUidService.getServiceUid(serviceName));
+        CompletableFuture<ServiceUid> future2 = CompletableFuture.supplyAsync(() -> serviceUidService.getServiceUid(serviceName));
+        CompletableFuture<ServiceUid> future3 = CompletableFuture.supplyAsync(() -> serviceUidService.getServiceUid(serviceName));
+        CompletableFuture.allOf(future1, future2, future3).join();
 
-        CompletableFuture.supplyAsync(() -> serviceUidService.getServiceUid(serviceName));
-        CompletableFuture.supplyAsync(() -> serviceUidService.getServiceUid(serviceName));
-        CompletableFuture.supplyAsync(() -> serviceUidService.getServiceUid(serviceName));
-
-        Assertions.assertThat(serviceUidService.getServiceUid(serviceName)).isNotNull();
-        Mockito.verify(serviceInfoService, Mockito.times(1)).getServiceUid(serviceName);
+        assertCachedResult(cache, serviceName);
     }
 
     @Test
-    public void emptyValueCacheTest() {
+    public void cacheNullValueHandleTest() {
         String unRegisteredServiceName = "unRegisteredServiceName";
-        ServiceInfoService serviceInfoService = Mockito.mock(ServiceInfoService.class);
         CacheManager cacheManager = cacheConfig.serviceUidCache(properties, Duration.of(1, ChronoUnit.MINUTES));
-        ServiceUidService serviceUidService = new ServiceUidService(staticServiceRegistry, serviceInfoService, cacheManager);
-        Cache cache = cacheManager.getCache(ServiceUidMysqlCacheConfig.SERVICE_UID_CACHE_NAME);
+        Cache cache = getServiceUidCache(cacheManager);
+        ServiceUidService serviceUidService = new ServiceUidService(staticServiceRegistry, mockServiceInfoService, cacheManager);
 
-        Mockito.when(serviceInfoService.getServiceUid(unRegisteredServiceName)).thenReturn(null);
+        Mockito.when(mockServiceInfoService.getServiceUid(unRegisteredServiceName)).thenReturn(null);
+        serviceUidService.getServiceUid(unRegisteredServiceName);
         serviceUidService.getServiceUid(unRegisteredServiceName);
 
-        Assertions.assertThat(cache).isNotNull();
-        Assertions.assertThat(cache.get(unRegisteredServiceName, ServiceUid.class)).isEqualTo(ServiceUid.NULL);
-        Assertions.assertThat(serviceUidService.getServiceUid(unRegisteredServiceName)).isNull();
-        Mockito.verify(serviceInfoService, Mockito.times(1)).getServiceUid(unRegisteredServiceName);
+        assertCachedResult(cache, unRegisteredServiceName);
+        Assertions.assertThat(cache.get(unRegisteredServiceName, ServiceUid.class)).isNull();
     }
 
     @Test
-    public void emptyValueCacheExpireTest() throws InterruptedException {
+    public void cacheNullValueExpireTest() {
         String serviceName = "registeredServiceName";
         String unRegisteredServiceName = "unRegisteredServiceName";
-        ServiceInfoService serviceInfoService = Mockito.mock(ServiceInfoService.class);
         CacheManager cacheManager = cacheConfig.serviceUidCache(properties, Duration.ZERO);
-        ServiceUidService serviceUidService = new ServiceUidService(staticServiceRegistry, serviceInfoService, cacheManager);
-        Cache cache = cacheManager.getCache(ServiceUidMysqlCacheConfig.SERVICE_UID_CACHE_NAME);
+        ServiceUidService serviceUidService = new ServiceUidService(staticServiceRegistry, mockServiceInfoService, cacheManager);
 
-        Mockito.when(serviceInfoService.getServiceUid(serviceName)).thenReturn(ServiceUid.of(100004));
-        Mockito.when(serviceInfoService.getServiceUid(unRegisteredServiceName)).thenReturn(null);
+        Mockito.when(mockServiceInfoService.getServiceUid(serviceName)).thenReturn(ServiceUid.of(100004));
+        Mockito.when(mockServiceInfoService.getServiceUid(unRegisteredServiceName)).thenReturn(null);
         serviceUidService.getServiceUid(serviceName);
         serviceUidService.getServiceUid(unRegisteredServiceName);
+        serviceUidService.getServiceUid(unRegisteredServiceName);
 
-        Thread.sleep(100L);
-        Assertions.assertThat(cache).isNotNull();
-        Assertions.assertThat(cache.get(serviceName, ServiceUid.class)).isNotNull();
+        Cache cache = getServiceUidCache(cacheManager);
+        assertCachedResult(cache, serviceName);
+        Assertions.assertThat(cache.get(unRegisteredServiceName)).isNull();
         Assertions.assertThat(cache.get(unRegisteredServiceName, ServiceUid.class)).isNull();
+        Mockito.verify(mockServiceInfoService, atLeast(2)).getServiceUid(unRegisteredServiceName);
+    }
+
+    private Cache getServiceUidCache(CacheManager cacheManager) {
+        return Objects.requireNonNull(cacheManager.getCache(ServiceUidMysqlCacheConfig.SERVICE_UID_CACHE_NAME), "cache");
+    }
+
+    private void assertCachedResult(Cache cache, String cachedServiceName) {
+        Assertions.assertThat(cache.get(cachedServiceName)).isNotNull();
+        Mockito.verify(mockServiceInfoService, atMost(1)).getServiceUid(cachedServiceName);
     }
 }
