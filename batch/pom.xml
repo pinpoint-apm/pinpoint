@@ -84,10 +84,19 @@
                     <executable>true</executable>
                     <attach>true</attach>
                     <classifier>exec</classifier>
-                    <image>
-                        <name>${docker.repository.name}/pinpoint-batch</name>
-                        <tags>${docker.repository.name}/pinpoint-batch:${project.version},${docker.repository.name}/pinpoint-batch:latest</tags>
-                    </image>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <configuration>
+                    <to>
+                        <image>${docker.repository.name}/pinpoint-batch</image>
+                        <tags>
+                            <tag>${project.version}</tag>
+                            <tag>latest</tag>
+                        </tags>
+                    </to>
                 </configuration>
             </plugin>
             <!--
