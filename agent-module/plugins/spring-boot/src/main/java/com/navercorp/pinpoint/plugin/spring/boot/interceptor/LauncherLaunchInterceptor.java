@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -145,9 +145,7 @@ public class LauncherLaunchInterceptor implements AroundInterceptor {
             return extractNameFromFile(uri);
         }
         String rootJarFileUri = extractNameFromFile(uri.substring(0, rootJarEndIndex));
-        StringBuilder sb = new StringBuilder(rootJarFileUri);
-        sb.append(uri.substring(rootJarEndIndex));
-        return sb.toString();
+        return rootJarFileUri + uri.substring(rootJarEndIndex);
     }
 
 }

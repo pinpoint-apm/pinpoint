@@ -41,12 +41,12 @@ public record HeatMapMetricColumn(long timestamp, int column, Map<Integer, HeatM
     }
 
     public String prettyToString(String tab) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(tab + "{\n" +
-                    tab + "\ttimestamp= " + timestamp + ",\n" +
-                    tab + "\ttime= " + DateTimeFormatUtils.formatSimple(timestamp) + ",\n" +
-                    tab + "\tcolumn= " + column + ",\n" +
-                    tab + "\theatMapMetricCellList : \n");
+        StringBuilder sb = new StringBuilder(32);
+        sb.append(tab).append("{\n");
+        sb.append(tab).append("\ttimestamp= ").append(timestamp).append(",\n");
+        sb.append(tab).append("\ttime= ").append(DateTimeFormatUtils.formatSimple(timestamp)).append(",\n");
+        sb.append(tab).append("\tcolumn= ").append(column).append(",\n");
+        sb.append(tab).append("\theatMapMetricCellList : \n");
 
         for (HeatMapMetricCell heatMapMetricCell : heatMapMetricCellMap.values()) {
             sb.append(heatMapMetricCell.prettyToString(tab + tab + '\t')).append("\n");

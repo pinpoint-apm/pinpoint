@@ -35,7 +35,7 @@ public class HeatMapData {
     public HeatMapData(int width, int height, long totalSuccessCount, long totalFailCount, TreeMap<Long, HeatMapMetricColumn> heatMapMetricColumnMap) {
         this.heatmapSize = new HeatmapSize(width, height);
         this.heatmapSummary = new HeatmapSummary(totalSuccessCount, totalFailCount);
-        this.heatMapMetricColumnMap = Objects.requireNonNull(heatMapMetricColumnMap,"heatMapMetricColumnMap");
+        this.heatMapMetricColumnMap = Objects.requireNonNull(heatMapMetricColumnMap, "heatMapMetricColumnMap");
     }
 
     public Map<Long, HeatMapMetricColumn> getHeatMapMetricColumnMap() {
@@ -65,9 +65,11 @@ public class HeatMapData {
     public String prettyToString() {
         String tab = "\t";
         StringBuilder sb = new StringBuilder();
-        sb.append("HeatMapData \n" +
-                    "{\n" +
-                    tab + "size : " + heatmapSize.prettyToString(tab + "\t") + ",\n");
+        sb.append("HeatMapData \n" + "{\n");
+        sb.append(tab);
+        sb.append("size : ");
+        sb.append(heatmapSize.prettyToString(tab + "\t"));
+        sb.append(",\n");
 
         for (HeatMapMetricColumn heatMapMetricColumn : heatMapMetricColumnMap.values()) {
             sb.append("\tHeatMapMetricColumn : \n").append(heatMapMetricColumn.prettyToString(tab + "\t\t\t\t\t")).append("\n");
