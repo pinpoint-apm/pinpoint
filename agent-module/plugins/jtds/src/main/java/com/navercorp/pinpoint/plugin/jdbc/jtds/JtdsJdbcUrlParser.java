@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@ public class JtdsJdbcUrlParser implements JdbcUrlParserV2 {
         final int databaseIdIndex = hostAndPortAndDataBaseString.indexOf('/');
         if (databaseIdIndex != -1) {
             hostAndPortString = hostAndPortAndDataBaseString.substring(0, databaseIdIndex);
-            databaseId = hostAndPortAndDataBaseString.substring(databaseIdIndex + 1, hostAndPortAndDataBaseString.length());
+            databaseId = hostAndPortAndDataBaseString.substring(databaseIdIndex + 1);
         } else {
             hostAndPortString = hostAndPortAndDataBaseString;
         }

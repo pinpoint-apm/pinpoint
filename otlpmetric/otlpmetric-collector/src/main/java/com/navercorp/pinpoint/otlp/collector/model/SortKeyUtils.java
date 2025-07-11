@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,10 @@ package com.navercorp.pinpoint.otlp.collector.model;
 public class SortKeyUtils {
 
     public static String generateKey(String applicationName, String metricGroupName, String metricName) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(applicationName);
-        sb.append("#");
-        sb.append(metricGroupName);
-        sb.append("#");
-        sb.append(metricName);
-        return sb.toString();
+        return applicationName +
+               "#" +
+               metricGroupName +
+               "#" +
+               metricName;
     }
 }
