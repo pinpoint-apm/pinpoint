@@ -13,7 +13,7 @@ import { useSystemMetricSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { convertParamsToQueryString, getSystemMetricPath } from '@pinpoint-fe/ui/src/utils';
 import { useTranslation } from 'react-i18next';
 import { PiHardDrivesDuotone } from 'react-icons/pi';
-import { Configuration } from '@pinpoint-fe/ui/src/constants';
+import { APP_SETTING_KEYS, Configuration } from '@pinpoint-fe/ui/src/constants';
 
 export const SystemMetricPage = ({
   configuration,
@@ -70,7 +70,7 @@ export const SystemMetricPage = ({
         </div>
       </MainHeader>
       {hostGroupName && (
-        <LayoutWithContentSidebar>
+        <LayoutWithContentSidebar autoSaveId={APP_SETTING_KEYS.SYSTEM_METRIC_RESIZABLE}>
           <SystemMetricSidebar />
           <SystemMetricChartList emptyMessage={t('COMMON.NO_DATA')} />
         </LayoutWithContentSidebar>

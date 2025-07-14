@@ -17,7 +17,7 @@ import { useTranslation } from 'react-i18next';
 import { PiChartBarDuotone } from 'react-icons/pi';
 // import { ErrorBoundary } from '../../Error/ErrorBoundary';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@pinpoint-fe/ui/src/components';
-import { UrlStatSummary } from '../constants';
+import { APP_SETTING_KEYS, UrlStatSummary } from '../constants';
 import { Configuration } from '@pinpoint-fe/ui/src/constants';
 
 const TAB_LIST = [
@@ -87,7 +87,10 @@ export const UrlStatisticPage = ({
         </div>
       </MainHeader>
       {application && (
-        <LayoutWithContentSidebar>
+        <LayoutWithContentSidebar
+          autoSaveId={APP_SETTING_KEYS.URL_STATISTIC_RESIZABLE}
+          contentWrapperClassName="h-fit"
+        >
           <UrlSidebar />
           <>
             <Tabs
