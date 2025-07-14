@@ -14,7 +14,7 @@ import {
 import { convertParamsToQueryString, getOpenTelemetryPath } from '@pinpoint-fe/ui/src/utils';
 import { useOpenTelemetrySearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { SiOpentelemetry } from 'react-icons/si';
-import { Configuration } from '@pinpoint-fe/ui/src/constants';
+import { APP_SETTING_KEYS, Configuration } from '@pinpoint-fe/ui/src/constants';
 
 export interface OpenTelemetryPageProps {
   configuration?: Configuration & Record<string, unknown>;
@@ -77,7 +77,10 @@ export const OpenTelemetryPage = ({
         </div>
       </MainHeader>
       {application && (
-        <LayoutWithContentSidebar contentWrapperClassName="max-w-full">
+        <LayoutWithContentSidebar
+          contentWrapperClassName="max-w-full"
+          autoSaveId={APP_SETTING_KEYS.OPEN_TELEMETRY_METRIC_RESIZABLE}
+        >
           <OpenTelemetrySidebar />
           <OpenTelemetryDashboard />
         </LayoutWithContentSidebar>

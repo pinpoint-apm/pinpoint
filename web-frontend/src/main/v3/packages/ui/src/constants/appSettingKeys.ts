@@ -24,4 +24,9 @@ export enum APP_SETTING_KEYS {
   REALTIME_ACTIVE_REQUEST_RESIZABLE = 'realtimeActiveRequestResizable',
   CONFIG_LAST_SELECTED_APPLICATION = 'configLastSelectedApplication',
   SERVER_MAP_CHART_TYPE = 'serverMapChartType',
+  INSPECTOR_RESIZABLE = 'inspectorResizable',
+  URL_STATISTIC_RESIZABLE = 'urlStatisticResizable',
+  ERROR_ANALYSIS_RESIZABLE = 'errorAnalysisResizable',
+  OPEN_TELEMETRY_METRIC_RESIZABLE = 'openTelemetryMetricResizable',
+  SYSTEM_METRIC_RESIZABLE = 'systemMetricResizable',
 }

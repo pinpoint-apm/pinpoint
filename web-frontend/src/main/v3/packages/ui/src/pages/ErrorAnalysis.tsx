@@ -28,7 +28,12 @@ import {
 } from '@pinpoint-fe/ui/src/utils';
 import { useErrorAnalysisSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { useTranslation } from 'react-i18next';
-import { ErrorAnalysisErrorList, BASE_PATH, Configuration } from '@pinpoint-fe/ui/src/constants';
+import {
+  ErrorAnalysisErrorList,
+  BASE_PATH,
+  Configuration,
+  APP_SETTING_KEYS,
+} from '@pinpoint-fe/ui/src/constants';
 import { format } from 'date-fns';
 import { IoMdClose } from 'react-icons/io';
 import { PiBugBeetleDuotone } from 'react-icons/pi';
@@ -105,7 +110,10 @@ export const ErrorAnalysisPage = ({
         </div>
       </MainHeader>
       {application && (
-        <LayoutWithContentSidebar>
+        <LayoutWithContentSidebar
+          autoSaveId={APP_SETTING_KEYS.ERROR_ANALYSIS_RESIZABLE}
+          contentWrapperClassName="h-fit"
+        >
           <ErrorAnalysisSidebar />
           <>
             <div className="py-2 bg-white border rounded h-72">

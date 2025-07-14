@@ -19,7 +19,7 @@ import {
 import { convertParamsToQueryString, getInspectorPath } from '@pinpoint-fe/ui/src/utils';
 import { PiChartLineDuotone } from 'react-icons/pi';
 import { TimeUnitFormat } from '@pinpoint-fe/datetime-picker';
-import { Configuration } from '@pinpoint-fe/ui/src/constants';
+import { APP_SETTING_KEYS, Configuration } from '@pinpoint-fe/ui/src/constants';
 
 export interface InspectorPageProps {
   configuration?: Configuration;
@@ -87,7 +87,10 @@ export const InspectorPage = ({
         </div>
       </MainHeader>
       {application && (
-        <LayoutWithContentSidebar contentWrapperClassName="h-fit">
+        <LayoutWithContentSidebar
+          contentWrapperClassName="h-fit"
+          autoSaveId={APP_SETTING_KEYS.INSPECTOR_RESIZABLE}
+        >
           <InspectorSidebar />
           {agentId ? (
             <div className="space-y-3">
