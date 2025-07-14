@@ -1,11 +1,11 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.UidFetcher;
 import com.navercorp.pinpoint.io.request.UidFetcherStreamService;
 import com.navercorp.pinpoint.io.util.MessageType;
+import com.navercorp.pinpoint.io.util.MessageTypes;
 import io.grpc.Context;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
@@ -86,13 +87,13 @@ public class StatService extends StatGrpc.StatImplBase {
         }
         if (statMessage.hasAgentStat()) {
             PAgentStat agentStat = statMessage.getAgentStat();
-            this.dispatch(agentStat, MessageType.AGENT_STAT, statHandler, call.getUidFetcher(), response);
+            this.dispatch(agentStat, MessageTypes.AGENT_STAT, statHandler, call.getUidFetcher(), response);
         } else if (statMessage.hasAgentStatBatch()) {
             PAgentStatBatch agentStatBatch = statMessage.getAgentStatBatch();
-            this.dispatch(agentStatBatch, MessageType.AGENT_STAT_BATCH, statBatchHandler, call.getUidFetcher(), response);
+            this.dispatch(agentStatBatch, MessageTypes.AGENT_STAT_BATCH, statBatchHandler, call.getUidFetcher(), response);
         } else if (statMessage.hasAgentUriStat()) {
             PAgentUriStat agentUriStat = statMessage.getAgentUriStat();
-            this.dispatch(agentUriStat, MessageType.AGENT_URI_STAT, uriStatHandler, call.getUidFetcher(), response);
+            this.dispatch(agentUriStat, MessageTypes.AGENT_URI_STAT, uriStatHandler, call.getUidFetcher(), response);
         } else {
             if (logger.isInfoEnabled()) {
                 logger.info("Found empty stat message header:{}", ServerContext.getAgentInfo());

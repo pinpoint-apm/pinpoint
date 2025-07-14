@@ -13,26 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.io.request;
 
-import com.navercorp.pinpoint.io.util.MessageType;
+package com.navercorp.pinpoint.io.util;
 
-/**
- * @author minwoo.jung
- */
-public interface ServerRequest<T> extends AttributeMap {
 
-    ServerHeader getHeader();
 
-    MessageType getMessageType();
+public enum MessageTypes implements MessageType {
 
-    long getRequestTime();
+    EMPTY(-1),
+    SPAN(40),
+    AGENT_INFO(50),
+    AGENT_STAT(55),
+    AGENT_STAT_BATCH(56),
+    AGENT_URI_STAT(57),
+    PING(60),
+    PING_CLOSE(62),
+    SPANCHUNK(70),
+    SQLMETADATA(300),
+    SQLUIDMETADATA(301),
+    APIMETADATA(310),
+    STRINGMETADATA(330),
+    EXCEPTIONMETADATA(340);
 
-    T getData();
+    private final int code;
 
-    String getRemoteAddress();
+    MessageTypes(int code) {
+        this.code = code;
+    }
 
-    int getRemotePort();
+    @Override
+    public int getCode() {
+        return code;
+    }
 
-    Long getTransportId();
+
 }

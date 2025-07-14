@@ -1,11 +1,11 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.UidFetcher;
 import com.navercorp.pinpoint.io.request.UidFetcherStreamService;
-import com.navercorp.pinpoint.io.util.MessageType;
+import com.navercorp.pinpoint.io.util.MessageTypes;
 import io.grpc.Context;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
@@ -86,14 +86,14 @@ public class SpanService extends SpanGrpc.SpanImplBase {
 
             Context current = Context.current();
             UidFetcher fetcher = call.getUidFetcher();
-            ServerRequest<PSpan> request = serverRequestFactory.newServerRequest(current, fetcher, MessageType.SPAN, span);
+            ServerRequest<PSpan> request = serverRequestFactory.newServerRequest(current, fetcher, MessageTypes.SPAN, span);
             this.dispatch(this.spanHandler, request, responseObserver);
         } else if (spanMessage.hasSpanChunk()) {
             PSpanChunk spanChunk = spanMessage.getSpanChunk();
 
             Context current = Context.current();
             UidFetcher fetcher = call.getUidFetcher();
-            ServerRequest<PSpanChunk> request = serverRequestFactory.newServerRequest(current, fetcher, MessageType.SPANCHUNK, spanChunk);
+            ServerRequest<PSpanChunk> request = serverRequestFactory.newServerRequest(current, fetcher, MessageTypes.SPANCHUNK, spanChunk);
             this.dispatch(this.spanCheckHandler, request, responseObserver);
         } else {
             if (logger.isInfoEnabled()) {

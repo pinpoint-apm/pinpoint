@@ -1,11 +1,11 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
 import com.navercorp.pinpoint.io.util.MessageType;
+import com.navercorp.pinpoint.io.util.MessageTypes;
 import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;
@@ -80,7 +81,7 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
         if (isDebug) {
             logger.debug("Request PApiMetaData={}", debugLog(apiMetaData));
         }
-        MessageType messageType = MessageType.APIMETADATA;
+        MessageType messageType = MessageTypes.APIMETADATA;
         doExecute(() -> {
             jobRunner.execute(messageType, apiMetaData, responseObserver,
                     apiMetaDataHandler::handleRequest);
@@ -92,7 +93,7 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
         if (isDebug) {
             logger.debug("Request PSqlMetaData={}", debugLog(sqlMetaData));
         }
-        MessageType messageType = MessageType.SQLMETADATA;
+        MessageType messageType = MessageTypes.SQLMETADATA;
         doExecute(() -> {
             jobRunner.execute(messageType, sqlMetaData, responseObserver,
                     sqlMetaDataHandler::handleRequest);
@@ -104,7 +105,7 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
         if (isDebug) {
             logger.debug("Request PSqlUidMetaData={}", debugLog(sqlUidMetaData));
         }
-        MessageType messageType = MessageType.SQLUIDMETADATA;
+        MessageType messageType = MessageTypes.SQLUIDMETADATA;
         doExecute(() -> {
             jobRunner.execute(messageType, sqlUidMetaData, responseObserver,
                     sqlUidMetaDataHandler::handleRequest);
@@ -116,7 +117,7 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
         if (isDebug) {
             logger.debug("Request PStringMetaData={}", debugLog(stringMetaData));
         }
-        MessageType messageType = MessageType.STRINGMETADATA;
+        MessageType messageType = MessageTypes.STRINGMETADATA;
         doExecute(() -> {
             jobRunner.execute(messageType, stringMetaData, responseObserver,
                     stringMetaDataHandler::handleRequest);
@@ -128,7 +129,7 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
         if (isDebug) {
             logger.debug("Request PExceptionMetaData={}", debugLog(exceptionMetaData));
         }
-        MessageType messageType = MessageType.EXCEPTIONMETADATA;
+        MessageType messageType = MessageTypes.EXCEPTIONMETADATA;
         doExecute(() -> {
             jobRunner.execute(messageType, exceptionMetaData, responseObserver,
                     exceptionMetaDataHandler::handleRequest);
