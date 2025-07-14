@@ -1,11 +1,11 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,13 +36,11 @@ import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
-import com.navercorp.pinpoint.io.util.MessageType;
 import io.grpc.BindableService;
 import io.grpc.ServerServiceDefinition;
 
 import java.net.InetAddress;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -69,14 +67,14 @@ public class AgentServerTestMain {
         grpcReceiver.setBindAddress(builder.build());
 
         PingEventHandler pingEventHandler = mock(PingEventHandler.class);
-        RequestResponseHandler<PAgentInfo, PResult> mockDispatchHandler = new MockDispatchHandler<>(MessageType.AGENT_INFO);
+        RequestResponseHandler<PAgentInfo, PResult> mockDispatchHandler = new MockDispatchHandler<>();
         BindableService agentService = new AgentService(mockDispatchHandler, pingEventHandler, Executors.newFixedThreadPool(8), serverRequestFactory, serverResponseFactory);
 
-        RequestResponseHandler<PApiMetaData, PResult> apiMetaDataHandler = new MockDispatchHandler<>(MessageType.APIMETADATA);
-        RequestResponseHandler<PSqlMetaData, PResult> sqlMetaDataHandler = new MockDispatchHandler<>(MessageType.SQLMETADATA);
-        RequestResponseHandler<PSqlUidMetaData, PResult> sqlUidMetaDataHandler = new MockDispatchHandler<>(MessageType.SQLUIDMETADATA);
-        RequestResponseHandler<PStringMetaData, PResult> stringMetaDataHandler = new MockDispatchHandler<>(MessageType.STRINGMETADATA);
-        RequestResponseHandler<PExceptionMetaData, PResult> exceptionMetaDataHandler = new MockDispatchHandler<>(MessageType.EXCEPTIONMETADATA);
+        RequestResponseHandler<PApiMetaData, PResult> apiMetaDataHandler = new MockDispatchHandler<>();
+        RequestResponseHandler<PSqlMetaData, PResult> sqlMetaDataHandler = new MockDispatchHandler<>();
+        RequestResponseHandler<PSqlUidMetaData, PResult> sqlUidMetaDataHandler = new MockDispatchHandler<>();
+        RequestResponseHandler<PStringMetaData, PResult> stringMetaDataHandler = new MockDispatchHandler<>();
+        RequestResponseHandler<PExceptionMetaData, PResult> exceptionMetaDataHandler = new MockDispatchHandler<>();
         MetadataService metadataService = new MetadataService(apiMetaDataHandler,
                 sqlMetaDataHandler, sqlUidMetaDataHandler,
                 stringMetaDataHandler, exceptionMetaDataHandler,
@@ -110,10 +108,8 @@ public class AgentServerTestMain {
     private static class MockDispatchHandler<Req> implements RequestResponseHandler<Req, PResult> {
         private static final AtomicInteger counter = new AtomicInteger(0);
 
-        private final MessageType messageType;
 
-        public MockDispatchHandler(MessageType messageType) {
-            this.messageType = Objects.requireNonNull(messageType, "messageType");
+        public MockDispatchHandler() {
         }
 
         @Override
@@ -126,11 +122,6 @@ public class AgentServerTestMain {
                 PResult result = PResult.newBuilder().setMessage("Success " + counter.getAndIncrement()).build();
                 serverResponse.write(result);
             }
-        }
-
-        @Override
-        public MessageType type() {
-            return messageType;
         }
     }
 
