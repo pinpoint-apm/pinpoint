@@ -182,7 +182,11 @@ public class HbaseTraceService implements TraceService {
         if (span.getParentSpanId() == -1) {
             if (spanServiceType.isQueue()) {
                 // create virtual queue node
-                Vertex acceptVertex = Vertex.of(span.getAcceptorHost(), spanServiceType);
+                String applicationName = span.getAcceptorHost();
+                if (applicationName == null) {
+                    applicationName = span.getRemoteAddr();
+                }
+                Vertex acceptVertex = Vertex.of(applicationName, spanServiceType);
                 linkService.updateOutLink(span.getCollectorAcceptTime(), acceptVertex, span.getRemoteAddr(),
                         selfVertex, MERGE_QUEUE, span.getElapsed(), span.hasError());
 
