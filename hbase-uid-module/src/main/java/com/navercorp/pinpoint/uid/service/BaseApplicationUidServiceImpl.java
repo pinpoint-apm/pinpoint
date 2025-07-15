@@ -51,7 +51,11 @@ public class BaseApplicationUidServiceImpl implements BaseApplicationUidService 
             return newApplicationUid;
         }
 
-        return applicationUidDao.selectApplicationUid(serviceUid, applicationName);
+        ApplicationUid retriedApplicationUid = applicationUidDao.selectApplicationUid(serviceUid, applicationName);
+        if (retriedApplicationUid != null) {
+            return retriedApplicationUid;
+        }
+        throw new IllegalStateException("Failed to create ApplicationUid for serviceUid: " + serviceUid + ", applicationName: " + applicationName);
     }
 
     private ApplicationUid tryInsertApplicationUid(ServiceUid serviceUid, String applicationName) {
@@ -140,6 +144,11 @@ public class BaseApplicationUidServiceImpl implements BaseApplicationUidService 
                         return CompletableFuture.completedFuture(newApplicationUid);
                     }
                     return applicationUidDao.asyncSelectApplicationUid(serviceUid, applicationName);
+                }).thenApply(applicationUid -> {
+                    if (applicationUid != null) {
+                        return applicationUid;
+                    }
+                    throw new IllegalStateException("Failed to create ApplicationUid for serviceUid: " + serviceUid + ", applicationName: " + applicationName);
                 });
     }
 

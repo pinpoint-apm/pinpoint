@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,8 +26,8 @@ class GrpcServerHeaderV1Test {
         Header header = new HeaderV1("headername", "agentId", "agentName", "applicationName", 1, 0L, 0, List.of(), false, Map.of());
         UidCache cacheV1 = new SingleEntryUidCacheV1();
         ApplicationUidService service = mock(ApplicationUidService.class);
-        when(service.getOrCreateApplicationUid(ServiceUid.DEFAULT, "applicationName"))
-                .thenReturn(ApplicationUid.of(100));
+        when(service.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, "applicationName"))
+                .thenReturn(CompletableFuture.completedFuture(ApplicationUid.of(100)));
         UidFetcher uidFetcher = new UidFetcherV1(service, cacheV1);
 
         GrpcServerHeaderV1 serverHeader = new GrpcServerHeaderV1(header, uidFetcher);

@@ -75,24 +75,27 @@ public class AgentInfoService {
         if (!uidAgentListEnable || agentNameDao == null) {
             return;
         }
-        ServiceUid serviceUid = serviceUidSupplier.get();
-        ApplicationUid applicationUid = getApplicationUid(applicationUidSupplier, agentInfoBo, serviceUid);
-        insertApplicationName(agentInfoBo, serviceUid, applicationUid);
+        try {
+            ServiceUid serviceUid = serviceUidSupplier.get();
+            ApplicationUid applicationUid = getApplicationUid(serviceUid, applicationUidSupplier, agentInfoBo.getApplicationName());
+            insertAgentName(agentInfoBo, serviceUid, applicationUid);
+        } catch (Exception e) {
+            logger.warn("Failed to insert agentName. applicationName: {}, id: {}, name: {}", agentInfoBo.getApplicationName(), agentInfoBo.getAgentId(), agentInfoBo.getAgentName(), e);
+        }
     }
 
-    private ApplicationUid getApplicationUid(Supplier<ApplicationUid> applicationUidSupplier, AgentInfoBo agentInfoBo, ServiceUid serviceUid) {
+    private ApplicationUid getApplicationUid(ServiceUid serviceUid, Supplier<ApplicationUid> applicationUidSupplier, String applicationName) {
+        Objects.requireNonNull(serviceUid, "serviceUid");
+        Objects.requireNonNull(applicationName, "applicationName");
         try {
             return applicationUidSupplier.get();
         } catch (UidException exception) {
-            return applicationUidCacheService.getOrCreateApplicationUid(serviceUid, agentInfoBo.getApplicationName());
+            return applicationUidCacheService.getOrCreateApplicationUid(serviceUid, applicationName);
         }
     }
 
-    private void insertApplicationName(AgentInfoBo agentInfoBo, ServiceUid serviceUid, ApplicationUid applicationUid) {
-        if (applicationUid == null) {
-            logger.warn("null applicationUid. {}, applicationName: {}, id: {}, name: {}", serviceUid, agentInfoBo.getApplicationName(), agentInfoBo.getAgentId(), agentInfoBo.getAgentName());
-            return;
-        }
+    private void insertAgentName(AgentInfoBo agentInfoBo, ServiceUid serviceUid, ApplicationUid applicationUid) {
+        Objects.requireNonNull(applicationUid, "applicationUid");
         try {
             agentNameDao.insert(serviceUid, applicationUid, agentInfoBo.getAgentId(), agentInfoBo.getStartTime(), agentInfoBo.getAgentName());
         } catch (Exception e) {

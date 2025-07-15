@@ -9,22 +9,20 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
 public class UidFetcherV1 implements UidFetcher {
-
     private final Logger logger = LogManager.getLogger(this.getClass());
-
     private static final ServiceUid DEFAULT_SERVICE_UID = ServiceUid.DEFAULT;
 
+    private final ApplicationUidService applicationUidCacheService;
     private final UidCache cache;
 
-    private volatile ApplicationUid applicationUid;
-
-    private final ApplicationUidService applicationUidCacheService;
-
     private final ReentrantLock lock = new ReentrantLock();
+    private volatile ApplicationUid applicationUid;
+    private volatile CompletableFuture<ApplicationUid> applicationUidFuture;
 
     public UidFetcherV1(ApplicationUidService applicationUidCacheService, UidCache cache) {
         this.applicationUidCacheService = Objects.requireNonNull(applicationUidCacheService, "applicationUidService");
@@ -47,47 +45,59 @@ public class UidFetcherV1 implements UidFetcher {
             return UidSuppliers.of(applicationName, copy);
         }
 
-        final UidCache cache = this.cache;
         if (cache != null) {
-            final ApplicationUid cachedUid = getApplicationUidFromCache(cache, applicationName);
+            final ApplicationUid cachedUid = cache.getApplicationUid(serviceUid, applicationName);
             if (cachedUid != null) {
+                this.applicationUid = cachedUid;
                 return UidSuppliers.of(applicationName, cachedUid);
             }
         }
-        // blocking
-        return () -> prefetch(applicationName);
+
+        CompletableFuture<ApplicationUid> prefetch = prefetch(serviceUid, applicationName);
+        return UidSuppliers.of(applicationName, prefetch);
     }
 
-
-    private ApplicationUid getApplicationUidFromCache(UidCache cache, String applicationName) {
-        return cache.getApplicationUid(DEFAULT_SERVICE_UID, applicationName);
-    }
-
-    public ApplicationUid prefetch(String applicationName) {
+    public CompletableFuture<ApplicationUid> prefetch(ServiceUid serviceUid, String applicationName) {
+        CompletableFuture<ApplicationUid> copy = this.applicationUidFuture;
+        if (copy != null) {
+            return copy;
+        }
         lock.lock();
         try {
-            ApplicationUid copy = this.applicationUid;
+            copy = this.applicationUidFuture;
             if (copy != null) {
-                // already fetched
                 return copy;
             } else {
-                // fetch serviceUid & applicationUid from server
-                ApplicationUid applicationId = fetchApplicationUid(applicationName);
-                this.cache.put(DEFAULT_SERVICE_UID, applicationName, applicationId);
-                this.applicationUid = applicationId;
-                return applicationId;
+                final CompletableFuture<ApplicationUid> future = fetchApplicationUidAsync(serviceUid, applicationName);
+                this.applicationUidFuture = future;
+
+                future.whenComplete((futureUid, throwable) -> {
+                    if (throwable != null) {
+                        if (applicationUidFuture == future) {
+                            applicationUidFuture = null;
+                        }
+                        logger.error("Failed to fetch application UID for serviceUid: {}, applicationName: {}", serviceUid, applicationName, throwable);
+                    } else {
+                        this.applicationUid = futureUid;
+                        putApplicationUidToCache(serviceUid, applicationName, futureUid);
+                    }
+                });
+                return future;
             }
         } finally {
             lock.unlock();
         }
     }
 
-    private ApplicationUid fetchApplicationUid(String applicationName) {
-        try {
-            return this.applicationUidCacheService.getOrCreateApplicationUid(DEFAULT_SERVICE_UID, applicationName);
-        } catch (Throwable e) {
-            logger.info("Failed to fetch applicationId. applicationName:{}", applicationName, e);
-            return ApplicationUid.ERROR_APPLICATION_UID;
+    private void putApplicationUidToCache(ServiceUid serviceUid, String applicationName, ApplicationUid applicationUid) {
+        if (this.cache != null) {
+            if (!ApplicationUid.ERROR_APPLICATION_UID.equals(applicationUid)) {
+                this.cache.put(serviceUid, applicationName, applicationUid);
+            }
         }
+    }
+
+    private CompletableFuture<ApplicationUid> fetchApplicationUidAsync(ServiceUid serviceUid, String applicationName) {
+        return this.applicationUidCacheService.asyncGetOrCreateApplicationUid(serviceUid, applicationName);
     }
 }

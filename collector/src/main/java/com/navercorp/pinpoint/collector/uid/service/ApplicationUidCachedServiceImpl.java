@@ -41,6 +41,7 @@ public class ApplicationUidCachedServiceImpl implements ApplicationUidService {
         return asyncGetOrCreateApplicationUid(serviceUid, applicationName).join();
     }
 
+    // throw CompletionException if valueLoader throws an exception
     @Override
     public CompletableFuture<ApplicationUid> asyncGetOrCreateApplicationUid(ServiceUid serviceUid, String applicationName) {
         return applicationUidCache.retrieve(SimpleKeyGenerator.generateKey(serviceUid, applicationName),

@@ -6,5 +6,8 @@ public class UidException extends RuntimeException {
         super(message, null, false, false);
     }
 
+    public UidException(String message, Throwable cause) {
+        super(message, cause, false, false);
+    }
 
 }
