@@ -257,32 +257,6 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         return new LimitedScanResult<>(lastTime, dots);
     }
 
-    @Override
-    public LimitedScanResult<List<TransactionId>> scanTraceIndex(String applicationName, DragArea dragArea, int limit) {
-        Objects.requireNonNull(applicationName, "applicationName");
-        Objects.requireNonNull(dragArea, "dragArea");
-
-        LastRowAccessor lastRowAccessor = new LastRowAccessor();
-
-        final Range range = Range.unchecked(dragArea.getXLow(), dragArea.getXHigh());
-        logger.debug("scanTraceIndex range:{}", range);
-        final Scan scan = newFuzzyScanner(applicationName, dragArea, range);
-
-
-        // TODO
-//        Predicate<Dot> filter = ElpasedTimeDotPredicate.newDragAreaDotPredicate(dragArea);
-
-        final TableName applicationTraceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
-        List<List<TransactionId>> listList = this.hbaseOperations.findParallel(applicationTraceIndexTableName,
-                scan, traceIdRowKeyDistributor, limit, traceIndexMapper, lastRowAccessor, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
-
-        List<TransactionId> transactionIdSum = ListListUtils.toList(listList);
-
-        final long lastTime = getLastTime(range, limit, lastRowAccessor, transactionIdSum);
-
-        return new LimitedScanResult<>(lastTime, transactionIdSum);
-    }
-
     private Predicate<Dot> buildDotPredicate(DragAreaQuery dragAreaQuery) {
         DragArea dragArea = dragAreaQuery.getDragArea();
         Predicate<Dot> filter = ElpasedTimeDotPredicate.newDragAreaDotPredicate(dragArea);
