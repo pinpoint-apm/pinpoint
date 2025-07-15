@@ -1,11 +1,11 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -64,15 +64,17 @@ public class HbaseAgentEventDao implements AgentEventDao {
 
     private final ResultsExtractor<List<AgentEventBo>> agentEventResultsExtractor;
 
-    private final AgentIdRowKeyEncoder rowKeyEncoder = new AgentIdRowKeyEncoder();
+    private final AgentIdRowKeyEncoder rowKeyEncoder;
 
     private final AgentEventFilterBuilder filterBuilder = new AgentEventFilterBuilder();
 
     public HbaseAgentEventDao(HbaseOperations hbaseOperations,
+                              AgentIdRowKeyEncoder rowKeyEncoder,
                               TableNameProvider tableNameProvider,
                               @Qualifier("agentEventMapper")
                               RowMapper<List<AgentEventBo>> agentEventMapper) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
+        this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.agentEventMapper = Objects.requireNonNull(agentEventMapper, "agentEventMapper");
         this.agentEventResultsExtractor = new ListMergeResultsExtractor<>(agentEventMapper);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     public HbaseApplicationTraceIndexDao(HbasePutWriter putWriter,
                                          TableNameProvider tableNameProvider,
-                                         @Qualifier("applicationIndexRowKeyEncoder") RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoder) {
+                                         @Qualifier("applicationIndexRowKeyEncoder")
+                                         RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoder) {
         this.putWriter = Objects.requireNonNull(putWriter, "putWriter");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.applicationIndexRowKeyEncoder = Objects.requireNonNull(applicationIndexRowKeyEncoder, "applicationIndexRowKeyEncoder");

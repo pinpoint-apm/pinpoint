@@ -1,10 +1,25 @@
+/*
+ * Copyright 2025 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.collector;
 
 import com.navercorp.pinpoint.collector.config.BatchHbaseClientConfiguration;
 import com.navercorp.pinpoint.collector.config.HbaseAsyncConfiguration;
 import com.navercorp.pinpoint.collector.config.SchedulerConfiguration;
-import com.navercorp.pinpoint.collector.dao.hbase.encode.ApplicationIndexRowKeyEncoderV1;
-import com.navercorp.pinpoint.collector.dao.hbase.encode.ApplicationIndexRowKeyEncoderV2;
+import com.navercorp.pinpoint.collector.dao.hbase.encode.ApplicationIndexRowKeyEncoder;
 import com.navercorp.pinpoint.collector.util.DurabilityApplier;
 import com.navercorp.pinpoint.common.hbase.config.DistributorConfiguration;
 import com.navercorp.pinpoint.common.hbase.config.HbaseNamespaceConfiguration;
@@ -14,6 +29,7 @@ import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.server.CommonsHbaseConfiguration;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.hbase.config.HbaseClientConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -51,18 +67,12 @@ import org.springframework.context.annotation.PropertySource;
 public class CollectorHbaseModule {
     private final Logger logger = LogManager.getLogger(CollectorHbaseModule.class);
 
-    @Bean("applicationIndexRowKeyEncoder")
-    @ConditionalOnProperty(name = "collector.scatter.serverside-scan", havingValue = "v1")
-    public RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoderV1(@Qualifier("applicationTraceIndexDistributor")
-                                                                 RowKeyDistributor rowKeyDistributor) {
-        return new ApplicationIndexRowKeyEncoderV1(rowKeyDistributor);
-    }
-
-    @Bean("applicationIndexRowKeyEncoder")
+    @Bean
     @ConditionalOnProperty(name = "collector.scatter.serverside-scan", havingValue = "v2", matchIfMissing = true)
-    public RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoderV2(@Qualifier("applicationTraceIndexDistributor")
+    public RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoder(ApplicationNameRowKeyEncoder rowKeyEncoder,
+                                                                 @Qualifier("applicationTraceIndexDistributor")
                                                                  RowKeyDistributor rowKeyDistributor) {
-        return new ApplicationIndexRowKeyEncoderV2(rowKeyDistributor);
+        return new ApplicationIndexRowKeyEncoder(rowKeyEncoder, rowKeyDistributor);
     }
 
     @Bean

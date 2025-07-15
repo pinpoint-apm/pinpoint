@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,12 +50,14 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     private final TableNameProvider tableNameProvider;
 
     private final ResultsExtractor<AgentInfoBo> agentInfoResultsExtractor;
-    private final AgentIdRowKeyEncoder rowKeyEncoder = new AgentIdRowKeyEncoder();
+    private final AgentIdRowKeyEncoder rowKeyEncoder;
 
     public HbaseAgentInfoDao(HbaseOperations hbaseTemplate,
+                             AgentIdRowKeyEncoder rowKeyEncoder,
                              TableNameProvider tableNameProvider,
                              RowMapper<AgentInfoBo> agentInfoMapper) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
+        this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
 
         this.agentInfoResultsExtractor = new SingleResultsExtractor<>(agentInfoMapper);

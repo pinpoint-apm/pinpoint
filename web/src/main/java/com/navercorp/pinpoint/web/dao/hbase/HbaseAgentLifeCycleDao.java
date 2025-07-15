@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,12 +59,14 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
 
     private final RowMapper<AgentLifeCycleBo> agentLifeCycleMapper;
 
-    private final AgentIdRowKeyEncoder agentIdEncoder = new AgentIdRowKeyEncoder();
+    private final AgentIdRowKeyEncoder rowKeyEncoder;
 
     public HbaseAgentLifeCycleDao(HbaseOperations hbaseOperations,
+                                  AgentIdRowKeyEncoder rowKeyEncoder,
                                   TableNameProvider tableNameProvider,
                                   @Qualifier("agentLifeCycleMapper")RowMapper<AgentLifeCycleBo> agentLifeCycleMapper) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
+        this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.agentLifeCycleMapper = Objects.requireNonNull(agentLifeCycleMapper, "agentLifeCycleMapper");
 
@@ -145,8 +147,8 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
     }
 
     private Scan createScan(String agentId, long fromTimestamp, long toTimestamp) {
-        byte[] startKeyBytes = agentIdEncoder.encodeRowKey(agentId, toTimestamp);
-        byte[] endKeyBytes = agentIdEncoder.encodeRowKey(agentId, fromTimestamp);
+        byte[] startKeyBytes = rowKeyEncoder.encodeRowKey(agentId, toTimestamp);
+        byte[] endKeyBytes = rowKeyEncoder.encodeRowKey(agentId, fromTimestamp);
 
         Scan scan = new Scan();
         scan.withStartRow(startKeyBytes);

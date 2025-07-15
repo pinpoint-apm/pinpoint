@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.config.ScatterChartProperties;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
@@ -79,7 +80,8 @@ public class HbaseApplicationTraceIndexDaoTest {
     public void beforeEach() {
         openMocks = MockitoAnnotations.openMocks(this);
         ScatterChartProperties scatterChartProperties = new ScatterChartProperties();
-        this.applicationTraceIndexDao = new HbaseApplicationTraceIndexDao(scatterChartProperties, hbaseOperations, tableNameProvider, traceIndexMapper, traceIndexScatterMapper, traceIdRowKeyDistributor);
+        ApplicationNameRowKeyEncoder applicationNameRowKeyEncoder = new ApplicationNameRowKeyEncoder();
+        this.applicationTraceIndexDao = new HbaseApplicationTraceIndexDao(scatterChartProperties, hbaseOperations, applicationNameRowKeyEncoder, tableNameProvider, traceIndexMapper, traceIndexScatterMapper, traceIdRowKeyDistributor);
     }
 
     @Test

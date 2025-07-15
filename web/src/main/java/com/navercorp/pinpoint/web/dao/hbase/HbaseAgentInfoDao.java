@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,14 +57,16 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
     private final ResultsExtractor<DetailedAgentInfo> detailedAgentInfoResultsExtractor;
 
-    private final AgentIdRowKeyEncoder encoder = new AgentIdRowKeyEncoder();
+    private final AgentIdRowKeyEncoder rowKeyEncoder;
 
 
     public HbaseAgentInfoDao(HbaseOperations hbaseOperations,
+                             AgentIdRowKeyEncoder rowKeyEncoder,
                              TableNameProvider tableNameProvider,
                              ResultsExtractor<AgentInfo> agentInfoResultsExtractor,
                              ResultsExtractor<DetailedAgentInfo> detailedAgentInfoResultsExtractor) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
+        this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.agentInfoResultsExtractor = Objects.requireNonNull(agentInfoResultsExtractor, "agentInfoResultsExtractor");
         this.detailedAgentInfoResultsExtractor = Objects.requireNonNull(detailedAgentInfoResultsExtractor, "detailedAgentInfoResultsExtractor");
@@ -159,11 +161,11 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         byte[] startKeyBytes;
         byte[] endKeyBytes;
         if (endTime == Long.MAX_VALUE) {
-            startKeyBytes = encoder.encodeRowKey(agentId, startTime);
+            startKeyBytes = rowKeyEncoder.encodeRowKey(agentId, startTime);
             endKeyBytes = RowKeyUtils.agentIdAndTimestamp(agentId, Long.MAX_VALUE);
         } else {
-            startKeyBytes = encoder.encodeRowKey(agentId, endTime);
-            endKeyBytes = encoder.encodeRowKey(agentId, startTime);
+            startKeyBytes = rowKeyEncoder.encodeRowKey(agentId, endTime);
+            endKeyBytes = rowKeyEncoder.encodeRowKey(agentId, startTime);
         }
 
         scan.withStartRow(startKeyBytes);

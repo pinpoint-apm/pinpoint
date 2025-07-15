@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
+import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
@@ -56,6 +57,7 @@ public class HbaseAgentLifeCycleDaoTest {
 
     @Spy
     private final TableNameProvider tableNameProvider = new HbaseTableNameProvider("default");
+    private final AgentIdRowKeyEncoder rowKeyEncoder = new AgentIdRowKeyEncoder();
 
     @Mock
     private RowMapper<AgentLifeCycleBo> agentLifeCycleMapper;
@@ -64,7 +66,7 @@ public class HbaseAgentLifeCycleDaoTest {
 
     @BeforeEach
     public void beforeEach() {
-        this.agentLifeCycleDao = new HbaseAgentLifeCycleDao(hbaseOperations, tableNameProvider, agentLifeCycleMapper);
+        this.agentLifeCycleDao = new HbaseAgentLifeCycleDao(hbaseOperations, rowKeyEncoder, tableNameProvider, agentLifeCycleMapper);
     }
 
 

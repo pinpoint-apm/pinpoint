@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,12 +50,14 @@ public class HbaseAgentEventDao implements AgentEventDao {
 
     private final ValueMapper<AgentEventBo> valueMapper;
 
-    private final AgentIdRowKeyEncoder rowKeyEncoder = new AgentIdRowKeyEncoder();
+    private final AgentIdRowKeyEncoder rowKeyEncoder;
 
     public HbaseAgentEventDao(HbaseOperations hbaseTemplate,
+                              AgentIdRowKeyEncoder rowKeyEncoder,
                               TableNameProvider tableNameProvider,
                               ValueMapper<AgentEventBo> valueMapper) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
+        this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.valueMapper = Objects.requireNonNull(valueMapper, "valueMapper");
     }
