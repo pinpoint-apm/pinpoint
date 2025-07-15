@@ -56,12 +56,6 @@ public class ApplicationIndexRowKeyEncoder implements RowKeyEncoder<SpanBo> {
         if (logger.isDebugEnabled()) {
             logger.debug("fuzzySlotKey:{}", fuzzySlotKey);
         }
-        byte[] rowKey = rowKeyEncoder.encodeRowKey(applicationName, acceptedTime);
-
-        byte[] fuzzyRowKey = new byte[rowKey.length + 1];
-        System.arraycopy(rowKey, 0, fuzzyRowKey, 0, rowKey.length);
-
-        fuzzyRowKey[rowKey.length] = fuzzySlotKey;
-        return fuzzyRowKey;
+        return rowKeyEncoder.encodeFuzzyRowKey(applicationName, acceptedTime, fuzzySlotKey);
     }
 }

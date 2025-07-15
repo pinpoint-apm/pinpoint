@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,9 @@ import static com.navercorp.pinpoint.common.util.BytesUtils.LONG_BYTE_LENGTH;
  * @author emeroad
  */
 public final class RowKeyUtils {
+
+    private static final int FUZZY_SLOT_SIZE = 1;
+
     private RowKeyUtils() {
     }
 
@@ -45,6 +48,19 @@ public final class RowKeyUtils {
         byte[] rowKey = new byte[maxFixedLength + LONG_BYTE_LENGTH];
         BytesUtils.writeBytes(rowKey, 0, fixedBytes);
         ByteArrayUtils.writeLong(l, rowKey, maxFixedLength);
+        return rowKey;
+    }
+
+    public static byte[] concatFixedByteAndLongFuzzySlot(byte[] fixedBytes, int maxFixedLength, long timestamp, byte fuzzySlotKey) {
+        Objects.requireNonNull(fixedBytes, "fixedBytes");
+
+        if (fixedBytes.length > maxFixedLength) {
+            throw new IndexOutOfBoundsException("fixedBytes.length too big. length:" + fixedBytes.length);
+        }
+        byte[] rowKey = new byte[maxFixedLength + LONG_BYTE_LENGTH + FUZZY_SLOT_SIZE];
+        BytesUtils.writeBytes(rowKey, 0, fixedBytes);
+        ByteArrayUtils.writeLong(timestamp, rowKey, maxFixedLength);
+        rowKey[rowKey.length -1] = fuzzySlotKey;
         return rowKey;
     }
 
