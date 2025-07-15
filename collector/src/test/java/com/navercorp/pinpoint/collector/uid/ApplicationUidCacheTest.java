@@ -25,6 +25,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -74,7 +75,7 @@ public class ApplicationUidCacheTest {
         cachedService.getOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
         cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
 
-        assertCacheResult(ServiceUid.DEFAULT, testApplicationName, testApplicationUid);
+        assertCachedResult(ServiceUid.DEFAULT, testApplicationName, testApplicationUid);
     }
 
     @Test
@@ -89,7 +90,7 @@ public class ApplicationUidCacheTest {
         cachedService.getOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
         cachedService.getApplicationUid(ServiceUid.DEFAULT, testApplicationName);
 
-        assertCacheResult(ServiceUid.DEFAULT, testApplicationName, testApplicationUid);
+        assertCachedResult(ServiceUid.DEFAULT, testApplicationName, testApplicationUid);
     }
 
     @Test
@@ -114,7 +115,7 @@ public class ApplicationUidCacheTest {
         CompletableFuture<ApplicationUid> future = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
         future.join();
 
-        assertCacheResult(ServiceUid.DEFAULT, testApplicationName, testApplicationUid);
+        assertCachedResult(ServiceUid.DEFAULT, testApplicationName, testApplicationUid);
     }
 
     @Test
@@ -126,12 +127,42 @@ public class ApplicationUidCacheTest {
         CompletableFuture<ApplicationUid> future = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
         future.join();
 
-        ApplicationUid cachedResult = getCachedResult(ServiceUid.DEFAULT, testApplicationName);
-        Assertions.assertThat(cachedResult).isNull();
+        assertUncachedResult(ServiceUid.DEFAULT, testApplicationName);
     }
 
     private ApplicationUid getCachedResult(ServiceUid serviceUid, String applicationName) {
         return cache.get(SimpleKeyGenerator.generateKey(serviceUid, applicationName), ApplicationUid.class);
+    }
+
+    @Test
+    public void asyncCacheExceptionTest() {
+        String testApplicationName = "asyncCacheExceptionTest";
+        String testExceptionMessage = "test exception";
+
+        ExecutorService executor = Executors.newFixedThreadPool(2, PinpointThreadFactory.createThreadFactory("async-cache-test"));
+        try {
+            when(mockBaseApplicationUidService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName))
+                    .thenAnswer(invocation -> CompletableFuture.supplyAsync(() -> {
+                        delay(100);
+                        throw new RuntimeException(testExceptionMessage);
+                    }, executor));
+
+            CompletableFuture<ApplicationUid> future1 = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
+            Assertions.assertThatThrownBy(future1::join).isInstanceOf(RuntimeException.class);
+            delay(100);
+
+            CompletableFuture<ApplicationUid> future2 = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
+            Assertions.assertThatThrownBy(future2::join)
+                    .isInstanceOf(CompletionException.class)
+                    .cause()
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage(testExceptionMessage);
+
+            Assertions.assertThat(future2).isNotEqualTo(future1);
+            assertUncachedResult(ServiceUid.DEFAULT, testApplicationName);
+        } finally {
+            executor.shutdown();
+        }
     }
 
     @Test
@@ -142,7 +173,10 @@ public class ApplicationUidCacheTest {
         ExecutorService executor = Executors.newFixedThreadPool(2, PinpointThreadFactory.createThreadFactory("async-cache-test"));
         try {
             when(mockBaseApplicationUidService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName))
-                    .thenAnswer(invocation -> CompletableFuture.supplyAsync(() -> delayedResponse(testApplicationUid), executor));
+                    .thenAnswer(invocation -> CompletableFuture.supplyAsync(() -> {
+                        delay(100);
+                        return testApplicationUid;
+                    }, executor));
 
             CompletableFuture<ApplicationUid> future1 = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
             CompletableFuture<ApplicationUid> future2 = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
@@ -154,13 +188,18 @@ public class ApplicationUidCacheTest {
 
             Assertions.assertThat(future1).isEqualTo(future2);
             Assertions.assertThat(future1.join()).isEqualTo(future3.join());
-            assertCacheResult(ServiceUid.DEFAULT, testApplicationName, testApplicationUid);
+            assertCachedResult(ServiceUid.DEFAULT, testApplicationName, testApplicationUid);
         } finally {
             executor.shutdown();
         }
     }
 
-    private void assertCacheResult(ServiceUid serviceUid, String cachedApplicationName, ApplicationUid expected) {
+    private void assertUncachedResult(ServiceUid serviceUid, String cachedApplicationName) {
+        ApplicationUid cachedResult = cache.get(SimpleKeyGenerator.generateKey(serviceUid, cachedApplicationName), ApplicationUid.class);
+        Assertions.assertThat(cachedResult).isNull();
+    }
+
+    private void assertCachedResult(ServiceUid serviceUid, String cachedApplicationName, ApplicationUid expected) {
         ApplicationUid cachedResult = cache.get(SimpleKeyGenerator.generateKey(serviceUid, cachedApplicationName), ApplicationUid.class);
         Assertions.assertThat(cachedResult)
                 .isNotNull()
@@ -169,14 +208,13 @@ public class ApplicationUidCacheTest {
         Mockito.verify(mockBaseApplicationUidService, atMost(1)).asyncGetOrCreateApplicationUid(serviceUid, cachedApplicationName);
     }
 
-    private ApplicationUid delayedResponse(ApplicationUid applicationUid) {
+    private void delay(long millis) {
         logger.info("Thread : {}", Thread.currentThread().getName());
         try {
-            Thread.sleep(100);
+            Thread.sleep(millis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        return applicationUid;
     }
 
 }

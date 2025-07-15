@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.io.request.supplier;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.io.request.UidException;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 public class UidSuppliers {
@@ -12,6 +13,10 @@ public class UidSuppliers {
             return new ApplicationUidErrorSupplier(applicationName);
         }
         return new ApplicationUidSupplier(uid);
+    }
+
+    public static Supplier<ApplicationUid> of(String applicationName, CompletableFuture<ApplicationUid> future) {
+        return new ApplicationUidFutureSupplier(applicationName, future);
     }
 
     public static Supplier<ApplicationUid> error(String applicationName) {
