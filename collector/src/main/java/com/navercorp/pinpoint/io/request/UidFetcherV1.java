@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
@@ -20,7 +21,7 @@ public class UidFetcherV1 implements UidFetcher {
 
     private final UidCache cache;
 
-    private volatile ApplicationUid applicationUid;
+    private volatile CompletableFuture<ApplicationUid> applicationUidFuture;
 
     private final ApplicationUidService applicationUidCacheService;
 
@@ -42,52 +43,58 @@ public class UidFetcherV1 implements UidFetcher {
             throw new UnsupportedOperationException("Unsupported serviceUid");
         }
 
-        final ApplicationUid copy = this.applicationUid;
+        final CompletableFuture<ApplicationUid> copy = this.applicationUidFuture;
         if (copy != null) {
             return UidSuppliers.of(applicationName, copy);
         }
 
-        final UidCache cache = this.cache;
         if (cache != null) {
-            final ApplicationUid cachedUid = getApplicationUidFromCache(cache, applicationName);
+            final ApplicationUid cachedUid = getApplicationUidFromCache(cache, serviceUid, applicationName);
             if (cachedUid != null) {
                 return UidSuppliers.of(applicationName, cachedUid);
             }
         }
-        // blocking
-        return () -> prefetch(applicationName);
+        CompletableFuture<ApplicationUid> prefetch = prefetch(serviceUid, applicationName);
+        return UidSuppliers.of(applicationName, prefetch);
     }
 
-
-    private ApplicationUid getApplicationUidFromCache(UidCache cache, String applicationName) {
-        return cache.getApplicationUid(DEFAULT_SERVICE_UID, applicationName);
+    private ApplicationUid getApplicationUidFromCache(UidCache cache, ServiceUid serviceUid, String applicationName) {
+        return cache.getApplicationUid(serviceUid, applicationName);
     }
 
-    public ApplicationUid prefetch(String applicationName) {
+    public CompletableFuture<ApplicationUid> prefetch(ServiceUid serviceUid, String applicationName) {
         lock.lock();
         try {
-            ApplicationUid copy = this.applicationUid;
+            CompletableFuture<ApplicationUid> copy = this.applicationUidFuture;
             if (copy != null) {
                 // already fetched
                 return copy;
             } else {
-                // fetch serviceUid & applicationUid from server
-                ApplicationUid applicationId = fetchApplicationUid(applicationName);
-                this.cache.put(DEFAULT_SERVICE_UID, applicationName, applicationId);
-                this.applicationUid = applicationId;
-                return applicationId;
+                CompletableFuture<ApplicationUid> future = fetchApplicationUidAsync(serviceUid, applicationName);
+                this.applicationUidFuture = future;
+                future.thenAccept(applicationUid -> putApplicationUidToCache(serviceUid, applicationName, applicationUid));
+                return future;
             }
         } finally {
             lock.unlock();
         }
     }
 
-    private ApplicationUid fetchApplicationUid(String applicationName) {
-        try {
-            return this.applicationUidCacheService.getOrCreateApplicationUid(DEFAULT_SERVICE_UID, applicationName);
-        } catch (Throwable e) {
-            logger.info("Failed to fetch applicationId. applicationName:{}", applicationName, e);
-            return ApplicationUid.ERROR_APPLICATION_UID;
+    private void putApplicationUidToCache(ServiceUid serviceUid, String applicationName, ApplicationUid applicationUid) {
+        if (this.cache != null) {
+            if (!ApplicationUid.ERROR_APPLICATION_UID.equals(applicationUid)) {
+                this.cache.put(serviceUid, applicationName, applicationUid);
+            }
         }
+    }
+
+    private CompletableFuture<ApplicationUid> fetchApplicationUidAsync(ServiceUid serviceUid, String applicationName) {
+        return this.applicationUidCacheService.asyncGetOrCreateApplicationUid(serviceUid, applicationName)
+                .thenApply((applicationUid) -> {
+                    if (applicationUid == null) {
+                        throw new IllegalStateException("ApplicationUid is null for applicationName: " + applicationName);
+                    }
+                    return applicationUid;
+                });
     }
 }
