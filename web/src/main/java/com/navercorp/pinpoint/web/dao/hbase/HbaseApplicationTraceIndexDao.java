@@ -1,11 +1,11 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -86,16 +86,18 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private int scanCacheSize = 256;
 
-    private final ApplicationNameRowKeyEncoder rowKeyEncoder = new ApplicationNameRowKeyEncoder();
+    private final ApplicationNameRowKeyEncoder rowKeyEncoder;
 
     public HbaseApplicationTraceIndexDao(ScatterChartProperties scatterChartProperties,
                                          HbaseOperations hbaseOperations,
+                                         ApplicationNameRowKeyEncoder rowKeyEncoder,
                                          TableNameProvider tableNameProvider,
                                          @Qualifier("transactionIdMapper") RowMapper<List<TransactionId>> traceIndexMapper,
                                          @Qualifier("traceIndexScatterMapper") RowMapper<List<Dot>> traceIndexScatterMapper,
                                          @Qualifier("applicationTraceIndexDistributor") RowKeyDistributor traceIdRowKeyDistributor) {
         this.scatterChartProperties = Objects.requireNonNull(scatterChartProperties, "scatterChartProperties");
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
+        this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.traceIndexMapper = Objects.requireNonNull(traceIndexMapper, "traceIndexMapper");
         this.traceIndexScatterMapper = Objects.requireNonNull(traceIndexScatterMapper, "traceIndexScatterMapper");
