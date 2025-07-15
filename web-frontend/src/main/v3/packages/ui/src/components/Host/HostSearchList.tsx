@@ -16,20 +16,20 @@ export const HostSearchList = ({ className, selectedHost, onClickHost }: HostSea
   const height = useHeightToBottom({ ref: listContainerRef, offset: 0 });
 
   return (
-    <div className={cn('p-5 space-y-2 text-sm h-full', className)}>
-      <div className="flex items-center mb-3">
+    <div className={cn('text-sm space-y-2 py-5 h-full', className)}>
+      <div className="flex items-center px-3">
         <span className="font-semibold">Host List</span>
       </div>
       {selectedHost && (
         <Badge
           variant={'outline'}
-          className="flex items-center justify-between gap-2 py-1 font-normal font-semibold truncate bg-secondary"
+          className="flex items-center justify-between gap-2 py-1 mx-2 font-semibold truncate cursor-pointer bg-secondary"
         >
           <div className="truncate">{selectedHost}</div>
         </Badge>
       )}
       <VirtualSearchList
-        className="[&>*:first-child]:border [&>*:first-child]:rounded-t"
+        inputContainerClassName="border rounded mx-2"
         inputClassName="focus-visible:ring-0 border-none shadow-none"
         placeHolder="Input host name"
       >
@@ -40,7 +40,7 @@ export const HostSearchList = ({ className, selectedHost, onClickHost }: HostSea
                 style={{
                   maxHeight: selectedHost ? `calc(${height}px - 2.25rem)` : `${height}px`,
                 }}
-                className="p-2 overflow-y-auto border border-t-0 rounded-b"
+                className="p-2 overflow-y-auto"
                 filterKeyword={props.filterKeyword}
                 selectedHost={selectedHost}
                 onClickHost={(host) => onClickHost?.(host)}
