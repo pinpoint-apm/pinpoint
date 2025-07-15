@@ -115,7 +115,7 @@ const HeatmapChart = React.forwardRef(
       chartInstanceRef.current?.on('mousemove', handleMouseMove);
 
       return () => {
-        if (chartInstanceRef.current) {
+        if (chartInstanceRef.current && !chartInstanceRef.current.isDisposed()) {
           chartInstanceRef.current.off('mousemove', handleMouseMove);
         }
       };
