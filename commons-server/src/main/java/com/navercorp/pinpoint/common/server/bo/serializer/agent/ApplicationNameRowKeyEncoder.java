@@ -32,9 +32,9 @@ public class ApplicationNameRowKeyEncoder extends IdRowKeyEncoder {
         return super.encodeRowKey(applicationName, timestamp);
     }
 
-    public byte[] encodeFuzzyRowKey(String id, long timestamp, byte fuzzySlotKey) {
+    public byte[] encodeFuzzyRowKey(int prefix, String id, long timestamp, byte fuzzySlotKey) {
         byte[] idKey = BytesUtils.toBytes(id);
         long reverseTimestamp = TimeUtils.reverseTimeMillis(timestamp);
-        return RowKeyUtils.concatFixedByteAndLongFuzzySlot(idKey, max, reverseTimestamp, fuzzySlotKey);
+        return RowKeyUtils.concatFixedByteAndLongFuzzySlot(prefix, idKey, max, reverseTimestamp, fuzzySlotKey);
     }
 }

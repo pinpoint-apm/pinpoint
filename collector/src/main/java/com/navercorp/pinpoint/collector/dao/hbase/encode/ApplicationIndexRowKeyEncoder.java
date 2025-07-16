@@ -22,14 +22,12 @@ import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.scatter.FuzzyRowKeyFactory;
 import com.navercorp.pinpoint.common.server.scatter.OneByteFuzzyRowKeyFactory;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
 public class ApplicationIndexRowKeyEncoder implements RowKeyEncoder<SpanBo> {
 
-    private final Logger logger = LogManager.getLogger(this.getClass());
+    public static final int DISTRIBUTE_HASH_SIZE = 1;
 
     private final ApplicationNameRowKeyEncoder rowKeyEncoder;
     private final FuzzyRowKeyFactory<Byte> fuzzyRowKeyFactory = new OneByteFuzzyRowKeyFactory();
@@ -41,21 +39,18 @@ public class ApplicationIndexRowKeyEncoder implements RowKeyEncoder<SpanBo> {
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
     }
 
+    public byte[] encodeRowKey(String applicationName, int elapsedTime, long acceptedTime) {
+        // distribute key evenly
+        byte fuzzyKey = fuzzyRowKeyFactory.getKey(elapsedTime);
+        final byte[] rowKey = rowKeyEncoder.encodeFuzzyRowKey(DISTRIBUTE_HASH_SIZE, applicationName, acceptedTime, fuzzyKey);
+        byte prefix = rowKeyDistributor.getByteHasher().getHashPrefix(rowKey, DISTRIBUTE_HASH_SIZE);
+        rowKey[0] = prefix;
+        return rowKey;
+    }
+
     @Override
     public byte[] encodeRowKey(SpanBo span) {
         // distribute key evenly
-        long acceptedTime = span.getCollectorAcceptTime();
-        byte fuzzyKey = fuzzyRowKeyFactory.getKey(span.getElapsed());
-        final byte[] appTraceIndexRowKey = newRowKey(span.getApplicationName(), acceptedTime, fuzzyKey);
-        return rowKeyDistributor.getDistributedKey(appTraceIndexRowKey);
-    }
-
-    byte[] newRowKey(String applicationName, long acceptedTime, byte fuzzySlotKey) {
-        Objects.requireNonNull(applicationName, "applicationName");
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("fuzzySlotKey:{}", fuzzySlotKey);
-        }
-        return rowKeyEncoder.encodeFuzzyRowKey(applicationName, acceptedTime, fuzzySlotKey);
+        return encodeRowKey(span.getApplicationName(), span.getElapsed(), span.getCollectorAcceptTime());
     }
 }

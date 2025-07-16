@@ -22,16 +22,21 @@ import com.navercorp.pinpoint.common.hbase.wd.OneByteSimpleHash;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
+import com.navercorp.pinpoint.common.server.scatter.FuzzyRowKeyFactory;
+import com.navercorp.pinpoint.common.server.scatter.OneByteFuzzyRowKeyFactory;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ApplicationIndexRowKeyEncoderTest {
 
     private ApplicationIndexRowKeyEncoder encoder;
+    private FuzzyRowKeyFactory<Byte> fuzzyRowKeyFactory = new OneByteFuzzyRowKeyFactory();
 
     @BeforeEach
     void beforeEach() {
@@ -46,12 +51,18 @@ class ApplicationIndexRowKeyEncoderTest {
     }
 
     @Test
-    void newRowKey() {
+    void encodeRowKey() {
+        int elapsedTime = 1000 * 10;
 
-        byte[] rowKey = encoder.newRowKey("agent", 100, (byte) 10);
+        byte[] rowKey = encoder.encodeRowKey("agent", elapsedTime, 2000L);
+        rowKey = Arrays.copyOfRange(rowKey, 1, rowKey.length);
+
 
         int fuzzySize = PinpointConstants.APPLICATION_NAME_MAX_LEN + Bytes.SIZEOF_LONG + 1;
         assertThat(rowKey).hasSize(fuzzySize);
-        Assertions.assertEquals(10, rowKey[rowKey.length - 1]);
+
+        byte fuzzyKey = fuzzyRowKeyFactory.getKey(elapsedTime);
+
+        Assertions.assertEquals(fuzzyKey, rowKey[rowKey.length - 1]);
     }
 }
