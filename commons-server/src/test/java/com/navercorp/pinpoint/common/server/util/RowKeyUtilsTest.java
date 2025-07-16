@@ -37,4 +37,31 @@ class RowKeyUtilsTest {
         Assertions.assertArrayEquals(rowKey1, Arrays.copyOfRange(rowKey2, 0, rowKey2.length - 1));
         Assertions.assertEquals(slot, rowKey2[rowKey2.length - 1]);
     }
+
+    @Test
+    void concatFixedByteAndLongFuzzySlot_prefix0() {
+        byte[] agentId = "agentId".getBytes(StandardCharsets.UTF_8);
+        int length = 24;
+        long timestamp = 100;
+        byte slot = 9;
+
+        byte[] rowKey1 = RowKeyUtils.concatFixedByteAndLongFuzzySlot(agentId, length, timestamp, slot);
+        byte[] rowKey2 = RowKeyUtils.concatFixedByteAndLongFuzzySlot(0, agentId, length, timestamp, slot);
+
+        Assertions.assertArrayEquals(rowKey1, rowKey2);
+        Assertions.assertEquals(slot, rowKey2[rowKey2.length - 1]);
+    }
+
+    @Test
+    void concatFixedByteAndLongFuzzySlot_prefix1() {
+        byte[] agentId = "agentId".getBytes(StandardCharsets.UTF_8);
+        int length = 24;
+        long timestamp = 100;
+        byte slot = 9;
+
+        byte[] rowKey1 = RowKeyUtils.concatFixedByteAndLongFuzzySlot(agentId, length, timestamp, slot);
+        byte[] rowKey2 = RowKeyUtils.concatFixedByteAndLongFuzzySlot(1, agentId, length, timestamp, slot);
+
+        Assertions.assertArrayEquals(rowKey1, Arrays.copyOfRange(rowKey2, 1, rowKey2.length));
+    }
 }

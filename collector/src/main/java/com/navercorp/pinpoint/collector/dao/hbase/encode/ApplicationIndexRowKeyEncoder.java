@@ -29,6 +29,8 @@ import java.util.Objects;
 
 public class ApplicationIndexRowKeyEncoder implements RowKeyEncoder<SpanBo> {
 
+    public static final int DISTRIBUTE_HASH_SIZE = 1;
+
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ApplicationNameRowKeyEncoder rowKeyEncoder;
@@ -46,8 +48,10 @@ public class ApplicationIndexRowKeyEncoder implements RowKeyEncoder<SpanBo> {
         // distribute key evenly
         long acceptedTime = span.getCollectorAcceptTime();
         byte fuzzyKey = fuzzyRowKeyFactory.getKey(span.getElapsed());
-        final byte[] appTraceIndexRowKey = newRowKey(span.getApplicationName(), acceptedTime, fuzzyKey);
-        return rowKeyDistributor.getDistributedKey(appTraceIndexRowKey);
+        final byte[] rowKey = newRowKey(span.getApplicationName(), acceptedTime, fuzzyKey);
+        byte prefix = rowKeyDistributor.getByteHasher().getHashPrefix(rowKey, DISTRIBUTE_HASH_SIZE);
+        rowKey[0] = prefix;
+        return rowKey;
     }
 
     byte[] newRowKey(String applicationName, long acceptedTime, byte fuzzySlotKey) {
@@ -56,6 +60,6 @@ public class ApplicationIndexRowKeyEncoder implements RowKeyEncoder<SpanBo> {
         if (logger.isDebugEnabled()) {
             logger.debug("fuzzySlotKey:{}", fuzzySlotKey);
         }
-        return rowKeyEncoder.encodeFuzzyRowKey(applicationName, acceptedTime, fuzzySlotKey);
+        return rowKeyEncoder.encodeFuzzyRowKey(DISTRIBUTE_HASH_SIZE, applicationName, acceptedTime, fuzzySlotKey);
     }
 }
