@@ -1,11 +1,11 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,11 +41,10 @@ public class TraceRowKeyEncoderV2 implements RowKeyEncoder<TransactionId> {
     public byte[] encodeRowKey(TransactionId transactionId) {
         Objects.requireNonNull(transactionId, "transactionId");
 
-        byte[] rowKey = BytesUtils.stringLongLongToBytes(transactionId.getAgentId(), AGENT_ID_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
-        return wrapDistributedRowKey(rowKey);
+        byte[] rowKey = BytesUtils.stringLongLongToBytes(DISTRIBUTE_HASH_SIZE, transactionId.getAgentId(), AGENT_ID_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
+        byte prefix = this.rowKeyDistributor.getByteHasher().getHashPrefix(rowKey, DISTRIBUTE_HASH_SIZE);
+        rowKey[0] = prefix;
+        return rowKey;
     }
 
-    private byte[] wrapDistributedRowKey(byte[] rowKey) {
-        return rowKeyDistributor.getDistributedKey(rowKey);
-    }
 }

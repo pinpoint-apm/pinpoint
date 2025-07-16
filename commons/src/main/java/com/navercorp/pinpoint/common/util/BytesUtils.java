@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,10 @@ public final class BytesUtils {
     }
 
     public static byte[] stringLongLongToBytes(final String string, final int maxStringSize, final long value1, final long value2) {
+        return stringLongLongToBytes(0, string, maxStringSize, value1, value2);
+    }
+
+    public static byte[] stringLongLongToBytes(int prefix, final String string, final int maxStringSize, final long value1, final long value2) {
         if (string == null) {
             throw new NullPointerException("string");
         }
@@ -52,10 +56,11 @@ public final class BytesUtils {
         if (stringBytes.length > maxStringSize) {
             throw new StringIndexOutOfBoundsException("string is max " + stringBytes.length + ", string='" + string + "'");
         }
-        final byte[] buffer = new byte[LONG_LONG_BYTE_LENGTH + maxStringSize];
-        writeBytes(buffer, 0, stringBytes);
-        writeLong(value1, buffer, maxStringSize);
-        writeLong(value2, buffer, maxStringSize + LONG_BYTE_LENGTH);
+        int offset = prefix + maxStringSize;
+        final byte[] buffer = new byte[offset + LONG_LONG_BYTE_LENGTH];
+        writeBytes(buffer, prefix, stringBytes);
+        offset = writeLong(value1, buffer, offset);
+        writeLong(value2, buffer, offset);
         return buffer;
     }
 
