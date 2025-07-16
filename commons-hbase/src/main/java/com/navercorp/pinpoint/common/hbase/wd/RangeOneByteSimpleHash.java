@@ -1,5 +1,5 @@
-/**
- * Copyright 2010 Sematext International
+/*
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,12 @@ public class RangeOneByteSimpleHash implements ByteHasher {
 
     @Override
     public byte getHashPrefix(byte[] originalKey) {
-        int hash = MathUtils.fastAbs(hashBytes(originalKey));
+        return getHashPrefix(originalKey, 0);
+    }
+
+    @Override
+    public byte getHashPrefix(byte[] originalKey, int hashOffset) {
+        int hash = MathUtils.fastAbs(hashBytes(originalKey, hashOffset));
         return (byte) (hash % mod);
     }
 
@@ -59,6 +64,11 @@ public class RangeOneByteSimpleHash implements ByteHasher {
     private int hashBytes(byte[] bytes) {
         int length = Math.min(bytes.length, end);
         return BytesUtils.hashBytes(bytes, start, length);
+    }
+
+    private int hashBytes(byte[] bytes, int hashOffset) {
+        int length = Math.min(bytes.length, end + hashOffset);
+        return BytesUtils.hashBytes(bytes, start + hashOffset, length);
     }
 
     @Override

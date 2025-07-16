@@ -1,11 +1,11 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,6 +28,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -62,6 +63,23 @@ public class BytesUtilsTest {
         long l2 = ByteArrayUtils.bytesToLong(bytes, 10 + BytesUtils.LONG_BYTE_LENGTH);
         assertEquals(2, l2);
     }
+
+    @Test
+    public void testStringLongLongToBytes_prefix0() {
+        byte[] bytes = BytesUtils.stringLongLongToBytes("123", 10, 1, 2);
+        byte[] prefixedBytes = BytesUtils.stringLongLongToBytes(0, "123", 10, 1, 2);
+
+        assertArrayEquals(bytes, prefixedBytes);
+    }
+
+    @Test
+    public void testStringLongLongToBytes_prefix2() {
+        byte[] bytes = BytesUtils.stringLongLongToBytes("123", 10, 1, 2);
+        byte[] prefixedBytes = BytesUtils.stringLongLongToBytes(2, "123", 10, 1, 2);
+
+        assertArrayEquals(bytes, Arrays.copyOfRange(prefixedBytes, 2, prefixedBytes.length));
+    }
+
 
     @Test
     public void testInt() {

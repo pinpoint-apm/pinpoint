@@ -52,17 +52,21 @@ public final class RowKeyUtils {
     }
 
     public static byte[] concatFixedByteAndLongFuzzySlot(byte[] fixedBytes, int maxFixedLength, long timestamp, byte fuzzySlotKey) {
+        return concatFixedByteAndLongFuzzySlot(0, fixedBytes, maxFixedLength, timestamp, fuzzySlotKey);
+    }
+
+    public static byte[] concatFixedByteAndLongFuzzySlot(int prefix, byte[] fixedBytes, int maxFixedLength, long timestamp, byte fuzzySlotKey) {
         Objects.requireNonNull(fixedBytes, "fixedBytes");
 
         if (fixedBytes.length > maxFixedLength) {
             throw new IndexOutOfBoundsException("fixedBytes.length too big. length:" + fixedBytes.length);
         }
-        byte[] rowKey = new byte[maxFixedLength + LONG_BYTE_LENGTH + FUZZY_SLOT_SIZE];
-        BytesUtils.writeBytes(rowKey, 0, fixedBytes);
-        ByteArrayUtils.writeLong(timestamp, rowKey, maxFixedLength);
+        int offset = prefix + maxFixedLength;
+        byte[] rowKey = new byte[offset + LONG_BYTE_LENGTH + FUZZY_SLOT_SIZE];
+        BytesUtils.writeBytes(rowKey, prefix, fixedBytes);
+        ByteArrayUtils.writeLong(timestamp, rowKey, offset);
         rowKey[rowKey.length -1] = fuzzySlotKey;
         return rowKey;
     }
-
 
 }
