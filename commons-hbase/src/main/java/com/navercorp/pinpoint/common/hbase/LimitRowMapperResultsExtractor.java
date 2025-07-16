@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,10 @@ package com.navercorp.pinpoint.common.hbase;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
+import java.util.function.ToIntFunction;
 
 /**
  * @author emeroad
@@ -36,6 +34,7 @@ public class LimitRowMapperResultsExtractor<T> implements ResultsExtractor<List<
     private int limit = Integer.MAX_VALUE;
     private final RowMapper<T> rowMapper;
     private final LimitEventHandler eventHandler;
+    private final ToIntFunction<T> resultSizeHandler;
 
     public int getLimit() {
         return limit;
@@ -63,6 +62,15 @@ public class LimitRowMapperResultsExtractor<T> implements ResultsExtractor<List<
         this.rowMapper = Objects.requireNonNull(rowMapper, "RowMapper");
         this.limit = limit;
         this.eventHandler = Objects.requireNonNull(eventHandler, "LimitEventHandler");
+        this.resultSizeHandler = resolveResultSizeHandler(rowMapper);
+    }
+
+    private ToIntFunction<T> resolveResultSizeHandler(RowMapper<T> rowMapper) {
+        if (rowMapper instanceof RowTypeHint hint) {
+            Class<?> clazz = hint.rowType();
+            return ResultSizeHandlers.getHandler(clazz);
+        }
+        return new LazyResultSizeHandler<>();
     }
 
     public List<T> extractData(ResultScanner results) throws Exception {
@@ -73,16 +81,10 @@ public class LimitRowMapperResultsExtractor<T> implements ResultsExtractor<List<
         for (Result result : results) {
             final T t = this.rowMapper.mapRow(result, rowNum);
             lastResult = result;
-            if (t instanceof Collection<?> collection) {
-                rowNum += collection.size();
-            } else if (t instanceof Map<?, ?> map) {
-                rowNum += map.size();
-            } else if (t == null) {
+            if (t == null) {
                 // empty
-            } else if (t.getClass().isArray()) {
-                rowNum += Array.getLength(t);
             } else {
-                rowNum++;
+                rowNum += resultSizeHandler.applyAsInt(t);
             }
             rs.add(t);
             if (rowNum >= limit) {

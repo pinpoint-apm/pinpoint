@@ -1,11 +1,11 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.RowTypeHint;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
@@ -39,7 +40,7 @@ import java.util.stream.Collectors;
  * @author netspider
  */
 @Component
-public class TraceIndexMetaScatterMapper implements RowMapper<List<DotMetaData>> {
+public class TraceIndexMetaScatterMapper implements RowMapper<List<DotMetaData>>, RowTypeHint {
 
     private static final HbaseTables.ApplicationTraceIndexTrace INDEX = HbaseTables.APPLICATION_TRACE_INDEX_TRACE;
     private static final HbaseTables.ApplicationTraceIndexTrace META = HbaseTables.APPLICATION_TRACE_INDEX_META;
@@ -84,4 +85,8 @@ public class TraceIndexMetaScatterMapper implements RowMapper<List<DotMetaData>>
         return metaDataMap.computeIfAbsent(transactionId, txId -> new DotMetaData.Builder());
     }
 
+    @Override
+    public Class<?> rowType() {
+        return List.class;
+    }
 }

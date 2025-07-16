@@ -1,11 +1,11 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -450,7 +450,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
 
     @Override
     public <T> List<T> find(TableName tableName, final Scan scan, final RowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action, final LimitEventHandler limitEventHandler) {
-        final LimitRowMapperResultsExtractor<T> resultsExtractor = new LimitRowMapperResultsExtractor<>(action, limit, limitEventHandler);
+        final ResultsExtractor<List<T>> resultsExtractor = new LimitRowMapperResultsExtractor<>(action, limit, limitEventHandler);
         return executeDistributedScan(tableName, scan, rowKeyDistributor, resultsExtractor);
     }
 
@@ -529,7 +529,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
             return find(tableName, scan, rowKeyDistributor, limit, action, limitEventHandler);
         } else {
             int numThreadsUsed = getThreadsUsedNum(numParallelThreads);
-            final LimitRowMapperResultsExtractor<T> resultsExtractor = new LimitRowMapperResultsExtractor<>(action, limit, limitEventHandler);
+            final ResultsExtractor<List<T>> resultsExtractor = new LimitRowMapperResultsExtractor<>(action, limit, limitEventHandler);
             return executeParallelDistributedScan(tableName, scan, rowKeyDistributor, resultsExtractor, numThreadsUsed);
         }
     }

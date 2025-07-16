@@ -1,11 +1,11 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.RowTypeHint;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
@@ -41,7 +42,7 @@ import java.util.function.Predicate;
  * @author netspider
  */
 @Component
-public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
+public class TraceIndexScatterMapper implements RowMapper<List<Dot>>, RowTypeHint {
 
     private static final HbaseTables.ApplicationTraceIndexTrace INDEX = HbaseTables.APPLICATION_TRACE_INDEX_TRACE;
 
@@ -98,4 +99,8 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
         return new Dot(transactionId, acceptedTime, elapsed, exceptionCode, agentId);
     }
 
+    @Override
+    public Class<?> rowType() {
+        return List.class;
+    }
 }
