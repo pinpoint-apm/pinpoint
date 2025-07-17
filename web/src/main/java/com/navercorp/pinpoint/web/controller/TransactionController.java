@@ -39,7 +39,9 @@ import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
 import com.navercorp.pinpoint.web.view.LogLinkBuilder;
 import com.navercorp.pinpoint.web.view.LogLinkView;
 import com.navercorp.pinpoint.web.view.TraceViewerDataViewModel;
+import com.navercorp.pinpoint.web.view.TransactionCallTreeViewModel;
 import com.navercorp.pinpoint.web.view.TransactionInfoViewModel;
+import com.navercorp.pinpoint.web.view.TransactionServerMapViewModel;
 import com.navercorp.pinpoint.web.view.TransactionTimelineInfoViewModel;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 import jakarta.validation.constraints.NotBlank;
@@ -113,7 +115,7 @@ public class TransactionController {
     /**
      * info lookup for a selected transaction
      *
-     * @param traceId traceId
+     * @param traceId        traceId
      * @param focusTimestamp focusTimestamp
      * @return TransactionInfoViewModel
      */
@@ -207,7 +209,7 @@ public class TransactionController {
     /**
      * info lookup for a selected transaction
      *
-     * @param traceId traceId
+     * @param traceId        traceId
      * @param focusTimestamp focusTimestamp
      * @return TransactionTimelineInfoViewModel
      */
@@ -266,5 +268,63 @@ public class TransactionController {
         return new TraceViewerDataViewModel(recordSet);
     }
 
+    @GetMapping(value = "/transaction/traceCallTree")
+    public TransactionCallTreeViewModel transactionCallTree(
+            @RequestParam("traceId") @NotBlank String traceId,
+            @RequestParam(value = "focusTimestamp", required = false, defaultValue = DEFAULT_FOCUS_TIMESTAMP)
+            @PositiveOrZero long focusTimestamp,
+            @RequestParam(value = "agentId", required = false) String agentId,
+            @RequestParam(value = "spanId", required = false, defaultValue = DEFAULT_SPAN_ID) long spanId,
+            @RequestParam(value = "useStatisticsAgentState", required = false, defaultValue = "false")
+            boolean useStatisticsAgentState,
+            @RequestParam(value = "useLoadHistogramFormat", required = false, defaultValue = "false")
+            boolean useLoadHistogramFormat) {
 
+        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
+        final ColumnGetCount columnGetCount = ColumnGetCount.of(callstackSelectSpansLimit);
+        final Predicate<SpanBo> spanMatchFilter = SpanFilters.spanFilter(spanId, agentId, focusTimestamp);
+        // select spans
+        final SpanResult spanResult = this.spanService.selectSpan(transactionId, spanMatchFilter, columnGetCount);
+        final CallTreeIterator callTreeIterator = spanResult.callTree();
+        final RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
+        final LogLinkView logLinkView = logLinkBuilder.build(transactionId, spanId, recordSet.getApplicationName(), recordSet.getStartTime());
+
+        return new TransactionCallTreeViewModel(transactionId, spanId, recordSet, spanResult.traceState(), logLinkView);
+    }
+
+    @GetMapping(value = "/transaction/traceServerMap")
+    public TransactionServerMapViewModel transactionServerMap(
+            @RequestParam("traceId") @NotBlank String traceId,
+            @RequestParam(value = "focusTimestamp", required = false, defaultValue = DEFAULT_FOCUS_TIMESTAMP)
+            @PositiveOrZero
+            long focusTimestamp,
+            @RequestParam(value = "agentId", required = false) String agentId,
+            @RequestParam(value = "spanId", required = false, defaultValue = DEFAULT_SPAN_ID) long spanId,
+            @RequestParam(value = "useStatisticsAgentState", required = false, defaultValue = "false")
+            boolean useStatisticsAgentState,
+            @RequestParam(value = "useLoadHistogramFormat", required = false, defaultValue = "false")
+            boolean useLoadHistogramFormat
+    ) {
+        TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
+        final ColumnGetCount columnGetCount = ColumnGetCount.of(callstackSelectSpansLimit);
+        final Predicate<SpanBo> spanMatchFilter = SpanFilters.spanFilter(spanId, agentId, focusTimestamp);
+        // select spans
+        final SpanResult spanResult = this.spanService.selectSpan(transactionId, spanMatchFilter, columnGetCount);
+        final CallTreeIterator callTreeIterator = spanResult.callTree();
+        final RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
+
+        TimeWindow timeWindow = newTimeWindow(recordSet);
+        Range scanRange = timeWindow.getWindowRange();
+
+        // application map
+        final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(transactionId, scanRange, columnGetCount)
+                .setUseStatisticsAgentState(useStatisticsAgentState)
+                .build();
+        final ApplicationMap map = filteredMapService.selectApplicationMap(option);
+        final LogLinkView logLinkView = logLinkBuilder.build(transactionId, spanId, recordSet.getApplicationName(), recordSet.getStartTime());
+        Object mapView = getApplicationMap(map, timeWindow, format);
+
+        return new TransactionServerMapViewModel(transactionId, spanId, mapView, recordSet, spanResult.traceState(), logLinkView);
+    }
 }
