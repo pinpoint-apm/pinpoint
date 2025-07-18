@@ -16,13 +16,17 @@
 
 package com.navercorp.pinpoint.common.hbase.wd;
 
-public final class ByteSaltKey {
+public enum ByteSaltKey {
+    NONE(0), SALT(1);
 
+    private final int size;
 
-
-    public static void checkSaltKey(int saltKey) {
-        if (saltKey != 0 && saltKey != 1) {
-            throw new IllegalArgumentException("saltKeySize must equal 0 or 1");
-        }
+    ByteSaltKey(int size) {
+        this.size = size;
     }
+
+    public int size() {
+        return size;
+    }
+
 }

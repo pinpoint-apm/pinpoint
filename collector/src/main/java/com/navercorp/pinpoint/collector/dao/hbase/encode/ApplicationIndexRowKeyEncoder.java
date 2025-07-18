@@ -28,8 +28,6 @@ import java.util.Objects;
 
 public class ApplicationIndexRowKeyEncoder implements RowKeyEncoder<SpanBo> {
 
-    public static final int DISTRIBUTE_HASH_SIZE = 1;
-
     private final ApplicationNameRowKeyEncoder rowKeyEncoder;
     private final FuzzyRowKeyFactory<Byte> fuzzyRowKeyFactory = new OneByteFuzzyRowKeyFactory();
     private final RowKeyDistributor rowKeyDistributor;
@@ -40,16 +38,15 @@ public class ApplicationIndexRowKeyEncoder implements RowKeyEncoder<SpanBo> {
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
     }
 
-    public byte[] encodeRowKey(int saltKeySize, String applicationName, int elapsedTime, long acceptedTime) {
-        ByteSaltKey.checkSaltKey(saltKeySize);
+    public byte[] encodeRowKey(ByteSaltKey saltKey, String applicationName, int elapsedTime, long acceptedTime) {
 
         // distribute key evenly
         byte fuzzyKey = fuzzyRowKeyFactory.getKey(elapsedTime);
-        final byte[] rowKey = rowKeyEncoder.encodeFuzzyRowKey(saltKeySize, applicationName, acceptedTime, fuzzyKey);
-        if (saltKeySize == 0) {
+        final byte[] rowKey = rowKeyEncoder.encodeFuzzyRowKey(saltKey.size(), applicationName, acceptedTime, fuzzyKey);
+        if (ByteSaltKey.NONE == saltKey) {
             return rowKey;
         }
-        byte prefix = rowKeyDistributor.getByteHasher().getHashPrefix(rowKey, saltKeySize);
+        byte prefix = rowKeyDistributor.getByteHasher().getHashPrefix(rowKey, saltKey.size());
         rowKey[0] = prefix;
         return rowKey;
     }
@@ -57,11 +54,11 @@ public class ApplicationIndexRowKeyEncoder implements RowKeyEncoder<SpanBo> {
     @Override
     public byte[] encodeRowKey(SpanBo span) {
         // distribute key evenly
-        return encodeRowKey(DISTRIBUTE_HASH_SIZE, span.getApplicationName(), span.getElapsed(), span.getCollectorAcceptTime());
+        return encodeRowKey(ByteSaltKey.SALT, span.getApplicationName(), span.getElapsed(), span.getCollectorAcceptTime());
     }
 
     @Override
-    public byte[] encodeRowKey(int saltKeySize, SpanBo span) {
-        return encodeRowKey(saltKeySize, span.getApplicationName(), span.getElapsed(), span.getCollectorAcceptTime());
+    public byte[] encodeRowKey(ByteSaltKey saltKey, SpanBo span) {
+        return encodeRowKey(saltKey, span.getApplicationName(), span.getElapsed(), span.getCollectorAcceptTime());
     }
 }

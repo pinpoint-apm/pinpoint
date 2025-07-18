@@ -41,20 +41,19 @@ public class UidMetadataEncoder implements RowKeyEncoder<UidMetaDataRowKey> {
     public byte[] encodeRowKey(UidMetaDataRowKey metaDataRowKey) {
         Objects.requireNonNull(metaDataRowKey, "metaDataRowKey");
 
-        return encodeRowKey(1, metaDataRowKey);
+        return encodeRowKey(ByteSaltKey.SALT, metaDataRowKey);
     }
 
     @Override
-    public byte[] encodeRowKey(int saltKeySize, UidMetaDataRowKey metaDataRowKey) {
-        ByteSaltKey.checkSaltKey(saltKeySize);
+    public byte[] encodeRowKey(ByteSaltKey saltKeySize, UidMetaDataRowKey metaDataRowKey) {
 
-        byte[] rowKey = encodeMetaDataRowKey(saltKeySize, metaDataRowKey.getAgentId(),
+        byte[] rowKey = encodeMetaDataRowKey(saltKeySize.size(), metaDataRowKey.getAgentId(),
                 metaDataRowKey.getAgentStartTime(),
                 metaDataRowKey.getUid());
-        if (saltKeySize == 0) {
+        if (ByteSaltKey.NONE == saltKeySize) {
             return rowKey;
         }
-        byte hashPrefix = rowKeyDistributorByHashPrefix.getByteHasher().getHashPrefix(rowKey, saltKeySize);
+        byte hashPrefix = rowKeyDistributorByHashPrefix.getByteHasher().getHashPrefix(rowKey, saltKeySize.size());
         rowKey[0] = hashPrefix;
         return rowKey;
     }

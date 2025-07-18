@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
+import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.RangeOneByteSimpleHash;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
@@ -45,7 +46,7 @@ public class TraceRowKeyEncoderV2Test {
 
     private final RowKeyEncoder<TransactionId> traceRowKeyEncoder = new TraceRowKeyEncoderV2(distributorByHashPrefix);
 
-    private final RowKeyDecoder<TransactionId> traceRowKeyDecoder = new TraceRowKeyDecoderV2(0);
+    private final RowKeyDecoder<TransactionId> traceRowKeyDecoder = new TraceRowKeyDecoderV2(ByteSaltKey.SALT);
 
     @Test
     public void encodeRowKey() {

@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.bo.serializer.metadata;
 
+import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.OneByteSimpleHash;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.junit.jupiter.api.Assertions;
@@ -29,7 +30,7 @@ public class MetadataEncoderTest {
     public void encodeRowKey() {
         long startTime = System.currentTimeMillis();
         MetaDataRowKey metaData = new DefaultMetaDataRowKey("agent", startTime, 1);
-        byte[] rowKey = encoder.encodeRowKey(0, metaData);
+        byte[] rowKey = encoder.encodeRowKey(ByteSaltKey.NONE, metaData);
         MetaDataRowKey decodeRowKey = decoder.decodeRowKey(rowKey);
 
         Assertions.assertEquals("agent", decodeRowKey.getAgentId());

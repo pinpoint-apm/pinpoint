@@ -16,15 +16,17 @@
 
 package com.navercorp.pinpoint.common.server.bo.serializer;
 
+import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
 public interface RowKeyEncoder<V> {
 
     default byte[] encodeRowKey(V value) {
-        return encodeRowKey(0, value);
+        return encodeRowKey(ByteSaltKey.SALT, value);
     }
 
-    byte[] encodeRowKey(int saltKeySize, V value);
+    byte[] encodeRowKey(ByteSaltKey saltKey, V value);
 
 }
