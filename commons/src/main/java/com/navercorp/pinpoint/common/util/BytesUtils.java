@@ -41,28 +41,6 @@ public final class BytesUtils {
     private BytesUtils() {
     }
 
-    public static byte[] stringLongLongToBytes(final String string, final int maxStringSize, final long value1, final long value2) {
-        return stringLongLongToBytes(0, string, maxStringSize, value1, value2);
-    }
-
-    public static byte[] stringLongLongToBytes(int prefix, final String string, final int maxStringSize, final long value1, final long value2) {
-        if (string == null) {
-            throw new NullPointerException("string");
-        }
-        if (maxStringSize < 0) {
-            throw new StringIndexOutOfBoundsException(maxStringSize);
-        }
-        final byte[] stringBytes = toBytes(string);
-        if (stringBytes.length > maxStringSize) {
-            throw new StringIndexOutOfBoundsException("string is max " + stringBytes.length + ", string='" + string + "'");
-        }
-        int offset = prefix + maxStringSize;
-        final byte[] buffer = new byte[offset + LONG_LONG_BYTE_LENGTH];
-        writeBytes(buffer, prefix, stringBytes);
-        offset = writeLong(value1, buffer, offset);
-        writeLong(value2, buffer, offset);
-        return buffer;
-    }
 
     public static int writeBytes(final byte[] buffer, int bufferOffset, final byte[] srcBytes) {
         if (srcBytes == null) {

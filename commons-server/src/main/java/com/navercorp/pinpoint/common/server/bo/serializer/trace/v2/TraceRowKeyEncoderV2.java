@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
-import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 
 import java.util.Objects;
 
@@ -41,7 +41,7 @@ public class TraceRowKeyEncoderV2 implements RowKeyEncoder<TransactionId> {
     public byte[] encodeRowKey(TransactionId transactionId) {
         Objects.requireNonNull(transactionId, "transactionId");
 
-        byte[] rowKey = BytesUtils.stringLongLongToBytes(DISTRIBUTE_HASH_SIZE, transactionId.getAgentId(), AGENT_ID_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
+        byte[] rowKey = RowKeyUtils.stringLongLongToBytes(DISTRIBUTE_HASH_SIZE, transactionId.getAgentId(), AGENT_ID_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
         byte prefix = this.rowKeyDistributor.getByteHasher().getHashPrefix(rowKey, DISTRIBUTE_HASH_SIZE);
         rowKey[0] = prefix;
         return rowKey;
