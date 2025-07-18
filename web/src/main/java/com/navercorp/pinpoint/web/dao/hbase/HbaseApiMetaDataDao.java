@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.DefaultMetaDataRowKey;
@@ -51,20 +50,18 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
 
     private final RowMapper<List<ApiMetaDataBo>> apiMetaDataMapper;
 
-    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
-
     private final RowKeyEncoder<MetaDataRowKey> rowKeyEncoder;
 
     public HbaseApiMetaDataDao(HbaseOperations hbaseOperations,
+                               @Qualifier("metaDataRowKeyEncoder")
                                RowKeyEncoder<MetaDataRowKey> rowKeyEncoder,
                                TableNameProvider tableNameProvider,
-                               @Qualifier("apiMetaDataMapper") RowMapper<List<ApiMetaDataBo>> apiMetaDataMapper,
-                               @Qualifier("metadataRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+                               @Qualifier("apiMetaDataMapper")
+                               RowMapper<List<ApiMetaDataBo>> apiMetaDataMapper) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.apiMetaDataMapper = Objects.requireNonNull(apiMetaDataMapper, "apiMetaDataMapper");
-        this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
     }
 
     @Override
@@ -73,20 +70,13 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
         Objects.requireNonNull(agentId, "agentId");
 
         MetaDataRowKey metaDataRowKey = new DefaultMetaDataRowKey(agentId, time, apiId);
-        byte[] sqlId = getRowKey(metaDataRowKey);
+        byte[] sqlId = rowKeyEncoder.encodeRowKey(metaDataRowKey);
 
         Get get = new Get(sqlId);
         get.addFamily(DESCRIPTOR.getName());
 
         TableName apiMetaDataTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         return hbaseOperations.get(apiMetaDataTableName, get, apiMetaDataMapper);
-    }
-
-    private byte[] getRowKey(MetaDataRowKey metaDataRowKey) {
-        byte[] rowKey = rowKeyEncoder.encodeRowKey(1, metaDataRowKey);
-        byte hashPrefix = rowKeyDistributorByHashPrefix.getByteHasher().getHashPrefix(rowKey, 1);
-        rowKey[0] = hashPrefix;
-        return rowKey;
     }
 
 }

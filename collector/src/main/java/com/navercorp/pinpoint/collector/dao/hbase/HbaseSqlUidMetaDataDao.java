@@ -20,17 +20,14 @@ import com.navercorp.pinpoint.collector.dao.SqlUidMetaDataDao;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.bo.SqlUidMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.uid.UidMetaDataRowKey;
-import com.navercorp.pinpoint.common.server.bo.serializer.metadata.uid.UidMetadataEncoder;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
@@ -44,16 +41,14 @@ public class HbaseSqlUidMetaDataDao implements SqlUidMetaDataDao {
     private final HbaseOperations hbaseTemplate;
     private final TableNameProvider tableNameProvider;
 
-    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
-
-    private final RowKeyEncoder<UidMetaDataRowKey> rowKeyEncoder = new UidMetadataEncoder();
+    private final RowKeyEncoder<UidMetaDataRowKey> rowKeyEncoder;
 
     public HbaseSqlUidMetaDataDao(HbaseOperations hbaseTemplate,
-                                  TableNameProvider tableNameProvider,
-                                  @Qualifier("metadataRowKeyDistributor2") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+                                  RowKeyEncoder<UidMetaDataRowKey> rowKeyEncoder,
+                                  TableNameProvider tableNameProvider) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
+        this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
-        this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
     }
 
     @Override
@@ -63,7 +58,7 @@ public class HbaseSqlUidMetaDataDao implements SqlUidMetaDataDao {
             logger.debug("insert:{}", sqlUidMetaData);
         }
 
-        byte[] rowKey = getRowKey(sqlUidMetaData);
+        byte[] rowKey = rowKeyEncoder.encodeRowKey(sqlUidMetaData);
 
         final Put put = new Put(rowKey, true);
         final String sql = sqlUidMetaData.getSql();
@@ -72,12 +67,5 @@ public class HbaseSqlUidMetaDataDao implements SqlUidMetaDataDao {
 
         final TableName sqlUidMetaDataTableName = tableNameProvider.getTableName(descriptor.getTable());
         hbaseTemplate.put(sqlUidMetaDataTableName, put);
-    }
-
-    private byte[] getRowKey(SqlUidMetaDataBo sqlUid) {
-        byte[] rowKey = rowKeyEncoder.encodeRowKey(1, sqlUid);
-        byte hashPrefix = rowKeyDistributorByHashPrefix.getByteHasher().getHashPrefix(rowKey, 1);
-        rowKey[0] = hashPrefix;
-        return rowKey;
     }
 }

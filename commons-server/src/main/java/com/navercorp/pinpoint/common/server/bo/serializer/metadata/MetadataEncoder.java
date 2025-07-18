@@ -17,9 +17,12 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.metadata;
 
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
+import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Objects;
 
@@ -29,18 +32,33 @@ import static com.navercorp.pinpoint.common.util.BytesUtils.LONG_BYTE_LENGTH;
 
 public class MetadataEncoder implements RowKeyEncoder<MetaDataRowKey> {
 
+    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+
+    public MetadataEncoder(@Qualifier("metadataRowKeyDistributor")
+                           RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+        this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
+    }
+
     @Override
     public byte[] encodeRowKey(MetaDataRowKey metadataRowKey) {
         Objects.requireNonNull(metadataRowKey, "metadataRowKey");
 
-        return readMetaDataRowKey(1, metadataRowKey.getAgentId(),
-                metadataRowKey.getAgentStartTime(), metadataRowKey.getId());
+        return encodeRowKey(1, metadataRowKey);
     }
 
     @Override
     public byte[] encodeRowKey(int saltKeySize, MetaDataRowKey metadataRowKey) {
-        return readMetaDataRowKey(saltKeySize, metadataRowKey.getAgentId(),
+        ByteSaltKey.checkSaltKey(saltKeySize);
+
+        byte[] rowKey = readMetaDataRowKey(saltKeySize, metadataRowKey.getAgentId(),
                 metadataRowKey.getAgentStartTime(), metadataRowKey.getId());
+        if (saltKeySize == 0) {
+            return rowKey;
+        }
+
+        byte hashPrefix = rowKeyDistributorByHashPrefix.getByteHasher().getHashPrefix(rowKey, 1);
+        rowKey[0] = hashPrefix;
+        return rowKey;
     }
 
     public static byte[] readMetaDataRowKey(int saltKeySize, String agentId, long agentStartTime, int keyCode) {
