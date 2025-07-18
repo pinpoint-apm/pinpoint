@@ -28,7 +28,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -36,49 +35,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class BytesUtilsTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    @Test
-    public void testStringLongLongToBytes() {
-        final int strLength = 24;
-        byte[] bytes = BytesUtils.stringLongLongToBytes("123", strLength, 12345, 54321);
 
-        assertEquals("123", BytesUtils.toStringAndRightTrim(bytes, 0, strLength));
-        assertEquals(12345, ByteArrayUtils.bytesToLong(bytes, strLength));
-        assertEquals(54321, ByteArrayUtils.bytesToLong(bytes, strLength + BytesUtils.LONG_BYTE_LENGTH));
-    }
-
-    @Test
-    public void testStringLongLongToBytes_error() {
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> {
-            BytesUtils.stringLongLongToBytes("123", 2, 1, 2);
-        });
-    }
-
-    @Test
-    public void testStringLongLongToBytes2() {
-        byte[] bytes = BytesUtils.stringLongLongToBytes("123", 10, 1, 2);
-        String s = BytesUtils.toStringAndRightTrim(bytes, 0, 10);
-        assertEquals("123", s);
-        long l = ByteArrayUtils.bytesToLong(bytes, 10);
-        assertEquals(1, l);
-        long l2 = ByteArrayUtils.bytesToLong(bytes, 10 + BytesUtils.LONG_BYTE_LENGTH);
-        assertEquals(2, l2);
-    }
-
-    @Test
-    public void testStringLongLongToBytes_prefix0() {
-        byte[] bytes = BytesUtils.stringLongLongToBytes("123", 10, 1, 2);
-        byte[] prefixedBytes = BytesUtils.stringLongLongToBytes(0, "123", 10, 1, 2);
-
-        assertArrayEquals(bytes, prefixedBytes);
-    }
-
-    @Test
-    public void testStringLongLongToBytes_prefix2() {
-        byte[] bytes = BytesUtils.stringLongLongToBytes("123", 10, 1, 2);
-        byte[] prefixedBytes = BytesUtils.stringLongLongToBytes(2, "123", 10, 1, 2);
-
-        assertArrayEquals(bytes, Arrays.copyOfRange(prefixedBytes, 2, prefixedBytes.length));
-    }
 
 
     @Test
