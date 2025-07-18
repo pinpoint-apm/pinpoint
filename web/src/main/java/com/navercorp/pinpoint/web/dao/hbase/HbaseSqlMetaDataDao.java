@@ -69,7 +69,7 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
         Objects.requireNonNull(agentId, "agentId");
 
         MetaDataRowKey metaDataRowKey = new DefaultMetaDataRowKey(agentId, time, sqlId);
-        byte[] rowKey = getDistributedKey(rowKeyEncoder.encodeRowKey(metaDataRowKey));
+        byte[] rowKey = getRowKey(metaDataRowKey);
 
         Get get = new Get(rowKey);
         get.addFamily(DESCRIPTOR.getName());
@@ -78,8 +78,10 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
         return hbaseOperations.get(sqlMetaDataTableName, get, sqlMetaDataMapper);
     }
 
-    private byte[] getDistributedKey(byte[] rowKey) {
-        return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
+    private byte[] getRowKey(MetaDataRowKey metaDataRowKey) {
+        byte[] rowKey = rowKeyEncoder.encodeRowKey(1, metaDataRowKey);
+        byte hashPrefix = rowKeyDistributorByHashPrefix.getByteHasher().getHashPrefix(rowKey, 1);
+        rowKey[0] = hashPrefix;
+        return rowKey;
     }
-    
 }

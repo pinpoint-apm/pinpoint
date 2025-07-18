@@ -71,7 +71,8 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
             logger.debug("insert:{}", apiMetaData);
         }
 
-        final byte[] rowKey = getDistributedKey(rowKeyEncoder.encodeRowKey(apiMetaData));
+        byte[] rowKey = getRowKey(apiMetaData);
+
         final Put put = new Put(rowKey, true);
         final Buffer buffer = new AutomaticBuffer(64);
         final String api = apiMetaData.getApiInfo();
@@ -87,7 +88,10 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
         hbaseTemplate.put(apiMetaDataTableName, put);
     }
 
-    private byte[] getDistributedKey(byte[] rowKey) {
-        return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
+    private byte[] getRowKey(ApiMetaDataBo apiMetaData) {
+        byte[] rowKey = rowKeyEncoder.encodeRowKey(1, apiMetaData);
+        byte hashPrefix = rowKeyDistributorByHashPrefix.getByteHasher().getHashPrefix(rowKey, 1);
+        rowKey[0] = hashPrefix;
+        return rowKey;
     }
 }

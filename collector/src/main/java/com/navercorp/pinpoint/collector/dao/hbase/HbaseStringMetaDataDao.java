@@ -70,8 +70,8 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
             logger.debug("insert:{}", stringMetaData);
         }
 
+        byte[] rowKey = getRowKey(1, stringMetaData);
 
-        final byte[] rowKey = getDistributedKey(rowKeyEncoder.encodeRowKey(stringMetaData));
         final Put put = new Put(rowKey, true);
         final String stringValue = stringMetaData.getStringValue();
         final byte[] sqlBytes = Bytes.toBytes(stringValue);
@@ -81,9 +81,13 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
         hbaseTemplate.put(stringMetaDataTableName, put);
     }
 
-    private byte[] getDistributedKey(byte[] rowKey) {
-        return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
+    private byte[] getRowKey(int saltKey, StringMetaDataBo stringMetaData) {
+        byte[] rowKey = rowKeyEncoder.encodeRowKey(saltKey, stringMetaData);
+        if (saltKey == 1) {
+            byte hashPrefix = rowKeyDistributorByHashPrefix.getByteHasher().getHashPrefix(rowKey, saltKey);
+            rowKey[0] = hashPrefix;
+        }
+        return rowKey;
     }
-
 
 }

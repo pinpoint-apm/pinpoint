@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.common.server.bo.serializer.metadata.uid;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
@@ -17,12 +33,17 @@ public class UidMetadataEncoder implements RowKeyEncoder<UidMetaDataRowKey> {
     public byte[] encodeRowKey(UidMetaDataRowKey metaDataRowKey) {
         Objects.requireNonNull(metaDataRowKey, "metaDataRowKey");
 
-        return readMetaDataRowKey(metaDataRowKey.getAgentId(),
+        return encodeRowKey(0, metaDataRowKey);
+    }
+
+    @Override
+    public byte[] encodeRowKey(int saltKeySize, UidMetaDataRowKey metaDataRowKey) {
+        return readMetaDataRowKey(saltKeySize, metaDataRowKey.getAgentId(),
                 metaDataRowKey.getAgentStartTime(),
                 metaDataRowKey.getUid());
     }
 
-    public static byte[] readMetaDataRowKey(String agentId, long agentStartTime, byte[] keyCode) {
+    public static byte[] readMetaDataRowKey(int saltKeySize, String agentId, long agentStartTime, byte[] keyCode) {
         Objects.requireNonNull(agentId, "agentId");
 
         final byte[] agentBytes = BytesUtils.toBytes(agentId);
@@ -30,13 +51,13 @@ public class UidMetadataEncoder implements RowKeyEncoder<UidMetaDataRowKey> {
             throw new IndexOutOfBoundsException("agent.length too big. agent:" + agentId + " length:" + agentId.length());
         }
 
-        final byte[] buffer = new byte[AGENT_ID_MAX_LEN + LONG_BYTE_LENGTH + keyCode.length];
-        BytesUtils.writeBytes(buffer, 0, agentBytes);
+        int offset = saltKeySize + AGENT_ID_MAX_LEN;
+        final byte[] buffer = new byte[offset + LONG_BYTE_LENGTH + keyCode.length];
+        BytesUtils.writeBytes(buffer, saltKeySize, agentBytes);
 
         long reverseCurrentTimeMillis = TimeUtils.reverseTimeMillis(agentStartTime);
-        ByteArrayUtils.writeLong(reverseCurrentTimeMillis, buffer, AGENT_ID_MAX_LEN);
-
-        BytesUtils.writeBytes(buffer, AGENT_ID_MAX_LEN + LONG_BYTE_LENGTH, keyCode);
+        offset = ByteArrayUtils.writeLong(reverseCurrentTimeMillis, buffer, offset);
+        BytesUtils.writeBytes(buffer, offset, keyCode);
         return buffer;
     }
 }

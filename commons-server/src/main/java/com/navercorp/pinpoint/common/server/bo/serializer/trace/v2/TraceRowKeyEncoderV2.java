@@ -39,12 +39,22 @@ public class TraceRowKeyEncoderV2 implements RowKeyEncoder<TransactionId> {
     }
 
     public byte[] encodeRowKey(TransactionId transactionId) {
-        Objects.requireNonNull(transactionId, "transactionId");
-
-        byte[] rowKey = RowKeyUtils.stringLongLongToBytes(DISTRIBUTE_HASH_SIZE, transactionId.getAgentId(), AGENT_ID_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
-        byte prefix = this.rowKeyDistributor.getByteHasher().getHashPrefix(rowKey, DISTRIBUTE_HASH_SIZE);
-        rowKey[0] = prefix;
-        return rowKey;
+        return encodeRowKey(1, transactionId);
     }
 
+    @Override
+    public byte[] encodeRowKey(int saltKeySize, TransactionId transactionId) {
+        Objects.requireNonNull(transactionId, "transactionId");
+
+        byte[] rowKey = RowKeyUtils.stringLongLongToBytes(saltKeySize, transactionId.getAgentId(), AGENT_ID_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
+        if (saltKeySize == 0) {
+            return rowKey;
+        }
+        if (saltKeySize == 1) {
+            byte prefix = this.rowKeyDistributor.getByteHasher().getHashPrefix(rowKey, saltKeySize);
+            rowKey[0] = prefix;
+            return rowKey;
+        }
+        throw new UnsupportedOperationException("saltKeySize=" + saltKeySize);
+    }
 }

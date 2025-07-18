@@ -39,11 +39,11 @@ public class ApplicationIndexRowKeyEncoder implements RowKeyEncoder<SpanBo> {
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
     }
 
-    public byte[] encodeRowKey(String applicationName, int elapsedTime, long acceptedTime) {
+    public byte[] encodeRowKey(int saltKeySize, String applicationName, int elapsedTime, long acceptedTime) {
         // distribute key evenly
         byte fuzzyKey = fuzzyRowKeyFactory.getKey(elapsedTime);
-        final byte[] rowKey = rowKeyEncoder.encodeFuzzyRowKey(DISTRIBUTE_HASH_SIZE, applicationName, acceptedTime, fuzzyKey);
-        byte prefix = rowKeyDistributor.getByteHasher().getHashPrefix(rowKey, DISTRIBUTE_HASH_SIZE);
+        final byte[] rowKey = rowKeyEncoder.encodeFuzzyRowKey(saltKeySize, applicationName, acceptedTime, fuzzyKey);
+        byte prefix = rowKeyDistributor.getByteHasher().getHashPrefix(rowKey, saltKeySize);
         rowKey[0] = prefix;
         return rowKey;
     }
@@ -51,6 +51,11 @@ public class ApplicationIndexRowKeyEncoder implements RowKeyEncoder<SpanBo> {
     @Override
     public byte[] encodeRowKey(SpanBo span) {
         // distribute key evenly
-        return encodeRowKey(span.getApplicationName(), span.getElapsed(), span.getCollectorAcceptTime());
+        return encodeRowKey(DISTRIBUTE_HASH_SIZE, span.getApplicationName(), span.getElapsed(), span.getCollectorAcceptTime());
+    }
+
+    @Override
+    public byte[] encodeRowKey(int saltKeySize, SpanBo span) {
+        return encodeRowKey(saltKeySize, span.getApplicationName(), span.getElapsed(), span.getCollectorAcceptTime());
     }
 }
