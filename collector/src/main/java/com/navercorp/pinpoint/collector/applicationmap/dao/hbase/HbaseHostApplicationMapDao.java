@@ -1,11 +1,11 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,14 +22,18 @@ import com.navercorp.pinpoint.collector.util.AtomicLongUpdateMap;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.util.Puts;
+import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
+import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
@@ -49,6 +53,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
     private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.HOST_APPLICATION_MAP_VER2_MAP;
+    private static final ByteSaltKey SALT_KEY = ByteSaltKey.SALT;
 
     private final HbaseOperations hbaseTemplate;
 
@@ -121,24 +126,32 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
 
     private byte[] createRowKey(String parentApplicationName, short parentServiceType, long statisticsRowSlot, String parentAgentId) {
-        final byte[] rowKey = createRowKey0(parentApplicationName, parentServiceType, statisticsRowSlot, parentAgentId);
-        return rowKeyDistributor.getDistributedKey(rowKey);
+        final byte[] rowKey = createRowKey0(SALT_KEY, parentApplicationName, parentServiceType, statisticsRowSlot, parentAgentId);
+        ByteHasher byteHasher = rowKeyDistributor.getByteHasher();
+        rowKey[0] = byteHasher.getHashPrefix(rowKey, SALT_KEY.size());
+        return rowKey;
     }
 
 
     @VisibleForTesting
-    static byte[] createRowKey0(String parentApplicationName, short parentServiceType, long statisticsRowSlot, String parentAgentId) {
+    static byte[] createRowKey0(ByteSaltKey saltKey, String parentApplicationName, short parentServiceType, long statisticsRowSlot, String parentAgentId) {
 
         // even if  a agentId be added for additional specifications, it may be safe to scan rows.
         // But is it needed to add parentAgentServiceType?
-        final int SIZE = HbaseTableConstants.APPLICATION_NAME_MAX_LEN + 2 + 8;
-        final Buffer rowKeyBuffer = new AutomaticBuffer(SIZE);
-        rowKeyBuffer.putPadString(parentApplicationName, HbaseTableConstants.APPLICATION_NAME_MAX_LEN);
-        rowKeyBuffer.putShort(parentServiceType);
-        rowKeyBuffer.putLong(TimeUtils.reverseTimeMillis(statisticsRowSlot));
-        // there is no parentAgentId for now.  if it added later, need to comment out below code for compatibility.
-//        rowKeyBuffer.putPadString(parentAgentId, HbaseTableConstants.AGENT_NAME_MAX_LEN);
-        return rowKeyBuffer.getBuffer();
+        int offset = saltKey.size() + HbaseTableConstants.APPLICATION_NAME_MAX_LEN;
+        final int SIZE = offset + BytesUtils.SHORT_BYTE_LENGTH + BytesUtils.LONG_BYTE_LENGTH;
+
+        byte[] rowKey = new byte[SIZE];
+
+        final byte[] parentAppNameBytes = BytesUtils.toBytes(parentApplicationName);
+        if (parentAppNameBytes.length > HbaseTableConstants.APPLICATION_NAME_MAX_LEN) {
+            throw new IllegalArgumentException("Parent application name length exceed " + parentApplicationName);
+        }
+        BytesUtils.writeBytes(rowKey, saltKey.size(), parentAppNameBytes);
+        offset = ByteArrayUtils.writeShort(parentServiceType, rowKey, offset);
+        long timestamp = TimeUtils.reverseTimeMillis(statisticsRowSlot);
+        ByteArrayUtils.writeLong(timestamp, rowKey, offset);
+        return rowKey;
     }
 
     private static final class CacheKey {

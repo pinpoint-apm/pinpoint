@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.DefaultMetaDataRowKey;
@@ -48,20 +47,18 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
 
     private final RowMapper<List<SqlMetaDataBo>> sqlMetaDataMapper;
 
-    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
-
     private final RowKeyEncoder<MetaDataRowKey> rowKeyEncoder;
 
     public HbaseSqlMetaDataDao(HbaseOperations hbaseOperations,
+                               @Qualifier("sqlDataRowKeyEncoder")
                                RowKeyEncoder<MetaDataRowKey> rowKeyEncoder,
                                TableNameProvider tableNameProvider,
-                               @Qualifier("sqlMetaDataMapper") RowMapper<List<SqlMetaDataBo>> sqlMetaDataMapper,
-                               @Qualifier("metadataRowKeyDistributor2") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+                               @Qualifier("sqlMetaDataMapper")
+                               RowMapper<List<SqlMetaDataBo>> sqlMetaDataMapper) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.sqlMetaDataMapper = Objects.requireNonNull(sqlMetaDataMapper, "sqlMetaDataMapper");
-        this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
     }
 
     @Override
@@ -69,7 +66,7 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
         Objects.requireNonNull(agentId, "agentId");
 
         MetaDataRowKey metaDataRowKey = new DefaultMetaDataRowKey(agentId, time, sqlId);
-        byte[] rowKey = getDistributedKey(rowKeyEncoder.encodeRowKey(metaDataRowKey));
+        byte[] rowKey = rowKeyEncoder.encodeRowKey(metaDataRowKey);
 
         Get get = new Get(rowKey);
         get.addFamily(DESCRIPTOR.getName());
@@ -77,9 +74,4 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
         TableName sqlMetaDataTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         return hbaseOperations.get(sqlMetaDataTableName, get, sqlMetaDataMapper);
     }
-
-    private byte[] getDistributedKey(byte[] rowKey) {
-        return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
-    }
-    
 }

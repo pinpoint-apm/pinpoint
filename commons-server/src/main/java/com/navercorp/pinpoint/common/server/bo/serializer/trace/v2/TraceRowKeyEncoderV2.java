@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
@@ -30,7 +31,6 @@ import java.util.Objects;
 public class TraceRowKeyEncoderV2 implements RowKeyEncoder<TransactionId> {
 
     public static final int AGENT_ID_MAX_LEN = PinpointConstants.AGENT_ID_MAX_LEN;
-    public static final int DISTRIBUTE_HASH_SIZE = 1;
 
     private final RowKeyDistributor rowKeyDistributor;
 
@@ -39,12 +39,20 @@ public class TraceRowKeyEncoderV2 implements RowKeyEncoder<TransactionId> {
     }
 
     public byte[] encodeRowKey(TransactionId transactionId) {
+        return encodeRowKey(ByteSaltKey.SALT, transactionId);
+    }
+
+    @Override
+    public byte[] encodeRowKey(ByteSaltKey saltKey, TransactionId transactionId) {
+        Objects.requireNonNull(saltKey, "saltKey");
         Objects.requireNonNull(transactionId, "transactionId");
 
-        byte[] rowKey = RowKeyUtils.stringLongLongToBytes(DISTRIBUTE_HASH_SIZE, transactionId.getAgentId(), AGENT_ID_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
-        byte prefix = this.rowKeyDistributor.getByteHasher().getHashPrefix(rowKey, DISTRIBUTE_HASH_SIZE);
+        byte[] rowKey = RowKeyUtils.stringLongLongToBytes(saltKey.size(), transactionId.getAgentId(), AGENT_ID_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
+        if (saltKey == ByteSaltKey.NONE) {
+            return rowKey;
+        }
+        byte prefix = this.rowKeyDistributor.getByteHasher().getHashPrefix(rowKey, saltKey.size());
         rowKey[0] = prefix;
         return rowKey;
     }
-
 }

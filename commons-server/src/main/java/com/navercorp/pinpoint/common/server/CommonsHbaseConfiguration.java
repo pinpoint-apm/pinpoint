@@ -16,12 +16,16 @@
 
 package com.navercorp.pinpoint.common.server;
 
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetadataEncoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.metadata.uid.UidMetaDataRowKey;
+import com.navercorp.pinpoint.common.server.bo.serializer.metadata.uid.UidMetadataEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.config.SpanSerializeConfiguration;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -48,8 +52,20 @@ public class CommonsHbaseConfiguration {
     }
 
     @Bean
-    public RowKeyEncoder<MetaDataRowKey> metaDataRowKeyEncoder() {
-        return new MetadataEncoder();
+    public RowKeyEncoder<MetaDataRowKey> metaDataRowKeyEncoder(@Qualifier("metadataRowKeyDistributor")
+                                                                   RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+        return new MetadataEncoder(rowKeyDistributorByHashPrefix);
     }
 
+    @Bean
+    public RowKeyEncoder<MetaDataRowKey> sqlDataRowKeyEncoder(@Qualifier("metadataRowKeyDistributor2")
+                                                               RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+        return new MetadataEncoder(rowKeyDistributorByHashPrefix);
+    }
+
+    @Bean
+    public RowKeyEncoder<UidMetaDataRowKey> uidMetadataEncoder(@Qualifier("metadataRowKeyDistributor2")
+                                                     RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+        return new UidMetadataEncoder(rowKeyDistributorByHashPrefix);
+    }
 }

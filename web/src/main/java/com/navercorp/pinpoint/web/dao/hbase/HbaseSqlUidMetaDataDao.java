@@ -1,15 +1,29 @@
+/*
+ * Copyright 2025 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.bo.SqlUidMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.uid.DefaultUidMetaDataRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.uid.UidMetaDataRowKey;
-import com.navercorp.pinpoint.common.server.bo.serializer.metadata.uid.UidMetadataEncoder;
 import com.navercorp.pinpoint.web.dao.SqlUidMetaDataDao;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
@@ -28,18 +42,16 @@ public class HbaseSqlUidMetaDataDao implements SqlUidMetaDataDao {
 
     private final RowMapper<List<SqlUidMetaDataBo>> sqlUidMetaDataMapper;
 
-    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
-
-    private final RowKeyEncoder<UidMetaDataRowKey> rowKeyEncoder = new UidMetadataEncoder();
+    private final RowKeyEncoder<UidMetaDataRowKey> rowKeyEncoder;
 
     public HbaseSqlUidMetaDataDao(HbaseOperations hbaseOperations,
+                                  RowKeyEncoder<UidMetaDataRowKey> rowKeyEncoder,
                                   TableNameProvider tableNameProvider,
-                                  @Qualifier("sqlUidMetaDataMapper") RowMapper<List<SqlUidMetaDataBo>> sqlUidMetaDataMapper,
-                                  @Qualifier("metadataRowKeyDistributor2") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+                                  @Qualifier("sqlUidMetaDataMapper") RowMapper<List<SqlUidMetaDataBo>> sqlUidMetaDataMapper) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
+        this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.sqlUidMetaDataMapper = Objects.requireNonNull(sqlUidMetaDataMapper, "sqlUidMetaDataMapper");
-        this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
     }
 
     @Override
@@ -47,7 +59,7 @@ public class HbaseSqlUidMetaDataDao implements SqlUidMetaDataDao {
         Objects.requireNonNull(agentId, "agentId");
 
         UidMetaDataRowKey uidMetaDataRowKey = new DefaultUidMetaDataRowKey(agentId, time, sqlUid);
-        byte[] rowKey = getDistributedKey(rowKeyEncoder.encodeRowKey(uidMetaDataRowKey));
+        byte[] rowKey = rowKeyEncoder.encodeRowKey(uidMetaDataRowKey);
 
         Get get = new Get(rowKey);
         get.addFamily(DESCRIPTOR.getName());
@@ -56,7 +68,4 @@ public class HbaseSqlUidMetaDataDao implements SqlUidMetaDataDao {
         return hbaseOperations.get(sqlUidMetaDataTableName, get, sqlUidMetaDataMapper);
     }
 
-    private byte[] getDistributedKey(byte[] rowKey) {
-        return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
-    }
 }
