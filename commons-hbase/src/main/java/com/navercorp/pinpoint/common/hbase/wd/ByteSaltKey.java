@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.bo.serializer;
+package com.navercorp.pinpoint.common.hbase.wd;
 
-import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
+public enum ByteSaltKey {
+    NONE(0), SALT(1);
 
-/**
- * @author Woonduk Kang(emeroad)
- */
-public interface RowKeyEncoder<V> {
+    private final int size;
 
-    default byte[] encodeRowKey(V value) {
-        return encodeRowKey(ByteSaltKey.SALT, value);
+    ByteSaltKey(int size) {
+        this.size = size;
     }
 
-    byte[] encodeRowKey(ByteSaltKey saltKey, V value);
+    public int size() {
+        return size;
+    }
 
 }

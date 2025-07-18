@@ -1,11 +1,11 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
+import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.RangeOneByteSimpleHash;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
@@ -45,7 +46,7 @@ public class TraceRowKeyEncoderV2Test {
 
     private final RowKeyEncoder<TransactionId> traceRowKeyEncoder = new TraceRowKeyEncoderV2(distributorByHashPrefix);
 
-    private final RowKeyDecoder<TransactionId> traceRowKeyDecoder = new TraceRowKeyDecoderV2();
+    private final RowKeyDecoder<TransactionId> traceRowKeyDecoder = new TraceRowKeyDecoderV2(ByteSaltKey.SALT);
 
     @Test
     public void encodeRowKey() {

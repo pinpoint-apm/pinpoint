@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
@@ -50,18 +49,15 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
 
     private final TableNameProvider tableNameProvider;
 
-    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
-
     private final RowKeyEncoder<MetaDataRowKey> rowKeyEncoder;
 
     public HbaseApiMetaDataDao(HbaseOperations hbaseTemplate,
+                               @Qualifier("metaDataRowKeyEncoder")
                                RowKeyEncoder<MetaDataRowKey> rowKeyEncoder,
-                               TableNameProvider tableNameProvider,
-                               @Qualifier("metadataRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+                               TableNameProvider tableNameProvider) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
-        this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
     }
 
     @Override
@@ -71,7 +67,8 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
             logger.debug("insert:{}", apiMetaData);
         }
 
-        final byte[] rowKey = getDistributedKey(rowKeyEncoder.encodeRowKey(apiMetaData));
+        byte[] rowKey = rowKeyEncoder.encodeRowKey(apiMetaData);
+
         final Put put = new Put(rowKey, true);
         final Buffer buffer = new AutomaticBuffer(64);
         final String api = apiMetaData.getApiInfo();
@@ -87,7 +84,4 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
         hbaseTemplate.put(apiMetaDataTableName, put);
     }
 
-    private byte[] getDistributedKey(byte[] rowKey) {
-        return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
-    }
 }
