@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.DefaultMetaDataRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
-import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetadataEncoder;
 import com.navercorp.pinpoint.web.cache.CacheConfiguration;
 import com.navercorp.pinpoint.web.dao.ApiMetaDataDao;
 import org.apache.hadoop.hbase.TableName;
@@ -54,13 +53,15 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
 
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
-    private final RowKeyEncoder<MetaDataRowKey> rowKeyEncoder = new MetadataEncoder();
+    private final RowKeyEncoder<MetaDataRowKey> rowKeyEncoder;
 
     public HbaseApiMetaDataDao(HbaseOperations hbaseOperations,
+                               RowKeyEncoder<MetaDataRowKey> rowKeyEncoder,
                                TableNameProvider tableNameProvider,
                                @Qualifier("apiMetaDataMapper") RowMapper<List<ApiMetaDataBo>> apiMetaDataMapper,
                                @Qualifier("metadataRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
+        this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.apiMetaDataMapper = Objects.requireNonNull(apiMetaDataMapper, "apiMetaDataMapper");
         this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
