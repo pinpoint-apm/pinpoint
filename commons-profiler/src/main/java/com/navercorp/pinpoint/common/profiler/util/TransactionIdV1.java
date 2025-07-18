@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,8 @@ import java.util.Objects;
  * @author emeroad
  */
 public class TransactionIdV1 implements TransactionId {
+
+    private static final String TRANSACTION_ID_DELIMITER = "^";
 
     private final String agentId;
     private final long agentStartTime;
@@ -58,9 +60,19 @@ public class TransactionIdV1 implements TransactionId {
     @Override
     public String getId() {
         if (cache == null) {
-            cache = TransactionIdUtils.formatString(agentId, agentStartTime, transactionSequence);
+            cache = formatString(agentId, agentStartTime, transactionSequence);
         }
         return cache;
+    }
+
+    public static String formatString(String agentId, long agentStartTime, long transactionSequence) {
+        Objects.requireNonNull(agentId, "agentId");
+
+        return agentId +
+               TRANSACTION_ID_DELIMITER +
+               agentStartTime +
+               TRANSACTION_ID_DELIMITER +
+               transactionSequence;
     }
 
     @Override
