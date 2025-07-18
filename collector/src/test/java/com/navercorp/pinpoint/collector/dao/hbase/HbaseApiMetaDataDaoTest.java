@@ -45,10 +45,10 @@ public class HbaseApiMetaDataDaoTest {
         HbaseOperations mockedHbaseTemplate = mock(HbaseOperations.class);
         TableNameProvider mockedProvider = mock(TableNameProvider.class);
 
-        RowKeyEncoder<MetaDataRowKey> rowKeyEncoder = new MetadataEncoder();
         DistributorConfiguration givenConfiguration = new DistributorConfiguration();
         RowKeyDistributorByHashPrefix givenRowKeyDistributorByHashPrefix = givenConfiguration.metadataRowKeyDistributor();
-        HbaseApiMetaDataDao dut = new HbaseApiMetaDataDao(mockedHbaseTemplate, rowKeyEncoder, mockedProvider, givenRowKeyDistributorByHashPrefix);
+        RowKeyEncoder<MetaDataRowKey> rowKeyEncoder = new MetadataEncoder(givenRowKeyDistributorByHashPrefix);
+        HbaseApiMetaDataDao dut = new HbaseApiMetaDataDao(mockedHbaseTemplate, rowKeyEncoder, mockedProvider);
 
         doAnswer((invocation) -> {
             Put actual = invocation.getArgument(1);

@@ -1,6 +1,24 @@
+/*
+ * Copyright 2025 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.common.server.bo.serializer.metadata;
 
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
+import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
@@ -13,29 +31,46 @@ import static com.navercorp.pinpoint.common.util.BytesUtils.LONG_BYTE_LENGTH;
 
 public class MetadataEncoder implements RowKeyEncoder<MetaDataRowKey> {
 
+    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+
+    public MetadataEncoder(RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+        this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
+    }
+
     @Override
     public byte[] encodeRowKey(MetaDataRowKey metadataRowKey) {
         Objects.requireNonNull(metadataRowKey, "metadataRowKey");
 
-        return readMetaDataRowKey(metadataRowKey.getAgentId(),
-                metadataRowKey.getAgentStartTime(), metadataRowKey.getId());
+        return encodeRowKey(ByteSaltKey.SALT, metadataRowKey);
     }
 
-    public static byte[] readMetaDataRowKey(String agentId, long agentStartTime, int keyCode) {
+    @Override
+    public byte[] encodeRowKey(ByteSaltKey saltKeySize, MetaDataRowKey metadataRowKey) {
+
+        byte[] rowKey = readMetaDataRowKey(saltKeySize.size(), metadataRowKey.getAgentId(),
+                metadataRowKey.getAgentStartTime(), metadataRowKey.getId());
+        if (ByteSaltKey.NONE == saltKeySize) {
+            return rowKey;
+        }
+        byte hashPrefix = rowKeyDistributorByHashPrefix.getByteHasher().getHashPrefix(rowKey, saltKeySize.size());
+        rowKey[0] = hashPrefix;
+        return rowKey;
+    }
+
+    public static byte[] readMetaDataRowKey(int saltKeySize, String agentId, long agentStartTime, int keyCode) {
         Objects.requireNonNull(agentId, "agentId");
 
         final byte[] agentBytes = BytesUtils.toBytes(agentId);
         if (agentBytes.length > AGENT_ID_MAX_LEN) {
             throw new IndexOutOfBoundsException("agent.length too big. agent:" + agentId + " length:" + agentId.length());
         }
-
-        final byte[] buffer = new byte[AGENT_ID_MAX_LEN + LONG_BYTE_LENGTH + INT_BYTE_LENGTH];
-        BytesUtils.writeBytes(buffer, 0, agentBytes);
+        int offset = saltKeySize + AGENT_ID_MAX_LEN;
+        final byte[] buffer = new byte[offset + LONG_BYTE_LENGTH + INT_BYTE_LENGTH];
+        BytesUtils.writeBytes(buffer, saltKeySize, agentBytes);
 
         long reverseCurrentTimeMillis = TimeUtils.reverseTimeMillis(agentStartTime);
-        ByteArrayUtils.writeLong(reverseCurrentTimeMillis, buffer, AGENT_ID_MAX_LEN);
-
-        ByteArrayUtils.writeInt(keyCode, buffer, AGENT_ID_MAX_LEN + LONG_BYTE_LENGTH);
+        offset = ByteArrayUtils.writeLong(reverseCurrentTimeMillis, buffer, offset);
+        ByteArrayUtils.writeInt(keyCode, buffer, offset);
         return buffer;
     }
 

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.dao.hbase.encode;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
+import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.OneByteSimpleHash;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
@@ -54,7 +55,7 @@ class ApplicationIndexRowKeyEncoderTest {
     void encodeRowKey() {
         int elapsedTime = 1000 * 10;
 
-        byte[] rowKey = encoder.encodeRowKey("agent", elapsedTime, 2000L);
+        byte[] rowKey = encoder.encodeRowKey(ByteSaltKey.SALT, "agent", elapsedTime, 2000L);
         rowKey = Arrays.copyOfRange(rowKey, 1, rowKey.length);
 
 

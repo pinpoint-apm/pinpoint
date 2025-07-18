@@ -47,7 +47,8 @@ public class ApiMetaDataMapperTest {
                 .build();
 
         RowKeyDistributorByHashPrefix givenRowKeyDistributorByHashPrefix = new DistributorConfiguration().metadataRowKeyDistributor();
-        final byte[] rowKey = givenRowKeyDistributorByHashPrefix.getDistributedKey(new MetadataEncoder().encodeRowKey(expected));
+        MetadataEncoder metadataEncoder = new MetadataEncoder(givenRowKeyDistributorByHashPrefix);
+        final byte[] rowKey = metadataEncoder.encodeRowKey(expected);
         final Buffer buffer = new AutomaticBuffer(64);
         final String api = expected.getApiInfo();
         buffer.putPrefixedString(api);

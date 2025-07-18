@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.DefaultMetaDataRowKey;
@@ -45,22 +44,20 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
 
     private final RowMapper<List<StringMetaDataBo>> stringMetaDataMapper;
 
-    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
-
     private final HbaseTables.StringMetadataStr DESCRIPTOR = HbaseTables.STRING_METADATA_STR;
 
     private final RowKeyEncoder<MetaDataRowKey> rowKeyEncoder;
 
     public HbaseStringMetaDataDao(HbaseOperations hbaseOperations,
+                                  @Qualifier("metaDataRowKeyEncoder")
                                   RowKeyEncoder<MetaDataRowKey> rowKeyEncoder,
                                   TableNameProvider tableNameProvider,
-                                  @Qualifier("stringMetaDataMapper") RowMapper<List<StringMetaDataBo>> stringMetaDataMapper,
-                                  @Qualifier("metadataRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+                                  @Qualifier("stringMetaDataMapper")
+                                  RowMapper<List<StringMetaDataBo>> stringMetaDataMapper) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.stringMetaDataMapper = Objects.requireNonNull(stringMetaDataMapper, "stringMetaDataMapper");
-        this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
     }
 
     @Override
@@ -68,17 +65,13 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
         Objects.requireNonNull(agentId, "agentId");
 
         MetaDataRowKey metaDataRowKey = new DefaultMetaDataRowKey(agentId, time, stringId);
-        byte[] rowKey = getDistributedKey(rowKeyEncoder.encodeRowKey(metaDataRowKey));
+        byte[] rowKey = rowKeyEncoder.encodeRowKey(metaDataRowKey);
 
         Get get = new Get(rowKey);
         get.addFamily(DESCRIPTOR.getName());
 
         TableName stringMetaDataTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         return hbaseOperations.get(stringMetaDataTableName, get, stringMetaDataMapper);
-    }
-
-    private byte[] getDistributedKey(byte[] rowKey) {
-        return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
     }
 
 }
