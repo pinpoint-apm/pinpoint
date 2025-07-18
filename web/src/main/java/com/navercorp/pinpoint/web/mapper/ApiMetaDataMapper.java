@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
-import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetadataDecoder;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
@@ -52,9 +51,12 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
 
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
-    private final RowKeyDecoder<MetaDataRowKey> decoder = new MetadataDecoder();
+    private final RowKeyDecoder<MetaDataRowKey> decoder;
 
-    public ApiMetaDataMapper(@Qualifier("metadataRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+    public ApiMetaDataMapper(RowKeyDecoder<MetaDataRowKey> decoder,
+                             @Qualifier("metadataRowKeyDistributor")
+                             RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+        this.decoder = Objects.requireNonNull(decoder, "decoder");
         this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
     }
 

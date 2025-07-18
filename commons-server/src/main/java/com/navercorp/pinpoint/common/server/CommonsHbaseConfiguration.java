@@ -16,8 +16,11 @@
 
 package com.navercorp.pinpoint.common.server;
 
+import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
+import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetadataEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.config.SpanSerializeConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -42,6 +45,11 @@ public class CommonsHbaseConfiguration {
     @Bean
     public ApplicationNameRowKeyEncoder applicationNameRowKeyEncoder() {
         return new ApplicationNameRowKeyEncoder();
+    }
+
+    @Bean
+    public RowKeyEncoder<MetaDataRowKey> metaDataRowKeyEncoder() {
+        return new MetadataEncoder();
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.DefaultMetaDataRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
-import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetadataEncoder;
 import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
@@ -50,13 +49,15 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
 
     private final HbaseTables.StringMetadataStr DESCRIPTOR = HbaseTables.STRING_METADATA_STR;
 
-    private final RowKeyEncoder<MetaDataRowKey> rowKeyEncoder = new MetadataEncoder();
+    private final RowKeyEncoder<MetaDataRowKey> rowKeyEncoder;
 
     public HbaseStringMetaDataDao(HbaseOperations hbaseOperations,
+                                  RowKeyEncoder<MetaDataRowKey> rowKeyEncoder,
                                   TableNameProvider tableNameProvider,
                                   @Qualifier("stringMetaDataMapper") RowMapper<List<StringMetaDataBo>> stringMetaDataMapper,
                                   @Qualifier("metadataRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
+        this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.stringMetaDataMapper = Objects.requireNonNull(stringMetaDataMapper, "stringMetaDataMapper");
         this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
