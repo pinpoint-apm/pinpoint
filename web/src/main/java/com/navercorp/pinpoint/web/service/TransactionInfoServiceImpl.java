@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.calltree.span.Align;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeNode;
@@ -63,15 +65,18 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     private final MetaDataFilter metaDataFilter;
 
     private final RecorderFactoryProvider recordFactoryProvider;
+    private final ServiceTypeRegistryService registry;
 
     public TransactionInfoServiceImpl(TraceDao traceDao,
                                       AnnotationKeyMatcherService annotationKeyMatcherService,
                                       Optional<MetaDataFilter> metaDataFilter,
-                                      RecorderFactoryProvider recordFactoryProvider) {
+                                      RecorderFactoryProvider recordFactoryProvider,
+                                      ServiceTypeRegistryService registry) {
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
         this.annotationKeyMatcherService = Objects.requireNonNull(annotationKeyMatcherService, "annotationKeyMatcherService");
         this.metaDataFilter = Objects.requireNonNull(metaDataFilter, "metaDataFilter").orElse(null);
         this.recordFactoryProvider = Objects.requireNonNull(recordFactoryProvider, "recordFactoryProvider");
+        this.registry = Objects.requireNonNull(registry, "registry");
     }
 
     // Temporarily disabled Because We need to solve authentication problem inter system.
@@ -140,7 +145,10 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             recordSet.setAgentId(viewPointAlign.getAgentId());
             recordSet.setAgentName(viewPointAlign.getAgentName());
             recordSet.setApplicationName(viewPointAlign.getApplicationName());
-
+            final ServiceType servicetype = registry.findServiceType(viewPointAlign.getApplicationServiceType());
+            if (servicetype != null) {
+                recordSet.setServiceType(servicetype.toString());
+            }
             final String uri = getRpcArgument(viewPointAlign);
             recordSet.setUri(uri);
         }

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.vo.callstacks;
 
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.List;
 
@@ -37,6 +38,7 @@ public class RecordSet {
     private String agentName;
 
     private String applicationName;
+    private String serviceType = ServiceType.UNKNOWN.toString();
     
     private boolean loggingTransactionInfo;
     private int focusCallStackId = -1;
@@ -147,5 +149,13 @@ public class RecordSet {
 
     public void setFocusCallStackId(int focusCallStackId) {
         this.focusCallStackId = focusCallStackId;
+    }
+
+    public String getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
     }
 }

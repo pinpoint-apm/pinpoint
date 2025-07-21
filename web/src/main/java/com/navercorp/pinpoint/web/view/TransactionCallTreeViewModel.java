@@ -78,6 +78,11 @@ public class TransactionCallTreeViewModel {
         return recordSet.getApplicationName();
     }
 
+    @JsonProperty("serviceType")
+    public String getServiceType() {
+        return recordSet.getServiceType();
+    }
+
     @JsonProperty("callStackStart")
     public long getCallStackStart() {
         return recordSet.getStartTime();
