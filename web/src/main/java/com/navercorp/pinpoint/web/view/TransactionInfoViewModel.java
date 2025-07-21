@@ -89,6 +89,11 @@ public class TransactionInfoViewModel {
         return recordSet.getApplicationName();
     }
 
+    @JsonProperty("servieType")
+    public String getServiceType() {
+        return recordSet.getServiceType();
+    }
+
     @JsonProperty("callStackStart")
     public long getCallStackStart() {
         return recordSet.getStartTime();
