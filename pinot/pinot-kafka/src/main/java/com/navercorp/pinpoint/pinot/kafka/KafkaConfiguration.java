@@ -33,7 +33,7 @@ public class KafkaConfiguration {
         }
         config.put(ProducerConfig.ACKS_CONFIG, properties.getAcks());
         config.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, properties.getCompressionType());
-
+        config.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, properties.getMaxBlockMs());
         return config;
     }
 
@@ -67,6 +67,7 @@ public class KafkaConfiguration {
         bindProperties(env, "pinpoint.metric.kafka.acks", properties::setAcks);
         bindProperties(env, "pinpoint.metric.kafka.compressionType", properties::setCompressionType);
         bindProperties(env, "pinpoint.metric.kafka.partitionerClass", properties::setPartitionerClass);
+        bindLongProperties(env, "pinpoint.metric.kafka.max.block.ms", properties::setMaxBlockMs);
 
         return properties;
     }
@@ -78,4 +79,10 @@ public class KafkaConfiguration {
         }
     }
 
+    private void bindLongProperties(Environment env, String key, Consumer<Long> consumer) {
+        Long value = env.getProperty(key, Long.class);
+        if (value != null) {
+            consumer.accept(value);
+        }
+    }
 }

@@ -12,6 +12,7 @@ public class KafkaProperties {
     private String partitionerClass;
     private String acks = "1";
     private String compressionType = "zstd";
+    private Long maxBlockMs = 60 * 1000L;
 
     public String getBootstrapServers() {
         return bootstrapServers;
@@ -65,16 +66,25 @@ public class KafkaProperties {
         this.compressionType = compressionType;
     }
 
+    public Long getMaxBlockMs() {
+        return maxBlockMs;
+    }
+
+    public void setMaxBlockMs(Long maxBlockMs) {
+        this.maxBlockMs = maxBlockMs;
+    }
 
     @Override
     public String toString() {
         return "KafkaProperties{" +
                 "bootstrapServers='" + bootstrapServers + '\'' +
                 ", keySerializer='" + keySerializer + '\'' +
+                ", byteArrayKeySerializer='" + byteArrayKeySerializer + '\'' +
                 ", valueSerializer='" + valueSerializer + '\'' +
                 ", partitionerClass='" + partitionerClass + '\'' +
                 ", acks='" + acks + '\'' +
                 ", compressionType='" + compressionType + '\'' +
+                ", maxBlockMs=" + maxBlockMs +
                 '}';
     }
 }
