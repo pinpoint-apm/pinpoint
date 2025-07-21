@@ -5,18 +5,9 @@ import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { FaChevronRight } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
-import {
-  Button,
-  HelpPopover,
-  ServerMapCore,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '../..';
+import { Button, HelpPopover, Tabs, TabsContent, TabsList, TabsTrigger } from '../..';
 import { CallTree } from '..';
 import {
-  getBaseNodeId,
   getTransactionDetailPath,
   getTransactionDetailQueryString,
 } from '@pinpoint-fe/ui/src/utils';
@@ -27,6 +18,7 @@ import { cn } from '../../../lib';
 import { Popover, PopoverContent, PopoverTrigger } from '../../ui';
 import { Timeline } from '../timeline/Timeline';
 import { ServerIcon } from '../../Application/ServerIcon';
+import { TraceServerMap } from '../traceServerMap/traceServerMap';
 
 export interface TransactionInfoFetcherProps {
   disableHeader?: boolean;
@@ -154,20 +146,7 @@ export const TransactionInfoFetcher = ({ disableHeader }: TransactionInfoFetcher
         if (tab.id === 'callTree') {
           Content = <CallTree data={tableData} metaData={data} mapData={mapData || []} />;
         } else if (tab.id === 'serverMap' && data) {
-          Content = (
-            <ServerMapCore
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-              data={data}
-              baseNodeId={getBaseNodeId({
-                application: application,
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                applicationMapData: data.applicationMapData,
-              })}
-              disableMenu
-            />
-          );
+          Content = <TraceServerMap />;
         } else if (tab.id === 'flameGraph') {
           Content = <Timeline transactionInfo={data} />;
         }
