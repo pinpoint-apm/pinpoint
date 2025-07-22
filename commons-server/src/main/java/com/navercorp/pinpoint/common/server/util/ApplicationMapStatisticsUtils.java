@@ -1,11 +1,11 @@
 /*
- * Copyright 2021 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
+import com.navercorp.pinpoint.common.hbase.wd.SaltKey;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -141,12 +142,13 @@ public class ApplicationMapStatisticsUtils {
      * @param timestamp
      * @return
      */
-    public static byte[] makeRowKey(String applicationName, short applicationType, long timestamp) {
+    public static byte[] makeRowKey(SaltKey saltKey, String applicationName, short applicationType, long timestamp) {
         Objects.requireNonNull(applicationName, "applicationName");
 
         final byte[] applicationNameBytes= BytesUtils.toBytes(applicationName);
 
-        final Buffer buffer = new AutomaticBuffer(2 + applicationNameBytes.length + 2 + 8);
+        final Buffer buffer = new AutomaticBuffer(saltKey.size() + BytesUtils.SHORT_BYTE_LENGTH + applicationNameBytes.length + BytesUtils.SHORT_BYTE_LENGTH + BytesUtils.LONG_BYTE_LENGTH);
+        buffer.setOffset(saltKey.size());
 //        buffer.put2PrefixedString(applicationName);
         buffer.putShort((short)applicationNameBytes.length);
         buffer.putBytes(applicationNameBytes);

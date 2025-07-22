@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,16 +23,13 @@ import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkIncremente
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkIncrementerTestClazz.TestVerifier;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.config.BulkIncrementerFactory;
 import com.navercorp.pinpoint.collector.monitor.dao.hbase.BulkOperationReporter;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.jupiter.api.AutoClose;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -43,8 +40,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  * @author HyunGil Jeong
@@ -60,14 +55,6 @@ public class DefaultBulkUpdaterTest {
     private final BulkOperationReporter reporter = new BulkOperationReporter();
     private final BulkIncrementer bulkIncrementer = bulkIncrementerFactory.wrap(
             new DefaultBulkIncrementer(new RowKeyMerge(CF)), Integer.MAX_VALUE, reporter);
-
-    @Mock
-    private RowKeyDistributorByHashPrefix rowKeyDistributor;
-
-    @BeforeEach
-    public void setUp() {
-        when(rowKeyDistributor.getDistributedKey(any(byte[].class))).then(invocation -> invocation.getArgument(0));
-    }
 
     @Test
     public void singleTable() {
@@ -87,7 +74,7 @@ public class DefaultBulkUpdaterTest {
         }
 
         // Then
-        Map<TableName, List<Increment>> incrementMap = bulkIncrementer.getIncrements(rowKeyDistributor);
+        Map<TableName, List<Increment>> incrementMap = bulkIncrementer.getIncrements(null);
         TestVerifier verifier = new TestVerifier(incrementMap);
         verifier.verify(testDataSetA_0_0);
         verifier.verify(testDataSetA_0_1);
@@ -124,7 +111,7 @@ public class DefaultBulkUpdaterTest {
         }
 
         // Then
-        Map<TableName, List<Increment>> incrementMap = bulkIncrementer.getIncrements(rowKeyDistributor);
+        Map<TableName, List<Increment>> incrementMap = bulkIncrementer.getIncrements(null);
         TestVerifier verifier = new TestVerifier(incrementMap);
         verifier.verify(testDataSetA_0_0);
         verifier.verify(testDataSetA_0_1);
@@ -153,7 +140,7 @@ public class DefaultBulkUpdaterTest {
         List<List<BulkIncrementerTestClazz.TestData>> testDataPartitions = ListUtils.partition(testDatas, testDatas.size() / (numIncrementers - 1));
         final CountDownLatch completeLatch = new CountDownLatch(testDataPartitions.size());
 
-        FutureTask<Map<TableName, List<Increment>>> flushTask = new FutureTask<>(new Flusher(bulkIncrementer, rowKeyDistributor, completeLatch));
+        FutureTask<Map<TableName, List<Increment>>> flushTask = new FutureTask<>(new Flusher(bulkIncrementer, null, completeLatch));
         Thread flusher = new Thread(flushTask, "Flusher");
         flusher.start();
 
@@ -194,7 +181,7 @@ public class DefaultBulkUpdaterTest {
         List<List<TestData>> testDataPartitions = ListUtils.partition(testDatas, testDatas.size() / (numIncrementers - 1));
         final CountDownLatch incrementorLatch = new CountDownLatch(testDataPartitions.size());
 
-        FutureTask<Map<TableName, List<Increment>>> flushTask = new FutureTask<>(new Flusher(bulkIncrementer, rowKeyDistributor, incrementorLatch));
+        FutureTask<Map<TableName, List<Increment>>> flushTask = new FutureTask<>(new Flusher(bulkIncrementer, null, incrementorLatch));
         Thread flusher = new Thread(flushTask, "Flusher");
         flusher.start();
 

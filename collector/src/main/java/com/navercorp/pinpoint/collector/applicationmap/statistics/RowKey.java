@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
+import com.navercorp.pinpoint.common.hbase.wd.SaltKey;
+
 /**
  * @author emeroad
  */
 public interface RowKey {
-    byte[] getRowKey();
+    byte[] getRowKey(SaltKey saltKey);
 }

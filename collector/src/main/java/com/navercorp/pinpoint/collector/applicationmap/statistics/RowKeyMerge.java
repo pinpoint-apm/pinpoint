@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
@@ -86,9 +87,11 @@ public class RowKeyMerge {
 
     private byte[] getRowKey(RowKey rowKey, RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         if (rowKeyDistributorByHashPrefix == null) {
-            return rowKey.getRowKey();
+            return rowKey.getRowKey(ByteSaltKey.NONE);
         } else {
-            return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey.getRowKey());
+            byte[] bytes = rowKey.getRowKey(ByteSaltKey.SALT);
+            bytes[0] = rowKeyDistributorByHashPrefix.getByteHasher().getHashPrefix(bytes, ByteSaltKey.SALT.size());
+            return bytes;
         }
     }
 

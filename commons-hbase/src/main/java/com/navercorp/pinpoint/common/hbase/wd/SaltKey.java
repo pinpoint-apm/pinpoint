@@ -16,18 +16,6 @@
 
 package com.navercorp.pinpoint.common.hbase.wd;
 
-public enum ByteSaltKey implements SaltKey {
-    NONE(0), SALT(1);
-
-    private final int size;
-
-    ByteSaltKey(int size) {
-        this.size = size;
-    }
-
-    @Override
-    public int size() {
-        return size;
-    }
-
+public interface SaltKey {
+    int size();
 }

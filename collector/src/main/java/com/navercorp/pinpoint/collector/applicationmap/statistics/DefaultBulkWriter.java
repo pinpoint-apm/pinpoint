@@ -1,9 +1,26 @@
+/*
+ * Copyright 2025 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
 import com.navercorp.pinpoint.common.hbase.CheckAndMax;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTemplate;
+import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.hadoop.hbase.TableName;
@@ -21,6 +38,8 @@ import java.util.Objects;
  * @author emeroad
  */
 public class DefaultBulkWriter implements BulkWriter {
+
+    private static final ByteSaltKey SALT_KEY = ByteSaltKey.SALT;
 
     private final Logger logger;
 
@@ -108,7 +127,7 @@ public class DefaultBulkWriter implements BulkWriter {
         for (Map.Entry<RowInfo, Long> entry : maxUpdateMap.entrySet()) {
             final RowInfo rowInfo = entry.getKey();
             final Long val = entry.getValue();
-            final byte[] rowKey = getDistributedKey(rowInfo.getRowKey().getRowKey());
+            final byte[] rowKey = getDistributedKey(rowInfo.getRowKey());
             byte[] columnName = rowInfo.getColumnName().getColumnName();
             CheckAndMax checkAndMax = new CheckAndMax(rowKey, getColumnFamilyName(), columnName, val);
 
@@ -130,7 +149,9 @@ public class DefaultBulkWriter implements BulkWriter {
         return tableDescriptor.getName();
     }
 
-    private byte[] getDistributedKey(byte[] rowKey) {
-        return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
+    private byte[] getDistributedKey(RowKey rowKey) {
+        byte[] bytes = rowKey.getRowKey(SALT_KEY);
+        bytes[0] = rowKeyDistributorByHashPrefix.getByteHasher().getHashPrefix(bytes, SALT_KEY.size());
+        return bytes;
     }
 }
