@@ -18,16 +18,20 @@ package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
 import com.navercorp.pinpoint.common.hbase.CheckAndMax;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTemplate;
 import com.navercorp.pinpoint.common.hbase.util.Increments;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.hbase.wd.SaltKey;
+import io.lettuce.core.internal.Futures;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
+import org.apache.hadoop.hbase.client.Result;
 
+import java.time.Duration;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author emeroad
@@ -36,7 +40,9 @@ public class SyncWriter implements BulkWriter {
 
     private static final SaltKey SALT_KEY = ByteSaltKey.SALT;
 
-    private final HbaseOperations hbaseTemplate;
+    private static final Duration awaitTimeout = Duration.ofMillis(100);
+
+    private final HbaseAsyncTemplate hbaseTemplate;
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     private final HbaseColumnFamily tableDescriptor;
@@ -44,7 +50,7 @@ public class SyncWriter implements BulkWriter {
 
 
     public SyncWriter(String loggerName,
-                             HbaseOperations hbaseTemplate,
+                            HbaseAsyncTemplate hbaseTemplate,
                              RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
                              HbaseColumnFamily tableDescriptor,
                              TableNameProvider tableNameProvider) {
@@ -73,7 +79,8 @@ public class SyncWriter implements BulkWriter {
         Increment increment = Increments.increment(rowKeyBytes, getColumnFamilyName(), columnName.getColumnName(), 1);
         increment.setReturnResults(false);
 
-        this.hbaseTemplate.increment(tableName, increment);
+        CompletableFuture<Result> future = this.hbaseTemplate.increment(tableName, increment);
+        Futures.await(awaitTimeout, future);
     }
 
     @Override
