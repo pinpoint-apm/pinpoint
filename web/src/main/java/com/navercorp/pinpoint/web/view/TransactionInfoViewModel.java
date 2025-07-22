@@ -89,7 +89,7 @@ public class TransactionInfoViewModel {
         return recordSet.getApplicationName();
     }
 
-    @JsonProperty("servieType")
+    @JsonProperty("serviceType")
     public String getServiceType() {
         return recordSet.getServiceType();
     }
