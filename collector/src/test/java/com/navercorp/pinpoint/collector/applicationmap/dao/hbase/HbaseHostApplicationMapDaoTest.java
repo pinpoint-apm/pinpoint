@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
+import com.navercorp.pinpoint.common.hbase.wd.SaltKey;
 import com.navercorp.pinpoint.common.timeseries.window.DefaultTimeSlot;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -40,7 +41,7 @@ public class HbaseHostApplicationMapDaoTest {
         String parentApp = "parentApp";
         long statisticsRowSlot = timeSlot.getTimeSlot(System.currentTimeMillis());
         ServiceType standAlone = ServiceType.STAND_ALONE;
-        ByteSaltKey saltKey = ByteSaltKey.SALT;
+        SaltKey saltKey = ByteSaltKey.SALT;
 
         byte[] parentApps = HbaseHostApplicationMapDao.createRowKey0(saltKey, parentApp, standAlone.getCode(), statisticsRowSlot, null);
         logger.debug("rowKey size:{}", parentApps.length);

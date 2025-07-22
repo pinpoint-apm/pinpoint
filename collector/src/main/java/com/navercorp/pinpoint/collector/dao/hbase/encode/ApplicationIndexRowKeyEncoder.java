@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.dao.hbase.encode;
 
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
+import com.navercorp.pinpoint.common.hbase.wd.SaltKey;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
@@ -38,7 +39,7 @@ public class ApplicationIndexRowKeyEncoder implements RowKeyEncoder<SpanBo> {
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
     }
 
-    public byte[] encodeRowKey(ByteSaltKey saltKey, String applicationName, int elapsedTime, long acceptedTime) {
+    public byte[] encodeRowKey(SaltKey saltKey, String applicationName, int elapsedTime, long acceptedTime) {
         Objects.requireNonNull(saltKey, "saltKey");
         // distribute key evenly
         byte fuzzyKey = fuzzyRowKeyFactory.getKey(elapsedTime);
@@ -58,7 +59,7 @@ public class ApplicationIndexRowKeyEncoder implements RowKeyEncoder<SpanBo> {
     }
 
     @Override
-    public byte[] encodeRowKey(ByteSaltKey saltKey, SpanBo span) {
+    public byte[] encodeRowKey(SaltKey saltKey, SpanBo span) {
         return encodeRowKey(saltKey, span.getApplicationName(), span.getElapsed(), span.getCollectorAcceptTime());
     }
 }

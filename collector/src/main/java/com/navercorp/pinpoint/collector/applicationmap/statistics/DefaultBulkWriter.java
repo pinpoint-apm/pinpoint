@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTemplate;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
+import com.navercorp.pinpoint.common.hbase.wd.SaltKey;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
@@ -39,7 +40,7 @@ import java.util.Objects;
  */
 public class DefaultBulkWriter implements BulkWriter {
 
-    private static final ByteSaltKey SALT_KEY = ByteSaltKey.SALT;
+    private static final SaltKey SALT_KEY = ByteSaltKey.SALT;
 
     private final Logger logger;
 

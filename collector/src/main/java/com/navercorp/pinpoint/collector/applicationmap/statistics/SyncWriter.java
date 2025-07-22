@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.util.Increments;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
+import com.navercorp.pinpoint.common.hbase.wd.SaltKey;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
 
@@ -33,7 +34,7 @@ import java.util.Objects;
  */
 public class SyncWriter implements BulkWriter {
 
-    private static final ByteSaltKey SALT_KEY = ByteSaltKey.SALT;
+    private static final SaltKey SALT_KEY = ByteSaltKey.SALT;
 
     private final HbaseOperations hbaseTemplate;
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;

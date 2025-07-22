@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.common.hbase.util.Puts;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
+import com.navercorp.pinpoint.common.hbase.wd.SaltKey;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
@@ -53,7 +54,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
     private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.HOST_APPLICATION_MAP_VER2_MAP;
-    private static final ByteSaltKey SALT_KEY = ByteSaltKey.SALT;
+    private static final SaltKey SALT_KEY = ByteSaltKey.SALT;
 
     private final HbaseOperations hbaseTemplate;
 
@@ -134,7 +135,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
 
     @VisibleForTesting
-    static byte[] createRowKey0(ByteSaltKey saltKey, String parentApplicationName, short parentServiceType, long statisticsRowSlot, String parentAgentId) {
+    static byte[] createRowKey0(SaltKey saltKey, String parentApplicationName, short parentServiceType, long statisticsRowSlot, String parentAgentId) {
 
         // even if  a agentId be added for additional specifications, it may be safe to scan rows.
         // But is it needed to add parentAgentServiceType?

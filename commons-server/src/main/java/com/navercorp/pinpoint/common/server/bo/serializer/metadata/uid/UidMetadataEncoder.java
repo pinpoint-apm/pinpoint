@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
+import com.navercorp.pinpoint.common.hbase.wd.SaltKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
@@ -45,7 +46,7 @@ public class UidMetadataEncoder implements RowKeyEncoder<UidMetaDataRowKey> {
     }
 
     @Override
-    public byte[] encodeRowKey(ByteSaltKey saltKeySize, UidMetaDataRowKey metaDataRowKey) {
+    public byte[] encodeRowKey(SaltKey saltKeySize, UidMetaDataRowKey metaDataRowKey) {
         Objects.requireNonNull(saltKeySize, "saltKeySize");
 
         byte[] rowKey = encodeMetaDataRowKey(saltKeySize.size(), metaDataRowKey.getAgentId(),

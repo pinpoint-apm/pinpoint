@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.server.bo.serializer.metadata;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
+import com.navercorp.pinpoint.common.hbase.wd.SaltKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
@@ -45,7 +46,7 @@ public class MetadataEncoder implements RowKeyEncoder<MetaDataRowKey> {
     }
 
     @Override
-    public byte[] encodeRowKey(ByteSaltKey saltKeySize, MetaDataRowKey metadataRowKey) {
+    public byte[] encodeRowKey(SaltKey saltKeySize, MetaDataRowKey metadataRowKey) {
 
         byte[] rowKey = readMetaDataRowKey(saltKeySize.size(), metadataRowKey.getAgentId(),
                 metadataRowKey.getAgentStartTime(), metadataRowKey.getId());
