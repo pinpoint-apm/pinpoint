@@ -8,8 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 public class EmptyServiceDao implements ServiceDao {
+
     @Override
-    public int insertService(String name, Map<String, String> configuration) {
+    public int insertService(int uid, String name, Map<String, String> configuration) {
         throw new UnsupportedOperationException("insertService is not supported in EmptyServiceDao");
     }
 
