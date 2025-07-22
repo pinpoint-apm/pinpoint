@@ -1,11 +1,11 @@
 /*
- * Copyright 2021 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
+import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
+import com.navercorp.pinpoint.common.hbase.wd.SaltKey;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
@@ -117,7 +119,7 @@ public class BulkIncrementerTestClazz {
             if (rows == null) {
                 Assertions.fail("Expected rows not found for " + testDataSet);
             }
-            Map<ByteBuffer, Long> keyValues = rows.get(ByteBuffer.wrap(expectedRowKey.getRowKey()));
+            Map<ByteBuffer, Long> keyValues = rows.get(getRowkey(expectedRowKey));
             if (keyValues == null) {
                 Assertions.fail("Expected row not found for " + testDataSet);
             }
@@ -126,6 +128,12 @@ public class BulkIncrementerTestClazz {
                 Assertions.fail("Expected column not found for " + testDataSet);
             }
             Assertions.assertEquals(expectedCount, (long) actualCount, "Expected counts do not match for " + testDataSet);
+        }
+
+        private ByteBuffer getRowkey(RowKey expectedRowKey) {
+            byte[] bytes = expectedRowKey.getRowKey(ByteSaltKey.NONE);
+
+            return ByteBuffer.wrap(bytes);
         }
     }
 
@@ -223,8 +231,10 @@ public class BulkIncrementerTestClazz {
         }
 
         @Override
-        public byte[] getRowKey() {
-            return BytesUtils.intToVar32(id);
+        public byte[] getRowKey(SaltKey saltKey) {
+            byte[] saltKeyBytes = new byte[saltKey.size()];
+            byte[] bytes = BytesUtils.intToVar32(id);
+            return Bytes.add(saltKeyBytes, bytes);
         }
 
         @Override
