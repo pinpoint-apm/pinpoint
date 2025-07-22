@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
+import com.navercorp.pinpoint.common.hbase.wd.SaltKey;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
@@ -43,7 +44,7 @@ public class TraceRowKeyEncoderV2 implements RowKeyEncoder<TransactionId> {
     }
 
     @Override
-    public byte[] encodeRowKey(ByteSaltKey saltKey, TransactionId transactionId) {
+    public byte[] encodeRowKey(SaltKey saltKey, TransactionId transactionId) {
         Objects.requireNonNull(saltKey, "saltKey");
         Objects.requireNonNull(transactionId, "transactionId");
 
