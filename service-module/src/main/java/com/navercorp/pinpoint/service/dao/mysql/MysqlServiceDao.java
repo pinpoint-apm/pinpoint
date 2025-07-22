@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.service.dao.mysql;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.service.dao.ServiceDao;
 import com.navercorp.pinpoint.service.vo.ServiceEntry;
 import com.navercorp.pinpoint.service.vo.ServiceInfo;
@@ -30,8 +31,9 @@ public class MysqlServiceDao implements ServiceDao {
     }
 
     @Override
-    public int insertService(String name, Map<String, String> configuration) {
+    public int insertService(int uid, String name, Map<String, String> configuration) {
         ServiceParam serviceParam = new ServiceParam();
+        serviceParam.setUid(uid);
         serviceParam.setName(name);
         serviceParam.setConfiguration(mapper.toJson(configuration));
         sqlSessionTemplate.insert(NAMESPACE + "insertService", serviceParam);

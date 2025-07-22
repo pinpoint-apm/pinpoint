@@ -7,8 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface ServiceDao {
-
-    int insertService(String name, Map<String, String> configuration);
+    int insertService(int uid, String name, Map<String, String> configuration);
 
     List<String> selectServiceNames();
 

@@ -1,5 +1,8 @@
 package com.navercorp.pinpoint.service;
 
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.server.util.IdGenerator;
+import com.navercorp.pinpoint.common.server.util.RandomServiceUidGenerator;
 import com.navercorp.pinpoint.service.component.StaticServiceRegistry;
 import com.navercorp.pinpoint.service.config.mysql.ServiceMysqlDaoConfiguration;
 import com.navercorp.pinpoint.service.dao.EmptyServiceDao;
@@ -21,6 +24,11 @@ public class ServiceModule {
     @Bean
     public StaticServiceRegistry staticServiceRegistry() {
         return new StaticServiceRegistry();
+    }
+
+    @Bean
+    public IdGenerator<ServiceUid> serviceUidGenerator() {
+        return new RandomServiceUidGenerator();
     }
 
     @Bean

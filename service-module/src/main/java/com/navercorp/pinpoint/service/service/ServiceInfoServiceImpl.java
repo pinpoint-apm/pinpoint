@@ -1,9 +1,13 @@
 package com.navercorp.pinpoint.service.service;
 
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.server.util.IdGenerator;
 import com.navercorp.pinpoint.service.dao.ServiceDao;
 import com.navercorp.pinpoint.service.vo.ServiceEntry;
 import com.navercorp.pinpoint.service.vo.ServiceInfo;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,14 +20,22 @@ import java.util.Objects;
 public class ServiceInfoServiceImpl implements ServiceInfoService {
 
     private final ServiceDao serviceDao;
+    private final IdGenerator<ServiceUid> serviceUidGenerator;
 
-    public ServiceInfoServiceImpl(ServiceDao serviceDao) {
+    public ServiceInfoServiceImpl(ServiceDao serviceDao, @Qualifier("serviceUidGenerator") IdGenerator<ServiceUid> serviceUidGenerator) {
         this.serviceDao = Objects.requireNonNull(serviceDao, "serviceDao");
+        this.serviceUidGenerator = serviceUidGenerator;
     }
 
     @Override
+    @Retryable(retryFor = DuplicateKeyException.class, maxAttempts = 3)
     public int insertService(String serviceName, Map<String, String> configuration) {
-        return serviceDao.insertService(serviceName, configuration);
+        List<String> existingServiceNames = serviceDao.selectServiceNames();
+        if (existingServiceNames.contains(serviceName)) {
+            throw new IllegalArgumentException("Duplicate service name: " + serviceName);
+        }
+        ServiceUid uid = serviceUidGenerator.generate();
+        return serviceDao.insertService(uid.getUid(), serviceName, configuration);
     }
 
     @Override

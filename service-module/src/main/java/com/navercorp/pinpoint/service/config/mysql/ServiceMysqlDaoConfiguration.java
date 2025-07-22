@@ -38,10 +38,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.Resource;
+import org.springframework.retry.annotation.EnableRetry;
 
 import javax.sql.DataSource;
 
 @Configuration
+@EnableRetry
 @Import({
         MyBatisConfiguration.class,
 })

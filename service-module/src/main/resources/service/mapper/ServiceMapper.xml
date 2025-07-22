@@ -5,8 +5,8 @@
 <mapper namespace="com.navercorp.pinpoint.service.dao.ServiceDao">
 
     <insert id="insertService" parameterType="ServiceParam" useGeneratedKeys="true" keyProperty="uid">
-        INSERT INTO service (name, configuration)
-        VALUES (#{name}, #{configuration})
+        INSERT INTO service (uid, name, configuration)
+        VALUES (#{uid}, #{name}, #{configuration})
     </insert>
 
     <select id="selectServiceNameList" resultType="string">
