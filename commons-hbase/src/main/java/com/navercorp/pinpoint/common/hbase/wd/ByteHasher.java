@@ -21,7 +21,9 @@ public interface ByteHasher {
 
     byte getHashPrefix(byte[] originalKey);
 
-    default byte getHashPrefix(byte[] originalKey, int prefixOffset) {
+    byte[] writeSaltKey(byte[] saltedKey);
+
+    default byte getHashPrefix(byte[] originalKey, int saltKeySize) {
         throw new UnsupportedOperationException();
     }
 
@@ -31,6 +33,9 @@ public interface ByteHasher {
         return getAllPossiblePrefixes();
     }
 
-    int getPrefixLength(byte[] adjustedKey);
+    default int getPrefixLength(byte[] adjustedKey) {
+        return getSaltKey().size();
+    }
 
+    SaltKey getSaltKey();
 }

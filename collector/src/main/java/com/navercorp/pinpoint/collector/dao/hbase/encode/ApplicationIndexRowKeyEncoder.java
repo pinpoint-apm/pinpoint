@@ -16,9 +16,8 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.encode;
 
-import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
+import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
-import com.navercorp.pinpoint.common.hbase.wd.SaltKey;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
@@ -31,35 +30,33 @@ public class ApplicationIndexRowKeyEncoder implements RowKeyEncoder<SpanBo> {
 
     private final ApplicationNameRowKeyEncoder rowKeyEncoder;
     private final FuzzyRowKeyFactory<Byte> fuzzyRowKeyFactory = new OneByteFuzzyRowKeyFactory();
-    private final RowKeyDistributor rowKeyDistributor;
+    private final ByteHasher hasher;
 
     public ApplicationIndexRowKeyEncoder(ApplicationNameRowKeyEncoder rowKeyEncoder,
                                          RowKeyDistributor rowKeyDistributor) {
         this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
-        this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
+        Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
+        this.hasher = rowKeyDistributor.getByteHasher();
     }
 
-    public byte[] encodeRowKey(SaltKey saltKey, String applicationName, int elapsedTime, long acceptedTime) {
-        Objects.requireNonNull(saltKey, "saltKey");
+    public byte[] encodeRowKey(int saltKeySize, String applicationName, int elapsedTime, long acceptedTime) {
         // distribute key evenly
         byte fuzzyKey = fuzzyRowKeyFactory.getKey(elapsedTime);
-        final byte[] rowKey = rowKeyEncoder.encodeFuzzyRowKey(saltKey.size(), applicationName, acceptedTime, fuzzyKey);
-        if (ByteSaltKey.NONE == saltKey) {
+        final byte[] rowKey = rowKeyEncoder.encodeFuzzyRowKey(saltKeySize, applicationName, acceptedTime, fuzzyKey);
+        if (saltKeySize == 0) {
             return rowKey;
         }
-        byte prefix = rowKeyDistributor.getByteHasher().getHashPrefix(rowKey, saltKey.size());
-        rowKey[0] = prefix;
-        return rowKey;
+        return hasher.writeSaltKey(rowKey);
     }
 
     @Override
     public byte[] encodeRowKey(SpanBo span) {
         // distribute key evenly
-        return encodeRowKey(ByteSaltKey.SALT, span.getApplicationName(), span.getElapsed(), span.getCollectorAcceptTime());
+        return encodeRowKey(hasher.getSaltKey().size(), span.getApplicationName(), span.getElapsed(), span.getCollectorAcceptTime());
     }
 
     @Override
-    public byte[] encodeRowKey(SaltKey saltKey, SpanBo span) {
+    public byte[] encodeRowKey(int saltKey, SpanBo span) {
         return encodeRowKey(saltKey, span.getApplicationName(), span.getElapsed(), span.getCollectorAcceptTime());
     }
 }

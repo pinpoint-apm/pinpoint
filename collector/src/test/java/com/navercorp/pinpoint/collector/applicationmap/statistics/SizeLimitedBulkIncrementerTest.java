@@ -216,7 +216,7 @@ public class SizeLimitedBulkIncrementerTest {
             if (rows == null) {
                 continue;
             }
-            Map<ByteBuffer, Long> keyValues = rows.get(ByteBuffer.wrap(expectedRowKey.getRowKey(ByteSaltKey.NONE)));
+            Map<ByteBuffer, Long> keyValues = rows.get(ByteBuffer.wrap(expectedRowKey.getRowKey(ByteSaltKey.NONE.size())));
             if (keyValues == null) {
                 continue;
             }

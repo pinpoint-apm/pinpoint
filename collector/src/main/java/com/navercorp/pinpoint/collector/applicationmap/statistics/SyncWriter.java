@@ -21,9 +21,8 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTemplate;
 import com.navercorp.pinpoint.common.hbase.util.Increments;
-import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
+import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
-import com.navercorp.pinpoint.common.hbase.wd.SaltKey;
 import io.lettuce.core.internal.Futures;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
@@ -37,8 +36,6 @@ import java.util.concurrent.CompletableFuture;
  * @author emeroad
  */
 public class SyncWriter implements BulkWriter {
-
-    private static final SaltKey SALT_KEY = ByteSaltKey.SALT;
 
     private static final Duration awaitTimeout = Duration.ofMillis(100);
 
@@ -110,8 +107,8 @@ public class SyncWriter implements BulkWriter {
     }
 
     private byte[] getDistributedKey(RowKey rowKey) {
-        byte[] bytes = rowKey.getRowKey(SALT_KEY);
-        bytes[0] = rowKeyDistributorByHashPrefix.getByteHasher().getHashPrefix(bytes, SALT_KEY.size());
-        return bytes;
+        ByteHasher byteHasher = this.rowKeyDistributorByHashPrefix.getByteHasher();
+        byte[] bytes = rowKey.getRowKey(byteHasher.getSaltKey().size());
+        return byteHasher.writeSaltKey(bytes);
     }
 }

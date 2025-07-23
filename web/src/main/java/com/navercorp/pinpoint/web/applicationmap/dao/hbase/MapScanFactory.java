@@ -54,9 +54,9 @@ public class MapScanFactory {
         }
         // start key is replaced by end key because timestamp has been reversed
         byte[] startKey = ApplicationMapStatisticsUtils
-                .makeRowKey(ByteSaltKey.NONE, application.getName(), (short) application.getServiceTypeCode(), range.getTo());
+                .makeRowKey(ByteSaltKey.NONE.size(), application.getName(), (short) application.getServiceTypeCode(), range.getTo());
         byte[] endKey = ApplicationMapStatisticsUtils
-                .makeRowKey(ByteSaltKey.NONE, application.getName(), (short) application.getServiceTypeCode(), range.getFrom());
+                .makeRowKey(ByteSaltKey.NONE.size(), application.getName(), (short) application.getServiceTypeCode(), range.getFrom());
 
         final Scan scan = new Scan();
 

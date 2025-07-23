@@ -17,9 +17,8 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
-import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
+import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
-import com.navercorp.pinpoint.common.hbase.wd.SaltKey;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
@@ -33,27 +32,25 @@ public class TraceRowKeyEncoderV2 implements RowKeyEncoder<TransactionId> {
 
     public static final int AGENT_ID_MAX_LEN = PinpointConstants.AGENT_ID_MAX_LEN;
 
-    private final RowKeyDistributor rowKeyDistributor;
+    private final ByteHasher byteHasher;
 
     public TraceRowKeyEncoderV2(RowKeyDistributor rowKeyDistributor) {
-        this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
+        Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
+        this.byteHasher = rowKeyDistributor.getByteHasher();
     }
 
     public byte[] encodeRowKey(TransactionId transactionId) {
-        return encodeRowKey(ByteSaltKey.SALT, transactionId);
+        return encodeRowKey(byteHasher.getSaltKey().size(), transactionId);
     }
 
     @Override
-    public byte[] encodeRowKey(SaltKey saltKey, TransactionId transactionId) {
-        Objects.requireNonNull(saltKey, "saltKey");
+    public byte[] encodeRowKey(int saltKeySize, TransactionId transactionId) {
         Objects.requireNonNull(transactionId, "transactionId");
 
-        byte[] rowKey = RowKeyUtils.stringLongLongToBytes(saltKey.size(), transactionId.getAgentId(), AGENT_ID_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
-        if (saltKey == ByteSaltKey.NONE) {
+        byte[] rowKey = RowKeyUtils.stringLongLongToBytes(saltKeySize, transactionId.getAgentId(), AGENT_ID_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
+        if (saltKeySize == 0) {
             return rowKey;
         }
-        byte prefix = this.rowKeyDistributor.getByteHasher().getHashPrefix(rowKey, saltKey.size());
-        rowKey[0] = prefix;
-        return rowKey;
+        return byteHasher.writeSaltKey(rowKey);
     }
 }

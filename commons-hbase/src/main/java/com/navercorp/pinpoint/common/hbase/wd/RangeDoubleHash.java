@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,6 +27,8 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  */
 public class RangeDoubleHash implements ByteHasher {
+    private static final SaltKey SALT_KEY = ByteSaltKey.SALT;
+
     private final int start;
     private final int end;
     private final int maxBuckets;
@@ -73,6 +75,12 @@ public class RangeDoubleHash implements ByteHasher {
         return (byte) index;
     }
 
+    @Override
+    public byte[] writeSaltKey(byte[] saltedKey) {
+        saltedKey[0] = getHashPrefix(saltedKey, SALT_KEY.size());
+        return saltedKey;
+    }
+
     int secondaryModIndex(int index, int secondaryIndex) {
         return (index + secondaryIndex) % maxBuckets;
     }
@@ -106,7 +114,10 @@ public class RangeDoubleHash implements ByteHasher {
 
     @Override
     public int getPrefixLength(byte[] adjustedKey) {
-        return 1;
+        return SALT_KEY.size();
     }
 
+    public SaltKey getSaltKey() {
+        return SALT_KEY;
+    }
 }

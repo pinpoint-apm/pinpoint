@@ -16,11 +16,9 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
-import com.navercorp.pinpoint.common.hbase.wd.SaltKey;
-
 /**
  * @author emeroad
  */
 public interface RowKey {
-    byte[] getRowKey(SaltKey saltKey);
+    byte[] getRowKey(int saltKeySize);
 }

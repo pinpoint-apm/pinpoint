@@ -33,7 +33,7 @@ public class ApplicationMapStatisticsUtilsTest {
         short serviceType = 123;
         long time = System.currentTimeMillis();
 
-        byte[] bytes = ApplicationMapStatisticsUtils.makeRowKey(ByteSaltKey.NONE, applicationName, serviceType, time);
+        byte[] bytes = ApplicationMapStatisticsUtils.makeRowKey(ByteSaltKey.NONE.size(), applicationName, serviceType, time);
 
         Assertions.assertEquals(applicationName, ApplicationMapStatisticsUtils.getApplicationNameFromRowKey(bytes));
         Assertions.assertEquals(serviceType, ApplicationMapStatisticsUtils.getApplicationTypeFromRowKey(bytes));
