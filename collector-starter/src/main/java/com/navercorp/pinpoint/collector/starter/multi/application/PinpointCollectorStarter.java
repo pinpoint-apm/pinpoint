@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.collector.starter.multi.application;
 
+import com.navercorp.pinpoint.agentstatistics.collector.AgentStatisticsCollectorConfig;
 import com.navercorp.pinpoint.collector.starter.multi.application.type.CollectorType;
 import com.navercorp.pinpoint.collector.starter.multi.application.type.CollectorTypeParser;
 import com.navercorp.pinpoint.collector.starter.multi.application.type.CollectorTypeSet;
@@ -77,6 +78,7 @@ public class PinpointCollectorStarter {
                     BasicCollectorApp.class,
                     UriStatCollectorConfig.class,
                     ExceptionTraceCollectorConfig.class,
+                    AgentStatisticsCollectorConfig.class,
                     InspectorCollectorConfig.class
             );
             collectorAppBuilder.listeners(new AdditionalProfileListener("metric"));

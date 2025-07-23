@@ -116,6 +116,7 @@
         <module>batch-alarmsender</module>
         <module>channel</module>
         <module>exceptiontrace</module>
+        <module>agent-statistics</module>
         <module>otlpmetric</module>
         <module>redis-timeseries</module>
         <module>feature-flag</module>
@@ -515,6 +516,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-exceptiontrace-web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-agentstatistics-collector</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
