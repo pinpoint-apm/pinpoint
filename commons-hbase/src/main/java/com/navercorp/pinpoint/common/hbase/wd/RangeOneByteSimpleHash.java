@@ -29,6 +29,8 @@ import static com.navercorp.pinpoint.common.hbase.wd.OneByteSimpleHash.toModByte
  * @author emeroad
  */
 public class RangeOneByteSimpleHash implements ByteHasher {
+    private static final SaltKey SALT_KEY = ByteSaltKey.SALT;
+
     protected final int start;
     protected final int end;
     private final int mod;
@@ -55,9 +57,15 @@ public class RangeOneByteSimpleHash implements ByteHasher {
     }
 
     @Override
-    public byte getHashPrefix(byte[] originalKey, int hashOffset) {
-        int hash = MathUtils.fastAbs(hashBytes(originalKey, hashOffset));
+    public byte getHashPrefix(byte[] originalKey, int saltKeySize) {
+        int hash = MathUtils.fastAbs(hashBytes(originalKey, saltKeySize));
         return (byte) (hash % mod);
+    }
+
+    @Override
+    public byte[] writeSaltKey(byte[] saltedKey) {
+        saltedKey[0] = getHashPrefix(saltedKey, SALT_KEY.size());
+        return saltedKey;
     }
 
     /** Compute hash for binary data. */
@@ -78,7 +86,10 @@ public class RangeOneByteSimpleHash implements ByteHasher {
 
     @Override
     public int getPrefixLength(byte[] adjustedKey) {
-        return 1;
+        return SALT_KEY.size();
     }
 
+    public SaltKey getSaltKey() {
+        return SALT_KEY;
+    }
 }

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
@@ -87,11 +88,11 @@ public class RowKeyMerge {
 
     private byte[] getRowKey(RowKey rowKey, RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         if (rowKeyDistributorByHashPrefix == null) {
-            return rowKey.getRowKey(ByteSaltKey.NONE);
+            return rowKey.getRowKey(ByteSaltKey.NONE.size());
         } else {
-            byte[] bytes = rowKey.getRowKey(ByteSaltKey.SALT);
-            bytes[0] = rowKeyDistributorByHashPrefix.getByteHasher().getHashPrefix(bytes, ByteSaltKey.SALT.size());
-            return bytes;
+            ByteHasher hasher = rowKeyDistributorByHashPrefix.getByteHasher();
+            byte[] bytes = rowKey.getRowKey(hasher.getSaltKey().size());
+            return hasher.writeSaltKey(bytes);
         }
     }
 

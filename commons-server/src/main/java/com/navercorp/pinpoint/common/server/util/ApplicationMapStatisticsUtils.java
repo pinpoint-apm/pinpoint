@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
-import com.navercorp.pinpoint.common.hbase.wd.SaltKey;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -142,13 +141,13 @@ public class ApplicationMapStatisticsUtils {
      * @param timestamp
      * @return
      */
-    public static byte[] makeRowKey(SaltKey saltKey, String applicationName, short applicationType, long timestamp) {
+    public static byte[] makeRowKey(int saltKeySize, String applicationName, short applicationType, long timestamp) {
         Objects.requireNonNull(applicationName, "applicationName");
 
         final byte[] applicationNameBytes= BytesUtils.toBytes(applicationName);
 
-        final Buffer buffer = new AutomaticBuffer(saltKey.size() + BytesUtils.SHORT_BYTE_LENGTH + applicationNameBytes.length + BytesUtils.SHORT_BYTE_LENGTH + BytesUtils.LONG_BYTE_LENGTH);
-        buffer.setOffset(saltKey.size());
+        final Buffer buffer = new AutomaticBuffer(saltKeySize + BytesUtils.SHORT_BYTE_LENGTH + applicationNameBytes.length + BytesUtils.SHORT_BYTE_LENGTH + BytesUtils.LONG_BYTE_LENGTH);
+        buffer.setOffset(saltKeySize);
 //        buffer.put2PrefixedString(applicationName);
         buffer.putShort((short)applicationNameBytes.length);
         buffer.putBytes(applicationNameBytes);

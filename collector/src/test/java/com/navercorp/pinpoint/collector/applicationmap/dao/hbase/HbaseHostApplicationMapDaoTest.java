@@ -43,7 +43,7 @@ public class HbaseHostApplicationMapDaoTest {
         ServiceType standAlone = ServiceType.STAND_ALONE;
         SaltKey saltKey = ByteSaltKey.SALT;
 
-        byte[] parentApps = HbaseHostApplicationMapDao.createRowKey0(saltKey, parentApp, standAlone.getCode(), statisticsRowSlot, null);
+        byte[] parentApps = HbaseHostApplicationMapDao.createRowKey0(saltKey.size(), parentApp, standAlone.getCode(), statisticsRowSlot, null);
         logger.debug("rowKey size:{}", parentApps.length);
 
         Buffer readBuffer = new FixedBuffer(parentApps);

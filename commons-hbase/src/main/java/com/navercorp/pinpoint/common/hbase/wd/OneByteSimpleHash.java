@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.common.util.MathUtils;
  * Copy from sematext/HBaseWD
  */
 public class OneByteSimpleHash implements ByteHasher {
+    private static final SaltKey SALT_KEY = ByteSaltKey.SALT;
+
     private final int mod;
     private final byte[] prefix;
 
@@ -56,9 +58,15 @@ public class OneByteSimpleHash implements ByteHasher {
     }
 
     @Override
-    public byte getHashPrefix(byte[] originalKey, int hashOffset) {
-        int hash = MathUtils.fastAbs(BytesUtils.hashBytes(originalKey, hashOffset, originalKey.length));
+    public byte getHashPrefix(byte[] originalKey, int saltKeySize) {
+        int hash = MathUtils.fastAbs(BytesUtils.hashBytes(originalKey, saltKeySize, originalKey.length));
         return (byte) (hash % mod);
+    }
+
+    @Override
+    public byte[] writeSaltKey(byte[] saltedKey) {
+        saltedKey[0] = getHashPrefix(saltedKey, SALT_KEY.size());
+        return saltedKey;
     }
 
 
@@ -69,7 +77,12 @@ public class OneByteSimpleHash implements ByteHasher {
 
     @Override
     public int getPrefixLength(byte[] adjustedKey) {
-        return 1;
+        return SALT_KEY.size();
+    }
+
+    @Override
+    public SaltKey getSaltKey() {
+        return SALT_KEY;
     }
 
 }

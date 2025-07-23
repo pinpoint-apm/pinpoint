@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.common.server.bo.serializer.metadata.uid;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
+import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
-import com.navercorp.pinpoint.common.hbase.wd.SaltKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
@@ -32,32 +32,30 @@ import static com.navercorp.pinpoint.common.util.BytesUtils.LONG_BYTE_LENGTH;
 
 public class UidMetadataEncoder implements RowKeyEncoder<UidMetaDataRowKey> {
 
-    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+    private final ByteHasher hasher;
 
     public UidMetadataEncoder(RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
-        this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
+        Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
+        this.hasher = rowKeyDistributorByHashPrefix.getByteHasher();
     }
 
     @Override
     public byte[] encodeRowKey(UidMetaDataRowKey metaDataRowKey) {
         Objects.requireNonNull(metaDataRowKey, "metaDataRowKey");
 
-        return encodeRowKey(ByteSaltKey.SALT, metaDataRowKey);
+        return encodeRowKey(ByteSaltKey.SALT.size(), metaDataRowKey);
     }
 
     @Override
-    public byte[] encodeRowKey(SaltKey saltKeySize, UidMetaDataRowKey metaDataRowKey) {
-        Objects.requireNonNull(saltKeySize, "saltKeySize");
+    public byte[] encodeRowKey(int saltKeySize, UidMetaDataRowKey metaDataRowKey) {
 
-        byte[] rowKey = encodeMetaDataRowKey(saltKeySize.size(), metaDataRowKey.getAgentId(),
+        byte[] rowKey = encodeMetaDataRowKey(saltKeySize, metaDataRowKey.getAgentId(),
                 metaDataRowKey.getAgentStartTime(),
                 metaDataRowKey.getUid());
-        if (saltKeySize == ByteSaltKey.NONE) {
+        if (saltKeySize == 0) {
             return rowKey;
         }
-        byte hashPrefix = rowKeyDistributorByHashPrefix.getByteHasher().getHashPrefix(rowKey, saltKeySize.size());
-        rowKey[0] = hashPrefix;
-        return rowKey;
+        return hasher.writeSaltKey(rowKey);
     }
 
     public static byte[] encodeMetaDataRowKey(int saltKeySize, String agentId, long agentStartTime, byte[] keyCode) {

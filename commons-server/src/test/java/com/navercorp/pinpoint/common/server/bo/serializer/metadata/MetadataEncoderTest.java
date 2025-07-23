@@ -30,7 +30,7 @@ public class MetadataEncoderTest {
     public void encodeRowKey() {
         long startTime = System.currentTimeMillis();
         MetaDataRowKey metaData = new DefaultMetaDataRowKey("agent", startTime, 1);
-        byte[] rowKey = encoder.encodeRowKey(ByteSaltKey.NONE, metaData);
+        byte[] rowKey = encoder.encodeRowKey(ByteSaltKey.NONE.size(), metaData);
         MetaDataRowKey decodeRowKey = decoder.decodeRowKey(rowKey);
 
         Assertions.assertEquals("agent", decodeRowKey.getAgentId());

@@ -55,7 +55,7 @@ class ApplicationIndexRowKeyEncoderTest {
     void encodeRowKey() {
         int elapsedTime = 1000 * 10;
 
-        byte[] rowKey = encoder.encodeRowKey(ByteSaltKey.SALT, "agent", elapsedTime, 2000L);
+        byte[] rowKey = encoder.encodeRowKey(ByteSaltKey.SALT.size(), "agent", elapsedTime, 2000L);
         rowKey = Arrays.copyOfRange(rowKey, 1, rowKey.length);
 
 

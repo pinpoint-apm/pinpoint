@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
-import com.navercorp.pinpoint.common.hbase.wd.SaltKey;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
@@ -119,7 +118,7 @@ public class BulkIncrementerTestClazz {
             if (rows == null) {
                 Assertions.fail("Expected rows not found for " + testDataSet);
             }
-            Map<ByteBuffer, Long> keyValues = rows.get(getRowkey(expectedRowKey));
+            Map<ByteBuffer, Long> keyValues = rows.get(getRowKey(expectedRowKey));
             if (keyValues == null) {
                 Assertions.fail("Expected row not found for " + testDataSet);
             }
@@ -130,8 +129,8 @@ public class BulkIncrementerTestClazz {
             Assertions.assertEquals(expectedCount, (long) actualCount, "Expected counts do not match for " + testDataSet);
         }
 
-        private ByteBuffer getRowkey(RowKey expectedRowKey) {
-            byte[] bytes = expectedRowKey.getRowKey(ByteSaltKey.NONE);
+        private ByteBuffer getRowKey(RowKey expectedRowKey) {
+            byte[] bytes = expectedRowKey.getRowKey(ByteSaltKey.NONE.size());
 
             return ByteBuffer.wrap(bytes);
         }
@@ -231,8 +230,8 @@ public class BulkIncrementerTestClazz {
         }
 
         @Override
-        public byte[] getRowKey(SaltKey saltKey) {
-            byte[] saltKeyBytes = new byte[saltKey.size()];
+        public byte[] getRowKey(int saltKeySize) {
+            byte[] saltKeyBytes = new byte[saltKeySize];
             byte[] bytes = BytesUtils.intToVar32(id);
             return Bytes.add(saltKeyBytes, bytes);
         }

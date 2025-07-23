@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
 import com.navercorp.pinpoint.collector.applicationmap.Vertex;
-import com.navercorp.pinpoint.common.hbase.wd.SaltKey;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
@@ -45,8 +44,8 @@ public class LinkRowKey implements RowKey {
         this.rowTimeSlot = rowTimeSlot;
     }
 
-    public byte[] getRowKey(SaltKey saltKey) {
-        return ApplicationMapStatisticsUtils.makeRowKey(saltKey, applicationName, serviceType, rowTimeSlot);
+    public byte[] getRowKey(int saltKeySize) {
+        return ApplicationMapStatisticsUtils.makeRowKey(saltKeySize, applicationName, serviceType, rowTimeSlot);
     }
 
     @Override

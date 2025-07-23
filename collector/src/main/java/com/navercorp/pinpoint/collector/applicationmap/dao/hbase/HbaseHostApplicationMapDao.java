@@ -30,9 +30,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.util.Puts;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
-import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
-import com.navercorp.pinpoint.common.hbase.wd.SaltKey;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
@@ -54,7 +52,6 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
     private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.HOST_APPLICATION_MAP_VER2_MAP;
-    private static final SaltKey SALT_KEY = ByteSaltKey.SALT;
 
     private final HbaseOperations hbaseTemplate;
 
@@ -62,7 +59,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     private final TimeSlot timeSlot;
 
-    private final RowKeyDistributor rowKeyDistributor;
+    private final ByteHasher hasher;
 
     // FIXME should modify to save a cachekey at each 30~50 seconds instead of saving at each time
     private final AtomicLongUpdateMap<CacheKey> updater = new AtomicLongUpdateMap<>();
@@ -74,7 +71,8 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
                                       TimeSlot timeSlot) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
-        this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
+        Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
+        this.hasher = rowKeyDistributor.getByteHasher();
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
     }
 
@@ -127,19 +125,17 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
 
     private byte[] createRowKey(String parentApplicationName, short parentServiceType, long statisticsRowSlot, String parentAgentId) {
-        final byte[] rowKey = createRowKey0(SALT_KEY, parentApplicationName, parentServiceType, statisticsRowSlot, parentAgentId);
-        ByteHasher byteHasher = rowKeyDistributor.getByteHasher();
-        rowKey[0] = byteHasher.getHashPrefix(rowKey, SALT_KEY.size());
-        return rowKey;
+        final byte[] rowKey = createRowKey0(hasher.getSaltKey().size(), parentApplicationName, parentServiceType, statisticsRowSlot, parentAgentId);
+        return hasher.writeSaltKey(rowKey);
     }
 
 
     @VisibleForTesting
-    static byte[] createRowKey0(SaltKey saltKey, String parentApplicationName, short parentServiceType, long statisticsRowSlot, String parentAgentId) {
+    static byte[] createRowKey0(int saltKeySize, String parentApplicationName, short parentServiceType, long statisticsRowSlot, String parentAgentId) {
 
         // even if  a agentId be added for additional specifications, it may be safe to scan rows.
         // But is it needed to add parentAgentServiceType?
-        int offset = saltKey.size() + HbaseTableConstants.APPLICATION_NAME_MAX_LEN;
+        int offset = saltKeySize + HbaseTableConstants.APPLICATION_NAME_MAX_LEN;
         final int SIZE = offset + BytesUtils.SHORT_BYTE_LENGTH + BytesUtils.LONG_BYTE_LENGTH;
 
         byte[] rowKey = new byte[SIZE];
@@ -148,7 +144,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         if (parentAppNameBytes.length > HbaseTableConstants.APPLICATION_NAME_MAX_LEN) {
             throw new IllegalArgumentException("Parent application name length exceed " + parentApplicationName);
         }
-        BytesUtils.writeBytes(rowKey, saltKey.size(), parentAppNameBytes);
+        BytesUtils.writeBytes(rowKey, saltKeySize, parentAppNameBytes);
         offset = ByteArrayUtils.writeShort(parentServiceType, rowKey, offset);
         long timestamp = TimeUtils.reverseTimeMillis(statisticsRowSlot);
         ByteArrayUtils.writeLong(timestamp, rowKey, offset);
