@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.navercorp.pinpoint.web.view.TransactionInfoViewModel.Field;
+import static com.navercorp.pinpoint.web.view.TransactionCallTreeViewModel.Field;
 
 class TransactionInfoViewModelTest {
 
