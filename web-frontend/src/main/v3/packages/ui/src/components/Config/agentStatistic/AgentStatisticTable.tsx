@@ -10,7 +10,9 @@ import { Cell, ColumnDef } from '@tanstack/react-table';
 import { LuChevronRight, LuChevronDown, LuMoveDown, LuMoveUp } from 'react-icons/lu';
 import { cn } from '../../../lib';
 import { RxMagnifyingGlass } from 'react-icons/rx';
-import { addMinutes, format } from 'date-fns';
+import { addMinutes } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
+import { useTimezone } from '@pinpoint-fe/ui/src/hooks';
 
 type ExpandableDataType = {
   applicationName: string;
@@ -31,6 +33,7 @@ function containsString(obj: SearchApplication.Instance, input: string): boolean
 }
 
 export function AgentStatisticTable({ data }: { data?: SearchApplication.Application[] }) {
+  const [timezone] = useTimezone();
   const [input, setInput] = React.useState('');
   const [filterInput, setFilterInput] = React.useState('');
   const [filteredRowIds, setFilteredRowIds] = React.useState<string[]>([]);
@@ -165,9 +168,13 @@ export function AgentStatisticTable({ data }: { data?: SearchApplication.Applica
         `${BASE_PATH}${APP_PATH.SERVER_MAP}/${original?.applicationName}@${original?.serviceType}`,
       );
     } else {
-      const endTime = format(addMinutes(original?.startTimestamp, 5), SEARCH_PARAMETER_DATE_FORMAT);
+      const endTime = formatInTimeZone(
+        addMinutes(original?.startTimestamp, 5),
+        timezone,
+        SEARCH_PARAMETER_DATE_FORMAT,
+      );
       window.open(
-        `${BASE_PATH}${APP_PATH.INSPECTOR}/${original?.applicationName}@${original?.serviceType}?from=${format(original?.startTimestamp, SEARCH_PARAMETER_DATE_FORMAT)}&to=${endTime}&agentId=${original?.agentId}`,
+        `${BASE_PATH}${APP_PATH.INSPECTOR}/${original?.applicationName}@${original?.serviceType}?from=${formatInTimeZone(original?.startTimestamp, timezone, SEARCH_PARAMETER_DATE_FORMAT)}&to=${endTime}&agentId=${original?.agentId}`,
       );
     }
   }

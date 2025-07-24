@@ -15,15 +15,17 @@ import {
 } from '../../components/ui/tooltip';
 import { Button } from '../../components/ui/button';
 import { RxDrawingPinFilled, RxDrawingPin } from 'react-icons/rx';
-import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { BsGearFill } from 'react-icons/bs';
 import { AgentActiveSetting, AgentActiveSettingType, DefaultValue } from './AgentActiveSetting';
 import { HelpPopover } from '@pinpoint-fe/ui/src/components/HelpPopover';
+import { useTimezone } from '@pinpoint-fe/ui/src/hooks';
 
 export interface ActiveRequestProps {}
 
 export const AgentActiveThreadFetcher = () => {
   const wsRef = React.useRef<WebSocket>();
+  const [timezone] = useTimezone();
   const [webSocketState, setWebSocketState] = React.useState<number>(WebSocket.CLOSED);
   const currentServerMapTarget = useAtomValue(serverMapCurrentTargetAtom);
   const applicationNameRef = React.useRef('');
@@ -150,7 +152,11 @@ export const AgentActiveThreadFetcher = () => {
               </div>
               <div className="flex items-center gap-1 font-normal text-gray-400">
                 <span className="text-sm">
-                  {format(activeThreadCounts?.result?.timeStamp || 0, 'yyyy.MM.dd HH:mm:ss')}
+                  {formatInTimeZone(
+                    activeThreadCounts?.result?.timeStamp || 0,
+                    timezone,
+                    'yyyy.MM.dd HH:mm:ss',
+                  )}
                 </span>
                 <BsGearFill
                   className="text-base cursor-pointer"

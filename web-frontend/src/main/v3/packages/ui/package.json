@@ -63,6 +63,7 @@
     "clsx": "^2.0.0",
     "cmdk": "^1.0.0",
     "date-fns": "^2.28.0",
+    "date-fns-tz": "^2.0.0",
     "deepmerge": "^4.3.1",
     "echarts": "^5.6.0",
     "echarts-for-react": "^3.0.2",

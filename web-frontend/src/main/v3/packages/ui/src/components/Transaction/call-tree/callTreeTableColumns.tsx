@@ -4,7 +4,7 @@ import {
   TransactionInfoType as TransactionInfo,
 } from '@pinpoint-fe/ui/src/constants';
 import { ColumnDef } from '@tanstack/react-table';
-import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import {
   FaFire,
   FaDatabase,
@@ -19,8 +19,9 @@ import {
   addCommas,
   convertParamsToQueryString,
   getErrorAnalysisPath,
+  getTimezone,
 } from '@pinpoint-fe/ui/src/utils';
-import { useTransactionSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import { useTimezone, useTransactionSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 
 export interface CallTreeTableColumnsProps {
   metaData: TransactionInfo.Response;
@@ -85,8 +86,9 @@ export const callTreeTableColumns = ({
     size: 90,
     cell: (props) => {
       const timestamp = props.getValue() as number;
+      const timezone = getTimezone();
 
-      return timestamp ? format(timestamp, 'HH:mm:ss SSS') : '';
+      return timestamp ? formatInTimeZone(timestamp, timezone, 'HH:mm:ss SSS') : '';
     },
     meta: {
       headerClassName: 'grow-0',
@@ -239,6 +241,7 @@ const MethodCell = (props: {
   const { metaData, rowData, onClickDetailView } = props;
   let Icon;
   const text = rowData.title;
+  const [timezone] = useTimezone();
 
   if (rowData.hasException) {
     Icon = <FaFire className="fill-status-fail" />;
@@ -253,8 +256,8 @@ const MethodCell = (props: {
       const startTime = parentData[metaData.callStackIndex.begin];
       const endTime = parentData[metaData.callStackIndex.end];
       const baseTime = (startTime + endTime) / 2;
-      const from = format(baseTime - 150000, SEARCH_PARAMETER_DATE_FORMAT);
-      const to = format(baseTime + 150000, SEARCH_PARAMETER_DATE_FORMAT);
+      const from = formatInTimeZone(baseTime - 150000, timezone, SEARCH_PARAMETER_DATE_FORMAT);
+      const to = formatInTimeZone(baseTime + 150000, timezone, SEARCH_PARAMETER_DATE_FORMAT);
       const href = `${BASE_PATH}${getErrorAnalysisPath(application)}?${convertParamsToQueryString({
         from,
         to,

@@ -1,8 +1,9 @@
 import React from 'react';
-import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { cn } from '../../../lib';
 import { colors } from '@pinpoint-fe/ui/src/constants';
 import { InteractiveTimelineBar, InteractiveTimelineBarProps } from './InteractiveTimelineBar';
+import { useTimezone } from '@pinpoint-fe/ui/src/hooks';
 
 export interface TimelineBarProps
   extends Pick<InteractiveTimelineBarProps, 'activeRange' | 'formatTooltip'> {
@@ -20,9 +21,10 @@ export const TimelineBar = ({
   background = colors.gray[300],
   hideTick = false,
   tickCount = 5,
-  formatTick = (v) => format(v, 'MM.dd HH:mm'),
+  formatTick,
   ...props
 }: TimelineBarProps) => {
+  const [timezone] = useTimezone();
   const rangeDiff = totalTo - totalFrom;
   const ticks = Array.from(Array(tickCount + 2)).map((_, i) => {
     return (rangeDiff / (tickCount + 1)) * i + totalFrom;
@@ -53,7 +55,7 @@ export const TimelineBar = ({
                   style={{ left: `${(100 / (tickCount + 1)) * i}%` }}
                   className="absolute -translate-x-1/2 -top-5 text-nowrap"
                 >
-                  {formatTick(tick)}
+                  {formatTick ? formatTick(tick) : formatInTimeZone(tick, timezone, 'MM.dd HH:mm')}
                 </div>
               );
             })}

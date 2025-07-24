@@ -7,15 +7,18 @@ import { getConfiguration } from '@pinpoint-fe/ui/src/hooks';
 import {
   getApplicationTypeAndName,
   getParsedDateRange,
+  getTimezone,
   isValidDateRange,
 } from '@pinpoint-fe/ui/src/utils';
-import { parse, format } from 'date-fns';
+import { parse } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 
 export const errorAnalysisRouteLoader = async ({ params, request }: LoaderFunctionArgs) => {
   try {
     const application = getApplicationTypeAndName(params.application!);
     const config = await getConfiguration<Configuration>();
+    const timezone = getTimezone();
 
     if (application?.applicationName && application.serviceType) {
       const basePath = `${APP_PATH.ERROR_ANALYSIS}/${params.application}`;
@@ -33,8 +36,8 @@ export const errorAnalysisRouteLoader = async ({ params, request }: LoaderFuncti
       const validateDateRange = isValidDateRange(config?.['periodMax.exceptionTrace'] || 7);
       const defaultParsedDateRange = getParsedDateRange({ from, to }, validateDateRange);
       const defaultFormattedDateRange = {
-        from: format(defaultParsedDateRange.from, SEARCH_PARAMETER_DATE_FORMAT),
-        to: format(defaultParsedDateRange.to, SEARCH_PARAMETER_DATE_FORMAT),
+        from: formatInTimeZone(defaultParsedDateRange.from, timezone, SEARCH_PARAMETER_DATE_FORMAT),
+        to: formatInTimeZone(defaultParsedDateRange.to, timezone, SEARCH_PARAMETER_DATE_FORMAT),
       };
       const defaultDatesQueryString = new URLSearchParams(defaultFormattedDateRange).toString();
       const defaultDestination = `${basePath}?${defaultDatesQueryString}`;

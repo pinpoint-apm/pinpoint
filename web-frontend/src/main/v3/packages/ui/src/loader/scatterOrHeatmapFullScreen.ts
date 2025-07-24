@@ -8,15 +8,17 @@ import {
   getApplicationTypeAndName,
   getParsedDateRange,
   isValidDateRange,
+  getTimezone,
 } from '@pinpoint-fe/ui/src/utils';
-import { format, parse } from 'date-fns';
+import { parse } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 
 export const scatterOrHeatmapFullScreenLoader = async ({ params, request }: LoaderFunctionArgs) => {
   try {
     const application = getApplicationTypeAndName(params.application);
     const configuration = await getConfiguration<Configuration>();
-
+    const timezone = getTimezone();
     const url = new URL(request.url);
     const pathname = url?.pathname?.split('/')?.[1] || '';
 
@@ -35,8 +37,8 @@ export const scatterOrHeatmapFullScreenLoader = async ({ params, request }: Load
       };
       const defaultParsedDateRange = getParsedDateRange({ from, to });
       const defaultFormattedDateRange = {
-        from: format(defaultParsedDateRange.from, SEARCH_PARAMETER_DATE_FORMAT),
-        to: format(defaultParsedDateRange.to, SEARCH_PARAMETER_DATE_FORMAT),
+        from: formatInTimeZone(defaultParsedDateRange.from, timezone, SEARCH_PARAMETER_DATE_FORMAT),
+        to: formatInTimeZone(defaultParsedDateRange.to, timezone, SEARCH_PARAMETER_DATE_FORMAT),
       };
       const defaultDatesQueryString = new URLSearchParams(defaultFormattedDateRange).toString();
       const defaultDestination = `${basePath}?${defaultDatesQueryString}`;

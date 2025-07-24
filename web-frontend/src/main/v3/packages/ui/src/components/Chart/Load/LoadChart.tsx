@@ -5,9 +5,11 @@ import bb, { areaStep, ChartOptions } from 'billboard.js';
 // @ts-ignore
 import BillboardJS, { IChart } from '@billboard.js/react';
 import { abbreviateNumber, addCommas, getMaxTickValue } from '@pinpoint-fe/ui/src/utils';
-import { format, isValid } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
+import { isValid } from 'date-fns';
 import { cn } from '../../../lib/utils';
 import { colors } from '@pinpoint-fe/ui/src/constants';
+import { useTimezone } from '@pinpoint-fe/ui/src/hooks';
 
 export type LoadChartDataType = {
   dates?: number[];
@@ -45,6 +47,7 @@ export const LoadChart = ({
   className,
   emptyMessage = 'No Data',
 }: LoadChartProps) => {
+  const [timezone] = useTimezone();
   const chartData = typeof datas === 'function' ? datas?.(chartColors) : datas;
   const chartComponent = React.useRef<IChart>(null);
   const prevData = React.useRef<LoadChartDataType>({} as LoadChartDataType);
@@ -104,7 +107,11 @@ export const LoadChart = ({
             show: false,
             format: (date: Date) => {
               if (isValid(date)) {
-                return `${format(date, 'MM.dd')}\n${format(date, 'HH:mm')}`;
+                return `${formatInTimeZone(date, timezone, 'MM.dd')}\n${formatInTimeZone(
+                  date,
+                  timezone,
+                  'HH:mm',
+                )}`;
               }
               return '';
             },

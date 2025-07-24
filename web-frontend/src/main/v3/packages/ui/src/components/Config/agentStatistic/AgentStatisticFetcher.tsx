@@ -3,12 +3,12 @@ import { HiOutlineRefresh } from 'react-icons/hi';
 import { useTranslation } from 'react-i18next';
 import { Configuration } from '@pinpoint-fe/ui/src/constants';
 import { Button, Separator } from '../../../components';
-import { useGetAgentsStatistics } from '@pinpoint-fe/ui/src/hooks';
+import { useGetAgentsStatistics, useTimezone } from '@pinpoint-fe/ui/src/hooks';
 import { CgSpinner } from 'react-icons/cg';
 import { cn } from '../../../lib';
 import { AgentStatisticContainer } from './AgentStatisticChartContainer';
 import { AgentStatisticTable } from './AgentStatisticTable';
-import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 
 export interface AgentStatisticFetcherProps {
   configuration?: Configuration;
@@ -18,6 +18,7 @@ export const AgentStatisticFetcher = ({ configuration }: AgentStatisticFetcherPr
   void configuration; // Not use configuration
 
   const { t } = useTranslation();
+  const [timezone] = useTimezone();
   const [load, setLoad] = React.useState(false);
   const [loadDate, setLoadDate] = React.useState<Date>();
 
@@ -52,7 +53,7 @@ export const AgentStatisticFetcher = ({ configuration }: AgentStatisticFetcherPr
         {data ? (
           <div className="flex flex-col h-full gap-5">
             <div className="flex flex-row items-center justify-end gap-1">
-              {loadDate && format(loadDate, 'yyyy.MM.dd HH:mm:ss')}
+              {loadDate && formatInTimeZone(loadDate, timezone, 'yyyy.MM.dd HH:mm:ss')}
               <Button onClick={handleReload} size="sm">
                 <HiOutlineRefresh size={18} />
               </Button>
