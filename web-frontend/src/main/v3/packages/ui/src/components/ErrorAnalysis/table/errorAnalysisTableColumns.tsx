@@ -1,4 +1,5 @@
-import { formatDistanceToNowStrict, format } from 'date-fns';
+import { formatDistanceToNowStrict } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { LuArrowUp, LuArrowDown } from 'react-icons/lu';
 import { RxClock } from 'react-icons/rx';
 import { ColumnDef } from '@tanstack/react-table';
@@ -18,6 +19,7 @@ import {
 import { LuChevronsUpDown } from 'react-icons/lu';
 import { RxArrowUp, RxArrowDown } from 'react-icons/rx';
 import { cn } from '../../../lib';
+import { useTimezone } from '@pinpoint-fe/ui/src/hooks';
 
 interface ErrorTableColumnProps {
   orderBy?: string;
@@ -147,13 +149,15 @@ export const errorTableColumns = ({
     ),
     cell: (props) => {
       const timestamp = props.getValue() as number;
-
+      const [timezone] = useTimezone();
       return (
         <Tooltip>
           <TooltipTrigger>
             <span className="text-muted-foreground">{formatDistanceToNowStrict(timestamp)}</span>
           </TooltipTrigger>
-          <TooltipContent>{format(timestamp, 'yyyy MM.dd hh:mm:ss')}</TooltipContent>
+          <TooltipContent>
+            {formatInTimeZone(timestamp, timezone, 'yyyy MM.dd hh:mm:ss')}
+          </TooltipContent>
         </Tooltip>
       );
     },

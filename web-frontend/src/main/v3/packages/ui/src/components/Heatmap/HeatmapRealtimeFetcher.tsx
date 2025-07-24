@@ -1,10 +1,6 @@
 import React from 'react';
 import HeatmapChartCore, { HeatmapChartCoreProps } from './core/HeatmapChartCore';
-import {
-  useServerMapSearchParameters,
-  useStoragedSetting,
-  useGetHeatmapAppData,
-} from '@pinpoint-fe/ui/src/hooks';
+import { useStoragedSetting, useGetHeatmapAppData } from '@pinpoint-fe/ui/src/hooks';
 import {
   APP_SETTING_KEYS,
   ApplicationType,
@@ -12,7 +8,6 @@ import {
   GetServerMap,
 } from '@pinpoint-fe/ui/src/constants';
 import { subMinutes, subSeconds, addSeconds } from 'date-fns';
-import { last } from 'lodash';
 
 const DefaultAxisY = [0, 10000];
 

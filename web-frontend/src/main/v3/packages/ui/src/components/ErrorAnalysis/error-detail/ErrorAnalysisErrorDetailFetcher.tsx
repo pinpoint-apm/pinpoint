@@ -1,9 +1,9 @@
-import { useGetErrorAnalysisTransactionInfoData } from '@pinpoint-fe/ui/src/hooks';
+import { useGetErrorAnalysisTransactionInfoData, useTimezone } from '@pinpoint-fe/ui/src/hooks';
 import { ErrorAnalysisTransactionInfo } from '@pinpoint-fe/ui/src/constants';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../ui';
 import { ClipboardCopyButton } from '../../Button';
 import { CollapsibleCodeViewer } from '../..';
-import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 
 export interface ErrorAnalysisErrorDetailFetcherProps {
   errorInfo: ErrorAnalysisTransactionInfo.Parameters;
@@ -12,6 +12,7 @@ export interface ErrorAnalysisErrorDetailFetcherProps {
 export const ErrorAnalysisErrorDetailFetcher = ({
   errorInfo,
 }: ErrorAnalysisErrorDetailFetcherProps) => {
+  const [timezone] = useTimezone();
   const { data } = useGetErrorAnalysisTransactionInfoData(errorInfo);
 
   return (
@@ -37,7 +38,7 @@ export const ErrorAnalysisErrorDetailFetcher = ({
                   {d.errorClassName}
                 </ClipboardCopyButton>
                 <span className="ml-auto text-xs font-normal text-muted-foreground">
-                  {format(d.timestamp, 'HH:mm:ss SSS')}
+                  {formatInTimeZone(d.timestamp, timezone, 'HH:mm:ss SSS')}
                 </span>
               </CardTitle>
               <CardDescription>

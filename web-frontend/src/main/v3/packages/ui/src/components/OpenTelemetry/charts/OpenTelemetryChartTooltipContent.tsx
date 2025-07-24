@@ -1,8 +1,9 @@
 import React from 'react';
-import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { ChartTooltipContent } from '../../ui/chart';
 import { cn } from '../../../lib';
 import { COLORS } from './constant';
+import { useTimezone } from '@pinpoint-fe/ui/src/hooks';
 
 const TOTAL_DATA_KEY = 'total' as const;
 const TOTAL_DATA_COLOR = COLORS[COLORS.length - 1];
@@ -23,18 +24,23 @@ export const OpenTelemetryChartTooltipContent = ({
   label,
   labelClassName,
   indicator = 'dot',
-  labelFormatter = (label) => format(label, 'HH:mm:ss'),
+  labelFormatter,
   formatter = (value) => `${value}`,
   showTotal = false,
   chartWidth,
 }: OpenTelemetryChartTooltipContentProps) => {
+  const [timezone] = useTimezone();
   const renderTooltipLabel = () => {
     if (hideLabel || !payload?.length) {
       return null;
     }
 
     return (
-      <div className={cn('font-medium', labelClassName)}>{labelFormatter(label, payload)}</div>
+      <div className={cn('font-medium', labelClassName)}>
+        {labelFormatter
+          ? labelFormatter(label, payload)
+          : formatInTimeZone(label, timezone, 'HH:mm:ss')}
+      </div>
     );
   };
 

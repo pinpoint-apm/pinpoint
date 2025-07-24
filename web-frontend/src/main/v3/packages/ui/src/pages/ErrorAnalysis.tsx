@@ -26,7 +26,7 @@ import {
   getTransactionDetailPath,
   getTransactionDetailQueryString,
 } from '@pinpoint-fe/ui/src/utils';
-import { useErrorAnalysisSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import { useErrorAnalysisSearchParameters, useTimezone } from '@pinpoint-fe/ui/src/hooks';
 import { useTranslation } from 'react-i18next';
 import {
   ErrorAnalysisErrorList,
@@ -34,7 +34,7 @@ import {
   Configuration,
   APP_SETTING_KEYS,
 } from '@pinpoint-fe/ui/src/constants';
-import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { IoMdClose } from 'react-icons/io';
 import { PiBugBeetleDuotone } from 'react-icons/pi';
 import { LuExternalLink } from 'react-icons/lu';
@@ -53,7 +53,7 @@ export const ErrorAnalysisPage = ({
   const periodMax = configuration?.['periodMax.exceptionTrace'];
   const periodInterval = configuration?.['periodInterval.exceptionTrace'];
   const navigate = useNavigate();
-
+  const [timezone] = useTimezone();
   const {
     searchParameters,
     application,
@@ -157,7 +157,7 @@ export const ErrorAnalysisPage = ({
                         {application.applicationName}
                       </h3>
                       <div className="pr-2 ml-auto text-xs font-medium truncate">
-                        {format(errorInfo.timestamp, 'MM.dd HH:mm:ss SSS')}
+                        {formatInTimeZone(errorInfo.timestamp, timezone, 'MM.dd HH:mm:ss SSS')}
                       </div>
                     </div>
                     <div className="flex items-center">

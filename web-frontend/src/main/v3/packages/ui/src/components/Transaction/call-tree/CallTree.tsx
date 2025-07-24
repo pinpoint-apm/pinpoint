@@ -1,6 +1,6 @@
 import React from 'react';
-import { format } from 'date-fns';
-import { usePostBind } from '@pinpoint-fe/ui/src/hooks';
+import { formatInTimeZone } from 'date-fns-tz';
+import { usePostBind, useTimezone } from '@pinpoint-fe/ui/src/hooks';
 import { useUpdateEffect } from 'usehooks-ts';
 import { IoMdClose } from 'react-icons/io';
 import { LuMoveUp, LuMoveDown } from 'react-icons/lu';
@@ -63,6 +63,7 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
     },
   });
   const focusIdFromTimeline = useAtomValue(transactionInfoCallTreeFocusId);
+  const [timezone] = useTimezone();
 
   React.useEffect(() => {
     if (focusIdFromTimeline) {
@@ -213,7 +214,7 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
             content = `${getExecPercentage(metaData, originalData).toFixed(0)}`;
           } else if (cell.column.id === 'begin') {
             content = originalData.begin
-              ? `${format(originalData.begin, 'HH:mm:ss SSS')} (${originalData.begin})`
+              ? `${formatInTimeZone(originalData.begin, timezone, 'HH:mm:ss SSS')} (${originalData.begin})`
               : '';
           }
           setContent(content);

@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
 import { type ChartConfig } from '../../ui/chart';
 import { useAtomValue } from 'jotai';
@@ -6,6 +6,7 @@ import { userMetricConfigAtom } from '@pinpoint-fe/ui/src/atoms';
 import { getFormat } from '@pinpoint-fe/ui/src/utils';
 import { COLORS } from './constant';
 import { OpenTelemetryChart } from './OpenTelemetryChart';
+import { useTimezone } from '@pinpoint-fe/ui/src/hooks';
 
 const now = new Date();
 const duration = 300 * 1000; // 5min
@@ -22,6 +23,7 @@ export interface PreviewChartProps {}
 
 export const PreviewChart = () => {
   const { chartType = 'line', unit = '', title } = useAtomValue(userMetricConfigAtom);
+  const [timezone] = useTimezone();
   const chartData = Array(tickCount)
     .fill(now)
     .map((now, i) => {
@@ -45,7 +47,7 @@ export const PreviewChart = () => {
           chartDataConfig={chartConfig}
           xAxisConfig={{
             dataKey: 'timestamp',
-            tickFormatter: (value) => `${format(value, 'HH:mm')}`,
+            tickFormatter: (value) => `${formatInTimeZone(value, timezone, 'HH:mm')}`,
           }}
           yAxisConfig={{
             tickFormatter: (value) => getFormat(unit)(value),

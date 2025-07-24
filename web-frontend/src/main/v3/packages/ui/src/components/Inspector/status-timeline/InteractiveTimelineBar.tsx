@@ -1,6 +1,7 @@
 import React from 'react';
-import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../ui';
+import { useTimezone } from '@pinpoint-fe/ui/src/hooks';
 
 export interface InteractiveTimelineBarProps {
   totalRange: [number, number];
@@ -11,8 +12,9 @@ export interface InteractiveTimelineBarProps {
 export const InteractiveTimelineBar = ({
   totalRange: [totalFrom, totalTo],
   activeRange,
-  formatTooltip = (v) => format(v, 'MM.dd HH:mm'),
+  formatTooltip,
 }: InteractiveTimelineBarProps) => {
+  const [timezone] = useTimezone();
   const rangeDiff = totalTo - totalFrom;
   const [activeFromInRatio, activeToInRatio] = activeRange.map((time) => {
     return ((time - totalFrom) / rangeDiff) * 100;
@@ -42,7 +44,9 @@ export const InteractiveTimelineBar = ({
                 <div className="absolute w-4 h-4 -translate-x-1/2 -translate-y-1/2 bg-white border-2 border-gray-500 rounded-md left-1/2 top-1/2 hover:bg-accent" />
               </TooltipTrigger>
               <TooltipContent side={'right'} className="px-0.5 text-xs text-black bg-transparent">
-                {formatTooltip(activeRange[i])}
+                {formatTooltip
+                  ? formatTooltip(activeRange[i])
+                  : formatInTimeZone(activeRange[i], timezone, 'MM.dd HH:mm')}
               </TooltipContent>
             </Tooltip>
           </div>

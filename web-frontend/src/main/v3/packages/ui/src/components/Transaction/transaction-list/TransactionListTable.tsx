@@ -1,7 +1,7 @@
 import { Transaction } from '@pinpoint-fe/ui/src/constants';
 import { VirtualizedDataTable, VirtualizedDataTableProps } from '../../DataTable';
 import { transactionListTableColumns } from '.';
-import { useTransactionSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import { useTimezone, useTransactionSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import {
   convertParamsToQueryString,
   getTransactionListPath,
@@ -19,9 +19,10 @@ export interface TransactionListTableProps
 export const TransactionListTable = ({ data, ...props }: TransactionListTableProps) => {
   const navigate = useNavigate();
   const { transactionInfo, searchParameters, application } = useTransactionSearchParameters();
+  const [timezone] = useTimezone();
   const setCallTreeFocusId = useSetAtom(transactionInfoCallTreeFocusId);
 
-  const columns = transactionListTableColumns(application);
+  const columns = transactionListTableColumns(application, timezone);
 
   return (
     <VirtualizedDataTable

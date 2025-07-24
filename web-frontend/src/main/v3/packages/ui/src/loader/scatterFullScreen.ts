@@ -8,14 +8,17 @@ import {
   getApplicationTypeAndName,
   getParsedDateRange,
   isValidDateRange,
+  getTimezone,
 } from '@pinpoint-fe/ui/src/utils';
-import { format, parse } from 'date-fns';
+import { parse } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 
 export const scatterFullScreenLoader = async ({ params, request }: LoaderFunctionArgs) => {
   try {
     const application = getApplicationTypeAndName(params.application);
     const configuration = await getConfiguration<Configuration>();
+    const timezone = getTimezone();
 
     if (application?.applicationName && application.serviceType) {
       const basePath = `${APP_PATH.SCATTER_FULL_SCREEN}/${params.application}`;
@@ -32,8 +35,8 @@ export const scatterFullScreenLoader = async ({ params, request }: LoaderFunctio
       };
       const defaultParsedDateRange = getParsedDateRange({ from, to });
       const defaultFormattedDateRange = {
-        from: format(defaultParsedDateRange.from, SEARCH_PARAMETER_DATE_FORMAT),
-        to: format(defaultParsedDateRange.to, SEARCH_PARAMETER_DATE_FORMAT),
+        from: formatInTimeZone(defaultParsedDateRange.from, timezone, SEARCH_PARAMETER_DATE_FORMAT),
+        to: formatInTimeZone(defaultParsedDateRange.to, timezone, SEARCH_PARAMETER_DATE_FORMAT),
       };
       const defaultDatesQueryString = new URLSearchParams(defaultFormattedDateRange).toString();
       const defaultDestination = `${basePath}?${defaultDatesQueryString}`;

@@ -1,5 +1,5 @@
-import { useGetInspectorAgentEvents } from '@pinpoint-fe/ui/src/hooks';
-import { format } from 'date-fns';
+import { useGetInspectorAgentEvents, useTimezone } from '@pinpoint-fe/ui/src/hooks';
+import { formatInTimeZone } from 'date-fns-tz';
 import { DataTable } from '../../../DataTable';
 import { ColumnDef } from '@tanstack/react-table';
 import { InspectorAgentEvents } from '@pinpoint-fe/ui/src/constants';
@@ -28,8 +28,9 @@ const columns: ColumnDef<InspectorAgentEvents.AgentEventData>[] = [
     header: 'Time',
     cell: (props) => {
       const timestamp = props.getValue() as number;
+      const [timezone] = useTimezone();
 
-      return format(timestamp, 'yyyy.MM.dd HH:mm:ss XXX');
+      return formatInTimeZone(timestamp, timezone, 'yyyy.MM.dd HH:mm:ss XXX');
     },
   },
   {

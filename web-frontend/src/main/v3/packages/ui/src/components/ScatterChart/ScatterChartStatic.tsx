@@ -12,13 +12,13 @@ import {
   SEARCH_PARAMETER_DATE_FORMAT,
   BASE_PATH,
 } from '@pinpoint-fe/ui/src/constants';
-import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import {
   ScatterChartCore,
   ScatterChartCoreProps,
   ScatterChartHandle,
 } from './core/ScatterChartCore';
-import { useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import { useServerMapSearchParameters, useTimezone } from '@pinpoint-fe/ui/src/hooks';
 import { useStoragedAxisY } from './core/useStoragedAxisY';
 
 export interface ScatterChartStaticProps
@@ -37,6 +37,7 @@ export const ScatterChartStatic = ({
   ...props
 }: ScatterChartStaticProps) => {
   const { searchParameters } = useServerMapSearchParameters();
+  const [timezone] = useTimezone();
   const scatterRef = React.useRef<ScatterChartHandle>(null);
   const [x, setX] = React.useState<[number, number]>([range[0], range[1]]);
   const [y, setY] = useStoragedAxisY();
@@ -92,8 +93,8 @@ export const ScatterChartStatic = ({
           onClick: () => {
             window.open(
               `${BASE_PATH}${getScatterFullScreenPath(application)}?${convertParamsToQueryString({
-                from: format(range[0], SEARCH_PARAMETER_DATE_FORMAT),
-                to: format(range[1], SEARCH_PARAMETER_DATE_FORMAT),
+                from: formatInTimeZone(range[0], timezone, SEARCH_PARAMETER_DATE_FORMAT),
+                to: formatInTimeZone(range[1], timezone, SEARCH_PARAMETER_DATE_FORMAT),
                 agentId: selectedAgentId === SCATTER_DATA_TOTAL_KEY ? undefined : selectedAgentId,
               })}`,
             );

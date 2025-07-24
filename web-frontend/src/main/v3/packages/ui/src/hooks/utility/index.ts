@@ -8,4 +8,5 @@ export * from './useLocalStorage';
 export * from './useServerMapLinkedData';
 export * from './useStoragedSetting';
 export * from './useTabFocus';
+export * from './useTimezone';
 // export * from './useSearchParameters';

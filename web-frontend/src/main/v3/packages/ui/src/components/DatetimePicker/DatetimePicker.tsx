@@ -1,7 +1,8 @@
 import './datetime-picker.css';
 // import '@pinpoint-fe/datetime-picker/dist/rich-datetime-picker.css';
 import React from 'react';
-import { subDays, format, subYears } from 'date-fns';
+import { subDays, subYears } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { RxChevronLeft, RxChevronRight, RxPlay, RxTrackNext, RxStop } from 'react-icons/rx';
 import {
   RichDatetimePicker,
@@ -19,7 +20,12 @@ import {
 import { Button, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui';
 import { cn } from '../../lib';
 import { useReactToastifyToast } from '../Toast';
-import { useDateFormat, useLanguage, useSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import {
+  useDateFormat,
+  useLanguage,
+  useSearchParameters,
+  useTimezone,
+} from '@pinpoint-fe/ui/src/hooks';
 import {
   convertToMilliseconds,
   convertToTimeUnit,
@@ -52,7 +58,7 @@ export interface DatetimePickerProps
   timeUnits?: string[];
 }
 
-const genDateState = (from: number | Date, to: number | Date): DateState => {
+const genDateState = (from: number | Date, to: number | Date, timezone: string): DateState => {
   const newFrom = new Date(from);
   const newTo = new Date(to);
 
@@ -62,8 +68,8 @@ const genDateState = (from: number | Date, to: number | Date): DateState => {
       to: newTo,
     },
     formattedDates: {
-      from: format(newFrom, SEARCH_PARAMETER_DATE_FORMAT),
-      to: format(newTo, SEARCH_PARAMETER_DATE_FORMAT),
+      from: formatInTimeZone(newFrom, timezone, SEARCH_PARAMETER_DATE_FORMAT),
+      to: formatInTimeZone(newTo, timezone, SEARCH_PARAMETER_DATE_FORMAT),
     },
   };
 };
@@ -85,6 +91,7 @@ export const DatetimePicker = React.memo(
     const { application } = useSearchParameters();
     const [language] = useLanguage();
     const [dateFormat] = useDateFormat();
+    const [timezone] = useTimezone();
     const [input, setInput] = React.useState('');
     const parsedDate = getParsedDateRange({ from, to }, isValidDateRange(maxDateRangeDays));
     const parsedFromTimestamp = parsedDate.from.getTime();
@@ -101,22 +108,22 @@ export const DatetimePicker = React.memo(
     };
 
     const handleClickPrev = () => {
-      handleChange?.(genDateState(parsedFromTimestamp - gap, parsedToTimestamp - gap));
+      handleChange?.(genDateState(parsedFromTimestamp - gap, parsedToTimestamp - gap, timezone));
     };
 
     const handleClickNext = () => {
       if (parsedToTimestamp + gap > new Date().getTime()) {
         const now = new Date().getTime();
-        handleChange?.(genDateState(now - gap, now));
+        handleChange?.(genDateState(now - gap, now, timezone));
       } else {
-        handleChange?.(genDateState(parsedFromTimestamp + gap, parsedToTimestamp + gap));
+        handleChange?.(genDateState(parsedFromTimestamp + gap, parsedToTimestamp + gap, timezone));
       }
     };
 
     const handleClickLatest = () => {
       const now = new Date().getTime();
 
-      handleChange?.(genDateState(now - gap, now));
+      handleChange?.(genDateState(now - gap, now, timezone));
     };
 
     const handleRealtime = (realtime: boolean) => () => {
@@ -150,7 +157,7 @@ export const DatetimePicker = React.memo(
                     to: dateRange[1],
                   });
                   if (isWithinMaxRange) {
-                    handleChange?.(genDateState(dateRange[0], dateRange[1]), text);
+                    handleChange?.(genDateState(dateRange[0], dateRange[1], timezone), text);
                   } else {
                     toast.warn(outOfDateRangeMessage);
                     const prarsedPrevDate = getParsedDateRange({ from, to }, () => true);

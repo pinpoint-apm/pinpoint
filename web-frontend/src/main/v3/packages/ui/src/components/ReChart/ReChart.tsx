@@ -1,11 +1,12 @@
 import React from 'react';
-import { format, isThisYear, isToday } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
+import { isThisYear, isToday } from 'date-fns';
 import { XAxis, YAxis, ComposedChart, TooltipProps } from 'recharts';
 import { useRechart } from './useRechart';
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip } from '../ui';
 import { Payload } from 'recharts/types/component/DefaultLegendContent';
 import { Chart } from '@pinpoint-fe/ui/src/constants';
-import { getFormat } from '@pinpoint-fe/ui/src/utils';
+import { getFormat, getTimezone } from '@pinpoint-fe/ui/src/utils';
 import { CustomChartTooltipContent } from './ChartTooltipContent';
 
 export interface ReChartProps {
@@ -20,13 +21,15 @@ export interface ReChartProps {
 }
 
 export function defaultTickFormatter(value: number) {
+  const timezone = getTimezone();
+
   if (isToday(value)) {
-    return format(value, 'HH:mm:ss');
+    return formatInTimeZone(value, timezone, 'HH:mm:ss');
   }
   if (isThisYear(value)) {
-    return `${format(value, 'MM.dd')}\n${format(value, 'HH:mm:ss')}`;
+    return `${formatInTimeZone(value, timezone, 'MM.dd')}\n${formatInTimeZone(value, timezone, 'HH:mm:ss')}`;
   }
-  return `${format(value, 'yyyy.MM.dd')}\n${format(value, 'HH:mm:ss')}`;
+  return `${formatInTimeZone(value, timezone, 'yyyy.MM.dd')}\n${formatInTimeZone(value, timezone, 'HH:mm:ss')}`;
 }
 
 export const ReChart = ({

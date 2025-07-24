@@ -1,6 +1,7 @@
 import { parse, isValid, differenceInDays } from 'date-fns';
 import { SEARCH_PARAMETER_DATE_FORMAT } from '@pinpoint-fe/ui/src/constants';
-import { format, getCurrentFormat } from './format';
+import { format, getCurrentFormat, getTimezone } from './format';
+import { zonedTimeToUtc } from 'date-fns-tz';
 
 export const getParsedDateRange = (
   dates: {
@@ -46,7 +47,10 @@ export const getFormattedDateRange = (
 
 export const getParsedDate = (date: string) => {
   const currentDate = new Date();
-  const result = parse(date, SEARCH_PARAMETER_DATE_FORMAT, new Date());
+  const timezone = getTimezone();
+  const parsedDate = parse(date, SEARCH_PARAMETER_DATE_FORMAT, new Date());
+  const result = zonedTimeToUtc(parsedDate, timezone);
+
   if (isValid(result)) {
     return result;
   }
@@ -121,5 +125,15 @@ export const convertTimeStringToTime = (timeString: string) => {
       return value * 24 * 60 * 60 * 1000;
     default:
       throw new Error('Unknown time unit');
+  }
+};
+
+export const isValidTimezone = (tz: string): boolean => {
+  try {
+    Intl.DateTimeFormat(undefined, { timeZone: tz });
+    return true;
+  } catch (error) {
+    console.error('Invalid timezone', error);
+    return false;
   }
 };

@@ -5,14 +5,16 @@ import {
 } from '@pinpoint-fe/ui/src/constants';
 import { getConfiguration } from '@pinpoint-fe/ui/src/hooks';
 import { isValidDateRange } from '@pinpoint-fe/ui/src/utils';
-import { getParsedDateRange } from '@pinpoint-fe/ui/src/utils';
-import { parse, format } from 'date-fns';
+import { getParsedDateRange, getTimezone } from '@pinpoint-fe/ui/src/utils';
+import { parse } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 
 export const systemMetricRouteLoader = async ({ params, request }: LoaderFunctionArgs) => {
   try {
     const hostGroup = params.hostGroup || null;
     const configuration = await getConfiguration<Configuration>();
+    const timezone = getTimezone();
 
     if (hostGroup) {
       const basePath = `${APP_PATH.SYSTEM_METRIC}/${hostGroup}`;
@@ -29,8 +31,8 @@ export const systemMetricRouteLoader = async ({ params, request }: LoaderFunctio
       };
       const defaultParsedDateRange = getParsedDateRange({ from, to });
       const defaultFormattedDateRange = {
-        from: format(defaultParsedDateRange.from, SEARCH_PARAMETER_DATE_FORMAT),
-        to: format(defaultParsedDateRange.to, SEARCH_PARAMETER_DATE_FORMAT),
+        from: formatInTimeZone(defaultParsedDateRange.from, timezone, SEARCH_PARAMETER_DATE_FORMAT),
+        to: formatInTimeZone(defaultParsedDateRange.to, timezone, SEARCH_PARAMETER_DATE_FORMAT),
       };
       const validateDateRange = isValidDateRange(configuration?.['periodMax.systemMetric'] || 28);
       const defaultDatesQueryString = new URLSearchParams(defaultFormattedDateRange).toString();

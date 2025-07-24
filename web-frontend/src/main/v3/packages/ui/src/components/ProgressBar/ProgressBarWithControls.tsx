@@ -1,5 +1,5 @@
 import React from 'react';
-import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { FaCheck, FaPause } from 'react-icons/fa';
 import { FaArrowRotateRight } from 'react-icons/fa6';
 import { useUpdateEffect } from 'usehooks-ts';
@@ -8,6 +8,7 @@ import { CgSpinner } from 'react-icons/cg';
 import { cn } from '../../lib';
 import { colors } from '@pinpoint-fe/ui/src/constants';
 import { LuRotateCcw } from 'react-icons/lu';
+import { useTimezone } from '@pinpoint-fe/ui/src/hooks';
 
 export interface ProgressBarWithControlsProps extends ProgressBarProps {
   children?: (props: {
@@ -32,7 +33,7 @@ export const ProgressBarWithControls = ({
   const [isComplete, setComplete] = React.useState(
     (props?.progress || 0) >= (props?.range?.[0] || 0),
   );
-
+  const [timezone] = useTimezone();
   useUpdateEffect(() => {
     setPause(false);
     setComplete(false);
@@ -60,7 +61,7 @@ export const ProgressBarWithControls = ({
         className="w-full text-xxs"
         colors={[colors.emerald[200], colors['status-success']]}
         formatTick={(value) => {
-          return format(value, 'HH:mm');
+          return formatInTimeZone(value, timezone, 'HH:mm');
         }}
         onChange={({ percent }) => {
           onChange?.({ percent });

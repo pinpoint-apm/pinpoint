@@ -3,8 +3,9 @@ import { colors, GetHeatmapAppData } from '@pinpoint-fe/ui/src/constants';
 import { defaultTickFormatter } from '@pinpoint-fe/ui/src/components/ReChart';
 import { capitalize } from 'lodash';
 import { HeatmapSettingType } from './HeatmapSetting';
+import { formatInTimeZone } from 'date-fns-tz';
+import { useTimezone } from '@pinpoint-fe/ui/src/hooks';
 
-import { format } from 'date-fns';
 import * as echarts from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import { HeatmapChart as HeatmapChartEcharts } from 'echarts/charts';
@@ -56,7 +57,7 @@ const HeatmapChart = React.forwardRef(
   ({ isRealtime, data, setting, onDragEnd }: HeatmapChartProps, ref: React.Ref<HTMLDivElement>) => {
     const chartRef = React.useRef(null);
     const chartInstanceRef = React.useRef<echarts.EChartsType | null>(null);
-
+    const [timezone] = useTimezone();
     const [isMouseDown, setIsMouseDown] = React.useState(false);
 
     const [startCell, setStartCell] = React.useState<any>(); // 시작 셀: x-y
@@ -174,7 +175,7 @@ const HeatmapChart = React.forwardRef(
             showMaxLabel: true,
             showMinLabel: true,
             formatter: (value: string) => {
-              return `${format(Number(value), 'yyyy.MM.dd')}\n${format(Number(value), 'HH:mm:ss')}`;
+              return `${formatInTimeZone(Number(value), timezone, 'yyyy.MM.dd')}\n${formatInTimeZone(Number(value), timezone, 'HH:mm:ss')}`;
             },
           },
         },

@@ -1,6 +1,7 @@
 import { ActiveThreadLightDump } from '@pinpoint-fe/ui/src/constants';
 import { ColumnDef } from '@tanstack/react-table';
-import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
+import { getTimezone } from '@pinpoint-fe/ui/src/utils';
 
 export const transactionListTableColumns =
   (): ColumnDef<ActiveThreadLightDump.ThreadDumpData>[] => [
@@ -54,8 +55,9 @@ export const transactionListTableColumns =
       size: 160,
       cell: (props) => {
         const timestamp = props.getValue() as number;
+        const timezone = getTimezone();
 
-        return timestamp ? format(timestamp, 'YYY.MM.dd HH:mm:ss SSS') : '';
+        return timestamp ? formatInTimeZone(timestamp, timezone, 'YYY.MM.dd HH:mm:ss SSS') : '';
       },
       meta: {
         headerClassName: 'grow-0',

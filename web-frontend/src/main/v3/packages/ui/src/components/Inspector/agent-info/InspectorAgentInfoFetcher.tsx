@@ -1,6 +1,6 @@
 import React from 'react';
 import { RxChevronDown, RxChevronRight } from 'react-icons/rx';
-import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import {
   Collapsible,
   CollapsibleContent,
@@ -9,7 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '../../ui';
-import { useGetInspectorAgentInfoData } from '@pinpoint-fe/ui/src/hooks';
+import { useGetInspectorAgentInfoData, useTimezone } from '@pinpoint-fe/ui/src/hooks';
 import { InspectorAgentInfoServiceType } from './InspectorAgentInfoServiceType';
 import { LuChevronsUpDown } from 'react-icons/lu';
 import { insertIf } from '@pinpoint-fe/ui/src/utils';
@@ -26,6 +26,7 @@ export interface InspectorAgentInfoFetcherProps {}
 
 const AGENT_INFO_TIMESTAMP_FORMAT = 'yyyy.MM.dd HH:mm:ss XXX';
 export const InspectorAgentInfoFetcher = () => {
+  const [timezone] = useTimezone();
   const { data } = useGetInspectorAgentInfoData();
   const agentInfoDefinitionList: InfoDefinition[] = data
     ? [
@@ -66,13 +67,14 @@ export const InspectorAgentInfoFetcher = () => {
         {
           key: 'startTime',
           label: 'Start Time',
-          value: format(data.startTimestamp, AGENT_INFO_TIMESTAMP_FORMAT),
+          value: formatInTimeZone(data.startTimestamp, timezone, AGENT_INFO_TIMESTAMP_FORMAT),
         },
         {
           key: 'endStatus',
           label: 'End Status',
-          value: `${data.status.state.desc} (last checked: ${format(
+          value: `${data.status.state.desc} (last checked: ${formatInTimeZone(
             data.status.eventTimestamp,
+            timezone,
             AGENT_INFO_TIMESTAMP_FORMAT,
           )})`,
         },

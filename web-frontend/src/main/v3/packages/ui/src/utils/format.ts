@@ -1,7 +1,8 @@
 import { APP_SETTING_KEYS, DATE_FORMATS } from '@pinpoint-fe/ui/src/constants';
-import { format as dateFnsFormat } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { getCompatibleLocalStorageValue } from './localStorage';
 import { enUS, ko } from 'date-fns/locale';
+import { isValidTimezone } from './date';
 
 const getLocale = () => {
   const language = getCompatibleLocalStorageValue(APP_SETTING_KEYS.LANGUAGE);
@@ -11,6 +12,17 @@ const getLocale = () => {
   } else {
     return enUS;
   }
+};
+
+export const getTimezone = () => {
+  const timezone: string = getCompatibleLocalStorageValue(APP_SETTING_KEYS.TIMEZONE);
+
+  if (!isValidTimezone(timezone)) {
+    const systemTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return systemTimezone;
+  }
+
+  return timezone;
 };
 
 export const getCurrentFormat = () => {
@@ -24,13 +36,18 @@ export const getCurrentFormat = () => {
 };
 
 export const format = (
-  ...props: [date: Date | number, format?: string, option?: Parameters<typeof dateFnsFormat>['2']]
+  ...props: [
+    date: Date | number,
+    format?: string,
+    option?: Parameters<typeof formatInTimeZone>['3'],
+  ]
 ) => {
   const [date, formatStrProp, option] = props;
   const locale = getLocale();
+  const timezone = getTimezone();
   const formatStr = formatStrProp || getCurrentFormat();
 
-  return dateFnsFormat(date, formatStr, {
+  return formatInTimeZone(date, timezone, formatStr, {
     ...option,
     locale,
   });

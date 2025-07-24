@@ -1,6 +1,6 @@
 import { ApplicationType, BASE_PATH, Transaction } from '@pinpoint-fe/ui/src/constants';
 import { ColumnDef } from '@tanstack/react-table';
-import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { FaFire } from 'react-icons/fa';
 import { Button } from '../../../components';
 import { RxExternalLink } from 'react-icons/rx';
@@ -11,6 +11,7 @@ import {
 
 export const transactionListTableColumns = (
   application: ApplicationType | null,
+  timezone: string,
 ): ColumnDef<Transaction>[] => [
   {
     accessorKey: 'index',
@@ -30,7 +31,7 @@ export const transactionListTableColumns = (
     size: 200,
     cell: (props) => {
       const timestamp = props.getValue() as number;
-      return format(timestamp, 'yyyy.MM.dd HH:mm:ss SSS');
+      return formatInTimeZone(timestamp, timezone, 'yyyy.MM.dd HH:mm:ss SSS');
     },
     meta: {
       headerClassName: 'grow-0',
