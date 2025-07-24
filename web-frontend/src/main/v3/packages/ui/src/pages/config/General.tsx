@@ -27,7 +27,7 @@ export const GeneralPage = () => {
   const now = new Date();
 
   return (
-    <div className="space-y-6">
+    <div className="pl-1 space-y-6">
       <div>
         <h3 className="text-lg font-semibold">General</h3>
         <p className="text-sm text-muted-foreground">{t('CONFIGURATION.GENERAL.DESC')}</p>
@@ -37,7 +37,7 @@ export const GeneralPage = () => {
         role="none"
         className="shrink-0 bg-border h-[1px] w-full"
       ></div>
-      <div className="space-y-2">
+      <div className="space-y-2 ">
         <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
           {t('CONFIGURATION.GENERAL.LANGUAGE')}
         </label>
@@ -45,7 +45,7 @@ export const GeneralPage = () => {
           value={language}
           onValueChange={(value) => setLanguage(value as SupportLanguageType)}
         >
-          <SelectTrigger className="w-52">
+          <SelectTrigger className="w-72">
             <SelectValue placeholder="Select language" />
           </SelectTrigger>
           <SelectContent>
@@ -71,7 +71,7 @@ export const GeneralPage = () => {
             setDateFormat(DATE_FORMATS[value]);
           }}
         >
-          <SelectTrigger className="w-60">
+          <SelectTrigger className="w-72">
             <SelectValue placeholder="Select language" />
           </SelectTrigger>
           <SelectContent>
@@ -95,7 +95,7 @@ export const GeneralPage = () => {
           Timezone
         </label>
         <Select value={timezone} onValueChange={(value) => setTimezone(value)}>
-          <SelectTrigger className="w-[280px]">
+          <SelectTrigger className="w-72">
             <SelectValue placeholder="Select a timezone" />
           </SelectTrigger>
           <SelectContent>
