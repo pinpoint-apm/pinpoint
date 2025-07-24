@@ -11,13 +11,9 @@ const parseSafe = (value: string | null) => {
   }
 };
 
-export const getCompatibleLocalStorageValue = (
-  key: APP_SETTING_KEYS | EXPERIMENTAL_CONFIG_KEYS | string,
-) => {
-  const v2Key = `pp.${key}`;
-  const v2Value = window.localStorage.getItem(v2Key);
+export const getLocalStorageValue = (key: APP_SETTING_KEYS | EXPERIMENTAL_CONFIG_KEYS | string) => {
   const v3Value = window.localStorage.getItem(key);
-  const storageValue = parseSafe(v2Value) ?? parseSafe(v3Value);
+  const storageValue = parseSafe(v3Value);
 
   return storageValue;
 };
