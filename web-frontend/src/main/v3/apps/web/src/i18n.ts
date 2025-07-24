@@ -1,6 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import { getCompatibleLocalStorageValue } from '@pinpoint-fe/ui/src/utils';
+import { getLocalStorageValue } from '@pinpoint-fe/ui/src/utils';
 import { APP_SETTING_KEYS, en, ko } from '@pinpoint-fe/ui/src/constants';
 
 const resources = {
@@ -13,7 +13,7 @@ const resources = {
 };
 
 const systemLang = window.navigator.language.substring(0, 2);
-const initLang = getCompatibleLocalStorageValue(APP_SETTING_KEYS.LANGUAGE);
+const initLang = getLocalStorageValue(APP_SETTING_KEYS.LANGUAGE);
 const userLang = initLang ? initLang : systemLang.match(/en|ko/) ? systemLang : 'en';
 
 i18n.use(initReactI18next).init({
