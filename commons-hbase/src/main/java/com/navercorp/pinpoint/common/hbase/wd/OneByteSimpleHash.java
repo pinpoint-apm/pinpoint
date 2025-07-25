@@ -26,8 +26,7 @@ public class OneByteSimpleHash implements ByteHasher {
     private static final SaltKey SALT_KEY = ByteSaltKey.SALT;
 
     private final int mod;
-    private final byte[] prefix;
-
+    private final SaltKeyPrefix saltKeyPrefix;
     /**
      * Creates a new instance of this class.
      *
@@ -39,17 +38,9 @@ public class OneByteSimpleHash implements ByteHasher {
         }
         // i.e. "real" maxBuckets value = maxBuckets or maxBuckets-1
         this.mod = maxBuckets;
-
-        this.prefix = toModBytes(mod);
+        this.saltKeyPrefix = new ModSaltKeyPrefix(mod);
     }
 
-    static byte[] toModBytes(int mod) {
-        final byte[] prefix = new byte[mod];
-        for (int i = 0; i < mod; i++) {
-            prefix[i] = (byte) i;
-        }
-        return prefix;
-    }
 
 
     @Override
@@ -69,10 +60,9 @@ public class OneByteSimpleHash implements ByteHasher {
         return saltedKey;
     }
 
-
     @Override
-    public byte[] getAllPossiblePrefixes() {
-        return prefix;
+    public SaltKeyPrefix getAllPrefixes(byte[] originalKey) {
+        return saltKeyPrefix;
     }
 
     @Override

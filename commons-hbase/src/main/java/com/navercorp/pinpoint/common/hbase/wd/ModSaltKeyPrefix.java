@@ -16,20 +16,18 @@
 
 package com.navercorp.pinpoint.common.hbase.wd;
 
-public interface ByteHasher {
-    int MAX_BUCKETS = 256;
+public class ModSaltKeyPrefix implements SaltKeyPrefix {
+    private final int mod;
 
-    byte getHashPrefix(byte[] originalKey);
-
-    byte[] writeSaltKey(byte[] saltedKey);
-
-    default byte getHashPrefix(byte[] originalKey, int saltKeySize) {
-        throw new UnsupportedOperationException();
+    public ModSaltKeyPrefix(int mod) {
+        this.mod = mod;
     }
 
-    SaltKeyPrefix getAllPrefixes(byte[] originalKey);
+    public int size() {
+        return mod;
+    }
 
-    int getPrefixLength(byte[] adjustedKey);
-
-    SaltKey getSaltKey();
+    public byte getPrefix(int index, byte[] originalKey) {
+        return (byte) index;
+    }
 }

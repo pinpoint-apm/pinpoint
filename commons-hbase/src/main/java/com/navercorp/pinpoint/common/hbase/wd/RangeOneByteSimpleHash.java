@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.common.hbase.wd;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.MathUtils;
 
-import static com.navercorp.pinpoint.common.hbase.wd.OneByteSimpleHash.toModBytes;
-
 /**
  * Copy from sematext/HBaseWD
  * Provides handy methods to distribute
@@ -35,7 +33,7 @@ public class RangeOneByteSimpleHash implements ByteHasher {
     protected final int end;
     private final int mod;
 
-    private final byte[] prefix;
+    private final SaltKeyPrefix saltKeyPrefix;
 
     public RangeOneByteSimpleHash(int start, int end, int maxBuckets) {
         if (maxBuckets < 1 || maxBuckets > 256) {
@@ -47,7 +45,7 @@ public class RangeOneByteSimpleHash implements ByteHasher {
         // i.e. "real" maxBuckets value = maxBuckets or maxBuckets-1
         this.mod = maxBuckets;
 
-        prefix = toModBytes(mod);
+        this.saltKeyPrefix = new ModSaltKeyPrefix(mod);
     }
 
 
@@ -68,20 +66,15 @@ public class RangeOneByteSimpleHash implements ByteHasher {
         return saltedKey;
     }
 
-    /** Compute hash for binary data. */
-    private int hashBytes(byte[] bytes) {
-        int length = Math.min(bytes.length, end);
-        return BytesUtils.hashBytes(bytes, start, length);
-    }
-
     private int hashBytes(byte[] bytes, int hashOffset) {
         int length = Math.min(bytes.length, end + hashOffset);
         return BytesUtils.hashBytes(bytes, start + hashOffset, length);
     }
 
+
     @Override
-    public byte[] getAllPossiblePrefixes() {
-        return prefix;
+    public SaltKeyPrefix getAllPrefixes(byte[] originalKey) {
+        return saltKeyPrefix;
     }
 
     @Override

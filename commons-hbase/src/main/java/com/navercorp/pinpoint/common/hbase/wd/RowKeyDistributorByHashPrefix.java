@@ -58,13 +58,13 @@ public class RowKeyDistributorByHashPrefix implements RowKeyDistributor {
 
     @Override
     public byte[][] getAllDistributedKeys(byte[] originalKey) {
-        byte[] allPrefixes = hasher.getAllPossiblePrefixes(originalKey);
-
-        byte[][] keys = new byte[allPrefixes.length][];
-        for (int i = 0; i < allPrefixes.length; i++) {
-            keys[i] = BytesUtils.add(allPrefixes[i], originalKey);
+        SaltKeyPrefix allPrefixes = hasher.getAllPrefixes(originalKey);
+        final int size = allPrefixes.size();
+        byte[][] keys = new byte[size][];
+        for (int i = 0; i < size; i++) {
+            byte prefix = allPrefixes.getPrefix(i, originalKey);
+            keys[i] = BytesUtils.add(prefix, originalKey);
         }
-
         return keys;
     }
 
