@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,7 +38,6 @@ class RangeDoubleHashTest {
 
         Set<Integer> modSet = secondaryModSet(hash, keyModIndex, secondaryMod);
         Assertions.assertEquals(secondaryMod, modSet.size());
-
         for (int i = 0; i < 100; i++) {
             int secondaryIndex = hash.getHashPrefix(originalKey);
             Assertions.assertTrue(modSet.contains(secondaryIndex));
@@ -82,19 +81,34 @@ class RangeDoubleHashTest {
     }
 
 
-
     @Test
     void getAllPossiblePrefixes() {
 
         int secondaryMod = 4;
         RangeDoubleHash hash = new RangeDoubleHash(0, 12, ByteHasher.MAX_BUCKETS, secondaryMod);
 
-        int service = 0;
-        long application = 1;
+        for (int i = 0; i < ByteHasher.MAX_BUCKETS + 10; i++) {
+            int service = 0;
+            long application = i;
 
-        byte[] rowkey = rowkey(service, application);
-        byte[] allDistributedKeys = hash.getAllPossiblePrefixes(rowkey);
-        Assertions.assertEquals(secondaryMod, allDistributedKeys.length);
+            byte[] rowkey = rowkey(service, application);
+            byte hashPrefix = hash.getHashPrefix(rowkey);
+            SaltKeyPrefix allPrefixes = hash.getAllPrefixes(rowkey);
+
+            Assertions.assertEquals(secondaryMod, allPrefixes.size());
+            Assertions.assertTrue(contains(allPrefixes, rowkey, hashPrefix));
+        }
+
+    }
+
+    private boolean contains(SaltKeyPrefix allPrefixes, byte[] rowkey, byte hashPrefix) {
+        for (int i = 0; i < allPrefixes.size(); i++) {
+            byte prefix = allPrefixes.getPrefix(i, rowkey);
+            if (prefix == hashPrefix) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -131,7 +145,6 @@ class RangeDoubleHashTest {
 
     byte[] rowkey(int service, long application) {
         return Bytes.add(Bytes.toBytes(service), Bytes.toBytes(application));
-
     }
 
 }

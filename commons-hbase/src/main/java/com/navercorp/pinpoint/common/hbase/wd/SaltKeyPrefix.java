@@ -16,20 +16,8 @@
 
 package com.navercorp.pinpoint.common.hbase.wd;
 
-public interface ByteHasher {
-    int MAX_BUCKETS = 256;
+public interface SaltKeyPrefix {
+    int size();
 
-    byte getHashPrefix(byte[] originalKey);
-
-    byte[] writeSaltKey(byte[] saltedKey);
-
-    default byte getHashPrefix(byte[] originalKey, int saltKeySize) {
-        throw new UnsupportedOperationException();
-    }
-
-    SaltKeyPrefix getAllPrefixes(byte[] originalKey);
-
-    int getPrefixLength(byte[] adjustedKey);
-
-    SaltKey getSaltKey();
+    byte getPrefix(int index, byte[] originalKey);
 }

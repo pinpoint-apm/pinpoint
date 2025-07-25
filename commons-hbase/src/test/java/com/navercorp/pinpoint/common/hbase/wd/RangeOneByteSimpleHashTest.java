@@ -35,8 +35,8 @@ class RangeOneByteSimpleHashTest {
         byte[] bytes = Bytes.toBytes(7L);
         byte hashPrefix = hash.getHashPrefix(bytes);
 
-        byte[] allPossiblePrefixes = hash.getAllPossiblePrefixes(new byte[]{hashPrefix});
-        assertEquals(16, allPossiblePrefixes.length);
+        SaltKeyPrefix prefix = hash.getAllPrefixes(new byte[]{hashPrefix});
+        assertEquals(16, prefix.size());
 
         byte[] distributedKey = rowKeyDistributor.getDistributedKey(bytes);
         byte[] originalKey = rowKeyDistributor.getOriginalKey(distributedKey);

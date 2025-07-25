@@ -35,33 +35,27 @@ public class RangeDoubleHash implements ByteHasher {
 
     private final int secondaryMod;
 
-    private final byte[][] prefix;
+    private final SaltKeyPrefix[] saltKeyPrefixes;
 
     public RangeDoubleHash(int start, int end, int maxBuckets, int secondaryMod) {
         if (maxBuckets < 1 || maxBuckets > MAX_BUCKETS) {
             throw new IllegalArgumentException("maxBuckets should be in 1..256 range");
         }
-
         this.start = start;
         this.end = end;
         // i.e. "real" maxBuckets value = maxBuckets or maxBuckets-1
         this.maxBuckets = maxBuckets;
 
         this.secondaryMod = secondaryMod;
-
-        this.prefix = toModBytes(this.maxBuckets, secondaryMod);
+        this.saltKeyPrefixes = newSaltKeyPrefixes(maxBuckets);
     }
 
-    private byte[][] toModBytes(int mod, int secondaryMod) {
-        byte[][] prefixBytes = new byte[mod][secondaryMod];
-        for (int i = 0; i < mod; i++) {
-            byte[] modBytes = new byte[secondaryMod];
-            for (int j = 0; j < secondaryMod; j++) {
-                modBytes[j] = (byte) secondaryModIndex(i, j);
-            }
-            prefixBytes[i] = modBytes;
+    private SaltKeyPrefix[] newSaltKeyPrefixes(int maxBuckets) {
+        final SaltKeyPrefix[] saltKeyPrefixes = new SaltKeyPrefix[maxBuckets];
+        for (int i = 0; i < saltKeyPrefixes.length; i++) {
+            saltKeyPrefixes[i] = new DoubleHashKeyPrefix(i);
         }
-        return prefixBytes;
+        return saltKeyPrefixes;
     }
 
 
@@ -98,18 +92,16 @@ public class RangeDoubleHash implements ByteHasher {
     /** Compute hash for binary data. */
     private int hashBytes(byte[] bytes) {
         int length = Math.min(bytes.length, end);
+//        HashCode hashCode = Hashing.murmur3_32().hashBytes(bytes, start, length);
+//        return hashCode.asInt();
         return BytesUtils.hashBytes(bytes, start, length);
     }
 
-    @Override
-    public byte[] getAllPossiblePrefixes() {
-        throw new UnsupportedOperationException();
-    }
 
     @Override
-    public byte[] getAllPossiblePrefixes(byte[] originalKey) {
-        int index = firstIndex(originalKey);
-        return this.prefix[index];
+    public SaltKeyPrefix getAllPrefixes(byte[] originalKey) {
+        int firstIndex = firstIndex(originalKey);
+        return saltKeyPrefixes[firstIndex];
     }
 
     @Override
@@ -119,5 +111,23 @@ public class RangeDoubleHash implements ByteHasher {
 
     public SaltKey getSaltKey() {
         return SALT_KEY;
+    }
+
+    class DoubleHashKeyPrefix implements SaltKeyPrefix {
+
+        private final int firstIndex;
+        public DoubleHashKeyPrefix(int firstIndex) {
+            this.firstIndex = firstIndex;
+        }
+
+        @Override
+        public int size() {
+            return secondaryMod;
+        }
+
+        @Override
+        public byte getPrefix(int index, byte[] originalKey) {
+            return (byte) secondaryModIndex(firstIndex, index);
+        }
     }
 }

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.hbase.wd;
 
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,4 +44,17 @@ class OneByteSimpleHashTest {
         assertEquals(value, BytesUtils.bytesToInt(prefixBytes, prefix));
 
     }
+
+    @Test
+    void getHashPrefix_all() {
+        OneByteSimpleHash hash = new OneByteSimpleHash(16);
+
+        SaltKeyPrefix allPrefixes = hash.getAllPrefixes(null);
+        for (int i = 0; i < allPrefixes.size(); i++) {
+            byte prefix = allPrefixes.getPrefix(i, null);
+
+            Assertions.assertTrue(prefix >= 0 && prefix < 16);
+        }
+    }
+
 }
