@@ -34,14 +34,14 @@ export const ThreadDumpPage = () => {
         direction="vertical"
         // autoSaveId={APP_SETTING_KEYS.TRANSACTION_LIST_RESIZABLE}
       >
-        <ResizablePanel>
+        <ResizablePanel minSize={10} maxSize={90}>
           <ThreadDumpList
             selectedThread={selectedThread}
             onClickRow={(rowData) => setSelectedThread(rowData.original)}
           />
         </ResizablePanel>
-        <ResizableHandle className="!h-2" withHandle />
-        <ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel minSize={10} maxSize={90}>
           <ThreadDumpDetail thread={selectedThread} />
         </ResizablePanel>
       </ResizablePanelGroup>

@@ -103,9 +103,11 @@ export const Realtime = () => {
             direction="vertical"
             autoSaveId={APP_SETTING_KEYS.REALTIME_ACTIVE_REQUEST_RESIZABLE}
           >
-            <ResizablePanel>{isFocus && <ServerMap shouldPoll={true} />}</ResizablePanel>
+            <ResizablePanel minSize={10} maxSize={90}>
+              {isFocus && <ServerMap shouldPoll={true} />}
+            </ResizablePanel>
             <ResizableHandle withHandle />
-            <ResizablePanel className="!overflow-auto">
+            <ResizablePanel minSize={10} maxSize={90} className="!overflow-auto">
               {isFocus && (
                 <ErrorBoundary>
                   <AgentActiveThreadFetcher />
