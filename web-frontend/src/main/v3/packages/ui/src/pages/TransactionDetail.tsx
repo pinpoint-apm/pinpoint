@@ -47,8 +47,8 @@ export const TransactionDetailPage = ({ transactionInfoProps }: TransactionDetai
         <ResizablePanel minSize={20} maxSize={40}>
           {application && <TransactionCharts />}
         </ResizablePanel>
-        <ResizableHandle className="!h-2" withHandle />
-        <ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel minSize={60} maxSize={80}>
           <TransactionInfo disableHeader {...transactionInfoProps} />
         </ResizablePanel>
       </ResizablePanelGroup>
