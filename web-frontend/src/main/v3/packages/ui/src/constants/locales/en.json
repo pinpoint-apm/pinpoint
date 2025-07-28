@@ -1422,6 +1422,38 @@
           ]
         }
       ]
+    },
+    "FILTERED_WIZARD": {
+      "TITLE": "Description of the URL pattern.",
+      "DESC": "",
+      "CATEGORY": [
+        {
+          "TITLE": "",
+          "ITEMS": [
+            {
+              "NAME": "*",
+              "DESC": "Matchers zero or more characters"
+            },
+            {
+              "NAME": "?",
+              "DESC": "Matchers exactly one characters"
+            },
+            {
+              "NAME": "**",
+              "DESC": "Matchers zero or more directories"
+            }
+          ]
+        },
+        {
+          "TITLE": "",
+          "ITEMS": [
+            {
+              "NAME": "Example",
+              "DESC": "/pinpoint/**/*.html<br/><br/>/pinpoint/??.html<br/><br/>/pinpoint/**/??.html"
+            }
+          ]
+        }
+      ]
     }
   }
 }
