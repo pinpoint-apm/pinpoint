@@ -25,6 +25,7 @@ import { Separator } from '../../components/ui/separator';
 import { BiSolidServer } from 'react-icons/bi';
 import { PiHardDriveFill } from 'react-icons/pi';
 import HeatmapVisualMapIcon from './HeatmapVisualMapIcon';
+import { cn } from '../../lib/utils';
 
 export type HelpContent = {
   TITLE?: string;
@@ -90,7 +91,11 @@ export const HelpPopover = ({
               <div key={i}>
                 <Separator className="my-3" />
                 <div className="flex items-baseline mt-1 text-[13px] gap-2.5">
-                  <h4 className="w-1/5 mb-2 text-sm font-semibold text-center min-w-20">
+                  <h4
+                    className={cn('mb-2 text-sm font-semibold text-center min-w-20', {
+                      'w-1/5': helpContent?.CATEGORY?.[i]?.DESC,
+                    })}
+                  >
                     <Trans i18nKey={`${helpKey}.CATEGORY.${i}.TITLE`} />
                   </h4>
                   {helpContent?.CATEGORY?.[i]?.DESC && (
@@ -102,7 +107,7 @@ export const HelpPopover = ({
                 <div className="flex flex-col gap-3">
                   {category?.ITEMS?.map((item, j) => {
                     return (
-                      <div key={j} className="flex items-baseline mt-1 text-[13px] gap-2.5">
+                      <div key={j} className="flex mt-1 text-[13px] gap-2.5 items-center">
                         <div className="w-1/5 text-center min-w-20">
                           {item?.NAME ? (
                             <Trans

@@ -1,25 +1,17 @@
 import React, { HTMLAttributes } from 'react';
-import {
-  FaQuestionCircle,
-  FaRegDotCircle,
-  FaChevronDown,
-  FaChevronUp,
-  FaExternalLinkAlt,
-} from 'react-icons/fa';
+import { FaRegDotCircle, FaChevronDown, FaChevronUp, FaExternalLinkAlt } from 'react-icons/fa';
 import {
   AgentSelector,
   Button,
   Input,
   Label,
   Popper,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
   RadioGroup,
   RadioGroupItem,
   Separator,
   Slider,
   cn,
+  HelpPopover,
 } from '../..';
 import { PiDotOutlineLight } from 'react-icons/pi';
 import { GoDot } from 'react-icons/go';
@@ -163,10 +155,15 @@ export const FilterWizard = ({
 
   const handleChangeUrlInput = (value: string) => {
     const url = value && (value.startsWith('/') ? value : `/${value}`);
-    setCurrentFilterState((prev) => ({
-      ...prev,
-      url: btoa(url),
-    }));
+    let encodedUrl = '';
+    try {
+      encodedUrl = btoa(url);
+
+      setCurrentFilterState((prev) => ({
+        ...prev,
+        url: encodedUrl,
+      }));
+    } catch (error) {}
   };
 
   const handleClickReset = () => {
@@ -293,33 +290,7 @@ export const FilterWizard = ({
             header={
               <>
                 URL Pattern
-                <Popover>
-                  <PopoverTrigger className="flex">
-                    <FaQuestionCircle />
-                  </PopoverTrigger>
-                  <PopoverContent side="right" className="w-96">
-                    <div className="text-xs text-muted-foreground">
-                      Description of the URL pattern.
-                    </div>
-                    <div className="grid grid-cols-[6rem_auto] gap-2 items-center text-xs p-4 [&>div:nth-of-type(odd)]:text-center">
-                      <div>*</div>
-                      <div>Matchers zero or more characters</div>
-                      <div>?</div>
-                      <div>Matchers exactly one characters</div>
-                      <div>**</div>
-                      <div>Matchers zero or more directories</div>
-                    </div>
-                    <Separator />
-                    <div className="grid grid-cols-[6rem_auto] gap-2 items-center text-xs p-4">
-                      <div className="text-center">Example</div>
-                      <div className="space-y-2">
-                        <div>/pinpoint/**/*.html</div>
-                        <div>/pinpoint/??.html</div>
-                        <div>/pinpoint/**/??.html</div>
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                <HelpPopover helpKey="HELP_VIEWER.FILTERED_WIZARD" />
               </>
             }
           >
