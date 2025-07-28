@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.web.applicationmap.controller.form.SearchDepthForm
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeName;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.service.HistogramService;
@@ -56,6 +57,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  * @author intr3p1d
@@ -67,6 +69,12 @@ public class ServerMapHistogramController {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
     private static final int DEFAULT_MAX_SEARCH_DEPTH = 4;
+    private static final String NODE_DELIMITER = NodeName.NODE_DELIMITER;
+    private static final Pattern NODE_DELIMITER_PATTERN = Pattern.compile(Pattern.quote(NODE_DELIMITER));
+    private static final Pattern NODE_KEY_VALIDATION_PATTERN = Pattern.compile(
+            "^[^" + Pattern.quote(NODE_DELIMITER) + "]+"
+                    + Pattern.quote(NODE_DELIMITER) + "[^" + Pattern.quote(NODE_DELIMITER) + "]+$"
+    );
 
     private final ResponseTimeHistogramService responseTimeHistogramService;
     private final HistogramService histogramService;
@@ -102,7 +110,6 @@ public class ServerMapHistogramController {
             RangeForm rangeForm,
             @Valid @ModelAttribute
             SearchDepthForm depthForm,
-            @RequestParam(value = "nodeName", required = false) String nodeName,
             @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
             @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
@@ -110,37 +117,114 @@ public class ServerMapHistogramController {
             @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
             boolean useLoadHistogramFormat
     ) {
-        String focusedNodeName = nodeName != null ? nodeName : appForm.getApplicationName();
+        final Range range = toRange(rangeForm);
+        this.rangeValidator.validate(range);
+        TimeWindow timeWindow = new TimeWindow(range);
+        final TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        final Application application = getApplication(appForm);
+
+        final LinkDataDuplexMap map = newLinkDataDuplexMap(
+                application, timeWindow, depthForm.getCallerRange(), depthForm.getCalleeRange(),
+                bidirectional, wasOnly, useStatisticsAgentState, format
+        );
+
+        final List<Application> fromApplications = this.histogramService.getFromApplications(map);
+        final List<Application> toApplications = this.histogramService.getToApplications(map);
+
+        return newNodeHistogramSummaryView(
+                application, timeWindow, fromApplications, toApplications,
+                useStatisticsAgentState, format
+        );
+    }
+
+
+    @GetMapping(value = "/statistics", params = {
+            "bidirectional", "callerRange", "calleeRange", "wasOnly", "nodeKey"
+    })
+    public NodeHistogramSummaryView getStatisticsFromServerMap(
+            @Valid @ModelAttribute
+            ApplicationForm appForm,
+            @Valid @ModelAttribute
+            RangeForm rangeForm,
+            @Valid @ModelAttribute
+            SearchDepthForm depthForm,
+            @RequestParam(value = "nodeKey") String nodeKey,
+            @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
+            @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
+            boolean useStatisticsAgentState,
+            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
+            boolean useLoadHistogramFormat
+    ) {
+
+        final Application application = getApplication(appForm);
+        final Application nodeApplication = this.getApplication(nodeKey);
+        if (application.equals(nodeApplication)) {
+            return getStatisticsFromServerMap(
+                    appForm, rangeForm, depthForm, bidirectional, wasOnly,
+                    useStatisticsAgentState, useLoadHistogramFormat
+            );
+        }
 
         final Range range = toRange(rangeForm);
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
+        final TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
 
+        final LinkDataDuplexMap map = newLinkDataDuplexMap(
+                application, timeWindow, depthForm.getCallerRange(), depthForm.getCalleeRange(),
+                bidirectional, wasOnly, useStatisticsAgentState, format
+        );
+
+        // To or From node is the original application
+        List<Application> fromApplications;
+        List<Application> toApplications;
+        if (this.histogramService.isToNode(map, nodeApplication)) {
+            fromApplications = Collections.emptyList();
+            toApplications = List.of(application);
+        } else {
+            fromApplications = List.of(application);
+            toApplications = Collections.emptyList();
+        }
+
+        return newNodeHistogramSummaryView(
+                nodeApplication, timeWindow, fromApplications, toApplications,
+                useStatisticsAgentState, format
+        );
+    }
+
+    private LinkDataDuplexMap newLinkDataDuplexMap(
+            Application application,
+            TimeWindow timeWindow,
+            int callerRange,
+            int calleeRange,
+            boolean bidirectional,
+            boolean wasOnly,
+            boolean useStatisticsAgentState,
+            TimeHistogramFormat format
+    ) {
         final SearchOption searchOption = searchOptionBuilder()
-                .build(depthForm.getCallerRange(), depthForm.getCalleeRange(), bidirectional, wasOnly);
-
-        final Application application = getApplication(appForm);
+                .build(callerRange, calleeRange, bidirectional, wasOnly);
 
         final MapServiceOption option = new MapServiceOption
                 .Builder(application, timeWindow, searchOption)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 
-        final TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
         logger.info("Select ApplicationMap {} option={}", format, option);
-        final LinkDataDuplexMap map = this.histogramService.selectLinkDataDuplexMap(option);
+        return this.histogramService.selectLinkDataDuplexMap(option);
+    }
 
-        final List<Application> fromApplications = this.histogramService.getFromApplications(map);
-        final List<Application> toApplications = this.histogramService.getToApplications(map);
-        final Application nodeApplication = this.histogramService.findApplicationByName(fromApplications, toApplications, focusedNodeName);
-
-        if (nodeApplication == null) {
-            logger.error("No matching application found for node name: {}", focusedNodeName);
-            throw new IllegalArgumentException("No matching application found for node name: " + focusedNodeName);
-        }
-
+    private NodeHistogramSummaryView newNodeHistogramSummaryView(
+            Application application,
+            TimeWindow timeWindow,
+            List<Application> fromApplications,
+            List<Application> toApplications,
+            boolean useStatisticsAgentState,
+            TimeHistogramFormat format
+    ) {
         final ResponseTimeHistogramServiceOption histogramServiceOption = new ResponseTimeHistogramServiceOption
-                .Builder(nodeApplication, timeWindow, fromApplications, toApplications)
+                .Builder(application, timeWindow, fromApplications, toApplications)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 
@@ -164,6 +248,19 @@ public class ServerMapHistogramController {
 
     private Application getApplication(ApplicationForm appForm) {
         return applicationValidator.newApplication(appForm.getApplicationName(), appForm.getServiceTypeCode(), appForm.getServiceTypeName());
+    }
+
+    private Application getApplication(String nodeKey) {
+        if (nodeKey == null || nodeKey.isEmpty()) {
+            throw new IllegalArgumentException("Node key must not be null or empty");
+        }
+        if (!NODE_KEY_VALIDATION_PATTERN.matcher(nodeKey).matches()) {
+            throw new IllegalArgumentException("Invalid node key format: " + nodeKey);
+        }
+        String[] parts = NODE_DELIMITER_PATTERN.split(nodeKey);
+        String applicationName = parts[0];
+        String serviceTypeName = parts[1];
+        return applicationValidator.newApplication(applicationName, serviceTypeName);
     }
 
 
