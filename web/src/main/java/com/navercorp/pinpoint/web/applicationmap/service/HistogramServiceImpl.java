@@ -113,21 +113,25 @@ public class HistogramServiceImpl implements HistogramService {
     }
 
     @Override
-    public Application findApplicationByName(List<Application> fromApplications, List<Application> toApplications, String nodeName) {
-        Objects.requireNonNull(fromApplications, "fromApplications");
-        Objects.requireNonNull(toApplications, "toApplications");
-        Objects.requireNonNull(nodeName, "nodeName");
+    public boolean isToNode(
+            LinkDataDuplexMap linkDataDuplexMap, Application nodeApplication
+    ) {
+        Objects.requireNonNull(linkDataDuplexMap, "linkDataDuplexMap");
+        Objects.requireNonNull(nodeApplication, "nodeApplication");
 
-        for (Application application : fromApplications) {
-            if (application.getName().equals(nodeName)) {
-                return application;
+        List<Application> fromApplication = linkDataDuplexMap.getTargetLinkDataMap()
+                .getLinkDataMap()
+                .keySet()
+                .stream()
+                .map(LinkKey::getFrom)
+                .toList();
+
+        for (Application application : fromApplication) {
+            if (application.getName().equals(nodeApplication.getName())
+                    && application.getServiceType().equals(nodeApplication.getServiceType())) {
+                return true;
             }
         }
-        for (Application application : toApplications) {
-            if (application.getName().equals(nodeName)) {
-                return application;
-            }
-        }
-        return null;
+        return false;
     }
 }
