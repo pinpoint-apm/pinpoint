@@ -42,6 +42,7 @@ import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.SearchOption;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.validation.annotation.Validated;
@@ -75,6 +76,11 @@ public class ServerMapHistogramController {
             "^[^" + Pattern.quote(NODE_DELIMITER) + "]+"
                     + Pattern.quote(NODE_DELIMITER) + "[^" + Pattern.quote(NODE_DELIMITER) + "]+$"
     );
+    private static final Pattern LINK_DELIMITER_PATTERN = Pattern.compile(Pattern.quote("~"));
+    private static final Pattern LINK_KEY_VALIDATION_PATTERN = Pattern.compile(
+            "^[^~]+~[^~]+$"
+    );
+
 
     private final ResponseTimeHistogramService responseTimeHistogramService;
     private final HistogramService histogramService;
@@ -327,10 +333,7 @@ public class ServerMapHistogramController {
 
     @GetMapping(value = "/statistics/links")
     public LinkHistogramSummaryView getLinkTimeHistogramData(
-            @RequestParam(value = "fromApplicationName", required = false) @NullOrNotBlank String fromApplicationName,
-            @RequestParam(value = "fromServiceTypeCode", required = false) Short fromServiceTypeCode,
-            @RequestParam(value = "toApplicationName", required = false) @NullOrNotBlank String toApplicationName,
-            @RequestParam(value = "toServiceTypeCode", required = false) Short toServiceTypeCode,
+            @RequestParam("linkKey") @NotBlank String linkKey,
             @Valid @ModelAttribute
             RangeForm rangeForm,
             @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
@@ -340,8 +343,16 @@ public class ServerMapHistogramController {
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        final Application fromApplication = this.createApplication(fromApplicationName, fromServiceTypeCode);
-        final Application toApplication = this.createApplication(toApplicationName, toServiceTypeCode);
+        if (!LINK_KEY_VALIDATION_PATTERN.matcher(linkKey).matches()) {
+            throw new IllegalArgumentException("Invalid linkKey format: expected 'fromApp~toApp' but got: " + linkKey);
+        }
+        String[] parts = LINK_DELIMITER_PATTERN.split(linkKey);
+        if (parts.length != 2) {
+            throw new IllegalArgumentException("Invalid linkKey format: expected 'fromApp~toApp' but got: " + linkKey);
+        }
+        final Application fromApplication = this.getApplication(parts[0]);
+        final Application toApplication = this.getApplication(parts[1]);
+
         final LinkHistogramSummary linkHistogramSummary =
                 responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, timeWindow);
 
