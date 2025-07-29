@@ -5,13 +5,15 @@ import {
   Button,
   Input,
   Label,
-  Popper,
   RadioGroup,
   RadioGroupItem,
   Separator,
   Slider,
   cn,
   HelpPopover,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
 } from '../..';
 import { PiDotOutlineLight } from 'react-icons/pi';
 import { GoDot } from 'react-icons/go';
@@ -19,6 +21,7 @@ import { FilterStatus } from './FilterStatus';
 import { FilteredMapType as FilteredMap } from '@pinpoint-fe/ui/src/constants';
 import { addCommas, getApplicationTypeAndName } from '@pinpoint-fe/ui/src/utils';
 import { Edge, Node } from '@pinpoint-fe/ui/src/utils/helper/serverMap';
+import { PopoverArrow } from '@radix-ui/react-popover';
 
 export interface FilterWizardProps {
   className?: string;
@@ -207,7 +210,12 @@ export const FilterWizard = ({
   };
 
   return (
-    <div className={cn('w-[340px] max-w-[340px] min-w-[340px]', className)}>
+    <div
+      className={cn(
+        'w-[340px] max-w-[340px] min-w-[340px] max-h-[80vh] overflow-y-auto',
+        className,
+      )}
+    >
       {/* path: Node to Node */}
       {/* agent: Server to Server */}
       {!hideStatus && (
@@ -318,19 +326,16 @@ export const FilterWizard = ({
                 onChange={(params) => setResponseTime(params as [number, number])}
                 handleRender={(origin, data) => {
                   return (
-                    <Popper
-                      positionUpdatable
-                      shouldAlwaysShow
-                      content={
-                        <div className="p-2 border rounded shadow-md">
-                          {addCommas(data.value)}ms
-                        </div>
-                      }
-                      renderArrow={() => <div className="pp-arrow-sm -bottom-[0.18rem]" />}
-                      placement={'top'}
-                    >
-                      {origin}
-                    </Popper>
+                    <Popover open={true}>
+                      <PopoverTrigger asChild>{origin}</PopoverTrigger>
+                      <PopoverContent
+                        className="w-auto p-2 text-xs border rounded shadow-md"
+                        side="top"
+                      >
+                        <PopoverArrow className="fill-white drop-shadow-[0_2px_0_#e2e8f0] -mt-0.5" />
+                        {addCommas(data.value)}ms
+                      </PopoverContent>
+                    </Popover>
                   );
                 }}
               />
