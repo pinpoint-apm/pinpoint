@@ -136,11 +136,11 @@ public class TransactionController {
     }
 
     private TransactionCallTreeViewModel getTransaction0(String traceId,
-                                                     long focusTimestamp,
-                                                     String agentId,
-                                                     long spanId,
-                                                     boolean useStatisticsAgentState,
-                                                     TimeHistogramFormat format) {
+                                                         long focusTimestamp,
+                                                         String agentId,
+                                                         long spanId,
+                                                         boolean useStatisticsAgentState,
+                                                         TimeHistogramFormat format) {
         logger.debug("GET /trace params {traceId={}, focusTimestamp={}, agentId={}, spanId={}, format={}}",
                 traceId, focusTimestamp, agentId, spanId, format);
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
@@ -233,35 +233,21 @@ public class TransactionController {
         TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
         final ColumnGetCount columnGetCount = ColumnGetCount.of(callstackSelectSpansLimit);
-        final Predicate<SpanBo> spanMatchFilter = SpanFilters.spanFilter(spanId, agentId, focusTimestamp);
-        // select spans
-        final SpanResult spanResult = this.spanService.selectSpan(transactionId, spanMatchFilter, columnGetCount);
-        final CallTreeIterator callTreeIterator = spanResult.callTree();
-        final RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
 
-        TimeWindow timeWindow = newTimeWindow(recordSet);
-        Range scanRange = timeWindow.getWindowRange();
-
+        Range scanRange = Range.between(focusTimestamp, focusTimestamp + 1);
         // application map
         final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(transactionId, scanRange, columnGetCount)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
         final ApplicationMap map = filteredMapService.selectApplicationMap(option);
-        final LogLinkView logLinkView = logLinkBuilder.build(transactionId, spanId, recordSet.getApplicationName(), recordSet.getStartTime());
-        Object mapView = getApplicationMap(map, timeWindow, format);
+        Object mapView = getApplicationMap(map, format);
 
-        return new TransactionServerMapViewModel(transactionId, spanId, mapView, recordSet, spanResult.traceState(), logLinkView);
+        return new TransactionServerMapViewModel(transactionId, spanId, mapView);
     }
 
-    private TimeWindow newTimeWindow(RecordSet recordSet) {
-        long startTime = recordSet.getStartTime();
-        long endTime = recordSet.getEndTime();
-        Range between = Range.between(startTime, endTime);
-        return new TimeWindow(between);
-    }
-
-    private Object getApplicationMap(ApplicationMap map, TimeWindow timeWindow, TimeHistogramFormat format) {
+    private Object getApplicationMap(ApplicationMap map, TimeHistogramFormat format) {
         if (format == TimeHistogramFormat.V3) {
+            TimeWindow timeWindow = new TimeWindow(map.getRange());
             return new ApplicationMapViewV3(map, timeWindow, MapViews.ofDetailed(), hyperLinkFactory);
         }
         return new ApplicationMapView(map, MapViews.ofDetailed(), hyperLinkFactory, format);

@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
@@ -132,14 +133,33 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
     public ApplicationMap selectApplicationMap(FilteredMapServiceOption option) {
         final List<List<SpanBo>> filterList = selectFilteredSpan(option.getTransactionIdList(), option.getFilter(), option.getColumnGetCount());
-        TimeWindow timeWindow = new TimeWindow(option.getRange());
-
+        TimeWindow timeWindow = newTimeWindow(filterList);
         FilteredMapBuilder filteredMapBuilder = new FilteredMapBuilder(applicationFactory, registry, timeWindow);
         filteredMapBuilder.serverMapDataFilter(serverMapDataFilter);
         filteredMapBuilder.addTransactions(filterList);
         FilteredMap filteredMap = filteredMapBuilder.build();
 
-        return createMap(option, filteredMap);
+        return createMap(timeWindow, option.isUseStatisticsAgentState(), filteredMap);
+    }
+
+    private TimeWindow newTimeWindow(List<List<SpanBo>> allSpanList) {
+        long min = Long.MAX_VALUE;
+        long max = Long.MIN_VALUE;
+
+        if (CollectionUtils.isEmpty(allSpanList)) {
+            return new TimeWindow(Range.between(min, max));
+        }
+
+        final List<SpanBo> spanBoList = allSpanList.get(0);
+        for (SpanBo spanBo : spanBoList) {
+            min = Math.min(min, spanBo.getStartTime());
+            max = Math.max(max, spanBo.getStartTime() + spanBo.getElapsed());
+        }
+
+        final long startTime = min;
+        final long endTime = max;
+        final Range between = Range.between(startTime, endTime);
+        return new TimeWindow(between);
     }
 
     public FilterMapWithScatter selectApplicationMapWithScatterData(FilteredMapServiceOption option) {
@@ -155,7 +175,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         filteredMapBuilder.addTransactions(filterList);
         FilteredMap filteredMap = filteredMapBuilder.build();
 
-        ApplicationMap map = createMap(option, filteredMap);
+        ApplicationMap map = createMap(timeWindow, option.isUseStatisticsAgentState(), filteredMap);
 
         Map<Application, ScatterData> applicationScatterData = filteredMap
                 .getApplicationScatterData(
@@ -181,13 +201,12 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return filterList2(originalList, filter);
     }
 
-    private ApplicationMap createMap(FilteredMapServiceOption option, FilteredMap filteredMap) {
-        TimeWindow timeWindow = new TimeWindow(option.getRange());
+    private ApplicationMap createMap(TimeWindow timeWindow, boolean isUseStatisticsAgentState, FilteredMap filteredMap) {
         final ApplicationMapBuilder applicationMapBuilder = applicationMapBuilderFactory.createApplicationMapBuilder(timeWindow);
         final WasNodeHistogramDataSource wasNodeHistogramDataSource = new ResponseHistogramsNodeHistogramDataSource(filteredMap.getResponseHistograms());
         applicationMapBuilder.includeNodeHistogram(new DefaultNodeHistogramFactory(wasNodeHistogramDataSource));
         ServerGroupListDataSource serverGroupListDataSource = serverInstanceDatasourceService.getServerGroupListDataSource();
-        if (option.isUseStatisticsAgentState()) {
+        if (isUseStatisticsAgentState) {
             applicationMapBuilder.includeServerInfo(new StatisticsServerGroupListFactory(serverGroupListDataSource));
         } else {
             applicationMapBuilder.includeServerInfo(new DefaultServerGroupListFactory(serverGroupListDataSource));
