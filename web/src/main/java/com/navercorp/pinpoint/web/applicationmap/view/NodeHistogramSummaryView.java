@@ -41,6 +41,22 @@ public class NodeHistogramSummaryView {
         return serverGroupListView;
     }
 
+    public long getInstanceCount() {
+        return serverGroupListView.getServerGroupList().getInstanceCount();
+    }
+
+    public long getInstanceErrorCount() {
+        final Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
+        if (agentHistogramMap.isEmpty()) {
+            return 0;
+        }
+
+        // do not cache
+        return agentHistogramMap.values().stream()
+                .filter(agentHistogram -> agentHistogram.getTotalErrorCount() > 0)
+                .count();
+    }
+
     public ResponseTimeStatics getResponseStatistics() {
         return ResponseTimeStatics.fromHistogram(nodeHistogram.getApplicationHistogram());
     }
