@@ -10,7 +10,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ApplicationUidMapper implements RowMapper<ApplicationUid> {
+public class ApplicationUidValueMapper implements RowMapper<ApplicationUid> {
 
     private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.APPLICATION_UID;
 

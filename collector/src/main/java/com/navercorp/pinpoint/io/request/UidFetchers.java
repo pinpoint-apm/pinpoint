@@ -21,7 +21,7 @@ public class UidFetchers {
         }
 
         @Override
-        public Supplier<ApplicationUid> getApplicationId(ServiceUid serviceUid, String applicationName) {
+        public Supplier<ApplicationUid> getApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
             return UidSuppliers.error(applicationName);
         }
     };

@@ -3,16 +3,17 @@ package com.navercorp.pinpoint.uid.mapper;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.server.uid.HbaseCellData;
+import com.navercorp.pinpoint.uid.utils.UidBytesParseUtils;
+import com.navercorp.pinpoint.uid.vo.ApplicationUidAttribute;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ApplicationNameCellMapper implements RowMapper<HbaseCellData> {
+public class ApplicationUidInfoCellMapper implements RowMapper<HbaseCellData> {
 
-    private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.APPLICATION_NAME;
+    private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.APPLICATION_UID_ATTR;
 
     @Override
     public HbaseCellData mapRow(Result result, int rowNum) throws Exception {
@@ -24,7 +25,7 @@ public class ApplicationNameCellMapper implements RowMapper<HbaseCellData> {
         Cell cell = result.getColumnLatestCell(DESCRIPTOR.getName(), DESCRIPTOR.getName());
         long timeStamp = cell.getTimestamp();
 
-        String applicationName = CellUtils.valueToString(cell);
-        return new HbaseCellData(rowKey, timeStamp, applicationName);
+        ApplicationUidAttribute applicationUidAttribute = UidBytesParseUtils.parseApplicationUidAttrFromValue(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+        return new HbaseCellData(rowKey, timeStamp, applicationUidAttribute);
     }
 }

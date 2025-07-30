@@ -48,7 +48,8 @@ public class GrpcServerHeaderV1 implements ServerHeader {
         }
 
         String applicationName = getApplicationName();
-        final Supplier<ApplicationUid> supplier = this.uidFetcher.getApplicationId(ServiceUid.DEFAULT, applicationName);
+        int serviceTypeCode = getServiceType();
+        final Supplier<ApplicationUid> supplier = this.uidFetcher.getApplicationUid(ServiceUid.DEFAULT, applicationName, serviceTypeCode);
         this.applicationUid = supplier;
 
         return supplier;

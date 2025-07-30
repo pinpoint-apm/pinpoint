@@ -2,21 +2,24 @@ package com.navercorp.pinpoint.uid.service;
 
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.uid.vo.ApplicationUidAttribute;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface BaseApplicationUidService {
 
-    ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName);
+    List<ApplicationUid> getApplicationUid(ServiceUid serviceUid, String applicationName);
 
-    ApplicationUid getOrCreateApplicationUid(ServiceUid serviceUid, String applicationName);
+    ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode);
 
-    List<String> getApplicationNames(ServiceUid serviceUid);
+    ApplicationUid getOrCreateApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode);
 
-    String getApplicationName(ServiceUid serviceUid, ApplicationUid applicationUid);
+    List<ApplicationUidAttribute> getApplications(ServiceUid serviceUid);
 
-    void deleteApplication(ServiceUid serviceUid, String applicationName);
+    ApplicationUidAttribute getApplication(ServiceUid serviceUid, ApplicationUid applicationUid);
 
-    CompletableFuture<ApplicationUid> asyncGetOrCreateApplicationUid(ServiceUid serviceUid, String applicationName);
+    void deleteApplication(ServiceUid serviceUid, String applicationName, int serviceTypeCode);
+
+    CompletableFuture<ApplicationUid> asyncGetOrCreateApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode);
 }

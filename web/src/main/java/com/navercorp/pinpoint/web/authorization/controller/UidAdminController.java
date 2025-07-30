@@ -6,9 +6,12 @@ import com.navercorp.pinpoint.common.server.uid.AgentIdentifier;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.uid.service.AgentNameService;
 import com.navercorp.pinpoint.uid.service.ApplicationCleanupService;
+import com.navercorp.pinpoint.uid.vo.ApplicationUidAttribute;
 import com.navercorp.pinpoint.web.service.AgentListService;
 import com.navercorp.pinpoint.web.uid.service.ApplicationUidService;
 import com.navercorp.pinpoint.web.uid.service.ServiceUidCachedService;
@@ -34,33 +37,45 @@ public class UidAdminController {
     private final ApplicationCleanupService applicationUidCleanupService;
     private final AgentNameService agentNameService;
 
+    private final ServiceTypeRegistryService serviceTypeRegistryService;
     private final AgentListService agentListService;
 
     public UidAdminController(ServiceUidCachedService serviceUidCachedService,
                               ApplicationUidService applicationUidService,
                               ApplicationCleanupService applicationCleanupService,
-                              AgentNameService agentNameService, AgentListService agentListService) {
+                              AgentNameService agentNameService,
+                              ServiceTypeRegistryService serviceTypeRegistryService,
+                              AgentListService agentListService) {
         this.serviceUidCachedService = Objects.requireNonNull(serviceUidCachedService, "serviceUidCachedService");
         this.applicationUidService = Objects.requireNonNull(applicationUidService, "applicationUidService");
         this.applicationUidCleanupService = Objects.requireNonNull(applicationCleanupService, "applicationCleanupService");
         this.agentNameService = Objects.requireNonNull(agentNameService, "agentNameService");
+        this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
         this.agentListService = Objects.requireNonNull(agentListService, "agentListService");
     }
 
     @GetMapping(value = "/debug/agent")
     public List<AgentIdentifier> getAllAgent(@RequestParam(value = "serviceName", required = false) String serviceName,
-                                             @RequestParam(value = "applicationName") @NotBlank String applicationName) {
+                                             @RequestParam(value = "applicationName") @NotBlank String applicationName,
+                                             @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
+                                             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName) {
         ServiceUid serviceUid = getServiceUid(serviceName);
-        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, applicationName);
+        ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
+
+        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, applicationName, serviceType.getCode());
         return agentNameService.getAgentIdentifier(serviceUid, applicationUid);
     }
 
     @DeleteMapping("/agent")
     public Response deleteAgent(@RequestParam(value = "serviceName", required = false) String serviceName,
                                 @RequestParam(value = "applicationName") @NotBlank String applicationName,
+                                @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
+                                @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
                                 @RequestParam(value = "agentId") @NotBlank String agentId) {
         ServiceUid serviceUid = getServiceUid(serviceName);
-        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, applicationName);
+        ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
+
+        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, applicationName, serviceType.getCode());
         if (applicationUid == null) {
             return SimpleResponse.ok();
         }
@@ -70,26 +85,30 @@ public class UidAdminController {
 
     @DeleteMapping(value = "/application")
     public Response deleteApplication(@RequestParam(value = "serviceName", required = false) String serviceName,
-                                      @RequestParam(value = "applicationName") String applicationName) {
+                                      @RequestParam(value = "applicationName") @NotBlank String applicationName,
+                                      @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
+                                      @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName) {
         ServiceUid serviceUid = getServiceUid(serviceName);
-        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, applicationName);
+        ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
+        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, applicationName, serviceType.getCode());
 
         agentNameService.deleteAllAgents(serviceUid, applicationUid);
-        applicationUidService.deleteApplication(serviceUid, applicationName);
+        applicationUidService.deleteApplication(serviceUid, applicationName, serviceType.getCode());
         return SimpleResponse.ok();
     }
 
     @GetMapping(value = "/cleanup/inactiveAgent")
     public Response cleanupInactiveAgents(@RequestParam(value = "serviceName", required = false) String serviceName,
-                                          @RequestParam(value = "applicationName") String applicationName,
+                                          @RequestParam(value = "applicationName") @NotBlank String applicationName,
+                                          @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
+                                          @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
                                           @RequestParam(value = "durationDays", defaultValue = "30") @Min(30) int durationDays) {
         long to = System.currentTimeMillis();
         long from = to - TimeUnit.DAYS.toMillis(durationDays);
         Range range = Range.between(from, to);
-        ServiceUid serviceUid = getServiceUid(serviceName);
+        ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
 
-        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, applicationName);
-        int agentCleanupCount = agentListService.cleanupInactiveAgent(serviceName, applicationName, range);
+        int agentCleanupCount = agentListService.cleanupInactiveAgent(serviceName, applicationName, serviceType.getCode(), range);
         return SimpleResponse.ok("agentCleanupCount: " + agentCleanupCount);
     }
 
@@ -101,9 +120,9 @@ public class UidAdminController {
         Range range = Range.between(from, to);
         ServiceUid serviceUid = getServiceUid(serviceName);
 
-        List<String> applicationNameList = applicationUidService.getApplicationNames(serviceUid);
-        for (String applicationName : applicationNameList) {
-            agentListService.cleanupInactiveAgent(serviceName, applicationName, range);
+        List<ApplicationUidAttribute> applicationUidAttributeList = applicationUidService.getApplicationNames(serviceUid);
+        for (ApplicationUidAttribute uidInfo : applicationUidAttributeList) {
+            agentListService.cleanupInactiveAgent(serviceName, uidInfo.applicationName(), uidInfo.serviceTypeCode(), range);
         }
         int applicationCleanupCount = applicationUidCleanupService.cleanupEmptyApplication(serviceUid, from);
         return SimpleResponse.ok("applicationCleanupCount: " + applicationCleanupCount);
@@ -130,4 +149,12 @@ public class UidAdminController {
         return serviceUidCachedService.getServiceUid(serviceName);
     }
 
+    private ServiceType findServiceType(Integer serviceTypeCode, String serviceTypeName) {
+        if (serviceTypeCode != null) {
+            return serviceTypeRegistryService.findServiceType(serviceTypeCode);
+        } else if (serviceTypeName != null) {
+            return serviceTypeRegistryService.findServiceTypeByName(serviceTypeName);
+        }
+        throw new IllegalArgumentException("Either serviceTypeCode or serviceTypeName must be provided.");
+    }
 }

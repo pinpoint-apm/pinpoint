@@ -7,17 +7,17 @@ import java.util.concurrent.CompletableFuture;
 
 public class EmptyApplicationUidService implements ApplicationUidService {
     @Override
-    public ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName) {
+    public ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
         return null;
     }
 
     @Override
-    public ApplicationUid getOrCreateApplicationUid(ServiceUid serviceUid, String applicationName) {
+    public ApplicationUid getOrCreateApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
         return null;
     }
 
     @Override
-    public CompletableFuture<ApplicationUid> asyncGetOrCreateApplicationUid(ServiceUid serviceUid, String applicationName) {
+    public CompletableFuture<ApplicationUid> asyncGetOrCreateApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
         return CompletableFuture.completedFuture(null);
     }
 }

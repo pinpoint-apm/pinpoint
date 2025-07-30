@@ -5,9 +5,10 @@ import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.RandomApplicationUidGenerator;
-import com.navercorp.pinpoint.uid.dao.ApplicationNameDao;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.uid.dao.ApplicationUidAttrDao;
 import com.navercorp.pinpoint.uid.dao.ApplicationUidDao;
-import com.navercorp.pinpoint.uid.dao.ConcurrentMapApplicationNameDao;
+import com.navercorp.pinpoint.uid.dao.ConcurrentMapApplicationUidAttrDao;
 import com.navercorp.pinpoint.uid.dao.ConcurrentMapApplicationUidDao;
 import com.navercorp.pinpoint.uid.service.BaseApplicationUidService;
 import com.navercorp.pinpoint.uid.service.BaseApplicationUidServiceImpl;
@@ -30,6 +31,7 @@ public class AsyncBaseApplicationUidServiceTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ServiceUid testServiceUid = ServiceUid.DEFAULT;
+    private final int testServiceTypeCode = ServiceType.TEST.getCode();
 
     private static ExecutorService executorService;
 
@@ -41,9 +43,9 @@ public class AsyncBaseApplicationUidServiceTest {
         executorService = ExecutorFactory.newFixedThreadPool(2, 32, threadFactory);
 
         ApplicationUidDao applicationUidDao = new ConcurrentMapApplicationUidDao(executorService, 50);
-        ApplicationNameDao applicationNameDao = new ConcurrentMapApplicationNameDao(executorService, 50);
+        ApplicationUidAttrDao applicationUidAttrDao = new ConcurrentMapApplicationUidAttrDao(executorService, 50);
 
-        baseApplicationUidService = new BaseApplicationUidServiceImpl(applicationUidDao, applicationNameDao, new RandomApplicationUidGenerator());
+        baseApplicationUidService = new BaseApplicationUidServiceImpl(applicationUidDao, applicationUidAttrDao, new RandomApplicationUidGenerator());
     }
 
     @AfterAll
@@ -55,9 +57,9 @@ public class AsyncBaseApplicationUidServiceTest {
     public void getOrCreateApplicationIdTest() {
         String testApplicationName = "test1";
 
-        ApplicationUid before = baseApplicationUidService.getApplicationUid(testServiceUid, testApplicationName);
-        ApplicationUid newApplicationUid = baseApplicationUidService.asyncGetOrCreateApplicationUid(testServiceUid, testApplicationName).join();
-        ApplicationUid after = baseApplicationUidService.getApplicationUid(testServiceUid, testApplicationName);
+        ApplicationUid before = baseApplicationUidService.getApplicationUid(testServiceUid, testApplicationName, testServiceTypeCode);
+        ApplicationUid newApplicationUid = baseApplicationUidService.asyncGetOrCreateApplicationUid(testServiceUid, testApplicationName, testServiceTypeCode).join();
+        ApplicationUid after = baseApplicationUidService.getApplicationUid(testServiceUid, testApplicationName, testServiceTypeCode);
 
         Assertions.assertThat(before).isNull();
         Assertions.assertThat(newApplicationUid).isNotNull();
@@ -72,7 +74,7 @@ public class AsyncBaseApplicationUidServiceTest {
 
         List<CompletableFuture<ApplicationUid>> futures = new ArrayList<>(numberOfRequest);
         for (int i = 0; i < numberOfRequest; i++) {
-            futures.add(baseApplicationUidService.asyncGetOrCreateApplicationUid(testServiceUid, testApplicationName));
+            futures.add(baseApplicationUidService.asyncGetOrCreateApplicationUid(testServiceUid, testApplicationName, testServiceTypeCode));
         }
         logger.info("1. async invocation. elapsed:{}, numberOfRequest:{}", System.currentTimeMillis() - testStartTime, numberOfRequest);
 
@@ -94,7 +96,7 @@ public class AsyncBaseApplicationUidServiceTest {
 
         List<CompletableFuture<ApplicationUid>> futures = new ArrayList<>(numberOfRequest);
         for (int i = 0; i < numberOfRequest; i++) {
-            futures.add(baseApplicationUidService.asyncGetOrCreateApplicationUid(testServiceUid, testApplicationName));
+            futures.add(baseApplicationUidService.asyncGetOrCreateApplicationUid(testServiceUid, testApplicationName, testServiceTypeCode));
         }
         logger.info("1. async invocation. elapsed:{}, numberOfRequest:{}", System.currentTimeMillis() - testStartTime, numberOfRequest);
 

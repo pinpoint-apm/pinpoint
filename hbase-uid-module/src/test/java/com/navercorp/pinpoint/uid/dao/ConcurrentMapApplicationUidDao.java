@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.uid.dao;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.HbaseCellData;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.uid.vo.ApplicationUidAttribute;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -13,12 +14,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 public class ConcurrentMapApplicationUidDao implements ApplicationUidDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ConcurrentMap<String, ApplicationUid> applicationUidMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<ApplicationUidAttribute, ApplicationUid> applicationUidMap = new ConcurrentHashMap<>();
     private final Executor executor;
     private final long delay;
 
@@ -32,45 +34,53 @@ public class ConcurrentMapApplicationUidDao implements ApplicationUidDao {
     }
 
     @Override
-    public ApplicationUid selectApplicationUid(ServiceUid serviceUid, String applicationName) {
+    public ApplicationUid selectApplicationUid(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute) {
         sleep(delay);
-        return applicationUidMap.get(applicationName);
+        return applicationUidMap.get(applicationUidAttribute);
     }
 
     @Override
-    public CompletableFuture<ApplicationUid> asyncSelectApplicationUid(ServiceUid serviceUid, String applicationName) {
+    public CompletableFuture<ApplicationUid> asyncSelectApplicationUid(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute) {
         return CompletableFuture.supplyAsync(() -> {
-            logger.info("select uid (name={})", applicationName);
+            logger.info("select uid. {}", applicationUidAttribute);
             sleep(delay);
-            return applicationUidMap.get(applicationName);
+            return applicationUidMap.get(applicationUidAttribute);
         }, executor);
     }
 
     @Override
-    public boolean insertApplicationUidIfNotExists(ServiceUid serviceUid, String applicationName, ApplicationUid applicationUid) {
-        logger.info("try insert uid (name={} -> {}", applicationName, applicationUid);
-        ApplicationUid old = applicationUidMap.putIfAbsent(applicationName, applicationUid);
+    public boolean insertApplicationUidIfNotExists(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute, ApplicationUid applicationUid) {
+        logger.info("try insert uid. ({} -> {})", applicationUidAttribute, applicationUid);
+        ApplicationUid old = applicationUidMap.putIfAbsent(applicationUidAttribute, applicationUid);
         return old == null;
     }
 
     @Override
-    public CompletableFuture<Boolean> asyncInsertApplicationUidIfNotExists(ServiceUid serviceUid, String applicationName, ApplicationUid applicationUid) {
+    public CompletableFuture<Boolean> asyncInsertApplicationUidIfNotExists(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute, ApplicationUid applicationUid) {
         return CompletableFuture.supplyAsync(() -> {
-            logger.info("try insert uid (name={} -> {}", applicationName, applicationUid);
+            logger.info("try insert uid. ({} -> {}", applicationUidAttribute, applicationUid);
             sleep(delay);
-            return applicationUidMap.putIfAbsent(applicationName, applicationUid) == null;
+            return applicationUidMap.putIfAbsent(applicationUidAttribute, applicationUid) == null;
         }, executor);
     }
 
     @Override
-    public void deleteApplicationUid(ServiceUid serviceUid, String applicationName) {
-        logger.info("delete uid (name={})", applicationName);
+    public void deleteApplicationUid(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute) {
+        logger.info("delete uid. {}", applicationUidAttribute);
         sleep(delay);
-        applicationUidMap.remove(applicationName);
+        applicationUidMap.remove(applicationUidAttribute);
     }
 
     @Override
-    public List<String> selectApplicationNames(ServiceUid serviceUid) {
+    public List<ApplicationUid> selectApplicationUid(ServiceUid serviceUid, String applicationName) {
+        return applicationUidMap.entrySet().stream()
+                .filter(entry -> entry.getKey().applicationName().equals(applicationName))
+                .map(ConcurrentMap.Entry::getValue)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ApplicationUidAttribute> selectApplicationInfo(ServiceUid serviceUid) {
         return new ArrayList<>(applicationUidMap.keySet());
     }
 

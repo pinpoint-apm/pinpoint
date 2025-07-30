@@ -9,7 +9,7 @@ import com.navercorp.pinpoint.common.server.uid.AgentIdentifier;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.uid.dao.AgentNameDao;
-import com.navercorp.pinpoint.uid.utils.UidRowKeyCreateUtils;
+import com.navercorp.pinpoint.uid.utils.UidBytesCreateUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Put;
@@ -41,7 +41,7 @@ public class HbaseAgentNameDao implements AgentNameDao {
 
     @Override
     public void insert(ServiceUid serviceUid, ApplicationUid applicationUid, String agentId, long agentStartTime, String agentName) {
-        byte[] rowKey = UidRowKeyCreateUtils.createAgentNameRowKey(serviceUid, applicationUid, agentId, agentStartTime);
+        byte[] rowKey = UidBytesCreateUtils.createAgentNameRowKey(serviceUid, applicationUid, agentId, agentStartTime);
         byte[] value = Bytes.toBytes(agentName);
         Put put = new Put(rowKey, true);
         put.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName(), value);
@@ -52,13 +52,13 @@ public class HbaseAgentNameDao implements AgentNameDao {
 
     @Override
     public List<AgentIdentifier> selectAgentIdentifiers(ServiceUid serviceUid, ApplicationUid applicationUid) {
-        byte[] rowKeyPrefix = UidRowKeyCreateUtils.createRowKey(serviceUid, applicationUid);
+        byte[] rowKeyPrefix = UidBytesCreateUtils.createRowKey(serviceUid, applicationUid);
         return selectByRowKeyPrefix(rowKeyPrefix);
     }
 
     @Override
     public List<AgentIdentifier> selectAgentIdentifiers(ServiceUid serviceUid, ApplicationUid applicationUid, String agentId) {
-        byte[] rowKeyPrefix = UidRowKeyCreateUtils.createAgentNameRowKey(serviceUid, applicationUid, agentId);
+        byte[] rowKeyPrefix = UidBytesCreateUtils.createAgentNameRowKey(serviceUid, applicationUid, agentId);
         return selectByRowKeyPrefix(rowKeyPrefix);
     }
 
@@ -75,7 +75,7 @@ public class HbaseAgentNameDao implements AgentNameDao {
     public void deleteAgents(ServiceUid serviceUid, ApplicationUid applicationUid, List<AgentIdentifier> agents) {
         List<Delete> deleteLists = new ArrayList<>(agents.size());
         for (AgentIdentifier agentIdentifier : agents) {
-            byte[] rowKey = UidRowKeyCreateUtils.createAgentNameRowKey(serviceUid, applicationUid, agentIdentifier.getId(), agentIdentifier.getStartTimestamp());
+            byte[] rowKey = UidBytesCreateUtils.createAgentNameRowKey(serviceUid, applicationUid, agentIdentifier.getId(), agentIdentifier.getStartTimestamp());
             Delete delete = new Delete(rowKey);
             delete.addColumns(DESCRIPTOR.getName(), DESCRIPTOR.getName());
             deleteLists.add(delete);

@@ -1,10 +1,9 @@
 package com.navercorp.pinpoint.web.uid.controller;
 
-import com.navercorp.pinpoint.common.server.response.Response;
-import com.navercorp.pinpoint.common.server.response.SimpleResponse;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.uid.vo.ApplicationUidAttribute;
 import com.navercorp.pinpoint.web.uid.service.ApplicationUidService;
 import com.navercorp.pinpoint.web.uid.service.ServiceUidCachedService;
 import jakarta.validation.constraints.NotBlank;
@@ -20,7 +19,7 @@ import java.util.List;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/uid")
 @ConditionalOnProperty(name = "pinpoint.modules.uid.enabled", havingValue = "true")
 public class ApplicationUidController {
 
@@ -32,41 +31,43 @@ public class ApplicationUidController {
         this.applicationUidService = Objects.requireNonNull(applicationUidService, "cachedApplicationUidService");
     }
 
-    @GetMapping(value = "/applicationNames")
-    public List<String> getApplications(@RequestParam(value = "serviceName", required = false) String serviceName) {
+    @GetMapping(value = "/applications")
+    public List<ApplicationUidAttribute> getApplications(@RequestParam(value = "serviceName", required = false) String serviceName) {
         ServiceUid serviceUid = getServiceUid(serviceName);
         return applicationUidService.getApplicationNames(serviceUid);
     }
 
-    @GetMapping(value = "/application/uid")
+    @GetMapping(value = "/debug/application", params = "applicationName")
     public ResponseEntity<Long> getApplicationUid(@RequestParam(value = "serviceName", required = false) String serviceName,
-                                                  @RequestParam(value = "applicationName") @NotBlank String applicationName) {
+                                                  @RequestParam(value = "applicationName") @NotBlank String applicationName,
+                                                  @RequestParam(value = "serviceTypeCode") int serviceTypeCode) {
         ServiceUid serviceUid = getServiceUid(serviceName);
-        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, applicationName);
+        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, applicationName, serviceTypeCode);
         if (applicationUid == null) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(applicationUid.getUid());
     }
 
-    @GetMapping(value = "/application/name")
-    public ResponseEntity<String> getApplicationName(@RequestParam(value = "serviceName", required = false) String serviceName,
-                                                     @RequestParam(value = "applicationUid") long applicationUid) {
+    @GetMapping(value = "/debug/application", params = "applicationUid")
+    public ResponseEntity<ApplicationUidAttribute> getApplicationName(@RequestParam(value = "serviceName", required = false) String serviceName,
+                                                                      @RequestParam(value = "applicationUid") long applicationUid) {
         ServiceUid serviceUid = getServiceUid(serviceName);
         ApplicationUid applicationUidObject = ApplicationUid.of(applicationUid);
-        String applicationName = applicationUidService.getApplicationName(serviceUid, applicationUidObject);
-        if (applicationName == null) {
+        ApplicationUidAttribute applicationUidAttribute = applicationUidService.getApplication(serviceUid, applicationUidObject);
+        if (applicationUidAttribute == null) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(applicationName);
+        return ResponseEntity.ok(applicationUidAttribute);
     }
 
     @DeleteMapping(value = "/application")
-    public Response deleteApplication(@RequestParam(value = "serviceName", required = false) String serviceName,
-                                      @RequestParam(value = "applicationName") @NotBlank String applicationName) {
+    public ResponseEntity<String> deleteApplication(@RequestParam(value = "serviceName", required = false) String serviceName,
+                                                        @RequestParam(value = "applicationName") @NotBlank String applicationName,
+                                                        @RequestParam(value = "serviceTypeCode") int serviceTypeCode) {
         ServiceUid serviceUid = getServiceUid(serviceName);
-        applicationUidService.deleteApplication(serviceUid, applicationName);
-        return SimpleResponse.ok();
+        applicationUidService.deleteApplication(serviceUid, applicationName, serviceTypeCode);
+        return ResponseEntity.ok("OK");
     }
 
     private ServiceUid getServiceUid(String serviceName) {

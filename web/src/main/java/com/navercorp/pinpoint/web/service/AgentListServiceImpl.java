@@ -44,40 +44,58 @@ public class AgentListServiceImpl implements AgentListService {
 
     @Override
     public List<AgentListEntry> getApplicationAgentList(String serviceName, String applicationName) {
-        Objects.requireNonNull(applicationName, "applicationName");
-        ServiceUid serviceUid = getServiceUid(serviceName);
-        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, applicationName);
-        if (applicationUid == null) {
-            return Collections.emptyList();
-        }
+        List<AgentIdentifier> agentList = getAgentIdentifiers(serviceName, applicationName);
+        return createAgentListWithNullStatus(agentList);
+    }
 
-        List<AgentIdentifier> agentList = agentNameService.getAgentIdentifier(serviceUid, applicationUid);
+
+    @Override
+    public List<AgentListEntry> getApplicationAgentList(String serviceName, String applicationName, int serviceTypeCode) {
+        List<AgentIdentifier> agentList = getAgentIdentifiers(serviceName, applicationName, serviceTypeCode);
         return createAgentListWithNullStatus(agentList);
     }
 
     @Override
     public List<AgentListEntry> getApplicationAgentList(String serviceName, String applicationName, Range range) {
-        Objects.requireNonNull(applicationName, "applicationName");
-        ServiceUid serviceUid = getServiceUid(serviceName);
-        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, applicationName);
-        if (applicationUid == null) {
-            return Collections.emptyList();
-        }
-
-        List<AgentIdentifier> agentList = agentNameService.getAgentIdentifier(serviceUid, applicationUid);
+        List<AgentIdentifier> agentList = getAgentIdentifiers(serviceName, applicationName);
         List<AgentListEntry> agentListEntries = createAgentListWithStatus(agentList, range);
-
-        AgentStatusFilter activeStatusPredicate = AgentStatusFilters.recentStatus(range.getFrom());
-        return agentListEntries.stream()
-                .filter(agentAndStatus -> activeStatusPredicate.test(agentAndStatus.getAgentStatus()))
-                .toList();
+        return filterActiveStatus(range, agentListEntries);
     }
 
     @Override
-    public int cleanupInactiveAgent(String serviceName, String applicationName, Range range) {
+    public List<AgentListEntry> getApplicationAgentList(String serviceName, String applicationName, int serviceTypeCode, Range range) {
+        List<AgentIdentifier> agentList = getAgentIdentifiers(serviceName, applicationName, serviceTypeCode);
+        List<AgentListEntry> agentListEntries = createAgentListWithStatus(agentList, range);
+        return filterActiveStatus(range, agentListEntries);
+    }
+
+    private List<AgentIdentifier> getAgentIdentifiers(String serviceName, String applicationName) {
         Objects.requireNonNull(applicationName, "applicationName");
         ServiceUid serviceUid = getServiceUid(serviceName);
-        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, applicationName);
+        List<ApplicationUid> applicationUidList = applicationUidService.getApplicationUid(serviceUid, applicationName);
+
+        List<AgentIdentifier> agentList = new ArrayList<>();
+        for (ApplicationUid applicationUid : applicationUidList) {
+            agentList.addAll(agentNameService.getAgentIdentifier(serviceUid, applicationUid));
+        }
+        return agentList;
+    }
+
+    private List<AgentIdentifier> getAgentIdentifiers(String serviceName, String applicationName, int serviceTypeCode) {
+        Objects.requireNonNull(applicationName, "applicationName");
+        ServiceUid serviceUid = getServiceUid(serviceName);
+        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, applicationName, serviceTypeCode);
+        if (applicationUid != null) {
+            return agentNameService.getAgentIdentifier(serviceUid, applicationUid);
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public int cleanupInactiveAgent(String serviceName, String applicationName, int serviceTypeCode, Range range) {
+        Objects.requireNonNull(applicationName, "applicationName");
+        ServiceUid serviceUid = getServiceUid(serviceName);
+        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, applicationName, serviceTypeCode);
         if (applicationUid == null) {
             return 0;
         }
@@ -114,6 +132,13 @@ public class AgentListServiceImpl implements AgentListService {
             result.add(createAgentListEntry(agentInfo, status.orElse(null)));
         }
         return result;
+    }
+
+    private List<AgentListEntry> filterActiveStatus(Range range, List<AgentListEntry> agentListEntries) {
+        AgentStatusFilter activeStatusPredicate = AgentStatusFilters.recentStatus(range.getFrom());
+        return agentListEntries.stream()
+                .filter(agentAndStatus -> activeStatusPredicate.test(agentAndStatus.getAgentStatus()))
+                .toList();
     }
 
     private AgentStatusQuery buildAgentStatusQuery(Collection<AgentIdentifier> agentMetadata, long toTimestamp) {

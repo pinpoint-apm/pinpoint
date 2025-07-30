@@ -11,7 +11,7 @@ public interface UidCache {
 
     // ----------
 
-    ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName);
+    ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode);
 
-    void put(ServiceUid serviceUid, String applicationName, ApplicationUid applicationUid);
+    void put(ServiceUid serviceUid, String applicationName, int serviceTypeCode, ApplicationUid applicationUid);
 }

@@ -77,20 +77,20 @@ public class AgentInfoService {
         }
         try {
             ServiceUid serviceUid = serviceUidSupplier.get();
-            ApplicationUid applicationUid = getApplicationUid(serviceUid, applicationUidSupplier, agentInfoBo.getApplicationName());
+            ApplicationUid applicationUid = getApplicationUid(serviceUid, applicationUidSupplier, agentInfoBo);
             insertAgentName(agentInfoBo, serviceUid, applicationUid);
         } catch (Exception e) {
             logger.warn("Failed to insert agentName. applicationName: {}, id: {}, name: {}", agentInfoBo.getApplicationName(), agentInfoBo.getAgentId(), agentInfoBo.getAgentName(), e);
         }
     }
 
-    private ApplicationUid getApplicationUid(ServiceUid serviceUid, Supplier<ApplicationUid> applicationUidSupplier, String applicationName) {
+    private ApplicationUid getApplicationUid(ServiceUid serviceUid, Supplier<ApplicationUid> applicationUidSupplier, AgentInfoBo agentInfoBo) {
         Objects.requireNonNull(serviceUid, "serviceUid");
-        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(agentInfoBo.getApplicationName(), "applicationName");
         try {
             return applicationUidSupplier.get();
         } catch (UidException exception) {
-            return applicationUidCacheService.getOrCreateApplicationUid(serviceUid, applicationName);
+            return applicationUidCacheService.getOrCreateApplicationUid(serviceUid, agentInfoBo.getApplicationName(), agentInfoBo.getServiceTypeCode());
         }
     }
 

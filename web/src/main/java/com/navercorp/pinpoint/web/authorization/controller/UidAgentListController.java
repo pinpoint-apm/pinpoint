@@ -1,6 +1,8 @@
 package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.service.AgentListService;
 import com.navercorp.pinpoint.web.vo.agent.AgentListEntry;
 import jakarta.validation.constraints.NotBlank;
@@ -23,9 +25,11 @@ import java.util.stream.Stream;
 @ConditionalOnProperty(name = "pinpoint.modules.uid.enabled", havingValue = "true")
 public class UidAgentListController {
 
+    private final ServiceTypeRegistryService serviceTypeRegistryService;
     private final AgentListService agentListService;
 
-    public UidAgentListController(AgentListService agentListService) {
+    public UidAgentListController(ServiceTypeRegistryService serviceTypeRegistryService, AgentListService agentListService) {
+        this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
         this.agentListService = Objects.requireNonNull(agentListService, "agentListService");
 
     }
@@ -33,8 +37,18 @@ public class UidAgentListController {
     @GetMapping(value = "")
     public List<AgentListEntry> getAgentList(@RequestParam(value = "serviceName", required = false) String serviceName,
                                              @RequestParam(value = "applicationName") @NotBlank String applicationName,
+                                             @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
+                                             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
                                              @RequestParam(value = "orderBy", required = false, defaultValue = "NO_OP") String orderBy) {
-        return agentListService.getApplicationAgentList(serviceName, applicationName).stream()
+        ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
+
+        List<AgentListEntry> applicationAgentList;
+        if (serviceType.equals(ServiceType.UNDEFINED)) {
+            applicationAgentList = agentListService.getApplicationAgentList(serviceName, applicationName);
+        } else {
+            applicationAgentList = agentListService.getApplicationAgentList(serviceName, applicationName, serviceType.getCode());
+        }
+        return applicationAgentList.stream()
                 .sorted(OrderBy.of(orderBy))
                 .collect(Collectors.toList());
     }
@@ -42,11 +56,21 @@ public class UidAgentListController {
     @GetMapping(value = "", params = {"from", "to"})
     public List<AgentListEntry> getAgentList(@RequestParam(value = "serviceName", required = false) String serviceName,
                                              @RequestParam(value = "applicationName") @NotBlank String applicationName,
+                                             @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
+                                             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
                                              @RequestParam("from") @PositiveOrZero long from,
                                              @RequestParam("to") @PositiveOrZero long to,
                                              @RequestParam(value = "orderBy", required = false, defaultValue = "NO_OP") String orderBy) {
+        ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
         Range range = Range.between(from, to);
-        return agentListService.getApplicationAgentList(serviceName, applicationName, range).stream()
+
+        List<AgentListEntry> applicationAgentList;
+        if (serviceType.equals(ServiceType.UNDEFINED)) {
+            applicationAgentList = agentListService.getApplicationAgentList(serviceName, applicationName, range);
+        } else {
+            applicationAgentList = agentListService.getApplicationAgentList(serviceName, applicationName, serviceType.getCode(), range);
+        }
+        return applicationAgentList.stream()
                 .sorted(OrderBy.of(orderBy))
                 .collect(Collectors.toList());
     }
@@ -77,5 +101,14 @@ public class UidAgentListController {
         public int compare(AgentListEntry o1, AgentListEntry o2) {
             return comparator.compare(o1, o2);
         }
+    }
+
+    private ServiceType findServiceType(Integer serviceTypeCode, String serviceTypeName) {
+        if (serviceTypeCode != null) {
+            return serviceTypeRegistryService.findServiceType(serviceTypeCode);
+        } else if (serviceTypeName != null) {
+            return serviceTypeRegistryService.findServiceTypeByName(serviceTypeName);
+        }
+        return ServiceType.UNDEFINED;
     }
 }

@@ -8,5 +8,5 @@ import java.util.function.Supplier;
 public interface UidFetcher {
     Supplier<ServiceUid> getServiceUid();
 
-    Supplier<ApplicationUid> getApplicationId(ServiceUid serviceUid, String applicationName);
+    Supplier<ApplicationUid> getApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode);
 }

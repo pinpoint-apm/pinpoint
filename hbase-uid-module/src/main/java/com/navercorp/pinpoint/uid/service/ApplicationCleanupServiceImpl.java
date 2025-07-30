@@ -3,9 +3,10 @@ package com.navercorp.pinpoint.uid.service;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.HbaseCellData;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.uid.dao.ApplicationNameDao;
 import com.navercorp.pinpoint.uid.dao.ApplicationUidDao;
-import com.navercorp.pinpoint.uid.utils.UidRowKeyParseUtils;
+import com.navercorp.pinpoint.uid.dao.ApplicationUidAttrDao;
+import com.navercorp.pinpoint.uid.utils.UidBytesParseUtils;
+import com.navercorp.pinpoint.uid.vo.ApplicationUidAttribute;
 import jakarta.annotation.Nullable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 public class ApplicationCleanupServiceImpl implements ApplicationCleanupService {
@@ -24,14 +24,14 @@ public class ApplicationCleanupServiceImpl implements ApplicationCleanupService 
     private final BaseApplicationUidService baseApplicationUidService;
 
     private final ApplicationUidDao applicationUidDao;
-    private final ApplicationNameDao applicationNameDao;
+    private final ApplicationUidAttrDao applicationUidAttrDao;
 
     public ApplicationCleanupServiceImpl(AgentNameService agentNameService, BaseApplicationUidService baseApplicationUidService,
-                                         ApplicationUidDao applicationUidDao, ApplicationNameDao applicationNameDao) {
+                                         ApplicationUidDao applicationUidDao, ApplicationUidAttrDao applicationUidAttrDao) {
         this.agentNameService = Objects.requireNonNull(agentNameService, "agentNameService");
         this.baseApplicationUidService = Objects.requireNonNull(baseApplicationUidService, "applicationUidService");
         this.applicationUidDao = Objects.requireNonNull(applicationUidDao, "applicationUidDao");
-        this.applicationNameDao = Objects.requireNonNull(applicationNameDao, "applicationInfoDao");
+        this.applicationUidAttrDao = Objects.requireNonNull(applicationUidAttrDao, "applicationInfoDao");
     }
 
     @Override
@@ -43,12 +43,12 @@ public class ApplicationCleanupServiceImpl implements ApplicationCleanupService 
         logger.info("cleanup start. EmptyApplication, {}", serviceUid);
         int cleanupCount = 0;
         for (int i = 0; i < cellData.size(); i++) {
-            ServiceUid cellServiceUid = UidRowKeyParseUtils.getServiceUid(cellData.get(i).getRowKey());
-            String cellApplicationName = UidRowKeyParseUtils.getApplicationName(cellData.get(i).getRowKey());
+            ServiceUid cellServiceUid = UidBytesParseUtils.parseServiceUidFromRowKey(cellData.get(i).getRowKey());
+            ApplicationUidAttribute cellApplicationUidAttribute = UidBytesParseUtils.parseApplicationUidAttrFromRowKey(cellData.get(i).getRowKey());
             ApplicationUid cellApplicationUid = (ApplicationUid) cellData.get(i).getValue();
 
-            logIteration(i, cellData.size(), cellServiceUid, cellApplicationName, cellApplicationUid);
-            boolean deleted = deleteApplicationIfEmpty(cellServiceUid, cellApplicationUid, cellApplicationName);
+            logIteration(i, cellData.size(), cellServiceUid, cellApplicationUidAttribute, cellApplicationUid);
+            boolean deleted = deleteApplicationIfEmpty(cellServiceUid, cellApplicationUid, cellApplicationUidAttribute);
             if (deleted) {
                 cleanupCount++;
             }
@@ -57,16 +57,16 @@ public class ApplicationCleanupServiceImpl implements ApplicationCleanupService 
         return cleanupCount;
     }
 
-    private boolean deleteApplicationIfEmpty(ServiceUid serviceUid, ApplicationUid applicationUid, String applicationName) {
+    private boolean deleteApplicationIfEmpty(ServiceUid serviceUid, ApplicationUid applicationUid, ApplicationUidAttribute applicationUidAttribute) {
         if (agentNameService.getAgentIdentifier(serviceUid, applicationUid).size() > 0) {
             return false;
         }
 
         try {
-            baseApplicationUidService.deleteApplication(serviceUid, applicationName);
+            baseApplicationUidService.deleteApplication(serviceUid, applicationUidAttribute.applicationName(), applicationUidAttribute.serviceTypeCode());
             return true;
         } catch (Exception e) {
-            logger.warn("Failed to delete application. {}, {}, {}", serviceUid, applicationUid, applicationName, e);
+            logger.warn("Failed to delete application. {}, {}, {}", serviceUid, applicationUid, applicationUidAttribute, e);
             return false;
         }
     }
@@ -74,19 +74,19 @@ public class ApplicationCleanupServiceImpl implements ApplicationCleanupService 
     @Override
     public int cleanupInconsistentApplicationUid(@Nullable ServiceUid serviceUid) {
         long bufferTime = System.currentTimeMillis() - 300_000L; // 5 minute buffer time
-        List<HbaseCellData> cellData = applicationNameDao.selectCellData(serviceUid).stream()
+        List<HbaseCellData> cellData = applicationUidAttrDao.selectCellData(serviceUid).stream()
                 .filter(hbaseCellData -> hbaseCellData.getTimestamp() < bufferTime)
-                .collect(Collectors.toList());
+                .toList();
 
         logger.info("cleanup start. InconsistentApplicationUid, {}", serviceUid);
         int cleanupCount = 0;
         for (int i = 0; i < cellData.size(); i++) {
-            ServiceUid cellServiceUid = UidRowKeyParseUtils.getServiceUid(cellData.get(i).getRowKey());
-            ApplicationUid cellApplicationUid = UidRowKeyParseUtils.getApplicationUid(cellData.get(i).getRowKey());
-            String cellApplicationName = (String) cellData.get(i).getValue();
+            ServiceUid cellServiceUid = UidBytesParseUtils.parseServiceUidFromRowKey(cellData.get(i).getRowKey());
+            ApplicationUid cellApplicationUid = UidBytesParseUtils.parseApplicationUidFromRowKey(cellData.get(i).getRowKey());
+            ApplicationUidAttribute cellApplicationUidAttribute = (ApplicationUidAttribute) cellData.get(i).getValue();
 
-            logIteration(i, cellData.size(), cellServiceUid, cellApplicationName, cellApplicationUid);
-            boolean deleted = deleteApplicationNameIfInconsistent(cellServiceUid, cellApplicationUid, cellApplicationName);
+            logIteration(i, cellData.size(), cellServiceUid, cellApplicationUidAttribute, cellApplicationUid);
+            boolean deleted = deleteApplicationNameIfInconsistent(cellServiceUid, cellApplicationUid, cellApplicationUidAttribute);
             if (deleted) {
                 cleanupCount++;
             }
@@ -95,14 +95,14 @@ public class ApplicationCleanupServiceImpl implements ApplicationCleanupService 
         return cleanupCount;
     }
 
-    private boolean deleteApplicationNameIfInconsistent(ServiceUid serviceUid, ApplicationUid applicationUid, String applicationName) {
-        ApplicationUid actualApplicationUid = applicationUidDao.selectApplicationUid(serviceUid, applicationName);
+    private boolean deleteApplicationNameIfInconsistent(ServiceUid serviceUid, ApplicationUid applicationUid, ApplicationUidAttribute applicationUidAttribute) {
+        ApplicationUid actualApplicationUid = applicationUidDao.selectApplicationUid(serviceUid, applicationUidAttribute);
         if (applicationUid.equals(actualApplicationUid)) {
             return false;
         }
 
         try {
-            applicationNameDao.deleteApplicationName(serviceUid, applicationUid);
+            applicationUidAttrDao.deleteApplicationName(serviceUid, applicationUid);
             logger.info("deleted {}, {}", serviceUid, applicationUid);
             return true;
         } catch (Exception e) {
@@ -111,12 +111,16 @@ public class ApplicationCleanupServiceImpl implements ApplicationCleanupService 
         }
     }
 
-    private void logIteration(int index, int total, ServiceUid cellServiceUid, String cellApplicationName, ApplicationUid cellApplicationUid) {
+    private void logIteration(int index, int total, ServiceUid cellServiceUid, ApplicationUidAttribute cellApplicationUidAttribute, ApplicationUid cellApplicationUid) {
         int logInterval = Math.max(total / 10, 1);
+        String logString = String.format("Iteration %d/%d: %s, name=%s@%s, %s",
+                index + 1, total, cellServiceUid,
+                cellApplicationUidAttribute.applicationName(), cellApplicationUidAttribute.serviceTypeCode(),
+                cellApplicationUid);
         if (logger.isDebugEnabled()) {
-            logger.debug("Iteration {}/{}: {}, name={}, {}", index + 1, total, cellServiceUid, cellApplicationName, cellApplicationUid);
+            logger.debug(logString);
         } else if (logger.isInfoEnabled() && index % logInterval == 0) {
-            logger.info("Iteration {}/{}: {}, name={}, {}", index + 1, total, cellServiceUid, cellApplicationName, cellApplicationUid);
+            logger.info(logString);
         }
     }
 }
