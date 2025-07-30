@@ -17,9 +17,13 @@
 package com.navercorp.pinpoint.common.hbase.wd;
 
 
+import com.google.common.hash.HashCode;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.MathUtils;
 
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 
@@ -27,6 +31,8 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  */
 public class RangeDoubleHash implements ByteHasher {
+    public static final HashFunction hashFunction = Hashing.murmur3_32_fixed();
+
     private static final SaltKey SALT_KEY = ByteSaltKey.SALT;
 
     private final int start;
@@ -37,7 +43,20 @@ public class RangeDoubleHash implements ByteHasher {
 
     private final SaltKeyPrefix[] saltKeyPrefixes;
 
-    public RangeDoubleHash(int start, int end, int maxBuckets, int secondaryMod) {
+    private final SecondaryHashFunction secondaryHashFunction;
+
+    public static ByteHasher ofRandom(int start, int end, int maxBuckets, int secondaryMod) {
+        SecondaryHashFunction secondaryHashFunction = new SecondaryRandomHashFunction(secondaryMod);
+        return new RangeDoubleHash(start, end, maxBuckets, secondaryMod, secondaryHashFunction);
+    }
+
+    public static ByteHasher ofSecondary(int start, int end, int maxBuckets, int secondaryMod, int secondaryStart, int secondaryEnd) {
+        SecondaryHashFunction secondaryHashFunction = new SecondaryRangeHashFunction(secondaryStart, secondaryEnd, secondaryMod);
+        return new RangeDoubleHash(start, end, maxBuckets, secondaryMod, secondaryHashFunction);
+    }
+
+
+    public RangeDoubleHash(int start, int end, int maxBuckets, int secondaryMod, SecondaryHashFunction secondaryHashFunction) {
         if (maxBuckets < 1 || maxBuckets > MAX_BUCKETS) {
             throw new IllegalArgumentException("maxBuckets should be in 1..256 range");
         }
@@ -46,8 +65,10 @@ public class RangeDoubleHash implements ByteHasher {
         // i.e. "real" maxBuckets value = maxBuckets or maxBuckets-1
         this.maxBuckets = maxBuckets;
 
-        this.secondaryMod = secondaryMod;
         this.saltKeyPrefixes = newSaltKeyPrefixes(maxBuckets);
+        this.secondaryMod = secondaryMod;
+
+        this.secondaryHashFunction = Objects.requireNonNull(secondaryHashFunction, "secondaryFunction");
     }
 
     private SaltKeyPrefix[] newSaltKeyPrefixes(int maxBuckets) {
@@ -58,12 +79,23 @@ public class RangeDoubleHash implements ByteHasher {
         return saltKeyPrefixes;
     }
 
-
     @Override
     public byte getHashPrefix(byte[] originalKey) {
-        int index = firstIndex(originalKey);
+//        int index = firstIndex(originalKey, 0);
+//
+//        int secondaryIndex = secondaryIndex(originalKey, 0);
+//        index = secondaryModIndex(index, secondaryIndex);
+//
+//        return (byte) index;
 
-        int secondaryIndex = secondaryIndex(originalKey);
+        return getHashPrefix(originalKey, 0);
+    }
+
+    @Override
+    public byte getHashPrefix(byte[] originalKey, int saltKeySize) {
+        int index = firstIndex(originalKey, saltKeySize);
+
+        int secondaryIndex = this.secondaryHashFunction.secondary(originalKey, saltKeySize);
         index = secondaryModIndex(index, secondaryIndex);
 
         return (byte) index;
@@ -79,28 +111,61 @@ public class RangeDoubleHash implements ByteHasher {
         return (index + secondaryIndex) % maxBuckets;
     }
 
-    int firstIndex(byte[] originalKey) {
-        return MathUtils.fastAbs(hashBytes(originalKey)) % maxBuckets;
+    int firstIndex(byte[] originalKey, int saltKeySize) {
+        return MathUtils.fastAbs(hashBytes(originalKey, saltKeySize)) % maxBuckets;
     }
 
-    protected int secondaryIndex(byte[] originalKey) {
-        // Random distribution
-        ThreadLocalRandom random = ThreadLocalRandom.current();
-        return random.nextInt(secondaryMod);
+    public interface SecondaryHashFunction {
+        int secondary(byte[] originalKey, int saltKeySize);
+    }
+
+    public static class SecondaryRandomHashFunction implements SecondaryHashFunction {
+        private final int mod;
+
+        public SecondaryRandomHashFunction(int mod) {
+            this.mod = mod;
+        }
+
+        @Override
+        public int secondary(byte[] originalKey, int saltKeySize) {
+            ThreadLocalRandom random = ThreadLocalRandom.current();
+            return random.nextInt(mod);
+        }
+    }
+
+    public static class SecondaryRangeHashFunction implements SecondaryHashFunction {
+
+        private final int start;
+        private final int end;
+        private final int mod;
+
+        public SecondaryRangeHashFunction(int start, int end, int mod) {
+            this.start = start;
+            this.end = end;
+            this.mod = mod;
+        }
+
+        @Override
+        public int secondary(byte[] originalKey, int saltKeySize) {
+            return BytesUtils.hashBytes(originalKey, start + saltKeySize, end + saltKeySize) % mod;
+//            HashCode hashCode = hashFunction.hashBytes(originalKey, start + saltKeySize, end - start + saltKeySize);
+//            return hashCode.asInt() % mod;
+        }
     }
 
     /** Compute hash for binary data. */
-    private int hashBytes(byte[] bytes) {
-        int length = Math.min(bytes.length, end);
-//        HashCode hashCode = Hashing.murmur3_32().hashBytes(bytes, start, length);
-//        return hashCode.asInt();
-        return BytesUtils.hashBytes(bytes, start, length);
+    private int hashBytes(byte[] bytes, int saltKeySize) {
+//        int length = Math.min(bytes.length, end + saltKeySize);
+//        return BytesUtils.hashBytes(bytes, start + saltKeySize, length);
+        int length = end - start;
+        HashCode hashCode = hashFunction.hashBytes(bytes, start + saltKeySize, length);
+        return hashCode.asInt();
     }
 
 
     @Override
     public SaltKeyPrefix getAllPrefixes(byte[] originalKey) {
-        int firstIndex = firstIndex(originalKey);
+        int firstIndex = firstIndex(originalKey, 0);
         return saltKeyPrefixes[firstIndex];
     }
 
