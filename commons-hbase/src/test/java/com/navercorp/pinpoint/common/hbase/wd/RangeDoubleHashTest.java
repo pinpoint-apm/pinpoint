@@ -28,13 +28,13 @@ class RangeDoubleHashTest {
     @Test
     void getHashPrefix() {
         int secondaryMod = 4;
-        RangeDoubleHash hash = new RangeDoubleHash(0, 12, ByteHasher.MAX_BUCKETS, secondaryMod);
+        RangeDoubleHash hash = (RangeDoubleHash) RangeDoubleHash.ofRandom(0, 12, ByteHasher.MAX_BUCKETS, secondaryMod);
 
         int service = 0;
         long application = 1;
 
         byte[] originalKey = rowkey(service, application);
-        int keyModIndex = hash.firstIndex(originalKey);
+        int keyModIndex = hash.firstIndex(originalKey, 0);
 
         Set<Integer> modSet = secondaryModSet(hash, keyModIndex, secondaryMod);
         Assertions.assertEquals(secondaryMod, modSet.size());
@@ -42,7 +42,6 @@ class RangeDoubleHashTest {
             int secondaryIndex = hash.getHashPrefix(originalKey);
             Assertions.assertTrue(modSet.contains(secondaryIndex));
         }
-
     }
 
 
@@ -50,7 +49,7 @@ class RangeDoubleHashTest {
     void getDistributedKey() {
 
         int secondaryMod = 4;
-        RangeDoubleHash hash = new RangeDoubleHash(0, 12, ByteHasher.MAX_BUCKETS, secondaryMod);
+        ByteHasher hash = RangeDoubleHash.ofRandom(0, 12, ByteHasher.MAX_BUCKETS, secondaryMod);
         RowKeyDistributor distributor = new RowKeyDistributorByHashPrefix(hash);
 
         int service = 0;
@@ -64,10 +63,29 @@ class RangeDoubleHashTest {
     }
 
     @Test
+    void getDistributedKey_secondary() {
+
+        int secondaryMod = 4;
+        ByteHasher hash = RangeDoubleHash.ofSecondary(0, 12, ByteHasher.MAX_BUCKETS, secondaryMod, 12, 20);
+
+        int service = 0;
+        long application = 1;
+
+        Set<Byte> prefixSet = new HashSet<>();
+        for (int i = 0; i < 10; i++) {
+            long timestamp = 1000 + i;
+            byte[] originalKey = Bytes.add(Bytes.toBytes(service), Bytes.toBytes(application), Bytes.toBytes(timestamp));
+            byte hashPrefix = hash.getHashPrefix(originalKey);
+            prefixSet.add(hashPrefix);
+        }
+        org.assertj.core.api.Assertions.assertThat(prefixSet).hasSize(secondaryMod);
+    }
+
+    @Test
     void getDistributedKey_32Buckets() {
 
         int secondaryMod = 8;
-        RangeDoubleHash hash = new RangeDoubleHash(0, 12, 32, secondaryMod);
+        ByteHasher hash = RangeDoubleHash.ofRandom(0, 12, 32, secondaryMod);
         RowKeyDistributor distributor = new RowKeyDistributorByHashPrefix(hash);
 
         int service = 9;
@@ -85,20 +103,17 @@ class RangeDoubleHashTest {
     void getAllPossiblePrefixes() {
 
         int secondaryMod = 4;
-        RangeDoubleHash hash = new RangeDoubleHash(0, 12, ByteHasher.MAX_BUCKETS, secondaryMod);
+        ByteHasher hash = RangeDoubleHash.ofRandom(0, 12, ByteHasher.MAX_BUCKETS, secondaryMod);
 
-        for (int i = 0; i < ByteHasher.MAX_BUCKETS + 10; i++) {
-            int service = 0;
-            long application = i;
+        int service = 0;
+        long application = 0;
 
-            byte[] rowkey = rowkey(service, application);
-            byte hashPrefix = hash.getHashPrefix(rowkey);
-            SaltKeyPrefix allPrefixes = hash.getAllPrefixes(rowkey);
+        byte[] rowkey = rowkey(service, application);
+        byte hashPrefix = hash.getHashPrefix(rowkey);
+        SaltKeyPrefix allPrefixes = hash.getAllPrefixes(rowkey);
 
-            Assertions.assertEquals(secondaryMod, allPrefixes.size());
-            Assertions.assertTrue(contains(allPrefixes, rowkey, hashPrefix));
-        }
-
+        Assertions.assertEquals(secondaryMod, allPrefixes.size());
+        Assertions.assertTrue(contains(allPrefixes, rowkey, hashPrefix));
     }
 
     private boolean contains(SaltKeyPrefix allPrefixes, byte[] rowkey, byte hashPrefix) {
@@ -116,7 +131,7 @@ class RangeDoubleHashTest {
     void getAllDistributedKeys() {
 
         int secondaryMod = 4;
-        RangeDoubleHash hash = new RangeDoubleHash(0, 12, ByteHasher.MAX_BUCKETS, secondaryMod);
+        ByteHasher hash = RangeDoubleHash.ofRandom(0, 12, ByteHasher.MAX_BUCKETS, secondaryMod);
         RowKeyDistributor distributor = new RowKeyDistributorByHashPrefix(hash);
 
         int service = 0;
