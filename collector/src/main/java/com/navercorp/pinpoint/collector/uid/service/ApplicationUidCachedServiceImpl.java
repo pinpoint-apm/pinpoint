@@ -32,19 +32,19 @@ public class ApplicationUidCachedServiceImpl implements ApplicationUidService {
 
     @Override
     @Cacheable(cacheNames = APPLICATION_UID_CACHE_NAME, cacheManager = "applicationUidCache", unless = "#result == null")
-    public ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName) {
-        return baseApplicationUidService.getApplicationUid(serviceUid, applicationName);
+    public ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
+        return baseApplicationUidService.getApplicationUid(serviceUid, applicationName, serviceTypeCode);
     }
 
     @Override
-    public ApplicationUid getOrCreateApplicationUid(ServiceUid serviceUid, String applicationName) {
-        return asyncGetOrCreateApplicationUid(serviceUid, applicationName).join();
+    public ApplicationUid getOrCreateApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
+        return asyncGetOrCreateApplicationUid(serviceUid, applicationName, serviceTypeCode).join();
     }
 
     // throw CompletionException if valueLoader throws an exception
     @Override
-    public CompletableFuture<ApplicationUid> asyncGetOrCreateApplicationUid(ServiceUid serviceUid, String applicationName) {
-        return applicationUidCache.retrieve(SimpleKeyGenerator.generateKey(serviceUid, applicationName),
-                () -> baseApplicationUidService.asyncGetOrCreateApplicationUid(serviceUid, applicationName));
+    public CompletableFuture<ApplicationUid> asyncGetOrCreateApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
+        return applicationUidCache.retrieve(SimpleKeyGenerator.generateKey(serviceUid, applicationName, serviceTypeCode),
+                () -> baseApplicationUidService.asyncGetOrCreateApplicationUid(serviceUid, applicationName, serviceTypeCode));
     }
 }

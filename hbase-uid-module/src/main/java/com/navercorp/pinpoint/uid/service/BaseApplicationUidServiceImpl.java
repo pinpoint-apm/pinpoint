@@ -3,8 +3,9 @@ package com.navercorp.pinpoint.uid.service;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.IdGenerator;
-import com.navercorp.pinpoint.uid.dao.ApplicationNameDao;
 import com.navercorp.pinpoint.uid.dao.ApplicationUidDao;
+import com.navercorp.pinpoint.uid.dao.ApplicationUidAttrDao;
+import com.navercorp.pinpoint.uid.vo.ApplicationUidAttribute;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,174 +20,187 @@ public class BaseApplicationUidServiceImpl implements BaseApplicationUidService 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ApplicationUidDao applicationUidDao;
-    private final ApplicationNameDao applicationNameDao;
+    private final ApplicationUidAttrDao applicationUidAttrDao;
     private final IdGenerator<ApplicationUid> applicationUidGenerator;
 
-    public BaseApplicationUidServiceImpl(ApplicationUidDao applicationUidDao, ApplicationNameDao applicationNameDao,
+    public BaseApplicationUidServiceImpl(ApplicationUidDao applicationUidDao, ApplicationUidAttrDao applicationUidAttrDao,
                                          @Qualifier("applicationUidGenerator") IdGenerator<ApplicationUid> applicationUidGenerator) {
         this.applicationUidDao = Objects.requireNonNull(applicationUidDao, "applicationIdDao");
-        this.applicationNameDao = Objects.requireNonNull(applicationNameDao, "applicationInfoDao");
+        this.applicationUidAttrDao = Objects.requireNonNull(applicationUidAttrDao, "applicationInfoDao");
         this.applicationUidGenerator = Objects.requireNonNull(applicationUidGenerator, "applicationIdGenerator");
     }
 
     @Override
-    public ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName) {
+    public List<ApplicationUid> getApplicationUid(ServiceUid serviceUid, String applicationName) {
         Objects.requireNonNull(serviceUid, "serviceUid");
-        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(applicationName, "applicationUidInfo");
+
         return applicationUidDao.selectApplicationUid(serviceUid, applicationName);
     }
 
     @Override
-    public ApplicationUid getOrCreateApplicationUid(ServiceUid serviceUid, String applicationName) {
+    public ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
         Objects.requireNonNull(serviceUid, "serviceUid");
         Objects.requireNonNull(applicationName, "applicationName");
+        ApplicationUidAttribute applicationUidAttribute = new ApplicationUidAttribute(applicationName, serviceTypeCode);
 
-        ApplicationUid applicationUid = applicationUidDao.selectApplicationUid(serviceUid, applicationName);
+        return applicationUidDao.selectApplicationUid(serviceUid, applicationUidAttribute);
+    }
+
+    @Override
+    public ApplicationUid getOrCreateApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
+        Objects.requireNonNull(serviceUid, "serviceUid");
+        Objects.requireNonNull(applicationName, "applicationName");
+        ApplicationUidAttribute applicationUidAttribute = new ApplicationUidAttribute(applicationName, serviceTypeCode);
+
+        ApplicationUid applicationUid = applicationUidDao.selectApplicationUid(serviceUid, applicationUidAttribute);
         if (applicationUid != null) {
             return applicationUid;
         }
 
-        ApplicationUid newApplicationUid = tryInsertApplicationUid(serviceUid, applicationName);
+        ApplicationUid newApplicationUid = tryInsertApplicationUid(serviceUid, applicationUidAttribute);
         if (newApplicationUid != null) {
             return newApplicationUid;
         }
 
-        ApplicationUid retriedApplicationUid = applicationUidDao.selectApplicationUid(serviceUid, applicationName);
+        ApplicationUid retriedApplicationUid = applicationUidDao.selectApplicationUid(serviceUid, applicationUidAttribute);
         if (retriedApplicationUid != null) {
             return retriedApplicationUid;
         }
-        throw new IllegalStateException("Failed to create ApplicationUid for serviceUid: " + serviceUid + ", applicationName: " + applicationName);
+        throw new IllegalStateException("Failed to create ApplicationUid. " + serviceUid + ", " + applicationUidAttribute);
     }
 
-    private ApplicationUid tryInsertApplicationUid(ServiceUid serviceUid, String applicationName) {
-        ApplicationUid newApplicationUid = insertApplicationNameWithRetries(serviceUid, applicationName, 3);
+    private ApplicationUid tryInsertApplicationUid(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute) {
+        ApplicationUid newApplicationUid = insertApplicationNameWithRetries(serviceUid, applicationUidAttribute, 3);
         if (newApplicationUid == null) {
             return null;
         }
-        logger.debug("saved ({}, {} -> name:{})", serviceUid, newApplicationUid, applicationName);
-        return insertApplicationUidWithRollback(serviceUid, applicationName, newApplicationUid);
+        logger.debug("saved ({}, {} -> {})", serviceUid, newApplicationUid, applicationUidAttribute);
+        return insertApplicationUidWithRollback(serviceUid, applicationUidAttribute, newApplicationUid);
     }
 
-    private ApplicationUid insertApplicationUidWithRollback(ServiceUid serviceUid, String applicationName, ApplicationUid newApplicationUid) {
+    private ApplicationUid insertApplicationUidWithRollback(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute, ApplicationUid newApplicationUid) {
         try {
-            boolean success = applicationUidDao.insertApplicationUidIfNotExists(serviceUid, applicationName, newApplicationUid);
+            boolean success = applicationUidDao.insertApplicationUidIfNotExists(serviceUid, applicationUidAttribute, newApplicationUid);
             if (success) {
-                logger.info("saved ({}, name:{} -> {})", serviceUid, applicationName, newApplicationUid);
+                logger.info("saved ({}, {} -> {})", serviceUid, applicationUidAttribute, newApplicationUid);
                 return newApplicationUid;
             }
         } catch (Throwable throwable) {
-            logger.error("Failed to insert applicationUid. {}, name:{}, {}", serviceUid, applicationName, newApplicationUid, throwable);
+            logger.error("Failed to insert applicationUid. {}, {}, new:{}", serviceUid, applicationUidAttribute, newApplicationUid, throwable);
         }
 
-        logger.debug("rollback. {}, {}, name:{}", serviceUid, newApplicationUid, applicationName);
+        logger.debug("rollback. ({}, {} -> ?)", serviceUid, newApplicationUid);
         try {
-            applicationNameDao.deleteApplicationName(serviceUid, newApplicationUid);
+            applicationUidAttrDao.deleteApplicationName(serviceUid, newApplicationUid);
         } catch (Throwable throwable) {
-            logger.error("Failed to delete applicationName. {}, name:{}, {}", serviceUid, applicationName, newApplicationUid, throwable);
+            logger.error("Failed to delete applicationName. {}, {}, {}", serviceUid, applicationUidAttribute, newApplicationUid, throwable);
         }
         return null;
     }
 
-    private ApplicationUid insertApplicationNameWithRetries(ServiceUid serviceUid, String applicationName, int maxRetries) {
+    private ApplicationUid insertApplicationNameWithRetries(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute, int maxRetries) {
         for (int i = 0; i < maxRetries; i++) {
             ApplicationUid newApplicationUid = applicationUidGenerator.generate();
-            boolean nameInsertResult = applicationNameDao.insertApplicationNameIfNotExists(serviceUid, newApplicationUid, applicationName);
+            boolean nameInsertResult = applicationUidAttrDao.insertApplicationNameIfNotExists(serviceUid, newApplicationUid, applicationUidAttribute);
             if (nameInsertResult) {
                 return newApplicationUid;
             }
         }
-        logger.error("ApplicationUid collision. applicationName: {}, maxRetries: {}", applicationName, maxRetries);
+        logger.error("ApplicationUid collision. {}, {}, maxRetries: {}", serviceUid, applicationUidAttribute, maxRetries);
         return null;
     }
 
     @Override
-    public List<String> getApplicationNames(ServiceUid serviceUid) {
+    public List<ApplicationUidAttribute> getApplications(ServiceUid serviceUid) {
         Objects.requireNonNull(serviceUid, "serviceUid");
-        return applicationUidDao.selectApplicationNames(serviceUid);
+        return applicationUidDao.selectApplicationInfo(serviceUid);
     }
 
     @Override
-    public String getApplicationName(ServiceUid serviceUid, ApplicationUid applicationUid) {
+    public ApplicationUidAttribute getApplication(ServiceUid serviceUid, ApplicationUid applicationUid) {
         Objects.requireNonNull(serviceUid, "serviceUid");
         Objects.requireNonNull(applicationUid, "applicationUid");
-        return applicationNameDao.selectApplicationName(serviceUid, applicationUid);
+        return applicationUidAttrDao.selectApplicationInfo(serviceUid, applicationUid);
     }
 
     @Override
-    public void deleteApplication(ServiceUid serviceUid, String applicationName) {
+    public void deleteApplication(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
         Objects.requireNonNull(serviceUid, "serviceUid");
         Objects.requireNonNull(applicationName, "applicationName");
+        ApplicationUidAttribute applicationUidAttribute = new ApplicationUidAttribute(applicationName, serviceTypeCode);
 
-        ApplicationUid applicationUid = getApplicationUid(serviceUid, applicationName);
-        applicationUidDao.deleteApplicationUid(serviceUid, applicationName);
-        logger.info("deleted ({}, name:{} -> {})", serviceUid, applicationName, applicationUid);
+        ApplicationUid applicationUid = applicationUidDao.selectApplicationUid(serviceUid, applicationUidAttribute);
+        applicationUidDao.deleteApplicationUid(serviceUid, applicationUidAttribute);
+        logger.info("deleted ({}, {} -> {})", serviceUid, applicationUidAttribute, applicationUid);
         if (applicationUid != null) {
-            applicationNameDao.deleteApplicationName(serviceUid, applicationUid);
-            logger.info("deleted ({} -> name:{})", applicationUid, applicationName);
+            applicationUidAttrDao.deleteApplicationName(serviceUid, applicationUid);
+            logger.info("deleted ({}, {} -> {})", serviceUid, applicationUid, applicationUidAttribute);
         }
     }
 
     // async
     @Override
-    public CompletableFuture<ApplicationUid> asyncGetOrCreateApplicationUid(ServiceUid serviceUid, String applicationName) {
+    public CompletableFuture<ApplicationUid> asyncGetOrCreateApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
         Objects.requireNonNull(serviceUid, "serviceUid");
         Objects.requireNonNull(applicationName, "applicationName");
+        ApplicationUidAttribute applicationUidAttribute = new ApplicationUidAttribute(applicationName, serviceTypeCode);
 
-        return applicationUidDao.asyncSelectApplicationUid(serviceUid, applicationName)
+        return applicationUidDao.asyncSelectApplicationUid(serviceUid, applicationUidAttribute)
                 .thenCompose(applicationUid -> {
                     if (applicationUid != null) {
                         return CompletableFuture.completedFuture(applicationUid);
                     }
-                    return asyncTryInsertApplicationUid(serviceUid, applicationName);
+                    return asyncTryInsertApplicationUid(serviceUid, applicationUidAttribute);
                 })
                 .thenCompose(newApplicationUid -> {
                     if (newApplicationUid != null) {
                         return CompletableFuture.completedFuture(newApplicationUid);
                     }
-                    return applicationUidDao.asyncSelectApplicationUid(serviceUid, applicationName);
+                    return applicationUidDao.asyncSelectApplicationUid(serviceUid, applicationUidAttribute);
                 }).thenApply(applicationUid -> {
                     if (applicationUid != null) {
                         return applicationUid;
                     }
-                    throw new IllegalStateException("Failed to create ApplicationUid for serviceUid: " + serviceUid + ", applicationName: " + applicationName);
+                    throw new IllegalStateException("Failed to create ApplicationUid. " + serviceUid + ", " + applicationUidAttribute);
                 });
     }
 
-    private CompletableFuture<ApplicationUid> asyncTryInsertApplicationUid(ServiceUid serviceUid, String applicationName) {
-        return asyncInsertApplicationNameWithRetries(serviceUid, applicationName, 3)
+    private CompletableFuture<ApplicationUid> asyncTryInsertApplicationUid(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute) {
+        return asyncInsertApplicationNameWithRetries(serviceUid, applicationUidAttribute, 3)
                 .thenCompose(newApplicationUid -> {
                     if (newApplicationUid == null) {
-                        logger.error("ApplicationUid collision. applicationName: {}, maxRetries: {}", applicationName, 3);
+                        logger.error("ApplicationUid collision. {}, maxRetries: {}", applicationUidAttribute, 3);
                         return CompletableFuture.completedFuture(null);
                     }
-                    logger.debug("saved ({}, {} -> name:{})", serviceUid, newApplicationUid, applicationName);
-                    return asyncInsertApplicationUidWithRollback(serviceUid, applicationName, newApplicationUid);
+                    logger.debug("saved ({}, {} -> {})", serviceUid, newApplicationUid, applicationUidAttribute);
+                    return asyncInsertApplicationUidWithRollback(serviceUid, applicationUidAttribute, newApplicationUid);
                 });
     }
 
-    private CompletableFuture<ApplicationUid> asyncInsertApplicationUidWithRollback(ServiceUid serviceUid, String applicationName, ApplicationUid newApplicationUid) {
-        return applicationUidDao.asyncInsertApplicationUidIfNotExists(serviceUid, applicationName, newApplicationUid)
+    private CompletableFuture<ApplicationUid> asyncInsertApplicationUidWithRollback(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute, ApplicationUid newApplicationUid) {
+        return applicationUidDao.asyncInsertApplicationUidIfNotExists(serviceUid, applicationUidAttribute, newApplicationUid)
                 .exceptionally(throwable -> {
-                    logger.error("Failed to insert applicationUid. {}, name:{}, {}", serviceUid, applicationName, newApplicationUid, throwable);
+                    logger.error("Failed to insert applicationUid. {}, {}, {}", serviceUid, applicationUidAttribute, newApplicationUid, throwable);
                     return false;
                 })
                 .thenCompose(success -> {
                     if (!success) {
-                        logger.debug("rollback. {}, {}, name:{}", serviceUid, newApplicationUid, applicationName);
-                        applicationNameDao.asyncDeleteApplicationName(serviceUid, newApplicationUid).whenComplete((result, throwable) -> {
+                        logger.debug("rollback. ({}, {} -> ?)", serviceUid, newApplicationUid);
+                        applicationUidAttrDao.asyncDeleteApplicationName(serviceUid, newApplicationUid).whenComplete((result, throwable) -> {
                             if (throwable != null) {
-                                logger.error("Failed to delete applicationName. {}, name:{}", serviceUid, applicationName, throwable);
+                                logger.error("Failed to delete applicationName. {}, {}", serviceUid, applicationUidAttribute, throwable);
                             }
                         });
                         return CompletableFuture.completedFuture(null);
                     }
-                    logger.info("saved ({}, name:{} -> {})", serviceUid, applicationName, newApplicationUid);
+                    logger.info("saved ({}, {} -> {})", serviceUid, applicationUidAttribute, newApplicationUid);
                     return CompletableFuture.completedFuture(newApplicationUid);
                 });
     }
 
 
-    private CompletableFuture<ApplicationUid> asyncInsertApplicationNameWithRetries(ServiceUid serviceUid, String applicationName, int maxRetries) {
+    private CompletableFuture<ApplicationUid> asyncInsertApplicationNameWithRetries(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute, int maxRetries) {
         CompletableFuture<ApplicationUid> future = CompletableFuture.completedFuture(null);
         for (int i = 0; i < maxRetries; i++) {
             future = future.thenCompose(applicationUid -> {
@@ -195,7 +209,7 @@ public class BaseApplicationUidServiceImpl implements BaseApplicationUidService 
                 }
 
                 ApplicationUid newApplicationUid = applicationUidGenerator.generate();
-                return applicationNameDao.asyncInsertApplicationNameIfNotExists(serviceUid, newApplicationUid, applicationName)
+                return applicationUidAttrDao.asyncInsertApplicationNameIfNotExists(serviceUid, newApplicationUid, applicationUidAttribute)
                         .thenApply(success -> {
                             if (success) {
                                 return newApplicationUid;

@@ -86,7 +86,7 @@ public class StatServerTestMain {
         UidFetcherStreamService uidFetcherStreamService = mock(UidFetcherStreamService.class);
         UidFetcher uidFetcher = mock(UidFetcher.class);
         when(uidFetcherStreamService.newUidFetcher()).thenReturn(uidFetcher);
-        when(uidFetcher.getApplicationId(any(), any())).thenReturn(() -> ApplicationUid.of(100));
+        when(uidFetcher.getApplicationUid(any(), any(), any())).thenReturn(() -> ApplicationUid.of(100));
 
 
         StatService statService = new StatService(agentStatBatch, agentStat, agentUriStat,

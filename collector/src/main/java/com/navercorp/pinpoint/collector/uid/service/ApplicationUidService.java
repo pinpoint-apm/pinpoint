@@ -7,9 +7,9 @@ import java.util.concurrent.CompletableFuture;
 
 public interface ApplicationUidService {
 
-    ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName);
+    ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode);
 
-    ApplicationUid getOrCreateApplicationUid(ServiceUid serviceUid, String applicationName);
+    ApplicationUid getOrCreateApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode);
 
-    CompletableFuture<ApplicationUid> asyncGetOrCreateApplicationUid(ServiceUid serviceUid, String applicationName);
+    CompletableFuture<ApplicationUid> asyncGetOrCreateApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode);
 }

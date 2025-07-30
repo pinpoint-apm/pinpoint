@@ -29,17 +29,17 @@ public class LevelUidCache implements UidCache {
     }
 
 
-    public ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName) {
-        final ApplicationUid hit1 = l1.getApplicationUid(serviceUid, applicationName);
+    public ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
+        final ApplicationUid hit1 = l1.getApplicationUid(serviceUid, applicationName, serviceTypeCode);
         if (hit1 != null) {
             return hit1;
         }
-        return l2.getApplicationUid(serviceUid, applicationName);
+        return l2.getApplicationUid(serviceUid, applicationName, serviceTypeCode);
     }
 
-    public void put(ServiceUid serviceUid, String applicationName, ApplicationUid applicationUid) {
-        l1.put(serviceUid, applicationName, applicationUid);
-        l2.put(serviceUid, applicationName, applicationUid);
+    public void put(ServiceUid serviceUid, String applicationName, int serviceTypeCode, ApplicationUid applicationUid) {
+        l1.put(serviceUid, applicationName, serviceTypeCode, applicationUid);
+        l2.put(serviceUid, applicationName, serviceTypeCode, applicationUid);
     }
 
 }

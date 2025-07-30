@@ -8,8 +8,9 @@ import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
+import com.navercorp.pinpoint.uid.vo.ApplicationUidAttribute;
 
-public class UidRowKeyCreateUtils {
+public class UidBytesCreateUtils {
 
     private static final int AGENT_ID_OFFSET = ByteArrayUtils.INT_BYTE_LENGTH + ByteArrayUtils.LONG_BYTE_LENGTH;
     private static final int AGENT_START_TIME_OFFSET = AGENT_ID_OFFSET + HbaseTableConstants.AGENT_ID_MAX_LEN;
@@ -27,8 +28,8 @@ public class UidRowKeyCreateUtils {
         return rowKey;
     }
 
-
-    public static byte[] createApplicationUidRowKey(ServiceUid serviceUid, String applicationName) {
+    // serviceUid + applicationName
+    public static byte[] createRowKey(ServiceUid serviceUid, String applicationName) {
         final byte[] applicationNameBytes = BytesUtils.toBytes(applicationName);
         byte[] rowKey = new byte[ByteArrayUtils.INT_BYTE_LENGTH + applicationNameBytes.length];
         ByteArrayUtils.writeInt(serviceUid.getUid(), rowKey, 0);
@@ -36,14 +37,41 @@ public class UidRowKeyCreateUtils {
         return rowKey;
     }
 
+    // serviceUid + applicationName + @(separator) + serviceTypeCode
+    public static byte[] createApplicationUidRowKey(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
+        final byte[] applicationNameBytes = BytesUtils.toBytes(applicationName);
+        byte[] rowKey = new byte[ByteArrayUtils.INT_BYTE_LENGTH + applicationNameBytes.length + 1 + ByteArrayUtils.INT_BYTE_LENGTH];
+        ByteArrayUtils.writeInt(serviceUid.getUid(), rowKey, 0);
+        writeApplicationUidAttr(rowKey, ByteArrayUtils.INT_BYTE_LENGTH, applicationNameBytes, serviceTypeCode);
+        return rowKey;
+    }
+
+    public static byte[] createApplicationUidValue(ApplicationUid applicationUid) {
+        byte[] rowKey = new byte[ByteArrayUtils.LONG_BYTE_LENGTH];
+        ByteArrayUtils.writeLong(applicationUid.getUid(), rowKey, 0);
+        return rowKey;
+    }
+
+    // ApplicationUidAttrValue = ApplicationName + @(separator) + ServiceTypeCode
+    public static byte[] createApplicationUidAttrValue(String applicationName, int serviceTypeCode) {
+        final byte[] applicationNameBytes = BytesUtils.toBytes(applicationName);
+        byte[] rowKey = new byte[applicationNameBytes.length + 1 + ByteArrayUtils.INT_BYTE_LENGTH];
+        writeApplicationUidAttr(rowKey, 0, applicationNameBytes, serviceTypeCode);
+        return rowKey;
+    }
+
+    private static void writeApplicationUidAttr(byte[] buffer, int bufferOffset, byte[] applicationNameBytes, int serviceTypeCode) {
+        BytesUtils.writeBytes(buffer, bufferOffset, applicationNameBytes);
+        buffer[bufferOffset + applicationNameBytes.length] = ApplicationUidAttribute.SEPARATOR;
+        ByteArrayUtils.writeInt(serviceTypeCode, buffer, bufferOffset + applicationNameBytes.length + 1);
+    }
+
     public static byte[] createAgentNameRowKey(ServiceUid serviceUid, ApplicationUid applicationUid, String agentId, long agentStartTime) {
         Buffer buffer = new FixedBuffer(AGENT_START_TIME_OFFSET + BytesUtils.LONG_BYTE_LENGTH);
-
         buffer.putInt(serviceUid.getUid());
         buffer.putLong(applicationUid.getUid());
         buffer.putPadString(agentId, HbaseTableConstants.AGENT_ID_MAX_LEN);
         buffer.putLong(TimeUtils.reverseTimeMillis(agentStartTime));
-
         return buffer.getBuffer();
     }
 

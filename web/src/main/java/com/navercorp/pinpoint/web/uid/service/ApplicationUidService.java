@@ -2,16 +2,19 @@ package com.navercorp.pinpoint.web.uid.service;
 
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.uid.vo.ApplicationUidAttribute;
 
 import java.util.List;
 
 public interface ApplicationUidService {
 
-    List<String> getApplicationNames(ServiceUid serviceUid);
+    List<ApplicationUidAttribute> getApplicationNames(ServiceUid serviceUid);
 
-    ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName);
+    List<ApplicationUid> getApplicationUid(ServiceUid serviceUid, String applicationName);
 
-    String getApplicationName(ServiceUid serviceUid, ApplicationUid applicationUid);
+    ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode);
 
-    void deleteApplication(ServiceUid serviceUid, String applicationName);
+    ApplicationUidAttribute getApplication(ServiceUid serviceUid, ApplicationUid applicationUid);
+
+    void deleteApplication(ServiceUid serviceUid, String applicationName, int serviceTypeCode);
 }

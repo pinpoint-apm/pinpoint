@@ -5,10 +5,11 @@ import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.RandomApplicationUidGenerator;
-import com.navercorp.pinpoint.uid.dao.ApplicationNameDao;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.uid.dao.ApplicationUidDao;
-import com.navercorp.pinpoint.uid.dao.ConcurrentMapApplicationNameDao;
+import com.navercorp.pinpoint.uid.dao.ApplicationUidAttrDao;
 import com.navercorp.pinpoint.uid.dao.ConcurrentMapApplicationUidDao;
+import com.navercorp.pinpoint.uid.dao.ConcurrentMapApplicationUidAttrDao;
 import com.navercorp.pinpoint.uid.service.BaseApplicationUidService;
 import com.navercorp.pinpoint.uid.service.BaseApplicationUidServiceImpl;
 import org.assertj.core.api.Assertions;
@@ -30,6 +31,7 @@ import java.util.concurrent.ThreadFactory;
 public class BaseApplicationUidServiceTest {
 
     private final ServiceUid testServiceUid = ServiceUid.DEFAULT;
+    private final int testServiceTypeCode = ServiceType.TEST.getCode();
 
     private static ExecutorService executorService;
 
@@ -41,8 +43,8 @@ public class BaseApplicationUidServiceTest {
         executorService = ExecutorFactory.newFixedThreadPool(2, 2, threadFactory);
 
         ApplicationUidDao testApplicationUidDao = new ConcurrentMapApplicationUidDao(executorService);
-        ApplicationNameDao testApplicationNameDao = new ConcurrentMapApplicationNameDao(executorService);
-        applicationIdService = new BaseApplicationUidServiceImpl(testApplicationUidDao, testApplicationNameDao, new RandomApplicationUidGenerator());
+        ApplicationUidAttrDao testApplicationUidAttrDao = new ConcurrentMapApplicationUidAttrDao(executorService);
+        applicationIdService = new BaseApplicationUidServiceImpl(testApplicationUidDao, testApplicationUidAttrDao, new RandomApplicationUidGenerator());
     }
 
     @AfterAll
@@ -55,12 +57,13 @@ public class BaseApplicationUidServiceTest {
     public void getOrCreateApplicationIdTest() {
         String testApplicationName = "test1";
 
-        ApplicationUid before = applicationIdService.getApplicationUid(testServiceUid, testApplicationName);
-        ApplicationUid applicationUid = applicationIdService.getOrCreateApplicationUid(testServiceUid, testApplicationName);
+        ApplicationUid before = applicationIdService.getApplicationUid(testServiceUid, testApplicationName, testServiceTypeCode);
+        ApplicationUid applicationUid = applicationIdService.getOrCreateApplicationUid(testServiceUid, testApplicationName, testServiceTypeCode);
 
         Assertions.assertThat(before).isNull();
         Assertions.assertThat(applicationUid).isNotNull();
     }
+
 
     @Test
     public void getOrCreateApplicationIdConcurrentTest() throws InterruptedException, ExecutionException {
@@ -71,7 +74,7 @@ public class BaseApplicationUidServiceTest {
         try {
             List<Callable<ApplicationUid>> tasks = new ArrayList<>();
             for (int i = 0; i < numberOfRequest; i++) {
-                tasks.add(() -> applicationIdService.getOrCreateApplicationUid(testServiceUid, testApplicationName));
+                tasks.add(() -> applicationIdService.getOrCreateApplicationUid(testServiceUid, testApplicationName, testServiceTypeCode));
             }
             List<Future<ApplicationUid>> futures = localExecutorService.invokeAll(tasks);
 

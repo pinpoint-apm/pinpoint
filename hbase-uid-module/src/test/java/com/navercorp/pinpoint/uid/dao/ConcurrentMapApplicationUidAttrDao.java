@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.uid.dao;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.HbaseCellData;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.uid.vo.ApplicationUidAttribute;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -13,47 +14,47 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 
-public class ConcurrentMapApplicationNameDao implements ApplicationNameDao {
+public class ConcurrentMapApplicationUidAttrDao implements ApplicationUidAttrDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ConcurrentMap<ApplicationUid, String> applicationNameMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<ApplicationUid, ApplicationUidAttribute> applicationNameMap = new ConcurrentHashMap<>();
     private final Executor executor;
     private final long delay;
 
-    public ConcurrentMapApplicationNameDao(Executor executor, long delay) {
+    public ConcurrentMapApplicationUidAttrDao(Executor executor, long delay) {
         this.executor = Objects.requireNonNull(executor, "executor");
         this.delay = delay;
     }
 
-    public ConcurrentMapApplicationNameDao(Executor executor) {
+    public ConcurrentMapApplicationUidAttrDao(Executor executor) {
         this(executor, 0);
     }
 
     @Override
-    public String selectApplicationName(ServiceUid serviceUid, ApplicationUid applicationUid) {
+    public ApplicationUidAttribute selectApplicationInfo(ServiceUid serviceUid, ApplicationUid applicationUid) {
         return applicationNameMap.get(applicationUid);
     }
 
     @Override
-    public boolean insertApplicationNameIfNotExists(ServiceUid serviceUid, ApplicationUid applicationUid, String applicationName) {
-        logger.info("try insert name ({} -> name={})", applicationUid, applicationName);
+    public boolean insertApplicationNameIfNotExists(ServiceUid serviceUid, ApplicationUid applicationUid, ApplicationUidAttribute applicationUidAttribute) {
+        logger.info("try insert name ({} -> {})", applicationUid, applicationUidAttribute);
         sleep(delay);
-        return applicationNameMap.putIfAbsent(applicationUid, applicationName) == null;
+        return applicationNameMap.putIfAbsent(applicationUid, applicationUidAttribute) == null;
     }
 
     @Override
-    public CompletableFuture<Boolean> asyncInsertApplicationNameIfNotExists(ServiceUid serviceUid, ApplicationUid applicationUid, String applicationName) {
+    public CompletableFuture<Boolean> asyncInsertApplicationNameIfNotExists(ServiceUid serviceUid, ApplicationUid applicationUid, ApplicationUidAttribute applicationUidAttribute) {
         return CompletableFuture.supplyAsync(() -> {
-            logger.info("try insert name ({} -> name:{})", applicationUid, applicationName);
+            logger.info("try insert name. ({} -> {})", applicationUid, applicationUidAttribute);
             sleep(delay);
-            return applicationNameMap.putIfAbsent(applicationUid, applicationName) == null;
+            return applicationNameMap.putIfAbsent(applicationUid, applicationUidAttribute) == null;
         }, executor);
     }
 
     @Override
     public void deleteApplicationName(ServiceUid serviceUid, ApplicationUid applicationUid) {
-        logger.info("delete name ({} -> )", applicationUid);
+        logger.info("delete name. ({} -> ?)", applicationUid);
         sleep(delay);
         applicationNameMap.remove(applicationUid);
     }
@@ -61,7 +62,7 @@ public class ConcurrentMapApplicationNameDao implements ApplicationNameDao {
     @Override
     public CompletableFuture<Void> asyncDeleteApplicationName(ServiceUid serviceUid, ApplicationUid applicationUid) {
         return CompletableFuture.runAsync(() -> {
-            logger.info("delete name ({} -> name:?)", applicationUid);
+            logger.info("delete name .({} -> ?)", applicationUid);
             sleep(delay);
             applicationNameMap.remove(applicationUid);
         }, executor);

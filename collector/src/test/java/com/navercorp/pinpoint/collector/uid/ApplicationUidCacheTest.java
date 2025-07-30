@@ -6,6 +6,7 @@ import com.navercorp.pinpoint.collector.uid.service.ApplicationUidService;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.uid.service.BaseApplicationUidService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,6 +46,7 @@ import static org.mockito.Mockito.when;
 })
 public class ApplicationUidCacheTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
+    private final int testServiceTypeCode = ServiceType.TEST.getCode();
 
     @MockBean
     private BaseApplicationUidService mockBaseApplicationUidService;
@@ -68,12 +70,12 @@ public class ApplicationUidCacheTest {
     public void getApplicationUidCacheTest() {
         String testApplicationName = "getApplicationUidCacheTest";
         ApplicationUid testApplicationUid = ApplicationUid.of(9991);
-        when(mockBaseApplicationUidService.getApplicationUid(ServiceUid.DEFAULT, testApplicationName))
+        when(mockBaseApplicationUidService.getApplicationUid(ServiceUid.DEFAULT, testApplicationName, testServiceTypeCode))
                 .thenReturn(testApplicationUid);
 
-        cachedService.getApplicationUid(ServiceUid.DEFAULT, testApplicationName);
-        cachedService.getOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
-        cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
+        cachedService.getApplicationUid(ServiceUid.DEFAULT, testApplicationName, testServiceTypeCode);
+        cachedService.getOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName, testServiceTypeCode);
+        cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName, testServiceTypeCode);
 
         assertCachedResult(ServiceUid.DEFAULT, testApplicationName, testApplicationUid);
     }
@@ -82,13 +84,13 @@ public class ApplicationUidCacheTest {
     public void asyncGetOrCreateApplicationUidCacheTest() {
         String testApplicationName = "asyncGetOrCreateApplicationUidCacheTest";
         ApplicationUid testApplicationUid = ApplicationUid.of(9992);
-        when(mockBaseApplicationUidService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName))
+        when(mockBaseApplicationUidService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName, testServiceTypeCode))
                 .thenReturn(CompletableFuture.completedFuture(testApplicationUid));
 
-        CompletableFuture<ApplicationUid> future = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
+        CompletableFuture<ApplicationUid> future = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName, testServiceTypeCode);
         future.join();
-        cachedService.getOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
-        cachedService.getApplicationUid(ServiceUid.DEFAULT, testApplicationName);
+        cachedService.getOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName, testServiceTypeCode);
+        cachedService.getApplicationUid(ServiceUid.DEFAULT, testApplicationName, testServiceTypeCode);
 
         assertCachedResult(ServiceUid.DEFAULT, testApplicationName, testApplicationUid);
     }
@@ -96,10 +98,10 @@ public class ApplicationUidCacheTest {
     @Test
     public void cacheNullValueIgnoreTest() {
         String testApplicationName = "cacheNullValueTest";
-        when(mockBaseApplicationUidService.getApplicationUid(ServiceUid.DEFAULT, testApplicationName))
+        when(mockBaseApplicationUidService.getApplicationUid(ServiceUid.DEFAULT, testApplicationName, testServiceTypeCode))
                 .thenReturn(null);
 
-        cachedService.getApplicationUid(ServiceUid.DEFAULT, testApplicationName);
+        cachedService.getApplicationUid(ServiceUid.DEFAULT, testApplicationName, testServiceTypeCode);
 
         Cache.ValueWrapper valueWrapper = cache.get(SimpleKeyGenerator.generateKey(ServiceUid.DEFAULT, testApplicationName));
         Assertions.assertThat(valueWrapper).isNull();
@@ -109,10 +111,10 @@ public class ApplicationUidCacheTest {
     public void asyncCacheTest() {
         String testApplicationName = "asyncCacheTest";
         ApplicationUid testApplicationUid = ApplicationUid.of(9992);
-        when(mockBaseApplicationUidService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName))
+        when(mockBaseApplicationUidService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName, testServiceTypeCode))
                 .thenReturn(CompletableFuture.completedFuture(testApplicationUid));
 
-        CompletableFuture<ApplicationUid> future = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
+        CompletableFuture<ApplicationUid> future = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName, testServiceTypeCode);
         future.join();
 
         assertCachedResult(ServiceUid.DEFAULT, testApplicationName, testApplicationUid);
@@ -121,17 +123,13 @@ public class ApplicationUidCacheTest {
     @Test
     public void asyncCacheNullValueTest() {
         String testApplicationName = "asyncCacheNullValueTest";
-        when(mockBaseApplicationUidService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName))
+        when(mockBaseApplicationUidService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName, testServiceTypeCode))
                 .thenReturn(CompletableFuture.completedFuture(null));
 
-        CompletableFuture<ApplicationUid> future = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
+        CompletableFuture<ApplicationUid> future = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName, testServiceTypeCode);
         future.join();
 
         assertUncachedResult(ServiceUid.DEFAULT, testApplicationName);
-    }
-
-    private ApplicationUid getCachedResult(ServiceUid serviceUid, String applicationName) {
-        return cache.get(SimpleKeyGenerator.generateKey(serviceUid, applicationName), ApplicationUid.class);
     }
 
     @Test
@@ -141,17 +139,17 @@ public class ApplicationUidCacheTest {
 
         ExecutorService executor = Executors.newFixedThreadPool(2, PinpointThreadFactory.createThreadFactory("async-cache-test"));
         try {
-            when(mockBaseApplicationUidService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName))
+            when(mockBaseApplicationUidService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName, testServiceTypeCode))
                     .thenAnswer(invocation -> CompletableFuture.supplyAsync(() -> {
                         delay(100);
                         throw new RuntimeException(testExceptionMessage);
                     }, executor));
 
-            CompletableFuture<ApplicationUid> future1 = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
+            CompletableFuture<ApplicationUid> future1 = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName, testServiceTypeCode);
             Assertions.assertThatThrownBy(future1::join).isInstanceOf(RuntimeException.class);
             delay(100);
 
-            CompletableFuture<ApplicationUid> future2 = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
+            CompletableFuture<ApplicationUid> future2 = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName, testServiceTypeCode);
             Assertions.assertThatThrownBy(future2::join)
                     .isInstanceOf(CompletionException.class)
                     .cause()
@@ -172,18 +170,18 @@ public class ApplicationUidCacheTest {
 
         ExecutorService executor = Executors.newFixedThreadPool(2, PinpointThreadFactory.createThreadFactory("async-cache-test"));
         try {
-            when(mockBaseApplicationUidService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName))
+            when(mockBaseApplicationUidService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName, testServiceTypeCode))
                     .thenAnswer(invocation -> CompletableFuture.supplyAsync(() -> {
                         delay(100);
                         return testApplicationUid;
                     }, executor));
 
-            CompletableFuture<ApplicationUid> future1 = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
-            CompletableFuture<ApplicationUid> future2 = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
+            CompletableFuture<ApplicationUid> future1 = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName, testServiceTypeCode);
+            CompletableFuture<ApplicationUid> future2 = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName, testServiceTypeCode);
             future1.join();
             future2.join();
 
-            CompletableFuture<ApplicationUid> future3 = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName);
+            CompletableFuture<ApplicationUid> future3 = cachedService.asyncGetOrCreateApplicationUid(ServiceUid.DEFAULT, testApplicationName, testServiceTypeCode);
             future3.join();
 
             Assertions.assertThat(future1).isEqualTo(future2);
@@ -194,18 +192,22 @@ public class ApplicationUidCacheTest {
         }
     }
 
+    private Object generateCacheKey(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
+        return SimpleKeyGenerator.generateKey(serviceUid, applicationName, serviceTypeCode);
+    }
+
     private void assertUncachedResult(ServiceUid serviceUid, String cachedApplicationName) {
-        ApplicationUid cachedResult = cache.get(SimpleKeyGenerator.generateKey(serviceUid, cachedApplicationName), ApplicationUid.class);
+        ApplicationUid cachedResult = cache.get(generateCacheKey(serviceUid, cachedApplicationName, testServiceTypeCode), ApplicationUid.class);
         Assertions.assertThat(cachedResult).isNull();
     }
 
     private void assertCachedResult(ServiceUid serviceUid, String cachedApplicationName, ApplicationUid expected) {
-        ApplicationUid cachedResult = cache.get(SimpleKeyGenerator.generateKey(serviceUid, cachedApplicationName), ApplicationUid.class);
+        ApplicationUid cachedResult = cache.get(generateCacheKey(serviceUid, cachedApplicationName, testServiceTypeCode), ApplicationUid.class);
         Assertions.assertThat(cachedResult)
                 .isNotNull()
                 .isEqualTo(expected);
-        Mockito.verify(mockBaseApplicationUidService, atMost(1)).getApplicationUid(serviceUid, cachedApplicationName);
-        Mockito.verify(mockBaseApplicationUidService, atMost(1)).asyncGetOrCreateApplicationUid(serviceUid, cachedApplicationName);
+        Mockito.verify(mockBaseApplicationUidService, atMost(1)).getApplicationUid(serviceUid, cachedApplicationName, testServiceTypeCode);
+        Mockito.verify(mockBaseApplicationUidService, atMost(1)).asyncGetOrCreateApplicationUid(serviceUid, cachedApplicationName, testServiceTypeCode);
     }
 
     private void delay(long millis) {

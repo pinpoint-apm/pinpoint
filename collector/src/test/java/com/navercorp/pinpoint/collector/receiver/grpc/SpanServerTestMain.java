@@ -109,7 +109,7 @@ public class SpanServerTestMain {
         UidFetcherStreamService uidFetcherStreamService = mock(UidFetcherStreamService.class);
         UidFetcher uidFetcher = mock(UidFetcher.class);
         when(uidFetcherStreamService.newUidFetcher()).thenReturn(uidFetcher);
-        when(uidFetcher.getApplicationId(any(), any())).thenReturn(() -> ApplicationUid.of(100));
+        when(uidFetcher.getApplicationUid(any(), any(), any())).thenReturn(() -> ApplicationUid.of(100));
 
         SpanService spanService = new SpanService(handler1, handler2, uidFetcherStreamService, serverRequestFactory, StreamCloseOnError.FALSE);
         return ServerInterceptors.intercept(spanService, rateLimit);

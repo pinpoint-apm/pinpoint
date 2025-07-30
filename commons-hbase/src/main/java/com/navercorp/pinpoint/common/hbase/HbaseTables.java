@@ -35,9 +35,9 @@ public class HbaseTables {
         }
     }
 
-    public static final HbaseColumnFamily APPLICATION_UID = new HbaseColumnFamily(HbaseTable.APPLICATION_UID, Bytes.toBytes("I"));
+    public static final HbaseColumnFamily APPLICATION_UID = new HbaseColumnFamily(HbaseTable.APPLICATION_UID, Bytes.toBytes("U"));
 
-    public static final HbaseColumnFamily APPLICATION_NAME = new HbaseColumnFamily(HbaseTable.APPLICATION_NAME, Bytes.toBytes("N"));
+    public static final HbaseColumnFamily APPLICATION_UID_ATTR = new HbaseColumnFamily(HbaseTable.APPLICATION_UID_ATTR, Bytes.toBytes("A"));
 
     public static final HbaseColumnFamily AGENT_NAME = new HbaseColumnFamily(HbaseTable.AGENT_NAME, Bytes.toBytes("A"));
 
