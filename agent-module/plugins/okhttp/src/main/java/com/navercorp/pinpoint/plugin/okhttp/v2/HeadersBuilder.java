@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,15 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.request;
+package com.navercorp.pinpoint.plugin.okhttp.v2;
 
-/**
- * @author Woonduk Kang(emeroad)
- */
-public interface ClientHeaderAdaptor<T> {
-    void setHeader(T header, String name, String value);
+import com.squareup.okhttp.Headers;
 
-    String getHeader(T header, String name);
-
-    boolean contains(T header, String name);
+public interface HeadersBuilder {
+    Headers.Builder _$PINPOINT$_getHeadersBuilder();
 }

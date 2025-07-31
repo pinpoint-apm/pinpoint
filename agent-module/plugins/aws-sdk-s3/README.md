@@ -13,8 +13,6 @@ profiler.aws.sdk.s3.enable=true
 profiler.aws.sdk.s3.statuscode=true
 # Mark error
 profiler.aws.sdk.s3.mark.error=true
-# Cannot be used with the Apache HttpClient 4.x library.
-# Use the -Dprofiler.apache.httpclient4.enable=false setting.
 ~~~
 
 ### Trace
