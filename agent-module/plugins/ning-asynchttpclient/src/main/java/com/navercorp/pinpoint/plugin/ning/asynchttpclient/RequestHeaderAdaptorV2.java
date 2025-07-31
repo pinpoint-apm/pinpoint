@@ -45,6 +45,22 @@ public class RequestHeaderAdaptorV2 implements ClientHeaderAdaptor<Request> {
     }
 
     @Override
+    public String getHeader(Request header, String name) {
+        try {
+            final HttpHeaders httpRequestHeaders = header.getHeaders();
+            if (httpRequestHeaders != null) {
+                String value = httpRequestHeaders.get(name);
+                if (value != null) {
+                    return value;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+
+        return "";
+    }
+
+    @Override
     public boolean contains(Request header, String name) {
         try {
             final HttpHeaders httpRequestHeaders = header.getHeaders();

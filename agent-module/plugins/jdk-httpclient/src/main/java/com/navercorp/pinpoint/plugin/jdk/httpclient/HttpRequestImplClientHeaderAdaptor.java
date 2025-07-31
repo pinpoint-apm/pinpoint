@@ -37,6 +37,18 @@ public class HttpRequestImplClientHeaderAdaptor implements ClientHeaderAdaptor<H
     }
 
     @Override
+    public String getHeader(HttpRequestImpl header, String name) {
+        try {
+            if (header != null) {
+                return header.headers().firstValue(name).orElse("");
+            }
+        } catch (Exception ignored) {
+        }
+
+        return "";
+    }
+
+    @Override
     public boolean contains(HttpRequestImpl header, String name) {
         try {
             if (header != null) {

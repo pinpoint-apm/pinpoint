@@ -32,7 +32,7 @@ public class RequestHeaderAdaptorV1 implements ClientHeaderAdaptor<Request> {
 
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    
+
     @Override
     public void setHeader(Request request, String name, String value) {
         try {
@@ -45,6 +45,22 @@ public class RequestHeaderAdaptorV1 implements ClientHeaderAdaptor<Request> {
             }
         } catch (Exception ignored) {
         }
+    }
+
+    @Override
+    public String getHeader(Request header, String name) {
+        try {
+            final FluentCaseInsensitiveStringsMap httpRequestHeaders = header.getHeaders();
+            if (httpRequestHeaders != null) {
+                final String value = httpRequestHeaders.getFirstValue(name);
+                if (value != null) {
+                    return value;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+
+        return "";
     }
 
     @Override

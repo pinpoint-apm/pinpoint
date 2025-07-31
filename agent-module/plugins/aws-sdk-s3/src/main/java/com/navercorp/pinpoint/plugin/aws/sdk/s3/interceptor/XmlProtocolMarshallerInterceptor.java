@@ -20,15 +20,11 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventBlockSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientDatabaseRequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientDatabaseRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientDatabaseRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientDatabaseRequestWrapperAdaptor;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
-import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
-import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -41,15 +37,12 @@ import java.net.URI;
 
 public class XmlProtocolMarshallerInterceptor extends SpanEventBlockSimpleAroundInterceptorForPlugin {
     private final ClientDatabaseRequestRecorder<ClientDatabaseRequestWrapper> clientRequestRecorder;
-    private final RequestTraceWriter<SdkHttpFullRequest.Builder> requestTraceWriter;
 
     public XmlProtocolMarshallerInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
 
         final ClientDatabaseRequestAdaptor<ClientDatabaseRequestWrapper> clientRequestAdaptor = ClientDatabaseRequestWrapperAdaptor.INSTANCE;
         this.clientRequestRecorder = new ClientDatabaseRequestRecorder<>(clientRequestAdaptor);
-        final ClientHeaderAdaptor<SdkHttpFullRequest.Builder> clientHeaderAdaptor = new SdkHttpFullRequestHeaderAdaptor();
-        this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -58,45 +51,7 @@ public class XmlProtocolMarshallerInterceptor extends SpanEventBlockSimpleAround
     }
 
     @Override
-    public boolean checkBeforeTraceBlockBegin(Trace trace, Object target, Object[] args) {
-        if (Boolean.FALSE == (target instanceof RequestBuilderGetter) || Boolean.FALSE == (target instanceof URIGetter)) {
-            return false;
-        }
-
-        final SdkHttpFullRequest.Builder builder = ((RequestBuilderGetter) target)._$PINPOINT$_getRequestBuilder();
-        if (builder == null) {
-            return false;
-        }
-
-        if (requestTraceWriter.isNested(builder)) {
-            return false;
-        }
-
-        if (Boolean.FALSE == trace.canSampled()) {
-            this.requestTraceWriter.write(builder);
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
     public void beforeTrace(Trace trace, SpanEventRecorder recorder, Object target, Object[] args) {
-        if (Boolean.FALSE == (target instanceof RequestBuilderGetter) || Boolean.FALSE == (target instanceof URIGetter)) {
-            return;
-        }
-
-        final SdkHttpFullRequest.Builder builder = ((RequestBuilderGetter) target)._$PINPOINT$_getRequestBuilder();
-        final URI uri = ((URIGetter) target)._$PINPOINT$_getURI();
-        if (builder == null || uri == null) {
-            return;
-        }
-
-        // set remote trace
-        final TraceId nextId = trace.getTraceId().getNextTraceId();
-        recorder.recordNextSpanId(nextId.getSpanId());
-        final ClientDatabaseRequestWrapper clientRequest = new S3ClientDatabaseRequestWrapper(uri);
-        this.requestTraceWriter.write(builder, nextId, clientRequest.getEndPoint());
     }
 
     @Override
