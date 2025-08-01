@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.common.hbase.parallel;
 
 import com.navercorp.pinpoint.common.hbase.TableFactory;
 import com.navercorp.pinpoint.common.hbase.wd.DistributedScanner;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -40,7 +39,7 @@ public class ScanTask implements Runnable {
 
     private final TableName tableName;
     private final TableFactory tableFactory;
-    private final RowKeyDistributor rowKeyDistributor;
+    private final int saltKeySize;
 
     private final Scan[] scans;
     private final BlockingQueue<Result> resultQueue;
@@ -54,7 +53,7 @@ public class ScanTask implements Runnable {
         Assert.notEmpty(scans, "scans");
         this.tableName = scanTaskConfig.getTableName();
         this.tableFactory = scanTaskConfig.getTableFactory();
-        this.rowKeyDistributor = scanTaskConfig.getRowKeyDistributor();
+        this.saltKeySize = scanTaskConfig.getSaltKeySize();
         this.scans = scans;
         this.resultQueue = new ArrayBlockingQueue<>(scanTaskConfig.getScanTaskQueueSize());
     }
@@ -96,7 +95,7 @@ public class ScanTask implements Runnable {
             for (int i = 0; i < scanners.length; i++) {
                 scanners[i] = table.getScanner(this.scans[i]);
             }
-            return new DistributedScanner(this.rowKeyDistributor, scanners);
+            return new DistributedScanner(saltKeySize, scanners);
         }
     }
 

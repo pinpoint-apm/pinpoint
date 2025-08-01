@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -122,5 +122,28 @@ class ByteArrayUtilsTest {
         Assertions.assertThrows(ArrayIndexOutOfBoundsException.class, ()->{
             ByteArrayUtils.writeInt(100, bytes1, 1);
         });
+    }
+
+    @Test
+    void compareRowKey_true() {
+        byte[] row1 = BytesUtils.add((byte) 1, toInt(1));
+        byte[] row2 = BytesUtils.add((byte) 2, toInt(1));
+
+        Assertions.assertEquals(0, ByteArrayUtils.compare(row1, row2, 1));
+        Assertions.assertNotEquals(0, ByteArrayUtils.compare(row1, row2, 0));
+    }
+
+    @Test
+    void compareRowKey_false() {
+        byte[] row1 = BytesUtils.add((byte) 1, toInt(1));
+        byte[] row2 = BytesUtils.add((byte) 2, toInt(2));
+
+        Assertions.assertNotEquals(0, ByteArrayUtils.compare(row1, row2, 1));
+    }
+
+    private byte[] toInt(int value) {
+        byte[] buf = new byte[4];
+        BytesUtils.writeInt(value, buf, 0);
+        return buf;
     }
 }
