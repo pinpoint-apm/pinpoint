@@ -46,6 +46,7 @@ public class AgentInfoEntity {
 
     // ServiceInfoBo
     private List<String> serviceInfos;
+    private String serviceInfosString;
 
     // JvmInfoBo
     private int version;
@@ -181,6 +182,14 @@ public class AgentInfoEntity {
 
     public void setServiceInfos(List<String> serviceInfos) {
         this.serviceInfos = serviceInfos;
+    }
+
+    public String getServiceInfosString() {
+        return serviceInfosString;
+    }
+
+    public void setServiceInfosString(String serviceInfosString) {
+        this.serviceInfosString = serviceInfosString;
     }
 
     public int getVersion() {
