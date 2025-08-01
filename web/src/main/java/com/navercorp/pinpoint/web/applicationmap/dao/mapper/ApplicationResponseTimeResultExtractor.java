@@ -49,7 +49,7 @@ public class ApplicationResponseTimeResultExtractor implements ResultsExtractor<
 
     private final ServiceTypeRegistryService registry;
 
-    private final RowKeyDistributorByHashPrefix rowKeyDistributor;
+    private final int saltKeySize;
 
     private final TimeWindowFunction timeWindowFunction;
 
@@ -58,7 +58,8 @@ public class ApplicationResponseTimeResultExtractor implements ResultsExtractor<
                                                   RowKeyDistributorByHashPrefix rowKeyDistributor,
                                                   TimeWindowFunction timeWindowFunction) {
         this.registry = Objects.requireNonNull(registry, "registry");
-        this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
+        Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
+        this.saltKeySize = rowKeyDistributor.getSaltKeySize();
         this.timeWindowFunction = Objects.requireNonNull(timeWindowFunction, "timeWindowFunction");
     }
 
@@ -78,9 +79,10 @@ public class ApplicationResponseTimeResultExtractor implements ResultsExtractor<
         if (result.isEmpty()) {
             return null;
         }
-        final byte[] rowKey = getOriginalKey(result.getRow());
+        final byte[] rowKey = result.getRow();
 
         final Buffer buffer = new FixedBuffer(rowKey);
+        buffer.setOffset(saltKeySize);
         final String applicationName = buffer.read2PrefixedString();
         final short serviceTypeCode = buffer.readShort();
         final long timestamp = timeWindowFunction.refineTimestamp(TimeUtils.recoveryTimeMillis(buffer.readLong()));
@@ -124,7 +126,4 @@ public class ApplicationResponseTimeResultExtractor implements ResultsExtractor<
         responseTimeBuilder.addResponseTime(agentId, timestamp, slotNumber, count);
     }
 
-    private byte[] getOriginalKey(byte[] rowKey) {
-        return rowKeyDistributor.getOriginalKey(rowKey);
-    }
 }

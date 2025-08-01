@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
@@ -30,7 +29,6 @@ import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -49,15 +47,10 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
-
     private final RowKeyDecoder<MetaDataRowKey> decoder;
 
-    public ApiMetaDataMapper(RowKeyDecoder<MetaDataRowKey> decoder,
-                             @Qualifier("metadataRowKeyDistributor")
-                             RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+    public ApiMetaDataMapper(RowKeyDecoder<MetaDataRowKey> decoder) {
         this.decoder = Objects.requireNonNull(decoder, "decoder");
-        this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
     }
 
     @Override
@@ -65,7 +58,7 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
-        final byte[] rowKey = getOriginalKey(result.getRow());
+        final byte[] rowKey = result.getRow();
 
         final MetaDataRowKey key = decoder.decodeRowKey(rowKey);
 
@@ -108,11 +101,6 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
             return CellUtil.cloneQualifier(cell);
         }
     }
-
-    private byte[] getOriginalKey(byte[] rowKey) {
-        return rowKeyDistributorByHashPrefix.getOriginalKey(rowKey);
-    }
-
 
 }
 

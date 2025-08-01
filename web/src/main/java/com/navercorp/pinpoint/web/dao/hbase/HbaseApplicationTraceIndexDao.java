@@ -188,7 +188,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         }
 
         private long readTimestamp(Cell last) {
-            int saltKeySize = traceIdRowKeyDistributor.getByteHasher().getSaltKey().size();
+            int saltKeySize = traceIdRowKeyDistributor.getSaltKeySize();
             byte[] rowArray = last.getRowArray();
             int rowOffset = last.getRowOffset();
             int timestampOffset = rowOffset + PinpointConstants.APPLICATION_NAME_MAX_LEN + saltKeySize;
