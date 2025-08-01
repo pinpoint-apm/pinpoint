@@ -32,9 +32,10 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface AgentInfoMapper {
 
-    @Mapping(target="serverInfo", source = "serverMetaData.serverInfo")
+    @Mapping(target = "serverInfo", source = "serverMetaData.serverInfo")
     @Mapping(target = "vmArgs", source = "serverMetaData.vmArgs")
     @Mapping(target = "serviceInfos", source = "serverMetaData.serviceInfos", qualifiedByName = "serverMetaDataToServiceInfos")
+    @Mapping(target = "serviceInfosString", source = "serverMetaData.serviceInfos", qualifiedByName = "serverMetaDataToServiceInfosString")
     @Mapping(target = "version", source = "jvmInfo.version")
     @Mapping(target = "jvmVersion", source = "jvmInfo.jvmVersion")
     @Mapping(target = "gcTypeName", source = "jvmInfo.gcTypeName")
@@ -54,6 +55,15 @@ public interface AgentInfoMapper {
             }
         }
         return serviceInfos;
+    }
+
+    @Named("serverMetaDataToServiceInfosString")
+    default String serverMetaDataToServiceInfosString(List<ServiceInfoBo> serviceInfoBos) {
+        if (serviceInfoBos == null || serviceInfoBos.isEmpty()) {
+            return "";
+        }
+        List<String> serviceInfos = serverMetaDataToServiceInfos(serviceInfoBos);
+        return String.join(",", serviceInfos);
     }
 
     default List<String> flattenServiceInfo(ServiceInfoBo serviceInfoBo) {
