@@ -113,7 +113,7 @@ public class DistributedScanner implements ResultScanner {
         for (int i = 0; i < scans.length; i++) {
             rss[i] = hTable.getScanner(scans[i]);
         }
-        int saltKeySize = keyDistributor.getByteHasher().getSaltKey().size();
+        int saltKeySize = keyDistributor.getSaltKeySize();
         return new DistributedScanner(saltKeySize, rss);
     }
 

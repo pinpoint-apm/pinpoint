@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -50,9 +50,9 @@ public class OutLinkMapper implements RowMapper<LinkDataMap> {
 
     private final ApplicationFactory applicationFactory;
 
-    private final RowKeyDistributorByHashPrefix rowKeyDistributor;
-
     private final TimeWindowFunction timeWindowFunction;
+
+    private final int saltKeySize;
 
 
     public OutLinkMapper(ApplicationFactory applicationFactory,
@@ -60,7 +60,8 @@ public class OutLinkMapper implements RowMapper<LinkDataMap> {
                          LinkFilter filter,
                          TimeWindowFunction timeWindowFunction) {
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
-        this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
+        Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
+        this.saltKeySize = rowKeyDistributor.getSaltKeySize();
 
         this.filter = Objects.requireNonNull(filter, "filter");
         this.timeWindowFunction = Objects.requireNonNull(timeWindowFunction, "timeWindowFunction");
@@ -75,9 +76,10 @@ public class OutLinkMapper implements RowMapper<LinkDataMap> {
             logger.debug("mapRow num:{} size:{}", rowNum, result.size());
         }
 
-        final byte[] rowKey = getOriginalKey(result.getRow());
+        final byte[] rowKey = result.getRow();
 
         final Buffer row = new FixedBuffer(rowKey);
+        row.setOffset(saltKeySize);
         final Application outApplication = readOutApplication(row);
         final long timestamp = timeWindowFunction.refineTimestamp(TimeUtils.recoveryTimeMillis(row.readLong()));
 
@@ -133,7 +135,4 @@ public class OutLinkMapper implements RowMapper<LinkDataMap> {
         return this.applicationFactory.createApplication(applicationName, outServiceType);
     }
 
-    private byte[] getOriginalKey(byte[] rowKey) {
-        return rowKeyDistributor.getOriginalKey(rowKey);
-    }
 }

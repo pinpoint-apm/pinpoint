@@ -478,7 +478,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
                 final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "block-multi", scans);
 
                 final ResultScanner[] splitScanners = ScanUtils.newScanners(table, scans);
-                final int saltKeySize = rowKeyDistributor.getByteHasher().getSaltKey().size();
+                final int saltKeySize = rowKeyDistributor.getSaltKeySize();
                 try (ResultScanner scanner = new DistributedScanner(saltKeySize, splitScanners)) {
                     if (debugEnabled) {
                         logger.debug("DistributedScanner createTime: {}ms", watch.stop());
