@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -80,23 +80,27 @@ public class ApplicationResponseTimeResultExtractor implements ResultsExtractor<
         }
         final byte[] rowKey = getOriginalKey(result.getRow());
 
-        Record record = createResponseTimeBuilder(rowKey);
+        final Buffer buffer = new FixedBuffer(rowKey);
+        final String applicationName = buffer.read2PrefixedString();
+        final short serviceTypeCode = buffer.readShort();
+        final long timestamp = timeWindowFunction.refineTimestamp(TimeUtils.recoveryTimeMillis(buffer.readLong()));
 
         if (builder == null) {
-            Application application = new Application(record.applicationName(), record.serviceType());
+            ServiceType serviceType = registry.findServiceType(serviceTypeCode);
+            Application application = new Application(applicationName, serviceType);
             builder = ApplicationResponse.newBuilder(application);
         } else {
             Application builderApp = builder.getApplication();
-            if (!builderApp.getName().equals(record.applicationName())) {
+            if (!builderApp.getName().equals(applicationName)) {
                 throw new IllegalStateException("applicationName must match");
             }
-            if (!builderApp.getServiceType().equals(record.serviceType())) {
+            if (builderApp.getServiceType().getCode() != serviceTypeCode) {
                 throw new IllegalStateException("serviceType must match");
             }
         }
         for (Cell cell : result.rawCells()) {
             if (CellUtil.matchingFamily(cell, HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER.getName())) {
-                recordColumn(builder, record.timestamp(), cell);
+                recordColumn(builder, timestamp, cell);
             }
 
             if (logger.isTraceEnabled()) {
@@ -119,22 +123,6 @@ public class ApplicationResponseTimeResultExtractor implements ResultsExtractor<
 
         responseTimeBuilder.addResponseTime(agentId, timestamp, slotNumber, count);
     }
-
-    private Record createResponseTimeBuilder(byte[] rowKey) {
-        final Buffer row = new FixedBuffer(rowKey);
-        final String applicationName = row.read2PrefixedString();
-        final short serviceTypeCode = row.readShort();
-        final long timestamp = timeWindowFunction.refineTimestamp(TimeUtils.recoveryTimeMillis(row.readLong()));
-        final ServiceType serviceType = registry.findServiceType(serviceTypeCode);
-
-        return new Record(applicationName, serviceType, timestamp);
-    }
-
-    private record Record(
-            String applicationName,
-            ServiceType serviceType,
-            long timestamp
-    ) {}
 
     private byte[] getOriginalKey(byte[] rowKey) {
         return rowKeyDistributor.getOriginalKey(rowKey);
