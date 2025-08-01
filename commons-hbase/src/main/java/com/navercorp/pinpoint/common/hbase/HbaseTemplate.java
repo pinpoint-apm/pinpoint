@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -478,7 +478,8 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
                 final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "block-multi", scans);
 
                 final ResultScanner[] splitScanners = ScanUtils.newScanners(table, scans);
-                try (ResultScanner scanner = new DistributedScanner(rowKeyDistributor, splitScanners)) {
+                final int saltKeySize = rowKeyDistributor.getByteHasher().getSaltKey().size();
+                try (ResultScanner scanner = new DistributedScanner(saltKeySize, splitScanners)) {
                     if (debugEnabled) {
                         logger.debug("DistributedScanner createTime: {}ms", watch.stop());
                     }

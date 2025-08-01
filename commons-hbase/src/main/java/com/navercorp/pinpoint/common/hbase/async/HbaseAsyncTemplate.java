@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -377,7 +377,8 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
                 Scan[] scans = ScanUtils.splitScans(scan, rowKeyDistributor);
                 final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "async-multi", scans);
                 final ResultScanner[] splitScanners = ScanUtils.newScanners(table, scans);
-                try (ResultScanner scanner = new DistributedScanner(rowKeyDistributor, splitScanners)) {
+                final int saltKeySize = rowKeyDistributor.getByteHasher().getSaltKey().size();
+                try (ResultScanner scanner = new DistributedScanner(saltKeySize, splitScanners)) {
                     if (debugEnabled) {
                         logger.debug("DistributedScanner createTime: {}ms", watch.stop());
                         watch.start();
@@ -409,8 +410,8 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
                 public T doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
                     ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "async-multi", scans);
                     ResultScanner[] resultScanners = ScanUtils.newScanners(table, scans);
-
-                    ResultScanner scanner = new DistributedScanner(rowKeyDistributor, resultScanners);
+                    int saltKeySize = rowKeyDistributor.getByteHasher().getSaltKey().size();
+                    ResultScanner scanner = new DistributedScanner(saltKeySize, resultScanners);
                     try (scanner) {
                         return action.extractData(scanner);
                     } finally {

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.util.BytesUtils;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 
 public final class ByteArrayUtils {
     public static final int SHORT_BYTE_LENGTH = 2;
@@ -91,5 +92,26 @@ public final class ByteArrayUtils {
         BYTE_ARRAY_SHORT.set(buf, offset, value);
 
         return offset + SHORT_BYTE_LENGTH;
+    }
+
+    /**
+     * Compares two byte arrays starting from the specified offset.
+     *
+     * @param bytes1 the first byte array to compare
+     * @param bytes2 the second byte array to compare
+     * @param offset the starting position in both arrays for the comparison
+     * @return a negative integer, zero, or a positive integer as the first array is less than,
+     *         equal to, or greater than the second array
+     * @throws NullPointerException if either {@code bytes1} or {@code bytes2} is {@code null}
+     * @throws IndexOutOfBoundsException if the offset is out of bounds for either array
+     */
+    public static int compare(byte[] bytes1, byte[] bytes2, int offset) {
+        if (bytes1 == null) {
+            throw new NullPointerException("bytes1");
+        }
+        if (bytes2 == null) {
+            throw new NullPointerException("bytes2");
+        }
+        return Arrays.compare(bytes1, offset, bytes1.length, bytes2, offset, bytes2.length);
     }
 }

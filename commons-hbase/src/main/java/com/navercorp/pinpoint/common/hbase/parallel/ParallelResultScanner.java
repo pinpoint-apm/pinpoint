@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.hbase.parallel;
 
+import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseAccessor;
 import com.navercorp.pinpoint.common.hbase.scan.ScanUtils;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
@@ -24,7 +25,6 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.metrics.ScanMetrics;
-import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,19 +40,21 @@ public class ParallelResultScanner implements ResultScanner {
 
     private static final Result[] RESULT_EMPTY_ARRAY = {};
 
-    private final RowKeyDistributor keyDistributor;
+    private final int saltKeySize;
     private final List<ScanTask> scanTasks;
     private final Result[] nextResults;
     private Result next = null;
 
-    public ParallelResultScanner(TableName tableName, HbaseAccessor hbaseAccessor, ExecutorService executor, Scan originalScan, RowKeyDistributor keyDistributor, int numParallelThreads) throws IOException {
+    public ParallelResultScanner(TableName tableName, HbaseAccessor hbaseAccessor, ExecutorService executor, Scan originalScan,
+                                 RowKeyDistributor keyDistributor, int numParallelThreads) throws IOException {
         Objects.requireNonNull(hbaseAccessor, "hbaseAccessor");
         Objects.requireNonNull(executor, "executor");
         Objects.requireNonNull(originalScan, "originalScan");
 
-        this.keyDistributor = Objects.requireNonNull(keyDistributor, "keyDistributor");
+        Objects.requireNonNull(keyDistributor, "keyDistributor");
+        this.saltKeySize = keyDistributor.getByteHasher().getSaltKey().size();
 
-        final ScanTaskConfig scanTaskConfig = new ScanTaskConfig(tableName, hbaseAccessor, keyDistributor, originalScan.getCaching());
+        final ScanTaskConfig scanTaskConfig = ScanTaskConfig.of(tableName, hbaseAccessor, saltKeySize, originalScan.getCaching());
         final Scan[] splitScans = ScanUtils.splitScans(originalScan, keyDistributor);
 
         this.scanTasks = createScanTasks(scanTaskConfig, splitScans, numParallelThreads);
@@ -124,8 +126,7 @@ public class ParallelResultScanner implements ResultScanner {
                     continue;
                 }
             }
-            if (result == null || Bytes.compareTo(keyDistributor.getOriginalKey(nextResults[i].getRow()),
-                    keyDistributor.getOriginalKey(result.getRow())) < 0) {
+            if (result == null || ByteArrayUtils.compare(nextResults[i].getRow(), result.getRow(), saltKeySize) < 0) {
                 result = nextResults[i];
                 indexOfResultToUse = i;
             }
