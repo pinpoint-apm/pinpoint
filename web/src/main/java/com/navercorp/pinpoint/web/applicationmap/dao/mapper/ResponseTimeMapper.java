@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -47,7 +47,7 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
 
     private final ServiceTypeRegistryService registry;
 
-    private final RowKeyDistributorByHashPrefix rowKeyDistributor;
+    private final int saltKeySize;
 
     private final TimeWindowFunction timeWindowFunction;
 
@@ -55,7 +55,8 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
                               RowKeyDistributorByHashPrefix rowKeyDistributor,
                               TimeWindowFunction timeWindowFunction) {
         this.registry = Objects.requireNonNull(registry, "registry");
-        this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
+        Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
+        this.saltKeySize = rowKeyDistributor.getSaltKeySize();
         this.timeWindowFunction = Objects.requireNonNull(timeWindowFunction, "timeWindowFunction");
     }
 
@@ -65,9 +66,9 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
             return null;
         }
 
-        final byte[] rowKey = getOriginalKey(result.getRow());
+        final byte[] rowKey = result.getRow();
 
-        ResponseTime.Builder responseTimeBuilder = createResponseTime(rowKey);
+        ResponseTime.Builder responseTimeBuilder = createResponseTime(rowKey, saltKeySize);
         for (Cell cell : result.rawCells()) {
             if (CellUtil.matchingFamily(cell, HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER.getName())) {
                 recordColumn(responseTimeBuilder, cell);
@@ -93,8 +94,9 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
         responseTime.addResponseTime(agentId, slotNumber, count);
     }
 
-    private ResponseTime.Builder createResponseTime(byte[] rowKey) {
+    private ResponseTime.Builder createResponseTime(byte[] rowKey, int offset) {
         final Buffer row = new FixedBuffer(rowKey);
+        row.setOffset(offset);
         String applicationName = row.read2PrefixedString();
         short serviceTypeCode = row.readShort();
         final long timestamp = timeWindowFunction.refineTimestamp(TimeUtils.recoveryTimeMillis(row.readLong()));
@@ -102,7 +104,4 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
         return ResponseTime.newBuilder(applicationName, serviceType, timestamp);
     }
 
-    private byte[] getOriginalKey(byte[] rowKey) {
-        return rowKeyDistributor.getOriginalKey(rowKey);
-    }
 }

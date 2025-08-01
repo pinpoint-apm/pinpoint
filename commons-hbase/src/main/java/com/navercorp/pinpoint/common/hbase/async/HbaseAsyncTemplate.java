@@ -377,7 +377,7 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
                 Scan[] scans = ScanUtils.splitScans(scan, rowKeyDistributor);
                 final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "async-multi", scans);
                 final ResultScanner[] splitScanners = ScanUtils.newScanners(table, scans);
-                final int saltKeySize = rowKeyDistributor.getByteHasher().getSaltKey().size();
+                final int saltKeySize = rowKeyDistributor.getSaltKeySize();
                 try (ResultScanner scanner = new DistributedScanner(saltKeySize, splitScanners)) {
                     if (debugEnabled) {
                         logger.debug("DistributedScanner createTime: {}ms", watch.stop());
@@ -410,7 +410,7 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
                 public T doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
                     ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "async-multi", scans);
                     ResultScanner[] resultScanners = ScanUtils.newScanners(table, scans);
-                    int saltKeySize = rowKeyDistributor.getByteHasher().getSaltKey().size();
+                    int saltKeySize = rowKeyDistributor.getSaltKeySize();
                     ResultScanner scanner = new DistributedScanner(saltKeySize, resultScanners);
                     try (scanner) {
                         return action.extractData(scanner);
