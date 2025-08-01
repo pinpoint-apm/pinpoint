@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -53,7 +53,7 @@ public class ResponseTimeResultExtractor implements ResultsExtractor<List<Respon
 
     private final ServiceTypeRegistryService registry;
 
-    private final RowKeyDistributorByHashPrefix rowKeyDistributor;
+    private final int saltKeySize;
 
     private final TimeWindowFunction timeWindowFunction;
 
@@ -61,7 +61,8 @@ public class ResponseTimeResultExtractor implements ResultsExtractor<List<Respon
                                        RowKeyDistributorByHashPrefix rowKeyDistributor,
                                        TimeWindowFunction timeWindowFunction) {
         this.registry = Objects.requireNonNull(registry, "registry");
-        this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
+        Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
+        this.saltKeySize = rowKeyDistributor.getSaltKeySize();
         this.timeWindowFunction = Objects.requireNonNull(timeWindowFunction, "timeWindowFunction");
     }
 
@@ -87,10 +88,9 @@ public class ResponseTimeResultExtractor implements ResultsExtractor<List<Respon
         if (result.isEmpty()) {
             return;
         }
+        final byte[] rowKey = result.getRow();
 
-        final byte[] rowKey = getOriginalKey(result.getRow());
-
-        ResponseTime.Builder responseTimeBuilder = createResponseTimeBuilder(map, rowKey);
+        ResponseTime.Builder responseTimeBuilder = createResponseTimeBuilder(map, rowKey, saltKeySize);
         for (Cell cell : result.rawCells()) {
             if (CellUtil.matchingFamily(cell, HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER.getName())) {
                 recordColumn(responseTimeBuilder, cell);
@@ -116,8 +116,9 @@ public class ResponseTimeResultExtractor implements ResultsExtractor<List<Respon
         responseTimeBuilder.addResponseTime(agentId, slotNumber, count);
     }
 
-    private ResponseTime.Builder createResponseTimeBuilder(Map<Key, ResponseTime.Builder> map, byte[] rowKey) {
+    private ResponseTime.Builder createResponseTimeBuilder(Map<Key, ResponseTime.Builder> map, byte[] rowKey, int offset) {
         final Buffer row = new FixedBuffer(rowKey);
+        row.setOffset(offset);
         final String applicationName = row.read2PrefixedString();
         final short serviceTypeCode = row.readShort();
         final long timestamp = timeWindowFunction.refineTimestamp(TimeUtils.recoveryTimeMillis(row.readLong()));
@@ -134,7 +135,4 @@ public class ResponseTimeResultExtractor implements ResultsExtractor<List<Respon
             long timestamp
     ) {}
 
-    private byte[] getOriginalKey(byte[] rowKey) {
-        return rowKeyDistributor.getOriginalKey(rowKey);
-    }
 }

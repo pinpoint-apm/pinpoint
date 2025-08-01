@@ -52,7 +52,7 @@ public class ParallelResultScanner implements ResultScanner {
         Objects.requireNonNull(originalScan, "originalScan");
 
         Objects.requireNonNull(keyDistributor, "keyDistributor");
-        this.saltKeySize = keyDistributor.getByteHasher().getSaltKey().size();
+        this.saltKeySize = keyDistributor.getSaltKeySize();
 
         final ScanTaskConfig scanTaskConfig = ScanTaskConfig.of(tableName, hbaseAccessor, saltKeySize, originalScan.getCaching());
         final Scan[] splitScans = ScanUtils.splitScans(originalScan, keyDistributor);
