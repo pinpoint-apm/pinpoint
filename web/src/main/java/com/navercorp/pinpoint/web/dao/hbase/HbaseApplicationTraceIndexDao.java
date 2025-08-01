@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,7 +43,6 @@ import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
 import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
@@ -174,18 +173,27 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             }
 
             final Cell last = CellUtils.lastCell(lastResult.rawCells(), HbaseTables.APPLICATION_TRACE_INDEX_TRACE.getName());
-            byte[] row = CellUtil.cloneRow(last);
-            byte[] originalRow = traceIdRowKeyDistributor.getOriginalKey(row);
-            long reverseStartTime = ByteArrayUtils.bytesToLong(originalRow, PinpointConstants.APPLICATION_NAME_MAX_LEN);
-            this.lastRowTimestamp = TimeUtils.recoveryTimeMillis(reverseStartTime);
 
-            byte[] qualifier = CellUtil.cloneQualifier(last);
-            this.lastTransactionId = TransactionIdMapper.parseVarTransactionId(qualifier, 0, qualifier.length);
-            this.lastTransactionElapsed = ByteArrayUtils.bytesToInt(qualifier, 0);
+            this.lastRowTimestamp = this.readTimestamp(last);
+
+            byte[] qualifier = last.getQualifierArray();
+            int qualifierOffset = last.getQualifierOffset();
+            int qualifierLength = last.getQualifierLength();
+            this.lastTransactionId = TransactionIdMapper.parseVarTransactionId(qualifier, qualifierOffset, qualifierLength);
+            this.lastTransactionElapsed = ByteArrayUtils.bytesToInt(qualifier, qualifierOffset);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("lastRowTimestamp={}, lastTransactionId={}, lastTransactionElapsed={}", DateTimeFormatUtils.format(lastRowTimestamp), lastTransactionId, lastTransactionElapsed);
             }
+        }
+
+        private long readTimestamp(Cell last) {
+            int saltKeySize = traceIdRowKeyDistributor.getByteHasher().getSaltKey().size();
+            byte[] rowArray = last.getRowArray();
+            int rowOffset = last.getRowOffset();
+            int timestampOffset = rowOffset + PinpointConstants.APPLICATION_NAME_MAX_LEN + saltKeySize;
+            long reverseStartTime = ByteArrayUtils.bytesToLong(rowArray, timestampOffset);
+            return TimeUtils.recoveryTimeMillis(reverseStartTime);
         }
 
         private Long getLastRowTimestamp() {
