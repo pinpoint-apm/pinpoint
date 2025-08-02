@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.httpclient3;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpMethod;
 
 /**
@@ -38,6 +39,19 @@ public class HttpMethodClientHeaderAdaptor implements ClientHeaderAdaptor<HttpMe
             }
         } catch (Exception ignored) {
         }
+    }
+
+    @Override
+    public String getHeader(HttpMethod header, String name) {
+        try {
+            final Header requestHeader = header.getRequestHeader(name);
+            if (requestHeader != null) {
+                return requestHeader.getValue();
+            }
+        } catch (Exception ignored) {
+        }
+        
+        return "";
     }
 
     @Override

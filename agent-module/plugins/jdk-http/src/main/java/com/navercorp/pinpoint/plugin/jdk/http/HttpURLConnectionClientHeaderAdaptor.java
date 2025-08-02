@@ -41,6 +41,19 @@ public class HttpURLConnectionClientHeaderAdaptor implements ClientHeaderAdaptor
     }
 
     @Override
+    public String getHeader(HttpURLConnection header, String name) {
+        try {
+            final String value = header.getRequestProperty(name);
+            if (value != null) {
+                return value;
+            }
+        } catch (Exception ignored) {
+        }
+
+        return "";
+    }
+
+    @Override
     public boolean contains(HttpURLConnection header, String name) {
         try {
             return header.getRequestProperty(name) != null;

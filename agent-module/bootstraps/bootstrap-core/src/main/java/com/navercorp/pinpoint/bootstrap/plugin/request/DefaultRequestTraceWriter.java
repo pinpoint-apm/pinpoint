@@ -30,8 +30,9 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
-
     private static final String NOT_SET = null;
+    private static final String HEADER_AUTHORIZATION = "Authorization";
+    private static final String AWS4_HMAC_SHA256 = "AWS4-HMAC-SHA256";
 
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -92,6 +93,14 @@ public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
 
         if (clientHeaderAdaptor.contains(header, Header.HTTP_SAMPLED.toString())) {
             // unsampled
+            return true;
+        }
+
+        final String value = clientHeaderAdaptor.getHeader(header, HEADER_AUTHORIZATION);
+        if (value != null && value.startsWith(AWS4_HMAC_SHA256)) {
+            if (isDebug) {
+                logger.debug("Found {} header, AWS SigV4 authentication should not modify header information.", value);
+            }
             return true;
         }
 
