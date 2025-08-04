@@ -1,6 +1,4 @@
 disable 'AgentInfo'
-disable 'AgentStatV2'
-disable 'ApplicationStatAggre'
 disable 'AgentLifeCycle'
 disable 'AgentEvent'
 disable 'ApplicationIndex'
@@ -22,8 +20,6 @@ disable 'HostApplicationMap_Ver2'
 
 
 drop 'AgentInfo'
-drop 'AgentStatV2'
-drop 'ApplicationStatAggre'
 drop 'AgentLifeCycle'
 drop 'AgentEvent'
 drop 'ApplicationIndex'
