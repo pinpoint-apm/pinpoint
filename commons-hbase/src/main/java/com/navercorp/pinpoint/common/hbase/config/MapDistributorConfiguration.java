@@ -16,54 +16,38 @@
 
 package com.navercorp.pinpoint.common.hbase.config;
 
+
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
-import com.navercorp.pinpoint.common.hbase.wd.OneByteSimpleHash;
 import com.navercorp.pinpoint.common.hbase.wd.RangeOneByteSimpleHash;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 
 @Configuration
-@Import(MapDistributorConfiguration.class)
-public class DistributorConfiguration {
+public class MapDistributorConfiguration {
 
-    private final Logger logger = LogManager.getLogger(DistributorConfiguration.class);
-
-    public DistributorConfiguration() {
-        logger.info("Install {}", DistributorConfiguration.class.getSimpleName());
-    }
 
     @Bean
-    public RowKeyDistributorByHashPrefix applicationTraceIndexDistributor() {
-        ByteHasher hasher = new OneByteSimpleHash(32);
+    public RowKeyDistributorByHashPrefix acceptApplicationRowKeyDistributor() {
+        ByteHasher hasher = new RangeOneByteSimpleHash(0, 24, 4);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
     @Bean
-    public RowKeyDistributorByHashPrefix traceV2Distributor() {
-        ByteHasher hasher = new RangeOneByteSimpleHash(32, 40, 256);
-        return new RowKeyDistributorByHashPrefix(hasher);
-    }
-
-    @Bean
-    public RowKeyDistributorByHashPrefix applicationStatRowKeyDistributor() {
-        ByteHasher hasher = new RangeOneByteSimpleHash(0, 33, 64);
-        return new RowKeyDistributorByHashPrefix(hasher);
-    }
-
-    @Bean
-    public RowKeyDistributorByHashPrefix metadataRowKeyDistributor() {
-        ByteHasher hasher = new RangeOneByteSimpleHash(0, 32, 8);
-        return new RowKeyDistributorByHashPrefix(hasher);
-    }
-
-    @Bean
-    public RowKeyDistributorByHashPrefix metadataRowKeyDistributor2() {
+    public RowKeyDistributorByHashPrefix mapInLinkRowKeyDistributor() {
         ByteHasher hasher = new RangeOneByteSimpleHash(0, 36, 32);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
+    @Bean
+    public RowKeyDistributorByHashPrefix mapOutLinkRowKeyDistributor() {
+        ByteHasher hasher = new RangeOneByteSimpleHash(0, 36, 32);
+        return new RowKeyDistributorByHashPrefix(hasher);
+    }
+
+    @Bean
+    public RowKeyDistributorByHashPrefix mapSelfRowKeyDistributor() {
+        ByteHasher hasher = new RangeOneByteSimpleHash(0, 32, 8);
+        return new RowKeyDistributorByHashPrefix(hasher);
+    }
 }

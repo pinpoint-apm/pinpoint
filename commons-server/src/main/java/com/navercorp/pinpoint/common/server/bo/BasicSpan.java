@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,10 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+
+import java.util.function.Supplier;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -30,6 +34,7 @@ public interface BasicSpan {
 
     String getAgentName();
     void setAgentName(String agentName);
+
 
     /**
      * @deprecated Since 3.1.0. Use {@link #getApplicationName()} instead
@@ -45,6 +50,13 @@ public interface BasicSpan {
 
     String getApplicationName();
     void setApplicationName(String applicationName);
+
+    Supplier<ServiceUid> getServiceUid();
+    void setServiceUid(Supplier<ServiceUid> serviceUid);
+
+    Supplier<ApplicationUid> getApplicationUid();
+    void setApplicationUid(Supplier<ApplicationUid> applicationUid);
+
 
     long getAgentStartTime();
     void setAgentStartTime(long agentStartTime);
