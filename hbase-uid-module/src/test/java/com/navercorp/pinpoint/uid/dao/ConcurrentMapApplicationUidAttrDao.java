@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.uid.dao;
 
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
-import com.navercorp.pinpoint.common.server.uid.HbaseCellData;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.uid.vo.ApplicationUidAttrRow;
 import com.navercorp.pinpoint.uid.vo.ApplicationUidAttribute;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,19 +32,19 @@ public class ConcurrentMapApplicationUidAttrDao implements ApplicationUidAttrDao
     }
 
     @Override
-    public ApplicationUidAttribute selectApplicationInfo(ServiceUid serviceUid, ApplicationUid applicationUid) {
+    public ApplicationUidAttribute getApplicationAttr(ServiceUid serviceUid, ApplicationUid applicationUid) {
         return applicationNameMap.get(applicationUid);
     }
 
     @Override
-    public boolean insertApplicationNameIfNotExists(ServiceUid serviceUid, ApplicationUid applicationUid, ApplicationUidAttribute applicationUidAttribute) {
+    public boolean putApplicationAttrIfNotExists(ServiceUid serviceUid, ApplicationUid applicationUid, ApplicationUidAttribute applicationUidAttribute) {
         logger.info("try insert name ({} -> {})", applicationUid, applicationUidAttribute);
         sleep(delay);
         return applicationNameMap.putIfAbsent(applicationUid, applicationUidAttribute) == null;
     }
 
     @Override
-    public CompletableFuture<Boolean> asyncInsertApplicationNameIfNotExists(ServiceUid serviceUid, ApplicationUid applicationUid, ApplicationUidAttribute applicationUidAttribute) {
+    public CompletableFuture<Boolean> asyncPutApplicationAttrIfNotExists(ServiceUid serviceUid, ApplicationUid applicationUid, ApplicationUidAttribute applicationUidAttribute) {
         return CompletableFuture.supplyAsync(() -> {
             logger.info("try insert name. ({} -> {})", applicationUid, applicationUidAttribute);
             sleep(delay);
@@ -53,14 +53,14 @@ public class ConcurrentMapApplicationUidAttrDao implements ApplicationUidAttrDao
     }
 
     @Override
-    public void deleteApplicationName(ServiceUid serviceUid, ApplicationUid applicationUid) {
+    public void deleteApplicationAttr(ServiceUid serviceUid, ApplicationUid applicationUid) {
         logger.info("delete name. ({} -> ?)", applicationUid);
         sleep(delay);
         applicationNameMap.remove(applicationUid);
     }
 
     @Override
-    public CompletableFuture<Void> asyncDeleteApplicationName(ServiceUid serviceUid, ApplicationUid applicationUid) {
+    public CompletableFuture<Void> asyncDeleteApplicationAttr(ServiceUid serviceUid, ApplicationUid applicationUid) {
         return CompletableFuture.runAsync(() -> {
             logger.info("delete name .({} -> ?)", applicationUid);
             sleep(delay);
@@ -69,7 +69,7 @@ public class ConcurrentMapApplicationUidAttrDao implements ApplicationUidAttrDao
     }
 
     @Override
-    public List<HbaseCellData> selectCellData(ServiceUid serviceUid) {
+    public List<ApplicationUidAttrRow> scanApplicationAttrRow(ServiceUid serviceUid) {
         throw new UnsupportedOperationException("not supported");
     }
 

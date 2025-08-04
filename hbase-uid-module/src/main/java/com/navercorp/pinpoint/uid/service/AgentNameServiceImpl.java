@@ -23,9 +23,18 @@ public class AgentNameServiceImpl implements AgentNameService {
         Objects.requireNonNull(serviceUid, "serviceUid");
         Objects.requireNonNull(applicationUid, "applicationUid");
 
-        return agentNameDao.selectAgentIdentifiers(serviceUid, applicationUid).stream()
-                .filter(Objects::nonNull)
-                .toList();
+        return agentNameDao.selectAgentIdentifiers(serviceUid, applicationUid);
+    }
+
+    @Override
+    public List<List<AgentIdentifier>> getAgentIdentifier(ServiceUid serviceUid, List<ApplicationUid> applicationUidList) {
+        Objects.requireNonNull(serviceUid, "serviceUid");
+        Objects.requireNonNull(applicationUidList, "applicationUidList");
+
+        if (applicationUidList.isEmpty()) {
+            return List.of();
+        }
+        return agentNameDao.selectAgentIdentifiers(serviceUid, applicationUidList);
     }
 
     @Override

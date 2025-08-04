@@ -2,8 +2,8 @@ package com.navercorp.pinpoint.web.uid.controller;
 
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.uid.service.BaseApplicationUidService;
-import com.navercorp.pinpoint.uid.vo.ApplicationUidAttribute;
-import com.navercorp.pinpoint.web.service.CommonService;
+import com.navercorp.pinpoint.uid.vo.ApplicationUidRow;
+import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,22 +23,22 @@ import java.util.Objects;
 public class ApplicationUidCopyController {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final CommonService commonService;
+    private final ApplicationIndexDao applicationIndexDao;
     private final BaseApplicationUidService baseApplicationUidService;
 
-    public ApplicationUidCopyController(CommonService commonService, BaseApplicationUidService baseApplicationUidService) {
-        this.commonService = Objects.requireNonNull(commonService, "commonService");
+    public ApplicationUidCopyController(ApplicationIndexDao applicationIndexDao, BaseApplicationUidService baseApplicationUidService) {
+        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.baseApplicationUidService = Objects.requireNonNull(baseApplicationUidService, "baseApplicationUidService");
     }
 
     @GetMapping(value = "")
     public ResponseEntity<String> copyApplicationUid() {
-        StopWatch stopWatch = new StopWatch("syncApplicationUid");
+        StopWatch stopWatch = new StopWatch("copyApplicationUid");
         stopWatch.start("selectAllApplicationNames");
-        List<Application> applications = commonService.selectAllApplicationNames();
+        List<Application> applications = this.applicationIndexDao.selectAllApplicationNames();
         stopWatch.stop();
 
-        List<ApplicationUidAttribute> beforeInsert = List.of();
+        List<ApplicationUidRow> beforeInsert = List.of();
         if (logger.isInfoEnabled()) {
             beforeInsert = baseApplicationUidService.getApplications(ServiceUid.DEFAULT);
         }
@@ -51,7 +51,7 @@ public class ApplicationUidCopyController {
 
         if (logger.isInfoEnabled()) {
             stopWatch.start("!Debug baseApplicationUidService.getApplications");
-            List<ApplicationUidAttribute> afterInsert = baseApplicationUidService.getApplications(ServiceUid.DEFAULT);
+            List<ApplicationUidRow> afterInsert = baseApplicationUidService.getApplications(ServiceUid.DEFAULT);
             stopWatch.stop();
             logger.info("syncApplicationUid total:{}, time taken: {} ms, before:{} after: {}", applications.size(), stopWatch.getTotalTimeMillis(), beforeInsert.size(), afterInsert.size());
         }

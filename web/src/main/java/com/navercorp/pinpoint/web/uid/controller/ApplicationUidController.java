@@ -4,6 +4,7 @@ import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.uid.vo.ApplicationUidAttribute;
+import com.navercorp.pinpoint.uid.vo.ApplicationUidRow;
 import com.navercorp.pinpoint.web.uid.service.ApplicationUidService;
 import com.navercorp.pinpoint.web.uid.service.ServiceUidCachedService;
 import jakarta.validation.constraints.NotBlank;
@@ -32,9 +33,9 @@ public class ApplicationUidController {
     }
 
     @GetMapping(value = "/applications")
-    public List<ApplicationUidAttribute> getApplications(@RequestParam(value = "serviceName", required = false) String serviceName) {
+    public List<ApplicationUidRow> getApplications(@RequestParam(value = "serviceName", required = false) String serviceName) {
         ServiceUid serviceUid = getServiceUid(serviceName);
-        return applicationUidService.getApplicationNames(serviceUid);
+        return applicationUidService.getApplications(serviceUid);
     }
 
     @GetMapping(value = "/debug/application", params = "applicationName")
@@ -63,8 +64,8 @@ public class ApplicationUidController {
 
     @DeleteMapping(value = "/application")
     public ResponseEntity<String> deleteApplication(@RequestParam(value = "serviceName", required = false) String serviceName,
-                                                        @RequestParam(value = "applicationName") @NotBlank String applicationName,
-                                                        @RequestParam(value = "serviceTypeCode") int serviceTypeCode) {
+                                                    @RequestParam(value = "applicationName") @NotBlank String applicationName,
+                                                    @RequestParam(value = "serviceTypeCode") int serviceTypeCode) {
         ServiceUid serviceUid = getServiceUid(serviceName);
         applicationUidService.deleteApplication(serviceUid, applicationName, serviceTypeCode);
         return ResponseEntity.ok("OK");

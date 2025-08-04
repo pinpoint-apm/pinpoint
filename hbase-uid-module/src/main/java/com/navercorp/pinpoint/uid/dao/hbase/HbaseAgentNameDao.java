@@ -53,22 +53,39 @@ public class HbaseAgentNameDao implements AgentNameDao {
     @Override
     public List<AgentIdentifier> selectAgentIdentifiers(ServiceUid serviceUid, ApplicationUid applicationUid) {
         byte[] rowKeyPrefix = UidBytesCreateUtils.createRowKey(serviceUid, applicationUid);
-        return selectByRowKeyPrefix(rowKeyPrefix);
+        Scan scan = createScan(rowKeyPrefix);
+
+        TableName agentListTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        return hbaseOperations.find(agentListTableName, scan, agentNameMapper);
+    }
+
+    @Override
+    public List<List<AgentIdentifier>> selectAgentIdentifiers(ServiceUid serviceUid, List<ApplicationUid> applicationUidList) {
+        List<Scan> scans = new ArrayList<>(applicationUidList.size());
+        for (ApplicationUid applicationUid : applicationUidList) {
+            byte[] rowKey = UidBytesCreateUtils.createRowKey(serviceUid, applicationUid);
+            Scan scan = createScan(rowKey);
+            scans.add(scan);
+        }
+        TableName agentListTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        return hbaseOperations.findParallel(agentListTableName, scans, agentNameMapper);
     }
 
     @Override
     public List<AgentIdentifier> selectAgentIdentifiers(ServiceUid serviceUid, ApplicationUid applicationUid, String agentId) {
         byte[] rowKeyPrefix = UidBytesCreateUtils.createAgentNameRowKey(serviceUid, applicationUid, agentId);
-        return selectByRowKeyPrefix(rowKeyPrefix);
-    }
+        Scan scan = createScan(rowKeyPrefix);
 
-    private List<AgentIdentifier> selectByRowKeyPrefix(byte[] rowKeyPrefix) {
-        Scan scan = new Scan();
-        scan.setCaching(20);
-        scan.setStartStopRowForPrefixScan(rowKeyPrefix);
-        scan.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName());
         TableName agentListTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         return hbaseOperations.find(agentListTableName, scan, agentNameMapper);
+    }
+
+    private Scan createScan(byte[] rowKeyPrefix) {
+        Scan scan = new Scan();
+        scan.setStartStopRowForPrefixScan(rowKeyPrefix);
+        scan.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName());
+        scan.setCaching(20);
+        return scan;
     }
 
     @Override

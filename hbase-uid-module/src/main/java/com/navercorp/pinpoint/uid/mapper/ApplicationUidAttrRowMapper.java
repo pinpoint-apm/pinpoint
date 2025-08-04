@@ -3,33 +3,33 @@ package com.navercorp.pinpoint.uid.mapper;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.uid.utils.UidBytesParseUtils;
+import com.navercorp.pinpoint.uid.vo.ApplicationUidAttrRow;
 import com.navercorp.pinpoint.uid.vo.ApplicationUidAttribute;
-import com.navercorp.pinpoint.uid.vo.ApplicationUidRow;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ApplicationUidRowMapper implements RowMapper<ApplicationUidRow> {
+public class ApplicationUidAttrRowMapper implements RowMapper<ApplicationUidAttrRow> {
 
-    private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.APPLICATION_UID;
+    private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.APPLICATION_UID_ATTR;
 
     @Override
-    public ApplicationUidRow mapRow(Result result, int rowNum) throws Exception {
+    public ApplicationUidAttrRow mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return null;
         }
 
         byte[] rowKey = result.getRow();
         ServiceUid serviceUid = UidBytesParseUtils.parseServiceUidFromRowKey(rowKey);
-        ApplicationUidAttribute attr = UidBytesParseUtils.parseApplicationUidAttrFromRowKey(rowKey);
+        ApplicationUid applicationUid = UidBytesParseUtils.parseApplicationUidFromRowKey(rowKey);
 
         Cell cell = result.getColumnLatestCell(DESCRIPTOR.getName(), DESCRIPTOR.getName());
-        ApplicationUid applicationUid = ApplicationUid.of(CellUtils.valueToLong(cell));
-        return new ApplicationUidRow(serviceUid, attr.applicationName(), attr.serviceTypeCode(), applicationUid);
+        long timeStamp = cell.getTimestamp();
+        ApplicationUidAttribute applicationUidAttribute = UidBytesParseUtils.parseApplicationUidAttrFromValue(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+        return new ApplicationUidAttrRow(serviceUid, applicationUid, timeStamp, applicationUidAttribute);
     }
 }

@@ -4,6 +4,7 @@ import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.uid.service.BaseApplicationUidService;
 import com.navercorp.pinpoint.uid.vo.ApplicationUidAttribute;
+import com.navercorp.pinpoint.uid.vo.ApplicationUidRow;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -28,16 +29,6 @@ public class ApplicationUidCachedServiceImpl implements ApplicationUidService {
     }
 
     @Override
-    public List<ApplicationUidAttribute> getApplicationNames(ServiceUid serviceUid) {
-        return applicationUidService.getApplications(serviceUid);
-    }
-
-    @Override
-    public List<ApplicationUid> getApplicationUid(ServiceUid serviceUid, String applicationName) {
-        return applicationUidService.getApplicationUid(serviceUid, applicationName);
-    }
-
-    @Override
     @Cacheable(cacheNames = APPLICATION_UID_CACHE_NAME, unless = "#result == null")
     public ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
         return applicationUidService.getApplicationUid(serviceUid, applicationName, serviceTypeCode);
@@ -46,12 +37,22 @@ public class ApplicationUidCachedServiceImpl implements ApplicationUidService {
     @Override
     @Cacheable(cacheNames = APPLICATION_NAME_CACHE_NAME, unless = "#result == null")
     public ApplicationUidAttribute getApplication(ServiceUid serviceUid, ApplicationUid applicationUid) {
-        return applicationUidService.getApplication(serviceUid, applicationUid);
+        return applicationUidService.getApplicationAttr(serviceUid, applicationUid);
     }
 
     @Override
     @CacheEvict(cacheNames = APPLICATION_UID_CACHE_NAME)
     public void deleteApplication(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
         applicationUidService.deleteApplication(serviceUid, applicationName, serviceTypeCode);
+    }
+
+    @Override
+    public List<ApplicationUidRow> getApplications(ServiceUid serviceUid) {
+        return applicationUidService.getApplications(serviceUid);
+    }
+
+    @Override
+    public List<ApplicationUidRow> getApplications(ServiceUid serviceUid, String applicationName) {
+        return applicationUidService.getApplications(serviceUid, applicationName);
     }
 }

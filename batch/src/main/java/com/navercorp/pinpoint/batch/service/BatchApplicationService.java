@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.batch.service;
 
+import com.navercorp.pinpoint.web.vo.Application;
+
 import java.time.Duration;
 import java.util.List;
 
@@ -24,7 +26,9 @@ import java.util.List;
  */
 public interface BatchApplicationService {
 
-    List<String> getAll();
+    List<Application> selectAllApplications();
+
+    List<String> selectAllApplicationNames();
 
     boolean isActive(String applicationName, Duration duration);
 

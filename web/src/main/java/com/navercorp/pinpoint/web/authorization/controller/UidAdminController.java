@@ -11,12 +11,15 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.uid.service.AgentNameService;
 import com.navercorp.pinpoint.uid.service.ApplicationCleanupService;
-import com.navercorp.pinpoint.uid.vo.ApplicationUidAttribute;
+import com.navercorp.pinpoint.uid.vo.ApplicationUidRow;
 import com.navercorp.pinpoint.web.service.AgentListService;
 import com.navercorp.pinpoint.web.uid.service.ApplicationUidService;
 import com.navercorp.pinpoint.web.uid.service.ServiceUidCachedService;
+import com.navercorp.pinpoint.web.vo.agent.AgentListEntry;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,25 +35,28 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping(value = "/api/admin")
 @ConditionalOnProperty(name = "pinpoint.modules.uid.enabled", havingValue = "true")
 public class UidAdminController {
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
     private final ServiceUidCachedService serviceUidCachedService;
     private final ApplicationUidService applicationUidService;
-    private final ApplicationCleanupService applicationUidCleanupService;
-    private final AgentNameService agentNameService;
-
     private final ServiceTypeRegistryService serviceTypeRegistryService;
+
+    private final ApplicationCleanupService applicationUidCleanupService;
+
+    private final AgentNameService agentNameService;
     private final AgentListService agentListService;
 
     public UidAdminController(ServiceUidCachedService serviceUidCachedService,
                               ApplicationUidService applicationUidService,
+                              ServiceTypeRegistryService serviceTypeRegistryService,
                               ApplicationCleanupService applicationCleanupService,
                               AgentNameService agentNameService,
-                              ServiceTypeRegistryService serviceTypeRegistryService,
                               AgentListService agentListService) {
         this.serviceUidCachedService = Objects.requireNonNull(serviceUidCachedService, "serviceUidCachedService");
         this.applicationUidService = Objects.requireNonNull(applicationUidService, "applicationUidService");
+        this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
         this.applicationUidCleanupService = Objects.requireNonNull(applicationCleanupService, "applicationCleanupService");
         this.agentNameService = Objects.requireNonNull(agentNameService, "agentNameService");
-        this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
         this.agentListService = Objects.requireNonNull(agentListService, "agentListService");
     }
 
@@ -120,12 +126,22 @@ public class UidAdminController {
         Range range = Range.between(from, to);
         ServiceUid serviceUid = getServiceUid(serviceName);
 
-        List<ApplicationUidAttribute> applicationUidAttributeList = applicationUidService.getApplicationNames(serviceUid);
-        for (ApplicationUidAttribute uidInfo : applicationUidAttributeList) {
-            agentListService.cleanupInactiveAgent(serviceName, uidInfo.applicationName(), uidInfo.serviceTypeCode(), range);
+        int cleanupCount = 0;
+        List<ApplicationUidRow> applicationUidRowList = applicationUidService.getApplications(serviceUid);
+        for (ApplicationUidRow row : applicationUidRowList) {
+            List<AgentListEntry> agentList = agentListService.getApplicationAgentList(serviceName, row.applicationName(), row.serviceTypeCode(), range);
+            if (agentList.isEmpty()) {
+                deleteApplication(row);
+                cleanupCount++;
+            }
         }
-        int applicationCleanupCount = applicationUidCleanupService.cleanupEmptyApplication(serviceUid, from);
-        return SimpleResponse.ok("applicationCleanupCount: " + applicationCleanupCount);
+        return SimpleResponse.ok("applicationCleanupCount: " + cleanupCount);
+    }
+
+    private void deleteApplication(ApplicationUidRow row) {
+        agentNameService.deleteAllAgents(row.serviceUid(), row.applicationUid());
+        applicationUidService.deleteApplication(row.serviceUid(), row.applicationName(), row.serviceTypeCode());
+        logger.info("Cleanup inactive application: {}", row);
     }
 
     // Cleanup inconsistent application UIDs caused by rollback failure

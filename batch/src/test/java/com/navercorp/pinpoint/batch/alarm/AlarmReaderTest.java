@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.batch.alarm;
 
+import com.navercorp.pinpoint.batch.service.BatchApplicationService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.service.AlarmService;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,7 @@ import static org.mockito.Mockito.when;
 public class AlarmReaderTest {
 
     @Mock
-    private ApplicationIndexDao applicationIndexDao;
+    private BatchApplicationService batchApplicationService;
 
     @Mock
     private AlarmService alarmService;
@@ -57,10 +57,10 @@ public class AlarmReaderTest {
 
     @Test
     public void pollingTest() {
-        when(applicationIndexDao.selectAllApplicationNames()).thenReturn(mockApplications);
+        when(batchApplicationService.selectAllApplications()).thenReturn(mockApplications);
         when(alarmService.selectApplicationName()).thenReturn(applicationIds);
 
-        AlarmReader reader = new AlarmReader(applicationIndexDao, alarmService);
+        AlarmReader reader = new AlarmReader(batchApplicationService, alarmService);
         reader.beforeStep(stepExecution);
         for (int i = 0; i < 4; i++) {
             assertEquals(mockApplications.get(i), reader.read(), "polled application should be same");
@@ -70,9 +70,9 @@ public class AlarmReaderTest {
 
     @Test
     public void pollingFromEmptyTest() {
-        when(applicationIndexDao.selectAllApplicationNames()).thenReturn(List.of());
+        when(batchApplicationService.selectAllApplications()).thenReturn(List.of());
 
-        AlarmReader reader = new AlarmReader(applicationIndexDao, alarmService);
+        AlarmReader reader = new AlarmReader(batchApplicationService, alarmService);
         reader.beforeStep(stepExecution);
         assertNull(reader.read());
     }

@@ -1,5 +1,8 @@
 package com.navercorp.pinpoint.common.server.uid;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+
 public class ApplicationUid {
 
     // reserve -64 ~ 64
@@ -26,6 +29,7 @@ public class ApplicationUid {
         this.uid = uid;
     }
 
+    @JsonSerialize(using = ToStringSerializer.class)
     public long getUid() {
         return uid;
     }
