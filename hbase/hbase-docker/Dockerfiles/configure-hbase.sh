@@ -1,11 +1,25 @@
 #!/bin/bash
+#
+# Copyright 2025 NAVER Corp.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 set -e
 set -x
 cp ${BASE_DIR}/hbase-create.hbase ${BASE_DIR}/hbase-update-ttl.hbase
 
 sed -i "/AgentInfo/s/TTL => .[[:digit:]]*/TTL => ${AGENTINFO_TTL:-31536000}/g" ${BASE_DIR}/hbase-create.hbase
-sed -i "/AgentStatV2/s/TTL => .[[:digit:]]*/TTL => ${AGENTSTATV2_TTL:-5184000}/g" ${BASE_DIR}/hbase-create.hbase
-sed -i "/ApplicationStatAggre/s/TTL => .[[:digit:]]*/TTL => ${APPSTATAGGRE_TTL:-5184000}/g" ${BASE_DIR}/hbase-create.hbase
 sed -i "/ApplicationIndex/s/TTL => .[[:digit:]]*/TTL => ${APPINDEX_TTL:-31536000}/g" ${BASE_DIR}/hbase-create.hbase
 sed -i "/AgentLifeCycle/s/TTL => .[[:digit:]]*/TTL => ${AGENTLIFECYCLE_TTL:-5184000}/g" ${BASE_DIR}/hbase-create.hbase
 sed -i "/AgentEvent/s/TTL => .[[:digit:]]*/TTL => ${AGENTEVENT_TTL:-5184000}/g" ${BASE_DIR}/hbase-create.hbase
@@ -21,8 +35,6 @@ sed -i "/HostApplicationMap_Ver2/s/TTL => .[[:digit:]]*/TTL => ${HOSTAPPMAPV2_TT
 
 sed -i "s/create/alter/g" ${BASE_DIR}/hbase-update-ttl.hbase
 sed -i "/AgentInfo/s/TTL => .[[:digit:]]*/TTL => ${AGENTINFO_TTL:-31536000}/g" ${BASE_DIR}/hbase-update-ttl.hbase
-sed -i "/AgentStatV2/s/TTL => .[[:digit:]]*/TTL => ${AGENTSTATV2_TTL:-5184000}/g" ${BASE_DIR}/hbase-update-ttl.hbase
-sed -i "/ApplicationStatAggre/s/TTL => .[[:digit:]]*/TTL => ${APPSTATAGGRE_TTL:-5184000}/g" ${BASE_DIR}/hbase-update-ttl.hbase
 sed -i "/ApplicationIndex/s/TTL => .[[:digit:]]*/TTL => ${APPINDEX_TTL:-31536000}/g" ${BASE_DIR}/hbase-update-ttl.hbase
 sed -i "/AgentLifeCycle/s/TTL => .[[:digit:]]*/TTL => ${AGENTLIFECYCLE_TTL:-5184000}/g" ${BASE_DIR}/hbase-update-ttl.hbase
 sed -i "/AgentEvent/s/TTL => .[[:digit:]]*/TTL => ${AGENTEVENT_TTL:-5184000}/g" ${BASE_DIR}/hbase-update-ttl.hbase
