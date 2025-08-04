@@ -3,20 +3,25 @@ import { defaultTheme } from '../../constants/style/theme';
 import { ServerMapProps } from '../ServerMap';
 
 type TransactionInfo = Node['transactionInfo'];
+type TimeSeriesApdexInfo = Node['timeSeriesApdexInfo'];
 
 const MIN_ARC_RATIO = 0.05;
 const RADIUS = 47;
 const DIAMETER = 2 * Math.PI * RADIUS;
 
 export const getNodeSVGString = (nodeData: Node, renderNode?: ServerMapProps['renderNode']) => {
-  const { transactionInfo } = nodeData;
-  const transactionStatusSVGString = getTransactionStatusSVGCircle(transactionInfo, !transactionInfo);
+  const { transactionInfo, timeSeriesApdexInfo } = nodeData;
+
+  // timeSeriesApdexInfo가 있을 때는 새로운 Apdex SVG를 사용
+  const statusSVGString = timeSeriesApdexInfo
+    ? getTimeSeriesApdexStatusSVGCircle(timeSeriesApdexInfo)
+    : getTransactionStatusSVGCircle(transactionInfo, !transactionInfo);
 
   return (
     'data:image/svg+xml;charset=utf-8,' +
     encodeURIComponent(`
     <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" xmlns:xlink="http://www.w3.org/1999/xlink">
-      ${renderNode ? renderNode(nodeData, transactionStatusSVGString) : transactionStatusSVGString}
+      ${renderNode ? renderNode(nodeData, statusSVGString) : statusSVGString}
     </svg>
   `)
   );
@@ -45,6 +50,68 @@ const getSVGCircle = (style: SVGCircleParam) => {
 
 const calcArc = (sum: number, value: number): number => {
   return value === 0 ? 0 : value / sum < MIN_ARC_RATIO ? DIAMETER * MIN_ARC_RATIO : (value / sum) * DIAMETER;
+};
+
+const getTimeSeriesApdexStatusSVGCircle = (timeSeriesApdexInfo: TimeSeriesApdexInfo): string => {
+  if (!timeSeriesApdexInfo || timeSeriesApdexInfo.length === 0) {
+    return '';
+  }
+
+  // Apdex 등급별 색상 매핑
+  const colorMap: Record<string, string> = {
+    Excellent: '#41c464',
+    Good: '#469ae4',
+    Fair: '#f7d84a',
+    Poor: '#ff8c00',
+    Unacceptable: '#eb4747',
+  };
+
+  // Apdex 점수에 따라 등급 반환
+  const getApdexGrade = (score: number): string => {
+    if (score >= 0.94) return 'Excellent';
+    if (score >= 0.85) return 'Good';
+    if (score >= 0.7) return 'Fair';
+    if (score >= 0.5) return 'Poor';
+    return 'Unacceptable';
+  };
+
+  const segmentCount = timeSeriesApdexInfo.length;
+  const segmentAngle = 360 / segmentCount;
+  const cx = 50;
+  const cy = 50;
+  const r = RADIUS;
+  const strokeWidth = 8;
+  let svgString = '';
+
+  // 12시 방향부터 반시계방향으로 slot을 채운다. (12~1시가 가장 최신 데이터)
+  for (let i = 0; i < segmentCount; i++) {
+    const score = timeSeriesApdexInfo[i];
+    const grade = getApdexGrade(score);
+    const color = colorMap[grade] || '#cccccc';
+    // 각 segment의 시작/끝 각도
+    const startAngle = -90 - i * segmentAngle;
+    const endAngle = startAngle - segmentAngle;
+    // 각도를 라디안으로 변환
+    const startRad = (startAngle * Math.PI) / 180;
+    const endRad = (endAngle * Math.PI) / 180;
+    // 시작점, 끝점 좌표 계산
+    const x1 = cx + r * Math.cos(startRad);
+    const y1 = cy + r * Math.sin(startRad);
+    const x2 = cx + r * Math.cos(endRad);
+    const y2 = cy + r * Math.sin(endRad);
+    // arc 플래그: 180도 이상이면 1, 아니면 0
+    const largeArcFlag = segmentAngle > 180 ? 1 : 0;
+    svgString += `
+      <path d="M ${x1} ${y1}
+        A ${r} ${r} 0 ${largeArcFlag} 0 ${x2} ${y2}"
+        stroke="${color}"
+        stroke-width="${strokeWidth}"
+        fill="none"
+        />
+    `;
+  }
+
+  return svgString;
 };
 
 const getTransactionStatusSVGCircle = (transactionInfo: TransactionInfo, isMerged: boolean): string => {

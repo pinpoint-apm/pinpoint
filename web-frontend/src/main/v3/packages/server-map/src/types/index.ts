@@ -9,6 +9,7 @@ export interface Node {
     bad: number;
     [key: string]: any;
   };
+  timeSeriesApdexInfo?: number[];
   shouldNotMerge?: () => boolean;
 }
 
