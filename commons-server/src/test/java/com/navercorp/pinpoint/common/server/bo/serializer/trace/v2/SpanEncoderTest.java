@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
 import com.google.common.collect.Lists;
@@ -14,6 +30,7 @@ import com.navercorp.pinpoint.common.server.bo.grpc.CollectorGrpcSpanFactory;
 import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanBinder;
 import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanFactory;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
@@ -43,7 +60,9 @@ public class SpanEncoderTest {
     private final RandomTSpan randomTSpan = new RandomTSpan();
     private final Random random = new Random();
 
-    private final BindAttribute attribute = new BindAttribute("agentId", "agentName", "applicationName", () -> ApplicationUid.of(1), 88, spanAcceptedTime);
+    private final BindAttribute attribute = new BindAttribute("agentId", "agentName", "applicationName",
+            () -> ApplicationUid.of(1), () -> ServiceUid.DEFAULT, 88, spanAcceptedTime);
+
     private final GrpcSpanBinder grpcSpanBinder = new GrpcSpanBinder();
     private final SpanEventFilter filter = new EmptySpanEventFilter();
     private final GrpcSpanFactory grpcSpanFactory = new CollectorGrpcSpanFactory(grpcSpanBinder, filter);
@@ -137,7 +156,7 @@ public class SpanEncoderTest {
 
         SpanBo decode = (SpanBo) spanDecoder.decode(qualifier, column, decodingContext);
 
-        List<String> notSerializedField = Lists.newArrayList("parentApplicationName", "parentApplicationServiceType");
+        List<String> notSerializedField = Lists.newArrayList("parentApplicationName", "parentApplicationServiceType", "applicationUid", "serviceUid");
         List<String> excludeField = List.of("annotationBoList", "spanEventBoList", "agentName");
         notSerializedField.addAll(excludeField);
         Assertions.assertThat(decode)
@@ -174,7 +193,7 @@ public class SpanEncoderTest {
         // TODO Check CI log
         // logger.debug("spanChunk dump \noriginal spanChunkBo:{} \ndecode spanChunkBo:{} ", spanChunkBo, decode);
 
-        List<String> notSerializedField = Lists.newArrayList("endPoint", "serviceType", "applicationServiceType");
+        List<String> notSerializedField = Lists.newArrayList("endPoint", "serviceType", "applicationServiceType", "applicationUid", "serviceUid");
         List<String> excludeField = List.of("spanEventBoList", "localAsyncId");
         notSerializedField.addAll(excludeField);
         Assertions.assertThat(decode)

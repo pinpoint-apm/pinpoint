@@ -47,6 +47,7 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -69,7 +70,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     private final NodeHistogramService nodeHistogramService;
     private final MapResponseDao mapResponseDao;
 
-
+    @Autowired
     public ResponseTimeHistogramServiceImpl(LinkSelectorFactory linkSelectorFactory,
                                             NodeHistogramService nodeHistogramService,
                                             ServerInstanceDatasourceService serverInstanceDatasourceService,

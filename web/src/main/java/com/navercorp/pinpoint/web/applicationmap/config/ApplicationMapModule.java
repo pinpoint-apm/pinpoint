@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
 import com.navercorp.pinpoint.common.server.util.CallerUtils;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.uid.service.BaseApplicationUidService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.web.applicationmap.controller.MapController;
 import com.navercorp.pinpoint.web.applicationmap.controller.MapHistogramController;
 import com.navercorp.pinpoint.web.applicationmap.controller.ServerMapHistogramController;
 import com.navercorp.pinpoint.web.applicationmap.dao.HostApplicationMapDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.map.ApplicationsMapCreatorFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.ApplicationLimiterProcessorFactory;
@@ -37,8 +38,13 @@ import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
 import com.navercorp.pinpoint.web.applicationmap.service.HistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.LinkDataMapService;
 import com.navercorp.pinpoint.web.applicationmap.service.MapService;
+import com.navercorp.pinpoint.web.applicationmap.service.NodeHistogramService;
+import com.navercorp.pinpoint.web.applicationmap.service.NodeHistogramServiceImpl;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.TraceIndexService;
+import com.navercorp.pinpoint.web.applicationmap.service.UidNodeHistogramServiceImpl;
+import com.navercorp.pinpoint.web.applicationmap.uid.config.WebMapUidConfiguration;
+import com.navercorp.pinpoint.web.applicationmap.uid.hbase.MapSelfUidDao;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
@@ -51,6 +57,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -71,7 +79,10 @@ import java.util.function.Supplier;
 @ComponentScan(basePackages = {
         "com.navercorp.pinpoint.web.applicationmap.service",
 })
-@Import(MapHbaseConfiguration.class)
+@Import({
+        MapHbaseConfiguration.class,
+        WebMapUidConfiguration.class,
+})
 public class ApplicationMapModule {
     private static final Logger logger = LogManager.getLogger(ApplicationMapModule.class);
 
@@ -101,14 +112,13 @@ public class ApplicationMapModule {
 
     @Bean
     public ServerMapHistogramController serverMapHistogramController(ResponseTimeHistogramService responseTimeHistogramService,
-                                                                     HistogramService histogramService,
-                                                                     ApplicationFactory applicationFactory,
-                                                                     ServiceTypeRegistryService registry,
-                                                                     ApplicationValidator applicationValidator,
-                                                                     HyperLinkFactory hyperLinkFactory,
-                                                                     ConfigProperties configProperties) {
+                                                                   HistogramService histogramService,
+                                                                   ApplicationFactory applicationFactory,
+                                                                   ApplicationValidator applicationValidator,
+                                                                   HyperLinkFactory hyperLinkFactory,
+                                                                   ConfigProperties configProperties) {
         Duration maxPeriod = Duration.ofDays(configProperties.getServerMapPeriodMax());
-        return new ServerMapHistogramController(responseTimeHistogramService, histogramService, applicationFactory, registry, applicationValidator, hyperLinkFactory, maxPeriod);
+        return new ServerMapHistogramController(responseTimeHistogramService, histogramService, applicationFactory, applicationValidator, hyperLinkFactory, maxPeriod);
     }
 
     @Bean
@@ -216,6 +226,22 @@ public class ApplicationMapModule {
     public ExecutorCustomizer<ThreadPoolTaskExecutor> executorCustomizer() {
         TaskDecorator taskDecorator = contextPropagatingTaskDecorator();
         return new TaskExecutorCustomizer(taskDecorator);
+    }
+
+    @ConditionalOnProperty(name = "pinpoint.modules.uid.enabled", havingValue = "true")
+    @Bean("nodeHistogramService")
+    public NodeHistogramService uidNodeHistogramService(MapResponseDao mapResponseDao,
+                                                        BaseApplicationUidService baseApplicationUidService,
+                                                        MapSelfUidDao selfUidDao) {
+        NodeHistogramServiceImpl nodeHistogramService = new NodeHistogramServiceImpl(mapResponseDao);
+        return new UidNodeHistogramServiceImpl(nodeHistogramService, baseApplicationUidService, selfUidDao);
+    }
+
+    @ConditionalOnMissingBean(NodeHistogramService.class)
+//    @ConditionalOnProperty(name = "pinpoint.modules.uid.enabled", matchIfMissing = true)
+    @Bean
+    public NodeHistogramService nodeHistogramService(MapResponseDao mapResponseDao) {
+        return new NodeHistogramServiceImpl(mapResponseDao);
     }
 
 }

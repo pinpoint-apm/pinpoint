@@ -27,7 +27,10 @@ import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWithScatter;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.ResponseHistogramsNodeHistogramDataSource;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.FilteredMap;
 import com.navercorp.pinpoint.web.applicationmap.map.FilteredMapBuilder;
@@ -74,7 +77,6 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     private final ServerMapDataFilter serverMapDataFilter;
 
     private final ApplicationMapBuilderFactory applicationMapBuilderFactory;
-    private final NodeHistogramService nodeHistogramService;
 
     private static final Object V = new Object();
 
@@ -84,14 +86,12 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     public FilteredMapServiceImpl(TraceDao traceDao,
                                   ServiceTypeRegistryService registry,
                                   ApplicationFactory applicationFactory,
-                                  NodeHistogramService nodeHistogramService,
                                   ServerInstanceDatasourceService serverInstanceDatasourceService,
                                   Optional<ServerMapDataFilter> serverMapDataFilter,
                                   ApplicationMapBuilderFactory applicationMapBuilderFactory) {
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
         this.registry = Objects.requireNonNull(registry, "registry");
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
-        this.nodeHistogramService = Objects.requireNonNull(nodeHistogramService, "nodeHistogramService");
         this.serverInstanceDatasourceService = Objects.requireNonNull(serverInstanceDatasourceService, "serverInstanceDatasourceService");
         this.serverMapDataFilter = Objects.requireNonNull(serverMapDataFilter, "serverMapDataFilter").orElse(null);
         this.applicationMapBuilderFactory = Objects.requireNonNull(applicationMapBuilderFactory, "applicationMapBuilderFactory");
@@ -182,7 +182,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         final ApplicationMapBuilder applicationMapBuilder = applicationMapBuilderFactory.createApplicationMapBuilder(timeWindow);
 
         ResponseHistograms responseHistograms = filteredMap.getResponseHistograms();
-        NodeHistogramFactory agentHistogram = this.nodeHistogramService.getAgentHistogram(responseHistograms);
+        NodeHistogramFactory agentHistogram = getAgentHistogram(responseHistograms);
         applicationMapBuilder.includeNodeHistogram(agentHistogram);
 
         ServerGroupListFactory serverFactory = serverInstanceDatasourceService.getGroupServerFactory(isUseStatisticsAgentState);
@@ -194,6 +194,11 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         }
 
         return map;
+    }
+
+    public NodeHistogramFactory getAgentHistogram(ResponseHistograms responseHistograms) {
+        final WasNodeHistogramDataSource wasNodeHistogramDataSource = new ResponseHistogramsNodeHistogramDataSource(responseHistograms);
+        return new DefaultNodeHistogramFactory(wasNodeHistogramDataSource);
     }
 
     private List<TransactionId> recursiveCallFilter(List<TransactionId> transactionIdList) {
