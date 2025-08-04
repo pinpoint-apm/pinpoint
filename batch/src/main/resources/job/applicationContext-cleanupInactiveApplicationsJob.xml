@@ -52,7 +52,7 @@
         <constructor-arg name="applicationService" ref="batchApplicationService" />
     </bean>
     <bean id="applicationCleaningProcessor" class="com.navercorp.pinpoint.batch.job.ApplicationCleaningProcessor">
-        <constructor-arg name="agentService" ref="batchAgentService" />
+        <constructor-arg name="agentClusterKeyService" ref="batchAgentService" />
         <constructor-arg name="applicationService" ref="batchApplicationService" />
         <constructor-arg name="emptyDurationThreshold" value="${job.cleanup.inactive.applications.emptydurationthreshold:P35D}" />
     </bean>
@@ -72,7 +72,7 @@
         <constructor-arg name="applicationService" ref="batchApplicationService" />
     </bean>
     <bean id="agentRemover" class="com.navercorp.pinpoint.batch.job.AgentRemover">
-        <constructor-arg name="agentService" ref="batchAgentService" />
+        <constructor-arg name="agentClusterKeyService" ref="batchAgentService" />
     </bean>
 
     <bean id="batchApplicationService" class="com.navercorp.pinpoint.batch.service.BatchApplicationServiceImpl" />

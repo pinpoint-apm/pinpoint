@@ -80,27 +80,31 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     private final AgentLifeCycleDao agentLifeCycleDao;
 
+    private final ApplicationService applicationService;
+
     public AgentInfoServiceImpl(AgentEventService agentEventService,
                                 ApplicationAgentListService applicationAgentListService, AgentWarningStatService agentWarningStatService,
                                 ApplicationIndexDao applicationIndexDao,
                                 AgentInfoDao agentInfoDao,
-                                AgentLifeCycleDao agentLifeCycleDao) {
+                                AgentLifeCycleDao agentLifeCycleDao,
+                                ApplicationService applicationService) {
         this.agentEventService = Objects.requireNonNull(agentEventService, "agentEventService");
         this.applicationAgentListService = Objects.requireNonNull(applicationAgentListService, "applicationAgentListService");
         this.agentWarningStatService = Objects.requireNonNull(agentWarningStatService, "agentWarningStatService");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
+        this.applicationService = Objects.requireNonNull(applicationService, "applicationService");
     }
 
     @Override
     public AgentsMapByApplication<AgentAndStatus> getAllAgentsList(AgentStatusFilter filter, Range range) {
         Objects.requireNonNull(filter, "filter");
 
-        List<Application> applications = applicationIndexDao.selectAllApplicationNames();
+        List<String> applicationNameList = applicationService.selectAllApplicationNames();
         List<AgentAndStatus> agents = new ArrayList<>();
-        for (Application application : applications) {
-            agents.addAll(getAgentsByApplicationName(application.getName(), range.getTo()));
+        for (String applicationName : applicationNameList) {
+            agents.addAll(getAgentsByApplicationName(applicationName, range.getTo()));
         }
 
         return AgentsMapByApplication.newAgentAndStatusMap(
@@ -113,10 +117,10 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     public AgentsMapByApplication<DetailedAgentInfo> getAllAgentsStatisticsList(AgentStatusFilter filter, Range range) {
         Objects.requireNonNull(filter, "filter");
 
-        List<Application> applications = applicationIndexDao.selectAllApplicationNames();
+        List<String> applicationNameList = applicationService.selectAllApplicationNames();
         List<DetailedAgentAndStatus> agents = new ArrayList<>();
-        for (Application application : applications) {
-            agents.addAll(getDetailedAgentsByApplicationName(application.getName(), range.getTo()));
+        for (String applicationName : applicationNameList) {
+            agents.addAll(getDetailedAgentsByApplicationName(applicationName, range.getTo()));
         }
 
         return AgentsMapByApplication.newDetailedAgentInfoMap(

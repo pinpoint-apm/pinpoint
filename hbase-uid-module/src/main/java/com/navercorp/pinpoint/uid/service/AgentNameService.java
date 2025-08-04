@@ -10,6 +10,8 @@ public interface AgentNameService {
 
     List<AgentIdentifier> getAgentIdentifier(ServiceUid serviceUid, ApplicationUid applicationUid);
 
+    List<List<AgentIdentifier>> getAgentIdentifier(ServiceUid serviceUid, List<ApplicationUid> applicationUidList);
+
     void deleteAllAgents(ServiceUid serviceUid, ApplicationUid applicationUid);
 
     void deleteAgent(ServiceUid serviceUid, ApplicationUid applicationUid, String agentId);

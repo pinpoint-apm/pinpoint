@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.batch.alarm.AlarmSenderConfiguration;
 import com.navercorp.pinpoint.batch.common.BatchJobLauncher;
 import com.navercorp.pinpoint.batch.common.StartupJobLauncher;
 import com.navercorp.pinpoint.batch.config.AlarmJobModule;
+import com.navercorp.pinpoint.batch.config.BatchUidConfiguration;
 import com.navercorp.pinpoint.batch.config.CleanupInactiveApplicationsJobConfig;
 import com.navercorp.pinpoint.common.server.config.CommonCacheManagerConfiguration;
 import com.navercorp.pinpoint.common.server.config.RestTemplateConfiguration;
@@ -73,6 +74,8 @@ import java.util.List;
         AlarmSenderConfiguration.class,
         CommonCacheManagerConfiguration.class,
         CleanupInactiveApplicationsJobConfig.class,
+
+        BatchUidConfiguration.class,
 })
 public class BatchModule {
 

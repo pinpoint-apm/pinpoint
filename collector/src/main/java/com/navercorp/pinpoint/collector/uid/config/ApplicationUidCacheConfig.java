@@ -36,10 +36,10 @@ public class ApplicationUidCacheConfig {
 
     private Caffeine<Object, Object> buildCaffeine(CaffeineCacheProperties properties) {
         Caffeine<Object, Object> builder = Caffeine.newBuilder();
-        if (properties.getInitialCapacity() != -1) {
+        if (properties.getInitialCapacity() >= 0) {
             builder.initialCapacity(properties.getInitialCapacity());
         }
-        if (properties.getMaximumSize() != -1) {
+        if (properties.getMaximumSize() >= 0) {
             builder.maximumSize(properties.getMaximumSize());
         }
         if (properties.isRecordStats()) {

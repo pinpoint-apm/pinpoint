@@ -38,39 +38,42 @@ public class AdminServiceImplTest {
     ApplicationIndexDao applicationIndexDao;
 
     @Mock
+    ApplicationService applicationService;
+
+    @Mock
     ActiveAgentValidator activeAgentValidator;
 
     @BeforeEach
     public void setUp() {
-        adminService = new AdminServiceImpl(applicationIndexDao, activeAgentValidator);
+        adminService = new AdminServiceImpl(applicationIndexDao, activeAgentValidator, applicationService);
     }
 
     @Test
     public void constructorRequireNonNullTest() {
 
-        assertThatThrownBy(() -> new AdminServiceImpl(null, activeAgentValidator))
+        assertThatThrownBy(() -> new AdminServiceImpl(null, activeAgentValidator, applicationService))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("applicationIndexDao");
 
-        assertThatThrownBy(() -> new AdminServiceImpl(applicationIndexDao, null))
+        assertThatThrownBy(() -> new AdminServiceImpl(applicationIndexDao, null, null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("activeAgentValidator");
 
-        assertThatThrownBy(() -> new AdminServiceImpl(null, null))
+        assertThatThrownBy(() -> new AdminServiceImpl(applicationIndexDao, activeAgentValidator, null))
                 .isInstanceOf(NullPointerException.class)
-                .hasMessage("applicationIndexDao");
+                .hasMessage("applicationService");
     }
 
     @Test
     public void removeApplicationName() {
         // given
-        doNothing().when(applicationIndexDao).deleteApplicationName(APPLICATION_NAME1);
+        doNothing().when(applicationService).deleteApplicationName(APPLICATION_NAME1);
 
         // when
         adminService.removeApplicationName(APPLICATION_NAME1);
 
         // then
-        verify(applicationIndexDao).deleteApplicationName(APPLICATION_NAME1);
+        verify(applicationService).deleteApplicationName(APPLICATION_NAME1);
     }
 
     @Test
@@ -89,7 +92,7 @@ public class AdminServiceImplTest {
     public void whenApplicationDoesNotHaveAnyAgentIdsGetAgentIdMapReturnsEmptyMap() {
         // given
         List<Application> emptyApplicationList = List.of();
-        when(applicationIndexDao.selectAllApplicationNames()).thenReturn(emptyApplicationList);
+        when(applicationService.selectAllApplications()).thenReturn(emptyApplicationList);
 
         // when
         Map<String, List<Application>> agentIdMap = adminService.getAgentIdMap();
@@ -101,7 +104,7 @@ public class AdminServiceImplTest {
     @Test
     public void testDuplicateAgentIdMap() {
         // given
-        when(applicationIndexDao.selectAllApplicationNames())
+        when(applicationService.selectAllApplications())
                 .thenReturn(List.of(
                         new Application(APPLICATION_NAME1, ServiceType.UNDEFINED),
                         new Application(APPLICATION_NAME2, ServiceType.UNDEFINED),

@@ -7,12 +7,11 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.AsyncHbaseOperations;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
-import com.navercorp.pinpoint.common.server.uid.HbaseCellData;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.uid.dao.ApplicationUidDao;
 import com.navercorp.pinpoint.uid.utils.UidBytesCreateUtils;
 import com.navercorp.pinpoint.uid.vo.ApplicationUidAttribute;
-import jakarta.annotation.Nullable;
+import com.navercorp.pinpoint.uid.vo.ApplicationUidRow;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.CheckAndMutate;
 import org.apache.hadoop.hbase.client.CheckAndMutateResult;
@@ -37,32 +36,29 @@ public class HbaseApplicationUidDao implements ApplicationUidDao {
     private final TableNameProvider tableNameProvider;
 
     private final RowMapper<ApplicationUid> applicationUidValueMapper;
-    private final RowMapper<ApplicationUidAttribute> applicationUidRowMapper;
-    private final RowMapper<HbaseCellData> applicationUidCellMapper;
+    private final RowMapper<ApplicationUidRow> applicationUidRowMapper;
 
     public HbaseApplicationUidDao(@Qualifier("uidHbaseTemplate") HbaseOperations hbaseOperations,
                                   @Qualifier("uidAsyncTemplate") AsyncHbaseOperations asyncHbaseOperations,
                                   TableNameProvider tableNameProvider,
                                   @Qualifier("applicationUidValueMapper") RowMapper<ApplicationUid> applicationUidValueMapper,
-                                  @Qualifier("applicationUidRowMapper") RowMapper<ApplicationUidAttribute> applicationUidRowMapper,
-                                  @Qualifier("applicationUidCellMapper") RowMapper<HbaseCellData> applicationUidCellMapper) {
+                                  @Qualifier("applicationUidRowMapper") RowMapper<ApplicationUidRow> applicationUidRowMapper) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.asyncHbaseOperations = Objects.requireNonNull(asyncHbaseOperations, "asyncHbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.applicationUidValueMapper = Objects.requireNonNull(applicationUidValueMapper, "applicationUidValueMapper");
         this.applicationUidRowMapper = Objects.requireNonNull(applicationUidRowMapper, "applicationUidRowMapper");
-        this.applicationUidCellMapper = Objects.requireNonNull(applicationUidCellMapper, "applicationUidCellMapper");
     }
 
     @Override
-    public ApplicationUid selectApplicationUid(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute) {
+    public ApplicationUid getApplicationUid(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute) {
         Get get = createGet(serviceUid, applicationUidAttribute);
         TableName applicationIdTableName = tableNameProvider.getTableName(UID.getTable());
         return hbaseOperations.get(applicationIdTableName, get, applicationUidValueMapper);
     }
 
     @Override
-    public CompletableFuture<ApplicationUid> asyncSelectApplicationUid(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute) {
+    public CompletableFuture<ApplicationUid> asyncGetApplicationUid(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute) {
         Get get = createGet(serviceUid, applicationUidAttribute);
         TableName applicationIdTableName = tableNameProvider.getTableName(UID.getTable());
         return asyncHbaseOperations.get(applicationIdTableName, get, applicationUidValueMapper);
@@ -76,7 +72,7 @@ public class HbaseApplicationUidDao implements ApplicationUidDao {
     }
 
     @Override
-    public boolean insertApplicationUidIfNotExists(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute, ApplicationUid applicationUid) {
+    public boolean putApplicationUidIfNotExists(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute, ApplicationUid applicationUid) {
         CheckAndMutate checkAndMutate = createCheckAndPut(serviceUid, applicationUidAttribute, applicationUid);
         TableName applicationIdTableName = tableNameProvider.getTableName(UID.getTable());
 
@@ -85,7 +81,7 @@ public class HbaseApplicationUidDao implements ApplicationUidDao {
     }
 
     @Override
-    public CompletableFuture<Boolean> asyncInsertApplicationUidIfNotExists(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute, ApplicationUid applicationUid) {
+    public CompletableFuture<Boolean> asyncPutApplicationUidIfNotExists(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute, ApplicationUid applicationUid) {
         CheckAndMutate checkAndMutate = createCheckAndPut(serviceUid, applicationUidAttribute, applicationUid);
         TableName applicationIdTableName = tableNameProvider.getTableName(UID.getTable());
 
@@ -111,30 +107,18 @@ public class HbaseApplicationUidDao implements ApplicationUidDao {
     }
 
     @Override
-    public List<ApplicationUid> selectApplicationUid(ServiceUid serviceUid, String applicationName) {
-        Scan scan = createScan(serviceUid, applicationName);
-
-        TableName applicationIdTableName = tableNameProvider.getTableName(UID.getTable());
-        return hbaseOperations.find(applicationIdTableName, scan, applicationUidValueMapper);
-    }
-
-    @Override
-    public List<ApplicationUidAttribute> selectApplicationInfo(ServiceUid serviceUid) {
-        Scan scan = new Scan();
-        scan.setCaching(30);
-        scan.addColumn(UID.getName(), UID.getName());
-        if (serviceUid != null) {
-            scan.setStartStopRowForPrefixScan(UidBytesCreateUtils.createRowKey(serviceUid));
-        }
+    public List<ApplicationUidRow> scanApplicationUidRow(ServiceUid serviceUid) {
+        Scan scan = createScan(serviceUid);
         TableName applicationIdTableName = tableNameProvider.getTableName(UID.getTable());
         return hbaseOperations.find(applicationIdTableName, scan, applicationUidRowMapper);
     }
 
     @Override
-    public List<HbaseCellData> selectCellData(@Nullable ServiceUid serviceUid) {
-        Scan scan = createScan(serviceUid);
-        TableName applicationNameTableName = tableNameProvider.getTableName(UID.getTable());
-        return hbaseOperations.find(applicationNameTableName, scan, applicationUidCellMapper);
+    public List<ApplicationUidRow> scanApplicationUidRow(ServiceUid serviceUid, String applicationName) {
+        Scan scan = createScan(serviceUid, applicationName);
+
+        TableName applicationIdTableName = tableNameProvider.getTableName(UID.getTable());
+        return hbaseOperations.find(applicationIdTableName, scan, applicationUidRowMapper);
     }
 
     private Scan createScan(ServiceUid serviceUid) {
@@ -151,9 +135,7 @@ public class HbaseApplicationUidDao implements ApplicationUidDao {
         Scan scan = new Scan();
         scan.setCaching(30);
         scan.addColumn(UID.getName(), UID.getName());
-        if (serviceUid != null) {
-            scan.setStartStopRowForPrefixScan(UidBytesCreateUtils.createRowKey(serviceUid, applicationName));
-        }
+        scan.setStartStopRowForPrefixScan(UidBytesCreateUtils.createApplicationUidRowKeyPrefix(serviceUid, applicationName));
         return scan;
     }
 }

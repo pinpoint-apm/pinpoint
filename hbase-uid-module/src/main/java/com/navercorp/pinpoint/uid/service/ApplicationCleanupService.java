@@ -5,7 +5,5 @@ import jakarta.annotation.Nullable;
 
 public interface ApplicationCleanupService {
 
-    int cleanupEmptyApplication(@Nullable ServiceUid serviceUid, long fromTimestamp);
-
     int cleanupInconsistentApplicationUid(@Nullable ServiceUid serviceUid);
 }

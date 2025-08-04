@@ -3,9 +3,10 @@ package com.navercorp.pinpoint.uid.service;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.IdGenerator;
-import com.navercorp.pinpoint.uid.dao.ApplicationUidDao;
 import com.navercorp.pinpoint.uid.dao.ApplicationUidAttrDao;
+import com.navercorp.pinpoint.uid.dao.ApplicationUidDao;
 import com.navercorp.pinpoint.uid.vo.ApplicationUidAttribute;
+import com.navercorp.pinpoint.uid.vo.ApplicationUidRow;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,29 +32,12 @@ public class BaseApplicationUidServiceImpl implements BaseApplicationUidService 
     }
 
     @Override
-    public List<ApplicationUid> getApplicationUid(ServiceUid serviceUid, String applicationName) {
-        Objects.requireNonNull(serviceUid, "serviceUid");
-        Objects.requireNonNull(applicationName, "applicationUidInfo");
-
-        return applicationUidDao.selectApplicationUid(serviceUid, applicationName);
-    }
-
-    @Override
-    public ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
-        Objects.requireNonNull(serviceUid, "serviceUid");
-        Objects.requireNonNull(applicationName, "applicationName");
-        ApplicationUidAttribute applicationUidAttribute = new ApplicationUidAttribute(applicationName, serviceTypeCode);
-
-        return applicationUidDao.selectApplicationUid(serviceUid, applicationUidAttribute);
-    }
-
-    @Override
     public ApplicationUid getOrCreateApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
         Objects.requireNonNull(serviceUid, "serviceUid");
         Objects.requireNonNull(applicationName, "applicationName");
         ApplicationUidAttribute applicationUidAttribute = new ApplicationUidAttribute(applicationName, serviceTypeCode);
 
-        ApplicationUid applicationUid = applicationUidDao.selectApplicationUid(serviceUid, applicationUidAttribute);
+        ApplicationUid applicationUid = applicationUidDao.getApplicationUid(serviceUid, applicationUidAttribute);
         if (applicationUid != null) {
             return applicationUid;
         }
@@ -63,11 +47,18 @@ public class BaseApplicationUidServiceImpl implements BaseApplicationUidService 
             return newApplicationUid;
         }
 
-        ApplicationUid retriedApplicationUid = applicationUidDao.selectApplicationUid(serviceUid, applicationUidAttribute);
+        ApplicationUid retriedApplicationUid = applicationUidDao.getApplicationUid(serviceUid, applicationUidAttribute);
         if (retriedApplicationUid != null) {
             return retriedApplicationUid;
         }
         throw new IllegalStateException("Failed to create ApplicationUid. " + serviceUid + ", " + applicationUidAttribute);
+    }
+
+    @Override
+    public ApplicationUidAttribute getApplicationAttr(ServiceUid serviceUid, ApplicationUid applicationUid) {
+        Objects.requireNonNull(serviceUid, "serviceUid");
+        Objects.requireNonNull(applicationUid, "applicationUid");
+        return applicationUidAttrDao.getApplicationAttr(serviceUid, applicationUid);
     }
 
     private ApplicationUid tryInsertApplicationUid(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute) {
@@ -81,7 +72,7 @@ public class BaseApplicationUidServiceImpl implements BaseApplicationUidService 
 
     private ApplicationUid insertApplicationUidWithRollback(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute, ApplicationUid newApplicationUid) {
         try {
-            boolean success = applicationUidDao.insertApplicationUidIfNotExists(serviceUid, applicationUidAttribute, newApplicationUid);
+            boolean success = applicationUidDao.putApplicationUidIfNotExists(serviceUid, applicationUidAttribute, newApplicationUid);
             if (success) {
                 logger.info("saved ({}, {} -> {})", serviceUid, applicationUidAttribute, newApplicationUid);
                 return newApplicationUid;
@@ -92,7 +83,7 @@ public class BaseApplicationUidServiceImpl implements BaseApplicationUidService 
 
         logger.debug("rollback. ({}, {} -> ?)", serviceUid, newApplicationUid);
         try {
-            applicationUidAttrDao.deleteApplicationName(serviceUid, newApplicationUid);
+            applicationUidAttrDao.deleteApplicationAttr(serviceUid, newApplicationUid);
         } catch (Throwable throwable) {
             logger.error("Failed to delete applicationName. {}, {}, {}", serviceUid, applicationUidAttribute, newApplicationUid, throwable);
         }
@@ -102,7 +93,7 @@ public class BaseApplicationUidServiceImpl implements BaseApplicationUidService 
     private ApplicationUid insertApplicationNameWithRetries(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute, int maxRetries) {
         for (int i = 0; i < maxRetries; i++) {
             ApplicationUid newApplicationUid = applicationUidGenerator.generate();
-            boolean nameInsertResult = applicationUidAttrDao.insertApplicationNameIfNotExists(serviceUid, newApplicationUid, applicationUidAttribute);
+            boolean nameInsertResult = applicationUidAttrDao.putApplicationAttrIfNotExists(serviceUid, newApplicationUid, applicationUidAttribute);
             if (nameInsertResult) {
                 return newApplicationUid;
             }
@@ -112,16 +103,12 @@ public class BaseApplicationUidServiceImpl implements BaseApplicationUidService 
     }
 
     @Override
-    public List<ApplicationUidAttribute> getApplications(ServiceUid serviceUid) {
+    public ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
         Objects.requireNonNull(serviceUid, "serviceUid");
-        return applicationUidDao.selectApplicationInfo(serviceUid);
-    }
+        Objects.requireNonNull(applicationName, "applicationName");
+        ApplicationUidAttribute applicationUidAttribute = new ApplicationUidAttribute(applicationName, serviceTypeCode);
 
-    @Override
-    public ApplicationUidAttribute getApplication(ServiceUid serviceUid, ApplicationUid applicationUid) {
-        Objects.requireNonNull(serviceUid, "serviceUid");
-        Objects.requireNonNull(applicationUid, "applicationUid");
-        return applicationUidAttrDao.selectApplicationInfo(serviceUid, applicationUid);
+        return applicationUidDao.getApplicationUid(serviceUid, applicationUidAttribute);
     }
 
     @Override
@@ -130,13 +117,26 @@ public class BaseApplicationUidServiceImpl implements BaseApplicationUidService 
         Objects.requireNonNull(applicationName, "applicationName");
         ApplicationUidAttribute applicationUidAttribute = new ApplicationUidAttribute(applicationName, serviceTypeCode);
 
-        ApplicationUid applicationUid = applicationUidDao.selectApplicationUid(serviceUid, applicationUidAttribute);
+        ApplicationUid applicationUid = applicationUidDao.getApplicationUid(serviceUid, applicationUidAttribute);
         applicationUidDao.deleteApplicationUid(serviceUid, applicationUidAttribute);
         logger.info("deleted ({}, {} -> {})", serviceUid, applicationUidAttribute, applicationUid);
         if (applicationUid != null) {
-            applicationUidAttrDao.deleteApplicationName(serviceUid, applicationUid);
+            applicationUidAttrDao.deleteApplicationAttr(serviceUid, applicationUid);
             logger.info("deleted ({}, {} -> {})", serviceUid, applicationUid, applicationUidAttribute);
         }
+    }
+
+    @Override
+    public List<ApplicationUidRow> getApplications(ServiceUid serviceUid) {
+        Objects.requireNonNull(serviceUid, "serviceUid");
+        return applicationUidDao.scanApplicationUidRow(serviceUid);
+    }
+
+    @Override
+    public List<ApplicationUidRow> getApplications(ServiceUid serviceUid, String applicationName) {
+        Objects.requireNonNull(serviceUid, "serviceUid");
+        Objects.requireNonNull(applicationName, "applicationName");
+        return applicationUidDao.scanApplicationUidRow(serviceUid, applicationName);
     }
 
     // async
@@ -146,7 +146,7 @@ public class BaseApplicationUidServiceImpl implements BaseApplicationUidService 
         Objects.requireNonNull(applicationName, "applicationName");
         ApplicationUidAttribute applicationUidAttribute = new ApplicationUidAttribute(applicationName, serviceTypeCode);
 
-        return applicationUidDao.asyncSelectApplicationUid(serviceUid, applicationUidAttribute)
+        return applicationUidDao.asyncGetApplicationUid(serviceUid, applicationUidAttribute)
                 .thenCompose(applicationUid -> {
                     if (applicationUid != null) {
                         return CompletableFuture.completedFuture(applicationUid);
@@ -157,7 +157,7 @@ public class BaseApplicationUidServiceImpl implements BaseApplicationUidService 
                     if (newApplicationUid != null) {
                         return CompletableFuture.completedFuture(newApplicationUid);
                     }
-                    return applicationUidDao.asyncSelectApplicationUid(serviceUid, applicationUidAttribute);
+                    return applicationUidDao.asyncGetApplicationUid(serviceUid, applicationUidAttribute);
                 }).thenApply(applicationUid -> {
                     if (applicationUid != null) {
                         return applicationUid;
@@ -179,7 +179,7 @@ public class BaseApplicationUidServiceImpl implements BaseApplicationUidService 
     }
 
     private CompletableFuture<ApplicationUid> asyncInsertApplicationUidWithRollback(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute, ApplicationUid newApplicationUid) {
-        return applicationUidDao.asyncInsertApplicationUidIfNotExists(serviceUid, applicationUidAttribute, newApplicationUid)
+        return applicationUidDao.asyncPutApplicationUidIfNotExists(serviceUid, applicationUidAttribute, newApplicationUid)
                 .exceptionally(throwable -> {
                     logger.error("Failed to insert applicationUid. {}, {}, {}", serviceUid, applicationUidAttribute, newApplicationUid, throwable);
                     return false;
@@ -187,7 +187,7 @@ public class BaseApplicationUidServiceImpl implements BaseApplicationUidService 
                 .thenCompose(success -> {
                     if (!success) {
                         logger.debug("rollback. ({}, {} -> ?)", serviceUid, newApplicationUid);
-                        applicationUidAttrDao.asyncDeleteApplicationName(serviceUid, newApplicationUid).whenComplete((result, throwable) -> {
+                        applicationUidAttrDao.asyncDeleteApplicationAttr(serviceUid, newApplicationUid).whenComplete((result, throwable) -> {
                             if (throwable != null) {
                                 logger.error("Failed to delete applicationName. {}, {}", serviceUid, applicationUidAttribute, throwable);
                             }
@@ -209,7 +209,7 @@ public class BaseApplicationUidServiceImpl implements BaseApplicationUidService 
                 }
 
                 ApplicationUid newApplicationUid = applicationUidGenerator.generate();
-                return applicationUidAttrDao.asyncInsertApplicationNameIfNotExists(serviceUid, newApplicationUid, applicationUidAttribute)
+                return applicationUidAttrDao.asyncPutApplicationAttrIfNotExists(serviceUid, newApplicationUid, applicationUidAttribute)
                         .thenApply(success -> {
                             if (success) {
                                 return newApplicationUid;

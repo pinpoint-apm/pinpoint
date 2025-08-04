@@ -16,13 +16,22 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.web.vo.Application;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @author Taejin Koo
  */
 @Service
 public interface ApplicationService {
+
+    List<Application> selectAllApplications();
+
+    List<String> selectAllApplicationNames();
+
+    void deleteApplicationName(String applicationName);
 
     boolean isExistApplicationName(String applicationName);
 

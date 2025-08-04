@@ -1,20 +1,18 @@
 package com.navercorp.pinpoint.uid.dao;
 
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
-import com.navercorp.pinpoint.common.server.uid.HbaseCellData;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.uid.vo.ApplicationUidAttribute;
+import com.navercorp.pinpoint.uid.vo.ApplicationUidRow;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
-import java.util.stream.Collectors;
 
 public class ConcurrentMapApplicationUidDao implements ApplicationUidDao {
 
@@ -34,13 +32,13 @@ public class ConcurrentMapApplicationUidDao implements ApplicationUidDao {
     }
 
     @Override
-    public ApplicationUid selectApplicationUid(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute) {
+    public ApplicationUid getApplicationUid(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute) {
         sleep(delay);
         return applicationUidMap.get(applicationUidAttribute);
     }
 
     @Override
-    public CompletableFuture<ApplicationUid> asyncSelectApplicationUid(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute) {
+    public CompletableFuture<ApplicationUid> asyncGetApplicationUid(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute) {
         return CompletableFuture.supplyAsync(() -> {
             logger.info("select uid. {}", applicationUidAttribute);
             sleep(delay);
@@ -49,14 +47,14 @@ public class ConcurrentMapApplicationUidDao implements ApplicationUidDao {
     }
 
     @Override
-    public boolean insertApplicationUidIfNotExists(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute, ApplicationUid applicationUid) {
+    public boolean putApplicationUidIfNotExists(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute, ApplicationUid applicationUid) {
         logger.info("try insert uid. ({} -> {})", applicationUidAttribute, applicationUid);
         ApplicationUid old = applicationUidMap.putIfAbsent(applicationUidAttribute, applicationUid);
         return old == null;
     }
 
     @Override
-    public CompletableFuture<Boolean> asyncInsertApplicationUidIfNotExists(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute, ApplicationUid applicationUid) {
+    public CompletableFuture<Boolean> asyncPutApplicationUidIfNotExists(ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute, ApplicationUid applicationUid) {
         return CompletableFuture.supplyAsync(() -> {
             logger.info("try insert uid. ({} -> {}", applicationUidAttribute, applicationUid);
             sleep(delay);
@@ -72,22 +70,15 @@ public class ConcurrentMapApplicationUidDao implements ApplicationUidDao {
     }
 
     @Override
-    public List<ApplicationUid> selectApplicationUid(ServiceUid serviceUid, String applicationName) {
-        return applicationUidMap.entrySet().stream()
-                .filter(entry -> entry.getKey().applicationName().equals(applicationName))
-                .map(ConcurrentMap.Entry::getValue)
-                .collect(Collectors.toList());
+    public List<ApplicationUidRow> scanApplicationUidRow(ServiceUid serviceUid) {
+        throw new UnsupportedOperationException("scan not supported in ConcurrentMapApplicationUidDao");
     }
 
     @Override
-    public List<ApplicationUidAttribute> selectApplicationInfo(ServiceUid serviceUid) {
-        return new ArrayList<>(applicationUidMap.keySet());
+    public List<ApplicationUidRow> scanApplicationUidRow(ServiceUid serviceUid, String applicationName) {
+        throw new UnsupportedOperationException("scan not supported in ConcurrentMapApplicationUidDao");
     }
 
-    @Override
-    public List<HbaseCellData> selectCellData(ServiceUid serviceUid) {
-        throw new UnsupportedOperationException("not supported in ConcurrentMapApplicationUidDao");
-    }
 
     private void sleep(long milliseconds) {
         if (milliseconds <= 0) {

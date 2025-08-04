@@ -16,10 +16,16 @@
 
 package com.navercorp.pinpoint.batch.service;
 
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.uid.service.BaseApplicationUidService;
+import com.navercorp.pinpoint.uid.vo.ApplicationUidRow;
+import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
+import jakarta.annotation.Nullable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -35,16 +41,44 @@ public class BatchApplicationServiceImpl implements BatchApplicationService {
     private final ApplicationIndexDao applicationIndexDao;
     private final ApplicationTraceIndexDao applicationTraceIndexDao;
 
+    private final BaseApplicationUidService baseApplicationUidService;
+    private final ApplicationFactory applicationFactory;
+    private final boolean uidApplicationListEnable;
+
     public BatchApplicationServiceImpl(
             ApplicationIndexDao applicationIndexDao,
-            ApplicationTraceIndexDao applicationTraceIndexDao
-    ) {
+            ApplicationTraceIndexDao applicationTraceIndexDao,
+            @Nullable BaseApplicationUidService baseApplicationUidService,
+            ApplicationFactory applicationFactory,
+            @Value("${pinpoint.batch.uid.application.list.enabled:false}") boolean uidApplicationListEnable) {
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
+        this.baseApplicationUidService = baseApplicationUidService;
+        this.applicationFactory = applicationFactory;
+        this.uidApplicationListEnable = uidApplicationListEnable;
+    }
+
+    private boolean isUidApplicationListEnable() {
+        return uidApplicationListEnable && baseApplicationUidService != null;
     }
 
     @Override
-    public List<String> getAll() {
+    public List<Application> selectAllApplications() {
+        if (isUidApplicationListEnable()) {
+            return this.baseApplicationUidService.getApplications(ServiceUid.DEFAULT).stream()
+                    .map(attr -> applicationFactory.createApplication(attr.applicationName(), attr.serviceTypeCode()))
+                    .toList();
+        }
+        return this.applicationIndexDao.selectAllApplicationNames();
+    }
+
+    @Override
+    public List<String> selectAllApplicationNames() {
+        if (isUidApplicationListEnable()) {
+            return this.baseApplicationUidService.getApplications(ServiceUid.DEFAULT).stream()
+                    .map(ApplicationUidRow::applicationName)
+                    .toList();
+        }
         return this.applicationIndexDao.selectAllApplicationNames()
                 .stream()
                 .map(Application::getName)
@@ -59,11 +93,18 @@ public class BatchApplicationServiceImpl implements BatchApplicationService {
     }
 
     private boolean hasTrace(String applicationName, Range range) {
-        return this.applicationTraceIndexDao.hasTraceIndex(applicationName, range,false);
+        return this.applicationTraceIndexDao.hasTraceIndex(applicationName, range, false);
     }
 
     @Override
     public void remove(String applicationName) {
         this.applicationIndexDao.deleteApplicationName(applicationName);
+
+        if (baseApplicationUidService != null) {
+            List<ApplicationUidRow> applications = baseApplicationUidService.getApplications(ServiceUid.DEFAULT);
+            for (ApplicationUidRow application : applications) {
+                baseApplicationUidService.deleteApplication(ServiceUid.DEFAULT, application.applicationName(), application.serviceTypeCode());
+            }
+        }
     }
 }

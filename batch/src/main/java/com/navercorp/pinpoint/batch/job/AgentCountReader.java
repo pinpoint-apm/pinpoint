@@ -16,8 +16,7 @@
 
 package com.navercorp.pinpoint.batch.job;
 
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.batch.service.BatchApplicationService;
 import jakarta.annotation.Nonnull;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
@@ -25,7 +24,6 @@ import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.item.ItemReader;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -34,20 +32,17 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class AgentCountReader implements ItemReader<String>, StepExecutionListener {
 
-    private final ApplicationIndexDao applicationIndexDao;
+    private final BatchApplicationService batchApplicationService;
 
     private Queue<String> applicationNameQueue;
 
-    public AgentCountReader(ApplicationIndexDao applicationIndexDao) {
-        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
+    public AgentCountReader(BatchApplicationService batchApplicationService) {
+        this.batchApplicationService = batchApplicationService;
     }
 
     @Override
     public void beforeStep(@Nonnull StepExecution stepExecution) {
-        List<String> applicationNames = applicationIndexDao.selectAllApplicationNames()
-                .stream()
-                .map(Application::getName)
-                .toList();
+        List<String> applicationNames = batchApplicationService.selectAllApplicationNames();
         this.applicationNameQueue = new ConcurrentLinkedQueue<>(applicationNames);
     }
 

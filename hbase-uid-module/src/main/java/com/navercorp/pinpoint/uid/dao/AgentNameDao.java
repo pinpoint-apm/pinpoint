@@ -11,6 +11,8 @@ public interface AgentNameDao {
 
     List<AgentIdentifier> selectAgentIdentifiers(ServiceUid serviceUid, ApplicationUid applicationUid);
 
+    List<List<AgentIdentifier>> selectAgentIdentifiers(ServiceUid serviceUid, List<ApplicationUid> applicationUidList);
+
     List<AgentIdentifier> selectAgentIdentifiers(ServiceUid serviceUid, ApplicationUid applicationUid, String agentId);
 
     void deleteAgents(ServiceUid serviceUid, ApplicationUid applicationUid, List<AgentIdentifier> agents);

@@ -28,10 +28,11 @@ public class UidBytesUtilsTest {
         Assertions.assertThat(UidBytesParseUtils.parseServiceUidFromRowKey(rowKey2)).isEqualTo(testServiceUid);
         Assertions.assertThat(UidBytesParseUtils.parseApplicationUidFromRowKey(rowKey2)).isEqualTo(testApplicationUid);
 
-        byte[] rowKey3 = UidBytesCreateUtils.createRowKey(testServiceUid, testApplicationName);
-        String applicationUid = BytesUtils.toString(rowKey3, ByteArrayUtils.INT_BYTE_LENGTH, rowKey3.length - ByteArrayUtils.INT_BYTE_LENGTH);
-        Assertions.assertThat(applicationUid).isEqualTo(testApplicationName);
+        byte[] rowKey3 = UidBytesCreateUtils.createApplicationUidRowKeyPrefix(testServiceUid, testApplicationName);
         Assertions.assertThat(UidBytesParseUtils.parseServiceUidFromRowKey(rowKey3)).isEqualTo(testServiceUid);
+        String applicationUid = BytesUtils.toString(rowKey3, ByteArrayUtils.INT_BYTE_LENGTH, rowKey3.length - ByteArrayUtils.INT_BYTE_LENGTH - 1);
+        Assertions.assertThat(applicationUid).isEqualTo(testApplicationName);
+        Assertions.assertThat(rowKey3[rowKey3.length - 1]).isEqualTo(ApplicationUidAttribute.SEPARATOR);
     }
 
     @Test

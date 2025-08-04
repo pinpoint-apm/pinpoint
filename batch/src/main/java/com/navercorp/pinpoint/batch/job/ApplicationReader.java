@@ -83,7 +83,7 @@ public class ApplicationReader implements ItemStreamReader<String> {
     }
 
     private List<String> getAllApplications() {
-        return this.applicationService.getAll()
+        return this.applicationService.selectAllApplicationNames()
                 .stream()
                 .sorted()
                 .toList();

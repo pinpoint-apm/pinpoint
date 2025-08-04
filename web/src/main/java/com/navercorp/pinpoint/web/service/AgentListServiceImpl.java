@@ -6,6 +6,7 @@ import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.uid.service.AgentNameService;
+import com.navercorp.pinpoint.uid.vo.ApplicationUidRow;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.uid.service.ApplicationUidService;
 import com.navercorp.pinpoint.web.uid.service.ServiceUidCachedService;
@@ -23,6 +24,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @ConditionalOnProperty(name = "pinpoint.modules.uid.enabled", havingValue = "true")
@@ -30,8 +33,8 @@ public class AgentListServiceImpl implements AgentListService {
 
     private final ServiceUidCachedService serviceUidCachedService;
     private final ApplicationUidService applicationUidService;
-
     private final AgentNameService agentNameService;
+
     private final AgentLifeCycleDao agentLifeCycleDao;
 
     public AgentListServiceImpl(ServiceUidCachedService serviceUidCachedService, ApplicationUidService applicationUidService,
@@ -58,27 +61,28 @@ public class AgentListServiceImpl implements AgentListService {
     @Override
     public List<AgentListEntry> getApplicationAgentList(String serviceName, String applicationName, Range range) {
         List<AgentIdentifier> agentList = getAgentIdentifiers(serviceName, applicationName);
-        List<AgentListEntry> agentListEntries = createAgentListWithStatus(agentList, range);
+        List<AgentIdentifier> filteredAgentList = filterStartTimeAndDuplicatedAgentId(agentList, range);
+        List<AgentListEntry> agentListEntries = createAgentListWithStatus(filteredAgentList, range);
         return filterActiveStatus(range, agentListEntries);
     }
 
     @Override
     public List<AgentListEntry> getApplicationAgentList(String serviceName, String applicationName, int serviceTypeCode, Range range) {
         List<AgentIdentifier> agentList = getAgentIdentifiers(serviceName, applicationName, serviceTypeCode);
-        List<AgentListEntry> agentListEntries = createAgentListWithStatus(agentList, range);
+        List<AgentIdentifier> filteredAgentList = filterStartTimeAndDuplicatedAgentId(agentList, range);
+        List<AgentListEntry> agentListEntries = createAgentListWithStatus(filteredAgentList, range);
         return filterActiveStatus(range, agentListEntries);
     }
 
     private List<AgentIdentifier> getAgentIdentifiers(String serviceName, String applicationName) {
         Objects.requireNonNull(applicationName, "applicationName");
         ServiceUid serviceUid = getServiceUid(serviceName);
-        List<ApplicationUid> applicationUidList = applicationUidService.getApplicationUid(serviceUid, applicationName);
-
-        List<AgentIdentifier> agentList = new ArrayList<>();
-        for (ApplicationUid applicationUid : applicationUidList) {
-            agentList.addAll(agentNameService.getAgentIdentifier(serviceUid, applicationUid));
-        }
-        return agentList;
+        List<ApplicationUid> applicationUidList = applicationUidService.getApplications(serviceUid, applicationName).stream()
+                .map(ApplicationUidRow::applicationUid)
+                .toList();
+        return agentNameService.getAgentIdentifier(serviceUid, applicationUidList).stream()
+                .flatMap(List::stream)
+                .toList();
     }
 
     private List<AgentIdentifier> getAgentIdentifiers(String serviceName, String applicationName, int serviceTypeCode) {
@@ -89,6 +93,18 @@ public class AgentListServiceImpl implements AgentListService {
             return agentNameService.getAgentIdentifier(serviceUid, applicationUid);
         }
         return Collections.emptyList();
+    }
+
+
+    private List<AgentIdentifier> filterStartTimeAndDuplicatedAgentId(Collection<AgentIdentifier> agentIdentifiers, Range range) {
+        Collection<AgentIdentifier> filteredResult = agentIdentifiers.stream()
+                .filter(agentIdentifier -> agentIdentifier.getStartTimestamp() < range.getTo())
+                .collect(Collectors.toMap(
+                        AgentIdentifier::getId,
+                        Function.identity(),
+                        (r1, r2) -> r1.getStartTimestamp() >= r2.getStartTimestamp() ? r1 : r2 // keep latest
+                )).values();
+        return new ArrayList<>(filteredResult);
     }
 
     @Override
