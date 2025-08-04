@@ -19,6 +19,8 @@ import com.navercorp.pinpoint.common.timeseries.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.ApplicationForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.RangeForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.SearchDepthForm;
@@ -38,13 +40,13 @@ import com.navercorp.pinpoint.web.applicationmap.view.ServerGroupListView;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.util.ApplicationValidator;
-import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.SearchOption;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -85,6 +87,7 @@ public class ServerMapHistogramController {
     private final ResponseTimeHistogramService responseTimeHistogramService;
     private final HistogramService histogramService;
     private final ApplicationFactory applicationFactory;
+    private final ServiceTypeRegistryService registry;
     private final RangeValidator rangeValidator;
     private final ApplicationValidator applicationValidator;
     private final HyperLinkFactory hyperLinkFactory;
@@ -93,6 +96,7 @@ public class ServerMapHistogramController {
             ResponseTimeHistogramService responseTimeHistogramService,
             HistogramService histogramService,
             ApplicationFactory applicationFactory,
+            ServiceTypeRegistryService registry,
             ApplicationValidator applicationValidator,
             HyperLinkFactory hyperLinkFactory,
             Duration limitDay
@@ -101,6 +105,7 @@ public class ServerMapHistogramController {
                 Objects.requireNonNull(responseTimeHistogramService, "responseTimeHistogramService");
         this.histogramService = Objects.requireNonNull(histogramService, "histogramService");
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
+        this.registry = Objects.requireNonNull(registry, "registry");
         this.applicationValidator = Objects.requireNonNull(applicationValidator, "applicationValidator");
         this.rangeValidator = new ForwardRangeValidator(Objects.requireNonNull(limitDay, "limitDay"));
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
@@ -164,7 +169,7 @@ public class ServerMapHistogramController {
     ) {
 
         final Application application = getApplication(appForm);
-        final Application nodeApplication = this.getApplication(nodeKey);
+        final Application nodeApplication = this.newApplication(nodeKey);
         if (application.equals(nodeApplication)) {
             return getStatisticsFromServerMap(
                     appForm, rangeForm, depthForm, bidirectional, wasOnly,
@@ -256,7 +261,7 @@ public class ServerMapHistogramController {
         return applicationValidator.newApplication(appForm.getApplicationName(), appForm.getServiceTypeCode(), appForm.getServiceTypeName());
     }
 
-    private Application getApplication(String nodeKey) {
+    private Application newApplication(String nodeKey) {
         if (nodeKey == null || nodeKey.isEmpty()) {
             throw new IllegalArgumentException("Node key must not be null or empty");
         }
@@ -266,7 +271,15 @@ public class ServerMapHistogramController {
         String[] parts = NODE_DELIMITER_PATTERN.split(nodeKey);
         String applicationName = parts[0];
         String serviceTypeName = parts[1];
-        return applicationValidator.newApplication(applicationName, serviceTypeName);
+
+        ServiceType serviceType = null;
+        if (StringUtils.hasLength(serviceTypeName)) {
+            serviceType = registry.findServiceTypeByName(serviceTypeName);
+        }
+        if (serviceType != null && serviceType.getCode() != ServiceType.UNDEFINED.getCode()) {
+            return new Application(applicationName, serviceType);
+        }
+        throw new IllegalArgumentException("Invalid or undefined service type for application: " + nodeKey);
     }
 
 
@@ -350,8 +363,8 @@ public class ServerMapHistogramController {
         if (parts.length != 2) {
             throw new IllegalArgumentException("Invalid linkKey format: expected 'fromApp~toApp' but got: " + linkKey);
         }
-        final Application fromApplication = this.getApplication(parts[0]);
-        final Application toApplication = this.getApplication(parts[1]);
+        final Application fromApplication = this.newApplication(parts[0]);
+        final Application toApplication = this.newApplication(parts[1]);
 
         final LinkHistogramSummary linkHistogramSummary =
                 responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, timeWindow);
