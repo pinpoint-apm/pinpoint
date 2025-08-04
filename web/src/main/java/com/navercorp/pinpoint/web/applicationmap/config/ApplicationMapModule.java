@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
 import com.navercorp.pinpoint.common.server.util.CallerUtils;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
@@ -100,13 +101,14 @@ public class ApplicationMapModule {
 
     @Bean
     public ServerMapHistogramController serverMapHistogramController(ResponseTimeHistogramService responseTimeHistogramService,
-                                                                   HistogramService histogramService,
-                                                                   ApplicationFactory applicationFactory,
-                                                                   ApplicationValidator applicationValidator,
-                                                                   HyperLinkFactory hyperLinkFactory,
-                                                                   ConfigProperties configProperties) {
+                                                                     HistogramService histogramService,
+                                                                     ApplicationFactory applicationFactory,
+                                                                     ServiceTypeRegistryService registry,
+                                                                     ApplicationValidator applicationValidator,
+                                                                     HyperLinkFactory hyperLinkFactory,
+                                                                     ConfigProperties configProperties) {
         Duration maxPeriod = Duration.ofDays(configProperties.getServerMapPeriodMax());
-        return new ServerMapHistogramController(responseTimeHistogramService, histogramService, applicationFactory, applicationValidator, hyperLinkFactory, maxPeriod);
+        return new ServerMapHistogramController(responseTimeHistogramService, histogramService, applicationFactory, registry, applicationValidator, hyperLinkFactory, maxPeriod);
     }
 
     @Bean
