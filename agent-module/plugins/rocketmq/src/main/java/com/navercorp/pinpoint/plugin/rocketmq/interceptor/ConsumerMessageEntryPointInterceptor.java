@@ -128,12 +128,12 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
             }
 
             void recordRootSpan(Object target, SpanRecorder recorder, List<MessageExt> msgs) {
-                recordRootSpan(target, recorder, msgs, null, null);
+                recordRootSpan(target, recorder, msgs, null, null, null);
             }
 
             void recordRootSpan(Object target, SpanRecorder recorder, List<MessageExt> msgs,
                                 String parentApplicationName,
-                                String parentApplicationType) {
+                                String parentApplicationType, String parentServiceName) {
                 recorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT);
                 recorder.recordApi(ENTRY_POINT_METHOD_DESCRIPTOR);
 
@@ -156,6 +156,9 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
                 if (StringUtils.hasText(parentApplicationName) && StringUtils.hasText(parentApplicationType)) {
                     recorder.recordParentApplication(parentApplicationName, NumberUtils
                             .parseShort(parentApplicationType, ServiceType.UNDEFINED.getCode()));
+                    if (parentServiceName != null) {
+                        recorder.recordParentServiceName(parentServiceName);
+                    }
                 }
             }
 
@@ -173,7 +176,7 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
                 }
                 recorder.recordEndPoint(endPointAddress);
                 recorder.recordAttribute(RocketMQConstants.ROCKETMQ_BROKER_SERVER_STATUS_ANNOTATION_KEY,
-                                         brokenAddr);
+                        brokenAddr);
             }
 
             private String getEndPoint(SocketAddress socketAddress) {
@@ -182,7 +185,7 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
                     final InetAddress remoteAddress = inetSocketAddress.getAddress();
                     if (remoteAddress != null) {
                         return HostAndPort.toHostAndPortString(remoteAddress.getHostAddress(),
-                                                               inetSocketAddress.getPort());
+                                inetSocketAddress.getPort());
                     }
                     // Warning : InetSocketAddressAvoid unnecessary DNS lookup  (warning:InetSocketAddress.getHostName())
                     final String hostName = inetSocketAddress.getHostName();
@@ -245,7 +248,7 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
                 }
 
                 return traceContext.createTraceId(transactionId, Long.parseLong(parentSpanID),
-                                                  Long.parseLong(spanID), Short.parseShort(flags));
+                        Long.parseLong(spanID), Short.parseShort(flags));
             }
 
             private Trace createContinueTrace(Object target, TraceContext traceContext, List<MessageExt> msgs,
@@ -260,6 +263,8 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
                         Header.HTTP_PARENT_APPLICATION_NAME.toString());
                 final String parentApplicationType = consumerRecord.getUserProperty(
                         Header.HTTP_PARENT_APPLICATION_TYPE.toString());
+                final String parentServiceName = consumerRecord.getUserProperty(
+                        Header.HTTP_PARENT_SERVICE_NAME.toString());
 
                 final Trace trace;
                 if (isAsyncSend) {
@@ -270,7 +275,7 @@ public class ConsumerMessageEntryPointInterceptor extends SpanRecursiveAroundInt
 
                 if (trace.canSampled()) {
                     final SpanRecorder recorder = trace.getSpanRecorder();
-                    recordRootSpan(target, recorder, msgs, parentApplicationName, parentApplicationType);
+                    recordRootSpan(target, recorder, msgs, parentApplicationName, parentApplicationType, parentServiceName);
                 }
                 return trace;
             }

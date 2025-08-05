@@ -250,6 +250,10 @@ public class DirectivesInterceptor implements ApiIdAwareAroundInterceptor {
             final String type = requestAdaptor.getHeader(request, Header.HTTP_PARENT_APPLICATION_TYPE.toString());
             final short parentApplicationType = NumberUtils.parseShort(type, ServiceType.UNDEFINED.getCode());
             recorder.recordParentApplication(parentApplicationName, parentApplicationType);
+            final String parentServiceName = requestAdaptor.getHeader(request, Header.HTTP_PARENT_SERVICE_NAME.toString());
+            if (parentServiceName != null) {
+                recorder.recordParentServiceName(parentServiceName);
+            }
         }
     }
 

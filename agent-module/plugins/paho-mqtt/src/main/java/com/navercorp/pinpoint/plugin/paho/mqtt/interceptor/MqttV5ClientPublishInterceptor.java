@@ -63,6 +63,9 @@ public class MqttV5ClientPublishInterceptor extends MqttClientPublishInterceptor
                     new UserProperty(Header.HTTP_PARENT_APPLICATION_NAME.toString(), String.valueOf(traceContext.getApplicationName())),
                     new UserProperty(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()))
             ));
+            if (traceContext.getServiceName() != null) {
+                userPropertiesWithHeader.add(new UserProperty(Header.HTTP_PARENT_SERVICE_NAME.toString(), String.valueOf(traceContext.getServiceName())));
+            }
         } else {
             userPropertiesWithHeader.add(new UserProperty(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE));
         }

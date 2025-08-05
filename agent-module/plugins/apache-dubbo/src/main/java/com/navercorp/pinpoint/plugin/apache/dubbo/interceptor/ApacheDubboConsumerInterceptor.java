@@ -84,8 +84,10 @@ public class ApacheDubboConsumerInterceptor implements AroundInterceptor {
             setAttachment(invocation, ApacheDubboConstants.META_PARENT_SPAN_ID, Long.toString(nextId.getParentSpanId()));
             setAttachment(invocation, ApacheDubboConstants.META_PARENT_APPLICATION_TYPE, Short.toString(traceContext.getServerTypeCode()));
             setAttachment(invocation, ApacheDubboConstants.META_PARENT_APPLICATION_NAME, traceContext.getApplicationName());
+            if (traceContext.getServiceName() != null) {
+                setAttachment(invocation, ApacheDubboConstants.META_PARENT_SERVICE_NAME, traceContext.getServiceName());
+            }
             setAttachment(invocation, ApacheDubboConstants.META_FLAGS, Short.toString(nextId.getFlags()));
-
             setAttachment(invocation, ApacheDubboConstants.META_HOST, getHostAddress(invocation));
         } else {
             // If sampling this transaction is disabled, pass only that infomation to the server.

@@ -51,9 +51,8 @@ import java.net.URL;
  * <b><tt>TServiceClientSendBaseInterceptor</tt></b> -> <tt>TProtocolWriteFieldStopInterceptor</tt>
  * <p>
  * Based on Thrift 0.8.0+
- * 
+ *
  * @author HyunGil Jeong
- * 
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.client.TProtocolWriteFieldStopInterceptor TProtocolWriteFieldStopInterceptor
  */
 public class TServiceClientSendBaseInterceptor implements AroundInterceptor {
@@ -80,7 +79,7 @@ public class TServiceClientSendBaseInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
         if (target instanceof TServiceClient) {
-            TServiceClient client = (TServiceClient)target;
+            TServiceClient client = (TServiceClient) target;
             TProtocol oprot = client.getOutputProtocol();
             TTransport transport = oprot.getTransport();
             final Trace trace = traceContext.currentRawTraceObject();
@@ -127,6 +126,9 @@ public class TServiceClientSendBaseInterceptor implements AroundInterceptor {
                 parentTraceInfo.setFlags(nextId.getFlags());
                 parentTraceInfo.setParentApplicationName(traceContext.getApplicationName());
                 parentTraceInfo.setParentApplicationType(traceContext.getServerTypeCode());
+                if (traceContext.getServiceName() != null) {
+                    parentTraceInfo.setParentServiceName(traceContext.getServiceName());
+                }
                 parentTraceInfo.setAcceptorHost(remoteAddress);
 
                 InterceptorScopeInvocation currentTransaction = this.scope.getCurrentInvocation();
@@ -136,7 +138,7 @@ public class TServiceClientSendBaseInterceptor implements AroundInterceptor {
 
             String methodName = ThriftConstants.UNKNOWN_METHOD_NAME;
             if (args[0] instanceof String) {
-                methodName = (String)args[0];
+                methodName = (String) args[0];
             }
             String serviceName = ThriftUtils.getClientServiceName(client);
             String thriftUrl = getServiceUrl(remoteAddress, serviceName, methodName);
@@ -160,7 +162,7 @@ public class TServiceClientSendBaseInterceptor implements AroundInterceptor {
 
     private String getRemoteAddress(TTransport transport) {
         if (transport instanceof SocketFieldAccessor) {
-            Socket socket = ((SocketFieldAccessor)transport)._$PINPOINT$_getSocket();
+            Socket socket = ((SocketFieldAccessor) transport)._$PINPOINT$_getSocket();
             if (socket == null) {
                 return ThriftConstants.UNKNOWN_ADDRESS;
             }
@@ -194,7 +196,7 @@ public class TServiceClientSendBaseInterceptor implements AroundInterceptor {
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             if (this.traceServiceArgs) {
                 if (args.length == 2 && (args[1] instanceof TBase)) {
-                    recorder.recordAttribute(ThriftConstants.THRIFT_ARGS, getMethodArgs((TBase<?, ?>)args[1]));
+                    recorder.recordAttribute(ThriftConstants.THRIFT_ARGS, getMethodArgs((TBase<?, ?>) args[1]));
                 }
             }
             recorder.recordApi(descriptor);

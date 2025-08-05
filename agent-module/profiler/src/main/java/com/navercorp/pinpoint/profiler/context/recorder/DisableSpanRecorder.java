@@ -217,6 +217,10 @@ public class DisableSpanRecorder implements SpanRecorder {
         return getShared().setHttpMethods(httpMethod);
     }
 
+    @Override
+    public void recordParentServiceName(String parentServiceName) {
+    }
+
     private Shared getShared() {
         return traceRoot.getShared();
     }

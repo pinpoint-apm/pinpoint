@@ -153,10 +153,10 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
             }
 
             void recordRootSpan(SpanRecorder recorder, ConsumerRecord<?, ?> consumerRecord) {
-                recordRootSpan(recorder, consumerRecord, null, null);
+                recordRootSpan(recorder, consumerRecord, null, null, null);
             }
 
-            void recordRootSpan(SpanRecorder recorder, ConsumerRecord<?, ?> consumerRecord, String parentApplicationName, String parentApplicationType) {
+            void recordRootSpan(SpanRecorder recorder, ConsumerRecord<?, ?> consumerRecord, String parentApplicationName, String parentApplicationType, String parentServiceName) {
                 recorder.recordServiceType(KafkaConstants.KAFKA_CLIENT);
                 recorder.recordApi(ConsumerRecordEntryPointInterceptor.ENTRY_POINT_METHOD_DESCRIPTOR);
 
@@ -177,6 +177,9 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
 
                 if (StringUtils.hasText(parentApplicationName) && StringUtils.hasText(parentApplicationType)) {
                     recorder.recordParentApplication(parentApplicationName, NumberUtils.parseShort(parentApplicationType, ServiceType.UNDEFINED.getCode()));
+                    if (parentServiceName != null) {
+                        recorder.recordParentServiceName(parentServiceName);
+                    }
                 }
             }
 
@@ -293,6 +296,7 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
 
                 String parentApplicationName = null;
                 String parentApplicationType = null;
+                String parentServiceName = null;
 
                 org.apache.kafka.common.header.Headers headers = consumerRecord.headers();
                 for (org.apache.kafka.common.header.Header header : headers.toArray()) {
@@ -300,12 +304,14 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
                         parentApplicationName = BytesUtils.toString(header.value());
                     } else if (header.key().equals(Header.HTTP_PARENT_APPLICATION_TYPE.toString())) {
                         parentApplicationType = BytesUtils.toString(header.value());
+                    } else if (header.key().equals(Header.HTTP_PARENT_SERVICE_NAME.toString())) {
+                        parentServiceName = BytesUtils.toString(header.value());
                     }
                 }
 
                 if (trace.canSampled()) {
                     final SpanRecorder recorder = trace.getSpanRecorder();
-                    recordRootSpan(recorder, consumerRecord, parentApplicationName, parentApplicationType);
+                    recordRootSpan(recorder, consumerRecord, parentApplicationName, parentApplicationType, parentServiceName);
                 }
                 return trace;
             }

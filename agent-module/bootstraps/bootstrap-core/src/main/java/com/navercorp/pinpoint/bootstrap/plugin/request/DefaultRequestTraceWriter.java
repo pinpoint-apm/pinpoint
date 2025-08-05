@@ -40,17 +40,19 @@ public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
     private final String applicationName;
     private final short serverTypeCode;
     private final String clusterNamespace;
+    private final String serviceName;
 
     public DefaultRequestTraceWriter(ClientHeaderAdaptor<T> clientHeaderAdaptor, TraceContext traceContext) {
-        this(clientHeaderAdaptor, traceContext.getApplicationName(), traceContext.getServerTypeCode(), traceContext.getClusterNamespace());
+        this(clientHeaderAdaptor, traceContext.getApplicationName(), traceContext.getServerTypeCode(), traceContext.getClusterNamespace(), traceContext.getServiceName());
     }
 
-    public DefaultRequestTraceWriter(ClientHeaderAdaptor<T> clientHeaderAdaptor, String applicationName, short serverTypeCode, String clusterNamespace) {
+    public DefaultRequestTraceWriter(ClientHeaderAdaptor<T> clientHeaderAdaptor, String applicationName, short serverTypeCode, String clusterNamespace, String serviceName) {
         this.clientHeaderAdaptor = Objects.requireNonNull(clientHeaderAdaptor, "clientHeaderAdaptor");
 
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.serverTypeCode = serverTypeCode;
         this.clusterNamespace = StringUtils.defaultIfEmpty(clusterNamespace, NOT_SET);
+        this.serviceName = StringUtils.defaultIfEmpty(serviceName, NOT_SET);
     }
 
     @Override
@@ -67,7 +69,7 @@ public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
         Objects.requireNonNull(traceId, "traceId");
 
         if (isDebug) {
-            logger.debug("Set request header. traceId={}, applicationName={}, serverTypeCode={}, clusterNamespace={}", traceId, applicationName, serverTypeCode, clusterNamespace);
+            logger.debug("Set request header. traceId={}, applicationName={}, serverTypeCode={}, clusterNamespace={}, serviceName={}", traceId, applicationName, serverTypeCode, clusterNamespace, serviceName);
         }
         clientHeaderAdaptor.setHeader(header, Header.HTTP_TRACE_ID.toString(), traceId.getTransactionId());
         clientHeaderAdaptor.setHeader(header, Header.HTTP_SPAN_ID.toString(), String.valueOf(traceId.getSpanId()));
@@ -75,6 +77,9 @@ public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
         clientHeaderAdaptor.setHeader(header, Header.HTTP_FLAGS.toString(), String.valueOf(traceId.getFlags()));
         clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_APPLICATION_NAME.toString(), applicationName);
         clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(serverTypeCode));
+        if (serviceName != NOT_SET) {
+            clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_SERVICE_NAME.toString(), serviceName);
+        }
 
         if (clusterNamespace != NOT_SET) {
             clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_APPLICATION_NAMESPACE.toString(), clusterNamespace);

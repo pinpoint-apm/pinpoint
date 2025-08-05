@@ -153,7 +153,23 @@ public class ThriftRequestProperty {
     public void setParentApplicationType(Short parentApplicationType) {
         this.thriftHeaders.put(ThriftHeader.THRIFT_PARENT_APPLICATION_TYPE, parentApplicationType);
     }
-    
+
+    // PARENT_SERVICE_NAME
+    public String getParentServiceName() {
+        return this.getParentServiceName(null);
+    }
+
+    public String getParentServiceName(String defaultValue) {
+        if (this.thriftHeaders.containsKey(ThriftHeader.THRIFT_PARENT_SERVICE_NAME)) {
+            return (String)this.thriftHeaders.get(ThriftHeader.THRIFT_PARENT_SERVICE_NAME);
+        }
+        return defaultValue;
+    }
+
+    public void setParentServiceName(String parentServiceName) {
+        this.thriftHeaders.put(ThriftHeader.THRIFT_PARENT_SERVICE_NAME, parentServiceName);
+    }
+
     // ACCEPTOR_HOST
     
     public String getAcceptorHost() {

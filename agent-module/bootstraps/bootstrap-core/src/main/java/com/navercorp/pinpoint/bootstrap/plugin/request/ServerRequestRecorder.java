@@ -96,6 +96,13 @@ public class ServerRequestRecorder<T> {
             if (isDebug) {
                 logger.debug("Record parentApplicationName={}, parentApplicationType={}", parentApplicationName, parentApplicationType);
             }
+            final String parentServiceName = requestAdaptor.getHeader(request, Header.HTTP_PARENT_SERVICE_NAME.toString());
+            if (parentServiceName != null) {
+                recorder.recordParentServiceName(parentServiceName);
+                if (isDebug) {
+                    logger.debug("Record parentServiceName={}", parentServiceName);
+                }
+            }
         } else {
             if (isDebug) {
                 logger.debug("Not found parentApplication");

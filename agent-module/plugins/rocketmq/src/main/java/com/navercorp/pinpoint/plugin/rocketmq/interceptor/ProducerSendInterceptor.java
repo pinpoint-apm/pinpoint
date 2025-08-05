@@ -172,9 +172,9 @@ public class ProducerSendInterceptor implements AroundInterceptor {
 
         final SendMessageRequestHeader sendMessageRequestHeader = (SendMessageRequestHeader) args[3];
         recorder.recordAttribute(RocketMQConstants.ROCKETMQ_TOPIC_ANNOTATION_KEY,
-                                 sendMessageRequestHeader.getTopic());
+                sendMessageRequestHeader.getTopic());
         recorder.recordAttribute(RocketMQConstants.ROCKETMQ_PARTITION_ANNOTATION_KEY,
-                                 sendMessageRequestHeader.getQueueId());
+                sendMessageRequestHeader.getQueueId());
         final Trace trace = traceContext.currentRawTraceObject();
         final TraceId nextTraceId = trace.getTraceId().getNextTraceId();
         recorder.recordNextSpanId(nextTraceId.getSpanId());
@@ -185,7 +185,10 @@ public class ProducerSendInterceptor implements AroundInterceptor {
             paramMap.put(Header.HTTP_FLAGS.toString(), String.valueOf(nextTraceId.getFlags()));
             paramMap.put(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
             paramMap.put(Header.HTTP_PARENT_APPLICATION_TYPE.toString(),
-                         String.valueOf(traceContext.getServerTypeCode()));
+                    String.valueOf(traceContext.getServerTypeCode()));
+            if (traceContext.getServiceName() != null) {
+                paramMap.put(Header.HTTP_PARENT_SERVICE_NAME.toString(), traceContext.getServiceName());
+            }
             paramMap.put(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextTraceId.getParentSpanId()));
             paramMap.put(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextTraceId.getSpanId()));
             paramMap.put(Header.HTTP_TRACE_ID.toString(), nextTraceId.getTransactionId());

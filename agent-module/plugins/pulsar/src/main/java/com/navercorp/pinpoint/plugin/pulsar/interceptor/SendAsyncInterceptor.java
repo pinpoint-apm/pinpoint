@@ -127,6 +127,9 @@ public class SendAsyncInterceptor implements AroundInterceptor {
                     Header.HTTP_PARENT_APPLICATION_TYPE.toString(),
                     String.valueOf(traceContext.getServerTypeCode())
             );
+            if (traceContext.getServiceName() != null) {
+                paramMap.put(Header.HTTP_PARENT_SERVICE_NAME.toString(), traceContext.getServiceName());
+            }
             paramMap.put(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextTraceId.getParentSpanId()));
             paramMap.put(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextTraceId.getSpanId()));
             paramMap.put(Header.HTTP_TRACE_ID.toString(), nextTraceId.getTransactionId());

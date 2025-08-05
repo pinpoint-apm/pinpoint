@@ -42,7 +42,6 @@ import java.util.Map;
  * {@code AMQCommand} use this.
  *
  * @author HyunGil Jeong
- *
  * @see com.navercorp.pinpoint.plugin.rabbitmq.client.aspect.ChannelAspect
  */
 public class AMQCommandConstructInterceptor implements AroundInterceptor {
@@ -96,6 +95,9 @@ public class AMQCommandConstructInterceptor implements AroundInterceptor {
             headers.put(RabbitMQClientConstants.META_PARENT_APPLICATION_TYPE, Short.toString(traceContext.getServerTypeCode()));
             headers.put(RabbitMQClientConstants.META_PARENT_APPLICATION_NAME, traceContext.getApplicationName());
             headers.put(RabbitMQClientConstants.META_FLAGS, Short.toString(nextId.getFlags()));
+            if (traceContext.getServiceName() != null) {
+                headers.put(RabbitMQClientConstants.META_PARENT_SERVICE_NAME, traceContext.getServiceName());
+            }
         } else {
             headers.put(RabbitMQClientConstants.META_SAMPLED, "1");
         }

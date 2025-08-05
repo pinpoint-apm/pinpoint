@@ -123,14 +123,15 @@ public class ConsumerImplEntryPointInterceptor extends SpanRecursiveAroundInterc
             }
 
             private void recordRootSpan(final Object target, final SpanRecorder recorder, final Message<?> message) {
-                recordRootSpan(target, recorder, message, null, null);
+                recordRootSpan(target, recorder, message, null, null, null);
             }
 
             protected void recordRootSpan(final Object target,
                                           final SpanRecorder recorder,
                                           final Message<?> message,
                                           final String parentApplicationName,
-                                          final String parentApplicationType) {
+                                          final String parentApplicationType,
+                                          final String parentServiceName) {
                 recorder.recordServiceType(PulsarConstants.PULSAR_CLIENT);
                 recorder.recordApi(ENTRY_POINT_METHOD_DESCRIPTOR);
 
@@ -155,6 +156,9 @@ public class ConsumerImplEntryPointInterceptor extends SpanRecursiveAroundInterc
                                     ServiceType.UNDEFINED.getCode()
                             )
                     );
+                    if (parentServiceName != null) {
+                        recorder.recordParentServiceName(parentServiceName);
+                    }
                 }
             }
 
@@ -199,6 +203,9 @@ public class ConsumerImplEntryPointInterceptor extends SpanRecursiveAroundInterc
                         Header.HTTP_PARENT_APPLICATION_NAME.toString());
                 final String parentApplicationType = message.getProperty(
                         Header.HTTP_PARENT_APPLICATION_TYPE.toString());
+                final String parentServiceName = message.getProperty(
+                        Header.HTTP_PARENT_SERVICE_NAME.toString());
+
 
                 final Trace trace;
                 if (isAsyncSend) {
@@ -209,7 +216,7 @@ public class ConsumerImplEntryPointInterceptor extends SpanRecursiveAroundInterc
 
                 if (trace.canSampled()) {
                     final SpanRecorder recorder = trace.getSpanRecorder();
-                    recordRootSpan(target, recorder, message, parentApplicationName, parentApplicationType);
+                    recordRootSpan(target, recorder, message, parentApplicationName, parentApplicationType, parentServiceName);
                 }
                 return trace;
             }

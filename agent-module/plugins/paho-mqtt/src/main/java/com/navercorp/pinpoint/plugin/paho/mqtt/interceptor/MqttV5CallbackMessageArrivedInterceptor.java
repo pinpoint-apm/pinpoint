@@ -106,17 +106,24 @@ public class MqttV5CallbackMessageArrivedInterceptor extends MqttCallbackMessage
 
     private void recordParentApplication(SpanRecorder recorder, List<UserProperty> userProperties) {
 
-        String parentApplicationName = null, parentApplicationType = null;
+        String parentApplicationName = null;
+        String parentApplicationType = null;
+        String parentServiceName = null;
 
         for (UserProperty property : userProperties) {
             if (property.getKey().equals(Header.HTTP_PARENT_APPLICATION_NAME.toString())) {
                 parentApplicationName = property.getValue();
             } else if (property.getKey().equals(Header.HTTP_PARENT_APPLICATION_TYPE.toString())) {
                 parentApplicationType = property.getValue();
+            } else if (property.getKey().equals(Header.HTTP_PARENT_SERVICE_NAME.toString())) {
+                parentServiceName = property.getValue();
             }
         }
 
         recorder.recordParentApplication(parentApplicationName, NumberUtils.parseShort(parentApplicationType, ServiceType.UNDEFINED.getCode()));
+        if (parentServiceName != null) {
+            recorder.recordParentServiceName(parentServiceName);
+        }
     }
 
     private boolean isPreviousSpanSampled(List<UserProperty> userProperties) {

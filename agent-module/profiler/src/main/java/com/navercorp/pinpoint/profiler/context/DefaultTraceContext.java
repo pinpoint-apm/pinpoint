@@ -251,4 +251,9 @@ public class DefaultTraceContext implements TraceContext {
     public String getClusterNamespace() {
         return this.agentInformation.getClusterNamespace();
     }
+
+    @Override
+    public String getServiceName() {
+        return objectName.getServiceName();
+    }
 }

@@ -44,6 +44,7 @@ public final class ApacheDubboConstants {
     public static final String META_PARENT_SPAN_ID = "_DUBBO_PARENT_SPAN_ID";
     public static final String META_PARENT_APPLICATION_NAME = "_DUBBO_PARENT_APPLICATION_NAME";
     public static final String META_PARENT_APPLICATION_TYPE = "_DUBBO_PARENT_APPLICATION_TYPE";
+    public static final String META_PARENT_SERVICE_NAME = "_DUBBO_PARENT_SERVICE_NAME";
     public static final String META_FLAGS = "_DUBBO_FLAGS";
 
     public static final String META_HOST = "_DUBBO_HOST";

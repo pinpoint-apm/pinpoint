@@ -211,6 +211,10 @@ public class ActiveMQMessageConsumerDispatchInterceptor implements AroundInterce
         if (!recorder.isRoot() && parentApplicationName != null) {
             short parentApplicationType = ActiveMQClientHeader.getParentApplicationType(message, ServiceType.UNDEFINED.getCode());
             recorder.recordParentApplication(parentApplicationName, parentApplicationType);
+            final String parentServiceName = ActiveMQClientHeader.getParentServiceName(message, null);
+            if (parentServiceName != null) {
+                recorder.recordParentServiceName(parentServiceName);
+            }
         }
     }
 

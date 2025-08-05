@@ -231,6 +231,10 @@ public class RabbitMQConsumerHandleCompleteInboundCommandInterceptor implements 
             if (!recorder.isRoot() && parentApplicationName != null) {
                 Object parentApplicationType = headers.get(RabbitMQClientConstants.META_PARENT_APPLICATION_TYPE);
                 recorder.recordParentApplication(parentApplicationName.toString(), NumberUtils.parseShort(parentApplicationType.toString(), ServiceType.UNDEFINED.getCode()));
+                Object parentServiceName = headers.get(RabbitMQClientConstants.META_PARENT_SERVICE_NAME);
+                if (parentServiceName != null) {
+                    recorder.recordParentServiceName(parentServiceName.toString());
+                }
             }
         }
     }

@@ -53,6 +53,7 @@ public class Span extends DefaultFrameAttachment implements SpanType {
     private String acceptorHost; // optional
 
     private IntStringValue exceptionInfo; // optional
+    private String parentServiceName;
 
     public Span(final TraceRoot traceRoot) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
@@ -118,6 +119,14 @@ public class Span extends DefaultFrameAttachment implements SpanType {
 
     public void setParentApplicationType(short parentApplicationType) {
         this.parentApplicationType = parentApplicationType;
+    }
+
+    public String getParentServiceName() {
+        return parentServiceName;
+    }
+
+    public void setParentServiceName(String parentServiceName) {
+        this.parentServiceName = parentServiceName;
     }
 
     public String getAcceptorHost() {
