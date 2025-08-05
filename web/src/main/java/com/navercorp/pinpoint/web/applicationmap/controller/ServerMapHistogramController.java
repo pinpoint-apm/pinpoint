@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.ApplicationForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.RangeForm;
-import com.navercorp.pinpoint.web.applicationmap.controller.form.SearchDepthForm;
+import com.navercorp.pinpoint.web.applicationmap.controller.form.SearchOptionForm;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
@@ -120,9 +120,7 @@ public class ServerMapHistogramController {
             @Valid @ModelAttribute
             RangeForm rangeForm,
             @Valid @ModelAttribute
-            SearchDepthForm depthForm,
-            @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
-            @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
+            SearchOptionForm searchForm,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
             boolean useStatisticsAgentState,
             @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
@@ -135,8 +133,8 @@ public class ServerMapHistogramController {
         final Application application = getApplication(appForm);
 
         final LinkDataDuplexMap map = newLinkDataDuplexMap(
-                application, timeWindow, depthForm.getCallerRange(), depthForm.getCalleeRange(),
-                bidirectional, wasOnly, useStatisticsAgentState, format
+                application, timeWindow, searchForm.getCallerRange(), searchForm.getCalleeRange(),
+                searchForm.isBidirectional(), searchForm.isWasOnly(), useStatisticsAgentState, format
         );
 
         final List<Application> fromApplications = this.histogramService.getFromApplications(map);
@@ -158,10 +156,8 @@ public class ServerMapHistogramController {
             @Valid @ModelAttribute
             RangeForm rangeForm,
             @Valid @ModelAttribute
-            SearchDepthForm depthForm,
+            SearchOptionForm searchForm,
             @RequestParam(value = "nodeKey") String nodeKey,
-            @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
-            @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
             boolean useStatisticsAgentState,
             @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
@@ -172,7 +168,7 @@ public class ServerMapHistogramController {
         final Application nodeApplication = this.newApplication(nodeKey);
         if (application.equals(nodeApplication)) {
             return getStatisticsFromServerMap(
-                    appForm, rangeForm, depthForm, bidirectional, wasOnly,
+                    appForm, rangeForm, searchForm,
                     useStatisticsAgentState, useLoadHistogramFormat
             );
         }
@@ -183,8 +179,8 @@ public class ServerMapHistogramController {
         final TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
 
         final LinkDataDuplexMap map = newLinkDataDuplexMap(
-                application, timeWindow, depthForm.getCallerRange(), depthForm.getCalleeRange(),
-                bidirectional, wasOnly, useStatisticsAgentState, format
+                application, timeWindow, searchForm.getCallerRange(), searchForm.getCalleeRange(),
+                searchForm.isBidirectional(), searchForm.isWasOnly(), useStatisticsAgentState, format
         );
 
         // To or From node is the original application

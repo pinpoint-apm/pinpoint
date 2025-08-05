@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.navercorp.pinpoint.web.applicationmap.controller;
@@ -26,7 +25,7 @@ import com.navercorp.pinpoint.web.applicationmap.MapView;
 import com.navercorp.pinpoint.web.applicationmap.MapViewV3;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.ApplicationForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.RangeForm;
-import com.navercorp.pinpoint.web.applicationmap.controller.form.SearchDepthForm;
+import com.navercorp.pinpoint.web.applicationmap.controller.form.SearchOptionForm;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.service.MapService;
@@ -96,16 +95,14 @@ public class MapController {
             @Valid @ModelAttribute
             RangeForm rangeForm,
             @Valid @ModelAttribute
-            SearchDepthForm depthForm,
-            @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
-            @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
+            SearchOptionForm searchForm,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
             boolean useStatisticsAgentState
     ) {
         final TimeWindow timeWindow = newTimeWindow(rangeForm);
 
         final SearchOption searchOption = searchOptionBuilder()
-                .build(depthForm.getCallerRange(), depthForm.getCalleeRange(), bidirectional, wasOnly);
+                .build(searchForm.getCallerRange(), searchForm.getCalleeRange(), searchForm.isBidirectional(), searchForm.isWasOnly());
 
         final Application application = getApplication(appForm);
 
@@ -134,9 +131,7 @@ public class MapController {
             @Valid @ModelAttribute
             RangeForm rangeForm,
             @Valid @ModelAttribute
-            SearchDepthForm depthForm,
-            @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
-            @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
+            SearchOptionForm searchForm,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
             boolean useStatisticsAgentState,
             @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
@@ -145,7 +140,7 @@ public class MapController {
         final TimeWindow timeWindow = newTimeWindow(rangeForm);
 
         final SearchOption searchOption = searchOptionBuilder()
-                .build(depthForm.getCallerRange(), depthForm.getCalleeRange(), bidirectional, wasOnly);
+                .build(searchForm.getCallerRange(), searchForm.getCalleeRange(), searchForm.isBidirectional(), searchForm.isWasOnly());
         final Application application = getApplication(appForm);
 
         final MapServiceOption option = new MapServiceOption
@@ -168,16 +163,14 @@ public class MapController {
             @Valid @ModelAttribute
             RangeForm rangeForm,
             @Valid @ModelAttribute
-            SearchDepthForm depthForm,
-            @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
-            @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
+            SearchOptionForm searchForm,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
             boolean useStatisticsAgentState) {
         final TimeWindow timeWindow = newTimeWindow(rangeForm);
 
         final Application application = getApplication(appForm);
         SearchOption searchOption = searchOptionBuilder()
-                .build(depthForm.getCallerRange(), depthForm.getCalleeRange(), bidirectional, wasOnly);
+                .build(searchForm.getCallerRange(), searchForm.getCalleeRange(), searchForm.isBidirectional(), searchForm.isWasOnly());
 
         final MapServiceOption option = new MapServiceOption
                 .Builder(application, timeWindow, searchOption)
