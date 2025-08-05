@@ -100,7 +100,9 @@ public class TAsyncClientManagerCallInterceptor implements AroundInterceptor {
                 parentTraceInfo.setParentApplicationName(this.traceContext.getApplicationName());
                 parentTraceInfo.setParentApplicationType(this.traceContext.getServerTypeCode());
                 parentTraceInfo.setAcceptorHost(remoteAddress);
-
+                if (this.traceContext.getServiceName() != null) {
+                    parentTraceInfo.setParentServiceName(this.traceContext.getServiceName());
+                }
 
                 recorder.recordServiceType(ThriftConstants.THRIFT_CLIENT);
                 recorder.recordNextSpanId(nextSpanId);
@@ -174,7 +176,7 @@ public class TAsyncClientManagerCallInterceptor implements AroundInterceptor {
         if (!(asyncMethodCallObj instanceof SocketAddressFieldAccessor)) {
             return ThriftConstants.UNKNOWN_ADDRESS;
         }
-        SocketAddress socketAddress = ((SocketAddressFieldAccessor)asyncMethodCallObj)._$PINPOINT$_getSocketAddress();
+        SocketAddress socketAddress = ((SocketAddressFieldAccessor) asyncMethodCallObj)._$PINPOINT$_getSocketAddress();
         return ThriftUtils.getHostPort(socketAddress);
     }
 

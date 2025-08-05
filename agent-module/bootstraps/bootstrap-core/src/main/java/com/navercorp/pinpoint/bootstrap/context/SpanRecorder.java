@@ -52,4 +52,6 @@ public interface SpanRecorder extends FrameAttachment, AttributeRecorder {
     boolean recordUriTemplate(String uriTemplate, boolean force);
 
     boolean recordUriHttpMethod(String httpMethod);
+
+    void recordParentServiceName(String parentServiceName);
 }

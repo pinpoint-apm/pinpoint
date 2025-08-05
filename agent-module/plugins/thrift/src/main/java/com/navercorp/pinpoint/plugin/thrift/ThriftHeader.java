@@ -22,41 +22,42 @@ import java.util.EnumSet;
 import java.util.Set;
 
 public enum ThriftHeader {
-    THRIFT_TRACE_ID                (TType.STRING,  (short) Short.MIN_VALUE),
-    THRIFT_SPAN_ID                 (TType.I64,     (short)(Short.MIN_VALUE+1)),
-    THRIFT_PARENT_SPAN_ID          (TType.I64,     (short)(Short.MIN_VALUE+2)),
-    THRFIT_SAMPLED                 (TType.BOOL,    (short)(Short.MIN_VALUE+3)),
-    THRIFT_FLAGS                   (TType.I16,     (short)(Short.MIN_VALUE+4)),
-    THRIFT_PARENT_APPLICATION_NAME (TType.STRING,  (short)(Short.MIN_VALUE+5)),
-    THRIFT_PARENT_APPLICATION_TYPE (TType.I16,     (short)(Short.MIN_VALUE+6)),
-    THRIFT_HOST                    (TType.STRING,  (short)(Short.MIN_VALUE+7));
+    THRIFT_TRACE_ID(TType.STRING, (short) Short.MIN_VALUE),
+    THRIFT_SPAN_ID(TType.I64, (short) (Short.MIN_VALUE + 1)),
+    THRIFT_PARENT_SPAN_ID(TType.I64, (short) (Short.MIN_VALUE + 2)),
+    THRFIT_SAMPLED(TType.BOOL, (short) (Short.MIN_VALUE + 3)),
+    THRIFT_FLAGS(TType.I16, (short) (Short.MIN_VALUE + 4)),
+    THRIFT_PARENT_APPLICATION_NAME(TType.STRING, (short) (Short.MIN_VALUE + 5)),
+    THRIFT_PARENT_APPLICATION_TYPE(TType.I16, (short) (Short.MIN_VALUE + 6)),
+    THRIFT_HOST(TType.STRING, (short) (Short.MIN_VALUE + 7)),
+    THRIFT_PARENT_SERVICE_NAME(TType.STRING, (short) (Short.MIN_VALUE + 8));
 
     private final short id;
-    
+
     private final byte type;
 
     private static final Set<ThriftHeader> HEADERS = EnumSet.allOf(ThriftHeader.class);
-    
+
     ThriftHeader(byte type, short id) {
         this.type = type;
         this.id = id;
     }
-    
+
     public short getId() {
         return this.id;
     }
-    
+
     public byte getType() {
         return this.type;
     }
-    
+
     /**
      * Returns the {@link ThriftRequestProperty} with the specified id,
      * or {@code null} if there is none.
      *
      * @param id the id of the associated <tt>ThriftHeaderKey</tt>
      * @return the <tt>ThriftHeaderKey</tt> associated with the specified id, or
-     *     <tt>null</tt> if there is none
+     * <tt>null</tt> if there is none
      */
     public static ThriftHeader findThriftHeaderKeyById(short id) {
         for (ThriftHeader headerKey : HEADERS) {
@@ -66,5 +67,4 @@ public enum ThriftHeader {
         }
         return null;
     }
-    
 }

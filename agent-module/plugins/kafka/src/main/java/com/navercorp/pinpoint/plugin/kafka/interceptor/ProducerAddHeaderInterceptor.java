@@ -94,7 +94,7 @@ public class ProducerAddHeaderInterceptor implements AroundInterceptor {
             }
             org.apache.kafka.common.header.Headers headers = (org.apache.kafka.common.header.Headers) args[0];
             SpanEventRecorder spanEventRecorder = trace.currentSpanEventRecorder();
-            headerSetter.setPinpointHeaders(spanEventRecorder, trace, headers, trace.canSampled(), traceContext.getApplicationName(), traceContext.getServerTypeCode());
+            headerSetter.setPinpointHeaders(spanEventRecorder, trace, headers, trace.canSampled(), traceContext.getApplicationName(), traceContext.getServerTypeCode(), traceContext.getServiceName());
         } catch (Exception e) {
             logger.warn("Failed to set headers. {}", e.getMessage(), e);
         }
@@ -109,7 +109,7 @@ public class ProducerAddHeaderInterceptor implements AroundInterceptor {
 
     private static class DefaultHeaderSetter {
 
-        public void setPinpointHeaders(SpanEventRecorder recorder, Trace trace, org.apache.kafka.common.header.Headers headers, boolean sample, String applicationName, short serverTypeCode) {
+        public void setPinpointHeaders(SpanEventRecorder recorder, Trace trace, org.apache.kafka.common.header.Headers headers, boolean sample, String applicationName, short serverTypeCode, String serviceName) {
             if (headers == null) {
                 return;
             }
@@ -125,6 +125,9 @@ public class ProducerAddHeaderInterceptor implements AroundInterceptor {
                 headers.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()).getBytes(KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET)));
                 headers.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), String.valueOf(applicationName).getBytes(KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET)));
                 headers.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(serverTypeCode).getBytes(KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET)));
+                if (serviceName != null) {
+                    headers.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_PARENT_SERVICE_NAME.toString(), serviceName.getBytes(KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET)));
+                }
             } else {
                 headers.add(new org.apache.kafka.common.header.internals.RecordHeader(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE.getBytes(KafkaConstants.DEFAULT_PINPOINT_HEADER_CHARSET)));
             }

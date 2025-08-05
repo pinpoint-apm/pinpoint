@@ -216,6 +216,10 @@ public class TraceRootSpanRecorder implements SpanRecorder {
     }
 
     @Override
+    public void recordParentServiceName(String parentServiceName) {
+    }
+
+    @Override
     public Object attachFrameObject(Object frameObject) {
         return null;
     }

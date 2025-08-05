@@ -83,6 +83,7 @@ public class SpanBo implements Event, BasicSpan {
 
     private byte loggingTransactionInfo; //optional
 
+    private String parentServiceName;
 
     public SpanBo() {
     }
@@ -392,6 +393,14 @@ public class SpanBo implements Event, BasicSpan {
         this.loggingTransactionInfo = loggingTransactionInfo;
     }
 
+    public String getParentServiceName() {
+        return parentServiceName;
+    }
+
+    public void setParentServiceName(String parentServiceName) {
+        this.parentServiceName = parentServiceName;
+    }
+
     @Override
     public String toString() {
         return "SpanBo{" +
@@ -423,6 +432,7 @@ public class SpanBo implements Event, BasicSpan {
                 ", acceptorHost='" + acceptorHost + '\'' +
                 ", remoteAddr='" + remoteAddr + '\'' +
                 ", loggingTransactionInfo=" + loggingTransactionInfo +
+                ", parentServiceName='" + parentServiceName + '\'' +
                 '}';
     }
 
@@ -475,6 +485,7 @@ public class SpanBo implements Event, BasicSpan {
 
         private byte loggingTransactionInfo; //optional
 
+        private String parentServiceName;
 
         Builder(long spanId) {
             this.spanId = spanId;
@@ -618,6 +629,11 @@ public class SpanBo implements Event, BasicSpan {
             return this;
         }
 
+        public Builder setParentServiceName(String parentServiceName) {
+            this.parentServiceName = parentServiceName;
+            return this;
+        }
+
         public SpanBo build() {
             SpanBo result = new SpanBo();
             result.setVersion(this.version);
@@ -630,6 +646,7 @@ public class SpanBo implements Event, BasicSpan {
             result.setParentSpanId(this.parentSpanId);
             result.setParentApplicationName(this.parentApplicationName);
             result.setParentApplicationServiceType(this.parentApplicationServiceType);
+            result.setParentServiceName(this.parentServiceName);
             result.setStartTime(this.startTime);
             result.setElapsed(this.elapsed);
             result.setRpc(this.rpc);

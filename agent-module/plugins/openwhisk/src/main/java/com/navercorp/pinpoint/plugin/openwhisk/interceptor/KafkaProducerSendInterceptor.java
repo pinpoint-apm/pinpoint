@@ -75,6 +75,7 @@ public class KafkaProducerSendInterceptor implements AroundInterceptor {
 
         TraceId nextId = trace.getTraceId().getNextTraceId();
         String applicationName = traceContext.getApplicationName();
+        String serviceName = traceContext.getServiceName();
         String serverTypeCode = Short.toString(traceContext.getServerTypeCode());
         String entityPath = String.valueOf(activationMessage.action());
         String endPoint = String.valueOf(ArrayUtils.get(args, 0));
@@ -91,14 +92,18 @@ public class KafkaProducerSendInterceptor implements AroundInterceptor {
                 "parentSpanId", String.valueOf(nextId.getParentSpanId()),
                 "flag", String.valueOf(nextId.getFlags())
         );
-        Map<String, String> traceMetadata = new Map.Map4<>(
-                "applicationName", applicationName,
-                "serverTypeCode", serverTypeCode,
+        Map<String, String> traceMetadata = new Map.Map2<>(
                 "entityPath", entityPath,
                 "endPoint", endPoint
         );
+        Map<String, String> parentInfo = new Map.Map3<>(
+                "applicationName", applicationName,
+                "serverTypeCode", serverTypeCode,
+                "serviceName", serviceName
+        );
 
         map = map.$plus$plus(traceMetadata.toSeq());
+        map = map.$plus$plus(parentInfo.toSeq());
         ((TraceContextSetter)activationMessage)._$PINPOINT$_setTraceContext(scala.Option.apply(map));
 
         trace.traceBlockEnd();

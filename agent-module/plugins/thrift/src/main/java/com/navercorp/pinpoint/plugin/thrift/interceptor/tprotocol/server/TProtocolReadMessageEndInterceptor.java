@@ -337,8 +337,12 @@ public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
         final String parentApplicationName = parentTraceInfo.getParentApplicationName();
         final short parentApplicationType = parentTraceInfo.getParentApplicationType(ServiceType.UNDEFINED.getCode());
         final String acceptorHost = parentTraceInfo.getAcceptorHost();
+        final String parentServiceName = parentTraceInfo.getParentServiceName();
         recorder.recordParentApplication(parentApplicationName, parentApplicationType);
         recorder.recordAcceptorHost(acceptorHost);
+        if (parentServiceName != null) {
+            recorder.recordParentServiceName(parentServiceName);
+        }
     }
 
     private void recordConnection(SpanRecorder recorder, TTransport transport, String methodName) {

@@ -31,7 +31,8 @@ public enum ActiveMQClientHeader {
     ACTIVEMQ_SAMPLED("Pinpoint-Sampled"),
     ACTIVEMQ_FLAGS("Pinpoint-Flags"),
     ACTIVEMQ_PARENT_APPLICATION_NAME("Pinpoint-pAppName"),
-    ACTIVEMQ_PARENT_APPLICATION_TYPE("Pinpoint-pAppType");
+    ACTIVEMQ_PARENT_APPLICATION_TYPE("Pinpoint-pAppType"),
+    ACTIVEMQ_PARENT_SERVICE_NAME("Pinpoint-pServiceName");
 
     private final String id;
 
@@ -192,4 +193,11 @@ public enum ActiveMQClientHeader {
         return SHORT_MESSAGE_HANDLER.getMessage(message, ACTIVEMQ_PARENT_APPLICATION_TYPE, defaultValue);
     }
 
+    public static void setParentServiceName(Message message, String parentServiceName) throws JMSException {
+        STRING_MESSAGE_HANDLER.setMessage(message, ACTIVEMQ_PARENT_SERVICE_NAME, parentServiceName);
+    }
+
+    public static String getParentServiceName(Message message, String defaultValue) {
+        return STRING_MESSAGE_HANDLER.getMessage(message, ACTIVEMQ_PARENT_SERVICE_NAME, defaultValue);
+    }
 }

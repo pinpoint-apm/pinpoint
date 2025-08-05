@@ -55,4 +55,5 @@ public final class RabbitMQClientConstants {
     public static final String META_FLAGS = "Pinpoint-Flags";
     public static final String META_PARENT_APPLICATION_NAME = "Pinpoint-pAppName";
     public static final String META_PARENT_APPLICATION_TYPE = "Pinpoint-pAppType";
+    public static final String META_PARENT_SERVICE_NAME = "Pinpoint-pServiceName";
 }

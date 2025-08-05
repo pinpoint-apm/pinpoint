@@ -96,7 +96,10 @@ public class DubboProviderInterceptor extends SpanRecursiveAroundInterceptor {
             if (parentApplicationName != null) {
                 final short parentApplicationType = NumberUtils.parseShort(invocation.getAttachment(DubboConstants.META_PARENT_APPLICATION_TYPE), ServiceType.UNDEFINED.getCode());
                 recorder.recordParentApplication(parentApplicationName, parentApplicationType);
-
+                final String parentServiceName = invocation.getAttachment(DubboConstants.META_PARENT_SERVICE_NAME);
+                if (parentServiceName != null) {
+                    recorder.recordParentServiceName(parentServiceName);
+                }
                 final String host = invocation.getAttachment(DubboConstants.META_HOST);
                 if (host != null) {
                     recorder.recordAcceptorHost(host);

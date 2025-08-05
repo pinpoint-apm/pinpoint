@@ -87,6 +87,7 @@ public class TProtocolWriteFieldStopInterceptor implements AroundInterceptor {
         parentTraceInfo.writeTraceHeader(ThriftHeader.THRIFT_PARENT_APPLICATION_NAME, oprot);
         parentTraceInfo.writeTraceHeader(ThriftHeader.THRIFT_PARENT_APPLICATION_TYPE, oprot);
         parentTraceInfo.writeTraceHeader(ThriftHeader.THRIFT_HOST, oprot);
+        parentTraceInfo.writeTraceHeader(ThriftHeader.THRIFT_PARENT_SERVICE_NAME, oprot);
     }
 
 }

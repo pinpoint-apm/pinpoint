@@ -144,6 +144,10 @@ public class GrpcSpanBinder {
                     }
                     spanBo.setParentApplicationName(parentApplicationName);
                     spanBo.setParentApplicationServiceType((short) parentInfo.getParentApplicationType());
+                    final String parentServiceName = parentInfo.getParentServiceName();
+                    if(StringUtils.hasLength(parentServiceName)) {
+                        spanBo.setParentServiceName(parentServiceName);
+                    }
                 }
             }
         }

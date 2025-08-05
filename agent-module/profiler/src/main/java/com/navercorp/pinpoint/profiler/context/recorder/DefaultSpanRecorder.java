@@ -189,4 +189,9 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     public boolean recordUriHttpMethod(String httpMethod) {
         return getShared().setHttpMethods(httpMethod);
     }
+
+    @Override
+    public void recordParentServiceName(String parentServiceName) {
+        span.setParentServiceName(parentServiceName);
+    }
 }

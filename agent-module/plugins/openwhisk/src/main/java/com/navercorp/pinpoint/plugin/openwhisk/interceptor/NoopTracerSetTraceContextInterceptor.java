@@ -115,6 +115,7 @@ public class NoopTracerSetTraceContextInterceptor implements AroundInterceptor {
         String serverTypeCode = (String)map.get("serverTypeCode");
         String entityPath = (String)map.get("entityPath");
         String endPoint = (String)map.get("endPoint");
+        String serviceName = (String) map.get("serviceName");
 
         TraceId traceId = traceContext.createTraceId(
                 transactionId,
@@ -135,6 +136,7 @@ public class NoopTracerSetTraceContextInterceptor implements AroundInterceptor {
 
             // Record parent application
             recorder.recordParentApplication(applicationName, Short.valueOf(serverTypeCode));
+            recorder.recordParentServiceName(serviceName);
             return trace;
         }
         return null;

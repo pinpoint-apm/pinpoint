@@ -94,6 +94,9 @@ public class ActiveMQMessageProducerSendInterceptor implements AroundInterceptor
                 ActiveMQClientHeader.setFlags(message, nextId.getFlags());
                 ActiveMQClientHeader.setParentApplicationName(message, traceContext.getApplicationName());
                 ActiveMQClientHeader.setParentApplicationType(message, traceContext.getServerTypeCode());
+                if (traceContext.getServiceName() != null) {
+                    ActiveMQClientHeader.setParentServiceName(message, traceContext.getServiceName());
+                }
             } else {
                 ActiveMQClientHeader.setSampled(message, false);
             }
