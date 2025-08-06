@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
-import com.navercorp.pinpoint.web.applicationmap.MapView;
 import com.navercorp.pinpoint.web.applicationmap.MapViewV3;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.ApplicationForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.RangeForm;
@@ -117,70 +116,6 @@ public class MapController {
         return new MapViewV3(map, timeWindow, MapViews.ofBasic(), hyperLinkFactory);
     }
 
-    /**
-     * Server map data query within from ~ to timeframe
-     *
-     * @param appForm   applicationForm
-     * @param rangeForm rangeForm
-     * @return MapWrap
-     */
-    @GetMapping(value = "/getServerMapDataV2")
-    public MapView getServerMapDataV2(
-            @Valid @ModelAttribute
-            ApplicationForm appForm,
-            @Valid @ModelAttribute
-            RangeForm rangeForm,
-            @Valid @ModelAttribute
-            SearchOptionForm searchForm,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
-            boolean useStatisticsAgentState
-    ) {
-        final TimeWindow timeWindow = newTimeWindow(rangeForm);
-
-        final SearchOption searchOption = searchOptionBuilder()
-                .build(searchForm.getCallerRange(), searchForm.getCalleeRange(), searchForm.isBidirectional(), searchForm.isWasOnly());
-        final Application application = getApplication(appForm);
-
-        final MapServiceOption option = new MapServiceOption
-                .Builder(application, timeWindow, searchOption)
-                .setUseStatisticsAgentState(useStatisticsAgentState)
-                .build();
-
-        TimeHistogramFormat format = TimeHistogramFormat.V1;
-        logger.info("Select ApplicationMap {} option={}", format, option);
-        final ApplicationMap map = this.mapService.selectApplicationMap(option);
-
-        return new MapView(map, MapViews.ofBasic(), hyperLinkFactory, format);
-
-    }
-
-    @GetMapping(value = "/simpleServerMapData")
-    public MapView getSimpleServerMapData(
-            @Valid @ModelAttribute
-            ApplicationForm appForm,
-            @Valid @ModelAttribute
-            RangeForm rangeForm,
-            @Valid @ModelAttribute
-            SearchOptionForm searchForm,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
-            boolean useStatisticsAgentState) {
-        final TimeWindow timeWindow = newTimeWindow(rangeForm);
-
-        final Application application = getApplication(appForm);
-        SearchOption searchOption = searchOptionBuilder()
-                .build(searchForm.getCallerRange(), searchForm.getCalleeRange(), searchForm.isBidirectional(), searchForm.isWasOnly());
-
-        final MapServiceOption option = new MapServiceOption
-                .Builder(application, timeWindow, searchOption)
-                .setSimpleResponseHistogram(true)
-                .setUseStatisticsAgentState(useStatisticsAgentState)
-                .build();
-
-        logger.info("Select simpleApplicationMap. option={}", option);
-        final ApplicationMap map = this.mapService.selectApplicationMap(option);
-
-        return new MapView(map, MapViews.ofSimpled(), hyperLinkFactory, TimeHistogramFormat.V3);
-    }
 
     private Application getApplication(ApplicationForm appForm) {
         return applicationValidator.newApplication(appForm.getApplicationName(), appForm.getServiceTypeCode(), appForm.getServiceTypeName());
