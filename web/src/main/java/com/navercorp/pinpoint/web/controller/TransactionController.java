@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -127,11 +127,9 @@ public class TransactionController {
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam(value = "spanId", required = false, defaultValue = DEFAULT_SPAN_ID) long spanId,
             @RequestParam(value = "useStatisticsAgentState", required = false, defaultValue = "false")
-            boolean useStatisticsAgentState,
-            @RequestParam(value = "useLoadHistogramFormat", required = false, defaultValue = "false")
-            boolean useLoadHistogramFormat
+            boolean useStatisticsAgentState
     ) {
-        TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        TimeHistogramFormat format = TimeHistogramFormat.V1;
         return getTransaction0(traceId, focusTimestamp, agentId, spanId, useStatisticsAgentState, format);
     }
 
@@ -226,11 +224,9 @@ public class TransactionController {
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam(value = "spanId", required = false, defaultValue = DEFAULT_SPAN_ID) long spanId,
             @RequestParam(value = "useStatisticsAgentState", required = false, defaultValue = "false")
-            boolean useStatisticsAgentState,
-            @RequestParam(value = "useLoadHistogramFormat", required = false, defaultValue = "false")
-            boolean useLoadHistogramFormat
+            boolean useStatisticsAgentState
     ) {
-        TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        TimeHistogramFormat format = TimeHistogramFormat.V1;
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
         final ColumnGetCount columnGetCount = ColumnGetCount.of(callstackSelectSpansLimit);
 

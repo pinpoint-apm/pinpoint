@@ -122,14 +122,12 @@ public class ServerMapHistogramController {
             @Valid @ModelAttribute
             SearchOptionForm searchForm,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
-            boolean useStatisticsAgentState,
-            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
-            boolean useLoadHistogramFormat
+            boolean useStatisticsAgentState
     ) {
         final Range range = toRange(rangeForm);
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
-        final TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        final TimeHistogramFormat format = TimeHistogramFormat.V1;
         final Application application = getApplication(appForm);
 
         final LinkDataDuplexMap map = newLinkDataDuplexMap(
@@ -159,9 +157,7 @@ public class ServerMapHistogramController {
             SearchOptionForm searchForm,
             @RequestParam(value = "nodeKey") String nodeKey,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
-            boolean useStatisticsAgentState,
-            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
-            boolean useLoadHistogramFormat
+            boolean useStatisticsAgentState
     ) {
 
         final Application application = getApplication(appForm);
@@ -169,14 +165,14 @@ public class ServerMapHistogramController {
         if (application.equals(nodeApplication)) {
             return getStatisticsFromServerMap(
                     appForm, rangeForm, searchForm,
-                    useStatisticsAgentState, useLoadHistogramFormat
+                    useStatisticsAgentState
             );
         }
 
         final Range range = toRange(rangeForm);
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
-        final TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        final TimeHistogramFormat format = TimeHistogramFormat.V1;
 
         final LinkDataDuplexMap map = newLinkDataDuplexMap(
                 application, timeWindow, searchForm.getCallerRange(), searchForm.getCalleeRange(),
@@ -296,9 +292,7 @@ public class ServerMapHistogramController {
             @RequestParam(value = "toServiceTypeCodes", defaultValue = "", required = false)
             List<Short> toServiceTypeCodes,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "true", required = false)
-            boolean useStatisticsAgentState,
-            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
-            boolean useLoadHistogramFormat
+            boolean useStatisticsAgentState
     ) {
         final Range range = toRange(rangeForm);
         this.rangeValidator.validate(range);
@@ -324,7 +318,7 @@ public class ServerMapHistogramController {
 
         final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
 
-        final TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        final TimeHistogramFormat format = TimeHistogramFormat.V1;
         ServerGroupList serverGroupList = nodeHistogramSummary.getServerGroupList();
         ServerGroupListView serverGroupListView = new ServerGroupListView(serverGroupList, hyperLinkFactory);
         return new NodeHistogramSummaryView(nodeHistogramSummary, serverGroupListView, format);
@@ -344,9 +338,7 @@ public class ServerMapHistogramController {
     public LinkHistogramSummaryView getLinkTimeHistogramData(
             @RequestParam("linkKey") @NotBlank String linkKey,
             @Valid @ModelAttribute
-            RangeForm rangeForm,
-            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
-            boolean useLoadHistogramFormat
+            RangeForm rangeForm
     ) {
         final Range range = toRange(rangeForm);
         this.rangeValidator.validate(range);
@@ -365,7 +357,7 @@ public class ServerMapHistogramController {
         final LinkHistogramSummary linkHistogramSummary =
                 responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, timeWindow);
 
-        TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        TimeHistogramFormat format = TimeHistogramFormat.V1;
         return new LinkHistogramSummaryView(linkHistogramSummary, format);
     }
 
