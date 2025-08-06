@@ -31,7 +31,7 @@ public class NodeName {
     }
 
     public static String toNodeName(String name, ServiceType serviceType) {
-        return name + NODE_DELIMITER + serviceType.getDesc();
+        return name + NODE_DELIMITER + serviceType.getName();
     }
 
 
