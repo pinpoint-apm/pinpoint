@@ -1,10 +1,25 @@
+/*
+ * Copyright 2025 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.web.applicationmap.view;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.util.NameTransformer;
 import com.navercorp.pinpoint.common.server.util.json.JacksonWriterUtils;
 import com.navercorp.pinpoint.common.server.util.json.JsonFields;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -172,16 +187,6 @@ public class NodeView {
                     jgen.writeObjectField("histogram", applicationHistogram);
                 }
 
-                if (activeView.isSimplified()) {
-                    if (applicationHistogram == null) {
-                        JacksonWriterUtils.writeEmptyObject(jgen, "apdexScore");
-                    } else {
-                        //jgen.writeObjectField("apdexScore", node.getApdexScore());
-                        JsonSerializer<Object> beanSerializer = provider.findValueSerializer(node.getApdexScore().getClass());
-                        JsonSerializer<Object> unwrapping = beanSerializer.unwrappingSerializer(NameTransformer.NOP);
-                        unwrapping.serialize(node.getApdexScore(), jgen, provider);
-                    }
-                }
 
                 // agent histogram
                 if (activeView.isDetailed()) {
@@ -198,27 +203,25 @@ public class NodeView {
                 jgen.writeBooleanField("hasAlert", false);  // for go.js
             }
 
-            //time histogram
-            if (!activeView.isSimplified()) {
-                // FIXME isn't this all ServiceTypes that can be a node?
-                if (nodeServiceType) {
-                    final TimeHistogramFormat format = nodeView.getFormat();
+            // time histogram
+            // FIXME isn't this all ServiceTypes that can be a node?
+            if (nodeServiceType) {
+                final TimeHistogramFormat format = nodeView.getFormat();
 
-                    ApplicationTimeHistogram applicationTimeHistogram = nodeHistogram.getApplicationTimeHistogram();
-                    TimeHistogramBuilder builder = new TimeHistogramBuilder(format);
-                    List<TimeHistogramViewModel> applicationTimeSeriesHistogram = builder.build(applicationTimeHistogram);
-                    if (applicationTimeSeriesHistogram == null) {
-                        JacksonWriterUtils.writeEmptyArray(jgen, "timeSeriesHistogram");
-                    } else {
-                        jgen.writeObjectField("timeSeriesHistogram", applicationTimeSeriesHistogram);
-                    }
+                ApplicationTimeHistogram applicationTimeHistogram = nodeHistogram.getApplicationTimeHistogram();
+                TimeHistogramBuilder builder = new TimeHistogramBuilder(format);
+                List<TimeHistogramViewModel> applicationTimeSeriesHistogram = builder.build(applicationTimeHistogram);
+                if (applicationTimeSeriesHistogram == null) {
+                    JacksonWriterUtils.writeEmptyArray(jgen, "timeSeriesHistogram");
+                } else {
+                    jgen.writeObjectField("timeSeriesHistogram", applicationTimeSeriesHistogram);
+                }
 
-                    if (activeView.isDetailed()) {
-                        AgentTimeHistogram agentTimeHistogram = nodeHistogram.getAgentTimeHistogram();
-                        JsonFields<AgentNameView, List<TimeHistogramViewModel>> agentFields = agentTimeHistogram.createViewModel(format);
-                        jgen.writeFieldName(AGENT_TIME_SERIES_HISTOGRAM);
-                        jgen.writeObject(agentFields);
-                    }
+                if (activeView.isDetailed()) {
+                    AgentTimeHistogram agentTimeHistogram = nodeHistogram.getAgentTimeHistogram();
+                    JsonFields<AgentNameView, List<TimeHistogramViewModel>> agentFields = agentTimeHistogram.createViewModel(format);
+                    jgen.writeFieldName(AGENT_TIME_SERIES_HISTOGRAM);
+                    jgen.writeObject(agentFields);
                 }
             }
         }

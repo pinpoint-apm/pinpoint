@@ -21,17 +21,13 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
-import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
-import com.navercorp.pinpoint.web.applicationmap.ApplicationMapView;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapViewV3;
-import com.navercorp.pinpoint.web.applicationmap.FilterMapView;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapViewV3;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWithScatter;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.ApplicationForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.FilterForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.GroupForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.RangeForm;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapServiceOption;
@@ -78,52 +74,6 @@ public class FilteredMapController {
         this.filteredMapService = Objects.requireNonNull(filteredMapService, "filteredMapService");
         this.filterBuilder = Objects.requireNonNull(filterBuilder, "filterBuilder");
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
-    }
-
-
-    @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroup")
-    public FilterMapView getFilteredServerMapDataMadeOfDotGroup(
-            @Valid @ModelAttribute
-            ApplicationForm appForm,
-            @Valid @ModelAttribute
-            RangeForm rangeForm,
-            @RequestParam("originTo") long originTo,
-            @Valid @ModelAttribute
-            GroupForm groupForm,
-            @Valid @ModelAttribute
-            FilterForm filterForm,
-            @RequestParam(value = "limit", required = false, defaultValue = "10000")
-            @PositiveOrZero int limitParam,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
-            boolean useStatisticsAgentState
-    ) {
-        final String applicationName = appForm.getApplicationName();
-
-        final int limit = Math.min(limitParam, LimitUtils.MAX);
-        final Filter<List<SpanBo>> filter = newFilter(filterForm);
-        final Range range = toRange(rangeForm);
-        final LimitedScanResult<List<TransactionId>> limitedScanResult =
-                filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
-
-        final long lastScanTime = limitedScanResult.limitedTime();
-        // original range: needed for visual chart data sampling
-        final Range originalRange = Range.between(rangeForm.getFrom(), originTo);
-        // needed to figure out already scanned ranged
-        final Range scannerRange = Range.between(lastScanTime, rangeForm.getTo());
-        logger.debug("originalRange: {}, scannerRange: {}", originalRange, scannerRange);
-        final FilteredMapServiceOption option = newFilteredOption(limitedScanResult.scanData(), originalRange, groupForm, filter, useStatisticsAgentState);
-        final FilterMapWithScatter scatter = filteredMapService.selectApplicationMapWithScatterData(option);
-        ApplicationMap map = scatter.getApplicationMap();
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("getFilteredServerMapData range scan(limit:{}) range:{} lastFetchedTimestamp:{}",
-                    limit, range.prettyToString(), DateTimeFormatUtils.format(lastScanTime));
-        }
-
-        TimeHistogramFormat format = TimeHistogramFormat.V1;
-        ApplicationMapView applicationMapView = new ApplicationMapView(map, MapViews.ofDetailed(), hyperLinkFactory, format);
-        ScatterDataMapView scatterDataMapView = new ScatterDataMapView(scatter.getScatterDataMap());
-        return new FilterMapView(applicationMapView, scatterDataMapView, lastScanTime);
     }
 
     @GetMapping(value = "/filterServerMap")

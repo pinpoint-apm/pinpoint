@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.navercorp.pinpoint.web.applicationmap.map;
@@ -21,7 +20,6 @@ import com.navercorp.pinpoint.common.server.util.BitFieldUtils;
 
 public class MapViews {
 
-    private static final int SIMPLIFIED = 0;
     private static final int BASIC = 1;
     private static final int DETAILED = 2;
 
@@ -37,10 +35,6 @@ public class MapViews {
     }
 
 
-    public static MapViews ofSimpled() {
-        int bitSet = BitFieldUtils.setBit(0, SIMPLIFIED, true);
-        return new MapViews(bitSet);
-    }
 
     public static MapViews ofBasic() {
         int bitSet = BitFieldUtils.setBit(0, BASIC, true);
@@ -52,10 +46,6 @@ public class MapViews {
         return new MapViews(bitSet);
     }
 
-    public MapViews withSimplified() {
-        final int mask = BitFieldUtils.setBit(bitSet, SIMPLIFIED, true);
-        return new MapViews(mask);
-    }
 
     public MapViews withBasic() {
         final int mask = BitFieldUtils.setBit(bitSet, BASIC, true);
@@ -67,9 +57,6 @@ public class MapViews {
         return new MapViews(copy);
     }
 
-    public boolean isSimplified() {
-        return BitFieldUtils.testBit(bitSet, SIMPLIFIED);
-    }
 
     public boolean isBasic() {
         return BitFieldUtils.testBit(bitSet, BASIC);
