@@ -34,6 +34,9 @@ public class NodeName {
         return name + NODE_DELIMITER + serviceType.getDesc();
     }
 
+    public static String toNodeKey(String name, ServiceType serviceType) {
+        return name + NODE_DELIMITER + serviceType.getName();
+    }
 
     @Override
     public boolean equals(Object o) {
