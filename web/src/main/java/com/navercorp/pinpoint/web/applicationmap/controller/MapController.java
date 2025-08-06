@@ -133,9 +133,7 @@ public class MapController {
             @Valid @ModelAttribute
             SearchOptionForm searchForm,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
-            boolean useStatisticsAgentState,
-            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
-            boolean useLoadHistogramFormat
+            boolean useStatisticsAgentState
     ) {
         final TimeWindow timeWindow = newTimeWindow(rangeForm);
 
@@ -148,7 +146,7 @@ public class MapController {
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 
-        TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        TimeHistogramFormat format = TimeHistogramFormat.V1;
         logger.info("Select ApplicationMap {} option={}", format, option);
         final ApplicationMap map = this.mapService.selectApplicationMap(option);
 

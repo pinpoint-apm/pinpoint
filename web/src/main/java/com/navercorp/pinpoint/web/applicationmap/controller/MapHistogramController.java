@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.navercorp.pinpoint.web.applicationmap.controller;
@@ -128,9 +127,7 @@ public class MapHistogramController {
             RangeForm rangeForm,
             @RequestBody ApplicationPairs applicationPairs,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "true", required = false)
-            boolean useStatisticsAgentState,
-            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
-            boolean useLoadHistogramFormat
+            boolean useStatisticsAgentState
     ) {
         final Range range = toRange(rangeForm);
         TimeWindow timeWindow = new TimeWindow(range);
@@ -147,7 +144,7 @@ public class MapHistogramController {
                 .build();
         final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
 
-        TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        TimeHistogramFormat format = TimeHistogramFormat.V1;
         ServerGroupList serverGroupList = nodeHistogramSummary.getServerGroupList();
         ServerGroupListView serverGroupListView = new ServerGroupListView(serverGroupList, hyperLinkFactory);
         return new NodeHistogramSummaryView(nodeHistogramSummary, serverGroupListView, format);
@@ -169,9 +166,7 @@ public class MapHistogramController {
             @RequestParam(value = "toServiceTypeCodes", defaultValue = "", required = false)
             List<Short> toServiceTypeCodes,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "true", required = false)
-            boolean useStatisticsAgentState,
-            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
-            boolean useLoadHistogramFormat
+            boolean useStatisticsAgentState
     ) {
         final Range range = toRange(rangeForm);
         TimeWindow timeWindow = new TimeWindow(range);
@@ -196,7 +191,7 @@ public class MapHistogramController {
 
         final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
 
-        final TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        final TimeHistogramFormat format = TimeHistogramFormat.V1;
         ServerGroupList serverGroupList = nodeHistogramSummary.getServerGroupList();
         ServerGroupListView serverGroupListView = new ServerGroupListView(serverGroupList, hyperLinkFactory);
         return new NodeHistogramSummaryView(nodeHistogramSummary, serverGroupListView, format);
@@ -233,9 +228,7 @@ public class MapHistogramController {
             @RequestParam(value = "toApplicationName", required = false) @NullOrNotBlank String toApplicationName,
             @RequestParam(value = "toServiceTypeCode", required = false) Short toServiceTypeCode,
             @Valid @ModelAttribute
-            RangeForm rangeForm,
-            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
-            boolean useLoadHistogramFormat
+            RangeForm rangeForm
     ) {
         final Range range = toRange(rangeForm);
         this.rangeValidator.validate(range);
@@ -246,7 +239,7 @@ public class MapHistogramController {
         final LinkHistogramSummary linkHistogramSummary =
                 responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, timeWindow);
 
-        TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        TimeHistogramFormat format = TimeHistogramFormat.V1;
         return new LinkHistogramSummaryView(linkHistogramSummary, format);
     }
 

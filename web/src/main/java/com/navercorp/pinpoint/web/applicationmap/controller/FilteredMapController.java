@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.navercorp.pinpoint.web.applicationmap.controller;
@@ -96,9 +95,7 @@ public class FilteredMapController {
             @RequestParam(value = "limit", required = false, defaultValue = "10000")
             @PositiveOrZero int limitParam,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
-            boolean useStatisticsAgentState,
-            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false)
-            boolean useLoadHistogramFormat
+            boolean useStatisticsAgentState
     ) {
         final String applicationName = appForm.getApplicationName();
 
@@ -123,7 +120,7 @@ public class FilteredMapController {
                     limit, range.prettyToString(), DateTimeFormatUtils.format(lastScanTime));
         }
 
-        TimeHistogramFormat format = TimeHistogramFormat.format(useLoadHistogramFormat);
+        TimeHistogramFormat format = TimeHistogramFormat.V1;
         ApplicationMapView applicationMapView = new ApplicationMapView(map, MapViews.ofDetailed(), hyperLinkFactory, format);
         ScatterDataMapView scatterDataMapView = new ScatterDataMapView(scatter.getScatterDataMap());
         return new FilterMapView(applicationMapView, scatterDataMapView, lastScanTime);
