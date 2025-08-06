@@ -72,6 +72,10 @@ public class Node {
         return NodeName.of(application);
     }
 
+    public String getNodeKey() {
+        return NodeName.toNodeKey(application.getName(), application.getServiceType());
+    }
+
     public ServiceType getServiceType() {
         return application.getServiceType();
     }
