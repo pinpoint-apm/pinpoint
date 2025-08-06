@@ -71,7 +71,7 @@ public class ApplicationCleanupServiceImpl implements ApplicationCleanupService 
 
     private void logIteration(int iteration, int total, ServiceUid serviceUid, ApplicationUidAttribute applicationUidAttribute, ApplicationUid applicationUid) {
         int logInterval = Math.max(total / 10, 1);
-        String logString = String.format("Iteration %d/%d: %s, %s@%s, %s",
+        String logString = String.format("Iteration %d/%d: %s, %s#%s, %s",
                 iteration, total, serviceUid,
                 applicationUidAttribute.applicationName(), applicationUidAttribute.serviceTypeCode(),
                 applicationUid);

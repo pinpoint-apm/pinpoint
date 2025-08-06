@@ -28,8 +28,8 @@ public class UidBytesCreateUtils {
         return rowKey;
     }
 
-    // serviceUid + applicationName + @(separator)
-    // applicationName is UTF-8 encoded, so the @(separator) is safe to use
+    // serviceUid + applicationName + #(separator)
+    // applicationName is UTF-8 encoded, so the #(separator) is safe to use
     public static byte[] createApplicationUidRowKeyPrefix(ServiceUid serviceUid, String applicationName) {
         final byte[] applicationNameBytes = BytesUtils.toBytes(applicationName);
         byte[] rowKey = new byte[ByteArrayUtils.INT_BYTE_LENGTH + applicationNameBytes.length + 1];
@@ -39,7 +39,7 @@ public class UidBytesCreateUtils {
         return rowKey;
     }
 
-    // serviceUid + applicationName + @(separator) + serviceTypeCode
+    // serviceUid + applicationName + #(separator) + serviceTypeCode
     public static byte[] createApplicationUidRowKey(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
         final byte[] applicationNameBytes = BytesUtils.toBytes(applicationName);
         byte[] rowKey = new byte[ByteArrayUtils.INT_BYTE_LENGTH + applicationNameBytes.length + 1 + ByteArrayUtils.INT_BYTE_LENGTH];
@@ -54,7 +54,7 @@ public class UidBytesCreateUtils {
         return rowKey;
     }
 
-    // applicationName + @(separator) + ServiceTypeCode
+    // applicationName + #(separator) + ServiceTypeCode
     public static byte[] createApplicationUidAttrValue(String applicationName, int serviceTypeCode) {
         final byte[] applicationNameBytes = BytesUtils.toBytes(applicationName);
         byte[] rowKey = new byte[applicationNameBytes.length + 1 + ByteArrayUtils.INT_BYTE_LENGTH];
