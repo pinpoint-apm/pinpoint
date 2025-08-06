@@ -141,10 +141,12 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         byte[] rowKey = new byte[SIZE];
 
         final byte[] parentAppNameBytes = BytesUtils.toBytes(parentApplicationName);
-        if (parentAppNameBytes.length > HbaseTableConstants.APPLICATION_NAME_MAX_LEN) {
-            throw new IllegalArgumentException("Parent application name length exceed " + parentApplicationName);
+        if (parentAppNameBytes != null) {
+            if (parentAppNameBytes.length > HbaseTableConstants.APPLICATION_NAME_MAX_LEN) {
+                throw new IllegalArgumentException("Parent application name length exceed " + parentApplicationName);
+            }
+            BytesUtils.writeBytes(rowKey, saltKeySize, parentAppNameBytes);
         }
-        BytesUtils.writeBytes(rowKey, saltKeySize, parentAppNameBytes);
         offset = ByteArrayUtils.writeShort(parentServiceType, rowKey, offset);
         long timestamp = TimeUtils.reverseTimeMillis(statisticsRowSlot);
         ByteArrayUtils.writeLong(timestamp, rowKey, offset);
