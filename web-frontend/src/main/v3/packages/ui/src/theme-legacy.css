@@ -185,8 +185,9 @@ body {
   --secondary: var(--emerald-green-300);
   --secondary-lighter: var(--emerald-green-100);
 
-  --status-success: var(--green-default);
-  --status-good: var(--blue-500);
+  --status-success: var(--blue-500);
+  --status-good: var(--green-default);
+  --status-fair: var(--yellow-default);
   --status-warn: var(--orange-600);
   --status-fail: var(--red-400);
   --status-danger: var(--red-900);
@@ -227,8 +228,8 @@ body {
 
   --chart-success: var(--emerald-green-300);
   --chart-fail: var(--red-400);
-  --chart-1s: var(--emerald-green-300);
-  --chart-3s: var(--blue-300);
+  --chart-1s: var(--blue-300);
+  --chart-3s: var(--emerald-green-300);
   --chart-5s: var(--orange-500);
   --chart-slow: var(--orange-800);
   --chart-text: var(--text-primary);
@@ -298,9 +299,10 @@ body.dark-mode {
   --secondary: var(--emerald-green-600);
   --secondary-lighter: var(--emerald-green-100);
 
-  --status-success: var(--green-default);
-  --status-good: var(--blue-500);
+  --status-success: var(--blue-500);
+  --status-good: var(--green-default);
   --status-warn: var(--orange-600);
+  --status-fair: var(--yellow-default);
   --status-fail: var(--red-400);
   --status-danger: var(--red-50);
   --status-danger-lighter: var(--red-500);
@@ -340,8 +342,8 @@ body.dark-mode {
 
   --chart-success: var(--emerald-green-600);
   --chart-fail: var(--red-500);
-  --chart-1s: var(--emerald-green-600);
-  --chart-3s: var(--blue-600);
+  --chart-1s: var(--blue-600);
+  --chart-3s: var(--emerald-green-600);
   --chart-5s: var(--orange-400);
   --chart-slow: var(--orange-100);
   --chart-text: var(--text-primary-lighter);

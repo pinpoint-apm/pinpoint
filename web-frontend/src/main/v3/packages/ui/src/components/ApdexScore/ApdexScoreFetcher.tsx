@@ -14,7 +14,7 @@ enum RANK {
 const RankColorClassNameMap: { [key: string]: string } = {
   [RANK.EXCELLENT]: 'text-status-success',
   [RANK.GOOD]: 'text-status-good',
-  [RANK.FAIR]: 'text-[#f7d84a]',
+  [RANK.FAIR]: 'text-status-fair',
   [RANK.POOR]: 'text-status-warn',
   [RANK.UNACCEPTABLE]: 'text-status-fail',
 };

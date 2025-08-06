@@ -418,11 +418,11 @@
               "DESC": "트랜잭션의 개수"
             },
             {
-              "NAME": "<FaCircle size=\"11\" color=\"#34b994\"/> 1s",
+              "NAME": "<FaCircle size=\"11\" color=\"#51afdf\"/> 1s",
               "DESC": "0초 <= 응답시간 < 1초 에 해당하는 성공한 트랜잭션의 수"
             },
             {
-              "NAME": "<FaCircle size=\"11\" color=\"#51afdf\"/> 3s",
+              "NAME": "<FaCircle size=\"11\" color=\"#34b994\"/> 3s",
               "DESC": "1초 <= 응답시간 < 3초 에 해당하는 성공한 트랜잭션의 수"
             },
             {
@@ -457,11 +457,11 @@
               "DESC": "트랜잭션의 개수"
             },
             {
-              "NAME": "<FaCircle size=\"11\" color=\"#34b994\"/> 1s",
+              "NAME": "<FaCircle size=\"11\" color=\"#51afdf\"/> 1s",
               "DESC": "0초 <= 응답시간 < 1초 에 해당하는 성공한 트랜잭션의 수"
             },
             {
-              "NAME": "<FaCircle size=\"11\" color=\"#51afdf\"/> 3s",
+              "NAME": "<FaCircle size=\"11\" color=\"#34b994\"/> 3s",
               "DESC": "1초 <= 응답시간 < 3초 에 해당하는 성공한 트랜잭션의 수"
             },
             {
@@ -1314,11 +1314,11 @@
           "ITEMS": [
             {
               "NAME": "0.94 ~ 1.00",
-              "DESC": "<FaSmileBeam size=\"15\" color=\"#41c464\"/> Execellent"
+              "DESC": "<FaSmileBeam size=\"15\" color=\"#469ae4\"/> Execellent"
             },
             {
               "NAME": "0.85 ~ 0.94",
-              "DESC": "<FaSmile size=\"15\" color=\"#469ae4\"/> Good"
+              "DESC": "<FaSmile size=\"15\" color=\"#41c464\"/> Good"
             },
             {
               "NAME": "0.7 ~ 0.85",

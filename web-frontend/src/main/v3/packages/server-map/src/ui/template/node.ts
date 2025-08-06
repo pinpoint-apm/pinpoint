@@ -59,11 +59,11 @@ const getTimeSeriesApdexStatusSVGCircle = (timeSeriesApdexInfo: TimeSeriesApdexI
 
   // Apdex 등급별 색상 매핑
   const colorMap: Record<string, string> = {
-    Excellent: '#41c464',
-    Good: '#469ae4',
-    Fair: '#f7d84a',
-    Poor: '#ff8c00',
-    Unacceptable: '#eb4747',
+    Excellent: defaultTheme!.timeSeriesApdexStatus!.excellent!,
+    Good: defaultTheme!.timeSeriesApdexStatus!.good!,
+    Fair: defaultTheme!.timeSeriesApdexStatus!.fair!,
+    Poor: defaultTheme!.timeSeriesApdexStatus!.poor!,
+    Unacceptable: defaultTheme!.timeSeriesApdexStatus!.unacceptable!,
   };
 
   // Apdex 점수에 따라 등급 반환

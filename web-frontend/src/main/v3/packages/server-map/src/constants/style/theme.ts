@@ -31,6 +31,13 @@ export type ServerMapTheme = {
       strokeWidth?: number;
     };
   };
+  timeSeriesApdexStatus?: {
+    excellent?: string;
+    good?: string;
+    fair?: string;
+    poor?: string;
+    unacceptable?: string;
+  };
   node?: {
     default?: Css.Node;
     highlight?: Css.Node;
@@ -61,6 +68,13 @@ export const defaultTheme: DeepNonNullable<ServerMapTheme> = {
       stroke: '#F0515B',
       strokeWidth: 10,
     },
+  },
+  timeSeriesApdexStatus: {
+    excellent: '#469ae4',
+    good: '#41c464',
+    fair: '#f7d84a',
+    poor: '#ff8c00',
+    unacceptable: '#eb4747',
   },
   node: {
     default: {

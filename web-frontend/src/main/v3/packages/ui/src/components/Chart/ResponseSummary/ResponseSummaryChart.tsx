@@ -22,7 +22,7 @@ export interface ResponseSummaryChartProps {
 export const ResponseSummaryChart = ({
   data,
   categories = ['1s', '3s', '5s', 'Slow', 'Error'],
-  colors = ['#34b994', '#51afdf', '#ffba00', '#e67f22', '#e95459'],
+  colors = ['#51afdf', '#34b994', '#ffba00', '#e67f22', '#e95459'],
   className,
   title,
   emptyMessage = 'No Data',
