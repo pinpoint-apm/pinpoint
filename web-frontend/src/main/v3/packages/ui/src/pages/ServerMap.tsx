@@ -200,7 +200,7 @@ export const ServerMapPage = ({
         ? edges.map((edge) => edge.target)
         : [];
 
-    return (serverMapData?.applicationMapData.nodeDataArray as GetServerMap.NodeData[])
+    return ((serverMapData?.applicationMapData.nodeDataArray as GetServerMap.NodeData[]) || [])
       .filter(({ key }: GetServerMap.NodeData) => nodeIds.includes(key))
       .sort((node1, node2) => node2.totalCount - node1.totalCount);
   };
