@@ -3,12 +3,11 @@ package com.navercorp.pinpoint.batch.alarm;
 import com.navercorp.pinpoint.batch.alarm.collector.pinot.HeapDataCollector;
 import com.navercorp.pinpoint.batch.alarm.vo.AppAlarmChecker;
 import com.navercorp.pinpoint.batch.config.AlarmCheckerConfiguration;
+import com.navercorp.pinpoint.batch.service.BatchAgentService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.service.AlarmService;
-import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,16 +41,13 @@ public class AlarmProcessorTest {
     private AlarmService alarmService;
 
     @Mock
-    private ApplicationIndexDao applicationIndexDao;
-
-    @Mock
-    private ActiveAgentValidator activeAgentValidator;
-
-    @Mock
     private HeapDataCollector heapDataCollector;
 
     @Autowired
     CheckerRegistry checkerRegistry;
+
+    @Mock
+    private BatchAgentService batchAgentService;
 
     private static final String SERVICE_NAME = "local_tomcat";
 
@@ -63,7 +59,7 @@ public class AlarmProcessorTest {
 
         when(alarmService.selectRuleByApplicationName(SERVICE_NAME)).thenReturn(List.of());
 
-        AlarmProcessor proc = new AlarmProcessor(dataCollectorFactory, alarmService, applicationIndexDao, activeAgentValidator, checkerRegistry);
+        AlarmProcessor proc = new AlarmProcessor(dataCollectorFactory, alarmService, checkerRegistry, batchAgentService);
         AppAlarmChecker checker = proc.process(app);
 
         assertNull(checker, "should be skipped");
@@ -82,7 +78,7 @@ public class AlarmProcessorTest {
         when(heapDataCollector.getHeapUsageRate()).thenReturn(heapUsageRate);
 
         // Executions
-        AlarmProcessor processor = new AlarmProcessor(dataCollectorFactory, alarmService, applicationIndexDao, activeAgentValidator, checkerRegistry);
+        AlarmProcessor processor = new AlarmProcessor(dataCollectorFactory, alarmService, checkerRegistry, batchAgentService);
         AppAlarmChecker appChecker = processor.process(application);
 
         // Validations

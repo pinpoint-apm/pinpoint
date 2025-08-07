@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.batch.alarm;
 
-import com.navercorp.pinpoint.batch.service.BatchApplicationService;
+import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
 import com.navercorp.pinpoint.web.service.AlarmService;
 import com.navercorp.pinpoint.web.vo.Application;
 import jakarta.annotation.Nonnull;
@@ -36,13 +36,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class AlarmReader implements ItemReader<Application>, StepExecutionListener {
 
-    private final BatchApplicationService batchApplicationService;
+    private final BatchApplicationIndexService batchApplicationIndexService;
     private final AlarmService alarmService;
 
     private Queue<Application> applicationQueue;
 
-    public AlarmReader(BatchApplicationService batchApplicationService, AlarmService alarmService) {
-        this.batchApplicationService = Objects.requireNonNull(batchApplicationService, "batchApplicationService");
+    public AlarmReader(BatchApplicationIndexService batchApplicationIndexService, AlarmService alarmService) {
+        this.batchApplicationIndexService = Objects.requireNonNull(batchApplicationIndexService, "batchApplicationService");
         this.alarmService = Objects.requireNonNull(alarmService, "alarmService");
     }
 
@@ -56,7 +56,7 @@ public class AlarmReader implements ItemReader<Application>, StepExecutionListen
     }
 
     private List<Application> fetchApplications() {
-        List<Application> applications = batchApplicationService.selectAllApplications();
+        List<Application> applications = batchApplicationIndexService.selectAllApplications();
         List<String> validApplicationNames = alarmService.selectApplicationName();
 
         List<Application> validApplications = new ArrayList<>(applications.size());

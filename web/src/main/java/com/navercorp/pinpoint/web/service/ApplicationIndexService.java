@@ -20,19 +20,27 @@ import com.navercorp.pinpoint.web.vo.Application;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Taejin Koo
  */
 @Service
-public interface ApplicationService {
+public interface ApplicationIndexService {
 
     List<Application> selectAllApplications();
 
     List<String> selectAllApplicationNames();
 
+    List<Application> selectApplication(String applicationName);
+
     void deleteApplicationName(String applicationName);
 
     boolean isExistApplicationName(String applicationName);
 
+    List<String> selectAgentIds(String applicationName);
+
+    void deleteAgentIds(Map<String, List<String>> applicationAgentIdMap);
+
+    void deleteAgentId(String applicationName, String agentId);
 }

@@ -29,7 +29,7 @@ public enum HbaseTable {
     APPLICATION_INDEX("ApplicationIndex"),
     APPLICATION_UID("ApplicationUid"),
     APPLICATION_UID_ATTR("ApplicationUidAttr"),
-    AGENT_NAME("AgentName"),
+    AGENT_ID("AgentId"),
     APPLICATION_TRACE_INDEX("ApplicationTraceIndex"),
     HOST_APPLICATION_MAP_VER2("HostApplicationMap_Ver2"),
     MAP_STATISTICS_CALLEE_VER2("ApplicationMapStatisticsCallee_Ver2"),

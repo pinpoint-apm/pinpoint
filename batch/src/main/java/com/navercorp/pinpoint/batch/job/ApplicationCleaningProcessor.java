@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.batch.job;
 
 import com.navercorp.pinpoint.batch.service.BatchAgentService;
-import com.navercorp.pinpoint.batch.service.BatchApplicationService;
+import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
 import com.navercorp.pinpoint.batch.vo.CleanTarget;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
@@ -39,16 +39,16 @@ public class ApplicationCleaningProcessor implements ItemProcessor<String, List<
     private static final Logger logger = LogManager.getLogger(ApplicationCleaningProcessor.class);
 
     private final BatchAgentService agentService;
-    private final BatchApplicationService applicationService;
+    private final BatchApplicationIndexService batchApplicationIndexService;
     private final Duration emptyDurationThreshold;
 
     public ApplicationCleaningProcessor(
             BatchAgentService agentService,
-            BatchApplicationService applicationService,
+            BatchApplicationIndexService batchApplicationIndexService,
             Duration emptyDurationThreshold
     ) {
         this.agentService = Objects.requireNonNull(agentService, "agentService");
-        this.applicationService = Objects.requireNonNull(applicationService, "applicationService");
+        this.batchApplicationIndexService = Objects.requireNonNull(batchApplicationIndexService, "applicationService");
         this.emptyDurationThreshold = Objects.requireNonNull(emptyDurationThreshold, "emptyDurationThreshold");
     }
 
@@ -80,7 +80,7 @@ public class ApplicationCleaningProcessor implements ItemProcessor<String, List<
     }
 
     private boolean isApplicationTarget(String applicationName) {
-        return !this.applicationService.isActive(applicationName, this.emptyDurationThreshold);
+        return !this.batchApplicationIndexService.isActive(applicationName, this.emptyDurationThreshold);
     }
 
     private boolean isAgentTarget(String agentId, Range range) {

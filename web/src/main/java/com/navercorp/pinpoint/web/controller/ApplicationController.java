@@ -19,7 +19,7 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.web.response.CodeResult;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
-import com.navercorp.pinpoint.web.service.ApplicationService;
+import com.navercorp.pinpoint.web.service.ApplicationIndexService;
 import com.navercorp.pinpoint.web.service.CacheService;
 import com.navercorp.pinpoint.web.service.CommonService;
 import com.navercorp.pinpoint.web.util.TagApplicationsUtils;
@@ -55,16 +55,16 @@ public class ApplicationController {
 
     private final AgentInfoService agentInfoService;
 
-    private final ApplicationService applicationService;
+    private final ApplicationIndexService applicationIndexService;
 
     private final CommonService commonService;
     private final CacheService cacheService;
 
     private static final String KEY = CacheService.DEFAULT_KEY;
 
-    public ApplicationController(AgentInfoService agentInfoService, ApplicationService applicationService, CommonService commonService, CacheService cacheService) {
+    public ApplicationController(AgentInfoService agentInfoService, ApplicationIndexService applicationIndexService, CommonService commonService, CacheService cacheService) {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
-        this.applicationService = Objects.requireNonNull(applicationService, "applicationService");
+        this.applicationIndexService = Objects.requireNonNull(applicationIndexService, "applicationIndexService");
         this.commonService = Objects.requireNonNull(commonService, "commonService");
         this.cacheService = Objects.requireNonNull(cacheService, "cacheService");
     }
@@ -137,7 +137,7 @@ public class ApplicationController {
             );
         }
 
-        if (applicationService.isExistApplicationName(applicationName)) {
+        if (applicationIndexService.isExistApplicationName(applicationName)) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "applicationName already exists");
         }
 

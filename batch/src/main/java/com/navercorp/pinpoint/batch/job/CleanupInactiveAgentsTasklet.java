@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.batch.job;
 
 import com.navercorp.pinpoint.batch.common.BatchProperties;
-import com.navercorp.pinpoint.batch.service.BatchApplicationService;
+import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
 import com.navercorp.pinpoint.web.service.AdminService;
 import jakarta.annotation.Nonnull;
 import org.apache.logging.log4j.LogManager;
@@ -49,7 +49,7 @@ public class CleanupInactiveAgentsTasklet implements Tasklet, StepExecutionListe
 
     private final AdminService adminService;
 
-    private final BatchApplicationService batchApplicationService;
+    private final BatchApplicationIndexService batchApplicationIndexService;
 
     private Queue<String> applicationNameQueue;
     private int progress;
@@ -59,17 +59,17 @@ public class CleanupInactiveAgentsTasklet implements Tasklet, StepExecutionListe
     public CleanupInactiveAgentsTasklet(
             BatchProperties batchProperties,
             AdminService adminService,
-            BatchApplicationService batchApplicationService
+            BatchApplicationIndexService batchApplicationIndexService
     ) {
         Objects.requireNonNull(batchProperties, "batchProperties");
         this.durationDays = batchProperties.getCleanupInactiveAgentsDurationDays();
         this.adminService = Objects.requireNonNull(adminService, "adminService");
-        this.batchApplicationService = Objects.requireNonNull(batchApplicationService, "batchApplicationService");
+        this.batchApplicationIndexService = Objects.requireNonNull(batchApplicationIndexService, "batchApplicationService");
     }
 
     @Override
     public void beforeStep(@Nonnull StepExecution stepExecution) {
-        List<String> applicationNames = this.batchApplicationService.selectAllApplicationNames()
+        List<String> applicationNames = this.batchApplicationIndexService.selectAllApplicationNames()
                 .stream()
                 .distinct()
                 .collect(Collectors.toList());

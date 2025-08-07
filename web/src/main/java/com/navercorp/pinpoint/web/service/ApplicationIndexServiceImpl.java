@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.uid.service.AgentNameService;
+import com.navercorp.pinpoint.uid.service.AgentIdService;
 import com.navercorp.pinpoint.uid.vo.ApplicationUidRow;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
@@ -28,35 +29,49 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
 @Service
-public class ApplicationServiceImpl implements ApplicationService {
+public class ApplicationIndexServiceImpl implements ApplicationIndexService {
 
     private final ApplicationIndexDao applicationIndexDao;
     private final ApplicationFactory applicationFactory;
 
     private final ApplicationUidService applicationUidService;
-    private final AgentNameService agentNameService;
+    private final AgentIdService agentIdService;
     private final boolean uidApplicationListEnable;
+    private final boolean uidAgentListEnable;
 
-    public ApplicationServiceImpl(ApplicationIndexDao applicationIndexDao,
-                                  ApplicationFactory applicationFactory,
-                                  @Nullable ApplicationUidService applicationUidService,
-                                  @Nullable AgentNameService agentNameService,
-                                  @Value("${pinpoint.web.uid.application.list.enabled:false}") boolean uidApplicationListEnable) {
+    public ApplicationIndexServiceImpl(ApplicationIndexDao applicationIndexDao,
+                                       ApplicationFactory applicationFactory,
+                                       @Nullable ApplicationUidService applicationUidService,
+                                       @Nullable AgentIdService agentIdService,
+                                       @Value("${pinpoint.web.uid.application.list.enabled:false}") boolean uidApplicationListEnable,
+                                       @Value("${pinpoint.web.uid.agent.list.enabled:false}") boolean uidAgentListEnable) {
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.applicationFactory = applicationFactory;
         this.applicationUidService = applicationUidService;
-        this.agentNameService = agentNameService;
+        this.agentIdService = agentIdService;
         this.uidApplicationListEnable = uidApplicationListEnable;
+        this.uidAgentListEnable = uidAgentListEnable;
     }
 
     private boolean isUidApplicationListEnable() {
         return uidApplicationListEnable && applicationUidService != null;
+    }
+
+    private boolean isUidAgentListEnable() {
+        return uidAgentListEnable && agentIdService != null;
+    }
+
+    private List<ApplicationUid> getApplicationUidList(String applicationName) {
+        return applicationUidService.getApplications(ServiceUid.DEFAULT, applicationName).stream()
+                .map(ApplicationUidRow::applicationUid)
+                .toList();
     }
 
     @Override
@@ -84,13 +99,25 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
+    public List<Application> selectApplication(String applicationName) {
+        if (isUidApplicationListEnable()) {
+            List<ApplicationUidRow> applicationUidRows = applicationUidService.getApplications(ServiceUid.DEFAULT, applicationName);
+            return applicationUidRows.stream()
+                    .map(row -> applicationFactory.createApplication(row.applicationName(), row.serviceTypeCode()))
+                    .toList();
+        }
+
+        return this.applicationIndexDao.selectApplicationName(applicationName);
+    }
+
+    @Override
     public void deleteApplicationName(String applicationName) {
         applicationIndexDao.deleteApplicationName(applicationName);
 
         if (applicationUidService != null) {
             for (ApplicationUidRow row : applicationUidService.getApplications(ServiceUid.DEFAULT, applicationName)) {
-                if (agentNameService != null) {
-                    agentNameService.deleteAllAgents(row.serviceUid(), row.applicationUid());
+                if (agentIdService != null) {
+                    agentIdService.deleteAllAgent(row.serviceUid(), row.applicationUid());
                 }
                 applicationUidService.deleteApplication(row.serviceUid(), row.applicationName(), row.serviceTypeCode());
             }
@@ -118,4 +145,41 @@ public class ApplicationServiceImpl implements ApplicationService {
         return false;
     }
 
+    @Override
+    public List<String> selectAgentIds(String applicationName) {
+        if (isUidAgentListEnable()) {
+            List<ApplicationUid> applicationUidList = getApplicationUidList(applicationName);
+            return agentIdService.getAgentId(ServiceUid.DEFAULT, applicationUidList).stream()
+                    .flatMap(List::stream)
+                    .distinct()
+                    .toList();
+        }
+
+        return applicationIndexDao.selectAgentIds(applicationName);
+    }
+
+    @Override
+    public void deleteAgentIds(Map<String, List<String>> applicationAgentIdMap) {
+        applicationIndexDao.deleteAgentIds(applicationAgentIdMap);
+        if (agentIdService != null) {
+            for (Map.Entry<String, List<String>> entry : applicationAgentIdMap.entrySet()) {
+                deleteUidAgent(entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
+    @Override
+    public void deleteAgentId(String applicationName, String agentId) {
+        applicationIndexDao.deleteAgentId(applicationName, agentId);
+        if (agentIdService != null) {
+            deleteUidAgent(applicationName, List.of(agentId));
+        }
+    }
+
+    private void deleteUidAgent(String applicationName, List<String> agentIds) {
+        List<ApplicationUid> applicationUidList = getApplicationUidList(applicationName);
+        for (ApplicationUid applicationUid : applicationUidList) {
+            agentIdService.deleteAgent(ServiceUid.DEFAULT, applicationUid, agentIds);
+        }
+    }
 }

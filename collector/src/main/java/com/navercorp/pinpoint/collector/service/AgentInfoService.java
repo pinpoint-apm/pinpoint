@@ -23,7 +23,8 @@ import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.io.request.UidException;
-import com.navercorp.pinpoint.uid.dao.AgentNameDao;
+import com.navercorp.pinpoint.uid.dao.AgentIdDao;
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -34,7 +35,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -51,17 +51,18 @@ public class AgentInfoService {
     private final ApplicationIndexDao applicationIndexDao;
 
     private final ApplicationUidService applicationUidCacheService;
-    private final AgentNameDao agentNameDao;
+    private final AgentIdDao agentIdDao;
 
     private final boolean uidAgentListEnable;
 
     public AgentInfoService(AgentInfoDao agentInfoDao, ApplicationIndexDao applicationIndexDao,
-                            ApplicationUidService applicationUidCacheService, Optional<AgentNameDao> agentNameDao,
-                            @Value("${pinpoint.collector.application.uid.agent.list.enable:false}") boolean uidAgentListEnable) {
+                            ApplicationUidService applicationUidCacheService,
+                            @Nullable AgentIdDao agentIdDao,
+                            @Value("${pinpoint.collector.uid.agent.list.enabled:false}") boolean uidAgentListEnable) {
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.applicationUidCacheService = Objects.requireNonNull(applicationUidCacheService, "applicationUidService");
-        this.agentNameDao = agentNameDao.orElse(null);
+        this.agentIdDao = agentIdDao;
         this.uidAgentListEnable = uidAgentListEnable;
     }
 
@@ -72,34 +73,34 @@ public class AgentInfoService {
     }
 
     private void uidAgentListInsert(Supplier<ServiceUid> serviceUidSupplier, Supplier<ApplicationUid> applicationUidSupplier, AgentInfoBo agentInfoBo) {
-        if (!uidAgentListEnable || agentNameDao == null) {
+        if (!uidAgentListEnable || agentIdDao == null) {
             return;
         }
         try {
             ServiceUid serviceUid = serviceUidSupplier.get();
-            ApplicationUid applicationUid = getApplicationUid(serviceUid, applicationUidSupplier, agentInfoBo);
-            insertAgentName(agentInfoBo, serviceUid, applicationUid);
+            ApplicationUid applicationUid = getApplicationUid(serviceUid, applicationUidSupplier, agentInfoBo.getApplicationName(), agentInfoBo.getServiceTypeCode());
+            insertAgentId(serviceUid, applicationUid, agentInfoBo.getAgentId());
         } catch (Exception e) {
             logger.warn("Failed to insert agentName. applicationName: {}, id: {}, name: {}", agentInfoBo.getApplicationName(), agentInfoBo.getAgentId(), agentInfoBo.getAgentName(), e);
         }
     }
 
-    private ApplicationUid getApplicationUid(ServiceUid serviceUid, Supplier<ApplicationUid> applicationUidSupplier, AgentInfoBo agentInfoBo) {
+    private ApplicationUid getApplicationUid(ServiceUid serviceUid, Supplier<ApplicationUid> applicationUidSupplier, String applicationName, int serviceTypeCode) {
         Objects.requireNonNull(serviceUid, "serviceUid");
-        Objects.requireNonNull(agentInfoBo.getApplicationName(), "applicationName");
+        Objects.requireNonNull(applicationName, "applicationName");
         try {
             return applicationUidSupplier.get();
         } catch (UidException exception) {
-            return applicationUidCacheService.getOrCreateApplicationUid(serviceUid, agentInfoBo.getApplicationName(), agentInfoBo.getServiceTypeCode());
+            return applicationUidCacheService.getOrCreateApplicationUid(serviceUid, applicationName, serviceTypeCode);
         }
     }
 
-    private void insertAgentName(AgentInfoBo agentInfoBo, ServiceUid serviceUid, ApplicationUid applicationUid) {
+    private void insertAgentId(ServiceUid serviceUid, ApplicationUid applicationUid, String agentId) {
         Objects.requireNonNull(applicationUid, "applicationUid");
         try {
-            agentNameDao.insert(serviceUid, applicationUid, agentInfoBo.getAgentId(), agentInfoBo.getStartTime(), agentInfoBo.getAgentName());
+            agentIdDao.insert(serviceUid, applicationUid, agentId);
         } catch (Exception e) {
-            logger.warn("Failed to insert uid agent list. {}, applicationName: {}, id: {}, name: {}", serviceUid, agentInfoBo.getApplicationName(), agentInfoBo.getAgentId(), agentInfoBo.getAgentName(), e);
+            logger.warn("Failed to insert uid agent list. {}, {}, agentid: {}, ", serviceUid, applicationUid, agentId, e);
         }
     }
 

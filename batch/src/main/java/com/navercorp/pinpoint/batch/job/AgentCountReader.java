@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.batch.job;
 
-import com.navercorp.pinpoint.batch.service.BatchApplicationService;
+import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
 import jakarta.annotation.Nonnull;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
@@ -32,17 +32,17 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class AgentCountReader implements ItemReader<String>, StepExecutionListener {
 
-    private final BatchApplicationService batchApplicationService;
+    private final BatchApplicationIndexService batchApplicationIndexService;
 
     private Queue<String> applicationNameQueue;
 
-    public AgentCountReader(BatchApplicationService batchApplicationService) {
-        this.batchApplicationService = batchApplicationService;
+    public AgentCountReader(BatchApplicationIndexService batchApplicationIndexService) {
+        this.batchApplicationIndexService = batchApplicationIndexService;
     }
 
     @Override
     public void beforeStep(@Nonnull StepExecution stepExecution) {
-        List<String> applicationNames = batchApplicationService.selectAllApplicationNames();
+        List<String> applicationNames = batchApplicationIndexService.selectAllApplicationNames();
         this.applicationNameQueue = new ConcurrentLinkedQueue<>(applicationNames);
     }
 

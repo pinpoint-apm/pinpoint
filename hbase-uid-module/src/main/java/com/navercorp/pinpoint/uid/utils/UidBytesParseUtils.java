@@ -46,10 +46,6 @@ public class UidBytesParseUtils {
         buffer.setOffset(AGENT_ID_OFFSET);
         return buffer.readPadStringAndRightTrim(HbaseTableConstants.AGENT_ID_MAX_LEN);
     }
-
-    public static long parseAgentStartTime(byte[] agentNameRowKey) {
-        return TimeUtils.recoveryTimeMillis(ByteArrayUtils.bytesToLong(agentNameRowKey, AGENT_START_TIME_OFFSET));
-    }
 }
 
 

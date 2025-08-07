@@ -16,9 +16,8 @@
 package com.navercorp.pinpoint.batch.job;
 
 import com.navercorp.pinpoint.batch.common.BatchProperties;
+import com.navercorp.pinpoint.batch.service.BatchAgentService;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
 import jakarta.annotation.Nonnull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,17 +33,12 @@ public class AgentCountProcessor implements ItemProcessor<String, Integer> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final ApplicationIndexDao applicationIndexDao;
-    private final ActiveAgentValidator activeAgentValidator;
+    private final BatchAgentService batchAgentService;
+
     private final long duration;
 
-    public AgentCountProcessor(
-            ApplicationIndexDao applicationIndexDao,
-            ActiveAgentValidator activeAgentValidator,
-            BatchProperties batchProperties
-    ) {
-        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
-        this.activeAgentValidator = Objects.requireNonNull(activeAgentValidator, "activeAgentValidator");
+    public AgentCountProcessor(BatchAgentService batchAgentService, BatchProperties batchProperties) {
+        this.batchAgentService = Objects.requireNonNull(batchAgentService, "batchAgentService");
 
         long durationDays = batchProperties.getCleanupInactiveAgentsDurationDays();
         this.duration = TimeUnit.DAYS.toMillis(durationDays);
@@ -52,7 +46,7 @@ public class AgentCountProcessor implements ItemProcessor<String, Integer> {
 
     @Override
     public Integer process(@Nonnull String applicationName) {
-        long localCount = applicationIndexDao.selectAgentIds(applicationName)
+        long localCount = batchAgentService.getIds(applicationName)
                 .stream()
                 .filter(this::isActive)
                 .count();
@@ -63,6 +57,6 @@ public class AgentCountProcessor implements ItemProcessor<String, Integer> {
     private boolean isActive(String agentId) {
         long now = System.currentTimeMillis();
         Range range = Range.between(now - duration, now);
-        return activeAgentValidator.isActiveAgent(agentId, range);
+        return batchAgentService.isActive(agentId, range);
     }
 }

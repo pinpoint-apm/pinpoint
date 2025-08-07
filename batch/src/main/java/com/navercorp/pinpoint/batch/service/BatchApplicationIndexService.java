@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * @author youngjin.kim2
  */
-public interface BatchApplicationService {
+public interface BatchApplicationIndexService {
 
     List<Application> selectAllApplications();
 
@@ -34,4 +34,7 @@ public interface BatchApplicationService {
 
     void remove(String applicationName);
 
+    List<String> selectAgentIds(String applicationName);
+
+    void deleteAgentId(String applicationName, String agentId);
 }

@@ -10,7 +10,7 @@
                                             com.navercorp.pinpoint.common.server.bo,
                                             com.navercorp.pinpoint.common.server.dao.hbase.mapper">
         <context:exclude-filter type="assignable" expression="com.navercorp.pinpoint.web.service.CacheServiceImpl"/>
-        <context:exclude-filter type="assignable" expression="com.navercorp.pinpoint.web.service.AgentClusterKeyServiceImpl"/>
+        <context:exclude-filter type="assignable" expression="com.navercorp.pinpoint.web.service.AgentServiceImpl"/>
         <context:exclude-filter type="assignable" expression="com.navercorp.pinpoint.web.service.AgentListService"/>
     </context:component-scan>
 
