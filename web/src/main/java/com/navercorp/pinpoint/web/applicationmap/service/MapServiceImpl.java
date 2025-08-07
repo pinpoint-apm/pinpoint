@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.navercorp.pinpoint.web.applicationmap.service;
@@ -27,10 +26,7 @@ import com.navercorp.pinpoint.web.applicationmap.appender.histogram.SimplifiedNo
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapApplicationResponseNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseSimplifiedNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerGroupListFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.StatisticsServerGroupListFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelector;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorFactory;
@@ -167,11 +163,6 @@ public class MapServiceImpl implements MapService {
     }
 
     private ServerGroupListFactory newServerGroupListFactory(boolean isUseStatisticsAgentState) {
-        ServerGroupListDataSource serverGroupListDataSource = serverInstanceDatasourceService.getServerGroupListDataSource();
-        if (isUseStatisticsAgentState) {
-            return new StatisticsServerGroupListFactory(serverGroupListDataSource);
-        } else {
-            return new DefaultServerGroupListFactory(serverGroupListDataSource);
-        }
+        return serverInstanceDatasourceService.getGroupServerFactory(isUseStatisticsAgentState);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.navercorp.pinpoint.web.applicationmap.service;
@@ -34,7 +33,6 @@ import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWithScatter;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerGroupListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
@@ -50,7 +48,6 @@ import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
-import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.ServerInstanceDatasourceService;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -81,7 +78,6 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -139,12 +135,6 @@ public class FilteredMapServiceImplTest {
                     String applicationName = invocation.getArgument(0);
                     ServiceType serviceType = registry.findServiceTypeByName(invocation.getArgument(1));
                     return new Application(applicationName, serviceType);
-                });
-
-        when(serverInstanceDatasourceService.getServerGroupListDataSource())
-                .thenAnswer(invocation -> {
-                    AgentInfoService agentInfoService = mock(AgentInfoService.class);
-                    return new AgentInfoServerGroupListDataSource(agentInfoService);
                 });
 
         filteredMapService = new FilteredMapServiceImpl(traceDao, applicationTraceIndexDao,
