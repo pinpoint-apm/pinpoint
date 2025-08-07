@@ -68,21 +68,12 @@ public class UidBytesCreateUtils {
         ByteArrayUtils.writeInt(serviceTypeCode, buffer, bufferOffset + applicationNameBytes.length + 1);
     }
 
-    public static byte[] createAgentNameRowKey(ServiceUid serviceUid, ApplicationUid applicationUid, String agentId, long agentStartTime) {
-        Buffer buffer = new FixedBuffer(AGENT_START_TIME_OFFSET + BytesUtils.LONG_BYTE_LENGTH);
-        buffer.putInt(serviceUid.getUid());
-        buffer.putLong(applicationUid.getUid());
-        buffer.putPadString(agentId, HbaseTableConstants.AGENT_ID_MAX_LEN);
-        buffer.putLong(TimeUtils.reverseTimeMillis(agentStartTime));
-        return buffer.getBuffer();
-    }
-
     public static byte[] createAgentNameRowKey(ServiceUid serviceUid, ApplicationUid applicationUid, String agentId) {
-        Buffer buffer = new FixedBuffer(AGENT_START_TIME_OFFSET);
-        buffer.putInt(serviceUid.getUid());
-        buffer.putLong(applicationUid.getUid());
-        buffer.putPadString(agentId, HbaseTableConstants.AGENT_ID_MAX_LEN);
-        return buffer.getBuffer();
+        Buffer FixedBuffer = new FixedBuffer(AGENT_START_TIME_OFFSET);
+        FixedBuffer.putInt(serviceUid.getUid());
+        FixedBuffer.putLong(applicationUid.getUid());
+        FixedBuffer.putPadString(agentId, HbaseTableConstants.AGENT_ID_MAX_LEN);
+        return FixedBuffer.getBuffer();
     }
 }
 

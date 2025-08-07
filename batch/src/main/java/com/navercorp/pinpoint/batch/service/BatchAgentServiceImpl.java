@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.batch.service;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
+import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.List;
 import java.util.Objects;
@@ -28,20 +28,19 @@ import java.util.Objects;
  */
 public class BatchAgentServiceImpl implements BatchAgentService {
 
-    private final ApplicationIndexDao applicationIndexDao;
     private final ActiveAgentValidator activeAgentValidator;
+    private final BatchApplicationIndexService batchApplicationIndexService;
 
     public BatchAgentServiceImpl(
-            ApplicationIndexDao applicationIndexDao,
-            ActiveAgentValidator activeAgentValidator
-    ) {
-        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
+            ActiveAgentValidator activeAgentValidator,
+            BatchApplicationIndexService batchApplicationIndexService) {
         this.activeAgentValidator = Objects.requireNonNull(activeAgentValidator, "activeAgentValidator");
+        this.batchApplicationIndexService = Objects.requireNonNull(batchApplicationIndexService, "batchApplicationIndexService");
     }
 
     @Override
     public List<String> getIds(String applicationName) {
-        return this.applicationIndexDao.selectAgentIds(applicationName);
+        return this.batchApplicationIndexService.selectAgentIds(applicationName);
     }
 
     @Override
@@ -50,7 +49,12 @@ public class BatchAgentServiceImpl implements BatchAgentService {
     }
 
     @Override
+    public boolean isActive(Application agent, Range range) {
+        return this.activeAgentValidator.isActiveAgent(agent, range);
+    }
+
+    @Override
     public void remove(String applicationName, String agentId) {
-        this.applicationIndexDao.deleteAgentId(applicationName, agentId);
+        this.batchApplicationIndexService.deleteAgentId(applicationName, agentId);
     }
 }

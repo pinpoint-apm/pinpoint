@@ -2,20 +2,19 @@ package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.server.response.Response;
 import com.navercorp.pinpoint.common.server.response.SimpleResponse;
-import com.navercorp.pinpoint.common.server.uid.AgentIdentifier;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.uid.service.AgentNameService;
+import com.navercorp.pinpoint.uid.service.AgentIdService;
 import com.navercorp.pinpoint.uid.service.ApplicationCleanupService;
 import com.navercorp.pinpoint.uid.vo.ApplicationUidRow;
 import com.navercorp.pinpoint.web.service.AgentListService;
 import com.navercorp.pinpoint.web.uid.service.ApplicationUidService;
 import com.navercorp.pinpoint.web.uid.service.ServiceUidCachedService;
-import com.navercorp.pinpoint.web.vo.agent.AgentListEntry;
+import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import org.apache.logging.log4j.LogManager;
@@ -43,33 +42,33 @@ public class UidAdminController {
 
     private final ApplicationCleanupService applicationUidCleanupService;
 
-    private final AgentNameService agentNameService;
+    private final AgentIdService agentIdService;
     private final AgentListService agentListService;
 
     public UidAdminController(ServiceUidCachedService serviceUidCachedService,
                               ApplicationUidService applicationUidService,
                               ServiceTypeRegistryService serviceTypeRegistryService,
                               ApplicationCleanupService applicationCleanupService,
-                              AgentNameService agentNameService,
+                              AgentIdService agentIdService,
                               AgentListService agentListService) {
         this.serviceUidCachedService = Objects.requireNonNull(serviceUidCachedService, "serviceUidCachedService");
         this.applicationUidService = Objects.requireNonNull(applicationUidService, "applicationUidService");
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
         this.applicationUidCleanupService = Objects.requireNonNull(applicationCleanupService, "applicationCleanupService");
-        this.agentNameService = Objects.requireNonNull(agentNameService, "agentNameService");
+        this.agentIdService = Objects.requireNonNull(agentIdService, "agentNameService");
         this.agentListService = Objects.requireNonNull(agentListService, "agentListService");
     }
 
     @GetMapping(value = "/debug/agent")
-    public List<AgentIdentifier> getAllAgent(@RequestParam(value = "serviceName", required = false) String serviceName,
-                                             @RequestParam(value = "applicationName") @NotBlank String applicationName,
-                                             @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
-                                             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName) {
+    public List<String> getAllAgent(@RequestParam(value = "serviceName", required = false) String serviceName,
+                                    @RequestParam(value = "applicationName") @NotBlank String applicationName,
+                                    @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
+                                    @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName) {
         ServiceUid serviceUid = getServiceUid(serviceName);
         ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
 
         ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, applicationName, serviceType.getCode());
-        return agentNameService.getAgentIdentifier(serviceUid, applicationUid);
+        return agentIdService.getAgentId(serviceUid, applicationUid);
     }
 
     @DeleteMapping("/agent")
@@ -85,7 +84,7 @@ public class UidAdminController {
         if (applicationUid == null) {
             return SimpleResponse.ok();
         }
-        agentNameService.deleteAgent(serviceUid, applicationUid, agentId);
+        agentIdService.deleteAgent(serviceUid, applicationUid, agentId);
         return SimpleResponse.ok();
     }
 
@@ -98,7 +97,7 @@ public class UidAdminController {
         ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
         ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, applicationName, serviceType.getCode());
 
-        agentNameService.deleteAllAgents(serviceUid, applicationUid);
+        agentIdService.deleteAllAgent(serviceUid, applicationUid);
         applicationUidService.deleteApplication(serviceUid, applicationName, serviceType.getCode());
         return SimpleResponse.ok();
     }
@@ -129,7 +128,7 @@ public class UidAdminController {
         int cleanupCount = 0;
         List<ApplicationUidRow> applicationUidRowList = applicationUidService.getApplications(serviceUid);
         for (ApplicationUidRow row : applicationUidRowList) {
-            List<AgentListEntry> agentList = agentListService.getApplicationAgentList(serviceName, row.applicationName(), row.serviceTypeCode(), range);
+            List<AgentAndStatus> agentList = agentListService.getApplicationAgentList(serviceName, row.applicationName(), row.serviceTypeCode(), range);
             if (agentList.isEmpty()) {
                 deleteApplication(row);
                 cleanupCount++;
@@ -139,7 +138,7 @@ public class UidAdminController {
     }
 
     private void deleteApplication(ApplicationUidRow row) {
-        agentNameService.deleteAllAgents(row.serviceUid(), row.applicationUid());
+        agentIdService.deleteAllAgent(row.serviceUid(), row.applicationUid());
         applicationUidService.deleteApplication(row.serviceUid(), row.applicationName(), row.serviceTypeCode());
         logger.info("Cleanup inactive application: {}", row);
     }

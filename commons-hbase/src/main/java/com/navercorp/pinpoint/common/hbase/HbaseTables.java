@@ -39,7 +39,7 @@ public class HbaseTables {
 
     public static final HbaseColumnFamily APPLICATION_UID_ATTR = new HbaseColumnFamily(HbaseTable.APPLICATION_UID_ATTR, Bytes.toBytes("A"));
 
-    public static final HbaseColumnFamily AGENT_NAME = new HbaseColumnFamily(HbaseTable.AGENT_NAME, Bytes.toBytes("A"));
+    public static final HbaseColumnFamily AGENT_ID = new HbaseColumnFamily(HbaseTable.AGENT_ID, Bytes.toBytes("A"));
 
     public static final HbaseColumnFamily APPLICATION_INDEX_AGENTS = new HbaseColumnFamily(HbaseTable.APPLICATION_INDEX, Bytes.toBytes("Agents"));
 

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.batch.job;
 
-import com.navercorp.pinpoint.batch.service.BatchApplicationService;
+import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
 import jakarta.annotation.Nonnull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,14 +36,14 @@ public class ApplicationReader implements ItemStreamReader<String> {
     private static final Logger logger = LogManager.getLogger(ApplicationReader.class);
     private static final String CURRENT_INDEX = "current.index";
 
-    private final BatchApplicationService applicationService;
+    private final BatchApplicationIndexService batchApplicationIndexService;
 
     private List<String> applicationNames;
 
     private final AtomicInteger currentIndexAtom = new AtomicInteger(0);
 
-    public ApplicationReader(BatchApplicationService applicationService) {
-        this.applicationService = Objects.requireNonNull(applicationService, "applicationService");
+    public ApplicationReader(BatchApplicationIndexService batchApplicationIndexService) {
+        this.batchApplicationIndexService = Objects.requireNonNull(batchApplicationIndexService, "applicationService");
     }
 
     @Override
@@ -83,7 +83,7 @@ public class ApplicationReader implements ItemStreamReader<String> {
     }
 
     private List<String> getAllApplications() {
-        return this.applicationService.selectAllApplicationNames()
+        return this.batchApplicationIndexService.selectAllApplicationNames()
                 .stream()
                 .sorted()
                 .toList();

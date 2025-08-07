@@ -29,15 +29,15 @@ import java.util.Objects;
 @Service
 public class CommonServiceImpl implements CommonService {
 
-    private final ApplicationService applicationService;
+    private final ApplicationIndexService applicationIndexService;
 
-    public CommonServiceImpl(ApplicationService applicationService) {
-        this.applicationService = Objects.requireNonNull(applicationService, "applicationService");
+    public CommonServiceImpl(ApplicationIndexService applicationIndexService) {
+        this.applicationIndexService = Objects.requireNonNull(applicationIndexService, "applicationIndexService");
     }
 
     @Override
     public List<Application> selectAllApplicationNames() {
-        return applicationService.selectAllApplications();
+        return applicationIndexService.selectAllApplications();
     }
 
 }

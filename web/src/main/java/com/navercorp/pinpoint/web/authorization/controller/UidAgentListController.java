@@ -4,7 +4,7 @@ import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.service.AgentListService;
-import com.navercorp.pinpoint.web.vo.agent.AgentListEntry;
+import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -35,14 +35,14 @@ public class UidAgentListController {
     }
 
     @GetMapping(value = "")
-    public List<AgentListEntry> getAgentList(@RequestParam(value = "serviceName", required = false) String serviceName,
+    public List<AgentAndStatus> getAgentList(@RequestParam(value = "serviceName", required = false) String serviceName,
                                              @RequestParam(value = "applicationName") @NotBlank String applicationName,
                                              @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
                                              @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
                                              @RequestParam(value = "orderBy", required = false, defaultValue = "NO_OP") String orderBy) {
         ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
 
-        List<AgentListEntry> applicationAgentList;
+        List<AgentAndStatus> applicationAgentList;
         if (serviceType.equals(ServiceType.UNDEFINED)) {
             applicationAgentList = agentListService.getApplicationAgentList(serviceName, applicationName);
         } else {
@@ -54,7 +54,7 @@ public class UidAgentListController {
     }
 
     @GetMapping(value = "", params = {"from", "to"})
-    public List<AgentListEntry> getAgentList(@RequestParam(value = "serviceName", required = false) String serviceName,
+    public List<AgentAndStatus> getAgentList(@RequestParam(value = "serviceName", required = false) String serviceName,
                                              @RequestParam(value = "applicationName") @NotBlank String applicationName,
                                              @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
                                              @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
@@ -64,7 +64,7 @@ public class UidAgentListController {
         ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
         Range range = Range.between(from, to);
 
-        List<AgentListEntry> applicationAgentList;
+        List<AgentAndStatus> applicationAgentList;
         if (serviceType.equals(ServiceType.UNDEFINED)) {
             applicationAgentList = agentListService.getApplicationAgentList(serviceName, applicationName, range);
         } else {
@@ -75,13 +75,13 @@ public class UidAgentListController {
                 .collect(Collectors.toList());
     }
 
-    private enum OrderBy implements Comparator<AgentListEntry> {
+    private enum OrderBy implements Comparator<AgentAndStatus> {
         NO_OP(Comparator.comparing(o -> 0)),
-        NAME_ASC(Comparator.comparing(o -> o.getName())),
+        NAME_ASC(Comparator.comparing(o -> o.getAgentInfo().getAgentName())),
         NAME_DESC(NAME_ASC.reversed()),
-        ID_ASC(Comparator.comparing(o -> o.getId())),
+        ID_ASC(Comparator.comparing(o -> o.getAgentInfo().getAgentId())),
         ID_DESC(ID_ASC.reversed()),
-        START_TIME_ASC(Comparator.comparingLong(o -> o.getStartTimestamp())),
+        START_TIME_ASC(Comparator.comparingLong(o -> o.getAgentInfo().getStartTimestamp())),
         START_TIME_DESC(START_TIME_ASC.reversed());
 
         private static final Map<String, OrderBy> MAP =
@@ -91,14 +91,14 @@ public class UidAgentListController {
             return MAP.getOrDefault(value.toUpperCase(), NO_OP);
         }
 
-        private final Comparator<AgentListEntry> comparator;
+        private final Comparator<AgentAndStatus> comparator;
 
-        OrderBy(Comparator<AgentListEntry> comparator) {
+        OrderBy(Comparator<AgentAndStatus> comparator) {
             this.comparator = comparator;
         }
 
         @Override
-        public int compare(AgentListEntry o1, AgentListEntry o2) {
+        public int compare(AgentAndStatus o1, AgentAndStatus o2) {
             return comparator.compare(o1, o2);
         }
     }

@@ -56,16 +56,8 @@ public class UidBytesUtilsTest {
     }
 
     @Test
-    public void agentNameTableTest() {
+    public void agentIdTableTest() {
         final String testAgentId = "AZc_MJNFcFCM3EiUUp_SvQ";
-        final String testAgentName = "testAgentName";
-        final long testAgentStartTime = 1749111831629L;
-
-        byte[] agentNameRowKey = UidBytesCreateUtils.createAgentNameRowKey(testServiceUid, testApplicationUid, testAgentId, testAgentStartTime);
-        Assertions.assertThat(UidBytesParseUtils.parseServiceUidFromRowKey(agentNameRowKey)).isEqualTo(testServiceUid);
-        Assertions.assertThat(UidBytesParseUtils.parseApplicationUidFromRowKey(agentNameRowKey)).isEqualTo(testApplicationUid);
-        Assertions.assertThat(UidBytesParseUtils.parseAgentId(agentNameRowKey)).isEqualTo(testAgentId);
-        Assertions.assertThat(UidBytesParseUtils.parseAgentStartTime(agentNameRowKey)).isEqualTo(testAgentStartTime);
 
         byte[] agentNameScanRowKey = UidBytesCreateUtils.createAgentNameRowKey(testServiceUid, testApplicationUid, testAgentId);
         Assertions.assertThat(UidBytesParseUtils.parseServiceUidFromRowKey(agentNameScanRowKey)).isEqualTo(testServiceUid);

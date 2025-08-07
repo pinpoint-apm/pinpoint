@@ -53,6 +53,9 @@ public class ApplicationAgentListServiceImplTest {
     @Mock
     MapResponseDao mapResponseDao;
 
+    @Mock
+    ApplicationIndexService applicationIndexService;
+
     ApplicationAgentListService applicationAgentListService;
 
     @BeforeEach
@@ -80,14 +83,14 @@ public class ApplicationAgentListServiceImplTest {
         appBuilder.addResponseTime(testAgentId, 3000, histogram);
         applicationResponse = appBuilder.build();
 
-        applicationAgentListService = new ApplicationAgentListServiceImpl(applicationIndexDao, agentInfoDao, agentLifeCycleDao, mapResponseDao);
+        applicationAgentListService = new ApplicationAgentListServiceImpl(agentInfoDao, agentLifeCycleDao, mapResponseDao, applicationIndexService);
     }
 
     @Test
     public void allAgentListTest() {
         Range range = Range.between(0, 60_000);
         List<String> agentIds = List.of(testAgentId);
-        when(applicationIndexDao.selectAgentIds(testApplicationName)).thenReturn(agentIds);
+        when(applicationIndexService.selectAgentIds(testApplicationName)).thenReturn(agentIds);
         when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
 
         List<AgentAndStatus> agentAndStatusList = applicationAgentListService.allAgentList(testApplicationName, testApplicationServiceType, range, AgentInfoFilters.acceptAll());
@@ -101,7 +104,7 @@ public class ApplicationAgentListServiceImplTest {
     public void allAgentListTest2() {
         Range range = Range.between(0, 60_000);
         List<String> agentIds = List.of(testAgentId);
-        when(applicationIndexDao.selectAgentIds(testApplicationName)).thenReturn(agentIds);
+        when(applicationIndexService.selectAgentIds(testApplicationName)).thenReturn(agentIds);
         when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
 
         List<AgentAndStatus> agentAndStatusList = applicationAgentListService.allAgentList(testApplicationName, null, range, AgentInfoFilters.acceptAll());
@@ -116,7 +119,7 @@ public class ApplicationAgentListServiceImplTest {
         Range range = Range.between(0, 60_000);
         TimeWindow timeWindow = new TimeWindow(range);
         List<String> agentIds = List.of(testAgentId);
-        when(applicationIndexDao.selectAgentIds(testApplicationName)).thenReturn(agentIds);
+        when(applicationIndexService.selectAgentIds(testApplicationName)).thenReturn(agentIds);
         when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
         when(agentLifeCycleDao.getAgentStatus(ArgumentMatchers.any())).thenReturn(List.of(Optional.of(testAgentStatus)));
 
@@ -134,7 +137,7 @@ public class ApplicationAgentListServiceImplTest {
         TimeWindow timeWindow = new TimeWindow(range);
 
         List<String> agentIds = List.of(testAgentId);
-        when(applicationIndexDao.selectAgentIds(testApplicationName)).thenReturn(agentIds);
+        when(applicationIndexService.selectAgentIds(testApplicationName)).thenReturn(agentIds);
         when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
         when(agentLifeCycleDao.getAgentStatus(ArgumentMatchers.any())).thenReturn(List.of(Optional.of(testAgentStatus)));
 
@@ -168,7 +171,7 @@ public class ApplicationAgentListServiceImplTest {
         TimeWindow timeWindow = new TimeWindow(range);
 
         List<String> agentIds = List.of(testAgentId);
-        when(applicationIndexDao.selectApplicationName(testApplicationName)).thenReturn(List.of(testApplication));
+        when(applicationIndexService.selectApplication(testApplicationName)).thenReturn(List.of(testApplication));
         when(mapResponseDao.selectApplicationResponse(any(), any())).thenReturn(applicationResponse);
         when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
 
@@ -184,7 +187,7 @@ public class ApplicationAgentListServiceImplTest {
     public void nullAgentInfoHandleTest1() {
         Range range = Range.between(0, 60_000);
         List<String> agentIds = List.of(testAgentId);
-        when(applicationIndexDao.selectAgentIds(testApplicationName)).thenReturn(agentIds);
+        when(applicationIndexService.selectAgentIds(testApplicationName)).thenReturn(agentIds);
         List<AgentInfo> nullAgentInfoList = new ArrayList<>();
         nullAgentInfoList.add(null);
         when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(nullAgentInfoList);

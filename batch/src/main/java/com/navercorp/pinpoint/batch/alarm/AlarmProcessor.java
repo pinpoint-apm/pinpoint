@@ -20,14 +20,13 @@ import com.google.common.base.Suppliers;
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.batch.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.batch.alarm.vo.AppAlarmChecker;
+import com.navercorp.pinpoint.batch.service.BatchAgentService;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.alarm.CheckerCategory;
 import com.navercorp.pinpoint.web.alarm.DataCollectorCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.service.AlarmService;
-import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
 import com.navercorp.pinpoint.web.vo.Application;
 import jakarta.annotation.Nonnull;
 import org.springframework.batch.item.ItemProcessor;
@@ -51,24 +50,19 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
 
     private final DataCollectorFactory dataCollectorFactory;
 
-    private final ApplicationIndexDao applicationIndexDao;
-
-    private final ActiveAgentValidator activeAgentValidator;
-
     private final CheckerRegistry checkerRegistry;
+
+    private final BatchAgentService batchAgentService;
 
     public AlarmProcessor(
             DataCollectorFactory dataCollectorFactory,
             AlarmService alarmService,
-            ApplicationIndexDao applicationIndexDao,
-            ActiveAgentValidator activeAgentValidator,
-            CheckerRegistry checkerRegistry
-    ) {
+            CheckerRegistry checkerRegistry,
+            BatchAgentService batchAgentService) {
         this.dataCollectorFactory = Objects.requireNonNull(dataCollectorFactory, "dataCollectorFactory");
         this.alarmService = Objects.requireNonNull(alarmService, "alarmService");
-        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
-        this.activeAgentValidator = Objects.requireNonNull(activeAgentValidator, "activeAgentValidator");
         this.checkerRegistry = Objects.requireNonNull(checkerRegistry, "checkerRegistry");
+        this.batchAgentService = Objects.requireNonNull(batchAgentService, "batchAgentService");
     }
 
     @Override
@@ -94,7 +88,7 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
                 application, agentIds, now, dataCollectorFactory, checkerRegistry);
 
         List<AlarmChecker<?>> checkers = new ArrayList<>(rules.size());
-        for (Rule rule: rules) {
+        for (Rule rule : rules) {
             checkers.add(alarmCheckerFactory.create(rule));
         }
         return checkers;
@@ -106,12 +100,12 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
     }
 
     private List<String> fetchActiveAgents(Application application, Range activeRange) {
-        List<String> agentList = applicationIndexDao.selectAgentIds(application.getName());
+        List<String> agentList = batchAgentService.getIds(application.getName());
         return agentList
                 .stream()
                 .filter(id -> {
-                    Application app = new Application(id, application.getServiceType());
-                    return activeAgentValidator.isActiveAgent(app, activeRange);
+                    Application agent = new Application(id, application.getServiceType());
+                    return batchAgentService.isActive(agent, activeRange);
                 })
                 .toList();
     }

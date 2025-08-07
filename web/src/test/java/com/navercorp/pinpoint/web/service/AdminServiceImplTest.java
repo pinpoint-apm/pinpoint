@@ -1,7 +1,6 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,64 +34,56 @@ public class AdminServiceImplTest {
     AdminService adminService;
 
     @Mock
-    ApplicationIndexDao applicationIndexDao;
-
-    @Mock
-    ApplicationService applicationService;
+    ApplicationIndexService applicationIndexService;
 
     @Mock
     ActiveAgentValidator activeAgentValidator;
 
     @BeforeEach
     public void setUp() {
-        adminService = new AdminServiceImpl(applicationIndexDao, activeAgentValidator, applicationService);
+        adminService = new AdminServiceImpl(activeAgentValidator, applicationIndexService);
     }
 
     @Test
     public void constructorRequireNonNullTest() {
 
-        assertThatThrownBy(() -> new AdminServiceImpl(null, activeAgentValidator, applicationService))
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("applicationIndexDao");
-
-        assertThatThrownBy(() -> new AdminServiceImpl(applicationIndexDao, null, null))
+        assertThatThrownBy(() -> new AdminServiceImpl(null, applicationIndexService))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("activeAgentValidator");
-
-        assertThatThrownBy(() -> new AdminServiceImpl(applicationIndexDao, activeAgentValidator, null))
+        assertThatThrownBy(() -> new AdminServiceImpl(activeAgentValidator, null))
                 .isInstanceOf(NullPointerException.class)
-                .hasMessage("applicationService");
+                .hasMessage("applicationIndexService");
     }
 
     @Test
     public void removeApplicationName() {
         // given
-        doNothing().when(applicationService).deleteApplicationName(APPLICATION_NAME1);
+        doNothing().when(applicationIndexService).deleteApplicationName(APPLICATION_NAME1);
 
         // when
         adminService.removeApplicationName(APPLICATION_NAME1);
 
         // then
-        verify(applicationService).deleteApplicationName(APPLICATION_NAME1);
+        verify(applicationIndexService).deleteApplicationName(APPLICATION_NAME1);
     }
 
     @Test
     public void removeAgentId() {
         // given
-        doNothing().when(applicationIndexDao).deleteAgentId(APPLICATION_NAME1, AGENT_ID1);
+        doNothing().when(applicationIndexService).deleteAgentId(APPLICATION_NAME1, AGENT_ID1);
 
         // when
         adminService.removeAgentId(APPLICATION_NAME1, AGENT_ID1);
 
         // then
-        verify(applicationIndexDao).deleteAgentId(APPLICATION_NAME1, AGENT_ID1);
+        verify(applicationIndexService).deleteAgentId(APPLICATION_NAME1, AGENT_ID1);
     }
 
     @Test
     public void whenApplicationDoesNotHaveAnyAgentIdsGetAgentIdMapReturnsEmptyMap() {
         // given
         List<Application> emptyApplicationList = List.of();
-        when(applicationService.selectAllApplications()).thenReturn(emptyApplicationList);
+        when(applicationIndexService.selectAllApplications()).thenReturn(emptyApplicationList);
 
         // when
         Map<String, List<Application>> agentIdMap = adminService.getAgentIdMap();
@@ -104,17 +95,17 @@ public class AdminServiceImplTest {
     @Test
     public void testDuplicateAgentIdMap() {
         // given
-        when(applicationService.selectAllApplications())
+        when(applicationIndexService.selectAllApplications())
                 .thenReturn(List.of(
                         new Application(APPLICATION_NAME1, ServiceType.UNDEFINED),
                         new Application(APPLICATION_NAME2, ServiceType.UNDEFINED),
                         new Application(APPLICATION_NAME3, ServiceType.UNDEFINED)));
 
-        when(applicationIndexDao.selectAgentIds(eq(APPLICATION_NAME1)))
+        when(applicationIndexService.selectAgentIds(eq(APPLICATION_NAME1)))
                 .thenReturn(List.of(AGENT_ID1, AGENT_ID2, AGENT_ID3));
-        when(applicationIndexDao.selectAgentIds(eq(APPLICATION_NAME2)))
+        when(applicationIndexService.selectAgentIds(eq(APPLICATION_NAME2)))
                 .thenReturn(List.of(AGENT_ID2, AGENT_ID3));
-        when(applicationIndexDao.selectAgentIds(eq(APPLICATION_NAME3)))
+        when(applicationIndexService.selectAgentIds(eq(APPLICATION_NAME3)))
                 .thenReturn(List.of(AGENT_ID1));
 
         // then

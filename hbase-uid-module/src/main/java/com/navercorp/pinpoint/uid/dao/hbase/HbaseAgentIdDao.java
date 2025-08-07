@@ -8,7 +8,7 @@ import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.uid.AgentIdentifier;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.uid.dao.AgentNameDao;
+import com.navercorp.pinpoint.uid.dao.AgentIdDao;
 import com.navercorp.pinpoint.uid.utils.UidBytesCreateUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Delete;
@@ -23,35 +23,35 @@ import java.util.List;
 import java.util.Objects;
 
 @Repository
-public class HbaseAgentNameDao implements AgentNameDao {
+public class HbaseAgentIdDao implements AgentIdDao {
 
-    private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.AGENT_NAME;
+    private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.AGENT_ID;
+    private static final byte[] VERSION = Bytes.toBytes(1);
 
     private final HbaseOperations hbaseOperations;
     private final TableNameProvider tableNameProvider;
 
-    private final RowMapper<AgentIdentifier> agentNameMapper;
+    private final RowMapper<String> agentNameMapper;
 
-    public HbaseAgentNameDao(HbaseOperations hbaseOperations, TableNameProvider tableNameProvider,
-                             @Qualifier("agentNameMapper") RowMapper<AgentIdentifier> agentNameMapper) {
+    public HbaseAgentIdDao(HbaseOperations hbaseOperations, TableNameProvider tableNameProvider,
+                           @Qualifier("agentNameMapper") RowMapper<String> agentNameMapper) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.agentNameMapper = Objects.requireNonNull(agentNameMapper, "agentNameMapper");
     }
 
     @Override
-    public void insert(ServiceUid serviceUid, ApplicationUid applicationUid, String agentId, long agentStartTime, String agentName) {
-        byte[] rowKey = UidBytesCreateUtils.createAgentNameRowKey(serviceUid, applicationUid, agentId, agentStartTime);
-        byte[] value = Bytes.toBytes(agentName);
+    public void insert(ServiceUid serviceUid, ApplicationUid applicationUid, String agentId) {
+        byte[] rowKey = UidBytesCreateUtils.createAgentNameRowKey(serviceUid, applicationUid, agentId);
         Put put = new Put(rowKey, true);
-        put.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName(), value);
+        put.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName(), VERSION);
 
         final TableName agentListTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         hbaseOperations.put(agentListTableName, put);
     }
 
     @Override
-    public List<AgentIdentifier> selectAgentIdentifiers(ServiceUid serviceUid, ApplicationUid applicationUid) {
+    public List<String> scanAgentId(ServiceUid serviceUid, ApplicationUid applicationUid) {
         byte[] rowKeyPrefix = UidBytesCreateUtils.createRowKey(serviceUid, applicationUid);
         Scan scan = createScan(rowKeyPrefix);
 
@@ -60,7 +60,7 @@ public class HbaseAgentNameDao implements AgentNameDao {
     }
 
     @Override
-    public List<List<AgentIdentifier>> selectAgentIdentifiers(ServiceUid serviceUid, List<ApplicationUid> applicationUidList) {
+    public List<List<String>> scanAgentId(ServiceUid serviceUid, List<ApplicationUid> applicationUidList) {
         List<Scan> scans = new ArrayList<>(applicationUidList.size());
         for (ApplicationUid applicationUid : applicationUidList) {
             byte[] rowKey = UidBytesCreateUtils.createRowKey(serviceUid, applicationUid);
@@ -69,15 +69,6 @@ public class HbaseAgentNameDao implements AgentNameDao {
         }
         TableName agentListTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         return hbaseOperations.findParallel(agentListTableName, scans, agentNameMapper);
-    }
-
-    @Override
-    public List<AgentIdentifier> selectAgentIdentifiers(ServiceUid serviceUid, ApplicationUid applicationUid, String agentId) {
-        byte[] rowKeyPrefix = UidBytesCreateUtils.createAgentNameRowKey(serviceUid, applicationUid, agentId);
-        Scan scan = createScan(rowKeyPrefix);
-
-        TableName agentListTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        return hbaseOperations.find(agentListTableName, scan, agentNameMapper);
     }
 
     private Scan createScan(byte[] rowKeyPrefix) {
@@ -89,15 +80,14 @@ public class HbaseAgentNameDao implements AgentNameDao {
     }
 
     @Override
-    public void deleteAgents(ServiceUid serviceUid, ApplicationUid applicationUid, List<AgentIdentifier> agents) {
-        List<Delete> deleteLists = new ArrayList<>(agents.size());
-        for (AgentIdentifier agentIdentifier : agents) {
-            byte[] rowKey = UidBytesCreateUtils.createAgentNameRowKey(serviceUid, applicationUid, agentIdentifier.getId(), agentIdentifier.getStartTimestamp());
+    public void deleteAgents(ServiceUid serviceUid, ApplicationUid applicationUid, List<String> agentIdList) {
+        List<Delete> deleteLists = new ArrayList<>(agentIdList.size());
+        for (String agentId : agentIdList) {
+            byte[] rowKey = UidBytesCreateUtils.createAgentNameRowKey(serviceUid, applicationUid, agentId);
             Delete delete = new Delete(rowKey);
             delete.addColumns(DESCRIPTOR.getName(), DESCRIPTOR.getName());
             deleteLists.add(delete);
         }
-
         TableName agentListTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         hbaseOperations.delete(agentListTableName, deleteLists);
     }

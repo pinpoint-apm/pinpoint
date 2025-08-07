@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web.uid.controller;
 
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.uid.dao.AgentIdDao;
 import com.navercorp.pinpoint.uid.service.BaseApplicationUidService;
 import com.navercorp.pinpoint.uid.vo.ApplicationUidRow;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
@@ -25,14 +26,17 @@ public class ApplicationUidCopyController {
 
     private final ApplicationIndexDao applicationIndexDao;
     private final BaseApplicationUidService baseApplicationUidService;
+    private final AgentIdDao agentIdDao;
 
-    public ApplicationUidCopyController(ApplicationIndexDao applicationIndexDao, BaseApplicationUidService baseApplicationUidService) {
+    public ApplicationUidCopyController(ApplicationIndexDao applicationIndexDao,
+                                        BaseApplicationUidService baseApplicationUidService, AgentIdDao agentIdDao) {
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.baseApplicationUidService = Objects.requireNonNull(baseApplicationUidService, "baseApplicationUidService");
+        this.agentIdDao = Objects.requireNonNull(agentIdDao, "agentIdDao");
     }
 
-    @GetMapping(value = "")
-    public ResponseEntity<String> copyApplicationUid() {
+    @GetMapping(value = "application")
+    public ResponseEntity<String> copyApplicationList() {
         StopWatch stopWatch = new StopWatch("copyApplicationUid");
         stopWatch.start("selectAllApplicationNames");
         List<Application> applications = this.applicationIndexDao.selectAllApplicationNames();
@@ -55,6 +59,25 @@ public class ApplicationUidCopyController {
             stopWatch.stop();
             logger.info("syncApplicationUid total:{}, time taken: {} ms, before:{} after: {}", applications.size(), stopWatch.getTotalTimeMillis(), beforeInsert.size(), afterInsert.size());
         }
+        logger.info(stopWatch.prettyPrint());
+        return ResponseEntity.ok("OK");
+    }
+
+    @GetMapping(value = "agent")
+    public ResponseEntity<String> copyAgentList() {
+        StopWatch stopWatch = new StopWatch("copyAgentList");
+        stopWatch.start("uidApplicationNames");
+        List<ApplicationUidRow> ApplicationNameList = baseApplicationUidService.getApplications(ServiceUid.DEFAULT);
+        stopWatch.stop();
+
+        stopWatch.start("insertEach");
+        for (ApplicationUidRow row : ApplicationNameList) {
+            List<String> agentIds = applicationIndexDao.selectAgentIds(row.applicationName());
+            for (String agentId : agentIds) {
+                agentIdDao.insert(row.serviceUid(), row.applicationUid(), agentId);
+            }
+        }
+        stopWatch.stop();
         logger.info(stopWatch.prettyPrint());
         return ResponseEntity.ok("OK");
     }

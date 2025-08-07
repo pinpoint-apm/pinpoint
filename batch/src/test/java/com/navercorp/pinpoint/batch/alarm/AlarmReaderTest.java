@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.batch.alarm;
 
-import com.navercorp.pinpoint.batch.service.BatchApplicationService;
+import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.service.AlarmService;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -36,7 +36,7 @@ import static org.mockito.Mockito.when;
 public class AlarmReaderTest {
 
     @Mock
-    private BatchApplicationService batchApplicationService;
+    private BatchApplicationIndexService batchApplicationIndexService;
 
     @Mock
     private AlarmService alarmService;
@@ -57,10 +57,10 @@ public class AlarmReaderTest {
 
     @Test
     public void pollingTest() {
-        when(batchApplicationService.selectAllApplications()).thenReturn(mockApplications);
+        when(batchApplicationIndexService.selectAllApplications()).thenReturn(mockApplications);
         when(alarmService.selectApplicationName()).thenReturn(applicationIds);
 
-        AlarmReader reader = new AlarmReader(batchApplicationService, alarmService);
+        AlarmReader reader = new AlarmReader(batchApplicationIndexService, alarmService);
         reader.beforeStep(stepExecution);
         for (int i = 0; i < 4; i++) {
             assertEquals(mockApplications.get(i), reader.read(), "polled application should be same");
@@ -70,9 +70,9 @@ public class AlarmReaderTest {
 
     @Test
     public void pollingFromEmptyTest() {
-        when(batchApplicationService.selectAllApplications()).thenReturn(List.of());
+        when(batchApplicationIndexService.selectAllApplications()).thenReturn(List.of());
 
-        AlarmReader reader = new AlarmReader(batchApplicationService, alarmService);
+        AlarmReader reader = new AlarmReader(batchApplicationIndexService, alarmService);
         reader.beforeStep(stepExecution);
         assertNull(reader.read());
     }
