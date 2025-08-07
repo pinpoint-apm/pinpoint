@@ -72,6 +72,7 @@ public class LinkView {
             jgen.writeStartObject();
 
             jgen.writeObjectField("key", link.getLinkName());  // for servermap
+            jgen.writeStringField("linkKey", link.getLinkNameKey());
 
             jgen.writeObjectField("from", link.getFrom().getNodeName());  // necessary for go.js
             jgen.writeObjectField("to", link.getTo().getNodeName()); // necessary for go.js

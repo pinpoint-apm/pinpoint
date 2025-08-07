@@ -33,6 +33,14 @@ public class LinkName {
         return NodeName.toNodeName(node.getName(), node.getServiceType());
     }
 
+    public String getLinkKey() {
+        return toNodeKey(from) + LINK_DELIMITER + toNodeKey(to);
+    }
+
+    private String toNodeKey(Application node) {
+        return NodeName.toNodeKey(node.getName(), node.getServiceType());
+    }
+
 
     @Override
     public boolean equals(Object o) {
