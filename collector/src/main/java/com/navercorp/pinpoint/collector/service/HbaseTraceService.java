@@ -158,11 +158,19 @@ public class HbaseTraceService implements TraceService {
         }
 
         final String parentApplicationName = span.getParentApplicationName();
+        if (parentApplicationName == null) {
+            logger.debug("parentApplicationName is null agent: {}/{}", span.getApplicationName(), span.getAgentName());
+            return;
+        }
         final short parentServiceType = span.getParentApplicationServiceType();
-
         final ServiceType spanServiceType = registry.findServiceType(span.getServiceType());
         if (spanServiceType.isQueue()) {
-            hostApplicationMapDao.insert(span.getCollectorAcceptTime(), span.getEndPoint(), selfVertex, parentApplicationName, parentServiceType);
+            final String host = span.getEndPoint();
+            if (host == null) {
+                logger.debug("endPoint is null agent: {}/{}", span.getApplicationName(), span.getAgentName());
+                return;
+            }
+            hostApplicationMapDao.insert(span.getCollectorAcceptTime(), host, selfVertex, parentApplicationName, parentServiceType);
         } else {
             hostApplicationMapDao.insert(span.getCollectorAcceptTime(), acceptorHost, selfVertex, parentApplicationName, parentServiceType);
         }
@@ -221,7 +229,7 @@ public class HbaseTraceService implements TraceService {
                 if (!selfVertex.serviceType().isQueue() && !parentVertex.serviceType().isQueue()) {
                     // emulate virtual queue node's accept Span and record it's acceptor host
                     String applicationName = span.getAcceptorHost();
-                    if(applicationName == null) {
+                    if (applicationName == null) {
                         applicationName = span.getRemoteAddr();
                     }
                     final Vertex queueAcceptVertex = Vertex.of(applicationName, spanServiceType);
@@ -304,7 +312,7 @@ public class HbaseTraceService implements TraceService {
 
             if (spanEventApplicationName == null) {
                 throttledLogger.info("Failed to insert statistics. Cause:SpanEvent has invalid format " +
-                                     "selfApplication:{}/{}, spanEventApplication:{}/{}",
+                                "selfApplication:{}/{}, spanEventApplication:{}/{}",
                         selfVertex, agentId, spanEventApplicationName, spanEventType);
                 continue;
             }
