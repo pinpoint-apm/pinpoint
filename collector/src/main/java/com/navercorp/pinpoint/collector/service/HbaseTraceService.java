@@ -158,19 +158,10 @@ public class HbaseTraceService implements TraceService {
         }
 
         final String parentApplicationName = span.getParentApplicationName();
-        if (parentApplicationName == null) {
-            logger.debug("parentApplicationName is null agent: {}/{}", span.getApplicationName(), span.getAgentName());
-            return;
-        }
         final short parentServiceType = span.getParentApplicationServiceType();
         final ServiceType spanServiceType = registry.findServiceType(span.getServiceType());
         if (spanServiceType.isQueue()) {
-            final String host = span.getEndPoint();
-            if (host == null) {
-                logger.debug("endPoint is null agent: {}/{}", span.getApplicationName(), span.getAgentName());
-                return;
-            }
-            hostApplicationMapDao.insert(span.getCollectorAcceptTime(), host, selfVertex, parentApplicationName, parentServiceType);
+            hostApplicationMapDao.insert(span.getCollectorAcceptTime(), span.getEndPoint(), selfVertex, parentApplicationName, parentServiceType);
         } else {
             hostApplicationMapDao.insert(span.getCollectorAcceptTime(), acceptorHost, selfVertex, parentApplicationName, parentServiceType);
         }
