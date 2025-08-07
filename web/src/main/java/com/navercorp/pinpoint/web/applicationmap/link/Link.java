@@ -101,6 +101,10 @@ public class Link {
         return LinkName.of(fromNode.getApplication(), toNode.getApplication());
     }
 
+    public String getLinkNameKey() {
+        return LinkName.of(fromNode.getApplication(), toNode.getApplication()).getLinkKey();
+    }
+
 
     public LinkCallDataMap getInLink() {
         return inLink;
