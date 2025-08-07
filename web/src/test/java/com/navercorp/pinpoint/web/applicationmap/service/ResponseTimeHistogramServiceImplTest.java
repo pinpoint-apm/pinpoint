@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.navercorp.pinpoint.web.applicationmap.service;
@@ -25,6 +24,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
@@ -53,6 +53,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -73,12 +74,15 @@ public class ResponseTimeHistogramServiceImplTest {
         serverInstanceDatasourceService = mock(ServerInstanceDatasourceService.class);
         linkSelectorFactory = mock(LinkSelectorFactory.class);
 
-        when(serverInstanceDatasourceService.getServerGroupListDataSource()).thenReturn(new ServerGroupListDataSource() {
+        ServerGroupListDataSource dataSource = new ServerGroupListDataSource() {
             @Override
             public ServerGroupList createServerGroupList(Node node, long timestamp) {
                 return ServerGroupList.empty();
             }
-        });
+        };
+
+        when(serverInstanceDatasourceService.getGroupServerFactory(anyBoolean()))
+                .thenReturn(new DefaultServerGroupListFactory(dataSource));
     }
 
     /**
@@ -102,7 +106,7 @@ public class ResponseTimeHistogramServiceImplTest {
 
         NodeHistogramSummary nodeHistogramSummary = service.selectNodeHistogramData(option);
 
-        logger.debug(nodeHistogramSummary);
+        logger.debug("{}", nodeHistogramSummary);
         NodeHistogram nodeHistogram = nodeHistogramSummary.getNodeHistogram();
         Histogram histogram = nodeHistogram.getApplicationHistogram();
         Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(BaseHistogramSchema.NORMAL_SCHEMA);
