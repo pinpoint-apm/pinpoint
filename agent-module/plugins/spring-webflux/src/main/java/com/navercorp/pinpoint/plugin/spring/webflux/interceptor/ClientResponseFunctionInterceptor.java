@@ -46,13 +46,13 @@ public class ClientResponseFunctionInterceptor extends SpanEventSimpleAroundInte
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
-        recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
 
         if (args[0] instanceof ClientHttpResponse) {
             ClientHttpResponse response = (ClientHttpResponse) args[0];

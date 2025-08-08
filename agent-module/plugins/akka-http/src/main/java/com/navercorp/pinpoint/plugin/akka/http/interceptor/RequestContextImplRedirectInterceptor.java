@@ -29,12 +29,12 @@ public class RequestContextImplRedirectInterceptor extends AsyncContextSpanEvent
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
+        recorder.recordServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER_INTERNAL);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         recorder.recordApiId(apiId);
-        recorder.recordServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER_INTERNAL);
         if (throwable != null) {
             recorder.recordException(throwable);
         }

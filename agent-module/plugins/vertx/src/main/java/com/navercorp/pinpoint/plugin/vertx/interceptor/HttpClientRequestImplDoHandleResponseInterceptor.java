@@ -59,6 +59,7 @@ public class HttpClientRequestImplDoHandleResponseInterceptor extends AsyncConte
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
+        recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT_INTERNAL);
     }
 
     private boolean validate(final Object[] args) {
@@ -78,7 +79,6 @@ public class HttpClientRequestImplDoHandleResponseInterceptor extends AsyncConte
     public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (trace.canSampled()) {
             recorder.recordApiId(apiId);
-            recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT_INTERNAL);
             recorder.recordException(throwable);
         }
     }

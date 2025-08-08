@@ -34,12 +34,12 @@ public class CompletableFutureMethodInterceptor extends AsyncContextSpanEventSim
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(JdkCompletableFutureConstants.JDK_FUTURE);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(this.methodDescriptor);
-        recorder.recordServiceType(JdkCompletableFutureConstants.JDK_FUTURE);
         recorder.recordException(throwable);
     }
 }

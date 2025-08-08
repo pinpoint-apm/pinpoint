@@ -40,6 +40,7 @@ public class HttpJspBaseServiceMethodInterceptor extends SpanEventSimpleAroundIn
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(JspConstants.SERVICE_TYPE);
         if (target != null) {
             final String jspPath = parseJspName(target.getClass().getName());
             if (jspPath != null && !jspPath.isEmpty()) {
@@ -106,7 +107,6 @@ public class HttpJspBaseServiceMethodInterceptor extends SpanEventSimpleAroundIn
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordException(throwable);
-        recorder.recordServiceType(JspConstants.SERVICE_TYPE);
         recorder.recordApi(getMethodDescriptor());
     }
 }

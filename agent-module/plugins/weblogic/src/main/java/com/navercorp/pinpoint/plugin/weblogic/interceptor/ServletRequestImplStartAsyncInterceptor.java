@@ -38,6 +38,7 @@ public class ServletRequestImplStartAsyncInterceptor extends SpanEventApiIdAware
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
+        recorder.recordServiceType(WeblogicConstants.WEBLOGIC_METHOD);
     }
 
     @Override
@@ -55,7 +56,6 @@ public class ServletRequestImplStartAsyncInterceptor extends SpanEventApiIdAware
                 logger.debug("Add async listener {}", asyncListener);
             }
         }
-        recorder.recordServiceType(WeblogicConstants.WEBLOGIC_METHOD);
         recorder.recordApiId(apiId);
         recorder.recordException(throwable);
     }

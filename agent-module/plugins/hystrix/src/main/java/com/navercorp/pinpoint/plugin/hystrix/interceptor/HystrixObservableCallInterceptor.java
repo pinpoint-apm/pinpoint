@@ -21,11 +21,11 @@ public abstract class HystrixObservableCallInterceptor extends SpanEventSimpleAr
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE);
         recorder.recordApi(methodDescriptor);
         recorder.recordAttribute(HystrixPluginConstants.HYSTRIX_COMMAND_EXECUTION_ANNOTATION_KEY, getExecutionType());
         recorder.recordException(throwable);

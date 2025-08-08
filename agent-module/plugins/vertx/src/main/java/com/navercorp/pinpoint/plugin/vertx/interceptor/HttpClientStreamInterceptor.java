@@ -113,6 +113,7 @@ public class HttpClientStreamInterceptor extends SpanEventBlockApiIdAwareAroundI
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) throws Exception {
+        recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT);
     }
 
     private boolean validate(final Object[] args) {
@@ -135,7 +136,6 @@ public class HttpClientStreamInterceptor extends SpanEventBlockApiIdAwareAroundI
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) throws Exception {
         recorder.recordApiId(apiId);
         recorder.recordException(throwable);
-        recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT);
 
         if (!validate(args)) {
             return;

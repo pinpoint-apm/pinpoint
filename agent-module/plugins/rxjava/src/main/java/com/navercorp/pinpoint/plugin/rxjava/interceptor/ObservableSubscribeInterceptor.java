@@ -45,6 +45,7 @@ public class ObservableSubscribeInterceptor extends SpanEventSimpleAroundInterce
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         logBeforeInterceptor0(target, args);
+        recorder.recordServiceType(RxJavaPluginConstants.RX_JAVA);
     }
 
     @Override
@@ -61,7 +62,6 @@ public class ObservableSubscribeInterceptor extends SpanEventSimpleAroundInterce
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         logAfterInterceptor0(target, args, result, throwable);
-        recorder.recordServiceType(RxJavaPluginConstants.RX_JAVA);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
     }

@@ -39,6 +39,7 @@ public class BasicClientExchangeHandlerConsumeResponseInterceptor extends AsyncC
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(HttpClient5Constants.HTTP_CLIENT5_INTERNAL);
         if (statusCode) {
             final HttpResponse httpResponse = ArrayArgumentUtils.getArgument(args, 0, HttpResponse.class);
             if (httpResponse != null) {
@@ -52,6 +53,5 @@ public class BasicClientExchangeHandlerConsumeResponseInterceptor extends AsyncC
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
         recorder.recordException(markError, throwable);
-        recorder.recordServiceType(HttpClient5Constants.HTTP_CLIENT5_INTERNAL);
     }
 }

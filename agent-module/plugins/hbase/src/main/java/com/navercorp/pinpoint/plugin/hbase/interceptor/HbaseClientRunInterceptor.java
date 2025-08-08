@@ -42,12 +42,11 @@ public class HbaseClientRunInterceptor extends AsyncContextSpanEventSimpleAround
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
-        // do nothing
+        recorder.recordServiceType(HbasePluginConstants.HBASE_ASYNC_CLIENT);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(HbasePluginConstants.HBASE_ASYNC_CLIENT);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
     }

@@ -38,6 +38,7 @@ public class HttpServletRequestImplStartAsyncInterceptor extends SpanEventApiIdA
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
+        recorder.recordServiceType(UndertowServletConstants.UNDERTOW_SERVLET_METHOD);
     }
 
     @Override
@@ -55,7 +56,6 @@ public class HttpServletRequestImplStartAsyncInterceptor extends SpanEventApiIdA
                 logger.debug("Add async listener {}", asyncListener);
             }
         }
-        recorder.recordServiceType(UndertowServletConstants.UNDERTOW_SERVLET_METHOD);
         recorder.recordApiId(apiId);
         recorder.recordException(throwable);
     }

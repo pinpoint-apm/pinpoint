@@ -32,6 +32,7 @@ public class FrontCacheGetFutureGetInterceptor extends SpanEventSimpleAroundInte
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(ArcusConstants.ARCUS_EHCACHE_FUTURE_GET);
     }
 
     @Override
@@ -43,8 +44,5 @@ public class FrontCacheGetFutureGetInterceptor extends SpanEventSimpleAroundInte
                 recorder.recordDestinationId(cacheName);
             }
         }
-
-        recorder.recordServiceType(ArcusConstants.ARCUS_EHCACHE_FUTURE_GET);
     }
-
 }

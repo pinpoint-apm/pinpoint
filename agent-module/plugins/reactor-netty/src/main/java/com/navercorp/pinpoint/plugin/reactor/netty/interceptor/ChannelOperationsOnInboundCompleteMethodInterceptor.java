@@ -31,6 +31,7 @@ public class ChannelOperationsOnInboundCompleteMethodInterceptor extends AsyncCo
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
+        recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_INTERNAL);
         if (((ChannelOperations) target).receiveObject() instanceof AsyncContextAccessor) {
             AsyncContextAccessor asyncContextAccessor = (AsyncContextAccessor) ((ChannelOperations) target).receiveObject();
             asyncContextAccessor._$PINPOINT$_setAsyncContext(asyncContext);
@@ -43,7 +44,6 @@ public class ChannelOperationsOnInboundCompleteMethodInterceptor extends AsyncCo
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         recorder.recordApiId(apiId);
-        recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_INTERNAL);
         recorder.recordException(throwable);
     }
 }

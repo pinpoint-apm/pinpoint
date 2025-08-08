@@ -34,12 +34,11 @@ public class SubscriptionTraceEnabledMethodInterceptor extends AsyncContextSpanE
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
-
+        recorder.recordServiceType(RxJavaPluginConstants.RX_JAVA_INTERNAL);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(RxJavaPluginConstants.RX_JAVA_INTERNAL);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
     }

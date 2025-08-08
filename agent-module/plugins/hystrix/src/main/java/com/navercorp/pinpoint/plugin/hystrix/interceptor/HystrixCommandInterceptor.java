@@ -33,12 +33,11 @@ public class HystrixCommandInterceptor extends SpanEventSimpleAroundInterceptorF
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        // do nothing
+        recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_SERVICE_TYPE);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_SERVICE_TYPE);
         recorder.recordApi(methodDescriptor);
         recorder.recordAttribute(HystrixPluginConstants.HYSTRIX_COMMAND_ANNOTATION_KEY, target.getClass().getSimpleName());
         recorder.recordException(throwable);

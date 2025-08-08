@@ -37,13 +37,12 @@ public class SqlMapOperationInterceptor extends SpanEventSimpleAroundInterceptor
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        // do nothing
+        recorder.recordServiceType(this.serviceType);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result,
             Throwable throwable) {
-        recorder.recordServiceType(this.serviceType);
         recorder.recordException(throwable);
         String argument = ArrayArgumentUtils.getArgument(args, 0, String.class);
         if (argument != null) {

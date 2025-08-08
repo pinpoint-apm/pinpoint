@@ -36,7 +36,7 @@ public class TAsyncMethodCallOnErrorInterceptor extends AsyncContextSpanEventSim
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
-        // Do nothing
+        recorder.recordServiceType(ThriftConstants.THRIFT_CLIENT_INTERNAL);
     }
 
     @Override
@@ -44,7 +44,6 @@ public class TAsyncMethodCallOnErrorInterceptor extends AsyncContextSpanEventSim
         if (ArrayUtils.getLength(args) == 1) {
             recorder.recordAttribute(AnnotationKey.ARGS0, args[0]);
         }
-        recorder.recordServiceType(ThriftConstants.THRIFT_CLIENT_INTERNAL);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
     }

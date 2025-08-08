@@ -45,6 +45,7 @@ public class CoreSubscriberRunInterceptor extends AsyncContextSpanEventBlockApiI
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apidId, Object[] args) {
+        recorder.recordServiceType(serviceType);
     }
 
     @Override
@@ -59,7 +60,6 @@ public class CoreSubscriberRunInterceptor extends AsyncContextSpanEventBlockApiI
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         recorder.recordApiId(apiId);
-        recorder.recordServiceType(serviceType);
         recorder.recordException(throwable);
     }
 }

@@ -35,13 +35,13 @@ public class HandleExceptionInterceptor extends AsyncContextSpanEventEndPointApi
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
+        recorder.recordServiceType(VertxConstants.VERTX_INTERNAL);
     }
 
     @Override
     public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (trace.canSampled()) {
             recorder.recordApiId(apiId);
-            recorder.recordServiceType(VertxConstants.VERTX_INTERNAL);
 
             final Throwable handleException = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
             if (handleException != null) {

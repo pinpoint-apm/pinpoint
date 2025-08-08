@@ -42,6 +42,7 @@ public class MinimalHttpAsyncClientExecuteInterceptor extends SpanEventSimpleAro
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+        recorder.recordServiceType(HttpClient5Constants.HTTP_CLIENT5_INTERNAL);
         final AsyncContextAccessor asyncContextAccessor = ArrayArgumentUtils.getArgument(args, 0, AsyncContextAccessor.class);
         if (asyncContextAccessor != null) {
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
@@ -54,7 +55,6 @@ public class MinimalHttpAsyncClientExecuteInterceptor extends SpanEventSimpleAro
         if (trace.canSampled()) {
             recorder.recordApi(methodDescriptor);
             recorder.recordException(markError, throwable);
-            recorder.recordServiceType(HttpClient5Constants.HTTP_CLIENT5_INTERNAL);
         }
     }
 

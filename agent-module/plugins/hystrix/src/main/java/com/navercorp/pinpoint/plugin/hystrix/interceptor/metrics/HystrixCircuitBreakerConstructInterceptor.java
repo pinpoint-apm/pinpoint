@@ -39,12 +39,11 @@ public class HystrixCircuitBreakerConstructInterceptor extends SpanEventSimpleAr
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        // do nothing
+        recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE);
         recorder.recordApi(HYSTRIX_CIRCUIT_BREAKER_METHOD_DESCRIPTOR);
         recorder.recordException(throwable);
         if (ArrayUtils.getLength(args) > 1) {

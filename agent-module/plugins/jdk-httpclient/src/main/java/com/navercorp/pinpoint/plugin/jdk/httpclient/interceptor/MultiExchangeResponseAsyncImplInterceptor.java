@@ -126,11 +126,11 @@ public class MultiExchangeResponseAsyncImplInterceptor extends AsyncContextSpanE
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(JdkHttpClientConstants.JDK_HTTP_CLIENT);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(JdkHttpClientConstants.JDK_HTTP_CLIENT);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(markError, throwable);
 

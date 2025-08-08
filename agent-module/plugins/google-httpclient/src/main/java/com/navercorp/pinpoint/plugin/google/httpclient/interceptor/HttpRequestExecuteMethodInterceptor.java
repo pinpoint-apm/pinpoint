@@ -35,12 +35,12 @@ public class HttpRequestExecuteMethodInterceptor extends SpanEventSimpleAroundIn
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(HttpClientConstants.HTTP_CLIENT_INTERNAL);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(HttpClientConstants.HTTP_CLIENT_INTERNAL);
         recorder.recordException(markError, throwable);
     }
 }

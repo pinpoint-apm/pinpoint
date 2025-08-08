@@ -30,11 +30,11 @@ public class OperationExecutorImplLambdaOnResultInterceptor extends AsyncContext
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(MongoConstants.MONGO_REACTIVE);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(MongoConstants.MONGO_REACTIVE);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
     }

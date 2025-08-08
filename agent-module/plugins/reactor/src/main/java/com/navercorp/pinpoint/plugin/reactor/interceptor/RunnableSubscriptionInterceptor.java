@@ -30,12 +30,12 @@ public class RunnableSubscriptionInterceptor extends AsyncContextSpanEventApiIdA
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
+        recorder.recordServiceType(ReactorConstants.REACTOR);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         recorder.recordApiId(apiId);
-        recorder.recordServiceType(ReactorConstants.REACTOR);
         recorder.recordException(throwable);
     }
 }

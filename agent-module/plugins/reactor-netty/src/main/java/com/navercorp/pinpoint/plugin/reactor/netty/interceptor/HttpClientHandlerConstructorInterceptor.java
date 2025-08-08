@@ -40,13 +40,13 @@ public class HttpClientHandlerConstructorInterceptor extends SpanEventApiIdAware
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) throws Exception {
+        recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) throws Exception {
         recorder.recordApiId(apiId);
         recorder.recordException(throwable);
-        recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
         if (throwable == null && target instanceof AsyncContextAccessor) {
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
             ((AsyncContextAccessor) target)._$PINPOINT$_setAsyncContext(asyncContext);

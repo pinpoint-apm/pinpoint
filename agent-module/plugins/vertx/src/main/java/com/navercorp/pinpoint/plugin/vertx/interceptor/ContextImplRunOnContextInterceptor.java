@@ -40,6 +40,7 @@ public class ContextImplRunOnContextInterceptor extends SpanEventApiIdAwareAroun
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
+        recorder.recordServiceType(VertxConstants.VERTX_INTERNAL);
         if (validate(args)) {
             // make asynchronous trace-id
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
@@ -66,7 +67,6 @@ public class ContextImplRunOnContextInterceptor extends SpanEventApiIdAwareAroun
     public void afterTrace(Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (trace.canSampled()) {
             recorder.recordApiId(apiId);
-            recorder.recordServiceType(VertxConstants.VERTX_INTERNAL);
             recorder.recordException(throwable);
         }
     }

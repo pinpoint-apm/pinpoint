@@ -39,9 +39,7 @@ public class QueueingConsumerOnNextInterceptor extends SpanEventSimpleAroundInte
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        if (isDebug) {
-            super.logBeforeInterceptor(target, args);
-        }
+        recorder.recordServiceType(RabbitMQClientConstants.RABBITMQ_CLIENT_INTERNAL);
     }
 
     // These methods may be polled, producing a lot of garbage log.
@@ -52,10 +50,6 @@ public class QueueingConsumerOnNextInterceptor extends SpanEventSimpleAroundInte
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            super.logAfterInterceptor(target, args, result, throwable);
-        }
-        recorder.recordServiceType(RabbitMQClientConstants.RABBITMQ_CLIENT_INTERNAL);
         recorder.recordApi(getMethodDescriptor());
         if (throwable != null) {
             recorder.recordException(throwable);

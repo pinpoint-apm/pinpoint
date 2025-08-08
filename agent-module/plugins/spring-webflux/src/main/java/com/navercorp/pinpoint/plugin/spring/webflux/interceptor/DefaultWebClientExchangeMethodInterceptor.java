@@ -41,6 +41,7 @@ public class DefaultWebClientExchangeMethodInterceptor extends SpanEventSimpleAr
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
     }
 
     @Override
@@ -48,7 +49,6 @@ public class DefaultWebClientExchangeMethodInterceptor extends SpanEventSimpleAr
         if (trace.canSampled()) {
             recorder.recordApi(methodDescriptor);
             recorder.recordException(throwable);
-            recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
         }
 
         if (isAsync(result)) {

@@ -114,11 +114,11 @@ public class InternalHttpClientDoExecuteInterceptor extends SpanEventBlockSimple
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+        recorder.recordServiceType(HttpClient5Constants.HTTP_CLIENT5);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
-        recorder.recordServiceType(HttpClient5Constants.HTTP_CLIENT5);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(markError, throwable);
 

@@ -46,6 +46,7 @@ public class MultiExchangeResponseAsyncInterceptor extends SpanEventSimpleAround
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+        recorder.recordServiceType(JdkHttpClientConstants.JDK_HTTP_CLIENT_INTERNAL);
         if (target instanceof AsyncContextAccessor) {
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
             AsyncContextAccessorUtils.setAsyncContext(asyncContext, target);
@@ -73,7 +74,6 @@ public class MultiExchangeResponseAsyncInterceptor extends SpanEventSimpleAround
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(JdkHttpClientConstants.JDK_HTTP_CLIENT_INTERNAL);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(markError, throwable);
 

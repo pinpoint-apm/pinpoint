@@ -44,13 +44,13 @@ public class ChannelOperationsInterceptor extends AsyncContextSpanEventEndPointA
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
+        recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_INTERNAL);
     }
 
     @Override
     public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (trace.canSampled()) {
             recorder.recordApiId(apiId);
-            recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_INTERNAL);
             recorder.recordException(throwable);
         }
 

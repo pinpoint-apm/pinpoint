@@ -47,6 +47,7 @@ public class ClientTransportSubscriberInterceptor extends AsyncContextSpanEventA
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
+        recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
     }
 
     public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
@@ -59,7 +60,6 @@ public class ClientTransportSubscriberInterceptor extends AsyncContextSpanEventA
     @Override
     public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (traceTransportError && trace.canSampled()) {
-            recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
             recorder.recordApiId(apiId);
             final Throwable argThrowable = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
             if (argThrowable != null) {

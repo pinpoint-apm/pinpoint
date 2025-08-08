@@ -48,6 +48,7 @@ public class OnErrorSubscriberInterceptor extends AsyncContextSpanEventApiIdAwar
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
+        recorder.recordServiceType(ReactorConstants.REACTOR);
     }
 
     public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
@@ -60,7 +61,6 @@ public class OnErrorSubscriberInterceptor extends AsyncContextSpanEventApiIdAwar
     @Override
     public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (traceOnError && trace.canSampled()) {
-            recorder.recordServiceType(ReactorConstants.REACTOR);
             recorder.recordApiId(apiId);
             final Throwable argThrowable = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
             if (argThrowable != null) {

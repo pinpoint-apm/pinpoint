@@ -57,8 +57,8 @@ public class AsyncEntryInterceptor implements AroundInterceptor {
             return;
         }
 
-        trace.traceBlockBegin();
-
+        final SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.recordServiceType(AgentSdkAsyncConstants.AGENT_SDK_ASYNC);
     }
 
     private boolean validate(final Object result) {
@@ -86,7 +86,6 @@ public class AsyncEntryInterceptor implements AroundInterceptor {
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(this.descriptor);
-            recorder.recordServiceType(AgentSdkAsyncConstants.AGENT_SDK_ASYNC);
             recorder.recordException(throwable);
 
             boolean r = validate(result);

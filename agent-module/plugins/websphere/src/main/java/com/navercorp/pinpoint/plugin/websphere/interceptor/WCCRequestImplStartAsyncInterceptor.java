@@ -38,6 +38,7 @@ public class WCCRequestImplStartAsyncInterceptor extends SpanEventApiIdAwareArou
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
+        recorder.recordServiceType(WebsphereConstants.WEBSPHERE_METHOD);
     }
 
     @Override
@@ -55,7 +56,6 @@ public class WCCRequestImplStartAsyncInterceptor extends SpanEventApiIdAwareArou
                 logger.debug("Add async listener {}", asyncListener);
             }
         }
-        recorder.recordServiceType(WebsphereConstants.WEBSPHERE_METHOD);
         recorder.recordApiId(apiId);
         recorder.recordException(throwable);
     }

@@ -39,12 +39,11 @@ public class HystrixThreadPoolMetricsConstructInterceptor extends SpanEventSimpl
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        // do nothing
+        recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE);
         recorder.recordApi(HYSTRIX_THREAD_POOL_METRICS_METHOD_DESCRIPTOR);
         recorder.recordException(throwable);
         HystrixKeyNameAccessor accessor = ArrayArgumentUtils.getArgument(args, 0, HystrixKeyNameAccessor.class);

@@ -80,7 +80,6 @@ public class AsyncHttpRequestInterceptor extends SpanEventSimpleAroundIntercepto
         final Trace virtualMethodTrace = traceContext.currentTraceObject();
         try {
             SpanEventRecorder recorder = virtualMethodTrace.traceBlockBegin();
-            recorder.recordServiceType(RestTemplateConstants.SERVICE_TYPE);
             recorder.recordApi(execAsyncResultMethodDescriptor);
             if (isAsynchronousInvocation(result)) {
                 // set asynchronous trace

@@ -110,6 +110,7 @@ public class HttpIOHandlerObserverOnStateChangeInterceptor extends AsyncContextS
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
+        recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
     }
 
     @Override
@@ -138,7 +139,6 @@ public class HttpIOHandlerObserverOnStateChangeInterceptor extends AsyncContextS
         if (trace.canSampled()) {
             recorder.recordException(throwable);
             recorder.recordApiId(apiId);
-            recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
         }
     }
 

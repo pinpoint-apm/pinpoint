@@ -47,6 +47,7 @@ public class CircuitBreakerSubscriberInterceptor extends AsyncContextSpanEventSi
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(Resilience4JConstants.RESILIENCE4J);
     }
 
     public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
@@ -60,7 +61,6 @@ public class CircuitBreakerSubscriberInterceptor extends AsyncContextSpanEventSi
     public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         if (traceCircuitBreaker && trace.canSampled()) {
             recorder.recordApi(methodDescriptor);
-            recorder.recordServiceType(Resilience4JConstants.RESILIENCE4J);
 
             final Throwable argThrowable = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
             if (argThrowable != null) {

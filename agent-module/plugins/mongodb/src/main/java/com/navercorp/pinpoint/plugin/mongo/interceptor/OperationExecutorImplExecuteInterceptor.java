@@ -32,6 +32,7 @@ public class OperationExecutorImplExecuteInterceptor extends SpanEventSimpleArou
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+        recorder.recordServiceType(MongoConstants.MONGO_REACTIVE);
         final AsyncContextAccessor asyncContextAccessor = ArrayArgumentUtils.getArgument(args, 0, AsyncContextAccessor.class);
         if (asyncContextAccessor != null) {
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
@@ -45,7 +46,6 @@ public class OperationExecutorImplExecuteInterceptor extends SpanEventSimpleArou
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(MongoConstants.MONGO_REACTIVE);
         recorder.recordException(throwable);
     }
 }

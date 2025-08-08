@@ -49,6 +49,7 @@ public class DataSourceConstructorInterceptor extends SpanEventSimpleAroundInter
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(HikariCpConstants.SERVICE_TYPE);
     }
 
     @Override
@@ -129,7 +130,6 @@ public class DataSourceConstructorInterceptor extends SpanEventSimpleAroundInter
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(HikariCpConstants.SERVICE_TYPE);
         recorder.recordApi(getMethodDescriptor());
         recorder.recordException(throwable);
     }

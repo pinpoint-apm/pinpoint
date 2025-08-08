@@ -94,11 +94,11 @@ public class BodyInserterRequestBuilderWriteToInterceptor extends AsyncContextSp
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX_CLIENT);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX_CLIENT);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
 

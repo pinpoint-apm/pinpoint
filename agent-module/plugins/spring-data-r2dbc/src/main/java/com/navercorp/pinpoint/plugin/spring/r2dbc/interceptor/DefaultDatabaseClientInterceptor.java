@@ -34,11 +34,11 @@ public class DefaultDatabaseClientInterceptor extends SpanEventSimpleAroundInter
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+        recorder.recordServiceType(SpringDataR2dbcConstants.SPRING_DATA_R2DBC);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
-        recorder.recordServiceType(SpringDataR2dbcConstants.SPRING_DATA_R2DBC);
         recorder.recordException(throwable);
         recorder.recordApi(methodDescriptor);
 

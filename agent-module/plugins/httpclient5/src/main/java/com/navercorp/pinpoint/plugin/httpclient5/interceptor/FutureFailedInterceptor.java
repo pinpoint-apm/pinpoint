@@ -37,12 +37,12 @@ public class FutureFailedInterceptor extends AsyncContextSpanEventSimpleAroundIn
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(HttpClient5Constants.HTTP_CLIENT5_INTERNAL);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(HttpClient5Constants.HTTP_CLIENT5_INTERNAL);
 
         final Exception exception = ArrayArgumentUtils.getArgument(args, 0, Exception.class);
         if (traceFutureError && exception != null) {

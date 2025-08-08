@@ -35,6 +35,7 @@ public class RequestContextImplCompleteInterceptor extends AsyncContextSpanEvent
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
+        recorder.recordServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER_INTERNAL);
     }
 
     @Override
@@ -67,7 +68,6 @@ public class RequestContextImplCompleteInterceptor extends AsyncContextSpanEvent
             }
         } finally {
             recorder.recordApiId(apiId);
-            recorder.recordServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER_INTERNAL);
             recorder.recordException(throwable);
         }
     }

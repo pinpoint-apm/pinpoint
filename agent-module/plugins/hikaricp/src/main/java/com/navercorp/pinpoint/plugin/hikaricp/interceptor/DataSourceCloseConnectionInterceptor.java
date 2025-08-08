@@ -33,11 +33,11 @@ public class DataSourceCloseConnectionInterceptor extends SpanEventSimpleAroundI
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, final Object target, Object[] args) {
+        recorder.recordServiceType(HikariCpConstants.SERVICE_TYPE);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder trace, Object target, Object[] args, Object result, Throwable throwable) {
-        trace.recordServiceType(HikariCpConstants.SERVICE_TYPE);
         trace.recordApi(getMethodDescriptor());
         trace.recordException(throwable);
     }

@@ -40,6 +40,7 @@ public class InvocableHandlerMethodInterceptor extends AsyncContextSpanEventSimp
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
     }
 
     public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
@@ -49,7 +50,6 @@ public class InvocableHandlerMethodInterceptor extends AsyncContextSpanEventSimp
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
         recorder.recordException(throwable);
     }
 

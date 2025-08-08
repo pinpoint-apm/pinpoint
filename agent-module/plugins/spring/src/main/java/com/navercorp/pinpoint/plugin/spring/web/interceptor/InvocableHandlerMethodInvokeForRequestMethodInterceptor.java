@@ -40,6 +40,7 @@ public class InvocableHandlerMethodInvokeForRequestMethodInterceptor extends Asy
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(SpringWebMvcConstants.SPRING_MVC);
     }
 
     public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
@@ -50,7 +51,6 @@ public class InvocableHandlerMethodInvokeForRequestMethodInterceptor extends Asy
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
-        recorder.recordServiceType(SpringWebMvcConstants.SPRING_MVC);
     }
 
     private AsyncContext getAsyncContextFromArgs(Object[] args) {

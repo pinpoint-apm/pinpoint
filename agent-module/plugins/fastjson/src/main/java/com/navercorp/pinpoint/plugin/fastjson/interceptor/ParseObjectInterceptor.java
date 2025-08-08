@@ -76,7 +76,8 @@ public class ParseObjectInterceptor implements AroundInterceptor {
             return;
         }
 
-        trace.traceBlockBegin();
+        SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.recordServiceType(FastjsonConstants.SERVICE_TYPE);
     }
 
     @Override
@@ -95,7 +96,6 @@ public class ParseObjectInterceptor implements AroundInterceptor {
 
         try {
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordServiceType(FastjsonConstants.SERVICE_TYPE);
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
 

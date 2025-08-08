@@ -56,11 +56,11 @@ public class XmlProtocolMarshallerInterceptor extends SpanEventBlockSimpleAround
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+        recorder.recordServiceType(AwsSdkS3Constants.AWS_SDK_S3);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
-        recorder.recordServiceType(AwsSdkS3Constants.AWS_SDK_S3);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
 

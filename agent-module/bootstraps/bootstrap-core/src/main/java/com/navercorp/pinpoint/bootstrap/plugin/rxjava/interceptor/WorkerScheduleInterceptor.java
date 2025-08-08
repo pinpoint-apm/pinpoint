@@ -51,6 +51,7 @@ public class WorkerScheduleInterceptor extends SpanEventSimpleAroundInterceptorF
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         logBeforeInterceptor0(target, args);
+        recorder.recordServiceType(serviceType);
         if (ArrayUtils.hasLength(args)) {
             if (args[0] instanceof AsyncContextAccessor) {
                 AsyncContext asyncContext = recorder.recordNextAsyncContext();
@@ -73,7 +74,6 @@ public class WorkerScheduleInterceptor extends SpanEventSimpleAroundInterceptorF
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         logAfterInterceptor0(target, args, result, throwable);
-        recorder.recordServiceType(serviceType);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
     }

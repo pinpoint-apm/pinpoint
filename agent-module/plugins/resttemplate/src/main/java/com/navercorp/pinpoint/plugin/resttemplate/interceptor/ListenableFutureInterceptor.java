@@ -78,12 +78,11 @@ public class ListenableFutureInterceptor extends AsyncContextSpanEventSimpleArou
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
-
+        recorder.recordServiceType(RestTemplateConstants.SERVICE_TYPE);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(RestTemplateConstants.SERVICE_TYPE);
         recorder.recordException(throwable);
         recorder.recordApi(methodDescriptor);
 

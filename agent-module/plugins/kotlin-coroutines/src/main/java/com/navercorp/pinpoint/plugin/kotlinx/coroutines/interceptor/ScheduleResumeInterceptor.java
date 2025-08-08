@@ -68,6 +68,7 @@ public class ScheduleResumeInterceptor implements AroundInterceptor {
         }
 
         final SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.recordServiceType(serviceType);
         final AsyncContextAccessor asyncContextAccessor = getAsyncContextAccessor(continuation);
         if (asyncContextAccessor != null) {
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
@@ -113,7 +114,6 @@ public class ScheduleResumeInterceptor implements AroundInterceptor {
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
-            recorder.recordServiceType(serviceType);
             recorder.recordException(throwable);
         } finally {
             trace.traceBlockEnd();

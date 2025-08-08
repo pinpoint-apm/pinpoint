@@ -38,6 +38,7 @@ public final class ProducerSendCallBackInterceptor {
 
         @Override
         protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+            recorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT_INTERNAL);
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
             ((AsyncContextAccessor) target)._$PINPOINT$_setAsyncContext(asyncContext);
         }
@@ -45,7 +46,6 @@ public final class ProducerSendCallBackInterceptor {
         @Override
         protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result,
                                       Throwable throwable) {
-            recorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT_INTERNAL);
             recorder.recordApi(methodDescriptor);
             recorder.recordException(throwable);
         }
@@ -60,12 +60,12 @@ public final class ProducerSendCallBackInterceptor {
         @Override
         protected void doInBeforeTrace(SpanEventRecorder spanEventRecorder, AsyncContext asyncContext, Object o,
                                        Object[] objects) {
+            spanEventRecorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT_INTERNAL);
         }
 
         @Override
         protected void doInAfterTrace(SpanEventRecorder spanEventRecorder, Object target, Object[] args,
                                       Object result, Throwable throwable) {
-            spanEventRecorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT_INTERNAL);
             spanEventRecorder.recordApi(methodDescriptor);
             final Object arg = args[0];
             if (arg instanceof SendResult) {
@@ -90,13 +90,12 @@ public final class ProducerSendCallBackInterceptor {
         @Override
         protected void doInBeforeTrace(SpanEventRecorder spanEventRecorder, AsyncContext asyncContext, Object o,
                                        Object[] objects) {
-
+            spanEventRecorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT_INTERNAL);
         }
 
         @Override
         protected void doInAfterTrace(SpanEventRecorder spanEventRecorder, Object target, Object[] args,
                                       Object result, Throwable throwable) {
-            spanEventRecorder.recordServiceType(RocketMQConstants.ROCKETMQ_CLIENT_INTERNAL);
             spanEventRecorder.recordApi(methodDescriptor);
             spanEventRecorder.recordException((Throwable) args[0]);
         }

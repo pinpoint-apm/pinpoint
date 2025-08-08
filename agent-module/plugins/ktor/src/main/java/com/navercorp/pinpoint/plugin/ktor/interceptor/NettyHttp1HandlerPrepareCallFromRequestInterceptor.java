@@ -30,11 +30,11 @@ public class NettyHttp1HandlerPrepareCallFromRequestInterceptor extends SpanEven
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) throws Exception {
+        recorder.recordServiceType(KtorConstants.KTOR_INTERNAL);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) throws Exception {
-        recorder.recordServiceType(KtorConstants.KTOR_INTERNAL);
         recorder.recordException(throwable);
         recorder.recordApiId(apiId);
 

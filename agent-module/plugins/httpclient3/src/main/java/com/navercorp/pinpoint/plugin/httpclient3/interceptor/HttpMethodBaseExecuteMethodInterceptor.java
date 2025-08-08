@@ -143,6 +143,7 @@ public class HttpMethodBaseExecuteMethodInterceptor extends SpanEventBlockSimple
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+        recorder.recordServiceType(HttpClient3Constants.HTTP_CLIENT_3);
     }
 
     private String getHost(HttpMethod httpMethod, HttpConnection httpConnection) {
@@ -171,7 +172,6 @@ public class HttpMethodBaseExecuteMethodInterceptor extends SpanEventBlockSimple
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
-        recorder.recordServiceType(HttpClient3Constants.HTTP_CLIENT_3);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(markError, throwable);
 
