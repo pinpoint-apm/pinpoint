@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWithScatter;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
@@ -45,7 +46,6 @@ import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramBuilder;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramViewModel;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeseriesHistogramViewModel;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
-import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.service.ServerInstanceDatasourceService;
@@ -95,13 +95,16 @@ public class FilteredMapServiceImplTest {
     private TraceDao traceDao;
 
     @Mock
-    private ApplicationTraceIndexDao applicationTraceIndexDao;
-
-    @Mock
     private ApplicationFactory applicationFactory;
 
     @Mock
     private ServerInstanceDatasourceService serverInstanceDatasourceService;
+
+    @Mock
+    private NodeHistogramService nodeHistogramService;
+
+    @Mock
+    private MapResponseDao mapResponseDao;
 
     // Mocked
     private final ServiceTypeRegistryService registry = TestTraceUtils.mockServiceTypeRegistryService();
@@ -137,8 +140,9 @@ public class FilteredMapServiceImplTest {
                     return new Application(applicationName, serviceType);
                 });
 
-        filteredMapService = new FilteredMapServiceImpl(traceDao, applicationTraceIndexDao,
-                registry, applicationFactory, serverInstanceDatasourceService, Optional.empty(), applicationMapBuilderFactory);
+        nodeHistogramService = new NodeHistogramServiceImpl(mapResponseDao);
+
+        filteredMapService = new FilteredMapServiceImpl(traceDao, registry, applicationFactory, nodeHistogramService, serverInstanceDatasourceService, Optional.empty(), applicationMapBuilderFactory);
 
     }
 

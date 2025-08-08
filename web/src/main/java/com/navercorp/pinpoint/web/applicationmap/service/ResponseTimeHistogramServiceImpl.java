@@ -19,10 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.service;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseNodeHistogramDataSource;
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
@@ -69,13 +66,16 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
 
     private final ServerInstanceDatasourceService serverInstanceDatasourceService;
 
+    private final NodeHistogramService nodeHistogramService;
     private final MapResponseDao mapResponseDao;
 
 
     public ResponseTimeHistogramServiceImpl(LinkSelectorFactory linkSelectorFactory,
+                                            NodeHistogramService nodeHistogramService,
                                             ServerInstanceDatasourceService serverInstanceDatasourceService,
                                             MapResponseDao mapResponseDao) {
         this.linkSelectorFactory = Objects.requireNonNull(linkSelectorFactory, "linkSelectorFactory");
+        this.nodeHistogramService = Objects.requireNonNull(nodeHistogramService, "nodeHistogramService");
         this.serverInstanceDatasourceService = Objects.requireNonNull(serverInstanceDatasourceService, "serverInstanceDatasourceService");
         this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
     }
@@ -85,8 +85,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     }
 
     private NodeHistogramFactory createNodeHistogramFactory() {
-        WasNodeHistogramDataSource wasNodeHistogramDataSource = new MapResponseNodeHistogramDataSource(mapResponseDao);
-        return new DefaultNodeHistogramFactory(wasNodeHistogramDataSource);
+        return nodeHistogramService.getAgentHistogram();
     }
 
     @Override
