@@ -41,6 +41,7 @@ public class ParseObjectInterceptorTest {
         ParseObjectInterceptor interceptor = new ParseObjectInterceptor(traceContext, descriptor);
 
         interceptor.before(null, null);
+        verify(recorder).recordServiceType(FastjsonConstants.SERVICE_TYPE);
     }
 
     @Test
@@ -53,7 +54,6 @@ public class ParseObjectInterceptorTest {
 
         interceptor.after(null, new Object[]{"{\"firstName\": \"Json\"}"}, null, null);
 
-        verify(recorder).recordServiceType(FastjsonConstants.SERVICE_TYPE);
         verify(recorder).recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, "{\"firstName\": \"Json\"}".length());
     }
 
@@ -67,7 +67,6 @@ public class ParseObjectInterceptorTest {
 
         interceptor.after(null, new Object[]{new byte[]{01}}, null, null);
 
-        verify(recorder).recordServiceType(FastjsonConstants.SERVICE_TYPE);
         verify(recorder).recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, new byte[]{01}.length);
     }
 
@@ -81,7 +80,6 @@ public class ParseObjectInterceptorTest {
 
         interceptor.after(null, new Object[]{new char[]{'1'}}, null, null);
 
-        verify(recorder).recordServiceType(FastjsonConstants.SERVICE_TYPE);
         verify(recorder).recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, new char[]{'1'}.length);
     }
 
@@ -106,7 +104,6 @@ public class ParseObjectInterceptorTest {
             }
         }}, null, null);
 
-        verify(recorder).recordServiceType(FastjsonConstants.SERVICE_TYPE);
         verify(recorder).recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, 1);
     }
 }

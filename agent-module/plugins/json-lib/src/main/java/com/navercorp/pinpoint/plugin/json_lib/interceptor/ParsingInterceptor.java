@@ -35,11 +35,11 @@ public class ParsingInterceptor extends SpanEventSimpleAroundInterceptorForPlugi
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(JsonLibConstants.SERVICE_TYPE);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(JsonLibConstants.SERVICE_TYPE);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
         String json = ArrayArgumentUtils.getArgument(args, 0, String.class);

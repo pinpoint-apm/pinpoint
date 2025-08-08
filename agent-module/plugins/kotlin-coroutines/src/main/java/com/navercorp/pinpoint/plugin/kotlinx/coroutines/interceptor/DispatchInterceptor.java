@@ -65,6 +65,7 @@ public class DispatchInterceptor implements AroundInterceptor {
         }
 
         final SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.recordServiceType(serviceType);
         if (Boolean.FALSE == isCompletedContinuation(args)) {
             AsyncContextAccessor accessor = ArrayArgumentUtils.getArgument(args, 0, AsyncContextAccessor.class);
             if (accessor != null) {
@@ -99,7 +100,6 @@ public class DispatchInterceptor implements AroundInterceptor {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
-            recorder.recordServiceType(serviceType);
         } finally {
             trace.traceBlockEnd();
         }

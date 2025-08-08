@@ -117,6 +117,7 @@ public class ExecuteInterceptor extends SpanEventBlockSimpleAroundInterceptorFor
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+        recorder.recordServiceType(NingAsyncHttpClientConstants.ASYNC_HTTP_CLIENT);
     }
 
     private String getHost(Request httpRequest) {
@@ -125,7 +126,6 @@ public class ExecuteInterceptor extends SpanEventBlockSimpleAroundInterceptorFor
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
-        recorder.recordServiceType(NingAsyncHttpClientConstants.ASYNC_HTTP_CLIENT);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(markError, throwable);
 

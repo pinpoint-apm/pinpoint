@@ -36,6 +36,7 @@ public class HystrixObservableTimeoutOperatorCallInterceptor extends SpanEventSi
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE);
         if (target instanceof AsyncContextAccessor) {
             AsyncContext asyncContext = recorder.recordNextAsyncContext();
             ((AsyncContextAccessor) target)._$PINPOINT$_setAsyncContext(asyncContext);
@@ -44,7 +45,6 @@ public class HystrixObservableTimeoutOperatorCallInterceptor extends SpanEventSi
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
     }

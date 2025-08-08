@@ -34,11 +34,11 @@ public class ToStringInterceptor extends SpanEventSimpleAroundInterceptorForPlug
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(JsonLibConstants.SERVICE_TYPE);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(JsonLibConstants.SERVICE_TYPE);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
         recorder.recordAttribute(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH, ((String) result).length());

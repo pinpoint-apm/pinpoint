@@ -25,7 +25,7 @@ public class DataSourceCloseConnectionInterceptorTest {
 
         DataSourceCloseConnectionInterceptor interceptor = new DataSourceCloseConnectionInterceptor(traceContext, descriptor);
 
-        interceptor.doInBeforeTrace(null, null, null);
+        interceptor.doInBeforeTrace(recorder, null, null);
     }
 
     @Test

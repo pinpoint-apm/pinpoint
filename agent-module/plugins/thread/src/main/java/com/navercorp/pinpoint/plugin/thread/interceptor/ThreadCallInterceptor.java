@@ -17,12 +17,12 @@ public class ThreadCallInterceptor extends AsyncContextSpanEventSimpleAroundInte
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(ThreadConstants.SERVICE_TYPE);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(ThreadConstants.SERVICE_TYPE);
         recorder.recordException(throwable);
     }
 }

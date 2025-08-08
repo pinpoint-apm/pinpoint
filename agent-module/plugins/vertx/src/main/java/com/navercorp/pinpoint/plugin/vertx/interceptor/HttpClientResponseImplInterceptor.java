@@ -31,12 +31,12 @@ public class HttpClientResponseImplInterceptor extends AsyncContextSpanEventApiI
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
+        recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT_INTERNAL);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         recorder.recordApiId(apiId);
-        recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT_INTERNAL);
         recorder.recordException(throwable);
     }
 }

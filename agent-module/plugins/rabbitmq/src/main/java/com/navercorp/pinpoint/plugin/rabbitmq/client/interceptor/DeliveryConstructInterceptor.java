@@ -35,12 +35,11 @@ public class DeliveryConstructInterceptor extends SpanEventSimpleAroundIntercept
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        // do nothing
+        recorder.recordServiceType(RabbitMQClientConstants.RABBITMQ_CLIENT_INTERNAL);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(RabbitMQClientConstants.RABBITMQ_CLIENT_INTERNAL);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
 

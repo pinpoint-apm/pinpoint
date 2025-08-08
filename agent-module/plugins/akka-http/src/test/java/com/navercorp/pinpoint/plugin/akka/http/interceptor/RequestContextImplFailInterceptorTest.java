@@ -53,6 +53,7 @@ public class RequestContextImplFailInterceptorTest {
     public void doInBeforeTrace() {
         int apiId = 1;
         interceptor.doInBeforeTrace(recorder, null, apiId, new Object[]{e});
+        verify(recorder).recordServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER_INTERNAL);
         verify(recorder).recordException(e);
     }
 
@@ -60,6 +61,5 @@ public class RequestContextImplFailInterceptorTest {
     public void doInAfterTrace() {
         int apiId = 1;
         interceptor.doInAfterTrace(recorder, null, apiId,null, null, null);
-        verify(recorder).recordServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER_INTERNAL);
     }
 }

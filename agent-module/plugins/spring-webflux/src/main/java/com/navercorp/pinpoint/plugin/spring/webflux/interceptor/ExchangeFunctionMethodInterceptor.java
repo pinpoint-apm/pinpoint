@@ -43,6 +43,7 @@ public class ExchangeFunctionMethodInterceptor extends SpanEventSimpleAroundInte
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
         if (isAsync(args)) {
             // make asynchronous trace-id
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
@@ -66,7 +67,6 @@ public class ExchangeFunctionMethodInterceptor extends SpanEventSimpleAroundInte
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
         recorder.recordException(throwable);
 
         if (isAsync(args) && isAsync(result)) {

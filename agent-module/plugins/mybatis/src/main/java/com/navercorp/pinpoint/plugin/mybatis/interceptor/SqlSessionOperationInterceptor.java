@@ -40,13 +40,12 @@ public class SqlSessionOperationInterceptor extends SpanEventSimpleAroundInterce
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        // do nothing
+        recorder.recordServiceType(MyBatisConstants.MYBATIS);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result,
                                   Throwable throwable) {
-        recorder.recordServiceType(MyBatisConstants.MYBATIS);
         recorder.recordException(markError, throwable);
         final String arg = ArrayArgumentUtils.getArgument(args, 0, String.class);
         if (arg != null) {

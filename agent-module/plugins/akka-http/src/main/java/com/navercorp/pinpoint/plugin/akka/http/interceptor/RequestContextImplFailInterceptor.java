@@ -30,6 +30,7 @@ public class RequestContextImplFailInterceptor extends AsyncContextSpanEventEndP
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
+        recorder.recordServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER_INTERNAL);
         Throwable th = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
         if (th != null) {
             recorder.recordException(th);
@@ -39,6 +40,5 @@ public class RequestContextImplFailInterceptor extends AsyncContextSpanEventEndP
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         recorder.recordApiId(apiId);
-        recorder.recordServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER_INTERNAL);
     }
 }

@@ -36,6 +36,7 @@ public class WriteJsonStringInterceptorTest {
 
         WriteJsonStringInterceptor interceptor = new WriteJsonStringInterceptor(traceContext, descriptor);
         interceptor.before(null, null);
+        verify(recorder).recordServiceType(FastjsonConstants.SERVICE_TYPE);
     }
 
     @Test
@@ -48,7 +49,6 @@ public class WriteJsonStringInterceptorTest {
 
         interceptor.after(null, new Object[]{}, 1, null);
 
-        verify(recorder).recordServiceType(FastjsonConstants.SERVICE_TYPE);
         verify(recorder).recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, 1);
     }
 }

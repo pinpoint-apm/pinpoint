@@ -38,6 +38,7 @@ public class ToJsonBytesInterceptorTest {
         ToJsonBytesInterceptor interceptor = new ToJsonBytesInterceptor(traceContext, descriptor);
 
         interceptor.before(null, null);
+        verify(recorder).recordServiceType(FastjsonConstants.SERVICE_TYPE);
     }
 
     @Test
@@ -50,7 +51,6 @@ public class ToJsonBytesInterceptorTest {
 
         interceptor.after(null, new Object[]{}, new byte[]{01}, null);
 
-        verify(recorder).recordServiceType(FastjsonConstants.SERVICE_TYPE);
         verify(recorder).recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, new byte[]{01}.length);
     }
 }

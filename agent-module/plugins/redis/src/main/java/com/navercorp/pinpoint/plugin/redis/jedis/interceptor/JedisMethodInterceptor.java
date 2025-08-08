@@ -48,6 +48,7 @@ public class JedisMethodInterceptor extends SpanEventSimpleAroundInterceptorForP
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(JedisConstants.REDIS);
         final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
         if (invocation != null) {
             invocation.getOrCreateAttachment(CommandContextFactory.COMMAND_CONTEXT_FACTORY);
@@ -77,7 +78,6 @@ public class JedisMethodInterceptor extends SpanEventSimpleAroundInterceptorForP
         recorder.recordApi(getMethodDescriptor());
         recorder.recordEndPoint(endPoint != null ? endPoint : "Unknown");
         recorder.recordDestinationId(JedisConstants.REDIS.getName());
-        recorder.recordServiceType(JedisConstants.REDIS);
         recorder.recordException(throwable);
     }
 

@@ -34,11 +34,11 @@ public class ServerListenerInterceptor extends AsyncContextSpanEventSimpleAround
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(GrpcConstants.SERVER_SERVICE_TYPE_INTERNAL);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(GrpcConstants.SERVER_SERVICE_TYPE_INTERNAL);
     }
 }

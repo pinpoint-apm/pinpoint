@@ -37,6 +37,7 @@ public class ToJsonInterceptorTest {
 
         ToJsonInterceptor interceptor = new ToJsonInterceptor(traceContext, descriptor);
         interceptor.before(null, null);
+        verify(recorder).recordServiceType(FastjsonConstants.SERVICE_TYPE);
     }
 
     @Test
@@ -49,7 +50,6 @@ public class ToJsonInterceptorTest {
 
         interceptor.after(null, new Object[]{}, "{\"firstName\": \"Json\"}", null);
 
-        verify(recorder).recordServiceType(FastjsonConstants.SERVICE_TYPE);
         verify(recorder).recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, "{\"firstName\": \"Json\"}".hashCode());
     }
 }

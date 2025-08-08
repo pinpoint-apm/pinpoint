@@ -35,13 +35,13 @@ public class HttpClientOperationsOnOutboundErrorInterceptor extends AsyncContext
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
+        recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
     }
 
     @Override
     public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (trace.canSampled()) {
             recorder.recordApiId(apiId);
-            recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
             Throwable th = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
             if (th != null) {
                 recorder.recordException(th);

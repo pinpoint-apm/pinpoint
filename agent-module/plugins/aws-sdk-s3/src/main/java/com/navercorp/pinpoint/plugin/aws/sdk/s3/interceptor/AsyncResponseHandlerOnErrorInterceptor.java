@@ -35,12 +35,12 @@ public class AsyncResponseHandlerOnErrorInterceptor extends AsyncContextSpanEven
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(AwsSdkS3Constants.AWS_SDK_S3_INTERNAL);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(AwsSdkS3Constants.AWS_SDK_S3_INTERNAL);
         final Throwable error = ArrayArgumentUtils.getArgument(args, 0, Throwable.class);
         if (error != null) {
             recorder.recordException(markError, error);

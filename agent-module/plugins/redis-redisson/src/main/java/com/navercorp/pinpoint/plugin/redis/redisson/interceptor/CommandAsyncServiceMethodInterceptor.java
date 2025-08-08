@@ -52,6 +52,7 @@ public class CommandAsyncServiceMethodInterceptor extends SpanEventSimpleAroundI
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(RedissonConstants.REDISSON);
         try {
             AsyncContextAccessor asynchronousInvocation = getAsynchronousInvocation(target, args);
             if (asynchronousInvocation != null) {
@@ -103,7 +104,6 @@ public class CommandAsyncServiceMethodInterceptor extends SpanEventSimpleAroundI
 
         recorder.recordApi(this.methodDescriptor);
         recorder.recordDestinationId(RedissonConstants.REDISSON.getName());
-        recorder.recordServiceType(RedissonConstants.REDISSON);
         recorder.recordException(throwable);
     }
 

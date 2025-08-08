@@ -51,7 +51,8 @@ public class FromJsonInterceptor implements AroundInterceptor2 {
             return;
         }
 
-        trace.traceBlockBegin();
+        SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.recordServiceType(GsonConstants.GSON_SERVICE_TYPE);
     }
 
     @Override
@@ -67,7 +68,6 @@ public class FromJsonInterceptor implements AroundInterceptor2 {
 
         try {
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordServiceType(GsonConstants.GSON_SERVICE_TYPE);
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
 

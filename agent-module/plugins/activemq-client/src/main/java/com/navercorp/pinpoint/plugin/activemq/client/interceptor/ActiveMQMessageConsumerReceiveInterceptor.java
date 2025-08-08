@@ -49,6 +49,7 @@ public class ActiveMQMessageConsumerReceiveInterceptor extends SpanEventSimpleAr
         if (isDebug) {
             super.logBeforeInterceptor(target, args);
         }
+        recorder.recordServiceType(ActiveMQClientConstants.ACTIVEMQ_CLIENT_INTERNAL);
     }
 
     // These methods may be polled, producing a lot of garbage log.
@@ -63,7 +64,6 @@ public class ActiveMQMessageConsumerReceiveInterceptor extends SpanEventSimpleAr
         if (isDebug) {
             super.logAfterInterceptor(target, args, result, throwable);
         }
-        recorder.recordServiceType(ActiveMQClientConstants.ACTIVEMQ_CLIENT_INTERNAL);
         recorder.recordApi(getMethodDescriptor());
         if (throwable != null) {
             recorder.recordException(throwable);

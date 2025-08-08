@@ -89,12 +89,12 @@ public class ClientCallStartInterceptor extends SpanEventBlockSimpleAroundInterc
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+        recorder.recordServiceType(GrpcConstants.SERVICE_TYPE);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(GrpcConstants.SERVICE_TYPE);
         recorder.recordException(throwable);
 
         final ClientRequestWrapper clientRequestWrapper = new GrpcClientRequestWrapper(target);

@@ -31,12 +31,12 @@ public class AsyncHandlerOnCompletedInterceptor extends AsyncContextSpanEventSim
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(NingAsyncHttpClientConstants.ASYNC_HTTP_CLIENT_INTERNAL);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(NingAsyncHttpClientConstants.ASYNC_HTTP_CLIENT_INTERNAL);
         recorder.recordException(throwable);
     }
 }

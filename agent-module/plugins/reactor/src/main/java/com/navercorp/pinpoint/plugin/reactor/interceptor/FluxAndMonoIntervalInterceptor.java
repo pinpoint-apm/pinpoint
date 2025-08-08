@@ -35,12 +35,12 @@ public class FluxAndMonoIntervalInterceptor extends SpanEventApiIdAwareAroundInt
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) throws Exception {
+        recorder.recordServiceType(ReactorConstants.REACTOR);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) throws Exception {
         recorder.recordApiId(apiId);
-        recorder.recordServiceType(ReactorConstants.REACTOR);
         recorder.recordException(throwable);
 
         if (traceInterval && isAsync(result, throwable)) {
