@@ -16,18 +16,15 @@
 
 package com.navercorp.pinpoint.web.applicationmap.service;
 
-import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
-import com.navercorp.pinpoint.web.applicationmap.FilterMapWithScatter;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
+import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 
-/**
- * @author netspider
- * @author emeroad
- * @author jaehong.kim
- */
-public interface FilteredMapService {
+public interface NodeHistogramService {
+    NodeHistogramFactory getSimpleHistogram();
 
-    ApplicationMap selectApplicationMap(FilteredMapServiceOption option);
+    NodeHistogramFactory getApplicationHistogram();
 
-    FilterMapWithScatter selectApplicationMapWithScatterData(FilteredMapServiceOption option);
+    NodeHistogramFactory getAgentHistogram();
 
+    NodeHistogramFactory getAgentHistogram(ResponseHistograms responseHistograms);
 }

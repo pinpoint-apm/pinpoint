@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.navercorp.pinpoint.web.applicationmap.config;
@@ -39,6 +38,7 @@ import com.navercorp.pinpoint.web.applicationmap.service.HistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.LinkDataMapService;
 import com.navercorp.pinpoint.web.applicationmap.service.MapService;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
+import com.navercorp.pinpoint.web.applicationmap.service.TraceIndexService;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
@@ -113,9 +113,10 @@ public class ApplicationMapModule {
 
     @Bean
     public FilteredMapController filteredMapController(FilteredMapService filteredMapService,
+                                                       TraceIndexService traceIndexService,
                                                        FilterBuilder<List<SpanBo>> filterBuilder,
                                                        HyperLinkFactory hyperLinkFactory) {
-        return new FilteredMapController(filteredMapService, filterBuilder, hyperLinkFactory);
+        return new FilteredMapController(filteredMapService, traceIndexService, filterBuilder, hyperLinkFactory);
     }
 
     @Bean

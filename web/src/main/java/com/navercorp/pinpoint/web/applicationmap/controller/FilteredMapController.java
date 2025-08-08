@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.web.applicationmap.controller.form.RangeForm;
 import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapServiceOption;
+import com.navercorp.pinpoint.web.applicationmap.service.TraceIndexService;
 import com.navercorp.pinpoint.web.applicationmap.view.ScatterDataMapView;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
@@ -63,15 +64,18 @@ public class FilteredMapController {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final FilteredMapService filteredMapService;
+    private final TraceIndexService traceIndexService;
     private final FilterBuilder<List<SpanBo>> filterBuilder;
     private final HyperLinkFactory hyperLinkFactory;
 
     public FilteredMapController(
             FilteredMapService filteredMapService,
+            TraceIndexService traceIndexService,
             FilterBuilder<List<SpanBo>> filterBuilder,
             HyperLinkFactory hyperLinkFactory
     ) {
         this.filteredMapService = Objects.requireNonNull(filteredMapService, "filteredMapService");
+        this.traceIndexService = Objects.requireNonNull(traceIndexService, "traceIndexService");
         this.filterBuilder = Objects.requireNonNull(filterBuilder, "filterBuilder");
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
     }
@@ -96,7 +100,7 @@ public class FilteredMapController {
         final int limit = Math.min(limitParam, LimitUtils.MAX);
         final Filter<List<SpanBo>> filter = newFilter(filterForm);
         final Range range = toRange(rangeForm);
-        final LimitedScanResult<List<TransactionId>> limitedScanResult = filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
+        final LimitedScanResult<List<TransactionId>> limitedScanResult = traceIndexService.getTraceIndex(applicationName, range, limit);
 
         final long lastScanTime = limitedScanResult.limitedTime();
         // original range: needed for visual chart data sampling

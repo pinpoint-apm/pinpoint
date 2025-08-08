@@ -20,14 +20,8 @@ import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.SimplifiedNodeHistogramFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapApplicationResponseNodeHistogramDataSource;
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseSimplifiedNodeHistogramDataSource;
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerGroupListFactory;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelector;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorType;
@@ -60,8 +54,6 @@ public class MapServiceImpl implements MapService {
 
     private final LinkSelectorFactory linkSelectorFactory;
 
-    private final MapResponseDao mapResponseDao;
-
     private final ServerMapDataFilter serverMapDataFilter;
 
     private final ApplicationMapBuilderFactory applicationMapBuilderFactory;
@@ -69,18 +61,19 @@ public class MapServiceImpl implements MapService {
     private final LinkDataLimiter linkDataLimiter;
 
     private final ServerInstanceDatasourceService serverInstanceDatasourceService;
+    private final NodeHistogramService nodeHistogramService;
 
     @Value("${web.servermap.build.timeout:600000}")
     private long buildTimeoutMillis;
 
     public MapServiceImpl(LinkSelectorFactory linkSelectorFactory,
-                          MapResponseDao mapResponseDao,
+                          NodeHistogramService nodeHistogramService,
                           Optional<ServerMapDataFilter> serverMapDataFilter,
                           ApplicationMapBuilderFactory applicationMapBuilderFactory,
                           LinkDataLimiter linkDataLimiter,
                           ServerInstanceDatasourceService serverInstanceDatasourceService) {
         this.linkSelectorFactory = Objects.requireNonNull(linkSelectorFactory, "linkSelectorFactory");
-        this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
+        this.nodeHistogramService = Objects.requireNonNull(nodeHistogramService, "nodeHistogramService");
         this.serverMapDataFilter = Objects.requireNonNull(serverMapDataFilter, "serverMapDataFilter").orElse(null);
         this.applicationMapBuilderFactory = Objects.requireNonNull(applicationMapBuilderFactory, "applicationMapBuilderFactory");
         this.linkDataLimiter = linkDataLimiter;
@@ -154,11 +147,10 @@ public class MapServiceImpl implements MapService {
 
     private NodeHistogramFactory newNodeHistogramFactory(boolean isSimpleResponseHistogram) {
         if (isSimpleResponseHistogram) {
-            WasNodeHistogramDataSource dataSource = new MapResponseSimplifiedNodeHistogramDataSource(mapResponseDao);
-            return new SimplifiedNodeHistogramFactory(dataSource);
+            return nodeHistogramService.getSimpleHistogram();
         } else {
-            WasNodeHistogramDataSource dataSource = new MapApplicationResponseNodeHistogramDataSource(mapResponseDao);
-            return new DefaultNodeHistogramFactory(dataSource);
+            return nodeHistogramService.getApplicationHistogram();
+
         }
     }
 

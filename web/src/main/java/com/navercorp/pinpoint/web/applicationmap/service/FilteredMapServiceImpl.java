@@ -27,21 +27,18 @@ import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWithScatter;
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.ResponseHistogramsNodeHistogramDataSource;
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.FilteredMap;
 import com.navercorp.pinpoint.web.applicationmap.map.FilteredMapBuilder;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
-import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.service.ServerInstanceDatasourceService;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.LimitedScanResult;
+import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,8 +65,6 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
     private final TraceDao traceDao;
 
-    private final ApplicationTraceIndexDao applicationTraceIndexDao;
-
     private final ServiceTypeRegistryService registry;
 
     private final ApplicationFactory applicationFactory;
@@ -79,6 +74,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     private final ServerMapDataFilter serverMapDataFilter;
 
     private final ApplicationMapBuilderFactory applicationMapBuilderFactory;
+    private final NodeHistogramService nodeHistogramService;
 
     private static final Object V = new Object();
 
@@ -86,37 +82,21 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     private long buildTimeoutMillis;
 
     public FilteredMapServiceImpl(TraceDao traceDao,
-                                  ApplicationTraceIndexDao applicationTraceIndexDao,
                                   ServiceTypeRegistryService registry,
                                   ApplicationFactory applicationFactory,
+                                  NodeHistogramService nodeHistogramService,
                                   ServerInstanceDatasourceService serverInstanceDatasourceService,
                                   Optional<ServerMapDataFilter> serverMapDataFilter,
                                   ApplicationMapBuilderFactory applicationMapBuilderFactory) {
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
-        this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
         this.registry = Objects.requireNonNull(registry, "registry");
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
+        this.nodeHistogramService = Objects.requireNonNull(nodeHistogramService, "nodeHistogramService");
         this.serverInstanceDatasourceService = Objects.requireNonNull(serverInstanceDatasourceService, "serverInstanceDatasourceService");
         this.serverMapDataFilter = Objects.requireNonNull(serverMapDataFilter, "serverMapDataFilter").orElse(null);
         this.applicationMapBuilderFactory = Objects.requireNonNull(applicationMapBuilderFactory, "applicationMapBuilderFactory");
     }
 
-    @Override
-    public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, Range range, int limit) {
-        return selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit, true);
-    }
-
-    @Override
-    public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, Range range, int limit, boolean backwardDirection) {
-        Objects.requireNonNull(applicationName, "applicationName");
-        Objects.requireNonNull(range, "range");
-
-        if (logger.isTraceEnabled()) {
-            logger.trace("scan(selectTraceIdsFromApplicationTraceIndex) {}, {}", applicationName, range);
-        }
-
-        return this.applicationTraceIndexDao.scanTraceIndex(applicationName, range, limit, backwardDirection);
-    }
 
     private List<List<SpanBo>> filterList2(List<List<SpanBo>> transactionList, Filter<List<SpanBo>> filter) {
         final List<List<SpanBo>> filteredResult = new ArrayList<>();
@@ -200,8 +180,10 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
     private ApplicationMap createMap(TimeWindow timeWindow, boolean isUseStatisticsAgentState, FilteredMap filteredMap) {
         final ApplicationMapBuilder applicationMapBuilder = applicationMapBuilderFactory.createApplicationMapBuilder(timeWindow);
-        final WasNodeHistogramDataSource wasNodeHistogramDataSource = new ResponseHistogramsNodeHistogramDataSource(filteredMap.getResponseHistograms());
-        applicationMapBuilder.includeNodeHistogram(new DefaultNodeHistogramFactory(wasNodeHistogramDataSource));
+
+        ResponseHistograms responseHistograms = filteredMap.getResponseHistograms();
+        NodeHistogramFactory agentHistogram = this.nodeHistogramService.getAgentHistogram(responseHistograms);
+        applicationMapBuilder.includeNodeHistogram(agentHistogram);
 
         ServerGroupListFactory serverFactory = serverInstanceDatasourceService.getGroupServerFactory(isUseStatisticsAgentState);
         applicationMapBuilder.includeServerInfo(serverFactory);

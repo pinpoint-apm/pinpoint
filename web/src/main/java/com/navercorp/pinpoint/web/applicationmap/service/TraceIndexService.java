@@ -16,18 +16,16 @@
 
 package com.navercorp.pinpoint.web.applicationmap.service;
 
-import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
-import com.navercorp.pinpoint.web.applicationmap.FilterMapWithScatter;
 
-/**
- * @author netspider
- * @author emeroad
- * @author jaehong.kim
- */
-public interface FilteredMapService {
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 
-    ApplicationMap selectApplicationMap(FilteredMapServiceOption option);
+import java.util.List;
 
-    FilterMapWithScatter selectApplicationMapWithScatterData(FilteredMapServiceOption option);
+public interface TraceIndexService {
+    LimitedScanResult<List<TransactionId>> getTraceIndex(String applicationName, Range range, int limit);
+
+    LimitedScanResult<List<TransactionId>> getTraceIndex(String applicationName, Range range, int limit, boolean backwardDirection);
 
 }

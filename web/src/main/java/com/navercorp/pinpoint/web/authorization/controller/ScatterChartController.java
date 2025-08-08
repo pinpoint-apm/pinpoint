@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
+import com.navercorp.pinpoint.web.applicationmap.service.TraceIndexService;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
@@ -40,6 +40,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -65,7 +66,7 @@ public class ScatterChartController {
 
     private final ScatterChartService scatter;
 
-    private final FilteredMapService flow;
+    private final TraceIndexService flow;
 
     private final FilterBuilder<List<SpanBo>> filterBuilder;
 
@@ -73,7 +74,7 @@ public class ScatterChartController {
 
     public ScatterChartController(
             ScatterChartService scatter,
-            FilteredMapService flow,
+            TraceIndexService flow,
             FilterBuilder<List<SpanBo>> filterBuilder
     ) {
         this.scatter = Objects.requireNonNull(scatter, "scatter");
@@ -131,14 +132,17 @@ public class ScatterChartController {
                 range, xGroupUnit, yGroupUnit, limit, backwardDirection, filterText
         );
 
+        ScatterView.DotView dotView = getDotView(applicationName, xGroupUnit, yGroupUnit, backwardDirection, filterText, range, limit);
+        return wrapScatterResultView(range, dotView);
+    }
+
+    private ScatterView.@NotNull DotView getDotView(String applicationName, int xGroupUnit, int yGroupUnit, boolean backwardDirection, String filterText, Range range, int limit) {
         if (StringUtils.isEmpty(filterText)) {
-            final ScatterView.DotView dotView = selectScatterData(
+            return selectScatterData(
                     applicationName, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection);
-            return wrapScatterResultView(range, dotView);
         } else {
-            final ScatterView.DotView dotView = selectFilterScatterData(
+            return selectFilterScatterData(
                     applicationName, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection, filterText);
-            return wrapScatterResultView(range, dotView);
         }
     }
 
@@ -172,7 +176,7 @@ public class ScatterChartController {
             String filterText
     ) {
         final LimitedScanResult<List<TransactionId>> limitedScanResult =
-                flow.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit, backwardDirection);
+                flow.getTraceIndex(applicationName, range, limit, backwardDirection);
 
         final List<TransactionId> transactionIdList = limitedScanResult.scanData();
         if (logger.isTraceEnabled()) {
