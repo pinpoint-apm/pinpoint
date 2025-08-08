@@ -53,7 +53,8 @@ public class HttpClientImplDoRequestInterceptor implements ApiIdAwareAroundInter
             return;
         }
 
-        trace.traceBlockBegin();
+        SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT_INTERNAL);
     }
 
     @Override
@@ -78,7 +79,6 @@ public class HttpClientImplDoRequestInterceptor implements ApiIdAwareAroundInter
             if (trace.canSampled()) {
                 recorder.recordApiId(apiId);
                 recorder.recordException(throwable);
-                recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT_INTERNAL);
                 final String hostAndPort = toHostAndPort(args);
                 if (hostAndPort != null) {
                     recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, hostAndPort);

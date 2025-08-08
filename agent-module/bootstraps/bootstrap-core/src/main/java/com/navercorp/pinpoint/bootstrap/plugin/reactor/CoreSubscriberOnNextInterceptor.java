@@ -39,6 +39,7 @@ public class CoreSubscriberOnNextInterceptor extends AsyncContextSpanEventNested
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
+        recorder.recordServiceType(serviceType);
     }
 
     public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
@@ -47,7 +48,6 @@ public class CoreSubscriberOnNextInterceptor extends AsyncContextSpanEventNested
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(serviceType);
         recorder.recordApiId(apiId);
         recorder.recordException(throwable);
     }

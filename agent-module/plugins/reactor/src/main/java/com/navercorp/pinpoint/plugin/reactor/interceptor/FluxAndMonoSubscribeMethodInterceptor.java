@@ -75,6 +75,7 @@ public class FluxAndMonoSubscribeMethodInterceptor implements BlockApiIdAwareAro
 
             final TraceBlock traceBlock = trace.getTraceBlock();
             traceBlock.begin();
+            traceBlock.recordServiceType(ReactorConstants.REACTOR);
             final AsyncContext nextAsyncContext = traceBlock.recordNextAsyncContext();
             // set reactorSubscriber to args[0]
             final ReactorSubscriber reactorSubscriber = new ReactorSubscriber(nextAsyncContext);
@@ -110,7 +111,6 @@ public class FluxAndMonoSubscribeMethodInterceptor implements BlockApiIdAwareAro
         try (final TraceBlock traceBlock = block) {
             if (traceBlock.isBegin()) {
                 traceBlock.recordApiId(apiId);
-                traceBlock.recordServiceType(ReactorConstants.REACTOR);
                 traceBlock.recordException(throwable);
             }
         } catch (Throwable th) {

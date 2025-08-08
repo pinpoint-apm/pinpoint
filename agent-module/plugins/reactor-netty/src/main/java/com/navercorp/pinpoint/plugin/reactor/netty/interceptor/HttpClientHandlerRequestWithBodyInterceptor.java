@@ -75,6 +75,7 @@ public class HttpClientHandlerRequestWithBodyInterceptor extends AsyncContextSpa
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
+        recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
     }
 
     @Override
@@ -82,7 +83,6 @@ public class HttpClientHandlerRequestWithBodyInterceptor extends AsyncContextSpa
         if (trace.canSampled()) {
             recorder.recordApiId(apiId);
             recorder.recordException(throwable);
-            recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
         }
     }
 

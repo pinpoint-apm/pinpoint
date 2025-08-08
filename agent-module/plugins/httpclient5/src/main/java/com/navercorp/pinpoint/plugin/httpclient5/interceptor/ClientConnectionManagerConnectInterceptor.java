@@ -33,12 +33,12 @@ public class ClientConnectionManagerConnectInterceptor extends SpanEventSimpleAr
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+        recorder.recordServiceType(HttpClient5Constants.HTTP_CLIENT5_INTERNAL);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
         recorder.recordApi(methodDescriptor);
         recorder.recordException(markError, throwable);
-        recorder.recordServiceType(HttpClient5Constants.HTTP_CLIENT5_INTERNAL);
     }
 }

@@ -32,12 +32,12 @@ public class CommandInterceptor extends AsyncContextSpanEventSimpleAroundInterce
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(AgentSdkAsyncConstants.AGENT_SDK_ASYNC);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(AgentSdkAsyncConstants.AGENT_SDK_ASYNC);
         recorder.recordException(throwable);
     }
 }

@@ -78,7 +78,8 @@ public abstract class Http1xClientConnectionCreateRequestInterceptor implements 
             return;
         }
 
-        trace.traceBlockBegin();
+        SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT);
     }
 
     @Override
@@ -112,7 +113,6 @@ public abstract class Http1xClientConnectionCreateRequestInterceptor implements 
                 final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
                 recorder.recordApiId(apiId);
                 recorder.recordException(throwable);
-                recorder.recordServiceType(VertxConstants.VERTX_HTTP_CLIENT);
 
                 final String host = getHost(args);
                 // generate next trace id.

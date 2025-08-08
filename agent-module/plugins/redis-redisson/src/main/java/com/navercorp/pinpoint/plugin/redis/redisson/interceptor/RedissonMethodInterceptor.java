@@ -32,12 +32,12 @@ public class RedissonMethodInterceptor extends SpanEventSimpleAroundInterceptorF
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(RedissonConstants.REDISSON_INTERNAL);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(getMethodDescriptor());
-        recorder.recordServiceType(RedissonConstants.REDISSON_INTERNAL);
         recorder.recordException(throwable);
     }
 }

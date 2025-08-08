@@ -64,6 +64,7 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
 
         final SpanEventRecorder recorder = trace.traceBlockBegin();
         try {
+            recorder.recordServiceType(OkHttpConstants.OK_HTTP_CLIENT_INTERNAL);
             // set asynchronous trace
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
             // AsyncTraceIdAccessor typeCheck validate();
@@ -107,7 +108,6 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             if (trace.canSampled()) {
                 recorder.recordApi(methodDescriptor);
-                recorder.recordServiceType(OkHttpConstants.OK_HTTP_CLIENT_INTERNAL);
                 recorder.recordException(markError, throwable);
             }
         } finally {

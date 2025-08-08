@@ -137,6 +137,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor extends SpanEventBlockS
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+        recorder.recordServiceType(HttpClient4Constants.HTTP_CLIENT_4);
     }
 
     private String getHostString(String hostName, int port) {
@@ -162,7 +163,6 @@ public class HttpRequestExecutorExecuteMethodInterceptor extends SpanEventBlockS
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
-        recorder.recordServiceType(HttpClient4Constants.HTTP_CLIENT_4);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(markError, throwable);
 

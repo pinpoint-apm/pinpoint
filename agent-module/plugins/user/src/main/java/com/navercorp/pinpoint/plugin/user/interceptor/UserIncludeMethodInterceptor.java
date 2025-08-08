@@ -99,7 +99,8 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
             return;
         }
 
-        trace.traceBlockBegin();
+        SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.recordServiceType(ServiceType.INTERNAL_METHOD);
     }
 
     @Override
@@ -134,7 +135,6 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
-            recorder.recordServiceType(ServiceType.INTERNAL_METHOD);
             recorder.recordException(throwable);
         } finally {
             trace.traceBlockEnd();

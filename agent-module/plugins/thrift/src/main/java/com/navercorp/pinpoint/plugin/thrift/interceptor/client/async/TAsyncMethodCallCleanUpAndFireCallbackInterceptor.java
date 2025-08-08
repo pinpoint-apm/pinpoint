@@ -34,12 +34,11 @@ public class TAsyncMethodCallCleanUpAndFireCallbackInterceptor extends AsyncCont
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
-        // Do nothing
+        recorder.recordServiceType(ThriftConstants.THRIFT_CLIENT_INTERNAL);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(ThriftConstants.THRIFT_CLIENT_INTERNAL);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
     }

@@ -41,6 +41,7 @@ public class HttpRequestExecuteAsyncMethodInterceptor extends SpanEventSimpleAro
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(HttpClientConstants.HTTP_CLIENT_INTERNAL);
         // set asynchronous trace
         final AsyncContext asyncContext = recorder.recordNextAsyncContext();
 
@@ -56,7 +57,6 @@ public class HttpRequestExecuteAsyncMethodInterceptor extends SpanEventSimpleAro
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(HttpClientConstants.HTTP_CLIENT_INTERNAL);
         recorder.recordException(markError, throwable);
 
         // remove async id.

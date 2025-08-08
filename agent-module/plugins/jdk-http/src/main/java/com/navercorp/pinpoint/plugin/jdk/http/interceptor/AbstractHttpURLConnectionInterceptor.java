@@ -94,11 +94,11 @@ public abstract class AbstractHttpURLConnectionInterceptor extends SpanEventBloc
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+        recorder.recordServiceType(JdkHttpConstants.SERVICE_TYPE);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
-        recorder.recordServiceType(JdkHttpConstants.SERVICE_TYPE);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(markError, throwable);
 

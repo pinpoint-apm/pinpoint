@@ -73,6 +73,7 @@ public class HttpClientOperationsOnInboundNextInterceptor extends AsyncContextSp
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
+        recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
     }
 
     // AFTER
@@ -93,7 +94,6 @@ public class HttpClientOperationsOnInboundNextInterceptor extends AsyncContextSp
         if (trace.canSampled()) {
             recorder.recordApiId(apiId);
             recorder.recordException(throwable);
-            recorder.recordServiceType(ReactorNettyConstants.REACTOR_NETTY_CLIENT_INTERNAL);
         }
     }
 

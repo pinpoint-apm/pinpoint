@@ -35,11 +35,11 @@ public class DataSourceGetConnectionInterceptor extends SpanEventSimpleAroundInt
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, final Object target, Object[] args) {
+        recorder.recordServiceType(CommonsDbcpConstants.SERVICE_TYPE);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(CommonsDbcpConstants.SERVICE_TYPE);
         final int argsLength = ArrayUtils.getLength(args);
         if (argsLength == 0) {
 //          getConnection() without any arguments

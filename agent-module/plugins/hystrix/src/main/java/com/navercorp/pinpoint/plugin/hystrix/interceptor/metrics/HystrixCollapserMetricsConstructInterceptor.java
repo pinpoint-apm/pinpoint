@@ -39,12 +39,11 @@ public class HystrixCollapserMetricsConstructInterceptor extends SpanEventSimple
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        // do nothing
+        recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE);
         recorder.recordApi(HYSTRIX_COLLAPSER_METRICS_METHOD_DESCRIPTOR);
         recorder.recordException(throwable);
         

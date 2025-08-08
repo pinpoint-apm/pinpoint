@@ -17,12 +17,12 @@ public class TaskCallInterceptor extends AsyncContextSpanEventSimpleAroundInterc
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(SpringAsyncConstants.SPRING_ASYNC);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(SpringAsyncConstants.SPRING_ASYNC);
         recorder.recordException(throwable);
     }
 }

@@ -44,12 +44,12 @@ public class ListenerConsumerInvokeErrorHandlerInterceptor extends SpanEventSimp
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+        recorder.recordServiceType(KafkaConstants.KAFKA_CLIENT_INTERNAL);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(KafkaConstants.KAFKA_CLIENT_INTERNAL);
         final RuntimeException runtimeException = ArrayArgumentUtils.getArgument(args, 2, RuntimeException.class);
         if (runtimeException != null) {
             recorder.recordException(runtimeException);

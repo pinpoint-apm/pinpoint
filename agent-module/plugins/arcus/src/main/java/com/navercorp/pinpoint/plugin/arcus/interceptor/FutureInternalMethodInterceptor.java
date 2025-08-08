@@ -33,11 +33,11 @@ public class FutureInternalMethodInterceptor extends AsyncContextSpanEventSimple
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(ArcusConstants.ARCUS_INTERNAL);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(ArcusConstants.ARCUS_INTERNAL);
         recorder.recordException(throwable);
         recorder.recordApi(methodDescriptor);
     }

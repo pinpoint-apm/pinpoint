@@ -43,6 +43,7 @@ public class DispatchHandlerHandleMethodInterceptor extends SpanEventSimpleAroun
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
         if (isAsync(args)) {
             // make asynchronous trace-id
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
@@ -65,7 +66,6 @@ public class DispatchHandlerHandleMethodInterceptor extends SpanEventSimpleAroun
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
         recorder.recordApi(this.methodDescriptor);
         recorder.recordException(throwable);
 

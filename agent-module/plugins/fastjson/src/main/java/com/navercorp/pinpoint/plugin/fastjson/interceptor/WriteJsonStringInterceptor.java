@@ -41,11 +41,11 @@ public class WriteJsonStringInterceptor extends SpanEventSimpleAroundInterceptor
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(FastjsonConstants.SERVICE_TYPE);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(FastjsonConstants.SERVICE_TYPE);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
 

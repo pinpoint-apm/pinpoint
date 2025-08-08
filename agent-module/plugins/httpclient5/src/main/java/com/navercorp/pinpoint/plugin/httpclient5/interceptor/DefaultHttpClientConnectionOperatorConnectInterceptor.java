@@ -36,6 +36,7 @@ public class DefaultHttpClientConnectionOperatorConnectInterceptor extends SpanE
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+        recorder.recordServiceType(HttpClient5Constants.HTTP_CLIENT5_INTERNAL);
         final HttpHost httpHost = ArrayArgumentUtils.getArgument(args, 1, HttpHost.class);
         if (httpHost != null) {
             recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, httpHost.toString());
@@ -46,6 +47,5 @@ public class DefaultHttpClientConnectionOperatorConnectInterceptor extends SpanE
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
         recorder.recordApi(methodDescriptor);
         recorder.recordException(markError, throwable);
-        recorder.recordServiceType(HttpClient5Constants.HTTP_CLIENT5_INTERNAL);
     }
 }

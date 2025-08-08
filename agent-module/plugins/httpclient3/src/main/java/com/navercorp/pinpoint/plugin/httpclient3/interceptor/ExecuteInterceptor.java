@@ -37,11 +37,11 @@ public class ExecuteInterceptor extends SpanEventSimpleAroundInterceptorForPlugi
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(HttpClient3Constants.HTTP_CLIENT_3_INTERNAL);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(HttpClient3Constants.HTTP_CLIENT_3_INTERNAL);
         recorder.recordApi(methodDescriptor);
         recorder.recordException(markError, throwable);
     }

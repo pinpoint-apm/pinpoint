@@ -49,6 +49,7 @@ public class HystrixObservableTimeoutListenerTickInterceptor extends AsyncContex
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE);
     }
 
     // AFTER
@@ -62,7 +63,6 @@ public class HystrixObservableTimeoutListenerTickInterceptor extends AsyncContex
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(HystrixPluginConstants.HYSTRIX_INTERNAL_SERVICE_TYPE);
         recorder.recordApi(HYSTRIX_COMMAND_TIMEOUT_TIMER_METHOD_DESCRIPTOR);
         recorder.recordException(throwable);
     }
