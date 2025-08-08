@@ -44,6 +44,7 @@ public class CloseableHttpAsyncClientExecuteImmediateMethodInterceptor extends S
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+        recorder.recordServiceType(HttpClient5Constants.HTTP_CLIENT5_INTERNAL);
         // AsyncExecChain.Scope
         AsyncContext asyncContext = null;
         final AsyncExecChain.Scope scope = ArrayArgumentUtils.getArgument(args, 2, AsyncExecChain.Scope.class);
@@ -72,7 +73,6 @@ public class CloseableHttpAsyncClientExecuteImmediateMethodInterceptor extends S
         if (trace.canSampled()) {
             recorder.recordApi(methodDescriptor);
             recorder.recordException(markError, throwable);
-            recorder.recordServiceType(HttpClient5Constants.HTTP_CLIENT5_INTERNAL);
         }
     }
 

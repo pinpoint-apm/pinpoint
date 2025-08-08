@@ -34,12 +34,12 @@ public class ChannelPromiseNotifyInterceptor extends AsyncContextSpanEventSimple
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(NettyConstants.SERVICE_TYPE_INTERNAL);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(NettyConstants.SERVICE_TYPE_INTERNAL);
         recorder.recordException(throwable);
     }
 

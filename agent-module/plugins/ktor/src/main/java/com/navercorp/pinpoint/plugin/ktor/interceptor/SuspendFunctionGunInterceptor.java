@@ -65,12 +65,12 @@ public class SuspendFunctionGunInterceptor extends AsyncContextSpanEventSimpleAr
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(KtorConstants.KTOR_INTERNAL);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(KtorConstants.KTOR_INTERNAL);
         recorder.recordException(throwable);
     }
 }

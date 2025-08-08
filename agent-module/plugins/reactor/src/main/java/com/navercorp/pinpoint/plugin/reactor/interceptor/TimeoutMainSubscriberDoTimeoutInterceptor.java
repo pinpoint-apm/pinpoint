@@ -47,6 +47,7 @@ public class TimeoutMainSubscriberDoTimeoutInterceptor extends AsyncContextSpanE
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, int apiId, Object[] args) {
+        recorder.recordServiceType(ReactorConstants.REACTOR);
     }
 
     public AsyncContext getAsyncContext(Object target, Object[] args, Object result, Throwable throwable) {
@@ -60,7 +61,6 @@ public class TimeoutMainSubscriberDoTimeoutInterceptor extends AsyncContextSpanE
     public void afterTrace(AsyncContext asyncContext, Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (traceTimeout && trace.canSampled()) {
             recorder.recordApiId(apiId);
-            recorder.recordServiceType(ReactorConstants.REACTOR);
             recorder.recordException(throwable);
 
             if (target instanceof TimeoutDescriptionGetter) {

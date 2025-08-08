@@ -38,6 +38,7 @@ public class LettuceMethodInterceptor extends SpanEventSimpleAroundInterceptorFo
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(LettuceConstants.REDIS_LETTUCE);
     }
 
     @Override
@@ -47,7 +48,6 @@ public class LettuceMethodInterceptor extends SpanEventSimpleAroundInterceptorFo
         recorder.recordApi(getMethodDescriptor());
         recorder.recordEndPoint(endPoint != null ? endPoint : "UNKNOWN");
         recorder.recordDestinationId(LettuceConstants.REDIS_LETTUCE.getName());
-        recorder.recordServiceType(LettuceConstants.REDIS_LETTUCE);
         recorder.recordException(throwable);
 
         if (result instanceof AsyncContextAccessor) {

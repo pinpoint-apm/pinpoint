@@ -36,6 +36,7 @@ public class AsyncTaskExecutorSubmitInterceptor extends SpanEventSimpleAroundInt
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(SpringAsyncConstants.SPRING_ASYNC);
         if (validate(args)) {
             // make asynchronous trace-id
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
@@ -67,7 +68,6 @@ public class AsyncTaskExecutorSubmitInterceptor extends SpanEventSimpleAroundInt
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(this.methodDescriptor);
-        recorder.recordServiceType(SpringAsyncConstants.SPRING_ASYNC);
         recorder.recordException(throwable);
     }
 

@@ -36,7 +36,7 @@ public class RequestStartAsyncInterceptor extends SpanEventApiIdAwareAroundInter
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) throws Exception {
-
+        recorder.recordServiceType(TomcatConstants.TOMCAT_METHOD);
     }
 
     @Override
@@ -63,7 +63,6 @@ public class RequestStartAsyncInterceptor extends SpanEventApiIdAwareAroundInter
                 logger.debug("Add async listener {}", listenerInterceptor);
             }
         }
-        recorder.recordServiceType(TomcatConstants.TOMCAT_METHOD);
         recorder.recordApiId(apiId);
         recorder.recordException(throwable);
     }

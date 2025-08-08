@@ -40,6 +40,7 @@ public class ContextImplExecuteBlockingInterceptor extends SpanEventApiIdAwareAr
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) {
+        recorder.recordServiceType(VertxConstants.VERTX_INTERNAL);
         if (!validate(args)) {
             return;
         }
@@ -105,7 +106,6 @@ public class ContextImplExecuteBlockingInterceptor extends SpanEventApiIdAwareAr
     public void afterTrace(Trace trace, SpanEventRecorder recorder, Object target, int apiId, Object[] args, Object result, Throwable throwable) {
         if (trace.canSampled()) {
             recorder.recordApiId(apiId);
-            recorder.recordServiceType(VertxConstants.VERTX_INTERNAL);
             recorder.recordException(throwable);
         }
     }

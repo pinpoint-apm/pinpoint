@@ -45,6 +45,7 @@ public class ReactiveMethodInterceptor extends SpanEventSimpleAroundInterceptorF
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(RedissonConstants.REDISSON_REACTIVE);
     }
 
     @Override
@@ -65,7 +66,6 @@ public class ReactiveMethodInterceptor extends SpanEventSimpleAroundInterceptorF
         }
 
         recorder.recordApi(getMethodDescriptor());
-        recorder.recordServiceType(RedissonConstants.REDISSON_REACTIVE);
         recorder.recordException(throwable);
     }
 }

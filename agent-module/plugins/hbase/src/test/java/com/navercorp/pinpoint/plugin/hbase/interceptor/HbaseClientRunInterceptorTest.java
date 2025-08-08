@@ -32,7 +32,6 @@ public class HbaseClientRunInterceptorTest {
         HbaseClientRunInterceptor interceptor = new HbaseClientRunInterceptor(traceContext, descriptor);
         interceptor.doInAfterTrace(recorder, target, args, null, null);
 
-        verify(recorder).recordServiceType(HbasePluginConstants.HBASE_ASYNC_CLIENT);
         verify(recorder).recordApi(descriptor);
         verify(recorder).recordException(null);
     }

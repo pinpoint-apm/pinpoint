@@ -34,11 +34,11 @@ public class SendCompleteInterceptor extends AsyncContextSpanEventSimpleAroundIn
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(PulsarConstants.PULSAR_CLIENT_INTERNAL);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(PulsarConstants.PULSAR_CLIENT_INTERNAL);
         if (args[1] instanceof OpSendMsgStats) {
             OpSendMsgStats sendMsgStats = (OpSendMsgStats) args[1];
             recorder.recordAttribute(PulsarConstants.PULSAR_SEQUENCE_ID_ANNOTATION_KEY, sendMsgStats.getSequenceId());

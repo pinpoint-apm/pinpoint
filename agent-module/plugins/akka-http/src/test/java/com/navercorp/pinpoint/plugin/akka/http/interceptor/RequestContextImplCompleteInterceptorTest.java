@@ -54,13 +54,13 @@ public class RequestContextImplCompleteInterceptorTest {
     public void doInBeforeTrace() {
         int apiId = 1;
         interceptor.doInBeforeTrace(recorder, null, apiId, new Object[]{marshallable});
+        verify(recorder).recordServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER_INTERNAL);
     }
 
     @Test
     public void doInAfterTrace() {
         int apiId = 1;
         interceptor.doInAfterTrace(recorder, null, apiId,null, null, null);
-        verify(recorder).recordServiceType(AkkaHttpConstants.AKKA_HTTP_SERVER_INTERNAL);
         verify(recorder).recordException(null);
     }
 }

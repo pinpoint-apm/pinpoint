@@ -35,13 +35,13 @@ public class HttpClientInterceptor extends SpanEventSimpleAroundInterceptorForPl
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(JdkHttpClientConstants.JDK_HTTP_CLIENT_INTERNAL);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
         recorder.recordException(markError, throwable);
-        recorder.recordServiceType(JdkHttpClientConstants.JDK_HTTP_CLIENT_INTERNAL);
 
         if (isAsynchronousInvocation(result, throwable)) {
             // set asynchronous trace

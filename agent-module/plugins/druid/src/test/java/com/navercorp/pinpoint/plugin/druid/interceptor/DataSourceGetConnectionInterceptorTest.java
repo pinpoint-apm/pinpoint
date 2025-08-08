@@ -25,7 +25,7 @@ public class DataSourceGetConnectionInterceptorTest {
 
         DataSourceGetConnectionInterceptor interceptor = new DataSourceGetConnectionInterceptor(traceContext, descriptor);
 
-        interceptor.doInBeforeTrace(null, null, null);
+        interceptor.doInBeforeTrace(recorder, null, null);
     }
 
     @Test

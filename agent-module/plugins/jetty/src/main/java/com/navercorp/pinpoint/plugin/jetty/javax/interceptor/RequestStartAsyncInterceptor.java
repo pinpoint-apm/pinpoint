@@ -38,6 +38,7 @@ public class RequestStartAsyncInterceptor extends SpanEventApiIdAwareAroundInter
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, int apiId, Object[] args) throws Exception {
+        recorder.recordServiceType(JettyConstants.JETTY_METHOD);
     }
 
     @Override
@@ -56,7 +57,6 @@ public class RequestStartAsyncInterceptor extends SpanEventApiIdAwareAroundInter
                 logger.debug("Add async listener {}", asyncListener);
             }
         }
-        recorder.recordServiceType(JettyConstants.JETTY_METHOD);
         recorder.recordApiId(apiId);
         recorder.recordException(throwable);
     }

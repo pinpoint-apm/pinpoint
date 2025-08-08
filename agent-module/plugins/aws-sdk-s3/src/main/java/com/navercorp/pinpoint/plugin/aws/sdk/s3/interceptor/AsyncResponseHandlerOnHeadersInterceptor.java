@@ -37,12 +37,12 @@ public class AsyncResponseHandlerOnHeadersInterceptor extends AsyncContextSpanEv
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(AwsSdkS3Constants.AWS_SDK_S3_INTERNAL);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(AwsSdkS3Constants.AWS_SDK_S3_INTERNAL);
         recorder.recordException(throwable);
         if (statusCode) {
             final SdkHttpResponse httpResponse = ArrayArgumentUtils.getArgument(args, 0, SdkHttpResponse.class);

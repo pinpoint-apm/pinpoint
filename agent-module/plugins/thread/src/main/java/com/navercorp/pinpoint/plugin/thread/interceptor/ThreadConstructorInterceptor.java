@@ -19,6 +19,7 @@ public class ThreadConstructorInterceptor extends SpanEventSimpleAroundIntercept
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+        recorder.recordServiceType(ThreadConstants.SERVICE_TYPE);
         if (target instanceof AsyncContextAccessor) {
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
             ((AsyncContextAccessor) target)._$PINPOINT$_setAsyncContext(asyncContext);
@@ -28,7 +29,6 @@ public class ThreadConstructorInterceptor extends SpanEventSimpleAroundIntercept
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
         recorder.recordApi(this.methodDescriptor);
-        recorder.recordServiceType(ThreadConstants.SERVICE_TYPE);
         recorder.recordException(throwable);
     }
 

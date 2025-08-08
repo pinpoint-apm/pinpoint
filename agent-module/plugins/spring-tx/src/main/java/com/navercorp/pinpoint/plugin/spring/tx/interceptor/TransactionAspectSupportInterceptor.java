@@ -35,11 +35,11 @@ public class TransactionAspectSupportInterceptor extends SpanEventSimpleAroundIn
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) throws Exception {
+        recorder.recordServiceType(SpringTxConstants.SPRING_TX);
     }
 
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws Exception {
-        recorder.recordServiceType(SpringTxConstants.SPRING_TX);
         recorder.recordException(markError, throwable);
         recorder.recordApi(methodDescriptor);
     }

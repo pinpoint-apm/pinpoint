@@ -37,6 +37,7 @@ public class ParseInterceptorTest {
         ParseInterceptor interceptor = new ParseInterceptor(traceContext, descriptor);
 
         interceptor.before(null, null);
+        verify(recorder).recordServiceType(FastjsonConstants.SERVICE_TYPE);
     }
 
     @Test
@@ -49,7 +50,6 @@ public class ParseInterceptorTest {
 
         interceptor.after(null, new Object[]{"{\"firstName\": \"Json\"}"}, null, null);
 
-        verify(recorder).recordServiceType(FastjsonConstants.SERVICE_TYPE);
         verify(recorder).recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, "{\"firstName\": \"Json\"}".length());
     }
 
@@ -64,7 +64,6 @@ public class ParseInterceptorTest {
 
         interceptor.after(null, new Object[]{new byte[]{01}}, null, null);
 
-        verify(recorder).recordServiceType(FastjsonConstants.SERVICE_TYPE);
         verify(recorder).recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, new byte[]{01}.length);
 
     }

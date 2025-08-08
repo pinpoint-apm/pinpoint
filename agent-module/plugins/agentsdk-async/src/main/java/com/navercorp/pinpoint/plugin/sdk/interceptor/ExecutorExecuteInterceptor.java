@@ -55,7 +55,7 @@ public class ExecutorExecuteInterceptor implements AroundInterceptor {
         }
 
         final SpanEventRecorder recorder = trace.traceBlockBegin();
-
+        recorder.recordServiceType(AgentSdkAsyncConstants.AGENT_SDK_ASYNC);
 
         AsyncContextAccessor accessor = getAsyncContextAccessor(args);
         if (accessor != null) {
@@ -93,7 +93,6 @@ public class ExecutorExecuteInterceptor implements AroundInterceptor {
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(this.descriptor);
-            recorder.recordServiceType(AgentSdkAsyncConstants.AGENT_SDK_ASYNC);
             recorder.recordException(throwable);
         } finally {
             trace.traceBlockEnd();

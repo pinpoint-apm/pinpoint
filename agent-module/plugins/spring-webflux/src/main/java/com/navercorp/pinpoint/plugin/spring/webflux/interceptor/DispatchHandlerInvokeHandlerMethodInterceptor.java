@@ -58,6 +58,7 @@ public class DispatchHandlerInvokeHandlerMethodInterceptor extends AsyncContextS
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
         if (uriStatEnable) {
             final Trace trace = traceContext.currentRawTraceObject();
             if (trace == null) {
@@ -108,7 +109,6 @@ public class DispatchHandlerInvokeHandlerMethodInterceptor extends AsyncContextS
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
         recorder.recordException(throwable);
 
         if (Boolean.FALSE == validate(args)) {

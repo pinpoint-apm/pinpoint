@@ -76,12 +76,12 @@ public class ResumeWithInterceptor extends AsyncContextSpanEventSimpleAroundInte
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
+        recorder.recordServiceType(serviceType);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(serviceType);
         recorder.recordException(throwable);
 
         if (recordThreadName) {

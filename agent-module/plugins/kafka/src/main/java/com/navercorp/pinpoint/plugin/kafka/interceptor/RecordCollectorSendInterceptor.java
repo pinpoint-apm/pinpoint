@@ -31,14 +31,12 @@ public class RecordCollectorSendInterceptor extends AsyncContextSpanEventSimpleA
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, AsyncContext asyncContext, Object target, Object[] args) {
-
+        recorder.recordServiceType(KafkaConstants.KAFKA_STREAMS);
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(KafkaConstants.KAFKA_STREAMS);
         recorder.recordException(throwable);
     }
-
 }
