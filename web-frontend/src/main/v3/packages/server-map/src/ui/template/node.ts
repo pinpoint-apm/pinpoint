@@ -13,7 +13,7 @@ export const getNodeSVGString = (nodeData: Node, renderNode?: ServerMapProps['re
   const { transactionInfo, timeSeriesApdexInfo } = nodeData;
 
   // timeSeriesApdexInfo가 있을 때는 새로운 Apdex SVG를 사용
-  const statusSVGString = timeSeriesApdexInfo
+  const statusSVGString = timeSeriesApdexInfo?.length
     ? getTimeSeriesApdexStatusSVGCircle(timeSeriesApdexInfo)
     : getTransactionStatusSVGCircle(transactionInfo, !transactionInfo);
 
