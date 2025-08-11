@@ -70,7 +70,7 @@ public class HttpURLConnectionIT {
 
         String destinationId = webServer.getHostAndPort();
         String httpUrl = webServer.getCallHttpUrl();
-        verifier.verifyTraceCount(2);
+        verifier.verifyTraceCount(3);
     }
 
     @Test
