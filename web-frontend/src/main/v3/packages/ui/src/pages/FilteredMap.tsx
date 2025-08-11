@@ -60,6 +60,10 @@ import {
 } from '@pinpoint-fe/ui';
 import { Node, Edge } from '@pinpoint-fe/ui/src/utils/helper/serverMap';
 import { PiTreeStructureDuotone, PiArrowSquareOut } from 'react-icons/pi';
+import {
+  useFilterWizardOnClickApply,
+  useServerMapOnClickMenuItem,
+} from '@pinpoint-fe/ui/src/hooks/serverMap';
 
 export interface FilteredMapPageProps {
   authorizationGuideUrl?: string;
@@ -239,6 +243,26 @@ export const FilteredMapPage = ({
       .sort((node1, node2) => node2.totalCount - node1.totalCount);
   };
 
+  // FilterWizard
+  const handleClickApply = useFilterWizardOnClickApply<FilteredMap.LinkData>({
+    from: searchParameters.from,
+    to: searchParameters.to,
+    parsedHint,
+  });
+
+  // ServerMapCore
+  const handleClickMenuItem = useServerMapOnClickMenuItem<
+    FilteredMap.NodeData,
+    FilteredMap.LinkData
+  >({
+    from: searchParameters.from,
+    to: searchParameters.to,
+    parsedHint,
+    parsedFilters,
+    setFilter,
+    setShowFilterConfig,
+  });
+
   return (
     <div className="flex flex-col flex-1 h-full">
       <MainHeader
@@ -287,46 +311,7 @@ export const FilteredMapPage = ({
                       tempFilter={filter}
                       openConfigures={showFilterConfig}
                       onClickShowConfig={() => setShowFilterConfig(!showFilterConfig)}
-                      onClickApply={(filterStates) => {
-                        const filterState = filterStates[filterStates.length - 1];
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        let addedHint = {} as any;
-                        let soureIsWas;
-
-                        if (!filterState.applicationName) {
-                          const link = (
-                            serverMapData?.applicationMapData
-                              .linkDataArray as FilteredMap.LinkData[]
-                          ).find(
-                            (l) =>
-                              l.key ===
-                              `${filterState.fromApplication}^${filterState.fromServiceType}~${filterState.toApplication}^${filterState.toServiceType}`,
-                          );
-                          if (link) {
-                            soureIsWas = link.sourceInfo.isWas;
-                            addedHint =
-                              link.sourceInfo.isWas && link.targetInfo.isWas
-                                ? {
-                                    [link.targetInfo.applicationName]: link.filter?.outRpcList,
-                                  }
-                                : {};
-                          }
-                        }
-
-                        window.open(
-                          `${BASE_PATH}${getFilteredMapPath(filterState, soureIsWas)}?from=${
-                            searchParameters.from
-                          }&to=${searchParameters.to}${getFilteredMapQueryString({
-                            filterStates,
-                            hint: {
-                              currHint: parsedHint,
-                              addedHint,
-                            },
-                          })}
-                              `,
-                          '_blank',
-                        );
-                      }}
+                      onClickApply={handleClickApply}
                     />
                   </div>
                   <ProgressBarWithControls
@@ -343,61 +328,7 @@ export const FilteredMapPage = ({
                   />
                   <FilteredMapComponent
                     isPaused={pauseFilteredMapFetcher}
-                    onClickMenuItem={(type, data) => {
-                      if (type === SERVERMAP_MENU_FUNCTION_TYPE.FILTER_WIZARD) {
-                        let serverInfos: Parameters<typeof getDefaultFilters>[1];
-                        if ('type' in data) {
-                          const nodeData = data as Node;
-                          const node = (
-                            serverMapData?.applicationMapData
-                              .nodeDataArray as FilteredMap.NodeData[]
-                          ).find((n) => n.key === nodeData.id);
-                          serverInfos = {
-                            agents: node?.agents?.map((agent) => agent.id),
-                          };
-                        } else if ('source' in data) {
-                          const edgeData = data as Edge;
-                          const link = (
-                            serverMapData?.applicationMapData
-                              .linkDataArray as FilteredMap.LinkData[]
-                          ).find((l) => l.key === edgeData.id);
-                          serverInfos = {
-                            fromAgents: link?.fromAgents?.map((agent) => agent.id),
-                            toAgents: link?.toAgents?.map((agent) => agent.id),
-                          };
-                        }
-                        setFilter(getDefaultFilters(data, serverInfos));
-                        setShowFilterConfig(true);
-                      } else if (type === SERVERMAP_MENU_FUNCTION_TYPE.FILTER_TRANSACTION) {
-                        const defaultFilterState = getDefaultFilters(data);
-                        const link = (
-                          serverMapData?.applicationMapData.linkDataArray as FilteredMap.LinkData[]
-                        ).find((l) => l.key === data.id);
-                        const addedHint =
-                          link?.sourceInfo.isWas && link.targetInfo.isWas
-                            ? {
-                                [link.targetInfo.applicationName]: link.filter?.outRpcList,
-                              }
-                            : // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                              ({} as any);
-                        window.open(
-                          `${BASE_PATH}${getFilteredMapPath(
-                            defaultFilterState!,
-                            link?.sourceInfo.isWas,
-                          )}?from=${searchParameters.from}&to=${
-                            searchParameters.to
-                          }${getFilteredMapQueryString({
-                            filterStates: [...parsedFilters!, defaultFilterState!],
-                            hint: {
-                              currHint: parsedHint,
-                              addedHint,
-                            },
-                          })}
-                                    `,
-                          '_blank',
-                        );
-                      }
-                    }}
+                    onClickMenuItem={handleClickMenuItem}
                   />
                 </>
               )}
