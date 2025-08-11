@@ -24,6 +24,7 @@ export * from './GetHeatmapAppData';
 export * from './GetResponseTimeHistogram';
 export * from './GetScatter';
 export * from './GetServerMap';
+export * from './GetHistogramStatistics';
 export * from './HeatmapDrag';
 export * from './InspectorAgentChart';
 export * from './InspectorAgentDataSourceChart';
