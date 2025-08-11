@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.navercorp.pinpoint.uristat.web.dao.UriStatChartDao">
 
-    <resultMap id="uriHistogramEntity" type="UriHistogramEntity">
+    <resultMap id="uriHistogramTotalEntity" type="UriHistogramTotalEntity">
     </resultMap>
     <resultMap id="uriHistogramFailEntity" type="UriHistogramFailEntity">
     </resultMap>
@@ -14,7 +14,7 @@
     </resultMap>
 
 
-    <select id="selectTotalUriStat" resultMap="uriHistogramEntity" parameterType="UriStatChartQueryParameter">
+    <select id="selectTotalUriStat" resultMap="uriHistogramTotalEntity" parameterType="UriStatChartQueryParameter">
         SELECT
             DATETIME_CONVERT("timestamp", '1:MILLISECONDS:EPOCH', '1:MILLISECONDS:EPOCH',
                 '#{timePrecision.timeSize}:${timePrecision.timeUnit}') as "timestamp",
