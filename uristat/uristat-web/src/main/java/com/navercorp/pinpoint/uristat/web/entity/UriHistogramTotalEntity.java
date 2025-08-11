@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * @author emeroad
  */
-public class UriHistogramEntity extends UriEntity {
+public class UriHistogramTotalEntity extends UriEntity {
     // total
     private double tot0;
     private double tot1;
@@ -18,7 +18,7 @@ public class UriHistogramEntity extends UriEntity {
     private double tot6;
     private double tot7;
 
-    public UriHistogramEntity() {
+    public UriHistogramTotalEntity() {
     }
 
     public double getTot0() {
@@ -84,7 +84,6 @@ public class UriHistogramEntity extends UriEntity {
     public void setTot7(double tot7) {
         this.tot7 = tot7;
     }
-
 
     public long getTimestamp() {
         return timestamp;

@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.uristat.web.mapper;
 
-import com.navercorp.pinpoint.uristat.web.entity.UriHistogramEntity;
+import com.navercorp.pinpoint.uristat.web.entity.UriHistogramTotalEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriHistogramFailEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriLatencyChartEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriStatChartEntity;
@@ -43,7 +43,7 @@ class EntityToModelMapperTest {
 
     @Test
     void testTotalEntityToModel() {
-        UriHistogramEntity entity = new UriHistogramEntity();
+        UriHistogramTotalEntity entity = new UriHistogramTotalEntity();
         entity.setTimestamp(1000);
         entity.setVersion("version");
         entity.setTot0(10.0);
