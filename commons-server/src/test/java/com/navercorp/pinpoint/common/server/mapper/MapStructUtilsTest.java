@@ -5,6 +5,7 @@ import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
@@ -36,4 +37,17 @@ class MapStructUtilsTest {
         List<String> strings = mapStructUtils.jsonToStringList("[1,2,3]");
         assertThat(strings).containsExactly("1", "2", "3");
     }
+
+    @Test
+    void jsonToStringMapList() {
+        ObjectMapper mapper = Jackson.newMapper();
+        MapStructUtils mapStructUtils = new MapStructUtils(mapper);
+
+        List<Map<String, String>> maps = mapStructUtils.jsonToStringMapList("[{\"key\": \"value\"}, {\"key2\": \"value2\"}, {\"key3\": \"value3\"}]");
+        assertThat(maps).containsExactlyInAnyOrder(
+                Map.of("key", "value"),
+                Map.of("key2", "value2"),
+                Map.of("key3", "value3")
+        );
+}
 }
