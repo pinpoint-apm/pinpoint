@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.common.server.mapper;
 
 import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
@@ -32,6 +33,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Component
@@ -42,6 +44,7 @@ public class MapStructUtils {
     private final ObjectReader integerListReader;
     private final ObjectReader longListReader;
     private final ObjectReader stringListReader;
+    private final ObjectReader stringMapListReader;
 
     public MapStructUtils(ObjectMapper mapper) {
         this.mapper = Objects.requireNonNull(mapper, "mapper");
@@ -49,6 +52,26 @@ public class MapStructUtils {
         this.integerListReader = mapper.readerForListOf(Integer.class);
         this.longListReader = mapper.readerForListOf(Long.class);
         this.stringListReader = mapper.readerForListOf(String.class);
+        this.stringMapListReader = mapper.readerFor(new TypeReference<List<Map<String, String>>>() {});
+    }
+
+    @Qualifier
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.CLASS)
+    public @interface JsonToStringMapList {
+
+    }
+
+    @JsonToStringMapList
+    public List<Map<String, String>> jsonToStringMapList(String json) {
+        if (StringUtils.isEmpty(json)) {
+            return Collections.emptyList();
+        }
+        try {
+            return stringMapListReader.readValue(json);
+        } catch (JacksonException e) {
+            throw new JsonRuntimeException("Json read error", e);
+        }
     }
 
     public List<String> jsonToStringList(String json) {
