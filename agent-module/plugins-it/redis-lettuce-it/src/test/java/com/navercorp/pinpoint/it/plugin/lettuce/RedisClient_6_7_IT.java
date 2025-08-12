@@ -46,12 +46,13 @@ import java.util.concurrent.TimeUnit;
 
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"io.lettuce:lettuce-core:[5.0,6.6.0.RELEASE]",
+@Dependency({"io.lettuce:lettuce-core:[6.7.0.RELEASE,]",
         "org.latencyutils:LatencyUtils:[2.0.3]",
+        "io.micrometer:micrometer-core:1.14.2",
         PluginITConstants.VERSION})
 @SharedDependency({PluginITConstants.VERSION, TestcontainersOption.TEST_CONTAINER})
 @SharedTestLifeCycleClass(RedisServer.class)
-public class RedisClient_IT {
+public class RedisClient_6_7_IT {
     private static final String SERVICE_TYPE_REDIS_LETTUCE = "REDIS_LETTUCE";
 
     private final Logger logger = LogManager.getLogger(getClass());
