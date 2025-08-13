@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerRespo
 import com.navercorp.pinpoint.collector.receiver.grpc.service.MetadataService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerResponseFactory;
+import com.navercorp.pinpoint.collector.uid.service.EmptyApplicationUidService;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
@@ -36,6 +37,7 @@ import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
+import com.navercorp.pinpoint.io.request.UidFetchers;
 import io.grpc.BindableService;
 import io.grpc.ServerServiceDefinition;
 
@@ -53,7 +55,7 @@ public class AgentServerTestMain {
     public static final String IP = "0.0.0.0";
     public static final int PORT = 9997;
 
-    private final ServerRequestFactory serverRequestFactory = new DefaultServerRequestFactory();
+    private final ServerRequestFactory serverRequestFactory = new DefaultServerRequestFactory(UidFetchers.empty());
     private final ServerResponseFactory serverResponseFactory = new DefaultServerResponseFactory();
 
     public void run() throws Exception {

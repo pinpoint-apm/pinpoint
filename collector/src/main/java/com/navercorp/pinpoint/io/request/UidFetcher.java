@@ -3,10 +3,10 @@ package com.navercorp.pinpoint.io.request;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 
-import java.util.function.Supplier;
+import java.util.concurrent.CompletableFuture;
 
 public interface UidFetcher {
-    Supplier<ServiceUid> getServiceUid();
+    CompletableFuture<ServiceUid> getServiceUid();
 
-    Supplier<ApplicationUid> getApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode);
+    CompletableFuture<ApplicationUid> getApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode);
 }

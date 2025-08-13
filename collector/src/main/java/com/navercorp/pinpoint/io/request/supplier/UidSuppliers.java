@@ -25,7 +25,7 @@ public class UidSuppliers {
 
     public static void throwUidError(ApplicationUid applicationUid) {
         if (isUidError(applicationUid)) {
-            throw new UidException("applicationUId error. name:" + applicationUid);
+            throw new UidException("applicationUid error. name:" + applicationUid);
         }
     }
 

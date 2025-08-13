@@ -16,7 +16,7 @@ public class ApplicationUidErrorSupplier implements Supplier<ApplicationUid> {
 
     @Override
     public ApplicationUid get() {
-        throw new UidException("applicationUId error. name:" + applicationName);
+        throw new UidException("applicationUid error. name:" + applicationName);
     }
 
 }

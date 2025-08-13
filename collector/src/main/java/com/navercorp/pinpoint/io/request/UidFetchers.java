@@ -2,9 +2,8 @@ package com.navercorp.pinpoint.io.request;
 
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.io.request.supplier.UidSuppliers;
 
-import java.util.function.Supplier;
+import java.util.concurrent.CompletableFuture;
 
 public class UidFetchers {
 
@@ -16,13 +15,13 @@ public class UidFetchers {
 
     public static class EmptyUidFetcher implements UidFetcher {
         @Override
-        public Supplier<ServiceUid> getServiceUid() {
-            return () -> ServiceUid.DEFAULT;
+        public CompletableFuture<ServiceUid> getServiceUid() {
+            return CompletableFuture.completedFuture(ServiceUid.DEFAULT);
         }
 
         @Override
-        public Supplier<ApplicationUid> getApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
-            return UidSuppliers.error(applicationName);
+        public CompletableFuture<ApplicationUid> getApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
+            return CompletableFuture.failedFuture(new UidException("applicationUid error. name:" + applicationName));
         }
-    };
+    }
 }
