@@ -6,47 +6,60 @@
 
     <select id="uriStatSummary" resultMap="uriStatSummaryEntity" parameterType="UriStatSummaryQueryParameter">
         SELECT
-        uri,
-        sum(apdexRaw) as apdexRaw,
-        sum("count") as totalCount,
-        max(maxLatencyMs) as maxTimeMs,
-        sum(totalTimeMs) as totalTimeMs,
-        sum(failureCount) as failureCount,
+            uri,
+            sum(apdexRaw) as apdexRaw,
+            sum("count") as totalCount,
+            max(maxLatencyMs) as maxTimeMs,
+            sum(totalTimeMs) as totalTimeMs,
+            sum(failureCount) as failureCount,
         version
         FROM uriStat
         WHERE tenantId = #{tenantId}
-        AND applicationName = #{applicationName}
-        <if test="agentId != null">
-            AND agentId = #{agentId}
-        </if>
-        AND "timestamp" BETWEEN #{range.from} AND #{range.to}
+            AND applicationName = #{applicationName}
+            <if test="agentId != null">
+                AND agentId = #{agentId}
+            </if>
+            AND "timestamp" BETWEEN #{range.from} AND #{range.to}
         GROUP BY uri, version
         ORDER BY ${orderBy} ${isDesc}
         LIMIT #{limit}
     </select>
 
     <sql id="useMultiStageEngine">
-        SET
-        useMultiStageEngine = true;
+        SET useMultiStageEngine = true;
     </sql>
 
     <sql id="totalChart">
-        sum(tot0 + tot1 + tot2 + tot3 + tot4 + tot5 + tot6 + tot7) as tot,
+            sum(tot0) as tot0,
+            sum(tot1) as tot1,
+            sum(tot2) as tot2,
+            sum(tot3) as tot3,
+            sum(tot4) as tot4,
+            sum(tot5) as tot5,
+            sum(tot6) as tot6,
+            sum(tot7) as tot7,
     </sql>
 
     <sql id="failureChart">
-        sum(fail0 + fail1 + fail2 + fail3 + fail4 + fail5 + fail6 + fail7) as fail,
+            sum(fail0) as fail0,
+            sum(fail1) as fail1,
+            sum(fail2) as fail2,
+            sum(fail3) as fail3,
+            sum(fail4) as fail4,
+            sum(fail5) as fail5,
+            sum(fail6) as fail6,
+            sum(fail7) as fail7,
     </sql>
 
     <sql id="apdexChart">
-        sum(apdexRaw) as apdexRaw,
-        sum("count") as "count",
+            sum(apdexRaw) as apdexRaw,
+            sum("count") as "count",
     </sql>
 
     <sql id="latencyChart">
-        sum(totalTimeMs) as totalTimeMs,
-        max(maxLatencyMs) as maxLatencyMs,
-        sum("count") as "count",
+            sum(totalTimeMs) as totalTimeMs,
+            max(maxLatencyMs) as maxLatencyMs,
+            sum("count") as "count",
     </sql>
 
     <sql id="selectStatSummary">

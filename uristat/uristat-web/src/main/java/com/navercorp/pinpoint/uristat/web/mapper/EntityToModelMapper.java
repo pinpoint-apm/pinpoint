@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.uristat.web.mapper;
 
 import com.navercorp.pinpoint.uristat.web.entity.UriApdexChartEntity;
-import com.navercorp.pinpoint.uristat.web.entity.UriHistogramTotalEntity;
+import com.navercorp.pinpoint.uristat.web.entity.UriHistogramEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriHistogramFailEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriLatencyChartEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriStatChartEntity;
@@ -96,7 +96,7 @@ public interface EntityToModelMapper {
     @Mapping(target = "chartType", constant = "bar")
     @Mapping(target = "unit", constant = "count")
     @Mapping(target = "values", source = "totalHistogram")
-    UriStatChartValue toTotalChart(UriHistogramTotalEntity entity);
+    UriStatChartValue toTotalChart(UriHistogramEntity entity);
 
     @ToChartValue
     @Named("toFailureChart")

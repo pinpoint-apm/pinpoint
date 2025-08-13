@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.uristat.web.mapper;
 
-import com.navercorp.pinpoint.uristat.web.entity.UriHistogramTotalEntity;
+import com.navercorp.pinpoint.uristat.web.entity.UriHistogramEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriHistogramFailEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriLatencyChartEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriStatChartEntity;
@@ -43,17 +43,31 @@ class EntityToModelMapperTest {
 
     @Test
     void testTotalEntityToModel() {
-        UriHistogramTotalEntity entity = new UriHistogramTotalEntity();
+        UriHistogramEntity entity = new UriHistogramEntity();
         entity.setTimestamp(1000);
         entity.setVersion("version");
-        entity.setTot(10.0);
+        entity.setTot0(10.0);
+        entity.setTot1(20.0);
+        entity.setTot2(30.0);
+        entity.setTot3(40.0);
+        entity.setTot4(50.0);
+        entity.setTot5(60.0);
+        entity.setTot6(70.0);
+        entity.setTot7(80.0);
 
         UriStatChartValue model = mapper.toTotalChart(entity);
 
         assertEquals(entity.getTimestamp(), model.getTimestamp());
         assertEquals(entity.getVersion(), model.getVersion());
-        assertEquals(1, model.getValues().size());
+        assertEquals(8, model.getValues().size());
         assertEquals(10.0, model.getValues().get(0));
+        assertEquals(20.0, model.getValues().get(1));
+        assertEquals(30.0, model.getValues().get(2));
+        assertEquals(40.0, model.getValues().get(3));
+        assertEquals(50.0, model.getValues().get(4));
+        assertEquals(60.0, model.getValues().get(5));
+        assertEquals(70.0, model.getValues().get(6));
+        assertEquals(80.0, model.getValues().get(7));
         assertEquals("bar", model.getChartType().name());
         assertEquals("count", model.getUnit());
     }
@@ -63,14 +77,28 @@ class EntityToModelMapperTest {
         UriHistogramFailEntity entity = new UriHistogramFailEntity();
         entity.setTimestamp(1000);
         entity.setVersion("version");
-        entity.setFail(10.0);
+        entity.setFail0(10.0);
+        entity.setFail1(20.0);
+        entity.setFail2(30.0);
+        entity.setFail3(40.0);
+        entity.setFail4(50.0);
+        entity.setFail5(60.0);
+        entity.setFail6(70.0);
+        entity.setFail7(80.0);
 
         UriStatChartValue model = mapper.toFailureChart(entity);
 
         assertEquals(entity.getTimestamp(), model.getTimestamp());
         assertEquals(entity.getVersion(), model.getVersion());
-        assertEquals(1, model.getValues().size());
+        assertEquals(8, model.getValues().size());
         assertEquals(10.0, model.getValues().get(0));
+        assertEquals(20.0, model.getValues().get(1));
+        assertEquals(30.0, model.getValues().get(2));
+        assertEquals(40.0, model.getValues().get(3));
+        assertEquals(50.0, model.getValues().get(4));
+        assertEquals(60.0, model.getValues().get(5));
+        assertEquals(70.0, model.getValues().get(6));
+        assertEquals(80.0, model.getValues().get(7));
         assertEquals("bar", model.getChartType().name());
         assertEquals("count", model.getUnit());
     }
