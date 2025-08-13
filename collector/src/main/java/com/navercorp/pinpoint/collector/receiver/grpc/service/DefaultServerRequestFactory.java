@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.io.request.GrpcServerHeaderV1;
 import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.UidFetcher;
-import com.navercorp.pinpoint.io.request.UidFetchers;
 import com.navercorp.pinpoint.io.util.MessageType;
 import io.grpc.Context;
 
@@ -35,19 +34,21 @@ import java.util.Objects;
  */
 public class DefaultServerRequestFactory implements ServerRequestFactory {
     private final ServerRequestPostProcessor postProcessor;
+    private final UidFetcher defaultUidFetcher;
 
-    public DefaultServerRequestFactory() {
-        postProcessor = null;
+    public DefaultServerRequestFactory(UidFetcher uidFetcher) {
+        this.postProcessor = null;
+        this.defaultUidFetcher = Objects.requireNonNull(uidFetcher, "uidFetcher");
     }
 
-    public DefaultServerRequestFactory(ServerRequestPostProcessor postProcessor) {
+    public DefaultServerRequestFactory(ServerRequestPostProcessor postProcessor, UidFetcher uidFetcher) {
         this.postProcessor = Objects.requireNonNull(postProcessor, "postProcessor");
+        this.defaultUidFetcher = Objects.requireNonNull(uidFetcher, "uidFetcher");
     }
-
 
     @Override
     public <T> ServerRequest<T> newServerRequest(Context context, MessageType messageType, T data) {
-        return newServerRequest(context, UidFetchers.empty(), messageType, data);
+        return newServerRequest(context, defaultUidFetcher, messageType, data);
     }
 
     @Override

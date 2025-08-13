@@ -18,6 +18,14 @@ public class AgentIdServiceImpl implements AgentIdService {
     }
 
     @Override
+    public void insert(ServiceUid serviceUid, ApplicationUid applicationUid, String agentId) {
+        Objects.requireNonNull(serviceUid, "serviceUid");
+        Objects.requireNonNull(applicationUid, "applicationUid");
+        Objects.requireNonNull(agentId, "agentId");
+        agentIdDao.insert(serviceUid, applicationUid, agentId);
+    }
+
+    @Override
     public List<String> getAgentId(ServiceUid serviceUid, ApplicationUid applicationUid) {
         Objects.requireNonNull(serviceUid, "serviceUid");
         Objects.requireNonNull(applicationUid, "applicationUid");
@@ -36,6 +44,8 @@ public class AgentIdServiceImpl implements AgentIdService {
 
     @Override
     public void deleteAllAgent(ServiceUid serviceUid, ApplicationUid applicationUid) {
+        Objects.requireNonNull(serviceUid, "serviceUid");
+        Objects.requireNonNull(applicationUid, "applicationUid");
         List<String> agentIds = agentIdDao.scanAgentId(serviceUid, applicationUid);
         deleteAgent(serviceUid, applicationUid, agentIds);
     }
@@ -44,11 +54,13 @@ public class AgentIdServiceImpl implements AgentIdService {
     public void deleteAgent(ServiceUid serviceUid, ApplicationUid applicationUid, String agentId) {
         Objects.requireNonNull(serviceUid, "serviceUid");
         Objects.requireNonNull(applicationUid, "applicationUid");
-        deleteAgent(serviceUid, applicationUid, List.of(agentId));
+        agentIdDao.deleteAgents(serviceUid, applicationUid, List.of(agentId));
     }
 
     @Override
     public void deleteAgent(ServiceUid serviceUid, ApplicationUid applicationUid, List<String> agentIds) {
+        Objects.requireNonNull(serviceUid, "serviceUid");
+        Objects.requireNonNull(applicationUid, "applicationUid");
         if (agentIds.isEmpty()) {
             return;
         }

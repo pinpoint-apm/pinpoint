@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface AgentIdService {
 
+    void insert(ServiceUid serviceUid, ApplicationUid applicationUid, String agentId);
+
     List<String> getAgentId(ServiceUid serviceUid, ApplicationUid applicationUid);
 
     List<List<String>> getAgentId(ServiceUid serviceUid, List<ApplicationUid> applicationUidList);

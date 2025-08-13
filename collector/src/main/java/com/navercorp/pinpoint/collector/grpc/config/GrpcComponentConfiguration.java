@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
+import com.navercorp.pinpoint.collector.receiver.grpc.cache.RingMapUidCacheV1;
 import com.navercorp.pinpoint.collector.receiver.grpc.monitor.BasicMonitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerRequestFactory;
@@ -24,9 +25,12 @@ import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFacto
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestPostProcessor;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerResponseFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamCloseOnError;
+import com.navercorp.pinpoint.collector.uid.service.ApplicationUidService;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.grpc.CollectorGrpcSpanFactory;
 import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanBinder;
+import com.navercorp.pinpoint.io.request.UidFetcher;
+import com.navercorp.pinpoint.io.request.UidFetcherV1;
 import io.grpc.ServerTransportFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -46,13 +50,17 @@ public class GrpcComponentConfiguration {
     public GrpcComponentConfiguration() {
     }
 
+    @Bean
+    public UidFetcher defaultUidFetcher(ApplicationUidService applicationUidService) {
+        return new UidFetcherV1(applicationUidService, new RingMapUidCacheV1(256));
+    }
 
     @Bean
-    public ServerRequestFactory serverRequestFactory(Optional<ServerRequestPostProcessor> postProcessor) {
+    public ServerRequestFactory serverRequestFactory(Optional<ServerRequestPostProcessor> postProcessor, UidFetcher UidFetcher) {
         if (postProcessor.isPresent()) {
-            return new DefaultServerRequestFactory(postProcessor.get());
+            return new DefaultServerRequestFactory(postProcessor.get(), UidFetcher);
         }
-        return new DefaultServerRequestFactory();
+        return new DefaultServerRequestFactory(UidFetcher);
     }
 
     @Bean
