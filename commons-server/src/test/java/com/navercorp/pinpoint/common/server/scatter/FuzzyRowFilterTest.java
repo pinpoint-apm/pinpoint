@@ -17,8 +17,6 @@ public class FuzzyRowFilterTest {
 
     @Test
     public void test() {
-        Jdk17Utils.assumeFalse();
-
         byte[] a1 = {'?', 5};
         byte[] a2 = {'?', 6};
         byte[] fuzzy = {1, 0};
@@ -28,18 +26,18 @@ public class FuzzyRowFilterTest {
 
         KeyValue keyValue = new KeyValue(new byte[]{0, 1}, 1L);
         Filter.ReturnCode returnCode = filter.filterCell(keyValue);
-        Assertions.assertEquals(returnCode, Filter.ReturnCode.SEEK_NEXT_USING_HINT);
+        Assertions.assertEquals(Filter.ReturnCode.SEEK_NEXT_USING_HINT, returnCode);
 
         KeyValue keyValue2 = new KeyValue(new byte[]{0, 5}, 1L);
         Filter.ReturnCode returnCode2 = filter.filterCell(keyValue2);
-        Assertions.assertEquals(returnCode2, Filter.ReturnCode.INCLUDE);
+        Assertions.assertEquals(Filter.ReturnCode.INCLUDE, returnCode2);
     }
 
     @Test
     public void test_reverseTimeStamp() {
         for (int i = 0; i < 560; i += 1) {
             short j = reverseTimestamp((short) i);
-            logger.debug(i + " hex:" + Integer.toHexString(i) + " rev:" + j + " rhex:" + Integer.toHexString(j));
+            logger.debug("{} hex: {} rev: {} rhex:{}", i, Integer.toHexString(i), j, Integer.toHexString(j));
         }
     }
 
