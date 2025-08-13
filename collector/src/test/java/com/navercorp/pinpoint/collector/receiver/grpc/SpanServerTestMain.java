@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.UidFetcher;
 import com.navercorp.pinpoint.io.request.UidFetcherStreamService;
+import com.navercorp.pinpoint.io.request.UidFetchers;
 import io.github.bucket4j.Bandwidth;
 import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
@@ -42,6 +43,7 @@ import org.apache.logging.log4j.Logger;
 import java.net.InetAddress;
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -104,12 +106,12 @@ public class SpanServerTestMain {
 
         SimpleHandler<PSpan> handler1 = new MockSimpleHandler<>();
         SimpleHandler<PSpanChunk> handler2 = new MockSimpleHandler<>();
-        ServerRequestFactory serverRequestFactory = new DefaultServerRequestFactory();
+        ServerRequestFactory serverRequestFactory = new DefaultServerRequestFactory(UidFetchers.empty());
 
         UidFetcherStreamService uidFetcherStreamService = mock(UidFetcherStreamService.class);
         UidFetcher uidFetcher = mock(UidFetcher.class);
         when(uidFetcherStreamService.newUidFetcher()).thenReturn(uidFetcher);
-        when(uidFetcher.getApplicationUid(any(), any(), any())).thenReturn(() -> ApplicationUid.of(100));
+        when(uidFetcher.getApplicationUid(any(), any(), any())).thenReturn(CompletableFuture.completedFuture(ApplicationUid.of(100)));
 
         SpanService spanService = new SpanService(handler1, handler2, uidFetcherStreamService, serverRequestFactory, StreamCloseOnError.FALSE);
         return ServerInterceptors.intercept(spanService, rateLimit);

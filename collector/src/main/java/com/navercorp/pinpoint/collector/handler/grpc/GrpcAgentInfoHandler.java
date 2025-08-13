@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.handler.grpc;
 
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.mapper.grpc.GrpcAgentInfoBoMapper;
+import com.navercorp.pinpoint.collector.service.AgentIdUidService;
 import com.navercorp.pinpoint.collector.service.AgentInfoService;
 import com.navercorp.pinpoint.collector.service.AgentInfoStatisticsService;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
@@ -43,16 +44,18 @@ public class GrpcAgentInfoHandler implements RequestResponseHandler<PAgentInfo, 
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final AgentInfoService agentInfoService;
+    private final AgentIdUidService agentIdUidService;
     private final AgentInfoStatisticsService agentInfoStatisticsService;
 
     private final GrpcAgentInfoBoMapper agentInfoBoMapper;
 
     public GrpcAgentInfoHandler(
             AgentInfoService agentInfoService,
-            AgentInfoStatisticsService agentInfoStatisticsService,
+            AgentIdUidService agentIdUidService, AgentInfoStatisticsService agentInfoStatisticsService,
             GrpcAgentInfoBoMapper agentInfoBoMapper
     ) {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+        this.agentIdUidService = Objects.requireNonNull(agentIdUidService, "agentIdUidService");
         this.agentInfoStatisticsService = Objects.requireNonNull(agentInfoStatisticsService, "agentInfoStatisticsService");
         this.agentInfoBoMapper = Objects.requireNonNull(agentInfoBoMapper, "agentInfoBoMapper");
     }
@@ -75,7 +78,8 @@ public class GrpcAgentInfoHandler implements RequestResponseHandler<PAgentInfo, 
         try {
             // agent info
             final AgentInfoBo agentInfoBo = this.agentInfoBoMapper.map(agentInfo, header);
-            this.agentInfoService.insert(header.getServiceUid(), header.getApplicationUid(), agentInfoBo);
+            this.agentInfoService.insert(agentInfoBo);
+            this.agentIdUidService.insert(header.getServiceUid(), header.getApplicationUid(), agentInfoBo);
             this.agentInfoStatisticsService.insert(header.getServiceUid(), header.getApplicationUid(), agentInfoBo);
             return PResults.SUCCESS;
         } catch (Exception e) {
