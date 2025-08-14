@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.web.applicationmap.dao.hbase;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
-import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
+import com.navercorp.pinpoint.common.hbase.HbaseTableV2;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
@@ -83,7 +83,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         Objects.requireNonNull(fromApplication, "fromApplication");
         final Scan scan = createScan(fromApplication, range);
 
-        TableName hostApplicationMapTableName = tableNameProvider.getTableName(HbaseTable.HOST_APPLICATION_MAP_VER2);
+        TableName hostApplicationMapTableName = tableNameProvider.getTableName(HbaseTableV2.HOST_APPLICATION_MAP_VER2);
         final Set<AcceptApplication> result = hbaseOperations.findParallel(hostApplicationMapTableName, scan, acceptApplicationRowKeyDistributor, hostApplicationResultExtractor, HOST_APPLICATION_MAP_VER2_NUM_PARTITIONS);
         if (CollectionUtils.isNotEmpty(result)) {
             logger.debug("findAcceptApplicationName result:{}", result);

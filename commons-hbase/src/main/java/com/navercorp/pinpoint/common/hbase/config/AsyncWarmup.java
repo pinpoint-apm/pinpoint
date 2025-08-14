@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,12 +12,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.navercorp.pinpoint.common.hbase.config;
 
 import com.navercorp.pinpoint.common.hbase.HbaseTable;
+import com.navercorp.pinpoint.common.hbase.HbaseTableV2;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import org.apache.hadoop.hbase.HRegionLocation;
 import org.apache.hadoop.hbase.TableName;
@@ -53,7 +53,7 @@ public class AsyncWarmup implements Consumer<AsyncConnection> {
         String warmup = this.getClass().getSimpleName();
 
         logger.info("{} for hbase AsyncConnection started", warmup);
-        List<HbaseTable> warmUpInclusive = new ArrayList<>(List.of(HbaseTable.values()));
+        List<HbaseTable> warmUpInclusive = new ArrayList<>(List.of(HbaseTableV2.values()));
         if (warmUpExclusive != null) {
             warmUpInclusive.removeAll(warmUpExclusive);
         }
