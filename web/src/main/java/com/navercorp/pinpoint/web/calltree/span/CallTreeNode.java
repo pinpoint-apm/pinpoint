@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -101,17 +101,15 @@ public class CallTreeNode {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("{depth=");
-        builder.append(getDepth());
-        builder.append(", child=");
-        builder.append(child != null ? true : false);
-        builder.append(", sibling=");
-        builder.append(sibling != null ? true : false);
-        builder.append(", align=");
-        builder.append(align);
-        builder.append("}");
-        return builder.toString();
+        return "{depth=" + getDepth() +
+               ", child=" + exist(child) +
+               ", sibling=" + exist(sibling) +
+               ", align=" + align +
+               "}";
+    }
+
+    private static boolean exist(CallTreeNode node) {
+        return node != null;
     }
 
     public static class Builder {
