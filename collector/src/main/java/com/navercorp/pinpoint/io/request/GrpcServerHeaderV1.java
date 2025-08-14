@@ -3,9 +3,12 @@ package com.navercorp.pinpoint.io.request;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.grpc.Header;
+import com.navercorp.pinpoint.io.request.supplier.UidSuppliers;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
 
@@ -14,7 +17,8 @@ public class GrpcServerHeaderV1 implements ServerHeader {
     private final Header header;
     private final UidFetcher uidFetcher;
 
-    private volatile Supplier<ApplicationUid> applicationUid;
+    private volatile CompletableFuture<ApplicationUid> applicationUidFuture;
+    private final ReentrantLock lock = new ReentrantLock();
 
     public GrpcServerHeaderV1(Header header) {
         this(header, UidFetchers.empty());
@@ -42,17 +46,29 @@ public class GrpcServerHeaderV1 implements ServerHeader {
 
     @Override
     public Supplier<ApplicationUid> getApplicationUid() {
-        final Supplier<ApplicationUid> copy = this.applicationUid;
+        CompletableFuture<ApplicationUid> copy = this.applicationUidFuture;
         if (copy != null) {
-            return copy;
+            return UidSuppliers.of(getApplicationName(), copy);
         }
-
-        String applicationName = getApplicationName();
-        int serviceTypeCode = getServiceType();
-        final Supplier<ApplicationUid> supplier = this.uidFetcher.getApplicationUid(ServiceUid.DEFAULT, applicationName, serviceTypeCode);
-        this.applicationUid = supplier;
-
-        return supplier;
+        lock.lock();
+        try {
+            copy = this.applicationUidFuture;
+            if (copy != null) {
+                return UidSuppliers.of(getApplicationName(), copy);
+            }
+            String applicationName = getApplicationName();
+            int serviceTypeCode = getServiceType();
+            final CompletableFuture<ApplicationUid> future = this.uidFetcher.getApplicationUid(ServiceUid.DEFAULT, applicationName, serviceTypeCode);
+            this.applicationUidFuture = future;
+            future.whenComplete((applicationUid, throwable) -> {
+                if (throwable != null) {
+                    applicationUidFuture = null;
+                }
+            });
+            return UidSuppliers.of(applicationName, future);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
@@ -95,7 +111,7 @@ public class GrpcServerHeaderV1 implements ServerHeader {
     @Override
     public String toString() {
         return "GrpcServerHeaderV1{" +
-               "header=" + header +
-               '}';
+                "header=" + header +
+                '}';
     }
 }
