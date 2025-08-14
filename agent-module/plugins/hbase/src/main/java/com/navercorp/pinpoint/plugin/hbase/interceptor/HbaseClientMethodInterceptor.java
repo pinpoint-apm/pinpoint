@@ -1,16 +1,17 @@
 /*
- *  Copyright 2018 NAVER Corp.
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Copyright 2025 NAVER Corp.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.navercorp.pinpoint.plugin.hbase.interceptor;
 
@@ -26,6 +27,7 @@ import org.apache.hadoop.hbase.client.ClientScanner;
 import org.apache.hadoop.hbase.client.Result;
 
 import java.net.InetSocketAddress;
+import java.util.Objects;
 
 /**
  * The type Hbase client method interceptor.
@@ -54,7 +56,7 @@ public class HbaseClientMethodInterceptor extends SpanEventSimpleAroundIntercept
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         String endPoint = getEndPoint(args);
-        recorder.recordEndPoint(endPoint != null ? endPoint : HbasePluginConstants.UNKNOWN_TABLE);
+        recorder.recordEndPoint(Objects.toString(endPoint, HbasePluginConstants.UNKNOWN_TABLE));
         recorder.recordDestinationId(HbasePluginConstants.HBASE_DESTINATION_ID);
         recorder.recordApi(getMethodDescriptor());
         if (target instanceof ClientScanner) {
