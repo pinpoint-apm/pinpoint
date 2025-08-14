@@ -34,7 +34,7 @@ public class FuzzyRowFilterTest {
 
     @Test
     public void test() {
-        Jdk17Utils.assumeFalse();
+//        Jdk17Utils.assumeFalse();
 
         byte[] a1 = {'?', 5};
         byte[] a2 = {'?', 6};
