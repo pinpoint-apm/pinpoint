@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -186,7 +186,7 @@ public class SpanServiceImpl implements SpanService {
         Map<AgentIdStartTimeKey, Optional<String>> nameMap = new HashMap<>(spanBoList.size());
         for (AgentIdStartTimeKey key : spanBoList) {
             if (!nameMap.containsKey(key)) {
-                Optional<String> agentName = getAgentName(key.getAgentId(), key.getAgentStartTime());
+                Optional<String> agentName = getAgentName(key.agentId(), key.agentStartTime());
                 nameMap.put(key, agentName);
             }
         }
@@ -569,6 +569,12 @@ public class SpanServiceImpl implements SpanService {
         final int deltaTimeInMilli = 1000;
         final AgentInfo agentInfo = this.agentInfoService.getAgentInfoWithoutStatus(agentId, agentStartTime, deltaTimeInMilli);
         return agentInfo == null ? Optional.empty() : Optional.ofNullable(agentInfo.getAgentName());
+    }
+
+    private record AgentIdStartTimeKey(String agentId, long agentStartTime) {
+        private AgentIdStartTimeKey {
+            Objects.requireNonNull(agentId, "agentId");
+        }
     }
 }
 
