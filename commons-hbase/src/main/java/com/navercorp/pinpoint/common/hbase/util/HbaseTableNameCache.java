@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -44,7 +44,7 @@ public class HbaseTableNameCache {
         if (tableName != null) {
             return tableName;
         }
-        tableName = TableName.valueOf(tableNameKey.getNamespace(), tableNameKey.getQualifier());
+        tableName = TableName.valueOf(tableNameKey.namespace(), tableNameKey.qualifier());
         TableName prevTableName = tableNameCache.putIfAbsent(tableNameKey, tableName);
         if (prevTableName != null) {
             return prevTableName;
@@ -52,45 +52,11 @@ public class HbaseTableNameCache {
         return tableName;
     }
 
-    private static class TableNameKey {
+    private record TableNameKey(String namespace, String qualifier) {
 
-        private final String namespace;
-        private final String qualifier;
-
-        private TableNameKey(String namespace, String qualifier) {
-            this.namespace = Objects.requireNonNull(namespace, "namespace");
-            this.qualifier = Objects.requireNonNull(qualifier, "qualifier");
-        }
-
-        public String getNamespace() {
-            return namespace;
-        }
-
-        public String getQualifier() {
-            return qualifier;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            TableNameKey that = (TableNameKey) o;
-
-            if (!namespace.equals(that.namespace)) return false;
-            return qualifier.equals(that.qualifier);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = namespace.hashCode();
-            result = 31 * result + qualifier.hashCode();
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return namespace + ":" + qualifier;
+        private TableNameKey {
+            Objects.requireNonNull(namespace, "namespace");
+            Objects.requireNonNull(qualifier, "qualifier");
         }
     }
 }
