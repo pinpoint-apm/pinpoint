@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,6 +86,9 @@ public class GrpcSpanBinder {
         spanBo.setAgentName(attribute.getAgentName());
         spanBo.setAgentStartTime(attribute.getAgentStartTime());
         spanBo.setCollectorAcceptTime(attribute.getAcceptedTime());
+
+        spanBo.setApplicationUid(attribute.getApplicationUid());
+        spanBo.setServiceUid(attribute.getServiceUid());
 
         if (!pSpan.hasTransactionId()) {
             throw new IllegalStateException("hasTransactionId() is false " + MessageFormatUtils.debugLog(pSpan));
@@ -272,6 +275,9 @@ public class GrpcSpanBinder {
         spanChunkBo.setCollectorAcceptTime(attribute.getAcceptedTime());
 
         spanChunkBo.setApplicationServiceType((short) pSpanChunk.getApplicationServiceType());
+
+        spanChunkBo.setApplicationUid(attribute.getApplicationUid());
+        spanChunkBo.setServiceUid(attribute.getServiceUid());
 
         if (pSpanChunk.hasTransactionId()) {
             PTransactionId pTransactionId = pSpanChunk.getTransactionId();

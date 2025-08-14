@@ -16,31 +16,30 @@
 
 package com.navercorp.pinpoint.web.applicationmap.service;
 
+import com.navercorp.pinpoint.uid.service.BaseApplicationUidService;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.SimplifiedNodeHistogramFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapApplicationResponseNodeHistogramDataSource;
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseNodeHistogramDataSource;
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseSimplifiedNodeHistogramDataSource;
+import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapUidApplicationResponseDatasource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
+import com.navercorp.pinpoint.web.applicationmap.uid.hbase.MapSelfUidDao;
 
-public class NodeHistogramServiceImpl implements NodeHistogramService {
+import java.util.Objects;
 
-    private final WasNodeHistogramDataSource simpleHistogram;
+public class UidNodeHistogramServiceImpl implements NodeHistogramService {
 
+    private final NodeHistogramService nodeHistogramService;
     private final WasNodeHistogramDataSource applicationHistogram;
-    private final WasNodeHistogramDataSource agentHistogram;
 
-    public NodeHistogramServiceImpl(MapResponseDao mapResponseDao) {
-        this.simpleHistogram = new MapResponseSimplifiedNodeHistogramDataSource(mapResponseDao);
-        this.applicationHistogram = new MapApplicationResponseNodeHistogramDataSource(mapResponseDao);
-        this.agentHistogram = new MapResponseNodeHistogramDataSource(mapResponseDao);
+    public UidNodeHistogramServiceImpl(NodeHistogramService nodeHistogramService,
+                                       BaseApplicationUidService baseApplicationUidService,
+                                       MapSelfUidDao selfUidDao) {
+        this.nodeHistogramService = Objects.requireNonNull(nodeHistogramService, "nodeHistogramService");
+        this.applicationHistogram = new MapUidApplicationResponseDatasource(baseApplicationUidService, selfUidDao);
     }
 
     @Override
     public NodeHistogramFactory getSimpleHistogram() {
-        return new SimplifiedNodeHistogramFactory(simpleHistogram);
+        return nodeHistogramService.getSimpleHistogram();
     }
 
     @Override
@@ -50,7 +49,7 @@ public class NodeHistogramServiceImpl implements NodeHistogramService {
 
     @Override
     public NodeHistogramFactory getAgentHistogram() {
-        return new DefaultNodeHistogramFactory(agentHistogram);
+        return nodeHistogramService.getAgentHistogram();
     }
 
 }

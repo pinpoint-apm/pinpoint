@@ -21,24 +21,32 @@ package com.navercorp.pinpoint.common.hbase;
  * @author Taejin Koo
  */
 public enum HbaseTableV2 implements HbaseTable {
-
+    // agent
     AGENTINFO("AgentInfo"),
     AGENT_EVENT("AgentEvent"),
     AGENT_LIFECYCLE("AgentLifeCycle"),
-    API_METADATA("ApiMetaData"),
+    AGENT_ID("AgentId"),
+
+    // id
     APPLICATION_INDEX("ApplicationIndex"),
     APPLICATION_UID("ApplicationUid"),
     APPLICATION_UID_ATTR("ApplicationUidAttr"),
-    AGENT_ID("AgentId"),
+
+    // trace
     APPLICATION_TRACE_INDEX("ApplicationTraceIndex"),
+    TRACE_V2("TraceV2"),
+
+    // map
     HOST_APPLICATION_MAP_VER2("HostApplicationMap_Ver2"),
     MAP_STATISTICS_CALLEE_VER2("ApplicationMapStatisticsCallee_Ver2"),
     MAP_STATISTICS_CALLER_VER2("ApplicationMapStatisticsCaller_Ver2"),
     MAP_STATISTICS_SELF_VER2("ApplicationMapStatisticsSelf_Ver2"),
+
+    // metadata
+    API_METADATA("ApiMetaData"),
     SQL_METADATA_VER2("SqlMetaData_Ver2"),
     SQL_UID_METADATA("SqlUidMetaData"),
-    STRING_METADATA("StringMetaData"),
-    TRACE_V2("TraceV2");
+    STRING_METADATA("StringMetaData");
 
     private final String name;
 

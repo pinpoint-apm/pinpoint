@@ -14,15 +14,25 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.applicationmap.service;
+package com.navercorp.pinpoint.common.hbase;
 
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
+/**
+ * @author emeroad
+ * @author Taejin Koo
+ */
+public enum HbaseTableV3 implements HbaseTable {
 
-public interface NodeHistogramService {
-    NodeHistogramFactory getSimpleHistogram();
+    MAP_APP_SELF_V3("MapAppSelfV3");
 
-    NodeHistogramFactory getApplicationHistogram();
+    private final String name;
 
-    NodeHistogramFactory getAgentHistogram();
+    HbaseTableV3(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
 
 }
