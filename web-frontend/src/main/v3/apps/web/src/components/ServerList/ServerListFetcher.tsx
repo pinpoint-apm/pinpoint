@@ -13,6 +13,7 @@ import {
   GetServerMap,
   SearchApplication,
   BASE_PATH,
+  GetHistogramStatistics,
 } from '@pinpoint-fe/ui/src/constants';
 import {
   convertParamsToQueryString,
@@ -23,10 +24,11 @@ import { useSearchParameters, swrConfigs, useServerMapLinkedData } from '@pinpoi
 import { ServerList as SL, ServerListProps } from '@pinpoint-fe/ui';
 
 export interface ServerListFetcherProps extends ServerListProps {
+  nodeStatistics?: GetHistogramStatistics.Response;
   disableFetch?: boolean;
 }
 
-export const ServerListFetcher = ({ disableFetch }: ServerListFetcherProps) => {
+export const ServerListFetcher = ({ nodeStatistics, disableFetch }: ServerListFetcherProps) => {
   const { searchParameters } = useSearchParameters();
   const currentTargetData = useAtomValue(serverMapCurrentTargetDataAtom) as GetServerMap.NodeData;
   const currentNodeStatistics = useAtomValue(currentNodeStatisticsAtom);
@@ -110,7 +112,7 @@ export const ServerListFetcher = ({ disableFetch }: ServerListFetcherProps) => {
     <SL
       data={data}
       className={'border-t border-r bg-neutral-100'}
-      statistics={currentNodeStatistics}
+      statistics={nodeStatistics || currentNodeStatistics} // FilteredMap에서는 atom값을 사용하고 servermap은 props값을 사용
       selectedId={currentServerAgent}
       onClick={handleClickItem}
       groupNameRenderer={renderGroupName}

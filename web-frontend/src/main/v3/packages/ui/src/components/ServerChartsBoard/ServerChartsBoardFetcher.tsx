@@ -72,7 +72,7 @@ export const ServerChartsBoardFetcher = ({
 
   const { data } = useSWR<GetResponseTimeHistogram.Response>(
     getQueryString() && !disableFetch
-      ? `${END_POINTS.RESPONSE_TIME_HISTOGRAM_DATA_V2}${getQueryString()}`
+      ? `${END_POINTS.HISTOGRAM_STATISTICS}${getQueryString()}`
       : null,
     swrConfigs,
   );
