@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkUpdater;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.config.BulkFactory;
 import com.navercorp.pinpoint.collector.applicationmap.uid.MapSelfUidDao;
+import com.navercorp.pinpoint.collector.applicationmap.uid.hbase.HbaseMapOutLinkUidDao;
 import com.navercorp.pinpoint.collector.applicationmap.uid.hbase.HbaseMapSelfUidDao;
 import com.navercorp.pinpoint.collector.applicationmap.uid.service.HbaseUidLinkService;
 import com.navercorp.pinpoint.collector.service.UidLinkService;
@@ -81,4 +82,10 @@ public class UidMapConfiguration {
         return new HbaseUidLinkService(mapSelfUidDao);
     }
 
+    @Bean
+    public HbaseMapOutLinkUidDao mapOutLinkUidDao(MapLinkProperties mapLinkProperties,
+                                                  TimeSlot timeSlot,
+                                                  @Qualifier("selfUidBulkWriter") BulkWriter bulkWriter) {
+        return new HbaseMapOutLinkUidDao(mapLinkProperties, timeSlot, bulkWriter);
+    }
 }

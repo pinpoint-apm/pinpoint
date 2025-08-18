@@ -20,15 +20,15 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.Objects;
 
-public record UidVertex(int service, long application, ServiceType serviceType) {
+public record SelfUidVertex(int service, long application, ServiceType serviceType) {
 
-    public UidVertex {
+    public SelfUidVertex {
         Objects.requireNonNull(serviceType, "serviceType");
     }
 
 
-    public static UidVertex of(int service, long application, ServiceType serviceType) {
-        return new UidVertex(service, application, serviceType);
+    public static SelfUidVertex of(int service, long application, ServiceType serviceType) {
+        return new SelfUidVertex(service, application, serviceType);
     }
 
     @Override

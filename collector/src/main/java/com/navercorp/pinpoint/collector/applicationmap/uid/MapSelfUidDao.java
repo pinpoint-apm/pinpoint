@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.uid;
 
-import com.navercorp.pinpoint.collector.applicationmap.UidVertex;
+import com.navercorp.pinpoint.collector.applicationmap.SelfUidVertex;
 
 /**
  * @author emeroad
@@ -24,6 +24,6 @@ import com.navercorp.pinpoint.collector.applicationmap.UidVertex;
  */
 public interface MapSelfUidDao {
 
-    void self(long requestTime, UidVertex selfVertex, int elapsed, boolean isError);
+    void self(long requestTime, SelfUidVertex selfVertex, int elapsed, boolean isError);
 
 }

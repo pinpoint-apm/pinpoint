@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.uid.service;
 
-import com.navercorp.pinpoint.collector.applicationmap.UidVertex;
+import com.navercorp.pinpoint.collector.applicationmap.SelfUidVertex;
 import com.navercorp.pinpoint.collector.applicationmap.uid.MapSelfUidDao;
 import com.navercorp.pinpoint.collector.service.UidLinkService;
 import org.apache.logging.log4j.LogManager;
@@ -39,7 +39,7 @@ public class HbaseUidLinkService implements UidLinkService {
     @Override
     public void updateResponseTime(
             long requestTime,
-            UidVertex appVertex,
+            SelfUidVertex appVertex,
             int elapsed, boolean isError
     ) {
         logger.debug("updateResponseTime {}", appVertex);

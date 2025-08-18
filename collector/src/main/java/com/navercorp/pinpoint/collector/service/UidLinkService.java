@@ -16,12 +16,37 @@
 
 package com.navercorp.pinpoint.collector.service;
 
-import com.navercorp.pinpoint.collector.applicationmap.UidVertex;
+import com.navercorp.pinpoint.collector.applicationmap.SelfUidVertex;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public interface UidLinkService {
+
     void updateResponseTime(
             long requestTime,
-            UidVertex appVertex,
+            SelfUidVertex appVertex,
             int elapsed, boolean isError
     );
+
+    default void updateOutLink(
+            long requestTime,
+            SelfUidVertex selfVertex,
+
+            String outLinkApplicationName,
+            ServiceType outLinkServiceType,
+            String outHost,
+            int elapsed, boolean isError
+    ) {
+
+    }
+
+    default void updateInLink(
+            long requestTime,
+            String inLinkApplicationName,
+            ServiceType inLinkServiceType,
+
+            SelfUidVertex selfVertex,
+            int elapsed, boolean isError
+    ) {
+
+    }
 }

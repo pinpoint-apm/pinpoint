@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.statistics.uid;
 
-import com.navercorp.pinpoint.collector.applicationmap.UidVertex;
+import com.navercorp.pinpoint.collector.applicationmap.SelfUidVertex;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.hbase.wd.SaltKey;
@@ -30,7 +30,7 @@ import java.util.Objects;
  * @author emeroad
  */
 public record UidLinkRowKey(int service, long application, int serviceType, long rowTimeSlot) implements RowKey {
-    public static RowKey of(UidVertex vertex, long rowTimeSlot) {
+    public static RowKey of(SelfUidVertex vertex, long rowTimeSlot) {
         return of(vertex.service(), vertex.application(), vertex.serviceType(), rowTimeSlot);
     }
 

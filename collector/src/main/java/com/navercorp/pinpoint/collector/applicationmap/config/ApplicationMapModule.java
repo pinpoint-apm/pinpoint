@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.config;
 
-import com.navercorp.pinpoint.collector.applicationmap.UidVertex;
+import com.navercorp.pinpoint.collector.applicationmap.SelfUidVertex;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapResponseTimeDao;
@@ -64,7 +64,7 @@ public class ApplicationMapModule {
     public UidLinkService uidLinkService() {
         return new UidLinkService() {
             @Override
-            public void updateResponseTime(long requestTime, UidVertex appVertex, int elapsed, boolean isError) {
+            public void updateResponseTime(long requestTime, SelfUidVertex appVertex, int elapsed, boolean isError) {
 
             }
         };
