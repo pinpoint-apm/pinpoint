@@ -33,7 +33,6 @@ import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilderFactory;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWithScatter;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramAppenderFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInfoAppenderFactory;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
@@ -100,11 +99,6 @@ public class FilteredMapServiceImplTest {
     @Mock
     private ServerInstanceDatasourceService serverInstanceDatasourceService;
 
-    @Mock
-    private NodeHistogramService nodeHistogramService;
-
-    @Mock
-    private MapResponseDao mapResponseDao;
 
     // Mocked
     private final ServiceTypeRegistryService registry = TestTraceUtils.mockServiceTypeRegistryService();
@@ -140,9 +134,7 @@ public class FilteredMapServiceImplTest {
                     return new Application(applicationName, serviceType);
                 });
 
-        nodeHistogramService = new NodeHistogramServiceImpl(mapResponseDao);
-
-        filteredMapService = new FilteredMapServiceImpl(traceDao, registry, applicationFactory, nodeHistogramService, serverInstanceDatasourceService, Optional.empty(), applicationMapBuilderFactory);
+        filteredMapService = new FilteredMapServiceImpl(traceDao, registry, applicationFactory, serverInstanceDatasourceService, Optional.empty(), applicationMapBuilderFactory);
 
     }
 

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HbaseMapRespons
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkIncrementer;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkUpdater;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
+import com.navercorp.pinpoint.collector.applicationmap.uid.config.UidMapConfiguration;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
@@ -36,6 +37,7 @@ import org.springframework.context.annotation.Import;
 @Import({
         BulkProperties.class,
 
+        UidMapConfiguration.class
 })
 public class BulkConfiguration {
 

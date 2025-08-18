@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.applicationmap.service;
+package com.navercorp.pinpoint.collector.service;
 
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
+import com.navercorp.pinpoint.collector.applicationmap.UidVertex;
 
-public interface NodeHistogramService {
-    NodeHistogramFactory getSimpleHistogram();
-
-    NodeHistogramFactory getApplicationHistogram();
-
-    NodeHistogramFactory getAgentHistogram();
-
+public interface UidLinkService {
+    void updateResponseTime(
+            long requestTime,
+            UidVertex appVertex,
+            int elapsed, boolean isError
+    );
 }
