@@ -4,9 +4,9 @@ Configuration:
   Properties:
     Property:
       - name: "console_message_pattern"
-        value: "%d{MM-dd HH:mm:ss.sss} [%15.15t] %clr{%-5level} %clr{%-40.40logger{1.}}{cyan}:%3L -- %msg%n"
+        value: "%d{MM-dd HH:mm:ss.SSS} [%15.15t] %clr{%-5level} %clr{%-40.40logger{1.}}{cyan}:%3L -- %msg%n"
       - name: "file_message_pattern"
-        value: "%d{MM-dd HH:mm:ss.sss} [%15.15t] %-5level %-40.40logger{1.}:%3L -- %msg%n"
+        value: "%d{MM-dd HH:mm:ss.SSS} [%15.15t] %-5level %-40.40logger{1.}:%3L -- %msg%n"
 
   Appenders:
     Console:
