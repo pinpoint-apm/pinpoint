@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.config;
 
-import com.navercorp.pinpoint.collector.applicationmap.SelfUidVertex;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapResponseTimeDao;
@@ -62,11 +61,6 @@ public class ApplicationMapModule {
     @ConditionalOnMissingBean(UidLinkService.class)
     @Bean
     public UidLinkService uidLinkService() {
-        return new UidLinkService() {
-            @Override
-            public void updateResponseTime(long requestTime, SelfUidVertex appVertex, int elapsed, boolean isError) {
-
-            }
-        };
+        return new UidLinkService() { };
     }
 }

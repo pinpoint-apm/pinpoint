@@ -69,7 +69,7 @@ public class HbaseMapOutLinkUidDao implements CachedStatisticsDao {
 
 
         if (logger.isDebugEnabled()) {
-            logger.debug("[OutLink] {} -> {}/{}/{}", selfVertex,  outLinkApplicationName, outLinkServiceType, outHost);
+            logger.debug("[OutLinkUid] {} -> {}/{}/{}", selfVertex,  outLinkApplicationName, outLinkServiceType, outHost);
         }
 
         // there may be no endpoint in case of httpclient

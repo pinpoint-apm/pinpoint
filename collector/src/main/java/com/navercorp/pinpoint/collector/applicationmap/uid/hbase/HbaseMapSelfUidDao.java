@@ -65,7 +65,7 @@ public class HbaseMapSelfUidDao implements MapSelfUidDao, CachedStatisticsDao {
         Objects.requireNonNull(selfVertex, "selfVertex");
 
         if (logger.isDebugEnabled()) {
-            logger.debug("[Self] {}", selfVertex);
+            logger.debug("[SelfUid] {}", selfVertex);
         }
 
         // make row key. rowkey is me

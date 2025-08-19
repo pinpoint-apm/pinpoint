@@ -21,11 +21,13 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public interface UidLinkService {
 
-    void updateResponseTime(
+    default void updateResponseTime(
             long requestTime,
             SelfUidVertex appVertex,
             int elapsed, boolean isError
-    );
+    ) {
+
+    }
 
     default void updateOutLink(
             long requestTime,
@@ -45,6 +47,7 @@ public interface UidLinkService {
             ServiceType inLinkServiceType,
 
             SelfUidVertex selfVertex,
+            String selfSubLink,
             int elapsed, boolean isError
     ) {
 

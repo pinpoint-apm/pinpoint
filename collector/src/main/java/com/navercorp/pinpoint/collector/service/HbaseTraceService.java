@@ -349,6 +349,7 @@ public class HbaseTraceService implements TraceService {
             // save the information of inLink (the span that spanevent called)
             linkService.updateInLink(requestTime, spanEventVertex,
                     selfVertex, endPoint, elapsed, hasException);
+            uidLinkService.updateInLink(requestTime, spanEventApplicationName, spanEventType, selfUidVertex, endPoint, elapsed, hasException);
         }
     }
 
