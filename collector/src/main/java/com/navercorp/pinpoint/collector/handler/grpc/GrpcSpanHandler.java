@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,17 +79,17 @@ public class GrpcSpanHandler implements SimpleHandler<PSpan> {
 
     private void handleSpan(BindAttribute attribute, PSpan span) {
         if (isDebug) {
-            logger.debug("Handle PSpan={}", createSimpleSpanLog(span));
+            logger.debug("Handle {} {}", attribute, createSimpleSpanLog(span));
         }
 
         final SpanBo spanBo = spanFactory.buildSpanBo(span, attribute);
         if (!sampler.isSampling(spanBo)) {
             if (isDebug) {
-                logger.debug("unsampled PSpan={}", createSimpleSpanLog(span));
+                logger.debug("Unsampled {} {}", attribute, createSimpleSpanLog(span));
             } else {
                 infoLog.log(() -> {
                     if (logger.isInfoEnabled()) {
-                        logger.info("unsampled PSpan={}", createSimpleSpanLog(span));
+                        logger.info("Unsampled {} {}", attribute, createSimpleSpanLog(span));
                     }
                 });
             }
@@ -99,9 +99,9 @@ public class GrpcSpanHandler implements SimpleHandler<PSpan> {
             try {
                 traceService.insertSpan(spanBo);
             } catch (RequestNotPermittedException notPermitted) {
-                warnLog.log((c) -> logger.warn("Failed to handle Span RequestNotPermitted:{} {}", notPermitted.getMessage(), c));
+                warnLog.log((c) -> logger.warn("Failed to handle Span {} RequestNotPermitted:{} {}", attribute, notPermitted.getMessage(), c));
             } catch (Throwable e) {
-                logger.warn("Failed to handle Span={}", MessageFormatUtils.debugLog(span), e);
+                logger.warn("Failed to handle {} {}", attribute, MessageFormatUtils.debugLog(span), e);
             }
         }
     }
