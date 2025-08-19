@@ -77,7 +77,6 @@
         <module>okhttp</module>
         <module>log4j</module>
         <module>logback</module>
-        <module>dubbo</module>
         <module>cassandra</module>
         <module>cassandra4</module>
         <module>activemq-client</module>

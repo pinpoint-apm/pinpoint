@@ -18,7 +18,8 @@
         <pinpoint.agent.jvmargument>
             ${pinpoint.agent.default.jvmargument}
         </pinpoint.agent.jvmargument>
-        <grpc.version>1.49.2</grpc.version>
+        <grpc.version>1.74.0</grpc.version>
+        <protoc.version>3.25.5</protoc.version>
     </properties>
 
     <dependencies>
@@ -42,7 +43,12 @@
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
-            <artifactId>grpc-netty</artifactId>
+            <artifactId>grpc-netty-shaded</artifactId>
+            <version>${grpc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-okhttp</artifactId>
             <version>${grpc.version}</version>
         </dependency>
         <dependency>

@@ -37,7 +37,6 @@
         <mongo.driver.3.version>3.12.11</mongo.driver.3.version>
         <mongo.driver.4.version>4.6.1</mongo.driver.4.version>
 
-        <alibaba.dubbo.version>2.6.12</alibaba.dubbo.version>
         <apache.dubbo.version>2.7.18</apache.dubbo.version>
         <ehcache.version>2.10.6</ehcache.version>
 
@@ -277,19 +276,6 @@
                 <groupId>com.dameng</groupId>
                 <artifactId>DmJdbcDriver18</artifactId>
                 <version>8.1.1.193</version>
-            </dependency>
-
-
-            <dependency>
-                <groupId>com.alibaba</groupId>
-                <artifactId>dubbo</artifactId>
-                <version>${alibaba.dubbo.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <dependency>
