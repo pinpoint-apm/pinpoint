@@ -35,7 +35,6 @@
     </properties>
 
     <modules>
-        <module>google-grpc-1-8-it</module>
         <module>google-grpc-1-42-it</module>
     </modules>
 
