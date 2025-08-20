@@ -149,7 +149,7 @@ export function VirtualizedDataTable<TData, TValue>({
   }, [rowSelection]);
 
   React.useEffect(() => {
-    if (focusRowIndex) {
+    if (typeof focusRowIndex === 'number' && !Number.isNaN(focusRowIndex) && focusRowIndex >= 0) {
       rowVirtualizer.scrollToIndex(focusRowIndex, { align: 'center' });
     }
   }, [focusRowIndex]);
