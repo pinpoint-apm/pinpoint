@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.collector.grpc.channelz.ChannelzConfiguration;
 import com.navercorp.pinpoint.collector.grpc.config.GrpcAgentConfiguration;
 import com.navercorp.pinpoint.collector.grpc.config.GrpcAgentReceiverConfiguration;
 import com.navercorp.pinpoint.collector.grpc.config.GrpcComponentConfiguration;
+import com.navercorp.pinpoint.collector.grpc.config.GrpcErrorHandleConfiguration;
 import com.navercorp.pinpoint.collector.grpc.config.GrpcKeepAliveScheduler;
 import com.navercorp.pinpoint.collector.grpc.config.GrpcSpanConfiguration;
 import com.navercorp.pinpoint.collector.grpc.config.GrpcSpanReceiverConfiguration;
@@ -58,7 +59,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
         MicrometerConfiguration.class,
         HbaseMetricsConfiguration.class,
 
-        ChannelzConfiguration.class
+        ChannelzConfiguration.class,
+        GrpcErrorHandleConfiguration.class
 })
 @ComponentScan({
         "com.navercorp.pinpoint.collector.receiver.grpc"
