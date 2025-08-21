@@ -43,7 +43,7 @@ export const ApplicationCombinedList = ({
     return favoriteList.find((favoriteApp: ApplicationType) => {
       return (
         favoriteApp.applicationName === application.applicationName &&
-        favoriteApp?.code === application?.code
+        favoriteApp?.serviceType === application?.serviceType
       );
     });
   };
@@ -63,7 +63,10 @@ export const ApplicationCombinedList = ({
       setFavoriteList(
         favoriteList.filter(
           (favoriteApp: ApplicationType) =>
-            favoriteApp.applicationName !== application.applicationName,
+            !(
+              favoriteApp.applicationName === application.applicationName &&
+              favoriteApp?.serviceType === application?.serviceType
+            ),
         ),
       );
       !option?.disableToast &&
