@@ -17,7 +17,7 @@ import {
   FormMessage,
 } from '../../../ui';
 import { useReactToastifyToast } from '../../../Toast';
-import { usePostConfigUserGroup } from '@pinpoint-fe/ui/src/hooks';
+import { usePostUserGroup } from '@pinpoint-fe/ui/src/hooks';
 import { TFunction } from 'i18next';
 import { cn } from '../../../../lib';
 
@@ -52,7 +52,7 @@ export const UserGroupAddPopup = ({
     resolver: zodResolver(userGroupFormSchema),
   });
 
-  const { isMutating, onSubmit } = usePostConfigUserGroup({
+  const { isMutating, onSubmit } = usePostUserGroup({
     onCompleteSubmit: (userGroupName: string) => {
       toast.success(t('COMMON.SUBMIT_SUCCESS'), {
         autoClose: 2000,

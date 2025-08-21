@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDeleteConfigUserGroup, useGetConfigUserGroup } from '@pinpoint-fe/ui/src/hooks';
+import { useDeleteUserGroup, useGetUserGroup } from '@pinpoint-fe/ui/src/hooks';
 import { useTranslation } from 'react-i18next';
 import { DataTable } from '../../../DataTable';
 import { useReactToastifyToast } from '../../../Toast';
@@ -27,15 +27,15 @@ export const UserGroupTableFetcher = ({
   const { t } = useTranslation();
   const [query, setQuery] = React.useState('');
   const queryParams = query ? { userGroupId: query } : userId ? { userId } : {};
-  const { data, mutate } = useGetConfigUserGroup(queryParams);
+  const { data, refetch } = useGetUserGroup(queryParams);
   const myUserGroupListRef = React.useRef<ConfigUserGroup.UserGroup[]>();
   const myUserGroupList = query ? myUserGroupListRef.current : data;
-  const { isMutating, onRemove } = useDeleteConfigUserGroup({
+  const { isMutating, onRemove } = useDeleteUserGroup({
     onCompleteRemove: () => {
       toast.success(t('COMMON.REMOVE_SUCCESS'), {
         autoClose: 2000,
       });
-      mutate();
+      refetch();
     },
     onError: () => {
       toast.error(t('COMMON.REMOVE_FAIL'), {
@@ -69,7 +69,7 @@ export const UserGroupTableFetcher = ({
     <div className="space-y-2">
       <UserGroupTableToolbar
         userId={userId}
-        onCompleteAdd={mutate}
+        onCompleteAdd={refetch}
         onClickSearch={setQuery}
         {...props}
       />

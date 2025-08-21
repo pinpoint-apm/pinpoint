@@ -4,7 +4,7 @@ import { ConfigGroupMember, ConfigUsers } from '@pinpoint-fe/ui/src/constants';
 import { MdOutlineAddCircleOutline } from 'react-icons/md';
 import { useReactToastifyToast } from '../../../Toast';
 import { useTranslation } from 'react-i18next';
-import { useGetConfigUsers, usePostConfigGroupMember } from '@pinpoint-fe/ui/src/hooks';
+import { useGetConfigUsers, usePostUserGroupMember } from '@pinpoint-fe/ui/src/hooks';
 import { UsersTable } from '../../users/UsersTable';
 
 export interface GroupMemberAddPopupProps {
@@ -32,7 +32,7 @@ export const GroupMemberAddPopup = ({
     setQuery(userDepartment);
   }, [open, userDepartment]);
 
-  const { isMutating, onSubmit } = usePostConfigGroupMember({
+  const { isMutating, onSubmit } = usePostUserGroupMember({
     onCompleteSubmit: () => {
       toast.success(t('COMMON.SUBMIT_SUCCESS'), {
         autoClose: 2000,
