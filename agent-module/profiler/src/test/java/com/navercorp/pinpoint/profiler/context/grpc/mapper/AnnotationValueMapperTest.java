@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -33,7 +33,7 @@ class AnnotationValueMapperTest {
     @Test
     public void buildPAnnotationValue_null() {
         PAnnotationValue value = mapper.map(Annotations.of(1));
-        assertNull(value);
+        assertNotNull(value);
     }
 
     @Test
