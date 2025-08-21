@@ -146,7 +146,7 @@ export const AlarmDetail = ({
   const { refetch: refetchUsedWebhookList } = useGetWebhook({
     ruleId: data?.ruleId,
   });
-  const { data: userGroupList } = useGetUserGroup({ disableFetch: !editable });
+  const { data: userGroupList } = useGetUserGroup({ userGroupId: '' }, { enabled: !!editable });
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {

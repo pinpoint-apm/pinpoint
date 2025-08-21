@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDeleteConfigGroupMember, useGetConfigGroupMember } from '@pinpoint-fe/ui/src/hooks';
+import { useDeleteUserGroupMember, useGetUserGroupMember } from '@pinpoint-fe/ui/src/hooks';
 import { useTranslation } from 'react-i18next';
 import { DataTable, RowFilterInfo } from '../../../DataTable';
 import { useReactToastifyToast } from '../../../Toast';
@@ -27,15 +27,15 @@ export const GroupMemberTableFetcher = ({
 }: GroupMemberTableFetcherProps) => {
   const { t } = useTranslation();
   const toast = useReactToastifyToast();
-  const { data, mutate } = useGetConfigGroupMember({ userGroupId });
+  const { data, refetch } = useGetUserGroupMember({ userGroupId });
   const isMyGroup = data?.some(({ memberId }) => memberId === userId);
   const enableGroupMemberAdd = enableAllGroupMemberAdd || (enableOnlyMyGroupMemberAdd && isMyGroup);
-  const { isMutating, onRemove } = useDeleteConfigGroupMember({
+  const { isMutating, onRemove } = useDeleteUserGroupMember({
     onCompleteRemove: () => {
       toast.success(t('COMMON.REMOVE_SUCCESS'), {
         autoClose: 2000,
       });
-      mutate();
+      refetch();
     },
     onError: () => {
       toast.error(t('COMMON.REMOVE_FAIL'), {
@@ -61,7 +61,7 @@ export const GroupMemberTableFetcher = ({
       <GroupMemberTableToolbar
         userGroupId={userGroupId}
         enableGroupMemberAdd={enableGroupMemberAdd}
-        onCompleteAdd={mutate}
+        onCompleteAdd={refetch}
         onClickSearch={(query) => setRowFilterInfo({ query })}
         groupMember={data}
         {...props}
