@@ -1,10 +1,11 @@
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
 import { END_POINTS } from '@pinpoint-fe/ui/src/constants';
-import { swrConfigs } from './swrConfigs';
+import { queryFn } from './reactQueryHelper';
 
 export const useGetAlarmRuleChecker = ({ disableFetch }: { disableFetch?: boolean }) => {
-  return useSWR<string[]>(!disableFetch ? [`${END_POINTS.ALARM_RULE_CHECKER}`] : null, {
-    ...swrConfigs,
-    suspense: false,
+  return useQuery<string[]>({
+    queryKey: [END_POINTS.ALARM_RULE_CHECKER],
+    queryFn: queryFn(`${END_POINTS.ALARM_RULE_CHECKER}`),
+    enabled: !disableFetch,
   });
 };

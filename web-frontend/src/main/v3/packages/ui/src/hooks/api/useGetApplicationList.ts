@@ -1,8 +1,11 @@
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
 import { END_POINTS } from '@pinpoint-fe/ui/src/constants';
-import { swrConfigs } from './swrConfigs';
+import { queryFn } from './reactQueryHelper';
 
-// https://swr.vercel.app/docs/conditional-fetching
 export const useGetApplicationList = (shouldFetch = true) => {
-  return useSWR(shouldFetch ? END_POINTS.APPLICATION_LIST : null, swrConfigs);
+  return useQuery({
+    queryKey: [END_POINTS.APPLICATION_LIST],
+    queryFn: queryFn(END_POINTS.APPLICATION_LIST),
+    enabled: shouldFetch,
+  });
 };

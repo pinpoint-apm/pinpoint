@@ -17,7 +17,7 @@ export const TimelineInfo = ({ data = [], selectedTrace }: TimelineInfoProps) =>
   const [collapsed, setCollapsed] = React.useState(false);
 
   React.useEffect(() => {
-    if (data) {
+    if (data?.length) {
       const newApplicationNameSet = new Set<string>();
       data?.forEach((item) => {
         if (item.name) {

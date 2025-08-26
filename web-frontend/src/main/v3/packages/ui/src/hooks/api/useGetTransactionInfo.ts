@@ -1,9 +1,9 @@
-import useSWR from 'swr';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { END_POINTS, TransactionInfoType as TransactionInfo } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useTransactionSearchParameters } from '../searchParameters';
-import { swrConfigs } from './swrConfigs';
 import { useExperimentals } from '../utility';
+import { queryFn } from './reactQueryHelper';
 
 const getQueryString = (queryParams: Partial<TransactionInfo.Parameters>) => {
   if (queryParams?.agentId && queryParams?.spanId && queryParams?.traceId) {
@@ -26,17 +26,19 @@ export const useGetTransactionInfo = () => {
 
   const queryString = getQueryString(queryParams);
 
-  const { data, isLoading, isValidating } = useSWR<TransactionInfo.Response>(
-    queryString ? `${END_POINTS.TRANSACTION_INFO}${queryString}` : null,
-    swrConfigs,
-  );
+  const { data, isLoading, isFetching } = useSuspenseQuery<TransactionInfo.Response | null>({
+    queryKey: [END_POINTS.TRANSACTION_INFO, queryString],
+    queryFn: queryString
+      ? queryFn(`${END_POINTS.TRANSACTION_INFO}${queryString}`)
+      : async () => null,
+  });
   const mapData = getMapData(data);
   const tableData = convertToTree(mapData, '');
 
-  return { data, tableData, isLoading, isValidating, mapData };
+  return { data, tableData, isLoading, isValidating: isFetching, mapData };
 };
 
-const getMapData = (data?: TransactionInfo.Response) => {
+const getMapData = (data?: TransactionInfo.Response | null) => {
   return data?.callStack.map((callStack, i) => {
     return Object.entries(data?.callStackIndex).reduce((acc, curr) => {
       if (curr[0] === 'agent' && !callStack[curr[1]]) {

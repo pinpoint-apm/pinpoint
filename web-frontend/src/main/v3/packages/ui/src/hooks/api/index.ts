@@ -16,7 +16,6 @@ export * from './useGetConfigAgentDuplicationCheck';
 export * from './useGetConfigApplicationDuplicationCheck';
 export * from './useGetConfigInstallationInfo';
 export * from './useGetConfiguration';
-export * from './useGetConfigUserGroup';
 export * from './useGetErrorAnalysisChartData';
 export * from './useGetErrorAnalysisErrorListData';
 export * from './useGetErrorAnalysisGroupedErrorListData';

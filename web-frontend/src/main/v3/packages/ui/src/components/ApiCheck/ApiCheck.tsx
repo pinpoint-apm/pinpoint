@@ -11,7 +11,7 @@ export const ApiCheck = ({ children }: ApiCheckProps) => {
     data: serverTimeData,
     isLoading: isServerTimeLoading,
     error: serverTimeError,
-  } = useGetServerTime({ suspense: false });
+  } = useGetServerTime();
   const {
     data: configurationData,
     isLoading: isConfigurationLoading,

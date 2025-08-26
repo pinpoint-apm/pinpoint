@@ -1,6 +1,6 @@
-import useSWR, { SWRConfiguration } from 'swr';
 import { END_POINTS, HeatmapDrag } from '@pinpoint-fe/ui/src/constants';
-import { swrConfigs } from './swrConfigs';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { queryFn } from './reactQueryHelper';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useTransactionSearchParameters } from '../searchParameters/useTransactionSearchParameters';
 
@@ -11,7 +11,7 @@ const getQueryString = (queryParams: Partial<HeatmapDrag.Parameters>) => {
   return '';
 };
 
-export const useGetHeatmapDrag = (params?: { x2?: number }, options?: SWRConfiguration) => {
+export const useGetHeatmapDrag = (params?: { x2?: number }) => {
   const { application, dragInfo } = useTransactionSearchParameters();
 
   const queryParams = {
@@ -30,8 +30,8 @@ export const useGetHeatmapDrag = (params?: { x2?: number }, options?: SWRConfigu
   };
   const queryString = getQueryString(queryParams);
 
-  return useSWR(queryString ? `${END_POINTS.HEATMAP_DRAG}${queryString}` : null, {
-    ...swrConfigs,
-    ...options,
+  return useSuspenseQuery<HeatmapDrag.Response>({
+    queryKey: [END_POINTS.HEATMAP_DRAG, queryString],
+    queryFn: queryString ? queryFn(`${END_POINTS.HEATMAP_DRAG}${queryString}`) : async () => null,
   });
 };

@@ -1,5 +1,4 @@
 import React from 'react';
-import { SWRConfiguration } from 'swr';
 import { useAtom } from 'jotai';
 import { useGetHeatmapDrag } from '@pinpoint-fe/ui/src/hooks';
 import { TransactionListTable, TransactionListTableProps } from '../..';
@@ -11,13 +10,11 @@ export interface TransactionListFetcherProps extends TransactionListTableProps {
 }
 
 export const TransactionListFetcher = ({ params, ...props }: TransactionListFetcherProps) => {
-  const [swrOption, setSwrOption] = React.useState<SWRConfiguration>();
-  const { data } = useGetHeatmapDrag(params, swrOption);
+  const { data } = useGetHeatmapDrag(params);
   const [transactionListData, setTransactionListDataAtom] = useAtom(transactionListDatasAtom);
 
   React.useEffect(() => {
     if (data) {
-      setSwrOption({ suspense: false });
       setTransactionListDataAtom((prev) => {
         return {
           ...data,

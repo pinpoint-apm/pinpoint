@@ -6,12 +6,12 @@ import { ApplicationVirtualListProps, ApplicationVirtualList } from '.';
 import { ListItemSkeleton } from '../VirtualList';
 
 export const ApplicationListFetcher = (props: ApplicationVirtualListProps) => {
-  const { data, mutate, isValidating } = useGetApplicationList();
+  const { data, refetch, isFetching } = useGetApplicationList();
 
   return (
     <>
       <div className="h-80">
-        {isValidating ? (
+        {isFetching ? (
           <ListItemSkeleton skeletonOption={{ viewBoxHeight: 320 }} />
         ) : (
           <ApplicationVirtualList {...props} list={data} />
@@ -19,7 +19,7 @@ export const ApplicationListFetcher = (props: ApplicationVirtualListProps) => {
       </div>
       <Button
         className="flex items-center w-full gap-1 font-semibold rounded-t-none"
-        onClick={() => mutate()}
+        onClick={() => refetch()}
       >
         refetch <LuRotateCw />
       </Button>

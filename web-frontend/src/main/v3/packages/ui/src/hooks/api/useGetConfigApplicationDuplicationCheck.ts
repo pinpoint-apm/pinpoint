@@ -1,7 +1,7 @@
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
 import { ConfigApplicationDuplicationCheck, END_POINTS } from '@pinpoint-fe/ui/src/constants';
-import { swrConfigs } from './swrConfigs';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
+import { queryFn } from './reactQueryHelper';
 
 const getQueryString = (queryParams: Partial<ConfigApplicationDuplicationCheck.Parameters>) => {
   if (queryParams.applicationName) {
@@ -20,11 +20,9 @@ export const useGetConfigApplicationDuplicationCheck = ({
   };
   const queryString = getQueryString(queryParams);
 
-  return useSWR<ConfigApplicationDuplicationCheck.Response>(
-    queryString ? `${END_POINTS.CONFIG_APPLICATION_DUPLICATION_CHECK}${queryString}` : null,
-    {
-      ...swrConfigs,
-      suspense: false,
-    },
-  );
+  return useQuery<ConfigApplicationDuplicationCheck.Response>({
+    queryKey: [END_POINTS.CONFIG_APPLICATION_DUPLICATION_CHECK, queryString],
+    queryFn: queryFn(`${END_POINTS.CONFIG_APPLICATION_DUPLICATION_CHECK}${queryString}`),
+    enabled: !!queryString,
+  });
 };
