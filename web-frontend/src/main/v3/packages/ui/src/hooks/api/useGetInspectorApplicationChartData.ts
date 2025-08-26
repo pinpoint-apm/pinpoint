@@ -1,8 +1,8 @@
-import useSWR from 'swr';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { END_POINTS, InspectorApplicationChart } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useInspectorSearchParameters } from '../searchParameters';
-import { swrConfigs } from './swrConfigs';
+import { queryFn } from './reactQueryHelper';
 
 const getQueryString = (queryParams: Partial<InspectorApplicationChart.Parameters>) => {
   if (
@@ -37,8 +37,10 @@ export const useGetInspectorApplicationChartData = ({
 
   const queryString = getQueryString(queryParams);
 
-  return useSWR<InspectorApplicationChart.Response>(
-    queryString ? `${END_POINTS.INSPECTOR_APPLICATION_CHART}${queryString}` : null,
-    swrConfigs,
-  );
+  return useSuspenseQuery<InspectorApplicationChart.Response | undefined>({
+    queryKey: [END_POINTS.INSPECTOR_APPLICATION_CHART, queryString],
+    queryFn: queryString
+      ? queryFn(`${END_POINTS.INSPECTOR_APPLICATION_CHART}d${queryString}`)
+      : () => undefined,
+  });
 };

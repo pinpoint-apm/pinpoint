@@ -1,10 +1,10 @@
-import useSWR from 'swr';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import {
   END_POINTS,
   InspectorAgentStatusTimelineType as InspectorAgentStatusTimeline,
   MAX_DATE_RANGE,
 } from '@pinpoint-fe/ui/src/constants';
-import { swrConfigs } from './swrConfigs';
+import { queryFn } from './reactQueryHelper';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useInspectorSearchParameters } from '../searchParameters';
 
@@ -28,10 +28,12 @@ export const useGetInspectorAgentStatusTimeline = () => {
   };
   const queryString = getQueryString(queryParams);
 
-  const { data } = useSWR<InspectorAgentStatusTimeline.Response>(
-    queryString ? `${END_POINTS.INSPECTOR_AGENT_STATUS_TIMELINE}${queryString}` : null,
-    swrConfigs,
-  );
+  const { data } = useSuspenseQuery<InspectorAgentStatusTimeline.Response | null>({
+    queryKey: [END_POINTS.INSPECTOR_AGENT_STATUS_TIMELINE, queryString],
+    queryFn: queryString
+      ? queryFn(`${END_POINTS.INSPECTOR_AGENT_STATUS_TIMELINE}${queryString}`)
+      : () => null,
+  });
 
   return {
     data,
