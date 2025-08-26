@@ -8,7 +8,7 @@ import {
   SystemMetricChartList,
   LayoutWithContentSidebar,
 } from '../components';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useSystemMetricSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { convertParamsToQueryString, getSystemMetricPath } from '@pinpoint-fe/ui/src/utils';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +23,7 @@ export const SystemMetricPage = ({
   const periodMax = configuration?.['periodMax.systemMetric'];
   const periodInterval = configuration?.['periodInterval.systemMetric'];
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const { searchParameters, hostGroupName, hostName } = useSystemMetricSearchParameters();
 
@@ -52,7 +53,12 @@ export const SystemMetricPage = ({
           selectedHostGroup={hostGroupName}
           selectPlaceHolder={t('METRIC.SELECT_HOST_GROUP')}
           inputPlaceHolder={t('METRIC.INPUT_HOST_GROUP')}
-          onClickHostGroup={(hostGroup) => navigate(getSystemMetricPath(hostGroup))}
+          onClickHostGroup={(hostGroup) => {
+            const targetPath = getSystemMetricPath(hostGroup);
+            if (location.pathname !== targetPath) {
+              navigate(targetPath);
+            }
+          }}
         />
         <div className="ml-auto">
           {hostGroupName && (
