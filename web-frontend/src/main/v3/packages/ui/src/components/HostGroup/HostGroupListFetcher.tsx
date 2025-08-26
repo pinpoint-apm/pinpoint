@@ -6,7 +6,7 @@ import { LuRotateCw } from 'react-icons/lu';
 export interface HostGroupListFetcherProps extends VirtualListProps<string> {}
 
 export const HostGroupListFetcher = (props: HostGroupListFetcherProps) => {
-  const { data, mutate, isValidating } = useGetSystemMetricHostGroupData();
+  const { data, refetch, isValidating } = useGetSystemMetricHostGroupData();
 
   return (
     <>
@@ -27,7 +27,7 @@ export const HostGroupListFetcher = (props: HostGroupListFetcherProps) => {
       </div>
       <Button
         className="flex items-center w-full gap-1 font-semibold rounded-t-none"
-        onClick={() => mutate()}
+        onClick={() => refetch()}
       >
         refetch <LuRotateCw />
       </Button>
