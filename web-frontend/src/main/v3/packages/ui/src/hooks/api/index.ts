@@ -23,6 +23,7 @@ export * from './useGetErrorAnalysisGroupedErrorListData';
 export * from './useGetErrorAnalysisGroupsData';
 export * from './useGetErrorAnalysisTransactionInfoData';
 export * from './useGetFilteredServerMapData';
+export * from './useGetHistogramStatistics';
 export * from './useGetHeatmapAppData';
 export * from './useGetHeatmapDrag';
 export * from './useGetInspectorAgentChartData';
