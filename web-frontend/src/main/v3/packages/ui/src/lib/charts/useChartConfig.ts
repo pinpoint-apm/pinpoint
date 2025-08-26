@@ -17,7 +17,7 @@ export const DEFAULT_CHART_CONFIG = {
 } as const;
 
 export const useChartConfig = (
-  data?: InspectorAgentChart.Response | InspectorApplicationChart.Response,
+  data?: InspectorAgentChart.Response | InspectorApplicationChart.Response | null,
   chartInitOptions?: {
     dataOptions?: Data;
     elseOptions?: ChartOptions;

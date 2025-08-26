@@ -10,7 +10,7 @@ import { UrlStatChartType as UrlStatChartApi, colors } from '@pinpoint-fe/ui/src
 import { cn } from '../../../lib';
 
 export interface UrlStatTotalCountChartProps {
-  data: UrlStatChartApi.Response | undefined;
+  data: UrlStatChartApi.Response | null;
   className?: string;
   emptyMessage?: string;
 }

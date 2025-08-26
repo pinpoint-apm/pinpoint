@@ -27,11 +27,9 @@ export const useGetUrlStatChartData = ({ type, uri = '' }: { type: string; uri: 
 
   const queryString = getQueryString(queryParams);
 
-  const { data, isLoading, isFetching } = useSuspenseQuery<UrlStatChart.Response | undefined>({
+  const { data, isLoading, isFetching } = useSuspenseQuery<UrlStatChart.Response | null>({
     queryKey: [END_POINTS.URL_STATISTIC_CHART, queryString],
-    queryFn: queryString
-      ? queryFn(`${END_POINTS.URL_STATISTIC_CHART}${queryString}`)
-      : () => undefined,
+    queryFn: queryString ? queryFn(`${END_POINTS.URL_STATISTIC_CHART}${queryString}`) : () => null,
   });
 
   return { data, isLoading, isValidating: isFetching };

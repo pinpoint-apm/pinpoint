@@ -10,7 +10,7 @@ import { cn } from '../../../lib';
 import { formatNewLinedDateString, numberInDecimal } from '@pinpoint-fe/ui/src/utils';
 
 export interface UrlStatApdexChartProps {
-  data: UrlStatChartApi.Response | undefined;
+  data: UrlStatChartApi.Response | null;
   className?: string;
   emptyMessage?: string;
 }
