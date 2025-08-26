@@ -1,11 +1,11 @@
-import useSWR from 'swr';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import {
   END_POINTS,
   ErrorAnalysisChartType as ErrorAnalysisChart,
 } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useErrorAnalysisSearchParameters } from '../searchParameters';
-import { swrConfigs } from './swrConfigs';
+import { queryFn } from './reactQueryHelper';
 
 const getQueryString = (queryParams: Partial<ErrorAnalysisChart.Parameters>) => {
   if (queryParams.applicationName && queryParams.from && queryParams.to) {
@@ -29,10 +29,14 @@ export const useGetErrorAnalysisChartData = () => {
 
   const queryString = getQueryString(queryParams);
 
-  const { data, isLoading, isValidating } = useSWR<ErrorAnalysisChart.Response>(
-    [queryString ? `${END_POINTS.ERROR_ANALYSIS_CHART}${queryString}` : null],
-    swrConfigs,
+  const { data, isLoading, isFetching } = useSuspenseQuery<ErrorAnalysisChart.Response | undefined>(
+    {
+      queryKey: [END_POINTS.ERROR_ANALYSIS_CHART, queryString],
+      queryFn: queryString
+        ? queryFn(`${END_POINTS.ERROR_ANALYSIS_CHART}${queryString}`)
+        : () => undefined,
+    },
   );
 
-  return { data, isLoading, isValidating };
+  return { data, isLoading, isValidating: isFetching };
 };
