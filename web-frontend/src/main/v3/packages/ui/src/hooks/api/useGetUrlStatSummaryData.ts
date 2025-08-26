@@ -1,8 +1,8 @@
-import useSWR from 'swr';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { END_POINTS, UrlStatSummary } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useUrlStatSearchParameters } from '../searchParameters';
-import { swrConfigs } from './swrConfigs';
+import { queryFn } from './reactQueryHelper';
 
 const getQueryString = (queryParams: Partial<UrlStatSummary.Parameters>) => {
   if (queryParams.applicationName && queryParams.from && queryParams.to) {
@@ -38,10 +38,12 @@ export const useGetUrlStatSummaryData = ({
   };
   const queryString = getQueryString(queryParams);
 
-  const { data, isLoading, isValidating } = useSWR<UrlStatSummary.Response>(
-    [queryString ? `${END_POINTS.URL_STATISTIC_SUMMARY}${queryString}` : null],
-    swrConfigs,
-  );
+  const { data, isLoading, isFetching } = useSuspenseQuery<UrlStatSummary.Response | null>({
+    queryKey: [END_POINTS.URL_STATISTIC_SUMMARY, queryString],
+    queryFn: queryString
+      ? queryFn(`${END_POINTS.URL_STATISTIC_SUMMARY}${queryString}`)
+      : () => null,
+  });
 
-  return { data, isLoading, isValidating };
+  return { data, isLoading, isValidating: isFetching };
 };
