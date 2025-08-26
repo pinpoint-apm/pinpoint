@@ -12,9 +12,9 @@ export const ThreadDumpDetailFetcher = ({ thread }: ThreadDumpDetailFetcherProps
   const { data } = useGetActiveThreadDump(thread);
   const detail =
     data?.code === -1
-      ? `${data.message}`
-      : (data?.message.threadDumpData.length || 0) > 0
-        ? data?.message.threadDumpData[0].detailMessage
+      ? `${data?.message}`
+      : (data?.message?.threadDumpData?.length || 0) > 0
+        ? data?.message?.threadDumpData?.[0]?.detailMessage
         : 'There is no message(may be completed)';
 
   return (

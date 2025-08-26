@@ -1,7 +1,10 @@
-import useSWR, { SWRConfiguration } from 'swr';
 import { END_POINTS } from '@pinpoint-fe/ui/src/constants';
-import { swrConfigs } from './swrConfigs';
+import { useQuery } from '@tanstack/react-query';
+import { queryFn } from './reactQueryHelper';
 
-export const useGetServerTime = (options?: SWRConfiguration) => {
-  return useSWR(END_POINTS.SERVER_TIME, { ...swrConfigs, ...options });
+export const useGetServerTime = () => {
+  return useQuery({
+    queryKey: [END_POINTS.SERVER_TIME],
+    queryFn: queryFn(END_POINTS.SERVER_TIME),
+  });
 };

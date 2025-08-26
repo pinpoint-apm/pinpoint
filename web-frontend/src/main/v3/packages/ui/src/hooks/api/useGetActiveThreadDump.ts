@@ -1,8 +1,8 @@
-import useSWR from 'swr';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { END_POINTS, ActiveThreadDump, ActiveThreadLightDump } from '@pinpoint-fe/ui/src/constants';
-import { swrConfigs } from './swrConfigs';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useSearchParameters } from '../searchParameters';
+import { queryFn } from './reactQueryHelper';
 
 const getQueryString = (
   queryParams: Partial<ActiveThreadDump.Parameters> & Partial<ActiveThreadLightDump.ThreadDumpData>,
@@ -31,10 +31,10 @@ export const useGetActiveThreadDump = (thread?: ActiveThreadLightDump.ThreadDump
     localTraceId: thread?.localTraceId,
   });
 
-  const { data, isLoading } = useSWR<ActiveThreadDump.Response>(
-    queryString ? [`${END_POINTS.ACTIVE_THREAD_DUMP}${queryString}`] : null,
-    swrConfigs,
-  );
+  const { data, isLoading } = useSuspenseQuery<ActiveThreadDump.Response | null>({
+    queryKey: [END_POINTS.ACTIVE_THREAD_DUMP, queryString],
+    queryFn: !!queryString ? queryFn(`${END_POINTS.ACTIVE_THREAD_DUMP}${queryString}`) : () => null,
+  });
 
   return { data, isLoading };
 };

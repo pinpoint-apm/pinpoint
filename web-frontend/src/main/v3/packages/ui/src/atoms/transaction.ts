@@ -9,6 +9,6 @@ export const transactionListDatasAtom = atom<
     }
   | undefined
 >(undefined);
-export const transactionInfoDatasAtom = atom<TransactionInfo.Response | undefined>(undefined);
+export const transactionInfoDatasAtom = atom<TransactionInfo.Response | null>(null);
 export const transactionInfoCurrentTabId = atom<string>('');
 export const transactionInfoCallTreeFocusId = atom<string>('');

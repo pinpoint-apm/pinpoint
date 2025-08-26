@@ -1,7 +1,7 @@
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
 import { ConfigAgentDuplicationCheck, END_POINTS } from '@pinpoint-fe/ui/src/constants';
-import { swrConfigs } from './swrConfigs';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
+import { queryFn } from './reactQueryHelper';
 
 const getQueryString = (queryParams: Partial<ConfigAgentDuplicationCheck.Parameters>) => {
   if (queryParams.agentId) {
@@ -16,11 +16,9 @@ export const useGetConfigAgentDuplicationCheck = ({ agentId }: { agentId: string
   };
   const queryString = getQueryString(queryParams);
 
-  return useSWR<ConfigAgentDuplicationCheck.Response>(
-    queryString ? `${END_POINTS.CONFIG_AGENT_DUPLICATION_CHECK}${queryString}` : null,
-    {
-      ...swrConfigs,
-      suspense: false,
-    },
-  );
+  return useQuery<ConfigAgentDuplicationCheck.Response>({
+    queryKey: [END_POINTS.CONFIG_AGENT_DUPLICATION_CHECK, queryString],
+    queryFn: queryFn(`${END_POINTS.CONFIG_AGENT_DUPLICATION_CHECK}${queryString}`),
+    enabled: !!queryString,
+  });
 };
