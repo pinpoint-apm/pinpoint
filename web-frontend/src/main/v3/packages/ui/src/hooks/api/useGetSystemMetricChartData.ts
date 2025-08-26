@@ -1,8 +1,8 @@
-import useSWR from 'swr';
 import { END_POINTS, SystemMetricChart } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useSystemMetricSearchParameters } from '../searchParameters';
-import { swrConfigs } from './swrConfigs';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { queryFn } from './reactQueryHelper';
 
 const getQueryString = (queryParams: Partial<SystemMetricChart.Parameters>) => {
   if (
@@ -38,10 +38,12 @@ export const useGetSystemMetricChartData = ({
 
   const queryString = getQueryString(queryParams);
 
-  const { data, isLoading, isValidating } = useSWR<SystemMetricChart.Response>(
-    queryString ? `${END_POINTS.SYSTEM_METRIC_CHART}${queryString}` : null,
-    swrConfigs,
-  );
+  const { data, isLoading, isFetching } = useSuspenseQuery<SystemMetricChart.Response | null>({
+    queryKey: [END_POINTS.SYSTEM_METRIC_CHART, queryString],
+    queryFn: !!queryString
+      ? queryFn(`${END_POINTS.SYSTEM_METRIC_CHART}${queryString}`)
+      : () => null,
+  });
 
-  return { data, isLoading, isValidating };
+  return { data, isLoading, isValidating: isFetching };
 };

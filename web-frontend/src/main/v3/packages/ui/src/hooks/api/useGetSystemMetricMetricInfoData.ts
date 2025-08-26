@@ -1,8 +1,8 @@
-import useSWR from 'swr';
 import { END_POINTS, SystemMetricMetricInfo } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useSystemMetricSearchParameters } from '../searchParameters';
-import { swrConfigs } from './swrConfigs';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { queryFn } from './reactQueryHelper';
 
 const getQueryString = (queryParams: Partial<SystemMetricMetricInfo.Parameters>) => {
   if (queryParams.hostGroupName && queryParams.hostName) {
@@ -20,10 +20,12 @@ export const useGetSystemMetricMetricInfoData = () => {
 
   const queryString = getQueryString(queryParams);
 
-  const { data, isLoading, isValidating } = useSWR<SystemMetricMetricInfo.Response>(
-    queryString ? `${END_POINTS.SYSTEM_METRIC_METRIC_INFO}${queryString}` : null,
-    swrConfigs,
-  );
+  const { data, isLoading, isFetching } = useSuspenseQuery<SystemMetricMetricInfo.Response | null>({
+    queryKey: [END_POINTS.SYSTEM_METRIC_METRIC_INFO, queryString],
+    queryFn: !!queryString
+      ? queryFn(`${END_POINTS.SYSTEM_METRIC_METRIC_INFO}${queryString}`)
+      : () => null,
+  });
 
-  return { data, isLoading, isValidating };
+  return { data, isLoading, isValidating: isFetching };
 };
