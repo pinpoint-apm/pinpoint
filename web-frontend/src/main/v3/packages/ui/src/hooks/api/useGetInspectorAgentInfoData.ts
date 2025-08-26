@@ -1,9 +1,9 @@
-import useSWR from 'swr';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import {
   END_POINTS,
   InspectorAgentInfoType as InspectorAgentInfo,
 } from '@pinpoint-fe/ui/src/constants';
-import { swrConfigs } from './swrConfigs';
+import { queryFn } from './reactQueryHelper';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useInspectorSearchParameters } from '../searchParameters';
 
@@ -23,8 +23,8 @@ export const useGetInspectorAgentInfoData = () => {
   };
   const queryString = getQueryString(queryParams);
 
-  return useSWR<InspectorAgentInfo.Response>(
-    queryString ? `${END_POINTS.INSPECTOR_AGENT_INFO}${queryString}` : null,
-    swrConfigs,
-  );
+  return useSuspenseQuery<InspectorAgentInfo.Response | null>({
+    queryKey: [END_POINTS.INSPECTOR_AGENT_INFO, queryString],
+    queryFn: queryString ? queryFn(`${END_POINTS.INSPECTOR_AGENT_INFO}${queryString}`) : () => null,
+  });
 };

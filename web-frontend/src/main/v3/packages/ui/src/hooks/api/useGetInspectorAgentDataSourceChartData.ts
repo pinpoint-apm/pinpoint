@@ -1,8 +1,8 @@
-import useSWR from 'swr';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { END_POINTS, InspectorAgentDataSourceChart } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useInspectorSearchParameters } from '../searchParameters';
-import { swrConfigs } from './swrConfigs';
+import { queryFn } from './reactQueryHelper';
 
 const getQueryString = (queryParams: Partial<InspectorAgentDataSourceChart.Parameters>) => {
   if (queryParams.agentId && queryParams.from && queryParams.to && queryParams.metricDefinitionId) {
@@ -35,8 +35,10 @@ export const useGetInspectorAgentDataSourceChartData = ({
 
   const queryString = getQueryString(queryParams);
 
-  return useSWR<InspectorAgentDataSourceChart.Response>(
-    queryString ? `${END_POINTS.INSPECTOR_AGENT_DATA_SOURCE_CHART}${queryString}` : null,
-    swrConfigs,
-  );
+  return useSuspenseQuery<InspectorAgentDataSourceChart.Response | undefined>({
+    queryKey: [END_POINTS.INSPECTOR_AGENT_DATA_SOURCE_CHART, queryString],
+    queryFn: queryString
+      ? queryFn(`${END_POINTS.INSPECTOR_AGENT_DATA_SOURCE_CHART}${queryString}`)
+      : () => undefined,
+  });
 };
