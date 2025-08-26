@@ -1,9 +1,9 @@
 import React from 'react';
-import useSWR from 'swr';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { END_POINTS, ErrorAnalysisGroupedErrorList } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useErrorAnalysisSearchParameters } from '../searchParameters';
-import { swrConfigs } from './swrConfigs';
+import { queryFn } from './reactQueryHelper';
 
 const getQueryString = (queryParams: Partial<ErrorAnalysisGroupedErrorList.Parameters>) => {
   if (queryParams.applicationName && queryParams.from && queryParams.to && queryParams.groupBy) {
@@ -40,10 +40,14 @@ export const useGetErrorAnalysisGroupedErrorListData = () => {
     }));
   }, [application?.applicationName, application?.serviceType, from, to, agentId, groupBy]);
 
-  const { data, isLoading, isValidating } = useSWR<ErrorAnalysisGroupedErrorList.Response>(
-    [queryString ? `${END_POINTS.ERROR_ANALYSIS_GROUPED_ERROR_LIST}${queryString}` : null],
-    swrConfigs,
-  );
+  const { data, isLoading, isFetching } = useSuspenseQuery<
+    ErrorAnalysisGroupedErrorList.Response | undefined
+  >({
+    queryKey: [END_POINTS.ERROR_ANALYSIS_GROUPED_ERROR_LIST, queryString],
+    queryFn: queryString
+      ? queryFn(`${END_POINTS.ERROR_ANALYSIS_GROUPED_ERROR_LIST}${queryString}`)
+      : () => undefined,
+  });
 
-  return { data, isLoading, isValidating };
+  return { data, isLoading, isValidating: isFetching };
 };

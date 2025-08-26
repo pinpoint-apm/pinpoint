@@ -1,12 +1,12 @@
-import useSWR from 'swr';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { END_POINTS, ErrorAnalysisGroups } from '@pinpoint-fe/ui/src/constants';
-import { swrConfigs } from './swrConfigs';
+import { queryFn } from './reactQueryHelper';
 
 export const useGetErrorAnalysisGroupsData = () => {
-  const { data, isLoading, isValidating } = useSWR<ErrorAnalysisGroups.Response>(
-    `${END_POINTS.ERROR_ANALYSIS_GROUPS}`,
-    swrConfigs,
-  );
+  const { data, isLoading, isFetching } = useSuspenseQuery<ErrorAnalysisGroups.Response>({
+    queryKey: [END_POINTS.ERROR_ANALYSIS_GROUPS],
+    queryFn: queryFn(`${END_POINTS.ERROR_ANALYSIS_GROUPS}`),
+  });
 
-  return { data, isLoading, isValidating };
+  return { data, isLoading, isValidating: isFetching };
 };

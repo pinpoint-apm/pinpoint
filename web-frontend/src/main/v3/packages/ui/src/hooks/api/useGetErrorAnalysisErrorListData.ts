@@ -1,8 +1,8 @@
-import useSWR from 'swr';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { END_POINTS, ErrorAnalysisErrorList } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useErrorAnalysisSearchParameters } from '../searchParameters';
-import { swrConfigs } from './swrConfigs';
+import { queryFn } from './reactQueryHelper';
 
 const getQueryString = (queryParams: Partial<ErrorAnalysisErrorList.Parameters>) => {
   if (queryParams.applicationName && queryParams.from && queryParams.to) {
@@ -35,10 +35,12 @@ export const useGetErrorAnalysisErrorListData = ({
   };
   const queryString = getQueryString(queryParams);
 
-  const { data, isLoading, isValidating } = useSWR<ErrorAnalysisErrorList.Response>(
-    [queryString ? `${END_POINTS.ERROR_ANALYSIS_ERROR_LIST}${queryString}` : null],
-    swrConfigs,
-  );
+  const { data, isLoading, isFetching } = useSuspenseQuery<ErrorAnalysisErrorList.Response | null>({
+    queryKey: [END_POINTS.ERROR_ANALYSIS_ERROR_LIST, queryString],
+    queryFn: queryString
+      ? queryFn(`${END_POINTS.ERROR_ANALYSIS_ERROR_LIST}${queryString}`)
+      : () => null,
+  });
 
-  return { data, isLoading, isValidating };
+  return { data, isLoading, isValidating: isFetching };
 };
