@@ -29,14 +29,10 @@ export const useGetErrorAnalysisChartData = () => {
 
   const queryString = getQueryString(queryParams);
 
-  const { data, isLoading, isFetching } = useSuspenseQuery<ErrorAnalysisChart.Response | undefined>(
-    {
-      queryKey: [END_POINTS.ERROR_ANALYSIS_CHART, queryString],
-      queryFn: queryString
-        ? queryFn(`${END_POINTS.ERROR_ANALYSIS_CHART}${queryString}`)
-        : () => undefined,
-    },
-  );
+  const { data, isLoading, isFetching } = useSuspenseQuery<ErrorAnalysisChart.Response | null>({
+    queryKey: [END_POINTS.ERROR_ANALYSIS_CHART, queryString],
+    queryFn: queryString ? queryFn(`${END_POINTS.ERROR_ANALYSIS_CHART}${queryString}`) : () => null,
+  });
 
   return { data, isLoading, isValidating: isFetching };
 };

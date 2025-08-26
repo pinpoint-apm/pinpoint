@@ -37,10 +37,10 @@ export const useGetInspectorApplicationChartData = ({
 
   const queryString = getQueryString(queryParams);
 
-  return useSuspenseQuery<InspectorApplicationChart.Response | undefined>({
+  return useSuspenseQuery<InspectorApplicationChart.Response | null>({
     queryKey: [END_POINTS.INSPECTOR_APPLICATION_CHART, queryString],
     queryFn: queryString
-      ? queryFn(`${END_POINTS.INSPECTOR_APPLICATION_CHART}d${queryString}`)
-      : () => undefined,
+      ? queryFn(`${END_POINTS.INSPECTOR_APPLICATION_CHART}${queryString}`)
+      : () => null,
   });
 };

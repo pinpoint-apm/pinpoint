@@ -35,10 +35,10 @@ export const useGetInspectorAgentDataSourceChartData = ({
 
   const queryString = getQueryString(queryParams);
 
-  return useSuspenseQuery<InspectorAgentDataSourceChart.Response | undefined>({
+  return useSuspenseQuery<InspectorAgentDataSourceChart.Response | null>({
     queryKey: [END_POINTS.INSPECTOR_AGENT_DATA_SOURCE_CHART, queryString],
     queryFn: queryString
       ? queryFn(`${END_POINTS.INSPECTOR_AGENT_DATA_SOURCE_CHART}${queryString}`)
-      : () => undefined,
+      : () => null,
   });
 };

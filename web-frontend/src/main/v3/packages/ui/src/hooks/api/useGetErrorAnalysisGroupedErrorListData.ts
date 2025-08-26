@@ -6,6 +6,7 @@ import { useErrorAnalysisSearchParameters } from '../searchParameters';
 import { queryFn } from './reactQueryHelper';
 
 const getQueryString = (queryParams: Partial<ErrorAnalysisGroupedErrorList.Parameters>) => {
+  return '';
   if (queryParams.applicationName && queryParams.from && queryParams.to && queryParams.groupBy) {
     return '?' + convertParamsToQueryString(queryParams);
   }
@@ -40,14 +41,13 @@ export const useGetErrorAnalysisGroupedErrorListData = () => {
     }));
   }, [application?.applicationName, application?.serviceType, from, to, agentId, groupBy]);
 
-  const { data, isLoading, isFetching } = useSuspenseQuery<
-    ErrorAnalysisGroupedErrorList.Response | undefined
-  >({
-    queryKey: [END_POINTS.ERROR_ANALYSIS_GROUPED_ERROR_LIST, queryString],
-    queryFn: queryString
-      ? queryFn(`${END_POINTS.ERROR_ANALYSIS_GROUPED_ERROR_LIST}${queryString}`)
-      : () => undefined,
-  });
+  const { data, isLoading, isFetching } =
+    useSuspenseQuery<ErrorAnalysisGroupedErrorList.Response | null>({
+      queryKey: [END_POINTS.ERROR_ANALYSIS_GROUPED_ERROR_LIST, queryString],
+      queryFn: queryString
+        ? queryFn(`${END_POINTS.ERROR_ANALYSIS_GROUPED_ERROR_LIST}${queryString}`)
+        : () => null,
+    });
 
   return { data, isLoading, isValidating: isFetching };
 };

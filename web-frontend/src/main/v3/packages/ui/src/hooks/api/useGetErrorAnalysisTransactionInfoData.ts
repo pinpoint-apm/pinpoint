@@ -37,14 +37,13 @@ export const useGetErrorAnalysisTransactionInfoData = ({
     exceptionId,
   });
 
-  const { data, isLoading, isFetching } = useSuspenseQuery<
-    ErrorAnalysisTransactionInfo.Response | undefined
-  >({
-    queryKey: [END_POINTS.ERROR_ANALYSIS_TRANSACTION_INFO, queryString],
-    queryFn: queryString
-      ? queryFn(`${END_POINTS.ERROR_ANALYSIS_TRANSACTION_INFO}${queryString}`)
-      : () => undefined,
-  });
+  const { data, isLoading, isFetching } =
+    useSuspenseQuery<ErrorAnalysisTransactionInfo.Response | null>({
+      queryKey: [END_POINTS.ERROR_ANALYSIS_TRANSACTION_INFO, queryString],
+      queryFn: queryString
+        ? queryFn(`${END_POINTS.ERROR_ANALYSIS_TRANSACTION_INFO}${queryString}`)
+        : () => null,
+    });
 
   return { data, isLoading, isValidating: isFetching };
 };
