@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.grpc.config;
 
-import com.navercorp.pinpoint.collector.receiver.grpc.cache.RingMapUidCacheV1;
 import com.navercorp.pinpoint.collector.receiver.grpc.monitor.BasicMonitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerRequestFactory;
@@ -29,8 +28,9 @@ import com.navercorp.pinpoint.collector.uid.service.ApplicationUidService;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.grpc.CollectorGrpcSpanFactory;
 import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanBinder;
-import com.navercorp.pinpoint.io.request.UidFetcher;
-import com.navercorp.pinpoint.io.request.UidFetcherV1;
+import com.navercorp.pinpoint.io.request.DefaultUidFetcherService;
+import com.navercorp.pinpoint.io.request.UidFetcherService;
+import com.navercorp.pinpoint.io.request.UidFetcherStreamService;
 import io.grpc.ServerTransportFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -51,16 +51,21 @@ public class GrpcComponentConfiguration {
     }
 
     @Bean
-    public UidFetcher defaultUidFetcher(ApplicationUidService applicationUidService) {
-        return new UidFetcherV1(applicationUidService, new RingMapUidCacheV1(256));
+    public UidFetcherStreamService UidFetcherStreamService(ApplicationUidService applicationUidCacheService) {
+        return new UidFetcherStreamService(applicationUidCacheService);
     }
 
     @Bean
-    public ServerRequestFactory serverRequestFactory(Optional<ServerRequestPostProcessor> postProcessor, UidFetcher UidFetcher) {
+    public UidFetcherService uidFetcherService(ApplicationUidService applicationUidCacheService) {
+        return new DefaultUidFetcherService(applicationUidCacheService);
+    }
+
+    @Bean
+    public ServerRequestFactory serverRequestFactory(Optional<ServerRequestPostProcessor> postProcessor, UidFetcherService uidFetcherService) {
         if (postProcessor.isPresent()) {
-            return new DefaultServerRequestFactory(postProcessor.get(), UidFetcher);
+            return new DefaultServerRequestFactory(postProcessor.get(), uidFetcherService);
         }
-        return new DefaultServerRequestFactory(UidFetcher);
+        return new DefaultServerRequestFactory(uidFetcherService);
     }
 
     @Bean

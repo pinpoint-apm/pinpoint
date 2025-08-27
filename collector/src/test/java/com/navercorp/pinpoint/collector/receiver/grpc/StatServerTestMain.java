@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerReque
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StatService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamCloseOnError;
-import com.navercorp.pinpoint.collector.uid.service.EmptyApplicationUidService;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
@@ -84,7 +83,7 @@ public class StatServerTestMain {
         SimpleHandler<PAgentStatBatch> agentStatBatch = new MockDispatchHandler<>();
         SimpleHandler<PAgentStat> agentStat = new MockDispatchHandler<>();
         SimpleHandler<PAgentUriStat> agentUriStat = new MockDispatchHandler<>();
-        ServerRequestFactory serverRequestFactory = new DefaultServerRequestFactory(UidFetchers.empty());
+        ServerRequestFactory serverRequestFactory = new DefaultServerRequestFactory(UidFetchers::empty);
 
         UidFetcherStreamService uidFetcherStreamService = mock(UidFetcherStreamService.class);
         UidFetcher uidFetcher = mock(UidFetcher.class);

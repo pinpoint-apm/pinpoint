@@ -106,7 +106,7 @@ public class SpanServerTestMain {
 
         SimpleHandler<PSpan> handler1 = new MockSimpleHandler<>();
         SimpleHandler<PSpanChunk> handler2 = new MockSimpleHandler<>();
-        ServerRequestFactory serverRequestFactory = new DefaultServerRequestFactory(UidFetchers.empty());
+        ServerRequestFactory serverRequestFactory = new DefaultServerRequestFactory(UidFetchers::empty);
 
         UidFetcherStreamService uidFetcherStreamService = mock(UidFetcherStreamService.class);
         UidFetcher uidFetcher = mock(UidFetcher.class);

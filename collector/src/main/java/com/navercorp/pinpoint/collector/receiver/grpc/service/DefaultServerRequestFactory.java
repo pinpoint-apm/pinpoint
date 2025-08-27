@@ -20,10 +20,12 @@ import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
 import com.navercorp.pinpoint.io.request.DefaultServerRequest;
+import com.navercorp.pinpoint.io.request.DefaultUidFetcherService;
 import com.navercorp.pinpoint.io.request.GrpcServerHeaderV1;
 import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.UidFetcher;
+import com.navercorp.pinpoint.io.request.UidFetcherService;
 import com.navercorp.pinpoint.io.util.MessageType;
 import io.grpc.Context;
 
@@ -34,21 +36,22 @@ import java.util.Objects;
  */
 public class DefaultServerRequestFactory implements ServerRequestFactory {
     private final ServerRequestPostProcessor postProcessor;
-    private final UidFetcher defaultUidFetcher;
+    private final UidFetcherService uidFetcherService;
 
-    public DefaultServerRequestFactory(UidFetcher uidFetcher) {
+    public DefaultServerRequestFactory(UidFetcherService uidFetcherService) {
         this.postProcessor = null;
-        this.defaultUidFetcher = Objects.requireNonNull(uidFetcher, "uidFetcher");
+        this.uidFetcherService = Objects.requireNonNull(uidFetcherService, "uidFetcherService");
     }
 
-    public DefaultServerRequestFactory(ServerRequestPostProcessor postProcessor, UidFetcher uidFetcher) {
+    public DefaultServerRequestFactory(ServerRequestPostProcessor postProcessor, UidFetcherService uidFetcherService) {
         this.postProcessor = Objects.requireNonNull(postProcessor, "postProcessor");
-        this.defaultUidFetcher = Objects.requireNonNull(uidFetcher, "uidFetcher");
+        this.uidFetcherService = Objects.requireNonNull(uidFetcherService, "uidFetcherService");
     }
 
     @Override
     public <T> ServerRequest<T> newServerRequest(Context context, MessageType messageType, T data) {
-        return newServerRequest(context, defaultUidFetcher, messageType, data);
+        UidFetcher uidFetcher = uidFetcherService.newUidFetcher();
+        return newServerRequest(context, uidFetcher, messageType, data);
     }
 
     @Override

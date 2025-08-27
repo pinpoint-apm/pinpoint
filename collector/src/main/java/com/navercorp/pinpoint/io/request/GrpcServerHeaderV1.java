@@ -8,7 +8,6 @@ import com.navercorp.pinpoint.io.request.supplier.UidSuppliers;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
 
@@ -16,9 +15,6 @@ public class GrpcServerHeaderV1 implements ServerHeader {
 
     private final Header header;
     private final UidFetcher uidFetcher;
-
-    private volatile CompletableFuture<ApplicationUid> applicationUidFuture;
-    private final ReentrantLock lock = new ReentrantLock();
 
     public GrpcServerHeaderV1(Header header) {
         this(header, UidFetchers.empty());
@@ -46,29 +42,9 @@ public class GrpcServerHeaderV1 implements ServerHeader {
 
     @Override
     public Supplier<ApplicationUid> getApplicationUid() {
-        CompletableFuture<ApplicationUid> copy = this.applicationUidFuture;
-        if (copy != null) {
-            return UidSuppliers.of(getApplicationName(), copy);
-        }
-        lock.lock();
-        try {
-            copy = this.applicationUidFuture;
-            if (copy != null) {
-                return UidSuppliers.of(getApplicationName(), copy);
-            }
-            String applicationName = getApplicationName();
-            int serviceTypeCode = getServiceType();
-            final CompletableFuture<ApplicationUid> future = this.uidFetcher.getApplicationUid(ServiceUid.DEFAULT, applicationName, serviceTypeCode);
-            this.applicationUidFuture = future;
-            future.whenComplete((applicationUid, throwable) -> {
-                if (throwable != null) {
-                    applicationUidFuture = null;
-                }
-            });
-            return UidSuppliers.of(applicationName, future);
-        } finally {
-            lock.unlock();
-        }
+        String applicationName = getApplicationName();
+        CompletableFuture<ApplicationUid> future = this.uidFetcher.getApplicationUid(ServiceUid.DEFAULT, applicationName, getServiceType());
+        return UidSuppliers.of(applicationName, future);
     }
 
     @Override
