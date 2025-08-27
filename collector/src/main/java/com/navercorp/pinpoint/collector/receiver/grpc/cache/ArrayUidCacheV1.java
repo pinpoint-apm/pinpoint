@@ -2,14 +2,18 @@ package com.navercorp.pinpoint.collector.receiver.grpc.cache;
 
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.common.util.RingMapCache;
+import com.navercorp.pinpoint.common.util.ArrayCache;
 
-public class RingMapUidCacheV1 implements UidCache {
+public class ArrayUidCacheV1 implements UidCache {
 
-    private final RingMapCache<Key, ApplicationUid> applicationUidCache;
+    private final ArrayCache<Key, ApplicationUid> applicationUidCache;
 
-    public RingMapUidCacheV1(int applicationUidCacheSize) {
-        this.applicationUidCache = new RingMapCache<>(applicationUidCacheSize);
+    public ArrayUidCacheV1() {
+        this(4);
+    }
+
+    public ArrayUidCacheV1(int cacheSize) {
+        this.applicationUidCache = new ArrayCache<>(cacheSize);
     }
 
     @Override
@@ -29,8 +33,9 @@ public class RingMapUidCacheV1 implements UidCache {
 
     @Override
     public void put(ServiceUid serviceUid, String applicationName, int serviceTypeCode, ApplicationUid applicationUid) {
-        applicationUidCache.putIfAbsent(new Key(serviceUid, applicationName, serviceTypeCode), applicationUid);
+        applicationUidCache.put(new Key(serviceUid, applicationName, serviceTypeCode), applicationUid);
     }
+
 
     private record Key(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
     }
