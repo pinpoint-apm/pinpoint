@@ -30,7 +30,7 @@ export const useGetHeatmapDrag = (params?: { x2?: number }) => {
   };
   const queryString = getQueryString(queryParams);
 
-  return useSuspenseQuery<HeatmapDrag.Response>({
+  return useSuspenseQuery<HeatmapDrag.Response | null>({
     queryKey: [END_POINTS.HEATMAP_DRAG, queryString],
     queryFn: queryString ? queryFn(`${END_POINTS.HEATMAP_DRAG}${queryString}`) : async () => null,
   });

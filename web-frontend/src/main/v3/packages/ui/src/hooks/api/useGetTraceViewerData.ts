@@ -13,7 +13,7 @@ const getQueryString = (queryParams: Partial<TraceViewerData.Parameters>) => {
 export const useGetTraceViewerData = (queryParams: TraceViewerData.Parameters) => {
   const queryString = getQueryString(queryParams);
 
-  const { data, isLoading, isFetching } = useSuspenseQuery<TraceViewerData.Response>({
+  const { data, isLoading, isFetching } = useSuspenseQuery<TraceViewerData.Response | null>({
     queryKey: [END_POINTS.TRACE_VIEWER_DATA, queryString],
     queryFn: queryString
       ? queryFn(`${END_POINTS.TRACE_VIEWER_DATA}${queryString}`)
