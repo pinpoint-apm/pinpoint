@@ -6,7 +6,6 @@ import { useErrorAnalysisSearchParameters } from '../searchParameters';
 import { queryFn } from './reactQueryHelper';
 
 const getQueryString = (queryParams: Partial<ErrorAnalysisGroupedErrorList.Parameters>) => {
-  return '';
   if (queryParams.applicationName && queryParams.from && queryParams.to && queryParams.groupBy) {
     return '?' + convertParamsToQueryString(queryParams);
   }

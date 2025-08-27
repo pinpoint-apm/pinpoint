@@ -256,7 +256,7 @@ export const TimelineFetcher = ({ transactionInfo }: TimelineFetcherProps) => {
   );
 };
 
-const genFlameGraphData = (data?: TraceViewerData.Response) => {
+const genFlameGraphData = (data?: TraceViewerData.Response | null) => {
   let result: FlameNodeType<TraceViewerData.TraceEvent>[][] = [];
   if (data) {
     const traceEvents = data?.traceEvents || [];
