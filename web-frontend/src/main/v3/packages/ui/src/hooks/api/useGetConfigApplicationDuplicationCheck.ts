@@ -24,5 +24,6 @@ export const useGetConfigApplicationDuplicationCheck = ({
     queryKey: [END_POINTS.CONFIG_APPLICATION_DUPLICATION_CHECK, queryString],
     queryFn: queryFn(`${END_POINTS.CONFIG_APPLICATION_DUPLICATION_CHECK}${queryString}`),
     enabled: !!queryString,
+    retry: false,
   });
 };

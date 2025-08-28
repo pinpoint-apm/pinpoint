@@ -20,5 +20,6 @@ export const useGetConfigAgentDuplicationCheck = ({ agentId }: { agentId: string
     queryKey: [END_POINTS.CONFIG_AGENT_DUPLICATION_CHECK, queryString],
     queryFn: queryFn(`${END_POINTS.CONFIG_AGENT_DUPLICATION_CHECK}${queryString}`),
     enabled: !!queryString,
+    retry: false,
   });
 };
