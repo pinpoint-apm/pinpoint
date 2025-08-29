@@ -155,7 +155,7 @@
 
         <!-- library -->
         <dropwizard-metrics.version>4.2.26</dropwizard-metrics.version>
-        <micrometer-metrics.version>1.13.9</micrometer-metrics.version>
+        <micrometer-metrics.version>1.15.3</micrometer-metrics.version>
         <opentelemetry-metrics.version>1.46.0</opentelemetry-metrics.version>
 
         <mysql-connector-java.verison>8.0.28</mysql-connector-java.verison>
