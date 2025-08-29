@@ -156,7 +156,7 @@
         <!-- library -->
         <dropwizard-metrics.version>4.2.26</dropwizard-metrics.version>
         <micrometer-metrics.version>1.15.3</micrometer-metrics.version>
-        <opentelemetry-metrics.version>1.46.0</opentelemetry-metrics.version>
+        <opentelemetry-metrics.version>1.53.0</opentelemetry-metrics.version>
 
         <mysql-connector-java.verison>8.0.28</mysql-connector-java.verison>
         <mysql-connector-j.verison>8.4.0</mysql-connector-j.verison>
@@ -919,7 +919,8 @@
             <dependency>
                 <groupId>io.opentelemetry.proto</groupId>
                 <artifactId>opentelemetry-proto</artifactId>
-                <version>1.2.0-alpha</version>
+                <!-- For protobuf 3.x compatibility -->
+                <version>1.3.2-alpha</version>
             </dependency>
 
             <dependency>
