@@ -872,7 +872,7 @@
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-rsa</artifactId>
-                <version>1.0.13.RELEASE</version>
+                <version>1.1.5</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
