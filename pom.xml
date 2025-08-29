@@ -167,7 +167,8 @@
         <httpcomponents.version>4.5.14</httpcomponents.version>
         <httpcomponents-core.version>4.4.16</httpcomponents-core.version>
 
-        <httpcomponents5.version>5.2.3</httpcomponents5.version>
+        <httpcomponents5.version>5.4.4</httpcomponents5.version>
+        <httpcomponents5.core.version>5.3.4</httpcomponents5.core.version>
 
         <reactor-core.version>3.6.9</reactor-core.version>
 
@@ -1266,12 +1267,12 @@
             <dependency>
                 <groupId>org.apache.httpcomponents.core5</groupId>
                 <artifactId>httpcore5</artifactId>
-                <version>${httpcomponents5.version}</version>
+                <version>${httpcomponents5.core.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents.core5</groupId>
                 <artifactId>httpcore5-h2</artifactId>
-                <version>${httpcomponents5.version}</version>
+                <version>${httpcomponents5.core.version}</version>
             </dependency>
 
 
