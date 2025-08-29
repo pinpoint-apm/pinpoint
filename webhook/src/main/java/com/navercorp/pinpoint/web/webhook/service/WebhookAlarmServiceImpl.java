@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.navercorp.pinpoint.web.webhook.service;
@@ -22,9 +21,9 @@ import com.navercorp.pinpoint.web.webhook.dao.WebhookSendInfoDao;
 import com.navercorp.pinpoint.web.webhook.model.WebhookSendInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.List;
 import java.util.Objects;
@@ -43,7 +42,7 @@ public class WebhookAlarmServiceImpl implements WebhookAlarmService {
         this.webhookSendInfoDao = Objects.requireNonNull(webhookSendInfoDao, "webhookSendInfoDao");
     }
 
-    @TransactionalEventListener
+    @EventListener
     @Override
     public void handleDeleteRule(DeleteRuleEvent deleteRule) {
         this.logger.debug("handleDeleteRule:{}", deleteRule);
