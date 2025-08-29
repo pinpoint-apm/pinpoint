@@ -175,7 +175,7 @@
         <spring4.version>4.3.30.RELEASE</spring4.version>
         <spring5.version>5.3.39</spring5.version>
         <spring.batch.version>5.1.2</spring.batch.version>
-        <spring.retry.version>2.0.6</spring.retry.version>
+        <spring.retry.version>2.0.12</spring.retry.version>
 
         <spring.security.version>6.5.3</spring.security.version>
         <spring-boot2.version>2.7.18</spring-boot2.version>
