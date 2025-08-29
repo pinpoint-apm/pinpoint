@@ -227,7 +227,7 @@
         <resilience4j-jdk8.version>1.7.1</resilience4j-jdk8.version>
 
         <netty3.version>3.10.6.Final</netty3.version>
-        <netty4.version>4.1.110.Final</netty4.version>
+        <netty4.version>4.1.124.Final</netty4.version>
 
         <grpc.version>1.75.0</grpc.version>
         <grpc-bom.version>1.75.0</grpc-bom.version>
