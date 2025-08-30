@@ -5,9 +5,9 @@ import org.junit.jupiter.api.Test;
 
 public class RingMapCacheTest {
 
-    private void puts(RingMapCache<String, Integer> cacheSize8, int times) {
+    private void puts(RingMapCache<String, Integer> cache, int times) {
         for (int i = 0; i < times; i++) {
-            cacheSize8.putIfAbsent(String.valueOf(i), i);
+            cache.putIfAbsent(String.valueOf(i), i);
         }
     }
 
