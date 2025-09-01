@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryService;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinitionFactory;
+import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorHolderIdGenerator;
 import com.navercorp.pinpoint.profiler.instrument.mock.BaseAnnotationInterceptor;
 import com.navercorp.pinpoint.profiler.instrument.mock.BaseGetter;
 import com.navercorp.pinpoint.profiler.instrument.mock.BaseSetter;
@@ -82,8 +83,6 @@ import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldTransientIntS
 import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldVolatileIntSetter;
 import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldWildcardMapSetter;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
-import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -111,8 +110,6 @@ import static org.mockito.Mockito.when;
  * @author jaehong.kim
  */
 public class ASMClassTest {
-    private final InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
-
     private final ProfilerConfig profilerConfig = mock(ProfilerConfig.class);
     private final Provider<TraceContext> traceContextProvider = Providers.of(mock(TraceContext.class));
     private final DataSourceMonitorRegistryService dataSourceMonitorRegistryService = mock(DataSourceMonitorRegistryService.class);
@@ -128,8 +125,9 @@ public class ASMClassTest {
             customMetricRegistryService, apiMetaDataService, exceptionHandlerFactory, requestRecorderFactory);
     private final ScopeFactory scopeFactory = new ScopeFactory();
     private final InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();
+    private final InterceptorHolderIdGenerator interceptorHolderIdGenerator = new InterceptorHolderIdGenerator(10000, 100);
 
-    private final EngineComponent engineComponent = new DefaultEngineComponent(objectBinderFactory, interceptorRegistryBinder, interceptorDefinitionFactory, apiMetaDataService, scopeFactory);
+    private final EngineComponent engineComponent = new DefaultEngineComponent(objectBinderFactory, interceptorDefinitionFactory, apiMetaDataService, scopeFactory, interceptorHolderIdGenerator);
 
     private final ASMClassNodeLoader loader = new ASMClassNodeLoader();
 

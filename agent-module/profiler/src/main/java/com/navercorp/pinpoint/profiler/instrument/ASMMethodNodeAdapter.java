@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.profiler.instrument.interceptor.CaptureType;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinition;
+import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorHolder;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -242,16 +243,16 @@ public class ASMMethodNodeAdapter {
         }
     }
 
-    private void initInterceptorLocalVariables(final int interceptorId, final InterceptorDefinition interceptorDefinition, final int apiId) {
+    private void initInterceptorLocalVariables(ASMInterceptorHolder interceptorHolder, final InterceptorDefinition interceptorDefinition, final int apiId) {
         final InsnList instructions = new InsnList();
-        if (this.methodVariables.initInterceptorLocalVariables(instructions, interceptorId, interceptorDefinition, apiId)) {
+        if (this.methodVariables.initInterceptorLocalVariables(instructions, interceptorHolder, interceptorDefinition, apiId)) {
             // if first time.
             this.methodNode.instructions.insertBefore(this.methodVariables.getEnterInsnNode(), instructions);
         }
     }
 
-    public void addBeforeInterceptor(final int interceptorId, final InterceptorDefinition interceptorDefinition, final int apiId) {
-        initInterceptorLocalVariables(interceptorId, interceptorDefinition, apiId);
+    public void addBeforeInterceptor(ASMInterceptorHolder interceptorHolder, final InterceptorDefinition interceptorDefinition, final int apiId) {
+        initInterceptorLocalVariables(interceptorHolder, interceptorDefinition, apiId);
 
         final InsnList instructions = new InsnList();
         this.methodVariables.loadInterceptorLocalVariables(instructions, interceptorDefinition, false);
@@ -264,8 +265,8 @@ public class ASMMethodNodeAdapter {
         this.methodNode.instructions.insertBefore(this.methodVariables.getEnterInsnNode(), instructions);
     }
 
-    public void addAfterInterceptor(final int interceptorId, final InterceptorDefinition interceptorDefinition, final int apiId) {
-        initInterceptorLocalVariables(interceptorId, interceptorDefinition, apiId);
+    public void addAfterInterceptor(ASMInterceptorHolder interceptorHolder, final InterceptorDefinition interceptorDefinition, final int apiId) {
+        initInterceptorLocalVariables(interceptorHolder, interceptorDefinition, apiId);
 
         // add try catch block.
         final ASMTryCatch tryCatch = new ASMTryCatch(this.methodNode);

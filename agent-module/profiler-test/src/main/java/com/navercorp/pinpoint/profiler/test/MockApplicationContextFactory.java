@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.profiler.AgentContextOptionBuilder;
 import com.navercorp.pinpoint.profiler.AgentOption;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.name.ObjectName;
 import com.navercorp.pinpoint.profiler.name.v1.ObjectNameV1;
 
@@ -85,10 +84,6 @@ public class MockApplicationContextFactory {
 
     private ModuleFactory newModuleFactory() {
         Module pluginModule = new MockApplicationContextModule();
-
-        InterceptorRegistryBinder binder = new TestInterceptorRegistryBinder();
-        Module interceptorRegistryModule = InterceptorRegistryModule.wrap(binder);
-        return new OverrideModuleFactory(pluginModule, interceptorRegistryModule);
-
+        return new OverrideModuleFactory(pluginModule);
     }
 }
