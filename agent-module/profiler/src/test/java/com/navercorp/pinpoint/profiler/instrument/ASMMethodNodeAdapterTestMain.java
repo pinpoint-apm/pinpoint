@@ -17,8 +17,6 @@ package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.profiler.instrument.mock.ArgsArrayInterceptor;
-import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -37,12 +35,7 @@ import java.util.jar.JarFile;
 import static org.mockito.Mockito.mock;
 
 public class ASMMethodNodeAdapterTestMain {
-    private final InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
-    private int interceptorId;
-
     public ASMMethodNodeAdapterTestMain() {
-        this.interceptorRegistryBinder.bind();
-        this.interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(new ArgsArrayInterceptor());
     }
 
     public void search() {
@@ -104,7 +97,7 @@ public class ASMMethodNodeAdapterTestMain {
                         if (asmClass.isInterceptable()) {
                             for (InstrumentMethod method : asmClass.getDeclaredMethods()) {
                                 try {
-                                    method.addInterceptor(interceptorId);
+                                    method.addInterceptor(ArgsArrayInterceptor.class);
                                 } catch (Throwable t) {
                                     t.printStackTrace();
                                 }

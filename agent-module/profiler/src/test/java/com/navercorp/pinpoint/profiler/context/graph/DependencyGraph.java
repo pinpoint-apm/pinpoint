@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.context.graph;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Module;
 import com.google.inject.grapher.graphviz.GraphvizGrapher;
 import com.google.inject.grapher.graphviz.GraphvizModule;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
@@ -28,13 +27,11 @@ import com.navercorp.pinpoint.profiler.AgentContextOption;
 import com.navercorp.pinpoint.profiler.AgentContextOptionBuilder;
 import com.navercorp.pinpoint.profiler.AgentOption;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
-import com.navercorp.pinpoint.profiler.context.module.InterceptorRegistryModule;
+import com.navercorp.pinpoint.profiler.context.module.DefaultModuleFactoryResolver;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
-import com.navercorp.pinpoint.profiler.context.module.OverrideModuleFactory;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.context.module.ModuleFactoryResolver;
 import com.navercorp.pinpoint.profiler.name.ObjectName;
 import com.navercorp.pinpoint.profiler.name.v1.ObjectNameV1;
-import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -87,9 +84,8 @@ public class DependencyGraph {
                 profilerConfig.getProperties(), Collections.emptyMap(), null,
                 Collections.emptyList(), Collections.emptyList(), false);
 
-        InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();
-        Module testInterceptorRegistryModule = InterceptorRegistryModule.wrap(interceptorRegistryBinder);
-        ModuleFactory moduleFactory = new OverrideModuleFactory(testInterceptorRegistryModule);
+        ModuleFactoryResolver moduleFactoryResolver = new DefaultModuleFactoryResolver();
+        ModuleFactory moduleFactory = moduleFactoryResolver.resolve();
         ObjectName objectName = new ObjectNameV1("mockAgentId", "mockAgentName", "mockApplicationName");
 
         AgentContextOption agentContextOption = AgentContextOptionBuilder.build(agentOption,

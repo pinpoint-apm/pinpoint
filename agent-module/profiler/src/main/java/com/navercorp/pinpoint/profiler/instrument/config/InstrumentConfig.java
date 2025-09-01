@@ -24,7 +24,7 @@ public interface InstrumentConfig {
     String INSTRUMENT_ENGINE_ASM = "ASM";
 
     int getInterceptorRegistrySize();
-    boolean getInterceptorHolderEnable();
+    int getInterceptorRegistryBootstrapSize();
 
     List<String> getAllowJdkClassName();
 

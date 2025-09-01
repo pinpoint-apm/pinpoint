@@ -40,7 +40,7 @@ import com.navercorp.pinpoint.profiler.context.monitor.config.DefaultMonitorConf
 import com.navercorp.pinpoint.profiler.context.monitor.config.MonitorConfig;
 import com.navercorp.pinpoint.profiler.context.provider.AgentStartTimeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ConfiguredApplicationTypeProvider;
-import com.navercorp.pinpoint.profiler.context.provider.InterceptorRegistryBinderProvider;
+import com.navercorp.pinpoint.profiler.context.provider.InterceptorHolderIdGeneratorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ShutdownHookRegisterProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceDataFormatVersionProvider;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.PluginJarsProvider;
@@ -49,7 +49,7 @@ import com.navercorp.pinpoint.profiler.instrument.config.DefaultInstrumentConfig
 import com.navercorp.pinpoint.profiler.instrument.config.DefaultInstrumentMatcherCacheConfig;
 import com.navercorp.pinpoint.profiler.instrument.config.InstrumentConfig;
 import com.navercorp.pinpoint.profiler.instrument.config.InstrumentMatcherCacheConfig;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorHolderIdGenerator;
 import com.navercorp.pinpoint.profiler.name.ObjectName;
 import com.navercorp.pinpoint.profiler.plugin.PluginJar;
 import com.navercorp.pinpoint.profiler.plugin.config.DefaultPluginLoadingConfig;
@@ -120,7 +120,7 @@ public class ConfigModule extends AbstractModule {
 
         bind(Instrumentation.class).toInstance(agentOption.getInstrumentation());
 
-        bind(InterceptorRegistryBinder.class).toProvider(InterceptorRegistryBinderProvider.class).in(Scopes.SINGLETON);
+        bind(InterceptorHolderIdGenerator.class).toProvider(InterceptorHolderIdGeneratorProvider.class).in(Scopes.SINGLETON);
 
         TypeLiteral<List<Path>> pluginJarFile = new TypeLiteral<List<Path>>() {};
         bind(pluginJarFile).annotatedWith(PluginJarPaths.class).toInstance(agentOption.getPluginJars());

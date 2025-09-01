@@ -43,7 +43,6 @@ import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDumpService;
 import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.instrument.lambda.LambdaTransformBootloader;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.micrometer.MicrometerMonitor;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DeadlockMonitor;
@@ -80,7 +79,6 @@ public class DefaultApplicationContext implements ApplicationContext {
 
     private final InstrumentEngine instrumentEngine;
     private final DynamicTransformTrigger dynamicTransformTrigger;
-    private final InterceptorRegistryBinder interceptorRegistryBinder;
 
     private final Injector injector;
 
@@ -101,7 +99,6 @@ public class DefaultApplicationContext implements ApplicationContext {
         this.injector = Guice.createInjector(Stage.PRODUCTION, applicationContextModule);
 
         this.profilerConfig = injector.getInstance(ProfilerConfig.class);
-        this.interceptorRegistryBinder = injector.getInstance(InterceptorRegistryBinder.class);
 
         this.instrumentEngine = injector.getInstance(InstrumentEngine.class);
 
@@ -222,14 +219,8 @@ public class DefaultApplicationContext implements ApplicationContext {
         return this.serverMetaDataRegistryService;
     }
 
-    public InterceptorRegistryBinder getInterceptorRegistryBinder() {
-        return interceptorRegistryBinder;
-    }
-
     @Override
     public void start() {
-        this.interceptorRegistryBinder.bind();
-
         this.deadlockMonitor.start();
         this.agentInfoSender.start();
         this.agentStatMonitor.start();
@@ -247,10 +238,5 @@ public class DefaultApplicationContext implements ApplicationContext {
         if (rpcModuleLifeCycle != null) {
             this.rpcModuleLifeCycle.shutdown();
         }
-
-        if (staticResourceCleanup) {
-            this.interceptorRegistryBinder.unbind();
-        }
     }
-
 }

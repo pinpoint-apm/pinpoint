@@ -50,7 +50,11 @@ public class InterceptorLazyLoadingSupplier implements Supplier<Interceptor> {
         try {
             interceptor = factory.newInterceptor(interceptorClass, providedArguments, scopeInfo, methodDescriptor);
         } catch (Throwable t) {
-            logger.warn("Failed to new interceptor, interceptor={}", interceptorClass.getName(), t);
+            if (methodDescriptor != null) {
+                logger.warn("Failed to new interceptor, interceptor={}, method={}", interceptorClass.getName(), methodDescriptor, t);
+            } else {
+                logger.warn("Failed to new interceptor, interceptor={}", interceptorClass.getName(), t);
+            }
         }
 
         if (interceptor == null) {

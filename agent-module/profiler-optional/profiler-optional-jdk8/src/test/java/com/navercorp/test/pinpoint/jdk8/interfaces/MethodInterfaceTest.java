@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.profiler.instrument.ASMMethodNodeAdapter;
 import com.navercorp.pinpoint.profiler.instrument.EngineComponent;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinition;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinitionFactory;
+import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorHolderIdGenerator;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -56,7 +57,7 @@ import static org.mockito.Mockito.mock;
  */
 public class MethodInterfaceTest {
     private final static InstrumentContext pluginContext = mock(InstrumentContext.class);
-    private AtomicInteger interceptorIdCounter = new AtomicInteger();
+    private final InterceptorHolderIdGenerator interceptorHolderIdGenerator = new InterceptorHolderIdGenerator(10000, 100);
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -90,17 +91,16 @@ public class MethodInterfaceTest {
                     if (!methodNameList.contains(methodNode.name)) {
                         continue;
                     }
-                    int interceptorId = interceptorIdCounter.incrementAndGet();
                     try {
-                        ASMInterceptorHolder.create(interceptorId, classLoader, interceptor);
+                        ASMInterceptorHolder interceptorHolder = ASMInterceptorHolder.create(interceptorHolderIdGenerator, classLoader, interceptor);
+                        methodNodeAdapter.addBeforeInterceptor(interceptorHolder, interceptorDefinition, 99);
+                        logger.debug("Add before interceptor in method={}", methodNode.name);
+                        methodNodeAdapter.addAfterInterceptor(interceptorHolder, interceptorDefinition, 99);
+                        logger.debug("Add after interceptor in method={}", methodNode.name);
                     } catch (InstrumentException e) {
                         throw new RuntimeException(e);
                     }
 
-                    methodNodeAdapter.addBeforeInterceptor(interceptorId, interceptorDefinition, 99);
-                    logger.debug("Add before interceptor in method={}", methodNode.name);
-                    methodNodeAdapter.addAfterInterceptor(interceptorId, interceptorDefinition, 99);
-                    logger.debug("Add after interceptor in method={}", methodNode.name);
                 }
             }
         });

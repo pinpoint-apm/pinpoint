@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentOption;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.name.ObjectName;
 import com.navercorp.pinpoint.profiler.name.v1.ObjectNameV1;
 import org.junit.jupiter.api.Assertions;
@@ -67,9 +66,7 @@ public class MockApplicationContextModuleTest {
                 Collections.emptyList(), Collections.emptyList(), false);
 
         Module pluginModule = new PluginApplicationContextModule();
-        InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();
-        Module testInterceptorRegistryModule = InterceptorRegistryModule.wrap(interceptorRegistryBinder);
-        ModuleFactory moduleFactory = new OverrideModuleFactory(pluginModule, testInterceptorRegistryModule);
+        ModuleFactory moduleFactory = new OverrideModuleFactory(pluginModule);
         ObjectName objectName = new ObjectNameV1("mockAgentId", "mockAgentName", "mockApplicationName");
 
         AgentContextOption agentContextOption = AgentContextOptionBuilder.build(agentOption,
