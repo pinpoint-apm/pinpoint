@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.instrument.scanner;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.ProtectionDomain;
 
@@ -86,7 +87,11 @@ public class ClassScannerFactory {
             }
             final boolean isDirectory = path.endsWith("/");
             if (isDirectory) {
-                return new DirectoryScanner(path);
+                try {
+                    return new DirectoryScanner(codeLocation);
+                } catch (URISyntaxException uriSyntaxException) {
+                    throw new IllegalArgumentException("invalid URL, URL=" + codeLocation, uriSyntaxException);
+                }
             }
         }
         // TODO consider a scanner for nested jars
@@ -138,7 +143,7 @@ public class ClassScannerFactory {
             return false;
         }
 
-        if(isNestedUrl(path)) {
+        if (isNestedUrl(path)) {
             return true;
         }
 

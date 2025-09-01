@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.instrument.scanner;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,9 +32,9 @@ public class DirectoryScanner implements Scanner {
 
     private final Path directory;
 
-    public DirectoryScanner(String directory) {
-        Objects.requireNonNull(directory, "directory");
-        this.directory = Paths.get(directory);
+    public DirectoryScanner(URL url) throws URISyntaxException {
+        Objects.requireNonNull(url, "directory");
+        this.directory = Paths.get(url.toURI());
     }
 
     @Override
