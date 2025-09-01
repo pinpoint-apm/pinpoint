@@ -138,9 +138,7 @@ public interface AnnotationValueMapper {
     @ToPAnnotationValue
     default PAnnotationValue map(Annotation<?> annotation) {
         if (annotation instanceof NullAnnotation) {
-            PAnnotationValue.Builder builder = PAnnotationValue.newBuilder();
-            builder.setStringValue("null");
-            return builder.build();
+            return null;
         }
         return mapNonNull(annotation);
     }
