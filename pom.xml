@@ -232,7 +232,7 @@
 
         <grpc.version>1.75.0</grpc.version>
         <grpc-bom.version>1.75.0</grpc-bom.version>
-        <protobuf-java.version>3.25.5</protobuf-java.version>
+        <protobuf-java.version>3.25.8</protobuf-java.version>
         <protoc.version>${protobuf-java.version}</protoc.version>
 
         <guava.version>33.3.1-jre</guava.version>
