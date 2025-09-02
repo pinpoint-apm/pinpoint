@@ -44,23 +44,24 @@ public record UidLinkRowKey(int service, long application, int serviceType, long
     }
 
 
-    public static UidLinkRowKey of(SaltKey saltKey, byte[] bytes) {
+    public static UidLinkRowKey of(SaltKey saltKey, byte[] rowKey) {
         Objects.requireNonNull(saltKey, "saltKey");
 
         int offset = saltKey.size();
-        int service = ByteArrayUtils.bytesToInt(bytes, offset);
-        offset += ByteArrayUtils.INT_BYTE_LENGTH;
 
-        long applicationType = ByteArrayUtils.bytesToLong(bytes, offset);
+        long applicationUid = ByteArrayUtils.bytesToLong(rowKey, offset);
         offset += ByteArrayUtils.LONG_BYTE_LENGTH;
 
-        int serviceType = ByteArrayUtils.bytesToInt(bytes, offset);
+        int serviceType = ByteArrayUtils.bytesToInt(rowKey, offset);
         offset += ByteArrayUtils.INT_BYTE_LENGTH;
 
-        long timestamp = ByteArrayUtils.bytesToLong(bytes, offset);
+        int serviceUid = ByteArrayUtils.bytesToInt(rowKey, offset);
+        offset += ByteArrayUtils.INT_BYTE_LENGTH;
+
+        long timestamp = ByteArrayUtils.bytesToLong(rowKey, offset);
         timestamp = TimeUtils.reverseTimeMillis(timestamp);
 
-        return new UidLinkRowKey(service, applicationType, serviceType, timestamp);
+        return new UidLinkRowKey(serviceUid, applicationUid, serviceType, timestamp);
     }
 
 

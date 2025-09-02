@@ -196,7 +196,7 @@ public class HbaseTraceService implements TraceService {
         return Vertex.of(applicationName, parentApplicationType);
     }
 
-    private void insertSpanStat(SpanBo span, Vertex selfVertex, SelfUidVertex uidVertex) {
+    private void insertSpanStat(SpanBo span, Vertex selfVertex, SelfUidVertex selfUidVertex) {
 
         final ServiceType spanServiceType = registry.findServiceType(span.getServiceType());
 
@@ -262,6 +262,7 @@ public class HbaseTraceService implements TraceService {
                             selfVertex, MERGE_QUEUE, span.getElapsed(), span.hasError());
 
 
+
                     parentVertex = queueAcceptVertex;
                 }
             }
@@ -280,7 +281,7 @@ public class HbaseTraceService implements TraceService {
         // the data may be different due to timeout or network error.
 
         linkService.updateResponseTime(span.getCollectorAcceptTime(), selfVertex, span.getAgentId(), span.getElapsed(), span.hasError());
-        uidLinkService.updateResponseTime(span.getCollectorAcceptTime(), uidVertex, span.getElapsed(), span.hasError());
+        uidLinkService.updateResponseTime(span.getCollectorAcceptTime(), selfUidVertex, span.getElapsed(), span.hasError());
 
         if (bugCheck != 1) {
             logger.info("ambiguous span found(bug). span {}/{}", span.getApplicationName(), span.getAgentName());
@@ -290,7 +291,7 @@ public class HbaseTraceService implements TraceService {
         }
     }
 
-    private void insertSpanEventStat(SpanBo span, Vertex selfVertex, SelfUidVertex uidVertex) {
+    private void insertSpanEventStat(SpanBo span, Vertex selfVertex, SelfUidVertex selfUidVertex) {
 
         final List<SpanEventBo> spanEventList = span.getSpanEventBoList();
         if (CollectionUtils.isEmpty(spanEventList)) {
@@ -301,7 +302,7 @@ public class HbaseTraceService implements TraceService {
         }
 
         // TODO need to batch update later.
-        insertSpanEventList(spanEventList, selfVertex, uidVertex, span.getAgentId(), span.getEndPoint(), span.getCollectorAcceptTime());
+        insertSpanEventList(spanEventList, selfVertex, selfUidVertex, span.getAgentId(), span.getEndPoint(), span.getCollectorAcceptTime());
     }
 
     private void insertSpanEventList(List<SpanEventBo> spanEventList, Vertex selfVertex, SelfUidVertex selfUidVertex,

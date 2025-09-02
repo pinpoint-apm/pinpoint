@@ -21,10 +21,14 @@ import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkIncremente
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkUpdater;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.config.BulkFactory;
+import com.navercorp.pinpoint.collector.applicationmap.uid.MapInLinkUidDao;
+import com.navercorp.pinpoint.collector.applicationmap.uid.MapOutLinkUidDao;
 import com.navercorp.pinpoint.collector.applicationmap.uid.MapSelfUidDao;
+import com.navercorp.pinpoint.collector.applicationmap.uid.hbase.HbaseMapInLinkUidDao;
 import com.navercorp.pinpoint.collector.applicationmap.uid.hbase.HbaseMapOutLinkUidDao;
 import com.navercorp.pinpoint.collector.applicationmap.uid.hbase.HbaseMapSelfUidDao;
 import com.navercorp.pinpoint.collector.applicationmap.uid.service.HbaseUidLinkService;
+import com.navercorp.pinpoint.collector.dao.hbase.IgnoreStatFilter;
 import com.navercorp.pinpoint.collector.service.UidLinkService;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
@@ -78,14 +82,34 @@ public class UidMapConfiguration {
     }
 
     @Bean
-    public UidLinkService uidLinkService(MapSelfUidDao mapSelfUidDao) {
-        return new HbaseUidLinkService(mapSelfUidDao);
+    public UidLinkService uidLinkService(MapSelfUidDao mapSelfUidDao, MapOutLinkUidDao mapOutLinkUidDao, MapInLinkUidDao mapInLinkUidDao) {
+        return new HbaseUidLinkService(mapSelfUidDao, mapOutLinkUidDao, mapInLinkUidDao);
     }
 
     @Bean
-    public HbaseMapOutLinkUidDao mapOutLinkUidDao(MapLinkProperties mapLinkProperties,
-                                                  TimeSlot timeSlot,
-                                                  @Qualifier("selfUidBulkWriter") BulkWriter bulkWriter) {
+    public BulkWriter outLinkUidBulkWriter(BulkFactory factory,
+                                           HbaseAsyncTemplate asyncTemplate,
+                                           TableNameProvider tableNameProvider,
+                                           @Qualifier("mapSelfUidRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
+                                           @Qualifier("selfBulkIncrementer") BulkIncrementer bulkIncrementer,
+                                           @Qualifier("selfBulkUpdater") BulkUpdater bulkUpdater) {
+        String loggerName = newBulkWriterName(HbaseMapSelfUidDao.class.getName());
+        return factory.newBulkWriter(loggerName, asyncTemplate, HbaseTables.MAP_SELF_V3_COUNTER, tableNameProvider, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
+    }
+
+
+    @Bean
+    public MapOutLinkUidDao mapOutLinkUidDao(MapLinkProperties mapLinkProperties,
+                                             TimeSlot timeSlot,
+                                             @Qualifier("selfUidBulkWriter") BulkWriter bulkWriter) {
         return new HbaseMapOutLinkUidDao(mapLinkProperties, timeSlot, bulkWriter);
+    }
+
+    @Bean
+    public MapInLinkUidDao mapInLinkUidDao(MapLinkProperties mapLinkProperties,
+                                           IgnoreStatFilter ignoreStatFilter,
+                                           TimeSlot timeSlot,
+                                           @Qualifier("selfUidBulkWriter") BulkWriter bulkWriter) {
+        return new HbaseMapInLinkUidDao(mapLinkProperties, ignoreStatFilter, timeSlot, bulkWriter);
     }
 }

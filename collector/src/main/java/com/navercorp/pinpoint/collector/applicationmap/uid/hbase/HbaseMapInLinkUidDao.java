@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.RowKey;
+import com.navercorp.pinpoint.collector.applicationmap.uid.MapInLinkUidDao;
 import com.navercorp.pinpoint.collector.dao.CachedStatisticsDao;
 import com.navercorp.pinpoint.collector.dao.hbase.IgnoreStatFilter;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
@@ -41,7 +42,7 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseMapInLinkUidDao implements CachedStatisticsDao {
+public class HbaseMapInLinkUidDao implements MapInLinkUidDao, CachedStatisticsDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -64,13 +65,13 @@ public class HbaseMapInLinkUidDao implements CachedStatisticsDao {
     }
 
 
-
-    public void inLink(long requestTime,
-                       String inLinkApplicationName,
-                       ServiceType inLinkServiceType,
-                       SelfUidVertex selfVertex,
-                       String selfEndPoint,
-                       int elapsed, boolean isError) {
+    @Override
+    public void insertInLink(long requestTime,
+                             String inLinkApplicationName,
+                             ServiceType inLinkServiceType,
+                             SelfUidVertex selfVertex,
+                             String selfEndPoint,
+                             int elapsed, boolean isError) {
         Objects.requireNonNull(inLinkApplicationName, "inLinkApplicationName");
         Objects.requireNonNull(inLinkServiceType, "inLinkServiceType");
 

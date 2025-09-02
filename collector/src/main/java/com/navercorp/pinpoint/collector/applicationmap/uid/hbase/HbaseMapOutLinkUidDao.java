@@ -22,13 +22,13 @@ import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.uid.UidLinkRowKey;
+import com.navercorp.pinpoint.collector.applicationmap.uid.MapOutLinkUidDao;
 import com.navercorp.pinpoint.collector.dao.CachedStatisticsDao;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
@@ -41,7 +41,7 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseMapOutLinkUidDao implements CachedStatisticsDao {
+public class HbaseMapOutLinkUidDao implements MapOutLinkUidDao, CachedStatisticsDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -52,7 +52,7 @@ public class HbaseMapOutLinkUidDao implements CachedStatisticsDao {
 
     public HbaseMapOutLinkUidDao(MapLinkProperties mapLinkProperties,
                                  TimeSlot timeSlot,
-                                 @Qualifier("outLinkBulkWriter") BulkWriter bulkWriter) {
+                                 BulkWriter bulkWriter) {
         this.mapLinkProperties = Objects.requireNonNull(mapLinkProperties, "mapLinkConfiguration");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
 
@@ -60,9 +60,9 @@ public class HbaseMapOutLinkUidDao implements CachedStatisticsDao {
     }
 
 
-
-    public void outLink(long requestTime, SelfUidVertex selfVertex,
-                        String outLinkApplicationName, ServiceType outLinkServiceType, String outHost, int elapsed, boolean isError) {
+    @Override
+    public void insertOutLink(long requestTime, SelfUidVertex selfVertex,
+                              String outLinkApplicationName, ServiceType outLinkServiceType, String outHost, int elapsed, boolean isError) {
         Objects.requireNonNull(selfVertex, "selfVertex");
         Objects.requireNonNull(outLinkApplicationName, "outLinkApplicationName");
         Objects.requireNonNull(outLinkServiceType, "outLinkServiceType");

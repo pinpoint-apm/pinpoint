@@ -42,8 +42,8 @@ public final class UidRowKeyUtils {
     }
 
     private static int writeUid(byte[] rowkey, int saltKeySize, int serviceUid, long applicationUid, int serviceType) {
-        int offset = ByteArrayUtils.writeInt(serviceUid, rowkey, saltKeySize);
-        offset = ByteArrayUtils.writeLong(applicationUid, rowkey, offset);
-        return ByteArrayUtils.writeInt(serviceType, rowkey, offset);
+        int offset = ByteArrayUtils.writeLong(applicationUid, rowkey, saltKeySize);
+        offset = ByteArrayUtils.writeInt(serviceType, rowkey, offset);
+        return ByteArrayUtils.writeInt(serviceUid, rowkey, offset);
     }
 }

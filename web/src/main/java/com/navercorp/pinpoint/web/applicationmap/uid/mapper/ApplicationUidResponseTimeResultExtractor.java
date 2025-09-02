@@ -79,9 +79,9 @@ public class ApplicationUidResponseTimeResultExtractor implements ResultsExtract
         final byte[] rowKey = getOriginalKey(result.getRow());
 
         final Buffer row = new FixedBuffer(rowKey);
-        final int serviceUid = row.readInt();
         final long applicationUid = row.readLong();
         final int serviceTypeCode = row.readInt();
+        final int serviceUid = row.readInt();
         final long timestamp = timeWindowFunction.refineTimestamp(TimeUtils.recoveryTimeMillis(row.readLong()));
 
         if (builder == null) {
