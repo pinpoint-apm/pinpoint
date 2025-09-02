@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.uid.hbase;
+package com.navercorp.pinpoint.collector.applicationmap.uid.dao.hbase;
 
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;

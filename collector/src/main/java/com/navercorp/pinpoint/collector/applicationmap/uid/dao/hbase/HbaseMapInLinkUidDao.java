@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.uid.hbase;
+package com.navercorp.pinpoint.collector.applicationmap.uid.dao.hbase;
 
 import com.navercorp.pinpoint.collector.applicationmap.SelfUidVertex;
 import com.navercorp.pinpoint.collector.applicationmap.config.MapLinkProperties;
@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.RowKey;
-import com.navercorp.pinpoint.collector.applicationmap.uid.MapInLinkUidDao;
+import com.navercorp.pinpoint.collector.applicationmap.uid.dao.MapInLinkUidDao;
 import com.navercorp.pinpoint.collector.dao.CachedStatisticsDao;
 import com.navercorp.pinpoint.collector.dao.hbase.IgnoreStatFilter;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;

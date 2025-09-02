@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.uid.hbase;
+package com.navercorp.pinpoint.collector.applicationmap.uid.dao.hbase;
 
 import com.navercorp.pinpoint.collector.applicationmap.SelfUidVertex;
 import com.navercorp.pinpoint.collector.applicationmap.config.MapLinkProperties;
@@ -22,11 +22,11 @@ import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.uid.UidLinkRowKey;
-import com.navercorp.pinpoint.collector.applicationmap.uid.MapOutLinkUidDao;
+import com.navercorp.pinpoint.collector.applicationmap.statistics.uid.UidResponseColumnName;
+import com.navercorp.pinpoint.collector.applicationmap.uid.dao.MapSelfUidDao;
 import com.navercorp.pinpoint.collector.dao.CachedStatisticsDao;
 import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
@@ -34,14 +34,15 @@ import org.springframework.stereotype.Repository;
 import java.util.Objects;
 
 /**
- * Update statistics of caller node
- * 
+ * Save response time data of WAS
+ *
  * @author netspider
  * @author emeroad
+ * @author jaehong.kim
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseMapOutLinkUidDao implements MapOutLinkUidDao, CachedStatisticsDao {
+public class HbaseMapSelfUidDao implements MapSelfUidDao, CachedStatisticsDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -50,50 +51,43 @@ public class HbaseMapOutLinkUidDao implements MapOutLinkUidDao, CachedStatistics
     private final BulkWriter bulkWriter;
     private final MapLinkProperties mapLinkProperties;
 
-    public HbaseMapOutLinkUidDao(MapLinkProperties mapLinkProperties,
-                                 TimeSlot timeSlot,
-                                 BulkWriter bulkWriter) {
-        this.mapLinkProperties = Objects.requireNonNull(mapLinkProperties, "mapLinkConfiguration");
+    public HbaseMapSelfUidDao(MapLinkProperties mapLinkProperties,
+                              TimeSlot timeSlot,
+                              BulkWriter bulkWriter) {
+        this.mapLinkProperties = Objects.requireNonNull(mapLinkProperties, "mapLinkProperties");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
-
-        this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWrtier");
+        this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWriter");
     }
 
 
     @Override
-    public void insertOutLink(long requestTime, SelfUidVertex selfVertex,
-                              String outLinkApplicationName, ServiceType outLinkServiceType, String outHost, int elapsed, boolean isError) {
+    public void self(long requestTime, SelfUidVertex selfVertex, int elapsed, boolean isError) {
         Objects.requireNonNull(selfVertex, "selfVertex");
-        Objects.requireNonNull(outLinkApplicationName, "outLinkApplicationName");
-        Objects.requireNonNull(outLinkServiceType, "outLinkServiceType");
-
 
         if (logger.isDebugEnabled()) {
-            logger.debug("[OutLinkUid] {} -> {}/{}/{}", selfVertex,  outLinkApplicationName, outLinkServiceType, outHost);
+            logger.debug("[SelfUid] {}", selfVertex);
         }
-
-        // there may be no endpoint in case of httpclient
-        outHost = Objects.toString(outHost, "");
 
         // make row key. rowkey is me
         final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
-        final RowKey outLinkRowKey = UidLinkRowKey.of(selfVertex, rowTimeSlot);
+        final RowKey selfRowKey = UidLinkRowKey.of(selfVertex, rowTimeSlot);
 
-        final short inSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(selfVertex.serviceType(), elapsed, isError);
-
-        final ColumnName inLink = OutLinkUidColumnName.histogram(outLinkApplicationName, outLinkServiceType, outHost, inSlotNumber);
-        this.bulkWriter.increment(outLinkRowKey, inLink);
+        final short slotNumber = ApplicationMapStatisticsUtils.getSlotNumber(selfVertex.serviceType(), elapsed, isError);
+        final ColumnName selfColumnName = UidResponseColumnName.histogram(slotNumber);
+        this.bulkWriter.increment(selfRowKey, selfColumnName);
 
         if (mapLinkProperties.isEnableAvg()) {
-            final ColumnName sumInLink = OutLinkUidColumnName.sum(outLinkApplicationName, outLinkServiceType, outHost, selfVertex.serviceType());
-            this.bulkWriter.increment(outLinkRowKey, sumInLink, elapsed);
-        }
-        if (mapLinkProperties.isEnableMax()) {
-            final ColumnName maxInLink = OutLinkUidColumnName.max(outLinkApplicationName, outLinkServiceType, outHost, selfVertex.serviceType());
-            this.bulkWriter.updateMax(outLinkRowKey, maxInLink, elapsed);
+            final ColumnName sumColumnName = UidResponseColumnName.sum(selfVertex.serviceType());
+            this.bulkWriter.increment(selfRowKey, sumColumnName, elapsed);
         }
 
+        if (mapLinkProperties.isEnableMax()) {
+            final ColumnName maxColumnName = UidResponseColumnName.max(selfVertex.serviceType());
+            this.bulkWriter.updateMax(selfRowKey, maxColumnName, elapsed);
+        }
     }
+
+
 
     @Override
     public void flushLink() {

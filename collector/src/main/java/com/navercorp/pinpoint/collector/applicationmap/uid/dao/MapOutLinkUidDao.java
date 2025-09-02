@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.uid;
+package com.navercorp.pinpoint.collector.applicationmap.uid.dao;
 
 import com.navercorp.pinpoint.collector.applicationmap.SelfUidVertex;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
-public interface MapInLinkUidDao {
+/**
+ * @author emeroad
+ * @author jaehong.kim
+ */
+public interface MapOutLinkUidDao {
 
-    void insertInLink(long requestTime,
-                      String inLinkApplicationName,
-                      ServiceType inLinkServiceType,
-                      SelfUidVertex selfVertex,
-                      String selfEndPoint,
-                      int elapsed,
-                      boolean isError);
+    void insertOutLink(long requestTime, SelfUidVertex selfVertex,
+                              String outLinkApplicationName, ServiceType outLinkServiceType, String outHost, int elapsed, boolean isError);
+
 }

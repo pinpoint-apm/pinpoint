@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.collector.applicationmap.uid.service;
 
 import com.navercorp.pinpoint.collector.applicationmap.SelfUidVertex;
-import com.navercorp.pinpoint.collector.applicationmap.uid.MapInLinkUidDao;
-import com.navercorp.pinpoint.collector.applicationmap.uid.MapOutLinkUidDao;
-import com.navercorp.pinpoint.collector.applicationmap.uid.MapSelfUidDao;
+import com.navercorp.pinpoint.collector.applicationmap.uid.dao.MapInLinkUidDao;
+import com.navercorp.pinpoint.collector.applicationmap.uid.dao.MapOutLinkUidDao;
+import com.navercorp.pinpoint.collector.applicationmap.uid.dao.MapSelfUidDao;
 import com.navercorp.pinpoint.collector.service.UidLinkService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.logging.log4j.LogManager;

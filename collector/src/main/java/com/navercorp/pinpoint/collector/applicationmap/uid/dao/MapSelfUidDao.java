@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.uid;
+package com.navercorp.pinpoint.collector.applicationmap.uid.dao;
 
 import com.navercorp.pinpoint.collector.applicationmap.SelfUidVertex;
 
