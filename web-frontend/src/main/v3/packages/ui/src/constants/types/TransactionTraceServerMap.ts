@@ -1,6 +1,5 @@
 import { GetServerMap } from './GetServerMap';
 
-/* eslint-disable  @typescript-eslint/no-explicit-any */
 export namespace TransactionTraceServerMap {
   export interface Parameters {
     agentId: string;

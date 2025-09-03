@@ -16,7 +16,7 @@ export const useLocalStorage = <T, K extends LocalStorageKeyTypes = LocalStorage
         return initialValue;
       }
 
-      return JSON.parse(initValue as any);
+      return JSON.parse(initValue);
     } catch (error) {
       console.error('Error getting local storage item:', error);
       return initialValue;

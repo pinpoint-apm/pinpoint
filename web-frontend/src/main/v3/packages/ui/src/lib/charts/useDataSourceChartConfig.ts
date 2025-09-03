@@ -7,13 +7,13 @@ import { getFormat } from '@pinpoint-fe/ui/src/utils';
 import { useDataSourceChartTooltip } from './useDataSourceChartTooltip';
 
 export const useDataSourceChartConfig = (data?: InspectorAgentDataSourceChart.Response | null) => {
-  if (!data) return null;
-
   const { chartUnitAxisInfo, getDataAxis } = useChartAxis();
   const { getTooltipData, getTooltipStr, tooltipTitleList } = useDataSourceChartTooltip(
     data?.metricValueGroups,
   );
   const { getChartType } = useChartType();
+
+  if (!data) return null;
 
   const chartData = {
     title: data.title,

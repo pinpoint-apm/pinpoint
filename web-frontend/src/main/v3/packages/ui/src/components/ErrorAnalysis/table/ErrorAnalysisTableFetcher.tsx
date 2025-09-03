@@ -1,7 +1,7 @@
 import React from 'react';
 import { Row } from '@tanstack/react-table';
 import { ErrorAnalysisErrorList } from '@pinpoint-fe/ui/src/constants';
-import { useGetErrorAnalysisErrorListData } from '@pinpoint-fe/ui/src/hooks';
+import { useGetErrorAnalysisErrorListData, useTimezone } from '@pinpoint-fe/ui/src/hooks';
 import { DataTable, DataTableCountOfRows } from '../../DataTable';
 import { errorTableColumns } from './errorAnalysisTableColumns';
 import { cn } from '../../../lib';
@@ -19,6 +19,7 @@ export const ErrorAnalysisTableFetcher = ({
   const [count, setCount] = React.useState(50);
   const [orderBy, setOrderBy] = React.useState<string>();
   const [isDesc, setIsDesc] = React.useState<boolean>();
+  const [timezone] = useTimezone();
   const { data } = useGetErrorAnalysisErrorListData({
     orderBy,
     isDesc,
@@ -28,6 +29,7 @@ export const ErrorAnalysisTableFetcher = ({
   const columns = errorTableColumns({
     orderBy,
     isDesc,
+    timezone,
     onClickColumnHeader: (key, order) => {
       if (order === undefined) {
         if (orderBy === key) {

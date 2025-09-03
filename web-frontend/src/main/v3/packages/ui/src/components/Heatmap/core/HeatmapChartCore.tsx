@@ -99,7 +99,10 @@ const HeatmapChartCore = ({
     setSetting(newSetting);
   };
 
-  const onDragEnd = (data: any, checkedLegends: any) => {
+  const onDragEnd = (
+    data: { x1: number; y1: number; x2: number; y2: number },
+    checkedLegends: string[],
+  ) => {
     window.open(
       `${BASE_PATH}${getTransactionListPath(
         application,

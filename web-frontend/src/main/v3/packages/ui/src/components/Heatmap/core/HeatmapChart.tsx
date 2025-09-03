@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { colors, GetHeatmapAppData } from '@pinpoint-fe/ui/src/constants';
 import { defaultTickFormatter } from '@pinpoint-fe/ui/src/components/ReChart';
@@ -509,8 +510,15 @@ const HeatmapChart = React.forwardRef(
         return;
       }
 
-      const [startX, startY] = startCell?.data;
-      const [endX, endY] = endCell?.data;
+      const startData = startCell?.data;
+      const endData = endCell?.data;
+
+      if (!startData || !endData) {
+        return;
+      }
+
+      const [startX, startY] = startData;
+      const [endX, endY] = endData;
       const yAxisData = (chartInstanceRef.current?.getOption()?.yAxis as any)[0].data || [];
       const visualMaps = chartInstanceRef.current?.getOption()?.visualMap || [];
       const successRange = (visualMaps as any)?.find((vm: any) => vm.id === 'success')?.range;
@@ -571,7 +579,9 @@ const HeatmapChart = React.forwardRef(
                 },
               ],
             });
-          } catch (err) {}
+          } catch (err) {
+            console.error('Error onMouseUp', err);
+          }
         }}
       >
         <div ref={chartRef} style={{ width: '100%', height: '100%' }} />
