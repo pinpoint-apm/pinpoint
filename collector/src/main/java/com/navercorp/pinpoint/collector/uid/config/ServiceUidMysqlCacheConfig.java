@@ -42,15 +42,15 @@ public class ServiceUidMysqlCacheConfig {
 
     @Bean
     public CacheManager serviceUidCache(@Qualifier("serviceUidCacheProperties") CaffeineCacheProperties properties,
-                                        @Value("${collector.service.uid.cache.missingExpireAfterWrite:1m}") Duration missingExpireAfterWrite) {
+                                        @Value("${collector.service.uid.cache.nullValueExpireAfterWrite:1m}") Duration nullValueExpireAfterWrite) {
 
         CaffeineCacheManager cacheManager = new CaffeineCacheManager(SERVICE_UID_CACHE_NAME);
-        cacheManager.setCaffeine(buildCaffeine(properties, missingExpireAfterWrite));
+        cacheManager.setCaffeine(buildCaffeine(properties, nullValueExpireAfterWrite));
         cacheManager.setAllowNullValues(true);
         return cacheManager;
     }
 
-    private Caffeine<Object, Object> buildCaffeine(CaffeineCacheProperties properties, Duration missingExpireAfterWrite) {
+    private Caffeine<Object, Object> buildCaffeine(CaffeineCacheProperties properties, Duration nullValueExpireAfterWrite) {
         Caffeine<Object, Object> builder = Caffeine.newBuilder();
         if (properties.getInitialCapacity() >= 0) {
             builder.initialCapacity(properties.getInitialCapacity());
@@ -63,7 +63,7 @@ public class ServiceUidMysqlCacheConfig {
         }
 
         builder.expireAfter(new NullValueExpiry(properties.getExpireAfterWrite(), properties.getExpireAfterAccess(),
-                missingExpireAfterWrite));
+                nullValueExpireAfterWrite));
         return builder;
     }
 
