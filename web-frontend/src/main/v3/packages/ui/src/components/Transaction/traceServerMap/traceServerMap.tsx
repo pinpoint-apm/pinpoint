@@ -20,7 +20,7 @@ export const TraceServerMap = (props: TraceServerMapProps) => {
 
 export interface TraceServerMapFetcherProps {}
 
-export const TraceServerMapFetcher = ({}: TraceServerMapFetcherProps) => {
+export const TraceServerMapFetcher = (props: TraceServerMapFetcherProps) => {
   const { application } = useTransactionSearchParameters();
   const { data } = useGetTransactionTraceServerMap();
 

@@ -14,21 +14,21 @@ export const InspectorAgentEventViewerFetcher = ({
   className,
 }: InspectorAgentEventViewerFetcherProps) => {
   const { data } = useGetInspectorAgentEvents({ range: eventRange });
+  const [timezone] = useTimezone();
 
   return (
     <div className={className}>
-      <DataTable tableClassName="text-xs" columns={columns} data={data || []} />
+      <DataTable tableClassName="text-xs" columns={columns(timezone)} data={data || []} />
     </div>
   );
 };
 
-const columns: ColumnDef<InspectorAgentEvents.AgentEventData>[] = [
+const columns = (timezone: string): ColumnDef<InspectorAgentEvents.AgentEventData>[] => [
   {
     accessorKey: 'eventTimestamp',
     header: 'Time',
     cell: (props) => {
       const timestamp = props.getValue() as number;
-      const [timezone] = useTimezone();
 
       return formatInTimeZone(timestamp, timezone, 'yyyy.MM.dd HH:mm:ss XXX');
     },

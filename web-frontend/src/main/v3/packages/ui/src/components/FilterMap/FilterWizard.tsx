@@ -166,7 +166,9 @@ export const FilterWizard = ({
         ...prev,
         url: encodedUrl,
       }));
-    } catch (error) {}
+    } catch (error) {
+      console.warn('URL 인코딩 실패:', error);
+    }
   };
 
   const handleClickReset = () => {

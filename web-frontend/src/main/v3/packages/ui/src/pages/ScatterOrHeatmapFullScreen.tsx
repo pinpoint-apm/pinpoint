@@ -32,7 +32,7 @@ export const ScatterOrHeatmapFullScreenPage = ({
   const periodInterval = configuration?.[`periodInterval.serverMap`];
   const navigate = useNavigate();
   const location = useLocation();
-  const match = location.pathname?.match(/^\/[^\/]+/);
+  const match = location.pathname?.match(/^\/[^/]+/);
   const type = match?.[0].includes(APP_PATH.SCATTER_FULL_SCREEN) ? 'scatter' : 'heatmap';
 
   const { t } = useTranslation();
