@@ -5,11 +5,12 @@ import {
   MetricDefinitionFormFetcher,
   MetricDefinitionFormFetcherProps,
 } from './MeticDefinitionFormFetcher';
+import { ListItemSkeleton } from '../../VirtualList';
 
 export const MetricDefinitionForm = ({ ...props }: MetricDefinitionFormFetcherProps) => {
   return (
     <ErrorBoundary>
-      <React.Suspense fallback={'loading....'}>
+      <React.Suspense fallback={<ListItemSkeleton skeletonOption={{itemHeight: 10}}/>}>
         <MetricDefinitionFormFetcher {...props} />
       </React.Suspense>
     </ErrorBoundary>
