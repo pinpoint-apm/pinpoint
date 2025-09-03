@@ -150,38 +150,40 @@ export const ErrorAnalysisPage = ({
                       <IoMdClose className="w-5 h-5" />
                     </Button>
                   </SheetTitle>
-                  <SheetDescription className="space-y-2 font-semibold">
-                    <div className="flex items-center gap-1.5">
-                      <ServerIcon className="w-4" application={application} />
-                      <h3 className="text-base font-medium truncate text-foreground">
-                        {application.applicationName}
-                      </h3>
-                      <div className="pr-2 ml-auto text-xs font-medium truncate">
-                        {formatInTimeZone(errorInfo.timestamp, timezone, 'MM.dd HH:mm:ss SSS')}
+                  <SheetDescription className="space-y-2 font-semibold" asChild>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <ServerIcon className="w-4" application={application} />
+                        <h3 className="text-base font-medium truncate text-foreground">
+                          {application.applicationName}
+                        </h3>
+                        <div className="pr-2 ml-auto text-xs font-medium truncate">
+                          {formatInTimeZone(errorInfo.timestamp, timezone, 'MM.dd HH:mm:ss SSS')}
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="truncate text-foreground">{errorInfo.agentId}</div>
-                      <FaChevronRight className="fill-slate-400 mx-1.5 flex-none" />
-                      <div className="truncate text-foreground">{errorInfo.uriTemplate}</div>
-                      <FaChevronRight className="fill-slate-400 mx-1.5 flex-none" />
-                      <div
-                        className="flex items-center gap-1 truncate cursor-pointer hover:text-primary hover:underline"
-                        onClick={() => {
-                          window.open(
-                            `${BASE_PATH}${getTransactionDetailPath(
-                              application,
-                            )}?${getTransactionDetailQueryString({
-                              agentId: errorInfo.agentId,
-                              spanId: `${errorInfo.spanId}`,
-                              traceId: errorInfo.transactionId,
-                              focusTimestamp: errorInfo.timestamp,
-                            })}`,
-                          );
-                        }}
-                      >
-                        {errorInfo.transactionId}
-                        <LuExternalLink className="ml-1" />
+                      <div className="flex items-center">
+                        <div className="truncate text-foreground">{errorInfo.agentId}</div>
+                        <FaChevronRight className="fill-slate-400 mx-1.5 flex-none" />
+                        <div className="truncate text-foreground">{errorInfo.uriTemplate}</div>
+                        <FaChevronRight className="fill-slate-400 mx-1.5 flex-none" />
+                        <div
+                          className="flex items-center gap-1 truncate cursor-pointer hover:text-primary hover:underline"
+                          onClick={() => {
+                            window.open(
+                              `${BASE_PATH}${getTransactionDetailPath(
+                                application,
+                              )}?${getTransactionDetailQueryString({
+                                agentId: errorInfo.agentId,
+                                spanId: `${errorInfo.spanId}`,
+                                traceId: errorInfo.transactionId,
+                                focusTimestamp: errorInfo.timestamp,
+                              })}`,
+                            );
+                          }}
+                        >
+                          {errorInfo.transactionId}
+                          <LuExternalLink className="ml-1" />
+                        </div>
                       </div>
                     </div>
                   </SheetDescription>
