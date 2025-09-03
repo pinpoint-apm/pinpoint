@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.collector.handler.grpc.metric;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.handler.grpc.GrpcAgentEventService;
 import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentStatBatchMapper;
+import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
@@ -17,6 +18,7 @@ import java.util.Objects;
 @Service
 public class AgentMetricBatchHandler implements SimpleHandler<PAgentStatBatch> {
     private final Logger logger = LogManager.getLogger(this.getClass());
+    private final ThrottledLogger throttledLogger = ThrottledLogger.getLogger(logger, 1000);
 
     private final GrpcAgentStatBatchMapper agentStatBatchMapper;
     private final AgentStatGroupService agentStatGroupService;
@@ -34,8 +36,8 @@ public class AgentMetricBatchHandler implements SimpleHandler<PAgentStatBatch> {
 
     @Override
     public void handleSimple(ServerRequest<PAgentStatBatch> request) {
-        if (logger.isInfoEnabled()) {
-            logger.info("Handle PAgentStatBatch {}", request.getHeader());
+        if (throttledLogger.isInfoEnabled()) {
+            throttledLogger.info("Handle PAgentStatBatch {}", request.getHeader());
         } else if (logger.isDebugEnabled()) {
             logger.debug("Handle PAgentStatBatch {} {}", request.getHeader(), MessageFormatUtils.debugLog(request.getData()));
         }
