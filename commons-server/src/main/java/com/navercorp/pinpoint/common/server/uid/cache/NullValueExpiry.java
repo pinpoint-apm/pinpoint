@@ -11,12 +11,12 @@ public class NullValueExpiry implements Expiry<String, Object> {
 
     private final long expireAfterWriteNanos;
     private final long expireAfterAccessNanos;
-    private final long nullExpireAfterWriteNanos;
+    private final long nullValueExpireAfterWriteNanos;
 
-    public NullValueExpiry(Duration expireAfterWrite, Duration expireAfterAccess, Duration nullExpireAfterWrite) {
+    public NullValueExpiry(Duration expireAfterWrite, Duration expireAfterAccess, Duration nullValueExpireAfterWrite) {
         this.expireAfterWriteNanos = toExpiryNanos(expireAfterWrite);
         this.expireAfterAccessNanos = toExpiryNanos(expireAfterAccess);
-        this.nullExpireAfterWriteNanos = toExpiryNanos(nullExpireAfterWrite);
+        this.nullValueExpireAfterWriteNanos = toExpiryNanos(nullValueExpireAfterWrite);
     }
 
     private long toExpiryNanos(Duration duration) {
@@ -29,7 +29,7 @@ public class NullValueExpiry implements Expiry<String, Object> {
     @Override
     public long expireAfterCreate(@NonNull String key, @NonNull Object value, long currentTime) {
         if (NullValue.INSTANCE.equals(value)) {
-            return nullExpireAfterWriteNanos;
+            return nullValueExpireAfterWriteNanos;
         }
         return expireAfterWriteNanos;
     }
@@ -37,7 +37,7 @@ public class NullValueExpiry implements Expiry<String, Object> {
     @Override
     public long expireAfterUpdate(@NonNull String key, @NonNull Object value, long currentTime, @NonNegative long currentDuration) {
         if (NullValue.INSTANCE.equals(value)) {
-            return nullExpireAfterWriteNanos;
+            return nullValueExpireAfterWriteNanos;
         }
         return expireAfterWriteNanos;
     }
