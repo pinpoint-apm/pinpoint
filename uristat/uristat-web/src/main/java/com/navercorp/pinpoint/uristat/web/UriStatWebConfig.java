@@ -7,11 +7,11 @@ import com.navercorp.pinpoint.uristat.web.config.UriStatPinotDaoConfiguration;
 import com.navercorp.pinpoint.uristat.web.config.UriStatProperties;
 import com.navercorp.pinpoint.uristat.web.frontend.export.UriStatPropertiesExporter;
 import com.navercorp.pinpoint.uristat.web.mapper.MapperConfig;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Profile;
 
 @Configuration
 @ComponentScan(basePackages = {
@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Profile;
         MapperConfig.class,
         PinotConfiguration.class
 })
-@Profile("uri")
+@ConditionalOnProperty(value = "pinpoint.modules.web.uristat.enabled", havingValue = "true")
 public class UriStatWebConfig {
 
     @Bean

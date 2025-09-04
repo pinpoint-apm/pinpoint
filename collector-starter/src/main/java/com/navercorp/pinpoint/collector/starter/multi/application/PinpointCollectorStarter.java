@@ -82,7 +82,6 @@ public class PinpointCollectorStarter {
                     InspectorCollectorConfig.class
             );
             collectorAppBuilder.listeners(new AdditionalProfileListener("metric"));
-            collectorAppBuilder.listeners(new AdditionalProfileListener("uri"));
             collectorAppBuilder.build().run(args);
         }
 
