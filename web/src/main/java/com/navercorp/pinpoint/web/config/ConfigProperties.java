@@ -78,6 +78,12 @@ public class ConfigProperties {
     @Value("${config.show.otlpMetric:false}")
     private boolean showOtlpMetric;
 
+    @Value("${pinpoint.modules.web.inspector.enabled:false}")
+    private boolean showInspector;
+
+    @Value("${pinpoint.modules.web.heatmap.enabled:false}")
+    private boolean showHeatmap;
+
     @Value("${websocket.allowedOrigins:#{null}}")
     private String webSocketAllowedOrigins;
 
@@ -180,6 +186,14 @@ public class ConfigProperties {
         return inspectorPeriodInteval;
     }
 
+    public boolean isShowInspector() {
+        return showInspector;
+    }
+
+    public boolean isShowHeatmap() {
+        return showHeatmap;
+    }
+
     @PostConstruct
     public void log() {
         logger.info("{}", this);
@@ -208,5 +222,4 @@ public class ConfigProperties {
                 ", inspectorPeriodInterval=" + inspectorPeriodInteval +
                 '}';
     }
-
 }
