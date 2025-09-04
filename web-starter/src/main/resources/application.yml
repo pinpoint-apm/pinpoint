@@ -35,6 +35,8 @@ pinpoint:
         enabled: true
       heatmap:
         enabled: true
+      uristat:
+        enabled: true
     realtime:
       enabled: true
 

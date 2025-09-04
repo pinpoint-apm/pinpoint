@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.uristat.collector.dao.UriStatDao;
 import com.navercorp.pinpoint.uristat.collector.model.UriStat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.context.annotation.Profile;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-@Profile("uri")
+@ConditionalOnProperty(value = "pinpoint.modules.collector.uristat.enabled", havingValue = "true")
 public class PinotAgentUriStatService implements AgentUriStatService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 

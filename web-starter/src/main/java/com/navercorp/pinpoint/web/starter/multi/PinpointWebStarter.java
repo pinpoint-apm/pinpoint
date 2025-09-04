@@ -72,7 +72,7 @@ public class PinpointWebStarter {
                     ExceptionTraceWebConfig.class,
                     OtlpMetricWebConfig.class
             );
-            starter.addProfiles("uri", "metric");
+            starter.addProfiles("metric");
             starter.start(args);
         } catch (Exception exception) {
             logger.error("[WebApp] could not launch app.", exception);

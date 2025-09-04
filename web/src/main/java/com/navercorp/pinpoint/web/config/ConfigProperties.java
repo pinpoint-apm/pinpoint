@@ -66,7 +66,7 @@ public class ConfigProperties {
     @Value("${config.show.systemMetric:false}")
     private boolean showSystemMetric;
 
-    @Value("${config.show.urlStat:false}")
+    @Value("${pinpoint.modules.web.uristat.enabled:false}")
     private boolean showUrlStat;
 
     @Value("${pinpoint.modules.web.exceptiontrace.enabled:false}")
