@@ -75,7 +75,7 @@ public class ConfigProperties {
     @Value("${config.show.sqlStat:false}")
     private boolean showSqlStat;
 
-    @Value("${config.show.otlpMetric:false}")
+    @Value("${pinpoint.modules.web.otlpmetric.enabled:false}")
     private boolean showOtlpMetric;
 
     @Value("${pinpoint.modules.web.inspector.enabled:false}")
