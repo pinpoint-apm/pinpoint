@@ -17,14 +17,6 @@
     "sortedColumn": ["sortKey"],
     "bloomFilterColumns": ["serviceName", "applicationName", "sortKey"],
     "noDictionaryColumns": ["countValue"],
-    "segmentPartitionConfig": {
-      "columnPartitionMap": {
-        "applicationName": {
-          "functionName": "Murmur",
-          "numPartitions": 2
-        }
-      }
-    },
     "loadMode": "MMAP",
     "nullHandlingEnabled": true,
     "streamConfigs": {
@@ -69,8 +61,7 @@
   },
   "routing": {
     "segmentPrunerTypes": [
-      "time",
-      "partition"
+      "time"
     ]
   }
 }
