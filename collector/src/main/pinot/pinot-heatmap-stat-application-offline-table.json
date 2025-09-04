@@ -7,7 +7,7 @@
     "schemaName": "heatmapStatApp",
     "replication": "3",
     "retentionTimeUnit": "DAYS",
-    "retentionTimeValue": "7"
+    "retentionTimeValue": "14"
   },
   "tenants": {},
   "tableIndexConfig": {
@@ -25,5 +25,10 @@
       "segmentIngestionType": "APPEND",
       "segmentIngestionFrequency": "DAILY"
     }
+  },
+  "routing": {
+    "segmentPrunerTypes": [
+      "time"
+    ]
   }
 }

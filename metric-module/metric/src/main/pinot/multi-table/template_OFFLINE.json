@@ -26,5 +26,10 @@
       "segmentIngestionType": "APPEND",
       "segmentIngestionFrequency": "DAILY"
     }
+  },
+  "routing": {
+    "segmentPrunerTypes": [
+      "time"
+    ]
   }
 }
