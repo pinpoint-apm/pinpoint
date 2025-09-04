@@ -69,7 +69,7 @@ public class ConfigProperties {
     @Value("${config.show.urlStat:false}")
     private boolean showUrlStat;
 
-    @Value("${config.show.exceptionTrace:false}")
+    @Value("${pinpoint.modules.web.exceptiontrace.enabled:false}")
     private boolean showExceptionTrace;
 
     @Value("${pinpoint.modules.web.sqlStat.enabled:false}")
