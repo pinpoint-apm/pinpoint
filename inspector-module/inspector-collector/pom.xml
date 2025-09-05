@@ -71,5 +71,9 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-pinot-config</artifactId>
+        </dependency>
     </dependencies>
 </project>
