@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.inspector.collector.dao.pinot.DefaultAgentStatDao;
 import com.navercorp.pinpoint.inspector.collector.model.kafka.AgentStat;
 import com.navercorp.pinpoint.inspector.collector.model.kafka.ApplicationStat;
 import com.navercorp.pinpoint.inspector.collector.service.PinotMappers;
+import com.navercorp.pinpoint.pinot.config.PinotConfiguration;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -40,6 +41,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 @ComponentScan({"com.navercorp.pinpoint.inspector.collector"})
 @EnableAutoConfiguration(exclude = {KafkaAutoConfiguration.class})
 @Import({
+        PinotConfiguration.class,
         InspectorPropertySources.class,
         InspectorKafkaConfiguration.class})
 @ConditionalOnProperty(name = "pinpoint.modules.collector.inspector.enabled", havingValue = "true")
