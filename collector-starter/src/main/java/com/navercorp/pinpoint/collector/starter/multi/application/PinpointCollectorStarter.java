@@ -9,7 +9,6 @@ import com.navercorp.pinpoint.collector.starter.multi.application.type.ShellBloc
 import com.navercorp.pinpoint.collector.starter.multi.application.type.ShellCollectorTypeParser;
 import com.navercorp.pinpoint.collector.starter.multi.application.type.SimpleCollectorTypeParser;
 import com.navercorp.pinpoint.common.server.banner.PinpointSpringBanner;
-import com.navercorp.pinpoint.common.server.env.AdditionalProfileListener;
 import com.navercorp.pinpoint.common.server.env.EnvironmentLoggingListener;
 import com.navercorp.pinpoint.common.server.env.ExternalEnvironmentListener;
 import com.navercorp.pinpoint.common.server.env.ProfileResolveListener;
@@ -81,7 +80,6 @@ public class PinpointCollectorStarter {
                     AgentStatisticsCollectorConfig.class,
                     InspectorCollectorConfig.class
             );
-            collectorAppBuilder.listeners(new AdditionalProfileListener("metric"));
             collectorAppBuilder.build().run(args);
         }
 
@@ -90,7 +88,6 @@ public class PinpointCollectorStarter {
             SpringApplicationBuilder metricAppBuilder = createAppBuilder(builder, 9995,
                     MetricCollectorApp.class,
                     OtlpMetricCollectorConfig.class);
-            metricAppBuilder.listeners(new AdditionalProfileListener("metric"));
             metricAppBuilder.build().run(args);
         }
 

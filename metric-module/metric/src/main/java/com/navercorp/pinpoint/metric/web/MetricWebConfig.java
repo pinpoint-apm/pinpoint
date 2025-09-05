@@ -16,16 +16,33 @@
 
 package com.navercorp.pinpoint.metric.web;
 
+import com.navercorp.pinpoint.common.server.config.YamlConfiguration;
 import com.navercorp.pinpoint.common.server.metric.dao.TableNameManager;
+import com.navercorp.pinpoint.metric.web.config.MetricWebPinotDaoConfiguration;
 import com.navercorp.pinpoint.metric.web.config.SystemMetricProperties;
 import com.navercorp.pinpoint.metric.web.frontend.export.SystemMetricPropertiesExporter;
+import com.navercorp.pinpoint.pinot.config.PinotConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * @author minwoo-jung
  */
 @Configuration
+@ComponentScan(basePackages = {
+        "com.navercorp.pinpoint.metric.web",
+        "com.navercorp.pinpoint.common.server.util"
+})
+@Import({
+        WebMetricPropertySources.class,
+        MetricWebPinotDaoConfiguration.class,
+        PinotConfiguration.class,
+        YamlConfiguration.class
+})
+@ConditionalOnProperty(value = "pinpoint.modules.web.systemmetric.enabled", havingValue = "true")
 public class MetricWebConfig {
 
     @Bean

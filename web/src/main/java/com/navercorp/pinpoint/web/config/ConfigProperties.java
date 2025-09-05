@@ -63,7 +63,7 @@ public class ConfigProperties {
     @Value("${config.show.stackTraceOnError:true}")
     private boolean showStackTraceOnError;
 
-    @Value("${config.show.systemMetric:false}")
+    @Value("${pinpoint.modules.web.systemmetric.enabled:false}")
     private boolean showSystemMetric;
 
     @Value("${pinpoint.modules.web.uristat.enabled:false}")

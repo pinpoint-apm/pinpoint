@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.exceptiontrace.web.ExceptionTraceWebConfig;
 import com.navercorp.pinpoint.inspector.web.InspectorWebConfig;
 import com.navercorp.pinpoint.log.web.LogWebModule;
 import com.navercorp.pinpoint.login.basic.PinpointBasicLoginConfig;
-import com.navercorp.pinpoint.metric.web.MetricWebApp;
+import com.navercorp.pinpoint.metric.web.MetricWebConfig;
 import com.navercorp.pinpoint.otlp.web.OtlpMetricWebConfig;
 import com.navercorp.pinpoint.redis.RedisPropertySources;
 import com.navercorp.pinpoint.uristat.web.UriStatWebConfig;
@@ -65,14 +65,13 @@ public class PinpointWebStarter {
                     PinpointWebStarter.class,
                     PinpointBasicLoginConfig.class,
                     AuthorizationConfig.class,
-                    MetricWebApp.class,
+                    MetricWebConfig.class,
                     UriStatWebConfig.class,
                     InspectorWebConfig.class,
                     LogWebModule.class,
                     ExceptionTraceWebConfig.class,
                     OtlpMetricWebConfig.class
             );
-            starter.addProfiles("metric");
             starter.start(args);
         } catch (Exception exception) {
             logger.error("[WebApp] could not launch app.", exception);
