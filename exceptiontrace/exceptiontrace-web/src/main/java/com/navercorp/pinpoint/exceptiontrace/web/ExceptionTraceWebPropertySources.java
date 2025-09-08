@@ -26,6 +26,6 @@ import org.springframework.context.annotation.PropertySources;
         @PropertySource(name = "ExceptionTracePropertySources", value = {ExceptionTraceWebPropertySources.EXCEPTION_TRACE, ExceptionTraceWebPropertySources.EXCEPTION_TRACE_ROOT}),
 })
 public class ExceptionTraceWebPropertySources {
-    public static final String EXCEPTION_TRACE = "classpath:profiles/${pinpoint.profiles.active:release}/pinpoint-web-exceptiontrace.properties";
+    public static final String EXCEPTION_TRACE = "classpath:exceptiontrace/web/profiles/${pinpoint.profiles.active:release}/pinpoint-web-exceptiontrace.properties";
     public static final String EXCEPTION_TRACE_ROOT = "classpath:pinpoint-web-exceptiontrace-root.properties";
 }
