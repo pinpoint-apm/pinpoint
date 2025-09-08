@@ -1,12 +1,17 @@
-import { useAtom } from 'jotai';
-import { serverMapChartTypeAtom } from '@pinpoint-fe/ui/src/atoms';
+import { useAtom, useAtomValue } from 'jotai';
+import { configurationAtom, serverMapChartTypeAtom } from '@pinpoint-fe/ui/src/atoms';
 import { PiChartScatterBold } from 'react-icons/pi';
 import { AiOutlineTable } from 'react-icons/ai';
 import { TooltipContent, TooltipProvider, Tooltip, TooltipTrigger, Button } from '../ui';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 
 export const ChartTypeButtons = () => {
+  const configuration = useAtomValue(configurationAtom);
   const [chartType, setChartType] = useAtom(serverMapChartTypeAtom);
+
+  if (!configuration?.showHeatmap) {
+    return null;
+  }
 
   return (
     <div>

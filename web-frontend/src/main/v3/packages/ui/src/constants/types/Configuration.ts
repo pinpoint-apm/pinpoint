@@ -11,6 +11,8 @@ export interface Configuration {
   showUrlStat: boolean;
   showExceptionTrace: boolean;
   showOtlpMetric: boolean;
+  showInspector: boolean;
+  showHeatmap: boolean;
   openSource: boolean;
   version: string;
   'experimental.enableHeatmap.value': boolean;
