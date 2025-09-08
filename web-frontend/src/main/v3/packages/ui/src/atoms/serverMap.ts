@@ -7,6 +7,7 @@ import {
   SearchApplication,
 } from '@pinpoint-fe/ui/src/constants';
 import { Node, Edge } from '@pinpoint-fe/server-map';
+import { configurationAtom } from './configuration';
 
 export type CurrentTarget = {
   id?: string;
@@ -70,4 +71,14 @@ export const currentServerAgentIdAtom = atom<string | undefined>((get) => {
 
 export const realtimeDateRanage = atom<{ from: Date; to: Date } | undefined>(undefined);
 
-export const serverMapChartTypeAtom = atom<'scatter' | 'heatmap'>('heatmap');
+const serverMapChartTypeBaseAtom = atom<'scatter' | 'heatmap'>('heatmap');
+export const serverMapChartTypeAtom = atom(
+  (get) => {
+    const configuration = get(configurationAtom);
+    return configuration?.showHeatmap ? get(serverMapChartTypeBaseAtom) : ('scatter' as const);
+  },
+  (get, set, update: 'scatter' | 'heatmap') => {
+    const configuration = get(configurationAtom);
+    set(serverMapChartTypeBaseAtom, configuration?.showHeatmap ? update : ('scatter' as const));
+  },
+);
