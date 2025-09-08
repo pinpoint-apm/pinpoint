@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkIncremente
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkUpdater;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.config.BulkFactory;
+import com.navercorp.pinpoint.collector.applicationmap.statistics.config.BulkProperties;
 import com.navercorp.pinpoint.collector.applicationmap.uid.dao.MapInLinkUidDao;
 import com.navercorp.pinpoint.collector.applicationmap.uid.dao.MapOutLinkUidDao;
 import com.navercorp.pinpoint.collector.applicationmap.uid.dao.MapSelfUidDao;
@@ -30,6 +31,7 @@ import com.navercorp.pinpoint.collector.applicationmap.uid.dao.hbase.HbaseMapSel
 import com.navercorp.pinpoint.collector.applicationmap.uid.service.HbaseUidLinkService;
 import com.navercorp.pinpoint.collector.dao.hbase.IgnoreStatFilter;
 import com.navercorp.pinpoint.collector.service.UidLinkService;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTemplate;
@@ -53,26 +55,46 @@ public class UidMapConfiguration {
         logger.info("Install UidMapConfiguration");
     }
 
+    private String newBulkWriterName(String className) {
+        return className + "-uid-writer";
+    }
+
     @Bean
-    public RowKeyDistributorByHashPrefix mapSelfUidRowKeyDistributor() {
+    public RowKeyDistributorByHashPrefix selfUidRowKeyDistributor() {
         ByteHasher hasher = RangeDoubleHash.ofSecondary(0, 16, ByteHasher.MAX_BUCKETS, 4, 16, 20);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
+
+
+    @Bean
+    public BulkIncrementer selfUidIncrementer(BulkFactory factory, BulkProperties bulkProperties) {
+        String reporterName = "selfUidIncrementReporter";
+        HbaseColumnFamily hbaseColumnFamily = HbaseTables.MAP_SELF_V3_COUNTER;
+        int limitSize = bulkProperties.getSelfLimitSize();
+
+        return factory.newBulkIncrementer(reporterName, hbaseColumnFamily, limitSize);
+    }
+
+
+    @Bean
+    public BulkUpdater selfUidUpdater(BulkFactory factory) {
+        String reporterName = "selfUidUpdateReporter";
+        return factory.getBulkUpdater(reporterName);
+    }
+
 
     @Bean
     public BulkWriter selfUidBulkWriter(BulkFactory factory,
                                         HbaseAsyncTemplate asyncTemplate,
                                         TableNameProvider tableNameProvider,
-                                        @Qualifier("mapSelfUidRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
-                                        @Qualifier("selfBulkIncrementer") BulkIncrementer bulkIncrementer,
-                                        @Qualifier("selfBulkUpdater") BulkUpdater bulkUpdater) {
+                                        @Qualifier("selfUidRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
+                                        @Qualifier("selfUidIncrementer") BulkIncrementer bulkIncrementer,
+                                        @Qualifier("selfUidUpdater") BulkUpdater bulkUpdater) {
         String loggerName = newBulkWriterName(HbaseMapSelfUidDao.class.getName());
         return factory.newBulkWriter(loggerName, asyncTemplate, HbaseTables.MAP_SELF_V3_COUNTER, tableNameProvider, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
     }
 
-    private String newBulkWriterName(String className) {
-        return className + "-writer";
-    }
+
 
     @Bean
     public MapSelfUidDao mapSelfUidDao(MapLinkProperties mapLinkProperties,
@@ -81,35 +103,93 @@ public class UidMapConfiguration {
         return new HbaseMapSelfUidDao(mapLinkProperties, timeSlot, bulkWriter);
     }
 
+
+    // outLink -----------------
+
+
     @Bean
-    public UidLinkService uidLinkService(MapSelfUidDao mapSelfUidDao, MapOutLinkUidDao mapOutLinkUidDao, MapInLinkUidDao mapInLinkUidDao) {
-        return new HbaseUidLinkService(mapSelfUidDao, mapOutLinkUidDao, mapInLinkUidDao);
+    public BulkIncrementer outLinkUidIncrementer(BulkFactory factory, BulkProperties bulkProperties) {
+        String reporterName = "outLinkUidIncrementReporter";
+        HbaseColumnFamily hbaseColumnFamily = HbaseTables.MAP_OUT_V3_COUNTER;
+        int limitSize = bulkProperties.getCalleeLimitSize();
+
+        return factory.newBulkIncrementer(reporterName, hbaseColumnFamily, limitSize);
+    }
+
+
+    @Bean
+    public BulkUpdater outLinkUidUpdater(BulkFactory factory) {
+        String reporterName = "inLinkUpdaterReporter";
+        return factory.getBulkUpdater(reporterName);
     }
 
     @Bean
     public BulkWriter outLinkUidBulkWriter(BulkFactory factory,
                                            HbaseAsyncTemplate asyncTemplate,
                                            TableNameProvider tableNameProvider,
-                                           @Qualifier("mapSelfUidRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
-                                           @Qualifier("selfBulkIncrementer") BulkIncrementer bulkIncrementer,
-                                           @Qualifier("selfBulkUpdater") BulkUpdater bulkUpdater) {
-        String loggerName = newBulkWriterName(HbaseMapSelfUidDao.class.getName());
-        return factory.newBulkWriter(loggerName, asyncTemplate, HbaseTables.MAP_SELF_V3_COUNTER, tableNameProvider, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
+                                           @Qualifier("linkUidRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
+                                           @Qualifier("outLinkUidIncrementer") BulkIncrementer bulkIncrementer,
+                                           @Qualifier("outLinkUidUpdater") BulkUpdater bulkUpdater) {
+        String loggerName = newBulkWriterName(MapOutLinkUidDao.class.getName());
+        return factory.newBulkWriter(loggerName, asyncTemplate, HbaseTables.MAP_OUT_V3_COUNTER, tableNameProvider, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
     }
-
 
     @Bean
     public MapOutLinkUidDao mapOutLinkUidDao(MapLinkProperties mapLinkProperties,
                                              TimeSlot timeSlot,
-                                             @Qualifier("selfUidBulkWriter") BulkWriter bulkWriter) {
+                                             @Qualifier("outLinkUidBulkWriter") BulkWriter bulkWriter) {
         return new HbaseMapOutLinkUidDao(mapLinkProperties, timeSlot, bulkWriter);
     }
+
+    // inLink ----------------
+
+
+    @Bean
+    public BulkIncrementer inLinkUidIncrementer(BulkFactory factory, BulkProperties bulkProperties) {
+        String reporterName = "inLinkUidIncrementReporter";
+        HbaseColumnFamily hbaseColumnFamily = HbaseTables.MAP_IN_V3_COUNTER;
+        int limitSize = bulkProperties.getCallerLimitSize();
+
+        return factory.newBulkIncrementer(reporterName, hbaseColumnFamily, limitSize);
+    }
+
+    @Bean
+    public BulkUpdater inLinkUidUpdater(BulkFactory factory) {
+        String reporterName = "inLinkUpdateReporter";
+        return factory.getBulkUpdater(reporterName);
+    }
+
+
+    @Bean
+    public BulkWriter inLinkUidBulkWriter(BulkFactory factory,
+                                        HbaseAsyncTemplate asyncTemplate,
+                                        TableNameProvider tableNameProvider,
+                                        @Qualifier("linkUidRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
+                                        @Qualifier("inLinkUidIncrementer") BulkIncrementer bulkIncrementer,
+                                        @Qualifier("inLinkUidUpdater") BulkUpdater bulkUpdater) {
+        String loggerName = newBulkWriterName(MapInLinkUidDao.class.getName());
+        return factory.newBulkWriter(loggerName, asyncTemplate, HbaseTables.MAP_IN_V3_COUNTER, tableNameProvider, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
+    }
+
 
     @Bean
     public MapInLinkUidDao mapInLinkUidDao(MapLinkProperties mapLinkProperties,
                                            IgnoreStatFilter ignoreStatFilter,
                                            TimeSlot timeSlot,
-                                           @Qualifier("selfUidBulkWriter") BulkWriter bulkWriter) {
+                                           @Qualifier("inLinkUidBulkWriter") BulkWriter bulkWriter) {
         return new HbaseMapInLinkUidDao(mapLinkProperties, ignoreStatFilter, timeSlot, bulkWriter);
+    }
+
+
+
+    @Bean
+    public UidLinkService uidLinkService(MapSelfUidDao mapSelfUidDao, MapOutLinkUidDao mapOutLinkUidDao, MapInLinkUidDao mapInLinkUidDao) {
+        return new HbaseUidLinkService(mapSelfUidDao, mapOutLinkUidDao, mapInLinkUidDao);
+    }
+
+
+    @Bean
+    public RowKeyDistributorByHashPrefix linkUidRowKeyDistributor() {
+        return selfUidRowKeyDistributor();
     }
 }

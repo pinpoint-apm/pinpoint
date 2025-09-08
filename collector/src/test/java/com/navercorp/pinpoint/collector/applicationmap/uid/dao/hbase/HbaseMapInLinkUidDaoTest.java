@@ -14,27 +14,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.hbase;
+package com.navercorp.pinpoint.collector.applicationmap.uid.dao.hbase;
 
-/**
- * @author emeroad
- * @author Taejin Koo
- */
-public enum HbaseTableV3 implements HbaseTable {
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
+import org.junit.jupiter.api.Test;
 
-    MAP_APP_SELF_V3("MapAppSelfV3"),
-    MAP_APP_OUT_V3("MapAppOutV3"),
-    MAP_APP_IN_V3("MapAppIn3");
+class HbaseMapInLinkUidDaoTest {
+    HashFunction hashing = Hashing.murmur3_128();
+    @Test
+    void insertInLink() {
 
-    private final String name;
-
-    HbaseTableV3(String name) {
-        this.name = name;
     }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
 }

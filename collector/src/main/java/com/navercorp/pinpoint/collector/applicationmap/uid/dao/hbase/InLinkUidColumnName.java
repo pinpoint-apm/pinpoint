@@ -27,7 +27,7 @@ import java.util.Objects;
  * @author emeroad
  */
 public class InLinkUidColumnName implements ColumnName {
-    private final int selfServiceUid;
+    private final String inLinkApplication;
     private final long selfApplication;
     private final int selfAppServiceType;
 
@@ -35,23 +35,23 @@ public class InLinkUidColumnName implements ColumnName {
     private final String selfSubLink;
     private final short columnSlotNumber;
 
-    public static ColumnName histogram(int selfServiceUid, long selfApplication, ServiceType selfAppServiceType, String selfSubLink, short columnSlotNumber) {
-        return new InLinkUidColumnName(selfServiceUid, selfApplication, selfAppServiceType.getCode(), selfSubLink, columnSlotNumber);
+    public static ColumnName histogram(String inLinkApplication, long selfApplication, ServiceType selfAppServiceType, String selfSubLink, short columnSlotNumber) {
+        return new InLinkUidColumnName(inLinkApplication, selfApplication, selfAppServiceType.getCode(), selfSubLink, columnSlotNumber);
     }
 
-    public static ColumnName sum(int selfServiceUid, long selfApplication, ServiceType selfServiceType, String selfSubLink, ServiceType outAppServiceType) {
+    public static ColumnName sum(String inLinkApplication, long selfApplication, ServiceType selfServiceType, String selfSubLink, ServiceType outAppServiceType) {
         final short slotTime = outAppServiceType.getHistogramSchema().getSumStatSlot().getSlotTime();
-        return histogram(selfServiceUid, selfApplication, selfServiceType, selfSubLink, slotTime);
+        return histogram(inLinkApplication, selfApplication, selfServiceType, selfSubLink, slotTime);
     }
 
 
-    public static ColumnName max(int selfServiceUid, long selfApplication, ServiceType selfServiceType, String selfSubLink, ServiceType outAppServiceType) {
+    public static ColumnName max(String inLinkApplication, long selfApplication, ServiceType selfServiceType, String selfSubLink, ServiceType outAppServiceType) {
         final short slotTime = outAppServiceType.getHistogramSchema().getMaxStatSlot().getSlotTime();
-        return histogram(selfServiceUid, selfApplication, selfServiceType, selfSubLink, slotTime);
+        return histogram(inLinkApplication, selfApplication, selfServiceType, selfSubLink, slotTime);
     }
 
-    public InLinkUidColumnName(int selfServiceUid, long selfApplication, int selfAppServiceType, String selfSubLink, short columnSlotNumber) {
-        this.selfServiceUid = selfServiceUid;
+    public InLinkUidColumnName(String inLinkApplication, long selfApplication, int selfAppServiceType, String selfSubLink, short columnSlotNumber) {
+        this.inLinkApplication = Objects.requireNonNull(inLinkApplication, "inLinkApplication");
         this.selfApplication = selfApplication;
         this.selfAppServiceType = selfAppServiceType;
         this.selfSubLink = Objects.requireNonNull(selfSubLink, "selfSubLink");
@@ -61,7 +61,8 @@ public class InLinkUidColumnName implements ColumnName {
 
     public byte[] getColumnName() {
         final Buffer buffer = new AutomaticBuffer(64);
-        buffer.putInt(selfServiceUid);
+        buffer.putPrefixedString(inLinkApplication);
+
         buffer.putLong(selfApplication);
         buffer.putInt(selfAppServiceType);
         buffer.putPrefixedString(selfSubLink);

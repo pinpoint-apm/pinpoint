@@ -16,12 +16,15 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.uid.dao.hbase;
 
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hasher;
+import com.google.common.hash.Hashing;
 import com.navercorp.pinpoint.collector.applicationmap.SelfUidVertex;
 import com.navercorp.pinpoint.collector.applicationmap.config.MapLinkProperties;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
-import com.navercorp.pinpoint.collector.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.RowKey;
+import com.navercorp.pinpoint.collector.applicationmap.statistics.uid.UidLinkRowKey;
 import com.navercorp.pinpoint.collector.applicationmap.uid.dao.MapInLinkUidDao;
 import com.navercorp.pinpoint.collector.dao.CachedStatisticsDao;
 import com.navercorp.pinpoint.collector.dao.hbase.IgnoreStatFilter;
@@ -32,6 +35,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
@@ -52,6 +56,8 @@ public class HbaseMapInLinkUidDao implements MapInLinkUidDao, CachedStatisticsDa
     private final IgnoreStatFilter ignoreStatFilter;
     private final BulkWriter bulkWriter;
     private final MapLinkProperties mapLinkProperties;
+
+    private static final HashFunction applicationNameHash = Hashing.murmur3_32_fixed();
 
     public HbaseMapInLinkUidDao(MapLinkProperties mapLinkProperties,
                                 IgnoreStatFilter ignoreStatFilter,
@@ -90,23 +96,33 @@ public class HbaseMapInLinkUidDao implements MapInLinkUidDao, CachedStatisticsDa
 
         // make row key. rowkey is me
         final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
-        final RowKey inLinkRowKey = LinkRowKey.of(inLinkApplicationName, inLinkServiceType, rowTimeSlot);
+
+        long inLinkApplicationNameHashId = getApplicationNameHash(inLinkApplicationName);
+        final RowKey inLinkRowKey = UidLinkRowKey.of(selfVertex.service(), inLinkApplicationNameHashId, inLinkServiceType, rowTimeSlot);
 
         final short outSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(inLinkServiceType, elapsed, isError);
 
-        final ColumnName outLink = InLinkUidColumnName.histogram(selfVertex.service(), selfVertex.application(), selfVertex.serviceType(), selfEndPoint, outSlotNumber);
+        final ColumnName outLink = InLinkUidColumnName.histogram(inLinkApplicationName, selfVertex.application(), selfVertex.serviceType(), selfEndPoint, outSlotNumber);
         this.bulkWriter.increment(inLinkRowKey, outLink);
 
         if (mapLinkProperties.isEnableAvg()) {
-            final ColumnName sumOutLink = InLinkUidColumnName.sum(selfVertex.service(), selfVertex.application(), selfVertex.serviceType(),
+            final ColumnName sumOutLink = InLinkUidColumnName.sum(inLinkApplicationName, selfVertex.application(), selfVertex.serviceType(),
                     selfEndPoint, inLinkServiceType);
             this.bulkWriter.increment(inLinkRowKey, sumOutLink, elapsed);
         }
         if (mapLinkProperties.isEnableMax()) {
-            final ColumnName maxOutLink = InLinkUidColumnName.max(selfVertex.service(), selfVertex.application(), selfVertex.serviceType(),
+            final ColumnName maxOutLink = InLinkUidColumnName.max(inLinkApplicationName, selfVertex.application(), selfVertex.serviceType(),
                     selfEndPoint, inLinkServiceType);
             this.bulkWriter.updateMax(inLinkRowKey, maxOutLink, elapsed);
         }
+    }
+
+    @SuppressWarnings("UnstableApiUsage")
+    private long getApplicationNameHash(String inLinkApplicationName) {
+        final Hasher hasher = applicationNameHash.newHasher();
+        return hasher.putString(inLinkApplicationName, StandardCharsets.UTF_8)
+                .hash()
+                .asLong();
     }
 
 
