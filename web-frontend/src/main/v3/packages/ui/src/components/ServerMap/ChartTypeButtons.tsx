@@ -1,4 +1,5 @@
 import { useAtom } from 'jotai';
+import { useEffect } from 'react';
 import { serverMapChartTypeAtom } from '@pinpoint-fe/ui/src/atoms';
 import { PiChartScatterBold } from 'react-icons/pi';
 import { AiOutlineTable } from 'react-icons/ai';
@@ -9,8 +10,13 @@ import { Configuration } from '@pinpoint-fe/ui/src/constants';
 export const ChartTypeButtons = ({ configuration }: { configuration?: Configuration }) => {
   const [chartType, setChartType] = useAtom(serverMapChartTypeAtom);
 
+  useEffect(() => {
+    if (configuration && !configuration?.showHeatmap) {
+      setChartType('scatter');
+    }
+  }, [configuration]);
+
   if (configuration && !configuration?.showHeatmap) {
-    setChartType('scatter');
     return null;
   }
 
