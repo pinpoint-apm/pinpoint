@@ -72,9 +72,6 @@ public class ConfigProperties {
     @Value("${pinpoint.modules.web.exceptiontrace.enabled:false}")
     private boolean showExceptionTrace;
 
-    @Value("${pinpoint.modules.web.sqlStat.enabled:false}")
-    private boolean showSqlStat;
-
     @Value("${pinpoint.modules.web.otlpmetric.enabled:false}")
     private boolean showOtlpMetric;
 
@@ -158,9 +155,6 @@ public class ConfigProperties {
         return showExceptionTrace;
     }
 
-    public boolean isShowSqlStat() {
-        return showSqlStat;
-    }
 
     public String getWebSocketAllowedOrigins() {
         return webSocketAllowedOrigins;
@@ -214,8 +208,14 @@ public class ConfigProperties {
                 ", securityGuideUrl='" + securityGuideUrl + '\'' +
                 ", showApplicationStat=" + showApplicationStat +
                 ", showStackTraceOnError=" + showStackTraceOnError +
-                ", webSocketAllowedOrigins=" + webSocketAllowedOrigins +
+                ", showSystemMetric=" + showSystemMetric +
+                ", showUrlStat=" + showUrlStat +
+                ", showExceptionTrace=" + showExceptionTrace +
                 ", showOtlpMetric=" + showOtlpMetric +
+                ", showInspector=" + showInspector +
+                ", showHeatmap=" + showHeatmap +
+                ", webSocketAllowedOrigins=" + webSocketAllowedOrigins +
+                ", webhookEnable=" + webhookEnable +
                 ", serverMapPeriodMax=" + serverMapPeriodMax +
                 ", serverMapPeriodInterval=" + serverMapPeriodInteval +
                 ", inspectorPeriodMax=" + inspectorPeriodMax +

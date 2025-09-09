@@ -29,7 +29,6 @@ public class ConfigPropertiesExporter implements FrontendConfigExporter {
         export.put("showUrlStat", webProperties.isShowUrlStat());
         export.put("showOtlpMetric", webProperties.isShowOtlpMetric());
         export.put("showExceptionTrace", webProperties.isShowExceptionTrace());
-        export.put("showSqlStat", webProperties.isShowSqlStat());
         export.put("showInspector", webProperties.isShowInspector());
         export.put("showHeatmap", webProperties.isShowHeatmap());
         export.put("openSource", webProperties.isOpenSource());
