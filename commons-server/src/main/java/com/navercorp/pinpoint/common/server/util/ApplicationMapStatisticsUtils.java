@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -132,30 +132,7 @@ public class ApplicationMapStatisticsUtils {
         return BytesUtils.toStringAndRightTrim(bytes, offset, bytes.length - offset);
     }
 
-    /**
-     * <pre>
-     * rowkey format = "APPLICATIONNAME(max 24bytes)" + apptype(2byte) + "TIMESTAMP(8byte)"
-     * </pre>
-     *
-     * @param applicationName
-     * @param timestamp
-     * @return
-     */
-    public static byte[] makeRowKey(int saltKeySize, String applicationName, short applicationType, long timestamp) {
-        Objects.requireNonNull(applicationName, "applicationName");
 
-        final byte[] applicationNameBytes= BytesUtils.toBytes(applicationName);
-
-        final Buffer buffer = new AutomaticBuffer(saltKeySize + BytesUtils.SHORT_BYTE_LENGTH + applicationNameBytes.length + BytesUtils.SHORT_BYTE_LENGTH + BytesUtils.LONG_BYTE_LENGTH);
-        buffer.setOffset(saltKeySize);
-//        buffer.put2PrefixedString(applicationName);
-        buffer.putShort((short)applicationNameBytes.length);
-        buffer.putBytes(applicationNameBytes);
-        buffer.putShort(applicationType);
-        long reverseTimeMillis = TimeUtils.reverseTimeMillis(timestamp);
-        buffer.putLong(reverseTimeMillis);
-        return buffer.getBuffer();
-    }
 
     public static String getApplicationNameFromRowKey(byte[] bytes, int offset) {
         Objects.requireNonNull(bytes, "bytes");

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.dao.hbase;
 
 import com.google.common.primitives.Ints;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
-import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.DefaultTimeSlot;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -53,10 +53,8 @@ public class MapScanFactory {
             logger.debug("scan time:{} ", range.prettyToString());
         }
         // start key is replaced by end key because timestamp has been reversed
-        byte[] startKey = ApplicationMapStatisticsUtils
-                .makeRowKey(ByteSaltKey.NONE.size(), application.getName(), (short) application.getServiceTypeCode(), range.getTo());
-        byte[] endKey = ApplicationMapStatisticsUtils
-                .makeRowKey(ByteSaltKey.NONE.size(), application.getName(), (short) application.getServiceTypeCode(), range.getFrom());
+        byte[] startKey = LinkRowKey.makeRowKey(ByteSaltKey.NONE.size(), application.getName(), (short) application.getServiceTypeCode(), range.getTo());
+        byte[] endKey = LinkRowKey.makeRowKey(ByteSaltKey.NONE.size(), application.getName(), (short) application.getServiceTypeCode(), range.getFrom());
 
         final Scan scan = new Scan();
 
