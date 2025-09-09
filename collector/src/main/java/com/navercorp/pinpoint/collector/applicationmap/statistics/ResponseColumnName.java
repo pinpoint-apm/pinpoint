@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
-import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
+import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
+import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import java.util.Objects;
 
@@ -49,7 +51,19 @@ public class ResponseColumnName implements ColumnName {
     }
 
     public byte[] getColumnName() {
-        return ApplicationMapStatisticsUtils.makeColumnName(agentId, columnSlotNumber);
+        return makeColumnName(agentId, columnSlotNumber);
+    }
+
+    public static byte[] makeColumnName(String agentId, short columnSlotNumber) {
+        Objects.requireNonNull(agentId, "agentId");
+
+        final Buffer buffer = new AutomaticBuffer(agentId.length() + BytesUtils.SHORT_BYTE_LENGTH);
+        buffer.putShort(columnSlotNumber);
+
+        final byte[] agentIdBytes = BytesUtils.toBytes(agentId);
+        buffer.putBytes(agentIdBytes);
+
+        return buffer.getBuffer();
     }
 
     @Override

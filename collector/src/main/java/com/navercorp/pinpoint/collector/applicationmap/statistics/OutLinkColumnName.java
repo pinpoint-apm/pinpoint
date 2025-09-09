@@ -16,9 +16,12 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
+import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
-import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import java.util.Objects;
 
@@ -67,7 +70,20 @@ public class OutLinkColumnName implements ColumnName {
 
 
     public byte[] getColumnName() {
-        return ApplicationMapStatisticsUtils.makeColumnName(outServiceType, outApplicationName, outHost, columnSlotNumber);
+        return makeColumnName(outServiceType, outApplicationName, outHost, columnSlotNumber);
+    }
+
+    public static byte[] makeColumnName(short serviceType, String applicationName, String destHost, short slotNumber) {
+        Objects.requireNonNull(applicationName, "applicationName");
+        destHost = Objects.toString(destHost, "");
+
+        // approximate size of destHost
+        final Buffer buffer = new AutomaticBuffer(BytesUtils.SHORT_BYTE_LENGTH + PinpointConstants.APPLICATION_NAME_MAX_LEN + destHost.length() + BytesUtils.SHORT_BYTE_LENGTH);
+        buffer.putShort(serviceType);
+        buffer.putShort(slotNumber);
+        buffer.put2PrefixedString(applicationName);
+        buffer.putBytes(BytesUtils.toBytes(destHost));
+        return buffer.getBuffer();
     }
 
     @Override

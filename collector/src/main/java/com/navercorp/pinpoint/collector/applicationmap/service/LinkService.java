@@ -29,19 +29,19 @@ public interface LinkService {
      * The following message is generated for the in(MySQL) :<br/>
      * MySQL (MYSQL) <- emeroad-app (TOMCAT)[localhost:8080]
      *
-     * @param outVertex  outVertex
-     * @param outAgentId outAgentId
-     * @param inVertex   inVertex
-     * @param inHost     inHost
+     * @param selfVertex  outVertex
+     * @param selfAgentId outAgentId
+     * @param outVertex   inVertex
+     * @param outHost     inHost
      * @param elapsed    elapsed
      * @param isError    isError
      */
     void updateOutLink(
             long requestTime,
+            Vertex selfVertex,
+            @NotBlank String selfAgentId,
             Vertex outVertex,
-            @NotBlank String outAgentId,
-            Vertex inVertex,
-            String inHost,
+            String outHost,
             int elapsed, boolean isError
     );
 

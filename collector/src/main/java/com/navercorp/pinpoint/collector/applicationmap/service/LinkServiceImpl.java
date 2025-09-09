@@ -45,25 +45,25 @@ public class LinkServiceImpl implements LinkService {
     @Override
     public void updateOutLink(
             long requestTime,
+            Vertex selfVertex,
+            @NotBlank String selfAgentId,
             Vertex outVertex,
-            @NotBlank String outAgentId,
-            Vertex inVertex,
-            String inHost,
+            String outHost,
             int elapsed, boolean isError
     ) {
-        outLinkDao.outLink(requestTime, outVertex, outAgentId,
-                inVertex, inHost, elapsed, isError);
+        outLinkDao.outLink(requestTime, selfVertex, selfAgentId,
+                outVertex, outHost, elapsed, isError);
     }
 
     @Override
     public void updateInLink(
             long requestTime,
             Vertex inVertex,
-            Vertex outVertex,
-            String outHost,
+            Vertex selfVertex,
+            String selfHost,
             int elapsed, boolean isError
     ) {
-        inLinkDao.inLink(requestTime, inVertex, outVertex, outHost, elapsed, isError);
+        inLinkDao.inLink(requestTime, inVertex, selfVertex, selfHost, elapsed, isError);
     }
 
     @Override

@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.collector.dao.hbase.IgnoreStatFilter;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
-import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
+import com.navercorp.pinpoint.common.server.util.MapSlotUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -67,20 +67,20 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
 
     @Override
     public void inLink(long requestTime, Vertex inVertex,
-                       Vertex outVertex, String outHost, int elapsed, boolean isError) {
+                       Vertex selfVertex, String selfHost, int elapsed, boolean isError) {
         Objects.requireNonNull(inVertex, "inVertex");
-        Objects.requireNonNull(outVertex, "outVertex");
+        Objects.requireNonNull(selfVertex, "selfVertex");
 
         if (logger.isDebugEnabled()) {
-            logger.debug("[InLink] {} <- {}/{}", inVertex, outVertex, outHost);
+            logger.debug("[InLink] {} <- {}/{}", inVertex, selfVertex, selfHost);
         }
 
         // there may be no endpoint in case of httpclient
-        outHost = Objects.toString(outHost, "");
+        selfHost = Objects.toString(selfHost, "");
 
         // TODO callee, caller parameter normalization
-        if (ignoreStatFilter.filter(inVertex.serviceType(), outHost)) {
-            logger.debug("[Ignore-InLink] {} <- {}/{}",  inVertex, outVertex, outHost);
+        if (ignoreStatFilter.filter(inVertex.serviceType(), selfHost)) {
+            logger.debug("[Ignore-InLink] {} <- {}/{}",  inVertex, selfVertex, selfHost);
             return;
         }
 
@@ -88,17 +88,17 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
         final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
         final RowKey inLinkRowKey = LinkRowKey.of(inVertex, rowTimeSlot);
 
-        final short outSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(inVertex.serviceType(), elapsed, isError);
+        final short outSlotNumber = MapSlotUtils.getSlotNumber(inVertex.serviceType(), elapsed, isError);
 
-        final ColumnName outLink = OutLinkColumnName.histogram(outVertex, outHost, outSlotNumber);
+        final ColumnName outLink = OutLinkColumnName.histogram(selfVertex, selfHost, outSlotNumber);
         this.bulkWriter.increment(inLinkRowKey, outLink);
 
         if (mapLinkProperties.isEnableAvg()) {
-            final ColumnName sumOutLink = OutLinkColumnName.sum(outVertex, outHost, inVertex.serviceType());
+            final ColumnName sumOutLink = OutLinkColumnName.sum(selfVertex, selfHost, inVertex.serviceType());
             this.bulkWriter.increment(inLinkRowKey, sumOutLink, elapsed);
         }
         if (mapLinkProperties.isEnableMax()) {
-            final ColumnName maxOutLink = OutLinkColumnName.max(outVertex, outHost, inVertex.serviceType());
+            final ColumnName maxOutLink = OutLinkColumnName.max(selfVertex, selfHost, inVertex.serviceType());
             this.bulkWriter.updateMax(inLinkRowKey, maxOutLink, elapsed);
         }
     }
