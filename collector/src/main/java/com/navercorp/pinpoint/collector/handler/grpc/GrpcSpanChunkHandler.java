@@ -50,7 +50,7 @@ public class GrpcSpanChunkHandler implements SimpleHandler<PSpanChunk> {
 
     private final Logger logger = LogManager.getLogger(getClass());
     private final LogSampler infoLog = new LogSampler(1000);
-    private final LogSampler warnLog = new LogSampler(100);
+    private final LogSampler warnLog = new LogSampler(100000);
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceService[] traceServices;
