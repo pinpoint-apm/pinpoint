@@ -37,6 +37,8 @@ pinpoint:
         enabled: true
       uristat:
         enabled: true
+      systemmetric:
+        enabled: true
     realtime:
       enabled: true
 
