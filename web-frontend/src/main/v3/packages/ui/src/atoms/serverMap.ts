@@ -71,14 +71,4 @@ export const currentServerAgentIdAtom = atom<string | undefined>((get) => {
 
 export const realtimeDateRanage = atom<{ from: Date; to: Date } | undefined>(undefined);
 
-const serverMapChartTypeBaseAtom = atom<'scatter' | 'heatmap'>('heatmap');
-export const serverMapChartTypeAtom = atom(
-  (get) => {
-    const configuration = get(configurationAtom);
-    return configuration?.showHeatmap ? get(serverMapChartTypeBaseAtom) : ('scatter' as const);
-  },
-  (get, set, update: 'scatter' | 'heatmap') => {
-    const configuration = get(configurationAtom);
-    set(serverMapChartTypeBaseAtom, configuration?.showHeatmap ? update : ('scatter' as const));
-  },
-);
+export const serverMapChartTypeAtom = atom<'scatter' | 'heatmap'>('heatmap');
