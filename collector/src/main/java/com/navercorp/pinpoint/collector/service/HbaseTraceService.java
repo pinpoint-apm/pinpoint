@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.service;
 
+import com.navercorp.pinpoint.collector.applicationmap.SelfUidVertex;
 import com.navercorp.pinpoint.collector.applicationmap.Vertex;
 import com.navercorp.pinpoint.collector.applicationmap.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.collector.applicationmap.service.LinkService;
@@ -62,6 +63,7 @@ public class HbaseTraceService implements TraceService {
     private final HostApplicationMapDao hostApplicationMapDao;
 
     private final LinkService linkService;
+    private final UidLinkService uidLinkService;
 
     private final ServiceTypeRegistryService registry;
 
@@ -72,13 +74,15 @@ public class HbaseTraceService implements TraceService {
                              ApplicationTraceIndexDao applicationTraceIndexDao,
                              HostApplicationMapDao hostApplicationMapDao,
                              LinkService linkService,
+                             UidLinkService uidLinkService,
                              ServiceTypeRegistryService registry,
                              SpanStorePublisher spanStorePublisher,
                              @Qualifier("grpcSpanServerExecutor") Executor grpcSpanServerExecutor) {
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
         this.hostApplicationMapDao = Objects.requireNonNull(hostApplicationMapDao, "hostApplicationMapDao");
-        this.linkService = Objects.requireNonNull(linkService, "statisticsService");
+        this.linkService = Objects.requireNonNull(linkService, "linkService");
+        this.uidLinkService = Objects.requireNonNull(uidLinkService, "uidLinkService");
         this.registry = Objects.requireNonNull(registry, "registry");
         this.publisher = Objects.requireNonNull(spanStorePublisher, "spanStorePublisher");
         this.grpcSpanServerExecutor = Objects.requireNonNull(grpcSpanServerExecutor, "grpcSpanServerExecutor");
@@ -90,11 +94,12 @@ public class HbaseTraceService implements TraceService {
         traceDao.insertSpanChunk(spanChunkBo);
 
         Vertex selfVertex = getSelfVertex(spanChunkBo);
+        SelfUidVertex selfUidVertex = getSelfUidVertex(spanChunkBo);
 
         final List<SpanEventBo> spanEventList = spanChunkBo.getSpanEventBoList();
         if (spanEventList != null) {
             // TODO need to batch update later.
-            insertSpanEventList(spanEventList, selfVertex, spanChunkBo.getAgentId(), spanChunkBo.getEndPoint(), spanChunkBo.getCollectorAcceptTime());
+            insertSpanEventList(spanEventList, selfVertex, selfUidVertex, spanChunkBo.getAgentId(), spanChunkBo.getEndPoint(), spanChunkBo.getCollectorAcceptTime());
         }
 
         // TODO should be able to tell whether the span chunk is successfully inserted
@@ -102,13 +107,16 @@ public class HbaseTraceService implements TraceService {
     }
 
     private Vertex getSelfVertex(BasicSpan basicSpan) {
-        final ServiceType applicationServiceType = getApplicationServiceType(basicSpan);
-        return Vertex.of(basicSpan.getApplicationName(), applicationServiceType);
+        String applicationName = basicSpan.getApplicationName();
+        int appTypeCode = basicSpan.getApplicationServiceType();
+        return getVertex(applicationName, appTypeCode);
     }
 
-    private ServiceType getApplicationServiceType(BasicSpan basicSpan) {
-        final int applicationServiceTypeCode = basicSpan.getApplicationServiceType();
-        return registry.findServiceType(applicationServiceTypeCode);
+    private SelfUidVertex getSelfUidVertex(BasicSpan basicSpan) {
+        int uid = basicSpan.getServiceUid().get().getUid();
+        long applicationUid = basicSpan.getApplicationUid().get().getUid();
+        ServiceType appTypeCode = registry.findServiceType(basicSpan.getApplicationServiceType());
+        return SelfUidVertex.of(uid, applicationUid, appTypeCode);
     }
 
     @Override
@@ -118,10 +126,11 @@ public class HbaseTraceService implements TraceService {
         applicationTraceIndexDao.insert(spanBo);
 
         final Vertex selfVertex = getSelfVertex(spanBo);
+        final SelfUidVertex selfUidVertex = getSelfUidVertex(spanBo);
 
         insertAcceptorHost(spanBo, selfVertex);
-        insertSpanStat(spanBo, selfVertex);
-        insertSpanEventStat(spanBo, selfVertex);
+        insertSpanStat(spanBo, selfVertex, selfUidVertex);
+        insertSpanEventStat(spanBo, selfVertex, selfUidVertex);
 
         future.whenCompleteAsync((unused, throwable) -> {
             final boolean result = throwable == null;
@@ -178,11 +187,16 @@ public class HbaseTraceService implements TraceService {
 
     private Vertex getParentVertex(SpanBo span) {
         String parentApplicationName = span.getParentApplicationName();
-        ServiceType parentApplicationType = registry.findServiceType(span.getParentApplicationServiceType());
-        return Vertex.of(parentApplicationName, parentApplicationType);
+        int parentApplicationServiceType = span.getParentApplicationServiceType();
+        return getVertex(parentApplicationName, parentApplicationServiceType);
     }
 
-    private void insertSpanStat(SpanBo span, Vertex selfVertex) {
+    private Vertex getVertex(String applicationName, int typeCode) {
+        ServiceType parentApplicationType = registry.findServiceType(typeCode);
+        return Vertex.of(applicationName, parentApplicationType);
+    }
+
+    private void insertSpanStat(SpanBo span, Vertex selfVertex, SelfUidVertex selfUidVertex) {
 
         final ServiceType spanServiceType = registry.findServiceType(span.getServiceType());
 
@@ -247,6 +261,8 @@ public class HbaseTraceService implements TraceService {
                     linkService.updateOutLink(span.getCollectorAcceptTime(), queueAcceptVertex, span.getRemoteAddr(),
                             selfVertex, MERGE_QUEUE, span.getElapsed(), span.hasError());
 
+
+
                     parentVertex = queueAcceptVertex;
                 }
             }
@@ -265,6 +281,7 @@ public class HbaseTraceService implements TraceService {
         // the data may be different due to timeout or network error.
 
         linkService.updateResponseTime(span.getCollectorAcceptTime(), selfVertex, span.getAgentId(), span.getElapsed(), span.hasError());
+        uidLinkService.updateResponseTime(span.getCollectorAcceptTime(), selfUidVertex, span.getElapsed(), span.hasError());
 
         if (bugCheck != 1) {
             logger.info("ambiguous span found(bug). span {}/{}", span.getApplicationName(), span.getAgentName());
@@ -274,7 +291,7 @@ public class HbaseTraceService implements TraceService {
         }
     }
 
-    private void insertSpanEventStat(SpanBo span, Vertex selfVertex) {
+    private void insertSpanEventStat(SpanBo span, Vertex selfVertex, SelfUidVertex selfUidVertex) {
 
         final List<SpanEventBo> spanEventList = span.getSpanEventBoList();
         if (CollectionUtils.isEmpty(spanEventList)) {
@@ -285,10 +302,10 @@ public class HbaseTraceService implements TraceService {
         }
 
         // TODO need to batch update later.
-        insertSpanEventList(spanEventList, selfVertex, span.getAgentId(), span.getEndPoint(), span.getCollectorAcceptTime());
+        insertSpanEventList(spanEventList, selfVertex, selfUidVertex, span.getAgentId(), span.getEndPoint(), span.getCollectorAcceptTime());
     }
 
-    private void insertSpanEventList(List<SpanEventBo> spanEventList, Vertex selfVertex,
+    private void insertSpanEventList(List<SpanEventBo> spanEventList, Vertex selfVertex, SelfUidVertex selfUidVertex,
                                      String agentId, String endPoint, long requestTime) {
 
         for (SpanEventBo spanEvent : spanEventList) {
@@ -303,6 +320,10 @@ public class HbaseTraceService implements TraceService {
                 continue;
             }
 
+            // RPC Example
+            // www.naver.com/HTTP_CLIENT_3:9050/null
+            // spanEventApplicationName : www.naver.com
+            // spanEventEndPoint : null
             final String spanEventApplicationName = normalize(spanEvent.getDestinationId(), spanEventType);
             final String spanEventEndPoint = spanEvent.getEndPoint();
 
@@ -324,10 +345,12 @@ public class HbaseTraceService implements TraceService {
             // save the information of outLink (the spanevent that called span)
             linkService.updateOutLink(requestTime, selfVertex, MERGE_AGENT,
                     spanEventVertex, spanEventEndPoint, elapsed, hasException);
+            uidLinkService.updateOutLink(requestTime, selfUidVertex, spanEventApplicationName, spanEventType, spanEventEndPoint, elapsed, hasException);
 
             // save the information of inLink (the span that spanevent called)
             linkService.updateInLink(requestTime, spanEventVertex,
                     selfVertex, endPoint, elapsed, hasException);
+            uidLinkService.updateInLink(requestTime, spanEventApplicationName, spanEventType, selfUidVertex, endPoint, elapsed, hasException);
         }
     }
 

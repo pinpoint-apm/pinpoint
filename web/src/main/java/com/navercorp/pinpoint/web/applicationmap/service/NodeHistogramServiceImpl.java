@@ -22,44 +22,35 @@ import com.navercorp.pinpoint.web.applicationmap.appender.histogram.SimplifiedNo
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapApplicationResponseNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseSimplifiedNodeHistogramDataSource;
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.ResponseHistogramsNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
-import com.navercorp.pinpoint.web.vo.ResponseHistograms;
-import org.springframework.stereotype.Service;
 
-import java.util.Objects;
-
-@Service
 public class NodeHistogramServiceImpl implements NodeHistogramService {
 
-    private final MapResponseDao mapResponseDao;
+    private final WasNodeHistogramDataSource simpleHistogram;
+
+    private final WasNodeHistogramDataSource applicationHistogram;
+    private final WasNodeHistogramDataSource agentHistogram;
 
     public NodeHistogramServiceImpl(MapResponseDao mapResponseDao) {
-        this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
+        this.simpleHistogram = new MapResponseSimplifiedNodeHistogramDataSource(mapResponseDao);
+        this.applicationHistogram = new MapApplicationResponseNodeHistogramDataSource(mapResponseDao);
+        this.agentHistogram = new MapResponseNodeHistogramDataSource(mapResponseDao);
     }
 
     @Override
     public NodeHistogramFactory getSimpleHistogram() {
-        WasNodeHistogramDataSource dataSource = new MapResponseSimplifiedNodeHistogramDataSource(mapResponseDao);
-        return new SimplifiedNodeHistogramFactory(dataSource);
+        return new SimplifiedNodeHistogramFactory(simpleHistogram);
     }
 
     @Override
     public NodeHistogramFactory getApplicationHistogram() {
-        WasNodeHistogramDataSource dataSource = new MapApplicationResponseNodeHistogramDataSource(mapResponseDao);
-        return new DefaultNodeHistogramFactory(dataSource);
+        return new DefaultNodeHistogramFactory(applicationHistogram);
     }
 
     @Override
     public NodeHistogramFactory getAgentHistogram() {
-        WasNodeHistogramDataSource wasNodeHistogramDataSource = new MapResponseNodeHistogramDataSource(mapResponseDao);
-        return new DefaultNodeHistogramFactory(wasNodeHistogramDataSource);
+        return new DefaultNodeHistogramFactory(agentHistogram);
     }
 
-    @Override
-    public NodeHistogramFactory getAgentHistogram(ResponseHistograms responseHistograms) {
-        final WasNodeHistogramDataSource wasNodeHistogramDataSource = new ResponseHistogramsNodeHistogramDataSource(responseHistograms);
-        return new DefaultNodeHistogramFactory(wasNodeHistogramDataSource);
-    }
 }

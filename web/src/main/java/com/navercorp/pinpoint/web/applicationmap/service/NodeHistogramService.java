@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.applicationmap.service;
 
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
-import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 
 public interface NodeHistogramService {
     NodeHistogramFactory getSimpleHistogram();
@@ -26,5 +25,4 @@ public interface NodeHistogramService {
 
     NodeHistogramFactory getAgentHistogram();
 
-    NodeHistogramFactory getAgentHistogram(ResponseHistograms responseHistograms);
 }

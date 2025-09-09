@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -55,7 +55,8 @@ public class ApplicationMapStatisticsUtils {
     }
 
     public static short getSlotNumber(ServiceType serviceType, int elapsed, boolean isError) {
-        return findResponseHistogramSlotNo(serviceType, elapsed, isError);
+        Objects.requireNonNull(serviceType, "serviceType");
+        return findResponseHistogramSlotNo(serviceType.getHistogramSchema(), elapsed, isError);
     }
 
     /**
@@ -84,10 +85,7 @@ public class ApplicationMapStatisticsUtils {
     }
 
 
-    private static short findResponseHistogramSlotNo(ServiceType serviceType, int elapsed, boolean isError) {
-        Objects.requireNonNull(serviceType, "serviceType");
-
-        final HistogramSchema histogramSchema = serviceType.getHistogramSchema();
+    private static short findResponseHistogramSlotNo(HistogramSchema histogramSchema, int elapsed, boolean isError) {
         final HistogramSlot histogramSlot = histogramSchema.findHistogramSlot(elapsed, isError);
         return histogramSlot.getSlotTime();
     }

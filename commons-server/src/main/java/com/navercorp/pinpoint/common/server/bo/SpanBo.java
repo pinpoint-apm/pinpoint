@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.ByteUtils;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -25,6 +27,8 @@ import jakarta.validation.constraints.PositiveOrZero;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * @author emeroad
@@ -43,6 +47,9 @@ public class SpanBo implements Event, BasicSpan {
 
     @NotBlank
     private String applicationName;
+
+    private Supplier<ApplicationUid> applicationUid;
+    private Supplier<ServiceUid> serviceUid = () -> ServiceUid.DEFAULT;
 
     @PositiveOrZero
     private long agentStartTime;
@@ -150,6 +157,26 @@ public class SpanBo implements Event, BasicSpan {
     @Override
     public void setApplicationName(String applicationName) {
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
+    }
+
+    @Override
+    public Supplier<ServiceUid> getServiceUid() {
+        return this.serviceUid;
+    }
+
+    @Override
+    public void setServiceUid(Supplier<ServiceUid> serviceUid) {
+        this.serviceUid = Objects.requireNonNull(serviceUid, "serviceUid");
+    }
+
+    @Override
+    public Supplier<ApplicationUid> getApplicationUid() {
+        return this.applicationUid;
+    }
+
+    @Override
+    public void setApplicationUid(Supplier<ApplicationUid> applicationUid) {
+        this.applicationUid = Objects.requireNonNull(applicationUid, "applicationUid");
     }
 
     @Override
@@ -439,6 +466,8 @@ public class SpanBo implements Event, BasicSpan {
     public static Builder newBuilder(long spanId) {
         return new Builder(spanId);
     }
+
+
 
     public static class Builder {
 
