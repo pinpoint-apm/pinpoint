@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
         Objects.requireNonNull(inApplication, "inApplication");
         Objects.requireNonNull(timeWindow, "timeWindow");
 
-        TimeWindowFunction mapperWindow = newTimeWindow(timeAggregated);
+        TimeWindowFunction mapperWindow = TimeWindowFunction.newTimeWindow(timeAggregated);
         RowMapper<LinkDataMap> rowMapper = this.inLinkMapperFactory.newMapper(mapperWindow);
         ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(rowMapper, new LinkTimeWindowReducer(timeWindow));
 
@@ -94,14 +94,6 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
         }
         return linkDataMap;
     }
-
-    private TimeWindowFunction newTimeWindow(boolean timeAggregated) {
-        if (timeAggregated) {
-            return TimeWindowFunction.ALL_IN_ONE;
-        }
-        return TimeWindowFunction.identity();
-    }
-
 
     private LinkDataMap selectInLink(Scan scan, HbaseTable table, ResultsExtractor<LinkDataMap> resultExtractor, int parallel) {
         TableName inLinkTableName = tableNameProvider.getTableName(table);

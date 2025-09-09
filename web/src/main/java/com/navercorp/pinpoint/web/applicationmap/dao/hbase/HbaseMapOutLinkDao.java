@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@ public class HbaseMapOutLinkDao implements MapOutLinkDao {
     @Override
     public LinkDataMap selectOutLink(Application outApplication, TimeWindow timeWindow, boolean timeAggregated) {
 
-        TimeWindowFunction mapperWindow = newTimeWindow(timeAggregated);
+        TimeWindowFunction mapperWindow = TimeWindowFunction.newTimeWindow(timeAggregated);
         RowMapper<LinkDataMap> rowMapper = this.outMapperFactory.newMapper(mapperWindow);
 
         ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(rowMapper, new LinkTimeWindowReducer(timeWindow));
@@ -91,13 +91,6 @@ public class HbaseMapOutLinkDao implements MapOutLinkDao {
             logger.debug("selectOutLink {} {}", outApplication, linkDataMap.getLinkDataSize());
         }
         return linkDataMap;
-    }
-
-    private TimeWindowFunction newTimeWindow(boolean timeAggregated) {
-        if (timeAggregated) {
-            return TimeWindowFunction.ALL_IN_ONE;
-        }
-        return TimeWindowFunction.identity();
     }
 
 
