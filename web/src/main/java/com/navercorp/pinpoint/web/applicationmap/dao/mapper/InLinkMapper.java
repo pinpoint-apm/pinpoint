@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
-import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.server.util.UserNodeUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -94,28 +93,32 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
         for (Cell cell : result.rawCells()) {
 
             final byte[] qualifier = CellUtil.cloneQualifier(cell);
-            final Application in = readOutApplication(qualifier, inApplication.getServiceType());
-            if (filter.filter(in)) {
+
+            final Buffer buffer = new FixedBuffer(qualifier);
+            short selfServiceType = buffer.readShort();
+            short histogramSlot = buffer.readShort();
+            String selfApplicationName = buffer.read2PrefixedString();
+
+            final Application self = readSelfApplication(selfApplicationName, selfServiceType, inApplication.getServiceType());
+            if (filter.filter(self)) {
                 continue;
             }
 
             long requestCount = CellUtils.valueToLong(cell);
-            short histogramSlot = ApplicationMapStatisticsUtils.getHistogramSlotFromColumnName(qualifier);
-
-            String outHost = readOutHost(qualifier);
+            String selfHost = readOutHost(buffer);
             // There may be no outHost for virtual queue nodes from user-defined entry points.
             // Terminal nodes, such as httpclient will not have outHost set as well, but since they're terminal
             // nodes, they would not have reached here in the first place.
             if (inApplication.getServiceType().isQueue()) {
-                outHost = Objects.toString(outHost, "");
+                selfHost = Objects.toString(selfHost, "");
             }
 
             if (logger.isDebugEnabled()) {
                 logger.debug("    Fetched IN_LINK {} outHost:{} -> {} (slot:{}/{})",
-                        in, outHost, inApplication, histogramSlot, requestCount);
+                        self, selfHost, inApplication, histogramSlot, requestCount);
             }
 
-            linkDataMap.addLinkData(in, in.getName(), inApplication, outHost, timestamp, histogramSlot, requestCount);
+            linkDataMap.addLinkData(self, self.getName(), inApplication, selfHost, timestamp, histogramSlot, requestCount);
 
             if (logger.isTraceEnabled()) {
                 logger.trace("    Fetched IN_LINK inLink:{}", linkDataMap);
@@ -125,33 +128,28 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
         return linkDataMap;
     }
 
-    private String readOutHost(byte[] qualifier) {
-        String outHost = ApplicationMapStatisticsUtils.getHost(qualifier);
+    private String readOutHost(Buffer buffer) {
+        String outHost = buffer.readPadStringAndRightTrim(buffer.remaining());
         if (MERGE_AGENT.equals(outHost)) {
             return MERGE_AGENT;
         }
         return outHost;
     }
 
-    private Application readOutApplication(byte[] qualifier, ServiceType outServiceType) {
-        int outServiceTypeCode = ApplicationMapStatisticsUtils.getDestServiceTypeFromColumnName(qualifier);
+    private Application readSelfApplication(String selfApplicationName, short selfServiceType, ServiceType inServiceType) {
         // Caller may be a user node, and user nodes may call nodes with the same application name but different service type.
         // To distinguish between these user nodes, append callee's service type to the application name.
-        String outApplicationName;
-        if (registry.findServiceType(outServiceTypeCode).isUser()) {
-            String destApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
-            outApplicationName = UserNodeUtils.newUserNodeName(destApplicationName, outServiceType);
-        } else {
-            outApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
+        if (registry.findServiceType(selfServiceType).isUser()) {
+            selfApplicationName = UserNodeUtils.newUserNodeName(selfApplicationName, inServiceType);
         }
-        return this.applicationFactory.createApplication(outApplicationName, outServiceTypeCode);
+        return this.applicationFactory.createApplication(selfApplicationName, selfServiceType);
     }
 
     private Application readInApplication(Buffer row) {
-        String inApplicationName = row.read2PrefixedString();
-        short inServiceType = row.readShort();
+        String selfApplicationName = row.read2PrefixedString();
+        short selfServiceType = row.readShort();
 
-        return this.applicationFactory.createApplication(inApplicationName, inServiceType);
+        return this.applicationFactory.createApplication(selfApplicationName, selfServiceType);
     }
 
 }

@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.collector.applicationmap.statistics.ResponseColumn
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
-import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
+import com.navercorp.pinpoint.common.server.util.MapSlotUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.logging.log4j.LogManager;
@@ -73,7 +73,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
         final RowKey selfRowKey = LinkRowKey.of(selfVertex, rowTimeSlot);
 
-        final short slotNumber = ApplicationMapStatisticsUtils.getSlotNumber(selfVertex.serviceType(), elapsed, isError);
+        final short slotNumber = MapSlotUtils.getSlotNumber(selfVertex.serviceType(), elapsed, isError);
         final ColumnName selfColumnName = ResponseColumnName.histogram(agentId, slotNumber);
         this.bulkWriter.increment(selfRowKey, selfColumnName);
 
@@ -101,7 +101,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
         final RowKey selfRowKey = LinkRowKey.of(applicationName, applicationServiceType, rowTimeSlot);
 
-        final short slotNumber = ApplicationMapStatisticsUtils.getPingSlotNumber(applicationServiceType);
+        final short slotNumber = MapSlotUtils.getPingSlotNumber(applicationServiceType);
         final ColumnName selfColumnName = ResponseColumnName.histogram(agentId, slotNumber);
         this.bulkWriter.increment(selfRowKey, selfColumnName);
     }

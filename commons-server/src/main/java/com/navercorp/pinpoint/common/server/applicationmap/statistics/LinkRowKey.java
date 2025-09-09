@@ -63,7 +63,7 @@ public class LinkRowKey implements RowKey {
     public static byte[] makeRowKey(int saltKeySize, String applicationName, short applicationType, long timestamp) {
         Objects.requireNonNull(applicationName, "applicationName");
 
-        final byte[] applicationNameBytes= BytesUtils.toBytes(applicationName);
+        final byte[] applicationNameBytes = BytesUtils.toBytes(applicationName);
 
         final Buffer buffer = new AutomaticBuffer(saltKeySize + BytesUtils.SHORT_BYTE_LENGTH + applicationNameBytes.length + BytesUtils.SHORT_BYTE_LENGTH + BytesUtils.LONG_BYTE_LENGTH);
         buffer.setOffset(saltKeySize);

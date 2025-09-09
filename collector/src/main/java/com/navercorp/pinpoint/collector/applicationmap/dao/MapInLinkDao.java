@@ -25,5 +25,5 @@ import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
  * @author emeroad
  */
 public interface MapInLinkDao extends CachedStatisticsDao {
-    void inLink(long requestTime, Vertex inVertex, Vertex outVertex, String outHost, int elapsed, boolean isError);
+    void inLink(long requestTime, Vertex inVertex, Vertex selfVertex, String selfHost, int elapsed, boolean isError);
 }
