@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.statistics;
+package com.navercorp.pinpoint.common.server.applicationmap.statistics;
 
-import com.navercorp.pinpoint.collector.applicationmap.Vertex;
-import com.navercorp.pinpoint.common.server.util.ApplicationMapStatisticsUtils;
+import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.TimeUtils;
 
 import java.util.Objects;
 
@@ -45,7 +48,32 @@ public class LinkRowKey implements RowKey {
     }
 
     public byte[] getRowKey(int saltKeySize) {
-        return ApplicationMapStatisticsUtils.makeRowKey(saltKeySize, applicationName, serviceType, rowTimeSlot);
+        return makeRowKey(saltKeySize, applicationName, serviceType, rowTimeSlot);
+    }
+
+    /**
+     * <pre>
+     * rowkey format = "APPLICATIONNAME(max 24bytes)" + apptype(2byte) + "TIMESTAMP(8byte)"
+     * </pre>
+     *
+     * @param applicationName
+     * @param timestamp
+     * @return
+     */
+    public static byte[] makeRowKey(int saltKeySize, String applicationName, short applicationType, long timestamp) {
+        Objects.requireNonNull(applicationName, "applicationName");
+
+        final byte[] applicationNameBytes= BytesUtils.toBytes(applicationName);
+
+        final Buffer buffer = new AutomaticBuffer(saltKeySize + BytesUtils.SHORT_BYTE_LENGTH + applicationNameBytes.length + BytesUtils.SHORT_BYTE_LENGTH + BytesUtils.LONG_BYTE_LENGTH);
+        buffer.setOffset(saltKeySize);
+//        buffer.put2PrefixedString(applicationName);
+        buffer.putShort((short)applicationNameBytes.length);
+        buffer.putBytes(applicationNameBytes);
+        buffer.putShort(applicationType);
+        long reverseTimeMillis = TimeUtils.reverseTimeMillis(timestamp);
+        buffer.putLong(reverseTimeMillis);
+        return buffer.getBuffer();
     }
 
     @Override

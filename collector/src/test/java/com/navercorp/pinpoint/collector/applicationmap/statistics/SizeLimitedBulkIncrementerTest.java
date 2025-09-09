@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkIncremente
 import com.navercorp.pinpoint.collector.applicationmap.statistics.config.BulkIncrementerFactory;
 import com.navercorp.pinpoint.collector.monitor.dao.hbase.BulkOperationReporter;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;

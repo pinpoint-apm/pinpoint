@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.collector.service;
 
-import com.navercorp.pinpoint.collector.applicationmap.Vertex;
 import com.navercorp.pinpoint.collector.applicationmap.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.collector.applicationmap.service.LinkService;
 import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.collector.dao.TraceDao;
 import com.navercorp.pinpoint.collector.event.SpanStorePublisher;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
+import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;

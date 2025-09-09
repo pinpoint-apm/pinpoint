@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.common.server.util;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
-import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.junit.jupiter.api.Assertions;
@@ -27,17 +26,6 @@ import org.junit.jupiter.api.Test;
 
 public class ApplicationMapStatisticsUtilsTest {
 
-    @Test
-    public void makeRowKey() {
-        String applicationName = "TESTAPP";
-        short serviceType = 123;
-        long time = System.currentTimeMillis();
-
-        byte[] bytes = ApplicationMapStatisticsUtils.makeRowKey(ByteSaltKey.NONE.size(), applicationName, serviceType, time);
-
-        Assertions.assertEquals(applicationName, ApplicationMapStatisticsUtils.getApplicationNameFromRowKey(bytes));
-        Assertions.assertEquals(serviceType, ApplicationMapStatisticsUtils.getApplicationTypeFromRowKey(bytes));
-    }
 
     @Test
     public void testMakeColumnName() {

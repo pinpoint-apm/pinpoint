@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
 import com.navercorp.pinpoint.collector.monitor.dao.hbase.BulkOperationReporter;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.util.Assert;
 import org.apache.hadoop.hbase.TableName;
 
