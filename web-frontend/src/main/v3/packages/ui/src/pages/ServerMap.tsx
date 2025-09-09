@@ -357,14 +357,14 @@ export const ServerMapPage = ({
                                 {openServerView ? <MdArrowForwardIos /> : <MdArrowBackIosNew />}
                                 <span className="ml-2">VIEW SERVERS</span>
                               </Button>
-                              <ChartTypeButtons />
+                              <ChartTypeButtons configuration={configuration} />
                               <InstanceCount
                                 nodeData={currentTargetData as GetServerMap.NodeData}
                               />
                             </div>
                           ) : !shouldHideScatter() ? (
                             <div className="flex items-center h-12 py-2.5 px-4 gap-2">
-                              <ChartTypeButtons />
+                              <ChartTypeButtons configuration={configuration} />
                             </div>
                           ) : null}
                           {!shouldHideScatter() && (

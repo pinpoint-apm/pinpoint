@@ -21,7 +21,10 @@ export interface RealtimePageProps {
   ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
 }
 
-export const RealtimePage = ({ ApplicationList = ApplicationCombinedList }: RealtimePageProps) => {
+export const RealtimePage = ({
+  ApplicationList = ApplicationCombinedList,
+  configuration,
+}: RealtimePageProps) => {
   const navigate = useNavigate();
   const { application, searchParameters } = useServerMapSearchParameters();
   const [serverMapCurrentTarget, setServerMapCurrentTarget] = useAtom(serverMapCurrentTargetAtom);
@@ -90,7 +93,7 @@ export const RealtimePage = ({ ApplicationList = ApplicationCombinedList }: Real
           )}
         </div>
       </MainHeader>
-      {serverMapCurrentTarget && <Realtime />}
+      {serverMapCurrentTarget && <Realtime configuration={configuration} />}
     </div>
   );
 };

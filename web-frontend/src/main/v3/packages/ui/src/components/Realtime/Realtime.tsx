@@ -28,13 +28,20 @@ import {
   serverMapDataAtom,
   serverMapChartTypeAtom,
 } from '@pinpoint-fe/ui/src/atoms';
-import { APP_SETTING_KEYS, ApplicationType, GetServerMap } from '@pinpoint-fe/ui/src/constants';
+import {
+  APP_SETTING_KEYS,
+  ApplicationType,
+  GetServerMap,
+  Configuration,
+} from '@pinpoint-fe/ui/src/constants';
 import { getServerImagePath } from '@pinpoint-fe/ui/src/utils';
 import { cn } from '@pinpoint-fe/ui/src/lib';
 
-export interface RealtimeProps {}
+export interface RealtimeProps {
+  configuration?: Configuration;
+}
 
-export const Realtime = () => {
+export const Realtime = ({ configuration }: RealtimeProps) => {
   const chartType = useAtomValue(serverMapChartTypeAtom);
   const isFocus = useTabFocus();
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -151,7 +158,7 @@ export const Realtime = () => {
             <>
               {(currentTargetData as GetServerMap.NodeData)?.instanceCount ? (
                 <div className="flex items-center h-12 py-2.5 px-4">
-                  <ChartTypeButtons />
+                  <ChartTypeButtons configuration={configuration} />
                   <InstanceCount className="ml-auto" nodeData={currentTargetData} />
                 </div>
               ) : null}
