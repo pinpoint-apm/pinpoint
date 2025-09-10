@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
@@ -65,8 +65,7 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
         List<ApiMetaDataBo> apiMetaDataList = new ArrayList<>(result.size());
 
         for (Cell cell : result.rawCells()) {
-            final byte[] value = getValue(cell);
-            Buffer buffer = new FixedBuffer(value);
+            Buffer buffer = getBuffer(cell);
 
             final String apiInfo = buffer.readPrefixedString();
             final int lineNumber = buffer.readInt();
@@ -93,12 +92,12 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
         return apiMetaDataList;
     }
 
-    private byte[] getValue(Cell cell) {
+    private Buffer getBuffer(Cell cell) {
         if (CellUtil.matchingQualifier(cell, API_METADATA_CQ)) {
-            return CellUtil.cloneValue(cell);
+            return new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
         } else {
             // backward compatibility
-            return CellUtil.cloneQualifier(cell);
+            return new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
         }
     }
 

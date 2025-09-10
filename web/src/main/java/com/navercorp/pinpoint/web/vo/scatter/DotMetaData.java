@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.vo.scatter;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 
 import java.util.Objects;
 
@@ -88,8 +88,12 @@ public class DotMetaData {
             return dot;
         }
 
-        public void read(byte[] bytes) {
-            Buffer buffer = new FixedBuffer(bytes);
+        public void read(byte[] bytes, int offset, int length) {
+            Buffer buffer = new OffsetFixedBuffer(bytes, offset, length);
+            read(buffer);
+        }
+
+        public void read(Buffer buffer) {
             // offset
             buffer.readByte();
             this.setSpanId(buffer.readLong());
