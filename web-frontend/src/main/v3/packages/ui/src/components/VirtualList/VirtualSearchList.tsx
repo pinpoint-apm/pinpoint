@@ -9,6 +9,7 @@ export interface VirtualSearchListProps {
   inputClassName?: string;
   inputContainerClassName?: string;
   placeHolder?: string;
+  onChangeFilterKeyword?: (filterKeyword: string) => void;
 }
 
 export const VirtualSearchList = ({
@@ -17,6 +18,7 @@ export const VirtualSearchList = ({
   inputClassName,
   inputContainerClassName,
   placeHolder = 'Input keyword...',
+  onChangeFilterKeyword,
 }: VirtualSearchListProps) => {
   const [filterKeyword, setFilterKeyword] = React.useState('');
 
@@ -28,14 +30,19 @@ export const VirtualSearchList = ({
         </div>
         <Input
           className={cn(inputClassName)}
-          onChange={(e) => setFilterKeyword(e.target.value)}
+          onChange={(e) => {
+            setFilterKeyword(e.target.value);
+            onChangeFilterKeyword?.(e.target.value);
+          }}
           placeholder={placeHolder}
         />
       </div>
       {typeof children === 'function'
         ? children({ filterKeyword })
         : React.Children.map(children, (child) =>
-            React.cloneElement(child as ReactElement, { filterKeyword }),
+            React.cloneElement(child as ReactElement, {
+              filterKeyword,
+            }),
           )}
     </div>
   );
