@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.web.applicationmap.service;
 
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
 
@@ -25,6 +27,7 @@ import java.util.List;
  */
 public interface HistogramService {
     LinkDataDuplexMap selectLinkDataDuplexMap(MapServiceOption option);
+    LinkHistogramSummary selectLinkHistogramData(Application fromApplication, Application toApplication, TimeWindow range);
     List<Application> getFromApplications(LinkDataDuplexMap linkDataDuplexMap);
     List<Application> getToApplications(LinkDataDuplexMap linkDataDuplexMap);
     boolean isToNode(LinkDataDuplexMap linkDataDuplexMap, Application nodeApplication);
