@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.CachedStringAllocator;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.buffer.StringAllocator;
 import com.navercorp.pinpoint.common.buffer.StringCacheableBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
@@ -115,8 +115,8 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
                 decodingContext.setCollectorAcceptedTime(cell.getTimestamp());
 
-                final Buffer qualifier = bufferFactory.createBuffer(CellUtil.cloneQualifier(cell));
-                final Buffer columnValue = bufferFactory.createBuffer(CellUtil.cloneValue(cell));
+                final Buffer qualifier = bufferFactory.createBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
+                final Buffer columnValue = bufferFactory.createBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
 
                 spanDecoder = resolveDecoder(columnValue);
                 final Object decodeObject = spanDecoder.decode(qualifier, columnValue, decodingContext);
@@ -161,11 +161,11 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
             }
         }
 
-        public Buffer createBuffer(byte[] buffer) {
+        public Buffer createBuffer(byte[] buffer, int offset, int length) {
             if (stringAllocator != null) {
-                return new StringCacheableBuffer(buffer, stringAllocator);
+                return new StringCacheableBuffer(buffer, offset, length, stringAllocator);
             } else {
-                return new FixedBuffer(buffer);
+                return new OffsetFixedBuffer(buffer, offset, length);
             }
         }
     }
