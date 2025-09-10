@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
@@ -30,7 +31,6 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -92,9 +92,7 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
         final LinkDataMap linkDataMap = new LinkDataMap(timeWindowFunction);
         for (Cell cell : result.rawCells()) {
 
-            final byte[] qualifier = CellUtil.cloneQualifier(cell);
-
-            final Buffer buffer = new FixedBuffer(qualifier);
+            final Buffer buffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
             short selfServiceType = buffer.readShort();
             short histogramSlot = buffer.readShort();
             String selfApplicationName = buffer.read2PrefixedString();
