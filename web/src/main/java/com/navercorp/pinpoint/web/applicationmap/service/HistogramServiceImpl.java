@@ -15,13 +15,25 @@
  */
 package com.navercorp.pinpoint.web.applicationmap.service;
 
+import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.link.Link;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkListFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelector;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.LinkSelectorType;
+import com.navercorp.pinpoint.web.applicationmap.map.processor.DestinationApplicationFilter;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.LinkDataMapProcessor;
+import com.navercorp.pinpoint.web.applicationmap.map.processor.SourceApplicationFilter;
 import com.navercorp.pinpoint.web.applicationmap.map.processor.WasOnlyProcessor;
+import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeListFactory;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.SearchOption;
@@ -82,6 +94,45 @@ public class HistogramServiceImpl implements HistogramService {
         return linkDataDuplexMap;
     }
 
+
+    @Override
+    public LinkHistogramSummary selectLinkHistogramData(Application fromApplication, Application toApplication, TimeWindow timeWindow) {
+        Objects.requireNonNull(fromApplication, "fromApplication");
+        Objects.requireNonNull(toApplication, "toApplication");
+        Objects.requireNonNull(timeWindow, "range");
+
+        LinkDataDuplexMap linkDataDuplexMap;
+        LinkDirection linkDirection = LinkDirection.OUT_LINK;
+
+        LinkDataMapProcessor sourceApplicationFilter = new SourceApplicationFilter(toApplication);
+        LinkDataMapProcessor destinationApplicationFilter = new DestinationApplicationFilter(fromApplication);
+        LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(LinkSelectorType.BIDIRECTIONAL, destinationApplicationFilter, LinkDataMapProcessor.NO_OP);
+        LinkDataDuplexMap linkDataDuplexMap1 = linkSelector.select(Collections.singletonList(toApplication), timeWindow, 1, 1);
+
+        LinkSelector linkSelector2 = linkSelectorFactory.createLinkSelector(LinkSelectorType.BIDIRECTIONAL, LinkDataMapProcessor.NO_OP, sourceApplicationFilter);
+        LinkDataDuplexMap linkDataDuplexMap2 = linkSelector2.select(Collections.singletonList(fromApplication), timeWindow, 1, 1);
+
+        linkDataDuplexMap1.addLinkDataDuplexMap(linkDataDuplexMap2);
+        linkDataDuplexMap = linkDataDuplexMap1;
+
+        NodeList nodeList = NodeListFactory.createNodeList(linkDataDuplexMap);
+        Range range = timeWindow.getWindowRange();
+        LinkList linkList = LinkListFactory.createLinkList(nodeList, linkDataDuplexMap, range);
+        LinkKey linkKey = new LinkKey(fromApplication, toApplication);
+        Link link = linkList.getLink(linkKey);
+        if (link == null) {
+            return createEmptyLinkHistogramSummary(linkDirection, fromApplication, toApplication, range);
+        }
+        return new LinkHistogramSummary(link);
+    }
+
+    private LinkHistogramSummary createEmptyLinkHistogramSummary(LinkDirection direction, Application fromApplication, Application toApplication, Range range) {
+        Node fromNode = new Node(fromApplication);
+        Node toNode = new Node(toApplication);
+        Link emptyLink = new Link(direction, fromNode, toNode, range);
+        return new LinkHistogramSummary(emptyLink);
+    }
+
     @Override
     public List<Application> getFromApplications(LinkDataDuplexMap linkDataDuplexMap) {
         Objects.requireNonNull(linkDataDuplexMap, "linkDataDuplexMap");
@@ -134,4 +185,6 @@ public class HistogramServiceImpl implements HistogramService {
         }
         return false;
     }
+
+
 }
