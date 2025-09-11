@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.common.buffer;
 
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
 /**
@@ -165,7 +164,7 @@ public class FixedBuffer implements Buffer {
         if (v >= 0) {
             putVar32(v);
         } else {
-            putVar64((long) v);
+            putVar64(v);
         }
     }
 
@@ -258,7 +257,7 @@ public class FixedBuffer implements Buffer {
     @Override
     public int readInt() {
         final int i = ByteArrayUtils.bytesToInt(buffer, offset);
-        this.offset = this.offset + 4;
+        this.offset = this.offset + ByteArrayUtils.INT_BYTE_LENGTH;
         return i;
     }
 
@@ -271,7 +270,7 @@ public class FixedBuffer implements Buffer {
         // See implementation notes for readRawVarint64
         fastpath: {
             int pos = this.offset;
-            final int bufferSize = this.buffer.length;
+            final int bufferSize = getEndOffset();
             if (bufferSize == pos) {
                 break fastpath;
             }
@@ -333,7 +332,7 @@ public class FixedBuffer implements Buffer {
     @Override
     public short readShort() {
         final short i = ByteArrayUtils.bytesToShort(buffer, offset);
-        this.offset = this.offset + 2;
+        this.offset = this.offset + ByteArrayUtils.SHORT_BYTE_LENGTH;
         return i;
     }
 
@@ -344,7 +343,7 @@ public class FixedBuffer implements Buffer {
     @Override
     public long readLong() {
         final long l = ByteArrayUtils.bytesToLong(buffer, offset);
-        this.offset = this.offset + 8;
+        this.offset = this.offset + ByteArrayUtils.LONG_BYTE_LENGTH;
         return l;
     }
 
@@ -367,7 +366,7 @@ public class FixedBuffer implements Buffer {
         // accumulated bits with one xor.  We depend on javac to constant fold.
         fastpath: {
             int pos = offset;
-            int bufferSize = this.buffer.length;
+            int bufferSize = getEndOffset();
             if (bufferSize == pos) {
                 break fastpath;
             }
@@ -538,11 +537,7 @@ public class FixedBuffer implements Buffer {
     }
 
     protected String newString(final int size) {
-        try {
-            return new String(buffer, offset, size, UTF8);
-        } catch (UnsupportedEncodingException ue) {
-            return new String(buffer, offset, size, UTF8_CHARSET);
-        }
+        return new String(buffer, offset, size, UTF8_CHARSET);
     }
 
     @Override
@@ -557,7 +552,7 @@ public class FixedBuffer implements Buffer {
      */
     @Override
     public byte[] getBuffer() {
-        if (offset == buffer.length) {
+        if (getStartOffset() == 0 && offset == getEndOffset()) {
             return this.buffer;
         } else {
             return copyBuffer();
@@ -566,14 +561,20 @@ public class FixedBuffer implements Buffer {
 
     @Override
     public byte[] copyBuffer() {
-        final byte[] copy = new byte[offset];
-        System.arraycopy(buffer, 0, copy, 0, offset);
+        final int length = getBufferLength();
+        final byte[] copy = new byte[length];
+        System.arraycopy(buffer, getStartOffset(), copy, 0, length);
         return copy;
     }
 
     @Override
     public ByteBuffer wrapByteBuffer() {
-        return ByteBuffer.wrap(this.buffer, 0, offset);
+        final int length = getBufferLength();
+        return ByteBuffer.wrap(this.buffer, getStartOffset(), length);
+    }
+
+    protected int getBufferLength() {
+        return offset - getStartOffset();
     }
 
     /**
@@ -597,11 +598,21 @@ public class FixedBuffer implements Buffer {
 
     @Override
     public int remaining() {
-        return buffer.length - offset;
+        return getEndOffset() - offset;
     }
 
     @Override
     public boolean hasRemaining() {
-        return offset < buffer.length;
+        return offset < getEndOffset();
+    }
+
+    @Override
+    public int getStartOffset() {
+        return 0;
+    }
+
+    @Override
+    public int getEndOffset() {
+        return this.buffer.length;
     }
 }

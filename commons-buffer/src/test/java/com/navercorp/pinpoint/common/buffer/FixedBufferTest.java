@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -306,7 +306,7 @@ public class FixedBufferTest {
 
         Buffer buffer = new FixedBuffer(result);
         String prefixedString = buffer.read4PrefixedString();
-        Assertions.assertEquals(prefixedString, value);
+        Assertions.assertEquals(value, prefixedString);
 
     }
 
@@ -559,7 +559,7 @@ public class FixedBufferTest {
     public void testGetBuffer() {
         Buffer buffer = new FixedBuffer(4);
         buffer.putInt(1);
-        Assertions.assertEquals(buffer.getOffset(), 4);
+        Assertions.assertEquals(4, buffer.getOffset());
         assertThat(buffer.getBuffer()).hasSize(4);
     }
 
@@ -570,15 +570,15 @@ public class FixedBufferTest {
         buffer.putInt(2);
 
         final ByteBuffer byteBuffer = buffer.wrapByteBuffer();
-        Assertions.assertEquals(byteBuffer.getInt(), 1);
-        Assertions.assertEquals(byteBuffer.getInt(), 2);
+        Assertions.assertEquals(1, byteBuffer.getInt());
+        Assertions.assertEquals(2, byteBuffer.getInt());
     }
 
     @Test
     public void testSliceGetBuffer() {
         Buffer buffer = new FixedBuffer(5);
         buffer.putInt(1);
-        Assertions.assertEquals(buffer.getOffset(), 4);
+        Assertions.assertEquals(4, buffer.getOffset());
         assertThat(buffer.getBuffer()).hasSize(4);
 
         byte[] buffer1 = buffer.getBuffer();
@@ -634,10 +634,10 @@ public class FixedBufferTest {
     @Test
     public void testGetOffset() {
         Buffer buffer = new FixedBuffer();
-        Assertions.assertEquals(buffer.getOffset(), 0);
+        Assertions.assertEquals(0, buffer.getOffset());
 
         buffer.putInt(4);
-        Assertions.assertEquals(buffer.getOffset(), 4);
+        Assertions.assertEquals(4, buffer.getOffset());
 
     }
 
@@ -646,22 +646,36 @@ public class FixedBufferTest {
     public void test_remaining() {
         final byte[] bytes = new byte[BytesUtils.INT_BYTE_LENGTH];
         Buffer buffer = new FixedBuffer(bytes);
-        Assertions.assertEquals(buffer.remaining(), 4);
+        Assertions.assertEquals(4, buffer.remaining());
         Assertions.assertTrue(buffer.hasRemaining());
 
         buffer.putInt(1234);
-        Assertions.assertEquals(buffer.remaining(), 0);
+        Assertions.assertEquals(0, buffer.remaining());
         Assertions.assertFalse(buffer.hasRemaining());
 
         buffer.setOffset(0);
         buffer.putShort((short) 12);
-        Assertions.assertEquals(buffer.remaining(), 2);
+        Assertions.assertEquals(2, buffer.remaining());
         Assertions.assertTrue(buffer.hasRemaining());
 
         buffer.putByte((byte) 1);
-        Assertions.assertEquals(buffer.remaining(), 1);
+        Assertions.assertEquals(1, buffer.remaining());
         Assertions.assertTrue(buffer.hasRemaining());
     }
 
 
+    @Test
+    void testBufferLength() {
+        final byte[] bytes = new byte[BytesUtils.INT_BYTE_LENGTH];
+        FixedBuffer buffer = new FixedBuffer(bytes);
+
+        Assertions.assertEquals(0, buffer.getBufferLength());
+
+        buffer.putByte((byte) 1);
+        Assertions.assertEquals(1, buffer.getBufferLength());
+
+        buffer.putByte((byte) 1);
+        Assertions.assertEquals(2, buffer.getBufferLength());
+
+    }
 }
