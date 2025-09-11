@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -487,14 +487,7 @@ public final class BytesUtils {
     }
 
     public static byte[] toBytes(final String value) {
-        if (value == null) {
-            return null;
-        }
-        try {
-            return value.getBytes(UTF8);
-        } catch (UnsupportedEncodingException e) {
-            return value.getBytes(UTF8_CHARSET);
-        }
+        return value == null ? null : value.getBytes(UTF8_CHARSET);
     }
 
     public static byte[] toFixedLengthBytes(final String str, final int length) {
