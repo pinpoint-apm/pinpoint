@@ -4,6 +4,7 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistog
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
+import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 
 import java.util.List;
 import java.util.Objects;
@@ -29,5 +30,10 @@ public class LinkHistogramSummaryView {
         ApplicationTimeHistogram histogram = linkHistogramSummary.getLinkApplicationTimeHistogram();
         TimeHistogramBuilder builder = new TimeHistogramBuilder(format);
         return builder.build(histogram);
+    }
+
+    public ResponseTimeStatics getResponseTimeStatics() {
+        Histogram histogram = linkHistogramSummary.getHistogram();
+        return ResponseTimeStatics.fromHistogram(histogram);
     }
 }
