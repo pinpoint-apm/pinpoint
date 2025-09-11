@@ -41,12 +41,13 @@ export const ApplicationCombinedListForCommon = ({
   const popoverContentRef = React.useRef<HTMLDivElement>(null);
 
   const [filterKeyword, setFilterKeyword] = React.useState('');
-  const [listLengthMap, setListLengthMap] = React.useState(
-    new Map<'favoriteList' | 'applicationList', ApplicationType[]>([
-      ['favoriteList', []],
-      ['applicationList', []],
-    ]),
-  );
+  const prevFilterKeywordRef = React.useRef(filterKeyword);
+
+  const [filteredLists, setFilteredLists] = React.useState({
+    favoriteList: [],
+    applicationList: [],
+  });
+
   const [focusInfo, setFocusInfo] = React.useState<{
     id: 'favoriteList' | 'applicationList'; // 각 favoriteList, applicationList virtualList를 구분하기 위한 값
     index: number;
@@ -126,18 +127,26 @@ export const ApplicationCombinedListForCommon = ({
     }
   }, [isOpen]);
 
-  // filterKeyword가 변경되면 focusInfo를 초기화
   React.useEffect(() => {
-    if (listLengthMap.get('favoriteList')?.length) {
-      setFocusInfo({ id: 'favoriteList', index: 0 });
-    } else if (listLengthMap.get('applicationList')?.length) {
+    // filterKeyword가 변경되었을 경우 focusInfo를 초기화
+    if (prevFilterKeywordRef.current !== filterKeyword) {
+      if (filteredLists['favoriteList']?.length) {
+        setFocusInfo({ id: 'favoriteList', index: 0 });
+      } else if (filteredLists['applicationList']?.length) {
+        setFocusInfo({ id: 'applicationList', index: 0 });
+      }
+      prevFilterKeywordRef.current = filterKeyword;
+      return;
+    }
+
+    if (!filteredLists['favoriteList']?.length) {
       setFocusInfo({ id: 'applicationList', index: 0 });
     }
-  }, [filterKeyword]);
+  }, [filteredLists?.favoriteList]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    const favoriteListLength = listLengthMap.get('favoriteList')?.length || 0;
-    const applicationListLength = listLengthMap.get('applicationList')?.length || 0;
+    const favoriteListLength = filteredLists['favoriteList']?.length || 0;
+    const applicationListLength = filteredLists['applicationList']?.length || 0;
 
     if (e.key === 'ArrowDown') {
       e.preventDefault();
@@ -206,7 +215,7 @@ export const ApplicationCombinedListForCommon = ({
     } else if (e.key === 'Enter') {
       e.preventDefault();
       const clickedItem = focusInfo
-        ? listLengthMap.get(focusInfo?.id as 'favoriteList' | 'applicationList')?.[focusInfo?.index]
+        ? filteredLists[focusInfo?.id as 'favoriteList' | 'applicationList']?.[focusInfo?.index]
         : null;
       if (clickedItem) {
         handleClickItem(clickedItem as ApplicationType);
@@ -216,10 +225,10 @@ export const ApplicationCombinedListForCommon = ({
   };
 
   function getFilteredList(filteredList: any, id: 'favoriteList' | 'applicationList') {
-    setListLengthMap((prev) => {
-      const newMap = new Map(prev);
-      newMap.set(id, filteredList);
-      return newMap;
+    setFilteredLists((prev) => {
+      const newLists = { ...prev };
+      newLists[id] = filteredList;
+      return newLists;
     });
   }
 
@@ -273,9 +282,9 @@ export const ApplicationCombinedListForCommon = ({
                   ) : (
                     <ApplicationVirtualList
                       focusIndex={focusInfo?.id === 'favoriteList' ? focusInfo?.index : -1}
-                      getFilteredList={(filteredList) =>
-                        getFilteredList(filteredList, 'favoriteList')
-                      }
+                      getFilteredList={(filteredList) => {
+                        getFilteredList(filteredList, 'favoriteList');
+                      }}
                       itemAs={PopoverClose}
                       list={favoriteList}
                       filterKeyword={props?.filterKeyword}
