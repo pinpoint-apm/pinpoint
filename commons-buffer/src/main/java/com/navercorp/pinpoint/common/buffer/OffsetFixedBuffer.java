@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  */
 
 package com.navercorp.pinpoint.common.buffer;
-
-import java.nio.ByteBuffer;
 
 /**
  * @author emeroad
@@ -56,35 +54,12 @@ public class OffsetFixedBuffer extends FixedBuffer {
     }
 
     @Override
-    public byte[] getBuffer() {
-        if (startOffset == 0 && offset == buffer.length) {
-            return this.buffer;
-        } else {
-            return copyBuffer();
-        }
+    public int getStartOffset() {
+        return startOffset;
     }
 
     @Override
-    public byte[] copyBuffer() {
-        final int length = offset - startOffset;
-        final byte[] copy = new byte[length];
-        System.arraycopy(buffer, startOffset, copy, 0, length);
-        return copy;
-    }
-
-    @Override
-    public ByteBuffer wrapByteBuffer() {
-        final int length = offset - startOffset;
-        return ByteBuffer.wrap(this.buffer, startOffset, length);
-    }
-
-    @Override
-    public int remaining() {
-        return endOffset - offset;
-    }
-
-    @Override
-    public boolean hasRemaining() {
-        return offset < endOffset;
+    public int getEndOffset() {
+        return endOffset;
     }
 }
