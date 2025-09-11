@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.buffer;
 
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -95,4 +96,19 @@ public class OffsetFixedBufferTest {
         Assertions.assertEquals(2, byteBuffer.getInt());
     }
 
+
+    @Test
+    void testBufferLength() {
+        final byte[] bytes = new byte[BytesUtils.INT_BYTE_LENGTH + 1];
+        OffsetFixedBuffer buffer = new OffsetFixedBuffer(bytes, 1, bytes.length - 1);
+
+        Assertions.assertEquals(0, buffer.getBufferLength());
+
+        buffer.putByte((byte) 1);
+        Assertions.assertEquals(1, buffer.getBufferLength());
+
+        buffer.putByte((byte) 1);
+        Assertions.assertEquals(2, buffer.getBufferLength());
+
+    }
 }
