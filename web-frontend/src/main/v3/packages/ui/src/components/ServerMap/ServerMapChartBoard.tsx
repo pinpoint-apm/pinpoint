@@ -239,7 +239,7 @@ export const ServerMapChartsBoardFetcher = ({
                       {openServerView ? <MdArrowForwardIos /> : <MdArrowBackIosNew />}
                       <span className="ml-2">VIEW SERVERS</span>
                     </Button>
-                    <ChartTypeButtons configuration={configuration} />
+                    {!shouldHideScatter() && <ChartTypeButtons configuration={configuration} />}
                     <InstanceCount nodeData={data as unknown as GetServerMap.NodeData} />
                   </div>
                 ) : !shouldHideScatter() ? (
