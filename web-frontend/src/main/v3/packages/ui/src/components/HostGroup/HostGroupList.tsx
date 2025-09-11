@@ -28,7 +28,7 @@ export const HostGroupList = ({
 
   React.useEffect(() => {
     setFocusIndex(0);
-  }, [isOpen]);
+  }, [hostGroupList, isOpen]);
 
   const handleClickItem = (hostGroup: string) => {
     onClickHostGroup?.(hostGroup);

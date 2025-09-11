@@ -40,6 +40,7 @@ export const ApplicationCombinedListForCommon = ({
   const [isOpen, setIsOpen] = React.useState(open);
   const popoverContentRef = React.useRef<HTMLDivElement>(null);
 
+  const [filterKeyword, setFilterKeyword] = React.useState('');
   const [listLengthMap, setListLengthMap] = React.useState(
     new Map<'favoriteList' | 'applicationList', ApplicationType[]>([
       ['favoriteList', []],
@@ -125,14 +126,14 @@ export const ApplicationCombinedListForCommon = ({
     }
   }, [isOpen]);
 
-  // keyword가 변경되어 filteredList가 업데이트되면 focusInfo를 초기화
+  // filterKeyword가 변경되면 focusInfo를 초기화
   React.useEffect(() => {
     if (listLengthMap.get('favoriteList')?.length) {
       setFocusInfo({ id: 'favoriteList', index: 0 });
     } else if (listLengthMap.get('applicationList')?.length) {
       setFocusInfo({ id: 'applicationList', index: 0 });
     }
-  }, [listLengthMap.get('applicationList')?.length]);
+  }, [filterKeyword]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     const favoriteListLength = listLengthMap.get('favoriteList')?.length || 0;
@@ -259,6 +260,7 @@ export const ApplicationCombinedListForCommon = ({
         <VirtualSearchList
           inputClassName="focus-visible:ring-0 border-none shadow-none"
           placeHolder={t('APP_SELECT.INPUT_APP_NAME_PLACE_HOLDER')}
+          onChangeFilterKeyword={setFilterKeyword}
         >
           {(props) => {
             return (
