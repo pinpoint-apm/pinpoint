@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common;
+package com.navercorp.pinpoint.common.hbase;
 
-/**
- * @author emeroad
- */
-public final class PinpointConstants {
+public enum HbaseTableV3 implements HbaseTable {
 
-    public static final int APPLICATION_NAME_MAX_LEN = 24;
+    MAP_APP_SELF("MapAppSelf"),
+    MAP_APP_OUT("MapAppOut"),
+    MAP_APP_IN("MapAppIn");
 
-    public static final int AGENT_ID_MAX_LEN = 24;
+    private final String name;
 
-    public static final int AGENT_NAME_MAX_LEN = 255;
+    HbaseTableV3(String name) {
+        this.name = name;
+    }
 
-    public static final int UID_NAME = 255;
-
+    @Override
+    public String getName() {
+        return name;
+    }
 }
