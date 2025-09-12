@@ -32,7 +32,7 @@ public class LinkHistogramSummaryView {
         return builder.build(histogram);
     }
 
-    public ResponseTimeStatics getResponseTimeStatics() {
+    public ResponseTimeStatics getResponseStatistics() {
         Histogram histogram = linkHistogramSummary.getHistogram();
         return ResponseTimeStatics.fromHistogram(histogram);
     }
