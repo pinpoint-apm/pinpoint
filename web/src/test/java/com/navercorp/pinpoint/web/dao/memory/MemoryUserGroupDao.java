@@ -12,24 +12,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 package com.navercorp.pinpoint.web.dao.memory;
 
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
-import com.navercorp.pinpoint.web.dao.UserDao;
-import com.navercorp.pinpoint.web.dao.UserGroupDao;
-import com.navercorp.pinpoint.web.vo.User;
-import com.navercorp.pinpoint.web.vo.UserGroup;
-import com.navercorp.pinpoint.web.vo.UserGroupMember;
-import com.navercorp.pinpoint.web.vo.UserPhoneInfo;
+import com.navercorp.pinpoint.user.dao.UserDao;
+import com.navercorp.pinpoint.user.dao.UserGroupDao;
+import com.navercorp.pinpoint.user.vo.User;
+import com.navercorp.pinpoint.user.vo.UserGroup;
+import com.navercorp.pinpoint.user.vo.UserGroupMember;
+import com.navercorp.pinpoint.user.vo.UserPhoneInfo;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**

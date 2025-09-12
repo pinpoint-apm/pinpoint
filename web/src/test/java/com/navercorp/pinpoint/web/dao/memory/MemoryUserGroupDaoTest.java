@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.web.dao.memory;
 
-import com.navercorp.pinpoint.web.dao.UserDao;
-import com.navercorp.pinpoint.web.vo.UserGroup;
-import com.navercorp.pinpoint.web.vo.UserGroupMember;
+import com.navercorp.pinpoint.user.dao.UserDao;
+import com.navercorp.pinpoint.user.vo.UserGroup;
+import com.navercorp.pinpoint.user.vo.UserGroupMember;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

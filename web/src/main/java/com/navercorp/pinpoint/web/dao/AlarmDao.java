@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.web.dao;
 
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
-import com.navercorp.pinpoint.web.vo.UserGroup;
+import com.navercorp.pinpoint.user.vo.UserGroup;
 
 import java.util.List;
 

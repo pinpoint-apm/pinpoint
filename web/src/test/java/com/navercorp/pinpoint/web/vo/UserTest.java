@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo;
 
+import com.navercorp.pinpoint.user.vo.User;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

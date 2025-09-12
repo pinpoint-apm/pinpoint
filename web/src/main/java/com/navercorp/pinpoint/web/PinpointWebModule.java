@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.web;
 import com.navercorp.pinpoint.common.server.CommonsServerConfiguration;
 import com.navercorp.pinpoint.common.server.profile.StandardEnvironmentLogger;
 import com.navercorp.pinpoint.datasource.MainDataSourceConfiguration;
+import com.navercorp.pinpoint.user.UserModule;
 import com.navercorp.pinpoint.web.applicationmap.config.ApplicationMapModule;
 import com.navercorp.pinpoint.web.cache.CacheConfiguration;
 import com.navercorp.pinpoint.web.component.config.ComponentConfiguration;

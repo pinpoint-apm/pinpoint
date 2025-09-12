@@ -21,8 +21,8 @@ import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.PinotAlarmWebhookPay
 import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.UserGroup;
 import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.UserMember;
 import com.navercorp.pinpoint.batch.alarm.vo.sender.payload.WebhookPayload;
-import com.navercorp.pinpoint.web.service.UserService;
-import com.navercorp.pinpoint.web.vo.User;
+import com.navercorp.pinpoint.user.service.UserService;
+import com.navercorp.pinpoint.user.vo.User;
 import com.navercorp.pinpoint.web.webhook.model.Webhook;
 import com.navercorp.pinpoint.web.webhook.service.WebhookService;
 import org.apache.logging.log4j.LogManager;

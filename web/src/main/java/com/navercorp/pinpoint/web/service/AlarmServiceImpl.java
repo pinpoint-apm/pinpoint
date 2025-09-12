@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.common.server.alram.event.DeleteRuleEvent;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
-import com.navercorp.pinpoint.web.vo.UserGroup;
+import com.navercorp.pinpoint.user.vo.UserGroup;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

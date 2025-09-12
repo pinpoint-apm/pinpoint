@@ -22,8 +22,8 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
-import com.navercorp.pinpoint.web.dao.UserDao;
-import com.navercorp.pinpoint.web.vo.User;
+import com.navercorp.pinpoint.user.dao.UserDao;
+import com.navercorp.pinpoint.user.vo.User;
 
 /**
  * @author minwoo.jung

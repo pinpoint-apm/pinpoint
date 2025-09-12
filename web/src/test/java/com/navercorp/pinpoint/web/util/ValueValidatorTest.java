@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.util;
 
-import com.navercorp.pinpoint.web.vo.User;
+import com.navercorp.pinpoint.user.vo.User;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;

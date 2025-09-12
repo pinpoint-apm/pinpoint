@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.web.controller;
 
-import com.navercorp.pinpoint.web.dao.UserDao;
+import com.navercorp.pinpoint.user.dao.UserDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;

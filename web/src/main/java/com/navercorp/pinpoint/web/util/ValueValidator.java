@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.web.util;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.web.vo.User;
+import com.navercorp.pinpoint.user.vo.User;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

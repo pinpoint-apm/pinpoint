@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.web.frontend.export;
 
 import com.navercorp.pinpoint.common.server.frontend.export.FrontendConfigExporter;
-import com.navercorp.pinpoint.web.service.UserService;
-import com.navercorp.pinpoint.web.vo.User;
+import com.navercorp.pinpoint.user.service.UserService;
+import com.navercorp.pinpoint.user.vo.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;

@@ -17,8 +17,8 @@ package com.navercorp.pinpoint.web.dao.memory;
 
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
-import com.navercorp.pinpoint.web.dao.UserGroupDao;
-import com.navercorp.pinpoint.web.vo.UserGroup;
+import com.navercorp.pinpoint.user.dao.UserGroupDao;
+import com.navercorp.pinpoint.user.vo.UserGroup;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;

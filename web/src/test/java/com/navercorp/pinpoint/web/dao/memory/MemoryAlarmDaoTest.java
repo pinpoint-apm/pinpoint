@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.dao.memory;
 
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
-import com.navercorp.pinpoint.web.dao.UserGroupDao;
+import com.navercorp.pinpoint.user.dao.UserGroupDao;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.util;
 
+import com.navercorp.pinpoint.user.util.SecurityContextUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
