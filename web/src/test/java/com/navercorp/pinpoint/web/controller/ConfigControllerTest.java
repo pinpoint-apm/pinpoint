@@ -15,8 +15,8 @@
  */
 package com.navercorp.pinpoint.web.controller;
 
-import com.navercorp.pinpoint.web.dao.UserDao;
-import com.navercorp.pinpoint.web.vo.User;
+import com.navercorp.pinpoint.user.dao.UserDao;
+import com.navercorp.pinpoint.user.vo.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;

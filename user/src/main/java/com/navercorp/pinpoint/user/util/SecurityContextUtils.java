@@ -1,0 +1,112 @@
+/*
+ * Copyright 2025 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package com.navercorp.pinpoint.user.util;
+
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.core.AuthenticatedPrincipal;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.security.Principal;
+import java.util.Objects;
+
+/**
+ * @author Woonduk Kang(emeroad)
+ */
+public final class SecurityContextUtils {
+
+    private static SecurityContextHolderStrategy STRATEGY = SecurityContextHolder.getContextHolderStrategy();
+
+    static void setStrategy(SecurityContextHolderStrategy strategy) {
+        SecurityContextUtils.STRATEGY = Objects.requireNonNull(strategy, "strategy");
+    }
+
+    public static String getStringPrincipal() {
+        return defaultStringPrincipal(null);
+    }
+
+    public static String defaultStringPrincipal(String defaultPrincipal) {
+        return defaultPrincipal(String.class, defaultPrincipal);
+    }
+
+    public static <T> T getPrincipal(Class<T> clazz) {
+        return defaultPrincipal(clazz, null);
+    }
+
+    public static String getPrincipalName(String defaultValue) {
+        final Object principal = getPrincipal(Object.class);
+        if (principal instanceof UserDetails userDetails) {
+            return userDetails.getUsername();
+        }
+        if (principal instanceof AuthenticatedPrincipal authenticatedPrincipal) {
+            return authenticatedPrincipal.getName();
+        }
+        if (principal instanceof Principal basicPrincipal) {
+            return basicPrincipal.getName();
+        }
+        if (principal instanceof String stringPrincipal) {
+            return stringPrincipal;
+        }
+        return defaultValue;
+    }
+
+    public static <T> T defaultPrincipal(Class<T> clazz, T defaultPrincipal) {
+        final Authentication authentication = getAuthentication();
+        if (authentication == null) {
+            return defaultPrincipal;
+        }
+        final Object principal = authentication.getPrincipal();
+        if (clazz.isInstance(principal)) {
+            return cast(principal);
+        }
+        return defaultPrincipal;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T cast(Object principal) {
+        return (T) principal;
+    }
+
+    public static Authentication getAuthentication() {
+        return getAuthentication(Authentication.class);
+    }
+
+    public static <T extends Authentication> T getAuthentication(Class<T> clazz) {
+        final SecurityContext context = getSecurityContext();
+        final Authentication authentication = context.getAuthentication();
+        if (clazz.isInstance(authentication)) {
+            return cast(authentication);
+        }
+        return null;
+    }
+
+    private static String getThreadName() {
+        return Thread.currentThread().getName();
+    }
+
+    private static SecurityContext getSecurityContext() {
+        final SecurityContext context = STRATEGY.getContext();
+        if (context == null) {
+            throw new AuthenticationCredentialsNotFoundException("SecurityContext not found th:" + getThreadName());
+        }
+        return context;
+    }
+}

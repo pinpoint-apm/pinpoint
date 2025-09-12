@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.web.dao.mysql;
 
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
-import com.navercorp.pinpoint.web.vo.UserGroup;
+import com.navercorp.pinpoint.user.vo.UserGroup;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;

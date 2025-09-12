@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.common.timeseries.window.DefaultTimeSlot;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.datasource.MainDataSourceConfiguration;
 import com.navercorp.pinpoint.datasource.MetaDataSourceConfiguration;
-import com.navercorp.pinpoint.web.UserModule;
+import com.navercorp.pinpoint.user.UserModule;
 import com.navercorp.pinpoint.web.WebHbaseModule;
 import com.navercorp.pinpoint.web.WebServiceConfig;
 import com.navercorp.pinpoint.web.component.config.ComponentConfiguration;

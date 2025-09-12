@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 
-<mapper namespace="com.navercorp.pinpoint.web.dao.UserGroupDao">
+<mapper namespace="com.navercorp.pinpoint.user.dao.UserGroupDao">
 
 	<insert id="insertUserGroup" parameterType="UserGroup" useGeneratedKeys="true" keyProperty="number">
         INSERT INTO user_group (id)

@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.websocket;
 
 import com.navercorp.pinpoint.common.server.task.TaskDecoratorFactory;
-import com.navercorp.pinpoint.web.util.SecurityContextUtils;
+import com.navercorp.pinpoint.user.util.SecurityContextUtils;
 import org.springframework.core.task.TaskDecorator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;

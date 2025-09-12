@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.batch.alarm.sender;
 import com.navercorp.pinpoint.batch.alarm.AlarmSenderProperties;
 import com.navercorp.pinpoint.batch.alarm.checker.AlarmCheckerInterface;
 import com.navercorp.pinpoint.batch.alarm.checker.PinotAlarmCheckerInterface;
-import com.navercorp.pinpoint.web.service.UserGroupService;
+import com.navercorp.pinpoint.user.service.UserGroupService;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.AddressException;
