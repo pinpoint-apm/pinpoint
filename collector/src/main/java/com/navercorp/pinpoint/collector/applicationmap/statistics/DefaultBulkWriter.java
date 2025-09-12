@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
 import com.navercorp.pinpoint.common.hbase.CheckAndMax;
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTemplate;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
@@ -42,15 +40,14 @@ public class DefaultBulkWriter implements BulkWriter {
 
     private final Logger logger;
 
-    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
     private final ByteHasher hasher;
 
     private final BulkIncrementer bulkIncrementer;
 
     private final BulkUpdater bulkUpdater;
 
-    private final HbaseColumnFamily tableDescriptor;
-    private final TableNameProvider tableNameProvider;
+    private final RowKeyMerge merge ;
+
     private final HbaseAsyncTemplate asyncTemplate;
     private int batchSize = 200;
 
@@ -58,17 +55,15 @@ public class DefaultBulkWriter implements BulkWriter {
                              HbaseAsyncTemplate asyncTemplate,
                              RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
                              BulkIncrementer bulkIncrementer,
-                             BulkUpdater bulkUpdater,
-                             HbaseColumnFamily tableDescriptor,
-                             TableNameProvider tableNameProvider) {
+                             BulkUpdater bulkUpdater) {
         this.logger = LogManager.getLogger(loggerName);
         this.asyncTemplate = Objects.requireNonNull(asyncTemplate, "asyncTemplate");
-        this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
+
+        Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
+        this.merge = new RowKeyMerge(rowKeyDistributorByHashPrefix);
         this.hasher = rowKeyDistributorByHashPrefix.getByteHasher();
         this.bulkIncrementer = Objects.requireNonNull(bulkIncrementer, "bulkIncrementer");
         this.bulkUpdater = Objects.requireNonNull(bulkUpdater, "bulkUpdater");
-        this.tableDescriptor = Objects.requireNonNull(tableDescriptor, "tableDescriptor");
-        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
     }
 
     public void setBatchSize(int batchSize) {
@@ -76,28 +71,27 @@ public class DefaultBulkWriter implements BulkWriter {
     }
 
     @Override
-    public void increment(RowKey rowKey, ColumnName columnName) {
-        TableName tableName = tableNameProvider.getTableName(tableDescriptor.getTable());
-        this.bulkIncrementer.increment(tableName, rowKey, columnName);
+    public void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName) {
+        this.bulkIncrementer.increment(tableName, family, rowKey, columnName);
     }
 
     @Override
-    public void increment(RowKey rowKey, ColumnName columnName, long addition) {
-        TableName tableName = tableNameProvider.getTableName(tableDescriptor.getTable());
-        this.bulkIncrementer.increment(tableName, rowKey, columnName, addition);
+    public void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName, long addition) {
+        this.bulkIncrementer.increment(tableName, family, rowKey, columnName, addition);
     }
 
     @Override
-    public void updateMax(RowKey rowKey, ColumnName columnName, long max) {
-        TableName tableName = tableNameProvider.getTableName(tableDescriptor.getTable());
-        this.bulkUpdater.updateMax(tableName, rowKey, columnName, max);
+    public void updateMax(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName, long max) {
+        this.bulkUpdater.updateMax(tableName, family, rowKey, columnName, max);
     }
 
     @Override
     public void flushLink() {
 
         // update statistics by rowkey and column for now. need to update it by rowkey later.
-        Map<TableName, List<Increment>> incrementMap = bulkIncrementer.getIncrements(rowKeyDistributorByHashPrefix);
+        Map<RowInfo, Long> snapshot = bulkIncrementer.getIncrements();
+
+        Map<TableName, List<Increment>> incrementMap = merge.createBulkIncrement(snapshot);
 
         for (Map.Entry<TableName, List<Increment>> entry : incrementMap.entrySet()) {
             TableName tableName = entry.getKey();
@@ -128,11 +122,12 @@ public class DefaultBulkWriter implements BulkWriter {
         for (Map.Entry<RowInfo, Long> entry : maxUpdateMap.entrySet()) {
             final RowInfo rowInfo = entry.getKey();
             final Long val = entry.getValue();
-            final byte[] rowKey = getDistributedKey(rowInfo.getRowKey());
-            byte[] columnName = rowInfo.getColumnName().getColumnName();
-            CheckAndMax checkAndMax = new CheckAndMax(rowKey, getColumnFamilyName(), columnName, val);
+            final byte[] rowKey = getDistributedKey(rowInfo.rowKey());
+            byte[] columnName = rowInfo.columnName().getColumnName();
 
-            List<CheckAndMax> checkAndMaxes = maxUpdates.computeIfAbsent(rowInfo.getTableName(), k -> new ArrayList<>());
+            CheckAndMax checkAndMax = new CheckAndMax(rowKey, rowInfo.family(), columnName, val);
+
+            List<CheckAndMax> checkAndMaxes = maxUpdates.computeIfAbsent(rowInfo.tableName(), k -> new ArrayList<>());
             checkAndMaxes.add(checkAndMax);
         }
 
@@ -146,9 +141,6 @@ public class DefaultBulkWriter implements BulkWriter {
         }
     }
 
-    private byte[] getColumnFamilyName() {
-        return tableDescriptor.getName();
-    }
 
     private byte[] getDistributedKey(RowKey rowKey) {
         byte[] bytes = rowKey.getRowKey(hasher.getSaltKey().size());

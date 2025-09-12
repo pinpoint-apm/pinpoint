@@ -38,7 +38,6 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
@@ -51,7 +50,7 @@ import java.util.Objects;
 public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.HOST_APPLICATION_MAP_VER2_MAP;
+    private final HbaseColumnFamily table = HbaseTables.HOST_APPLICATION_MAP_VER2_MAP;
 
     private final HbaseOperations hbaseTemplate;
 
@@ -67,7 +66,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     public HbaseHostApplicationMapDao(HbaseOperations hbaseTemplate,
                                       TableNameProvider tableNameProvider,
-                                      @Qualifier("acceptApplicationRowKeyDistributor") RowKeyDistributor rowKeyDistributor,
+                                      RowKeyDistributor rowKeyDistributor,
                                       TimeSlot timeSlot) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
@@ -108,9 +107,9 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
         byte[] columnName = createColumnName(host, selfVertex);
 
-        TableName hostApplicationMapTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        TableName hostApplicationMapTableName = tableNameProvider.getTableName(table.getTable());
 
-        Put put = Puts.put(rowKey, DESCRIPTOR.getName(), columnName, null);
+        Put put = Puts.put(rowKey, table.getName(), columnName, null);
         this.hbaseTemplate.put(hostApplicationMapTableName, put);
 
     }

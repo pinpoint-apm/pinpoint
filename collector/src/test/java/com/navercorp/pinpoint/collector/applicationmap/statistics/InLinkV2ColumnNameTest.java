@@ -22,15 +22,15 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class OutLinkColumnNameTest {
+class InLinkV2ColumnNameTest {
 
     @Test
     void testEquals() {
 
         ServiceType serviceType = ServiceType.TEST;
         short columnSlotNumber = 2;
-        ColumnName name1 = OutLinkColumnName.histogram("callerApplicationName", serviceType, "callHost", columnSlotNumber);
-        ColumnName name2 = OutLinkColumnName.histogram("callerApplicationName", serviceType, "callHost", columnSlotNumber);
+        ColumnName name1 = InLinkV2ColumnName.histogram("callerApplicationName", serviceType, "callHost", columnSlotNumber);
+        ColumnName name2 = InLinkV2ColumnName.histogram("callerApplicationName", serviceType, "callHost", columnSlotNumber);
         Assertions.assertEquals(name1, name2);
     }
 
@@ -38,7 +38,7 @@ class OutLinkColumnNameTest {
     public void testMakeColumnName() {
 //        short serviceType, String applicationName, String destHost, short slotNumber
         final short slotNumber = 10;
-        final byte[] columnNameBytes = OutLinkColumnName.makeColumnName(ServiceType.STAND_ALONE.getCode(), "applicationName", "dest", slotNumber);
+        final byte[] columnNameBytes = InLinkV2ColumnName.makeColumnName(ServiceType.STAND_ALONE.getCode(), "applicationName", "dest", slotNumber);
         Buffer buffer = new FixedBuffer(columnNameBytes);
         Assertions.assertEquals(ServiceType.STAND_ALONE.getCode(), buffer.readShort());
         Assertions.assertEquals(10, buffer.readShort());

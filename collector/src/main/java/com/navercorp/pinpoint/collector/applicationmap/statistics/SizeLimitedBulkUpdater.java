@@ -42,12 +42,12 @@ public class SizeLimitedBulkUpdater implements BulkUpdater, BulkState {
 
 
     @Override
-    public void updateMax(TableName tableName, RowKey rowKey, ColumnName columnName, long addition) {
+    public void updateMax(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName, long addition) {
         if (overflowState) {
             reporter.reportReject();
             return;
         }
-        delegate.updateMax(tableName, rowKey, columnName, addition);
+        delegate.updateMax(tableName, family, rowKey, columnName, addition);
     }
 
     // Called by monitoring thread

@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
@@ -40,50 +39,45 @@ import java.util.Objects;
  */
 public class RowKeyMerge {
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final byte[] family;
 
-    public RowKeyMerge(HbaseColumnFamily columnFamily) {
-        this(columnFamily.getName());
+    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+
+    public RowKeyMerge(RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+        this.rowKeyDistributorByHashPrefix = rowKeyDistributorByHashPrefix;
     }
 
-    public RowKeyMerge(byte[] family) {
-        Objects.requireNonNull(family, "family");
-
-        this.family = Arrays.copyOf(family, family.length);
-    }
-
-    public Map<TableName, List<Increment>> createBulkIncrement(Map<RowInfo, Long> data, RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+    public Map<TableName, List<Increment>> createBulkIncrement(Map<RowInfo, Long> data) {
         if (data.isEmpty()) {
             return Collections.emptyMap();
         }
 
-        final Map<TableName, List<Increment>> tableIncrementMap = new HashMap<>();
-        final Map<TableName, Map<RowKey, List<ColumnCallCount>>> tableRowKeyMap = mergeRowKeys(data);
+        final Map<TableKey, Map<RowKey, List<ColumnCallCount>>> tableRowKeyMap = mergeRowKeys(data);
 
-        for (Map.Entry<TableName, Map<RowKey, List<ColumnCallCount>>> tableRowKeys : tableRowKeyMap.entrySet()) {
-            final TableName tableName = tableRowKeys.getKey();
+        final Map<TableName, List<Increment>> tableIncrementMap = new HashMap<>();
+        for (Map.Entry<TableKey, Map<RowKey, List<ColumnCallCount>>> tableRowKeys : tableRowKeyMap.entrySet()) {
+            final TableKey tableKey = tableRowKeys.getKey();
             final List<Increment> incrementList = new ArrayList<>();
             for (Map.Entry<RowKey, List<ColumnCallCount>> rowKeyEntry : tableRowKeys.getValue().entrySet()) {
-                Increment increment = createIncrement(rowKeyEntry, rowKeyDistributorByHashPrefix);
+                Increment increment = createIncrement(tableKey, rowKeyEntry);
                 incrementList.add(increment);
-
-
             }
-            tableIncrementMap.put(tableName, incrementList);
+            tableIncrementMap.put(tableKey.tableName(), incrementList);
         }
         return tableIncrementMap;
     }
 
-    private Increment createIncrement(Map.Entry<RowKey, List<ColumnCallCount>> rowKeyEntry, RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+    private Increment createIncrement(TableKey tableKey, Map.Entry<RowKey, List<ColumnCallCount>> rowKeyEntry) {
         RowKey rowKey = rowKeyEntry.getKey();
         byte[] key = getRowKey(rowKey, rowKeyDistributorByHashPrefix);
         final Increment increment = new Increment(key);
         increment.setReturnResults(false);
         for (ColumnCallCount columnName : rowKeyEntry.getValue()) {
-            increment.addColumn(family, columnName.columnName(), columnName.callCount());
+            increment.addColumn(tableKey.family(), columnName.columnName(), columnName.callCount());
         }
 
-        logger.trace("create increment row:{}, column:{}", rowKey, rowKeyEntry.getValue());
+        if (logger.isTraceEnabled()) {
+            logger.trace("create increment row:{}, column:{}", rowKey, rowKeyEntry.getValue());
+        }
         return increment;
     }
 
@@ -97,24 +91,47 @@ public class RowKeyMerge {
         }
     }
 
-    private Map<TableName, Map<RowKey, List<ColumnCallCount>>> mergeRowKeys(Map<RowInfo, Long> data) {
-        final Map<TableName, Map<RowKey, List<ColumnCallCount>>> tables = new HashMap<>();
+    private Map<TableKey, Map<RowKey, List<ColumnCallCount>>> mergeRowKeys(Map<RowInfo, Long> data) {
+        final Map<TableKey, Map<RowKey, List<ColumnCallCount>>> tables = new HashMap<>();
 
         for (Map.Entry<RowInfo, Long> entry : data.entrySet()) {
             final RowInfo rowInfo = entry.getKey();
             // write callCount to columnName and throw away
             final long callCount = entry.getValue();
 
-            final TableName tableName = rowInfo.getTableName();
-            final RowKey rowKey = rowInfo.getRowKey();
+            final RowKey rowKey = rowInfo.rowKey();
 
-            Map<RowKey, List<ColumnCallCount>> rows = tables.computeIfAbsent(tableName, k -> new HashMap<>());
+            final TableKey tableKey = new TableKey(rowInfo.tableName(), rowInfo.family());
+            Map<RowKey, List<ColumnCallCount>> rows = tables.computeIfAbsent(tableKey, k -> new HashMap<>());
             List<ColumnCallCount> columnNames = rows.computeIfAbsent(rowKey, k -> new ArrayList<>());
 
-            ColumnCallCount columnCallCount = new ColumnCallCount(rowInfo.getColumnName().getColumnName(), callCount);
+            ColumnCallCount columnCallCount = new ColumnCallCount(rowInfo.columnName().getColumnName(), callCount);
             columnNames.add(columnCallCount);
         }
         return tables;
+    }
+
+    record TableKey(TableName tableName, byte[] family) {
+
+        public TableKey {
+            Objects.requireNonNull(tableName, "tableName");
+            Objects.requireNonNull(family, "family");
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+
+            TableKey tableKey = (TableKey) o;
+            return Arrays.equals(family, tableKey.family) && tableName.equals(tableKey.tableName);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = tableName.hashCode();
+            result = 31 * result + Arrays.hashCode(family);
+            return result;
+        }
     }
 
     record ColumnCallCount(byte[] columnName, long callCount) {

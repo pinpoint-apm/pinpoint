@@ -28,8 +28,8 @@ public class DefaultBulkUpdater implements BulkUpdater {
     private final AtomicLongMap<RowInfo> max = AtomicLongMap.create();
 
     @Override
-    public void updateMax(TableName tableName, RowKey rowKey, ColumnName columnName, long addition) {
-        RowInfo rowInfo = new DefaultRowInfo(tableName, rowKey, columnName);
+    public void updateMax(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName, long addition) {
+        RowInfo rowInfo = new DefaultRowInfo(tableName, family, rowKey, columnName);
         max.accumulateAndGet(rowInfo, addition, Long::max);
     }
 

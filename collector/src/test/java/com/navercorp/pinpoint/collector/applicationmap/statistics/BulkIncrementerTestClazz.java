@@ -23,8 +23,6 @@ import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.util.CollectionUtils;
 
@@ -296,7 +294,6 @@ public class BulkIncrementerTestClazz {
 
     static class Incrementer implements Runnable {
 
-        private final Logger logger = LogManager.getLogger(this.getClass());
 
         private final BulkIncrementer bulkIncrementer;
         private final CountDownLatch completeLatch;
@@ -311,7 +308,7 @@ public class BulkIncrementerTestClazz {
         @Override
         public void run() {
             for (TestData testData : testDatas) {
-                bulkIncrementer.increment(testData.getTableName(), testData.getRowKey(), testData.getColumnName());
+                bulkIncrementer.increment(testData.getTableName(), CF, testData.getRowKey(), testData.getColumnName());
             }
             completeLatch.countDown();
         }
@@ -321,17 +318,19 @@ public class BulkIncrementerTestClazz {
     static class Flusher implements Callable<Map<TableName, List<Increment>>> {
 
         private final BulkIncrementer bulkIncrementer;
-        private final RowKeyDistributorByHashPrefix rowKeyDistributor;
+        private final RowKeyMerge merge;
         private final CountDownLatch awaitLatch;
 
         Flusher(BulkIncrementer bulkIncrementer, RowKeyDistributorByHashPrefix rowKeyDistributor, CountDownLatch awaitLatch) {
             this.bulkIncrementer = bulkIncrementer;
-            this.rowKeyDistributor = rowKeyDistributor;
+            this.merge = new RowKeyMerge(rowKeyDistributor);
             this.awaitLatch = awaitLatch;
         }
 
         private void flushToMap(Map<TableName, List<Increment>> resultMap) {
-            Map<TableName, List<Increment>> incrementMap = bulkIncrementer.getIncrements(rowKeyDistributor);
+            Map<RowInfo, Long> snapshot = bulkIncrementer.getIncrements();
+            Map<TableName, List<Increment>> incrementMap = merge.createBulkIncrement(snapshot);
+
             for (Map.Entry<TableName, List<Increment>> incrementMapEntry : incrementMap.entrySet()) {
                 TableName tableName = incrementMapEntry.getKey();
                 List<Increment> increments = resultMap.computeIfAbsent(tableName, k -> new ArrayList<>());

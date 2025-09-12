@@ -24,10 +24,12 @@ import org.apache.hadoop.hbase.TableName;
  */
 public interface RowInfo {
 
-    TableName getTableName();
+    TableName tableName();
 
-    RowKey getRowKey();
+    byte[] family();
 
-    ColumnName getColumnName();
+    RowKey rowKey();
+
+    ColumnName columnName();
 
 }

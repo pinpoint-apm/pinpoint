@@ -23,7 +23,7 @@ import java.util.Map;
 
 public interface BulkUpdater {
 
-    void updateMax(TableName tableName, RowKey rowKey, ColumnName columnName, long value);
+    void updateMax(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName, long value);
 
     Map<RowInfo, Long> getMaxUpdate();
 

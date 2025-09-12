@@ -16,12 +16,9 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Increment;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,11 +26,11 @@ import java.util.Map;
  */
 public interface BulkIncrementer {
 
-    void increment(TableName tableName, RowKey rowKey, ColumnName columnName);
+    void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName);
 
-    void increment(TableName tableName, RowKey rowKey, ColumnName columnName, long addition);
+    void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName, long addition);
 
-    Map<TableName, List<Increment>> getIncrements(RowKeyDistributorByHashPrefix rowKeyDistributor);
+    Map<RowInfo, Long> getIncrements();
 
     int getSize();
 

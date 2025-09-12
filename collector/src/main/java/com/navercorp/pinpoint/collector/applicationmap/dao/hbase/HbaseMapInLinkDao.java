@@ -20,16 +20,16 @@ import com.navercorp.pinpoint.collector.applicationmap.config.MapLinkProperties;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
-import com.navercorp.pinpoint.collector.applicationmap.statistics.OutLinkColumnName;
 import com.navercorp.pinpoint.collector.dao.hbase.IgnoreStatFilter;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.util.MapSlotUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
@@ -46,22 +46,32 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-
+    private final HbaseColumnFamily table;
     private final TimeSlot timeSlot;
 
     private final IgnoreStatFilter ignoreStatFilter;
+
+    private final TableNameProvider tableNameProvider;
     private final BulkWriter bulkWriter;
     private final MapLinkProperties mapLinkProperties;
 
+    private final InLinkFactory inLinkFactory;
+
     public HbaseMapInLinkDao(MapLinkProperties mapLinkProperties,
+                             HbaseColumnFamily table,
                              IgnoreStatFilter ignoreStatFilter,
                              TimeSlot timeSlot,
-                             @Qualifier("inLinkBulkWriter") BulkWriter bulkWriter) {
+                             TableNameProvider tableNameProvider,
+                             BulkWriter bulkWriter,
+                             InLinkFactory inLinkFactory) {
         this.mapLinkProperties = Objects.requireNonNull(mapLinkProperties, "mapLinkConfiguration");
+        this.table = Objects.requireNonNull(table, "table");
         this.ignoreStatFilter = Objects.requireNonNull(ignoreStatFilter, "ignoreStatFilter");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
 
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWriter");
+        this.inLinkFactory = Objects.requireNonNull(inLinkFactory, "inLinkFactory");
     }
 
 
@@ -86,20 +96,21 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
 
         // make row key. rowkey is me
         final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
-        final RowKey inLinkRowKey = LinkRowKey.of(inVertex, rowTimeSlot);
+        final RowKey inLinkRowKey = inLinkFactory.rowkey(inVertex, rowTimeSlot);
 
         final short outSlotNumber = MapSlotUtils.getSlotNumber(inVertex.serviceType(), elapsed, isError);
 
-        final ColumnName outLink = OutLinkColumnName.histogram(selfVertex, selfHost, outSlotNumber);
-        this.bulkWriter.increment(inLinkRowKey, outLink);
+        final ColumnName outLink = inLinkFactory.histogram(selfVertex, selfHost, outSlotNumber);
+        final TableName tableName = tableNameProvider.getTableName(table.getTable());
+        this.bulkWriter.increment(tableName, table.getName(), inLinkRowKey, outLink);
 
         if (mapLinkProperties.isEnableAvg()) {
-            final ColumnName sumOutLink = OutLinkColumnName.sum(selfVertex, selfHost, inVertex.serviceType());
-            this.bulkWriter.increment(inLinkRowKey, sumOutLink, elapsed);
+            final ColumnName sumOutLink = inLinkFactory.sum(selfVertex, selfHost, inVertex.serviceType());
+            this.bulkWriter.increment(tableName, table.getName(), inLinkRowKey, sumOutLink, elapsed);
         }
         if (mapLinkProperties.isEnableMax()) {
-            final ColumnName maxOutLink = OutLinkColumnName.max(selfVertex, selfHost, inVertex.serviceType());
-            this.bulkWriter.updateMax(inLinkRowKey, maxOutLink, elapsed);
+            final ColumnName maxOutLink = inLinkFactory.max(selfVertex, selfHost, inVertex.serviceType());
+            this.bulkWriter.updateMax(tableName, table.getName(), inLinkRowKey, maxOutLink, elapsed);
         }
     }
 

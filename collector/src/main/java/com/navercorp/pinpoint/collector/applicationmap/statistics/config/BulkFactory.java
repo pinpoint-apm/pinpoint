@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,11 +22,8 @@ import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.DefaultBulkIncrementer;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.DefaultBulkUpdater;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.DefaultBulkWriter;
-import com.navercorp.pinpoint.collector.applicationmap.statistics.RowKeyMerge;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.SyncWriter;
 import com.navercorp.pinpoint.collector.monitor.dao.hbase.BulkOperationReporter;
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTemplate;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 
@@ -50,10 +47,10 @@ public class BulkFactory {
     }
 
 
-    public BulkIncrementer newBulkIncrementer(String reporterName, HbaseColumnFamily hbaseColumnFamily, int limitSize) {
+    public BulkIncrementer newBulkIncrementer(String reporterName, int limitSize) {
         BulkOperationReporter reporter = bulkOperationReporterFactory.getBulkOperationReporter(reporterName);
-        RowKeyMerge merge = new RowKeyMerge(hbaseColumnFamily);
-        BulkIncrementer bulkIncrementer = new DefaultBulkIncrementer(merge);
+
+        BulkIncrementer bulkIncrementer = new DefaultBulkIncrementer();
 
         return bulkIncrementerFactory.wrap(bulkIncrementer, limitSize, reporter);
     }
@@ -67,16 +64,14 @@ public class BulkFactory {
 
     public BulkWriter newBulkWriter(String loggerName,
                                      HbaseAsyncTemplate asyncTemplate,
-                                     HbaseColumnFamily descriptor,
-                                     TableNameProvider tableNameProvider,
                                      RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
                                      BulkIncrementer bulkIncrementer,
                                      BulkUpdater bulkUpdater) {
         if (bulkProperties.enableBulk()) {
             return new DefaultBulkWriter(loggerName, asyncTemplate, rowKeyDistributorByHashPrefix,
-                    bulkIncrementer, bulkUpdater, descriptor, tableNameProvider);
+                    bulkIncrementer, bulkUpdater);
         } else {
-            return new SyncWriter(loggerName, asyncTemplate, rowKeyDistributorByHashPrefix, descriptor, tableNameProvider);
+            return new SyncWriter(loggerName, asyncTemplate, rowKeyDistributorByHashPrefix);
         }
     }
 

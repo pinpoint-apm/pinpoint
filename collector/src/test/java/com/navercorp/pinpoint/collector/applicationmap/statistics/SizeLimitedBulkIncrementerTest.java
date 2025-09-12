@@ -51,6 +51,7 @@ import java.util.concurrent.TimeUnit;
 public class SizeLimitedBulkIncrementerTest {
 
     private static final byte[] CF = Bytes.toBytes("CF");
+    private final RowKeyMerge merge = new RowKeyMerge(null);
 
     private final int bulkLimitSize = 1000;
 
@@ -59,7 +60,12 @@ public class SizeLimitedBulkIncrementerTest {
 
     private final BulkOperationReporter reporter = new BulkOperationReporter();
     private final BulkIncrementer bulkIncrementer = bulkIncrementerFactory.wrap(
-            new DefaultBulkIncrementer(new RowKeyMerge(CF)), 1000, reporter);
+            new DefaultBulkIncrementer(), 1000, reporter);
+
+    private Map<TableName, List<Increment>> createIncrements() {
+        Map<RowInfo, Long> increments = bulkIncrementer.getIncrements();
+        return merge.createBulkIncrement(increments);
+    }
 
     @Test
     public void singleTable() {
@@ -75,11 +81,12 @@ public class SizeLimitedBulkIncrementerTest {
 
         // When
         for (TestData testData : testDatas) {
-            bulkIncrementer.increment(testData.getTableName(), testData.getRowKey(), testData.getColumnName());
+            bulkIncrementer.increment(testData.getTableName(), CF, testData.getRowKey(), testData.getColumnName());
         }
 
         // Then
-        Map<TableName, List<Increment>> incrementMap = bulkIncrementer.getIncrements(null);
+        Map<TableName, List<Increment>> incrementMap = createIncrements();
+
         TestVerifier verifier = new TestVerifier(incrementMap);
         verifier.verify(testDataSetA_0_0);
         verifier.verify(testDataSetA_0_1);
@@ -112,11 +119,11 @@ public class SizeLimitedBulkIncrementerTest {
 
         // When
         for (TestData testData : testDatas) {
-            bulkIncrementer.increment(testData.getTableName(), testData.getRowKey(), testData.getColumnName());
+            bulkIncrementer.increment(testData.getTableName(), CF, testData.getRowKey(), testData.getColumnName());
         }
 
         // Then
-        Map<TableName, List<Increment>> incrementMap = bulkIncrementer.getIncrements(null);
+        Map<TableName, List<Increment>> incrementMap = createIncrements();
 
         TestVerifier verifier = new TestVerifier(incrementMap);
         verifier.verify(testDataSetA_0_0);

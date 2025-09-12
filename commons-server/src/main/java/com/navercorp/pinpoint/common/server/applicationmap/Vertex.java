@@ -16,20 +16,24 @@
 
 package com.navercorp.pinpoint.common.server.applicationmap;
 
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.Objects;
 
-public record Vertex(String applicationName, ServiceType serviceType) {
+public record Vertex(int serviceUid, String applicationName, ServiceType serviceType) {
 
-    public Vertex(String applicationName, ServiceType serviceType) {
+    public static final ServiceUid DEFAULT = ServiceUid.DEFAULT;
+
+    public Vertex(int serviceUid, String applicationName, ServiceType serviceType) {
+        this.serviceUid = serviceUid;
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
     }
 
 
     public static Vertex of(String applicationName, ServiceType serviceType) {
-        return new Vertex(applicationName, serviceType);
+        return new Vertex(DEFAULT.getUid(), applicationName, serviceType);
     }
 
     @Override

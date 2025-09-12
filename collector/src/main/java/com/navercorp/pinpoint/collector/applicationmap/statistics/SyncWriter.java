@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
 import com.navercorp.pinpoint.common.hbase.CheckAndMax;
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTemplate;
 import com.navercorp.pinpoint.common.hbase.util.Increments;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
@@ -43,38 +41,31 @@ public class SyncWriter implements BulkWriter {
     private final HbaseAsyncTemplate hbaseTemplate;
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
-    private final HbaseColumnFamily tableDescriptor;
-    private final TableNameProvider tableNameProvider;
 
 
     public SyncWriter(String loggerName,
                             HbaseAsyncTemplate hbaseTemplate,
-                             RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
-                             HbaseColumnFamily tableDescriptor,
-                             TableNameProvider tableNameProvider) {
+                             RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
-        this.tableDescriptor = Objects.requireNonNull(tableDescriptor, "tableDescriptor");
-        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
     }
 
     @Override
-    public void increment(RowKey rowKey, ColumnName columnName) {
+    public void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName) {
         Objects.requireNonNull(rowKey, "rowKey");
         Objects.requireNonNull(columnName, "columnName");
 
-        this.increment(rowKey, columnName, 1L);
+        this.increment(tableName, family, rowKey, columnName, 1L);
     }
 
     @Override
-    public void increment(RowKey rowKey, ColumnName columnName, long addition) {
+    public void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName, long addition) {
         Objects.requireNonNull(rowKey, "rowKey");
         Objects.requireNonNull(columnName, "columnName");
 
-        TableName tableName = tableNameProvider.getTableName(this.tableDescriptor.getTable());
         final byte[] rowKeyBytes = getDistributedKey(rowKey);
 
-        Increment increment = Increments.increment(rowKeyBytes, getColumnFamilyName(), columnName.getColumnName(), 1);
+        Increment increment = Increments.increment(rowKeyBytes, family, columnName.getColumnName(), 1);
         increment.setReturnResults(false);
 
         CompletableFuture<Result> future = this.hbaseTemplate.increment(tableName, increment);
@@ -82,14 +73,13 @@ public class SyncWriter implements BulkWriter {
     }
 
     @Override
-    public void updateMax(RowKey rowKey, ColumnName columnName, long max) {
+    public void updateMax(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName, long max) {
 
         Objects.requireNonNull(rowKey, "rowKey");
         Objects.requireNonNull(columnName, "columnName");
 
-        TableName tableName = tableNameProvider.getTableName(this.tableDescriptor.getTable());
         final byte[] rowKeyBytes = getDistributedKey(rowKey);
-        CheckAndMax checkAndMax = new CheckAndMax(rowKeyBytes, getColumnFamilyName(), columnName.getColumnName(), max);
+        CheckAndMax checkAndMax = new CheckAndMax(rowKeyBytes, family, columnName.getColumnName(), max);
         this.hbaseTemplate.maxColumnValue(tableName, checkAndMax);
     }
 
@@ -101,10 +91,6 @@ public class SyncWriter implements BulkWriter {
     @Override
     public void flushAvgMax() {
         // empty
-    }
-
-    private byte[] getColumnFamilyName() {
-        return tableDescriptor.getName();
     }
 
     private byte[] getDistributedKey(RowKey rowKey) {

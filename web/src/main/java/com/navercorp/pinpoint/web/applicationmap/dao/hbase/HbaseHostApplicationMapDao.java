@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.web.applicationmap.dao.hbase;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
-import com.navercorp.pinpoint.common.hbase.HbaseTableV2;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
@@ -50,10 +50,13 @@ import java.util.Set;
 @Repository
 public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
-    private static final int HOST_APPLICATION_MAP_VER2_NUM_PARTITIONS = 4;
+    private static final int NUM_PARTITIONS = 4;
 
     private final Logger logger = LogManager.getLogger(this.getClass());
     private int scanCacheSize = 32;
+
+    private final HbaseColumnFamily table;
+
 
     private final HbaseOperations hbaseOperations;
 
@@ -65,11 +68,13 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     private final RowKeyDistributor acceptApplicationRowKeyDistributor;
 
-    public HbaseHostApplicationMapDao(HbaseOperations hbaseOperations,
+    public HbaseHostApplicationMapDao(HbaseColumnFamily table,
+                                      HbaseOperations hbaseOperations,
                                       TableNameProvider tableNameProvider,
                                       ResultsExtractor<Set<AcceptApplication>> hostApplicationResultExtractor,
                                       TimeSlot timeSlot,
                                       RowKeyDistributor acceptApplicationRowKeyDistributor) {
+        this.table = Objects.requireNonNull(table, "table");
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.hostApplicationResultExtractor = Objects.requireNonNull(hostApplicationResultExtractor, "hostApplicationResultExtractor");
@@ -83,8 +88,8 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         Objects.requireNonNull(fromApplication, "fromApplication");
         final Scan scan = createScan(fromApplication, range);
 
-        TableName hostApplicationMapTableName = tableNameProvider.getTableName(HbaseTableV2.HOST_APPLICATION_MAP_VER2);
-        final Set<AcceptApplication> result = hbaseOperations.findParallel(hostApplicationMapTableName, scan, acceptApplicationRowKeyDistributor, hostApplicationResultExtractor, HOST_APPLICATION_MAP_VER2_NUM_PARTITIONS);
+        TableName hostApplicationMapTableName = tableNameProvider.getTableName(table.getTable());
+        final Set<AcceptApplication> result = hbaseOperations.findParallel(hostApplicationMapTableName, scan, acceptApplicationRowKeyDistributor, hostApplicationResultExtractor, NUM_PARTITIONS);
         if (CollectionUtils.isNotEmpty(result)) {
             logger.debug("findAcceptApplicationName result:{}", result);
             return result;
