@@ -38,7 +38,6 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
@@ -67,7 +66,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     public HbaseHostApplicationMapDao(HbaseOperations hbaseTemplate,
                                       TableNameProvider tableNameProvider,
-                                      @Qualifier("acceptApplicationRowKeyDistributor") RowKeyDistributor rowKeyDistributor,
+                                      RowKeyDistributor rowKeyDistributor,
                                       TimeSlot timeSlot) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
