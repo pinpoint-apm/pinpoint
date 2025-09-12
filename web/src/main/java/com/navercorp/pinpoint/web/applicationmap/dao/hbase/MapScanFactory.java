@@ -53,8 +53,8 @@ public class MapScanFactory {
             logger.debug("scan time:{} ", range.prettyToString());
         }
         // start key is replaced by end key because timestamp has been reversed
-        byte[] startKey = LinkRowKey.makeRowKey(ByteSaltKey.NONE.size(), application.getName(), (short) application.getServiceTypeCode(), range.getTo());
-        byte[] endKey = LinkRowKey.makeRowKey(ByteSaltKey.NONE.size(), application.getName(), (short) application.getServiceTypeCode(), range.getFrom());
+        byte[] startKey = rowKey(application, range.getTo());
+        byte[] endKey = rowKey(application, range.getFrom());
 
         final Scan scan = new Scan();
 
@@ -66,6 +66,10 @@ public class MapScanFactory {
         scan.setId(id);
 
         return scan;
+    }
+
+    protected byte[] rowKey(Application application, long range) {
+        return LinkRowKey.makeRowKey(ByteSaltKey.NONE.size(), application.getName(), (short) application.getServiceTypeCode(), range);
     }
 
     private int computeScannerCaching(Range range) {

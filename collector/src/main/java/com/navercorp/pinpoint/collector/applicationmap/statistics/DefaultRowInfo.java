@@ -19,54 +19,37 @@ package com.navercorp.pinpoint.collector.applicationmap.statistics;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import org.apache.hadoop.hbase.TableName;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
  * @author emeroad
  * @author HyunGil Jeong
  */
-public class DefaultRowInfo implements RowInfo {
+public record DefaultRowInfo(TableName tableName,
+                             byte[] family,
+                             RowKey rowKey,
+                             ColumnName columnName) implements RowInfo {
 
-    private final TableName tableName;
-    private final RowKey rowKey;
-    private final ColumnName columnName;
-
-    public DefaultRowInfo(TableName tableName, RowKey rowKey, ColumnName columnName) {
-        this.tableName = Objects.requireNonNull(tableName, "tableName");
-        this.rowKey = Objects.requireNonNull(rowKey, "rowKey");
-        this.columnName = Objects.requireNonNull(columnName, "columnName");
-    }
-
-    @Override
-    public TableName getTableName() {
-        return tableName;
-    }
-
-    @Override
-    public RowKey getRowKey() {
-        return rowKey;
-    }
-
-    @Override
-    public ColumnName getColumnName() {
-        return columnName;
+    public DefaultRowInfo {
+        Objects.requireNonNull(tableName, "tableName");
+        Objects.requireNonNull(family, "family");
+        Objects.requireNonNull(rowKey, "rowKey");
+        Objects.requireNonNull(columnName, "columnName");
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         DefaultRowInfo that = (DefaultRowInfo) o;
-
-        if (!tableName.equals(that.tableName)) return false;
-        if (!rowKey.equals(that.rowKey)) return false;
-        return columnName.equals(that.columnName);
+        return Arrays.equals(family, that.family) && rowKey.equals(that.rowKey) && tableName.equals(that.tableName) && columnName.equals(that.columnName);
     }
 
     @Override
     public int hashCode() {
         int result = tableName.hashCode();
+        result = 31 * result + Arrays.hashCode(family);
         result = 31 * result + rowKey.hashCode();
         result = 31 * result + columnName.hashCode();
         return result;

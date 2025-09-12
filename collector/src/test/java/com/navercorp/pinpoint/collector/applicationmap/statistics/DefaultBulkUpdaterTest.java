@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,15 +46,16 @@ import java.util.concurrent.TimeUnit;
  */
 @ExtendWith(MockitoExtension.class)
 public class DefaultBulkUpdaterTest {
-
     private static final byte[] CF = Bytes.toBytes("CF");
+
+    private final RowKeyMerge merge = new RowKeyMerge(null);
 
     @AutoClose
     private static final BulkIncrementerFactory bulkIncrementerFactory = new BulkIncrementerFactory();
 
     private final BulkOperationReporter reporter = new BulkOperationReporter();
     private final BulkIncrementer bulkIncrementer = bulkIncrementerFactory.wrap(
-            new DefaultBulkIncrementer(new RowKeyMerge(CF)), Integer.MAX_VALUE, reporter);
+            new DefaultBulkIncrementer(), Integer.MAX_VALUE, reporter);
 
     @Test
     public void singleTable() {
@@ -70,14 +71,19 @@ public class DefaultBulkUpdaterTest {
 
         // When
         for (TestData testData : testDatas) {
-            bulkIncrementer.increment(testData.getTableName(), testData.getRowKey(), testData.getColumnName());
+            bulkIncrementer.increment(testData.getTableName(), CF, testData.getRowKey(), testData.getColumnName());
         }
 
         // Then
-        Map<TableName, List<Increment>> incrementMap = bulkIncrementer.getIncrements(null);
+        Map<TableName, List<Increment>> incrementMap = createIncrements();
         TestVerifier verifier = new TestVerifier(incrementMap);
         verifier.verify(testDataSetA_0_0);
         verifier.verify(testDataSetA_0_1);
+    }
+
+    private Map<TableName, List<Increment>> createIncrements() {
+        Map<RowInfo, Long> increments = bulkIncrementer.getIncrements();
+        return merge.createBulkIncrement(increments);
     }
 
     @Test
@@ -107,11 +113,11 @@ public class DefaultBulkUpdaterTest {
 
         // When
         for (TestData testData : testDatas) {
-            bulkIncrementer.increment(testData.getTableName(), testData.getRowKey(), testData.getColumnName());
+            bulkIncrementer.increment(testData.getTableName(), CF, testData.getRowKey(), testData.getColumnName());
         }
 
         // Then
-        Map<TableName, List<Increment>> incrementMap = bulkIncrementer.getIncrements(null);
+        Map<TableName, List<Increment>> incrementMap = createIncrements();
         TestVerifier verifier = new TestVerifier(incrementMap);
         verifier.verify(testDataSetA_0_0);
         verifier.verify(testDataSetA_0_1);

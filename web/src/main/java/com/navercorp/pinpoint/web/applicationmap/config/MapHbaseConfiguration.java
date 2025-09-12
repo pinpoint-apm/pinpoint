@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 NAVER Corp.
+ * Copyright 2023 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,16 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package com.navercorp.pinpoint.web.applicationmap.config;
 
 import com.navercorp.pinpoint.common.hbase.ConnectionFactoryBean;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate;
-import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.TableFactory;
-import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.AsyncConnectionFactoryBean;
 import com.navercorp.pinpoint.common.hbase.async.AsyncTableCustomizer;
 import com.navercorp.pinpoint.common.hbase.async.AsyncTableFactory;
@@ -30,27 +28,8 @@ import com.navercorp.pinpoint.common.hbase.config.HbaseTemplateConfiguration;
 import com.navercorp.pinpoint.common.hbase.config.ParallelScan;
 import com.navercorp.pinpoint.common.hbase.scan.ResultScannerFactory;
 import com.navercorp.pinpoint.common.hbase.util.ScanMetricReporter;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.executor.ExecutorCustomizer;
 import com.navercorp.pinpoint.common.server.executor.ExecutorProperties;
-import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
-import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
-import com.navercorp.pinpoint.web.applicationmap.dao.HostApplicationMapDao;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapInLinkDao;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapOutLinkDao;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
-import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseHostApplicationMapDao;
-import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapInLinkDao;
-import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapOutLinkDao;
-import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapResponseTimeDao;
-import com.navercorp.pinpoint.web.applicationmap.dao.hbase.MapScanFactory;
-import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResultExtractorFactory;
-import com.navercorp.pinpoint.web.applicationmap.dao.mapper.RowMapperFactory;
-import com.navercorp.pinpoint.web.applicationmap.map.AcceptApplication;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
-import com.navercorp.pinpoint.web.vo.RangeFactory;
-import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.AsyncConnection;
 import org.apache.hadoop.hbase.client.Connection;
@@ -64,17 +43,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 @org.springframework.context.annotation.Configuration
 @Import({
-        MapMapperConfiguration.class
+        MapMapperConfiguration.class,
+        MapV3MapperConfiguration.class
 })
 public class MapHbaseConfiguration {
-    private final Logger logger = LogManager.getLogger(MapHbaseConfiguration.class);
+    private static final Logger logger = LogManager.getLogger(MapHbaseConfiguration.class);
 
     private final HbaseTemplateConfiguration config = new HbaseTemplateConfiguration();
 
@@ -133,58 +111,5 @@ public class MapHbaseConfiguration {
         return config.hbaseTemplate(configurable, tableFactory, asyncTemplate, parallelScan, nativeAsync, resultScannerFactory, reporter);
     }
 
-    @Bean
-    public MapScanFactory mapScanFactory(RangeFactory rangeFactory) {
-        return new MapScanFactory(rangeFactory);
-    }
-
-    @Bean
-    public MapResponseDao mapResponseDao(@Qualifier("mapHbaseTemplate")
-                                         HbaseTemplate hbaseTemplate,
-                                         TableNameProvider tableNameProvider,
-                                         @Qualifier("responseTimeResultExtractor")
-                                         ResultExtractorFactory<List<ResponseTime>> resultExtractFactory,
-                                         @Qualifier("applicationResponseTimeResultExtractor")
-                                         ResultExtractorFactory<ApplicationResponse> applicationHistogramResultExtractor,
-                                         MapScanFactory mapScanFactory,
-                                         @Qualifier("mapSelfRowKeyDistributor")
-                                         RowKeyDistributorByHashPrefix rowKeyDistributor) {
-        return new HbaseMapResponseTimeDao(hbaseTemplate, tableNameProvider, resultExtractFactory, applicationHistogramResultExtractor, mapScanFactory, rowKeyDistributor);
-    }
-
-    @Bean
-    public MapInLinkDao mapInLinkDao(@Qualifier("mapHbaseTemplate")
-                                     HbaseTemplate hbaseTemplate,
-                                     TableNameProvider tableNameProvider,
-                                     @Qualifier("mapInLinkMapper")
-                                     RowMapperFactory<LinkDataMap> inLinkMapper,
-                                     MapScanFactory mapScanFactory,
-                                     @Qualifier("mapLinkRowKeyDistributor")
-                                     RowKeyDistributorByHashPrefix rowKeyDistributor) {
-        return new HbaseMapInLinkDao(hbaseTemplate, tableNameProvider, inLinkMapper, mapScanFactory, rowKeyDistributor);
-    }
-
-    @Bean
-    public MapOutLinkDao mapOutLinkDao(@Qualifier("mapHbaseTemplate")
-                                       HbaseTemplate hbaseTemplate,
-                                       TableNameProvider tableNameProvider,
-                                       @Qualifier("mapOutLinkMapper")
-                                       RowMapperFactory<LinkDataMap> outLinkMapper,
-                                       MapScanFactory mapScanFactory,
-                                       @Qualifier("mapLinkRowKeyDistributor")
-                                       RowKeyDistributorByHashPrefix rowKeyDistributor) {
-        return new HbaseMapOutLinkDao(hbaseTemplate, tableNameProvider, outLinkMapper, mapScanFactory, rowKeyDistributor);
-    }
-
-    @Bean
-    public HostApplicationMapDao hostApplicationMapDao(HbaseOperations hbaseOperations,
-                                                       TableNameProvider tableNameProvider,
-                                                       @Qualifier("hostApplicationResultExtractor")
-                                                       ResultsExtractor<Set<AcceptApplication>> hostApplicationResultExtractor,
-                                                       TimeSlot timeSlot,
-                                                       @Qualifier("acceptApplicationRowKeyDistributor")
-                                                       RowKeyDistributor acceptApplicationRowKeyDistributor) {
-        return new HbaseHostApplicationMapDao(hbaseOperations, tableNameProvider, hostApplicationResultExtractor, timeSlot, acceptApplicationRowKeyDistributor);
-    }
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.applicationmap.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
-import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
@@ -46,11 +45,11 @@ import java.util.Objects;
 @Repository
 public class HbaseMapResponseTimeDao implements MapResponseDao {
 
-    private static final int MAP_STATISTICS_SELF_VER2_NUM_PARTITIONS = 8;
+    private static final int NUM_PARTITIONS = 8;
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER;
+    private final HbaseColumnFamily table;
 
     private final ResultExtractorFactory<List<ResponseTime>> resultExtractFactory;
 
@@ -62,12 +61,14 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
     private final RowKeyDistributorByHashPrefix rowKeyDistributor;
     private final ResultExtractorFactory<ApplicationResponse> applicationHistogramResultExtractor;
 
-    public HbaseMapResponseTimeDao(HbaseOperations hbaseOperations,
+    public HbaseMapResponseTimeDao(HbaseColumnFamily table,
+                                   HbaseOperations hbaseOperations,
                                    TableNameProvider tableNameProvider,
                                    ResultExtractorFactory<List<ResponseTime>> resultExtractMapperFactory,
                                    ResultExtractorFactory<ApplicationResponse> applicationHistogramResultExtractor,
                                    MapScanFactory scanFactory,
                                    RowKeyDistributorByHashPrefix rowKeyDistributor) {
+        this.table = Objects.requireNonNull(table, "table");
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.resultExtractFactory = Objects.requireNonNull(resultExtractMapperFactory, "resultExtractMapperFactory");
@@ -87,13 +88,13 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
         }
 
         Range windowRange = timeWindow.getWindowRange();
-        Scan scan = scanFactory.createScan("MapSelfScan", application, windowRange, DESCRIPTOR.getName());
+        Scan scan = scanFactory.createScan("MapSelfScan", application, windowRange, table.getName());
 
         ResultsExtractor<List<ResponseTime>> resultsExtractor = resultExtractFactory.newMapper(timeWindow);
 
-        TableName mapStatisticsSelfTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        TableName mapStatisticsSelfTableName = tableNameProvider.getTableName(table.getTable());
         List<ResponseTime> responseTimeList = hbaseOperations.findParallel(mapStatisticsSelfTableName, scan, rowKeyDistributor,
-                resultsExtractor, MAP_STATISTICS_SELF_VER2_NUM_PARTITIONS);
+                resultsExtractor, NUM_PARTITIONS);
 
         if (responseTimeList.isEmpty()) {
             return List.of();
@@ -127,13 +128,13 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
         }
 
         Range windowRange = timeWindow.getWindowRange();
-        Scan scan = scanFactory.createScan("MapSelfScan", application, windowRange, DESCRIPTOR.getName());
+        Scan scan = scanFactory.createScan("MapSelfScan", application, windowRange, table.getName());
 
         ResultsExtractor<ApplicationResponse> mapper = applicationHistogramResultExtractor.newMapper(timeWindow);
-        TableName mapStatisticsSelfTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        TableName mapStatisticsSelfTableName = tableNameProvider.getTableName(table.getTable());
 
         ApplicationResponse histogram = hbaseOperations.findParallel(mapStatisticsSelfTableName, scan, rowKeyDistributor,
-                mapper, MAP_STATISTICS_SELF_VER2_NUM_PARTITIONS);
+                mapper, NUM_PARTITIONS);
         if (histogram == null) {
             return ApplicationResponse.newBuilder(application).build();
         }

@@ -17,38 +17,30 @@ package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
 import com.google.common.util.concurrent.AtomicLongMap;
 import com.navercorp.pinpoint.collector.util.AtomicLongMapUtils;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Increment;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class DefaultBulkIncrementer implements BulkIncrementer {
 
-    private final RowKeyMerge rowKeyMerge;
-
     private final AtomicLongMap<RowInfo> counter = AtomicLongMap.create();
 
-    public DefaultBulkIncrementer(RowKeyMerge rowKeyMerge) {
-        this.rowKeyMerge = Objects.requireNonNull(rowKeyMerge, "rowKeyMerge");
+    public DefaultBulkIncrementer() {
     }
 
-    public void increment(TableName tableName, RowKey rowKey, ColumnName columnName) {
-        increment(tableName, rowKey, columnName, 1L);
+    public void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName) {
+        increment(tableName, family, rowKey, columnName, 1L);
     }
 
-    public void increment(TableName tableName, RowKey rowKey, ColumnName columnName, long addition) {
-        RowInfo rowInfo = new DefaultRowInfo(tableName, rowKey, columnName);
+    public void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName, long addition) {
+        RowInfo rowInfo = new DefaultRowInfo(tableName, family, rowKey, columnName);
         counter.addAndGet(rowInfo, addition);
     }
 
     @Override
-    public Map<TableName, List<Increment>> getIncrements(RowKeyDistributorByHashPrefix rowKeyDistributor) {
-        final Map<RowInfo, Long> snapshot = AtomicLongMapUtils.remove(counter);
-        return rowKeyMerge.createBulkIncrement(snapshot, rowKeyDistributor);
+    public Map<RowInfo, Long> getIncrements() {
+        return AtomicLongMapUtils.remove(counter);
     }
 
     @Override

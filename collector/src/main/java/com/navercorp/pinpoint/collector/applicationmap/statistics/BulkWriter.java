@@ -17,16 +17,17 @@
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
+import org.apache.hadoop.hbase.TableName;
 
 /**
  * @author emeroad
  */
 public interface BulkWriter {
-    void increment(RowKey rowKey, ColumnName columnName);
+    void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName);
 
-    void increment(RowKey rowKey, ColumnName columnName, long addition);
+    void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName, long addition);
 
-    void updateMax(RowKey rowKey, ColumnName columnName, long max);
+    void updateMax(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName, long max);
 
     void flushLink();
 

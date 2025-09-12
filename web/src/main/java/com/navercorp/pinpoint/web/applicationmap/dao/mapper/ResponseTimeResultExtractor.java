@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
 
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
@@ -49,15 +51,18 @@ public class ResponseTimeResultExtractor implements ResultsExtractor<List<Respon
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
+    private final HbaseColumnFamily table;
     private final ServiceTypeRegistryService registry;
 
     private final RowKeyDecoder<LinkRowKey> rowKeyDecoder;
 
     private final TimeWindowFunction timeWindowFunction;
 
-    public ResponseTimeResultExtractor(ServiceTypeRegistryService registry,
+    public ResponseTimeResultExtractor(HbaseColumnFamily table,
+                                       ServiceTypeRegistryService registry,
                                        RowKeyDecoder<LinkRowKey> rowKeyDecoder,
                                        TimeWindowFunction timeWindowFunction) {
+        this.table = Objects.requireNonNull(table, "table");
         this.registry = Objects.requireNonNull(registry, "registry");
         this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
         this.timeWindowFunction = Objects.requireNonNull(timeWindowFunction, "timeWindowFunction");
@@ -90,7 +95,7 @@ public class ResponseTimeResultExtractor implements ResultsExtractor<List<Respon
 
         ResponseTime.Builder responseTimeBuilder = createResponseTimeBuilder(map, linkRowKey);
         for (Cell cell : result.rawCells()) {
-            if (CellUtil.matchingFamily(cell, HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER.getName())) {
+            if (CellUtil.matchingFamily(cell, table.getName())) {
                 recordColumn(responseTimeBuilder, cell);
             }
 

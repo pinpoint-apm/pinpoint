@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,10 +21,14 @@ package com.navercorp.pinpoint.common;
  */
 public final class PinpointConstants {
 
+    @Deprecated
     public static final int APPLICATION_NAME_MAX_LEN = 24;
 
     public static final int AGENT_ID_MAX_LEN = 24;
 
     public static final int AGENT_NAME_MAX_LEN = 255;
+
+    public static final int UID_SERVICE_NAME_LEN = 254;
+    public static final int UID_APPLICATION_NAME_LEN = UID_SERVICE_NAME_LEN;
 
 }

@@ -18,6 +18,9 @@ package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+import com.navercorp.pinpoint.common.hbase.HbaseTables;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -59,8 +62,10 @@ public class ResponseTimeMapperTest {
                 .setValue(valueArray)
                 .build();
 
+        HbaseColumnFamily table = HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER;
+
         ResponseTimeMapper responseTimeMapper =
-                new ResponseTimeMapper(mock(ServiceTypeRegistryService.class),
+                new ResponseTimeMapper(table, mock(ServiceTypeRegistryService.class),
                 new LinkRowKeyDecoder(1), TimeWindowFunction.identity());
         ResponseTime.Builder responseBuilder = ResponseTime.newBuilder("applicationName", ServiceType.STAND_ALONE, System.currentTimeMillis());
         responseTimeMapper.recordColumn(responseBuilder, mockCell);

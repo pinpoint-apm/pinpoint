@@ -16,13 +16,10 @@
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
 import com.navercorp.pinpoint.collector.monitor.dao.hbase.BulkOperationReporter;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.util.Assert;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Increment;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -44,17 +41,17 @@ public class SizeLimitedBulkIncrementer implements BulkIncrementer, BulkState {
     }
 
     @Override
-    public void increment(TableName tableName, RowKey rowKey, ColumnName columnName) {
-        this.increment(tableName, rowKey, columnName, 1L);
+    public void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName) {
+        this.increment(tableName, family, rowKey, columnName, 1L);
     }
 
     @Override
-    public void increment(TableName tableName, RowKey rowKey, ColumnName columnName, long addition) {
+    public void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName, long addition) {
         if (overflowState) {
             reporter.reportReject();
             return;
         }
-        delegate.increment(tableName, rowKey, columnName, addition);
+        delegate.increment(tableName, family, rowKey, columnName, addition);
     }
 
     // Called by monitoring thread
@@ -70,9 +67,9 @@ public class SizeLimitedBulkIncrementer implements BulkIncrementer, BulkState {
     }
 
     @Override
-    public Map<TableName, List<Increment>> getIncrements(RowKeyDistributorByHashPrefix rowKeyDistributor) {
+    public Map<RowInfo, Long> getIncrements() {
         try {
-            return delegate.getIncrements(rowKeyDistributor);
+            return delegate.getIncrements();
         } finally {
             reporter.reportFlushAll();
             overflowState = false;
