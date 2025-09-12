@@ -20,16 +20,13 @@ import com.navercorp.pinpoint.collector.applicationmap.config.MapLinkProperties;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
-import com.navercorp.pinpoint.collector.applicationmap.statistics.OutLinkColumnName;
 import com.navercorp.pinpoint.collector.dao.hbase.IgnoreStatFilter;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.util.MapSlotUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
@@ -46,22 +43,25 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-
     private final TimeSlot timeSlot;
 
     private final IgnoreStatFilter ignoreStatFilter;
     private final BulkWriter bulkWriter;
     private final MapLinkProperties mapLinkProperties;
 
+    private final InLinkFactory inLinkFactory;
+
     public HbaseMapInLinkDao(MapLinkProperties mapLinkProperties,
                              IgnoreStatFilter ignoreStatFilter,
                              TimeSlot timeSlot,
-                             @Qualifier("inLinkBulkWriter") BulkWriter bulkWriter) {
+                             BulkWriter bulkWriter,
+                             InLinkFactory inLinkFactory) {
         this.mapLinkProperties = Objects.requireNonNull(mapLinkProperties, "mapLinkConfiguration");
         this.ignoreStatFilter = Objects.requireNonNull(ignoreStatFilter, "ignoreStatFilter");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
 
         this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWriter");
+        this.inLinkFactory = Objects.requireNonNull(inLinkFactory, "inLinkFactory");
     }
 
 
@@ -86,19 +86,19 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
 
         // make row key. rowkey is me
         final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
-        final RowKey inLinkRowKey = LinkRowKey.of(inVertex, rowTimeSlot);
+        final RowKey inLinkRowKey = inLinkFactory.rowkey(inVertex, rowTimeSlot);
 
         final short outSlotNumber = MapSlotUtils.getSlotNumber(inVertex.serviceType(), elapsed, isError);
 
-        final ColumnName outLink = OutLinkColumnName.histogram(selfVertex, selfHost, outSlotNumber);
+        final ColumnName outLink = inLinkFactory.histogram(selfVertex, selfHost, outSlotNumber);
         this.bulkWriter.increment(inLinkRowKey, outLink);
 
         if (mapLinkProperties.isEnableAvg()) {
-            final ColumnName sumOutLink = OutLinkColumnName.sum(selfVertex, selfHost, inVertex.serviceType());
+            final ColumnName sumOutLink = inLinkFactory.sum(selfVertex, selfHost, inVertex.serviceType());
             this.bulkWriter.increment(inLinkRowKey, sumOutLink, elapsed);
         }
         if (mapLinkProperties.isEnableMax()) {
-            final ColumnName maxOutLink = OutLinkColumnName.max(selfVertex, selfHost, inVertex.serviceType());
+            final ColumnName maxOutLink = inLinkFactory.max(selfVertex, selfHost, inVertex.serviceType());
             this.bulkWriter.updateMax(inLinkRowKey, maxOutLink, elapsed);
         }
     }

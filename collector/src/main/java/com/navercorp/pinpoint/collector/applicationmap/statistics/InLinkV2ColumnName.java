@@ -28,7 +28,7 @@ import java.util.Objects;
 /**
  * @author emeroad
  */
-public class OutLinkColumnName implements ColumnName {
+public class InLinkV2ColumnName implements ColumnName {
     private final short outServiceType;
     private final String outApplicationName;
     // called or calling host
@@ -40,7 +40,7 @@ public class OutLinkColumnName implements ColumnName {
     }
 
     public static ColumnName histogram(String outApplicationName, ServiceType outServiceType, String outHost, short columnSlotNumber) {
-        return new OutLinkColumnName(outApplicationName, outServiceType.getCode(), outHost, columnSlotNumber);
+        return new InLinkV2ColumnName(outApplicationName, outServiceType.getCode(), outHost, columnSlotNumber);
     }
 
     public static ColumnName sum(Vertex outVertex, String outHost, ServiceType inServiceType) {
@@ -61,7 +61,7 @@ public class OutLinkColumnName implements ColumnName {
         return histogram(outApplicationName, outServiceType, outHost, slotTime);
     }
 
-    public OutLinkColumnName(String outApplicationName, short outServiceType, String outHost, short columnSlotNumber) {
+    public InLinkV2ColumnName(String outApplicationName, short outServiceType, String outHost, short columnSlotNumber) {
         this.outServiceType = outServiceType;
         this.outApplicationName = Objects.requireNonNull(outApplicationName, "outApplicationName");
         this.outHost = Objects.requireNonNull(outHost, "outHost");
@@ -90,7 +90,7 @@ public class OutLinkColumnName implements ColumnName {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
 
-        OutLinkColumnName that = (OutLinkColumnName) o;
+        InLinkV2ColumnName that = (InLinkV2ColumnName) o;
         return outServiceType == that.outServiceType
                 && columnSlotNumber == that.columnSlotNumber
                 && outApplicationName.equals(that.outApplicationName)

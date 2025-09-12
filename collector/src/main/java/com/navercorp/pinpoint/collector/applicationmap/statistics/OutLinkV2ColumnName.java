@@ -26,7 +26,7 @@ import java.util.Objects;
 /**
  * @author emeroad
  */
-public class InLinkColumnName implements ColumnName {
+public class OutLinkV2ColumnName implements ColumnName {
     private final String outAgentId;
 
     private final short inServiceType;
@@ -40,7 +40,7 @@ public class InLinkColumnName implements ColumnName {
     }
 
     public static ColumnName histogram(String outAgentId, ServiceType inServiceType, String inApplicationName, String callHost, short columnSlotNumber) {
-        return new InLinkColumnName(outAgentId, inServiceType.getCode(), inApplicationName, callHost, columnSlotNumber);
+        return new OutLinkV2ColumnName(outAgentId, inServiceType.getCode(), inApplicationName, callHost, columnSlotNumber);
     }
 
     public static ColumnName sum(String outAgentId, Vertex inVertex, String callHost, ServiceType outServiceType) {
@@ -62,7 +62,7 @@ public class InLinkColumnName implements ColumnName {
         return histogram(outAgentId, inServiceType, inApplicationName, callHost, slotTime);
     }
 
-    public InLinkColumnName(String outAgentId, short inServiceType, String inApplicationName, String callHost, short columnSlotNumber) {
+    public OutLinkV2ColumnName(String outAgentId, short inServiceType, String inApplicationName, String callHost, short columnSlotNumber) {
         this.outAgentId = Objects.requireNonNull(outAgentId, "outAgentId");
         this.inServiceType = inServiceType;
         this.inApplicationName = Objects.requireNonNull(inApplicationName, "inApplicationName");
@@ -85,7 +85,7 @@ public class InLinkColumnName implements ColumnName {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
 
-        InLinkColumnName that = (InLinkColumnName) o;
+        OutLinkV2ColumnName that = (OutLinkV2ColumnName) o;
         return inServiceType == that.inServiceType
                 && columnSlotNumber == that.columnSlotNumber
                 && outAgentId.equals(that.outAgentId)
