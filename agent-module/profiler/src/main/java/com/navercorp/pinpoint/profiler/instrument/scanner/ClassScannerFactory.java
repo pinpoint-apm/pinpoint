@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.instrument.scanner;
 
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
-import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.net.URL;
 import java.security.ProtectionDomain;

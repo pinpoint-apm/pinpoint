@@ -19,9 +19,8 @@ import com.navercorp.pinpoint.bootstrap.instrument.aspect.JointPoint;
 import com.navercorp.pinpoint.bootstrap.instrument.aspect.PointCut;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinition;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinitionFactory;
+import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorHolderIdGenerator;
 import com.navercorp.pinpoint.profiler.instrument.mock.ArgsArrayInterceptor;
-import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.tree.MethodNode;
@@ -29,13 +28,13 @@ import org.objectweb.asm.tree.MethodNode;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ASMMethodNodeAdapterTest {
-    private final InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
+    private final InterceptorHolderIdGenerator interceptorHolderIdGenerator = new InterceptorHolderIdGenerator(10000, 100);
     private final ASMClassNodeLoader loader = new ASMClassNodeLoader();
 
     @Test
     public void isVisited() throws Exception {
         // init
-        final int interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(new ArgsArrayInterceptor());
+        final int interceptorId = interceptorHolderIdGenerator.getId();
         final InterceptorDefinition interceptorDefinition = new InterceptorDefinitionFactory().createInterceptorDefinition(ArgsArrayInterceptor.class);
 
         final String targetClassName = "com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass";
@@ -43,7 +42,8 @@ public class ASMMethodNodeAdapterTest {
         ASMMethodNodeAdapter adapter = new ASMMethodNodeAdapter(JavaAssistUtils.javaNameToJvmName(targetClassName), methodNode);
         assertEquals(false, adapter.hasInterceptor());
 
-        adapter.addBeforeInterceptor(interceptorId, interceptorDefinition, -1);
+        ASMInterceptorHolder interceptorHolder = new ASMInterceptorHolder(interceptorId, Boolean.TRUE);
+        adapter.addBeforeInterceptor(interceptorHolder, interceptorDefinition, -1);
         assertEquals(true, adapter.hasInterceptor());
     }
 

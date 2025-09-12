@@ -18,10 +18,9 @@ package com.navercorp.pinpoint.profiler.instrument;
 
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinition;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinitionFactory;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorHolderIdGenerator;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 
@@ -34,21 +33,21 @@ import java.util.Objects;
 public class DefaultEngineComponent implements EngineComponent {
 
     private final ObjectBinderFactory objectBinderFactory;
-    private final InterceptorRegistryBinder interceptorRegistryBinder;
     private final InterceptorDefinitionFactory interceptorDefinitionFactory;
     private final Provider<ApiMetaDataService> apiMetaDataServiceProvider;
     private final ScopeFactory scopeFactory;
+    private final InterceptorHolderIdGenerator interceptorHolderIdGenerator;
 
     public DefaultEngineComponent(ObjectBinderFactory objectBinderFactory,
-                                  InterceptorRegistryBinder interceptorRegistryBinder,
                                   InterceptorDefinitionFactory interceptorDefinitionFactory,
                                   Provider<ApiMetaDataService> apiMetaDataServiceProvider,
-                                  ScopeFactory scopeFactory) {
+                                  ScopeFactory scopeFactory,
+                                  InterceptorHolderIdGenerator interceptorHolderIdGenerator) {
         this.objectBinderFactory = Objects.requireNonNull(objectBinderFactory, "objectBinderFactory");
-        this.interceptorRegistryBinder = Objects.requireNonNull(interceptorRegistryBinder, "interceptorRegistryBinder");
         this.interceptorDefinitionFactory = Objects.requireNonNull(interceptorDefinitionFactory, "interceptorDefinitionFactory");
         this.apiMetaDataServiceProvider = Objects.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataService");
         this.scopeFactory = Objects.requireNonNull(scopeFactory, "scopeFactory");
+        this.interceptorHolderIdGenerator = Objects.requireNonNull(interceptorHolderIdGenerator, "interceptorHolderIdGenerator");
     }
 
     @Override
@@ -67,19 +66,14 @@ public class DefaultEngineComponent implements EngineComponent {
     }
 
     @Override
-    public int addInterceptor(Interceptor interceptor) {
-        return interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(interceptor);
-    }
-
-    @Override
-    public int addInterceptor() {
-        return interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor();
-    }
-
-    @Override
     public int cacheApi(MethodDescriptor methodDescriptor) {
         ApiMetaDataService apiMetaDataService = this.apiMetaDataServiceProvider.get();
         return apiMetaDataService.cacheApi(methodDescriptor);
+    }
+
+    @Override
+    public InterceptorHolderIdGenerator getInterceptorHolderIdGenerator() {
+        return interceptorHolderIdGenerator;
     }
 }
 

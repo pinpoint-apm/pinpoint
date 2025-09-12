@@ -16,7 +16,6 @@
 package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistry;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.CaptureType;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinition;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorType;
@@ -210,7 +209,7 @@ public class ASMMethodVariables {
         }
     }
 
-    public boolean initInterceptorLocalVariables(final InsnList instructions, final int interceptorId, final InterceptorDefinition interceptorDefinition, final int apiId) {
+    public boolean initInterceptorLocalVariables(final InsnList instructions, ASMInterceptorHolder interceptorHolder, final InterceptorDefinition interceptorDefinition, final int apiId) {
         if (this.initializedInterceptorLocalVariables) {
             return false;
         }
@@ -234,7 +233,7 @@ public class ASMMethodVariables {
         this.methodNode.instructions.insert(this.exitInsnNode, this.interceptorVariableEndLabelNode);
 
         // initialize interceptor variable.
-        initInterceptorVar(instructions, interceptorId);
+        initInterceptorVar(instructions, interceptorHolder);
 
         // initialize argument variable.
         final InterceptorType interceptorType = interceptorDefinition.getInterceptorType();
@@ -297,17 +296,11 @@ public class ASMMethodVariables {
     }
 
 
-    private void initInterceptorVar(final InsnList instructions, final int interceptorId) {
+    private void initInterceptorVar(final InsnList instructions, ASMInterceptorHolder interceptorHolder) {
         assertInitializedInterceptorLocalVariables();
         this.interceptorVarIndex = addInterceptorLocalVariable("_$PINPOINT$_interceptor", "Lcom/navercorp/pinpoint/bootstrap/interceptor/Interceptor;");
-        if (InterceptorRegistry.contains(interceptorId) || Boolean.FALSE == InterceptorRegistry.isInterceptorHolderEnable()) {
-            push(instructions, interceptorId);
-            instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(InterceptorRegistry.class), "getInterceptor", "(I)" + Type.getDescriptor(Interceptor.class), false));
-        } else {
-            // InterceptorHolder
-            final String className = ASMInterceptorHolder.getInterceptorHolderClassName(interceptorId);
-            instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, JavaAssistUtils.javaNameToJvmName(className), "get", "()" + Type.getDescriptor(Interceptor.class), false));
-        }
+        final String className = interceptorHolder.getClassName();
+        instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, JavaAssistUtils.javaNameToJvmName(className), "get", "()" + Type.getDescriptor(Interceptor.class), false));
         storeVar(instructions, this.interceptorVarIndex);
         this.resultVarIndex = addInterceptorLocalVariable("_$PINPOINT$_result", "Ljava/lang/Object;");
         loadNull(instructions);

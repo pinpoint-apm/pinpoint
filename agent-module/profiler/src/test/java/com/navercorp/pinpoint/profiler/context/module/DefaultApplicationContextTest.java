@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.context.module;
 import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.Module;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
@@ -28,10 +27,8 @@ import com.navercorp.pinpoint.profiler.AgentContextOption;
 import com.navercorp.pinpoint.profiler.AgentContextOptionBuilder;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentOption;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.name.ObjectName;
 import com.navercorp.pinpoint.profiler.name.v1.ObjectNameV1;
-import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -89,10 +86,8 @@ public class DefaultApplicationContextTest {
                 profilerConfig.getProperties(), Collections.emptyMap(), null,
                 Collections.emptyList(), Collections.emptyList(), false);
 
-        InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();
-        Module interceptorRegistryModule = InterceptorRegistryModule.wrap(interceptorRegistryBinder);
-        ModuleFactory moduleFactory = new OverrideModuleFactory(interceptorRegistryModule);
-
+        ModuleFactoryResolver moduleFactoryResolver = new DefaultModuleFactoryResolver();
+        ModuleFactory moduleFactory = moduleFactoryResolver.resolve();
         ObjectName objectName = new ObjectNameV1("mockAgentId", "mockAgentName", "mockApplicationName");
 
         AgentContextOption agentContextOption = AgentContextOptionBuilder.build(agentOption,

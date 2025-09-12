@@ -17,12 +17,11 @@ package com.navercorp.pinpoint.profiler.instrument;
 
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinition;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinitionFactory;
+import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorHolderIdGenerator;
 import com.navercorp.pinpoint.profiler.instrument.mock.ApiIdAwareInterceptor;
 import com.navercorp.pinpoint.profiler.instrument.mock.ArgsArrayInterceptor;
 import com.navercorp.pinpoint.profiler.instrument.mock.BasicInterceptor;
 import com.navercorp.pinpoint.profiler.instrument.mock.StaticInterceptor;
-import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.Type;
@@ -80,16 +79,17 @@ public class ASMMethodVariablesTest {
 
     @Test
     public void hasInterceptor() throws Exception {
-        InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
-        int interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(new ArgsArrayInterceptor());
+        InterceptorHolderIdGenerator interceptorHolderIdGenerator = new InterceptorHolderIdGenerator(10000, 100);
+        int interceptorId = interceptorHolderIdGenerator.getId();
         final InterceptorDefinition interceptorDefinition = new InterceptorDefinitionFactory().createInterceptorDefinition(ArgsArrayInterceptor.class);
 
         final ClassNode classNode = loader.get("com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass");
         List<MethodNode> methodNodes = classNode.methods;
         for (MethodNode methodNode : methodNodes) {
+            ASMInterceptorHolder interceptorHolder = new ASMInterceptorHolder(interceptorId, Boolean.TRUE);
             ASMMethodNodeAdapter methodNodeAdapter = new ASMMethodNodeAdapter(classNode.name, methodNode);
             assertEquals(false, methodNodeAdapter.hasInterceptor());
-            methodNodeAdapter.addBeforeInterceptor(interceptorId, interceptorDefinition, -1);
+            methodNodeAdapter.addBeforeInterceptor(interceptorHolder, interceptorDefinition, -1);
             assertEquals(true, methodNodeAdapter.hasInterceptor());
         }
     }
@@ -102,12 +102,13 @@ public class ASMMethodVariablesTest {
         assertNull(variables.getEnterInsnNode());
         assertNull(variables.getEnterInsnNode());
 
-        InterceptorRegistryBinder interceptorRegistryBinder = new DefaultInterceptorRegistryBinder();
-        int interceptorId = interceptorRegistryBinder.getInterceptorRegistryAdaptor().addInterceptor(new ArgsArrayInterceptor());
+        InterceptorHolderIdGenerator interceptorHolderIdGenerator = new InterceptorHolderIdGenerator(10000, 100);
+        int interceptorId = interceptorHolderIdGenerator.getId();
         final InterceptorDefinition interceptorDefinition = new InterceptorDefinitionFactory().createInterceptorDefinition(ArgsArrayInterceptor.class);
 
+        ASMInterceptorHolder interceptorHolder = new ASMInterceptorHolder(interceptorId, Boolean.TRUE);
         InsnList instructions = new InsnList();
-        boolean first = variables.initInterceptorLocalVariables(instructions, interceptorId, interceptorDefinition, -1);
+        boolean first = variables.initInterceptorLocalVariables(instructions, interceptorHolder, interceptorDefinition, -1);
         assertEquals(true, first);
         assertNotNull(variables.getEnterInsnNode());
         assertNotNull(variables.getEnterInsnNode());

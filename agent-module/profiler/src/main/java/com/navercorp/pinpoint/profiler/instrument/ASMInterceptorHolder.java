@@ -20,11 +20,13 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.profiler.instrument.classloading.InterceptorDefineClassHelper;
-import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorHolder;
+import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorHolderIdGenerator;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorLazyLoadingSupplier;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorSupplier;
 import com.navercorp.pinpoint.profiler.interceptor.factory.InterceptorFactory;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -42,39 +44,53 @@ import java.util.function.Supplier;
 public class ASMInterceptorHolder {
     private static final String INTERCEPTOR_HOLDER_CLASS = "com/navercorp/pinpoint/profiler/instrument/interceptor/InterceptorHolder.class";
     private static final String INTERCEPTOR_HOLDER_INNER_CLASS = "com/navercorp/pinpoint/profiler/instrument/interceptor/InterceptorHolder$LazyLoading.class";
+    private static final String CLASS_NAME = "com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorHolder$$";
+    private static final String BOOTSTRAP_CLASS_NAME = "com.navercorp.pinpoint.bootstrap.interceptor.holder.InterceptorHolder$$";
+    private static final String REFLECTION_CLASS_LOADER_CLASS_NAME = "jdk.internal.reflect.DelegatingClassLoader";
+    private static final int EMPTY_ID = -1;
 
-    public static String getInterceptorHolderClassName(int interceptorId) {
-        return InterceptorHolder.class.getName() + "$$" + interceptorId;
-    }
-
-    public static void create(int interceptorId, ClassLoader classLoader, InterceptorFactory interceptorFactory, Class<? extends Interceptor> interceptorClass, Object[] providedArguments, ScopeInfo scopeInfo, MethodDescriptor methodDescriptor) throws InstrumentException {
-        Builder builder = new Builder(interceptorId);
+    public static ASMInterceptorHolder create(InterceptorHolderIdGenerator interceptorHolderIdGenerator, ClassLoader classLoader, InterceptorFactory interceptorFactory, Class<? extends Interceptor> interceptorClass, Object[] providedArguments, ScopeInfo scopeInfo, MethodDescriptor methodDescriptor) throws InstrumentException {
+        Builder builder = new Builder(interceptorHolderIdGenerator);
         builder.interceptorFactory(classLoader, interceptorFactory, interceptorClass, providedArguments, scopeInfo, methodDescriptor);
-        builder.build();
+        return builder.build();
     }
 
     // for test
-    public static void create(int interceptorId, ClassLoader classLoader, Interceptor interceptor) throws InstrumentException {
-        Builder builder = new Builder(interceptorId);
+    public static ASMInterceptorHolder create(InterceptorHolderIdGenerator interceptorHolderIdGenerator, ClassLoader classLoader, Interceptor interceptor) throws InstrumentException {
+        Builder builder = new Builder(interceptorHolderIdGenerator);
         builder.interceptor(classLoader, interceptor);
-        builder.build();
+        return builder.build();
     }
 
+    private final int interceptorId;
     private final String className;
     private final String innerClassName;
 
-    public ASMInterceptorHolder(int interceptorId) {
-        this.className = getInterceptorHolderClassName(interceptorId);
-        this.innerClassName = this.className + "$LazyLoading";
+    public ASMInterceptorHolder(int interceptorId, boolean bootstrap) {
+        this.interceptorId = interceptorId;
+        if (bootstrap) {
+            this.className = BOOTSTRAP_CLASS_NAME + interceptorId;
+        } else {
+            this.className = CLASS_NAME + interceptorId;
+        }
+        this.innerClassName = className + "$LazyLoading";
+    }
+
+    public int getInterceptorId() {
+        return interceptorId;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public boolean isEmpty() {
+        return interceptorId == EMPTY_ID;
     }
 
     public Class<? extends Interceptor> loadInterceptorClass(ClassLoader classLoader) throws InstrumentException {
-        if (classLoader == null) {
-            throw new InstrumentException("classLoader must not be null");
-        }
-
         try {
-            final Class<?> clazz = classLoader.loadClass(className);
+            final Class<?> clazz = loadClass(Boolean.FALSE, classLoader);
             if (clazz == null) {
                 // defense code
                 throw new InstrumentException("not found interceptorHolderClass, className=" + className);
@@ -87,8 +103,6 @@ public class ASMInterceptorHolder {
             } else {
                 throw new InstrumentException("not found interceptor, className=" + className);
             }
-        } catch (ClassNotFoundException e) {
-            throw new InstrumentException("not found class, className=" + className, e);
         } catch (InvocationTargetException e) {
             throw new InstrumentException("invocation fail, className=" + className, e);
         } catch (NoSuchMethodException e) {
@@ -116,6 +130,14 @@ public class ASMInterceptorHolder {
             throw new InstrumentException("access fail, className=" + interceptorHolderClass.getName(), e);
         } catch (InvocationTargetException e) {
             throw new InstrumentException("invocation fail, className=" + interceptorHolderClass.getName(), e);
+        }
+    }
+
+    public Class<?> loadClass(boolean initialize, ClassLoader classLoader) throws InstrumentException {
+        try {
+            return Class.forName(className, initialize, classLoader);
+        } catch (ClassNotFoundException e) {
+            throw new InstrumentException("not found InterceptorHolderClass, className=" + className);
         }
     }
 
@@ -176,7 +198,9 @@ public class ASMInterceptorHolder {
     }
 
     static class Builder {
-        private final int interceptorId;
+        private final Logger logger = LogManager.getLogger(this.getClass());
+        private final InterceptorHolderIdGenerator interceptorHolderIdGenerator;
+        private int interceptorId;
         private ClassLoader classLoader;
         private InterceptorFactory interceptorFactory;
         private Class<? extends Interceptor> interceptorClass;
@@ -185,12 +209,12 @@ public class ASMInterceptorHolder {
         private MethodDescriptor methodDescriptor;
         private Interceptor interceptor;
 
-        public Builder(int interceptorId) {
-            this.interceptorId = interceptorId;
+        public Builder(InterceptorHolderIdGenerator interceptorHolderIdGenerator) {
+            this.interceptorHolderIdGenerator = Objects.requireNonNull(interceptorHolderIdGenerator, "interceptorHolderIdGenerator");
         }
 
         public Builder interceptorFactory(ClassLoader classLoader, InterceptorFactory interceptorFactory, Class<? extends Interceptor> interceptorClass, Object[] providedArguments, ScopeInfo scopeInfo, MethodDescriptor methodDescriptor) {
-            this.classLoader = Objects.requireNonNull(classLoader, "classLoader");
+            this.classLoader = classLoader;
             this.interceptorFactory = Objects.requireNonNull(interceptorFactory, "interceptorFactory");
             this.interceptorClass = Objects.requireNonNull(interceptorClass, "interceptorClass");
             this.providedArguments = providedArguments;
@@ -200,14 +224,36 @@ public class ASMInterceptorHolder {
         }
 
         public Builder interceptor(ClassLoader classLoader, Interceptor interceptor) {
-            this.classLoader = Objects.requireNonNull(classLoader, "classLoader");
+            this.classLoader = classLoader;
             this.interceptor = Objects.requireNonNull(interceptor, "interceptor");
             return this;
         }
 
         public ASMInterceptorHolder build() throws InstrumentException {
-            final ASMInterceptorHolder holder = new ASMInterceptorHolder(interceptorId);
-            final Class<?> clazz = holder.defineClass(classLoader);
+            ASMInterceptorHolder holder;
+            Class<?> clazz;
+            if (classLoader == null || REFLECTION_CLASS_LOADER_CLASS_NAME.equals(classLoader.getClass().getName())) {
+                try {
+                    interceptorId = interceptorHolderIdGenerator.getBootstrapId();
+                } catch (IndexOutOfBoundsException indexOutOfBoundsException) {
+                    logger.warn("Failed to generate bootstrap interceptorHolder id, cause={}", indexOutOfBoundsException.getMessage());
+                    return new ASMInterceptorHolder(EMPTY_ID, Boolean.TRUE);
+                }
+                holder = new ASMInterceptorHolder(interceptorId, Boolean.TRUE);
+                // load and initialize
+                clazz = holder.loadClass(Boolean.TRUE, classLoader);
+                interceptor = interceptorFactory.newInterceptor(interceptorClass, providedArguments, scopeInfo, methodDescriptor);
+            } else {
+                try {
+                    interceptorId = interceptorHolderIdGenerator.getId();
+                } catch (IndexOutOfBoundsException indexOutOfBoundsException) {
+                    logger.warn("Failed to generate interceptorHolder id, cause={}", indexOutOfBoundsException.getMessage());
+                    return new ASMInterceptorHolder(EMPTY_ID, Boolean.FALSE);
+                }
+                holder = new ASMInterceptorHolder(interceptorId, Boolean.FALSE);
+                // define class
+                clazz = holder.defineClass(classLoader);
+            }
             // exception handling.
             if (interceptor != null) {
                 holder.init(clazz, interceptor);
@@ -216,6 +262,7 @@ public class ASMInterceptorHolder {
             } else {
                 throw new InstrumentException("either interceptor or interceptorFactory must be present.");
             }
+
             return holder;
         }
     }

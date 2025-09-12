@@ -20,12 +20,12 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistry;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.profiler.context.DefaultMethodDescriptor;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.CaptureType;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinition;
+import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorHolderIdGenerator;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorType;
 import com.navercorp.pinpoint.profiler.interceptor.factory.AnnotatedInterceptorFactory;
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
@@ -105,14 +105,13 @@ public class ASMMethod implements InstrumentMethod {
         }
     }
 
-
     @Override
     public int addInterceptor(Class<? extends Interceptor> interceptorClass) throws InstrumentException {
         Objects.requireNonNull(interceptorClass, "interceptorClass");
 
-        final int interceptorId = newInterceptor(interceptorClass, null, null, null);
-        addInterceptor0(interceptorClass, interceptorId);
-        return interceptorId;
+        final ASMInterceptorHolder interceptorHolder = newInterceptor(interceptorClass, null, null, null);
+        addInterceptor0(interceptorClass, interceptorHolder);
+        return interceptorHolder.getInterceptorId();
     }
 
     @Override
@@ -120,9 +119,9 @@ public class ASMMethod implements InstrumentMethod {
         Objects.requireNonNull(interceptorClass, "interceptorClass");
         Objects.requireNonNull(constructorArgs, "constructorArgs");
 
-        final int interceptorId = newInterceptor(interceptorClass, constructorArgs, null, null);
-        addInterceptor0(interceptorClass, interceptorId);
-        return interceptorId;
+        final ASMInterceptorHolder interceptorHolder = newInterceptor(interceptorClass, constructorArgs, null, null);
+        addInterceptor0(interceptorClass, interceptorHolder);
+        return interceptorHolder.getInterceptorId();
     }
 
     @Override
@@ -131,9 +130,9 @@ public class ASMMethod implements InstrumentMethod {
         Objects.requireNonNull(scopeName, "scopeName");
 
         final InterceptorScope interceptorScope = this.pluginContext.getInterceptorScope(scopeName);
-        final int interceptor = newInterceptor(interceptorClass, null, interceptorScope, null);
-        addInterceptor0(interceptorClass, interceptor);
-        return interceptor;
+        final ASMInterceptorHolder interceptorHolder = newInterceptor(interceptorClass, null, interceptorScope, null);
+        addInterceptor0(interceptorClass, interceptorHolder);
+        return interceptorHolder.getInterceptorId();
     }
 
     @Override
@@ -141,9 +140,9 @@ public class ASMMethod implements InstrumentMethod {
         Objects.requireNonNull(interceptorClass, "interceptorClass");
         Objects.requireNonNull(interceptorScope, "interceptorScope");
 
-        final int interceptorId = newInterceptor(interceptorClass, null, interceptorScope, null);
-        addInterceptor0(interceptorClass, interceptorId);
-        return interceptorId;
+        final ASMInterceptorHolder interceptorHolder = newInterceptor(interceptorClass, null, interceptorScope, null);
+        addInterceptor0(interceptorClass, interceptorHolder);
+        return interceptorHolder.getInterceptorId();
     }
 
     @Override
@@ -153,9 +152,9 @@ public class ASMMethod implements InstrumentMethod {
         Objects.requireNonNull(executionPolicy, "executionPolicy");
 
         final InterceptorScope interceptorScope = this.pluginContext.getInterceptorScope(scopeName);
-        final int interceptorId = newInterceptor(interceptorClass, null, interceptorScope, executionPolicy);
-        addInterceptor0(interceptorClass, interceptorId);
-        return interceptorId;
+        final ASMInterceptorHolder interceptorHolder = newInterceptor(interceptorClass, null, interceptorScope, executionPolicy);
+        addInterceptor0(interceptorClass, interceptorHolder);
+        return interceptorHolder.getInterceptorId();
     }
 
     @Override
@@ -164,9 +163,9 @@ public class ASMMethod implements InstrumentMethod {
         Objects.requireNonNull(interceptorScope, "interceptorScope");
         Objects.requireNonNull(executionPolicy, "executionPolicy");
 
-        final int interceptorId = newInterceptor(interceptorClass, null, interceptorScope, executionPolicy);
-        addInterceptor0(interceptorClass, interceptorId);
-        return interceptorId;
+        final ASMInterceptorHolder interceptorHolder = newInterceptor(interceptorClass, null, interceptorScope, executionPolicy);
+        addInterceptor0(interceptorClass, interceptorHolder);
+        return interceptorHolder.getInterceptorId();
     }
 
     @Override
@@ -176,9 +175,9 @@ public class ASMMethod implements InstrumentMethod {
         Objects.requireNonNull(scopeName, "scopeName");
 
         final InterceptorScope interceptorScope = this.pluginContext.getInterceptorScope(scopeName);
-        final int interceptorId = newInterceptor(interceptorClass, constructorArgs, interceptorScope, null);
-        addInterceptor0(interceptorClass, interceptorId);
-        return interceptorId;
+        final ASMInterceptorHolder interceptorHolder = newInterceptor(interceptorClass, constructorArgs, interceptorScope, null);
+        addInterceptor0(interceptorClass, interceptorHolder);
+        return interceptorHolder.getInterceptorId();
     }
 
     @Override
@@ -187,9 +186,9 @@ public class ASMMethod implements InstrumentMethod {
         Objects.requireNonNull(constructorArgs, "constructorArgs");
         Objects.requireNonNull(interceptorScope, "interceptorScope");
 
-        final int interceptorId = newInterceptor(interceptorClass, constructorArgs, interceptorScope, null);
-        addInterceptor0(interceptorClass, interceptorId);
-        return interceptorId;
+        final ASMInterceptorHolder interceptorHolder = newInterceptor(interceptorClass, constructorArgs, interceptorScope, null);
+        addInterceptor0(interceptorClass, interceptorHolder);
+        return interceptorHolder.getInterceptorId();
     }
 
     @Override
@@ -200,9 +199,9 @@ public class ASMMethod implements InstrumentMethod {
         Objects.requireNonNull(executionPolicy, "executionPolicy");
 
         final InterceptorScope interceptorScope = this.pluginContext.getInterceptorScope(scopeName);
-        final int interceptorId = newInterceptor(interceptorClass, constructorArgs, interceptorScope, executionPolicy);
-        addInterceptor0(interceptorClass, interceptorId);
-        return interceptorId;
+        final ASMInterceptorHolder interceptorHolder = newInterceptor(interceptorClass, constructorArgs, interceptorScope, executionPolicy);
+        addInterceptor0(interceptorClass, interceptorHolder);
+        return interceptorHolder.getInterceptorId();
     }
 
     @Override
@@ -212,65 +211,53 @@ public class ASMMethod implements InstrumentMethod {
         Objects.requireNonNull(interceptorScope, "interceptorScope");
         Objects.requireNonNull(executionPolicy, "executionPolicy");
 
-        final int interceptorId = newInterceptor(interceptorClass, constructorArgs, interceptorScope, executionPolicy);
-        addInterceptor0(interceptorClass, interceptorId);
-        return interceptorId;
+        final ASMInterceptorHolder interceptorHolder = newInterceptor(interceptorClass, constructorArgs, interceptorScope, executionPolicy);
+        addInterceptor0(interceptorClass, interceptorHolder);
+        return interceptorHolder.getInterceptorId();
     }
 
     @Override
     public void addInterceptor(int interceptorId) throws InstrumentException {
-        if (InterceptorRegistry.isInterceptorHolderEnable()) {
-            final ASMInterceptorHolder holder = new ASMInterceptorHolder(interceptorId);
-            final Class<? extends Interceptor> interceptorClass = holder.loadInterceptorClass(this.declaringClass.getClassLoader());
-            addInterceptor0(interceptorClass, interceptorId);
-        } else {
-            final Interceptor interceptor = InterceptorRegistry.getInterceptor(interceptorId);
-            if (interceptor == null) {
-                // defense code
-                throw new InstrumentException("not found interceptor " + interceptorId + " to " + this.methodNode.getLongName());
-            }
-            try {
-                addInterceptor0(interceptor.getClass(), interceptorId);
-            } catch (Exception e) {
-                throw new InstrumentException("add interceptor0 " + interceptor.getClass().getName() + " to " + this.methodNode.getLongName(), e);
-            }
+        InterceptorHolderIdGenerator interceptorHolderIdGenerator = engineComponent.getInterceptorHolderIdGenerator();
+        final boolean isBootstrapInterceptorHolder = interceptorHolderIdGenerator.isBootstrapInterceptorHolder(interceptorId);
+        if (isBootstrapInterceptorHolder) {
+            logger.warn("Invalid using for bootstrap interceptor. interceptorId:{}", interceptorId);
         }
+
+        final ASMInterceptorHolder interceptorHolder = new ASMInterceptorHolder(interceptorId, isBootstrapInterceptorHolder);
+        final Class<? extends Interceptor> interceptorClass = interceptorHolder.loadInterceptorClass(this.declaringClass.getClassLoader());
+        addInterceptor0(interceptorClass, interceptorHolder);
     }
 
     // for internal api
     int addInterceptorInternal(Class<? extends Interceptor> interceptorClass, Object[] constructorArgs, InterceptorScope interceptorScope, ExecutionPolicy executionPolicy) throws InstrumentException {
         Objects.requireNonNull(interceptorClass, "interceptorClass");
 
-        final int interceptorId = newInterceptor(interceptorClass, constructorArgs, interceptorScope, executionPolicy);
-        addInterceptor0(interceptorClass, interceptorId);
-        return interceptorId;
+        final ASMInterceptorHolder interceptorHolder = newInterceptor(interceptorClass, constructorArgs, interceptorScope, executionPolicy);
+        addInterceptor0(interceptorClass, interceptorHolder);
+        return interceptorHolder.getInterceptorId();
     }
 
-    private int newInterceptor(Class<? extends Interceptor> interceptorClass, Object[] constructorArgs, InterceptorScope interceptorScope, ExecutionPolicy executionPolicy) throws InstrumentException {
+    private ASMInterceptorHolder newInterceptor(Class<? extends Interceptor> interceptorClass, Object[] constructorArgs, InterceptorScope interceptorScope, ExecutionPolicy executionPolicy) throws InstrumentException {
         final ScopeFactory scopeFactory = this.engineComponent.getScopeFactory();
         final ScopeInfo scopeInfo = scopeFactory.newScopeInfo(pluginContext, interceptorClass, interceptorScope, executionPolicy);
         return createInterceptor(interceptorClass, constructorArgs, scopeInfo);
     }
 
-    private int createInterceptor(Class<? extends Interceptor> interceptorClass, Object[] constructorArgs, ScopeInfo scopeInfo) throws InstrumentException {
+    private ASMInterceptorHolder createInterceptor(Class<? extends Interceptor> interceptorClass, Object[] constructorArgs, ScopeInfo scopeInfo) throws InstrumentException {
         final ObjectBinderFactory objectBinderFactory = this.engineComponent.getObjectBinderFactory();
         final AnnotatedInterceptorFactory factory = objectBinderFactory.newAnnotatedInterceptorFactory(this.pluginContext);
-        final ClassLoader classLoader = this.declaringClass.getClassLoader();
-        int interceptorId = 0;
-        if (classLoader == null || Boolean.FALSE == InterceptorRegistry.isInterceptorHolderEnable()) {
-            // Bootstrap ClassLoader or disable interceptorHolder
-            final Interceptor interceptor = factory.newInterceptor(interceptorClass, constructorArgs, scopeInfo, this.descriptor);
-            interceptorId = this.engineComponent.addInterceptor(interceptor);
-        } else {
-            // InterceptorHolder
-            interceptorId = this.engineComponent.addInterceptor();
-            ASMInterceptorHolder.create(interceptorId, this.declaringClass.getClassLoader(), factory, interceptorClass, constructorArgs, scopeInfo, this.descriptor);
-        }
-        return interceptorId;
+        final InterceptorHolderIdGenerator interceptorHolderIdGenerator = engineComponent.getInterceptorHolderIdGenerator();
+        return ASMInterceptorHolder.create(interceptorHolderIdGenerator, declaringClass.getClassLoader(), factory, interceptorClass, constructorArgs, scopeInfo, descriptor);
     }
 
-    private void addInterceptor0(Class<? extends Interceptor> interceptorClass, int interceptorId) {
+    private void addInterceptor0(Class<? extends Interceptor> interceptorClass, ASMInterceptorHolder interceptorHolder) {
         Objects.requireNonNull(interceptorClass, "interceptorClass");
+
+        if(interceptorHolder.isEmpty()) {
+            logger.warn("Skip adding interceptor. 'interceptorHolder empty' class={}, interceptor={}", this.declaringClass.getName(), interceptorClass.getName());
+            return;
+        }
 
         final InterceptorDefinition interceptorDefinition = this.engineComponent.createInterceptorDefinition(interceptorClass);
         final CaptureType captureType = interceptorDefinition.getCaptureType();
@@ -291,7 +278,7 @@ public class ASMMethod implements InstrumentMethod {
 
         // add before interceptor.
         if (isBeforeInterceptor(captureType) && interceptorDefinition.getBeforeMethod() != null) {
-            this.methodNode.addBeforeInterceptor(interceptorId, interceptorDefinition, apiId);
+            this.methodNode.addBeforeInterceptor(interceptorHolder, interceptorDefinition, apiId);
             this.declaringClass.setModified(true);
         } else {
             if (isDebug) {
@@ -301,7 +288,7 @@ public class ASMMethod implements InstrumentMethod {
 
         // add after interface.
         if (isAfterInterceptor(captureType) && interceptorDefinition.getAfterMethod() != null) {
-            this.methodNode.addAfterInterceptor(interceptorId, interceptorDefinition, apiId);
+            this.methodNode.addAfterInterceptor(interceptorHolder, interceptorDefinition, apiId);
             this.declaringClass.setModified(true);
         } else {
             if (isDebug) {

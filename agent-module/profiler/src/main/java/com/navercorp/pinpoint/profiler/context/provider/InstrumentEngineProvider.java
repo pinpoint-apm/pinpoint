@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.profiler.instrument.classloading.DefineClass;
 import com.navercorp.pinpoint.profiler.instrument.classloading.DefineClassFactory;
 import com.navercorp.pinpoint.profiler.instrument.config.InstrumentConfig;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinitionFactory;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
+import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorHolderIdGenerator;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import org.apache.logging.log4j.LogManager;
@@ -44,23 +44,23 @@ public class InstrumentEngineProvider implements Provider<InstrumentEngine> {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final InstrumentConfig instrumentConfig;
-    private final InterceptorRegistryBinder interceptorRegistryBinder;
     private final Provider<ApiMetaDataService> apiMetaDataServiceProvider;
     private final ObjectBinderFactory objectBinderFactory;
     private final Instrumentation instrumentation;
+    private final InterceptorHolderIdGenerator interceptorHolderIdGenerator;
 
     @Inject
     public InstrumentEngineProvider(InstrumentConfig instrumentConfig,
                                     Instrumentation instrumentation,
                                     ObjectBinderFactory objectBinderFactory,
-                                    InterceptorRegistryBinder interceptorRegistryBinder,
-                                    Provider<ApiMetaDataService> apiMetaDataServiceProvider) {
+                                    Provider<ApiMetaDataService> apiMetaDataServiceProvider,
+                                    InterceptorHolderIdGenerator interceptorHolderIdGenerator) {
 
         this.instrumentConfig = Objects.requireNonNull(instrumentConfig, "instrumentConfig");
         this.instrumentation = Objects.requireNonNull(instrumentation, "instrumentation");
         this.objectBinderFactory = Objects.requireNonNull(objectBinderFactory, "objectBinderFactory");
-        this.interceptorRegistryBinder = Objects.requireNonNull(interceptorRegistryBinder, "interceptorRegistryBinder");
         this.apiMetaDataServiceProvider = Objects.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataServiceProvider");
+        this.interceptorHolderIdGenerator = Objects.requireNonNull(interceptorHolderIdGenerator, "interceptorHolderIdGenerator");
     }
 
     public InstrumentEngine get() {
@@ -72,7 +72,7 @@ public class InstrumentEngineProvider implements Provider<InstrumentEngine> {
             final InterceptorDefinitionFactory interceptorDefinitionFactory = new InterceptorDefinitionFactory();
             // WARNING must be singleton
             final ScopeFactory scopeFactory = new ScopeFactory();
-            EngineComponent engineComponent = new DefaultEngineComponent(objectBinderFactory, interceptorRegistryBinder, interceptorDefinitionFactory, apiMetaDataServiceProvider, scopeFactory);
+            EngineComponent engineComponent = new DefaultEngineComponent(objectBinderFactory, interceptorDefinitionFactory, apiMetaDataServiceProvider, scopeFactory, interceptorHolderIdGenerator);
             DefineClass defineClass = DefineClassFactory.getDefineClass();
             return new ASMEngine(instrumentation, engineComponent, defineClass);
 

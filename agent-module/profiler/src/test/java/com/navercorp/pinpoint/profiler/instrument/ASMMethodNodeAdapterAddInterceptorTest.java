@@ -19,14 +19,21 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.ExceptionHandler;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistry;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinition;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinitionFactory;
-import com.navercorp.pinpoint.profiler.instrument.mock.*;
+import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorHolderIdGenerator;
+import com.navercorp.pinpoint.profiler.instrument.mock.ApiIdAwareInterceptor;
+import com.navercorp.pinpoint.profiler.instrument.mock.ArgsArrayInterceptor;
+import com.navercorp.pinpoint.profiler.instrument.mock.BaseEnum;
+import com.navercorp.pinpoint.profiler.instrument.mock.BasicInterceptor;
+import com.navercorp.pinpoint.profiler.instrument.mock.ExceptionInterceptor;
+import com.navercorp.pinpoint.profiler.instrument.mock.StaticInterceptor;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
-import com.navercorp.pinpoint.profiler.util.TestInterceptorRegistryBinder;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
@@ -40,10 +47,14 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ASMMethodNodeAdapterAddInterceptorTest {
-    private final static InterceptorRegistryBinder interceptorRegistryBinder = new TestInterceptorRegistryBinder();
+    private final static InterceptorHolderIdGenerator interceptorHolderIdGenerator = new InterceptorHolderIdGenerator(1000, 100);
     private ASMClassNodeLoader.TestClassLoader classLoader;
     private AtomicInteger interceptorIdCounter = new AtomicInteger();
 
@@ -51,13 +62,10 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
 
     @BeforeAll
     public static void beforeClass() {
-        interceptorRegistryBinder.bind();
-        InterceptorRegistry.setInterceptorHolderEnable(true);
     }
 
     @AfterAll
     public static void afterClass() {
-        interceptorRegistryBinder.unbind();
     }
 
     @BeforeEach
@@ -493,14 +501,13 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
                         if (methodNodeAdapter.isAbstract() || methodNodeAdapter.isNative()) {
                             continue;
                         }
-                        int interceptorId = interceptorIdCounter.incrementAndGet();
                         try {
-                            ASMInterceptorHolder.create(interceptorId, classLoader, interceptor);
+                            ASMInterceptorHolder interceptorHolder = ASMInterceptorHolder.create(interceptorHolderIdGenerator, classLoader, interceptor);
+                            methodNodeAdapter.addBeforeInterceptor(interceptorHolder, interceptorDefinition, 99);
+                            methodNodeAdapter.addAfterInterceptor(interceptorHolder, interceptorDefinition, 99);
                         } catch (InstrumentException e) {
                             throw new RuntimeException(e);
                         }
-                        methodNodeAdapter.addBeforeInterceptor(interceptorId, interceptorDefinition, 99);
-                        methodNodeAdapter.addAfterInterceptor(interceptorId, interceptorDefinition, 99);
                     }
                 }
             });

@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.test.plugin.agent;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
-import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.test.MockApplicationContextFactory;
 import com.navercorp.pinpoint.profiler.test.PluginVerifierExternalAdaptor;
 import com.navercorp.pinpoint.test.plugin.PluginTestInstanceCallback;
@@ -28,7 +27,6 @@ import com.navercorp.pinpoint.test.plugin.agent.classloader.MockInstrumentor;
 public class PluginTestAgentStarter {
 
     private MockInstrumentor mockInstrumentor;
-    private InterceptorRegistryBinder interceptorRegistryBinder;
     private PluginTestVerifier pluginTestVerifier;
 
     private DefaultApplicationContext applicationContext;
@@ -37,7 +35,6 @@ public class PluginTestAgentStarter {
         final com.navercorp.pinpoint.profiler.test.MockApplicationContextFactory factory = new MockApplicationContextFactory();
         this.applicationContext = factory.build(configFile);
         this.mockInstrumentor = new MockInstrumentor(applicationContext.getClassFileTransformer());
-        this.interceptorRegistryBinder = applicationContext.getInterceptorRegistryBinder();
         this.pluginTestVerifier = new PluginVerifierExternalAdaptor(applicationContext);
     }
 
@@ -50,7 +47,6 @@ public class PluginTestAgentStarter {
 
             @Override
             public void before(boolean verify, boolean manageTraceObject) {
-                interceptorRegistryBinder.bind();
                 if (verify) {
                     PluginTestVerifierHolder.setInstance(pluginTestVerifier);
                     pluginTestVerifier.initialize(manageTraceObject);
@@ -59,7 +55,6 @@ public class PluginTestAgentStarter {
 
             @Override
             public void after(boolean verify, boolean manageTraceObject) {
-                interceptorRegistryBinder.unbind();
                 if (verify) {
                     pluginTestVerifier.cleanUp(manageTraceObject);
                     PluginTestVerifierHolder.setInstance(null);
@@ -71,10 +66,6 @@ public class PluginTestAgentStarter {
                 if (applicationContext != null) {
                     applicationContext.close();
                     applicationContext = null;
-                }
-                if (interceptorRegistryBinder.getInterceptorRegistryAdaptor() != null) {
-                    interceptorRegistryBinder.getInterceptorRegistryAdaptor().clear();
-                    interceptorRegistryBinder = null;
                 }
                 if (pluginTestVerifier != null) {
                     pluginTestVerifier = null;

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.instrument;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinition;
+import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorHolderIdGenerator;
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 
 /**
@@ -32,9 +33,7 @@ public interface EngineComponent {
 
     ObjectBinderFactory getObjectBinderFactory();
 
-    int addInterceptor(Interceptor interceptor);
-
-    int addInterceptor();
-
     int cacheApi(MethodDescriptor methodDescriptor);
+
+    InterceptorHolderIdGenerator getInterceptorHolderIdGenerator();
 }
