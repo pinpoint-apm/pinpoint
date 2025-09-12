@@ -108,4 +108,10 @@ public class HbaseTables {
     }
 
     public static final HbaseColumnFamily TRACE_V2_SPAN = new HbaseColumnFamily(HbaseTableV2.TRACE_V2, Bytes.toBytes("S"));
+
+    // ------------------- Map Self V3 -------------------
+    public static final HbaseColumnFamily MAP_APP_SELF = new HbaseColumnFamily(HbaseTableV3.MAP_APP_SELF, Bytes.toBytes("C"));
+    public static final HbaseColumnFamily MAP_APP_OUT = new HbaseColumnFamily(HbaseTableV3.MAP_APP_OUT, Bytes.toBytes("C"));
+    public static final HbaseColumnFamily MAP_APP_IN = new HbaseColumnFamily(HbaseTableV3.MAP_APP_IN, Bytes.toBytes("C"));
+
 }
