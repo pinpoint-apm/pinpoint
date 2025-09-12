@@ -1,3 +1,4 @@
+import React from 'react';
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger, Separator } from '../ui';
 import { ApplicationItem, ApplicationList, ApplicationVirtualList } from './ApplicationList';
 import { ApplicationType } from '@pinpoint-fe/ui/src/constants';
@@ -36,6 +37,25 @@ export const ApplicationCombinedListForCommon = ({
   selectedApplication,
   onClickApplication,
 }: ApplicationCombinedListForCommonProps) => {
+  const [isOpen, setIsOpen] = React.useState(open);
+  const popoverContentRef = React.useRef<HTMLDivElement>(null);
+
+  const [filterKeyword, setFilterKeyword] = React.useState('');
+  const prevFilterKeywordRef = React.useRef(filterKeyword);
+
+  const [filteredLists, setFilteredLists] = React.useState({
+    favoriteList: [],
+    applicationList: [],
+  });
+
+  const [focusInfo, setFocusInfo] = React.useState<{
+    id: 'favoriteList' | 'applicationList'; // 각 favoriteList, applicationList virtualList를 구분하기 위한 값
+    index: number;
+  }>({
+    id: 'favoriteList',
+    index: 0,
+  });
+
   const { toast } = useToast();
   const isFavoriteApplication = (application: ApplicationType) => {
     return favoriteList?.some((favoriteApp: ApplicationType) => {
@@ -93,11 +113,127 @@ export const ApplicationCombinedListForCommon = ({
           description: 'Please try again',
           variant: 'destructive',
         });
+    } finally {
+      popoverContentRef.current?.focus();
     }
   };
 
+  // isOpen이 변경되면 focusInfo를 초기화
+  React.useEffect(() => {
+    if (favoriteList && favoriteList.length > 0) {
+      setFocusInfo({ id: 'favoriteList', index: 0 });
+    } else {
+      setFocusInfo({ id: 'applicationList', index: 0 });
+    }
+  }, [isOpen]);
+
+  React.useEffect(() => {
+    // filterKeyword가 변경되었을 경우 focusInfo를 초기화
+    if (prevFilterKeywordRef.current !== filterKeyword) {
+      if (filteredLists['favoriteList']?.length) {
+        setFocusInfo({ id: 'favoriteList', index: 0 });
+      } else if (filteredLists['applicationList']?.length) {
+        setFocusInfo({ id: 'applicationList', index: 0 });
+      }
+      prevFilterKeywordRef.current = filterKeyword;
+      return;
+    }
+
+    if (!filteredLists['favoriteList']?.length) {
+      setFocusInfo({ id: 'applicationList', index: 0 });
+    }
+  }, [filteredLists?.favoriteList]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    const favoriteListLength = filteredLists['favoriteList']?.length || 0;
+    const applicationListLength = filteredLists['applicationList']?.length || 0;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setFocusInfo((prev) => {
+        if (!prev) {
+          if (favoriteListLength > 0) {
+            return { id: 'favoriteList', index: 0 };
+          }
+          if (applicationListLength > 0) {
+            return { id: 'applicationList', index: 0 };
+          }
+        }
+
+        // favoriteList 끝에 도달했을 경우
+        if (prev?.id === 'favoriteList' && prev?.index >= favoriteListLength - 1) {
+          if (applicationListLength > 0) {
+            return { id: 'applicationList', index: 0 };
+          } else {
+            return { id: 'favoriteList', index: favoriteListLength - 1 };
+          }
+        }
+
+        // applicationList 끝에 도달했을 경우
+        if (prev?.id === 'applicationList' && prev?.index >= applicationListLength - 1) {
+          if (favoriteListLength > 0) {
+            return { id: 'favoriteList', index: 0 };
+          } else {
+            return { id: 'applicationList', index: 0 };
+          }
+        }
+
+        return { id: prev?.id, index: prev?.index + 1 }; // 현재 list 내에서 다음 아이템으로 이동
+      });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setFocusInfo((prev) => {
+        if (!prev) {
+          if (applicationListLength > 0) {
+            return { id: 'applicationList', index: applicationListLength - 1 };
+          }
+          if (favoriteListLength > 0) {
+            return { id: 'favoriteList', index: favoriteListLength - 1 };
+          }
+        }
+
+        // applicationList의 처음에 도달했을 경우
+        if (prev?.id === 'applicationList' && prev?.index <= 0) {
+          if (favoriteListLength > 0) {
+            return { id: 'favoriteList', index: favoriteListLength - 1 };
+          } else {
+            return { id: 'applicationList', index: applicationListLength - 1 };
+          }
+        }
+
+        // favoriteList의 처음에 도달했을 경우
+        if (prev?.id === 'favoriteList' && prev?.index <= 0) {
+          if (applicationListLength > 0) {
+            return { id: 'applicationList', index: applicationListLength - 1 };
+          } else {
+            return { id: 'favoriteList', index: favoriteListLength - 1 };
+          }
+        }
+
+        return { id: prev?.id, index: prev?.index - 1 }; // 현재 list 내에서 이전 아이템으로 이동
+      });
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const clickedItem = focusInfo
+        ? filteredLists[focusInfo?.id as 'favoriteList' | 'applicationList']?.[focusInfo?.index]
+        : null;
+      if (clickedItem) {
+        handleClickItem(clickedItem as ApplicationType);
+        setIsOpen(false);
+      }
+    }
+  };
+
+  function getFilteredList(filteredList: any, id: 'favoriteList' | 'applicationList') {
+    setFilteredLists((prev) => {
+      const newLists = { ...prev };
+      newLists[id] = filteredList;
+      return newLists;
+    });
+  }
+
   return (
-    <Popover defaultOpen={open}>
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger
         className={cn('w-80 min-w-80 border-b-1 text-sm disabled:opacity-50', triggerClassName)}
         disabled={disabled}
@@ -125,10 +261,15 @@ export const ApplicationCombinedListForCommon = ({
           <RxCaretSort className="w-4 h-4 ml-auto opacity-50" />
         </div>
       </PopoverTrigger>
-      <PopoverContent className={cn('w-80 p-0 text-sm !z-[2001]', contentClassName)}>
+      <PopoverContent
+        className={cn('w-80 p-0 text-sm !z-[2001]', contentClassName)}
+        onKeyDown={handleKeyDown}
+        ref={popoverContentRef}
+      >
         <VirtualSearchList
           inputClassName="focus-visible:ring-0 border-none shadow-none"
           placeHolder={t('APP_SELECT.INPUT_APP_NAME_PLACE_HOLDER')}
+          onChangeFilterKeyword={setFilterKeyword}
         >
           {(props) => {
             return (
@@ -140,10 +281,17 @@ export const ApplicationCombinedListForCommon = ({
                     <ListItemSkeleton skeletonOption={{ viewBoxHeight: 192 }} />
                   ) : (
                     <ApplicationVirtualList
+                      focusIndex={focusInfo?.id === 'favoriteList' ? focusInfo?.index : -1}
+                      getFilteredList={(filteredList) => {
+                        getFilteredList(filteredList, 'favoriteList');
+                      }}
                       itemAs={PopoverClose}
                       list={favoriteList}
                       filterKeyword={props?.filterKeyword}
                       onClickItem={handleClickItem}
+                      onMouseEnter={(idx, item) => {
+                        setFocusInfo({ id: 'favoriteList', index: idx });
+                      }}
                       itemChild={(application) => {
                         return (
                           <>
@@ -164,7 +312,14 @@ export const ApplicationCombinedListForCommon = ({
                 <div className="p-2 text-xs font-semibold">Application List</div>
                 <ApplicationList
                   {...props}
+                  focusIndex={focusInfo?.id === 'applicationList' ? focusInfo?.index : -1}
+                  getFilteredList={(filteredList) =>
+                    getFilteredList(filteredList, 'applicationList')
+                  }
                   onClickItem={handleClickItem}
+                  onMouseEnter={(idx, item) => {
+                    setFocusInfo({ id: 'applicationList', index: idx });
+                  }}
                   itemAs={PopoverClose}
                   itemChild={(application) => {
                     const isFavorite = isFavoriteApplication(application);
