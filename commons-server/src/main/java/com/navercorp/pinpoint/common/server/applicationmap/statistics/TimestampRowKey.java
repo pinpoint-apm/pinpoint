@@ -14,21 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common;
+package com.navercorp.pinpoint.common.server.applicationmap.statistics;
 
 /**
  * @author emeroad
  */
-public final class PinpointConstants {
-
-    @Deprecated
-    public static final int APPLICATION_NAME_MAX_LEN = 24;
-
-    public static final int AGENT_ID_MAX_LEN = 24;
-
-    public static final int AGENT_NAME_MAX_LEN = 255;
-
-    public static final int UID_SERVICE_NAME_LEN = 254;
-    public static final int UID_APPLICATION_NAME_LEN = UID_SERVICE_NAME_LEN;
-
+public interface TimestampRowKey extends RowKey {
+    long getTimestamp();
 }

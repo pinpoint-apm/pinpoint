@@ -79,9 +79,8 @@ public class InLinkV3ColumnName implements ColumnName {
         // approximate size of destHost
         final Buffer buffer = new AutomaticBuffer(64);
         buffer.putInt(serviceType);
-        buffer.putShort(slotNumber);
-
         buffer.putUnsignedBytePrefixedString(applicationName);
+        buffer.putShort(slotNumber);
         buffer.putPrefixedString(destHost);
         return buffer.getBuffer();
     }

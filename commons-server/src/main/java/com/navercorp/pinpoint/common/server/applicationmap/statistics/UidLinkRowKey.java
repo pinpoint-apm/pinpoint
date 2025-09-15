@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.common.server.applicationmap.statistics;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
-import com.navercorp.pinpoint.common.server.util.ByteUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
@@ -29,11 +29,11 @@ import java.util.Objects;
 /**
  * @author emeroad
  */
-public class UidLinkRowKey implements RowKey {
+public class UidLinkRowKey implements TimestampRowKey {
     private final int serviceUid;
     private final String applicationName;
-    private final short serviceType;
-    private final long rowTimeSlot;
+    private final int serviceType;
+    private final long timestamp;
 
     public static RowKey of(Vertex vertex, long rowTimeSlot) {
         return new UidLinkRowKey(vertex.serviceUid(), vertex.applicationName(), vertex.serviceType().getCode(), rowTimeSlot);
@@ -43,52 +43,81 @@ public class UidLinkRowKey implements RowKey {
         return new UidLinkRowKey(serviceUid, applicationName, serviceType.getCode(), rowTimeSlot);
     }
 
-    UidLinkRowKey(int serviceUid, String applicationName, short serviceType, long rowTimeSlot) {
+    public UidLinkRowKey(int serviceUid, String applicationName, int serviceType, long timestamp) {
         this.serviceUid = serviceUid;
         this.applicationName = Objects.requireNonNull(applicationName, "callApplicationName");
         this.serviceType = serviceType;
-        this.rowTimeSlot = rowTimeSlot;
+        this.timestamp = timestamp;
     }
 
-    public byte[] getRowKey(int saltKeySize) {
-        return makeRowKey(saltKeySize, serviceUid, applicationName, serviceType, rowTimeSlot);
+    public int getServiceUid() {
+        return serviceUid;
+    }
+
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public int getServiceType() {
+        return serviceType;
+    }
+
+    @Override
+    public long getTimestamp() {
+        return timestamp;
     }
 
     /**
      * <pre>
-     * rowkey format = "APPLICATIONNAME(max 255bytes)" + apptype(2byte) + "TIMESTAMP(8byte)"
+     * rowkey format = "APPLICATIONNAME(max 254)" + apptype(4) + serivceUid(4)+ "TIMESTAMP(8)"
      * </pre>
      *
-     * @param applicationName
-     * @param timestamp
-     * @return
+     * @param saltKeySize
      */
-    public static byte[] makeRowKey(int saltKeySize, int serviceUid, String applicationName, short applicationType, long timestamp) {
-        Objects.requireNonNull(applicationName, "applicationName");
+    public byte[] getRowKey(int saltKeySize) {
+        return makeRowKey(saltKeySize, serviceUid, applicationName, serviceType, timestamp);
+    }
 
-        final byte[] applicationNameBytes = BytesUtils.toBytes(applicationName);
-
-        final Buffer buffer = new AutomaticBuffer(saltKeySize + 1 +
-                                                  applicationNameBytes.length +
-                                                  BytesUtils.SHORT_BYTE_LENGTH +
+    public static byte[] makeRowKey(int saltKeySize, int serviceUid, String applicationName, int serviceType, long timestamp) {
+        final Buffer buffer = new AutomaticBuffer(saltKeySize +
+                                                  PinpointConstants.UID_SERVICE_NAME_LEN +
+                                                  BytesUtils.INT_BYTE_LENGTH +
                                                   BytesUtils.INT_BYTE_LENGTH +
                                                   BytesUtils.LONG_BYTE_LENGTH);
         buffer.setOffset(saltKeySize);
-        buffer.putByte(ByteUtils.toUnsignedByte(applicationNameBytes.length));
-        buffer.putBytes(applicationNameBytes);
-        buffer.putShort(applicationType);
+        buffer.putPadString(applicationName, PinpointConstants.UID_SERVICE_NAME_LEN);
+        buffer.putInt(serviceType);
         buffer.putInt(serviceUid);
         long reverseTimeMillis = TimeUtils.reverseTimeMillis(timestamp);
         buffer.putLong(reverseTimeMillis);
         return buffer.getBuffer();
     }
 
+    public static UidLinkRowKey read(int saltKey, byte[] bytes) {
+
+        int offset = saltKey;
+
+        String applicationName = BytesUtils.toStringAndRightTrim(bytes, offset, PinpointConstants.UID_SERVICE_NAME_LEN);
+        offset += PinpointConstants.UID_SERVICE_NAME_LEN;
+
+        int applicationServiceType = BytesUtils.bytesToInt(bytes, offset);
+        offset += BytesUtils.INT_BYTE_LENGTH;
+
+        int serviceUid = BytesUtils.bytesToInt(bytes, offset);
+        offset += BytesUtils.INT_BYTE_LENGTH;
+
+        long timestamp = TimeUtils.recoveryTimeMillis(BytesUtils.bytesToLong(bytes, offset));
+
+        return new UidLinkRowKey(serviceUid, applicationName, applicationServiceType, timestamp);
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
 
         UidLinkRowKey that = (UidLinkRowKey) o;
-        return serviceUid == that.serviceUid && serviceType == that.serviceType && rowTimeSlot == that.rowTimeSlot && applicationName.equals(that.applicationName);
+        return serviceUid == that.serviceUid && serviceType == that.serviceType && timestamp == that.timestamp && applicationName.equals(that.applicationName);
     }
 
     @Override
@@ -96,17 +125,17 @@ public class UidLinkRowKey implements RowKey {
         int result = serviceUid;
         result = 31 * result + applicationName.hashCode();
         result = 31 * result + serviceType;
-        result = 31 * result + Long.hashCode(rowTimeSlot);
+        result = 31 * result + Long.hashCode(timestamp);
         return result;
     }
 
     @Override
     public String toString() {
         return "UidLinkRowKey{" +
-                "serviceUid=" + serviceUid +
-                ", applicationName='" + applicationName + '\'' +
-                ", serviceType=" + serviceType +
-                ", rowTimeSlot=" + rowTimeSlot +
-                '}';
+               "serviceUid=" + serviceUid +
+               ", applicationName='" + applicationName + '\'' +
+               ", serviceType=" + serviceType +
+               ", timestamp=" + timestamp +
+               '}';
     }
 }

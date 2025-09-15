@@ -28,7 +28,7 @@ import java.util.Objects;
 /**
  * @author emeroad
  */
-public class LinkRowKey implements RowKey {
+public class LinkRowKey implements TimestampRowKey {
     private final String applicationName;
     private final short serviceType;
     private final long timestamp;
@@ -60,6 +60,7 @@ public class LinkRowKey implements RowKey {
         return serviceType;
     }
 
+    @Override
     public long getTimestamp() {
         return timestamp;
     }

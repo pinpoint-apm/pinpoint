@@ -72,9 +72,8 @@ public class OutLinkV3ColumnName implements ColumnName {
     public byte[] getColumnName() {
         final Buffer buffer = new AutomaticBuffer(64);
         buffer.putInt(inServiceType);
-        buffer.putShort(columnSlotNumber);
-
         buffer.putUnsignedBytePrefixedString(inApplicationName);
+        buffer.putShort(columnSlotNumber);
         buffer.putPrefixedString(outSubLink);
         return buffer.getBuffer();
     }

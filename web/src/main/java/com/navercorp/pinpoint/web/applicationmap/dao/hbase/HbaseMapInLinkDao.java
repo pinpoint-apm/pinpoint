@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.web.applicationmap.dao.hbase;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTable;
-import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
@@ -48,11 +47,11 @@ import java.util.Objects;
 @Repository
 public class HbaseMapInLinkDao implements MapInLinkDao {
 
-    private static final int MAP_STATISTICS_CALLER_VER2_NUM_PARTITIONS = 32;
+    private static final int NUM_PARTITIONS = 32;
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.MAP_STATISTICS_CALLER_VER2_COUNTER;
+    private final HbaseColumnFamily table;
 
     private final HbaseOperations hbaseTemplate;
     private final TableNameProvider tableNameProvider;
@@ -65,11 +64,13 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
 
 
     public HbaseMapInLinkDao(
+            HbaseColumnFamily table,
             HbaseOperations hbaseTemplate,
             TableNameProvider tableNameProvider,
             RowMapperFactory<LinkDataMap> inLinkMapperFactory,
             MapScanFactory scanFactory,
             RowKeyDistributorByHashPrefix rowKeyDistributor)  {
+        this.table = Objects.requireNonNull(table, "table");
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.inLinkMapperFactory = Objects.requireNonNull(inLinkMapperFactory, "inLinkMapperFactory");
@@ -86,9 +87,9 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
         RowMapper<LinkDataMap> rowMapper = this.inLinkMapperFactory.newMapper(mapperWindow);
         ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(rowMapper, new LinkTimeWindowReducer(timeWindow));
 
-        final Scan scan = scanFactory.createScan("MapInLinkScan", inApplication, timeWindow.getWindowRange(), DESCRIPTOR.getName());
+        final Scan scan = scanFactory.createScan("MapInLinkScan", inApplication, timeWindow.getWindowRange(), table.getName());
 
-        final LinkDataMap linkDataMap = selectInLink(scan, DESCRIPTOR.getTable(), resultExtractor, MAP_STATISTICS_CALLER_VER2_NUM_PARTITIONS);
+        final LinkDataMap linkDataMap = selectInLink(scan, table.getTable(), resultExtractor, NUM_PARTITIONS);
         if (logger.isDebugEnabled()) {
             logger.debug("selectInLink {} {}", inApplication, linkDataMap.getLinkDataSize());
         }

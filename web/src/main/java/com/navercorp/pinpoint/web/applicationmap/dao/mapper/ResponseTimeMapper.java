@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
 
-import com.navercorp.pinpoint.common.hbase.HbaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
@@ -43,15 +44,18 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
+    private final HbaseColumnFamily table;
     private final ServiceTypeRegistryService registry;
 
     private final int saltKeySize;
 
     private final TimeWindowFunction timeWindowFunction;
 
-    public ResponseTimeMapper(ServiceTypeRegistryService registry,
+    public ResponseTimeMapper(HbaseColumnFamily table,
+                              ServiceTypeRegistryService registry,
                               RowKeyDistributorByHashPrefix rowKeyDistributor,
                               TimeWindowFunction timeWindowFunction) {
+        this.table = Objects.requireNonNull(table, "table");
         this.registry = Objects.requireNonNull(registry, "registry");
         Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
         this.saltKeySize = rowKeyDistributor.getSaltKeySize();
@@ -64,11 +68,11 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
             return null;
         }
 
-        LinkRowKey linkRowKey = LinkRowKey.read(saltKeySize, result.getRow());
+        RowKey linkRowKey = readRowKey(saltKeySize, result.getRow());
 
         ResponseTime.Builder responseTimeBuilder = createResponseTime(linkRowKey);
         for (Cell cell : result.rawCells()) {
-            if (CellUtil.matchingFamily(cell, HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER.getName())) {
+            if (CellUtil.matchingFamily(cell, table.getName())) {
                 recordColumn(responseTimeBuilder, cell);
             }
 
@@ -78,6 +82,10 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
             }
         }
         return responseTimeBuilder.build();
+    }
+
+    private RowKey readRowKey(int saltKeySize, byte[] rowKey) {
+        return LinkRowKey.read(saltKeySize, rowKey);
     }
 
     void recordColumn(ResponseTime.Builder responseTime, Cell cell) {
@@ -92,7 +100,8 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
         responseTime.addResponseTime(agentId, slotNumber, count);
     }
 
-    private ResponseTime.Builder createResponseTime(LinkRowKey rowKey) {
+    private ResponseTime.Builder createResponseTime(RowKey rawRowKey) {
+        LinkRowKey rowKey = (LinkRowKey) rawRowKey;
         String applicationName = rowKey.getApplicationName();
         short serviceTypeCode = rowKey.getServiceType();
         final long timestamp = timeWindowFunction.refineTimestamp(rowKey.getTimestamp());

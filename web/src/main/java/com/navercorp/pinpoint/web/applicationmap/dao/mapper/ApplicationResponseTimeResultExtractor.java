@@ -15,8 +15,7 @@
  */
 
 package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
-
-import com.navercorp.pinpoint.common.hbase.HbaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
@@ -45,6 +44,8 @@ public class ApplicationResponseTimeResultExtractor implements ResultsExtractor<
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
+    private final HbaseColumnFamily table;
+
     private final ServiceTypeRegistryService registry;
 
     private final int saltKeySize;
@@ -52,9 +53,11 @@ public class ApplicationResponseTimeResultExtractor implements ResultsExtractor<
     private final TimeWindowFunction timeWindowFunction;
 
 
-    public ApplicationResponseTimeResultExtractor(ServiceTypeRegistryService registry,
+    public ApplicationResponseTimeResultExtractor(HbaseColumnFamily table,
+                                                  ServiceTypeRegistryService registry,
                                                   RowKeyDistributorByHashPrefix rowKeyDistributor,
                                                   TimeWindowFunction timeWindowFunction) {
+        this.table = Objects.requireNonNull(table, "table");
         this.registry = Objects.requireNonNull(registry, "registry");
         Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
         this.saltKeySize = rowKeyDistributor.getSaltKeySize();
@@ -77,7 +80,8 @@ public class ApplicationResponseTimeResultExtractor implements ResultsExtractor<
         if (result.isEmpty()) {
             return null;
         }
-        LinkRowKey linkRowKey = LinkRowKey.read(saltKeySize, result.getRow());
+        byte[] rowKey = result.getRow();
+        LinkRowKey linkRowKey = LinkRowKey.read(saltKeySize, rowKey);
 
         final String applicationName = linkRowKey.getApplicationName();
         final short serviceTypeCode = linkRowKey.getServiceType();
@@ -97,7 +101,7 @@ public class ApplicationResponseTimeResultExtractor implements ResultsExtractor<
             }
         }
         for (Cell cell : result.rawCells()) {
-            if (CellUtil.matchingFamily(cell, HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER.getName())) {
+            if (CellUtil.matchingFamily(cell, table.getName())) {
                 recordColumn(builder, timestamp, cell);
             }
 

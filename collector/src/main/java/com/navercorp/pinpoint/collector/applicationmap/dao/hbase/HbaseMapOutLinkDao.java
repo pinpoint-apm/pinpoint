@@ -76,20 +76,20 @@ public class HbaseMapOutLinkDao implements MapOutLinkDao {
 
         // make row key. rowkey is me
         final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
-        final RowKey outLinkRowKey = outLinkFactory.rowkey(selfVertex, rowTimeSlot);
+        final RowKey selfLinkRowKey = outLinkFactory.rowkey(selfVertex, rowTimeSlot);
 
         final short outSlotNumber = MapSlotUtils.getSlotNumber(outVertex.serviceType(), elapsed, isError);
 
         final ColumnName inLink = outLinkFactory.histogram(selfAgentId, outVertex, outHost, outSlotNumber);
-        this.bulkWriter.increment(outLinkRowKey, inLink);
+        this.bulkWriter.increment(selfLinkRowKey, inLink);
 
         if (mapLinkProperties.isEnableAvg()) {
             final ColumnName sumInLink = outLinkFactory.sum(selfAgentId, outVertex, outHost, selfVertex.serviceType());
-            this.bulkWriter.increment(outLinkRowKey, sumInLink, elapsed);
+            this.bulkWriter.increment(selfLinkRowKey, sumInLink, elapsed);
         }
         if (mapLinkProperties.isEnableMax()) {
             final ColumnName maxInLink = outLinkFactory.max(selfAgentId, outVertex, outHost, selfVertex.serviceType());
-            this.bulkWriter.updateMax(outLinkRowKey, maxInLink, elapsed);
+            this.bulkWriter.updateMax(selfLinkRowKey, maxInLink, elapsed);
         }
 
     }

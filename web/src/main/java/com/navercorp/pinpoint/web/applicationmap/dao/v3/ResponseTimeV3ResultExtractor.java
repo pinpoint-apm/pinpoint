@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
+package com.navercorp.pinpoint.web.applicationmap.dao.v3;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
@@ -46,7 +46,7 @@ import java.util.Objects;
 /**
  * @author emeroad
  */
-public class ResponseTimeResultExtractor implements ResultsExtractor<List<ResponseTime>> {
+public class ResponseTimeV3ResultExtractor implements ResultsExtractor<List<ResponseTime>> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -57,10 +57,10 @@ public class ResponseTimeResultExtractor implements ResultsExtractor<List<Respon
 
     private final TimeWindowFunction timeWindowFunction;
 
-    public ResponseTimeResultExtractor(HbaseColumnFamily table,
-                                       ServiceTypeRegistryService registry,
-                                       RowKeyDistributorByHashPrefix rowKeyDistributor,
-                                       TimeWindowFunction timeWindowFunction) {
+    public ResponseTimeV3ResultExtractor(HbaseColumnFamily table,
+                                         ServiceTypeRegistryService registry,
+                                         RowKeyDistributorByHashPrefix rowKeyDistributor,
+                                         TimeWindowFunction timeWindowFunction) {
         this.table = Objects.requireNonNull(table, "table");
         this.registry = Objects.requireNonNull(registry, "registry");
         Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
@@ -91,9 +91,9 @@ public class ResponseTimeResultExtractor implements ResultsExtractor<List<Respon
             return;
         }
 
-        RowKey linkRowKey = readRowKey(saltKeySize, result.getRow());
+        RowKey uidRowKey = readRowKey(saltKeySize, result.getRow());
 
-        ResponseTime.Builder responseTimeBuilder = createResponseTimeBuilder(map, linkRowKey);
+        ResponseTime.Builder responseTimeBuilder = createResponseTimeBuilder(map, uidRowKey);
         for (Cell cell : result.rawCells()) {
             if (CellUtil.matchingFamily(cell, table.getName())) {
                 recordColumn(responseTimeBuilder, cell);
@@ -108,7 +108,7 @@ public class ResponseTimeResultExtractor implements ResultsExtractor<List<Respon
     }
 
     private RowKey readRowKey(int saltKeySize, byte[] rowKey) {
-        return LinkRowKey.read(saltKeySize, rowKey);
+        return UidLinkRowKey.read(saltKeySize, rowKey);
     }
 
     void recordColumn(ResponseTime.Builder responseTimeBuilder, Cell cell) {
@@ -124,18 +124,19 @@ public class ResponseTimeResultExtractor implements ResultsExtractor<List<Respon
     }
 
     private ResponseTime.Builder createResponseTimeBuilder(Map<Key, ResponseTime.Builder> map, RowKey rawRowKey) {
-        LinkRowKey rowKey = (LinkRowKey) rawRowKey;
+        UidLinkRowKey rowKey = (UidLinkRowKey) rawRowKey;
         final long timestamp = timeWindowFunction.refineTimestamp(rowKey.getTimestamp());
         final ServiceType serviceType = registry.findServiceType(rowKey.getServiceType());
 
-        final Key key = new Key(rowKey.getApplicationName(), rowKey.getServiceType(), timestamp);
+        final Key key = new Key(rowKey.getServiceUid(), rowKey.getApplicationName(), rowKey.getServiceType(), timestamp);
 
         return map.computeIfAbsent(key, k -> ResponseTime.newBuilder(rowKey.getApplicationName(), serviceType, timestamp));
     }
 
     private record Key(
+            int serviceUid,
             String applicationName,
-            short serviceTypeCode,
+            int serviceTypeCode,
             long timestamp
     ) {}
 

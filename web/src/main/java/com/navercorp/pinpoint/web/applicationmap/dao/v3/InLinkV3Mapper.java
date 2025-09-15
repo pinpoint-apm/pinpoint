@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
+package com.navercorp.pinpoint.web.applicationmap.dao.v3;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.TimestampRowKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
 import com.navercorp.pinpoint.common.server.util.UserNodeUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.web.applicationmap.dao.mapper.LinkFilter;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -44,9 +45,9 @@ import java.util.Objects;
  * @author netspider
  * 
  */
-public class InLinkMapper implements RowMapper<LinkDataMap> {
+public class InLinkV3Mapper implements RowMapper<LinkDataMap> {
 
-    static final String MERGE_AGENT = OutLinkMapper.MERGE_AGENT;
+    static final String MERGE_AGENT = OutLinkV3Mapper.MERGE_AGENT;
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -60,11 +61,11 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
 
     private final int saltKeySize;
 
-    public InLinkMapper(ServiceTypeRegistryService registry,
-                        ApplicationFactory applicationFactory,
-                        RowKeyDistributorByHashPrefix rowKeyDistributor,
-                        LinkFilter filter,
-                        TimeWindowFunction timeWindowFunction) {
+    public InLinkV3Mapper(ServiceTypeRegistryService registry,
+                          ApplicationFactory applicationFactory,
+                          RowKeyDistributorByHashPrefix rowKeyDistributor,
+                          LinkFilter filter,
+                          TimeWindowFunction timeWindowFunction) {
         this.registry = Objects.requireNonNull(registry, "registry");
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
         Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
@@ -83,18 +84,18 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
             logger.debug("mapRow num:{} size:{}", rowNum, result.size());
         }
 
-        TimestampRowKey linkRowKey = readRowKey(saltKeySize, result.getRow());
+        final TimestampRowKey inRowKey = readRowKey(saltKeySize, result.getRow());
 
-        final Application inApplication = readInApplication(linkRowKey);
-        final long timestamp = timeWindowFunction.refineTimestamp(linkRowKey.getTimestamp());
+        final long timestamp = timeWindowFunction.refineTimestamp(inRowKey.getTimestamp());
+        final Application inApplication = readInApplication(inRowKey);
 
         final LinkDataMap linkDataMap = new LinkDataMap(timeWindowFunction);
         for (Cell cell : result.rawCells()) {
 
             final Buffer buffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
-            short selfServiceType = buffer.readShort();
+            int selfServiceType = buffer.readInt();
+            String selfApplicationName = buffer.readUnsignedBytePrefixedString();
             short histogramSlot = buffer.readShort();
-            String selfApplicationName = buffer.read2PrefixedString();
 
             final Application self = readSelfApplication(selfApplicationName, selfServiceType, inApplication.getServiceType());
             if (filter.filter(self)) {
@@ -126,7 +127,7 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
     }
 
     private TimestampRowKey readRowKey(int saltKeySize, byte[] rowKey) {
-        return LinkRowKey.read(saltKeySize, rowKey);
+        return UidLinkRowKey.read(saltKeySize, rowKey);
     }
 
     private String readOutHost(Buffer buffer) {
@@ -137,7 +138,7 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
         return outHost;
     }
 
-    private Application readSelfApplication(String selfApplicationName, short selfServiceType, ServiceType inServiceType) {
+    private Application readSelfApplication(String selfApplicationName, int selfServiceType, ServiceType inServiceType) {
         // Caller may be a user node, and user nodes may call nodes with the same application name but different service type.
         // To distinguish between these user nodes, append callee's service type to the application name.
         if (registry.findServiceType(selfServiceType).isUser()) {
@@ -147,9 +148,9 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
     }
 
     private Application readInApplication(RowKey rawRowKey) {
-        LinkRowKey rowKey = (LinkRowKey) rawRowKey;
+        UidLinkRowKey rowKey = (UidLinkRowKey) rawRowKey;
         String selfApplicationName = rowKey.getApplicationName();
-        short selfServiceType = rowKey.getServiceType();
+        int selfServiceType = rowKey.getServiceType();
 
         return this.applicationFactory.createApplication(selfApplicationName, selfServiceType);
     }

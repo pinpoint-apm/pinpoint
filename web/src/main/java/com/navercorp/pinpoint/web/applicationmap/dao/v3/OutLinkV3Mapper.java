@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
+package com.navercorp.pinpoint.web.applicationmap.dao.v3;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.TimestampRowKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
+import com.navercorp.pinpoint.web.applicationmap.dao.mapper.LinkFilter;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -33,7 +34,6 @@ import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -42,7 +42,7 @@ import java.util.Objects;
  *
  * @author netspider
  */
-public class OutLinkMapper implements RowMapper<LinkDataMap> {
+public class OutLinkV3Mapper implements RowMapper<LinkDataMap> {
 
     static final String MERGE_AGENT = "_";
 
@@ -57,10 +57,10 @@ public class OutLinkMapper implements RowMapper<LinkDataMap> {
     private final int saltKeySize;
 
 
-    public OutLinkMapper(ApplicationFactory applicationFactory,
-                         RowKeyDistributorByHashPrefix rowKeyDistributor,
-                         LinkFilter filter,
-                         TimeWindowFunction timeWindowFunction) {
+    public OutLinkV3Mapper(ApplicationFactory applicationFactory,
+                           RowKeyDistributorByHashPrefix rowKeyDistributor,
+                           LinkFilter filter,
+                           TimeWindowFunction timeWindowFunction) {
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
         Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
         this.saltKeySize = rowKeyDistributor.getSaltKeySize();
@@ -78,9 +78,8 @@ public class OutLinkMapper implements RowMapper<LinkDataMap> {
             logger.debug("mapRow num:{} size:{}", rowNum, result.size());
         }
 
-        TimestampRowKey rowKey = readRowKey(saltKeySize, result.getRow());
-        final Application outApplication = readOutApplication(rowKey);
-        final long timestamp = timeWindowFunction.refineTimestamp(rowKey.getTimestamp());
+        TimestampRowKey selfRowKey = readRowKey(saltKeySize, result.getRow());
+        final long timestamp = timeWindowFunction.refineTimestamp(selfRowKey.getTimestamp());
 
         // key is destApplicationName.
         final LinkDataMap linkDataMap = new LinkDataMap();
@@ -91,51 +90,41 @@ public class OutLinkMapper implements RowMapper<LinkDataMap> {
                 continue;
             }
 
-            String inHost = buffer.readPrefixedString();
             short histogramSlot = buffer.readShort();
-
-            String outAgentId = readOutAgentId(buffer);
+            String outSubLink = buffer.readPrefixedString();
 
 
             long requestCount = CellUtils.valueToLong(cell);
             if (logger.isDebugEnabled()) {
                 logger.debug("    Fetched OUT_LINK {} {} -> {} (slot:{}/{}) inHost:{}",
-                        outApplication, outAgentId, inApplication, histogramSlot, requestCount, inHost);
+                        selfRowKey, MERGE_AGENT, inApplication, histogramSlot, requestCount, outSubLink);
             }
 
-            if (StringUtils.isEmpty(inHost)) {
-                inHost = inApplication.getName();
+            if (StringUtils.isEmpty(outSubLink)) {
+                outSubLink = inApplication.getName();
             }
-            linkDataMap.addLinkData(outApplication, outAgentId, inApplication, inHost, timestamp, histogramSlot, requestCount);
+            Application selfApplication = getApplication(selfRowKey);
+            linkDataMap.addLinkData(selfApplication, MERGE_AGENT, inApplication, outSubLink, timestamp, histogramSlot, requestCount);
         }
 
         return linkDataMap;
     }
 
-    private @NotNull TimestampRowKey readRowKey(int saltKeySize, byte[] rowKey) {
-        return LinkRowKey.read(saltKeySize, rowKey);
-    }
-
-    private String readOutAgentId(Buffer buffer) {
-        String outAgentId = buffer.readPrefixedString();
-        if (MERGE_AGENT.equals(outAgentId)) {
-            // for gc
-            return MERGE_AGENT;
-        }
-        return outAgentId;
+    private TimestampRowKey readRowKey(int saltKeySize, byte[] rowKey) {
+        return UidLinkRowKey.read(saltKeySize, rowKey);
     }
 
 
     private Application readInApplication(Buffer buffer) {
-        short inServiceType = buffer.readShort();
+        int inServiceType = buffer.readInt();
         String inApplicationName = buffer.readPrefixedString();
         return applicationFactory.createApplication(inApplicationName, inServiceType);
     }
 
-    private Application readOutApplication(RowKey row) {
-        LinkRowKey rowKey = (LinkRowKey) row;
+    private Application getApplication(RowKey rawRowKey) {
+        UidLinkRowKey rowKey = (UidLinkRowKey) rawRowKey;
         String applicationName = rowKey.getApplicationName();
-        short outServiceType = rowKey.getServiceType();
+        int outServiceType = rowKey.getServiceType();
         return this.applicationFactory.createApplication(applicationName, outServiceType);
     }
 

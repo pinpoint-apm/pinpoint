@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
+package com.navercorp.pinpoint.web.applicationmap.dao.v3;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.web.vo.ResponseTime;
+import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
+import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
@@ -35,32 +35,29 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 
 /**
  * @author emeroad
  */
-public class ResponseTimeResultExtractor implements ResultsExtractor<List<ResponseTime>> {
+public class ApplicationResponseTimeV3ResultExtractor implements ResultsExtractor<ApplicationResponse> {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final HbaseColumnFamily table;
+
     private final ServiceTypeRegistryService registry;
 
     private final int saltKeySize;
 
     private final TimeWindowFunction timeWindowFunction;
 
-    public ResponseTimeResultExtractor(HbaseColumnFamily table,
-                                       ServiceTypeRegistryService registry,
-                                       RowKeyDistributorByHashPrefix rowKeyDistributor,
-                                       TimeWindowFunction timeWindowFunction) {
+
+    public ApplicationResponseTimeV3ResultExtractor(HbaseColumnFamily table,
+                                                    ServiceTypeRegistryService registry,
+                                                    RowKeyDistributorByHashPrefix rowKeyDistributor,
+                                                    TimeWindowFunction timeWindowFunction) {
         this.table = Objects.requireNonNull(table, "table");
         this.registry = Objects.requireNonNull(registry, "registry");
         Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
@@ -68,35 +65,45 @@ public class ResponseTimeResultExtractor implements ResultsExtractor<List<Respon
         this.timeWindowFunction = Objects.requireNonNull(timeWindowFunction, "timeWindowFunction");
     }
 
-    public List<ResponseTime> extractData(ResultScanner results) throws Exception {
-        Map<Key, ResponseTime.Builder> rs = new HashMap<>();
+    public ApplicationResponse extractData(ResultScanner results) throws Exception {
+        ApplicationResponse.Builder builder = null;
         for (Result result : results) {
-            this.mapRow(rs, result);
+            builder = this.mapRow(builder, result);
         }
-        return build(rs);
+        if (builder == null) {
+            return null;
+        }
+        return builder.build();
     }
 
-    private List<ResponseTime> build(Map<Key, ResponseTime.Builder> responseTimeMap) {
-        Collection<ResponseTime.Builder> builders = responseTimeMap.values();
-        List<ResponseTime> result = new ArrayList<>(builders.size());
-        for (ResponseTime.Builder builder : builders) {
-            ResponseTime responseTime = builder.build();
-            result.add(responseTime);
-        }
-        return result;
-    }
 
-    private void mapRow(Map<Key, ResponseTime.Builder> map, Result result) {
+    private ApplicationResponse.Builder mapRow(ApplicationResponse.Builder builder, Result result) {
         if (result.isEmpty()) {
-            return;
+            return null;
         }
+        final byte[] rowKey = result.getRow();
+        UidLinkRowKey uidRowKey = UidLinkRowKey.read(saltKeySize, rowKey);
 
-        RowKey linkRowKey = readRowKey(saltKeySize, result.getRow());
+        final String applicationName = uidRowKey.getApplicationName();
+        final int serviceTypeCode = uidRowKey.getServiceType();
+        final long timestamp = timeWindowFunction.refineTimestamp(uidRowKey.getTimestamp());
 
-        ResponseTime.Builder responseTimeBuilder = createResponseTimeBuilder(map, linkRowKey);
+        if (builder == null) {
+            ServiceType serviceType = registry.findServiceType(serviceTypeCode);
+            Application application = new Application(applicationName, serviceType);
+            builder = ApplicationResponse.newBuilder(application);
+        } else {
+            Application builderApp = builder.getApplication();
+            if (!builderApp.getName().equals(applicationName)) {
+                throw new IllegalStateException("applicationName must match");
+            }
+            if (builderApp.getServiceType().getCode() != serviceTypeCode) {
+                throw new IllegalStateException("serviceType must match");
+            }
+        }
         for (Cell cell : result.rawCells()) {
             if (CellUtil.matchingFamily(cell, table.getName())) {
-                recordColumn(responseTimeBuilder, cell);
+                recordColumn(builder, timestamp, cell);
             }
 
             if (logger.isTraceEnabled()) {
@@ -104,39 +111,20 @@ public class ResponseTimeResultExtractor implements ResultsExtractor<List<Respon
                 logger.trace("unknown column family:{}", columnFamily);
             }
         }
-
+        return builder;
     }
 
-    private RowKey readRowKey(int saltKeySize, byte[] rowKey) {
-        return LinkRowKey.read(saltKeySize, rowKey);
-    }
-
-    void recordColumn(ResponseTime.Builder responseTimeBuilder, Cell cell) {
+    void recordColumn(ApplicationResponse.Builder responseTimeBuilder, long timestamp, Cell cell) {
 
         final byte[] qArray = cell.getQualifierArray();
         final int qOffset = cell.getQualifierOffset();
-        short slotNumber = Bytes.toShort(qArray, qOffset);
+        final short slotNumber = Bytes.toShort(qArray, qOffset);
 
         // agentId should be added as data.
         String agentId = Bytes.toString(qArray, qOffset + BytesUtils.SHORT_BYTE_LENGTH, cell.getQualifierLength() - BytesUtils.SHORT_BYTE_LENGTH);
         long count = CellUtils.valueToLong(cell);
-        responseTimeBuilder.addResponseTime(agentId, slotNumber, count);
+
+        responseTimeBuilder.addResponseTime(agentId, timestamp, slotNumber, count);
     }
-
-    private ResponseTime.Builder createResponseTimeBuilder(Map<Key, ResponseTime.Builder> map, RowKey rawRowKey) {
-        LinkRowKey rowKey = (LinkRowKey) rawRowKey;
-        final long timestamp = timeWindowFunction.refineTimestamp(rowKey.getTimestamp());
-        final ServiceType serviceType = registry.findServiceType(rowKey.getServiceType());
-
-        final Key key = new Key(rowKey.getApplicationName(), rowKey.getServiceType(), timestamp);
-
-        return map.computeIfAbsent(key, k -> ResponseTime.newBuilder(rowKey.getApplicationName(), serviceType, timestamp));
-    }
-
-    private record Key(
-            String applicationName,
-            short serviceTypeCode,
-            long timestamp
-    ) {}
 
 }
