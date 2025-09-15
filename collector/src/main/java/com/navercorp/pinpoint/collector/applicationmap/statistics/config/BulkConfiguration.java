@@ -58,7 +58,7 @@ public class BulkConfiguration {
 
     @Bean
     public BulkIncrementer outLinkBulkIncrementer(BulkFactory factory, BulkProperties bulkProperties) {
-        String reporterName = "callerBulkIncrementerReporter";
+        String reporterName = "outLinkIncrementReporter";
         HbaseColumnFamily hbaseColumnFamily = HbaseTables.MAP_STATISTICS_CALLER_VER2_COUNTER;
         int limitSize = bulkProperties.getCallerLimitSize();
 
@@ -67,7 +67,7 @@ public class BulkConfiguration {
 
     @Bean
     public BulkUpdater outLinkBulkUpdater(BulkFactory factory) {
-        String reporterName = "callerBulkUpdaterReporter";
+        String reporterName = "outLinkUpdateReporter";
         return factory.getBulkUpdater(reporterName);
     }
 
@@ -86,7 +86,7 @@ public class BulkConfiguration {
 
     @Bean
     public BulkIncrementer inLinkBulkIncrementer(BulkFactory factory, BulkProperties bulkProperties) {
-        String reporterName = "calleeBulkIncrementerReporter";
+        String reporterName = "inLinkIncrementReporter";
         HbaseColumnFamily hbaseColumnFamily = HbaseTables.MAP_STATISTICS_CALLEE_VER2_COUNTER;
         int limitSize = bulkProperties.getCalleeLimitSize();
 
@@ -96,7 +96,7 @@ public class BulkConfiguration {
 
     @Bean
     public BulkUpdater inLinkBulkUpdater(BulkFactory factory) {
-        String reporterName = "calleeBulkUpdaterReporter";
+        String reporterName = "inLinkUpdateReporter";
         return factory.getBulkUpdater(reporterName);
     }
 
@@ -113,7 +113,7 @@ public class BulkConfiguration {
 
     @Bean
     public BulkIncrementer selfBulkIncrementer(BulkFactory factory, BulkProperties bulkProperties) {
-        String reporterName = "selfBulkIncrementerReporter";
+        String reporterName = "selfIncrementReporter";
         HbaseColumnFamily hbaseColumnFamily = HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER;
         int limitSize = bulkProperties.getSelfLimitSize();
 
@@ -122,7 +122,7 @@ public class BulkConfiguration {
 
     @Bean
     public BulkUpdater selfBulkUpdater(BulkFactory factory) {
-        String reporterName = "selfBulkUpdaterReporter";
+        String reporterName = "selfUpdateReporter";
         return factory.getBulkUpdater(reporterName);
     }
 

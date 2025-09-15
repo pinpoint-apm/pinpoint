@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
+import com.navercorp.pinpoint.common.hbase.wd.RangeDoubleHash;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
@@ -39,20 +41,21 @@ import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapResponseTimeD
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.MapScanFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ApplicationResponseTimeResultExtractor;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.HostApplicationMapper;
-import com.navercorp.pinpoint.web.applicationmap.dao.mapper.InLinkMapper;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.LinkFilter;
-import com.navercorp.pinpoint.web.applicationmap.dao.mapper.OutLinkMapper;
-import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResponseTimeMapper;
-import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResponseTimeResultExtractor;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResultExtractorFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.RowMapperFactory;
+import com.navercorp.pinpoint.web.applicationmap.dao.v3.InLinkV3Mapper;
+import com.navercorp.pinpoint.web.applicationmap.dao.v3.MapV3ScanFactory;
+import com.navercorp.pinpoint.web.applicationmap.dao.v3.OutLinkV3Mapper;
+import com.navercorp.pinpoint.web.applicationmap.dao.v3.ResponseTimeV3Mapper;
+import com.navercorp.pinpoint.web.applicationmap.dao.v3.ResponseTimeV3ResultExtractor;
 import com.navercorp.pinpoint.web.applicationmap.map.AcceptApplication;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -60,8 +63,16 @@ import java.util.List;
 import java.util.Set;
 
 @Configuration
-@ConditionalOnMissingBean(MapV3MapperConfiguration.class)
-public class MapMapperConfiguration {
+@ConditionalOnProperty(name = "pinpoint.modules.uid.version", havingValue = "v3")
+public class MapV3MapperConfiguration {
+
+    public static final int UID_START_KEY_RANGE = 262;
+
+    @Bean
+    public RowKeyDistributorByHashPrefix uidRowKeyDistributor() {
+        ByteHasher hasher = RangeDoubleHash.ofSecondary(0, UID_START_KEY_RANGE, ByteHasher.MAX_BUCKETS, 4, UID_START_KEY_RANGE, UID_START_KEY_RANGE + 8);
+        return new RowKeyDistributorByHashPrefix(hasher);
+    }
 
     @Bean
     public ResultsExtractor<Set<AcceptApplication>> hostApplicationResultExtractor(ApplicationFactory applicationFactory) {
@@ -70,36 +81,36 @@ public class MapMapperConfiguration {
 
     @Bean
     public RowMapperFactory<LinkDataMap> mapOutLinkMapper(ApplicationFactory applicationFactory,
-                                                          @Qualifier("mapLinkRowKeyDistributor")
+                                                          @Qualifier("uidRowKeyDistributor")
                                                           RowKeyDistributorByHashPrefix rowKeyDistributor) {
-        return (windowFunction) -> new OutLinkMapper(applicationFactory, rowKeyDistributor, LinkFilter::skip, windowFunction);
+        return (windowFunction) -> new OutLinkV3Mapper(applicationFactory, rowKeyDistributor, LinkFilter::skip, windowFunction);
     }
 
     @Bean
     public RowMapperFactory<LinkDataMap> mapInLinkMapper(ServiceTypeRegistryService registry,
                                                          ApplicationFactory applicationFactory,
-                                                         @Qualifier("mapLinkRowKeyDistributor")
+                                                         @Qualifier("uidRowKeyDistributor")
                                                          RowKeyDistributorByHashPrefix rowKeyDistributor) {
-        return (windowFunction) -> new InLinkMapper(registry, applicationFactory, rowKeyDistributor, LinkFilter::skip, windowFunction);
+        return (windowFunction) -> new InLinkV3Mapper(registry, applicationFactory, rowKeyDistributor, LinkFilter::skip, windowFunction);
     }
 
     @Bean
     public RowMapperFactory<ResponseTime> responseTimeMapper(ServiceTypeRegistryService registry,
-                                                             @Qualifier("mapSelfRowKeyDistributor")
+                                                             @Qualifier("uidRowKeyDistributor")
                                                              RowKeyDistributorByHashPrefix rowKeyDistributor) {
-        return (windowFunction) -> new ResponseTimeMapper(registry, rowKeyDistributor, windowFunction);
+        return (windowFunction) -> new ResponseTimeV3Mapper(registry, rowKeyDistributor, windowFunction);
     }
 
     @Bean
     public ResultExtractorFactory<List<ResponseTime>> responseTimeResultExtractor(ServiceTypeRegistryService registry,
-                                                                                  @Qualifier("mapSelfRowKeyDistributor")
+                                                                                  @Qualifier("uidRowKeyDistributor")
                                                                                   RowKeyDistributorByHashPrefix rowKeyDistributor) {
-        return (windowFunction) -> new ResponseTimeResultExtractor(registry, rowKeyDistributor, windowFunction);
+        return (windowFunction) -> new ResponseTimeV3ResultExtractor(registry, rowKeyDistributor, windowFunction);
     }
 
     @Bean
     public ResultExtractorFactory<ApplicationResponse> applicationResponseTimeResultExtractor(ServiceTypeRegistryService registry,
-                                                                                              @Qualifier("mapSelfRowKeyDistributor")
+                                                                                              @Qualifier("uidRowKeyDistributor")
                                                                                               RowKeyDistributorByHashPrefix rowKeyDistributor) {
         return (windowFunction) -> new ApplicationResponseTimeResultExtractor(registry, rowKeyDistributor, windowFunction);
     }
@@ -107,7 +118,7 @@ public class MapMapperConfiguration {
 
     @Bean
     public MapScanFactory mapScanFactory(RangeFactory rangeFactory) {
-        return new MapScanFactory(rangeFactory);
+        return new MapV3ScanFactory(rangeFactory);
     }
 
     @Bean
@@ -119,9 +130,9 @@ public class MapMapperConfiguration {
                                          @Qualifier("applicationResponseTimeResultExtractor")
                                          ResultExtractorFactory<ApplicationResponse> applicationHistogramResultExtractor,
                                          MapScanFactory mapScanFactory,
-                                         @Qualifier("mapSelfRowKeyDistributor")
+                                         @Qualifier("uidRowKeyDistributor")
                                          RowKeyDistributorByHashPrefix rowKeyDistributor) {
-        HbaseColumnFamily table = HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER;
+        HbaseColumnFamily table = HbaseTables.MAP_APP_SELF;
         return new HbaseMapResponseTimeDao(table, hbaseTemplate, tableNameProvider, resultExtractFactory, applicationHistogramResultExtractor, mapScanFactory, rowKeyDistributor);
     }
 
@@ -132,9 +143,9 @@ public class MapMapperConfiguration {
                                      @Qualifier("mapInLinkMapper")
                                      RowMapperFactory<LinkDataMap> inLinkMapper,
                                      MapScanFactory mapScanFactory,
-                                     @Qualifier("mapLinkRowKeyDistributor")
+                                     @Qualifier("uidRowKeyDistributor")
                                      RowKeyDistributorByHashPrefix rowKeyDistributor) {
-        HbaseColumnFamily table = HbaseTables.MAP_STATISTICS_CALLER_VER2_COUNTER;
+        HbaseColumnFamily table = HbaseTables.MAP_APP_IN;
         return new HbaseMapInLinkDao(table, hbaseTemplate, tableNameProvider, inLinkMapper, mapScanFactory, rowKeyDistributor);
     }
 
@@ -145,9 +156,9 @@ public class MapMapperConfiguration {
                                        @Qualifier("mapOutLinkMapper")
                                        RowMapperFactory<LinkDataMap> outLinkMapper,
                                        MapScanFactory mapScanFactory,
-                                       @Qualifier("mapLinkRowKeyDistributor")
+                                       @Qualifier("uidRowKeyDistributor")
                                        RowKeyDistributorByHashPrefix rowKeyDistributor) {
-        HbaseColumnFamily table = HbaseTables.MAP_STATISTICS_CALLEE_VER2_COUNTER;
+        HbaseColumnFamily table = HbaseTables.MAP_APP_OUT;
         return new HbaseMapOutLinkDao(table, hbaseTemplate, tableNameProvider, outLinkMapper, mapScanFactory, rowKeyDistributor);
     }
 
@@ -162,5 +173,4 @@ public class MapMapperConfiguration {
         HbaseColumnFamily table = HbaseTables.HOST_APPLICATION_MAP_VER2_MAP;
         return new HbaseHostApplicationMapDao(table, hbaseOperations, tableNameProvider, hostApplicationResultExtractor, timeSlot, acceptApplicationRowKeyDistributor);
     }
-
 }
