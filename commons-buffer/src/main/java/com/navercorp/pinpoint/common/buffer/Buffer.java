@@ -27,6 +27,10 @@ public interface Buffer {
 
     int NULL = -1;
 
+    byte BYTE_NULL = NULL;
+    int UNSIGNED_BYTE_NULL = 255;
+    int UNSIGNED_BYTE_MAX = 254;
+
     int BOOLEAN_FALSE = 0;
     int BOOLEAN_TRUE = 1;
 
@@ -40,6 +44,11 @@ public interface Buffer {
 
     void putPrefixedBytes(byte[] bytes);
 
+    /**
+     * max 254 byte range
+     */
+    void putUnsignedBytePrefixedBytes(byte[] bytes);
+
     void put2PrefixedBytes(byte[] bytes);
 
     void put4PrefixedBytes(byte[] bytes);
@@ -47,6 +56,8 @@ public interface Buffer {
     void putPadString(String string, int totalLength);
 
     void putPrefixedString(String string);
+
+    void putUnsignedBytePrefixedString(String string);
 
     void put2PrefixedString(String string);
 
@@ -168,11 +179,15 @@ public interface Buffer {
 
     byte[] readPrefixedBytes();
 
+    byte[] readUnsignedBytePrefixedBytes();
+
     byte[] read2PrefixedBytes();
 
     byte[] read4PrefixedBytes();
 
     String readPrefixedString();
+
+    String readUnsignedBytePrefixedString();
 
     String read2PrefixedString();
 

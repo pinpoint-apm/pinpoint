@@ -191,6 +191,80 @@ public class FixedBufferTest {
     }
 
     @Test
+    public void testPutUnsignedBytePrefixedBytes() {
+        String repeat = "1".repeat(254);
+        byte[] bytes = repeat.getBytes(UTF8_CHARSET);
+
+        FixedBuffer buffer = new FixedBuffer(255);
+        buffer.putUnsignedBytePrefixedBytes(bytes);
+        buffer.setOffset(0);
+
+        Assertions.assertArrayEquals(bytes, buffer.readUnsignedBytePrefixedBytes());
+
+        buffer.setOffset(0);
+        byte[] abc = "abc".getBytes(StandardCharsets.UTF_8);
+        buffer.putUnsignedBytePrefixedBytes(abc);
+        buffer.setOffset(0);
+        Assertions.assertArrayEquals(abc, buffer.readUnsignedBytePrefixedBytes());
+    }
+
+    @Test
+    public void testPutUnsignedBytePrefixedBytes_overflow() {
+        String repeat = "1".repeat(255);
+
+        FixedBuffer buffer = new FixedBuffer(256);
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
+            buffer.putUnsignedBytePrefixedBytes(repeat.getBytes(UTF8_CHARSET));
+        });
+    }
+
+    @Test
+    public void testPutUnsignedBytePrefixedBytes_null() {
+        FixedBuffer buffer = new FixedBuffer(8);
+        buffer.putUnsignedBytePrefixedBytes(null);
+        buffer.setOffset(0);
+
+        Assertions.assertNull(buffer.readUnsignedBytePrefixedBytes());
+    }
+
+
+    @Test
+    public void testPutUnsignedBytePrefixedString() {
+        String repeat = "1".repeat(254);
+
+        FixedBuffer buffer = new FixedBuffer(255);
+        buffer.putUnsignedBytePrefixedString(repeat);
+        buffer.setOffset(0);
+
+        Assertions.assertEquals(repeat, buffer.readUnsignedBytePrefixedString());
+
+        buffer.setOffset(0);
+        String abc = "abc";
+        buffer.putUnsignedBytePrefixedString(abc);
+        buffer.setOffset(0);
+        Assertions.assertEquals(abc, buffer.readUnsignedBytePrefixedString());
+    }
+
+    @Test
+    public void testPutUnsignedBytePrefixedString_overflow() {
+        String repeat = "1".repeat(255);
+
+        FixedBuffer buffer = new FixedBuffer(256);
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
+            buffer.putUnsignedBytePrefixedString(repeat);
+        });
+    }
+
+    @Test
+    public void testPutUnsignedBytePrefixedString_null() {
+        FixedBuffer buffer = new FixedBuffer(8);
+        buffer.putUnsignedBytePrefixedString(null);
+        buffer.setOffset(0);
+
+        Assertions.assertNull(buffer.readUnsignedBytePrefixedString());
+    }
+
+    @Test
     public void testPut2PrefixedBytes() {
         String test = "test";
         int endExpected = 3333;
@@ -460,9 +534,7 @@ public class FixedBufferTest {
     public void readVInt_errorCase() {
         byte[] errorCode = new byte[]{-118, -41, -17, -117, -81, -115, -64, -64, -108, -88};
         Buffer buffer = new FixedBuffer(errorCode);
-        Assertions.assertThrowsExactly(IllegalArgumentException.class, () -> {
-            buffer.readVInt();
-        });
+        Assertions.assertThrowsExactly(IllegalArgumentException.class, buffer::readVInt);
 
         Assertions.assertEquals(0, buffer.getOffset());
     }
@@ -471,9 +543,7 @@ public class FixedBufferTest {
     public void readVLong_errorCase() {
         byte[] errorCode = new byte[]{-25, -45, -47, -14, -16, -104, -53, -48, -72, -9};
         Buffer buffer = new FixedBuffer(errorCode);
-        Assertions.assertThrowsExactly(IllegalArgumentException.class, () -> {
-            buffer.readVLong();
-        });
+        Assertions.assertThrowsExactly(IllegalArgumentException.class, buffer::readVLong);
 
         Assertions.assertEquals(0, buffer.getOffset());
     }

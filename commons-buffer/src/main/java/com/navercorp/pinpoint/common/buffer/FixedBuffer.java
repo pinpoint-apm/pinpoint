@@ -115,6 +115,56 @@ public class FixedBuffer implements Buffer {
     }
 
     @Override
+    public void putUnsignedBytePrefixedString(final String string) {
+        final byte[] bytes = BytesUtils.toBytes(string);
+        if (bytes == null) {
+            putByte(BYTE_NULL);
+            return;
+        }
+        if (bytes.length > UNSIGNED_BYTE_MAX) {
+            throw new IndexOutOfBoundsException("too large String size:" + bytes.length);
+        }
+        putUnsignedBytePrefixedBytes(bytes);
+    }
+
+    @Override
+    public void putUnsignedBytePrefixedBytes(final byte[] bytes) {
+        if (bytes == null) {
+            putByte(BYTE_NULL);
+        } else {
+            if (bytes.length > UNSIGNED_BYTE_MAX) {
+                throw new IndexOutOfBoundsException("too large bytes length:" + bytes.length);
+            }
+            putByte(ByteArrayUtils.toUnsignedByte(bytes.length));
+            putBytes(bytes);
+        }
+    }
+
+    @Override
+    public String readUnsignedBytePrefixedString() {
+        final int size = readUnsignedByte();
+        if (size == UNSIGNED_BYTE_NULL) {
+            return null;
+        }
+        if (size == 0) {
+            return "";
+        }
+        return readString(size);
+    }
+
+    @Override
+    public byte[] readUnsignedBytePrefixedBytes() {
+        final int size = readUnsignedByte();
+        if (size == UNSIGNED_BYTE_NULL) {
+            return null;
+        }
+        if (size == 0) {
+            return EMPTY;
+        }
+        return readBytes(size);
+    }
+
+    @Override
     public void put2PrefixedString(final String string) {
         final byte[] bytes = BytesUtils.toBytes(string);
         if (bytes == null) {
