@@ -5,6 +5,12 @@ spring:
 server:
   port: 8081
 
+management:
+  otlp:
+    metrics:
+      export:
+        enabled: false
+
 pinpoint:
   modules:
     collector:
