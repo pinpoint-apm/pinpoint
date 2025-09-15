@@ -82,7 +82,7 @@ public class ServerGroupListView {
                 return List.of();
             }
             ServerInstance first = serverList.get(0);
-            return hyperLinkFactory.build(LinkSources.from(first.getHostName(), first.getIp()));
+            return hyperLinkFactory.build(LinkSources.from(first.getHostName(), first.getIp(), first.getServiceType()));
         }
 
     }

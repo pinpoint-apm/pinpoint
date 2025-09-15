@@ -76,7 +76,7 @@ public class ServerGroupListTest {
     @Test
     public void hasServerInstance() {
         ServerGroupList.Builder builder = ServerGroupList.newBuilder();
-        builder.addServerInstance(new ServerInstance("hostName", "agentId", ServiceType.TEST_STAND_ALONE));
+        builder.addServerInstance(new ServerInstance("hostName", "agentId", ServiceType.TEST_STAND_ALONE, null));
         ServerGroupList groupList = builder.build();
         assertThat(groupList.getServerGroupList()).hasSize(1);
         assertThat(groupList.hasServerInstance()).isTrue();

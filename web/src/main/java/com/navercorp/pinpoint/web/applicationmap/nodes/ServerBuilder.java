@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
+import inet.ipaddr.IPAddressString;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -67,6 +68,14 @@ public class ServerBuilder {
         }
     }
 
+    private String getIp(String host) {
+        IPAddressString ipAddressString = new IPAddressString(host);
+        if (ipAddressString.isIPAddress()) {
+            return host;
+        }
+        return null;
+    }
+
     /**
      * filled with application information of physical server and service instance
      *
@@ -78,9 +87,10 @@ public class ServerBuilder {
         for (AgentHistogram agentHistogram : hostHistogram.getAgentHistogramList()) {
             final String instanceName = agentHistogram.getId();
             final String hostName = getHostName(agentHistogram.getId());
+            final String ip = getIp(hostName);
             final ServiceType serviceType = agentHistogram.getServiceType();
 
-            final ServerInstance serverInstance = new ServerInstance(hostName, instanceName, serviceType);
+            final ServerInstance serverInstance = new ServerInstance(hostName, instanceName, serviceType, ip);
 
             builder.addServerInstance(serverInstance);
         }
