@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
+import jakarta.annotation.Nullable;
 
 import java.util.Objects;
 
@@ -63,9 +64,9 @@ public class ServerInstance {
         }
     }
 
-    public ServerInstance(String hostName, String physicalName, ServiceType serviceType) {
+    public ServerInstance(String hostName, String physicalName, ServiceType serviceType, @Nullable String ip) {
         this.hostName = Objects.requireNonNull(hostName, "hostName");
-        this.ip = null;
+        this.ip = ip;
         this.agentName = null;
         this.name = Objects.requireNonNull(physicalName, "physicalName");
         this.serviceType = Objects.requireNonNull(serviceType, "serviceType");

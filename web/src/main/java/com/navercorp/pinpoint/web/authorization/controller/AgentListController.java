@@ -220,12 +220,10 @@ public class AgentListController {
             for (ServerInstance instance : group.getInstanceList()) {
                 AgentInfo agentInfo = new AgentInfo();
                 agentInfo.setAgentId(instance.getName());
-
-                final String agentName = instance.getAgentName();
-                agentInfo.setAgentName(agentName, instance.getName());
-
+                agentInfo.setAgentName(instance.getAgentName(), instance.getName());
+                agentInfo.setHostName(instance.getHostName());
+                agentInfo.setIp(instance.getIp());
                 agentInfo.setServiceType(instance.getServiceType());
-
                 AgentStatus agentStatus = new AgentStatus(instance.getName(), instance.getStatus(), 0);
 
                 AgentStatusAndLink agentStatusAndLik = new AgentStatusAndLink(
@@ -246,7 +244,7 @@ public class AgentListController {
         if (serverInstance == null) {
             return List.of();
         }
-        return hyperLinkFactory.build(LinkSources.from(serverInstance.getHostName(), serverInstance.getIp()));
+        return hyperLinkFactory.build(LinkSources.from(serverInstance.getHostName(), serverInstance.getIp(), serverInstance.getServiceType()));
     }
 
     private static TreeView<InstancesList<AgentStatusAndLink>> treeView(AgentsMapByHost agentsMapByHost) {

@@ -28,6 +28,11 @@ public class AgentStatusAndLink {
         return agentStatus;
     }
 
+    @JsonProperty("hasInspector")
+    public boolean hasInspector() {
+        return agentInfo.getServiceType().isWas();
+    }
+
     @JsonProperty("linkList")
     public List<HyperLink> getHyperLinkList() {
         return hyperLinkList;
