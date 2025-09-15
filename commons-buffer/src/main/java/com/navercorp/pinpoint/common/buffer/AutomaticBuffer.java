@@ -86,6 +86,21 @@ public class AutomaticBuffer extends FixedBuffer {
     }
 
     @Override
+    public void putUnsignedBytePrefixedBytes(byte[] bytes) {
+        if (bytes == null) {
+            checkExpand(1);
+            super.putByte(BYTE_NULL);
+        } else {
+            if (bytes.length > Buffer.UNSIGNED_BYTE_MAX) {
+                throw new IndexOutOfBoundsException("too large bytes length:" + bytes.length);
+            }
+            checkExpand(bytes.length + 1);
+            super.putByte(ByteArrayUtils.toUnsignedByte(bytes.length));
+            super.putBytes(bytes);
+        }
+    }
+
+    @Override
     public void put2PrefixedBytes(final byte[] bytes) {
         if (bytes == null) {
             checkExpand(ByteArrayUtils.SHORT_BYTE_LENGTH);
@@ -123,6 +138,12 @@ public class AutomaticBuffer extends FixedBuffer {
     public void putPrefixedString(final String string) {
         byte[] bytes = BytesUtils.toBytes(string);
         this.putPrefixedBytes(bytes);
+    }
+
+    @Override
+    public void putUnsignedBytePrefixedString(String string) {
+        byte[] bytes = BytesUtils.toBytes(string);
+        this.putUnsignedBytePrefixedBytes(bytes);
     }
 
     @Override

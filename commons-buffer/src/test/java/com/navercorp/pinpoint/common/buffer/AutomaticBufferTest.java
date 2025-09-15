@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -133,6 +133,25 @@ public class AutomaticBufferTest {
     }
 
     @Test
+    public void testPutUnsignedBytePrefixedBytes() {
+        byte[] bytes1 = new byte[2];
+        checkPutUnsignedBytePrefixedBytes(bytes1);
+
+        byte[] bytes2 = new byte[0];
+        checkPutUnsignedBytePrefixedBytes(bytes2);
+
+        byte[] bytes3 = new byte[Buffer.UNSIGNED_BYTE_MAX];
+        checkPutUnsignedBytePrefixedBytes(bytes3);
+
+        checkPutUnsignedBytePrefixedBytes(null);
+
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> {
+            byte[] bytes4 = new byte[Buffer.UNSIGNED_BYTE_NULL];
+            checkPutUnsignedBytePrefixedBytes(bytes4);
+        });
+    }
+
+    @Test
     public void testPut2PrefixedBytes() {
         byte[] bytes1 = new byte[2];
         checkPut2PrefixedBytes(bytes1);
@@ -149,6 +168,14 @@ public class AutomaticBufferTest {
             byte[] bytes4 = new byte[Short.MAX_VALUE + 1];
             checkPut2PrefixedBytes(bytes4);
         });
+    }
+
+    private void checkPutUnsignedBytePrefixedBytes(byte[] bytes) {
+        Buffer buffer = new AutomaticBuffer(0);
+        buffer.putUnsignedBytePrefixedBytes(bytes);
+
+        Buffer copy = new FixedBuffer(buffer.getBuffer());
+        assertThat(bytes).isEqualTo(copy.readUnsignedBytePrefixedBytes());
     }
 
     private void checkPut2PrefixedBytes(byte[] bytes) {
