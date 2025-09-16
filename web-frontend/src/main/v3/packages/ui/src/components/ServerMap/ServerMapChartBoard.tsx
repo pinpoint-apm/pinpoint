@@ -39,7 +39,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { getServerImagePath } from '@pinpoint-fe/ui/src/utils';
 import { cn } from '@pinpoint-fe/ui/src/lib';
 import { RxChevronRight } from 'react-icons/rx';
-import { ServerList } from '@pinpoint-fe/web/src/components/ServerList/ServerList';
+import { ServerListForCommon } from '@pinpoint-fe/ui/src/components/ServerList/ServerListForCommon';
 import { useGetHistogramStatistics } from '@pinpoint-fe/ui/src/hooks/api/useGetHistogramStatistics';
 
 export interface ServerMapChartsBoardProps extends ServerMapChartsBoardFetcherProps {}
@@ -299,7 +299,7 @@ export const ServerMapChartsBoardFetcher = ({
             <img src={serverMapCurrentTarget?.imgPath} width={52} />
             <div className="truncate">{serverMapCurrentTarget?.applicationName}</div>
           </div>
-          <ServerList nodeStatistics={data} disableFetch={!openServerView} />
+          <ServerListForCommon nodeStatistics={data} disableFetch={!openServerView} />
         </div>
         <div style={{ width: currentPanelWidth }}>
           <ChartsBoard
