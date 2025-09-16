@@ -2,7 +2,7 @@ import React from 'react';
 import { ErrorBoundary, ServerListSkeleton } from '@pinpoint-fe/ui';
 import { ServerListFetcher, ServerListFetcherProps } from './ServerListFetcher';
 
-export const ServerList = ({ ...props }: ServerListFetcherProps) => {
+export const ServerListForCommon = ({ ...props }: ServerListFetcherProps) => {
   return (
     <ErrorBoundary>
       <React.Suspense

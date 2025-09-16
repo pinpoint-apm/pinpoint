@@ -21,7 +21,8 @@ import {
   getInspectorPath,
 } from '@pinpoint-fe/ui/src/utils';
 import { useSearchParameters, swrConfigs, useServerMapLinkedData } from '@pinpoint-fe/ui/src/hooks';
-import { ServerList as SL, ServerListProps } from '@pinpoint-fe/ui';
+import { ServerList as SL, ServerListProps, Button } from '@pinpoint-fe/ui';
+import { upperCase } from 'lodash';
 
 export interface ServerListFetcherProps extends ServerListProps {
   nodeStatistics?: GetHistogramStatistics.Response;
@@ -101,11 +102,45 @@ export const ServerListFetcher = ({ nodeStatistics, disableFetch }: ServerListFe
   };
 
   const renderGroupName: ServerListProps['groupNameRenderer'] = (application) => {
-    return <div className="flex-1 truncate">{application.groupName}</div>;
+    return (
+      <>
+        {application?.groupName === 'Container' ? (
+          <div className="flex-1 truncate">{application.groupName}</div>
+        ) : (
+          <>
+            <div className="flex-1 truncate">{application.groupName}</div>
+            {application?.instancesList?.[0]?.linkList?.map((link, index) => {
+              return (
+                <LinkButton key={index}>
+                  <a href={link.linkURL} target={'_blank'}>
+                    {upperCase(link.linkName)}
+                  </a>
+                </LinkButton>
+              );
+            })}
+          </>
+        )}
+      </>
+    );
   };
 
   const renderItem: ServerListProps['itemRenderer'] = (application, instance) => {
-    return <div className="flex-1 truncate">{instance?.agentName || instance.agentId}</div>;
+    return (
+      <>
+        <div className="flex-1 truncate">{instance?.agentName || instance.agentId}</div>{' '}
+        {application?.groupName === 'Container'
+          ? instance?.linkList?.map((link, index) => {
+              return (
+                <LinkButton key={index}>
+                  <a href={link.linkURL} target={'_blank'}>
+                    {upperCase(link.linkName)}
+                  </a>
+                </LinkButton>
+              );
+            })
+          : null}
+      </>
+    );
   };
 
   return (
@@ -123,5 +158,13 @@ export const ServerListFetcher = ({ nodeStatistics, disableFetch }: ServerListFe
         );
       }}
     ></SL>
+  );
+};
+
+const LinkButton = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <Button variant={'outline'} className="h-5 px-1 text-xs border border-primary" asChild>
+      {children}
+    </Button>
   );
 };

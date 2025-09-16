@@ -4,7 +4,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   convertParamsToQueryString,
   getServerImagePath,
-  getFilteredMapQueryString,
   getFilteredMapPath,
   getApplicationKey,
   getServerMapPath,
@@ -13,7 +12,7 @@ import {
 } from '@pinpoint-fe/ui/src/utils';
 import { useFilteredMapParameters } from '@pinpoint-fe/ui/src/hooks';
 import { MdArrowBackIosNew, MdArrowForwardIos } from 'react-icons/md';
-import { ServerList } from '@pinpoint-fe/web/src/components/ServerList/ServerList';
+import { ServerListForCommon } from '@pinpoint-fe/ui/src/components/ServerList/ServerListForCommon';
 import {
   serverMapDataAtom,
   serverMapCurrentTargetAtom,
@@ -446,7 +445,7 @@ export const FilteredMapPage = ({
                         <img src={serverMapCurrentTarget?.imgPath} width={52} />
                         <div className="truncate">{serverMapCurrentTarget?.applicationName}</div>
                       </div>
-                      <ServerList disableFetch={!openServerView} />
+                      <ServerListForCommon disableFetch={!openServerView} />
                     </div>
                     <div style={{ width: currentPanelWidth }}>
                       <ServerChartsBoard

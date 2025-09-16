@@ -38,7 +38,7 @@ export const ServerList = ({
                 {groupNameRenderer ? (
                   groupNameRenderer(d)
                 ) : (
-                  <div className="truncate">{d.groupName}</div>
+                  <div className="flex-1 truncate">{d.groupName}</div>
                 )}
               </div>
               <TooltipProvider>
@@ -66,9 +66,13 @@ export const ServerList = ({
                                 'fill-status-fail': !!(error && error > 0),
                               })}
                             />
-                            {itemRenderer
-                              ? itemRenderer(d, instance)
-                              : instance.agentName || instance.agentId}
+                            {itemRenderer ? (
+                              itemRenderer(d, instance)
+                            ) : (
+                              <div className="flex-1 truncate">
+                                {instance?.agentName || instance.agentId}
+                              </div>
+                            )}
                             <Button
                               className="z-10 h-5 p-1 ml-auto rounded-sm text-xxs"
                               onClick={() => onClickInspectorLink?.(instance.agentId)}
