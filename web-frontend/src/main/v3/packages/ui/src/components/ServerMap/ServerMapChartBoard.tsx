@@ -228,7 +228,7 @@ export const ServerMapChartsBoardFetcher = ({
               />
             ) : (
               <>
-                {serverMapCurrentTarget?.type === 'node' &&
+                {(serverMapCurrentTarget?.type === 'node' || !serverMapCurrentTarget) &&
                 (currentTargetData as GetServerMap.NodeData)?.instanceCount ? (
                   <div className="flex items-center h-12 py-2.5 px-4 gap-2">
                     <Button
