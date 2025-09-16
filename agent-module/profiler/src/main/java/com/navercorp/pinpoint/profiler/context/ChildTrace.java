@@ -140,7 +140,8 @@ public class ChildTrace implements Trace {
         if (spanEvent.getStackId() != stackId) {
             // stack dump will make debugging easy.
             if (logger.isWarnEnabled()) {
-                stackDump("not matched stack id. expected=" + stackId + ", current=" + spanEvent.getStackId());
+                String message = "not matched stack id. expected=" + stackId + ", current=" + spanEvent.getStackId() + ", spanEvent=" + spanEvent;
+                stackDump(message);
             }
         }
 
