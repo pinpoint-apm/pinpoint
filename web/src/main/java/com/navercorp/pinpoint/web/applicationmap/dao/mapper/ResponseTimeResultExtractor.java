@@ -16,16 +16,14 @@
 
 package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
 
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.apache.hadoop.hbase.Cell;
@@ -88,9 +86,10 @@ public class ResponseTimeResultExtractor implements ResultsExtractor<List<Respon
         if (result.isEmpty()) {
             return;
         }
-        final byte[] rowKey = result.getRow();
 
-        ResponseTime.Builder responseTimeBuilder = createResponseTimeBuilder(map, rowKey, saltKeySize);
+        LinkRowKey linkRowKey = LinkRowKey.read(saltKeySize, result.getRow());
+
+        ResponseTime.Builder responseTimeBuilder = createResponseTimeBuilder(map, linkRowKey);
         for (Cell cell : result.rawCells()) {
             if (CellUtil.matchingFamily(cell, HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER.getName())) {
                 recordColumn(responseTimeBuilder, cell);
@@ -116,12 +115,11 @@ public class ResponseTimeResultExtractor implements ResultsExtractor<List<Respon
         responseTimeBuilder.addResponseTime(agentId, slotNumber, count);
     }
 
-    private ResponseTime.Builder createResponseTimeBuilder(Map<Key, ResponseTime.Builder> map, byte[] rowKey, int offset) {
-        final Buffer row = new FixedBuffer(rowKey);
-        row.setOffset(offset);
-        final String applicationName = row.read2PrefixedString();
-        final short serviceTypeCode = row.readShort();
-        final long timestamp = timeWindowFunction.refineTimestamp(TimeUtils.recoveryTimeMillis(row.readLong()));
+    private ResponseTime.Builder createResponseTimeBuilder(Map<Key, ResponseTime.Builder> map, LinkRowKey linkRowKey) {
+
+        final String applicationName = linkRowKey.getApplicationName();
+        final short serviceTypeCode = linkRowKey.getServiceType();
+        final long timestamp = timeWindowFunction.refineTimestamp(linkRowKey.getTimestamp());
         final ServiceType serviceType = registry.findServiceType(serviceTypeCode);
 
         final Key key = new Key(applicationName, serviceTypeCode, timestamp);

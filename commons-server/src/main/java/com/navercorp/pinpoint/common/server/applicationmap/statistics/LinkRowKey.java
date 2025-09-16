@@ -31,7 +31,7 @@ import java.util.Objects;
 public class LinkRowKey implements RowKey {
     private final String applicationName;
     private final short serviceType;
-    private final long rowTimeSlot;
+    private final long timestamp;
 
     public static RowKey of(Vertex vertex, long rowTimeSlot) {
         return new LinkRowKey(vertex.applicationName(), vertex.serviceType().getCode(), rowTimeSlot);
@@ -41,14 +41,27 @@ public class LinkRowKey implements RowKey {
         return new LinkRowKey(applicationName, serviceType.getCode(), rowTimeSlot);
     }
 
-    LinkRowKey(String applicationName, short serviceType, long rowTimeSlot) {
+    LinkRowKey(String applicationName, short serviceType, long timestamp) {
         this.applicationName = Objects.requireNonNull(applicationName, "callApplicationName");
         this.serviceType = serviceType;
-        this.rowTimeSlot = rowTimeSlot;
+        this.timestamp = timestamp;
     }
 
+    @Override
     public byte[] getRowKey(int saltKeySize) {
-        return makeRowKey(saltKeySize, applicationName, serviceType, rowTimeSlot);
+        return makeRowKey(saltKeySize, applicationName, serviceType, timestamp);
+    }
+
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public short getServiceType() {
+        return serviceType;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
     }
 
     /**
@@ -65,15 +78,33 @@ public class LinkRowKey implements RowKey {
 
         final byte[] applicationNameBytes = BytesUtils.toBytes(applicationName);
 
-        final Buffer buffer = new AutomaticBuffer(saltKeySize + BytesUtils.SHORT_BYTE_LENGTH + applicationNameBytes.length + BytesUtils.SHORT_BYTE_LENGTH + BytesUtils.LONG_BYTE_LENGTH);
+        final Buffer buffer = new AutomaticBuffer(saltKeySize + BytesUtils.SHORT_BYTE_LENGTH
+                                                  + applicationNameBytes.length
+                                                  + BytesUtils.SHORT_BYTE_LENGTH
+                                                  + BytesUtils.LONG_BYTE_LENGTH);
         buffer.setOffset(saltKeySize);
-//        buffer.put2PrefixedString(applicationName);
-        buffer.putShort((short)applicationNameBytes.length);
-        buffer.putBytes(applicationNameBytes);
+        buffer.put2PrefixedBytes(applicationNameBytes);
         buffer.putShort(applicationType);
         long reverseTimeMillis = TimeUtils.reverseTimeMillis(timestamp);
         buffer.putLong(reverseTimeMillis);
         return buffer.getBuffer();
+    }
+
+    public static LinkRowKey read(int saltKey, byte[] bytes) {
+
+        int offset = saltKey;
+
+        short length = BytesUtils.bytesToShort(bytes, offset);
+        offset += BytesUtils.SHORT_BYTE_LENGTH;
+
+        String applicationName = BytesUtils.toString(bytes, offset, length);
+        offset += length;
+
+        short serviceType = BytesUtils.bytesToShort(bytes, offset);
+        offset += BytesUtils.SHORT_BYTE_LENGTH;
+
+        long timestamp = TimeUtils.recoveryTimeMillis(BytesUtils.bytesToLong(bytes, offset));
+        return new LinkRowKey(applicationName, serviceType, timestamp);
     }
 
     @Override
@@ -82,24 +113,24 @@ public class LinkRowKey implements RowKey {
 
         LinkRowKey that = (LinkRowKey) o;
         return serviceType == that.serviceType
-                && rowTimeSlot == that.rowTimeSlot
-                && applicationName.equals(that.applicationName);
+               && timestamp == that.timestamp
+               && applicationName.equals(that.applicationName);
     }
 
     @Override
     public int hashCode() {
         int result = applicationName.hashCode();
         result = 31 * result + serviceType;
-        result = 31 * result + Long.hashCode(rowTimeSlot);
+        result = 31 * result + Long.hashCode(timestamp);
         return result;
     }
 
     @Override
     public String toString() {
-        return "CallRowKey{" +
-                "applicationName='" + applicationName + '\'' +
-                ", serviceType=" + serviceType +
-                ", rowTimeSlot=" + rowTimeSlot +
-                '}';
+        return "LinkRowKey{" +
+               "applicationName='" + applicationName + '\'' +
+               ", serviceType=" + serviceType +
+               ", timestamp=" + timestamp +
+               '}';
     }
 }

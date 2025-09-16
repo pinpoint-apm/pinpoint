@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.server.applicationmap.statistics;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -28,15 +29,30 @@ class LinkRowKeyTest {
     public void makeRowKey() {
         String applicationName = "TESTAPP";
         short serviceType = 123;
-        long time = System.currentTimeMillis();
+        long timestamp = System.currentTimeMillis();
 
-        byte[] bytes = LinkRowKey.makeRowKey(ByteSaltKey.NONE.size(), applicationName, serviceType, time);
+        byte[] bytes = LinkRowKey.makeRowKey(ByteSaltKey.NONE.size(), applicationName, serviceType, timestamp);
 
         Buffer buffer = new FixedBuffer(bytes);
         String readApplicationName = buffer.read2PrefixedString();
         short readApplicationType = buffer.readShort();
         Assertions.assertEquals(applicationName, readApplicationName);
         Assertions.assertEquals(serviceType, readApplicationType);
+    }
+
+
+    @Test
+    public void linkRowKey() {
+        String applicationName = "TESTAPP";
+        ServiceType serviceType = ServiceType.TEST;
+        long timestamp = System.currentTimeMillis();
+
+        RowKey linkRowKey = LinkRowKey.of(applicationName, serviceType, timestamp);
+        byte[] rowKey = linkRowKey.getRowKey(0);
+
+        LinkRowKey read = LinkRowKey.read(0, rowKey);
+
+        Assertions.assertEquals(linkRowKey, read);
     }
 
 }

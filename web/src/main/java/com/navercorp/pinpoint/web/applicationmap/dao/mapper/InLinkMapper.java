@@ -17,15 +17,14 @@
 package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.common.server.util.UserNodeUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
@@ -82,12 +81,10 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
             logger.debug("mapRow num:{} size:{}", rowNum, result.size());
         }
 
-        final byte[] rowKey = result.getRow();
+        LinkRowKey linkRowKey = LinkRowKey.read(saltKeySize, result.getRow());
 
-        final Buffer row = new FixedBuffer(rowKey);
-        row.setOffset(saltKeySize);
-        final Application inApplication = readInApplication(row);
-        final long timestamp = timeWindowFunction.refineTimestamp(TimeUtils.recoveryTimeMillis(row.readLong()));
+        final Application inApplication = readInApplication(linkRowKey);
+        final long timestamp = timeWindowFunction.refineTimestamp(linkRowKey.getTimestamp());
 
         final LinkDataMap linkDataMap = new LinkDataMap(timeWindowFunction);
         for (Cell cell : result.rawCells()) {
@@ -143,9 +140,9 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
         return this.applicationFactory.createApplication(selfApplicationName, selfServiceType);
     }
 
-    private Application readInApplication(Buffer row) {
-        String selfApplicationName = row.read2PrefixedString();
-        short selfServiceType = row.readShort();
+    private Application readInApplication(LinkRowKey row) {
+        String selfApplicationName = row.getApplicationName();
+        short selfServiceType = row.getServiceType();
 
         return this.applicationFactory.createApplication(selfApplicationName, selfServiceType);
     }

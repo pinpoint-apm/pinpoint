@@ -16,16 +16,14 @@
 
 package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
 
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -79,13 +77,11 @@ public class ApplicationResponseTimeResultExtractor implements ResultsExtractor<
         if (result.isEmpty()) {
             return null;
         }
-        final byte[] rowKey = result.getRow();
+        LinkRowKey linkRowKey = LinkRowKey.read(saltKeySize, result.getRow());
 
-        final Buffer buffer = new FixedBuffer(rowKey);
-        buffer.setOffset(saltKeySize);
-        final String applicationName = buffer.read2PrefixedString();
-        final short serviceTypeCode = buffer.readShort();
-        final long timestamp = timeWindowFunction.refineTimestamp(TimeUtils.recoveryTimeMillis(buffer.readLong()));
+        final String applicationName = linkRowKey.getApplicationName();
+        final short serviceTypeCode = linkRowKey.getServiceType();
+        final long timestamp = timeWindowFunction.refineTimestamp(linkRowKey.getTimestamp());
 
         if (builder == null) {
             ServiceType serviceType = registry.findServiceType(serviceTypeCode);
