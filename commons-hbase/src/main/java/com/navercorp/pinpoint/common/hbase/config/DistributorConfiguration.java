@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -69,16 +69,11 @@ public class DistributorConfiguration {
     }
 
     @Bean
-    public RowKeyDistributorByHashPrefix mapInLinkRowKeyDistributor() {
+    public RowKeyDistributorByHashPrefix mapLinkRowKeyDistributor() {
         ByteHasher hasher = newRangeOneByteSimpleHash(0, 36, 32);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
-    @Bean
-    public RowKeyDistributorByHashPrefix mapOutLinkRowKeyDistributor() {
-        ByteHasher hasher = newRangeOneByteSimpleHash(0, 36, 32);
-        return new RowKeyDistributorByHashPrefix(hasher);
-    }
 
     @Bean
     public RowKeyDistributorByHashPrefix mapSelfRowKeyDistributor() {

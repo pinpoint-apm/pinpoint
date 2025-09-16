@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.navercorp.pinpoint.web.applicationmap.config;
@@ -160,7 +159,7 @@ public class MapHbaseConfiguration {
                                      @Qualifier("mapInLinkMapper")
                                      RowMapperFactory<LinkDataMap> inLinkMapper,
                                      MapScanFactory mapScanFactory,
-                                     @Qualifier("mapInLinkRowKeyDistributor")
+                                     @Qualifier("mapLinkRowKeyDistributor")
                                      RowKeyDistributorByHashPrefix rowKeyDistributor) {
         return new HbaseMapInLinkDao(hbaseTemplate, tableNameProvider, inLinkMapper, mapScanFactory, rowKeyDistributor);
     }
@@ -172,7 +171,7 @@ public class MapHbaseConfiguration {
                                        @Qualifier("mapOutLinkMapper")
                                        RowMapperFactory<LinkDataMap> outLinkMapper,
                                        MapScanFactory mapScanFactory,
-                                       @Qualifier("mapOutLinkRowKeyDistributor")
+                                       @Qualifier("mapLinkRowKeyDistributor")
                                        RowKeyDistributorByHashPrefix rowKeyDistributor) {
         return new HbaseMapOutLinkDao(hbaseTemplate, tableNameProvider, outLinkMapper, mapScanFactory, rowKeyDistributor);
     }
