@@ -17,13 +17,12 @@
 package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -76,12 +75,9 @@ public class OutLinkMapper implements RowMapper<LinkDataMap> {
             logger.debug("mapRow num:{} size:{}", rowNum, result.size());
         }
 
-        final byte[] rowKey = result.getRow();
-
-        final Buffer row = new FixedBuffer(rowKey);
-        row.setOffset(saltKeySize);
-        final Application outApplication = readOutApplication(row);
-        final long timestamp = timeWindowFunction.refineTimestamp(TimeUtils.recoveryTimeMillis(row.readLong()));
+        LinkRowKey linkRowKey = LinkRowKey.read(saltKeySize, result.getRow());
+        final Application outApplication = readOutApplication(linkRowKey);
+        final long timestamp = timeWindowFunction.refineTimestamp(linkRowKey.getTimestamp());
 
         // key is destApplicationName.
         final LinkDataMap linkDataMap = new LinkDataMap();
@@ -129,9 +125,9 @@ public class OutLinkMapper implements RowMapper<LinkDataMap> {
         return applicationFactory.createApplication(inApplicationName, inServiceType);
     }
 
-    private Application readOutApplication(Buffer row) {
-        String applicationName = row.read2PrefixedString();
-        short outServiceType = row.readShort();
+    private Application readOutApplication(LinkRowKey row) {
+        String applicationName = row.getApplicationName();
+        short outServiceType = row.getServiceType();
         return this.applicationFactory.createApplication(applicationName, outServiceType);
     }
 
