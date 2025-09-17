@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -60,8 +59,9 @@ public class ResponseTimeMapperTest {
                 .setValue(valueArray)
                 .build();
 
-        ResponseTimeMapper responseTimeMapper = new ResponseTimeMapper(mock(ServiceTypeRegistryService.class),
-                mock(RowKeyDistributorByHashPrefix.class), TimeWindowFunction.identity());
+        ResponseTimeMapper responseTimeMapper =
+                new ResponseTimeMapper(mock(ServiceTypeRegistryService.class),
+                new LinkRowKeyDecoder(1), TimeWindowFunction.identity());
         ResponseTime.Builder responseBuilder = ResponseTime.newBuilder("applicationName", ServiceType.STAND_ALONE, System.currentTimeMillis());
         responseTimeMapper.recordColumn(responseBuilder, mockCell);
 
