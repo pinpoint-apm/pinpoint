@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.instrument.scanner;
 
+import com.navercorp.pinpoint.common.util.OsType;
+import com.navercorp.pinpoint.common.util.OsUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -32,7 +35,16 @@ public class DirectoryScanner implements Scanner {
 
     public DirectoryScanner(String directory) {
         Objects.requireNonNull(directory, "directory");
-        this.directory = Paths.get(directory);
+        this.directory = Paths.get(toPath(directory));
+    }
+
+    private String toPath(String directory) {
+        if(OsType.WINDOW == OsUtils.getType()) {
+            if (directory.startsWith("/")) {
+                return directory.substring(1);
+            }
+        }
+        return directory;
     }
 
     @Override
