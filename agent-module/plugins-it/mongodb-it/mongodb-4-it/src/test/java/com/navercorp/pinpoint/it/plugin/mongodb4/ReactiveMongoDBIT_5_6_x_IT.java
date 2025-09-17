@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -7,11 +7,11 @@
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 
 package com.navercorp.pinpoint.it.plugin.mongodb4;
@@ -44,12 +44,12 @@ import java.net.URI;
 @JvmVersion(8)
 @ImportPlugin({"com.navercorp.pinpoint:pinpoint-mongodb-driver-plugin"})
 @Dependency({
-        "org.mongodb:mongodb-driver-reactivestreams:[4.2.0,5.6.0)",
+        "org.mongodb:mongodb-driver-reactivestreams:[5.6.0,]",
         PluginITConstants.VERSION, JDBCTestConstants.VERSION
 })
 @SharedDependency({PluginITConstants.VERSION, JDBCTestConstants.VERSION, TestcontainersOption.TEST_CONTAINER, TestcontainersOption.MONGODB})
 @SharedTestLifeCycleClass(MongodbServer.class)
-public class ReactiveMongoDBIT_4_2_x_IT extends MongoDBITBase {
+public class ReactiveMongoDBIT_5_6_x_IT extends MongoDBITBase {
     @AutoClose
     private static MongoClient mongoClient;
     private static MongoDatabase database;
@@ -72,6 +72,6 @@ public class ReactiveMongoDBIT_4_2_x_IT extends MongoDBITBase {
     public void testStatements() throws Exception {
         final ReactiveMongoDBITHelper helper = new ReactiveMongoDBITHelper();
         final String address = uri.getHost() + ":" + uri.getPort();
-        helper.testConnection(address, database, getMongoDatabaseClazz(), "ACKNOWLEDGED");
+        helper.testConnection(address, database, getMongoDatabaseClazz(), "ACKNOWLEDGED", ReactiveMongoDBITHelper.SIMPLIFY_OPERATIONS);
     }
 }
