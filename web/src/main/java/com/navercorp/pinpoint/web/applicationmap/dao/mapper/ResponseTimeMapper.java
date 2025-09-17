@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
+import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
@@ -45,16 +45,15 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
 
     private final ServiceTypeRegistryService registry;
 
-    private final int saltKeySize;
+    private final RowKeyDecoder<LinkRowKey> rowKeyDecoder;
 
     private final TimeWindowFunction timeWindowFunction;
 
     public ResponseTimeMapper(ServiceTypeRegistryService registry,
-                              RowKeyDistributorByHashPrefix rowKeyDistributor,
+                              RowKeyDecoder<LinkRowKey> rowKeyDecoder,
                               TimeWindowFunction timeWindowFunction) {
         this.registry = Objects.requireNonNull(registry, "registry");
-        Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
-        this.saltKeySize = rowKeyDistributor.getSaltKeySize();
+        this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
         this.timeWindowFunction = Objects.requireNonNull(timeWindowFunction, "timeWindowFunction");
     }
 
@@ -64,7 +63,7 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
             return null;
         }
 
-        LinkRowKey linkRowKey = LinkRowKey.read(saltKeySize, result.getRow());
+        LinkRowKey linkRowKey = rowKeyDecoder.decodeRowKey(result.getRow());
 
         ResponseTime.Builder responseTimeBuilder = createResponseTime(linkRowKey);
         for (Cell cell : result.rawCells()) {

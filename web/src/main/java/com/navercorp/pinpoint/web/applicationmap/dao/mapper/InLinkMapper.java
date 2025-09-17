@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
+import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.util.UserNodeUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -56,17 +56,16 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
 
     private final TimeWindowFunction timeWindowFunction;
 
-    private final int saltKeySize;
+    private final RowKeyDecoder<LinkRowKey> rowKeyDecoder;
 
     public InLinkMapper(ServiceTypeRegistryService registry,
                         ApplicationFactory applicationFactory,
-                        RowKeyDistributorByHashPrefix rowKeyDistributor,
+                        RowKeyDecoder<LinkRowKey> rowKeyDecoder,
                         LinkFilter filter,
                         TimeWindowFunction timeWindowFunction) {
         this.registry = Objects.requireNonNull(registry, "registry");
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
-        Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
-        this.saltKeySize = rowKeyDistributor.getSaltKeySize();
+        this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
 
         this.filter = Objects.requireNonNull(filter, "filter");
         this.timeWindowFunction = Objects.requireNonNull(timeWindowFunction, "timeWindowFunction");
@@ -81,7 +80,7 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
             logger.debug("mapRow num:{} size:{}", rowNum, result.size());
         }
 
-        LinkRowKey linkRowKey = LinkRowKey.read(saltKeySize, result.getRow());
+        LinkRowKey linkRowKey = rowKeyDecoder.decodeRowKey(result.getRow());
 
         final Application inApplication = readInApplication(linkRowKey);
         final long timestamp = timeWindowFunction.refineTimestamp(linkRowKey.getTimestamp());
