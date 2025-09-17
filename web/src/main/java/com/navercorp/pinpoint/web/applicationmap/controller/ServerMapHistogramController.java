@@ -274,6 +274,65 @@ public class ServerMapHistogramController {
         throw new IllegalArgumentException("Invalid or undefined service type for application: " + nodeKey);
     }
 
+    @GetMapping(value = "/statistics", params = {
+            "fromApplicationNames", "fromServiceTypeCodes", "toApplicationNames", "toServiceTypeCodes"
+    })
+    public NodeHistogramSummaryView getNodeHistogramData(
+            @Valid @ModelAttribute
+            ApplicationForm appForm,
+            @Valid @ModelAttribute
+            RangeForm rangeForm,
+            @RequestParam(value = "fromApplicationNames", defaultValue = "", required = false)
+            List<String> fromApplicationNames,
+            @RequestParam(value = "fromServiceTypeCodes", defaultValue = "", required = false)
+            List<Short> fromServiceTypeCodes,
+            @RequestParam(value = "toApplicationNames", defaultValue = "", required = false)
+            List<String> toApplicationNames,
+            @RequestParam(value = "toServiceTypeCodes", defaultValue = "", required = false)
+            List<Short> toServiceTypeCodes,
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "true", required = false)
+            boolean useStatisticsAgentState
+    ) {
+        final Range range = toRange(rangeForm);
+        this.rangeValidator.validate(range);
+        TimeWindow timeWindow = new TimeWindow(range);
+
+        if (fromApplicationNames.size() != fromServiceTypeCodes.size()) {
+            throw new IllegalArgumentException(
+                    "fromApplicationNames and fromServiceTypeCodes must have the same number of elements");
+        }
+        if (toApplicationNames.size() != toServiceTypeCodes.size()) {
+            throw new IllegalArgumentException(
+                    "toApplicationNames and toServiceTypeCodes must have the same number of elements");
+        }
+
+        final Application application = getApplication(appForm);
+
+        final List<Application> fromApplications = toApplications(fromApplicationNames, fromServiceTypeCodes);
+        final List<Application> toApplications = toApplications(toApplicationNames, toServiceTypeCodes);
+        final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption
+                .Builder(application, timeWindow, fromApplications, toApplications)
+                .setUseStatisticsAgentState(useStatisticsAgentState)
+                .build();
+
+        final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
+
+        final TimeHistogramFormat format = TimeHistogramFormat.V1;
+        ServerGroupList serverGroupList = nodeHistogramSummary.getServerGroupList();
+        ServerGroupListView serverGroupListView = new ServerGroupListView(serverGroupList, hyperLinkFactory);
+        return new NodeHistogramSummaryView(nodeHistogramSummary, serverGroupListView, format);
+    }
+
+    private List<Application> toApplications(List<String> applicationNames, List<Short> serviceTypeCodes) {
+        final List<Application> result = new ArrayList<>(applicationNames.size());
+        for (int i = 0; i < applicationNames.size(); i++) {
+            final Application application =
+                    this.applicationFactory.createApplication(applicationNames.get(i), serviceTypeCodes.get(i));
+            result.add(application);
+        }
+        return result;
+    }
+
     @GetMapping(value = "/statistics/links")
     public LinkHistogramSummaryView getLinkTimeHistogramData(
             @Valid @ModelAttribute
