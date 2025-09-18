@@ -44,6 +44,7 @@ import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.factory.Mappers;
 
 /**
  * @author intr3p1d
@@ -65,28 +66,22 @@ public interface SpanMessageMapper {
     String DEFAULT_REMOTE_ADDRESS = "UNKNOWN";
     String DEFAULT_END_POINT = "UNKNOWN";
 
-    @Mappings({
-            @Mapping(source = "applicationServiceType", target = "version", qualifiedByName = "spanVersion"),
-            @Mapping(source = "applicationServiceType", target = "applicationServiceType"),
+    AnnotationValueMapper ANNOTATION_VALUE_MAPPER = Mappers.getMapper(AnnotationValueMapper.class);
 
-            @Mapping(source = "span.traceRoot.traceId", target = "transactionId", qualifiedBy = TraceIdMapStructUtils.ToTransactionId.class),
-            @Mapping(source = "span.traceRoot.traceId.spanId", target = "spanId"),
-            @Mapping(source = "span.traceRoot.traceId.parentSpanId", target = "parentSpanId"),
+    @Mapping(source = "applicationServiceType", target = "version", qualifiedByName = "spanVersion")
+    @Mapping(source = "applicationServiceType", target = "applicationServiceType")
+    @Mapping(source = "span.traceRoot.traceId", target = "transactionId", qualifiedBy = TraceIdMapStructUtils.ToTransactionId.class)
+    @Mapping(source = "span.traceRoot.traceId.spanId", target = "spanId")
+    @Mapping(source = "span.traceRoot.traceId.parentSpanId", target = "parentSpanId")
+    @Mapping(source = "span.elapsedTime", target = "elapsed")
+    @Mapping(source = "span", target = "acceptEvent", qualifiedByName = "toAcceptEvent")
+    @Mapping(source = "span.traceRoot.traceId.flags", target = "flag")
+    @Mapping(source = "span.traceRoot.shared.errorCode", target = "err")
+    @Mapping(source = "span.exceptionInfo", target = "exceptionInfo")
+    @Mapping(source = "span.traceRoot.shared.loggingInfo", target = "loggingTransactionInfo")
+    @Mapping(source = "span.annotations", target = "annotation")
+    @Mapping(source = "span.spanEventList", target = "spanEvent")
 
-            @Mapping(source = "span.elapsedTime", target = "elapsed"),
-
-            @Mapping(source = "span", target = "acceptEvent", qualifiedByName = "toAcceptEvent"),
-
-            @Mapping(source = "span.traceRoot.traceId.flags", target = "flag"),
-            @Mapping(source = "span.traceRoot.shared.errorCode", target = "err"),
-
-            @Mapping(source = "span.exceptionInfo", target = "exceptionInfo"),
-            @Mapping(source = "span.traceRoot.shared.loggingInfo", target = "loggingTransactionInfo"),
-
-            @Mapping(source = "span.annotations", target = "annotation"),
-
-            @Mapping(source = "span.spanEventList", target = "spanEvent")
-    })
     void map(Span span, short applicationServiceType, @MappingTarget PSpan.Builder builder);
 
     default void map(SpanChunk spanChunk, short applicationServiceType, @MappingTarget PSpanChunk.Builder builder) {
@@ -150,10 +145,18 @@ public interface SpanMessageMapper {
     })
     PMessageEvent mapMessageEvent(SpanEvent spanEvent);
 
-    @Mappings({
-            @Mapping(source = ".", target = "value", qualifiedBy = AnnotationValueMapper.ToPAnnotationValue.class),
-    })
-    PAnnotation map(Annotation<?> annotation);
+    default PAnnotation map(Annotation annotation) {
+        if(annotation == null) {
+            return null;
+        }
+        PAnnotation.Builder builder = PAnnotation.newBuilder();
+        PAnnotationValue value = ANNOTATION_VALUE_MAPPER.map(annotation);
+        if(value != null) {
+            builder.setValue(value);
+        }
+        builder.setKey(annotation.getKey());
+        return builder.build();
+    }
 
     @Named("toAcceptEvent")
     @Mappings({
