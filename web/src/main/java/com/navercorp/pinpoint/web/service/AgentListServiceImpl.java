@@ -1,23 +1,18 @@
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.uid.service.AgentIdService;
-import com.navercorp.pinpoint.uid.vo.ApplicationUidRow;
+import com.navercorp.pinpoint.web.dao.AgentIdDao;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
-import com.navercorp.pinpoint.web.uid.service.ApplicationUidService;
-import com.navercorp.pinpoint.web.uid.service.ServiceUidCachedService;
+import com.navercorp.pinpoint.web.uid.service.ServiceUidService;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilters;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,25 +20,19 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-@Service
-@ConditionalOnProperty(name = "pinpoint.modules.uid.enabled", havingValue = "true")
 public class AgentListServiceImpl implements AgentListService {
-
-    private final ServiceUidCachedService serviceUidCachedService;
-    private final ApplicationUidService applicationUidService;
-    private final AgentIdService agentIdService;
+    private final ServiceUidService serviceUidService;
+    private final AgentIdDao agentIdDao;
 
     private final AgentInfoDao agentInfoDao;
     private final AgentLifeCycleDao agentLifeCycleDao;
 
-    public AgentListServiceImpl(ServiceUidCachedService serviceUidCachedService,
-                                ApplicationUidService applicationUidService,
-                                AgentIdService agentIdService,
+    public AgentListServiceImpl(ServiceUidService serviceUidService,
+                                AgentIdDao agentIdDao,
                                 AgentInfoDao agentInfoDao,
                                 AgentLifeCycleDao agentLifeCycleDao) {
-        this.serviceUidCachedService = Objects.requireNonNull(serviceUidCachedService, "serviceUidCachedService");
-        this.applicationUidService = Objects.requireNonNull(applicationUidService, "applicationUidService");
-        this.agentIdService = Objects.requireNonNull(agentIdService, "uidAgentListService");
+        this.serviceUidService = Objects.requireNonNull(serviceUidService, "serviceUidService");
+        this.agentIdDao = Objects.requireNonNull(agentIdDao, "agentIdDao");
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
     }
@@ -51,14 +40,16 @@ public class AgentListServiceImpl implements AgentListService {
     @Override
     public List<AgentAndStatus> getApplicationAgentList(String serviceName, String applicationName) {
         long currentTimeMillis = System.currentTimeMillis();
-        List<String> agentList = getAgentIds(serviceName, applicationName);
+        ServiceUid serviceUid = handleServiceUid(serviceName);
+        List<String> agentList = agentIdDao.scanAgentId(serviceUid, applicationName);
         return getAgentAndStatuses(agentList, currentTimeMillis);
     }
 
     @Override
     public List<AgentAndStatus> getApplicationAgentList(String serviceName, String applicationName, int serviceTypeCode) {
         long currentTimeMillis = System.currentTimeMillis();
-        List<String> agentList = getAgentIds(serviceName, applicationName, serviceTypeCode);
+        ServiceUid serviceUid = handleServiceUid(serviceName);
+        List<String> agentList = agentIdDao.scanAgentId(serviceUid, applicationName, serviceTypeCode);
         return getAgentAndStatuses(agentList, currentTimeMillis);
     }
 
@@ -81,72 +72,53 @@ public class AgentListServiceImpl implements AgentListService {
                 .toList();
     }
 
-    @Override
+    public void deleteAllAgents(String serviceName, String applicationName, int serviceTypeCode) {
+        ServiceUid serviceUid = handleServiceUid(serviceName);
+        List<String> agentList = agentIdDao.scanAgentId(serviceUid, applicationName, serviceTypeCode);
+        deleteAgents(serviceName, applicationName, serviceTypeCode, agentList);
+    }
+
+    public void deleteAgents(String serviceName, String applicationName, int serviceTypeCode, List<String> agentIdList) {
+        ServiceUid serviceUid = handleServiceUid(serviceName);
+        agentIdDao.deleteAgents(serviceUid, applicationName, serviceTypeCode, agentIdList);
+    }
+
     public int cleanupInactiveAgent(String serviceName, String applicationName, int serviceTypeCode, Range range) {
         Objects.requireNonNull(applicationName, "applicationName");
         ServiceUid serviceUid = handleServiceUid(serviceName);
-        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, applicationName, serviceTypeCode);
-        if (applicationUid == null) {
-            return 0;
-        }
-        List<String> agentIdList = getAgentIds(serviceName, applicationName, serviceTypeCode);
+        List<String> agentIdList = agentIdDao.scanAgentId(serviceUid, applicationName, serviceTypeCode);
         List<AgentAndStatus> agentAndStatusList = getAgentAndStatuses(agentIdList, range.getTo());
 
-        return deleteInactiveAgent(range, serviceUid, applicationUid, agentIdList, agentAndStatusList);
+        return deleteInactiveAgent(range, serviceUid, applicationName, serviceTypeCode, agentIdList, agentAndStatusList);
     }
 
-    private int deleteInactiveAgent(Range range, ServiceUid serviceUid, ApplicationUid applicationUid, List<String> agentIdList, List<AgentAndStatus> agentAndStatusList) {
+    private int deleteInactiveAgent(Range range, ServiceUid serviceUid, String applicationName, int serviceTypeCode, List<String> agentIdList, List<AgentAndStatus> agentAndStatusList) {
         AgentStatusFilter activeStatusPredicate = AgentStatusFilters.recentStatus(range.getFrom());
-        int deletedCount = 0;
+        List<String> agentIdsToDelete = new ArrayList<>();
         for (int i = 0; i < agentIdList.size(); i++) {
             AgentAndStatus agentAndStatus = agentAndStatusList.get(i);
             if (agentAndStatus == null || !activeStatusPredicate.test(agentAndStatus.getStatus())) {
-                agentIdService.deleteAgent(serviceUid, applicationUid, agentIdList.get(i));
-                deletedCount++;
+                agentIdsToDelete.add(agentIdList.get(i));
             }
         }
-        return deletedCount;
+        agentIdDao.deleteAgents(serviceUid, applicationName, serviceTypeCode, agentIdsToDelete);
+        return agentIdsToDelete.size();
     }
 
     private ServiceUid handleServiceUid(String serviceName) {
         if (StringUtils.isEmpty(serviceName)) {
             return ServiceUid.DEFAULT;
         }
-        return serviceUidCachedService.getServiceUid(serviceName);
-    }
-
-    private List<String> getAgentIds(String serviceName, String applicationName) {
-        Objects.requireNonNull(applicationName, "applicationName");
-        ServiceUid serviceUid = handleServiceUid(serviceName);
-        List<ApplicationUid> applicationUidList = applicationUidService.getApplications(serviceUid, applicationName).stream()
-                .map(ApplicationUidRow::applicationUid)
-                .toList();
-        return agentIdService.getAgentId(serviceUid, applicationUidList).stream()
-                .flatMap(List::stream)
-                .distinct()
-                .toList();
-    }
-
-    private List<String> getAgentIds(String serviceName, String applicationName, int serviceTypeCode) {
-        Objects.requireNonNull(applicationName, "applicationName");
-        ServiceUid serviceUid = handleServiceUid(serviceName);
-        ApplicationUid applicationUid = applicationUidService.getApplicationUid(serviceUid, applicationName, serviceTypeCode);
-        if (applicationUid == null) {
-            return Collections.emptyList();
-        }
-        return agentIdService.getAgentId(serviceUid, applicationUid);
+        return serviceUidService.getServiceUid(serviceName);
     }
 
     private List<AgentAndStatus> getAgentAndStatuses(List<String> agentList, long currentTimeMillis) {
-        List<AgentInfo> agentInfoList = getAgentInfoList(agentList, currentTimeMillis);
-        return addStatus(agentInfoList, currentTimeMillis);
-    }
-
-    private List<AgentInfo> getAgentInfoList(List<String> agentIds, long toTimestamp) {
-        if (agentIds.isEmpty()) {
+        if (agentList.isEmpty()) {
             return Collections.emptyList();
         }
-        return this.agentInfoDao.getSimpleAgentInfos(agentIds, toTimestamp);
+
+        List<AgentInfo> agentInfoList = agentInfoDao.getSimpleAgentInfos(agentList, currentTimeMillis);
+        return addStatus(agentInfoList, currentTimeMillis);
     }
 
     private List<AgentAndStatus> addStatus(List<AgentInfo> agentInfoList, long toTimestamp) {

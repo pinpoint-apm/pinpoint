@@ -27,10 +27,13 @@ import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.hadoop.hbase.CompareOperator;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.filter.BinaryComparator;
+import org.apache.hadoop.hbase.filter.ValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
@@ -101,6 +104,20 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 
         TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         return hbaseOperations.get(applicationIndexTableName, get, rowMapper);
+    }
+
+    @Override
+    public List<String> selectAgentIds(String applicationName, int serviceTypeCode) {
+        Objects.requireNonNull(applicationName, "applicationName");
+        byte[] rowKey = Bytes.toBytes(applicationName);
+        byte[] serviceTypeCodeBytes = Bytes.toBytes((short) serviceTypeCode);
+
+        Get get = new Get(rowKey);
+        get.addFamily(DESCRIPTOR.getName());
+        get.setFilter(new ValueFilter(CompareOperator.EQUAL, new BinaryComparator(serviceTypeCodeBytes)));
+
+        TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        return hbaseOperations.get(applicationIndexTableName, get, agentIdMapper);
     }
 
     @Override

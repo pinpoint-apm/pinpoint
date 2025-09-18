@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentInfoQuery;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
 import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
@@ -74,8 +73,6 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     private final AgentWarningStatService agentWarningStatService;
 
-    private final ApplicationIndexDao applicationIndexDao;
-
     private final AgentInfoDao agentInfoDao;
 
     private final AgentLifeCycleDao agentLifeCycleDao;
@@ -84,14 +81,12 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     public AgentInfoServiceImpl(AgentEventService agentEventService,
                                 ApplicationAgentListService applicationAgentListService, AgentWarningStatService agentWarningStatService,
-                                ApplicationIndexDao applicationIndexDao,
                                 AgentInfoDao agentInfoDao,
                                 AgentLifeCycleDao agentLifeCycleDao,
                                 ApplicationIndexService applicationIndexService) {
         this.agentEventService = Objects.requireNonNull(agentEventService, "agentEventService");
         this.applicationAgentListService = Objects.requireNonNull(applicationAgentListService, "applicationAgentListService");
         this.agentWarningStatService = Objects.requireNonNull(agentWarningStatService, "agentWarningStatService");
-        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
         this.applicationIndexService = Objects.requireNonNull(applicationIndexService, "applicationIndexService");

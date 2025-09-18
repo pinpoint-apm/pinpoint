@@ -29,6 +29,7 @@ public enum HbaseTableV2 implements HbaseTable {
     APPLICATION_INDEX("ApplicationIndex"),
     APPLICATION_UID("ApplicationUid"),
     APPLICATION_UID_ATTR("ApplicationUidAttr"),
+    APPLICATION("Application"),
     AGENT_ID("AgentId"),
     APPLICATION_TRACE_INDEX("ApplicationTraceIndex"),
     HOST_APPLICATION_MAP_VER2("HostApplicationMap_Ver2"),

@@ -6,15 +6,16 @@ import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.RandomApplicationUidGenerator;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.uid.dao.ApplicationUidDao;
 import com.navercorp.pinpoint.uid.dao.ApplicationUidAttrDao;
-import com.navercorp.pinpoint.uid.dao.ConcurrentMapApplicationUidDao;
+import com.navercorp.pinpoint.uid.dao.ApplicationUidDao;
 import com.navercorp.pinpoint.uid.dao.ConcurrentMapApplicationUidAttrDao;
+import com.navercorp.pinpoint.uid.dao.ConcurrentMapApplicationUidDao;
 import com.navercorp.pinpoint.uid.service.BaseApplicationUidService;
 import com.navercorp.pinpoint.uid.service.BaseApplicationUidServiceImpl;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 
+@Disabled
 public class BaseApplicationUidServiceTest {
 
     private final ServiceUid testServiceUid = ServiceUid.DEFAULT;

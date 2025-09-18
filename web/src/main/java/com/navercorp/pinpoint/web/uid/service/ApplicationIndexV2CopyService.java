@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.web.uid.service;
 
-public interface ApplicationUidCopyService {
+public interface ApplicationIndexV2CopyService {
 
     void copyApplication();
 

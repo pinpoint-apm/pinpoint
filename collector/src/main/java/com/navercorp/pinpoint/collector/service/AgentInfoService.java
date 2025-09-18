@@ -24,6 +24,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -41,15 +42,20 @@ public class AgentInfoService {
 
     private final AgentInfoDao agentInfoDao;
     private final ApplicationIndexDao applicationIndexDao;
+    private final boolean applicationIndexV1Enabled;
 
-    public AgentInfoService(AgentInfoDao agentInfoDao, ApplicationIndexDao applicationIndexDao) {
+    public AgentInfoService(AgentInfoDao agentInfoDao, ApplicationIndexDao applicationIndexDao,
+                            @Value("${pinpoint.collector.application.index.v1.enabled:true}") boolean applicationIndexV1Enabled) {
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
+        this.applicationIndexV1Enabled = applicationIndexV1Enabled;
     }
 
     public void insert(@Valid final AgentInfoBo agentInfoBo) {
         agentInfoDao.insert(agentInfoBo);
-        applicationIndexDao.insert(agentInfoBo);
+        if (applicationIndexV1Enabled) {
+            applicationIndexDao.insert(agentInfoBo);
+        }
     }
 
     public AgentInfoBo getSimpleAgentInfo(@NotBlank final String agentId, @PositiveOrZero final long timestamp) {

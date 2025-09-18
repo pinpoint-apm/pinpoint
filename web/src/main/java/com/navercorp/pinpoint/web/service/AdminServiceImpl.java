@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
@@ -58,8 +57,18 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    public void removeApplication(String applicationName, int serviceTypeCode) {
+        this.applicationIndexService.deleteApplication(applicationName, serviceTypeCode);
+    }
+
+    @Override
     public void removeAgentId(String applicationName, String agentId) {
         applicationIndexService.deleteAgentId(applicationName, agentId);
+    }
+
+    @Override
+    public void removeAgentId(String applicationName, int serviceTypeCode, String agentId) {
+        applicationIndexService.deleteAgentId(applicationName, serviceTypeCode, agentId);
     }
 
     @Override
