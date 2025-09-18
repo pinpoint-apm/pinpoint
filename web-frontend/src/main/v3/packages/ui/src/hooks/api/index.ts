@@ -1,5 +1,4 @@
 export * from './reactQueryHelper';
-export * from './swrConfigs';
 export * from './useAdmin';
 export * from './useAlarmRuleMutation';
 export * from './useAlarmRuleQuery';

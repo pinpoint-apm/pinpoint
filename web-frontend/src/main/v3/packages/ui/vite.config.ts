@@ -22,7 +22,6 @@ export default defineConfig({
         'tailwindcss',
         'tailwindcss-animate',
         'tailwind-scrollbar-hide',
-        'swr',
         '@tanstack/react-query',
       ],
       output: {

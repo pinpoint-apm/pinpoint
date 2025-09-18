@@ -1,5 +1,5 @@
 import React from 'react';
-import useSWR from 'swr';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
   serverMapCurrentTargetDataAtom,
@@ -20,7 +20,8 @@ import {
   getParsedDate,
   getInspectorPath,
 } from '@pinpoint-fe/ui/src/utils';
-import { useSearchParameters, swrConfigs, useServerMapLinkedData } from '@pinpoint-fe/ui/src/hooks';
+import { useSearchParameters, useServerMapLinkedData } from '@pinpoint-fe/ui/src/hooks';
+import { queryFn } from '@pinpoint-fe/ui/src/hooks/api/reactQueryHelper';
 import { ServerList as SL, ServerListProps, Button } from '@pinpoint-fe/ui';
 import { upperCase } from 'lodash';
 
@@ -74,12 +75,13 @@ export const ServerListFetcher = ({ nodeStatistics, disableFetch }: ServerListFe
 
     return '';
   }, [queryParams]);
-  const { data } = useSWR<SearchApplication.Response>(
-    getQueryString() && !disableFetch
-      ? [`${END_POINTS.SEARCH_APPLICATION}${getQueryString()}`]
-      : null,
-    swrConfigs,
-  );
+  const { data } = useSuspenseQuery<SearchApplication.Response | null>({
+    queryKey: [END_POINTS.SEARCH_APPLICATION, queryParams],
+    queryFn:
+      !!getQueryString() && !disableFetch
+        ? queryFn(`${END_POINTS.SEARCH_APPLICATION}${getQueryString()}`)
+        : () => null,
+  });
 
   React.useEffect(() => {
     if (data) {
@@ -145,7 +147,7 @@ export const ServerListFetcher = ({ nodeStatistics, disableFetch }: ServerListFe
 
   return (
     <SL
-      data={data}
+      data={data || []}
       className={'border-t border-r bg-neutral-100'}
       statistics={nodeStatistics || currentNodeStatistics} // FilteredMap에서는 atom값을 사용하고 servermap은 props값을 사용
       selectedId={currentServerAgent}
