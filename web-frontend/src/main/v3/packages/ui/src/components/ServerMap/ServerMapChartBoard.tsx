@@ -19,11 +19,7 @@ import {
   ChartsBoardHeader,
 } from '@pinpoint-fe/ui/src/components';
 import { Configuration, GetServerMap } from '@pinpoint-fe/ui/src/constants';
-import {
-  useExperimentals,
-  // useGetServerMapGetResponseTimeHistogramDataV2,
-  useServerMapSearchParameters,
-} from '@pinpoint-fe/ui/src/hooks';
+import { useExperimentals, useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { MdArrowBackIosNew, MdArrowForwardIos } from 'react-icons/md';
 import { PiArrowSquareOut } from 'react-icons/pi';
 import {

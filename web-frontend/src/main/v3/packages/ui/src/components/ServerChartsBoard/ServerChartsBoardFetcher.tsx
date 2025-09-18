@@ -1,5 +1,5 @@
 import React from 'react';
-import useSWR from 'swr';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { ChartsBoard, ChartsBoardProps } from '..';
 import { END_POINTS, GetResponseTimeHistogram, GetServerMap } from '@pinpoint-fe/ui/src/constants';
@@ -10,7 +10,8 @@ import {
   serverMapDataAtom,
 } from '@pinpoint-fe/ui/src/atoms';
 import { convertParamsToQueryString, getParsedDate } from '@pinpoint-fe/ui/src/utils';
-import { useSearchParameters, swrConfigs, useServerMapLinkedData } from '@pinpoint-fe/ui/src/hooks';
+import { useSearchParameters, useServerMapLinkedData } from '@pinpoint-fe/ui/src/hooks';
+import { queryFn } from '@pinpoint-fe/ui/src/hooks/api/reactQueryHelper';
 import { useTranslation } from 'react-i18next';
 
 export interface ServerChartsBoardFetcherProps extends ChartsBoardProps {
@@ -70,15 +71,18 @@ export const ServerChartsBoardFetcher = ({
     return '';
   }, [queryParams]);
 
-  const { data } = useSWR<GetResponseTimeHistogram.Response>(
-    getQueryString() && !disableFetch
-      ? `${END_POINTS.RESPONSE_TIME_HISTOGRAM_DATA_V2}${getQueryString()}`
-      : null,
-    swrConfigs,
-  );
+  const { data } = useSuspenseQuery<GetResponseTimeHistogram.Response | null>({
+    queryKey: [END_POINTS.HISTOGRAM_STATISTICS, queryParams],
+    queryFn:
+      !!getQueryString() && !disableFetch
+        ? queryFn(`${END_POINTS.HISTOGRAM_STATISTICS}${getQueryString()}`)
+        : () => null,
+  });
 
   React.useEffect(() => {
-    setCurrentNodeStatistics(data);
+    if (data) {
+      setCurrentNodeStatistics(data);
+    }
   }, [data]);
 
   const getServerData = React.useCallback(() => {
