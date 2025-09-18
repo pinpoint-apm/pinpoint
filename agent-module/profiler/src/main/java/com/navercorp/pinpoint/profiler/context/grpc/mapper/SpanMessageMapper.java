@@ -16,15 +16,7 @@
 package com.navercorp.pinpoint.profiler.context.grpc.mapper;
 
 
-import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
-import com.navercorp.pinpoint.grpc.trace.PAnnotation;
-import com.navercorp.pinpoint.grpc.trace.PLocalAsyncId;
-import com.navercorp.pinpoint.grpc.trace.PMessageEvent;
-import com.navercorp.pinpoint.grpc.trace.PNextEvent;
-import com.navercorp.pinpoint.grpc.trace.PParentInfo;
-import com.navercorp.pinpoint.grpc.trace.PSpan;
-import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
-import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
+import com.navercorp.pinpoint.grpc.trace.*;
 import com.navercorp.pinpoint.io.SpanVersion;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.AsyncSpanChunk;
@@ -43,6 +35,7 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.factory.Mappers;
 
 /**
  * @author intr3p1d
@@ -63,6 +56,8 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 public interface SpanMessageMapper {
     String DEFAULT_REMOTE_ADDRESS = "UNKNOWN";
     String DEFAULT_END_POINT = "UNKNOWN";
+
+    AnnotationValueMapper ANNOTATION_VALUE_MAPPER = Mappers.getMapper(AnnotationValueMapper.class);
 
     @Mapping(source = "applicationServiceType", target = "version", qualifiedByName = "spanVersion")
     @Mapping(source = "applicationServiceType", target = "applicationServiceType")
@@ -124,8 +119,18 @@ public interface SpanMessageMapper {
     @Mapping(source = "nextSpanId", target = "nextSpanId", conditionQualifiedBy = MapperUtils.IsNotMinusOne.class)
     PMessageEvent mapMessageEvent(SpanEvent spanEvent);
 
-    @Mapping(source = ".", target = "value", qualifiedBy = AnnotationValueMapper.ToPAnnotationValue.class)
-    PAnnotation map(Annotation<?> annotation);
+    default PAnnotation map(Annotation annotation) {
+        if(annotation == null) {
+            return null;
+        }
+        PAnnotation.Builder builder = PAnnotation.newBuilder();
+        PAnnotationValue value = ANNOTATION_VALUE_MAPPER.map(annotation);
+        if(value != null) {
+            builder.setValue(value);
+        }
+        builder.setKey(annotation.getKey());
+        return builder.build();
+    }
 
     @Named("toAcceptEvent")
     @Mapping(source = "remoteAddr", target = "remoteAddr", defaultValue = DEFAULT_REMOTE_ADDRESS)
