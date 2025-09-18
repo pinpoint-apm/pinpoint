@@ -16,23 +16,22 @@
 
 package com.navercorp.pinpoint.batch.service;
 
-import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
-import com.navercorp.pinpoint.uid.service.AgentIdService;
-import com.navercorp.pinpoint.uid.service.BaseApplicationUidService;
-import com.navercorp.pinpoint.uid.vo.ApplicationUidRow;
-import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
+import com.navercorp.pinpoint.web.service.ApplicationIndexServiceV2;
 import com.navercorp.pinpoint.web.vo.Application;
 import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author youngjin.kim2
@@ -42,53 +41,45 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
 
     private final ApplicationIndexDao applicationIndexDao;
     private final ApplicationTraceIndexDao applicationTraceIndexDao;
-    private final ApplicationFactory applicationFactory;
 
-    private final BaseApplicationUidService baseApplicationUidService;
-    private final AgentIdService agentIdService;
-    private final boolean uidApplicationListEnable;
-    private final boolean uidAgentListEnable;
+    private final ApplicationIndexServiceV2 applicationIndexServiceV2;
+    private final boolean readV2;
+    private final boolean v2TableEnabled;
 
     public BatchApplicationIndexServiceImpl(
             ApplicationIndexDao applicationIndexDao,
             ApplicationTraceIndexDao applicationTraceIndexDao,
-            ApplicationFactory applicationFactory,
-            @Nullable BaseApplicationUidService baseApplicationUidService,
-            @Nullable AgentIdService agentIdService,
-            @Value("${pinpoint.batch.uid.application.list.enabled:false}") boolean uidApplicationListEnable,
-            @Value("${pinpoint.batch.uid.agent.list.enabled:false}") boolean uidAgentListEnable) {
+            @Nullable ApplicationIndexServiceV2 applicationIndexServiceV2,
+            @Value("${pinpoint.batch.application.index.v2.enabled:false}") boolean readV2,
+            @Value("${pinpoint.batch.application.index.v2.table.enabled:false}") boolean v2TableEnabled) {
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
-        this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
-        this.baseApplicationUidService = baseApplicationUidService;
-        this.agentIdService = agentIdService;
-        this.uidApplicationListEnable = uidApplicationListEnable;
-        this.uidAgentListEnable = uidAgentListEnable;
+        this.applicationIndexServiceV2 = Objects.requireNonNull(applicationIndexServiceV2, "applicationIndexServiceV2");
+        this.readV2 = readV2;
+        this.v2TableEnabled = v2TableEnabled;
     }
 
-    private boolean isUidApplicationListEnable() {
-        return uidApplicationListEnable && baseApplicationUidService != null;
+    private boolean isReadV2() {
+        return readV2 && v2TableEnabled;
     }
 
-    private boolean isUidAgentListEnable() {
-        return uidAgentListEnable && baseApplicationUidService != null && agentIdService != null;
+    private boolean isV2WriteEnabled() {
+        return readV2 || v2TableEnabled;
     }
 
     @Override
     public List<Application> selectAllApplications() {
-        if (isUidApplicationListEnable()) {
-            return this.baseApplicationUidService.getApplications(ServiceUid.DEFAULT).stream()
-                    .map(attr -> applicationFactory.createApplication(attr.applicationName(), attr.serviceTypeCode()))
-                    .toList();
+        if (isReadV2()) {
+            return this.applicationIndexServiceV2.getApplications(ServiceUid.DEFAULT_SERVICE_UID_NAME);
         }
         return this.applicationIndexDao.selectAllApplicationNames();
     }
 
     @Override
     public List<String> selectAllApplicationNames() {
-        if (isUidApplicationListEnable()) {
-            return this.baseApplicationUidService.getApplications(ServiceUid.DEFAULT).stream()
-                    .map(ApplicationUidRow::applicationName)
+        if (isReadV2()) {
+            return this.applicationIndexServiceV2.getApplications(ServiceUid.DEFAULT_SERVICE_UID_NAME).stream()
+                    .map(Application::getName)
                     .toList();
         }
         return this.applicationIndexDao.selectAllApplicationNames()
@@ -111,23 +102,24 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     @Override
     public void remove(String applicationName) {
         this.applicationIndexDao.deleteApplicationName(applicationName);
-        if (baseApplicationUidService != null) {
-            List<ApplicationUidRow> applications = baseApplicationUidService.getApplications(ServiceUid.DEFAULT);
-            for (ApplicationUidRow application : applications) {
-                baseApplicationUidService.deleteApplication(ServiceUid.DEFAULT, application.applicationName(), application.serviceTypeCode());
+        if (isV2WriteEnabled()) {
+            List<Application> applicationList = this.applicationIndexServiceV2.getApplications(ServiceUid.DEFAULT_SERVICE_UID_NAME, applicationName);
+            for (Application application : applicationList) {
+                this.applicationIndexServiceV2.deleteApplication(ServiceUid.DEFAULT_SERVICE_UID_NAME, application.getName(), application.getServiceTypeCode());
             }
         }
     }
 
     @Override
     public List<String> selectAgentIds(String applicationName) {
-        if (isUidAgentListEnable()) {
-            List<ApplicationUid> applicationUidList = baseApplicationUidService.getApplications(ServiceUid.DEFAULT, applicationName).stream()
-                    .map(ApplicationUidRow::applicationUid)
-                    .toList();
-            return agentIdService.getAgentId(ServiceUid.DEFAULT, applicationUidList).stream()
-                    .flatMap(List::stream)
-                    .toList();
+        if (isReadV2()) {
+            List<Application> applicationList = this.applicationIndexServiceV2.getApplications(ServiceUid.DEFAULT_SERVICE_UID_NAME, applicationName);
+            Set<String> agentIdSet = new HashSet<>();
+            for (Application application : applicationList) {
+                List<String> agentIdList = this.applicationIndexServiceV2.getAgentIds(ServiceUid.DEFAULT_SERVICE_UID_NAME, application.getName(), application.getServiceTypeCode());
+                agentIdSet.addAll(agentIdList);
+            }
+            return new ArrayList<>(agentIdSet);
         }
         return this.applicationIndexDao.selectAgentIds(applicationName);
     }
@@ -135,17 +127,16 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     @Override
     public void deleteAgentId(String applicationName, String agentId) {
         applicationIndexDao.deleteAgentId(applicationName, agentId);
-        if (baseApplicationUidService != null && agentIdService != null) {
-            deleteUidAgent(applicationName, List.of(agentId));
+        applicationIndexDao.deleteAgentId(applicationName, agentId);
+        if (isV2WriteEnabled()) {
+            deleteAgents(applicationName, List.of(agentId));
         }
     }
 
-    private void deleteUidAgent(String applicationName, List<String> agentIds) {
-        List<ApplicationUid> applicationUidList = baseApplicationUidService.getApplications(ServiceUid.DEFAULT, applicationName).stream()
-                .map(ApplicationUidRow::applicationUid)
-                .toList();
-        for (ApplicationUid applicationUid : applicationUidList) {
-            agentIdService.deleteAgent(ServiceUid.DEFAULT, applicationUid, agentIds);
+    private void deleteAgents(String applicationName, List<String> agentIds) {
+        List<Application> applicationList = this.applicationIndexServiceV2.getApplications(ServiceUid.DEFAULT_SERVICE_UID_NAME, applicationName);
+        for (Application application : applicationList) {
+            this.applicationIndexServiceV2.deleteAgents(ServiceUid.DEFAULT_SERVICE_UID_NAME, application.getName(), application.getServiceTypeCode(), agentIds);
         }
     }
 }

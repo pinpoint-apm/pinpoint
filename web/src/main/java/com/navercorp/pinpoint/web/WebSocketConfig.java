@@ -17,9 +17,9 @@ package com.navercorp.pinpoint.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
-import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.service.AgentServiceImpl;
+import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.websocket.CustomHandshakeInterceptor;
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketConfigurer;
 import com.navercorp.pinpoint.web.websocket.PinpointWebSocketHandler;

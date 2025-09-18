@@ -32,7 +32,11 @@ public interface AdminService {
 
     void removeApplicationName(String applicationName);
 
+    void removeApplication(String applicationName, int serviceTypeCode);
+
     void removeAgentId(String applicationName, String agentId);
+
+    void removeAgentId(String applicationName, int serviceTypeCode, String agentId);
 
     @Deprecated
     void removeInactiveAgents(int durationDays);

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.authorization.controller;
 
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.AdminService;
 import com.navercorp.pinpoint.web.vo.Application;
 import jakarta.validation.constraints.Min;
@@ -46,9 +48,11 @@ public class AdminController {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AdminService adminService;
+    private final ApplicationFactory applicationFactory;
 
-    public AdminController(AdminService adminService) {
+    public AdminController(AdminService adminService, ApplicationFactory applicationFactory) {
         this.adminService = Objects.requireNonNull(adminService, "adminService");
+        this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
     }
 
     @RequestMapping(value = "/removeApplicationName")
@@ -63,7 +67,25 @@ public class AdminController {
         }
     }
 
-    @RequestMapping(value = "/removeAgentId")
+    @RequestMapping(value = "/removeApplication")
+    public String removeApplicationName(@RequestParam("applicationName") @NotBlank String applicationName,
+                                        @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
+                                        @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName) {
+        Application application = getApplication(applicationName, serviceTypeCode, serviceTypeName);
+        if (application.getServiceType().equals(ServiceType.UNDEFINED)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Undefined service type");
+        }
+        logger.info("Removing application - application: {}", application);
+        try {
+            this.adminService.removeApplication(application.getName(), application.getServiceTypeCode());
+            return "OK";
+        } catch (Exception e) {
+            logger.error("error while removing applicationName", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    @RequestMapping(value = "/removeAgentId", params = {"!serviceTypeCode", "!serviceTypeName"})
     public String removeAgentId(
             @RequestParam(value = "applicationName") @NotBlank String applicationName,
             @RequestParam(value = "agentId") @NotBlank String agentId
@@ -71,6 +93,26 @@ public class AdminController {
         logger.info("Removing agent - applicationName: [{}], agentId: [{}]", applicationName, agentId);
         try {
             this.adminService.removeAgentId(applicationName, agentId);
+            return "OK";
+        } catch (Exception e) {
+            logger.error("error while removing agentId", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    @RequestMapping(value = "/removeAgentId")
+    public String removeAgentId(
+            @RequestParam(value = "applicationName") @NotBlank String applicationName,
+            @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
+            @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
+            @RequestParam(value = "agentId") @NotBlank String agentId) {
+        Application application = getApplication(applicationName, serviceTypeCode, serviceTypeName);
+        if (application.getServiceType().equals(ServiceType.UNDEFINED)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Undefined service type");
+        }
+        logger.info("Removing agent - application: {}, agentId: {}", application, agentId);
+        try {
+            this.adminService.removeAgentId(application.getName(), application.getServiceTypeCode(), agentId);
             return "OK";
         } catch (Exception e) {
             logger.error("error while removing agentId", e);
@@ -109,11 +151,19 @@ public class AdminController {
             @RequestParam(value = "applicationName") @NotBlank String applicationName,
             @RequestParam(value = "durationDays", defaultValue = AdminService.MIN_DURATION_DAYS_FOR_INACTIVITY_STR)
             @Min(AdminService.MIN_DURATION_DAYS_FOR_INACTIVITY)
-            int durationDays
+                    int durationDays
     ) {
         logger.info("Getting in-active agents - applicationName: [{}], duration: {} days.",
                 applicationName, durationDays);
         return this.adminService.getInactiveAgents(applicationName, durationDays);
     }
 
+    private Application getApplication(String applicationName, Integer serviceTypeCode, String serviceTypeName) {
+        if (serviceTypeCode != null) {
+            return applicationFactory.createApplication(applicationName, serviceTypeCode);
+        } else if (serviceTypeName != null) {
+            return applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
+        }
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No service type provided.");
+    }
 }

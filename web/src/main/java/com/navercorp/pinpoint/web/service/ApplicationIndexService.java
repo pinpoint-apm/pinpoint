@@ -36,6 +36,8 @@ public interface ApplicationIndexService {
 
     void deleteApplicationName(String applicationName);
 
+    void deleteApplication(String applicationName, int serviceTypeCode);
+
     boolean isExistApplicationName(String applicationName);
 
     List<String> selectAgentIds(String applicationName);
@@ -43,4 +45,6 @@ public interface ApplicationIndexService {
     void deleteAgentIds(Map<String, List<String>> applicationAgentIdMap);
 
     void deleteAgentId(String applicationName, String agentId);
+
+    void deleteAgentId(String applicationName, int serviceTypeCode, String agentId);
 }
