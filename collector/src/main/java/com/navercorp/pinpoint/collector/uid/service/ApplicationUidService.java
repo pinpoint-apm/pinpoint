@@ -5,6 +5,7 @@ import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 
 import java.util.concurrent.CompletableFuture;
 
+@Deprecated
 public interface ApplicationUidService {
 
     ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode);

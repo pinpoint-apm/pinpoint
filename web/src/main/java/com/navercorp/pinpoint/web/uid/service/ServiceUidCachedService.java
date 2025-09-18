@@ -15,7 +15,7 @@ import static com.navercorp.pinpoint.web.uid.config.ServiceUidMysqlCacheConfig.S
 
 @Service
 @CacheConfig(cacheManager = "serviceUidCache")
-public class ServiceUidCachedService {
+public class ServiceUidCachedService implements ServiceUidService {
 
     private final StaticServiceRegistry registry;
     private final ServiceInfoService serviceInfoService;
@@ -27,6 +27,7 @@ public class ServiceUidCachedService {
     }
 
 
+    @Override
     @Cacheable(cacheNames = SERVICE_UID_CACHE_NAME, unless = "#result == null")
     public ServiceUid getServiceUid(String serviceName) {
         Objects.requireNonNull(serviceName, "serviceName");
@@ -38,6 +39,7 @@ public class ServiceUidCachedService {
         return serviceInfoService.getServiceUid(serviceName);
     }
 
+    @Override
     @Cacheable(cacheNames = SERVICE_NAME_CACHE_NAME, unless = "#result == null")
     public String getServiceName(ServiceUid serviceUid) {
         Objects.requireNonNull(serviceUid, "serviceUid");

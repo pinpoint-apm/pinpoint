@@ -12,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -34,6 +35,8 @@ import static com.navercorp.pinpoint.collector.uid.config.ApplicationUidCacheCon
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.when;
 
+@Deprecated
+@Disabled
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(properties = {
         "pinpoint.modules.uid.enabled=true",

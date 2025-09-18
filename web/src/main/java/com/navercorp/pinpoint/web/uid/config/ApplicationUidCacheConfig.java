@@ -11,6 +11,7 @@ import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+@Deprecated
 @Configuration
 @EnableCaching
 @ConditionalOnProperty(name = "pinpoint.modules.uid.enabled", havingValue = "true")

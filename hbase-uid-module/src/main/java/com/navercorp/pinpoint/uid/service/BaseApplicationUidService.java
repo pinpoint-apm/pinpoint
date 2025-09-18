@@ -8,6 +8,7 @@ import com.navercorp.pinpoint.uid.vo.ApplicationUidRow;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+@Deprecated
 public interface BaseApplicationUidService {
 
     ApplicationUid getApplicationUid(ServiceUid serviceUid, String applicationName, int serviceTypeCode);

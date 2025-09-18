@@ -33,6 +33,8 @@ public interface ApplicationIndexDao {
 
     List<String> selectAgentIds(String applicationName);
 
+    List<String> selectAgentIds(String applicationName, int serviceTypeCode);
+
     void deleteApplicationName(String applicationName);
 
     void deleteAgentIds(Map<String, List<String>> applicationAgentIdMap);

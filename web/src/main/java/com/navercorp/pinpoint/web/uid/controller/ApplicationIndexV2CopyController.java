@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.web.uid.controller;
 
-import com.navercorp.pinpoint.web.uid.service.ApplicationUidCopyService;
+import com.navercorp.pinpoint.web.uid.service.ApplicationIndexV2CopyService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,26 +10,26 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/api/admin/uid/copy")
+@RequestMapping("/api/admin/copy")
 @ConditionalOnProperty(name = "pinpoint.modules.uid.enabled", havingValue = "true")
-public class ApplicationUidCopyController {
+public class ApplicationIndexV2CopyController {
 
-    private final ApplicationUidCopyService applicationUidCopyService;
+    private final ApplicationIndexV2CopyService applicationIndexV2CopyService;
 
-    public ApplicationUidCopyController(ApplicationUidCopyService applicationUidCopyService) {
-        this.applicationUidCopyService = Objects.requireNonNull(applicationUidCopyService, "applicationUidCopyService");
+    public ApplicationIndexV2CopyController(ApplicationIndexV2CopyService applicationIndexV2CopyService) {
+        this.applicationIndexV2CopyService = Objects.requireNonNull(applicationIndexV2CopyService, "applicationUidCopyService");
     }
 
 
-    @GetMapping(value = "application")
+    @GetMapping(value = "/v2/application")
     public ResponseEntity<String> copyApplicationList() {
-        applicationUidCopyService.copyApplication();
+        applicationIndexV2CopyService.copyApplication();
         return ResponseEntity.ok("OK");
     }
 
-    @GetMapping(value = "agent")
+    @GetMapping(value = "/v2/agent")
     public ResponseEntity<String> copyAgentList() {
-        applicationUidCopyService.copyAgentId();
+        applicationIndexV2CopyService.copyAgentId();
         return ResponseEntity.ok("OK");
     }
 }

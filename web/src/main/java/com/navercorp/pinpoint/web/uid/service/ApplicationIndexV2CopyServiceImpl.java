@@ -1,14 +1,12 @@
 package com.navercorp.pinpoint.web.uid.service;
 
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.uid.service.AgentIdService;
-import com.navercorp.pinpoint.uid.service.BaseApplicationUidService;
-import com.navercorp.pinpoint.uid.vo.ApplicationUidRow;
+import com.navercorp.pinpoint.web.dao.AgentIdDao;
+import com.navercorp.pinpoint.web.dao.ApplicationDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
@@ -16,18 +14,20 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-@ConditionalOnProperty(name = "pinpoint.modules.uid.enabled", havingValue = "true")
-public class ApplicationUidCopyServiceImpl implements ApplicationUidCopyService {
+public class ApplicationIndexV2CopyServiceImpl implements ApplicationIndexV2CopyService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ApplicationIndexDao applicationIndexDao;
-    private final BaseApplicationUidService baseApplicationUidService;
-    private final AgentIdService agentIdService;
 
-    public ApplicationUidCopyServiceImpl(ApplicationIndexDao applicationIndexDao, BaseApplicationUidService baseApplicationUidService, AgentIdService agentIdService) {
+    private final ApplicationDao applicationDao;
+    private final AgentIdDao agentIdDao;
+
+    public ApplicationIndexV2CopyServiceImpl(ApplicationIndexDao applicationIndexDao,
+                                             ApplicationDao applicationDao,
+                                             AgentIdDao agentIdDao) {
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
-        this.baseApplicationUidService = Objects.requireNonNull(baseApplicationUidService, "baseApplicationUidService");
-        this.agentIdService = Objects.requireNonNull(agentIdService, "agentIdService");
+        this.applicationDao = Objects.requireNonNull(applicationDao, "applicationDao");
+        this.agentIdDao = Objects.requireNonNull(agentIdDao, "agentIdDao");
     }
 
     @Override
@@ -37,20 +37,20 @@ public class ApplicationUidCopyServiceImpl implements ApplicationUidCopyService 
         List<Application> applications = this.applicationIndexDao.selectAllApplicationNames();
         stopWatch.stop();
 
-        List<ApplicationUidRow> beforeInsert = List.of();
+        List<Application> beforeInsert = List.of();
         if (logger.isInfoEnabled()) {
-            beforeInsert = baseApplicationUidService.getApplications(ServiceUid.DEFAULT);
+            beforeInsert = applicationDao.getApplications(ServiceUid.DEFAULT);
         }
 
         stopWatch.start("getOrCreateApplicationUid");
         for (Application application : applications) {
-            baseApplicationUidService.getOrCreateApplicationUid(ServiceUid.DEFAULT, application.getName(), application.getServiceTypeCode());
+            applicationDao.insert(ServiceUid.DEFAULT, application.getName(), application.getServiceTypeCode());
         }
         stopWatch.stop();
 
         if (logger.isDebugEnabled()) {
             stopWatch.start("baseApplicationUidService.getApplications");
-            List<ApplicationUidRow> afterInsert = baseApplicationUidService.getApplications(ServiceUid.DEFAULT);
+            List<Application> afterInsert = applicationDao.getApplications(ServiceUid.DEFAULT);
             stopWatch.stop();
             logger.debug("syncApplicationUid total:{}, time taken: {} ms, before:{} after: {}", applications.size(), stopWatch.getTotalTimeMillis(), beforeInsert.size(), afterInsert.size());
         }
@@ -61,13 +61,13 @@ public class ApplicationUidCopyServiceImpl implements ApplicationUidCopyService 
     public void copyAgentId() {
         StopWatch stopWatch = new StopWatch("copyAgentId");
         stopWatch.start("uidApplicationNames");
-        List<ApplicationUidRow> ApplicationNameList = baseApplicationUidService.getApplications(ServiceUid.DEFAULT);
+        List<Application> ApplicationNameList = applicationDao.getApplications(ServiceUid.DEFAULT);
         stopWatch.stop();
         stopWatch.start("insertEach");
-        for (ApplicationUidRow row : ApplicationNameList) {
-            List<String> agentIds = applicationIndexDao.selectAgentIds(row.applicationName());
+        for (Application application : ApplicationNameList) {
+            List<String> agentIds = applicationIndexDao.selectAgentIds(application.getName(), application.getServiceTypeCode());
             for (String agentId : agentIds) {
-                agentIdService.insert(row.serviceUid(), row.applicationUid(), agentId);
+                agentIdDao.insert(ServiceUid.DEFAULT, application.getName(), application.getServiceTypeCode(), agentId);
             }
         }
         stopWatch.stop();
