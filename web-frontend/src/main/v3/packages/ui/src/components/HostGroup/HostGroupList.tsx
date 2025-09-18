@@ -38,7 +38,9 @@ export const HostGroupList = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowDown') {
+    if (isMouseMove) {
+      setFocusIndex(0);
+    } else if (e.key === 'ArrowDown') {
       e.preventDefault();
       setFocusIndex((prev) => {
         const nowIndex = isMouseMove ? mouseEnterIndex : prev;

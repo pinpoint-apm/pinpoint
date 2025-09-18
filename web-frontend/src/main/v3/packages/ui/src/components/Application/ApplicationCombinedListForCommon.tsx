@@ -132,16 +132,19 @@ export const ApplicationCombinedListForCommon = ({
 
   // isOpen이 변경되면 focusInfo를 초기화
   React.useEffect(() => {
+    setIsMouseMove(false);
+
     if (favoriteList && favoriteList.length > 0) {
       setFocusInfo({ id: 'favoriteList', index: 0 });
     } else {
       setFocusInfo({ id: 'applicationList', index: 0 });
     }
-  }, [isOpen]);
+  }, [isOpen, favoriteList]);
 
   React.useEffect(() => {
     // filterKeyword가 변경되었을 경우 focusInfo를 초기화
     if (prevFilterKeywordRef.current !== filterKeyword) {
+      setIsMouseMove(false);
       if (filteredLists['favoriteList']?.length) {
         setFocusInfo({ id: 'favoriteList', index: 0 });
       } else if (filteredLists['applicationList']?.length) {
@@ -150,17 +153,20 @@ export const ApplicationCombinedListForCommon = ({
       prevFilterKeywordRef.current = filterKeyword;
       return;
     }
-
-    if (!filteredLists['favoriteList']?.length) {
-      setFocusInfo({ id: 'applicationList', index: 0 });
-    }
+    // filterKeyword가 변경되고 -> filteredLists가 변경되기 때문에 dependency array에 filteredLists?.favoriteList를 넣어줘야 함
   }, [filteredLists?.favoriteList]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     const favoriteListLength = filteredLists['favoriteList']?.length || 0;
     const applicationListLength = filteredLists['applicationList']?.length || 0;
 
-    if (e.key === 'ArrowDown') {
+    if (isMouseMove) {
+      if (favoriteListLength > 0) {
+        setFocusInfo({ id: 'favoriteList', index: 0 });
+      } else {
+        setFocusInfo({ id: 'applicationList', index: 0 });
+      }
+    } else if (e.key === 'ArrowDown') {
       e.preventDefault();
       setFocusInfo((prev) => {
         const nowInfo = isMouseMove ? mouseEnterInfo : prev;
