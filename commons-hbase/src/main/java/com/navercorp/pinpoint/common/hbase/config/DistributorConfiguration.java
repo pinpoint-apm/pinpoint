@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.common.hbase.config;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.OneByteSimpleHash;
+import com.navercorp.pinpoint.common.hbase.wd.RangeDoubleHash;
 import com.navercorp.pinpoint.common.hbase.wd.RangeOneByteSimpleHash;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.logging.log4j.LogManager;
@@ -83,6 +85,16 @@ public class DistributorConfiguration {
 
     private ByteHasher newRangeOneByteSimpleHash(int start, int end, int maxBuckets) {
         return new RangeOneByteSimpleHash(start, end, maxBuckets);
+    }
+
+    public static final int UID_START_KEY_RANGE = PinpointConstants.APPLICATION_NAME_MAX_LEN_V3 + 8;
+    public static final int SECONDARY_BUCKET_SIZE = 4;
+
+    @Bean
+    public RowKeyDistributorByHashPrefix uidRowKeyDistributor() {
+        ByteHasher hasher = RangeDoubleHash.ofSecondary(0, UID_START_KEY_RANGE, ByteHasher.MAX_BUCKETS,
+                SECONDARY_BUCKET_SIZE, UID_START_KEY_RANGE, UID_START_KEY_RANGE + 8);
+        return new RowKeyDistributorByHashPrefix(hasher);
     }
 
 }

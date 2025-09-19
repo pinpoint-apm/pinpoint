@@ -55,6 +55,8 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -66,6 +68,11 @@ import java.util.Set;
 @Configuration
 @ConditionalOnMissingBean(MapV3MapperConfiguration.class)
 public class MapMapperConfiguration {
+    private static final Logger logger = LogManager.getLogger(MapMapperConfiguration.class);
+
+    public MapMapperConfiguration() {
+        logger.info("Install {}", MapMapperConfiguration.class.getSimpleName());
+    }
 
     @Bean
     public ResultsExtractor<Set<AcceptApplication>> hostApplicationResultExtractor(ApplicationFactory applicationFactory) {

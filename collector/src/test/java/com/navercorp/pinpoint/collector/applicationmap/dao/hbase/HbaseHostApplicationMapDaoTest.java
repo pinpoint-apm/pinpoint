@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,7 +43,7 @@ public class HbaseHostApplicationMapDaoTest {
         ServiceType standAlone = ServiceType.STAND_ALONE;
         SaltKey saltKey = ByteSaltKey.SALT;
 
-        byte[] parentApps = HbaseHostApplicationMapDao.createRowKey0(saltKey.size(), parentApp, standAlone.getCode(), statisticsRowSlot, null);
+        byte[] parentApps = HbaseHostApplicationMapDao.createRowKey0(saltKey.size(), parentApp, standAlone.getCode(), statisticsRowSlot);
         logger.debug("rowKey size:{}", parentApps.length);
 
         Buffer readBuffer = new FixedBuffer(parentApps);

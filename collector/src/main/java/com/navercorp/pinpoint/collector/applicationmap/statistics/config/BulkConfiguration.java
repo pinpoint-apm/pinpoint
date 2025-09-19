@@ -16,15 +16,7 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.statistics.config;
 
-import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HbaseMapInLinkDao;
-import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HbaseMapOutLinkDao;
-import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HbaseMapResponseTimeDao;
-import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkIncrementer;
-import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkUpdater;
-import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTemplate;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -48,87 +40,10 @@ public class BulkConfiguration {
 
     @Bean
     public BulkFactory bulkFactory(BulkProperties bulkProperties,
+                                   HbaseAsyncTemplate asyncTemplate,
                                    BulkIncrementerFactory bulkIncrementerFactory,
                                    BulkOperationReporterFactory bulkOperationReporterFactory) {
-        return new BulkFactory(bulkProperties, bulkIncrementerFactory, bulkOperationReporterFactory);
+        return new BulkFactory(bulkProperties.enableBulk(), asyncTemplate, bulkIncrementerFactory, bulkOperationReporterFactory);
     }
 
-    @Bean
-    public BulkIncrementer outLinkBulkIncrementer(BulkFactory factory, BulkProperties bulkProperties) {
-        String reporterName = "outLinkIncrementReporter";
-        int limitSize = bulkProperties.getCallerLimitSize();
-
-        return factory.newBulkIncrementer(reporterName, limitSize);
-    }
-
-    @Bean
-    public BulkUpdater outLinkBulkUpdater(BulkFactory factory) {
-        String reporterName = "outLinkUpdateReporter";
-        return factory.getBulkUpdater(reporterName);
-    }
-
-
-    @Bean
-    public BulkWriter outLinkBulkWriter(BulkFactory factory,
-                                        HbaseAsyncTemplate asyncTemplate,
-                                        @Qualifier("mapLinkRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
-                                        @Qualifier("outLinkBulkIncrementer") BulkIncrementer bulkIncrementer,
-                                        @Qualifier("outLinkBulkUpdater") BulkUpdater bulkUpdater) {
-        String loggerName = newBulkWriterName(HbaseMapOutLinkDao.class.getName());
-        return factory.newBulkWriter(loggerName, asyncTemplate, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
-    }
-
-
-    @Bean
-    public BulkIncrementer inLinkBulkIncrementer(BulkFactory factory, BulkProperties bulkProperties) {
-        String reporterName = "inLinkIncrementReporter";
-        int limitSize = bulkProperties.getCalleeLimitSize();
-
-        return factory.newBulkIncrementer(reporterName, limitSize);
-    }
-
-
-    @Bean
-    public BulkUpdater inLinkBulkUpdater(BulkFactory factory) {
-        String reporterName = "inLinkUpdateReporter";
-        return factory.getBulkUpdater(reporterName);
-    }
-
-    @Bean
-    public BulkWriter inLinkBulkWriter(BulkFactory factory,
-                                       HbaseAsyncTemplate asyncTemplate,
-                                       @Qualifier("mapLinkRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
-                                       @Qualifier("inLinkBulkIncrementer") BulkIncrementer bulkIncrementer,
-                                       @Qualifier("inLinkBulkUpdater") BulkUpdater bulkUpdater) {
-        String loggerName = newBulkWriterName(HbaseMapInLinkDao.class.getName());
-        return factory.newBulkWriter(loggerName, asyncTemplate, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
-    }
-
-    @Bean
-    public BulkIncrementer selfBulkIncrementer(BulkFactory factory, BulkProperties bulkProperties) {
-        String reporterName = "selfIncrementReporter";
-        int limitSize = bulkProperties.getSelfLimitSize();
-
-        return factory.newBulkIncrementer(reporterName, limitSize);
-    }
-
-    @Bean
-    public BulkUpdater selfBulkUpdater(BulkFactory factory) {
-        String reporterName = "selfUpdateReporter";
-        return factory.getBulkUpdater(reporterName);
-    }
-
-    @Bean
-    public BulkWriter selfBulkWriter(BulkFactory factory,
-                                     HbaseAsyncTemplate asyncTemplate,
-                                     @Qualifier("mapSelfRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
-                                     @Qualifier("selfBulkIncrementer") BulkIncrementer bulkIncrementer,
-                                     @Qualifier("selfBulkUpdater") BulkUpdater bulkUpdater) {
-        String loggerName = newBulkWriterName(HbaseMapResponseTimeDao.class.getName());
-        return factory.newBulkWriter(loggerName, asyncTemplate, rowKeyDistributorByHashPrefix, bulkIncrementer, bulkUpdater);
-    }
-
-    private String newBulkWriterName(String className) {
-        return className + "-writer";
-    }
 }

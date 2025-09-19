@@ -113,7 +113,7 @@ public class OutLinkV3Mapper implements RowMapper<LinkDataMap> {
 
     private Application readInApplication(Buffer buffer) {
         int inServiceType = buffer.readInt();
-        String inApplicationName = buffer.readPrefixedString();
+        String inApplicationName = buffer.readUnsignedBytePrefixedString();
         return applicationFactory.createApplication(inApplicationName, inServiceType);
     }
 

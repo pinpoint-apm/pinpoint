@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.name.v1;
 
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedEpochGenerator;
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.profiler.name.Base64Utils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.name.AgentIdType;
@@ -43,7 +44,7 @@ public class ObjectNameResolverV1 implements ObjectNameResolver {
 
     private final List<AgentProperties> agentPropertyList;
 
-    private final IdValidator idValidator = new IdValidatorV1();
+    private final IdValidator idValidator = new IdValidatorV1(PinpointConstants.APPLICATION_NAME_MAX_LEN_V3);
 
     public ObjectNameResolverV1(List<AgentProperties> agentPropertyList) {
         this.agentPropertyList = Objects.requireNonNull(agentPropertyList, "agentPropertyList");

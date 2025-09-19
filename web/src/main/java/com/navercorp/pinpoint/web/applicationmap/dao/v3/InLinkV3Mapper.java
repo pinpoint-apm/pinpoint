@@ -95,13 +95,12 @@ public class InLinkV3Mapper implements RowMapper<LinkDataMap> {
             final Buffer buffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
             int selfServiceType = buffer.readInt();
             String selfApplicationName = buffer.readUnsignedBytePrefixedString();
-            short histogramSlot = buffer.readShort();
-
             final Application self = readSelfApplication(selfApplicationName, selfServiceType, inApplication.getServiceType());
             if (filter.filter(self)) {
                 continue;
             }
 
+            short histogramSlot = buffer.readShort();
             long requestCount = CellUtils.valueToLong(cell);
             String selfHost = readOutHost(buffer);
             // There may be no outHost for virtual queue nodes from user-defined entry points.
