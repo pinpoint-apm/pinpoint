@@ -23,9 +23,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
-import com.navercorp.pinpoint.common.hbase.wd.RangeDoubleHash;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
@@ -43,11 +41,12 @@ import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapInLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapOutLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapResponseTimeDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.MapScanFactory;
-import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ApplicationResponseTimeResultExtractor;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.HostApplicationMapper;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.LinkFilter;
+import com.navercorp.pinpoint.web.applicationmap.dao.mapper.LinkRowKeyDecoder;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResultExtractorFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.RowMapperFactory;
+import com.navercorp.pinpoint.web.applicationmap.dao.v3.ApplicationResponseTimeV3ResultExtractor;
 import com.navercorp.pinpoint.web.applicationmap.dao.v3.InLinkV3Mapper;
 import com.navercorp.pinpoint.web.applicationmap.dao.v3.MapV3ScanFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.v3.OutLinkV3Mapper;
@@ -59,6 +58,8 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -71,12 +72,10 @@ import java.util.Set;
 @ConditionalOnProperty(name = "pinpoint.modules.uid.version", havingValue = "v3")
 public class MapV3MapperConfiguration {
 
-    public static final int UID_START_KEY_RANGE = 262;
+    private static final Logger logger = LogManager.getLogger(MapV3MapperConfiguration.class);
 
-    @Bean
-    public RowKeyDistributorByHashPrefix uidRowKeyDistributor() {
-        ByteHasher hasher = RangeDoubleHash.ofSecondary(0, UID_START_KEY_RANGE, ByteHasher.MAX_BUCKETS, 4, UID_START_KEY_RANGE, UID_START_KEY_RANGE + 8);
-        return new RowKeyDistributorByHashPrefix(hasher);
+    public MapV3MapperConfiguration() {
+        logger.info("Install {}", MapV3MapperConfiguration.class.getSimpleName());
     }
 
     @Bean
@@ -87,6 +86,11 @@ public class MapV3MapperConfiguration {
     @Bean
     public RowKeyDecoder<UidLinkRowKey> uidLinkRowKeyDecoder() {
         return new UidLinkRowKeyDecoder(ByteSaltKey.SALT.size());
+    }
+
+    @Bean
+    public RowKeyDecoder<LinkRowKey> linkRowKeyRowKeyDecoder() {
+        return new LinkRowKeyDecoder(ByteSaltKey.SALT.size());
     }
 
     @Bean
@@ -105,22 +109,22 @@ public class MapV3MapperConfiguration {
     @Bean
     public RowMapperFactory<ResponseTime> responseTimeMapper(ServiceTypeRegistryService registry,
                                                              RowKeyDecoder<UidLinkRowKey> rowKeyDecoder) {
-        HbaseColumnFamily table = HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER;
+        HbaseColumnFamily table = HbaseTables.MAP_APP_SELF;
         return (windowFunction) -> new ResponseTimeV3Mapper(table, registry, rowKeyDecoder, windowFunction);
     }
 
     @Bean
     public ResultExtractorFactory<List<ResponseTime>> responseTimeResultExtractor(ServiceTypeRegistryService registry,
                                                                                   RowKeyDecoder<UidLinkRowKey> rowKeyDecoder) {
-        HbaseColumnFamily table = HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER;
+        HbaseColumnFamily table = HbaseTables.MAP_APP_SELF;
         return (windowFunction) -> new ResponseTimeV3ResultExtractor(table, registry, rowKeyDecoder, windowFunction);
     }
 
     @Bean
     public ResultExtractorFactory<ApplicationResponse> applicationResponseTimeResultExtractor(ServiceTypeRegistryService registry,
-                                                                                              RowKeyDecoder<LinkRowKey> rowKeyDecoder) {
-        HbaseColumnFamily table = HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER;
-        return (windowFunction) -> new ApplicationResponseTimeResultExtractor(table, registry, rowKeyDecoder, windowFunction);
+                                                                                              RowKeyDecoder<UidLinkRowKey> rowKeyDecoder) {
+        HbaseColumnFamily table = HbaseTables.MAP_APP_SELF;
+        return (windowFunction) -> new ApplicationResponseTimeV3ResultExtractor(table, registry, rowKeyDecoder, windowFunction);
     }
 
 

@@ -80,12 +80,12 @@ public class UidLinkRowKey implements TimestampRowKey {
 
     public static byte[] makeRowKey(int saltKeySize, int serviceUid, String applicationName, int serviceType, long timestamp) {
         final Buffer buffer = new AutomaticBuffer(saltKeySize +
-                                                  PinpointConstants.UID_SERVICE_NAME_LEN +
+                                                  PinpointConstants.APPLICATION_NAME_MAX_LEN_V3 +
                                                   BytesUtils.INT_BYTE_LENGTH +
                                                   BytesUtils.INT_BYTE_LENGTH +
                                                   BytesUtils.LONG_BYTE_LENGTH);
         buffer.setOffset(saltKeySize);
-        buffer.putPadString(applicationName, PinpointConstants.UID_SERVICE_NAME_LEN);
+        buffer.putPadString(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN_V3);
         buffer.putInt(serviceType);
         buffer.putInt(serviceUid);
         long reverseTimeMillis = TimeUtils.reverseTimeMillis(timestamp);
@@ -97,8 +97,8 @@ public class UidLinkRowKey implements TimestampRowKey {
 
         int offset = saltKey;
 
-        String applicationName = BytesUtils.toStringAndRightTrim(bytes, offset, PinpointConstants.UID_SERVICE_NAME_LEN);
-        offset += PinpointConstants.UID_SERVICE_NAME_LEN;
+        String applicationName = BytesUtils.toStringAndRightTrim(bytes, offset, PinpointConstants.APPLICATION_NAME_MAX_LEN_V3);
+        offset += PinpointConstants.APPLICATION_NAME_MAX_LEN_V3;
 
         int applicationServiceType = BytesUtils.bytesToInt(bytes, offset);
         offset += BytesUtils.INT_BYTE_LENGTH;

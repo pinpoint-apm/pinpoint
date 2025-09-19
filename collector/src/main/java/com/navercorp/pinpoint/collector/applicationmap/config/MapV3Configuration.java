@@ -31,12 +31,15 @@ import com.navercorp.pinpoint.collector.applicationmap.dao.v3.InLinkFactoryV3;
 import com.navercorp.pinpoint.collector.applicationmap.dao.v3.OutLinkFactoryV3;
 import com.navercorp.pinpoint.collector.applicationmap.dao.v3.SelfNodeFactoryV3;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
+import com.navercorp.pinpoint.collector.applicationmap.statistics.config.BulkFactory;
+import com.navercorp.pinpoint.collector.applicationmap.statistics.config.BulkProperties;
 import com.navercorp.pinpoint.collector.dao.hbase.IgnoreStatFilter;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -56,6 +59,56 @@ public class MapV3Configuration {
 
     public MapV3Configuration() {
         logger.info("Install {}", MapV3Configuration.class.getName());
+    }
+
+    @Bean
+    public BulkWriter outLinkBulkWriter(BulkFactory factory,
+                                        BulkProperties bulkProperties,
+                                        @Qualifier("uidRowKeyDistributor")
+                                        RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+
+        int limitSize = bulkProperties.getCallerLimitSize();
+        String loggerName = newBulkWriterName(HbaseMapOutLinkDao.class.getName());
+
+        BulkFactory.Builder builder = factory.newBuilder(loggerName, rowKeyDistributorByHashPrefix);
+        builder.setIncrementer("outLinkIncrementReporter", limitSize);
+        builder.setMaxUpdater("outLinkUpdateReporter", limitSize);
+        return builder.build();
+    }
+
+    @Bean
+    public BulkWriter inLinkBulkWriter(BulkFactory factory,
+                                       BulkProperties bulkProperties,
+                                       @Qualifier("uidRowKeyDistributor")
+                                       RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+
+        int limitSize = bulkProperties.getCalleeLimitSize();
+        String loggerName = newBulkWriterName(HbaseMapInLinkDao.class.getName());
+
+        BulkFactory.Builder builder = factory.newBuilder(loggerName, rowKeyDistributorByHashPrefix);
+        builder.setIncrementer("inLinkIncrementReporter", limitSize);
+        builder.setMaxUpdater("inLinkUpdateReporter", limitSize);
+        return builder.build();
+    }
+
+
+    @Bean
+    public BulkWriter selfBulkWriter(BulkFactory factory,
+                                     BulkProperties bulkProperties,
+                                     @Qualifier("uidRowKeyDistributor")
+                                     RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+
+        int limitSize = bulkProperties.getSelfLimitSize();
+        String loggerName = newBulkWriterName(HbaseMapResponseTimeDao.class.getName());
+
+        BulkFactory.Builder builder = factory.newBuilder(loggerName, rowKeyDistributorByHashPrefix);
+        builder.setIncrementer("selfIncrementReporter", limitSize);
+        builder.setMaxUpdater("selfUpdateReporter", limitSize);
+        return builder.build();
+    }
+
+    private String newBulkWriterName(String className) {
+        return className + "-writer";
     }
 
 

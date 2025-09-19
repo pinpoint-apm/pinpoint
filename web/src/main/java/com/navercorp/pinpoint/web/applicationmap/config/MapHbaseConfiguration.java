@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.navercorp.pinpoint.web.applicationmap.config;
@@ -48,8 +47,8 @@ import java.util.concurrent.ExecutorService;
 
 @org.springframework.context.annotation.Configuration
 @Import({
-        MapMapperConfiguration.class,
-        MapV3MapperConfiguration.class
+        MapV3MapperConfiguration.class,
+        MapMapperConfiguration.class
 })
 public class MapHbaseConfiguration {
     private static final Logger logger = LogManager.getLogger(MapHbaseConfiguration.class);

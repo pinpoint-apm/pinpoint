@@ -103,7 +103,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         // TODO should consider to add bellow codes again later.
         //String parentAgentId = null;
         //final byte[] rowKey = createRowKey(parentApplicationName, parentServiceType, statisticsRowSlot, parentAgentId);
-        final byte[] rowKey = createRowKey(parentApplicationName, parentServiceType, statisticsRowSlot, null);
+        final byte[] rowKey = createRowKey(parentApplicationName, parentServiceType, statisticsRowSlot);
 
         byte[] columnName = createColumnName(host, selfVertex);
 
@@ -123,14 +123,14 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     }
 
 
-    private byte[] createRowKey(String parentApplicationName, short parentServiceType, long statisticsRowSlot, String parentAgentId) {
-        final byte[] rowKey = createRowKey0(hasher.getSaltKey().size(), parentApplicationName, parentServiceType, statisticsRowSlot, parentAgentId);
+    private byte[] createRowKey(String parentApplicationName, short parentServiceType, long statisticsRowSlot) {
+        final byte[] rowKey = createRowKey0(hasher.getSaltKey().size(), parentApplicationName, parentServiceType, statisticsRowSlot);
         return hasher.writeSaltKey(rowKey);
     }
 
 
     @VisibleForTesting
-    static byte[] createRowKey0(int saltKeySize, String parentApplicationName, short parentServiceType, long statisticsRowSlot, String parentAgentId) {
+    static byte[] createRowKey0(int saltKeySize, String parentApplicationName, short parentServiceType, long statisticsRowSlot) {
 
         // even if  a agentId be added for additional specifications, it may be safe to scan rows.
         // But is it needed to add parentAgentServiceType?
