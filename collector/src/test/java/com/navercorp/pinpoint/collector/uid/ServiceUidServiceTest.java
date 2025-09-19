@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.collector.uid;
 
 import com.navercorp.pinpoint.collector.uid.config.ServiceUidMysqlCacheConfig;
 import com.navercorp.pinpoint.collector.uid.service.ServiceUidService;
+import com.navercorp.pinpoint.collector.uid.service.ServiceUidServiceImpl;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.uid.cache.CaffeineCacheProperties;
 import com.navercorp.pinpoint.service.component.StaticServiceRegistry;
@@ -41,7 +42,7 @@ public class ServiceUidServiceTest {
     @Test
     public void staticServiceTest() {
         String defaultServiceName = ServiceUid.DEFAULT_SERVICE_UID_NAME;
-        ServiceUidService serviceUidService = new ServiceUidService(staticServiceRegistry, mockServiceInfoService, new NoOpCacheManager());
+        ServiceUidService serviceUidService = new ServiceUidServiceImpl(staticServiceRegistry, mockServiceInfoService, new NoOpCacheManager());
 
         Assertions.assertThat(serviceUidService.getServiceUid(defaultServiceName)).isEqualTo(ServiceUid.DEFAULT);
     }
@@ -51,7 +52,7 @@ public class ServiceUidServiceTest {
         String serviceName = "serviceName";
         CacheManager cacheManager = cacheConfig.serviceUidCache(properties, Duration.of(1, ChronoUnit.MINUTES));
         Cache cache = getServiceUidCache(cacheManager);
-        ServiceUidService serviceUidService = new ServiceUidService(staticServiceRegistry, mockServiceInfoService, cacheManager);
+        ServiceUidService serviceUidService = new ServiceUidServiceImpl(staticServiceRegistry, mockServiceInfoService, cacheManager);
 
         Mockito.when(mockServiceInfoService.getServiceUid(serviceName)).thenReturn(ServiceUid.of(100001));
         ServiceUid first = serviceUidService.getServiceUid(serviceName);
@@ -66,7 +67,7 @@ public class ServiceUidServiceTest {
         String serviceName = "cacheValueLoaderTest";
         CacheManager cacheManager = cacheConfig.serviceUidCache(properties, Duration.of(1, ChronoUnit.MINUTES));
         Cache cache = getServiceUidCache(cacheManager);
-        ServiceUidService serviceUidService = new ServiceUidService(staticServiceRegistry, mockServiceInfoService, cacheManager);
+        ServiceUidService serviceUidService = new ServiceUidServiceImpl(staticServiceRegistry, mockServiceInfoService, cacheManager);
 
         Mockito.when(mockServiceInfoService.getServiceUid(serviceName)).thenAnswer(new AnswersWithDelay(100L, new Returns(ServiceUid.of(100002))));
         CompletableFuture<ServiceUid> future1 = CompletableFuture.supplyAsync(() -> serviceUidService.getServiceUid(serviceName));
@@ -82,7 +83,7 @@ public class ServiceUidServiceTest {
         String unRegisteredServiceName = "unRegisteredServiceName";
         CacheManager cacheManager = cacheConfig.serviceUidCache(properties, Duration.of(1, ChronoUnit.MINUTES));
         Cache cache = getServiceUidCache(cacheManager);
-        ServiceUidService serviceUidService = new ServiceUidService(staticServiceRegistry, mockServiceInfoService, cacheManager);
+        ServiceUidService serviceUidService = new ServiceUidServiceImpl(staticServiceRegistry, mockServiceInfoService, cacheManager);
 
         Mockito.when(mockServiceInfoService.getServiceUid(unRegisteredServiceName)).thenReturn(null);
         serviceUidService.getServiceUid(unRegisteredServiceName);
@@ -97,7 +98,7 @@ public class ServiceUidServiceTest {
         String serviceName = "registeredServiceName";
         String unRegisteredServiceName = "unRegisteredServiceName";
         CacheManager cacheManager = cacheConfig.serviceUidCache(properties, Duration.ZERO);
-        ServiceUidService serviceUidService = new ServiceUidService(staticServiceRegistry, mockServiceInfoService, cacheManager);
+        ServiceUidService serviceUidService = new ServiceUidServiceImpl(staticServiceRegistry, mockServiceInfoService, cacheManager);
 
         Mockito.when(mockServiceInfoService.getServiceUid(serviceName)).thenReturn(ServiceUid.of(100004));
         Mockito.when(mockServiceInfoService.getServiceUid(unRegisteredServiceName)).thenReturn(null);

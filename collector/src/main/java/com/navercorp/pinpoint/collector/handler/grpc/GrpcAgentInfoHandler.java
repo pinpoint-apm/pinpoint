@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.collector.handler.grpc;
 
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.mapper.grpc.GrpcAgentInfoBoMapper;
-import com.navercorp.pinpoint.collector.service.AgentIdUidService;
 import com.navercorp.pinpoint.collector.service.AgentInfoService;
 import com.navercorp.pinpoint.collector.service.AgentInfoStatisticsService;
+import com.navercorp.pinpoint.collector.service.ApplicationIndexV2Service;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
@@ -44,18 +44,19 @@ public class GrpcAgentInfoHandler implements RequestResponseHandler<PAgentInfo, 
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final AgentInfoService agentInfoService;
-    private final AgentIdUidService agentIdUidService;
+    private final ApplicationIndexV2Service applicationIndexV2Service;
     private final AgentInfoStatisticsService agentInfoStatisticsService;
 
     private final GrpcAgentInfoBoMapper agentInfoBoMapper;
 
     public GrpcAgentInfoHandler(
             AgentInfoService agentInfoService,
-            AgentIdUidService agentIdUidService, AgentInfoStatisticsService agentInfoStatisticsService,
+            ApplicationIndexV2Service applicationIndexV2Service,
+            AgentInfoStatisticsService agentInfoStatisticsService,
             GrpcAgentInfoBoMapper agentInfoBoMapper
     ) {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
-        this.agentIdUidService = Objects.requireNonNull(agentIdUidService, "agentIdUidService");
+        this.applicationIndexV2Service = Objects.requireNonNull(applicationIndexV2Service, "applicationIndexV2Service");
         this.agentInfoStatisticsService = Objects.requireNonNull(agentInfoStatisticsService, "agentInfoStatisticsService");
         this.agentInfoBoMapper = Objects.requireNonNull(agentInfoBoMapper, "agentInfoBoMapper");
     }
@@ -79,7 +80,7 @@ public class GrpcAgentInfoHandler implements RequestResponseHandler<PAgentInfo, 
             // agent info
             final AgentInfoBo agentInfoBo = this.agentInfoBoMapper.map(agentInfo, header);
             this.agentInfoService.insert(agentInfoBo);
-            this.agentIdUidService.insert(header.getServiceUid(), header.getApplicationUid(), agentInfoBo);
+            this.applicationIndexV2Service.insert(header.getServiceUid(), agentInfoBo);
             this.agentInfoStatisticsService.insert(header.getServiceUid(), header.getApplicationUid(), agentInfoBo);
             return PResults.SUCCESS;
         } catch (Exception e) {

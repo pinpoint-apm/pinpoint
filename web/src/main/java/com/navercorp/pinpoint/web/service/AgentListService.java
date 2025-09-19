@@ -9,11 +9,9 @@ public interface AgentListService {
 
     List<AgentAndStatus> getApplicationAgentList(String serviceName, String applicationName);
 
-    List<AgentAndStatus> getApplicationAgentList(String serviceName, String applicationName, Range range);
-
     List<AgentAndStatus> getApplicationAgentList(String serviceName, String applicationName, int serviceTypeCode);
 
-    List<AgentAndStatus> getApplicationAgentList(String serviceName, String applicationName, int serviceTypeCode, Range range);
+    List<AgentAndStatus> getApplicationAgentList(String serviceName, String applicationName, Range range);
 
-    int cleanupInactiveAgent(String serviceName, String applicationName, int serviceTypeCode, Range range);
+    List<AgentAndStatus> getApplicationAgentList(String serviceName, String applicationName, int serviceTypeCode, Range range);
 }

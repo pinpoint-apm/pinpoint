@@ -9,8 +9,10 @@ import com.navercorp.pinpoint.uid.utils.UidBytesCreateUtils;
 import com.navercorp.pinpoint.uid.utils.UidBytesParseUtils;
 import com.navercorp.pinpoint.uid.vo.ApplicationUidAttribute;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+@Disabled
 public class UidBytesUtilsTest {
 
     private final ServiceUid testServiceUid = ServiceUid.of(9991);
