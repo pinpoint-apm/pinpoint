@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.config;
 
 
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
@@ -71,11 +72,12 @@ import java.util.Set;
 @ConditionalOnProperty(name = "pinpoint.modules.uid.version", havingValue = "v3")
 public class MapV3MapperConfiguration {
 
-    public static final int UID_START_KEY_RANGE = 262;
-
+    public static final int UID_START_KEY_RANGE = PinpointConstants.UID_SERVICE_NAME_LEN + 8;
+    public static final int SECONDARY_BUCKET_SIZE = 4;
     @Bean
     public RowKeyDistributorByHashPrefix uidRowKeyDistributor() {
-        ByteHasher hasher = RangeDoubleHash.ofSecondary(0, UID_START_KEY_RANGE, ByteHasher.MAX_BUCKETS, 4, UID_START_KEY_RANGE, UID_START_KEY_RANGE + 8);
+        ByteHasher hasher = RangeDoubleHash.ofSecondary(0, UID_START_KEY_RANGE, ByteHasher.MAX_BUCKETS,
+                SECONDARY_BUCKET_SIZE, UID_START_KEY_RANGE, UID_START_KEY_RANGE + 8);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 

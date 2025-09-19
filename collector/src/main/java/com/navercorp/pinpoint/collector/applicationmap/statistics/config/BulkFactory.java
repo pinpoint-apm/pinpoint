@@ -34,14 +34,17 @@ import java.util.Objects;
  */
 public class BulkFactory {
 
-    private final BulkProperties bulkProperties;
+    private final boolean bulkWriter;
+    private final HbaseAsyncTemplate asyncTemplate;
     private final BulkIncrementerFactory bulkIncrementerFactory;
     private final BulkOperationReporterFactory bulkOperationReporterFactory;
 
-    public BulkFactory(BulkProperties bulkProperties,
+    public BulkFactory(boolean bulkWriter,
+                       HbaseAsyncTemplate asyncTemplate,
                        BulkIncrementerFactory bulkIncrementerFactory,
                        BulkOperationReporterFactory bulkOperationReporterFactory) {
-        this.bulkProperties = Objects.requireNonNull(bulkProperties, "bulkConfiguration");
+        this.bulkWriter = bulkWriter;
+        this.asyncTemplate = Objects.requireNonNull(asyncTemplate, "asyncTemplate");
         this.bulkIncrementerFactory = Objects.requireNonNull(bulkIncrementerFactory, "bulkIncrementerFactory");
         this.bulkOperationReporterFactory = Objects.requireNonNull(bulkOperationReporterFactory, "bulkOperationReporterFactory");
     }
@@ -51,23 +54,21 @@ public class BulkFactory {
         BulkOperationReporter reporter = bulkOperationReporterFactory.getBulkOperationReporter(reporterName);
 
         BulkIncrementer bulkIncrementer = new DefaultBulkIncrementer();
-
         return bulkIncrementerFactory.wrap(bulkIncrementer, limitSize, reporter);
     }
 
 
-    public BulkUpdater getBulkUpdater(String reporterName) {
+    public BulkUpdater getBulkUpdater(String reporterName, int limitSize) {
         BulkOperationReporter reporter = bulkOperationReporterFactory.getBulkOperationReporter(reporterName);
         BulkUpdater bulkUpdater = new DefaultBulkUpdater();
-        return bulkIncrementerFactory.wrap(bulkUpdater, bulkProperties.getCalleeLimitSize(), reporter);
+        return bulkIncrementerFactory.wrap(bulkUpdater, limitSize, reporter);
     }
 
     public BulkWriter newBulkWriter(String loggerName,
-                                     HbaseAsyncTemplate asyncTemplate,
-                                     RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
-                                     BulkIncrementer bulkIncrementer,
-                                     BulkUpdater bulkUpdater) {
-        if (bulkProperties.enableBulk()) {
+                                    RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
+                                    BulkIncrementer bulkIncrementer,
+                                    BulkUpdater bulkUpdater) {
+        if (bulkWriter) {
             return new DefaultBulkWriter(loggerName, asyncTemplate, rowKeyDistributorByHashPrefix,
                     bulkIncrementer, bulkUpdater);
         } else {
@@ -75,4 +76,36 @@ public class BulkFactory {
         }
     }
 
+    public Builder newBuilder(String loggerName, RowKeyDistributorByHashPrefix distributor) {
+        return new Builder(this, loggerName, distributor);
+    }
+
+    public static class Builder {
+        private final String loggerName;
+        private final BulkFactory factory;
+        private final RowKeyDistributorByHashPrefix distributor;
+
+        private BulkIncrementer increment;
+        private BulkUpdater maxUpdater;
+
+        public Builder(BulkFactory factory,
+                       String loggerName,
+                       RowKeyDistributorByHashPrefix distributor) {
+            this.loggerName = Objects.requireNonNull(loggerName, "loggerName");
+            this.factory = Objects.requireNonNull(factory, "factory");
+            this.distributor = Objects.requireNonNull(distributor, "distributor");
+        }
+
+        public void setIncrementer(String reporterName, int limitSize) {
+            this.increment = factory.newBulkIncrementer(reporterName, limitSize);
+        }
+
+        public void setMaxUpdater(String reporterName, int limitSize) {
+            this.maxUpdater = factory.getBulkUpdater(reporterName, limitSize);
+        }
+
+        public BulkWriter build() {
+            return factory.newBulkWriter(loggerName, this.distributor, increment, maxUpdater);
+        }
+    }
 }
