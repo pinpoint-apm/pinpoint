@@ -1,6 +1,4 @@
-package com.navercorp.pinpoint.common.annotations.processor;
-
-import com.navercorp.pinpoint.common.annotations.InterceptorHolderBootstrap;
+package com.navercorp.pinpoint.bootstrap.interceptor.holder;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -14,7 +12,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Set;
 
-@SupportedAnnotationTypes("com.navercorp.pinpoint.common.annotations.InterceptorHolderBootstrap")
+@SupportedAnnotationTypes("com.navercorp.pinpoint.bootstrap.interceptor.holder.InterceptorHolderBootstrap")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class InterceptorHolderAnnotationProcessor extends AbstractProcessor {
 
@@ -32,6 +30,7 @@ public class InterceptorHolderAnnotationProcessor extends AbstractProcessor {
                 }
             }
         }
+
         if (count <= 0) {
             System.out.println("Not found @InterceptorHolderBootstrap or value is less than 1");
             return true;
