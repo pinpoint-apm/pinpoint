@@ -93,30 +93,6 @@ public class LinkView {
 
             ResponseTimeStatics responseTimeStatics = ResponseTimeStatics.fromHistogram(histogram);
             jgen.writeObjectField(ResponseTimeStatics.RESPONSE_STATISTICS, responseTimeStatics);
-
-
-            jgen.writeObjectField("histogram", histogram);
-            final MapViews activeView = linkView.getActiveView();
-            // time histogram
-            writeTimeSeriesHistogram(link, linkView.getFormat(), jgen);
-
-
-            //agent histogram
-            if (activeView.isDetailed()) {
-                // data showing how agents call each of their respective links
-                final List<AgentHistogram> sourceList = link.getSourceList().getAgentHistogramList();
-                writeAgentHistogram("sourceHistogram", sourceList, jgen);
-                writeAgentResponseStatistics("sourceResponseStatistics", sourceList, jgen);
-
-                final List<AgentHistogram> targetList = link.getTargetList().getAgentHistogramList();
-                writeAgentHistogram("targetHistogram", targetList, jgen);
-                writeAgentResponseStatistics("targetResponseStatistics", targetList, jgen);
-
-                writeSourceAgentTimeSeriesHistogram(linkView, jgen);
-            }
-
-//        String state = link.getLinkState();
-//        jgen.writeStringField("state", state); // for go.js
             jgen.writeBooleanField("hasAlert", link.getLinkAlert()); // for go.js
 
             jgen.writeEndObject();

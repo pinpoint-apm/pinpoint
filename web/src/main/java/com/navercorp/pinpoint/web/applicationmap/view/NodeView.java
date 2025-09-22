@@ -186,19 +186,6 @@ public class NodeView {
                 } else {
                     jgen.writeObjectField("histogram", applicationHistogram);
                 }
-
-
-                // agent histogram
-                if (activeView.isDetailed()) {
-                    Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
-                    if (agentHistogramMap == null) {
-                        JacksonWriterUtils.writeEmptyObject(jgen, "agentHistogram");
-                        JacksonWriterUtils.writeEmptyObject(jgen, ResponseTimeStatics.AGENT_RESPONSE_STATISTICS);
-                    } else {
-                        jgen.writeObjectField("agentHistogram", agentHistogramMap);
-                        jgen.writeObjectField(ResponseTimeStatics.AGENT_RESPONSE_STATISTICS, nodeHistogram.getAgentResponseStatisticsMap());
-                    }
-                }
             } else {
                 jgen.writeBooleanField("hasAlert", false);  // for go.js
             }
