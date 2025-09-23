@@ -1,5 +1,5 @@
 import React from 'react';
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { ChartsBoard, ChartsBoardProps } from '..';
 import { END_POINTS, GetResponseTimeHistogram, GetServerMap } from '@pinpoint-fe/ui/src/constants';
@@ -71,12 +71,10 @@ export const ServerChartsBoardFetcher = ({
     return '';
   }, [queryParams]);
 
-  const { data } = useSuspenseQuery<GetResponseTimeHistogram.Response | null>({
+  const { data } = useQuery<GetResponseTimeHistogram.Response | null>({
     queryKey: [END_POINTS.HISTOGRAM_STATISTICS, queryParams],
-    queryFn:
-      !!getQueryString() && !disableFetch
-        ? queryFn(`${END_POINTS.HISTOGRAM_STATISTICS}${getQueryString()}`)
-        : () => null,
+    queryFn: queryFn(`${END_POINTS.HISTOGRAM_STATISTICS}${getQueryString()}`),
+    enabled: !!getQueryString() && !disableFetch,
   });
 
   React.useEffect(() => {

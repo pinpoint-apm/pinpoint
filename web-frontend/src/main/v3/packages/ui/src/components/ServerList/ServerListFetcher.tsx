@@ -1,5 +1,5 @@
 import React from 'react';
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
   serverMapCurrentTargetDataAtom,
@@ -22,7 +22,7 @@ import {
 } from '@pinpoint-fe/ui/src/utils';
 import { useSearchParameters, useServerMapLinkedData } from '@pinpoint-fe/ui/src/hooks';
 import { queryFn } from '@pinpoint-fe/ui/src/hooks/api/reactQueryHelper';
-import { ServerList as SL, ServerListProps, Button } from '@pinpoint-fe/ui';
+import { ServerList as SL, ServerListProps, Button, ServerListSkeleton } from '@pinpoint-fe/ui';
 import { upperCase } from 'lodash';
 
 export interface ServerListFetcherProps extends ServerListProps {
@@ -61,7 +61,8 @@ export const ServerListFetcher = ({ nodeStatistics, disableFetch }: ServerListFe
     to: getParsedDate(searchParameters.to).getTime(),
     applicationPairs: JSON.stringify(applicationPairs),
   };
-  const getQueryString = React.useCallback(() => {
+
+  const queryString = React.useMemo(() => {
     if (
       queryParams.from &&
       queryParams.to &&
@@ -72,15 +73,13 @@ export const ServerListFetcher = ({ nodeStatistics, disableFetch }: ServerListFe
     ) {
       return '?' + convertParamsToQueryString(queryParams);
     }
-
     return '';
   }, [queryParams]);
-  const { data } = useSuspenseQuery<SearchApplication.Response | null>({
-    queryKey: [END_POINTS.SEARCH_APPLICATION, queryParams],
-    queryFn:
-      !!getQueryString() && !disableFetch
-        ? queryFn(`${END_POINTS.SEARCH_APPLICATION}${getQueryString()}`)
-        : () => null,
+
+  const { data, isLoading } = useQuery<SearchApplication.Response | null>({
+    queryKey: [END_POINTS.SEARCH_APPLICATION, queryString],
+    queryFn: queryFn(`${END_POINTS.SEARCH_APPLICATION}${queryString}`),
+    enabled: !!queryString && !disableFetch,
   });
 
   React.useEffect(() => {
@@ -144,6 +143,14 @@ export const ServerListFetcher = ({ nodeStatistics, disableFetch }: ServerListFe
       </>
     );
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex h-full">
+        <ServerListSkeleton className="h-full border-t border-r" />
+      </div>
+    );
+  }
 
   return (
     <SL
