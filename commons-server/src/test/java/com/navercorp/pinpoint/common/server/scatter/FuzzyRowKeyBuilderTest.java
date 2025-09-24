@@ -1,6 +1,9 @@
 package com.navercorp.pinpoint.common.server.scatter;
 
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.agent.TraceIndexRowUtils;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.logging.log4j.LogManager;
@@ -25,9 +28,26 @@ public class FuzzyRowKeyBuilderTest {
         FuzzyRowKeyBuilder filterBuilder = new FuzzyRowKeyBuilder();
         Filter filter = filterBuilder.build(high, low);
 
-        byte[] rowKey = newRowKeyV2(slotNumber);
+        byte[] rowKey = newRowKeyV1(slotNumber);
         KeyValue keyValue = new KeyValue(rowKey, 1L);
         Filter.ReturnCode returnCode = filter.filterCell(keyValue);
+        Assertions.assertEquals(Filter.ReturnCode.INCLUDE, returnCode);
+    }
+
+    @Test
+    public void build_includeV2() throws IOException {
+        Jdk17Utils.assumeFalse();
+
+        final long high = 100;
+        final long low = 0;
+        Byte slotNumber = fuzzyRowKeyFactory.getKey(high);
+
+        FuzzyRowKeyBuilder filterBuilder = new FuzzyRowKeyBuilder();
+        Filter filterV2 = filterBuilder.buildV2(high, low);
+
+        byte[] rowKey = newRowKeyV2(slotNumber);
+        KeyValue keyValue = new KeyValue(rowKey, 1L);
+        Filter.ReturnCode returnCode = filterV2.filterCell(keyValue);
         Assertions.assertEquals(Filter.ReturnCode.INCLUDE, returnCode);
     }
 
@@ -39,6 +59,21 @@ public class FuzzyRowKeyBuilderTest {
 
         FuzzyRowKeyBuilder builder = new FuzzyRowKeyBuilder();
         Filter build = builder.build(high, low);
+
+        byte[] rowKey = newRowKeyV1(slotNumber);
+        KeyValue keyValue = new KeyValue(rowKey, 1L);
+        Filter.ReturnCode returnCode = build.filterCell(keyValue);
+        Assertions.assertEquals(Filter.ReturnCode.SEEK_NEXT_USING_HINT, returnCode);
+    }
+
+    @Test
+    public void build_skipV2() throws IOException {
+        final long high = 100;
+        final long low = 0;
+        Byte slotNumber = fuzzyRowKeyFactory.getKey(high + 1);
+
+        FuzzyRowKeyBuilder builder = new FuzzyRowKeyBuilder();
+        Filter build = builder.buildV2(high, low);
 
         byte[] rowKey = newRowKeyV2(slotNumber);
         KeyValue keyValue = new KeyValue(rowKey, 1L);
@@ -59,6 +94,25 @@ public class FuzzyRowKeyBuilderTest {
         FuzzyRowKeyBuilder filterBuilder = new FuzzyRowKeyBuilder();
         Filter filter = filterBuilder.build(high, low);
 
+        byte[] rowKey = newRowKeyV1(slotNumber);
+        KeyValue keyValue = new KeyValue(rowKey, 1L);
+        Filter.ReturnCode returnCode = filter.filterCell(keyValue);
+        Assertions.assertEquals(Filter.ReturnCode.INCLUDE, returnCode);
+    }
+
+    @Test
+    public void build_include_rangeV2() throws IOException {
+        Jdk17Utils.assumeFalse();
+
+//               0    1,    2,  3,   4,    5,    6,     7,     8,    9,      10,     11,    12
+//        slot=[100, 200, 400, 800, 1600, 3200, 6400, 12800, 25600, 51200, 102400, 204800, 409600]
+        final long high = 400;
+        final long low = 0;
+        Byte slotNumber = fuzzyRowKeyFactory.getKey(300);
+
+        FuzzyRowKeyBuilder filterBuilder = new FuzzyRowKeyBuilder();
+        Filter filter = filterBuilder.buildV2(high, low);
+
         byte[] rowKey = newRowKeyV2(slotNumber);
         KeyValue keyValue = new KeyValue(rowKey, 1L);
         Filter.ReturnCode returnCode = filter.filterCell(keyValue);
@@ -73,6 +127,21 @@ public class FuzzyRowKeyBuilderTest {
 
         FuzzyRowKeyBuilder builder = new FuzzyRowKeyBuilder();
         Filter build = builder.build(high, low);
+
+        byte[] rowKey = newRowKeyV1(slotNumber);
+        KeyValue keyValue = new KeyValue(rowKey, 1L);
+        Filter.ReturnCode returnCode = build.filterCell(keyValue);
+        Assertions.assertEquals(Filter.ReturnCode.SEEK_NEXT_USING_HINT, returnCode);
+    }
+
+    @Test
+    public void build_skip_highV2() throws IOException {
+        final long high = 400;
+        final long low = 200;
+        Byte slotNumber = fuzzyRowKeyFactory.getKey(800);
+
+        FuzzyRowKeyBuilder builder = new FuzzyRowKeyBuilder();
+        Filter build = builder.buildV2(high, low);
 
         byte[] rowKey = newRowKeyV2(slotNumber);
         KeyValue keyValue = new KeyValue(rowKey, 1L);
@@ -89,6 +158,21 @@ public class FuzzyRowKeyBuilderTest {
         FuzzyRowKeyBuilder builder = new FuzzyRowKeyBuilder();
         Filter build = builder.build(high, low);
 
+        byte[] rowKey = newRowKeyV1(slotNumber);
+        KeyValue keyValue = new KeyValue(rowKey, 1L);
+        Filter.ReturnCode returnCode = build.filterCell(keyValue);
+        Assertions.assertEquals(Filter.ReturnCode.SEEK_NEXT_USING_HINT, returnCode);
+    }
+
+    @Test
+    public void build_skip_lowV2() throws IOException {
+        final long high = 400;
+        final long low = 200;
+        Byte slotNumber = fuzzyRowKeyFactory.getKey(10);
+
+        FuzzyRowKeyBuilder builder = new FuzzyRowKeyBuilder();
+        Filter build = builder.buildV2(high, low);
+
         byte[] rowKey = newRowKeyV2(slotNumber);
         KeyValue keyValue = new KeyValue(rowKey, 1L);
         Filter.ReturnCode returnCode = build.filterCell(keyValue);
@@ -104,6 +188,21 @@ public class FuzzyRowKeyBuilderTest {
         FuzzyRowKeyBuilder builder = new FuzzyRowKeyBuilder();
         Filter build = builder.build(high, low);
 
+        byte[] rowKey = newRowKeyV1(slotNumber);
+        KeyValue keyValue = new KeyValue(rowKey, 1L);
+        Filter.ReturnCode returnCode = build.filterCell(keyValue);
+        Assertions.assertEquals(Filter.ReturnCode.SEEK_NEXT_USING_HINT, returnCode);
+    }
+
+    @Test
+    public void build_skip_low2V2() throws IOException {
+        final long high = 400;
+        final long low = 200;
+        Byte slotNumber = fuzzyRowKeyFactory.getKey(409600 + 1);
+
+        FuzzyRowKeyBuilder builder = new FuzzyRowKeyBuilder();
+        Filter build = builder.buildV2(high, low);
+
         byte[] rowKey = newRowKeyV2(slotNumber);
         KeyValue keyValue = new KeyValue(rowKey, 1L);
         Filter.ReturnCode returnCode = build.filterCell(keyValue);
@@ -111,9 +210,19 @@ public class FuzzyRowKeyBuilderTest {
     }
 
 
-    private byte[] newRowKeyV2(byte fuzzyKey) {
+    private byte[] newRowKeyV1(byte fuzzyKey) {
         ApplicationNameRowKeyEncoder encoder = new ApplicationNameRowKeyEncoder();
         final byte[] apps = encoder.encodeRowKey("app", 100);
+        // salt + fuzzy
+        int etcSize = 2;
+        final byte[] copy = new byte[apps.length + etcSize];
+        System.arraycopy(apps, 0, copy, 0, apps.length);
+        copy[copy.length - 1] = fuzzyKey;
+        return copy;
+    }
+
+    private byte[] newRowKeyV2(byte fuzzyKey) {
+        final byte[] apps = TraceIndexRowUtils.encodeRowKey(ServiceUid.DEFAULT_SERVICE_UID_CODE, "app", ServiceType.TEST.getCode(), 100);
         // salt + fuzzy
         int etcSize = 2;
         final byte[] copy = new byte[apps.length + etcSize];

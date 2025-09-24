@@ -20,6 +20,7 @@ package com.navercorp.pinpoint.web.applicationmap.service;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
+import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexV2Dao;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,9 +34,11 @@ public class TraceIndexServiceImpl implements TraceIndexService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ApplicationTraceIndexDao applicationTraceIndexDao;
+    private final ApplicationTraceIndexV2Dao applicationTraceIndexV2Dao;
 
-    public TraceIndexServiceImpl(ApplicationTraceIndexDao applicationTraceIndexDao) {
+    public TraceIndexServiceImpl(ApplicationTraceIndexDao applicationTraceIndexDao, ApplicationTraceIndexV2Dao applicationTraceIndexV2Dao) {
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
+        this.applicationTraceIndexV2Dao = Objects.requireNonNull(applicationTraceIndexV2Dao, "applicationTraceIndexV2Dao");
     }
 
     @Override
@@ -53,6 +56,23 @@ public class TraceIndexServiceImpl implements TraceIndexService {
         }
 
         return this.applicationTraceIndexDao.scanTraceIndex(applicationName, range, limit, backwardDirection);
+    }
+
+    @Override
+    public LimitedScanResult<List<TransactionId>> getTraceIndexV2(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit) {
+        return getTraceIndexV2(serviceUid, applicationName, serviceTypeCode, range, limit, true);
+    }
+
+    @Override
+    public LimitedScanResult<List<TransactionId>> getTraceIndexV2(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit, boolean backwardDirection) {
+        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(range, "range");
+
+        if (logger.isTraceEnabled()) {
+            logger.trace("scan(selectTraceIdsFromApplicationTraceIndexV2) {}, {}", applicationName, range);
+        }
+
+        return this.applicationTraceIndexV2Dao.scanTraceIndex(serviceUid, applicationName, serviceTypeCode, range, limit, backwardDirection);
     }
 
 }

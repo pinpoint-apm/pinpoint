@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.authorization.controller;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdComparator;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
@@ -104,10 +105,10 @@ public class ScatterChartController {
 
     /**
      * @param applicationName applicationName
-     * @param from from
-     * @param to to
-     * @param limitParam max number of data return. if the requested data exceed this limit, we need
-     *                   additional calls to fetch the rest of the data
+     * @param from            from
+     * @param to              to
+     * @param limitParam      max number of data return. if the requested data exceed this limit, we need
+     *                        additional calls to fetch the rest of the data
      * @return ScatterView.ResultView
      */
     @GetMapping(value = "/getScatterData")
@@ -119,7 +120,7 @@ public class ScatterChartController {
             @RequestParam("yGroupUnit") @Positive int yGroupUnit,
             @RequestParam("limit") int limitParam,
             @RequestParam(value = "backwardDirection", required = false, defaultValue = "true")
-            boolean backwardDirection,
+                    boolean backwardDirection,
             @RequestParam(value = "filter", required = false) String filterText
     ) {
         final int limit = LimitUtils.checkRange(limitParam);
@@ -206,4 +207,100 @@ public class ScatterChartController {
         return new ScatterView.DotView(scatterData, requestComplete);
     }
 
+    @GetMapping(value = "/getScatterDataV2")
+    public ScatterView.ResultView getScatterDataV2(
+            @RequestParam("application") @NotBlank String applicationName,
+            @RequestParam("serviceTypeCode") @PositiveOrZero int serviceTypeCode,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to,
+            @RequestParam("xGroupUnit") @Positive int xGroupUnit,
+            @RequestParam("yGroupUnit") @Positive int yGroupUnit,
+            @RequestParam("limit") int limitParam,
+            @RequestParam(value = "backwardDirection", required = false, defaultValue = "true")
+                    boolean backwardDirection,
+            @RequestParam(value = "filter", required = false) String filterText
+    ) {
+        final int limit = LimitUtils.checkRange(limitParam);
+
+        // TODO: range check verification exception occurs. "from" is bigger than "to"
+        final Range range = Range.unchecked(from, to);
+        logger.debug(
+                "fetch scatter data. RANGE: {}, X-Group-Unit: {}, Y-Group-Unit: {}, LIMIT: {}, " +
+                        "BACKWARD_DIRECTION: {}, FILTER: {}",
+                range, xGroupUnit, yGroupUnit, limit, backwardDirection, filterText
+        );
+
+        ScatterView.DotView dotView = getDotView(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode, xGroupUnit, yGroupUnit, backwardDirection, filterText, range, limit);
+        return wrapScatterResultView(range, dotView);
+    }
+
+    private ScatterView.@NotNull DotView getDotView(int serviceUid, String applicationName, int serviceTypeCode, int xGroupUnit, int yGroupUnit, boolean backwardDirection, String filterText, Range range, int limit) {
+        if (StringUtils.isEmpty(filterText)) {
+            return selectScatterDataV2(
+                    serviceUid, applicationName, serviceTypeCode, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection);
+        } else {
+            return selectFilterScatterDataV2(
+                    serviceUid, applicationName, serviceTypeCode, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection, filterText);
+        }
+    }
+
+    private ScatterView.DotView selectScatterDataV2(
+            int serviceUid,
+            String applicationName,
+            int serviceTypeCode,
+            Range range,
+            int xGroupUnit,
+            int yGroupUnit,
+            int limit,
+            boolean backwardDirection
+    ) {
+        final ScatterData scatterData =
+                scatter.selectScatterDataV2(serviceUid, applicationName, serviceTypeCode, range, xGroupUnit, yGroupUnit, limit, backwardDirection);
+        final boolean requestComplete = scatterData.getDotSize() < limit;
+
+        return new ScatterView.DotView(scatterData, requestComplete);
+    }
+
+
+    private ScatterView.DotView selectFilterScatterDataV2(
+            int serviceUid,
+            String applicationName,
+            int serviceTypeCode,
+            Range range,
+            int xGroupUnit,
+            int yGroupUnit,
+            int limit,
+            boolean backwardDirection,
+            String filterText
+    ) {
+        final LimitedScanResult<List<TransactionId>> limitedScanResult =
+                flow.getTraceIndexV2(serviceUid, applicationName, serviceTypeCode, range, limit, backwardDirection);
+
+        final List<TransactionId> transactionIdList = limitedScanResult.scanData();
+        if (logger.isTraceEnabled()) {
+            logger.trace("submitted transactionId count={}", transactionIdList.size());
+        }
+
+        final boolean requestComplete = transactionIdList.size() < limit;
+
+        transactionIdList.sort(TransactionIdComparator.INSTANCE);
+        final Filter<List<SpanBo>> filter = filterBuilder.build(filterText);
+
+        final ScatterData scatterData =
+                scatter.selectScatterDataV2(transactionIdList, applicationName, serviceTypeCode, range, xGroupUnit, yGroupUnit, filter);
+        if (logger.isDebugEnabled()) {
+            logger.debug(
+                    "getScatterData range scan(limited: {}, backwardDirection: {}) from ~ to: {} ~ {}, limited: {}, " +
+                            "filterDataSize: {}",
+                    limit,
+                    backwardDirection,
+                    DateTimeFormatUtils.format(range.getFrom()),
+                    DateTimeFormatUtils.format(range.getTo()),
+                    DateTimeFormatUtils.format(limitedScanResult.limitedTime()),
+                    transactionIdList.size()
+            );
+        }
+
+        return new ScatterView.DotView(scatterData, requestComplete);
+    }
 }

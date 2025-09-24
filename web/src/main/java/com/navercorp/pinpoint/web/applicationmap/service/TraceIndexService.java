@@ -28,4 +28,7 @@ public interface TraceIndexService {
 
     LimitedScanResult<List<TransactionId>> getTraceIndex(String applicationName, Range range, int limit, boolean backwardDirection);
 
+    LimitedScanResult<List<TransactionId>> getTraceIndexV2(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit);
+
+    LimitedScanResult<List<TransactionId>> getTraceIndexV2(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit, boolean backwardDirection);
 }

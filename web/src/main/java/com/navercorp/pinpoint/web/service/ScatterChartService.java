@@ -46,4 +46,7 @@ public interface ScatterChartService {
 
     ScatterData selectScatterData(List<TransactionId> transactionIdList, String applicationName, Range range, int xGroupUnit, int yGroupUnit, Filter<List<SpanBo>> filter);
 
+    ScatterData selectScatterDataV2(int serviceUid, String applicationName, int serviceTypeCode, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection);
+
+    ScatterData selectScatterDataV2(List<TransactionId> transactionIdList, String applicationName, int serviceTypeCode, Range range, int xGroupUnit, int yGroupUnit, Filter<List<SpanBo>> filter);
 }
