@@ -59,12 +59,6 @@ public class HbaseApplicationTraceIndexDaoTest {
     private HbaseOperations hbaseOperations;
 
     @Mock
-    private RowMapper<List<TransactionId>> traceIndexMapper;
-
-    @Mock
-    private RowMapper<List<Dot>> traceIndexScatterMapper;
-
-    @Mock
     private RowKeyDistributor traceIdRowKeyDistributor;
 
     @Spy
@@ -81,7 +75,7 @@ public class HbaseApplicationTraceIndexDaoTest {
         openMocks = MockitoAnnotations.openMocks(this);
         ScatterChartProperties scatterChartProperties = new ScatterChartProperties();
         ApplicationNameRowKeyEncoder applicationNameRowKeyEncoder = new ApplicationNameRowKeyEncoder();
-        this.applicationTraceIndexDao = new HbaseApplicationTraceIndexDao(scatterChartProperties, hbaseOperations, applicationNameRowKeyEncoder, tableNameProvider, traceIndexMapper, traceIndexScatterMapper, traceIdRowKeyDistributor);
+        this.applicationTraceIndexDao = new HbaseApplicationTraceIndexDao(scatterChartProperties, hbaseOperations, applicationNameRowKeyEncoder, tableNameProvider, traceIdRowKeyDistributor);
     }
 
     @Test
