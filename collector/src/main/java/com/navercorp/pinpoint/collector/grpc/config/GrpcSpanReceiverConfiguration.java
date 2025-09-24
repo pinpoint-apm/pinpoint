@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.collector.receiver.grpc.monitor.Monitor;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.SpanService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamCloseOnError;
+import com.navercorp.pinpoint.common.server.uid.ObjectNameVersion;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
@@ -130,8 +131,10 @@ public class GrpcSpanReceiverConfiguration {
 
     @Bean
     @Qualifier("spanInterceptor")
-    public ServerInterceptor spanInterceptorList() {
-        return ServerInterceptorFactory.headerReader("span");
+    public ServerInterceptor spanInterceptorList(ObjectNameVersion version) {
+        ServerInterceptorFactory serverInterceptorFactory = new ServerInterceptorFactory("span");
+        serverInterceptorFactory.applyVersion(version);
+        return serverInterceptorFactory.build();
     }
 
 }

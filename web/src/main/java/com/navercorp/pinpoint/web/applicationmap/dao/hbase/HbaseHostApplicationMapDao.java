@@ -16,18 +16,15 @@
 
 package com.navercorp.pinpoint.web.applicationmap.dao.hbase;
 
-import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
-import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
-import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.applicationmap.dao.HostApplicationMapDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.mapper.HostScanKeyFactory;
 import com.navercorp.pinpoint.web.applicationmap.map.AcceptApplication;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.commons.collections4.CollectionUtils;
@@ -62,6 +59,8 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     private final TableNameProvider tableNameProvider;
 
+    private final HostScanKeyFactory hostScanKeyFactory;
+
     private final ResultsExtractor<Set<AcceptApplication>> hostApplicationResultExtractor;
 
     private final TimeSlot timeSlot;
@@ -71,12 +70,15 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     public HbaseHostApplicationMapDao(HbaseColumnFamily table,
                                       HbaseOperations hbaseOperations,
                                       TableNameProvider tableNameProvider,
+                                      HostScanKeyFactory hostScanKeyFactory,
                                       ResultsExtractor<Set<AcceptApplication>> hostApplicationResultExtractor,
                                       TimeSlot timeSlot,
                                       RowKeyDistributor acceptApplicationRowKeyDistributor) {
         this.table = Objects.requireNonNull(table, "table");
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
+        this.hostScanKeyFactory = Objects.requireNonNull(hostScanKeyFactory, "hostScanKeyFactory");
+
         this.hostApplicationResultExtractor = Objects.requireNonNull(hostApplicationResultExtractor, "hostApplicationResultExtractor");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
         this.acceptApplicationRowKeyDistributor = Objects.requireNonNull(acceptApplicationRowKeyDistributor, "acceptApplicationRowKeyDistributor");
@@ -99,8 +101,6 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     }
 
 
-
-
     private Scan createScan(Application parentApplication, Range range) {
         Objects.requireNonNull(parentApplication, "parentApplication");
 
@@ -109,11 +109,11 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         }
 
         // TODO need common logic for creating scanner
-        final long startTime = TimeUtils.reverseTimeMillis(timeSlot.getTimeSlot(range.getFrom()));
-        final long endTime = TimeUtils.reverseTimeMillis(timeSlot.getTimeSlot(range.getTo()) + 1);
+        final long startTime = timeSlot.getTimeSlot(range.getFrom());
+        final long endTime = timeSlot.getTimeSlot(range.getTo()) + 1;
         // start key is replaced by end key because timestamp has been reversed
-        final byte[] startKey = createKey(parentApplication, endTime);
-        final byte[] endKey = createKey(parentApplication, startTime);
+        final byte[] startKey = hostScanKeyFactory.scanKey(parentApplication, endTime);
+        final byte[] endKey = hostScanKeyFactory.scanKey(parentApplication, startTime);
 
         Scan scan = new Scan();
         scan.setCaching(this.scanCacheSize);
@@ -123,15 +123,5 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
         return scan;
     }
-
-    private byte[] createKey(Application parentApplication, long time) {
-        Buffer buffer = new AutomaticBuffer();
-        buffer.putPadString(parentApplication.getName(), HbaseTableConstants.APPLICATION_NAME_MAX_LEN);
-        buffer.putShort((short) parentApplication.getServiceTypeCode());
-        buffer.putLong(time);
-        return buffer.getBuffer();
-    }
-
-
 
 }

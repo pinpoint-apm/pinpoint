@@ -18,22 +18,13 @@ package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 
 import com.navercorp.pinpoint.collector.applicationmap.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.collector.util.AtomicLongUpdateMap;
-import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
-import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
-import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
-import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.util.Puts;
-import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
-import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.logging.log4j.LogManager;
@@ -50,7 +41,7 @@ import java.util.Objects;
 public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final HbaseColumnFamily table = HbaseTables.HOST_APPLICATION_MAP_VER2_MAP;
+    private final HbaseColumnFamily table;
 
     private final HbaseOperations hbaseTemplate;
 
@@ -58,27 +49,29 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     private final TimeSlot timeSlot;
 
-    private final ByteHasher hasher;
+    private final HostLinkFactory hostLinkFactory;
+
 
     // FIXME should modify to save a cachekey at each 30~50 seconds instead of saving at each time
     private final AtomicLongUpdateMap<CacheKey> updater = new AtomicLongUpdateMap<>();
 
 
     public HbaseHostApplicationMapDao(HbaseOperations hbaseTemplate,
+                                      HbaseColumnFamily table,
                                       TableNameProvider tableNameProvider,
-                                      RowKeyDistributor rowKeyDistributor,
+                                      HostLinkFactory hostLinkFactory,
                                       TimeSlot timeSlot) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
+        this.table = Objects.requireNonNull(table, "table");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
-        Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
-        this.hasher = rowKeyDistributor.getByteHasher();
+
+        this.hostLinkFactory = Objects.requireNonNull(hostLinkFactory, "hostLinkFactory");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
     }
 
 
     @Override
-    public void insert(long requestTime, String host, Vertex selfVertex,
-            String parentApplicationName, short parentServiceType) {
+    public void insert(long requestTime, String parentApplicationName, int parentServiceType, Vertex selfVertex, String host) {
         Objects.requireNonNull(host, "host");
         Objects.requireNonNull(selfVertex, "selfVertex");
         if (logger.isDebugEnabled()) {
@@ -87,14 +80,15 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
         final long statisticsRowSlot = timeSlot.getTimeSlot(requestTime);
 
-        final CacheKey cacheKey = new CacheKey(host, selfVertex.applicationName(), selfVertex.serviceType().getCode(), parentApplicationName, parentServiceType);
+        final CacheKey cacheKey = new CacheKey(selfVertex.applicationName(), selfVertex.serviceType().getCode(), selfVertex.serviceUid(), host,
+                parentApplicationName, parentServiceType, ServiceUid.DEFAULT_SERVICE_UID_CODE);
         final boolean needUpdate = updater.update(cacheKey, statisticsRowSlot);
         if (needUpdate) {
-            insertHostVer2(host, selfVertex, statisticsRowSlot, parentApplicationName, parentServiceType);
+            insertHostVer2(parentApplicationName, parentServiceType, selfVertex, host, statisticsRowSlot);
         }
     }
 
-    private void insertHostVer2(String host, Vertex selfVertex, long statisticsRowSlot, String parentApplicationName, short parentServiceType) {
+    private void insertHostVer2(String parentApplicationName, int parentServiceType, Vertex selfVertex, String host, long timestamp) {
         if (logger.isDebugEnabled()) {
             logger.debug("Insert HostApplicationMap Ver2 host={}, self={}, parent={}/{}",
                     host, selfVertex, parentApplicationName, parentServiceType);
@@ -102,10 +96,9 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
         // TODO should consider to add bellow codes again later.
         //String parentAgentId = null;
-        //final byte[] rowKey = createRowKey(parentApplicationName, parentServiceType, statisticsRowSlot, parentAgentId);
-        final byte[] rowKey = createRowKey(parentApplicationName, parentServiceType, statisticsRowSlot);
+        final byte[] rowKey = hostLinkFactory.rowkey(parentApplicationName, parentServiceType, ServiceUid.DEFAULT_SERVICE_UID_CODE, timestamp);
 
-        byte[] columnName = createColumnName(host, selfVertex);
+        byte[] columnName = hostLinkFactory.columnName(selfVertex, host);
 
         TableName hostApplicationMapTableName = tableNameProvider.getTableName(table.getTable());
 
@@ -114,84 +107,47 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     }
 
-    private byte[] createColumnName(String host, Vertex self) {
-        Buffer buffer = new AutomaticBuffer(64);
-        buffer.putPrefixedString(host);
-        buffer.putPrefixedString(self.applicationName());
-        buffer.putShort(self.serviceType().getCode());
-        return buffer.getBuffer();
-    }
-
-
-    private byte[] createRowKey(String parentApplicationName, short parentServiceType, long statisticsRowSlot) {
-        final byte[] rowKey = createRowKey0(hasher.getSaltKey().size(), parentApplicationName, parentServiceType, statisticsRowSlot);
-        return hasher.writeSaltKey(rowKey);
-    }
-
-
-    @VisibleForTesting
-    static byte[] createRowKey0(int saltKeySize, String parentApplicationName, short parentServiceType, long statisticsRowSlot) {
-
-        // even if  a agentId be added for additional specifications, it may be safe to scan rows.
-        // But is it needed to add parentAgentServiceType?
-        int offset = saltKeySize + HbaseTableConstants.APPLICATION_NAME_MAX_LEN;
-        final int SIZE = offset + BytesUtils.SHORT_BYTE_LENGTH + BytesUtils.LONG_BYTE_LENGTH;
-
-        byte[] rowKey = new byte[SIZE];
-
-        final byte[] parentAppNameBytes = BytesUtils.toBytes(parentApplicationName);
-        if (parentAppNameBytes.length > HbaseTableConstants.APPLICATION_NAME_MAX_LEN) {
-            throw new IllegalArgumentException("Parent application name length exceed " + parentApplicationName);
-        }
-        BytesUtils.writeBytes(rowKey, saltKeySize, parentAppNameBytes);
-        offset = ByteArrayUtils.writeShort(parentServiceType, rowKey, offset);
-        long timestamp = TimeUtils.reverseTimeMillis(statisticsRowSlot);
-        ByteArrayUtils.writeLong(timestamp, rowKey, offset);
-        return rowKey;
-    }
-
     private static final class CacheKey {
-        private final String host;
+
         private final String applicationName;
-        private final short serviceType;
+        private final int serviceType;
+        private final int serviceUid;
+        private final String host;
 
         private final String parentApplicationName;
-        private final short parentServiceType;
+        private final int parentServiceType;
+        private final int parentServiceUid;
 
-        public CacheKey(String host, String applicationName, short serviceType, String parentApplicationName, short parentServiceType) {
-            this.host = Objects.requireNonNull(host, "host");
+        public CacheKey(String applicationName, int serviceType, int serviceUid, String host,
+                        String parentApplicationName, int parentServiceType, int parentServiceUid) {
             this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
             this.serviceType = serviceType;
+            this.serviceUid = serviceUid;
+            this.host = Objects.requireNonNull(host, "host");
 
             // may be null for below two parent values.
             this.parentApplicationName = parentApplicationName;
             this.parentServiceType = parentServiceType;
+            this.parentServiceUid = parentServiceUid;
         }
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
             CacheKey cacheKey = (CacheKey) o;
-
-            if (parentServiceType != cacheKey.parentServiceType) return false;
-            if (serviceType != cacheKey.serviceType) return false;
-            if (!applicationName.equals(cacheKey.applicationName)) return false;
-            if (!host.equals(cacheKey.host)) return false;
-            if (parentApplicationName != null ? !parentApplicationName.equals(cacheKey.parentApplicationName) : cacheKey.parentApplicationName != null)
-                return false;
-
-            return true;
+            return serviceType == cacheKey.serviceType && serviceUid == cacheKey.serviceUid && parentServiceType == cacheKey.parentServiceType && parentServiceUid == cacheKey.parentServiceUid && applicationName.equals(cacheKey.applicationName) && host.equals(cacheKey.host) && Objects.equals(parentApplicationName, cacheKey.parentApplicationName);
         }
 
         @Override
         public int hashCode() {
-            int result = host.hashCode();
-            result = 31 * result + applicationName.hashCode();
-            result = 31 * result + (int) serviceType;
-            result = 31 * result + (parentApplicationName != null ? parentApplicationName.hashCode() : 0);
-            result = 31 * result + (int) parentServiceType;
+            int result = applicationName.hashCode();
+            result = 31 * result + serviceType;
+            result = 31 * result + serviceUid;
+            result = 31 * result + host.hashCode();
+            result = 31 * result + Objects.hashCode(parentApplicationName);
+            result = 31 * result + parentServiceType;
+            result = 31 * result + parentServiceUid;
             return result;
         }
     }

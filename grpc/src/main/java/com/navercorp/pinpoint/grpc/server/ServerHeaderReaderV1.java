@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.grpc.server;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.HeaderReader;
@@ -35,14 +36,24 @@ public class ServerHeaderReaderV1 implements HeaderReader<Header> {
 
     // for debug
     protected final String name;
+    private final int applicationNameMaxLength;
 
     private final Function<Metadata, Map<String, Object>> metadataConverter;
 
     private final HeaderExtractor headerExtractor = new HeaderExtractor();
 
+    public static HeaderReader<Header> v3(String name, Function<Metadata, Map<String, Object>> metadataConverter) {
+        return new ServerHeaderReaderV1(name, metadataConverter, PinpointConstants.APPLICATION_NAME_MAX_LEN_V3);
+    }
+
     public ServerHeaderReaderV1(String name, Function<Metadata, Map<String, Object>> metadataConverter) {
+        this(name, metadataConverter, PinpointConstants.AGENT_ID_MAX_LEN);
+    }
+
+    private ServerHeaderReaderV1(String name, Function<Metadata, Map<String, Object>> metadataConverter, int applicationNameMaxLength) {
         this.name = Objects.requireNonNull(name, "name");
         this.metadataConverter = Objects.requireNonNull(metadataConverter, "metadataConverter");
+        this.applicationNameMaxLength = applicationNameMaxLength;
     }
 
     @Override
@@ -53,7 +64,7 @@ public class ServerHeaderReaderV1 implements HeaderReader<Header> {
             agentName = agentId;
         }
 
-        final String applicationName = headerExtractor.getId(headers, Header.APPLICATION_NAME_KEY);
+        final String applicationName = headerExtractor.getName(headers, Header.APPLICATION_NAME_KEY, applicationNameMaxLength);
         final long startTime = headerExtractor.getTime(headers, Header.AGENT_START_TIME_KEY);
         final int serviceType = headerExtractor.getServiceType(headers);
         final long socketId = headerExtractor.getSocketId(headers);

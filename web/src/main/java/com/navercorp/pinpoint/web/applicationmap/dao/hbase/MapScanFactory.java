@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.web.applicationmap.dao.hbase;
 
 import com.google.common.primitives.Ints;
-import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.DefaultTimeSlot;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -38,23 +36,25 @@ public class MapScanFactory {
     private long slotSize = DefaultTimeSlot.ONE_MIN_RESOLUTION;
 
     private final RangeFactory rangeFactory;
+    private final MapScanKeyFactory mapScanKeyFactory;
 
-    public MapScanFactory(RangeFactory rangeFactory) {
+    public MapScanFactory(RangeFactory rangeFactory, MapScanKeyFactory mapScanKeyFactory) {
         this.rangeFactory = Objects.requireNonNull(rangeFactory, "rangeFactory");
+        this.mapScanKeyFactory = Objects.requireNonNull(mapScanKeyFactory, "mapScanKeyFactory");
     }
 
     public void setSlotSize(long slotSize) {
         this.slotSize = slotSize;
     }
 
-    public Scan createScan(String id, Application application, Range range, byte[] family) {
+    public Scan createScan(String id, int serviceUid, Application application, Range range, byte[] family) {
         range = rangeFactory.createStatisticsRange(range);
         if (logger.isDebugEnabled()) {
             logger.debug("scan time:{} ", range.prettyToString());
         }
         // start key is replaced by end key because timestamp has been reversed
-        byte[] startKey = rowKey(application, range.getTo());
-        byte[] endKey = rowKey(application, range.getFrom());
+        byte[] startKey = mapScanKeyFactory.scanKey(serviceUid, application, range.getTo());
+        byte[] endKey = mapScanKeyFactory.scanKey(serviceUid, application, range.getFrom());
 
         final Scan scan = new Scan();
 
@@ -68,9 +68,6 @@ public class MapScanFactory {
         return scan;
     }
 
-    protected byte[] rowKey(Application application, long range) {
-        return LinkRowKey.makeRowKey(ByteSaltKey.NONE.size(), application.getName(), (short) application.getServiceTypeCode(), range);
-    }
 
     private int computeScannerCaching(Range range) {
         int windowCount = (int)(range.durationMillis() / slotSize) + 1;

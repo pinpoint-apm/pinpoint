@@ -14,16 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.dao;
+package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 
-import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
+public interface HostRowKeyEncoder {
 
-/**
- * 
- * @author netspider
- * 
- */
-public interface HostApplicationMapDao {
-    void insert(long requestTime, String parentApplicationName, int parentServiceType, Vertex selfVertex, String host);
-
+    byte[] encodeRowKey(String parentApplicationName, int parentServiceType, int parentServiceUid, long timestamp);
 }

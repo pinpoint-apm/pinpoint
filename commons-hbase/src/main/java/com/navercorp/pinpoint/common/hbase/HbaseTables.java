@@ -72,11 +72,13 @@ public class HbaseTables {
 
     public static final HbaseColumnFamily HOST_APPLICATION_MAP_VER2_MAP = new HbaseColumnFamily(HbaseTableV2.HOST_APPLICATION_MAP_VER2, Bytes.toBytes("M"));
 
-    public static final HbaseColumnFamily MAP_STATISTICS_CALLEE_VER2_COUNTER = new HbaseColumnFamily(HbaseTableV2.MAP_STATISTICS_CALLEE_VER2, Bytes.toBytes("C"));
+    public static final byte[] MAP_V2_COLUMN_FAMILY_NAME = Bytes.toBytes("C");
 
-    public static final HbaseColumnFamily MAP_STATISTICS_CALLER_VER2_COUNTER = new HbaseColumnFamily(HbaseTableV2.MAP_STATISTICS_CALLER_VER2, Bytes.toBytes("C"));
+    public static final HbaseColumnFamily MAP_STATISTICS_CALLEE_VER2_COUNTER = new HbaseColumnFamily(HbaseTableV2.MAP_STATISTICS_CALLEE_VER2, MAP_V2_COLUMN_FAMILY_NAME);
 
-    public static final HbaseColumnFamily MAP_STATISTICS_SELF_VER2_COUNTER = new HbaseColumnFamily(HbaseTableV2.MAP_STATISTICS_SELF_VER2, Bytes.toBytes("C"));
+    public static final HbaseColumnFamily MAP_STATISTICS_CALLER_VER2_COUNTER = new HbaseColumnFamily(HbaseTableV2.MAP_STATISTICS_CALLER_VER2, MAP_V2_COLUMN_FAMILY_NAME);
+
+    public static final HbaseColumnFamily MAP_STATISTICS_SELF_VER2_COUNTER = new HbaseColumnFamily(HbaseTableV2.MAP_STATISTICS_SELF_VER2, MAP_V2_COLUMN_FAMILY_NAME);
 
     public static final SqlMetadataV2 SQL_METADATA_VER2_SQL = new SqlMetadataV2(HbaseTableV2.SQL_METADATA_VER2, Bytes.toBytes("Sql"));
 
@@ -111,8 +113,11 @@ public class HbaseTables {
     public static final HbaseColumnFamily TRACE_V2_SPAN = new HbaseColumnFamily(HbaseTableV2.TRACE_V2, Bytes.toBytes("S"));
 
     // ------------------- Map Self V3 -------------------
-    public static final HbaseColumnFamily MAP_APP_SELF = new HbaseColumnFamily(HbaseTableV3.MAP_APP_SELF, Bytes.toBytes("C"));
-    public static final HbaseColumnFamily MAP_APP_OUT = new HbaseColumnFamily(HbaseTableV3.MAP_APP_OUT, Bytes.toBytes("C"));
-    public static final HbaseColumnFamily MAP_APP_IN = new HbaseColumnFamily(HbaseTableV3.MAP_APP_IN, Bytes.toBytes("C"));
+    public static final byte[] MAP_V3_COLUMN_FAMILY_NAME = Bytes.toBytes("C");
+    public static final HbaseColumnFamily MAP_APP_SELF = new HbaseColumnFamily(HbaseTableV3.MAP_APP_SELF, MAP_V3_COLUMN_FAMILY_NAME);
+    public static final HbaseColumnFamily MAP_APP_OUT = new HbaseColumnFamily(HbaseTableV3.MAP_APP_OUT, MAP_V3_COLUMN_FAMILY_NAME);
+    public static final HbaseColumnFamily MAP_APP_IN = new HbaseColumnFamily(HbaseTableV3.MAP_APP_IN, MAP_V3_COLUMN_FAMILY_NAME);
+
+    public static final HbaseColumnFamily MAP_APP_HOST = new HbaseColumnFamily(HbaseTableV3.MAP_APP_HOST, MAP_V3_COLUMN_FAMILY_NAME);
 
 }

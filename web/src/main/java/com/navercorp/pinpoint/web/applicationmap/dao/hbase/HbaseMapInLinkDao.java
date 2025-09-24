@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapInLinkDao;
@@ -87,7 +88,7 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
         RowMapper<LinkDataMap> rowMapper = this.inLinkMapperFactory.newMapper(mapperWindow);
         ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(rowMapper, new LinkTimeWindowReducer(timeWindow));
 
-        final Scan scan = scanFactory.createScan("MapInLinkScan", inApplication, timeWindow.getWindowRange(), table.getName());
+        final Scan scan = scanFactory.createScan("MapInLinkScan", ServiceUid.DEFAULT_SERVICE_UID_CODE, inApplication, timeWindow.getWindowRange(), table.getName());
 
         final LinkDataMap linkDataMap = selectInLink(scan, table.getTable(), resultExtractor, NUM_PARTITIONS);
         if (logger.isDebugEnabled()) {

@@ -19,8 +19,9 @@ package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
-import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
-import com.navercorp.pinpoint.common.hbase.wd.SaltKey;
+import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
+import com.navercorp.pinpoint.common.hbase.wd.OneByteSimpleHash;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.window.DefaultTimeSlot;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -30,7 +31,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class HbaseHostApplicationMapDaoTest {
+public class HostRowKeyEncoderV2Test {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -41,13 +42,14 @@ public class HbaseHostApplicationMapDaoTest {
         String parentApp = "parentApp";
         long statisticsRowSlot = timeSlot.getTimeSlot(System.currentTimeMillis());
         ServiceType standAlone = ServiceType.STAND_ALONE;
-        SaltKey saltKey = ByteSaltKey.SALT;
 
-        byte[] parentApps = HbaseHostApplicationMapDao.createRowKey0(saltKey.size(), parentApp, standAlone.getCode(), statisticsRowSlot);
+        ByteHasher hasher = new OneByteSimpleHash(32);
+        HostRowKeyEncoder rowKeyEncoder = new HostRowKeyEncoderV2(hasher);
+        byte[] parentApps = rowKeyEncoder.encodeRowKey(parentApp, standAlone.getCode(), ServiceUid.DEFAULT_SERVICE_UID_CODE, statisticsRowSlot);
         logger.debug("rowKey size:{}", parentApps.length);
 
         Buffer readBuffer = new FixedBuffer(parentApps);
-        readBuffer.setOffset(saltKey.size());
+        readBuffer.setOffset(hasher.getSaltKey().size());
         String appName = readBuffer.readPadStringAndRightTrim(HbaseTableConstants.APPLICATION_NAME_MAX_LEN);
         short code = readBuffer.readShort();
         long time = TimeUtils.recoveryTimeMillis(readBuffer.readLong());

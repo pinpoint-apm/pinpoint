@@ -24,9 +24,13 @@ import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HbaseHostApplic
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HbaseMapInLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HbaseMapOutLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HbaseMapResponseTimeDao;
+import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HostLinkFactory;
+import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HostRowKeyEncoder;
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.InLinkFactory;
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.OutLinkFactory;
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.SelfNodeFactory;
+import com.navercorp.pinpoint.collector.applicationmap.dao.v3.HostLinkFactoryV3;
+import com.navercorp.pinpoint.collector.applicationmap.dao.v3.HostRowKeyEncoderV3;
 import com.navercorp.pinpoint.collector.applicationmap.dao.v3.InLinkFactoryV3;
 import com.navercorp.pinpoint.collector.applicationmap.dao.v3.OutLinkFactoryV3;
 import com.navercorp.pinpoint.collector.applicationmap.dao.v3.SelfNodeFactoryV3;
@@ -40,6 +44,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
+import com.navercorp.pinpoint.common.server.uid.ObjectNameVersion;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -53,7 +58,7 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan(basePackages = {
         "com.navercorp.pinpoint.collector.applicationmap.dao.v3",
 })
-@ConditionalOnProperty(name = "pinpoint.modules.uid.version", havingValue = "v3")
+@ConditionalOnProperty(name = ObjectNameVersion.KEY, havingValue = "v3")
 public class MapV3Configuration {
     private static final Logger logger = LogManager.getLogger(MapV3Configuration.class);
 
@@ -148,6 +153,9 @@ public class MapV3Configuration {
                                                        TableNameProvider tableNameProvider,
                                                        @Qualifier("acceptApplicationRowKeyDistributor") RowKeyDistributor rowKeyDistributor,
                                                        TimeSlot timeSlot) {
-        return new HbaseHostApplicationMapDao(hbaseTemplate, tableNameProvider, rowKeyDistributor, timeSlot);
+        HostRowKeyEncoder encoder = new HostRowKeyEncoderV3(rowKeyDistributor.getByteHasher());
+        HostLinkFactory hostLinkFactory = new HostLinkFactoryV3(encoder);
+        HbaseColumnFamily table = HbaseTables.MAP_APP_HOST;
+        return new HbaseHostApplicationMapDao(hbaseTemplate, table, tableNameProvider, hostLinkFactory, timeSlot);
     }
 }

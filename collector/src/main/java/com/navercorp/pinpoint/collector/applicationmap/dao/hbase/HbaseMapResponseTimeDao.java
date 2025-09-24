@@ -20,11 +20,9 @@ import com.navercorp.pinpoint.collector.applicationmap.config.MapLinkProperties;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapResponseTimeDao;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
-import com.navercorp.pinpoint.collector.applicationmap.statistics.ResponseColumnName;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.util.MapSlotUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
@@ -111,10 +109,14 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 
         // make row key. rowkey is me
         final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
-        final RowKey selfRowKey = LinkRowKey.of(applicationName, applicationServiceType, rowTimeSlot);
+
+        Vertex selfVertex = Vertex.of(applicationName, applicationServiceType);
+        final RowKey selfRowKey = selfNodeFactory.rowkey(selfVertex, rowTimeSlot);
 
         final short slotNumber = MapSlotUtils.getPingSlotNumber(applicationServiceType);
-        final ColumnName selfColumnName = ResponseColumnName.histogram(agentId, slotNumber);
+//        final ColumnName selfColumnName = ResponseColumnName.histogram(agentId, slotNumber);
+
+        final ColumnName selfColumnName = selfNodeFactory.histogram(agentId, slotNumber);
         final TableName tableName = tableNameProvider.getTableName(table.getTable());
         this.bulkWriter.increment(tableName, table.getName(), selfRowKey, selfColumnName);
     }

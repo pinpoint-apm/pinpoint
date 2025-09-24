@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public class ServerHeaderReaderTest {
     private static final long SOCKET_ID = 1001;
     private static final int SERVICE_TYPE = ServiceType.STAND_ALONE.getCode();
 
-    private final HeaderReader<Header> reader = new ServerHeaderReaderFactory("test");
+    private final HeaderReader<Header> reader = new ServerHeaderReaderV1("test", ServerHeaderReaderFactory::emptyProperties);
 
     @Test
     public void extract() {

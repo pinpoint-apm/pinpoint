@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFacto
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerResponseFactory;
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
+import com.navercorp.pinpoint.common.server.uid.ObjectNameVersion;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
@@ -191,7 +192,9 @@ public class GrpcAgentConfiguration {
 
     @Bean
     @Qualifier("agentInterceptor")
-    public ServerInterceptor agentInterceptorList() {
-        return ServerInterceptorFactory.headerReader("agent");
+    public ServerInterceptor agentInterceptorList(ObjectNameVersion version) {
+        ServerInterceptorFactory serverInterceptorFactory = new ServerInterceptorFactory("agent");
+        serverInterceptorFactory.applyVersion(version);
+        return serverInterceptorFactory.build();
     }
 }

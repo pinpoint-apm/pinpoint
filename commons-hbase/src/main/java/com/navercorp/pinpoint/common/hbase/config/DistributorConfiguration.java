@@ -87,7 +87,7 @@ public class DistributorConfiguration {
         return new RangeOneByteSimpleHash(start, end, maxBuckets);
     }
 
-    public static final int UID_START_KEY_RANGE = PinpointConstants.APPLICATION_NAME_MAX_LEN_V3 + 8;
+    public static final int UID_START_KEY_RANGE = PinpointConstants.APPLICATION_NAME_MAX_LEN_V3 + 4 + 4;
     public static final int SECONDARY_BUCKET_SIZE = 4;
 
     @Bean

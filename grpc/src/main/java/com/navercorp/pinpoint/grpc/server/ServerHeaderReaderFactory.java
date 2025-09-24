@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.grpc.server;
 
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.HeaderReader;
-import com.navercorp.pinpoint.grpc.protocol.ProtocolVersion;
-import com.navercorp.pinpoint.grpc.protocol.ProtocolVersionParser;
 import io.grpc.Metadata;
 
 import java.util.Collections;
@@ -31,41 +29,39 @@ import java.util.function.Function;
  * @author Woonduk Kang(emeroad)
  * @author jaehong.kim
  */
-public class ServerHeaderReaderFactory implements HeaderReader<Header> {
-
-    private final ProtocolVersionParser protocolVersionParser = new ProtocolVersionParser();
+public class ServerHeaderReaderFactory {
 
     private final String name;
-    private final HeaderReader<Header> headerReaderV1;
-    private final HeaderReader<Header> headerReaderV4;
 
-    public ServerHeaderReaderFactory(String name) {
-        this(name, ServerHeaderReaderFactory::emptyProperties);
-    }
+    private final Function<Metadata, Map<String, Object>> metadataConverter;
+
+    private final boolean v3;
+
 
     public static Map<String, Object> emptyProperties(Metadata headers) {
         return Collections.emptyMap();
     }
 
-    public ServerHeaderReaderFactory(String name, Function<Metadata, Map<String, Object>> metadataConverter) {
+    public ServerHeaderReaderFactory(String name, Function<Metadata, Map<String, Object>> metadataConverter, boolean v3) {
         this.name = Objects.requireNonNull(name, "name");
         Objects.requireNonNull(metadataConverter, "metadataConverter");
 
-        this.headerReaderV1 = new ServerHeaderReaderV1(name, metadataConverter);
-        this.headerReaderV4 = new ServerHeaderReaderV4(name, metadataConverter);
+        this.metadataConverter = Objects.requireNonNull(metadataConverter, "metadataConverter");
+        this.v3 = v3;
     }
 
-    @Override
-    public Header extract(Metadata headers) {
-        final String protocolVersion = headers.get(Header.PROTOCOL_VERSION_NAME_KEY);
-        final ProtocolVersion version = protocolVersionParser.parse(protocolVersion);
-        if (version == ProtocolVersion.V1) {
-            return headerReaderV1.extract(headers);
-        } else if (version == ProtocolVersion.V4) {
-            return headerReaderV4.extract(headers);
+    public HeaderReader<Header> build() {
+        HeaderReader<Header> headerReaderV1;
+        if (v3) {
+            headerReaderV1 = ServerHeaderReaderV1.v3(name, metadataConverter);
+        } else {
+            headerReaderV1 = new ServerHeaderReaderV1(name, metadataConverter);
         }
-        return headerReaderV1.extract(headers);
+        HeaderReader<Header> headerReaderV4 = new ServerHeaderReaderV4(name, metadataConverter);
+
+        return new ServerHeaderReaderAdaptor(name, headerReaderV1, headerReaderV4);
     }
+
 
     @Override
     public String toString() {

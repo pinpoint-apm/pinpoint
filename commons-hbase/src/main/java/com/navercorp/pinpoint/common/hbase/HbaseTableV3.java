@@ -20,7 +20,9 @@ public enum HbaseTableV3 implements HbaseTable {
 
     MAP_APP_SELF("MapAppSelf"),
     MAP_APP_OUT("MapAppOut"),
-    MAP_APP_IN("MapAppIn");
+    MAP_APP_IN("MapAppIn"),
+
+    MAP_APP_HOST("MapAppHost");
 
     private final String name;
 

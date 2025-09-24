@@ -18,22 +18,13 @@ package com.navercorp.pinpoint.web.applicationmap.dao.v3;
 
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.web.applicationmap.dao.hbase.MapScanFactory;
+import com.navercorp.pinpoint.web.applicationmap.dao.hbase.MapScanKeyFactory;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.RangeFactory;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-public class MapV3ScanFactory extends MapScanFactory {
-    private final Logger logger = LogManager.getLogger(this.getClass());
-
-    public MapV3ScanFactory(RangeFactory rangeFactory) {
-        super(rangeFactory);
-    }
-
-    protected byte[] rowKey(Application application, long timestamp) {
-        return UidLinkRowKey.makeRowKey(ByteSaltKey.NONE.size(), ServiceUid.DEFAULT_SERVICE_UID_CODE, application.getName(),
+public class MapScanKeyFactoryV3 implements MapScanKeyFactory {
+    public byte[] scanKey(int serviceUid, Application application, long timestamp) {
+        return UidLinkRowKey.makeRowKey(ByteSaltKey.NONE.size(), serviceUid,
+                application.getName(),
                 application.getServiceTypeCode(), timestamp);
     }
 }
