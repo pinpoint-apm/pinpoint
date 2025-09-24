@@ -51,7 +51,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "jest": "^28.1.0",
-    "jest-environment-jsdom": "^28.1.2",
+    "jest-environment-jsdom": "^30.0.4",
     "prettier": "^3.3.3",
     "ts-jest": "^28.0.5",
     "typescript": "^4.5.5"
