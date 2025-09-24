@@ -9,6 +9,20 @@ import data3 from './mock/data3.json';
 import data4 from './mock/data4.json';
 import data5 from './mock/data5.json';
 
+// 서버맵 데이터 타입 정의
+interface ServerMapData {
+  applicationMapData: {
+    range: {
+      from: number;
+      to: number;
+      fromDateTime: string;
+      toDateTime: string;
+    };
+    nodeDataArray: any[];
+    linkDataArray: any[];
+  };
+}
+
 export default {
   title: 'PINPOINT/ServerMap',
   component: ServerMap,
@@ -21,13 +35,29 @@ export default {
 } as ComponentMeta<typeof ServerMap>;
 
 const DefaultTemplate: ComponentStory<typeof ServerMap> = (args) => {
-  const [data, setData] = React.useState(data1);
+  const [data, setData] = React.useState<ServerMapData>(data1);
+
+  // 각 데이터에 맞는 baseNodeId를 반환하는 함수
+  const getBaseNodeId = (currentData: ServerMapData) => {
+    if (currentData === data1 || currentData === data2 || currentData === data3) {
+      return 'ApiGateway^SPRING_BOOT';
+    } else if (currentData === data4) {
+      return 'TEMP-PORTAL-DEV^SPRING_BOOT';
+    } else if (currentData === data5) {
+      return 'ACL-PORTAL-DEV^SPRING_BOOT';
+    }
+    return 'ApiGateway^SPRING_BOOT';
+  };
+
+  const currentBaseNodeId = getBaseNodeId(data);
 
   return (
     <div>
       <div style={{ width: '100%', height: '90vh', border: '1px solid black' }}>
         <ServerMap
+          key={`${currentBaseNodeId}-${JSON.stringify(data).slice(0, 50)}`}
           {...args}
+          baseNodeId={currentBaseNodeId}
           data={getServerMapData(data)}
           renderEdgeLabel={(edge) => {
             if (edge?.edges?.length) {

@@ -301,8 +301,8 @@ export const ServerMap = ({
         .on('cxttap', ({ target, renderedPosition }: InputEventObject) => {
           const eventType = 'right';
           const position = {
-            x: renderedPosition.x,
-            y: renderedPosition.y,
+            x: renderedPosition?.x,
+            y: renderedPosition?.y,
           };
 
           if (target === cy) {
