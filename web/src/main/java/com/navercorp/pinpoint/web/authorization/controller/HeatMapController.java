@@ -2,7 +2,10 @@ package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.scatter.DragArea;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
 import com.navercorp.pinpoint.web.scatter.Status;
@@ -39,9 +42,11 @@ public class HeatMapController {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final HeatMapService heatMap;
+    private final ServiceTypeRegistryService serviceTypeRegistryService;
 
-    public HeatMapController(HeatMapService heatMap) {
+    public HeatMapController(HeatMapService heatMap, ServiceTypeRegistryService serviceTypeRegistryService) {
         this.heatMap = Objects.requireNonNull(heatMap, "heatMap");
+        this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
     }
 
     @GetMapping(value = "/drag")
@@ -78,6 +83,42 @@ public class HeatMapController {
 
     }
 
+    @GetMapping(value = "/dragV2")
+    public ResultView dragScatterAreaV2(
+            @RequestParam("application") @NotBlank String applicationName,
+            @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
+            @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
+            @RequestParam("x1") long x1,
+            @RequestParam("x2") long x2,
+            @RequestParam("y1") long y1,
+            @RequestParam("y2") long y2,
+            @RequestParam(value = "agentId", required = false) @NullOrNotBlank String agentId,
+            @RequestParam(value = "dotStatus", required = false) Boolean boolDotStatus,
+            @RequestParam(name = "limit", required = false, defaultValue = "50") int limitParam) {
+        final int limit = LimitUtils.checkRange(limitParam);
+        final ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
+        final DragArea dragArea = DragArea.normalize(x1, x2, y1, y2);
+
+        // TODO range check verification exception occurs. "from" is bigger than "to"
+        final Range range = Range.unchecked(x1, x2);
+        logger.debug("drag scatter data. RANGE={}, LIMIT={}", range, limit);
+        final Dot.Status dotStatus = toDotStatus(boolDotStatus);
+        final DragAreaQuery query = new DragAreaQuery(dragArea, agentId, dotStatus);
+
+        final LimitedScanResult<List<DotMetaData>> dotMetaData = heatMap.dragScatterDataV3(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceType.getCode(), query, limit);
+        if (logger.isDebugEnabled()) {
+            logger.debug("dragScatterArea applicationName:{} dots:{}", applicationName, dotMetaData.scanData().size());
+        }
+
+        final List<DotMetaData> scanData = dotMetaData.scanData();
+        final TransactionDotMetaDataViewModel transaction = new TransactionDotMetaDataViewModel(scanData);
+        final boolean complete = scanData.size() < limit;
+        final PagingStatus scanStatus = new PagingStatus(complete, dotMetaData.limitedTime());
+        return new ResultView(transaction.getMetadata(), scanStatus);
+
+    }
+
+
     private Dot.Status toDotStatus(Boolean dotStatus) {
         if (dotStatus == null) {
             return null;
@@ -110,6 +151,24 @@ public class HeatMapController {
 
         final LimitedScanResult<HeatMap> scanResult =
                 this.heatMap.getHeatMap(applicationName, range, TimeUnit.SECONDS.toMillis(10), LimitUtils.MAX);
+        final Status status = new Status(System.currentTimeMillis(), range);
+
+        return new HeatMapController.HeatMapViewModel(scanResult.scanData(), status);
+    }
+
+    @GetMapping(value = "/getV2", params = "serviceTypeCode")
+    public HeatMapController.HeatMapViewModel getHeatMapData(
+            @RequestParam("application") @NotBlank String applicationName,
+            @RequestParam("serviceTypeCode") @PositiveOrZero int serviceTypeCode,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to) {
+
+        // TODO range check verification exception occurs. "from" is bigger than "to"
+        final Range range = Range.unchecked(from, to);
+        logger.debug("fetch getHeatMapData. RANGE={}, ", range);
+
+        final LimitedScanResult<HeatMap> scanResult =
+                this.heatMap.getHeatMapV2(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode, range, TimeUnit.SECONDS.toMillis(10), LimitUtils.MAX);
         final Status status = new Status(System.currentTimeMillis(), range);
 
         return new HeatMapController.HeatMapViewModel(scanResult.scanData(), status);
@@ -175,5 +234,21 @@ public class HeatMapController {
             return status;
         }
 
+    }
+
+    private ServiceType findServiceType(Integer serviceTypeCode, String serviceTypeName) {
+        if (serviceTypeCode != null) {
+            ServiceType serviceTypeFromCode = serviceTypeRegistryService.findServiceType(serviceTypeCode);
+            if (serviceTypeFromCode != null && !ServiceType.UNDEFINED.equals(serviceTypeFromCode)) {
+                return serviceTypeFromCode;
+            }
+        }
+        if (serviceTypeName != null) {
+            ServiceType serviceTypeFromName = serviceTypeRegistryService.findServiceTypeByName(serviceTypeName);
+            if (serviceTypeFromName != null && !ServiceType.UNDEFINED.equals(serviceTypeFromName)) {
+                return serviceTypeFromName;
+            }
+        }
+        throw new IllegalArgumentException("application serviceType not found. code:" + serviceTypeCode + ", name:" + serviceTypeName);
     }
 }

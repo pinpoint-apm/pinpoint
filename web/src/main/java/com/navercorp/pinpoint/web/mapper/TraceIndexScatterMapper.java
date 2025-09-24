@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,14 +17,14 @@
 package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
-import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.RowTypeHint;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
-import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
+import com.navercorp.pinpoint.common.server.bo.serializer.agent.TraceIndexRowUtils;
+import com.navercorp.pinpoint.common.server.util.SpanUtils;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -34,8 +34,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.function.Predicate;
 
 /**
  * @author emeroad
@@ -43,18 +41,15 @@ import java.util.function.Predicate;
  */
 @Component
 public class TraceIndexScatterMapper implements RowMapper<List<Dot>>, RowTypeHint {
-
-    private static final HbaseTables.ApplicationTraceIndexTrace INDEX = HbaseTables.APPLICATION_TRACE_INDEX_TRACE;
-
-    // @Nullable
-    private final Predicate<Dot> filter;
+    private final HbaseColumnFamily index;
 
     public TraceIndexScatterMapper() {
-        this.filter = null;
+        this.index = HbaseTables.TRACE_INDEX;
     }
 
-    public TraceIndexScatterMapper(Predicate<Dot> filter) {
-        this.filter = Objects.requireNonNull(filter, "filter");
+    // for ApplicationTraceIndexDao
+    public TraceIndexScatterMapper(HbaseColumnFamily index) {
+        this.index = index;
     }
 
     @Override
@@ -66,35 +61,39 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>>, RowTypeHin
         Cell[] rawCells = result.rawCells();
         List<Dot> list = new ArrayList<>(rawCells.length);
         for (Cell cell : rawCells) {
-            if (CellUtil.matchingFamily(cell, INDEX.getName())) {
-                Dot dot = createDot(cell);
-                if (filter(dot, this.filter)) {
-                    list.add(dot);
+            if (CellUtil.matchingFamily(cell, index.getName())) {
+                Dot dot;
+                if (index == HbaseTables.APPLICATION_TRACE_INDEX_TRACE) {
+                    dot = createDotV1(cell);
+                } else {
+                    dot = createDot(cell);
                 }
+                list.add(dot);
             }
         }
         return list;
     }
 
-    static boolean filter(Dot dot, Predicate<Dot> filter) {
-        if (filter == null) {
-            return true;
-        }
-        return filter.test(dot);
-    }
-
     static Dot createDot(Cell cell) {
-
         final Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
         int elapsed = valueBuffer.readVInt();
         int exceptionCode = valueBuffer.readSVInt();
         String agentId = valueBuffer.readPrefixedString();
 
-        final int acceptTimeOffset = cell.getRowOffset() + HbaseTableConstants.APPLICATION_NAME_MAX_LEN + HbaseTables.ApplicationTraceIndexTrace.ROW_DISTRIBUTE_SIZE;
-        long reverseAcceptedTime = ByteArrayUtils.bytesToLong(cell.getRowArray(), acceptTimeOffset);
-        long acceptedTime = LongInverter.restore(reverseAcceptedTime);
+        long acceptedTime = TraceIndexRowUtils.extractAcceptTime(cell.getRowArray(), cell.getRowOffset());
+        TransactionId transactionId = SpanUtils.parseVarTransactionId(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
 
-        TransactionId transactionId = TransactionIdMapper.parseVarTransactionId(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
+        return new Dot(transactionId, acceptedTime, elapsed, exceptionCode, agentId);
+    }
+
+    static Dot createDotV1(Cell cell) {
+        final Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+        int elapsed = valueBuffer.readVInt();
+        int exceptionCode = valueBuffer.readSVInt();
+        String agentId = valueBuffer.readPrefixedString();
+
+        long acceptedTime = TraceIndexRowUtils.extractAcceptTimeV1(cell.getRowArray(), cell.getRowOffset());
+        TransactionId transactionId = SpanUtils.parseVarTransactionId(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
 
         return new Dot(transactionId, acceptedTime, elapsed, exceptionCode, agentId);
     }

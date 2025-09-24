@@ -22,7 +22,9 @@ public enum HbaseTableV3 implements HbaseTable {
     MAP_APP_OUT("MapAppOut"),
     MAP_APP_IN("MapAppIn"),
 
-    MAP_APP_HOST("MapAppHost");
+    MAP_APP_HOST("MapAppHost"),
+
+    TRACE_INDEX("TraceIndex");
 
     private final String name;
 
