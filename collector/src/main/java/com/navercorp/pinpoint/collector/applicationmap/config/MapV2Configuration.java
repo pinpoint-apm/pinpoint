@@ -24,6 +24,10 @@ import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HbaseHostApplic
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HbaseMapInLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HbaseMapOutLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HbaseMapResponseTimeDao;
+import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HostLinkFactory;
+import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HostLinkFactoryV2;
+import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HostRowKeyEncoder;
+import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HostRowKeyEncoderV2;
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.InLinkFactory;
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.InLinkFactoryV2;
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.OutLinkFactory;
@@ -49,7 +53,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-//@ConditionalOnProperty(name = "pinpoint.modules.uid.version", havingValue = "v2")
+//@ConditionalOnProperty(name = ServerNameVersion.KEY, havingValue = "v2")
 @ConditionalOnMissingBean(MapV3Configuration.class)
 public class MapV2Configuration {
     private static final Logger logger = LogManager.getLogger(MapV2Configuration.class);
@@ -145,6 +149,9 @@ public class MapV2Configuration {
                                                        TableNameProvider tableNameProvider,
                                                        @Qualifier("acceptApplicationRowKeyDistributor") RowKeyDistributor rowKeyDistributor,
                                                        TimeSlot timeSlot) {
-        return new HbaseHostApplicationMapDao(hbaseTemplate, tableNameProvider, rowKeyDistributor, timeSlot);
+        HostRowKeyEncoder encoder = new HostRowKeyEncoderV2(rowKeyDistributor.getByteHasher());
+        HostLinkFactory hostLinkFactory = new HostLinkFactoryV2(encoder);
+        HbaseColumnFamily table = HbaseTables.HOST_APPLICATION_MAP_VER2_MAP;
+        return new HbaseHostApplicationMapDao(hbaseTemplate, table, tableNameProvider, hostLinkFactory, timeSlot);
     }
 }

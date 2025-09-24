@@ -40,8 +40,12 @@ import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapInLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapOutLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapResponseTimeDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.MapScanFactory;
+import com.navercorp.pinpoint.web.applicationmap.dao.hbase.MapScanKeyFactory;
+import com.navercorp.pinpoint.web.applicationmap.dao.hbase.MapScanKeyFactoryV2;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ApplicationResponseTimeResultExtractor;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.HostApplicationMapper;
+import com.navercorp.pinpoint.web.applicationmap.dao.mapper.HostScanKeyFactory;
+import com.navercorp.pinpoint.web.applicationmap.dao.mapper.HostScanKeyFactoryV2;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.InLinkMapper;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.LinkFilter;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.LinkRowKeyDecoder;
@@ -120,7 +124,8 @@ public class MapMapperConfiguration {
 
     @Bean
     public MapScanFactory mapScanFactory(RangeFactory rangeFactory) {
-        return new MapScanFactory(rangeFactory);
+        MapScanKeyFactory mapScanKeyFactory = new MapScanKeyFactoryV2();
+        return new MapScanFactory(rangeFactory, mapScanKeyFactory);
     }
 
     @Bean
@@ -173,7 +178,8 @@ public class MapMapperConfiguration {
                                                        @Qualifier("acceptApplicationRowKeyDistributor")
                                                        RowKeyDistributor acceptApplicationRowKeyDistributor) {
         HbaseColumnFamily table = HbaseTables.HOST_APPLICATION_MAP_VER2_MAP;
-        return new HbaseHostApplicationMapDao(table, hbaseOperations, tableNameProvider, hostApplicationResultExtractor, timeSlot, acceptApplicationRowKeyDistributor);
+        HostScanKeyFactory hostScanKeyFactory = new HostScanKeyFactoryV2();
+        return new HbaseHostApplicationMapDao(table, hbaseOperations, tableNameProvider, hostScanKeyFactory, hostApplicationResultExtractor, timeSlot, acceptApplicationRowKeyDistributor);
     }
 
 }

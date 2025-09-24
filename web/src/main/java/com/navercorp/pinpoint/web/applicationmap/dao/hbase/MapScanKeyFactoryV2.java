@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.dao;
+package com.navercorp.pinpoint.web.applicationmap.dao.hbase;
 
-import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
+import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
+import com.navercorp.pinpoint.web.vo.Application;
 
-/**
- * 
- * @author netspider
- * 
- */
-public interface HostApplicationMapDao {
-    void insert(long requestTime, String parentApplicationName, int parentServiceType, Vertex selfVertex, String host);
-
+public class MapScanKeyFactoryV2 implements MapScanKeyFactory {
+    public byte[] scanKey(int serviceUid, Application application, long timestamp) {
+        return LinkRowKey.makeRowKey(ByteSaltKey.NONE.size(), application.getName(), (short) application.getServiceTypeCode(), timestamp);
+    }
 }

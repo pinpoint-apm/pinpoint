@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
+import com.navercorp.pinpoint.common.server.uid.ObjectNameVersion;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
@@ -41,14 +42,17 @@ import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapInLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapOutLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapResponseTimeDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.MapScanFactory;
+import com.navercorp.pinpoint.web.applicationmap.dao.hbase.MapScanKeyFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.HostApplicationMapper;
+import com.navercorp.pinpoint.web.applicationmap.dao.mapper.HostScanKeyFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.LinkFilter;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.LinkRowKeyDecoder;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResultExtractorFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.RowMapperFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.v3.ApplicationResponseTimeV3ResultExtractor;
+import com.navercorp.pinpoint.web.applicationmap.dao.v3.HostScanKeyFactoryV3;
 import com.navercorp.pinpoint.web.applicationmap.dao.v3.InLinkV3Mapper;
-import com.navercorp.pinpoint.web.applicationmap.dao.v3.MapV3ScanFactory;
+import com.navercorp.pinpoint.web.applicationmap.dao.v3.MapScanKeyFactoryV3;
 import com.navercorp.pinpoint.web.applicationmap.dao.v3.OutLinkV3Mapper;
 import com.navercorp.pinpoint.web.applicationmap.dao.v3.ResponseTimeV3Mapper;
 import com.navercorp.pinpoint.web.applicationmap.dao.v3.ResponseTimeV3ResultExtractor;
@@ -69,7 +73,7 @@ import java.util.List;
 import java.util.Set;
 
 @Configuration
-@ConditionalOnProperty(name = "pinpoint.modules.uid.version", havingValue = "v3")
+@ConditionalOnProperty(name = ObjectNameVersion.KEY, havingValue = "v3")
 public class MapV3MapperConfiguration {
 
     private static final Logger logger = LogManager.getLogger(MapV3MapperConfiguration.class);
@@ -130,7 +134,8 @@ public class MapV3MapperConfiguration {
 
     @Bean
     public MapScanFactory mapScanFactory(RangeFactory rangeFactory) {
-        return new MapV3ScanFactory(rangeFactory);
+        MapScanKeyFactory mapScanKeyFactory = new MapScanKeyFactoryV3();
+        return new MapScanFactory(rangeFactory, mapScanKeyFactory);
     }
 
     @Bean
@@ -182,7 +187,8 @@ public class MapV3MapperConfiguration {
                                                        TimeSlot timeSlot,
                                                        @Qualifier("acceptApplicationRowKeyDistributor")
                                                        RowKeyDistributor acceptApplicationRowKeyDistributor) {
-        HbaseColumnFamily table = HbaseTables.HOST_APPLICATION_MAP_VER2_MAP;
-        return new HbaseHostApplicationMapDao(table, hbaseOperations, tableNameProvider, hostApplicationResultExtractor, timeSlot, acceptApplicationRowKeyDistributor);
+        HbaseColumnFamily table = HbaseTables.MAP_APP_HOST;
+        HostScanKeyFactory hostScanKeyFactory = new HostScanKeyFactoryV3();
+        return new HbaseHostApplicationMapDao(table, hbaseOperations, tableNameProvider, hostScanKeyFactory, hostApplicationResultExtractor, timeSlot, acceptApplicationRowKeyDistributor);
     }
 }

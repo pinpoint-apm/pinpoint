@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.name;
 
+import com.navercorp.pinpoint.profiler.name.v1.IdValidatorV1;
 import com.navercorp.pinpoint.profiler.name.v1.ObjectNameResolverV1;
 import com.navercorp.pinpoint.profiler.name.v4.ObjectNameResolverV4;
 
@@ -43,9 +44,30 @@ public class ObjectNameResolverBuilder {
         return buildV1();
     }
 
+    public ObjectNameResolver build(NameVersion version) {
+        Objects.requireNonNull(version, "version");
+
+        switch (version) {
+            case v1:
+                return buildV1();
+            case v3:
+                return buildV3();
+            case v4:
+                return buildV4();
+            default:
+                return buildV1();
+        }
+    }
+
     public ObjectNameResolver buildV1() {
         List<AgentProperties> copy = new ArrayList<>(this.agentProperties);
         return new ObjectNameResolverV1(copy);
+    }
+
+    public ObjectNameResolver buildV3() {
+        List<AgentProperties> copy = new ArrayList<>(this.agentProperties);
+        IdValidator idValidator = IdValidatorV1.v3();
+        return new ObjectNameResolverV1(idValidator, copy);
     }
 
     public ObjectNameResolver buildV4() {

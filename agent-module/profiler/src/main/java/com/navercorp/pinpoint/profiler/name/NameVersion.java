@@ -14,16 +14,24 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.dao;
+package com.navercorp.pinpoint.profiler.name;
 
-import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
+public enum NameVersion {
+    v1,
+    v3,
+    v4;
 
-/**
- * 
- * @author netspider
- * 
- */
-public interface HostApplicationMapDao {
-    void insert(long requestTime, String parentApplicationName, int parentServiceType, Vertex selfVertex, String host);
+    public static final String KEY = "pinpoint.modules.uid.version";
+
+    public static NameVersion getVersion(String version) {
+        if ("v1".equalsIgnoreCase(version)) {
+            return v1;
+        } else if ("v3".equalsIgnoreCase(version)) {
+            return v3;
+        } else if ("v4".equalsIgnoreCase(version)) {
+            return v4;
+        }
+        return v1;
+    }
 
 }

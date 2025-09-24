@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ import com.navercorp.pinpoint.collector.receiver.grpc.service.SpanService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamCloseOnError;
 import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
+import com.navercorp.pinpoint.grpc.Header;
+import com.navercorp.pinpoint.grpc.HeaderReader;
 import com.navercorp.pinpoint.grpc.server.HeaderPropagationInterceptor;
 import com.navercorp.pinpoint.grpc.server.ServerHeaderReaderFactory;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
@@ -82,8 +84,7 @@ public class SpanServerTestMain {
         grpcReceiver.setEnable(true);
         grpcReceiver.setServerOption(ServerOption.newBuilder().build());
 
-        ServerHeaderReaderFactory agentHeaderReader = new ServerHeaderReaderFactory("test");
-        HeaderPropagationInterceptor interceptor = new HeaderPropagationInterceptor(agentHeaderReader);
+        HeaderPropagationInterceptor interceptor = getHeaderPropagationInterceptor();
         grpcReceiver.setServerInterceptorList(List.of(interceptor));
 
 //        for(int i = 0; i < 9999; i++) {
@@ -97,6 +98,12 @@ public class SpanServerTestMain {
 //            System.out.println("###### START");
 //            TimeUnit.SECONDS.sleep(30);
 
+    }
+
+    private HeaderPropagationInterceptor getHeaderPropagationInterceptor() {
+        ServerHeaderReaderFactory factory = new ServerHeaderReaderFactory("test", ServerHeaderReaderFactory::emptyProperties, false);
+        HeaderReader<Header> headerHeaderReader = factory.build();
+        return new HeaderPropagationInterceptor(headerHeaderReader);
     }
 
     private ServerServiceDefinition newSpanBindableService(Executor executor) {

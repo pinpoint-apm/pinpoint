@@ -27,7 +27,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,10 +46,6 @@ public class RowKeyMerge {
     }
 
     public Map<TableName, List<Increment>> createBulkIncrement(Map<RowInfo, Long> data) {
-        if (data.isEmpty()) {
-            return Collections.emptyMap();
-        }
-
         final Map<TableKey, Map<RowKey, List<ColumnCallCount>>> tableRowKeyMap = mergeRowKeys(data);
 
         final Map<TableName, List<Increment>> tableIncrementMap = new HashMap<>();
@@ -75,8 +70,8 @@ public class RowKeyMerge {
             increment.addColumn(tableKey.family(), columnName.columnName(), columnName.callCount());
         }
 
-        if (logger.isTraceEnabled()) {
-            logger.trace("create increment row:{}, column:{}", rowKey, rowKeyEntry.getValue());
+        if (logger.isDebugEnabled()) {
+            logger.debug("create increment row:{}, column:{}", rowKey, rowKeyEntry.getValue());
         }
         return increment;
     }

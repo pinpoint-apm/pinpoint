@@ -90,6 +90,9 @@ public class DefaultBulkWriter implements BulkWriter {
 
         // update statistics by rowkey and column for now. need to update it by rowkey later.
         Map<RowInfo, Long> snapshot = bulkIncrementer.getIncrements();
+        if (snapshot.isEmpty()) {
+            return;
+        }
 
         Map<TableName, List<Increment>> incrementMap = merge.createBulkIncrement(snapshot);
 

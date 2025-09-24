@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.grpc.server;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
@@ -11,8 +27,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HeaderExtractor {
+    private static final int UNSPECIFIED_LENGTH = -1;
 
-    private final int nameMaxLength = PinpointConstants.AGENT_NAME_MAX_LEN;
+    private final int idMaxLength;
+    private final int nameMaxLength;
+
+    public HeaderExtractor() {
+        this(PinpointConstants.AGENT_ID_MAX_LEN, PinpointConstants.AGENT_NAME_MAX_LEN);
+    }
+
+    public HeaderExtractor(int idMaxLength, int nameMaxLength) {
+        this.idMaxLength = idMaxLength;
+        this.nameMaxLength = nameMaxLength;
+    }
 
     public long getTime(Metadata headers, Metadata.Key<String> timeKey) {
         final String timeStr = headers.get(timeKey);
@@ -36,9 +63,13 @@ public class HeaderExtractor {
     }
 
     public String getName(Metadata headers, Metadata.Key<String> idKey) {
+        return getName(headers, idKey, this.nameMaxLength);
+    }
+
+    public String getName(Metadata headers, Metadata.Key<String> idKey, int maxNameLength) {
         final String name = headers.get(idKey);
         if (!StringUtils.isEmpty(name)) {
-            final IdValidateUtils.CheckResult result = IdValidateUtils.checkId(name, nameMaxLength);
+            final IdValidateUtils.CheckResult result = IdValidateUtils.checkId(name, defaultLength(maxNameLength, this.nameMaxLength));
             if (result == IdValidateUtils.CheckResult.FAIL_PATTERN) {
                 throw new InvalidGrpcHeaderException(idKey, "Invalid " + idKey.name());
             }
@@ -47,6 +78,13 @@ public class HeaderExtractor {
             }
         }
         return name;
+    }
+
+    private int defaultLength(int length, int defaultValue) {
+        if (length != UNSPECIFIED_LENGTH) {
+            return length;
+        }
+        return defaultValue;
     }
 
     public long getSocketId(Metadata headers) {
@@ -95,7 +133,7 @@ public class HeaderExtractor {
     }
 
     String validateId(String id, Metadata.Key<?> key) {
-        if (!IdValidateUtils.validateId(id)) {
+        if (!IdValidateUtils.validateId(id, idMaxLength)) {
             throw new InvalidGrpcHeaderException(key, "Invalid " + key.name());
         }
         return id;

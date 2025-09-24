@@ -132,20 +132,20 @@ public class HbaseTraceService implements TraceService {
         }, grpcSpanServerExecutor);
     }
 
-    private void insertAcceptorHost(long requestTime, SpanEventBo spanEvent, Vertex spanVertex) {
+    private void insertAcceptorHost(long requestTime, SpanEventBo spanEvent, Vertex selfVertex) {
         final String endPoint = spanEvent.getEndPoint();
         if (endPoint == null) {
-            logger.debug("endPoint is null. appName:{} spanEvent:{}", spanVertex, spanEvent);
+            logger.debug("endPoint is null. appName:{} spanEvent:{}", selfVertex, spanEvent);
             return;
         }
         final String destinationId = spanEvent.getDestinationId();
         if (destinationId == null) {
-            logger.debug("destinationId is null. appName:{} spanEvent:{}", spanVertex, spanEvent);
+            logger.debug("destinationId is null. appName:{} spanEvent:{}", selfVertex, spanEvent);
             return;
         }
         ServiceType serviceType = registry.findServiceType(spanEvent.getServiceType());
-        Vertex selfVertex = Vertex.of(destinationId, serviceType);
-        hostApplicationMapDao.insert(requestTime, endPoint, selfVertex, spanVertex.applicationName(), spanVertex.serviceType().getCode());
+        Vertex rpcVertex = Vertex.of(destinationId, serviceType);
+        hostApplicationMapDao.insert(requestTime, selfVertex.applicationName(), selfVertex.serviceType().getCode(), rpcVertex, endPoint);
     }
 
     private void insertAcceptorHost(SpanBo span, Vertex selfVertex) {
@@ -162,7 +162,7 @@ public class HbaseTraceService implements TraceService {
             logger.debug("parentApplicationName is null agent: {}/{}", span.getApplicationName(), span.getAgentName());
             return;
         }
-        final short parentServiceType = span.getParentApplicationServiceType();
+        final int parentServiceType = span.getParentApplicationServiceType();
         final ServiceType spanServiceType = registry.findServiceType(span.getServiceType());
         if (spanServiceType.isQueue()) {
             final String host = span.getEndPoint();
@@ -170,9 +170,9 @@ public class HbaseTraceService implements TraceService {
                 logger.debug("endPoint is null agent: {}/{}", span.getApplicationName(), span.getAgentName());
                 return;
             }
-            hostApplicationMapDao.insert(span.getCollectorAcceptTime(), host, selfVertex, parentApplicationName, parentServiceType);
+            hostApplicationMapDao.insert(span.getCollectorAcceptTime(), parentApplicationName, parentServiceType, selfVertex, host);
         } else {
-            hostApplicationMapDao.insert(span.getCollectorAcceptTime(), acceptorHost, selfVertex, parentApplicationName, parentServiceType);
+            hostApplicationMapDao.insert(span.getCollectorAcceptTime(), parentApplicationName, parentServiceType, selfVertex, acceptorHost);
         }
     }
 
@@ -237,7 +237,7 @@ public class HbaseTraceService implements TraceService {
                     if (logger.isDebugEnabled()) {
                         logger.debug("[Bind] child-queue {}/{} <- {}", queueAcceptVertex, span.getRemoteAddr(), parentVertex);
                     }
-                    hostApplicationMapDao.insert(span.getCollectorAcceptTime(), span.getRemoteAddr(), queueAcceptVertex, parentVertex.applicationName(), parentVertex.serviceType().getCode());
+                    hostApplicationMapDao.insert(span.getCollectorAcceptTime(), parentVertex.applicationName(), parentVertex.serviceType().getCode(), queueAcceptVertex, span.getRemoteAddr());
                     // emulate virtual queue node's send SpanEvent
 
                     if (logger.isDebugEnabled()) {
