@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.RowTypeHint;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.util.SpanUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
@@ -32,7 +32,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author emeroad
@@ -43,6 +42,17 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>>, RowT
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
+    private final HbaseColumnFamily traceIndex;
+
+    public TransactionIdMapper() {
+        this.traceIndex = HbaseTables.TRACE_INDEX;
+    }
+
+    // for ApplicationTraceIndexDao
+    public TransactionIdMapper(HbaseColumnFamily applicationTraceIndex) {
+        this.traceIndex = applicationTraceIndex;
+    }
+
     @Override
     public List<TransactionId> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
@@ -51,33 +61,13 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>>, RowT
         Cell[] rawCells = result.rawCells();
         List<TransactionId> traceIdList = new ArrayList<>(rawCells.length);
         for (Cell cell : rawCells) {
-            if (CellUtil.matchingFamily(cell, HbaseTables.APPLICATION_TRACE_INDEX_TRACE.getName())) {
-                final byte[] qualifierArray = cell.getQualifierArray();
-                final int qualifierOffset = cell.getQualifierOffset();
-                final int qualifierLength = cell.getQualifierLength();
-                // increment by value of key
-                TransactionId traceId = parseVarTransactionId(qualifierArray, qualifierOffset, qualifierLength);
+            if (CellUtil.matchingFamily(cell, traceIndex.getName())) {
+                TransactionId traceId = SpanUtils.parseVarTransactionId(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
                 traceIdList.add(traceId);
-
                 logger.debug("found traceId {}", traceId);
             }
         }
         return traceIdList;
-    }
-
-    public static TransactionId parseVarTransactionId(byte[] bytes, int offset, int length) {
-        Objects.requireNonNull(bytes, "bytes");
-
-        final Buffer buffer = new OffsetFixedBuffer(bytes, offset, length);
-        
-        // skip elapsed time (not used) hbase column prefix - only used for filtering.
-        // Not sure if we can reduce the data size any further.
-        // buffer.readInt();
-        
-        String agentId = buffer.readPrefixedString();
-        long agentStartTime = buffer.readSVLong();
-        long transactionSequence = buffer.readVLong();
-        return TransactionId.of(agentId, agentStartTime, transactionSequence);
     }
 
     @Override

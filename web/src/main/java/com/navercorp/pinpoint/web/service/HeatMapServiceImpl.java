@@ -5,6 +5,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
+import com.navercorp.pinpoint.web.dao.TraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
 import com.navercorp.pinpoint.web.scatter.heatmap.HeatMap;
@@ -40,14 +41,17 @@ public class HeatMapServiceImpl implements HeatMapService {
     };
 
     private final ApplicationTraceIndexDao applicationTraceIndexDao;
+    private final TraceIndexDao traceIndexDao;
 
     private final TraceDao traceDao;
     private final SpanService spanService;
 
     public HeatMapServiceImpl(ApplicationTraceIndexDao applicationTraceIndexDao,
+                              TraceIndexDao traceIndexDao,
                               SpanService spanService,
                               TraceDao traceDao) {
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
+        this.traceIndexDao = Objects.requireNonNull(traceIndexDao, "applicationTraceIndexV2Dao");
         this.spanService = Objects.requireNonNull(spanService, "spanService");
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
     }
@@ -60,6 +64,22 @@ public class HeatMapServiceImpl implements HeatMapService {
 
 
         LimitedScanResult<List<DotMetaData>> scanResult = applicationTraceIndexDao.scanScatterDataV2(applicationName, dragAreaQuery, limit);
+        List<DotMetaData> scanData = scanResult.scanData();
+        logger.debug("dragScatterArea applicationName:{} dots:{}", applicationName, scanResult);
+
+        if (hasOldVersion(scanData)) {
+            return filterCompatibility(applicationName, scanResult);
+        }
+        return scanResult;
+    }
+
+    @Override
+    public LimitedScanResult<List<DotMetaData>> dragScatterDataV3(int serviceUid, String applicationName, int serviceTypeCode, DragAreaQuery dragAreaQuery, int limit) {
+        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(dragAreaQuery, "dragAreaQuery");
+
+
+        LimitedScanResult<List<DotMetaData>> scanResult = traceIndexDao.scanScatterDataV2(serviceUid, applicationName, serviceTypeCode, dragAreaQuery, limit);
         List<DotMetaData> scanData = scanResult.scanData();
         logger.debug("dragScatterArea applicationName:{} dots:{}", applicationName, scanResult);
 
@@ -134,6 +154,26 @@ public class HeatMapServiceImpl implements HeatMapService {
 
 
         LimitedScanResult<List<Dot>> scanResult = applicationTraceIndexDao.scanTraceScatterData(applicationName, range, limit, true);
+
+        final int slotSize = 100;
+        HeatMapBuilder builder = HeatMapBuilder.newBuilder(range.getFrom(), range.getTo(), slotSize, 0, maxY, slotSize);
+        for (Dot dot : scanResult.scanData()) {
+            final boolean success = dot.getExceptionCode() == Dot.EXCEPTION_NONE;
+            builder.addDataPoint(dot.getAcceptedTime(), dot.getElapsedTime(), success);
+        }
+        HeatMap heatMap = builder.build();
+        logger.debug("getHeatMap applicationName:{} dots:{} heatMap:{}", applicationName, scanResult.scanData().size(), heatMap);
+
+        return new LimitedScanResult<>(scanResult.limitedTime(), heatMap);
+    }
+
+    @Override
+    public LimitedScanResult<HeatMap> getHeatMapV2(int serviceUid, String applicationName, int serviceTypeCode, Range range, long maxY, int limit) {
+        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(range, "range");
+
+
+        LimitedScanResult<List<Dot>> scanResult = traceIndexDao.scanTraceScatterData(serviceUid, applicationName, serviceTypeCode, range, limit, true);
 
         final int slotSize = 100;
         HeatMapBuilder builder = HeatMapBuilder.newBuilder(range.getFrom(), range.getTo(), slotSize, 0, maxY, slotSize);

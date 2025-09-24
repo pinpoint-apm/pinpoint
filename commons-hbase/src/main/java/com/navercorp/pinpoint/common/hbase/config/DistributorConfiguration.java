@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.hbase.config;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.OneByteSimpleHash;
 import com.navercorp.pinpoint.common.hbase.wd.RangeDoubleHash;
@@ -39,6 +40,12 @@ public class DistributorConfiguration {
     @Bean
     public RowKeyDistributorByHashPrefix applicationTraceIndexDistributor() {
         ByteHasher hasher = newOneByteSimpleHash(32);
+        return new RowKeyDistributorByHashPrefix(hasher);
+    }
+
+    @Bean
+    public RowKeyDistributorByHashPrefix traceIndexDistributor() {
+        ByteHasher hasher = RangeDoubleHash.ofRandom(0, HbaseTableConstants.TRACE_INDEX_HASH_PREFIX_SIZE + 4, 256, 8);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 

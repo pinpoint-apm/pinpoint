@@ -18,9 +18,12 @@ package com.navercorp.pinpoint.web.applicationmap.controller;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapViewV3;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapViewV3;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWithScatter;
@@ -58,7 +61,7 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 @RestController
-@RequestMapping(path = { "/api", "/api/servermap"})
+@RequestMapping(path = {"/api", "/api/servermap"})
 @Validated
 public class FilteredMapController {
     private final Logger logger = LogManager.getLogger(this.getClass());
@@ -67,40 +70,85 @@ public class FilteredMapController {
     private final TraceIndexService traceIndexService;
     private final FilterBuilder<List<SpanBo>> filterBuilder;
     private final HyperLinkFactory hyperLinkFactory;
+    private final ServiceTypeRegistryService serviceTypeRegistryService;
 
     public FilteredMapController(
             FilteredMapService filteredMapService,
             TraceIndexService traceIndexService,
             FilterBuilder<List<SpanBo>> filterBuilder,
-            HyperLinkFactory hyperLinkFactory
-    ) {
+            HyperLinkFactory hyperLinkFactory,
+            ServiceTypeRegistryService serviceTypeRegistryService) {
         this.filteredMapService = Objects.requireNonNull(filteredMapService, "filteredMapService");
         this.traceIndexService = Objects.requireNonNull(traceIndexService, "traceIndexService");
         this.filterBuilder = Objects.requireNonNull(filterBuilder, "filterBuilder");
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
+        this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
     }
 
     @GetMapping(value = "/filterServerMap")
     public FilterMapViewV3 getFilterServer(
             @Valid @ModelAttribute
-            ApplicationForm appForm,
+                    ApplicationForm appForm,
             @Valid @ModelAttribute
-            RangeForm rangeForm,
+                    RangeForm rangeForm,
             @RequestParam("originTo") long originTo,
             @Valid @ModelAttribute
-            GroupForm groupForm,
+                    GroupForm groupForm,
             @Valid @ModelAttribute
-            FilterForm filterForm,
+                    FilterForm filterForm,
             @RequestParam(value = "limit", required = false, defaultValue = "10000")
             @PositiveOrZero int limitParam,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "true", required = false)
-            boolean useStatisticsAgentState) {
+                    boolean useStatisticsAgentState) {
         final String applicationName = appForm.getApplicationName();
 
         final int limit = Math.min(limitParam, LimitUtils.MAX);
         final Filter<List<SpanBo>> filter = newFilter(filterForm);
         final Range range = toRange(rangeForm);
         final LimitedScanResult<List<TransactionId>> limitedScanResult = traceIndexService.getTraceIndex(applicationName, range, limit);
+
+        final long lastScanTime = limitedScanResult.limitedTime();
+        // original range: needed for visual chart data sampling
+        final Range originalRange = Range.between(rangeForm.getFrom(), originTo);
+        // needed to figure out already scanned ranged
+        final Range scannerRange = Range.between(lastScanTime, range.getTo());
+        logger.debug("originalRange:{} scannerRange:{} ", originalRange, scannerRange);
+        final FilteredMapServiceOption option = newFilteredOption(limitedScanResult.scanData(), originalRange, groupForm, filter, useStatisticsAgentState);
+        final FilterMapWithScatter map = filteredMapService.selectApplicationMapWithScatterData(option);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("getFilteredServerMapData range scan(limit:{}) range:{} lastFetchedTimestamp:{}", limit, range.prettyToString(), DateTimeFormatUtils.format(lastScanTime));
+        }
+
+        TimeWindow timeWindow = new TimeWindow(scannerRange);
+        ApplicationMapViewV3 applicationMapView = new ApplicationMapViewV3(map.getApplicationMap(), timeWindow, MapViews.ofDetailed(), hyperLinkFactory);
+        ScatterDataMapView scatterDataMapView = new ScatterDataMapView(map.getScatterDataMap());
+//        FilteredHistogramView filteredHistogramView = new FilteredHistogramView(map.getApplicationMap(), timeWindow, hyperLinkFactory);
+        return new FilterMapViewV3(applicationMapView, scatterDataMapView, null, lastScanTime);
+    }
+
+    @GetMapping(value = "/filterServerMapV2")
+    public FilterMapViewV3 getFilterServerV2(
+            @Valid @ModelAttribute
+                    ApplicationForm appForm,
+            @Valid @ModelAttribute
+                    RangeForm rangeForm,
+            @RequestParam("originTo") long originTo,
+            @Valid @ModelAttribute
+                    GroupForm groupForm,
+            @Valid @ModelAttribute
+                    FilterForm filterForm,
+            @RequestParam(value = "limit", required = false, defaultValue = "10000")
+            @PositiveOrZero int limitParam,
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "true", required = false)
+                    boolean useStatisticsAgentState) {
+        final String applicationName = appForm.getApplicationName();
+        final ServiceType serviceType = findServiceType(appForm.getServiceTypeCode(), appForm.getServiceTypeName());
+
+        final int limit = Math.min(limitParam, LimitUtils.MAX);
+        final Filter<List<SpanBo>> filter = newFilter(filterForm);
+        final Range range = toRange(rangeForm);
+        final LimitedScanResult<List<TransactionId>> limitedScanResult = traceIndexService.getTraceIndexV2(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceType.getCode(), range, limit);
 
         final long lastScanTime = limitedScanResult.limitedTime();
         // original range: needed for visual chart data sampling
@@ -139,6 +187,22 @@ public class FilteredMapController {
 
     private Range toRange(RangeForm rangeForm) {
         return Range.between(rangeForm.getFrom(), rangeForm.getTo());
+    }
+
+    private ServiceType findServiceType(Integer serviceTypeCode, String serviceTypeName) {
+        if (serviceTypeCode != null) {
+            ServiceType serviceTypeFromCode = serviceTypeRegistryService.findServiceType(serviceTypeCode);
+            if (serviceTypeFromCode != null && !ServiceType.UNDEFINED.equals(serviceTypeFromCode)) {
+                return serviceTypeFromCode;
+            }
+        }
+        if (serviceTypeName != null) {
+            ServiceType serviceTypeFromName = serviceTypeRegistryService.findServiceTypeByName(serviceTypeName);
+            if (serviceTypeFromName != null && !ServiceType.UNDEFINED.equals(serviceTypeFromName)) {
+                return serviceTypeFromName;
+            }
+        }
+        throw new IllegalArgumentException("application serviceType not found. code:" + serviceTypeCode + ", name:" + serviceTypeName);
     }
 
 }

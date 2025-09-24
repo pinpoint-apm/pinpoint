@@ -36,6 +36,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -58,6 +59,9 @@ public class HbaseTraceService implements TraceService {
     private final TraceDao traceDao;
 
     private final ApplicationTraceIndexDao applicationTraceIndexDao;
+    private final ApplicationTraceIndexDao applicationTraceIndexDaoV2;
+    private final boolean enableApplicationTraceIndexV1;
+    private final boolean enableApplicationTraceIndexV2;
 
     private final HostApplicationMapDao hostApplicationMapDao;
 
@@ -70,6 +74,9 @@ public class HbaseTraceService implements TraceService {
 
     public HbaseTraceService(TraceDao traceDao,
                              ApplicationTraceIndexDao applicationTraceIndexDao,
+                             @Qualifier("hbaseApplicationTraceIndexDaoV2") ApplicationTraceIndexDao applicationTraceIndexDaoV2,
+                             @Value("${pinpoint.collector.application.trace.index.v1.enabled:true}") boolean enableApplicationTraceIndexV1,
+                             @Value("${pinpoint.collector.application.trace.index.v2.enabled:false}") boolean enableApplicationTraceIndexV2,
                              HostApplicationMapDao hostApplicationMapDao,
                              LinkService linkService,
                              ServiceTypeRegistryService registry,
@@ -77,6 +84,9 @@ public class HbaseTraceService implements TraceService {
                              @Qualifier("grpcSpanServerExecutor") Executor grpcSpanServerExecutor) {
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
+        this.applicationTraceIndexDaoV2 = Objects.requireNonNull(applicationTraceIndexDaoV2, "applicationTraceIndexDaoV2");
+        this.enableApplicationTraceIndexV1 = enableApplicationTraceIndexV1;
+        this.enableApplicationTraceIndexV2 = enableApplicationTraceIndexV2;
         this.hostApplicationMapDao = Objects.requireNonNull(hostApplicationMapDao, "hostApplicationMapDao");
         this.linkService = Objects.requireNonNull(linkService, "statisticsService");
         this.registry = Objects.requireNonNull(registry, "registry");
@@ -115,7 +125,7 @@ public class HbaseTraceService implements TraceService {
     public void insertSpan(final SpanBo spanBo) {
         SpanInsertEvent event = publisher.captureContext(spanBo);
         CompletableFuture<Void> future = traceDao.asyncInsert(spanBo);
-        applicationTraceIndexDao.insert(spanBo);
+        insertApplicationTraceIndex(spanBo);
 
         final Vertex selfVertex = getSelfVertex(spanBo);
 
@@ -130,6 +140,15 @@ public class HbaseTraceService implements TraceService {
             }
             publisher.publishEvent(event, result);
         }, grpcSpanServerExecutor);
+    }
+
+    private void insertApplicationTraceIndex(SpanBo span) {
+        if (enableApplicationTraceIndexV1) {
+            applicationTraceIndexDao.insert(span);
+        }
+        if (enableApplicationTraceIndexV2) {
+            applicationTraceIndexDaoV2.insert(span);
+        }
     }
 
     private void insertAcceptorHost(long requestTime, SpanEventBo spanEvent, Vertex selfVertex) {

@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
+import com.navercorp.pinpoint.web.dao.TraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
@@ -49,15 +50,18 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ApplicationTraceIndexDao applicationTraceIndexDao;
+    private final TraceIndexDao traceIndexDao;
 
     private final TraceDao traceDao;
 
     private final SpanService spanService;
 
     public ScatterChartServiceImpl(ApplicationTraceIndexDao applicationTraceIndexDao,
+                                   TraceIndexDao traceIndexDao,
                                    TraceDao traceDao,
                                    SpanService spanService) {
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
+        this.traceIndexDao = Objects.requireNonNull(traceIndexDao, "applicationTraceIndexV2Dao");
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
         this.spanService = Objects.requireNonNull(spanService, "spanService");
     }
@@ -137,6 +141,44 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 
             for (SpanBo span : trace) {
                 if (applicationName.equals(span.getApplicationName())) {
+                    final TransactionId transactionId = span.getTransactionId();
+                    final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
+                    scatterData.addDot(dot);
+                }
+            }
+        }
+
+        return scatterData.build();
+    }
+
+    @Override
+    public ScatterData selectScatterDataV2(int serviceUid, String applicationName, int serviceTypeCode, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection) {
+        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(range, "range");
+        LimitedScanResult<List<Dot>> scanResult = traceIndexDao.scanTraceScatterData(serviceUid, applicationName, serviceTypeCode, range, limit, backwardDirection);
+
+        ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
+        builder.addDot(scanResult.scanData());
+        return builder.build();
+    }
+
+    @Override
+    public ScatterData selectScatterDataV2(List<TransactionId> transactionIdList, String applicationName, int serviceTypeCode, Range range, int xGroupUnit, int yGroupUnit, Filter<List<SpanBo>> filter) {
+        Objects.requireNonNull(transactionIdList, "transactionIdList");
+        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(filter, "filter");
+
+        final List<List<SpanBo>> traceList = traceDao.selectAllSpans(transactionIdList);
+        populateAgentNameListOfList(traceList);
+
+        ScatterDataBuilder scatterData = new ScatterDataBuilder(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
+        for (List<SpanBo> trace : traceList) {
+            if (!filter.include(trace)) {
+                continue;
+            }
+
+            for (SpanBo span : trace) {
+                if (applicationName.equals(span.getApplicationName()) && serviceTypeCode == span.getServiceType()) {
                     final TransactionId transactionId = span.getTransactionId();
                     final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
                     scatterData.addDot(dot);

@@ -23,12 +23,13 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
-import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.config.ScatterChartProperties;
-import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
+import com.navercorp.pinpoint.web.dao.TraceIndexDao;
+import com.navercorp.pinpoint.web.mapper.TraceIndexScatterMapper;
+import com.navercorp.pinpoint.web.mapper.TransactionIdMapper;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.scatter.ScatterDataBuilder;
 import com.navercorp.pinpoint.web.util.ListListUtils;
@@ -55,35 +56,39 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class HbaseApplicationTraceIndexDaoTest {
+public class HbaseTraceIndexDaoTest {
+
+    private final int serviceUid = ServiceUid.DEFAULT_SERVICE_UID_CODE;
 
     @Mock
     private HbaseOperations hbaseOperations;
 
     @Mock
-    private RowKeyDistributor traceIdRowKeyDistributor;
+    private RowKeyDistributor traceIndexRowKeyDistributor;
 
     @Spy
     private final TableNameProvider tableNameProvider = new HbaseTableNameProvider("default");
 
-    private ApplicationTraceIndexDao applicationTraceIndexDao;
+    private TraceIndexDao traceIndexDao;
 
     @AutoClose
     @SuppressWarnings("unused")
     private AutoCloseable openMocks;
-    
+
     @BeforeEach
     public void beforeEach() {
         openMocks = MockitoAnnotations.openMocks(this);
         ScatterChartProperties scatterChartProperties = new ScatterChartProperties();
-        ApplicationNameRowKeyEncoder applicationNameRowKeyEncoder = new ApplicationNameRowKeyEncoder();
-        this.applicationTraceIndexDao = new HbaseApplicationTraceIndexDao(scatterChartProperties, hbaseOperations, applicationNameRowKeyEncoder, tableNameProvider, traceIdRowKeyDistributor);
+
+        RowMapper<List<TransactionId>> transactionIdMapper = new TransactionIdMapper();
+        RowMapper<List<Dot>> traceScatterMapper = new TraceIndexScatterMapper();
+        this.traceIndexDao = new HbaseTraceIndexDao(scatterChartProperties, hbaseOperations, tableNameProvider, transactionIdMapper, traceScatterMapper, traceIndexRowKeyDistributor);
     }
 
     @Test
     public void scanTraceIndexExceptionTest() {
         assertThrows(IllegalArgumentException.class, () -> {
-            this.applicationTraceIndexDao.scanTraceIndex("app", Range.between(0, 10), -20, false);
+            this.traceIndexDao.scanTraceIndex(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), Range.between(0, 10), -20, false);
         });
     }
 
@@ -93,12 +98,12 @@ public class HbaseApplicationTraceIndexDaoTest {
         when(this.hbaseOperations.findParallel(any(TableName.class), any(Scan.class), any(RowKeyDistributor.class),
                 anyInt(), any(RowMapper.class), any(LimitEventHandler.class), anyInt())).thenReturn(scannedList);
         LimitedScanResult<List<TransactionId>> result =
-                this.applicationTraceIndexDao.scanTraceIndex("app", Range.between(1000L, 5000L), 20, false);
+                this.traceIndexDao.scanTraceIndex(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), Range.between(1000L, 5000L), 20, false);
         Assertions.assertEquals(1000L, result.limitedTime());
         Assertions.assertEquals(ListListUtils.toList(scannedList), result.scanData());
 
         // using last row accessor
-        result = this.applicationTraceIndexDao.scanTraceIndex("app", Range.between(1000L, 5000L), 5, true);
+        result = this.traceIndexDao.scanTraceIndex(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), Range.between(1000L, 5000L), 5, true);
         Assertions.assertEquals(-1L, result.limitedTime());
         Assertions.assertEquals(ListListUtils.toList(scannedList), result.scanData());
 
@@ -107,7 +112,7 @@ public class HbaseApplicationTraceIndexDaoTest {
     @Test
     public void scanTraceScatterDataExceptionTest() {
         assertThrows(IllegalArgumentException.class, () -> {
-            this.applicationTraceIndexDao.scanTraceScatterData("app", Range.between(1000L, 5000L), -10, false);
+            this.traceIndexDao.scanTraceScatterData(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), Range.between(1000L, 5000L), -10, false);
         });
     }
 
@@ -118,7 +123,7 @@ public class HbaseApplicationTraceIndexDaoTest {
                 anyInt(), any(RowMapper.class), any(LimitEventHandler.class), anyInt())).thenReturn(List.of());
         Range range = Range.between(1000L, 5000L);
         LimitedScanResult<List<Dot>> scanResult
-                = this.applicationTraceIndexDao.scanTraceScatterData("app", range, 10, false);
+                = this.traceIndexDao.scanTraceScatterData(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), range, 10, false);
         ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), 1, 5);
         scanResult.scanData().forEach(builder::addDot);
         ScatterData result = builder.build();
@@ -135,7 +140,7 @@ public class HbaseApplicationTraceIndexDaoTest {
                 anyInt(), any(RowMapper.class), anyInt())).thenReturn(scatterDotList);
         Range range = Range.between(1000L, 5000L);
         LimitedScanResult<List<Dot>> scanResult
-                = this.applicationTraceIndexDao.scanTraceScatterData("app", range, 10, false);
+                = this.traceIndexDao.scanTraceScatterData(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), range, 10, false);
         ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), 1, 5);
         scanResult.scanData().forEach(builder::addDot);
         ScatterData result = builder.build();
