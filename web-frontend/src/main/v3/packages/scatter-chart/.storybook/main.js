@@ -6,9 +6,9 @@ module.exports = {
     '@storybook/addon-interactions',
     'storybook-css-modules',
   ],
-  framework: '@storybook/html',
-  core: {
-    builder: '@storybook/builder-webpack5',
+  framework: {
+    name: '@storybook/html-vite',
+    options: {},
   },
   // webpackFinal: async (config, { configType }) => {
   //   // `configType` has a value of 'DEVELOPMENT' or 'PRODUCTION'
