@@ -1,5 +1,5 @@
 import React from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import { ComponentStory, ComponentMeta } from '@storybook/react-vite';
 
 import { ServerMap } from '../ui/ServerMap';
 import { getServerMapData } from './mock/util';

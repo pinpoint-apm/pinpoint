@@ -28,13 +28,9 @@
   "devDependencies": {
     "@babel/core": "^7.17.10",
     "@babel/preset-react": "^7.18.6",
-    "@storybook/addon-actions": "^7.4.0",
-    "@storybook/addon-essentials": "^7.4.0",
-    "@storybook/addon-interactions": "^7.4.0",
-    "@storybook/addon-links": "^7.4.0",
-    "@storybook/builder-vite": "^7.4.0",
-    "@storybook/react": "^7.4.0",
-    "@storybook/react-vite": "^7.4.0",
+    "@storybook/addon-links": "^9.1.8",
+    "@storybook/builder-vite": "^9.1.8",
+    "@storybook/react-vite": "^9.1.8",
     "@storybook/testing-library": "^0.2.0",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
@@ -54,6 +50,8 @@
     "jest-environment-jsdom": "^30.0.4",
     "prettier": "^3.3.3",
     "ts-jest": "^28.0.5",
-    "typescript": "^4.5.5"
+    "typescript": "^4.5.5",
+    "eslint-plugin-storybook": "9.1.8",
+    "@storybook/addon-docs": "9.1.8"
   }
 }
