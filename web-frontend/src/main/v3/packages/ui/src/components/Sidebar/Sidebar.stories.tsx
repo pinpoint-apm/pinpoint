@@ -1,9 +1,9 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react';
-
+import React from 'react';
+import { StoryFn, Meta } from '@storybook/react';
 import {
   Menu,
   MenuItem,
-  SidebarProvider,
+  // SidebarProvider,
   Sidebar,
   menuItemStyles,
   bottomMenuItemStyles,
@@ -24,11 +24,11 @@ export default {
   argTypes: {
     backgroundColor: { control: 'color' },
   },
-} as ComponentMeta<typeof Sidebar>;
+} as Meta<typeof Sidebar>;
 
-const Template: ComponentStory<typeof Sidebar> = (args) => {
+const Template: StoryFn<typeof Sidebar> = (args) => {
   return (
-    <SidebarProvider {...args}>
+    // <SidebarProvider {...args}>
       <div style={{ display: 'flex', height: '100vh' }}>
         <Sidebar>
           <Menu menuItemStyles={menuItemStyles}>
@@ -62,7 +62,7 @@ const Template: ComponentStory<typeof Sidebar> = (args) => {
           </Menu>
         </Sidebar>
       </div>
-    </SidebarProvider>
+    // </SidebarProvider>
   );
 };
 

@@ -1,5 +1,5 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react';
-
+import React from 'react';
+import { StoryFn, Meta } from '@storybook/react';
 import { ResponseSummaryChart } from './ResponseSummaryChart';
 
 export default {
@@ -8,11 +8,9 @@ export default {
   argTypes: {
     backgroundColor: { control: 'color' },
   },
-} as ComponentMeta<typeof ResponseSummaryChart>;
+} as Meta<typeof ResponseSummaryChart>;
 
-const Template: ComponentStory<typeof ResponseSummaryChart> = (args) => (
-  <ResponseSummaryChart {...args} />
-);
+const Template: StoryFn<typeof ResponseSummaryChart> = (args) => <ResponseSummaryChart {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {
