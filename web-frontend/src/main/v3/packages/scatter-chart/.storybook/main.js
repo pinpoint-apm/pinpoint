@@ -1,13 +1,13 @@
+const {
+  dirname,
+  join
+} = require("node:path");
+
 module.exports = {
   stories: ['../src/stories/**/*.stories.mdx', '../src/stories/**/*.stories.@(js|jsx|ts|tsx)'],
-  addons: [
-    '@storybook/addon-links',
-    '@storybook/addon-essentials',
-    '@storybook/addon-interactions',
-    'storybook-css-modules',
-  ],
+  addons: [getAbsolutePath("@storybook/addon-links"), getAbsolutePath("storybook-css-modules"), getAbsolutePath("@storybook/addon-docs")],
   framework: {
-    name: '@storybook/html-vite',
+    name: getAbsolutePath("@storybook/html-vite"),
     options: {},
   },
   // webpackFinal: async (config, { configType }) => {
@@ -25,3 +25,7 @@ module.exports = {
   //   return config;
   // },
 };
+
+function getAbsolutePath(value) {
+  return dirname(require.resolve(join(value, "package.json")));
+}
