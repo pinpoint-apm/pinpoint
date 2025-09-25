@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
@@ -31,26 +32,17 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
 
-
-/**
- * find traceids by application name
- *
- * @author netspider
- * @author emeroad
- */
-@Primary
 @Repository
-public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
+public class HbaseApplicationTraceIndexDaoV2 implements ApplicationTraceIndexDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final HbaseTables.ApplicationTraceIndexTrace INDEX = HbaseTables.APPLICATION_TRACE_INDEX_TRACE;
-    private static final HbaseTables.ApplicationTraceIndexTrace META = HbaseTables.APPLICATION_TRACE_INDEX_META;
+    private static final HbaseColumnFamily INDEX_V2 = HbaseTables.APPLICATION_TRACE_INDEX_TRACE_V2;
+    private static final HbaseColumnFamily META_V2 = HbaseTables.APPLICATION_TRACE_INDEX_META_V2;
 
     private final HbasePutWriter putWriter;
     private final TableNameProvider tableNameProvider;
@@ -58,10 +50,10 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     private final RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoder;
 
 
-    public HbaseApplicationTraceIndexDao(HbasePutWriter putWriter,
-                                         TableNameProvider tableNameProvider,
-                                         @Qualifier("applicationIndexRowKeyEncoder")
-                                         RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoder) {
+    public HbaseApplicationTraceIndexDaoV2(HbasePutWriter putWriter,
+                                           TableNameProvider tableNameProvider,
+                                           @Qualifier("applicationIndexRowKeyEncoderV2")
+                                                   RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoder) {
         this.putWriter = Objects.requireNonNull(putWriter, "putWriter");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.applicationIndexRowKeyEncoder = Objects.requireNonNull(applicationIndexRowKeyEncoder, "applicationIndexRowKeyEncoder");
@@ -84,12 +76,12 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         final byte[] qualifier = SpanUtils.getVarTransactionId(span);
 
         final byte[] indexValue = buildIndexValue(span);
-        put.addColumn(INDEX.getName(), qualifier, acceptedTime, indexValue);
+        put.addColumn(INDEX_V2.getName(), qualifier, acceptedTime, indexValue);
 
         final byte[] metaDataValue = buildMetaData(span);
-        put.addColumn(META.getName(), qualifier, metaDataValue);
+        put.addColumn(META_V2.getName(), qualifier, metaDataValue);
 
-        final TableName applicationTraceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
+        final TableName applicationTraceIndexTableName = tableNameProvider.getTableName(INDEX_V2.getTable());
         putWriter.put(applicationTraceIndexTableName, put);
     }
 
