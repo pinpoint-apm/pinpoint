@@ -73,12 +73,14 @@ export const ServerList = ({
                                 {instance?.agentName || instance.agentId}
                               </div>
                             )}
-                            <Button
-                              className="z-10 h-5 p-1 ml-auto rounded-sm text-xxs"
-                              onClick={() => onClickInspectorLink?.(instance.agentId)}
-                            >
-                              <FaChartLine className="text-white" />
-                            </Button>
+                            {instance?.hasInspector && (
+                              <Button
+                                className="z-10 h-5 p-1 ml-auto rounded-sm text-xxs"
+                                onClick={() => onClickInspectorLink?.(instance.agentId)}
+                              >
+                                <FaChartLine className="text-white" />
+                              </Button>
+                            )}
                           </li>
                         </TooltipTrigger>
                         <TooltipContent>
