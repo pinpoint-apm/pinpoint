@@ -1,5 +1,5 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react';
-
+import { StoryFn, Meta } from '@storybook/react';
+import React from 'react';
 import { ResponseAvgMaxChart } from './ResponseAvgMaxChart';
 
 export default {
@@ -8,11 +8,9 @@ export default {
   argTypes: {
     backgroundColor: { control: 'color' },
   },
-} as ComponentMeta<typeof ResponseAvgMaxChart>;
+} as Meta<typeof ResponseAvgMaxChart>;
 
-const Template: ComponentStory<typeof ResponseAvgMaxChart> = (args) => (
-  <ResponseAvgMaxChart {...args} />
-);
+const Template: StoryFn<typeof ResponseAvgMaxChart> = (args) => <ResponseAvgMaxChart {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {

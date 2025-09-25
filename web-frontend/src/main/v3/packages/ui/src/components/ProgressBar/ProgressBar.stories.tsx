@@ -1,31 +1,34 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react';
-
+import React from 'react';
+import type { Meta, StoryObj } from '@storybook/react';
 import { ProgressBar } from './ProgressBar';
 
-export default {
+const meta: Meta<typeof ProgressBar> = {
   title: 'PINPOINT/Component/Common/ProgressBar',
   component: ProgressBar,
   argTypes: {
     range: {
-      control: 'array',
+      control: { type: 'object' },
     },
     progress: {
-      control: 'number',
+      control: { type: 'number' },
     },
     tickCount: {
-      control: 'number',
+      control: { type: 'number' },
     },
     reverse: {
-      control: 'boolean',
+      control: { type: 'boolean' },
     },
     hideTick: {
-      control: 'boolean',
+      control: { type: 'boolean' },
     },
-    onChange: { action: console.log },
+    onChange: { action: 'changed' },
   },
-} as ComponentMeta<typeof ProgressBar>;
+};
 
-const Template: ComponentStory<typeof ProgressBar> = (args) => {
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+const Template = (args: any) => {
   const [count, setCount] = React.useState(0);
 
   return (
@@ -43,15 +46,18 @@ const Template: ComponentStory<typeof ProgressBar> = (args) => {
   );
 };
 
-export const Defatult = Template.bind({});
-Defatult.args = {
-  formatTick: (value) => `${Math.round(value)}`,
-  hideTick: false,
-  reverse: false,
-  // onChange: ({ percent }) => console.log(percent),
+export const Default: Story = {
+  render: Template,
+  args: {
+    formatTick: (value) => `${Math.round(value)}`,
+    hideTick: false,
+    reverse: false,
+  },
 };
 
-// export const HideTick = Template.bind({});
-// HideTick.args = {
-//   hideTick: true,
+// export const HideTick: Story = {
+//   render: Template,
+//   args: {
+//     hideTick: true,
+//   },
 // };
