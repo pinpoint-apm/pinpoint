@@ -32,6 +32,7 @@ export namespace SearchApplication {
     serviceTypeCode: number;
     status: Status;
     linkList: LinkList[];
+    hasInspector: boolean;
   }
 
   export interface Status {
