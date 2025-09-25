@@ -1,13 +1,10 @@
-const {
-  dirname,
-  join
-} = require("node:path");
+const { dirname, join } = require('node:path');
 
 module.exports = {
   stories: ['../src/stories/**/*.stories.mdx', '../src/stories/**/*.stories.@(js|jsx|ts|tsx)'],
-  addons: [getAbsolutePath("@storybook/addon-links"), getAbsolutePath("storybook-css-modules"), getAbsolutePath("@storybook/addon-docs")],
+  addons: ['@storybook/addon-links', 'storybook-css-modules', '@storybook/addon-docs'],
   framework: {
-    name: getAbsolutePath("@storybook/html-vite"),
+    name: '@storybook/html-vite',
     options: {},
   },
   // webpackFinal: async (config, { configType }) => {
@@ -25,7 +22,3 @@ module.exports = {
   //   return config;
   // },
 };
-
-function getAbsolutePath(value) {
-  return dirname(require.resolve(join(value, "package.json")));
-}

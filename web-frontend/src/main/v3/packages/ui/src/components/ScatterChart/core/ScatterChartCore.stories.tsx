@@ -1,5 +1,5 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react';
-
+import React from 'react';
+import { StoryFn, Meta } from '@storybook/react';
 import { ScatterChartCore } from './ScatterChartCore';
 
 export default {
@@ -8,9 +8,9 @@ export default {
   argTypes: {
     backgroundColor: { control: 'color' },
   },
-} as ComponentMeta<typeof ScatterChartCore>;
+} as Meta<typeof ScatterChartCore>;
 
-const Template: ComponentStory<typeof ScatterChartCore> = (args) => <ScatterChartCore {...args} />;
+const Template: StoryFn<typeof ScatterChartCore> = (args) => <ScatterChartCore {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {};

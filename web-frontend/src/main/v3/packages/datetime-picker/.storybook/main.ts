@@ -9,14 +9,14 @@ const config: StorybookConfig = {
   stories: ['../src/**/*.mdx', '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
 
   addons: [
-    getAbsolutePath('@storybook/addon-links'),
-    getAbsolutePath('@storybook/addon-onboarding'),
-    getAbsolutePath('@storybook/addon-docs'),
-    getAbsolutePath('@storybook/addon-styling'),
+    '@storybook/addon-links',
+    '@storybook/addon-onboarding',
+    '@storybook/addon-docs',
+    // getAbsolutePath('@storybook/addon-styling'),
   ],
 
   core: {
-    builder: getAbsolutePath('@storybook/builder-vite'),
+    builder: '@storybook/builder-vite',
   },
 
   async viteFinal(config) {
@@ -37,7 +37,7 @@ const config: StorybookConfig = {
   },
 
   framework: {
-    name: getAbsolutePath('@storybook/react-vite'),
+    name: '@storybook/react-vite',
     options: {},
   },
 
@@ -49,7 +49,3 @@ const config: StorybookConfig = {
   `,
 };
 export default config;
-
-function getAbsolutePath(value: string): any {
-  return dirname(require.resolve(join(value, 'package.json')));
-}

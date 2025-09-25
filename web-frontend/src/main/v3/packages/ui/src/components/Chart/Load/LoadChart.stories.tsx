@@ -1,5 +1,5 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react';
-
+import React from 'react';
+import { StoryFn, Meta } from '@storybook/react';
 import { LoadChart } from './LoadChart';
 
 export default {
@@ -8,9 +8,9 @@ export default {
   argTypes: {
     backgroundColor: { control: 'color' },
   },
-} as ComponentMeta<typeof LoadChart>;
+} as Meta<typeof LoadChart>;
 
-const Template: ComponentStory<typeof LoadChart> = (args) => <LoadChart {...args} />;
+const Template: StoryFn<typeof LoadChart> = (args) => <LoadChart {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {

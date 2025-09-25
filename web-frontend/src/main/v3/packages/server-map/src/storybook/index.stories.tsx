@@ -1,5 +1,5 @@
 import React from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react-vite';
+import { Meta, StoryFn } from '@storybook/react';
 
 import { ServerMap } from '../ui/ServerMap';
 import { getServerMapData } from './mock/util';
@@ -32,9 +32,9 @@ export default {
     onClickNode: { action: 'clicked' },
     onClickEdge: { action: 'clicked' },
   },
-} as ComponentMeta<typeof ServerMap>;
+} as Meta<typeof ServerMap>;
 
-const DefaultTemplate: ComponentStory<typeof ServerMap> = (args) => {
+const DefaultTemplate: StoryFn<typeof ServerMap> = (args) => {
   const [data, setData] = React.useState<ServerMapData>(data1);
 
   // 각 데이터에 맞는 baseNodeId를 반환하는 함수
@@ -83,7 +83,7 @@ Default.args = {
   baseNodeId: 'ApiGateway^SPRING_BOOT',
 };
 
-const RenderCustomLabelTemplate: ComponentStory<typeof ServerMap> = (args) => (
+const RenderCustomLabelTemplate: StoryFn<typeof ServerMap> = (args) => (
   <div style={{ width: '100%', height: '90vh', border: '1px solid black' }}>
     <ServerMap {...args} />
   </div>
@@ -100,7 +100,7 @@ RenderCustomLabel.args = {
   },
 };
 
-const MergedNodeTemplate: ComponentStory<typeof ServerMap> = (args) => (
+const MergedNodeTemplate: StoryFn<typeof ServerMap> = (args) => (
   <div style={{ width: '100%', height: '90vh', border: '1px solid black' }}>
     <ServerMap {...args} />
   </div>

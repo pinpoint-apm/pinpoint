@@ -1,5 +1,5 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react';
-
+import React from 'react';
+import { StoryFn, Meta } from '@storybook/react';
 import { ProgressBar } from './ProgressBar';
 
 export default {
@@ -23,9 +23,9 @@ export default {
     },
     onChange: { action: console.log },
   },
-} as ComponentMeta<typeof ProgressBar>;
+} as unknown as Meta<typeof ProgressBar>;
 
-const Template: ComponentStory<typeof ProgressBar> = (args) => {
+const Template: StoryFn<typeof ProgressBar> = (args) => {
   const [count, setCount] = React.useState(0);
 
   return (
@@ -43,8 +43,8 @@ const Template: ComponentStory<typeof ProgressBar> = (args) => {
   );
 };
 
-export const Defatult = Template.bind({});
-Defatult.args = {
+export const Default = Template.bind({});
+Default.args = {
   formatTick: (value) => `${Math.round(value)}`,
   hideTick: false,
   reverse: false,
