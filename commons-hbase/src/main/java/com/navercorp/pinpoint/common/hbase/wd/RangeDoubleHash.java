@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -147,10 +147,15 @@ public class RangeDoubleHash implements ByteHasher {
 
         @Override
         public int secondary(byte[] originalKey, int saltKeySize) {
-            return BytesUtils.hashBytes(originalKey, start + saltKeySize, end + saltKeySize) % mod;
+            final int hash = MathUtils.fastAbs(BytesUtils.hashBytes(originalKey, start + saltKeySize, end + saltKeySize));
+            return hash % mod;
+//            return hashByteByHashFunction(originalKey, saltKeySize);
+        }
+
+//        private int hashByteByHashFunction(byte[] originalKey, int saltKeySize) {
 //            HashCode hashCode = hashFunction.hashBytes(originalKey, start + saltKeySize, end - start + saltKeySize);
 //            return hashCode.asInt() % mod;
-        }
+//        }
     }
 
     /** Compute hash for binary data. */
