@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
+import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 
 import java.util.Objects;
 
@@ -54,7 +54,7 @@ public class HostRowKeyEncoderV2 implements HostRowKeyEncoder {
         BytesUtils.writeBytes(rowKey, offset, parentAppNameBytes);
         offset += applicationNameMaxLength;
         offset = ByteArrayUtils.writeShort((short)parentServiceType, rowKey, offset);
-        long reverseTimestamp = TimeUtils.reverseTimeMillis(timestamp);
+        long reverseTimestamp = LongInverter.invert(timestamp);
         ByteArrayUtils.writeLong(reverseTimestamp, rowKey, offset);
         return rowKey;
     }

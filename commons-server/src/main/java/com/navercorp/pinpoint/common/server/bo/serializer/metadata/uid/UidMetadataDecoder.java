@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
+import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 
 import java.util.Arrays;
 
@@ -51,7 +51,7 @@ public class UidMetadataDecoder implements RowKeyDecoder<UidMetaDataRowKey> {
     }
 
     private long readAgentStartTime(byte[] rowKey, int offset) {
-        return TimeUtils.recoveryTimeMillis(ByteArrayUtils.bytesToLong(rowKey, offset));
+        return LongInverter.restore(ByteArrayUtils.bytesToLong(rowKey, offset));
     }
 
     private byte[] readUid(byte[] rowKey, int offset) {

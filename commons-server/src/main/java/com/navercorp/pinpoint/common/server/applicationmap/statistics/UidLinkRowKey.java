@@ -20,9 +20,9 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
+import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 
 import java.util.Objects;
 
@@ -88,7 +88,7 @@ public class UidLinkRowKey implements TimestampRowKey {
         buffer.putPadString(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN_V3);
         buffer.putInt(serviceType);
         buffer.putInt(serviceUid);
-        long reverseTimeMillis = TimeUtils.reverseTimeMillis(timestamp);
+        long reverseTimeMillis = LongInverter.invert(timestamp);
         buffer.putLong(reverseTimeMillis);
         return buffer.getBuffer();
     }
@@ -106,7 +106,7 @@ public class UidLinkRowKey implements TimestampRowKey {
         int serviceUid = BytesUtils.bytesToInt(bytes, offset);
         offset += BytesUtils.INT_BYTE_LENGTH;
 
-        long timestamp = TimeUtils.recoveryTimeMillis(BytesUtils.bytesToLong(bytes, offset));
+        long timestamp = LongInverter.restore(BytesUtils.bytesToLong(bytes, offset));
 
         return new UidLinkRowKey(serviceUid, applicationName, applicationServiceType, timestamp);
     }

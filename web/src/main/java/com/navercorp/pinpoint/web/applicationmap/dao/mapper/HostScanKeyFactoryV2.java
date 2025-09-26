@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
-import com.navercorp.pinpoint.common.util.TimeUtils;
+import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.web.vo.Application;
 
 public class HostScanKeyFactoryV2 implements HostScanKeyFactory {
@@ -28,7 +28,7 @@ public class HostScanKeyFactoryV2 implements HostScanKeyFactory {
         Buffer buffer = new AutomaticBuffer();
         buffer.putPadString(parentApplication.getName(), HbaseTableConstants.APPLICATION_NAME_MAX_LEN);
         buffer.putShort((short) parentApplication.getServiceTypeCode());
-        long reverseTimestamp = TimeUtils.recoveryTimeMillis(timestamp);
+        long reverseTimestamp = LongInverter.invert(timestamp);
         buffer.putLong(reverseTimestamp);
         return buffer.getBuffer();
     }

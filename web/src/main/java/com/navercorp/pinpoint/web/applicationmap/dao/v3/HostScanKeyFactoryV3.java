@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.HostScanKeyFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 
@@ -33,7 +34,8 @@ public class HostScanKeyFactoryV3 implements HostScanKeyFactory {
         buffer.putPadString(parentApplication.getName(), applicationNameMaxLength);
         buffer.putInt(parentApplication.getServiceTypeCode());
         buffer.putInt(ServiceUid.DEFAULT_SERVICE_UID_CODE);
-        buffer.putLong(timestamp);
+        long reverseTimestamp = LongInverter.invert(timestamp);
+        buffer.putLong(reverseTimestamp);
         return buffer.getBuffer();
     }
 }

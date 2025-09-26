@@ -1,11 +1,11 @@
 /*
- * Copyright 2021 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.JvmInfoBo;
 import com.navercorp.pinpoint.common.server.bo.ServerMetaDataBo;
+import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 import org.apache.hadoop.hbase.client.Result;
 import org.springframework.stereotype.Component;
 
@@ -44,7 +44,7 @@ public class AgentInfoBoMapper implements RowMapper<AgentInfoBo> {
         byte[] rowKey = result.getRow();
         String agentId = BytesUtils.toStringAndRightTrim(rowKey, 0, PinpointConstants.AGENT_ID_MAX_LEN);
         long reverseStartTime = ByteArrayUtils.bytesToLong(rowKey, HbaseTableConstants.AGENT_ID_MAX_LEN);
-        long startTime = TimeUtils.recoveryTimeMillis(reverseStartTime);
+        long startTime = LongInverter.restore(reverseStartTime);
 
         final byte[] serializedAgentInfo = result.getValue(AGENTINFO_INFO.getName(), AGENTINFO_INFO.QUALIFIER_IDENTIFIER);
         final AgentInfoBo.Builder agentInfoBoBuilder = createBuilderFromValue(serializedAgentInfo);

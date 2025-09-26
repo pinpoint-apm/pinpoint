@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
+import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 
 import java.util.Objects;
 
@@ -67,7 +67,7 @@ public class MetadataEncoder implements RowKeyEncoder<MetaDataRowKey> {
         final byte[] buffer = new byte[offset + LONG_BYTE_LENGTH + INT_BYTE_LENGTH];
         BytesUtils.writeBytes(buffer, saltKeySize, agentBytes);
 
-        long reverseCurrentTimeMillis = TimeUtils.reverseTimeMillis(agentStartTime);
+        long reverseCurrentTimeMillis = LongInverter.invert(agentStartTime);
         offset = ByteArrayUtils.writeLong(reverseCurrentTimeMillis, buffer, offset);
         ByteArrayUtils.writeInt(keyCode, buffer, offset);
         return buffer;

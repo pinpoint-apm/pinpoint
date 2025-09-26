@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameR
 import com.navercorp.pinpoint.common.server.scatter.FuzzyRowKeyBuilder;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
-import com.navercorp.pinpoint.common.util.TimeUtils;
+import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.web.config.ScatterChartProperties;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.mapper.TraceIndexMetaScatterMapper;
@@ -193,7 +193,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             int rowOffset = last.getRowOffset();
             int timestampOffset = rowOffset + PinpointConstants.APPLICATION_NAME_MAX_LEN + saltKeySize;
             long reverseStartTime = ByteArrayUtils.bytesToLong(rowArray, timestampOffset);
-            return TimeUtils.recoveryTimeMillis(reverseStartTime);
+            return LongInverter.restore(reverseStartTime);
         }
 
         private Long getLastRowTimestamp() {
