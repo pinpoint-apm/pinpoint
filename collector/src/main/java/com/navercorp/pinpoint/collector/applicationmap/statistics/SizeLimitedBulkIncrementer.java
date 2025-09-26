@@ -41,17 +41,17 @@ public class SizeLimitedBulkIncrementer implements BulkIncrementer, BulkState {
     }
 
     @Override
-    public void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName) {
-        this.increment(tableName, family, rowKey, columnName, 1L);
+    public void increment(TableName tableName, RowKey rowKey, ColumnName columnName) {
+        this.increment(tableName, rowKey, columnName, 1L);
     }
 
     @Override
-    public void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName, long addition) {
+    public void increment(TableName tableName, RowKey rowKey, ColumnName columnName, long addition) {
         if (overflowState) {
             reporter.reportReject();
             return;
         }
-        delegate.increment(tableName, family, rowKey, columnName, addition);
+        delegate.increment(tableName, rowKey, columnName, addition);
     }
 
     // Called by monitoring thread

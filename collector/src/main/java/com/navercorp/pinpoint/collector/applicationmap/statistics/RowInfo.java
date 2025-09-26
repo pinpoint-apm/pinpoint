@@ -26,8 +26,6 @@ public interface RowInfo {
 
     TableName tableName();
 
-    byte[] family();
-
     RowKey rowKey();
 
     ColumnName columnName();

@@ -66,23 +66,25 @@ public class BulkFactory {
 
     public BulkWriter newBulkWriter(String loggerName,
                                     RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
+                                    byte[] family,
                                     BulkIncrementer bulkIncrementer,
                                     BulkUpdater bulkUpdater) {
         if (bulkWriter) {
-            return new DefaultBulkWriter(loggerName, asyncTemplate, rowKeyDistributorByHashPrefix,
+            return new DefaultBulkWriter(loggerName, asyncTemplate, family, rowKeyDistributorByHashPrefix,
                     bulkIncrementer, bulkUpdater);
         } else {
-            return new SyncWriter(loggerName, asyncTemplate, rowKeyDistributorByHashPrefix);
+            return new SyncWriter(loggerName, asyncTemplate, family, rowKeyDistributorByHashPrefix);
         }
     }
 
-    public Builder newBuilder(String loggerName, RowKeyDistributorByHashPrefix distributor) {
-        return new Builder(this, loggerName, distributor);
+    public Builder newBuilder(String loggerName, byte[] family, RowKeyDistributorByHashPrefix distributor) {
+        return new Builder(this, loggerName, family, distributor);
     }
 
     public static class Builder {
         private final String loggerName;
         private final BulkFactory factory;
+        private final byte[] family;
         private final RowKeyDistributorByHashPrefix distributor;
 
         private BulkIncrementer increment;
@@ -90,9 +92,11 @@ public class BulkFactory {
 
         public Builder(BulkFactory factory,
                        String loggerName,
+                       byte[] family,
                        RowKeyDistributorByHashPrefix distributor) {
             this.loggerName = Objects.requireNonNull(loggerName, "loggerName");
             this.factory = Objects.requireNonNull(factory, "factory");
+            this.family = Objects.requireNonNull(family, "family");
             this.distributor = Objects.requireNonNull(distributor, "distributor");
         }
 
@@ -105,7 +109,7 @@ public class BulkFactory {
         }
 
         public BulkWriter build() {
-            return factory.newBulkWriter(loggerName, this.distributor, increment, maxUpdater);
+            return factory.newBulkWriter(loggerName, this.distributor, family, increment, maxUpdater);
         }
     }
 }

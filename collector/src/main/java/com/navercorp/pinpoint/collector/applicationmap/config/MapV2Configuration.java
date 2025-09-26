@@ -72,7 +72,7 @@ public class MapV2Configuration {
         int limitSize = bulkProperties.getCallerLimitSize();
         String loggerName = newBulkWriterName(HbaseMapOutLinkDao.class.getName());
 
-        BulkFactory.Builder builder = factory.newBuilder(loggerName, rowKeyDistributorByHashPrefix);
+        BulkFactory.Builder builder = factory.newBuilder(loggerName, HbaseTables.MAP_V2_COLUMN_FAMILY_NAME, rowKeyDistributorByHashPrefix);
         builder.setIncrementer("outLinkIncrementReporter", limitSize);
         builder.setMaxUpdater("outLinkUpdateReporter", limitSize);
         return builder.build();
@@ -87,7 +87,7 @@ public class MapV2Configuration {
         int limitSize = bulkProperties.getCalleeLimitSize();
         String loggerName = newBulkWriterName(HbaseMapInLinkDao.class.getName());
 
-        BulkFactory.Builder builder = factory.newBuilder(loggerName, rowKeyDistributorByHashPrefix);
+        BulkFactory.Builder builder = factory.newBuilder(loggerName, HbaseTables.MAP_V2_COLUMN_FAMILY_NAME, rowKeyDistributorByHashPrefix);
         builder.setIncrementer("inLinkIncrementReporter", limitSize);
         builder.setMaxUpdater("inLinkUpdateReporter", limitSize);
         return builder.build();
@@ -103,7 +103,7 @@ public class MapV2Configuration {
         int limitSize = bulkProperties.getSelfLimitSize();
         String loggerName = newBulkWriterName(HbaseMapResponseTimeDao.class.getName());
 
-        BulkFactory.Builder builder = factory.newBuilder(loggerName, rowKeyDistributorByHashPrefix);
+        BulkFactory.Builder builder = factory.newBuilder(loggerName, HbaseTables.MAP_V2_COLUMN_FAMILY_NAME, rowKeyDistributorByHashPrefix);
         builder.setIncrementer("selfIncrementReporter", limitSize);
         builder.setMaxUpdater("selfUpdateReporter", limitSize);
         return builder.build();
