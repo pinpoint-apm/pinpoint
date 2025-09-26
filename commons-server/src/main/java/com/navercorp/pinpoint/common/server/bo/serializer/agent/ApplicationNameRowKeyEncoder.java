@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.common.server.bo.serializer.agent;
 
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
+import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 
 public class ApplicationNameRowKeyEncoder extends IdRowKeyEncoder {
 
@@ -34,7 +34,7 @@ public class ApplicationNameRowKeyEncoder extends IdRowKeyEncoder {
 
     public byte[] encodeFuzzyRowKey(int prefix, String id, long timestamp, byte fuzzySlotKey) {
         byte[] idKey = BytesUtils.toBytes(id);
-        long reverseTimestamp = TimeUtils.reverseTimeMillis(timestamp);
+        long reverseTimestamp = LongInverter.invert(timestamp);
         return RowKeyUtils.concatFixedByteAndLongFuzzySlot(prefix, idKey, max, reverseTimestamp, fuzzySlotKey);
     }
 }

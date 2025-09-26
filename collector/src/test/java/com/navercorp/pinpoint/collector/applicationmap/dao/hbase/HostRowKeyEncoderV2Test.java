@@ -22,10 +22,10 @@ import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.OneByteSimpleHash;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.common.timeseries.window.DefaultTimeSlot;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -52,7 +52,7 @@ public class HostRowKeyEncoderV2Test {
         readBuffer.setOffset(hasher.getSaltKey().size());
         String appName = readBuffer.readPadStringAndRightTrim(HbaseTableConstants.APPLICATION_NAME_MAX_LEN);
         short code = readBuffer.readShort();
-        long time = TimeUtils.recoveryTimeMillis(readBuffer.readLong());
+        long time = LongInverter.restore(readBuffer.readLong());
 
         Assertions.assertEquals(parentApp, appName, "applicationName check");
         Assertions.assertEquals(standAlone.getCode(), code, "serviceType check");

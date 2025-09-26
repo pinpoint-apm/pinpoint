@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HostRowKeyEncod
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
+import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 
 import java.util.Objects;
 
@@ -56,7 +56,7 @@ public class HostRowKeyEncoderV3 implements HostRowKeyEncoder {
         offset += applicationNameMaxLength;
         offset = ByteArrayUtils.writeInt(parentServiceType, rowKey, offset);
         offset = ByteArrayUtils.writeInt(parentServiceUid, rowKey, offset);
-        long reverseTimestamp = TimeUtils.reverseTimeMillis(timestamp);
+        long reverseTimestamp = LongInverter.invert(timestamp);
         ByteArrayUtils.writeLong(reverseTimestamp, rowKey, offset);
         return rowKey;
     }

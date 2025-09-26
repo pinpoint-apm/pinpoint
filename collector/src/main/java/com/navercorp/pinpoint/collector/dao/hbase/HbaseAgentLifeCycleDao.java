@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.ValueMapper;
 import com.navercorp.pinpoint.common.hbase.util.Puts;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
+import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -81,8 +81,8 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
 
     byte[] createRowKey(String agentId, long startTimestamp, long eventIdentifier) {
         byte[] agentIdKey = Bytes.toBytes(agentId);
-        long reverseStartTimestamp = TimeUtils.reverseTimeMillis(startTimestamp);
-        long reverseEventCounter = TimeUtils.reverseTimeMillis(eventIdentifier);
+        long reverseStartTimestamp = LongInverter.invert(startTimestamp);
+        long reverseEventCounter = LongInverter.invert(eventIdentifier);
 
         byte[] rowKey = new byte[HbaseTableConstants.AGENT_ID_MAX_LEN + BytesUtils.LONG_BYTE_LENGTH + BytesUtils.LONG_BYTE_LENGTH];
         BytesUtils.writeBytes(rowKey, 0, agentIdKey);

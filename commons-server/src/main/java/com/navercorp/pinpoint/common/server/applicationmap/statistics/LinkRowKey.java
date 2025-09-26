@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.common.server.applicationmap.statistics;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
+import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 
 import java.util.Objects;
 
@@ -86,7 +86,7 @@ public class LinkRowKey implements TimestampRowKey {
         buffer.setOffset(saltKeySize);
         buffer.put2PrefixedBytes(applicationNameBytes);
         buffer.putShort(applicationType);
-        long reverseTimeMillis = TimeUtils.reverseTimeMillis(timestamp);
+        long reverseTimeMillis = LongInverter.invert(timestamp);
         buffer.putLong(reverseTimeMillis);
         return buffer.getBuffer();
     }
@@ -104,7 +104,7 @@ public class LinkRowKey implements TimestampRowKey {
         short serviceType = BytesUtils.bytesToShort(bytes, offset);
         offset += BytesUtils.SHORT_BYTE_LENGTH;
 
-        long timestamp = TimeUtils.recoveryTimeMillis(BytesUtils.bytesToLong(bytes, offset));
+        long timestamp = LongInverter.restore(BytesUtils.bytesToLong(bytes, offset));
         return new LinkRowKey(applicationName, serviceType, timestamp);
     }
 
