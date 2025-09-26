@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.collector.applicationmap.statistics;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import org.apache.hadoop.hbase.TableName;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -27,13 +26,11 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 public record DefaultRowInfo(TableName tableName,
-                             byte[] family,
                              RowKey rowKey,
                              ColumnName columnName) implements RowInfo {
 
     public DefaultRowInfo {
         Objects.requireNonNull(tableName, "tableName");
-        Objects.requireNonNull(family, "family");
         Objects.requireNonNull(rowKey, "rowKey");
         Objects.requireNonNull(columnName, "columnName");
     }
@@ -43,13 +40,12 @@ public record DefaultRowInfo(TableName tableName,
         if (o == null || getClass() != o.getClass()) return false;
 
         DefaultRowInfo that = (DefaultRowInfo) o;
-        return Arrays.equals(family, that.family) && rowKey.equals(that.rowKey) && tableName.equals(that.tableName) && columnName.equals(that.columnName);
+        return rowKey.equals(that.rowKey) && tableName.equals(that.tableName) && columnName.equals(that.columnName);
     }
 
     @Override
     public int hashCode() {
         int result = tableName.hashCode();
-        result = 31 * result + Arrays.hashCode(family);
         result = 31 * result + rowKey.hashCode();
         result = 31 * result + columnName.hashCode();
         return result;

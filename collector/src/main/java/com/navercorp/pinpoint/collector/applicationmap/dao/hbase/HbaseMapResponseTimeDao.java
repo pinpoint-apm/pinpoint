@@ -85,16 +85,16 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         final short slotNumber = MapSlotUtils.getSlotNumber(selfVertex.serviceType(), elapsed, isError);
         final ColumnName selfColumnName = selfNodeFactory.histogram(agentId, slotNumber);
         final TableName tableName = tableNameProvider.getTableName(table.getTable());
-        this.bulkWriter.increment(tableName, table.getName(), selfRowKey, selfColumnName);
+        this.bulkWriter.increment(tableName, selfRowKey, selfColumnName);
 
         if (mapLinkProperties.isEnableAvg()) {
             final ColumnName sumColumnName = selfNodeFactory.sum(agentId, selfVertex.serviceType());
-            this.bulkWriter.increment(tableName, table.getName(), selfRowKey, sumColumnName, elapsed);
+            this.bulkWriter.increment(tableName, selfRowKey, sumColumnName, elapsed);
         }
 
         if (mapLinkProperties.isEnableMax()) {
             final ColumnName maxColumnName = selfNodeFactory.max(agentId, selfVertex.serviceType());
-            this.bulkWriter.updateMax(tableName, table.getName(), selfRowKey, maxColumnName, elapsed);
+            this.bulkWriter.updateMax(tableName, selfRowKey, maxColumnName, elapsed);
         }
     }
 
@@ -118,7 +118,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 
         final ColumnName selfColumnName = selfNodeFactory.histogram(agentId, slotNumber);
         final TableName tableName = tableNameProvider.getTableName(table.getTable());
-        this.bulkWriter.increment(tableName, table.getName(), selfRowKey, selfColumnName);
+        this.bulkWriter.increment(tableName, selfRowKey, selfColumnName);
     }
 
 
