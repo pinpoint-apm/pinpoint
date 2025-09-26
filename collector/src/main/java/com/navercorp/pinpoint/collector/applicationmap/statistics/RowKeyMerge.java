@@ -26,11 +26,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * @author emeroad
@@ -45,29 +44,32 @@ public class RowKeyMerge {
         this.rowKeyDistributorByHashPrefix = rowKeyDistributorByHashPrefix;
     }
 
-    public Map<TableName, List<Increment>> createBulkIncrement(Map<RowInfo, Long> data) {
-        final Map<TableKey, Map<RowKey, List<ColumnCallCount>>> tableRowKeyMap = mergeRowKeys(data);
+    public Map<TableName, List<Increment>> createBulkIncrement(Map<RowInfo, Long> data, byte[] family) {
+        if (data.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        final Map<TableName, Map<RowKey, List<ColumnCallCount>>> tableRowKeyMap = mergeRowKeys(data);
 
         final Map<TableName, List<Increment>> tableIncrementMap = new HashMap<>();
-        for (Map.Entry<TableKey, Map<RowKey, List<ColumnCallCount>>> tableRowKeys : tableRowKeyMap.entrySet()) {
-            final TableKey tableKey = tableRowKeys.getKey();
+        for (Map.Entry<TableName, Map<RowKey, List<ColumnCallCount>>> tableRowKeys : tableRowKeyMap.entrySet()) {
+            final TableName tableName = tableRowKeys.getKey();
             final List<Increment> incrementList = new ArrayList<>();
             for (Map.Entry<RowKey, List<ColumnCallCount>> rowKeyEntry : tableRowKeys.getValue().entrySet()) {
-                Increment increment = createIncrement(tableKey, rowKeyEntry);
+                Increment increment = createIncrement(tableName, rowKeyEntry, family);
                 incrementList.add(increment);
             }
-            tableIncrementMap.put(tableKey.tableName(), incrementList);
+            tableIncrementMap.put(tableName, incrementList);
         }
         return tableIncrementMap;
     }
 
-    private Increment createIncrement(TableKey tableKey, Map.Entry<RowKey, List<ColumnCallCount>> rowKeyEntry) {
+    private Increment createIncrement(TableName tableName, Map.Entry<RowKey, List<ColumnCallCount>> rowKeyEntry, byte[] family) {
         RowKey rowKey = rowKeyEntry.getKey();
         byte[] key = getRowKey(rowKey, rowKeyDistributorByHashPrefix);
         final Increment increment = new Increment(key);
         increment.setReturnResults(false);
         for (ColumnCallCount columnName : rowKeyEntry.getValue()) {
-            increment.addColumn(tableKey.family(), columnName.columnName(), columnName.callCount());
+            increment.addColumn(family, columnName.columnName(), columnName.callCount());
         }
 
         if (logger.isDebugEnabled()) {
@@ -86,8 +88,8 @@ public class RowKeyMerge {
         }
     }
 
-    private Map<TableKey, Map<RowKey, List<ColumnCallCount>>> mergeRowKeys(Map<RowInfo, Long> data) {
-        final Map<TableKey, Map<RowKey, List<ColumnCallCount>>> tables = new HashMap<>();
+    private Map<TableName, Map<RowKey, List<ColumnCallCount>>> mergeRowKeys(Map<RowInfo, Long> data) {
+        final Map<TableName, Map<RowKey, List<ColumnCallCount>>> tables = new HashMap<>();
 
         for (Map.Entry<RowInfo, Long> entry : data.entrySet()) {
             final RowInfo rowInfo = entry.getKey();
@@ -96,8 +98,8 @@ public class RowKeyMerge {
 
             final RowKey rowKey = rowInfo.rowKey();
 
-            final TableKey tableKey = new TableKey(rowInfo.tableName(), rowInfo.family());
-            Map<RowKey, List<ColumnCallCount>> rows = tables.computeIfAbsent(tableKey, k -> new HashMap<>());
+            TableName tableName = rowInfo.tableName();
+            Map<RowKey, List<ColumnCallCount>> rows = tables.computeIfAbsent(tableName, k -> new HashMap<>());
             List<ColumnCallCount> columnNames = rows.computeIfAbsent(rowKey, k -> new ArrayList<>());
 
             ColumnCallCount columnCallCount = new ColumnCallCount(rowInfo.columnName().getColumnName(), callCount);
@@ -106,28 +108,6 @@ public class RowKeyMerge {
         return tables;
     }
 
-    record TableKey(TableName tableName, byte[] family) {
-
-        public TableKey {
-            Objects.requireNonNull(tableName, "tableName");
-            Objects.requireNonNull(family, "family");
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null || getClass() != o.getClass()) return false;
-
-            TableKey tableKey = (TableKey) o;
-            return Arrays.equals(family, tableKey.family) && tableName.equals(tableKey.tableName);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = tableName.hashCode();
-            result = 31 * result + Arrays.hashCode(family);
-            return result;
-        }
-    }
 
     record ColumnCallCount(byte[] columnName, long callCount) {
     }

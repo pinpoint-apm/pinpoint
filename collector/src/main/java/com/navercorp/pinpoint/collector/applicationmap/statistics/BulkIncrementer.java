@@ -26,9 +26,9 @@ import java.util.Map;
  */
 public interface BulkIncrementer {
 
-    void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName);
+    void increment(TableName tableName, RowKey rowKey, ColumnName columnName);
 
-    void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName, long addition);
+    void increment(TableName tableName, RowKey rowKey, ColumnName columnName, long addition);
 
     Map<RowInfo, Long> getIncrements();
 

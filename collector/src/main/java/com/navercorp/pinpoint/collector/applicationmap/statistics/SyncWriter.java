@@ -40,26 +40,27 @@ public class SyncWriter implements BulkWriter {
 
     private final HbaseAsyncTemplate hbaseTemplate;
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
-
-
+    private final byte[] family;
 
     public SyncWriter(String loggerName,
                             HbaseAsyncTemplate hbaseTemplate,
+                             byte[] family,
                              RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
+        this.family = Objects.requireNonNull(family, "family");
         this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
     }
 
     @Override
-    public void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName) {
+    public void increment(TableName tableName, RowKey rowKey, ColumnName columnName) {
         Objects.requireNonNull(rowKey, "rowKey");
         Objects.requireNonNull(columnName, "columnName");
 
-        this.increment(tableName, family, rowKey, columnName, 1L);
+        this.increment(tableName, rowKey, columnName, 1L);
     }
 
     @Override
-    public void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName, long addition) {
+    public void increment(TableName tableName, RowKey rowKey, ColumnName columnName, long addition) {
         Objects.requireNonNull(rowKey, "rowKey");
         Objects.requireNonNull(columnName, "columnName");
 
@@ -73,7 +74,7 @@ public class SyncWriter implements BulkWriter {
     }
 
     @Override
-    public void updateMax(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName, long max) {
+    public void updateMax(TableName tableName, RowKey rowKey, ColumnName columnName, long max) {
 
         Objects.requireNonNull(rowKey, "rowKey");
         Objects.requireNonNull(columnName, "columnName");

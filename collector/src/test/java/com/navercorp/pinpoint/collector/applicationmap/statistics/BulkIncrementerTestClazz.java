@@ -308,7 +308,7 @@ public class BulkIncrementerTestClazz {
         @Override
         public void run() {
             for (TestData testData : testDatas) {
-                bulkIncrementer.increment(testData.getTableName(), CF, testData.getRowKey(), testData.getColumnName());
+                bulkIncrementer.increment(testData.getTableName(), testData.getRowKey(), testData.getColumnName());
             }
             completeLatch.countDown();
         }
@@ -329,7 +329,7 @@ public class BulkIncrementerTestClazz {
 
         private void flushToMap(Map<TableName, List<Increment>> resultMap) {
             Map<RowInfo, Long> snapshot = bulkIncrementer.getIncrements();
-            Map<TableName, List<Increment>> incrementMap = merge.createBulkIncrement(snapshot);
+            Map<TableName, List<Increment>> incrementMap = merge.createBulkIncrement(snapshot, CF);
 
             for (Map.Entry<TableName, List<Increment>> incrementMapEntry : incrementMap.entrySet()) {
                 TableName tableName = incrementMapEntry.getKey();

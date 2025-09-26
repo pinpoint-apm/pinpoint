@@ -91,15 +91,15 @@ public class HbaseMapOutLinkDao implements MapOutLinkDao {
 
         final ColumnName inLink = outLinkFactory.histogram(selfAgentId, outVertex, outHost, outSlotNumber);
         final TableName tableName = tableNameProvider.getTableName(table.getTable());
-        this.bulkWriter.increment(tableName, table.getName(), selfLinkRowKey, inLink);
+        this.bulkWriter.increment(tableName, selfLinkRowKey, inLink);
 
         if (mapLinkProperties.isEnableAvg()) {
             final ColumnName sumInLink = outLinkFactory.sum(selfAgentId, outVertex, outHost, selfVertex.serviceType());
-            this.bulkWriter.increment(tableName, table.getName(), selfLinkRowKey, sumInLink, elapsed);
+            this.bulkWriter.increment(tableName, selfLinkRowKey, sumInLink, elapsed);
         }
         if (mapLinkProperties.isEnableMax()) {
             final ColumnName maxInLink = outLinkFactory.max(selfAgentId, outVertex, outHost, selfVertex.serviceType());
-            this.bulkWriter.updateMax(tableName, table.getName(), selfLinkRowKey, maxInLink, elapsed);
+            this.bulkWriter.updateMax(tableName, selfLinkRowKey, maxInLink, elapsed);
         }
 
     }

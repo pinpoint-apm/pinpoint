@@ -29,12 +29,12 @@ public class DefaultBulkIncrementer implements BulkIncrementer {
     public DefaultBulkIncrementer() {
     }
 
-    public void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName) {
-        increment(tableName, family, rowKey, columnName, 1L);
+    public void increment(TableName tableName, RowKey rowKey, ColumnName columnName) {
+        increment(tableName, rowKey, columnName, 1L);
     }
 
-    public void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName, long addition) {
-        RowInfo rowInfo = new DefaultRowInfo(tableName, family, rowKey, columnName);
+    public void increment(TableName tableName, RowKey rowKey, ColumnName columnName, long addition) {
+        RowInfo rowInfo = new DefaultRowInfo(tableName, rowKey, columnName);
         counter.addAndGet(rowInfo, addition);
     }
 

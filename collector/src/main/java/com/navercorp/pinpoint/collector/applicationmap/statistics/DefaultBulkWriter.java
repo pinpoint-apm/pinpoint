@@ -40,6 +40,7 @@ public class DefaultBulkWriter implements BulkWriter {
 
     private final Logger logger;
 
+    private final byte[] family;
     private final ByteHasher hasher;
 
     private final BulkIncrementer bulkIncrementer;
@@ -53,10 +54,12 @@ public class DefaultBulkWriter implements BulkWriter {
 
     public DefaultBulkWriter(String loggerName,
                              HbaseAsyncTemplate asyncTemplate,
+                             byte[] family,
                              RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
                              BulkIncrementer bulkIncrementer,
                              BulkUpdater bulkUpdater) {
         this.logger = LogManager.getLogger(loggerName);
+        this.family = Objects.requireNonNull(family, "family");
         this.asyncTemplate = Objects.requireNonNull(asyncTemplate, "asyncTemplate");
 
         Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
@@ -71,18 +74,18 @@ public class DefaultBulkWriter implements BulkWriter {
     }
 
     @Override
-    public void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName) {
-        this.bulkIncrementer.increment(tableName, family, rowKey, columnName);
+    public void increment(TableName tableName, RowKey rowKey, ColumnName columnName) {
+        this.bulkIncrementer.increment(tableName, rowKey, columnName);
     }
 
     @Override
-    public void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName, long addition) {
-        this.bulkIncrementer.increment(tableName, family, rowKey, columnName, addition);
+    public void increment(TableName tableName, RowKey rowKey, ColumnName columnName, long addition) {
+        this.bulkIncrementer.increment(tableName, rowKey, columnName, addition);
     }
 
     @Override
-    public void updateMax(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName, long max) {
-        this.bulkUpdater.updateMax(tableName, family, rowKey, columnName, max);
+    public void updateMax(TableName tableName, RowKey rowKey, ColumnName columnName, long max) {
+        this.bulkUpdater.updateMax(tableName, rowKey, columnName, max);
     }
 
     @Override
@@ -94,7 +97,7 @@ public class DefaultBulkWriter implements BulkWriter {
             return;
         }
 
-        Map<TableName, List<Increment>> incrementMap = merge.createBulkIncrement(snapshot);
+        Map<TableName, List<Increment>> incrementMap = merge.createBulkIncrement(snapshot, family);
 
         for (Map.Entry<TableName, List<Increment>> entry : incrementMap.entrySet()) {
             TableName tableName = entry.getKey();
@@ -128,7 +131,7 @@ public class DefaultBulkWriter implements BulkWriter {
             final byte[] rowKey = getDistributedKey(rowInfo.rowKey());
             byte[] columnName = rowInfo.columnName().getColumnName();
 
-            CheckAndMax checkAndMax = new CheckAndMax(rowKey, rowInfo.family(), columnName, val);
+            CheckAndMax checkAndMax = new CheckAndMax(rowKey, family, columnName, val);
 
             List<CheckAndMax> checkAndMaxes = maxUpdates.computeIfAbsent(rowInfo.tableName(), k -> new ArrayList<>());
             checkAndMaxes.add(checkAndMax);
