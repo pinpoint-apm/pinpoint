@@ -1,14 +1,11 @@
+const { dirname, join } = require('node:path');
+
 module.exports = {
   stories: ['../src/stories/**/*.stories.mdx', '../src/stories/**/*.stories.@(js|jsx|ts|tsx)'],
-  addons: [
-    '@storybook/addon-links',
-    '@storybook/addon-essentials',
-    '@storybook/addon-interactions',
-    'storybook-css-modules',
-  ],
-  framework: '@storybook/html',
-  core: {
-    builder: '@storybook/builder-webpack5',
+  addons: ['@storybook/addon-links', 'storybook-css-modules', '@storybook/addon-docs'],
+  framework: {
+    name: '@storybook/html-vite',
+    options: {},
   },
   // webpackFinal: async (config, { configType }) => {
   //   // `configType` has a value of 'DEVELOPMENT' or 'PRODUCTION'
