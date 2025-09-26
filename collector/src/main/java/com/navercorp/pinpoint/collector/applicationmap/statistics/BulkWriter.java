@@ -23,11 +23,11 @@ import org.apache.hadoop.hbase.TableName;
  * @author emeroad
  */
 public interface BulkWriter {
-    void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName);
+    void increment(TableName tableName, RowKey rowKey, ColumnName columnName);
 
-    void increment(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName, long addition);
+    void increment(TableName tableName, RowKey rowKey, ColumnName columnName, long addition);
 
-    void updateMax(TableName tableName, byte[] family, RowKey rowKey, ColumnName columnName, long max);
+    void updateMax(TableName tableName, RowKey rowKey, ColumnName columnName, long max);
 
     void flushLink();
 

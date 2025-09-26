@@ -102,15 +102,15 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
 
         final ColumnName outLink = inLinkFactory.histogram(selfVertex, selfHost, outSlotNumber);
         final TableName tableName = tableNameProvider.getTableName(table.getTable());
-        this.bulkWriter.increment(tableName, table.getName(), inLinkRowKey, outLink);
+        this.bulkWriter.increment(tableName, inLinkRowKey, outLink);
 
         if (mapLinkProperties.isEnableAvg()) {
             final ColumnName sumOutLink = inLinkFactory.sum(selfVertex, selfHost, inVertex.serviceType());
-            this.bulkWriter.increment(tableName, table.getName(), inLinkRowKey, sumOutLink, elapsed);
+            this.bulkWriter.increment(tableName, inLinkRowKey, sumOutLink, elapsed);
         }
         if (mapLinkProperties.isEnableMax()) {
             final ColumnName maxOutLink = inLinkFactory.max(selfVertex, selfHost, inVertex.serviceType());
-            this.bulkWriter.updateMax(tableName, table.getName(), inLinkRowKey, maxOutLink, elapsed);
+            this.bulkWriter.updateMax(tableName, inLinkRowKey, maxOutLink, elapsed);
         }
     }
 

@@ -71,7 +71,7 @@ public class DefaultBulkUpdaterTest {
 
         // When
         for (TestData testData : testDatas) {
-            bulkIncrementer.increment(testData.getTableName(), CF, testData.getRowKey(), testData.getColumnName());
+            bulkIncrementer.increment(testData.getTableName(), testData.getRowKey(), testData.getColumnName());
         }
 
         // Then
@@ -83,7 +83,7 @@ public class DefaultBulkUpdaterTest {
 
     private Map<TableName, List<Increment>> createIncrements() {
         Map<RowInfo, Long> increments = bulkIncrementer.getIncrements();
-        return merge.createBulkIncrement(increments);
+        return merge.createBulkIncrement(increments, CF);
     }
 
     @Test
@@ -113,7 +113,7 @@ public class DefaultBulkUpdaterTest {
 
         // When
         for (TestData testData : testDatas) {
-            bulkIncrementer.increment(testData.getTableName(), CF, testData.getRowKey(), testData.getColumnName());
+            bulkIncrementer.increment(testData.getTableName(), testData.getRowKey(), testData.getColumnName());
         }
 
         // Then
