@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.hbase.CheckAndMax;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTemplate;
 import com.navercorp.pinpoint.common.hbase.util.Increments;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import io.lettuce.core.internal.Futures;
 import org.apache.hadoop.hbase.TableName;
@@ -39,16 +38,16 @@ public class SyncWriter implements BulkWriter {
     private static final Duration awaitTimeout = Duration.ofMillis(100);
 
     private final HbaseAsyncTemplate hbaseTemplate;
-    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+    private final ByteHasher hasher;
     private final byte[] family;
 
     public SyncWriter(String loggerName,
-                            HbaseAsyncTemplate hbaseTemplate,
-                             byte[] family,
-                             RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+                      HbaseAsyncTemplate hbaseTemplate,
+                      byte[] family,
+                      ByteHasher hasher) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.family = Objects.requireNonNull(family, "family");
-        this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
+        this.hasher = Objects.requireNonNull(hasher, "hasher");
     }
 
     @Override
@@ -95,8 +94,7 @@ public class SyncWriter implements BulkWriter {
     }
 
     private byte[] getDistributedKey(RowKey rowKey) {
-        ByteHasher byteHasher = this.rowKeyDistributorByHashPrefix.getByteHasher();
-        byte[] bytes = rowKey.getRowKey(byteHasher.getSaltKey().size());
-        return byteHasher.writeSaltKey(bytes);
+        byte[] bytes = rowKey.getRowKey(hasher.getSaltKey().size());
+        return hasher.writeSaltKey(bytes);
     }
 }

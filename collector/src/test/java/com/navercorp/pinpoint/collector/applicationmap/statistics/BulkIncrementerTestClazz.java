@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.apache.hadoop.hbase.TableName;
@@ -321,9 +320,9 @@ public class BulkIncrementerTestClazz {
         private final RowKeyMerge merge;
         private final CountDownLatch awaitLatch;
 
-        Flusher(BulkIncrementer bulkIncrementer, RowKeyDistributorByHashPrefix rowKeyDistributor, CountDownLatch awaitLatch) {
+        Flusher(BulkIncrementer bulkIncrementer, CountDownLatch awaitLatch) {
             this.bulkIncrementer = bulkIncrementer;
-            this.merge = new RowKeyMerge(rowKeyDistributor);
+            this.merge = new RowKeyMerge();
             this.awaitLatch = awaitLatch;
         }
 

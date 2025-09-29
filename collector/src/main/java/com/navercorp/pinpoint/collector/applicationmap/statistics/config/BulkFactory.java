@@ -70,10 +70,10 @@ public class BulkFactory {
                                     BulkIncrementer bulkIncrementer,
                                     BulkUpdater bulkUpdater) {
         if (bulkWriter) {
-            return new DefaultBulkWriter(loggerName, asyncTemplate, family, rowKeyDistributorByHashPrefix,
+            return new DefaultBulkWriter(loggerName, asyncTemplate, family, rowKeyDistributorByHashPrefix.getByteHasher(),
                     bulkIncrementer, bulkUpdater);
         } else {
-            return new SyncWriter(loggerName, asyncTemplate, family, rowKeyDistributorByHashPrefix);
+            return new SyncWriter(loggerName, asyncTemplate, family, rowKeyDistributorByHashPrefix.getByteHasher());
         }
     }
 
