@@ -90,10 +90,19 @@ public class DistributorConfiguration {
     public static final int UID_START_KEY_RANGE = PinpointConstants.APPLICATION_NAME_MAX_LEN_V3 + 4 + 4;
     public static final int SECONDARY_BUCKET_SIZE = 4;
 
+    /**
+     * MillisTimestamp : 8byte
+     */
+    private static final int MS_TIMESTAMP_SIZE = 8;
+    /**
+     * SecondTimestamp : 4byte
+     */
+    private static final int SEC_TIMESTAMP_SIZE = 4;
+
     @Bean
     public RowKeyDistributorByHashPrefix uidRowKeyDistributor() {
         ByteHasher hasher = RangeDoubleHash.ofSecondary(0, UID_START_KEY_RANGE, ByteHasher.MAX_BUCKETS,
-                SECONDARY_BUCKET_SIZE, UID_START_KEY_RANGE, UID_START_KEY_RANGE + 8);
+                SECONDARY_BUCKET_SIZE, UID_START_KEY_RANGE, UID_START_KEY_RANGE + SEC_TIMESTAMP_SIZE);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
