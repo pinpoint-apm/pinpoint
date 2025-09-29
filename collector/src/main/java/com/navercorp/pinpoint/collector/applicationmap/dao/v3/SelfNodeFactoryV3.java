@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.collector.applicationmap.statistics.ResponseColumn
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
+import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public class SelfNodeFactoryV3 implements SelfNodeFactory {
@@ -32,18 +33,20 @@ public class SelfNodeFactoryV3 implements SelfNodeFactory {
     };
 
     @Override
-    public ColumnName histogram(String agentId, short slotNumber) {
-        return ResponseColumnName.histogram(agentId, slotNumber);
+    public ColumnName histogram(String agentId, HistogramSlot slot) {
+        return ResponseColumnName.histogram(agentId, slot.getSlotTime());
     }
 
     @Override
     public ColumnName sum(String agentId, ServiceType selfServiceType) {
-        return ResponseColumnName.sum(agentId, selfServiceType);
+        short slotTime = selfServiceType.getHistogramSchema().getSumStatSlot().getSlotTime();
+        return ResponseColumnName.histogram(agentId, slotTime);
     }
 
     @Override
     public ColumnName max(String agentId, ServiceType selfServiceType) {
-        return ResponseColumnName.max(agentId, selfServiceType);
+        short slotTime = selfServiceType.getHistogramSchema().getMaxStatSlot().getSlotTime();
+        return ResponseColumnName.histogram(agentId, slotTime);
     }
 
 }

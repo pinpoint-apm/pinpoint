@@ -19,12 +19,13 @@ package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
+import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public interface OutLinkFactory {
     RowKey rowkey(Vertex vertex, long rowTimeSlot);
 
-    ColumnName histogram(String selfAgentId, Vertex outVertex, String outSubLink, short outSlotNumber);
+    ColumnName histogram(String selfAgentId, Vertex outVertex, String outSubLink, HistogramSlot outSlot);
 
     ColumnName sum(String selfAgentId, Vertex outVertex, String outHost, ServiceType selfServiceType);
 

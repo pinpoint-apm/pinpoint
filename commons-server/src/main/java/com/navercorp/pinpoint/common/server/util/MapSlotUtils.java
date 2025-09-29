@@ -37,22 +37,23 @@ public class MapSlotUtils {
 
 
     public static short getSlotNumber(ServiceType serviceType, int elapsed, boolean isError) {
-        return findResponseHistogramSlotNo(serviceType, elapsed, isError);
+        return getHistogramSlot(serviceType, elapsed, isError).getSlotTime();
     }
 
-
-    public static short getPingSlotNumber(ServiceType serviceType) {
-        final HistogramSchema histogramSchema = serviceType.getHistogramSchema();
-        return histogramSchema.getPingSlot().getSlotTime();
-    }
-
-
-    private static short findResponseHistogramSlotNo(ServiceType serviceType, int elapsed, boolean isError) {
+    public static HistogramSlot getHistogramSlot(ServiceType serviceType, int elapsed, boolean isError) {
         Objects.requireNonNull(serviceType, "serviceType");
 
         final HistogramSchema histogramSchema = serviceType.getHistogramSchema();
-        final HistogramSlot histogramSlot = histogramSchema.findHistogramSlot(elapsed, isError);
-        return histogramSlot.getSlotTime();
+        return histogramSchema.findHistogramSlot(elapsed, isError);
+    }
+
+    public static short getPingSlotNumber(ServiceType serviceType) {
+        return getPingSlot(serviceType).getSlotTime();
+    }
+
+    public static HistogramSlot getPingSlot(ServiceType serviceType) {
+        final HistogramSchema histogramSchema = serviceType.getHistogramSchema();
+        return histogramSchema.getPingSlot();
     }
 
 }

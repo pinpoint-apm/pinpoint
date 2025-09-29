@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.collector.applicationmap.statistics.OutLinkV2Colum
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
+import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public class OutLinkFactoryV2 implements OutLinkFactory {
@@ -30,17 +31,19 @@ public class OutLinkFactoryV2 implements OutLinkFactory {
     }
 
     @Override
-    public ColumnName histogram(String selfAgentId, Vertex outVertex, String outSubLink, short outSlotNumber) {
-        return OutLinkV2ColumnName.histogram(selfAgentId, outVertex, outSubLink, outSlotNumber);
+    public ColumnName histogram(String selfAgentId, Vertex outVertex, String outSubLink, HistogramSlot outSlot) {
+        return OutLinkV2ColumnName.histogram(selfAgentId, outVertex, outSubLink, outSlot.getSlotTime());
     }
 
     @Override
     public ColumnName sum(String selfAgentId, Vertex outVertex, String outHost, ServiceType selfServiceType) {
-        return OutLinkV2ColumnName.sum(selfAgentId, outVertex, outHost, selfServiceType);
+        final short slotTime = selfServiceType.getHistogramSchema().getSumStatSlot().getSlotTime();
+        return OutLinkV2ColumnName.histogram(selfAgentId, outVertex, outHost, slotTime);
     }
 
     @Override
     public ColumnName max(String selfAgentId, Vertex outVertex, String outHost, ServiceType selfServiceType) {
-        return OutLinkV2ColumnName.max(selfAgentId, outVertex, outHost, selfServiceType);
+        final short slotTime = selfServiceType.getHistogramSchema().getMaxStatSlot().getSlotTime();
+        return OutLinkV2ColumnName.histogram(selfAgentId, outVertex, outHost, slotTime);
     }
 }
