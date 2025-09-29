@@ -189,7 +189,7 @@
         <spring-shell.version>3.2.3</spring-shell.version>
 
         <spring-cloud3.version>3.1.9</spring-cloud3.version>
-        <spring-cloud4.version>4.1.4</spring-cloud4.version>
+        <spring-cloud4.version>4.3.0</spring-cloud4.version>
         <spring-cloud.version>${spring-cloud4.version}</spring-cloud.version>
 
         <spring-data2.version>2.7.18</spring-data2.version>
