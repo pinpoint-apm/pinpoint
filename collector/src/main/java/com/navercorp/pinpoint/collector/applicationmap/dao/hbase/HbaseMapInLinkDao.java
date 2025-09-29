@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.util.MapSlotUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
+import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -98,7 +99,7 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
         final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
         final RowKey inLinkRowKey = inLinkFactory.rowkey(inVertex, rowTimeSlot);
 
-        final short outSlotNumber = MapSlotUtils.getSlotNumber(inVertex.serviceType(), elapsed, isError);
+        final HistogramSlot outSlotNumber = MapSlotUtils.getHistogramSlot(inVertex.serviceType(), elapsed, isError);
 
         final ColumnName outLink = inLinkFactory.histogram(selfVertex, selfHost, outSlotNumber);
         final TableName tableName = tableNameProvider.getTableName(table.getTable());

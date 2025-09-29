@@ -43,25 +43,6 @@ public class OutLinkV2ColumnName implements ColumnName {
         return new OutLinkV2ColumnName(outAgentId, inServiceType.getCode(), inApplicationName, callHost, columnSlotNumber);
     }
 
-    public static ColumnName sum(String outAgentId, Vertex inVertex, String callHost, ServiceType outServiceType) {
-        return sum(outAgentId, inVertex.serviceType(), inVertex.applicationName(), callHost, outServiceType);
-    }
-
-    public static ColumnName sum(String outAgentId, ServiceType inServiceType, String inApplicationName, String callHost, ServiceType outServiceType) {
-        final short slotTime = outServiceType.getHistogramSchema().getSumStatSlot().getSlotTime();
-        return histogram(outAgentId, inServiceType, inApplicationName, callHost, slotTime);
-    }
-
-    public static ColumnName max(String outAgentId, Vertex inVertex, String callHost, ServiceType outServiceType) {
-        final short slotTime = outServiceType.getHistogramSchema().getMaxStatSlot().getSlotTime();
-        return histogram(outAgentId, inVertex.serviceType(), inVertex.applicationName(), callHost, slotTime);
-    }
-
-    public static ColumnName max(String outAgentId, ServiceType inServiceType, String inApplicationName, String callHost, ServiceType outServiceType) {
-        final short slotTime = outServiceType.getHistogramSchema().getMaxStatSlot().getSlotTime();
-        return histogram(outAgentId, inServiceType, inApplicationName, callHost, slotTime);
-    }
-
     public OutLinkV2ColumnName(String outAgentId, short inServiceType, String inApplicationName, String callHost, short columnSlotNumber) {
         this.outAgentId = Objects.requireNonNull(outAgentId, "outAgentId");
         this.inServiceType = inServiceType;

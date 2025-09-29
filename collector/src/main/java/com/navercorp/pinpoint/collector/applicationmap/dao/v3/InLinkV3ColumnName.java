@@ -42,24 +42,6 @@ public class InLinkV3ColumnName implements ColumnName {
         return new InLinkV3ColumnName(selfApplicationName, selfServiceType.getCode(), outHost, columnSlotNumber);
     }
 
-    public static ColumnName sum(Vertex outVertex, String outHost, ServiceType inServiceType) {
-        return sum(outVertex.applicationName(), outVertex.serviceType(), outHost, inServiceType);
-    }
-
-    public static ColumnName sum(String outApplicationName, ServiceType outServiceType, String outHost, ServiceType inServiceType) {
-        final short slotTime = inServiceType.getHistogramSchema().getSumStatSlot().getSlotTime();
-        return histogram(outApplicationName, outServiceType, outHost, slotTime);
-    }
-
-    public static ColumnName max(Vertex outVertex, String outHost, ServiceType inServiceType) {
-        return max(outVertex.applicationName(), outVertex.serviceType(), outHost, inServiceType);
-    }
-
-    public static ColumnName max(String outApplicationName, ServiceType outServiceType, String outHost, ServiceType inServiceType) {
-        final short slotTime = inServiceType.getHistogramSchema().getMaxStatSlot().getSlotTime();
-        return histogram(outApplicationName, outServiceType, outHost, slotTime);
-    }
-
     public InLinkV3ColumnName(String selfApplicationName, short selfServiceType, String outHost, short columnSlotNumber) {
         this.selfServiceType = selfServiceType;
         this.selfApplicationName = Objects.requireNonNull(selfApplicationName, "selfApplicationName");

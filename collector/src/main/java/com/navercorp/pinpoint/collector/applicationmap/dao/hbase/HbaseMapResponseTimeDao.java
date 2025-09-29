@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.util.MapSlotUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
+import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.logging.log4j.LogManager;
@@ -82,8 +83,8 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
         final RowKey selfRowKey = selfNodeFactory.rowkey(selfVertex, rowTimeSlot);
 
-        final short slotNumber = MapSlotUtils.getSlotNumber(selfVertex.serviceType(), elapsed, isError);
-        final ColumnName selfColumnName = selfNodeFactory.histogram(agentId, slotNumber);
+        final HistogramSlot slot = MapSlotUtils.getHistogramSlot(selfVertex.serviceType(), elapsed, isError);
+        final ColumnName selfColumnName = selfNodeFactory.histogram(agentId, slot);
         final TableName tableName = tableNameProvider.getTableName(table.getTable());
         this.bulkWriter.increment(tableName, selfRowKey, selfColumnName);
 
@@ -113,10 +114,10 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         Vertex selfVertex = Vertex.of(applicationName, applicationServiceType);
         final RowKey selfRowKey = selfNodeFactory.rowkey(selfVertex, rowTimeSlot);
 
-        final short slotNumber = MapSlotUtils.getPingSlotNumber(applicationServiceType);
+        final HistogramSlot pingSlot = MapSlotUtils.getPingSlot(applicationServiceType);
 //        final ColumnName selfColumnName = ResponseColumnName.histogram(agentId, slotNumber);
 
-        final ColumnName selfColumnName = selfNodeFactory.histogram(agentId, slotNumber);
+        final ColumnName selfColumnName = selfNodeFactory.histogram(agentId, pingSlot);
         final TableName tableName = tableNameProvider.getTableName(table.getTable());
         this.bulkWriter.increment(tableName, selfRowKey, selfColumnName);
     }

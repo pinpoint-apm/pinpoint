@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
+import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public class InLinkFactoryV3 implements InLinkFactory {
@@ -30,17 +31,19 @@ public class InLinkFactoryV3 implements InLinkFactory {
     }
 
     @Override
-    public ColumnName histogram(Vertex selfVertex, String selfHost, short outSlotNumber) {
-        return InLinkV3ColumnName.histogram(selfVertex, selfHost, outSlotNumber);
+    public ColumnName histogram(Vertex selfVertex, String selfHost, HistogramSlot outSlot) {
+        return InLinkV3ColumnName.histogram(selfVertex, selfHost, outSlot.getSlotTime());
     }
 
     @Override
     public ColumnName sum(Vertex selfVertex, String selfHost, ServiceType inServiceType) {
-        return InLinkV3ColumnName.sum(selfVertex, selfHost, inServiceType);
+        short sumStatSlot = inServiceType.getHistogramSchema().getSumStatSlot().getSlotTime();
+        return InLinkV3ColumnName.histogram(selfVertex, selfHost, sumStatSlot);
     }
 
     @Override
     public ColumnName max(Vertex selfVertex, String selfHost, ServiceType inServiceType) {
-        return InLinkV3ColumnName.max(selfVertex, selfHost, inServiceType);
+        short maxStatSlot = inServiceType.getHistogramSchema().getMaxStatSlot().getSlotTime();
+        return InLinkV3ColumnName.histogram(selfVertex, selfHost, maxStatSlot);
     }
 }

@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.util.MapSlotUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
+import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -87,9 +88,9 @@ public class HbaseMapOutLinkDao implements MapOutLinkDao {
         final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
         final RowKey selfLinkRowKey = outLinkFactory.rowkey(selfVertex, rowTimeSlot);
 
-        final short outSlotNumber = MapSlotUtils.getSlotNumber(outVertex.serviceType(), elapsed, isError);
+        final HistogramSlot outSlot = MapSlotUtils.getHistogramSlot(outVertex.serviceType(), elapsed, isError);
 
-        final ColumnName inLink = outLinkFactory.histogram(selfAgentId, outVertex, outHost, outSlotNumber);
+        final ColumnName inLink = outLinkFactory.histogram(selfAgentId, outVertex, outHost, outSlot);
         final TableName tableName = tableNameProvider.getTableName(table.getTable());
         this.bulkWriter.increment(tableName, selfLinkRowKey, inLink);
 

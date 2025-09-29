@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import java.util.Objects;
@@ -33,16 +32,6 @@ public class ResponseColumnName implements ColumnName {
 
     public static ColumnName histogram(String agentId, short columnSlotNumber) {
         return new ResponseColumnName(agentId, columnSlotNumber);
-    }
-
-    public static ColumnName sum(String agentId, ServiceType serviceType) {
-        short slotTime = serviceType.getHistogramSchema().getSumStatSlot().getSlotTime();
-        return new ResponseColumnName(agentId, slotTime);
-    }
-
-    public static ColumnName max(String agentId, ServiceType serviceType) {
-        short slotTime = serviceType.getHistogramSchema().getMaxStatSlot().getSlotTime();
-        return new ResponseColumnName(agentId, slotTime);
     }
 
     public ResponseColumnName(String agentId, short columnSlotNumber) {
