@@ -39,7 +39,11 @@ const groupEndNodesByTargetCount = (nodes: Node[], edges: Edge[]) => {
   return Object.entries(targetIdAndCount).reduce<{ single: string[]; multi: string[] }>(
     (prev, [key, count]) => {
       const arr = { ...prev };
-      count > 1 ? arr.multi.push(key) : arr.single.push(key);
+      if (count > 1) {
+        arr.multi.push(key);
+      } else {
+        arr.single.push(key);
+      }
       return arr;
     },
     { single: [], multi: [] },
@@ -136,7 +140,11 @@ export const getMergedData = (data: { nodes: Node[]; edges: Edge[] }, renderNode
   }>(
     (prev, [key, count]) => {
       const arr = { ...prev };
-      count > 1 ? arr.multi.push(key) : arr.single.push(key);
+      if (count > 1) {
+        arr.multi.push(key);
+      } else {
+        arr.single.push(key);
+      }
       return arr;
     },
     { single: [], multi: [] },

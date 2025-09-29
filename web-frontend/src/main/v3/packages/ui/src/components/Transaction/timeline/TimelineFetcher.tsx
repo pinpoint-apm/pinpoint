@@ -72,7 +72,9 @@ export const TimelineFetcher = ({ transactionInfo }: TimelineFetcherProps) => {
         ? searchedListIds?.[focusedNodeIdIndex + 1]
         : searchedListIds?.[0];
     setFocusedNodeId(id);
-    id && setSelectedTrace(getTraceDataById(id));
+    if (id) {
+      setSelectedTrace(getTraceDataById(id));
+    }
   };
 
   const backToPrevSearchIndex = () => {
@@ -81,7 +83,9 @@ export const TimelineFetcher = ({ transactionInfo }: TimelineFetcherProps) => {
         ? searchedListIds?.[searchedListIds?.length - 1]
         : searchedListIds?.[focusedNodeIdIndex - 1];
     setFocusedNodeId(id);
-    id && setSelectedTrace(getTraceDataById(id));
+    if (id) {
+      setSelectedTrace(getTraceDataById(id));
+    }
   };
 
   const getTraceDataById = (id: string) => {

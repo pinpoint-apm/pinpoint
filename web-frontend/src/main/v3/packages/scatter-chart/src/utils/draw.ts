@@ -54,7 +54,9 @@ export const drawText = (
     font?: CanvasTextDrawingStyles['font'];
   } = {},
 ) => {
-  font && (ctx.font = font);
+  if (font) {
+    ctx.font = font;
+  }
   ctx.textAlign = textAlign;
   ctx.textBaseline = textBaseline;
   ctx.fillStyle = color;

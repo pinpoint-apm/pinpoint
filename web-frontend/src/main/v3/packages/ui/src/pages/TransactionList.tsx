@@ -24,7 +24,9 @@ export const TransactionListPage = ({ transactionInfoProps }: TransactionListPag
     if (withFilter) {
       setNextDataIndex(nextDataIndex + 100);
     } else {
-      transactionListData?.resultFrom && setNextX2(transactionListData.resultFrom - 1);
+      if (transactionListData?.resultFrom) {
+        setNextX2(transactionListData.resultFrom - 1);
+      }
     }
   };
 

@@ -79,7 +79,10 @@ export const ScatterChartRealtimeFetcher = ({
     if (sc && isScatterMounted) {
       const { width, height } = sc.getChartSize();
 
-      sc.isRealtime() && sc.stopRealtime();
+      if (sc.isRealtime()) {
+        sc.stopRealtime();
+      }
+
       sc.clear();
       sc.setAxisOption({ x: { min: from, max: to }, y: { min: y[0], max: y[1] } });
       sc.startRealtime(to - from);

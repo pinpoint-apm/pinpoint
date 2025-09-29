@@ -11,8 +11,6 @@ import {
   withInitialFetch,
 } from '@pinpoint-fe/ui';
 
-export interface InstallationPageProps {}
-
 const InstallationPage = () => {
   const installationItemList = [
     {

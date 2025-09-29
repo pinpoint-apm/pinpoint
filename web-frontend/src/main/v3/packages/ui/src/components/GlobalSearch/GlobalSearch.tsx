@@ -1,5 +1,6 @@
 import { globalSearchDisplayAtom } from '@pinpoint-fe/ui/src/atoms';
 import { MenuItemType as MenuItem } from '@pinpoint-fe/ui/src/constants';
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 ('@radix-ui/react-icons');
 import Fuse from 'fuse.js';
 import {

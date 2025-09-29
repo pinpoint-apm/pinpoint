@@ -100,7 +100,10 @@ export class Guide extends Layer {
     this.context.clearRect(0, 0, width, height);
     this.dragRectangle = { x1: 0, y1: 0, x2: 0, y2: 0 };
 
-    this.isMouseInValidArea(offsetX, offsetY) && this.drawGuideText(offsetX, offsetY);
+    if (this.isMouseInValidArea(offsetX, offsetY)) {
+      this.drawGuideText(offsetX, offsetY);
+    }
+
     const minX = this.xAxis.min;
     const maxY = this.yAxis.max;
     const xPadding = this.padding.left + this.xAxis.innerPadding;

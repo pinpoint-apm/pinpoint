@@ -81,12 +81,16 @@ export const RichDatetimePicker = ({
   const [appContext, setAppContext] = React.useState({ seamToken, timeZone: tz });
 
   useOnClickOutside(containerRef, () => {
-    !hasPanelContainer && setOpen(false);
+    if (!hasPanelContainer) {
+      setOpen(false);
+    }
   });
 
   useCaptureKeydown((event) => {
     if (event.code === 'Escape') {
-      open && setOpen(false);
+      if (open) {
+        setOpen(false);
+      }
     }
   });
 

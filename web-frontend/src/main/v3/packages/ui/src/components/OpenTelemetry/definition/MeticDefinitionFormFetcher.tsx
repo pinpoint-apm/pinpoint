@@ -37,6 +37,7 @@ import { Checkbox } from '../../ui/checkbox';
 import { getNewWidgetLayout } from '../../../components/Dashboard/DashBoard';
 import { Switch } from '../../../components/ui/switch';
 import { HelpPopover } from '../../../components/HelpPopover';
+import ReactGridLayout from 'react-grid-layout';
 
 const metricDefinitionFormSchemaFactory = (t: TFunction) => {
   return z

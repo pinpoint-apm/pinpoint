@@ -131,7 +131,9 @@ export function VirtualizedDataTable<TData, TValue>({
         table.resetPageSize();
       });
     });
-    tableContainerRef.current && resizeObserver.observe(tableContainerRef.current);
+    if (tableContainerRef.current) {
+      resizeObserver.observe(tableContainerRef.current);
+    }
     return () => {
       resizeObserver.disconnect();
     };
