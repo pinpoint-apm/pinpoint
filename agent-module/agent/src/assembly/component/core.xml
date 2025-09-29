@@ -69,7 +69,16 @@
                 <exclude>com.navercorp.pinpoint:pinpoint-profiler-test</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-plugins-assembly</exclude>
                 <exclude>com.navercorp.pinpoint:pinpoint-agent-tools</exclude>
-<!--                <exclude>*:pom</exclude>-->
+
+                <exclude>com.google.inject:guice</exclude>
+                <exclude>com.google.guava:guava</exclude>
+                <exclude>io.grpc:grpc-api</exclude>
+                <exclude>io.grpc:grpc-core</exclude>
+                <exclude>io.grpc:grpc-netty</exclude>
+                <exclude>io.grpc:grpc-stub</exclude>
+                <exclude>io.grpc:grpc-util</exclude>
+                <exclude>com.google.protobuf:protobuf-java</exclude>
+                <exclude>com.github.ben-manes.caffeine:caffeine</exclude>
             </excludes>
             <outputDirectory>lib</outputDirectory>
             <useProjectArtifact>false</useProjectArtifact>
@@ -88,8 +97,6 @@
                 <include>com.navercorp.pinpoint:pinpoint-plugins-assembly</include>
             </includes>
             <excludes>
-                <!--<exclude>com.navercorp.pinpoint:pinpoint-common-servlet</exclude>-->
-<!--                <exclude>*:pom</exclude>-->
             </excludes>
             <outputDirectory>plugin</outputDirectory>
             <useProjectArtifact>false</useProjectArtifact>
