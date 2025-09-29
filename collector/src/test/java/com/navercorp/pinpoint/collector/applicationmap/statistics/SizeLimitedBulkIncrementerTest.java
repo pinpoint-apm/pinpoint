@@ -51,7 +51,7 @@ import java.util.concurrent.TimeUnit;
 public class SizeLimitedBulkIncrementerTest {
 
     private static final byte[] CF = Bytes.toBytes("CF");
-    private final RowKeyMerge merge = new RowKeyMerge(null);
+    private final RowKeyMerge merge = new RowKeyMerge();
 
     private final int bulkLimitSize = 1000;
 
@@ -153,7 +153,7 @@ public class SizeLimitedBulkIncrementerTest {
         List<List<BulkIncrementerTestClazz.TestData>> testDataPartitions = ListUtils.partition(testDatas, testDatas.size() / (numIncrementers - 1));
         final CountDownLatch completeLatch = new CountDownLatch(testDataPartitions.size());
 
-        FutureTask<Map<TableName, List<Increment>>> flushTask = new FutureTask<>(new Flusher(bulkIncrementer, null, completeLatch));
+        FutureTask<Map<TableName, List<Increment>>> flushTask = new FutureTask<>(new Flusher(bulkIncrementer, completeLatch));
         Thread flusher = new Thread(flushTask, "Flusher");
         flusher.start();
 
@@ -198,7 +198,7 @@ public class SizeLimitedBulkIncrementerTest {
         List<List<TestData>> testDataPartitions = ListUtils.partition(testDatas, testDatas.size() / (numIncrementers - 1));
         final CountDownLatch incrementorLatch = new CountDownLatch(testDataPartitions.size());
 
-        FutureTask<Map<TableName, List<Increment>>> flushTask = new FutureTask<>(new Flusher(bulkIncrementer, null, incrementorLatch));
+        FutureTask<Map<TableName, List<Increment>>> flushTask = new FutureTask<>(new Flusher(bulkIncrementer, incrementorLatch));
         Thread flusher = new Thread(flushTask, "Flusher");
         flusher.start();
 

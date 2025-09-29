@@ -16,9 +16,7 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
-import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
@@ -30,6 +28,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * @author emeroad
@@ -38,10 +38,16 @@ import java.util.Map;
 public class RowKeyMerge {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+    private final Function<RowKey, byte[]> rowKeyFunction;
 
-    public RowKeyMerge(RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
-        this.rowKeyDistributorByHashPrefix = rowKeyDistributorByHashPrefix;
+    public static final Function<RowKey, byte[]> BYPASS = rowKey -> rowKey.getRowKey(ByteSaltKey.NONE.size());
+
+    public RowKeyMerge() {
+        this(BYPASS);
+    }
+
+    public RowKeyMerge(Function<RowKey, byte[]> rowKeyFunction) {
+        this.rowKeyFunction = Objects.requireNonNull(rowKeyFunction, "rowKeyFunction");
     }
 
     public Map<TableName, List<Increment>> createBulkIncrement(Map<RowInfo, Long> data, byte[] family) {
@@ -55,7 +61,7 @@ public class RowKeyMerge {
             final TableName tableName = tableRowKeys.getKey();
             final List<Increment> incrementList = new ArrayList<>();
             for (Map.Entry<RowKey, List<ColumnCallCount>> rowKeyEntry : tableRowKeys.getValue().entrySet()) {
-                Increment increment = createIncrement(tableName, rowKeyEntry, family);
+                Increment increment = createIncrement(rowKeyEntry, family);
                 incrementList.add(increment);
             }
             tableIncrementMap.put(tableName, incrementList);
@@ -63,9 +69,9 @@ public class RowKeyMerge {
         return tableIncrementMap;
     }
 
-    private Increment createIncrement(TableName tableName, Map.Entry<RowKey, List<ColumnCallCount>> rowKeyEntry, byte[] family) {
+    private Increment createIncrement(Map.Entry<RowKey, List<ColumnCallCount>> rowKeyEntry, byte[] family) {
         RowKey rowKey = rowKeyEntry.getKey();
-        byte[] key = getRowKey(rowKey, rowKeyDistributorByHashPrefix);
+        byte[] key = this.rowKeyFunction.apply(rowKey);
         final Increment increment = new Increment(key);
         increment.setReturnResults(false);
         for (ColumnCallCount columnName : rowKeyEntry.getValue()) {
@@ -76,16 +82,6 @@ public class RowKeyMerge {
             logger.debug("create increment row:{}, column:{}", rowKey, rowKeyEntry.getValue());
         }
         return increment;
-    }
-
-    private byte[] getRowKey(RowKey rowKey, RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
-        if (rowKeyDistributorByHashPrefix == null) {
-            return rowKey.getRowKey(ByteSaltKey.NONE.size());
-        } else {
-            ByteHasher hasher = rowKeyDistributorByHashPrefix.getByteHasher();
-            byte[] bytes = rowKey.getRowKey(hasher.getSaltKey().size());
-            return hasher.writeSaltKey(bytes);
-        }
     }
 
     private Map<TableName, Map<RowKey, List<ColumnCallCount>>> mergeRowKeys(Map<RowInfo, Long> data) {

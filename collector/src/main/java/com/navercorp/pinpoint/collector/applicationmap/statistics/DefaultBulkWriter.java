@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.collector.applicationmap.statistics;
 import com.navercorp.pinpoint.common.hbase.CheckAndMax;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTemplate;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
+import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.hadoop.hbase.TableName;
@@ -55,16 +55,15 @@ public class DefaultBulkWriter implements BulkWriter {
     public DefaultBulkWriter(String loggerName,
                              HbaseAsyncTemplate asyncTemplate,
                              byte[] family,
-                             RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
+                             ByteHasher hasher,
                              BulkIncrementer bulkIncrementer,
                              BulkUpdater bulkUpdater) {
         this.logger = LogManager.getLogger(loggerName);
         this.family = Objects.requireNonNull(family, "family");
         this.asyncTemplate = Objects.requireNonNull(asyncTemplate, "asyncTemplate");
 
-        Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
-        this.merge = new RowKeyMerge(rowKeyDistributorByHashPrefix);
-        this.hasher = rowKeyDistributorByHashPrefix.getByteHasher();
+        this.hasher = Objects.requireNonNull(hasher, "hasher");
+        this.merge = new RowKeyMerge(this::getDistributedKey);
         this.bulkIncrementer = Objects.requireNonNull(bulkIncrementer, "bulkIncrementer");
         this.bulkUpdater = Objects.requireNonNull(bulkUpdater, "bulkUpdater");
     }
@@ -149,7 +148,11 @@ public class DefaultBulkWriter implements BulkWriter {
 
 
     private byte[] getDistributedKey(RowKey rowKey) {
-        byte[] bytes = rowKey.getRowKey(hasher.getSaltKey().size());
-        return hasher.writeSaltKey(bytes);
+        if (hasher == null) {
+            return rowKey.getRowKey(ByteSaltKey.NONE.size());
+        } else {
+            byte[] bytes = rowKey.getRowKey(hasher.getSaltKey().size());
+            return hasher.writeSaltKey(bytes);
+        }
     }
 }
