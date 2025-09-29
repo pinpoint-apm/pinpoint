@@ -20,7 +20,8 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
-import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
+import com.navercorp.pinpoint.common.timeseries.util.IntInverter;
+import com.navercorp.pinpoint.common.timeseries.util.SecondTimestamp;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
@@ -30,6 +31,8 @@ import java.util.Objects;
  * @author emeroad
  */
 public class UidLinkRowKey implements TimestampRowKey {
+    public static final int TIMESTAMP_SIZE = 4;
+
     private final int serviceUid;
     private final String applicationName;
     private final int serviceType;
@@ -83,13 +86,16 @@ public class UidLinkRowKey implements TimestampRowKey {
                                                   PinpointConstants.APPLICATION_NAME_MAX_LEN_V3 +
                                                   BytesUtils.INT_BYTE_LENGTH +
                                                   BytesUtils.INT_BYTE_LENGTH +
-                                                  BytesUtils.LONG_BYTE_LENGTH);
+                                                  TIMESTAMP_SIZE);
         buffer.setOffset(saltKeySize);
         buffer.putPadString(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN_V3);
         buffer.putInt(serviceType);
         buffer.putInt(serviceUid);
-        long reverseTimeMillis = LongInverter.invert(timestamp);
-        buffer.putLong(reverseTimeMillis);
+
+        int secondTimestamp = SecondTimestamp.convertSecondTimestamp(timestamp);
+
+        int reverseTimeMillis = IntInverter.invert(secondTimestamp);
+        buffer.putInt(reverseTimeMillis);
         return buffer.getBuffer();
     }
 
@@ -106,9 +112,11 @@ public class UidLinkRowKey implements TimestampRowKey {
         int serviceUid = BytesUtils.bytesToInt(bytes, offset);
         offset += BytesUtils.INT_BYTE_LENGTH;
 
-        long timestamp = LongInverter.restore(BytesUtils.bytesToLong(bytes, offset));
+        int secondTimestamp = IntInverter.restore(BytesUtils.bytesToInt(bytes, offset));
+        long msTimestamp = SecondTimestamp.restoreSecondTimestamp(secondTimestamp);
+//        long timestamp = LongInverter.restore(BytesUtils.bytesToLong(bytes, offset));
 
-        return new UidLinkRowKey(serviceUid, applicationName, applicationServiceType, timestamp);
+        return new UidLinkRowKey(serviceUid, applicationName, applicationServiceType, msTimestamp);
     }
 
 

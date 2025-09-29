@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.common.server.applicationmap.statistics;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.RangeDoubleHash;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -34,7 +36,7 @@ class UidLinkRowKeyTest {
 
     static int secondaryKeySpace = 4;
 
-    ByteHasher hasher = RangeDoubleHash.ofSecondary(0, KEY_RANGE, ByteHasher.MAX_BUCKETS, secondaryKeySpace, KEY_RANGE, 270);
+    ByteHasher hasher = RangeDoubleHash.ofSecondary(0, KEY_RANGE, ByteHasher.MAX_BUCKETS, secondaryKeySpace, KEY_RANGE, KEY_RANGE + 4);
 
     @Test
     void uidRowKey() {
@@ -67,13 +69,41 @@ class UidLinkRowKeyTest {
 
         Set<Byte> saltKeySet = new HashSet<>();
 
-        long timestamp = 1000;
+        long timestamp = 9000;
+        int second = 1000;
         for (int i = 0; i < 16; i++) {
-            RowKey rowKey = UidLinkRowKey.of(12, "appName", ServiceType.STAND_ALONE, timestamp++);
+            RowKey rowKey = UidLinkRowKey.of(12, "appName", ServiceType.STAND_ALONE, timestamp += second);
             byte[] saltKey = hasher.writeSaltKey(rowKey.getRowKey(saltKeySize));
             saltKeySet.add(saltKey[0]);
         }
 
         assertThat(saltKeySet).hasSize(secondaryKeySpace);
+    }
+
+    @Test
+    void makeRow() {
+        UidLinkRowKey key = (UidLinkRowKey) UidLinkRowKey.of(ServiceUid.DEFAULT_SERVICE_UID_CODE,
+                "a".repeat(PinpointConstants.APPLICATION_NAME_MAX_LEN_V3),
+                ServiceType.STAND_ALONE, 1000);
+
+        byte[] bytes = UidLinkRowKey.makeRowKey(0,
+                key.getServiceUid(),
+                key.getApplicationName(),
+                key.getServiceType(),
+                key.getTimestamp());
+
+        UidLinkRowKey rowKey = UidLinkRowKey.read(0, bytes);
+        Assertions.assertEquals(key, rowKey);
+    }
+
+    @Test
+    void makeRow_error() {
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> {
+            UidLinkRowKey.makeRowKey(0,
+                    ServiceUid.DEFAULT_SERVICE_UID_CODE,
+                    "a".repeat(PinpointConstants.APPLICATION_NAME_MAX_LEN_V3 + 1),
+                    ServiceType.STAND_ALONE.getCode(),
+                    1000);
+        });
     }
 }

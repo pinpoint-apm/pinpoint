@@ -38,6 +38,7 @@ public class HostRowKeyEncoderV2 implements HostRowKeyEncoder {
         this.applicationNameMaxLength = applicationNameMaxLength;
     }
 
+    @Override
     public byte[] encodeRowKey(String parentApplicationName, int parentServiceType, int parentServiceUid, long timestamp) {
         byte[] rowkey = encodeRowKey0(parentApplicationName, parentServiceType, parentServiceUid, timestamp);
         return hasher.writeSaltKey(rowkey);
@@ -63,6 +64,5 @@ public class HostRowKeyEncoderV2 implements HostRowKeyEncoder {
         ByteArrayUtils.writeLong(reverseTimestamp, rowKey, offset);
         return rowKey;
     }
-
 
 }
