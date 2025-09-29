@@ -34,6 +34,7 @@ import {
   TooltipTrigger,
   ServerMapSkeleton,
 } from '..';
+import cytoscape from 'cytoscape';
 
 export interface ServerMapCoreProps extends Omit<ServerMapComponentProps, 'data'> {
   data?: GetServerMap.Response | FilteredMap.Response;

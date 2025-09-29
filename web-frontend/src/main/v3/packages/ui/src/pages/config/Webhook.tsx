@@ -111,7 +111,9 @@ export const WebhookPage = ({ ApplicationList = ApplicationCombinedList }: Webho
       <Sheet
         open={!!currentTargetWebhookData}
         onOpenChange={(open) => {
-          !open && setCurrentTargetWebhookData(undefined);
+          if (!open) {
+            setCurrentTargetWebhookData(undefined);
+          }
         }}
       >
         <SheetContent
@@ -173,7 +175,9 @@ export const WebhookPage = ({ ApplicationList = ApplicationCombinedList }: Webho
       <AlertDialog
         open={!!currentDeletingTarget}
         onOpenChange={(open) => {
-          !open && setCurrentDeletingTarget(undefined);
+          if (!open) {
+            setCurrentDeletingTarget(undefined);
+          }
         }}
       >
         <AlertDialogContent>

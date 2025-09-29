@@ -1,6 +1,5 @@
 import { HelpCommunity, HelpDocument } from '../../components';
 
-export interface HelpPageProps {}
 export const HelpPage = () => {
   return (
     <div className="space-y-6">

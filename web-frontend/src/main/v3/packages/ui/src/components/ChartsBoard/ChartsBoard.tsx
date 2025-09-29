@@ -32,7 +32,11 @@ export const ChartsBoard = ({
     const wrapperElement = wrapperRef.current;
     if (!wrapperElement) return;
     const resizeObserver = new ResizeObserver(() => {
-      wrapperElement.clientWidth > 650 ? setGridMode(true) : setGridMode(false);
+      if (wrapperElement.clientWidth > 650) {
+        setGridMode(true);
+      } else {
+        setGridMode(false);
+      }
     });
     resizeObserver.observe(wrapperElement);
 

@@ -23,6 +23,6 @@
     "sourceMap": true
   },
   "include": ["src"],
-  "exclude": ["dist", "build", "node_modules", "**/*.stories.tsx"],
+  "exclude": ["dist", "build", "node_modules"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

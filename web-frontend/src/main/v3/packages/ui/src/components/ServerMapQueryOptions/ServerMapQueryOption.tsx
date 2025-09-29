@@ -9,7 +9,7 @@ import { ButtonGroup, ButtonGroupItem } from '../ui/button-group';
 import { cn } from '../../lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '..';
 
-export interface ServerMapQueryOption {
+export interface ServerMapQueryOptionType {
   inbound?: number;
   outbound?: number;
   wasOnly?: boolean;
@@ -17,8 +17,8 @@ export interface ServerMapQueryOption {
 }
 
 export interface ServerMapQueryOptionProps {
-  queryOption?: ServerMapQueryOption;
-  onApply?: (pamas?: ServerMapQueryOption) => void;
+  queryOption?: ServerMapQueryOptionType;
+  onApply?: (pamas?: ServerMapQueryOptionType) => void;
 }
 
 const boundCount = [1, 2, 3, 4];
@@ -30,7 +30,7 @@ export const ServerMapQueryOption = ({ queryOption, onApply }: ServerMapQueryOpt
   const [wasOnly, setWasOnly] = React.useState(queryOption?.wasOnly || false);
   const [bidirectional, setBidirectional] = React.useState(queryOption?.bidirectional || false);
 
-  const setOption = (queryOption?: ServerMapQueryOption) => {
+  const setOption = (queryOption?: ServerMapQueryOptionType) => {
     setInbound(queryOption?.inbound || 1);
     setOutbound(queryOption?.outbound || 1);
     setWasOnly(queryOption?.wasOnly || false);

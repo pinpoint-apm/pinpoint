@@ -2,7 +2,6 @@
 import { createBrowserRouter, redirect } from 'react-router-dom';
 import ServerMap from '@pinpoint-fe/web/src/pages/ServerMap';
 import Realtime from '@pinpoint-fe/web/src/pages/ServerMap/Realtime';
-import ScatterFullScreen from '@pinpoint-fe/web/src/pages/ScatterFullScreen';
 import ScatterOrHeatmapFullScreen from '@pinpoint-fe/web/src/pages/ScatterOrHeatmapFullScreen';
 import {
   serverMapRouteLoader,
@@ -16,8 +15,6 @@ import {
   threadDumpRouteLoader,
   handleV2RouteLoader,
   openTelemetryRouteLoader,
-  scatterFullScreenLoader,
-  scatterFullScreenRealtimeLoader,
   scatterOrHeatmapFullScreenLoader,
   scatterOrHeatmapFullScreenRealtimeLoader,
 } from '@pinpoint-fe/ui/src/loader';

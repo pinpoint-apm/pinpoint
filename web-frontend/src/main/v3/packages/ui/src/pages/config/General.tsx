@@ -17,8 +17,6 @@ import {
 import { format } from '@pinpoint-fe/ui/src/utils';
 import { useTranslation } from 'react-i18next';
 
-export interface GeneralPageProps {}
-
 export const GeneralPage = () => {
   const [language, setLanguage] = useLanguage();
   const [dateFormat, setDateFormat] = useDateFormat();

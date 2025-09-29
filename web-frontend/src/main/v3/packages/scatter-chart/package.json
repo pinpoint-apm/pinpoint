@@ -14,7 +14,7 @@
   "main": "./src/index.ts",
   "scripts": {
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
-    "lint": "yarn format && eslint ./src/**/*.ts --config .eslintrc.cjs",
+    "lint": "yarn format && eslint ./src/**/*.ts",
     "test": "jest",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.17.10",
+    "@storybook/addon-docs": "9.1.8",
     "@storybook/addon-links": "^9.1.8",
     "@storybook/builder-vite": "^9.1.8",
     "@storybook/html-vite": "^9.1.8",
@@ -43,14 +44,15 @@
     "@types/jest": "^28.1.4",
     "@types/lodash.clonedeep": "^4.5.7",
     "@types/lodash.merge": "^4.6.7",
-    "@typescript-eslint/eslint-plugin": "^5.58.0",
-    "@typescript-eslint/parser": "^5.58.0",
+    "@typescript-eslint/eslint-plugin": "^8.44.1",
+    "@typescript-eslint/parser": "^8.44.1",
     "babel-loader": "^8.2.5",
     "chromatic": "^6.5.4",
     "css-loader": "^6.7.3",
-    "eslint": "^8.15.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.2.1",
+    "eslint": "^9.36.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "globals": "^16.4.0",
     "jest": "^28.1.0",
     "jest-canvas-mock": "^2.4.0",
     "jest-environment-jsdom": "^30.0.4",
@@ -60,7 +62,6 @@
     "ts-jest": "^28.0.5",
     "typescript": "^4.5.5",
     "vite": "^6.1.1",
-    "vite-plugin-dts": "^4.5.4",
-    "@storybook/addon-docs": "9.1.8"
+    "vite-plugin-dts": "^4.5.4"
   }
 }
