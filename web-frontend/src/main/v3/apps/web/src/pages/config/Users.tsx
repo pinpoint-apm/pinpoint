@@ -6,13 +6,12 @@ import {
 import { UsersPage as CommonUsersPage, withInitialFetch } from '@pinpoint-fe/ui';
 import { configurationAtom } from '@pinpoint-fe/ui/src/atoms';
 
-export interface UsersPageProps {}
 const UsersPage = () => {
   const configuration = useAtomValue(configurationAtom);
 
   return <CommonUsersPage configuration={configuration} />;
 };
 
-export default withInitialFetch((props: UsersPageProps) =>
+export default withInitialFetch((props) =>
   getLayoutWithSideNavigation(getLayoutWithConfiguration(<UsersPage {...props} />)),
 );

@@ -158,7 +158,9 @@ export const DatePanel = ({
               <div
                 className="rich-datetime-picker__item"
                 onMouseEnter={() => {
-                  delayCloseRef.current && clearTimeout(delayCloseRef.current);
+                  if (delayCloseRef.current) {
+                    clearTimeout(delayCloseRef.current);
+                  }
                   setOpenMore(true);
                 }}
                 onMouseLeave={() => {

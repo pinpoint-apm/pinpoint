@@ -108,7 +108,7 @@ export const ApplicationCombinedListForCommon = ({
     try {
       await onClickFavorite?.(newFavoriteList || []);
 
-      !option?.disableToast &&
+      if (!option?.disableToast) {
         toast({
           description: (
             <div className="flex items-center gap-1 text-xs">
@@ -118,13 +118,15 @@ export const ApplicationCombinedListForCommon = ({
           ),
           variant: 'small',
         });
+      }
     } catch (error) {
-      !option?.disableToast &&
+      if (!option?.disableToast) {
         toast({
           title: (error as Error).message || 'Failed to update favorites',
           description: 'Please try again',
           variant: 'destructive',
         });
+      }
     } finally {
       popoverContentRef.current?.focus();
     }
@@ -233,6 +235,7 @@ export const ApplicationCombinedListForCommon = ({
     setIsMouseMove(false);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function getFilteredList(filteredList: any, id: 'favoriteList' | 'applicationList') {
     setFilteredLists((prev) => {
       const newLists = { ...prev };

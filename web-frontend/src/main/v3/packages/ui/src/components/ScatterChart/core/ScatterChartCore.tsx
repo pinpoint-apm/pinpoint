@@ -127,7 +127,9 @@ export const ScatterChartCore = React.forwardRef<ScatterChartHandle, ScatterChar
         sc?.stopRealtime();
         sc?.destroy();
         scatterRef.current = undefined;
-        resizable && resizeObserverRef?.current?.disconnect();
+        if (resizable) {
+          resizeObserverRef?.current?.disconnect();
+        }
       };
     }, []);
 
@@ -161,7 +163,9 @@ export const ScatterChartCore = React.forwardRef<ScatterChartHandle, ScatterChar
             const wrapperHeight = wrapperElement.clientHeight;
 
             if (wrapperWidth && wrapperHeight) {
-              !sc.isRealtime && sc.resize(wrapperWidth, wrapperHeight);
+              if (sc.isRealtime) {
+                sc.resize(wrapperWidth, wrapperHeight);
+              }
             }
           }, 200);
         });

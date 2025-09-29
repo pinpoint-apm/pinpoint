@@ -14,6 +14,7 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "ES6",
+    "lib": ["ES6", "DOM"],
     "outDir": "dist"
   },
   "include": [

@@ -144,7 +144,9 @@ export const AlarmPage = ({
       <Sheet
         open={!!currentTargetAlarmData}
         onOpenChange={(open) => {
-          !open && setCurrentTargetAlarmData(undefined);
+          if (!open) {
+            setCurrentTargetAlarmData(undefined);
+          }
         }}
       >
         <SheetContent
@@ -210,7 +212,9 @@ export const AlarmPage = ({
       <AlertDialog
         open={!!currentDeletingTarget}
         onOpenChange={(open) => {
-          !open && setCurrentDeletingTarget(undefined);
+          if (!open) {
+            setCurrentDeletingTarget(undefined);
+          }
         }}
       >
         <AlertDialogContent>

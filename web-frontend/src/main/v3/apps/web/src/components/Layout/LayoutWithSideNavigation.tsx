@@ -1,17 +1,15 @@
 import React from 'react';
 import {
   LayoutWithSideNavigation as LayoutWithSideNavigationComponent,
-  LayoutWithSideNavigationProps as LayoutWithSideNavigationComponentProps,
+  LayoutWithSideNavigationProps,
   SideNavigationMenuItem,
 } from '@pinpoint-fe/ui';
 import { FaCog } from 'react-icons/fa';
 import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
-import { LuDoorOpen, LuUserCircle2 } from 'react-icons/lu';
+import { LuUserCircle2 } from 'react-icons/lu';
 import { CONFIG_MENU_MAP } from './LayoutWithConfiguration';
 import { MdOutlineAdminPanelSettings } from 'react-icons/md';
 import { useMenuItems } from '@pinpoint-fe/web/src/hooks/useMenuItems';
-
-export interface LayoutWithSideNavigationProps extends LayoutWithSideNavigationComponentProps {}
 
 export const LayoutWithSideNavigation = ({ ...props }: LayoutWithSideNavigationProps) => {
   const { menuItems } = useMenuItems();

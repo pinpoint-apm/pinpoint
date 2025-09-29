@@ -36,7 +36,9 @@ export const Popper = ({
 
   useCaptureKeydown((event: KeyboardEvent) => {
     if (event.code === 'Escape' && !shouldAlwaysShow) {
-      open && setOpen(false);
+      if (open) {
+        setOpen(false);
+      }
     }
   });
 
@@ -109,12 +111,13 @@ export const Popper = ({
                 if (offsetOption) {
                   const offset = (offsetOption as { offset: [number, number] })?.offset;
 
-                  offset &&
+                  if (offset) {
                     Object.assign(popperStyle, {
                       top: offset?.[1],
                       left: offset?.[0],
                       transform: '',
                     });
+                  }
                 }
               }
             }
