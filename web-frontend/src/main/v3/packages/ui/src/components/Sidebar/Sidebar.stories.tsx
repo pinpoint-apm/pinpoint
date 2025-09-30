@@ -29,39 +29,39 @@ export default {
 const Template: StoryFn<typeof Sidebar> = (args) => {
   return (
     // <SidebarProvider {...args}>
-      <div style={{ display: 'flex', height: '100vh' }}>
-        <Sidebar>
-          <Menu menuItemStyles={menuItemStyles}>
-            <MenuItem icon={<FaNetworkWired />}>Servermap</MenuItem>
-            <MenuItem icon={<FaChartLine />}>Inspector</MenuItem>
-            <MenuItem icon={<FaChartBar />}>URL Statistic</MenuItem>
-            <MenuItem icon={<FaServer />}>Infrastructure</MenuItem>
-          </Menu>
-          <Menu
-            style={{ marginTop: 'auto' }}
-            menuItemStyles={{
-              ...menuItemStyles,
-              ...bottomMenuItemStyles,
-            }}
-          >
-            <SubMenu icon={<FaCog />} label="Configuration">
-              <MenuItem>User Group</MenuItem>
-              <MenuItem>Authentication & Alarm</MenuItem>
-              <MenuItem>Webhook</MenuItem>
-              <MenuItem>Installation</MenuItem>
-              <MenuItem>Help</MenuItem>
-              <MenuItem>Yobi</MenuItem>
-              <MenuItem>Experimental</MenuItem>
-            </SubMenu>
-            <SubMenu icon={<FaUserCircle />} label="User">
-              <MenuItem>General</MenuItem>
-              <MenuItem>User Profile</MenuItem>
-              <MenuItem>Log Out</MenuItem>
-              <MenuItem>Theme</MenuItem>
-            </SubMenu>
-          </Menu>
-        </Sidebar>
-      </div>
+    <div style={{ display: 'flex', height: '100vh' }}>
+      <Sidebar>
+        <Menu menuItemStyles={menuItemStyles}>
+          <MenuItem icon={<FaNetworkWired />}>Servermap</MenuItem>
+          <MenuItem icon={<FaChartLine />}>Inspector</MenuItem>
+          <MenuItem icon={<FaChartBar />}>URL Statistic</MenuItem>
+          <MenuItem icon={<FaServer />}>Infrastructure</MenuItem>
+        </Menu>
+        <Menu
+          style={{ marginTop: 'auto' }}
+          menuItemStyles={{
+            ...menuItemStyles,
+            ...bottomMenuItemStyles,
+          }}
+        >
+          <SubMenu icon={<FaCog />} label="Configuration">
+            <MenuItem>User Group</MenuItem>
+            <MenuItem>Authentication & Alarm</MenuItem>
+            <MenuItem>Webhook</MenuItem>
+            <MenuItem>Installation</MenuItem>
+            <MenuItem>Help</MenuItem>
+            <MenuItem>Yobi</MenuItem>
+            <MenuItem>Experimental</MenuItem>
+          </SubMenu>
+          <SubMenu icon={<FaUserCircle />} label="User">
+            <MenuItem>General</MenuItem>
+            <MenuItem>User Profile</MenuItem>
+            <MenuItem>Log Out</MenuItem>
+            <MenuItem>Theme</MenuItem>
+          </SubMenu>
+        </Menu>
+      </Sidebar>
+    </div>
     // </SidebarProvider>
   );
 };

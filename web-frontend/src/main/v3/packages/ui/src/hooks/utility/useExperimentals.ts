@@ -13,14 +13,16 @@ export const useExperimentals = (initialValue?: Configuration) => {
   );
 
   useUpdateEffect(() => {
-    enableServerMapRealTime ??
+    if (enableServerMapRealTime == null) {
       setEnableServerMapRealTime(
         initialValue?.['experimental.enableServerMapRealTime.value'] || false,
       );
-    useStatisticsAgentState ??
+    }
+    if (useStatisticsAgentState == null) {
       setUseStatisticsAgentState(
         initialValue?.['experimental.useStatisticsAgentState.value'] || false,
       );
+    }
   }, [initialValue]);
 
   const experimentalMap = {

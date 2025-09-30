@@ -3,11 +3,11 @@ import { ComposedChart, ReferenceLine } from 'recharts';
 import { useRechart } from '../ReChart/useRechart';
 import { ChartContainer } from '../ui';
 
-export interface MiniChart {
+export interface MiniChartProps {
   chart: Chart;
 }
 
-export const MiniChart = ({ chart }: MiniChart) => {
+export const MiniChart = ({ chart }: MiniChartProps) => {
   const { data, chartConfig, maxValue, renderChartChildComponents } = useRechart(chart);
 
   return (

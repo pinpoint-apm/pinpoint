@@ -63,7 +63,11 @@ export class Legend {
   }
 
   public setSize(width?: number) {
-    this.containerElement.style.width = `${width}px` || `${this.rootWrapper.clientWidth}px`;
+    if (width) {
+      this.containerElement.style.width = `${width}px`;
+    } else {
+      this.containerElement.style.width = `${this.rootWrapper.clientWidth}px`;
+    }
   }
 
   public setDataStyleMap(dataStyleMap: DataStyleMap) {

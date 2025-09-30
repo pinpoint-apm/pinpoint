@@ -28,6 +28,7 @@ const meta: Meta<typeof ProgressBar> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Template = (args: any) => {
   const [count, setCount] = React.useState(0);
 

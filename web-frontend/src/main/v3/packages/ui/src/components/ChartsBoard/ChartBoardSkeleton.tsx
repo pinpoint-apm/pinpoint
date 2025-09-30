@@ -1,9 +1,9 @@
 import ContentLoader from 'react-content-loader';
 import { ScatterChartSkeletonContent } from '../ScatterChart/ScatterChartSkeleton';
 
-export interface ChartBoardSkeleton {}
+export interface ChartBoardSkeletonProps {}
 
-export const ChartBoardSkeleton = (props: ChartBoardSkeleton) => (
+export const ChartBoardSkeleton = (props: ChartBoardSkeletonProps) => (
   <ContentLoader
     speed={2}
     width={'100%'}

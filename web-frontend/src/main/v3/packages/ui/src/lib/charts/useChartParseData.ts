@@ -20,10 +20,15 @@ export const useChartParseData = (data: InspectorAgentChart.MetricValue[] = []) 
     chartTooltipData: InspectorAgentChart.MetricValue[];
   }>(
     (acc, curr) => {
-      STACKING_DATA_FIELDNAME_LIST.includes(curr.fieldName) && dataKeys.push(curr.fieldName);
-      curr.chartType === 'tooltip'
-        ? acc.chartTooltipData.push(curr)
-        : acc.chartMetricData.push(curr);
+      if (STACKING_DATA_FIELDNAME_LIST.includes(curr.fieldName)) {
+        dataKeys.push(curr.fieldName);
+      }
+
+      if (curr.chartType === 'tooltip') {
+        acc.chartTooltipData.push(curr);
+      } else {
+        acc.chartMetricData.push(curr);
+      }
 
       return acc;
     },

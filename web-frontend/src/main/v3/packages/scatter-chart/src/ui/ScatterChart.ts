@@ -63,6 +63,7 @@ interface ScatterChartSettedOption {
 }
 
 export type ScatterChartEventsTypes = Exclude<GuideEventTypes | LegendEventTypes | ViewportEventTypes, 'change'>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type EventData<T> = T extends (...args: any[]) => void ? Parameters<T>[1] : never;
 export type EventCallback<T> = T extends 'clickLegend'
   ? LegendEventCallback<T>
@@ -122,7 +123,7 @@ export class ScatterChart {
     this.options = {
       // TODO deep copy
       axis: merge({}, defaultAxisOption, options?.axis),
-      data: [...defaultDataOption, ...options?.data],
+      data: [...defaultDataOption, ...(options?.data || [])],
       legend: merge({}, defaultLegendOption, options?.legend),
       guide: merge({}, defaultGuideOption, options?.guide),
       background: merge({}, defaultBackgroundOption, options?.background),

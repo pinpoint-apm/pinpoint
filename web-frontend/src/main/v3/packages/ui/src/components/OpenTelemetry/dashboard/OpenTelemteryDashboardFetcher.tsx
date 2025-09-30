@@ -35,6 +35,7 @@ import { OpenTelemetryAlertDialog } from './OpenTelemetryAlertDialog';
 import { isEqual, sortBy } from 'lodash';
 import { cn } from '../../../lib/utils';
 import { OpenTelemetryMetric } from '../charts/OpenTelemetryMetric';
+import ReactGridLayout from 'react-grid-layout';
 
 export interface OpenTelemetryDashboardFetcherProps {}
 
@@ -266,7 +267,9 @@ export const OpenTelemetryDashboardFetcher = () => {
       <AlertDialog
         open={!!currentDeletingTarget}
         onOpenChange={(open) => {
-          !open && setCurrentDeletingTarget(undefined);
+          if (!open) {
+            setCurrentDeletingTarget(undefined);
+          }
         }}
       >
         <AlertDialogContent>
@@ -331,7 +334,9 @@ export const OpenTelemetryDashboardFetcher = () => {
         metric={currentEditingTarget}
         open={!!currentEditingTarget}
         onOpenChange={(open) => {
-          !open && setCurrentEditingTarget(undefined);
+          if (!open) {
+            setCurrentEditingTarget(undefined);
+          }
         }}
         onCancel={() => {
           setCurrentEditingTarget(undefined);

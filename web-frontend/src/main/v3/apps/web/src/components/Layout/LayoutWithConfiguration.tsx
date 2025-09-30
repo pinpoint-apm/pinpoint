@@ -1,7 +1,7 @@
 import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
 import {
   LayoutWithConfiguration as LayoutWithConfigurationComponent,
-  LayoutWithConfigurationProps as LayoutWithConfigurationComponentProps,
+  LayoutWithConfigurationProps,
 } from '@pinpoint-fe/ui';
 import { useLocation } from 'react-router-dom';
 
@@ -71,7 +71,6 @@ export const CONFIG_MENU_MAP = {
   },
 };
 
-export interface LayoutWithConfigurationProps extends LayoutWithConfigurationComponentProps {}
 export const LayoutWithConfiguration = ({ ...props }: LayoutWithConfigurationProps) => {
   const { pathname } = useLocation();
   const configMenu = Object.values(CONFIG_MENU_MAP).find(({ menus }) => {
