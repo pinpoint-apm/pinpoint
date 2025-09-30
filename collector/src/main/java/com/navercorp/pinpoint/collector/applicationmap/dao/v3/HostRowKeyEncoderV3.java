@@ -40,6 +40,11 @@ public class HostRowKeyEncoderV3 implements HostRowKeyEncoder {
     }
 
     public byte[] encodeRowKey(String parentApplicationName, int parentServiceType, int parentServiceUid, long timestamp) {
+        byte[] rowkey = encodeRowKey0(parentApplicationName, parentServiceType, parentServiceUid, timestamp);
+        return hasher.writeSaltKey(rowkey);
+    }
+
+    byte[] encodeRowKey0(String parentApplicationName, int parentServiceType, int parentServiceUid, long timestamp) {
 
         // even if  a agentId be added for additional specifications, it may be safe to scan rows.
         // But is it needed to add parentAgentServiceType?
