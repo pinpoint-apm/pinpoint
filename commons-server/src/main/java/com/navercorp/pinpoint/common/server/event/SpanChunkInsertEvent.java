@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.common.server.event;
 
 import java.util.Objects;
 
-public class SpanChunkInsertEvent {
+public class SpanChunkInsertEvent implements InsertEvent {
     private final ContextData contextData;
     private final boolean success;
 
@@ -27,10 +27,12 @@ public class SpanChunkInsertEvent {
         this.success = success;
     }
 
+    @Override
     public ContextData getContextData() {
         return contextData;
     }
 
+    @Override
     public boolean isSuccess() {
         return success;
     }
