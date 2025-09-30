@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.event;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.event.ContextData;
+import com.navercorp.pinpoint.common.server.event.ContextSupplier;
 import com.navercorp.pinpoint.common.server.event.SpanChunkInsertEvent;
 import com.navercorp.pinpoint.common.server.event.SpanInsertEvent;
 import org.springframework.context.ApplicationEventPublisher;
@@ -29,21 +30,23 @@ import java.util.Objects;
 @Component
 public class SpanStorePublisherImpl implements SpanStorePublisher {
     private final ApplicationEventPublisher publisher;
+    private final ContextSupplier supplier;
 
-    public SpanStorePublisherImpl(ApplicationEventPublisher publisher) {
+    public SpanStorePublisherImpl(ApplicationEventPublisher publisher, ContextSupplier supplier) {
         this.publisher = Objects.requireNonNull(publisher, "publisher");
+        this.supplier = Objects.requireNonNull(supplier, "supplier");
     }
 
     @Override
     public SpanInsertEvent captureContext(SpanBo spanBo) {
-        ContextData event = new ContextData(spanBo.getApplicationName(), spanBo.getAgentId(), spanBo.getStartTime());
-        return new SpanInsertEvent(event, false);
+        ContextData contextData = supplier.applyAsContext(spanBo);
+        return new SpanInsertEvent(contextData, false);
     }
 
     @Override
     public SpanChunkInsertEvent captureContext(SpanChunkBo spanChunkBo) {
-        ContextData event = new ContextData(spanChunkBo.getApplicationName(), spanChunkBo.getAgentId(), -1);
-        return new SpanChunkInsertEvent(event, false);
+        ContextData contextData = supplier.applyAsContext(spanChunkBo);
+        return new SpanChunkInsertEvent(contextData, false);
     }
 
     @Override

@@ -16,13 +16,21 @@
 
 package com.navercorp.pinpoint.common.server.event;
 
-import java.util.Map;
-import java.util.Objects;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 
-public record ContextData(String applicationName, String agentId, long startTime, Map<String, Object> attribute) {
-    public ContextData {
-        Objects.requireNonNull(applicationName, "applicationName");
-        Objects.requireNonNull(agentId, "agentId");
-        Objects.requireNonNull(attribute, "attribute");
+import java.util.Map;
+
+public class SimpleContextSupplier implements ContextSupplier {
+
+    @Override
+    public ContextData applyAsContext(SpanBo spanBo) {
+        return new ContextData(spanBo.getApplicationName(), spanBo.getAgentId(), spanBo.getStartTime(), Map.of());
     }
+
+    @Override
+    public ContextData applyAsContext(SpanChunkBo spanChunkBo) {
+        return new ContextData(spanChunkBo.getApplicationName(), spanChunkBo.getAgentId(), -1, Map.of());
+    }
+
 }
