@@ -13,12 +13,12 @@ export const useExperimentals = (initialValue?: Configuration) => {
   );
 
   useUpdateEffect(() => {
-    if (enableServerMapRealTime) {
+    if (enableServerMapRealTime == null) {
       setEnableServerMapRealTime(
         initialValue?.['experimental.enableServerMapRealTime.value'] || false,
       );
     }
-    if (useStatisticsAgentState) {
+    if (useStatisticsAgentState == null) {
       setUseStatisticsAgentState(
         initialValue?.['experimental.useStatisticsAgentState.value'] || false,
       );

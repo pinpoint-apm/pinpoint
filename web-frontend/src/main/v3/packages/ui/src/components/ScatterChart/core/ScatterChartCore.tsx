@@ -163,7 +163,7 @@ export const ScatterChartCore = React.forwardRef<ScatterChartHandle, ScatterChar
             const wrapperHeight = wrapperElement.clientHeight;
 
             if (wrapperWidth && wrapperHeight) {
-              if (sc.isRealtime) {
+              if (!sc.isRealtime) {
                 sc.resize(wrapperWidth, wrapperHeight);
               }
             }
