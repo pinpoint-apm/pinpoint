@@ -16,7 +16,13 @@
 
 package com.navercorp.pinpoint.common.server.event;
 
-import java.util.Map;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 
-public record ContextData(String applicationName, String agentId, long startTime, Map<String, Object> attribute) {
+public interface ContextSupplier {
+
+    ContextData applyAsContext(SpanBo spanBo);
+
+    ContextData applyAsContext(SpanChunkBo spanChunkBo);
+
 }

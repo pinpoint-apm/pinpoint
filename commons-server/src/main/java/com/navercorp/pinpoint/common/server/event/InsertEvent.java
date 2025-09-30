@@ -16,7 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.event;
 
-import java.util.Map;
+public interface InsertEvent {
+    ContextData getContextData();
 
-public record ContextData(String applicationName, String agentId, long startTime, Map<String, Object> attribute) {
+    boolean isSuccess();
 }
