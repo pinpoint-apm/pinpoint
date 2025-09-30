@@ -16,23 +16,5 @@
 
 package com.navercorp.pinpoint.common.server.event;
 
-import java.util.Objects;
-
-public class SpanInsertEvent {
-    private final ContextData contextData;
-    private final boolean success;
-
-    public SpanInsertEvent(ContextData contextData, boolean success) {
-        this.contextData = Objects.requireNonNull(contextData, "contextData");
-        this.success = success;
-    }
-
-    public ContextData getContextData() {
-        return contextData;
-    }
-
-    public boolean isSuccess() {
-        return success;
-    }
-
+public record ContextData(String applicationName, String agentId, long startTime) {
 }

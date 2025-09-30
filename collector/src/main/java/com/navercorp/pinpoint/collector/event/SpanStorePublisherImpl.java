@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,13 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.navercorp.pinpoint.collector.event;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
+import com.navercorp.pinpoint.common.server.event.ContextData;
 import com.navercorp.pinpoint.common.server.event.SpanChunkInsertEvent;
 import com.navercorp.pinpoint.common.server.event.SpanInsertEvent;
 import org.springframework.context.ApplicationEventPublisher;
@@ -36,21 +36,23 @@ public class SpanStorePublisherImpl implements SpanStorePublisher {
 
     @Override
     public SpanInsertEvent captureContext(SpanBo spanBo) {
-        return new SpanInsertEvent(spanBo, false);
+        ContextData event = new ContextData(spanBo.getApplicationName(), spanBo.getAgentId(), spanBo.getStartTime());
+        return new SpanInsertEvent(event, false);
     }
 
     @Override
     public SpanChunkInsertEvent captureContext(SpanChunkBo spanChunkBo) {
-        return new SpanChunkInsertEvent(spanChunkBo, false);
+        ContextData event = new ContextData(spanChunkBo.getApplicationName(), spanChunkBo.getAgentId(), -1);
+        return new SpanChunkInsertEvent(event, false);
     }
 
     @Override
     public void publishEvent(SpanInsertEvent event, boolean success) {
-        publisher.publishEvent(new SpanInsertEvent(event.getSpanBo(), success));
+        publisher.publishEvent(new SpanInsertEvent(event.getContextData(), success));
     }
 
     @Override
     public void publishEvent(SpanChunkInsertEvent event, boolean success) {
-        publisher.publishEvent(new SpanChunkInsertEvent(event.getSpanChunkBo(), success));
+        publisher.publishEvent(new SpanChunkInsertEvent(event.getContextData(), success));
     }
 }
