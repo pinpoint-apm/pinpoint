@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
-import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
@@ -31,7 +31,6 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
 
@@ -42,28 +41,29 @@ import java.util.Objects;
  * @author netspider
  * @author emeroad
  */
-@Repository
 public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private static final HbaseTables.ApplicationTraceIndexTrace INDEX = HbaseTables.APPLICATION_TRACE_INDEX_TRACE;
-    private static final HbaseTables.ApplicationTraceIndexTrace META = HbaseTables.APPLICATION_TRACE_INDEX_META;
+    private final HbaseColumnFamily indexTable;// = HbaseTables.APPLICATION_TRACE_INDEX_TRACE;
+    private final HbaseColumnFamily metaTable;// = HbaseTables.APPLICATION_TRACE_INDEX_META;
 
     private final HbasePutWriter putWriter;
     private final TableNameProvider tableNameProvider;
 
-    private final RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoder;
+    private final RowKeyEncoder<SpanBo> traceIndexRowKeyEncoder;
 
-
-    public HbaseApplicationTraceIndexDao(HbasePutWriter putWriter,
+    public HbaseApplicationTraceIndexDao(HbaseColumnFamily indexTable,
+                                         HbaseColumnFamily metaTable,
+                                         HbasePutWriter putWriter,
                                          TableNameProvider tableNameProvider,
-                                         @Qualifier("applicationIndexRowKeyEncoder")
-                                         RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoder) {
+                                         RowKeyEncoder<SpanBo> traceIndexRowKeyEncoder) {
+        this.indexTable = Objects.requireNonNull(indexTable, "indexTable");
+        this.metaTable = Objects.requireNonNull(metaTable, "metaTable");
         this.putWriter = Objects.requireNonNull(putWriter, "putWriter");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
-        this.applicationIndexRowKeyEncoder = Objects.requireNonNull(applicationIndexRowKeyEncoder, "applicationIndexRowKeyEncoder");
-        logger.info("ApplicationIndexRowKeyEncoder:{}", applicationIndexRowKeyEncoder);
+        this.traceIndexRowKeyEncoder = Objects.requireNonNull(traceIndexRowKeyEncoder, "applicationIndexRowKeyEncoder");
+        logger.info("ApplicationIndexRowKeyEncoder:{}", traceIndexRowKeyEncoder);
     }
 
     @Override
@@ -75,19 +75,19 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         }
 
         final long acceptedTime = span.getCollectorAcceptTime();
-        final byte[] distributedKey = applicationIndexRowKeyEncoder.encodeRowKey(span);
+        final byte[] distributedKey = traceIndexRowKeyEncoder.encodeRowKey(span);
 
         final Put put = new Put(distributedKey, true);
 
         final byte[] qualifier = SpanUtils.getVarTransactionId(span);
 
         final byte[] indexValue = buildIndexValue(span);
-        put.addColumn(INDEX.getName(), qualifier, acceptedTime, indexValue);
+        put.addColumn(indexTable.getName(), qualifier, acceptedTime, indexValue);
 
         final byte[] metaDataValue = buildMetaData(span);
-        put.addColumn(META.getName(), qualifier, metaDataValue);
+        put.addColumn(metaTable.getName(), qualifier, metaDataValue);
 
-        final TableName applicationTraceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
+        final TableName applicationTraceIndexTableName = tableNameProvider.getTableName(indexTable.getTable());
         putWriter.put(applicationTraceIndexTableName, put);
     }
 

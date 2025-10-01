@@ -18,8 +18,10 @@ package com.navercorp.pinpoint.collector;
 
 import com.navercorp.pinpoint.collector.config.BatchHbaseClientConfiguration;
 import com.navercorp.pinpoint.collector.config.HbaseAsyncConfiguration;
+import com.navercorp.pinpoint.collector.config.HbaseTableConfiguration;
 import com.navercorp.pinpoint.collector.config.SchedulerConfiguration;
 import com.navercorp.pinpoint.collector.dao.hbase.encode.ApplicationIndexRowKeyEncoder;
+import com.navercorp.pinpoint.collector.dao.hbase.encode.TraceIndexRowKeyEncoder;
 import com.navercorp.pinpoint.collector.util.DurabilityApplier;
 import com.navercorp.pinpoint.common.hbase.config.DistributorConfiguration;
 import com.navercorp.pinpoint.common.hbase.config.HbaseNamespaceConfiguration;
@@ -56,6 +58,7 @@ import org.springframework.context.annotation.PropertySource;
 
         HbaseAsyncConfiguration.class,
         SchedulerConfiguration.class,
+        HbaseTableConfiguration.class
 })
 @ComponentScan({
         "com.navercorp.pinpoint.collector.dao.hbase"
@@ -70,9 +73,14 @@ public class CollectorHbaseModule {
     @Bean
     @ConditionalOnProperty(name = "collector.scatter.serverside-scan", havingValue = "v2", matchIfMissing = true)
     public RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoder(ApplicationNameRowKeyEncoder rowKeyEncoder,
-                                                                 @Qualifier("applicationTraceIndexDistributor")
-                                                                 RowKeyDistributor rowKeyDistributor) {
+                                                               @Qualifier("applicationTraceIndexDistributor")
+                                                                       RowKeyDistributor rowKeyDistributor) {
         return new ApplicationIndexRowKeyEncoder(rowKeyEncoder, rowKeyDistributor);
+    }
+
+    @Bean
+    public RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoderV2(@Qualifier("traceIndexDistributor") RowKeyDistributor rowKeyDistributor) {
+        return new TraceIndexRowKeyEncoder(rowKeyDistributor);
     }
 
     @Bean
