@@ -107,48 +107,12 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     }
 
-    private static final class CacheKey {
+    private record CacheKey(String applicationName, int serviceType, int serviceUid, String host,
+                            String parentApplicationName, int parentServiceType, int parentServiceUid) {
 
-        private final String applicationName;
-        private final int serviceType;
-        private final int serviceUid;
-        private final String host;
-
-        private final String parentApplicationName;
-        private final int parentServiceType;
-        private final int parentServiceUid;
-
-        public CacheKey(String applicationName, int serviceType, int serviceUid, String host,
-                        String parentApplicationName, int parentServiceType, int parentServiceUid) {
-            this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
-            this.serviceType = serviceType;
-            this.serviceUid = serviceUid;
-            this.host = Objects.requireNonNull(host, "host");
-
-            // may be null for below two parent values.
-            this.parentApplicationName = parentApplicationName;
-            this.parentServiceType = parentServiceType;
-            this.parentServiceUid = parentServiceUid;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null || getClass() != o.getClass()) return false;
-
-            CacheKey cacheKey = (CacheKey) o;
-            return serviceType == cacheKey.serviceType && serviceUid == cacheKey.serviceUid && parentServiceType == cacheKey.parentServiceType && parentServiceUid == cacheKey.parentServiceUid && applicationName.equals(cacheKey.applicationName) && host.equals(cacheKey.host) && Objects.equals(parentApplicationName, cacheKey.parentApplicationName);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = applicationName.hashCode();
-            result = 31 * result + serviceType;
-            result = 31 * result + serviceUid;
-            result = 31 * result + host.hashCode();
-            result = 31 * result + Objects.hashCode(parentApplicationName);
-            result = 31 * result + parentServiceType;
-            result = 31 * result + parentServiceUid;
-            return result;
-        }
+            private CacheKey {
+                Objects.requireNonNull(applicationName, "applicationName");
+                Objects.requireNonNull(host, "host");
+            }
     }
 }
