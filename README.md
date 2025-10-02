@@ -37,6 +37,9 @@ You should definitely check **Pinpoint** out If you want to
 ## Getting Started
  * [Quick-start guide](https://pinpoint-apm.gitbook.io/pinpoint/getting-started/quickstart) for simple test run of Pinpoint
  * [Installation guide](https://pinpoint-apm.gitbook.io/pinpoint/getting-started/installation) for further instructions.
+
+## Deploying Pinpoint to Kubernetes
+ * [pinpoint-kubernetes](https://github.com/pinpoint-apm/pinpoint-kubernetes) 
  
 ## Overview
 Services nowadays often consist of many different components, communicating amongst themselves as well as making API calls to external services. How each and every transaction gets executed is often left as a blackbox. Pinpoint traces transaction flows between these components and provides a clear view to identify problem areas and potential bottlenecks.<br/>
