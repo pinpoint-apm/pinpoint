@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.navercorp.pinpoint</groupId>
+        <artifactId>pinpoint-agent-module</artifactId>
+        <version>3.1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>pinpoint-profiler-thirdparty</artifactId>
+    <packaging>pom</packaging>
+    <description>pinpoint profiler third party</description>
+
+    <properties>
+        <rename.logging>com.navercorp.pinpoint.profiler.logging.jul</rename.logging>
+    </properties>
+
+    <modules>
+        <module>shaded-guava</module>
+        <module>shaded-guice</module>
+        <module>shaded-grpc-core</module>
+        <module>shaded-grpc-api</module>
+        <module>shaded-grpc-util</module>
+        <module>shaded-grpc-netty</module>
+        <module>shaded-grpc-stub</module>
+        <module>shaded-protobuf-java</module>
+        <module>shaded-caffeine</module>
+    </modules>
+</project>
