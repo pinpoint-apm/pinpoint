@@ -21,16 +21,14 @@ import com.navercorp.pinpoint.collector.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapResponseTimeDao;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import jakarta.validation.constraints.NotBlank;
-import org.springframework.validation.annotation.Validated;
 
 import java.util.Objects;
 
 /**
+ * Link service implementation.
  * @author netspider
  * @author jaehong.kim
  */
-@Validated
 public class LinkServiceImpl implements LinkService {
     private final MapInLinkDao inLinkDao;
     private final MapOutLinkDao outLinkDao;
@@ -46,7 +44,7 @@ public class LinkServiceImpl implements LinkService {
     public void updateOutLink(
             long requestTime,
             Vertex selfVertex,
-            @NotBlank String selfAgentId,
+            String selfAgentId,
             Vertex outVertex,
             String outHost,
             int elapsed, boolean isError
@@ -79,9 +77,9 @@ public class LinkServiceImpl implements LinkService {
     @Override
     public void updateAgentState(
             long requestTime,
-            @NotBlank final String outApplicationName,
+            final String outApplicationName,
             final ServiceType outServiceType,
-            @NotBlank final String outAgentId
+            final String outAgentId
     ) {
         responseTimeDao.updatePing(requestTime, outApplicationName, outServiceType, outAgentId, 0, false);
     }
