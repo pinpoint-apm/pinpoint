@@ -30,33 +30,27 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 
 
 @Component
 public class StatisticsLinkScheduler {
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final Random random = new Random();
 
     private final TaskScheduler scheduler;
     private final List<CachedStatisticsDao> statisticsDaoList;
     private final Duration flushInterval;
     private final boolean jitterEnabled;
-    private final long maxJitterMillis;
 
     public StatisticsLinkScheduler(@Qualifier("avgMaxLinkScheduler") TaskScheduler scheduler,
                                    @Value("${collector.map-link.stat.flush-interval:5000}") Duration flushInterval,
                                    @Value("${collector.map-link.stat.jitter.enabled:false}") boolean jitterEnabled,
-                                   @Value("${collector.map-link.stat.jitter.max-millis:#{null}}") Long maxJitterMillis,
                                    List<CachedStatisticsDao> statisticsDaoList) {
         this.scheduler = Objects.requireNonNull(scheduler, "scheduler");
         this.statisticsDaoList = Objects.requireNonNull(statisticsDaoList, "statisticsDaoList");
         this.flushInterval = Objects.requireNonNull(flushInterval, "flushInterval");
         this.jitterEnabled = jitterEnabled;
-        // Default max jitter to the flush interval if not specified
-        this.maxJitterMillis = (maxJitterMillis != null) ? maxJitterMillis : flushInterval.toMillis();
-        logger.info("StatisticsLinkScheduler flushInterval={}, jitterEnabled={}, maxJitterMillis={}", 
-                    flushInterval, jitterEnabled, this.maxJitterMillis);
+        logger.info("StatisticsLinkScheduler flushInterval={}, jitterEnabled={}", 
+                    flushInterval, jitterEnabled);
         logger.info("StatisticsLinkScheduler CachedStatisticsDao:{}", statisticsDaoList);
     }
 
@@ -72,6 +66,9 @@ public class StatisticsLinkScheduler {
     }
 
     private void scheduleWithJitter(CachedStatisticsDao dao) {
+        // Use default jitter value (flush interval)
+        Jitter jitter = new Jitter(flushInterval.toMillis());
+        
         // Create a task that reschedules itself with a new random delay each time
         Runnable task = new Runnable() {
             @Override
@@ -80,7 +77,7 @@ public class StatisticsLinkScheduler {
                     dao.flushLink();
                 } finally {
                     // Calculate new jitter for next execution
-                    long jitterMillis = random.nextLong(maxJitterMillis);
+                    long jitterMillis = jitter.nextDelay();
                     Duration delayWithJitter = flushInterval.plus(Duration.ofMillis(jitterMillis));
                     
                     logger.debug("StatisticsLink rescheduling {}: interval={}ms, jitter={}ms", 
@@ -93,7 +90,7 @@ public class StatisticsLinkScheduler {
         };
         
         // Initial scheduling with jitter
-        long initialJitterMillis = random.nextLong(maxJitterMillis);
+        long initialJitterMillis = jitter.nextDelay();
         Duration initialDelay = Duration.ofMillis(initialJitterMillis);
         
         logger.info("StatisticsLink scheduler started for {}: interval={}ms, initial jitter={}ms", 

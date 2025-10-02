@@ -39,14 +39,12 @@ public class StatisticsLinkSchedulerTest {
         TaskScheduler taskScheduler = createTaskScheduler();
         Duration flushInterval = Duration.ofMillis(5000);
         boolean jitterEnabled = false;
-        Long maxJitterMillis = null;
         List<CachedStatisticsDao> daoList = createMockDaoList(3);
 
         StatisticsLinkScheduler scheduler = new StatisticsLinkScheduler(
                 taskScheduler,
                 flushInterval,
                 jitterEnabled,
-                maxJitterMillis,
                 daoList
         );
 
@@ -61,14 +59,12 @@ public class StatisticsLinkSchedulerTest {
         TaskScheduler taskScheduler = createTaskScheduler();
         Duration flushInterval = Duration.ofMillis(5000);
         boolean jitterEnabled = true;
-        Long maxJitterMillis = 3000L;
         List<CachedStatisticsDao> daoList = createMockDaoList(3);
 
         StatisticsLinkScheduler scheduler = new StatisticsLinkScheduler(
                 taskScheduler,
                 flushInterval,
                 jitterEnabled,
-                maxJitterMillis,
                 daoList
         );
 
@@ -83,14 +79,12 @@ public class StatisticsLinkSchedulerTest {
         TaskScheduler taskScheduler = createTaskScheduler();
         Duration flushInterval = Duration.ofMillis(5000);
         boolean jitterEnabled = true;
-        Long maxJitterMillis = null; // Should default to flushInterval
         List<CachedStatisticsDao> daoList = createMockDaoList(3);
 
         StatisticsLinkScheduler scheduler = new StatisticsLinkScheduler(
                 taskScheduler,
                 flushInterval,
                 jitterEnabled,
-                maxJitterMillis,
                 daoList
         );
 

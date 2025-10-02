@@ -51,13 +51,9 @@ Enable jitter in your `pinpoint-collector.properties`:
 ```properties
 # Enable jitter for AvgMax link scheduler
 collector.map-link.avg.jitter.enabled=true
-# Maximum jitter in milliseconds (optional, defaults to flush-period)
-collector.map-link.avg.jitter.max-millis=5000
 
 # Enable jitter for Statistics link scheduler
 collector.map-link.stat.jitter.enabled=true
-# Maximum jitter in milliseconds (optional, defaults to flush-interval)
-collector.map-link.stat.jitter.max-millis=5000
 ```
 
 ### Behavior
@@ -65,6 +61,6 @@ collector.map-link.stat.jitter.max-millis=5000
 - **Without jitter** (default): All DAOs flush at the same fixed intervals
 - **With jitter**: Each DAO execution is delayed by the base interval plus a random jitter value (recalculated on every execution)
 
-The jitter value is dynamically calculated for each execution, ensuring that the delay between consecutive runs varies randomly within `[flushInterval, flushInterval + maxJitterMillis)`.
+The jitter value is dynamically calculated for each execution, using the flush interval as the maximum jitter range. The delay between consecutive runs varies randomly within `[flushInterval, flushInterval * 2)`.
 
 This helps reduce synchronized load spikes when multiple collectors are deployed.
