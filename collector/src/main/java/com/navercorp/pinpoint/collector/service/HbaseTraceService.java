@@ -32,21 +32,21 @@ import com.navercorp.pinpoint.common.server.event.SpanInsertEvent;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
-import jakarta.validation.Valid;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
+/**
+ * Trace service implementation for HBase storage.
+ */
 @Service
-@Validated
 public class HbaseTraceService implements TraceService {
     private final Logger logger = LogManager.getLogger(getClass());
 
@@ -85,7 +85,7 @@ public class HbaseTraceService implements TraceService {
     }
 
     @Override
-    public void insertSpanChunk(@Valid final SpanChunkBo spanChunkBo) {
+    public void insertSpanChunk(final SpanChunkBo spanChunkBo) {
         SpanChunkInsertEvent event = publisher.captureContext(spanChunkBo);
         traceDao.insertSpanChunk(spanChunkBo);
 
@@ -112,7 +112,7 @@ public class HbaseTraceService implements TraceService {
     }
 
     @Override
-    public void insertSpan(@Valid final SpanBo spanBo) {
+    public void insertSpan(final SpanBo spanBo) {
         SpanInsertEvent event = publisher.captureContext(spanBo);
         CompletableFuture<Void> future = traceDao.asyncInsert(spanBo);
         applicationTraceIndexDao.insert(spanBo);

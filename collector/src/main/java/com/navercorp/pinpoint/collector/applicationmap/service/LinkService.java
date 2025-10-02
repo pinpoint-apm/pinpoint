@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.collector.applicationmap.service;
 
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import jakarta.validation.constraints.NotBlank;
 
 public interface LinkService {
 
@@ -39,7 +38,7 @@ public interface LinkService {
     void updateOutLink(
             long requestTime,
             Vertex selfVertex,
-            @NotBlank String selfAgentId,
+            String selfAgentId,
             Vertex outVertex,
             String outHost,
             int elapsed, boolean isError
@@ -75,8 +74,8 @@ public interface LinkService {
 
     void updateAgentState(
             long requestTime,
-            @NotBlank String outApplicationName,
+            String outApplicationName,
             ServiceType outServiceType,
-            @NotBlank String outAgentId
+            String outAgentId
     );
 }
