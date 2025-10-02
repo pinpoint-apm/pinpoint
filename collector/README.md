@@ -63,6 +63,8 @@ collector.map-link.stat.jitter.max-millis=5000
 ### Behavior
 
 - **Without jitter** (default): All DAOs flush at the same fixed intervals
-- **With jitter**: Each DAO starts at a random time within `[0, maxJitterMillis)`, then continues at fixed intervals
+- **With jitter**: Each DAO execution is delayed by the base interval plus a random jitter value (recalculated on every execution)
+
+The jitter value is dynamically calculated for each execution, ensuring that the delay between consecutive runs varies randomly within `[flushInterval, flushInterval + maxJitterMillis)`.
 
 This helps reduce synchronized load spikes when multiple collectors are deployed.
