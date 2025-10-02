@@ -20,18 +20,16 @@ import com.navercorp.pinpoint.collector.dao.MapResponseTimeDao;
 import com.navercorp.pinpoint.collector.dao.MapStatisticsCalleeDao;
 import com.navercorp.pinpoint.collector.dao.MapStatisticsCallerDao;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
 import java.util.Objects;
 
 /**
+ * Statistics service implementation.
  * @author netspider
  * @author jaehong.kim
  */
 @Service
-@Validated
 public class StatisticsService {
     private final MapStatisticsCalleeDao mapStatisticsCalleeDao;
     private final MapStatisticsCallerDao mapStatisticsCallerDao;
@@ -58,10 +56,10 @@ public class StatisticsService {
      * @param isError isError
      */
     public void updateCaller(
-            @NotBlank String callerApplicationName,
+            String callerApplicationName,
             ServiceType callerServiceType,
-            @NotBlank String callerAgentId,
-            @NotBlank String calleeApplicationName,
+            String callerAgentId,
+            String calleeApplicationName,
             ServiceType calleeServiceType,
             String calleeHost,
             int elapsed,
@@ -85,9 +83,9 @@ public class StatisticsService {
      * @param isError isError
      */
     public void updateCallee(
-            @NotBlank String calleeApplicationName,
+            String calleeApplicationName,
             ServiceType calleeServiceType,
-            @NotBlank String callerApplicationName,
+            String callerApplicationName,
             ServiceType callerServiceType,
             String callerHost,
             int elapsed,
@@ -97,7 +95,7 @@ public class StatisticsService {
     }
 
     public void updateResponseTime(
-            @NotBlank String applicationName,
+            String applicationName,
             ServiceType serviceType,
             String agentId,
             int elapsed,
@@ -107,9 +105,9 @@ public class StatisticsService {
     }
 
     public void updateAgentState(
-            @NotBlank final String callerApplicationName,
+            final String callerApplicationName,
             final ServiceType callerServiceType,
-            @NotBlank final String callerAgentId
+            final String callerAgentId
     ) {
         mapResponseTimeDao.updatePing(callerApplicationName, callerServiceType, callerAgentId, 0, false);
     }
