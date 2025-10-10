@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.server.util;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 
@@ -47,5 +48,15 @@ public final class SpanUtils {
         buffer.putSVLong(transactionId.getAgentStartTime());
         buffer.putVLong(transactionId.getTransactionSequence());
         return buffer.getBuffer();
+    }
+
+    public static TransactionId parseVarTransactionId(byte[] bytes, int offset, int length) {
+        Objects.requireNonNull(bytes, "bytes");
+
+        final Buffer buffer = new OffsetFixedBuffer(bytes, offset, length);
+        String agentId = buffer.readPrefixedString();
+        long agentStartTime = buffer.readSVLong();
+        long transactionSequence = buffer.readVLong();
+        return TransactionId.of(agentId, agentStartTime, transactionSequence);
     }
 }

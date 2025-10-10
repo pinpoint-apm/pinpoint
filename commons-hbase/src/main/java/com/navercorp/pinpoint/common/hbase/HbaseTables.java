@@ -21,6 +21,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 public class HbaseTables {
 
     public static final AgentInfo AGENTINFO_INFO = new AgentInfo(HbaseTableV2.AGENTINFO, Bytes.toBytes("Info"));
+
     public static class AgentInfo extends HbaseColumnFamily {
         public byte[] QUALIFIER_IDENTIFIER = Bytes.toBytes("i");
         public byte[] QUALIFIER_SERVER_META_DATA = Bytes.toBytes("m");
@@ -34,6 +35,7 @@ public class HbaseTables {
     public static final HbaseColumnFamily AGENT_EVENT_EVENTS = new HbaseColumnFamily(HbaseTableV2.AGENT_EVENT, Bytes.toBytes("E"));
 
     public static final AgentLifeCycleStatus AGENT_LIFECYCLE_STATUS = new AgentLifeCycleStatus(HbaseTableV2.AGENT_LIFECYCLE, Bytes.toBytes("S"));
+
     public static class AgentLifeCycleStatus extends HbaseColumnFamily {
         public static byte[] QUALIFIER_STATES = Bytes.toBytes("states");
 
@@ -43,6 +45,7 @@ public class HbaseTables {
     }
 
     public static final ApiMetadata API_METADATA_API = new ApiMetadata(HbaseTableV2.API_METADATA, Bytes.toBytes("Api"));
+
     public static class ApiMetadata extends HbaseColumnFamily {
         public byte[] QUALIFIER_SIGNATURE = Bytes.toBytes("P_api_signature");
 
@@ -62,6 +65,7 @@ public class HbaseTables {
 
     public static final ApplicationTraceIndexTrace APPLICATION_TRACE_INDEX_TRACE = new ApplicationTraceIndexTrace(HbaseTableV2.APPLICATION_TRACE_INDEX, Bytes.toBytes("I"));
     public static final ApplicationTraceIndexTrace APPLICATION_TRACE_INDEX_META = new ApplicationTraceIndexTrace(HbaseTableV2.APPLICATION_TRACE_INDEX, Bytes.toBytes("M"));
+
     public static class ApplicationTraceIndexTrace extends HbaseColumnFamily {
         public static final int ROW_DISTRIBUTE_SIZE = 1; // applicationIndex hash size
 
@@ -119,5 +123,10 @@ public class HbaseTables {
     public static final HbaseColumnFamily MAP_APP_IN = new HbaseColumnFamily(HbaseTableV3.MAP_APP_IN, MAP_V3_COLUMN_FAMILY_NAME);
 
     public static final HbaseColumnFamily MAP_APP_HOST = new HbaseColumnFamily(HbaseTableV3.MAP_APP_HOST, MAP_V3_COLUMN_FAMILY_NAME);
+
+
+    // ------------------- Application Trace Index V2 -------------------
+    public static final HbaseColumnFamily TRACE_INDEX = new HbaseColumnFamily(HbaseTableV3.TRACE_INDEX, Bytes.toBytes("I"));
+    public static final HbaseColumnFamily TRACE_INDEX_META = new HbaseColumnFamily(HbaseTableV3.TRACE_INDEX, Bytes.toBytes("M"));
 
 }

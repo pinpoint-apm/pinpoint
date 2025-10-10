@@ -115,8 +115,9 @@ public class ApplicationMapModule {
     public FilteredMapController filteredMapController(FilteredMapService filteredMapService,
                                                        TraceIndexService traceIndexService,
                                                        FilterBuilder<List<SpanBo>> filterBuilder,
-                                                       HyperLinkFactory hyperLinkFactory) {
-        return new FilteredMapController(filteredMapService, traceIndexService, filterBuilder, hyperLinkFactory);
+                                                       HyperLinkFactory hyperLinkFactory,
+                                                       ServiceTypeRegistryService serviceTypeRegistryService) {
+        return new FilteredMapController(filteredMapService, traceIndexService, filterBuilder, hyperLinkFactory, serviceTypeRegistryService);
     }
 
     @Bean

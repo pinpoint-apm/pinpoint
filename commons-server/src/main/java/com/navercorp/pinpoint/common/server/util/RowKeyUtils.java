@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
+import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
+import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.util.BytesUtils;
@@ -67,6 +69,16 @@ public final class RowKeyUtils {
         ByteArrayUtils.writeLong(timestamp, rowKey, offset);
         rowKey[rowKey.length -1] = fuzzySlotKey;
         return rowKey;
+    }
+
+    public static byte[] concatApplicationAndLongFuzzySlot(int prefix, int serviceUid, String applicationName, long timestamp, byte fuzzySlotKey) {
+        Buffer buffer = new AutomaticBuffer();
+        buffer.putPadBytes(null, prefix);
+        buffer.putInt(serviceUid);
+        buffer.putPrefixedString(applicationName);
+        buffer.putLong(timestamp);
+        buffer.putByte(fuzzySlotKey);
+        return buffer.getBuffer();
     }
 
     public static byte[] stringLongLongToBytes(final String string, final int maxStringSize, final long value1, final long value2) {
