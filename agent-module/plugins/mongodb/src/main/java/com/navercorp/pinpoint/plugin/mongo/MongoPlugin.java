@@ -170,6 +170,11 @@ public class MongoPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
         transformTemplate.transform(asyncReadOperationMatcher, AsyncReadOperationTransform.class);
         final Matcher asyncWriteOperationMatcher = Matchers.newPackageBasedMatcher("com.mongodb.internal.operation", new InterfaceInternalNameMatcherOperand("com.mongodb.internal.operation.AsyncWriteOperation", true));
         transformTemplate.transform(asyncWriteOperationMatcher, AsyncWriteOperationTransform.class);
+        // over 5.6.0
+        final Matcher readOperationMatcher = Matchers.newPackageBasedMatcher("com.mongodb.internal.operation", new InterfaceInternalNameMatcherOperand("com.mongodb.internal.operation.ReadOperation", true));
+        transformTemplate.transform(readOperationMatcher, AsyncReadOperationTransform.class);
+        final Matcher writeOperationMatcher = Matchers.newPackageBasedMatcher("com.mongodb.internal.operation", new InterfaceInternalNameMatcherOperand("com.mongodb.internal.operation.WriteOperation", true));
+        transformTemplate.transform(writeOperationMatcher, AsyncWriteOperationTransform.class);
     }
 
     public static class MongoClientTransform implements TransformCallback {
@@ -265,6 +270,10 @@ public class MongoPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
             if (constructorMethod == null) {
                 // 4.2 or later
                 constructorMethod = target.getConstructor("com.mongodb.internal.connection.Cluster", "com.mongodb.MongoDriverInformation", "com.mongodb.MongoClientSettings", "com.mongodb.client.internal.OperationExecutor");
+            }
+            if (constructorMethod == null) {
+                // 5.6 or later
+                constructorMethod = target.getConstructor("com.mongodb.internal.connection.Cluster", "com.mongodb.MongoDriverInformation", "com.mongodb.MongoClientSettings", "java.lang.AutoCloseable", "com.mongodb.client.internal.OperationExecutor");
             }
             if (constructorMethod != null) {
                 constructorMethod.addInterceptor(MongoClientImplConstructorInterceptor.class);
