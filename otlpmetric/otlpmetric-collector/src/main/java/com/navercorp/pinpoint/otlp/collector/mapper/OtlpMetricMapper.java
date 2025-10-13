@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@ import com.navercorp.pinpoint.otlp.collector.model.OtlpMetricData;
 import com.navercorp.pinpoint.otlp.collector.model.OtlpResourceAttributes;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import io.opentelemetry.proto.metrics.v1.Metric;
-import jakarta.validation.constraints.NotNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -33,7 +33,8 @@ import java.util.stream.Collectors;
 public class OtlpMetricMapper {
     private final Logger logger = LogManager.getLogger(this.getClass());
     private String tenantId = "";
-    @NotNull private final OtlpMetricDataMapper[] mappers;
+    @NonNull
+    private final OtlpMetricDataMapper[] mappers;
 
     public OtlpMetricMapper(TenantProvider tenantProvider, OtlpMetricDataMapper[] mappers) {
         Objects.requireNonNull(tenantProvider, "tenantProvider");
@@ -53,7 +54,7 @@ public class OtlpMetricMapper {
             return null;
         }
 
-        final OtlpMetricData.Builder builder = new OtlpMetricData.Builder();
+        final OtlpMetricData.Builder builder = OtlpMetricData.newBuilder();
         try {
             parseCommonTags(builder, commonTags);
         } catch (OtlpMappingException ex) {

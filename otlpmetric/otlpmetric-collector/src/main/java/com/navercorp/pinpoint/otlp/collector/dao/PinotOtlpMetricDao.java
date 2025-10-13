@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,16 @@
 
 package com.navercorp.pinpoint.otlp.collector.dao;
 
-import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.server.metric.dao.TopicNameManager;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.otlp.collector.config.OtlpMetricCollectorProperties;
 import com.navercorp.pinpoint.otlp.collector.model.PinotOtlpMetricDoubleData;
 import com.navercorp.pinpoint.otlp.collector.model.PinotOtlpMetricLongData;
 import com.navercorp.pinpoint.otlp.collector.model.PinotOtlpMetricMetadata;
 import com.navercorp.pinpoint.pinot.kafka.util.KafkaCallbacks;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
@@ -40,11 +39,15 @@ import java.util.function.BiConsumer;
 public class PinotOtlpMetricDao implements OtlpMetricDao {
     private final Logger logger = LogManager.getLogger(getClass());
 
-    @NotNull private final KafkaTemplate<String, PinotOtlpMetricMetadata> kafkaOtlpMetadataTemplate;
-    @NotNull private final KafkaTemplate<String, PinotOtlpMetricLongData> kafkaOtlpLongMetricTemplate;
-    @NotNull private final KafkaTemplate<String, PinotOtlpMetricDoubleData> kafkaOtlpDoubleMetricTemplate;
+    @NonNull
+    private final KafkaTemplate<String, PinotOtlpMetricMetadata> kafkaOtlpMetadataTemplate;
+    @NonNull
+    private final KafkaTemplate<String, PinotOtlpMetricLongData> kafkaOtlpLongMetricTemplate;
+    @NonNull
+    private final KafkaTemplate<String, PinotOtlpMetricDoubleData> kafkaOtlpDoubleMetricTemplate;
 
-    @NotBlank private final String metadataTopic;
+    @NonNull
+    private final String metadataTopic;
     private final TopicNameManager doubleTopicNameManager;
     private final TopicNameManager longTopicNameManager;
 

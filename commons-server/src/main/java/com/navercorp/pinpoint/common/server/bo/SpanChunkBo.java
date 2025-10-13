@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,7 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.util.ByteUtils;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PositiveOrZero;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,10 +34,12 @@ public class SpanChunkBo implements BasicSpan {
 
     private byte version = 0;
 
-    @NotBlank private String agentId;
+    @NonNull
+    private String agentId;
     private String agentName;
-    @NotBlank private String applicationName;
-    @PositiveOrZero private long agentStartTime;
+    @NonNull
+    private String applicationName;
+    private long agentStartTime;
 
     private TransactionId transactionId;
 

@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,14 +19,10 @@ package com.navercorp.pinpoint.collector.service;
 import com.navercorp.pinpoint.collector.dao.AgentInfoDao;
 import com.navercorp.pinpoint.collector.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PositiveOrZero;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
 import java.util.Objects;
 
@@ -36,7 +32,6 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 @Service
-@Validated
 public class AgentInfoService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -51,14 +46,11 @@ public class AgentInfoService {
         this.applicationIndexV1Enabled = applicationIndexV1Enabled;
     }
 
-    public void insert(@Valid final AgentInfoBo agentInfoBo) {
+    public void insert(final AgentInfoBo agentInfoBo) {
         agentInfoDao.insert(agentInfoBo);
         if (applicationIndexV1Enabled) {
             applicationIndexDao.insert(agentInfoBo);
         }
     }
 
-    public AgentInfoBo getSimpleAgentInfo(@NotBlank final String agentId, @PositiveOrZero final long timestamp) {
-        return agentInfoDao.getSimpleAgentInfo(agentId, timestamp);
-    }
 }

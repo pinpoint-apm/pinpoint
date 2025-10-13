@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,24 +17,23 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PositiveOrZero;
-
-import java.util.Objects;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+import org.jspecify.annotations.NonNull;
 
 /**
  * @author emeroad
  */
 public class SqlMetaDataBo implements MetaDataRowKey {
-    @NotBlank private final String agentId;
-    @PositiveOrZero private final long startTime;
+    @NonNull
+    private final String agentId;
+    private final long startTime;
 
     private final int sqlId;
 
     private final String sql;
 
     public SqlMetaDataBo(String agentId, long startTime, int sqlId, String sql) {
-        this.agentId = Objects.requireNonNull(agentId, "agentId");
+        this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         this.startTime = startTime;
         this.sqlId = sqlId;
         this.sql = sql;

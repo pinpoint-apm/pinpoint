@@ -1,11 +1,11 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,8 @@
 package com.navercorp.pinpoint.common.server.bo.exception;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
-import jakarta.validation.constraints.NotBlank;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -29,8 +30,10 @@ public class ExceptionMetaDataBo {
     private final long spanId;
 
     private final short serviceType;
-    @NotBlank(message = "applicationName is required") private final String applicationName;
-    @NotBlank(message = "agentId is required")  private final String agentId;
+    @NonNull
+    private final String applicationName;
+    @NonNull
+    private final String agentId;
 
     private final String uriTemplate;
 
@@ -45,8 +48,8 @@ public class ExceptionMetaDataBo {
         this.transactionId = transactionId;
         this.spanId = spanId;
         this.serviceType = serviceType;
-        this.applicationName = applicationName;
-        this.agentId = agentId;
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
+        this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         this.uriTemplate = uriTemplate;
     }
 

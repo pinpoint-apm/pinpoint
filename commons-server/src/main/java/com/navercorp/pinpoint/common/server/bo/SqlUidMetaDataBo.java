@@ -1,34 +1,49 @@
+/*
+ * Copyright 2025 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.uid.UidMetaDataRowKey;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PositiveOrZero;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
 import java.util.Objects;
 
 public class SqlUidMetaDataBo implements UidMetaDataRowKey {
-    @NotBlank private final String agentId;
-    @PositiveOrZero private final long startTime;
-    @NotBlank private final String applicationName;
+    @NonNull
+    private final String agentId;
+    private final long startTime;
+    @NonNull
+    private final String applicationName;
 
     private final byte[] sqlUid;
-    @NotBlank private final String sql;
+    @NonNull
+    private final String sql;
 
     public SqlUidMetaDataBo(String agentId, long startTime, byte[] sqlUid, String sql) {
-        this.agentId = Objects.requireNonNull(agentId, "agentId");
-        this.startTime = startTime;
-        this.applicationName = null;
-        this.sqlUid = Objects.requireNonNull(sqlUid, "sqlUid");
-        this.sql = sql;
+        this(agentId, startTime, "", sqlUid, sql);
     }
 
     public SqlUidMetaDataBo(String agentId, long startTime, String applicationName, byte[] sqlUid, String sql) {
-        this.agentId = Objects.requireNonNull(agentId, "agentId");
+        this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         this.startTime = startTime;
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.sqlUid = Objects.requireNonNull(sqlUid, "sqlUid");
-        this.sql = sql;
+        this.sql = Objects.requireNonNull(sql, "sql");
     }
 
     @Override
@@ -47,10 +62,6 @@ public class SqlUidMetaDataBo implements UidMetaDataRowKey {
     }
 
     public String getApplicationName() {
-        if (applicationName == null) {
-            // should not reach here
-            return "";
-        }
         return applicationName;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,17 @@
 package com.navercorp.pinpoint.otlp.collector.service;
 
 import com.navercorp.pinpoint.otlp.collector.dao.OtlpMetricDao;
-import com.navercorp.pinpoint.otlp.collector.model.*;
+import com.navercorp.pinpoint.otlp.collector.model.OtlpMetricData;
+import com.navercorp.pinpoint.otlp.collector.model.OtlpMetricDataPoint;
+import com.navercorp.pinpoint.otlp.collector.model.OtlpResourceAttributes;
+import com.navercorp.pinpoint.otlp.collector.model.PinotOtlpMetricDoubleData;
+import com.navercorp.pinpoint.otlp.collector.model.PinotOtlpMetricLongData;
+import com.navercorp.pinpoint.otlp.collector.model.PinotOtlpMetricMetadata;
+import com.navercorp.pinpoint.otlp.collector.model.SortKeyUtils;
 import com.navercorp.pinpoint.otlp.common.model.DataType;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,10 +41,10 @@ public class PinotOtlpMetricCollectorService implements OtlpMetricCollectorServi
     private final Logger logger = LogManager.getLogger(this.getClass());
     private final String DEFAULT_SERVICE_NAME = "";
 
-    @NotNull
+    @NonNull
     private final OtlpMetricDao otlpMetricDao;
 
-    public PinotOtlpMetricCollectorService(@Valid OtlpMetricDao otlpMetricDao) {
+    public PinotOtlpMetricCollectorService(OtlpMetricDao otlpMetricDao) {
         this.otlpMetricDao = Objects.requireNonNull(otlpMetricDao, "otlpMetricDao");
     }
     @Override

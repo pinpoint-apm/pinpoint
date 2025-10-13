@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.util.LineNumber;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PositiveOrZero;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Objects;
 
@@ -29,8 +29,9 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class ApiMetaDataBo implements MetaDataRowKey {
-    @NotBlank private final String agentId;
-    @PositiveOrZero private final long startTime;
+    @NonNull
+    private final String agentId;
+    private final long startTime;
     private final int apiId;
 
     private final String apiInfo;
@@ -40,7 +41,7 @@ public class ApiMetaDataBo implements MetaDataRowKey {
 
     public ApiMetaDataBo(String agentId, long startTime, int apiId, int lineNumber,
                          MethodTypeEnum methodTypeEnum, String apiInfo) {
-        this.agentId = Objects.requireNonNull(agentId, "agentId");
+        this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         this.startTime = startTime;
         this.apiId = apiId;
         this.lineNumber = lineNumber;

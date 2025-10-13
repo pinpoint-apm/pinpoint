@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 Naver Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 
 
 import com.navercorp.pinpoint.common.server.util.FilterUtils;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PositiveOrZero;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,12 +29,11 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 public class AgentStatBo {
-
-
-
-    @NotBlank private final String applicationName;
-    @NotBlank private final String agentId;
-    @PositiveOrZero private final long startTimestamp;
+    @NonNull
+    private final String applicationName;
+    @NonNull
+    private final String agentId;
+    private final long startTimestamp;
 
     private final List<JvmGcBo> jvmGcBos;
     private final List<JvmGcDetailedBo> jvmGcDetailedBos;
@@ -50,7 +49,7 @@ public class AgentStatBo {
     private final List<LoadedClassBo> loadedClassBos;
 
 
-    public AgentStatBo(Builder builder) {
+    private AgentStatBo(Builder builder) {
         this.applicationName = builder.applicationName;
         this.agentId = builder.agentId;
         this.startTimestamp = builder.startTimestamp;
@@ -143,8 +142,8 @@ public class AgentStatBo {
         private final List<StatDataPoint> statList = new ArrayList<>();
 
         Builder(String applicationName, String agentId, long startTimestamp) {
-            this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
-            this.agentId = Objects.requireNonNull(agentId, "agentId");
+            this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
+            this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
             this.startTimestamp = startTimestamp;
         }
 

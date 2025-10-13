@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.inspector.collector.dao.pinot.PinotTypeMapper;
 import com.navercorp.pinpoint.inspector.collector.model.kafka.AgentStat;
 import com.navercorp.pinpoint.inspector.collector.model.kafka.ApplicationStat;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
-import jakarta.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -70,7 +69,7 @@ public class PinotAgentStatService implements AgentStatService {
     }
 
     @Override
-    public void save(@Valid AgentStatBo agentStatBo) {
+    public void save(AgentStatBo agentStatBo) {
         for (PinotTypeMapper<StatDataPoint> mapper : mappers) {
             List<StatDataPoint> agentStatData = mapper.point(agentStatBo);
             if (!validateTime(agentStatData)) {
