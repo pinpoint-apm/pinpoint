@@ -5,7 +5,7 @@
 [![Maven](https://img.shields.io/github/actions/workflow/status/pinpoint-apm/pinpoint/maven.yml?branch=master&label=build&logo=github)](https://github.com/pinpoint-apm/pinpoint/actions?query=workflow%3AMaven)
 [![codecov](https://codecov.io/gh/pinpoint-apm/pinpoint/branch/master/graph/badge.svg)](https://codecov.io/gh/pinpoint-apm/pinpoint)
 
-## Latest Release (2025/03/19)
+## Latest Release (2025/06/12)
 
 We're happy to announce the release of Pinpoint v3.0.3.
 Please check the release note at (https://github.com/pinpoint-apm/pinpoint/releases/tag/v3.0.3).
