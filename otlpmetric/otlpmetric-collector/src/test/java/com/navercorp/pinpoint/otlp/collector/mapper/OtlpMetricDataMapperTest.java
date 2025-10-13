@@ -1,11 +1,11 @@
 /*
- * Copyright 2024 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,16 +20,24 @@ import com.navercorp.pinpoint.otlp.collector.model.OtlpMetricData;
 import com.navercorp.pinpoint.otlp.common.model.MetricName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author minwoo-jung
  */
 class OtlpMetricDataMapperTest {
 
+    private OtlpMetricData.Builder newBuilder() {
+        OtlpMetricData.Builder builder = OtlpMetricData.newBuilder();
+        builder.setAgentId("agentId");
+        builder.setServiceName("applicationName-cafe");
+        return builder;
+    }
+
     @Test
     public void setMetricNameTest1() {
-        OtlpMetricData.Builder builder = new OtlpMetricData.Builder();
+        OtlpMetricData.Builder builder = newBuilder();
+
         SummaryMapper SummaryMapper = new SummaryMapper();
         SummaryMapper.setMetricName(builder, "");
         OtlpMetricData otlpMetricData = builder.build();
@@ -39,7 +47,8 @@ class OtlpMetricDataMapperTest {
 
     @Test
     public void setMetricNameTest2() {
-        OtlpMetricData.Builder builder = new OtlpMetricData.Builder();
+        OtlpMetricData.Builder builder = newBuilder();
+
         SummaryMapper SummaryMapper = new SummaryMapper();
         SummaryMapper.setMetricName(builder, "metricGroupName.metricName");
         OtlpMetricData otlpMetricData = builder.build();
@@ -49,7 +58,8 @@ class OtlpMetricDataMapperTest {
 
     @Test
     public void setMetricNameTest3() {
-        OtlpMetricData.Builder builder = new OtlpMetricData.Builder();
+        OtlpMetricData.Builder builder = newBuilder();
+
         SummaryMapper SummaryMapper = new SummaryMapper();
         SummaryMapper.setMetricName(builder, "metricGroupName...");
         OtlpMetricData otlpMetricData = builder.build();
@@ -59,7 +69,8 @@ class OtlpMetricDataMapperTest {
 
     @Test
     public void setMetricNameTest4() {
-        OtlpMetricData.Builder builder = new OtlpMetricData.Builder();
+        OtlpMetricData.Builder builder = newBuilder();
+
         SummaryMapper SummaryMapper = new SummaryMapper();
         SummaryMapper.setMetricName(builder, "...metric");
         OtlpMetricData otlpMetricData = builder.build();
@@ -69,7 +80,8 @@ class OtlpMetricDataMapperTest {
 
     @Test
     public void setMetricNameTest5() {
-        OtlpMetricData.Builder builder = new OtlpMetricData.Builder();
+        OtlpMetricData.Builder builder = newBuilder();
+
         SummaryMapper SummaryMapper = new SummaryMapper();
         SummaryMapper.setMetricName(builder, "first.second.third.fourth");
         OtlpMetricData otlpMetricData = builder.build();
@@ -79,7 +91,8 @@ class OtlpMetricDataMapperTest {
 
     @Test
     public void setMetricNameTest6() {
-        OtlpMetricData.Builder builder = new OtlpMetricData.Builder();
+        OtlpMetricData.Builder builder = newBuilder();
+
         SummaryMapper SummaryMapper = new SummaryMapper();
         SummaryMapper.setMetricName(builder, "hikaricp.connections.creation");
         OtlpMetricData otlpMetricData = builder.build();
@@ -90,7 +103,8 @@ class OtlpMetricDataMapperTest {
     @Test
     public void setMetricNameAndGetFieldTest1() {
         GaugeMapper gaugeMapper = new GaugeMapper();
-        OtlpMetricData.Builder builder = new OtlpMetricData.Builder();
+        OtlpMetricData.Builder builder = newBuilder();
+
         String fieldName = gaugeMapper.setMetricNameAndGetField(builder, "metricGroupName.metricName");
         OtlpMetricData otlpMetricData = builder.build();
         assertEquals("metricGroupName", otlpMetricData.getMetricGroupName());
@@ -101,7 +115,8 @@ class OtlpMetricDataMapperTest {
     @Test
     public void setMetricNameAndGetFieldTest2() {
         GaugeMapper gaugeMapper = new GaugeMapper();
-        OtlpMetricData.Builder builder = new OtlpMetricData.Builder();
+        OtlpMetricData.Builder builder = newBuilder();
+
         String fieldName = gaugeMapper.setMetricNameAndGetField(builder, "metricGroupName");
         OtlpMetricData otlpMetricData = builder.build();
         assertEquals("metricGroupName", otlpMetricData.getMetricGroupName());
@@ -113,7 +128,8 @@ class OtlpMetricDataMapperTest {
     @Test
     public void setMetricNameAndGetFieldTest3() {
         GaugeMapper gaugeMapper = new GaugeMapper();
-        OtlpMetricData.Builder builder = new OtlpMetricData.Builder();
+        OtlpMetricData.Builder builder = newBuilder();
+
         String fieldName = gaugeMapper.setMetricNameAndGetField(builder, "metricGroupName.metricName.fieldName");
         OtlpMetricData otlpMetricData = builder.build();
         assertEquals("metricGroupName", otlpMetricData.getMetricGroupName());
@@ -124,7 +140,8 @@ class OtlpMetricDataMapperTest {
     @Test
     public void setMetricNameAndGetFieldTest4() {
         GaugeMapper gaugeMapper = new GaugeMapper();
-        OtlpMetricData.Builder builder = new OtlpMetricData.Builder();
+        OtlpMetricData.Builder builder = newBuilder();
+
         String fieldName = gaugeMapper.setMetricNameAndGetField(builder, "");
         OtlpMetricData otlpMetricData = builder.build();
         assertEquals(MetricName.EMPTY_METRIC_GROUP_NAME, otlpMetricData.getMetricGroupName());
@@ -135,7 +152,8 @@ class OtlpMetricDataMapperTest {
     @Test
     public void setMetricNameAndGetFieldTest5() {
         GaugeMapper gaugeMapper = new GaugeMapper();
-        OtlpMetricData.Builder builder = new OtlpMetricData.Builder();
+        OtlpMetricData.Builder builder = newBuilder();
+
         String fieldName = gaugeMapper.setMetricNameAndGetField(builder, "...");
         OtlpMetricData otlpMetricData = builder.build();
         assertEquals(MetricName.EMPTY_METRIC_GROUP_NAME, otlpMetricData.getMetricGroupName());
@@ -146,7 +164,8 @@ class OtlpMetricDataMapperTest {
     @Test
     public void setMetricNameAndGetFieldTest6() {
         GaugeMapper gaugeMapper = new GaugeMapper();
-        OtlpMetricData.Builder builder = new OtlpMetricData.Builder();
+        OtlpMetricData.Builder builder = newBuilder();
+
         String fieldName = gaugeMapper.setMetricNameAndGetField(builder, "...metric");
         OtlpMetricData otlpMetricData = builder.build();
         assertEquals(".", otlpMetricData.getMetricGroupName());
@@ -157,7 +176,8 @@ class OtlpMetricDataMapperTest {
     @Test
     public void setMetricNameAndGetFieldTest7() {
         GaugeMapper gaugeMapper = new GaugeMapper();
-        OtlpMetricData.Builder builder = new OtlpMetricData.Builder();
+        OtlpMetricData.Builder builder = newBuilder();
+
         String fieldName = gaugeMapper.setMetricNameAndGetField(builder, "process.info.cpu.jvm");
         OtlpMetricData otlpMetricData = builder.build();
         assertEquals("process.info", otlpMetricData.getMetricGroupName());
@@ -168,7 +188,8 @@ class OtlpMetricDataMapperTest {
     @Test
     public void setMetricNameAndGetFieldTest8() {
         GaugeMapper gaugeMapper = new GaugeMapper();
-        OtlpMetricData.Builder builder = new OtlpMetricData.Builder();
+        OtlpMetricData.Builder builder = newBuilder();
+
         String fieldName = gaugeMapper.setMetricNameAndGetField(builder, "process.info.resource.cpu.jvm");
         OtlpMetricData otlpMetricData = builder.build();
         assertEquals("process.info.resource", otlpMetricData.getMetricGroupName());

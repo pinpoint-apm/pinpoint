@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,7 @@
 package com.navercorp.pinpoint.otlp.collector.service;
 
 import com.navercorp.pinpoint.otlp.collector.model.OtlpMetricData;
-import jakarta.validation.Valid;
 
 public interface OtlpMetricCollectorService {
-    void save(@Valid OtlpMetricData otlpMetricData);
+    void save(OtlpMetricData otlpMetricData);
 }

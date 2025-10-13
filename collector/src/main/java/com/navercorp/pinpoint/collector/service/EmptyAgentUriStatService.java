@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +21,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
 /**
  * @author Taejin Koo
  */
 @ConditionalOnMissingBean(value = AgentUriStatService.class, ignored = EmptyAgentUriStatService.class)
 @Service
-@Validated
 public class EmptyAgentUriStatService implements AgentUriStatService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 

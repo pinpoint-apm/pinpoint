@@ -1,11 +1,11 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,8 +15,8 @@
  */
 package com.navercorp.pinpoint.common.server.bo.exception;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.Objects;
@@ -25,12 +25,13 @@ import java.util.Objects;
  * @author intr3p1d
  */
 public class ExceptionWrapperBo {
-
-    @NotNull private final String exceptionClassName;
-    @NotNull private final String exceptionMessage;
-    @PositiveOrZero private final long startTime;
-    @PositiveOrZero private final long exceptionId;
-    @PositiveOrZero private final int exceptionDepth;
+    @NonNull
+    private final String exceptionClassName;
+    @NonNull
+    private final String exceptionMessage;
+    private final long startTime;
+    private final long exceptionId;
+    private final int exceptionDepth;
 
     private final List<StackTraceElementWrapperBo> stackTraceElements;
 
@@ -42,8 +43,8 @@ public class ExceptionWrapperBo {
             int exceptionDepth,
             List<StackTraceElementWrapperBo> stackTraceElements
     ) {
-        this.exceptionClassName = Objects.requireNonNull(exceptionClassName, "exceptionClassName");
-        this.exceptionMessage = Objects.requireNonNull(exceptionMessage, "exceptionMessage");
+        this.exceptionClassName = StringPrecondition.requireHasLength(exceptionClassName, "exceptionClassName");
+        this.exceptionMessage = StringPrecondition.requireHasLength(exceptionMessage, "exceptionMessage");
         this.startTime = startTime;
         this.exceptionId = exceptionId;
         this.exceptionDepth = exceptionDepth;

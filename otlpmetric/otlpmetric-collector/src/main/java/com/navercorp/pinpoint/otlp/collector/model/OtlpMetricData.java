@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,20 +19,25 @@ package com.navercorp.pinpoint.otlp.collector.model;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.otlp.common.model.MetricType;
 import io.opentelemetry.proto.metrics.v1.AggregationTemporality;
-import jakarta.validation.constraints.NotBlank;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class OtlpMetricData {
     private final String tenantId;
-    @NotBlank private final String serviceName;
-    @NotBlank private final String agentId;
+
+    /**
+     * otel service.name: ${pinpoint.applicationName}
+     */
+    @NonNull
+    private final String serviceName;
+    @NonNull
+    private final String agentId;
 
     private final String metricGroupName;
-    @NotBlank private final String metricName;
+    @NonNull
+    private final String metricName;
     private final String unit;
     private final String version;
 
@@ -43,11 +48,11 @@ public class OtlpMetricData {
 
     public OtlpMetricData(Builder builder) {
         this.tenantId = builder.tenantId;
-        this.serviceName = builder.serviceName;
-        this.agentId = builder.agentId;
+        this.serviceName = StringPrecondition.requireHasLength(builder.serviceName, "serviceName");
+        this.agentId = StringPrecondition.requireHasLength(builder.agentId, "agentId");
 
         this.metricGroupName = builder.metricGroupName;
-        this.metricName = builder.metricName;
+        this.metricName = StringPrecondition.requireHasLength(builder.metricName, "metricName");
         this.unit = builder.unit;
 
         this.metricType = builder.metricType;
@@ -92,8 +97,12 @@ public class OtlpMetricData {
         return value;
     }
 
+    public static OtlpMetricData.Builder newBuilder() {
+        return new OtlpMetricData.Builder();
+    }
+
     public static class Builder {
-        private final Logger logger = LogManager.getLogger(this.getClass());
+
         private String tenantId;
         private String serviceName;
         private String agentId;
@@ -108,6 +117,9 @@ public class OtlpMetricData {
 
         private final List<OtlpMetricDataPoint> value = new ArrayList<>();
 
+        protected Builder() {
+        }
+
         public OtlpMetricData build() {
             return new OtlpMetricData(this);
         }
@@ -117,7 +129,7 @@ public class OtlpMetricData {
         }
 
         public void setServiceName(String serviceName) {
-            this.serviceName = serviceName;
+            this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
         }
 
         public void setMetricGroupName(String metricGroupName) {
@@ -125,7 +137,7 @@ public class OtlpMetricData {
         }
 
         public void setMetricName(String metricName) {
-            this.metricName = metricName;
+            this.metricName = StringPrecondition.requireHasLength(metricName, "metricName");
         }
 
         public void setUnit(String unit) {

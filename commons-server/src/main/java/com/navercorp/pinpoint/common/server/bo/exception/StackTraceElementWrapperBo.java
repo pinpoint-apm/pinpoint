@@ -1,11 +1,11 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,27 +15,29 @@
  */
 package com.navercorp.pinpoint.common.server.bo.exception;
 
-import jakarta.validation.constraints.NotNull;
-
-import java.util.Objects;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
+import org.jspecify.annotations.NonNull;
 
 /**
  * @author intr3p1d
  */
 public class StackTraceElementWrapperBo {
-    @NotNull private String className;
-    @NotNull private String fileName;
+    @NonNull
+    private String className;
+    @NonNull
+    private String fileName;
     private int lineNumber;
-    @NotNull private String methodName;
+    @NonNull
+    private String methodName;
 
     public StackTraceElementWrapperBo(String className,
                                       String fileName,
                                       int lineNumber,
                                       String methodName) {
-        this.className = Objects.requireNonNull(className, "className");
-        this.fileName = Objects.requireNonNull(fileName, "fileName");
+        this.className = StringPrecondition.requireHasLength(className, "className");
+        this.fileName = StringPrecondition.requireHasLength(fileName, "fileName");
         this.lineNumber = lineNumber;
-        this.methodName = Objects.requireNonNull(methodName, "methodName");
+        this.methodName = StringPrecondition.requireHasLength(methodName, "methodName");
     }
 
     public String getClassName() {

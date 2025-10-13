@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo.stat;
 
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
-import jakarta.validation.constraints.NotBlank;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.Objects;
@@ -27,17 +27,19 @@ import java.util.Objects;
  */
 public class AgentUriStatBo {
     private final byte bucketVersion;
-
+    @NonNull
     private final String serviceName;
+    @NonNull
     private final String applicationName;
+    @NonNull
     private final String agentId;
 
     private final List<EachUriStatBo> eachUriStatBoList;
 
     public AgentUriStatBo(byte bucketVersion,
-                          @NotBlank String serviceName, @NotBlank
-                          @NotBlank String applicationName,
-                          @NotBlank String agentId,
+                          String serviceName,
+                          String applicationName,
+                          String agentId,
                           List<EachUriStatBo> eachUriStatBoList) {
         this.bucketVersion = bucketVersion;
         this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
