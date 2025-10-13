@@ -51,16 +51,23 @@ Enable jitter in your `pinpoint-collector.properties`:
 ```properties
 # Enable jitter for AvgMax link scheduler
 collector.map-link.avg.jitter.enabled=true
+# Jitter spread percentage (0.0 to 1.0, default 0.5 = 50%)
+collector.map-link.avg.jitter.spread=0.5
 
 # Enable jitter for Statistics link scheduler
 collector.map-link.stat.jitter.enabled=true
+# Jitter spread percentage (0.0 to 1.0, default 0.5 = 50%)
+collector.map-link.stat.jitter.spread=0.5
 ```
 
 ### Behavior
 
 - **Without jitter** (default): All DAOs flush at the same fixed intervals
-- **With jitter**: Each DAO execution is delayed by the base interval plus a random jitter value (recalculated on every execution)
+- **With jitter**: Each DAO execution delay is jittered symmetrically around the base interval
 
-The jitter value is dynamically calculated for each execution, using the flush interval as the maximum jitter range. The delay between consecutive runs varies randomly within `[flushInterval, flushInterval * 2)`.
+The jitter is applied using a spread percentage (based on HBase's JitterScheduledThreadPoolExecutor implementation):
+- With spread=0.5 (50%), a 5000ms interval becomes 2500ms to 7500ms randomly
+- The delay varies as: `baseInterval +/- (baseInterval * spread)`
+- This provides balanced distribution, avoiding both too-early and too-late executions
 
 This helps reduce synchronized load spikes when multiple collectors are deployed.

@@ -39,12 +39,14 @@ public class StatisticsLinkSchedulerTest {
         TaskScheduler taskScheduler = createTaskScheduler();
         Duration flushInterval = Duration.ofMillis(5000);
         boolean jitterEnabled = false;
+        double jitterSpread = 0.5;
         List<CachedStatisticsDao> daoList = createMockDaoList(3);
 
         StatisticsLinkScheduler scheduler = new StatisticsLinkScheduler(
                 taskScheduler,
                 flushInterval,
                 jitterEnabled,
+                jitterSpread,
                 daoList
         );
 
@@ -59,12 +61,14 @@ public class StatisticsLinkSchedulerTest {
         TaskScheduler taskScheduler = createTaskScheduler();
         Duration flushInterval = Duration.ofMillis(5000);
         boolean jitterEnabled = true;
+        double jitterSpread = 0.5;
         List<CachedStatisticsDao> daoList = createMockDaoList(3);
 
         StatisticsLinkScheduler scheduler = new StatisticsLinkScheduler(
                 taskScheduler,
                 flushInterval,
                 jitterEnabled,
+                jitterSpread,
                 daoList
         );
 
@@ -79,12 +83,14 @@ public class StatisticsLinkSchedulerTest {
         TaskScheduler taskScheduler = createTaskScheduler();
         Duration flushInterval = Duration.ofMillis(5000);
         boolean jitterEnabled = true;
+        double jitterSpread = 0.3; // 30% spread
         List<CachedStatisticsDao> daoList = createMockDaoList(3);
 
         StatisticsLinkScheduler scheduler = new StatisticsLinkScheduler(
                 taskScheduler,
                 flushInterval,
                 jitterEnabled,
+                jitterSpread,
                 daoList
         );
 

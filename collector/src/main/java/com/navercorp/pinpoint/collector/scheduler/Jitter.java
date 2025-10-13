@@ -17,24 +17,47 @@
 
 package com.navercorp.pinpoint.collector.scheduler;
 
-import java.util.Objects;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
+ * Jitter implementation based on HBase's JitterScheduledThreadPoolExecutorImpl.
+ * Adds random jitter to delays to spread out scheduled tasks and reduce load spikes.
+ * 
  * @author emeroad
  */
 public class Jitter {
-    private final Random random = new Random();
-    private final long maxJitter;
+    private final double spread;
 
-    public Jitter(long maxJitter) {
-        if (maxJitter <= 0) {
-            throw new IllegalArgumentException("maxJitter must be positive");
+    /**
+     * Creates a Jitter with the specified spread percentage.
+     * 
+     * @param spread The percent up and down that delays should be jittered (e.g., 0.5 for 50%)
+     */
+    public Jitter(double spread) {
+        if (spread < 0 || spread > 1.0) {
+            throw new IllegalArgumentException("spread must be between 0 and 1.0");
         }
-        this.maxJitter = maxJitter;
+        this.spread = spread;
     }
 
-    public long nextDelay() {
-        return random.nextLong(maxJitter);
+    /**
+     * Calculates jittered delay based on the base delay.
+     * The jitter is applied symmetrically: baseDelay +/- (baseDelay * spread)
+     * 
+     * @param baseDelay the base delay in milliseconds
+     * @return the jittered delay, guaranteed to be non-negative
+     */
+    public long nextDelay(long baseDelay) {
+        long spreadTime = (long) (baseDelay * spread);
+        if (spreadTime <= 0) {
+            return baseDelay;
+        }
+        
+        // Add random jitter in range [-spreadTime, +spreadTime]
+        long jitter = ThreadLocalRandom.current().nextLong(-spreadTime, spreadTime + 1);
+        long delay = baseDelay + jitter;
+        
+        // Ensure we don't return negative delay
+        return Math.max(0, delay);
     }
 }
