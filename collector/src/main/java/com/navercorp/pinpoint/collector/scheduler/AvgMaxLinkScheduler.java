@@ -27,8 +27,10 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 @Component
@@ -52,8 +54,29 @@ public class AvgMaxLinkScheduler {
 
     @PostConstruct
     public void linkScheduling()  {
-        for (CachedStatisticsDao dao : statisticsDaoList) {
-            this.scheduler.scheduleWithFixedDelay(dao::flushAvgMax, flushInterval);
+        final long intervalMillis = flushInterval.toMillis();
+
+        int numDaos = statisticsDaoList.size();
+        long jitterUnit = intervalMillis / numDaos;
+        final long[] jitterArray = new long[numDaos];
+        if (jitterUnit > 0) {
+            for (int i = 0; i < numDaos; i++) {
+                jitterArray[i] = ThreadLocalRandom.current().nextLong(i * jitterUnit, (i + 1) * jitterUnit);
+            }
+        } else {
+            for (int i = 0; i < numDaos; i++) {
+                jitterArray[i] = 0L;
+            }
+        }
+
+        final Instant now = Instant.now();
+        for (int i = 0; i < numDaos; i++) {
+            CachedStatisticsDao dao = statisticsDaoList.get(i);
+            Instant startInstant = now.plusMillis(intervalMillis + jitterArray[i]);
+            logger.info("{} started for {}: interval={}ms, jitter={}ms, startTime={}",
+                    this.getClass().getSimpleName(), dao.getClass().getSimpleName(), intervalMillis, jitterArray[i], startInstant);
+            this.scheduler.scheduleAtFixedRate(dao::flushAvgMax, startInstant, flushInterval);
         }
     }
+
 }
