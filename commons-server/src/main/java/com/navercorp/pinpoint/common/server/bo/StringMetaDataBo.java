@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
+import com.navercorp.pinpoint.common.server.util.NumberPrecondition;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import org.jspecify.annotations.NonNull;
 
@@ -34,7 +35,7 @@ public class StringMetaDataBo implements MetaDataRowKey {
     public StringMetaDataBo(String agentId, long startTime, int stringId, String stringValue) {
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         this.stringId = stringId;
-        this.startTime = startTime;
+        this.startTime = NumberPrecondition.requirePositiveOrZero(startTime, "startTime");
         this.stringValue = stringValue;
     }
 

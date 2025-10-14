@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.server.bo.event;
 
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.ByteUtils;
+import com.navercorp.pinpoint.common.server.util.NumberPrecondition;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import org.jspecify.annotations.NonNull;
 
@@ -48,14 +49,8 @@ public class AgentEventBo {
     public AgentEventBo(int version, String agentId, long startTimestamp, long eventTimestamp, AgentEventType eventType) {
         this.version = ByteUtils.toUnsignedByte(version);
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
-        if (startTimestamp < 0) {
-            throw new IllegalArgumentException("startTimestamp cannot be less than 0");
-        }
-        if (eventTimestamp < 0) {
-            throw new IllegalArgumentException("eventTimestamp cannot be less than 0");
-        }
-        this.startTimestamp = startTimestamp;
-        this.eventTimestamp = eventTimestamp;
+        this.startTimestamp = NumberPrecondition.requirePositiveOrZero(startTimestamp, "startTimestamp");
+        this.eventTimestamp = NumberPrecondition.requirePositiveOrZero(eventTimestamp, "eventTimestamp");
         this.eventType = Objects.requireNonNull(eventType, "eventType");
     }
 
