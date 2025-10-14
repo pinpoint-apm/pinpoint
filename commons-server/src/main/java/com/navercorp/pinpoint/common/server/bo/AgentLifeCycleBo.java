@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.server.util.ByteUtils;
+import com.navercorp.pinpoint.common.server.util.NumberPrecondition;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import org.jspecify.annotations.NonNull;
 
@@ -45,17 +46,12 @@ public class AgentLifeCycleBo {
     public AgentLifeCycleBo(int version, String agentId, long startTimestamp, long eventTimestamp, long eventIdentifier, AgentLifeCycleState agentLifeCycleState) {
         this.version = ByteUtils.toUnsignedByte(version);
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
-        if (startTimestamp < 0) {
-            throw new IllegalArgumentException("startTimestamp cannot be less than 0");
-        }
-        if (eventTimestamp < 0) {
-            throw new IllegalArgumentException("eventTimestamp cannot be less than 0");
-        }
+
         if (eventIdentifier < 0) {
             throw new IllegalArgumentException("eventIdentifier cannot be less than 0");
         }
-        this.startTimestamp = startTimestamp;
-        this.eventTimestamp = eventTimestamp;
+        this.startTimestamp = NumberPrecondition.requirePositiveOrZero(startTimestamp, "startTimestamp");
+        this.eventTimestamp = NumberPrecondition.requirePositiveOrZero(eventTimestamp, "eventTimestamp");
         this.eventIdentifier = eventIdentifier;
         this.agentLifeCycleState = Objects.requireNonNull(agentLifeCycleState, "agentLifeCycleState");
     }

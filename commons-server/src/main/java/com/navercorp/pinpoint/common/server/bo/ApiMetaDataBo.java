@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
+import com.navercorp.pinpoint.common.server.util.NumberPrecondition;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.util.LineNumber;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -42,7 +43,7 @@ public class ApiMetaDataBo implements MetaDataRowKey {
     public ApiMetaDataBo(String agentId, long startTime, int apiId, int lineNumber,
                          MethodTypeEnum methodTypeEnum, String apiInfo) {
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
-        this.startTime = startTime;
+        this.startTime = NumberPrecondition.requirePositiveOrZero(startTime, "startTime");
         this.apiId = apiId;
         this.lineNumber = lineNumber;
         this.apiInfo = apiInfo;

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.util.ByteUtils;
+import com.navercorp.pinpoint.common.server.util.NumberPrecondition;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.jspecify.annotations.NonNull;
@@ -113,7 +114,7 @@ public class SpanChunkBo implements BasicSpan {
     }
 
     public void setAgentStartTime(long agentStartTime) {
-        this.agentStartTime = agentStartTime;
+        this.agentStartTime = NumberPrecondition.requirePositiveOrZero(agentStartTime, "agentStartTime");
     }
 
     @Override

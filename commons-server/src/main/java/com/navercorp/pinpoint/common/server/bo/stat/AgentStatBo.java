@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 
 
 import com.navercorp.pinpoint.common.server.util.FilterUtils;
+import com.navercorp.pinpoint.common.server.util.NumberPrecondition;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import org.jspecify.annotations.NonNull;
 
@@ -144,7 +145,7 @@ public class AgentStatBo {
         Builder(String applicationName, String agentId, long startTimestamp) {
             this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
             this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
-            this.startTimestamp = startTimestamp;
+            this.startTimestamp = NumberPrecondition.requirePositiveOrZero(startTimestamp, "startTimestamp");
         }
 
         public StatBuilder newStatBuilder(long timestamp) {

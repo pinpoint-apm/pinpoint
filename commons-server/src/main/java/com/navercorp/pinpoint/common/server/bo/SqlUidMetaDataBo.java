@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.uid.UidMetaDataRowKey;
+import com.navercorp.pinpoint.common.server.util.NumberPrecondition;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import org.jspecify.annotations.NonNull;
 
@@ -40,7 +41,7 @@ public class SqlUidMetaDataBo implements UidMetaDataRowKey {
 
     public SqlUidMetaDataBo(String agentId, long startTime, String applicationName, byte[] sqlUid, String sql) {
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
-        this.startTime = startTime;
+        this.startTime = NumberPrecondition.requirePositiveOrZero(startTime, "startTime");
         this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
         this.sqlUid = Objects.requireNonNull(sqlUid, "sqlUid");
         this.sql = Objects.requireNonNull(sql, "sql");

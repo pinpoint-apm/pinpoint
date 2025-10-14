@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.common.server.bo.exception;
 
+import com.navercorp.pinpoint.common.server.util.NumberPrecondition;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import org.jspecify.annotations.NonNull;
 
@@ -45,9 +46,9 @@ public class ExceptionWrapperBo {
     ) {
         this.exceptionClassName = StringPrecondition.requireHasLength(exceptionClassName, "exceptionClassName");
         this.exceptionMessage = StringPrecondition.requireHasLength(exceptionMessage, "exceptionMessage");
-        this.startTime = startTime;
-        this.exceptionId = exceptionId;
-        this.exceptionDepth = exceptionDepth;
+        this.startTime = NumberPrecondition.requirePositiveOrZero(startTime, "startTime");
+        this.exceptionId = NumberPrecondition.requirePositiveOrZero(exceptionId, "exceptionId");
+        this.exceptionDepth = NumberPrecondition.requirePositiveOrZero(exceptionDepth, "exceptionDepth");
         this.stackTraceElements = Objects.requireNonNull(stackTraceElements, "stackTraceElements");
     }
 
