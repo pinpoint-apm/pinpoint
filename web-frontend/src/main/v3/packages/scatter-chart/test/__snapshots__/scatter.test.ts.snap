@@ -1,13 +1,13 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Test for Scatter Test for Scatter Method should check data rendered by \`render\` method 1`] = `
-Array [
-  Object {
-    "props": Object {
+[
+  {
+    "props": {
       "x": 1,
       "y": 1,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -17,14 +17,14 @@ Array [
     ],
     "type": "scale",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "height": 320,
       "width": 518,
       "x": 0,
       "y": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -34,11 +34,11 @@ Array [
     ],
     "type": "clearRect",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "value": "#ffffff",
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -48,14 +48,14 @@ Array [
     ],
     "type": "fillStyle",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "height": 320,
       "width": 518,
       "x": 0,
       "y": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -65,8 +65,8 @@ Array [
     ],
     "type": "fillRect",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -81,7 +81,7 @@ Array [
       "sx": -0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -91,8 +91,8 @@ Array [
     ],
     "type": "drawImage",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -107,7 +107,7 @@ Array [
       "sx": -0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -117,8 +117,8 @@ Array [
     ],
     "type": "drawImage",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -133,7 +133,7 @@ Array [
       "sx": -0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -143,8 +143,8 @@ Array [
     ],
     "type": "drawImage",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -159,7 +159,7 @@ Array [
       "sx": -0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -169,8 +169,8 @@ Array [
     ],
     "type": "drawImage",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -185,7 +185,7 @@ Array [
       "sx": 0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -195,14 +195,14 @@ Array [
     ],
     "type": "drawImage",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "height": 320,
       "width": 518,
       "x": 0,
       "y": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -212,11 +212,11 @@ Array [
     ],
     "type": "clearRect",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "value": "#ffffff",
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -226,14 +226,14 @@ Array [
     ],
     "type": "fillStyle",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "height": 320,
       "width": 518,
       "x": 0,
       "y": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -243,8 +243,8 @@ Array [
     ],
     "type": "fillRect",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -259,7 +259,7 @@ Array [
       "sx": -0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -269,8 +269,8 @@ Array [
     ],
     "type": "drawImage",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -285,7 +285,7 @@ Array [
       "sx": -0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -295,8 +295,8 @@ Array [
     ],
     "type": "drawImage",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -311,7 +311,7 @@ Array [
       "sx": -0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -321,8 +321,8 @@ Array [
     ],
     "type": "drawImage",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -337,7 +337,7 @@ Array [
       "sx": -0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -347,8 +347,8 @@ Array [
     ],
     "type": "drawImage",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -363,7 +363,7 @@ Array [
       "sx": 0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -377,13 +377,13 @@ Array [
 `;
 
 exports[`Test for Scatter Test for Scatter Method should check data rendered by \`render\` method with append flag is true 1`] = `
-Array [
-  Object {
-    "props": Object {
+[
+  {
+    "props": {
       "x": 1,
       "y": 1,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -393,14 +393,14 @@ Array [
     ],
     "type": "scale",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "height": 320,
       "width": 518,
       "x": 0,
       "y": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -410,11 +410,11 @@ Array [
     ],
     "type": "clearRect",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "value": "#ffffff",
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -424,14 +424,14 @@ Array [
     ],
     "type": "fillStyle",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "height": 320,
       "width": 518,
       "x": 0,
       "y": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -441,8 +441,8 @@ Array [
     ],
     "type": "fillRect",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -457,7 +457,7 @@ Array [
       "sx": -0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -467,8 +467,8 @@ Array [
     ],
     "type": "drawImage",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -483,7 +483,7 @@ Array [
       "sx": -0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -493,8 +493,8 @@ Array [
     ],
     "type": "drawImage",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -509,7 +509,7 @@ Array [
       "sx": -0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -519,8 +519,8 @@ Array [
     ],
     "type": "drawImage",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -535,7 +535,7 @@ Array [
       "sx": -0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -545,8 +545,8 @@ Array [
     ],
     "type": "drawImage",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -561,7 +561,7 @@ Array [
       "sx": 0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -571,14 +571,14 @@ Array [
     ],
     "type": "drawImage",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "height": 320,
       "width": 518,
       "x": 0,
       "y": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -588,11 +588,11 @@ Array [
     ],
     "type": "clearRect",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "value": "#ffffff",
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -602,14 +602,14 @@ Array [
     ],
     "type": "fillStyle",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "height": 320,
       "width": 518,
       "x": 0,
       "y": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -619,8 +619,8 @@ Array [
     ],
     "type": "fillRect",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -635,7 +635,7 @@ Array [
       "sx": -0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -645,8 +645,8 @@ Array [
     ],
     "type": "drawImage",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -661,7 +661,7 @@ Array [
       "sx": -0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -671,8 +671,8 @@ Array [
     ],
     "type": "drawImage",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -687,7 +687,7 @@ Array [
       "sx": -0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -697,8 +697,8 @@ Array [
     ],
     "type": "drawImage",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -713,7 +713,7 @@ Array [
       "sx": -0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -723,8 +723,8 @@ Array [
     ],
     "type": "drawImage",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -739,7 +739,7 @@ Array [
       "sx": 0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -749,14 +749,14 @@ Array [
     ],
     "type": "drawImage",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "height": 320,
       "width": 518,
       "x": 0,
       "y": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -766,11 +766,11 @@ Array [
     ],
     "type": "clearRect",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "value": "#ffffff",
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -780,14 +780,14 @@ Array [
     ],
     "type": "fillStyle",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "height": 320,
       "width": 518,
       "x": 0,
       "y": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -797,8 +797,8 @@ Array [
     ],
     "type": "fillRect",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -813,7 +813,7 @@ Array [
       "sx": -0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -823,8 +823,8 @@ Array [
     ],
     "type": "drawImage",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -839,7 +839,7 @@ Array [
       "sx": -0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -849,8 +849,8 @@ Array [
     ],
     "type": "drawImage",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -865,7 +865,7 @@ Array [
       "sx": -0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -875,8 +875,8 @@ Array [
     ],
     "type": "drawImage",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -891,7 +891,7 @@ Array [
       "sx": -0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,
@@ -901,8 +901,8 @@ Array [
     ],
     "type": "drawImage",
   },
-  Object {
-    "props": Object {
+  {
+    "props": {
       "dHeight": 320,
       "dWidth": 518,
       "dx": 0,
@@ -917,7 +917,7 @@ Array [
       "sx": 0,
       "sy": 0,
     },
-    "transform": Array [
+    "transform": [
       1,
       0,
       0,

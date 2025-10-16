@@ -32,12 +32,12 @@
     "@storybook/addon-links": "^9.1.8",
     "@storybook/builder-vite": "^9.1.8",
     "@storybook/react-vite": "^9.1.8",
-    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^14.2.1",
     "@types/cytoscape": "^3.21.9",
     "@types/cytoscape-dagre": "^2.3.3",
-    "@types/jest": "^28.1.4",
+    "@types/jest": "^30.0.0",
     "@types/react": "^18.0.14",
     "@typescript-eslint/eslint-plugin": "^8.44.1",
     "@typescript-eslint/parser": "^8.44.1",
@@ -47,10 +47,10 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-storybook": "9.1.8",
-    "jest": "^28.1.0",
-    "jest-environment-jsdom": "^30.0.4",
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.1.0",
     "prettier": "^3.3.3",
-    "ts-jest": "^28.0.5",
+    "ts-jest": "^29.4.5",
     "typescript": "^4.5.5"
   }
 }
