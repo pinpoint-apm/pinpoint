@@ -38,7 +38,6 @@
     "@types/react-router-dom": "^5.3.3",
     "@typescript-eslint/eslint-plugin": "^8.44.1",
     "@typescript-eslint/parser": "^8.44.1",
-    "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.15",
     "cpx2": "^8.0.0",
     "eslint": "^9.36.0",
@@ -48,7 +47,7 @@
     "rollup-plugin-visualizer": "^5.14.0",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.2.2",
-    "vite": "^6.1.1",
+    "vite": "^6.3.6",
     "vite-plugin-compression2": "^1.3.3",
     "vite-plugin-svgr": "^4.3.0"
   }
