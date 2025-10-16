@@ -22,6 +22,7 @@ export default [
       globals: {
         ...globals.browser, // 브라우저 전역 변수
         ...globals.es2021, // ES2021 전역 변수
+        ...globals.jest, // Jest 전역 변수
       },
     },
     plugins: {
