@@ -36,7 +36,6 @@
     "@storybook/addon-links": "^9.1.8",
     "@storybook/builder-vite": "^9.1.8",
     "@storybook/html-vite": "^9.1.8",
-    "@storybook/testing-library": "^0.2.0",
     "@swc/core": "^1.3.35",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/user-event": "^14.2.1",
