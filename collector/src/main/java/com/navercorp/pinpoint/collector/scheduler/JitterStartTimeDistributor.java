@@ -35,8 +35,11 @@ public class JitterStartTimeDistributor implements StartTimeDistributor {
     }
 
     private long jitter() {
-        long spreadTime = (long)((double)nextDelay * spread);
+        if (spread == 0) {
+            return 0;
+        }
 
+        long spreadTime = (long) ((double) nextDelay * spread);
         return ThreadLocalRandom.current().nextLong(-spreadTime, spreadTime);
     }
 

@@ -16,6 +16,26 @@
 
 package com.navercorp.pinpoint.collector.scheduler;
 
+import com.google.common.collect.Range;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 class JitterStartTimeDistributorTest {
+    @Test
+     void nextTick() {
+        JitterStartTimeDistributor distributor = new JitterStartTimeDistributor(1000, 0.0);
+        long tick = distributor.nextTick();
+        Assertions.assertTrue(tick > 0);
+    }
+
+    @Test
+    void nextTick_jitter() {
+        JitterStartTimeDistributor distributor = new JitterStartTimeDistributor(1000, 0.1);
+        long tick = distributor.nextTick();
+        Range<Long> range = Range.closed(900L, 1100L);
+
+        Assertions.assertTrue(range.contains(tick));
+        Assertions.assertTrue(range.contains(900L));
+    }
 
 }
