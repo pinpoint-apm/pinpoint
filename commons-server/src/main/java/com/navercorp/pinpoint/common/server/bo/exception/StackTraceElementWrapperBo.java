@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.common.server.bo.exception;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import org.jspecify.annotations.NonNull;
 
+import java.util.Objects;
+
 /**
  * @author intr3p1d
  */
@@ -35,7 +37,7 @@ public class StackTraceElementWrapperBo {
                                       int lineNumber,
                                       String methodName) {
         this.className = StringPrecondition.requireHasLength(className, "className");
-        this.fileName = StringPrecondition.requireHasLength(fileName, "fileName");
+        this.fileName = Objects.requireNonNull(fileName, "fileName");
         this.lineNumber = lineNumber;
         this.methodName = StringPrecondition.requireHasLength(methodName, "methodName");
     }

@@ -45,10 +45,10 @@ public class ExceptionWrapperBo {
             List<StackTraceElementWrapperBo> stackTraceElements
     ) {
         this.exceptionClassName = StringPrecondition.requireHasLength(exceptionClassName, "exceptionClassName");
-        this.exceptionMessage = StringPrecondition.requireHasLength(exceptionMessage, "exceptionMessage");
+        this.exceptionMessage = Objects.requireNonNull(exceptionMessage, "exceptionMessage");
         this.startTime = NumberPrecondition.requirePositiveOrZero(startTime, "startTime");
-        this.exceptionId = NumberPrecondition.requirePositiveOrZero(exceptionId, "exceptionId");
-        this.exceptionDepth = NumberPrecondition.requirePositiveOrZero(exceptionDepth, "exceptionDepth");
+        this.exceptionId = exceptionId;
+        this.exceptionDepth = exceptionDepth;
         this.stackTraceElements = Objects.requireNonNull(stackTraceElements, "stackTraceElements");
     }
 
