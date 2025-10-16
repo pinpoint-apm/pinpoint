@@ -59,7 +59,7 @@ public class PinotExceptionMetaDataService implements ExceptionMetaDataService {
     }
 
     @Override
-    public void save(@Valid ExceptionMetaDataBo exceptionMetaDataBo) {
+    public void save(ExceptionMetaDataBo exceptionMetaDataBo) {
         List<ExceptionMetaData> exceptionMetaData = toExceptionMetaData(exceptionMetaDataBo);
         exceptionTraceDao.insert(exceptionMetaData);
     }
