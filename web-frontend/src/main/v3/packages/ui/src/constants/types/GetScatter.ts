@@ -1,6 +1,7 @@
 export namespace GetScatter {
   export interface Parameters {
     application?: string;
+    serviceType?: string;
     from?: number;
     to?: number;
     limit?: number;
