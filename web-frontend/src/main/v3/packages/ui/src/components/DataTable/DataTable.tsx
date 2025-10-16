@@ -23,6 +23,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   columns: ColumnDef<TData, TValue>[];
   autoResize?: boolean;
+  minHeight?: number;
   enableMultiRowSelection?: boolean;
   tableContainerClassName?: string;
   tableClassName?: string;
@@ -42,6 +43,7 @@ export function DataTable<TData, TValue>({
   data,
   columns,
   autoResize,
+  minHeight,
   enableMultiRowSelection = false,
   tableClassName,
   rowSelectionInfo = {},
@@ -106,7 +108,10 @@ export function DataTable<TData, TValue>({
     <div
       className="relative w-full h-full overflow-auto"
       ref={containerRef}
-      style={{ maxHeight: autoResize ? resizableMaxHeight : 'none' }}
+      style={{
+        maxHeight: autoResize ? resizableMaxHeight : 'none',
+        minHeight: minHeight ? minHeight : 'none',
+      }}
     >
       <Table
         className={cn(
