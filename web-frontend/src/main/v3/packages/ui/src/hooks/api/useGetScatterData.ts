@@ -6,14 +6,15 @@ import { queryFn } from './reactQueryHelper';
 
 const getQueryString = (
   queryParams: GetScatter.Parameters & { timestamp?: number },
-  applicationName?: string,
+  application?: ApplicationType,
 ) => {
   if (
     queryParams.from &&
     queryParams.to &&
     queryParams.xGroupUnit &&
     queryParams.yGroupUnit &&
-    applicationName
+    application?.applicationName &&
+    application?.serviceType
   ) {
     return '?' + convertParamsToQueryString(queryParams);
   }
@@ -36,6 +37,7 @@ export const useGetScatterData = (
     from,
     to,
     application: application?.applicationName,
+    serviceType: application?.serviceType,
     limit: 10000,
     filter: '',
     xGroupUnit: undefined,
@@ -44,7 +46,7 @@ export const useGetScatterData = (
     timestamp: undefined,
   });
   const queryParams = React.useDeferredValue(query);
-  const queryString = getQueryString(queryParams, application.applicationName);
+  const queryString = getQueryString(queryParams, application);
 
   React.useEffect(() => {
     setQueryParams((prev) => ({
@@ -52,8 +54,9 @@ export const useGetScatterData = (
       from,
       to,
       application: application?.applicationName,
+      serviceType: application?.serviceType,
     }));
-  }, [application?.applicationName, from, to]);
+  }, [application?.applicationName, application?.serviceType, from, to]);
 
   const { data, isLoading } = useQuery({
     queryKey: [END_POINTS.SCATTER_DATA, queryString],

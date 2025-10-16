@@ -4,13 +4,14 @@ import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useQuery } from '@tanstack/react-query';
 import { queryFn } from './reactQueryHelper';
 
-const getQueryString = (queryParams: GetScatter.Parameters, applicationName?: string) => {
+const getQueryString = (queryParams: GetScatter.Parameters, application?: ApplicationType) => {
   if (
     queryParams.from &&
     queryParams.to &&
     queryParams.xGroupUnit &&
     queryParams.yGroupUnit &&
-    applicationName
+    application?.applicationName &&
+    application?.serviceType
   ) {
     return '?' + convertParamsToQueryString(queryParams);
   }
@@ -36,6 +37,7 @@ export const useGetScatterRealtimeData = (
     from: 0,
     to: 0,
     application: application?.applicationName,
+    serviceType: application?.serviceType,
     limit: 10000,
     filter: '',
     xGroupUnit: undefined,
@@ -43,7 +45,7 @@ export const useGetScatterRealtimeData = (
     backwardDirection: true,
     timestamp: undefined,
   });
-  const queryString = getQueryString(queryParams, application.applicationName);
+  const queryString = getQueryString(queryParams, application);
 
   const { data, isLoading } = useQuery({
     queryKey: [END_POINTS.SCATTER_DATA, queryString],
@@ -58,8 +60,9 @@ export const useGetScatterRealtimeData = (
       from,
       to,
       application: application.applicationName,
+      serviceType: application.serviceType,
     }));
-  }, [application.applicationName]);
+  }, [application.applicationName, application.serviceType, from, to]);
 
   React.useEffect(() => {
     if (!isLoading && data) {
@@ -71,14 +74,6 @@ export const useGetScatterRealtimeData = (
       }
     }
   }, [data]);
-
-  React.useEffect(() => {
-    setQueryParams((prev) => ({
-      ...prev,
-      from,
-      to,
-    }));
-  }, [from, to]);
 
   return { data, isLoading, setQueryParams };
 };
