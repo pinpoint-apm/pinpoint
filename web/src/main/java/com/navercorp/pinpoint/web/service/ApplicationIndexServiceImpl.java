@@ -37,32 +37,31 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     private final String defaultServiceName = ServiceUid.DEFAULT_SERVICE_UID_NAME;
 
     private final ApplicationIndexDao applicationIndexDao;
-    private final ApplicationIndexServiceV2 applicationUidServiceV2;
+    private final ApplicationIndexServiceV2 applicationIndexServiceV2;
+    private final boolean v1Enabled;
+    private final boolean v2Enabled;
     private final boolean readV2;
-    private final boolean v2TableEnabled;
 
     public ApplicationIndexServiceImpl(ApplicationIndexDao applicationIndexDao,
-                                       ApplicationIndexServiceV2 applicationUidServiceV2,
-                                       @Value("${pinpoint.web.application.index.v2.enabled:false}") boolean readV2,
-                                       @Value("${pinpoint.web.application.index.v2.table.enabled:false}") boolean v2TableEnabled) {
+                                       ApplicationIndexServiceV2 applicationIndexServiceV2,
+                                       @Value("${pinpoint.web.application.index.v1.enabled:true}") boolean v1Enabled,
+                                       @Value("${pinpoint.web.application.index.v2.enabled:false}") boolean v2Enabled,
+                                       @Value("${pinpoint.web.application.index.read.v2:false}") boolean readV2) {
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
-        this.applicationUidServiceV2 = Objects.requireNonNull(applicationUidServiceV2, "applicationUidServiceV2");
+        this.applicationIndexServiceV2 = Objects.requireNonNull(applicationIndexServiceV2, "applicationIndexServiceV2");
+        this.v1Enabled = v1Enabled;
+        this.v2Enabled = v2Enabled;
         this.readV2 = readV2;
-        this.v2TableEnabled = v2TableEnabled;
     }
 
     private boolean isReadV2() {
-        return readV2 && v2TableEnabled;
-    }
-
-    private boolean isV2WriteEnabled() {
-        return readV2 || v2TableEnabled;
+        return v2Enabled && readV2;
     }
 
     @Override
     public List<Application> selectAllApplications() {
         if (isReadV2()) {
-            return this.applicationUidServiceV2.getApplications(defaultServiceName);
+            return this.applicationIndexServiceV2.getApplications(defaultServiceName);
         }
         return this.applicationIndexDao.selectAllApplicationNames();
     }
@@ -70,7 +69,7 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     @Override
     public List<String> selectAllApplicationNames() {
         if (isReadV2()) {
-            return this.applicationUidServiceV2.getApplications(defaultServiceName).stream()
+            return this.applicationIndexServiceV2.getApplications(defaultServiceName).stream()
                     .map(Application::getName)
                     .toList();
         }
@@ -83,30 +82,32 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     @Override
     public List<Application> selectApplication(String applicationName) {
         if (isReadV2()) {
-            return this.applicationUidServiceV2.getApplications(defaultServiceName, applicationName);
+            return this.applicationIndexServiceV2.getApplications(defaultServiceName, applicationName);
         }
-
         return this.applicationIndexDao.selectApplicationName(applicationName);
     }
 
     @Override
     public void deleteApplicationName(String applicationName) {
-        applicationIndexDao.deleteApplicationName(applicationName);
-
-        if (isV2WriteEnabled()) {
-            List<Application> applicationList = this.applicationUidServiceV2.getApplications(defaultServiceName, applicationName);
+        if (v2Enabled) {
+            List<Application> applicationList = this.applicationIndexServiceV2.getApplications(defaultServiceName, applicationName);
             for (Application application : applicationList) {
-                this.applicationUidServiceV2.deleteApplication(defaultServiceName, application.getName(), application.getServiceTypeCode());
+                this.applicationIndexServiceV2.deleteApplication(defaultServiceName, application.getName(), application.getServiceTypeCode());
             }
+        }
+        if (v1Enabled) {
+            applicationIndexDao.deleteApplicationName(applicationName);
         }
     }
 
     @Override
     public void deleteApplication(String applicationName, int serviceTypeCode) {
-        List<String> agentIds = applicationIndexDao.selectAgentIds(applicationName, serviceTypeCode);
-        applicationIndexDao.deleteAgentIds(Map.of(applicationName, agentIds));
-        if (isV2WriteEnabled()) {
-            this.applicationUidServiceV2.deleteApplication(defaultServiceName, applicationName, serviceTypeCode);
+        if (v2Enabled) {
+            this.applicationIndexServiceV2.deleteApplication(defaultServiceName, applicationName, serviceTypeCode);
+        }
+        if (v1Enabled) {
+            List<String> agentIds = applicationIndexDao.selectAgentIds(applicationName, serviceTypeCode);
+            applicationIndexDao.deleteAgentIds(Map.of(applicationName, agentIds));
         }
     }
 
@@ -117,7 +118,7 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
         }
 
         if (isReadV2()) {
-            return !applicationUidServiceV2.getApplications(defaultServiceName, applicationName).isEmpty();
+            return !applicationIndexServiceV2.getApplications(defaultServiceName, applicationName).isEmpty();
         }
 
         List<Application> applications = applicationIndexDao.selectApplicationName(applicationName);
@@ -133,10 +134,10 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     @Override
     public List<String> selectAgentIds(String applicationName) {
         if (isReadV2()) {
-            List<Application> applicationList = this.applicationUidServiceV2.getApplications(defaultServiceName, applicationName);
+            List<Application> applicationList = this.applicationIndexServiceV2.getApplications(defaultServiceName, applicationName);
             Set<String> agentIdSet = new HashSet<>();
             for (Application application : applicationList) {
-                List<String> agentIdList = this.applicationUidServiceV2.getAgentIds(defaultServiceName, application.getName(), application.getServiceTypeCode());
+                List<String> agentIdList = this.applicationIndexServiceV2.getAgentIds(defaultServiceName, application.getName(), application.getServiceTypeCode());
                 agentIdSet.addAll(agentIdList);
             }
             return new ArrayList<>(agentIdSet);
@@ -147,34 +148,40 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
 
     @Override
     public void deleteAgentIds(Map<String, List<String>> applicationAgentIdMap) {
-        applicationIndexDao.deleteAgentIds(applicationAgentIdMap);
-        if (isV2WriteEnabled()) {
+        if (v2Enabled) {
             for (Map.Entry<String, List<String>> entry : applicationAgentIdMap.entrySet()) {
-                deleteAgents(entry.getKey(), entry.getValue());
+                deleteAgentsV2(entry.getKey(), entry.getValue());
             }
+        }
+        if (v1Enabled) {
+            applicationIndexDao.deleteAgentIds(applicationAgentIdMap);
         }
     }
 
     @Override
     public void deleteAgentId(String applicationName, String agentId) {
-        applicationIndexDao.deleteAgentId(applicationName, agentId);
-        if (isV2WriteEnabled()) {
-            deleteAgents(applicationName, List.of(agentId));
+        if (v2Enabled) {
+            deleteAgentsV2(applicationName, List.of(agentId));
+        }
+        if (v1Enabled) {
+            applicationIndexDao.deleteAgentId(applicationName, agentId);
         }
     }
 
-    private void deleteAgents(String applicationName, List<String> agentIds) {
-        List<Application> applicationList = this.applicationUidServiceV2.getApplications(defaultServiceName, applicationName);
+    private void deleteAgentsV2(String applicationName, List<String> agentIds) {
+        List<Application> applicationList = this.applicationIndexServiceV2.getApplications(defaultServiceName, applicationName);
         for (Application application : applicationList) {
-            this.applicationUidServiceV2.deleteAgents(defaultServiceName, application.getName(), application.getServiceTypeCode(), agentIds);
+            this.applicationIndexServiceV2.deleteAgents(defaultServiceName, application.getName(), application.getServiceTypeCode(), agentIds);
         }
     }
 
     @Override
     public void deleteAgentId(String applicationName, int serviceTypeCode, String agentId) {
-        applicationIndexDao.deleteAgentId(applicationName, agentId);
-        if (isV2WriteEnabled()) {
-            applicationUidServiceV2.deleteAgents(defaultServiceName, applicationName, serviceTypeCode, List.of(agentId));
+        if (v2Enabled) {
+            applicationIndexServiceV2.deleteAgents(defaultServiceName, applicationName, serviceTypeCode, List.of(agentId));
+        }
+        if (v1Enabled) {
+            applicationIndexDao.deleteAgentId(applicationName, agentId);
         }
     }
 }

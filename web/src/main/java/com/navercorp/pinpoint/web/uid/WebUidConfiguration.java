@@ -1,8 +1,6 @@
 package com.navercorp.pinpoint.web.uid;
 
 import com.navercorp.pinpoint.service.ServiceModule;
-import com.navercorp.pinpoint.uid.HbaseUidModule;
-import com.navercorp.pinpoint.web.uid.config.ApplicationUidCacheConfig;
 import com.navercorp.pinpoint.web.uid.config.ServiceUidMysqlCacheConfig;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cache.CacheManager;
@@ -16,8 +14,6 @@ import org.springframework.context.annotation.Import;
 @Import({
         ServiceModule.class,
         ServiceUidMysqlCacheConfig.class,
-        HbaseUidModule.class,
-        ApplicationUidCacheConfig.class,
 })
 @ComponentScan({
         "com.navercorp.pinpoint.web.uid.controller",

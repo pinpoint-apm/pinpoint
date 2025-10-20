@@ -44,6 +44,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,6 +55,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author netspider
@@ -73,18 +75,21 @@ public class ScatterChartController {
 
     private final FilterBuilder<List<SpanBo>> filterBuilder;
 
+    private final boolean defaultTraceIndexReadV2;
+
     private final GetTraceInfoParser getTraceInfoParser = new GetTraceInfoParser();
 
     public ScatterChartController(
             ScatterChartService scatter,
             TraceIndexService flow,
             ServiceTypeRegistryService serviceTypeRegistryService,
-            FilterBuilder<List<SpanBo>> filterBuilder
-    ) {
+            FilterBuilder<List<SpanBo>> filterBuilder,
+            @Value("${pinpoint.web.trace.index.read.v2:false}") boolean defaultTraceIndexReadV2) {
         this.scatter = Objects.requireNonNull(scatter, "scatter");
         this.flow = Objects.requireNonNull(flow, "flow");
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
         this.filterBuilder = Objects.requireNonNull(filterBuilder, "filterBuilder");
+        this.defaultTraceIndexReadV2 = defaultTraceIndexReadV2;
     }
 
 
@@ -118,6 +123,8 @@ public class ScatterChartController {
     @GetMapping(value = "/getScatterData")
     public ScatterView.ResultView getScatterData(
             @RequestParam("application") @NotBlank String applicationName,
+            @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
+            @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to,
             @RequestParam("xGroupUnit") @Positive int xGroupUnit,
@@ -125,8 +132,8 @@ public class ScatterChartController {
             @RequestParam("limit") int limitParam,
             @RequestParam(value = "backwardDirection", required = false, defaultValue = "true")
                     boolean backwardDirection,
-            @RequestParam(value = "filter", required = false) String filterText
-    ) {
+            @RequestParam(value = "filter", required = false) String filterText,
+            @RequestParam(value = "traceIndexReadV2", required = false) Optional<Boolean> traceIndexReadV2) {
         final int limit = LimitUtils.checkRange(limitParam);
 
         // TODO: range check verification exception occurs. "from" is bigger than "to"
@@ -136,8 +143,14 @@ public class ScatterChartController {
                         "BACKWARD_DIRECTION: {}, FILTER: {}",
                 range, xGroupUnit, yGroupUnit, limit, backwardDirection, filterText
         );
-
-        ScatterView.DotView dotView = getDotView(applicationName, xGroupUnit, yGroupUnit, backwardDirection, filterText, range, limit);
+        final boolean useTraceIndexV2 = traceIndexReadV2.orElse(defaultTraceIndexReadV2);
+        ScatterView.DotView dotView;
+        if (!useTraceIndexV2) {
+            dotView = getDotView(applicationName, xGroupUnit, yGroupUnit, backwardDirection, filterText, range, limit);
+        } else {
+            final ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
+            dotView = getDotViewV2(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceType.getCode(), xGroupUnit, yGroupUnit, backwardDirection, filterText, range, limit);
+        }
         return wrapScatterResultView(range, dotView);
     }
 
@@ -211,36 +224,7 @@ public class ScatterChartController {
         return new ScatterView.DotView(scatterData, requestComplete);
     }
 
-    @GetMapping(value = "/getScatterDataV2")
-    public ScatterView.ResultView getScatterDataV2(
-            @RequestParam("application") @NotBlank String applicationName,
-            @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
-            @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
-            @RequestParam("xGroupUnit") @Positive int xGroupUnit,
-            @RequestParam("yGroupUnit") @Positive int yGroupUnit,
-            @RequestParam("limit") int limitParam,
-            @RequestParam(value = "backwardDirection", required = false, defaultValue = "true")
-                    boolean backwardDirection,
-            @RequestParam(value = "filter", required = false) String filterText
-    ) {
-        final int limit = LimitUtils.checkRange(limitParam);
-        final ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
-
-        // TODO: range check verification exception occurs. "from" is bigger than "to"
-        final Range range = Range.unchecked(from, to);
-        logger.debug(
-                "fetch scatter data. RANGE: {}, X-Group-Unit: {}, Y-Group-Unit: {}, LIMIT: {}, " +
-                        "BACKWARD_DIRECTION: {}, FILTER: {}",
-                range, xGroupUnit, yGroupUnit, limit, backwardDirection, filterText
-        );
-
-        ScatterView.DotView dotView = getDotView(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceType.getCode(), xGroupUnit, yGroupUnit, backwardDirection, filterText, range, limit);
-        return wrapScatterResultView(range, dotView);
-    }
-
-    private ScatterView.@NotNull DotView getDotView(int serviceUid, String applicationName, int serviceTypeCode, int xGroupUnit, int yGroupUnit, boolean backwardDirection, String filterText, Range range, int limit) {
+    private ScatterView.@NotNull DotView getDotViewV2(int serviceUid, String applicationName, int serviceTypeCode, int xGroupUnit, int yGroupUnit, boolean backwardDirection, String filterText, Range range, int limit) {
         if (StringUtils.isEmpty(filterText)) {
             return selectScatterDataV2(
                     serviceUid, applicationName, serviceTypeCode, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection);

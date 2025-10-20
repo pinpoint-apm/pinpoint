@@ -11,7 +11,7 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/admin/copy")
-@ConditionalOnProperty(name = "pinpoint.modules.uid.enabled", havingValue = "true")
+@ConditionalOnProperty(name = "pinpoint.web.application.index.v2.enabled", havingValue = "true")
 public class ApplicationIndexV2CopyController {
 
     private final ApplicationIndexV2CopyService applicationIndexV2CopyService;
@@ -21,14 +21,9 @@ public class ApplicationIndexV2CopyController {
     }
 
 
-    @GetMapping(value = "/v2/application")
+    @GetMapping(value = "/applicationIndex")
     public ResponseEntity<String> copyApplicationList() {
         applicationIndexV2CopyService.copyApplication();
-        return ResponseEntity.ok("OK");
-    }
-
-    @GetMapping(value = "/v2/agent")
-    public ResponseEntity<String> copyAgentList() {
         applicationIndexV2CopyService.copyAgentId();
         return ResponseEntity.ok("OK");
     }
