@@ -45,6 +45,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -54,6 +55,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author emeroad
@@ -71,18 +73,21 @@ public class FilteredMapController {
     private final FilterBuilder<List<SpanBo>> filterBuilder;
     private final HyperLinkFactory hyperLinkFactory;
     private final ServiceTypeRegistryService serviceTypeRegistryService;
+    private final boolean defaultTraceIndexReadV2;
 
     public FilteredMapController(
             FilteredMapService filteredMapService,
             TraceIndexService traceIndexService,
             FilterBuilder<List<SpanBo>> filterBuilder,
             HyperLinkFactory hyperLinkFactory,
-            ServiceTypeRegistryService serviceTypeRegistryService) {
+            ServiceTypeRegistryService serviceTypeRegistryService,
+            @Value("${pinpoint.web.trace.index.read.v2:false}") boolean defaultTraceIndexReadV2) {
         this.filteredMapService = Objects.requireNonNull(filteredMapService, "filteredMapService");
         this.traceIndexService = Objects.requireNonNull(traceIndexService, "traceIndexService");
         this.filterBuilder = Objects.requireNonNull(filterBuilder, "filterBuilder");
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
+        this.defaultTraceIndexReadV2 = defaultTraceIndexReadV2;
     }
 
     @GetMapping(value = "/filterServerMap")
@@ -99,56 +104,22 @@ public class FilteredMapController {
             @RequestParam(value = "limit", required = false, defaultValue = "10000")
             @PositiveOrZero int limitParam,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "true", required = false)
-                    boolean useStatisticsAgentState) {
+                    boolean useStatisticsAgentState,
+            @RequestParam(value = "traceIndexReadV2", required = false) Optional<Boolean> traceIndexReadV2) {
         final String applicationName = appForm.getApplicationName();
 
         final int limit = Math.min(limitParam, LimitUtils.MAX);
         final Filter<List<SpanBo>> filter = newFilter(filterForm);
         final Range range = toRange(rangeForm);
-        final LimitedScanResult<List<TransactionId>> limitedScanResult = traceIndexService.getTraceIndex(applicationName, range, limit);
+        final boolean useTraceIndexV2 = traceIndexReadV2.orElse(defaultTraceIndexReadV2);
 
-        final long lastScanTime = limitedScanResult.limitedTime();
-        // original range: needed for visual chart data sampling
-        final Range originalRange = Range.between(rangeForm.getFrom(), originTo);
-        // needed to figure out already scanned ranged
-        final Range scannerRange = Range.between(lastScanTime, range.getTo());
-        logger.debug("originalRange:{} scannerRange:{} ", originalRange, scannerRange);
-        final FilteredMapServiceOption option = newFilteredOption(limitedScanResult.scanData(), originalRange, groupForm, filter, useStatisticsAgentState);
-        final FilterMapWithScatter map = filteredMapService.selectApplicationMapWithScatterData(option);
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("getFilteredServerMapData range scan(limit:{}) range:{} lastFetchedTimestamp:{}", limit, range.prettyToString(), DateTimeFormatUtils.format(lastScanTime));
+        final LimitedScanResult<List<TransactionId>> limitedScanResult;
+        if (!useTraceIndexV2) {
+            limitedScanResult = traceIndexService.getTraceIndex(applicationName, range, limit);
+        } else {
+            final ServiceType serviceType = findServiceType(appForm.getServiceTypeCode(), appForm.getServiceTypeName());
+            limitedScanResult = traceIndexService.getTraceIndexV2(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceType.getCode(), range, limit);
         }
-
-        TimeWindow timeWindow = new TimeWindow(scannerRange);
-        ApplicationMapViewV3 applicationMapView = new ApplicationMapViewV3(map.getApplicationMap(), timeWindow, MapViews.ofDetailed(), hyperLinkFactory);
-        ScatterDataMapView scatterDataMapView = new ScatterDataMapView(map.getScatterDataMap());
-//        FilteredHistogramView filteredHistogramView = new FilteredHistogramView(map.getApplicationMap(), timeWindow, hyperLinkFactory);
-        return new FilterMapViewV3(applicationMapView, scatterDataMapView, null, lastScanTime);
-    }
-
-    @GetMapping(value = "/filterServerMapV2")
-    public FilterMapViewV3 getFilterServerV2(
-            @Valid @ModelAttribute
-                    ApplicationForm appForm,
-            @Valid @ModelAttribute
-                    RangeForm rangeForm,
-            @RequestParam("originTo") long originTo,
-            @Valid @ModelAttribute
-                    GroupForm groupForm,
-            @Valid @ModelAttribute
-                    FilterForm filterForm,
-            @RequestParam(value = "limit", required = false, defaultValue = "10000")
-            @PositiveOrZero int limitParam,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "true", required = false)
-                    boolean useStatisticsAgentState) {
-        final String applicationName = appForm.getApplicationName();
-        final ServiceType serviceType = findServiceType(appForm.getServiceTypeCode(), appForm.getServiceTypeName());
-
-        final int limit = Math.min(limitParam, LimitUtils.MAX);
-        final Filter<List<SpanBo>> filter = newFilter(filterForm);
-        final Range range = toRange(rangeForm);
-        final LimitedScanResult<List<TransactionId>> limitedScanResult = traceIndexService.getTraceIndexV2(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceType.getCode(), range, limit);
 
         final long lastScanTime = limitedScanResult.limitedTime();
         // original range: needed for visual chart data sampling

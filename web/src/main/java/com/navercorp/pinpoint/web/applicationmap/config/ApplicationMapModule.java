@@ -116,8 +116,9 @@ public class ApplicationMapModule {
                                                        TraceIndexService traceIndexService,
                                                        FilterBuilder<List<SpanBo>> filterBuilder,
                                                        HyperLinkFactory hyperLinkFactory,
-                                                       ServiceTypeRegistryService serviceTypeRegistryService) {
-        return new FilteredMapController(filteredMapService, traceIndexService, filterBuilder, hyperLinkFactory, serviceTypeRegistryService);
+                                                       ServiceTypeRegistryService serviceTypeRegistryService,
+                                                       @Value("${pinpoint.web.trace.index.read.v2:false}") boolean defaultReadTraceIndexV2) {
+        return new FilteredMapController(filteredMapService, traceIndexService, filterBuilder, hyperLinkFactory, serviceTypeRegistryService, defaultReadTraceIndexV2);
     }
 
     @Bean

@@ -20,9 +20,9 @@ import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
+import com.navercorp.pinpoint.web.dao.TraceIndexDao;
 import com.navercorp.pinpoint.web.service.ApplicationIndexServiceV2;
 import com.navercorp.pinpoint.web.vo.Application;
-import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -43,28 +43,34 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     private final ApplicationTraceIndexDao applicationTraceIndexDao;
 
     private final ApplicationIndexServiceV2 applicationIndexServiceV2;
+    private final TraceIndexDao traceIndexDao;
+
+    private final boolean v1Enabled;
+    private final boolean v2Enabled;
     private final boolean readV2;
-    private final boolean v2TableEnabled;
+    private final boolean readTraceIndexV2;
 
     public BatchApplicationIndexServiceImpl(
             ApplicationIndexDao applicationIndexDao,
             ApplicationTraceIndexDao applicationTraceIndexDao,
-            @Nullable ApplicationIndexServiceV2 applicationIndexServiceV2,
-            @Value("${pinpoint.batch.application.index.v2.enabled:false}") boolean readV2,
-            @Value("${pinpoint.batch.application.index.v2.table.enabled:false}") boolean v2TableEnabled) {
+            ApplicationIndexServiceV2 applicationIndexServiceV2,
+            TraceIndexDao traceIndexDao,
+            @Value("${pinpoint.batch.application.index.v1.enabled:true}") boolean v1Enabled,
+            @Value("${pinpoint.batch.application.index.v2.enabled:false}") boolean v2Enabled,
+            @Value("${pinpoint.batch.application.index.read.v2:false}") boolean readV2,
+            @Value("${pinpoint.batch.trace.index.read.v2:false}") boolean traceIndexReadV2) {
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
         this.applicationIndexServiceV2 = Objects.requireNonNull(applicationIndexServiceV2, "applicationIndexServiceV2");
+        this.traceIndexDao = Objects.requireNonNull(traceIndexDao, "traceIndexDao");
+        this.v1Enabled = v1Enabled;
+        this.v2Enabled = v2Enabled;
         this.readV2 = readV2;
-        this.v2TableEnabled = v2TableEnabled;
+        this.readTraceIndexV2 = traceIndexReadV2;
     }
 
     private boolean isReadV2() {
-        return readV2 && v2TableEnabled;
-    }
-
-    private boolean isV2WriteEnabled() {
-        return readV2 || v2TableEnabled;
+        return v2Enabled && readV2;
     }
 
     @Override
@@ -96,17 +102,36 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     }
 
     private boolean hasTrace(String applicationName, Range range) {
-        return this.applicationTraceIndexDao.hasTraceIndex(applicationName, range, false);
+        if (readTraceIndexV2) {
+            List<Application> applicationList = getApplications(applicationName);
+            for (Application application : applicationList) {
+                if (this.traceIndexDao.hasTraceIndex(ServiceUid.DEFAULT_SERVICE_UID_CODE, application.getName(), application.getServiceTypeCode(), range, false)) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            return this.applicationTraceIndexDao.hasTraceIndex(applicationName, range, false);
+        }
+    }
+
+    private List<Application> getApplications(String applicationName) {
+        if (v2Enabled) {
+            return this.applicationIndexServiceV2.getApplications(ServiceUid.DEFAULT_SERVICE_UID_NAME, applicationName);
+        }
+        return this.applicationIndexDao.selectApplicationName(applicationName);
     }
 
     @Override
     public void remove(String applicationName) {
-        this.applicationIndexDao.deleteApplicationName(applicationName);
-        if (isV2WriteEnabled()) {
+        if (v2Enabled) {
             List<Application> applicationList = this.applicationIndexServiceV2.getApplications(ServiceUid.DEFAULT_SERVICE_UID_NAME, applicationName);
             for (Application application : applicationList) {
                 this.applicationIndexServiceV2.deleteApplication(ServiceUid.DEFAULT_SERVICE_UID_NAME, application.getName(), application.getServiceTypeCode());
             }
+        }
+        if (v1Enabled) {
+            this.applicationIndexDao.deleteApplicationName(applicationName);
         }
     }
 
@@ -126,17 +151,14 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
 
     @Override
     public void deleteAgentId(String applicationName, String agentId) {
-        applicationIndexDao.deleteAgentId(applicationName, agentId);
-        applicationIndexDao.deleteAgentId(applicationName, agentId);
-        if (isV2WriteEnabled()) {
-            deleteAgents(applicationName, List.of(agentId));
+        if (v2Enabled) {
+            List<Application> applicationList = this.applicationIndexServiceV2.getApplications(ServiceUid.DEFAULT_SERVICE_UID_NAME, applicationName);
+            for (Application application : applicationList) {
+                this.applicationIndexServiceV2.deleteAgents(ServiceUid.DEFAULT_SERVICE_UID_NAME, application.getName(), application.getServiceTypeCode(), List.of(agentId));
+            }
         }
-    }
-
-    private void deleteAgents(String applicationName, List<String> agentIds) {
-        List<Application> applicationList = this.applicationIndexServiceV2.getApplications(ServiceUid.DEFAULT_SERVICE_UID_NAME, applicationName);
-        for (Application application : applicationList) {
-            this.applicationIndexServiceV2.deleteAgents(ServiceUid.DEFAULT_SERVICE_UID_NAME, application.getName(), application.getServiceTypeCode(), agentIds);
+        if (v1Enabled) {
+            applicationIndexDao.deleteAgentId(applicationName, agentId);
         }
     }
 }

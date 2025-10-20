@@ -24,7 +24,13 @@ public enum HbaseTableV3 implements HbaseTable {
 
     MAP_APP_HOST("MapAppHost"),
 
-    TRACE_INDEX("TraceIndex");
+    APPLICATION("Application"),
+    AGENT_ID("AgentId"),
+
+    TRACE_INDEX("TraceIndex"),
+
+    APPLICATION_UID("ApplicationUid"),
+    APPLICATION_UID_ATTR("ApplicationUidAttr");
 
     private final String name;
 
