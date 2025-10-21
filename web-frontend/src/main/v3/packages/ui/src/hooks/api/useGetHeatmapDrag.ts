@@ -20,7 +20,7 @@ export const useGetHeatmapDrag = (params?: { x2?: number }) => {
     y1: dragInfo?.y1,
     y2: dragInfo?.y2,
     application: application?.applicationName,
-    serviceType: application?.serviceType,
+    serviceTypeName: application?.serviceType,
     agentId: dragInfo?.agentId ? dragInfo?.agentId : undefined,
     dotStatus:
       dragInfo?.dotStatus?.length === 1

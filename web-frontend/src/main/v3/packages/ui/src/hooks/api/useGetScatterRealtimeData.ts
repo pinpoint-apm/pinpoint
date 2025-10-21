@@ -37,7 +37,7 @@ export const useGetScatterRealtimeData = (
     from: 0,
     to: 0,
     application: application?.applicationName,
-    serviceType: application?.serviceType,
+    serviceTypeName: application?.serviceType,
     limit: 10000,
     filter: '',
     xGroupUnit: undefined,
@@ -60,7 +60,7 @@ export const useGetScatterRealtimeData = (
       from,
       to,
       application: application.applicationName,
-      serviceType: application.serviceType,
+      serviceTypeName: application.serviceType,
     }));
   }, [application.applicationName, application.serviceType, from, to]);
 
@@ -73,7 +73,7 @@ export const useGetScatterRealtimeData = (
         }));
       }
     }
-  }, [data]);
+  }, [data]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return { data, isLoading, setQueryParams };
 };

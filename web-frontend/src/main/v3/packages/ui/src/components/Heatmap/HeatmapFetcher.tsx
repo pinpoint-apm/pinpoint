@@ -21,7 +21,7 @@ export const HeatmapFetcher = ({ nodeData, agentId, ...props }: HeatmapFetcherPr
 
   const [parameters, setParameters] = React.useState<GetHeatmapAppData.Parameters>({
     applicationName: nodeData?.applicationName,
-    serviceType: nodeData?.serviceType,
+    serviceTypeName: nodeData?.serviceType,
     from: dateRange.from.getTime(),
     to: dateRange.to.getTime(),
     minElapsedTime: Number(setting?.yMin) || DefaultAxisY[0],
@@ -33,7 +33,7 @@ export const HeatmapFetcher = ({ nodeData, agentId, ...props }: HeatmapFetcherPr
   React.useEffect(() => {
     setParameters({
       applicationName: nodeData?.applicationName,
-      serviceType: nodeData?.serviceType,
+      serviceTypeName: nodeData?.serviceType,
       from: dateRange.from.getTime(),
       to: dateRange.to.getTime(),
       minElapsedTime: Number(setting?.yMin) || DefaultAxisY[0],
