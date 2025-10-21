@@ -69,7 +69,7 @@ export const HeatmapRealtimeFetcher = ({
 
   const [parameters, setParameters] = React.useState<GetHeatmapAppData.Parameters>({
     applicationName: nodeData?.applicationName,
-    serviceType: nodeData?.serviceType,
+    serviceTypeName: nodeData?.serviceType,
     from: realtimeDateRange.from.getTime(),
     to: realtimeDateRange.to.getTime(),
     minElapsedTime: Number(setting?.yMin) || DefaultAxisY[0],
@@ -81,7 +81,7 @@ export const HeatmapRealtimeFetcher = ({
   React.useEffect(() => {
     setParameters({
       applicationName: nodeData?.applicationName,
-      serviceType: nodeData?.serviceType,
+      serviceTypeName: nodeData?.serviceType,
       from:
         !!lastToTimestamp.current && lastToTimestamp.current < realtimeDateRange.from.getTime()
           ? lastToTimestamp.current

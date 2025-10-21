@@ -1,7 +1,7 @@
 export namespace GetHeatmapAppData {
   export interface Parameters {
     applicationName?: string;
-    serviceType?: string;
+    serviceTypeName?: string;
     from?: number;
     to?: number;
     minElapsedTime?: number;

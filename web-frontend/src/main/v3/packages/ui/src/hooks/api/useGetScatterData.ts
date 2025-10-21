@@ -4,17 +4,14 @@ import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useQuery } from '@tanstack/react-query';
 import { queryFn } from './reactQueryHelper';
 
-const getQueryString = (
-  queryParams: GetScatter.Parameters & { timestamp?: number },
-  application?: ApplicationType,
-) => {
+const getQueryString = (queryParams: GetScatter.Parameters & { timestamp?: number }) => {
   if (
     queryParams.from &&
     queryParams.to &&
     queryParams.xGroupUnit &&
     queryParams.yGroupUnit &&
-    application?.applicationName &&
-    application?.serviceType
+    queryParams?.application &&
+    queryParams?.serviceTypeName
   ) {
     return '?' + convertParamsToQueryString(queryParams);
   }
@@ -37,7 +34,7 @@ export const useGetScatterData = (
     from,
     to,
     application: application?.applicationName,
-    serviceType: application?.serviceType,
+    serviceTypeName: application?.serviceType,
     limit: 10000,
     filter: '',
     xGroupUnit: undefined,
@@ -46,7 +43,7 @@ export const useGetScatterData = (
     timestamp: undefined,
   });
   const queryParams = React.useDeferredValue(query);
-  const queryString = getQueryString(queryParams, application);
+  const queryString = getQueryString(queryParams);
 
   React.useEffect(() => {
     setQueryParams((prev) => ({
@@ -54,7 +51,7 @@ export const useGetScatterData = (
       from,
       to,
       application: application?.applicationName,
-      serviceType: application?.serviceType,
+      serviceTypeName: application?.serviceType,
     }));
   }, [application?.applicationName, application?.serviceType, from, to]);
 
