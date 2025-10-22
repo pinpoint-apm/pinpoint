@@ -75,10 +75,10 @@ public class ResponseTimeHistogramServiceImplTest {
     private ServerInstanceDatasourceService serverInstanceDatasourceService;
 
     @Mock
-    private MapAgentResponseDao mapResponseDao;
+    private MapAgentResponseDao mapAgentResponseDao;
 
     @Mock
-    private MapResponseDao mapApplicationResponseDao;
+    private MapResponseDao mapResponseDao;
 
     private NodeHistogramService nodeHistogramService;
 
@@ -95,11 +95,11 @@ public class ResponseTimeHistogramServiceImplTest {
         lenient().when(serverInstanceDatasourceService.getGroupServerFactory(anyBoolean()))
                 .thenReturn(new DefaultServerGroupListFactory(dataSource));
 
-        nodeHistogramService = new NodeHistogramServiceImpl(mapResponseDao, mapApplicationResponseDao);
+        nodeHistogramService = new NodeHistogramServiceImpl(mapAgentResponseDao, mapResponseDao);
     }
 
     private @NotNull ResponseTimeHistogramService newResponseService() {
-        return new ResponseTimeHistogramServiceImpl(linkSelectorFactory, nodeHistogramService, serverInstanceDatasourceService, mapResponseDao);
+        return new ResponseTimeHistogramServiceImpl(linkSelectorFactory, nodeHistogramService, serverInstanceDatasourceService, mapAgentResponseDao);
     }
 
     /**
@@ -114,7 +114,7 @@ public class ResponseTimeHistogramServiceImplTest {
         final Range range = Range.between(timestamp, timestamp + 60000);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        when(mapResponseDao.selectResponseTime(eq(nodeApplication), any(TimeWindow.class))).thenReturn(List.of());
+        when(mapAgentResponseDao.selectResponseTime(eq(nodeApplication), any(TimeWindow.class))).thenReturn(List.of());
 
         //WAS node does not use fromApplications or toApplications to build nodeHistogramData
         ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, timeWindow, List.of(), List.of())
@@ -142,7 +142,7 @@ public class ResponseTimeHistogramServiceImplTest {
         final Range range = Range.between(timestamp, timestamp + 60000);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        when(mapResponseDao.selectResponseTime(eq(nodeApplication), any(TimeWindow.class))).thenReturn(List.of(createResponseTime(nodeApplication, timestamp)));
+        when(mapAgentResponseDao.selectResponseTime(eq(nodeApplication), any(TimeWindow.class))).thenReturn(List.of(createResponseTime(nodeApplication, timestamp)));
 
         //WAS node does not use fromApplications or toApplications to build nodeHistogramData
         ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(nodeApplication, timeWindow, List.of(), List.of())
@@ -151,7 +151,7 @@ public class ResponseTimeHistogramServiceImplTest {
 
         NodeHistogramSummary nodeHistogramSummary = service.selectNodeHistogramData(option);
 
-        logger.debug(nodeHistogramSummary);
+        logger.debug("${}", nodeHistogramSummary);
         NodeHistogram nodeHistogram = nodeHistogramSummary.getNodeHistogram();
         Histogram histogram = nodeHistogram.getApplicationHistogram();
         Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(HistogramSchemas.NORMAL_SCHEMA);

@@ -40,7 +40,7 @@ public class SelfAppNodeFactoryV3 implements SelfAppNodeFactory {
     }
 
     public ColumnName max(ServiceType selfServiceType) {
-        HistogramSlot slot = selfServiceType.getHistogramSchema().getSumStatSlot();
+        HistogramSlot slot = selfServiceType.getHistogramSchema().getMaxStatSlot();
         return histogram(slot);
     }
 

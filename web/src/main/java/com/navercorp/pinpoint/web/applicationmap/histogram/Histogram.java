@@ -109,12 +109,13 @@ public class Histogram implements StatisticsHistogram {
             return;
         }
 
-        if (code == schema.getTotalErrorView().getSlotCode()) { // -1 is error
-            LOGGER.info("Backward compatibility ErrorView schema={}", schema);
-            // this is for backward compatibility
-            this.fastErrorCount += count;
-            return;
-        }
+        // @Deprecated
+//        if (code == schema.getTotalErrorView().getSlotCode()) {
+//            LOGGER.info("Backward compatibility ErrorView schema={}", schema);
+//            // this is for backward compatibility
+//            this.fastErrorCount += count;
+//            return;
+//        }
 
         if (code == schema.getVerySlowSlot().getSlotCode()) { // 0 is slow slotTime
             this.verySlowCount += count;

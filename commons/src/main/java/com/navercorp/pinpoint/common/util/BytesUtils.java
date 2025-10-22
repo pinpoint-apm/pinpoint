@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
  * @author emeroad
  */
 public final class BytesUtils {
+    public static final int BYTE_LENGTH = 1;
     public static final int SHORT_BYTE_LENGTH = 2;
     public static final int INT_BYTE_LENGTH = 4;
     public static final int LONG_BYTE_LENGTH = 8;
