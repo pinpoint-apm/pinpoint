@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.rpc;
 
-import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
+import com.navercorp.pinpoint.common.trace.HistogramSchemas;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 
 import java.util.Objects;
@@ -57,7 +57,7 @@ public class DefaultAcceptHistogram implements AcceptHistogram {
         if (hit != null) {
             return hit;
         }
-        final Histogram histogram = new LongAdderHistogram(responseKey.getServiceType(), BaseHistogramSchema.NORMAL_SCHEMA);
+        final Histogram histogram = new LongAdderHistogram(responseKey.getServiceType(), HistogramSchemas.NORMAL_SCHEMA);
         final Histogram old = map.putIfAbsent(responseKey, histogram);
         if (old != null) {
             return old;

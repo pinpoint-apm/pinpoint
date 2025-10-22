@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.profiler.context.active;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
+import com.navercorp.pinpoint.common.trace.HistogramSchemas;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.profiler.cache.CaffeineBuilder;
 import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
@@ -50,7 +50,7 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
 
     private final ResponseTimeCollector responseTimeCollector;
 
-    private final HistogramSchema histogramSchema = BaseHistogramSchema.NORMAL_SCHEMA;
+    private final HistogramSchema histogramSchema = HistogramSchemas.NORMAL_SCHEMA;
     private final ActiveTraceHistogram emptyActiveTraceHistogram = new EmptyActiveTraceHistogram(histogramSchema);
 
     public DefaultActiveTraceRepository(ResponseTimeCollector responseTimeCollector) {

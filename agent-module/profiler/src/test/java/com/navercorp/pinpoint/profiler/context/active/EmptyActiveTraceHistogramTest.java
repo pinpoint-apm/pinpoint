@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.active;
 
-import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
+import com.navercorp.pinpoint.common.trace.HistogramSchemas;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -31,16 +31,16 @@ public class EmptyActiveTraceHistogramTest {
     @Test
     public void getCounter() {
 
-        ActiveTraceHistogram emptyHistogram = new EmptyActiveTraceHistogram(BaseHistogramSchema.NORMAL_SCHEMA);
+        ActiveTraceHistogram emptyHistogram = new EmptyActiveTraceHistogram(HistogramSchemas.NORMAL_SCHEMA);
 
         List<Integer> counter = emptyHistogram.getCounter();
         assertThat(counter).hasSize(4)
                 .containsExactly(0, 0, 0, 0);
 
-        assertEquals(emptyHistogram.getFastCount(), 0);
-        assertEquals(emptyHistogram.getNormalCount(), 0);
-        assertEquals(emptyHistogram.getSlowCount(), 0);
-        assertEquals(emptyHistogram.getVerySlowCount(), 0);
+        assertEquals(0, emptyHistogram.getFastCount());
+        assertEquals(0, emptyHistogram.getNormalCount());
+        assertEquals(0, emptyHistogram.getSlowCount());
+        assertEquals(0, emptyHistogram.getVerySlowCount());
     }
 
 }

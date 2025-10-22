@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.applicationmap.service;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
-import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
+import com.navercorp.pinpoint.common.trace.HistogramSchemas;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
@@ -122,7 +122,7 @@ public class ResponseTimeHistogramServiceImplTest {
         logger.debug("{}", nodeHistogramSummary);
         NodeHistogram nodeHistogram = nodeHistogramSummary.getNodeHistogram();
         Histogram histogram = nodeHistogram.getApplicationHistogram();
-        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(BaseHistogramSchema.NORMAL_SCHEMA);
+        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(HistogramSchemas.NORMAL_SCHEMA);
         assertHistogramValues(histogram, 0);
     }
 
@@ -150,7 +150,7 @@ public class ResponseTimeHistogramServiceImplTest {
         logger.debug(nodeHistogramSummary);
         NodeHistogram nodeHistogram = nodeHistogramSummary.getNodeHistogram();
         Histogram histogram = nodeHistogram.getApplicationHistogram();
-        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(BaseHistogramSchema.NORMAL_SCHEMA);
+        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(HistogramSchemas.NORMAL_SCHEMA);
         assertHistogramValues(histogram, 1);
     }
 
@@ -192,7 +192,7 @@ public class ResponseTimeHistogramServiceImplTest {
         logger.debug(nodeHistogramSummary);
         NodeHistogram nodeHistogram = nodeHistogramSummary.getNodeHistogram();
         Histogram histogram = nodeHistogram.getApplicationHistogram();
-        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(BaseHistogramSchema.NORMAL_SCHEMA);
+        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(HistogramSchemas.NORMAL_SCHEMA);
         assertHistogramValues(histogram, 1);
     }
 
@@ -222,7 +222,7 @@ public class ResponseTimeHistogramServiceImplTest {
         logger.debug(nodeHistogramSummary);
         NodeHistogram nodeHistogram = nodeHistogramSummary.getNodeHistogram();
         Histogram histogram = nodeHistogram.getApplicationHistogram();
-        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(BaseHistogramSchema.NORMAL_SCHEMA);
+        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(HistogramSchemas.NORMAL_SCHEMA);
         assertHistogramValues(histogram, 1);
     }
 
@@ -258,7 +258,7 @@ public class ResponseTimeHistogramServiceImplTest {
         logger.debug(nodeHistogramSummary);
         NodeHistogram nodeHistogram = nodeHistogramSummary.getNodeHistogram();
         Histogram histogram = nodeHistogram.getApplicationHistogram();
-        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(BaseHistogramSchema.NORMAL_SCHEMA);
+        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(HistogramSchemas.NORMAL_SCHEMA);
         //two WAS node -> UNKNOWN node
         assertHistogramValues(histogram, 2);
     }
@@ -292,7 +292,7 @@ public class ResponseTimeHistogramServiceImplTest {
         NodeHistogram nodeHistogram = nodeHistogramSummary.getNodeHistogram();
         Histogram histogram = nodeHistogram.getApplicationHistogram();
         //CACHE Node's Histogram schema should be FAST_SCHEMA
-        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(BaseHistogramSchema.FAST_SCHEMA);
+        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(HistogramSchemas.FAST_SCHEMA);
         assertHistogramValues(histogram, 1);
     }
 
@@ -324,7 +324,7 @@ public class ResponseTimeHistogramServiceImplTest {
         logger.debug(nodeHistogramSummary);
         NodeHistogram nodeHistogram = nodeHistogramSummary.getNodeHistogram();
         Histogram histogram = nodeHistogram.getApplicationHistogram();
-        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(BaseHistogramSchema.NORMAL_SCHEMA);
+        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(HistogramSchemas.NORMAL_SCHEMA);
         assertHistogramValues(histogram, 1);
     }
 
@@ -359,7 +359,7 @@ public class ResponseTimeHistogramServiceImplTest {
         logger.debug(nodeHistogramSummary);
         NodeHistogram nodeHistogram = nodeHistogramSummary.getNodeHistogram();
         Histogram histogram = nodeHistogram.getApplicationHistogram();
-        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(BaseHistogramSchema.NORMAL_SCHEMA);
+        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(HistogramSchemas.NORMAL_SCHEMA);
         assertHistogramValues(histogram, 0);
     }
 
@@ -398,7 +398,7 @@ public class ResponseTimeHistogramServiceImplTest {
         logger.debug(nodeHistogramSummary);
         NodeHistogram nodeHistogram = nodeHistogramSummary.getNodeHistogram();
         Histogram histogram = nodeHistogram.getApplicationHistogram();
-        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(BaseHistogramSchema.NORMAL_SCHEMA);
+        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(HistogramSchemas.NORMAL_SCHEMA);
         assertHistogramValues(histogram, 1);
     }
 
@@ -425,7 +425,7 @@ public class ResponseTimeHistogramServiceImplTest {
 
         logger.debug(linkHistogramSummary);
         Assertions.assertThat(linkHistogramSummary.getLinkName()).isEqualTo(LinkName.of(fromApplication, toApplication));
-        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(BaseHistogramSchema.NORMAL_SCHEMA);
+        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(HistogramSchemas.NORMAL_SCHEMA);
         assertHistogramValues(histogram, 1);
     }
 
@@ -452,7 +452,7 @@ public class ResponseTimeHistogramServiceImplTest {
 
         logger.debug(linkHistogramSummary);
         Assertions.assertThat(linkHistogramSummary.getLinkName()).isEqualTo(LinkName.of(fromApplication, toApplication));
-        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(BaseHistogramSchema.NORMAL_SCHEMA);
+        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(HistogramSchemas.NORMAL_SCHEMA);
         assertHistogramValues(histogram, 1);
     }
 
@@ -477,7 +477,7 @@ public class ResponseTimeHistogramServiceImplTest {
 
         logger.debug(linkHistogramSummary);
         Assertions.assertThat(linkHistogramSummary.getLinkName()).isEqualTo(LinkName.of(fromApplication, toApplication));
-        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(BaseHistogramSchema.NORMAL_SCHEMA);
+        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(HistogramSchemas.NORMAL_SCHEMA);
         assertHistogramValues(histogram, 1);
     }
 
@@ -505,7 +505,7 @@ public class ResponseTimeHistogramServiceImplTest {
         logger.debug(linkHistogramSummary);
         Assertions.assertThat(linkHistogramSummary.getLinkName()).isEqualTo(LinkName.of(fromApplication, toApplication));
         //link's target node Histogram schema(CACHE) should be FAST_SCHEMA
-        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(BaseHistogramSchema.FAST_SCHEMA);
+        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(HistogramSchemas.FAST_SCHEMA);
         assertHistogramValues(histogram, 1);
     }
 
@@ -531,7 +531,7 @@ public class ResponseTimeHistogramServiceImplTest {
 
         logger.debug(linkHistogramSummary);
         Assertions.assertThat(linkHistogramSummary.getLinkName()).isEqualTo(LinkName.of(fromApplication, toApplication));
-        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(BaseHistogramSchema.NORMAL_SCHEMA);
+        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(HistogramSchemas.NORMAL_SCHEMA);
         assertHistogramValues(histogram, 1);
     }
 
@@ -558,7 +558,7 @@ public class ResponseTimeHistogramServiceImplTest {
 
         logger.debug(linkHistogramSummary);
         Assertions.assertThat(linkHistogramSummary.getLinkName()).isEqualTo(LinkName.of(fromApplication, toApplication));
-        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(BaseHistogramSchema.NORMAL_SCHEMA);
+        Assertions.assertThat(histogram.getHistogramSchema()).isEqualTo(HistogramSchemas.NORMAL_SCHEMA);
         assertHistogramValues(histogram, 1);
     }
 

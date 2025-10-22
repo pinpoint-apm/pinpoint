@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.active;
 
-import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
+import com.navercorp.pinpoint.common.trace.HistogramSchemas;
 import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeCollector;
 
@@ -31,7 +31,7 @@ public class EmptyActiveTraceRepository implements ActiveTraceRepository {
 
     private final ResponseTimeCollector responseTimeCollector;
 
-    private final ActiveTraceHistogram emptyActiveTraceHistogram = new EmptyActiveTraceHistogram(BaseHistogramSchema.NORMAL_SCHEMA);
+    private final ActiveTraceHistogram emptyActiveTraceHistogram = new EmptyActiveTraceHistogram(HistogramSchemas.NORMAL_SCHEMA);
 
     public EmptyActiveTraceRepository(ResponseTimeCollector responseTimeCollector) {
         this.responseTimeCollector = Objects.requireNonNull(responseTimeCollector, "responseTimeCollector");
