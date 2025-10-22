@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.common.server.util.json.JsonFields;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowSlotCentricSampler;
-import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
+import com.navercorp.pinpoint.common.trace.HistogramSchemas;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramViewModel;
@@ -169,7 +169,7 @@ public class AgentTimeHistogramTest {
     private LinkCallDataMap createSourceLinkCallDataMap(String sourceAgentId, long timeStamp) {
         LinkCallDataMap linkCallDataMap = new LinkCallDataMap();
 
-        final HistogramSchema schema = BaseHistogramSchema.NORMAL_SCHEMA;
+        final HistogramSchema schema = HistogramSchemas.NORMAL_SCHEMA;
         linkCallDataMap.addCallData(sourceAgentId, ServiceType.STAND_ALONE, "targetAgentId", ServiceType.STAND_ALONE, timeStamp, schema.getFastSlot().getSlotTime(), 1L);
         linkCallDataMap.addCallData(sourceAgentId, ServiceType.STAND_ALONE, "targetAgentId", ServiceType.STAND_ALONE, timeStamp, schema.getNormalSlot().getSlotTime(), 2L);
         linkCallDataMap.addCallData(sourceAgentId, ServiceType.STAND_ALONE, "targetAgentId", ServiceType.STAND_ALONE, timeStamp, schema.getSlowErrorSlot().getSlotTime(), 3L);

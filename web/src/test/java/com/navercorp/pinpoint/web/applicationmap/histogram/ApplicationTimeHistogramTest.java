@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,8 +20,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
-import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
+import com.navercorp.pinpoint.common.trace.HistogramSchemas;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
@@ -126,7 +126,7 @@ public class ApplicationTimeHistogramTest {
         LinkKey key = LinkKey.of("sourceAgentId", ServiceType.STAND_ALONE, "targetAgentId", ServiceType.STAND_ALONE);
         LinkCallData linkCallData = new LinkCallData(key);
 
-        final HistogramSchema schema = BaseHistogramSchema.NORMAL_SCHEMA;
+        final HistogramSchema schema = HistogramSchemas.NORMAL_SCHEMA;
         linkCallData.addCallData(timeStamp, schema.getFastSlot().getSlotTime(), 1L);
         linkCallData.addCallData(timeStamp, schema.getNormalSlot().getSlotTime(), 2L);
         linkCallData.addCallData(timeStamp, schema.getSlowSlot().getSlotTime(), 3L);

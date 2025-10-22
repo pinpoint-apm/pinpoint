@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,8 +20,8 @@ package com.navercorp.pinpoint.web.applicationmap.histogram;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.server.util.json.TypeRef;
-import com.navercorp.pinpoint.common.trace.BaseHistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
+import com.navercorp.pinpoint.common.trace.HistogramSchemas;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,7 +42,7 @@ public class HistogramTest {
     @Test
     public void pingSlot() {
         Histogram histogram = new Histogram(ServiceType.STAND_ALONE);
-        histogram.addCallCount(BaseHistogramSchema.NORMAL_SCHEMA.getPingSlot().getSlotTime(), 1);
+        histogram.addCallCount(HistogramSchemas.NORMAL_SCHEMA.getPingSlot().getSlotTime(), 1);
         Assertions.assertEquals(1, histogram.getPingCount());
 
         Assertions.assertEquals(0, histogram.getTotalErrorCount());
@@ -51,7 +51,7 @@ public class HistogramTest {
     @Test
     public void maxSlot() {
         Histogram histogram = new Histogram(ServiceType.STAND_ALONE);
-        histogram.addCallCount(BaseHistogramSchema.NORMAL_SCHEMA.getMaxStatSlot().getSlotTime(), 1000);
+        histogram.addCallCount(HistogramSchemas.NORMAL_SCHEMA.getMaxStatSlot().getSlotTime(), 1000);
         Assertions.assertEquals(1000, histogram.getMaxElapsed());
 
         Assertions.assertEquals(0, histogram.getTotalErrorCount());
@@ -60,7 +60,7 @@ public class HistogramTest {
     @Test
     public void errorSlot() {
         Histogram histogram = new Histogram(ServiceType.STAND_ALONE);
-        histogram.addCallCount(BaseHistogramSchema.NORMAL_SCHEMA.getSlowErrorSlot().getSlotTime(), 1);
+        histogram.addCallCount(HistogramSchemas.NORMAL_SCHEMA.getSlowErrorSlot().getSlotTime(), 1);
         Assertions.assertEquals(1, histogram.getSlowErrorCount());
         Assertions.assertEquals(0, histogram.getSuccessCount());
     }
@@ -68,7 +68,7 @@ public class HistogramTest {
     @Test
     public void slowSlot() {
         Histogram histogram = new Histogram(ServiceType.STAND_ALONE);
-        histogram.addCallCount(BaseHistogramSchema.NORMAL_SCHEMA.getSlowSlot().getSlotTime(), 1);
+        histogram.addCallCount(HistogramSchemas.NORMAL_SCHEMA.getSlowSlot().getSlotTime(), 1);
         Assertions.assertEquals(1, histogram.getSlowCount());
         Assertions.assertEquals(1, histogram.getSuccessCount());
     }
@@ -76,7 +76,7 @@ public class HistogramTest {
     @Test
     public void verySlowSlot() {
         Histogram histogram = new Histogram(ServiceType.STAND_ALONE);
-        histogram.addCallCount(BaseHistogramSchema.NORMAL_SCHEMA.getVerySlowSlot().getSlotTime(), 1);
+        histogram.addCallCount(HistogramSchemas.NORMAL_SCHEMA.getVerySlowSlot().getSlotTime(), 1);
         Assertions.assertEquals(1, histogram.getVerySlowCount());
         Assertions.assertEquals(1, histogram.getSuccessCount());
     }

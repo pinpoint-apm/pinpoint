@@ -1,10 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,10 +29,10 @@ public enum ServiceTypeCategory {
     SERVER(1000, 1999, NodeCategory.SERVER),
     DATABASE(2000, 2999, NodeCategory.DATABASE),
     LIBRARY(5000, 7999, NodeCategory.UNDEFINED),
-    CACHE_LIBRARY(8000, 8299, NodeCategory.CACHE, BaseHistogramSchema.FAST_SCHEMA),
+    CACHE_LIBRARY(8000, 8299, NodeCategory.CACHE, HistogramSchemas.FAST_SCHEMA),
     MESSAGE_BROKER(8300, 8799, NodeCategory.MESSAGE_BROKER),
     HBASE(8800, 8899, NodeCategory.DATABASE),
-    CACHE_LIBRARY_SANDBOX(8900, 8999, NodeCategory.UNDEFINED, BaseHistogramSchema.FAST_SCHEMA),
+    CACHE_LIBRARY_SANDBOX(8900, 8999, NodeCategory.UNDEFINED, HistogramSchemas.FAST_SCHEMA),
     RPC(9000, 9999, NodeCategory.UNKNOWN);
 
 
@@ -45,7 +46,7 @@ public enum ServiceTypeCategory {
     private static final Set<ServiceTypeCategory> SERVICE_TYPE_CATEGORIES = EnumSet.allOf(ServiceTypeCategory.class);
 
     ServiceTypeCategory(int minCode, int maxCode, NodeCategory nodeCategory) {
-        this(minCode, maxCode, nodeCategory, BaseHistogramSchema.NORMAL_SCHEMA);
+        this(minCode, maxCode, nodeCategory, HistogramSchemas.NORMAL_SCHEMA);
     }
 
     ServiceTypeCategory(int minCode, int maxCode, NodeCategory nodeCategory, HistogramSchema histogramSchema) {

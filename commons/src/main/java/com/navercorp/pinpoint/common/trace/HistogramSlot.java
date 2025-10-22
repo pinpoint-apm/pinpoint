@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,14 +23,20 @@ import java.util.Objects;
  */
 public class HistogramSlot {
 
+    private final byte slotCode;
     private final short slotTime;
     private final SlotType slotType;
     private final String slotName;
 
-    public HistogramSlot(short slotTime, SlotType slotType, String slotName) {
+    public HistogramSlot(byte slotCode, short slotTime, SlotType slotType, String slotName) {
+        this.slotCode = slotCode;
         this.slotTime = slotTime;
         this.slotType = Objects.requireNonNull(slotType, "slotType");
         this.slotName = Objects.requireNonNull(slotName, "slotName");
+    }
+
+    public byte getSlotCode() {
+        return slotCode;
     }
 
     public short getSlotTime() {
@@ -48,9 +54,10 @@ public class HistogramSlot {
     @Override
     public String toString() {
         return "HistogramSlot{" +
-                "slotTime=" + slotTime +
-                ", slotType=" + slotType +
-                ", slotName='" + slotName + '\'' +
-                '}';
+               "slotCode=" + slotCode +
+               "slotTime=" + slotTime +
+               ", slotType=" + slotType +
+               ", slotName='" + slotName + '\'' +
+               '}';
     }
 }

@@ -1,50 +1,27 @@
+/*
+ * Copyright 2025 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.common.trace;
 
 import java.util.Objects;
-
-import static com.navercorp.pinpoint.common.trace.HistogramSlotGroup.entry;
 
 /**
  * @author jaehong.kim
  */
 public class BaseHistogramSchema implements HistogramSchema {
-
-    private static final short VERY_SLOW_SLOT_TIME = 0;
-    // All negative numbers are included in error count
-    private static final short ERROR_SLOT_TIME = -1;
-    // Do not use negative numbers.
-    private static final short PING_SLOT_TIME = Short.MAX_VALUE - 1;
-    private static final short STAT_SLOT_TIME_TOTAL = Short.MAX_VALUE - 2;
-    private static final short STAT_SLOT_TIME_MAX = Short.MAX_VALUE - 3;
-
-
-    public static final HistogramSchema FAST_SCHEMA = new BaseHistogramSchema(Schema.FAST,
-            new HistogramSlotGroup(
-                    entry(100, "100ms", SlotType.FAST),
-                    entry(300, "300ms", SlotType.NORMAL),
-                    entry(500, "500ms", SlotType.SLOW),
-                    entry(VERY_SLOW_SLOT_TIME, "Slow", SlotType.VERY_SLOW)),
-            new HistogramSlotGroup(
-                    entry(-100, "100ms", SlotType.FAST_ERROR),
-                    entry(-300, "300ms", SlotType.NORMAL_ERROR),
-                    entry(-500, "500ms", SlotType.SLOW_ERROR),
-                    entry(-999, "Slow", SlotType.VERY_SLOW_ERROR))
-            );
-
-    public static final HistogramSchema NORMAL_SCHEMA = new BaseHistogramSchema(Schema.NORMAL,
-            new HistogramSlotGroup(
-                    entry(1000, "1s", SlotType.FAST),
-                    entry(3000, "3s", SlotType.NORMAL),
-                    entry(5000, "5s", SlotType.SLOW),
-                    entry(VERY_SLOW_SLOT_TIME, "Slow", SlotType.VERY_SLOW)),
-            new HistogramSlotGroup(
-                    entry(-1000, "1s", SlotType.FAST_ERROR),
-                    entry(-3000, "3s", SlotType.NORMAL_ERROR),
-                    entry(-5000, "5s", SlotType.SLOW_ERROR),
-                    entry(-9999, "Slow", SlotType.VERY_SLOW_ERROR))
-            );
-
-    private static final String PING_SLOT_NAME = "Ping";
 
     private final Schema schema;
 
@@ -58,26 +35,34 @@ public class BaseHistogramSchema implements HistogramSchema {
     private final HistogramSlot maxStatSlot;
     private final HistogramSlot pingSlot;
 
-    private BaseHistogramSchema(Schema schema,
-                                HistogramSlotGroup success,
-                                HistogramSlotGroup failed) {
+    BaseHistogramSchema(Schema schema,
+                        HistogramSlotGroup success,
+                        HistogramSlotGroup failed,
+                        HistogramSlot errorSlot,
+                        HistogramSlot sumStatSlot,
+                        HistogramSlot maxStatSlot,
+                        HistogramSlot pingSlot) {
         this.schema = Objects.requireNonNull(schema, "schema");
 
         this.success = Objects.requireNonNull(success, "success");
         this.failed = Objects.requireNonNull(failed, "failed");
 
-        this.errorSlot = new HistogramSlot(ERROR_SLOT_TIME, SlotType.ERROR, "Error");
+        this.errorSlot = Objects.requireNonNull(errorSlot, "errorSlot");
 
-        this.sumStatSlot = new HistogramSlot(STAT_SLOT_TIME_TOTAL, SlotType.SUM_STAT, "SumTime");
-        this.maxStatSlot = new HistogramSlot(STAT_SLOT_TIME_MAX, SlotType.MAX_STAT, "Max");
+        this.sumStatSlot = Objects.requireNonNull(sumStatSlot, "sumStatSlot");
+        this.maxStatSlot = Objects.requireNonNull(maxStatSlot, "maxStatSlot");
 
-        this.pingSlot = new HistogramSlot(PING_SLOT_TIME, SlotType.PING, PING_SLOT_NAME);
+        this.pingSlot = Objects.requireNonNull(pingSlot, "pingSlot");
+
     }
 
+
+    @Override
     public Schema getSchema() {
         return schema;
     }
 
+    @Override
     public int getTypeCode() {
         return getSchema().type();
     }
@@ -169,12 +154,12 @@ public class BaseHistogramSchema implements HistogramSchema {
     @Override
     public String toString() {
         return "BaseHistogramSchema{" +
-                "schema=" + schema +
-                ", success=" + success +
-                ", failed=" + failed +
-                ", errorSlot=" + errorSlot +
-                ", pingSlot=" + pingSlot +
-                '}';
+               "schema=" + schema +
+               ", success=" + success +
+               ", failed=" + failed +
+               ", errorSlot=" + errorSlot +
+               ", pingSlot=" + pingSlot +
+               '}';
     }
 
 }
