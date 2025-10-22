@@ -123,7 +123,7 @@ public class MapV3Configuration {
                                           RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
 
         int limitSize = bulkProperties.getSelfLimitSize();
-        String loggerName = newBulkWriterName(HbaseMapAgentResponseTimeDao.class.getName());
+        String loggerName = newBulkWriterName(HbaseMapResponseTimeDao.class.getName());
 
         BulkFactory.Builder builder = factory.newBuilder(loggerName, HbaseTables.MAP_V3_COLUMN_FAMILY_NAME, rowKeyDistributorByHashPrefix);
         builder.setIncrementer("selfIncrementReporter", limitSize);

@@ -65,15 +65,15 @@ public class ApdexScoreServiceImplTest {
             responseTimeList.add(createResponseTime(timestamp.toEpochMilli()));
         }
 
-        MapAgentResponseDao mapResponseDao = mock(MapAgentResponseDao.class);
-        when(mapResponseDao.selectResponseTime(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Collections.emptyList());
-        when(mapResponseDao.selectResponseTime(ArgumentMatchers.eq(testApplication), ArgumentMatchers.any())).thenReturn(responseTimeList);
+        MapAgentResponseDao mapAgentResponseDao = mock(MapAgentResponseDao.class);
+        when(mapAgentResponseDao.selectResponseTime(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Collections.emptyList());
+        when(mapAgentResponseDao.selectResponseTime(ArgumentMatchers.eq(testApplication), ArgumentMatchers.any())).thenReturn(responseTimeList);
 
-        MapResponseDao applicationResponseDao = mock(MapResponseDao.class);
+        MapResponseDao mapResponseDao = mock(MapResponseDao.class);
         // ApplicationResponse -----------
         ApplicationResponse.Builder emptyBuilder = ApplicationResponse.newBuilder(testApplication);
         ApplicationResponse empty = emptyBuilder.build();
-        when(applicationResponseDao.selectApplicationResponse(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(empty);
+        when(mapResponseDao.selectApplicationResponse(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(empty);
 
         ApplicationResponse.Builder builder = ApplicationResponse.newBuilder(testApplication);
         for (ResponseTime responseTime : responseTimeList) {
@@ -81,14 +81,14 @@ public class ApdexScoreServiceImplTest {
             builder.addResponseTime(responseTime.getApplicationName(), responseTime.getTimeStamp(), histogram);
         }
 
-        when(applicationResponseDao.selectApplicationResponse(ArgumentMatchers.eq(testApplication), ArgumentMatchers.any())).thenReturn(builder.build());
+        when(mapResponseDao.selectApplicationResponse(ArgumentMatchers.eq(testApplication), ArgumentMatchers.any())).thenReturn(builder.build());
 
         // AgentResponse -----------
         AgentResponse.Builder agentBuilder = AgentResponse.newBuilder(testApplication);
         agentBuilder.addAgentResponse(responseTimeList);
-        when(mapResponseDao.selectAgentResponse(ArgumentMatchers.eq(testApplication), ArgumentMatchers.any())).thenReturn(agentBuilder.build());
+        when(mapAgentResponseDao.selectAgentResponse(ArgumentMatchers.eq(testApplication), ArgumentMatchers.any())).thenReturn(agentBuilder.build());
 
-        apdexScoreService = new ApdexScoreServiceImpl(mapResponseDao, applicationResponseDao);
+        apdexScoreService = new ApdexScoreServiceImpl(mapAgentResponseDao, mapResponseDao);
     }
 
     private ResponseTime createResponseTime(long timeStamp) {
