@@ -90,21 +90,21 @@ public class OutLinkV3Mapper implements RowMapper<LinkDataMap> {
                 continue;
             }
 
-            short histogramSlot = buffer.readShort();
+            byte slotCode = buffer.readByte();
             String outSubLink = buffer.readPrefixedString();
 
 
             long requestCount = CellUtils.valueToLong(cell);
             if (logger.isDebugEnabled()) {
                 logger.debug("    Fetched OUT_LINK {} {} -> {} (slot:{}/{}) inHost:{}",
-                        selfRowKey, MERGE_AGENT, inApplication, histogramSlot, requestCount, outSubLink);
+                        selfRowKey, MERGE_AGENT, inApplication, slotCode, requestCount, outSubLink);
             }
 
             if (StringUtils.isEmpty(outSubLink)) {
                 outSubLink = inApplication.getName();
             }
             Application selfApplication = getApplication(selfRowKey);
-            linkDataMap.addLinkData(selfApplication, MERGE_AGENT, inApplication, outSubLink, timestamp, histogramSlot, requestCount);
+            linkDataMap.addLinkDataByCode(selfApplication, MERGE_AGENT, inApplication, outSubLink, timestamp, slotCode, requestCount);
         }
 
         return linkDataMap;

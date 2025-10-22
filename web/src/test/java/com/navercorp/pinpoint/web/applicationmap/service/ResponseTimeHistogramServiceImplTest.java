@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerGroupListDataSource;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
@@ -74,7 +75,10 @@ public class ResponseTimeHistogramServiceImplTest {
     private ServerInstanceDatasourceService serverInstanceDatasourceService;
 
     @Mock
-    private MapResponseDao mapResponseDao;
+    private MapAgentResponseDao mapResponseDao;
+
+    @Mock
+    private MapResponseDao mapApplicationResponseDao;
 
     private NodeHistogramService nodeHistogramService;
 
@@ -91,7 +95,7 @@ public class ResponseTimeHistogramServiceImplTest {
         lenient().when(serverInstanceDatasourceService.getGroupServerFactory(anyBoolean()))
                 .thenReturn(new DefaultServerGroupListFactory(dataSource));
 
-        nodeHistogramService = new NodeHistogramServiceImpl(mapResponseDao);
+        nodeHistogramService = new NodeHistogramServiceImpl(mapResponseDao, mapApplicationResponseDao);
     }
 
     private @NotNull ResponseTimeHistogramService newResponseService() {

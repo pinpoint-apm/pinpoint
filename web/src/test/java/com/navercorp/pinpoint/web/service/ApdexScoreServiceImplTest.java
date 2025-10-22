@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.timeseries.time.DateTimeUtils;
@@ -6,6 +22,7 @@ import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentResponse;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApdexScore;
@@ -48,14 +65,15 @@ public class ApdexScoreServiceImplTest {
             responseTimeList.add(createResponseTime(timestamp.toEpochMilli()));
         }
 
-        MapResponseDao mapResponseDao = mock(MapResponseDao.class);
+        MapAgentResponseDao mapResponseDao = mock(MapAgentResponseDao.class);
         when(mapResponseDao.selectResponseTime(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Collections.emptyList());
         when(mapResponseDao.selectResponseTime(ArgumentMatchers.eq(testApplication), ArgumentMatchers.any())).thenReturn(responseTimeList);
 
+        MapResponseDao applicationResponseDao = mock(MapResponseDao.class);
         // ApplicationResponse -----------
         ApplicationResponse.Builder emptyBuilder = ApplicationResponse.newBuilder(testApplication);
         ApplicationResponse empty = emptyBuilder.build();
-        when(mapResponseDao.selectApplicationResponse(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(empty);
+        when(applicationResponseDao.selectApplicationResponse(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(empty);
 
         ApplicationResponse.Builder builder = ApplicationResponse.newBuilder(testApplication);
         for (ResponseTime responseTime : responseTimeList) {
@@ -63,14 +81,14 @@ public class ApdexScoreServiceImplTest {
             builder.addResponseTime(responseTime.getApplicationName(), responseTime.getTimeStamp(), histogram);
         }
 
-        when(mapResponseDao.selectApplicationResponse(ArgumentMatchers.eq(testApplication), ArgumentMatchers.any())).thenReturn(builder.build());
+        when(applicationResponseDao.selectApplicationResponse(ArgumentMatchers.eq(testApplication), ArgumentMatchers.any())).thenReturn(builder.build());
 
         // AgentResponse -----------
         AgentResponse.Builder agentBuilder = AgentResponse.newBuilder(testApplication);
         agentBuilder.addAgentResponse(responseTimeList);
         when(mapResponseDao.selectAgentResponse(ArgumentMatchers.eq(testApplication), ArgumentMatchers.any())).thenReturn(agentBuilder.build());
 
-        apdexScoreService = new ApdexScoreServiceImpl(mapResponseDao);
+        apdexScoreService = new ApdexScoreServiceImpl(mapResponseDao, applicationResponseDao);
     }
 
     private ResponseTime createResponseTime(long timeStamp) {

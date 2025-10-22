@@ -14,33 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.hbase;
+package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 
-public enum HbaseTableV3 implements HbaseTable {
+import com.navercorp.pinpoint.collector.applicationmap.dao.MapResponseTimeDao;
+import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 
-    MAP_APP_SELF("MapAppSelf"),
-    MAP_AGENT_SELF("MapAgentSelf"),
-    MAP_APP_OUT("MapAppOut"),
-    MAP_APP_IN("MapAppIn"),
+public class EmptyMapResponseTimeDao implements MapResponseTimeDao {
 
-    MAP_APP_HOST("MapAppHost"),
+    public void received(long requestTime, Vertex selfVertex, int elapsed, boolean isError) {
 
-    APPLICATION("Application"),
-    AGENT_ID("AgentId"),
-
-    TRACE_INDEX("TraceIndex"),
-
-    APPLICATION_UID("ApplicationUid"),
-    APPLICATION_UID_ATTR("ApplicationUidAttr");
-
-    private final String name;
-
-    HbaseTableV3(String name) {
-        this.name = name;
     }
 
-    @Override
-    public String getName() {
-        return name;
-    }
 }

@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerGroupListFactory;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
@@ -67,17 +67,17 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     private final ServerInstanceDatasourceService serverInstanceDatasourceService;
 
     private final NodeHistogramService nodeHistogramService;
-    private final MapResponseDao mapResponseDao;
+    private final MapAgentResponseDao mapAgentResponseDao;
 
 
     public ResponseTimeHistogramServiceImpl(LinkSelectorFactory linkSelectorFactory,
                                             NodeHistogramService nodeHistogramService,
                                             ServerInstanceDatasourceService serverInstanceDatasourceService,
-                                            MapResponseDao mapResponseDao) {
+                                            MapAgentResponseDao mapAgentResponseDao) {
         this.linkSelectorFactory = Objects.requireNonNull(linkSelectorFactory, "linkSelectorFactory");
         this.nodeHistogramService = Objects.requireNonNull(nodeHistogramService, "nodeHistogramService");
         this.serverInstanceDatasourceService = Objects.requireNonNull(serverInstanceDatasourceService, "serverInstanceDatasourceService");
-        this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
+        this.mapAgentResponseDao = Objects.requireNonNull(mapAgentResponseDao, "mapAgentResponseDao");
     }
 
     private ServerGroupListFactory createServerGroupListFactory(boolean isUseStatisticsAgentState) {
@@ -90,7 +90,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
 
     @Override
     public AgentHistogramList selectResponseTimeHistogramData(Application application, TimeWindow timeWindow) {
-        List<ResponseTime> responseTimes = mapResponseDao.selectResponseTime(application, timeWindow);
+        List<ResponseTime> responseTimes = mapAgentResponseDao.selectResponseTime(application, timeWindow);
         return AgentHistogramList.newBuilder().build(application, responseTimes);
     }
 

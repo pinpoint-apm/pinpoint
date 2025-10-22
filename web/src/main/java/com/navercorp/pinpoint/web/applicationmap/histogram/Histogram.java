@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -70,6 +70,75 @@ public class Histogram implements StatisticsHistogram {
         this.sumElapsed += elapsedTime;
         updateMaxElapsed(elapsedTime);
         addCallCount(slotTime, 1);
+    }
+
+    public void addCallCountByCode(final byte code, final long count) {
+        final HistogramSchema schema = this.schema;
+
+        if (code == schema.getSumStatSlot().getSlotCode()) {
+            this.sumElapsed += count;
+            return;
+        }
+        if (code == schema.getMaxStatSlot().getSlotCode()) {
+            updateMaxElapsed(count);
+            return;
+        }
+        if (code == schema.getPingSlot().getSlotCode()) { // ping
+            this.pingCount += count;
+            return;
+        }
+
+        if (code == schema.getVerySlowErrorSlot().getSlotCode()) {
+            this.verySlowErrorCount += count;
+            return;
+        }
+
+        if (code == schema.getSlowErrorSlot().getSlotCode()) {
+            this.slowErrorCount += count;
+            return;
+        }
+
+
+        if (code == schema.getNormalErrorSlot().getSlotCode()) {
+            this.normalErrorCount += count;
+            return;
+        }
+
+        if (code == schema.getFastErrorSlot().getSlotCode()) {
+            this.fastErrorCount += count;
+            return;
+        }
+
+        if (code == schema.getTotalErrorView().getSlotCode()) { // -1 is error
+            LOGGER.info("Backward compatibility ErrorView schema={}", schema);
+            // this is for backward compatibility
+            this.fastErrorCount += count;
+            return;
+        }
+
+        if (code == schema.getVerySlowSlot().getSlotCode()) { // 0 is slow slotTime
+            this.verySlowCount += count;
+            return;
+        }
+
+        if (code == schema.getFastSlot().getSlotCode()) {
+            this.fastCount += count;
+            return;
+        }
+
+        if (code == schema.getNormalSlot().getSlotCode()) {
+            this.normalCount += count;
+            return;
+        }
+
+        if (code == schema.getSlowSlot().getSlotCode()) {
+            this.slowCount += count;
+            return;
+        }
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("slot not found code={} count={}, schema={}", code, count, schema);
+        }
     }
 
     // TODO one may extract slot number from this class

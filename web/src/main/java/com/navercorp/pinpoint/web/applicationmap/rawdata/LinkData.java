@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -69,10 +69,18 @@ public class LinkData {
      * @param slot
      * @param count
      */
-    public void addLinkData(String outAgentId, ServiceType outServiceTypeCode, String hostname, ServiceType serviceTypeCode, long timestamp, short slot, long count) {
+    public void addLinkData(String outAgentId, ServiceType outServiceTypeCode, String hostname,
+                            ServiceType serviceTypeCode, long timestamp, short slot, long count) {
         Objects.requireNonNull(hostname, "hostname");
 
         this.linkCallDataMap.addCallData(outAgentId, outServiceTypeCode, hostname, serviceTypeCode, timestamp, slot, count);
+    }
+
+    public void addLinkDataByCode(String outAgentId, ServiceType outServiceTypeCode, String hostname,
+                                  ServiceType serviceTypeCode, long timestamp, byte slotCode, long count) {
+        Objects.requireNonNull(hostname, "hostname");
+
+        this.linkCallDataMap.addCallDataByCode(outAgentId, outServiceTypeCode, hostname, serviceTypeCode, timestamp, slotCode, count);
     }
 
     public void resetLinkData() {

@@ -14,12 +14,21 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.dao;
+package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 
+import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
+import com.navercorp.pinpoint.common.trace.HistogramSlot;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
-public interface MapResponseTimeDao {
+public interface SelfAgentNodeFactory {
+    RowKey rowkey(Vertex vertex, long rowTimeSlot);
 
-    void received(long requestTime, Vertex selfVertex, int elapsed, boolean isError);
+    ColumnName histogram(String agentId, HistogramSlot slot);
+
+    ColumnName sum(String agentId, ServiceType serviceType);
+
+    ColumnName max(String agentId, ServiceType serviceType);
 
 }

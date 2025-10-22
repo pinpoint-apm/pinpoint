@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
+package com.navercorp.pinpoint.collector.applicationmap.dao.v3;
 
+import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.SelfAgentNodeFactory;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ResponseColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
-public class SelfNodeFactoryV2 implements SelfNodeFactory {
+public class SelfAgentNodeFactoryV3 implements SelfAgentNodeFactory {
 
     @Override
     public RowKey rowkey(Vertex selfVertex, long rowTimeSlot) {
-        return LinkRowKey.of(selfVertex, rowTimeSlot);
+        return UidLinkRowKey.of(selfVertex, rowTimeSlot);
     };
 
     @Override
@@ -38,14 +39,14 @@ public class SelfNodeFactoryV2 implements SelfNodeFactory {
 
     @Override
     public ColumnName sum(String agentId, ServiceType selfServiceType) {
-        short slotTime = selfServiceType.getHistogramSchema().getSumStatSlot().getSlotTime();
-        return ResponseColumnName.histogram(agentId, slotTime);
+        HistogramSlot slot = selfServiceType.getHistogramSchema().getSumStatSlot();
+        return histogram(agentId, slot);
     }
 
     @Override
     public ColumnName max(String agentId, ServiceType selfServiceType) {
-        short slotTime = selfServiceType.getHistogramSchema().getMaxStatSlot().getSlotTime();
-        return ResponseColumnName.histogram(agentId, slotTime);
+        HistogramSlot slot = selfServiceType.getHistogramSchema().getMaxStatSlot();
+        return histogram(agentId, slot);
     }
 
 }

@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.M
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseSimplifiedNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.ResponseHistogramsNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 import org.springframework.stereotype.Service;
@@ -33,15 +34,17 @@ import java.util.Objects;
 @Service
 public class NodeHistogramServiceImpl implements NodeHistogramService {
 
+    private final MapAgentResponseDao mapAgentResponseDao;
     private final MapResponseDao mapResponseDao;
 
-    public NodeHistogramServiceImpl(MapResponseDao mapResponseDao) {
+    public NodeHistogramServiceImpl(MapAgentResponseDao mapAgentResponseDao, MapResponseDao mapResponseDao) {
+        this.mapAgentResponseDao = Objects.requireNonNull(mapAgentResponseDao, "mapAgentResponseDao");
         this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
     }
 
     @Override
     public NodeHistogramFactory getSimpleHistogram() {
-        WasNodeHistogramDataSource dataSource = new MapResponseSimplifiedNodeHistogramDataSource(mapResponseDao);
+        WasNodeHistogramDataSource dataSource = new MapResponseSimplifiedNodeHistogramDataSource(mapAgentResponseDao);
         return new SimplifiedNodeHistogramFactory(dataSource);
     }
 
@@ -53,7 +56,7 @@ public class NodeHistogramServiceImpl implements NodeHistogramService {
 
     @Override
     public NodeHistogramFactory getAgentHistogram() {
-        WasNodeHistogramDataSource wasNodeHistogramDataSource = new MapResponseNodeHistogramDataSource(mapResponseDao);
+        WasNodeHistogramDataSource wasNodeHistogramDataSource = new MapResponseNodeHistogramDataSource(mapAgentResponseDao);
         return new DefaultNodeHistogramFactory(wasNodeHistogramDataSource);
     }
 

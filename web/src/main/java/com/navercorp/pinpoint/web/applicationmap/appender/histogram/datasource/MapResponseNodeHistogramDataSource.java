@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
@@ -31,15 +31,15 @@ import java.util.Objects;
  */
 public class MapResponseNodeHistogramDataSource implements WasNodeHistogramDataSource {
 
-    private final MapResponseDao mapResponseDao;
+    private final MapAgentResponseDao mapAgentResponseDao;
 
-    public MapResponseNodeHistogramDataSource(MapResponseDao mapResponseDao) {
-        this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
+    public MapResponseNodeHistogramDataSource(MapAgentResponseDao mapAgentResponseDao) {
+        this.mapAgentResponseDao = Objects.requireNonNull(mapAgentResponseDao, "mapAgentResponseDao");
     }
 
     @Override
     public NodeHistogram createNodeHistogram(Application application, TimeWindow timeWindow) {
-        List<ResponseTime> responseTimes = mapResponseDao.selectResponseTime(application, timeWindow);
+        List<ResponseTime> responseTimes = mapAgentResponseDao.selectResponseTime(application, timeWindow);
 
         Range windowRange = timeWindow.getWindowRange();
         NodeHistogram.Builder builder = NodeHistogram.newBuilder(application, windowRange);

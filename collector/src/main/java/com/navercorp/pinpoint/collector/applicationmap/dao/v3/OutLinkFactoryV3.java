@@ -32,18 +32,22 @@ public class OutLinkFactoryV3 implements OutLinkFactory {
 
     @Override
     public ColumnName histogram(String selfAgentId, Vertex outVertex, String outSubLink, HistogramSlot outSlot) {
-        return OutLinkV3ColumnName.histogram(outVertex, outSubLink, outSlot.getSlotTime());
+        return histogram(outVertex, outSubLink, outSlot);
+    }
+
+    private ColumnName histogram(Vertex outVertex, String outSubLink, HistogramSlot slot) {
+        return OutLinkV3ColumnName.histogram(outVertex, outSubLink, slot.getSlotCode());
     }
 
     @Override
     public ColumnName sum(String selfAgentId, Vertex outVertex, String outHost, ServiceType selfServiceType) {
-        short slotTime = selfServiceType.getHistogramSchema().getSumStatSlot().getSlotTime();
-        return OutLinkV3ColumnName.histogram(outVertex, outHost, slotTime);
+        HistogramSlot slot = selfServiceType.getHistogramSchema().getSumStatSlot();
+        return histogram(outVertex, outHost, slot);
     }
 
     @Override
     public ColumnName max(String selfAgentId, Vertex outVertex, String outHost, ServiceType selfServiceType) {
-        short slotTime = selfServiceType.getHistogramSchema().getMaxStatSlot().getSlotTime();
-        return OutLinkV3ColumnName.histogram(outVertex, outHost, slotTime);
+        HistogramSlot slot = selfServiceType.getHistogramSchema().getMaxStatSlot();
+        return histogram(outVertex, outHost, slot);
     }
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.R
 import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerGroupListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerGroupListDataSource;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -84,9 +84,9 @@ public class ApplicationMapBuilderTest {
 
     @BeforeEach
     public void setUp() {
-        MapResponseDao mapResponseDao = mock(MapResponseDao.class);
-        mapResponseNodeHistogramDataSource = new MapResponseNodeHistogramDataSource(mapResponseDao);
-        mapResponseSimplifiedNodeHistogramDataSource = new MapResponseSimplifiedNodeHistogramDataSource(mapResponseDao);
+        MapAgentResponseDao mapAgentResponseDao = mock(MapAgentResponseDao.class);
+        mapResponseNodeHistogramDataSource = new MapResponseNodeHistogramDataSource(mapAgentResponseDao);
+        mapResponseSimplifiedNodeHistogramDataSource = new MapResponseSimplifiedNodeHistogramDataSource(mapAgentResponseDao);
 
         ResponseHistograms responseHistograms = mock(ResponseHistograms.class);
         responseHistogramBuilderNodeHistogramDataSource = new ResponseHistogramsNodeHistogramDataSource(responseHistograms);
@@ -107,7 +107,7 @@ public class ApplicationMapBuilderTest {
                 return List.of(responseTimeBuilder.build());
             }
         };
-        when(mapResponseDao.selectResponseTime(any(Application.class), any(TimeWindow.class))).thenAnswer(responseTimeAnswer);
+        when(mapAgentResponseDao.selectResponseTime(any(Application.class), any(TimeWindow.class))).thenAnswer(responseTimeAnswer);
         when(responseHistograms.getResponseTimeList(any(Application.class))).thenAnswer(responseTimeAnswer);
 
         when(agentInfoService.getAgentsByApplicationName(anyString(), anyLong())).thenAnswer(new Answer<>() {

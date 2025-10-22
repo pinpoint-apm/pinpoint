@@ -16,37 +16,32 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.dao.v3;
 
-import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.SelfNodeFactory;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
-import com.navercorp.pinpoint.collector.applicationmap.statistics.ResponseColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
-public class SelfNodeFactoryV3 implements SelfNodeFactory {
-
+public class SelfAppNodeFactoryV3 implements SelfAppNodeFactory {
     @Override
     public RowKey rowkey(Vertex selfVertex, long rowTimeSlot) {
         return UidLinkRowKey.of(selfVertex, rowTimeSlot);
-    };
-
-    @Override
-    public ColumnName histogram(String agentId, HistogramSlot slot) {
-        return ResponseColumnName.histogram(agentId, slot.getSlotTime());
     }
 
     @Override
-    public ColumnName sum(String agentId, ServiceType selfServiceType) {
-        short slotTime = selfServiceType.getHistogramSchema().getSumStatSlot().getSlotTime();
-        return ResponseColumnName.histogram(agentId, slotTime);
+    public ColumnName histogram(HistogramSlot slot) {
+        return ApplicationResponseColumnName.histogram(slot.getSlotCode());
     }
 
-    @Override
-    public ColumnName max(String agentId, ServiceType selfServiceType) {
-        short slotTime = selfServiceType.getHistogramSchema().getMaxStatSlot().getSlotTime();
-        return ResponseColumnName.histogram(agentId, slotTime);
+    public ColumnName sum(ServiceType selfServiceType) {
+        HistogramSlot slot = selfServiceType.getHistogramSchema().getSumStatSlot();
+        return histogram(slot);
+    }
+
+    public ColumnName max(ServiceType selfServiceType) {
+        HistogramSlot slot = selfServiceType.getHistogramSchema().getSumStatSlot();
+        return histogram(slot);
     }
 
 }

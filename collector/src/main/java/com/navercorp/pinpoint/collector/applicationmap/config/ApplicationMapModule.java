@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.config;
 
+import com.navercorp.pinpoint.collector.applicationmap.dao.MapAgentResponseTimeDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapResponseTimeDao;
@@ -50,7 +51,8 @@ public class ApplicationMapModule {
     @Validated
     public LinkService statisticsService(MapInLinkDao inLinkDao,
                                          MapOutLinkDao outLinkDao,
+                                         MapAgentResponseTimeDao responseAgentTimeDao,
                                          MapResponseTimeDao responseTimeDao) {
-        return new LinkServiceImpl(inLinkDao, outLinkDao, responseTimeDao);
+        return new LinkServiceImpl(inLinkDao, outLinkDao, responseAgentTimeDao, responseTimeDao);
     }
 }

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
@@ -8,7 +24,6 @@ import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
@@ -41,7 +56,10 @@ public class ApplicationAgentListServiceImpl implements ApplicationAgentListServ
 
     private final ApplicationIndexService applicationIndexService;
 
-    public ApplicationAgentListServiceImpl(AgentInfoDao agentInfoDao, AgentLifeCycleDao agentLifeCycleDao, MapResponseDao mapResponseDao, ApplicationIndexService applicationIndexService) {
+    public ApplicationAgentListServiceImpl(AgentInfoDao agentInfoDao,
+                                           AgentLifeCycleDao agentLifeCycleDao,
+                                           MapResponseDao mapResponseDao,
+                                           ApplicationIndexService applicationIndexService) {
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
         this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");

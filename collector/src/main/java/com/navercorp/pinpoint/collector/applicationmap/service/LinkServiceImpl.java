@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.service;
 
+import com.navercorp.pinpoint.collector.applicationmap.dao.MapAgentResponseTimeDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapResponseTimeDao;
@@ -32,12 +33,16 @@ import java.util.Objects;
 public class LinkServiceImpl implements LinkService {
     private final MapInLinkDao inLinkDao;
     private final MapOutLinkDao outLinkDao;
-    private final MapResponseTimeDao responseTimeDao;
+    private final MapAgentResponseTimeDao responseTimeDao;
+    private final MapResponseTimeDao applicationResponseTimeDao;
 
-    public LinkServiceImpl(MapInLinkDao inLinkDao, MapOutLinkDao outLinkDao, MapResponseTimeDao responseTimeDao) {
+    public LinkServiceImpl(MapInLinkDao inLinkDao, MapOutLinkDao outLinkDao,
+                           MapAgentResponseTimeDao responseTimeDao,
+                           MapResponseTimeDao applicationResponseTimeDao) {
         this.inLinkDao = Objects.requireNonNull(inLinkDao, "inLinkDao");
         this.outLinkDao = Objects.requireNonNull(outLinkDao, "outLinkDao");
         this.responseTimeDao = Objects.requireNonNull(responseTimeDao, "responseTimeDao");
+        this.applicationResponseTimeDao = Objects.requireNonNull(applicationResponseTimeDao, "applicationResponseTimeDao");
     }
 
     @Override
@@ -72,6 +77,7 @@ public class LinkServiceImpl implements LinkService {
             int elapsed, boolean isError
     ) {
         responseTimeDao.received(requestTime, selfVertex, agentId, elapsed, isError);
+        applicationResponseTimeDao.received(requestTime, selfVertex, elapsed, isError);
     }
 
     @Override

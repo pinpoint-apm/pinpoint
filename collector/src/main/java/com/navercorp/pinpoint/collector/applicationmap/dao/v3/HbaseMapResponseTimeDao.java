@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
+package com.navercorp.pinpoint.collector.applicationmap.dao.v3;
 
 import com.navercorp.pinpoint.collector.applicationmap.config.MapLinkProperties;
-import com.navercorp.pinpoint.collector.applicationmap.dao.MapAgentResponseTimeDao;
+import com.navercorp.pinpoint.collector.applicationmap.dao.MapResponseTimeDao;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
+import com.navercorp.pinpoint.collector.dao.CachedStatisticsDao;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
@@ -27,24 +28,14 @@ import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.util.MapSlotUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
 
-/**
- * Save response time data of WAS
- *
- * @author netspider
- * @author emeroad
- * @author jaehong.kim
- * @author HyunGil Jeong
- */
-@Repository
-public class HbaseMapResponseTimeDao implements MapAgentResponseTimeDao {
+public class HbaseMapResponseTimeDao implements MapResponseTimeDao, CachedStatisticsDao {
+
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -54,74 +45,50 @@ public class HbaseMapResponseTimeDao implements MapAgentResponseTimeDao {
     private final TableNameProvider tableNameProvider;
     private final BulkWriter bulkWriter;
     private final MapLinkProperties mapLinkProperties;
-    private final SelfAgentNodeFactory selfAgentNodeFactory;
+    private final SelfAppNodeFactory selfAppNodeFactory;
 
     public HbaseMapResponseTimeDao(MapLinkProperties mapLinkProperties,
                                    HbaseColumnFamily table,
                                    TimeSlot timeSlot,
                                    TableNameProvider tableNameProvider,
                                    BulkWriter bulkWriter,
-                                   SelfAgentNodeFactory selfAgentNodeFactory) {
+                                   SelfAppNodeFactory selfAppNodeFactory) {
         this.mapLinkProperties = Objects.requireNonNull(mapLinkProperties, "mapLinkConfiguration");
         this.table = Objects.requireNonNull(table, "table");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
         this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWriter");
-        this.selfAgentNodeFactory = Objects.requireNonNull(selfAgentNodeFactory, "selfNodeFactory");
+        this.selfAppNodeFactory = Objects.requireNonNull(selfAppNodeFactory, "selfAppNodeFactory");
     }
 
 
     @Override
-    public void received(long requestTime, Vertex selfVertex, String agentId, int elapsed, boolean isError) {
+    public void received(long requestTime, Vertex selfVertex, int elapsed, boolean isError) {
         Objects.requireNonNull(selfVertex, "selfVertex");
 
         if (logger.isDebugEnabled()) {
-            logger.debug("[Self] {}/[{}]", selfVertex, agentId);
+            logger.debug("[SelfApp] {}", selfVertex);
         }
 
         // make row key. rowkey is me
         final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
-        final RowKey selfRowKey = selfAgentNodeFactory.rowkey(selfVertex, rowTimeSlot);
+        final RowKey selfRowKey = selfAppNodeFactory.rowkey(selfVertex, rowTimeSlot);
 
         final HistogramSlot slot = MapSlotUtils.getHistogramSlot(selfVertex.serviceType(), elapsed, isError);
-        final ColumnName selfColumnName = selfAgentNodeFactory.histogram(agentId, slot);
+        final ColumnName selfColumnName = selfAppNodeFactory.histogram(slot);
         final TableName tableName = tableNameProvider.getTableName(table.getTable());
         this.bulkWriter.increment(tableName, selfRowKey, selfColumnName);
 
         if (mapLinkProperties.isEnableAvg()) {
-            final ColumnName sumColumnName = selfAgentNodeFactory.sum(agentId, selfVertex.serviceType());
+            final ColumnName sumColumnName = selfAppNodeFactory.sum(selfVertex.serviceType());
             this.bulkWriter.increment(tableName, selfRowKey, sumColumnName, elapsed);
         }
 
         if (mapLinkProperties.isEnableMax()) {
-            final ColumnName maxColumnName = selfAgentNodeFactory.max(agentId, selfVertex.serviceType());
+            final ColumnName maxColumnName = selfAppNodeFactory.max(selfVertex.serviceType());
             this.bulkWriter.updateMax(tableName, selfRowKey, maxColumnName, elapsed);
         }
     }
-
-    @Override
-    public void updatePing(long requestTime, String applicationName, ServiceType applicationServiceType, String agentId, int elapsed, boolean isError) {
-        Objects.requireNonNull(applicationName, "applicationName");
-        Objects.requireNonNull(agentId, "agentId");
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("[Self] {} ({})[{}]", applicationName, applicationServiceType, agentId);
-        }
-
-        // make row key. rowkey is me
-        final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
-
-        Vertex selfVertex = Vertex.of(applicationName, applicationServiceType);
-        final RowKey selfRowKey = selfAgentNodeFactory.rowkey(selfVertex, rowTimeSlot);
-
-        final HistogramSlot pingSlot = MapSlotUtils.getPingSlot(applicationServiceType);
-//        final ColumnName selfColumnName = ResponseColumnName.histogram(agentId, slotNumber);
-
-        final ColumnName selfColumnName = selfAgentNodeFactory.histogram(agentId, pingSlot);
-        final TableName tableName = tableNameProvider.getTableName(table.getTable());
-        this.bulkWriter.increment(tableName, selfRowKey, selfColumnName);
-    }
-
 
     @Override
     public void flushLink() {

@@ -32,21 +32,21 @@ public class OutLinkV3ColumnName implements ColumnName {
     private final String inApplicationName;
     // called or calling host
     private final String outSubLink;
-    private final short columnSlotNumber;
+    private final byte slotCode;
 
-    public static ColumnName histogram(Vertex outVertex, String outSubLink, short columnSlotNumber) {
-        return histogram(outVertex.serviceType(), outVertex.applicationName(), outSubLink, columnSlotNumber);
+    public static ColumnName histogram(Vertex outVertex, String outSubLink, byte slotCode) {
+        return histogram(outVertex.serviceType(), outVertex.applicationName(), outSubLink, slotCode);
     }
 
-    public static ColumnName histogram(ServiceType outServiceType, String inApplicationName, String outSubLink, short columnSlotNumber) {
-        return new OutLinkV3ColumnName(outServiceType.getCode(), inApplicationName, outSubLink, columnSlotNumber);
+    public static ColumnName histogram(ServiceType outServiceType, String inApplicationName, String outSubLink, byte slotCode) {
+        return new OutLinkV3ColumnName(outServiceType.getCode(), inApplicationName, outSubLink, slotCode);
     }
 
-    public OutLinkV3ColumnName(int inServiceType, String inApplicationName, String outSubLink, short columnSlotNumber) {
+    public OutLinkV3ColumnName(int inServiceType, String inApplicationName, String outSubLink, byte slotCode) {
         this.inServiceType = inServiceType;
         this.inApplicationName = Objects.requireNonNull(inApplicationName, "inApplicationName");
         this.outSubLink = Objects.requireNonNull(outSubLink, "outSubLink");
-        this.columnSlotNumber = columnSlotNumber;
+        this.slotCode = slotCode;
     }
 
 
@@ -54,7 +54,7 @@ public class OutLinkV3ColumnName implements ColumnName {
         final Buffer buffer = new AutomaticBuffer(64);
         buffer.putInt(inServiceType);
         buffer.putUnsignedBytePrefixedString(inApplicationName);
-        buffer.putShort(columnSlotNumber);
+        buffer.putByte(slotCode);
         buffer.putPrefixedString(outSubLink);
         return buffer.getBuffer();
     }
@@ -64,7 +64,7 @@ public class OutLinkV3ColumnName implements ColumnName {
         if (o == null || getClass() != o.getClass()) return false;
 
         OutLinkV3ColumnName that = (OutLinkV3ColumnName) o;
-        return inServiceType == that.inServiceType && columnSlotNumber == that.columnSlotNumber && inApplicationName.equals(that.inApplicationName) && outSubLink.equals(that.outSubLink);
+        return inServiceType == that.inServiceType && slotCode == that.slotCode && inApplicationName.equals(that.inApplicationName) && outSubLink.equals(that.outSubLink);
     }
 
     @Override
@@ -72,14 +72,14 @@ public class OutLinkV3ColumnName implements ColumnName {
         int result = inServiceType;
         result = 31 * result + inApplicationName.hashCode();
         result = 31 * result + outSubLink.hashCode();
-        result = 31 * result + columnSlotNumber;
+        result = 31 * result + slotCode;
         return result;
     }
 
     @Override
     public String toString() {
         return "OutColumnName{" +
-               ", columnSlotNumber=" + columnSlotNumber +
+               ", slotCode=" + slotCode +
                ", inServiceType=" + inServiceType +
                ", inApplicationName='" + inApplicationName + '\'' +
                ", inHost='" + outSubLink + '\'' +

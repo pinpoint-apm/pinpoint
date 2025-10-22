@@ -32,18 +32,18 @@ public class InLinkFactoryV3 implements InLinkFactory {
 
     @Override
     public ColumnName histogram(Vertex selfVertex, String selfHost, HistogramSlot outSlot) {
-        return InLinkV3ColumnName.histogram(selfVertex, selfHost, outSlot.getSlotTime());
+        return InLinkV3ColumnName.histogram(selfVertex, selfHost, outSlot.getSlotCode());
     }
 
     @Override
     public ColumnName sum(Vertex selfVertex, String selfHost, ServiceType inServiceType) {
-        short sumStatSlot = inServiceType.getHistogramSchema().getSumStatSlot().getSlotTime();
-        return InLinkV3ColumnName.histogram(selfVertex, selfHost, sumStatSlot);
+        HistogramSlot slot = inServiceType.getHistogramSchema().getSumStatSlot();
+        return histogram(selfVertex, selfHost, slot);
     }
 
     @Override
     public ColumnName max(Vertex selfVertex, String selfHost, ServiceType inServiceType) {
-        short maxStatSlot = inServiceType.getHistogramSchema().getMaxStatSlot().getSlotTime();
-        return InLinkV3ColumnName.histogram(selfVertex, selfHost, maxStatSlot);
+        HistogramSlot slot = inServiceType.getHistogramSchema().getMaxStatSlot();
+        return histogram(selfVertex, selfHost, slot);
     }
 }
