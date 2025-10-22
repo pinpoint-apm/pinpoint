@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.profiler.context.recorder;
 
+import com.navercorp.pinpoint.bootstrap.context.ErrorRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -43,8 +44,9 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
                                final StringMetaDataService stringMetaDataService,
                                final SqlMetaDataService sqlMetaDataService,
                                final IgnoreErrorHandler errorHandler,
-                               final ExceptionRecorder exceptionRecorder) {
-        super(stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder);
+                               final ExceptionRecorder exceptionRecorder,
+                               final ErrorRecorder errorRecorder) {
+        super(stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder, errorRecorder);
         this.span = span;
     }
 
@@ -62,11 +64,6 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     @Override
     void recordDetailedException(Throwable throwable) {
         // do nothing
-    }
-
-    @Override
-    void maskErrorCode(final int errorCode) {
-        getShared().maskErrorCode(errorCode);
     }
 
     @Override
@@ -149,7 +146,6 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
             span.setStartTime(0);
         }
     }
-
 
     @Override
     public Object attachFrameObject(Object frameObject) {

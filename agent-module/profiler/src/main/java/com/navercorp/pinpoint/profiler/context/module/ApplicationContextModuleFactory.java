@@ -20,6 +20,7 @@ import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.profiler.AgentContextOption;
+import com.navercorp.pinpoint.profiler.context.config.ErrorRecorderConfig;
 import com.navercorp.pinpoint.profiler.context.module.config.ConfigModule;
 import com.navercorp.pinpoint.profiler.context.module.config.ConfigurationLoader;
 import com.navercorp.pinpoint.profiler.context.monitor.config.DefaultExceptionTraceConfig;
@@ -49,8 +50,7 @@ public class ApplicationContextModuleFactory implements ModuleFactory {
         final Module micrometerModule = new MicrometerModule(properties::readString);
 
         final Module exceptionTraceModule = newExceptionTraceModule(properties.getProperties());
-
-
+        final Module errorRecorderModule = newErrorRecorderModule(properties.getProperties());
 
         return Modules.combine(config,
                 pluginModule,
@@ -59,7 +59,23 @@ public class ApplicationContextModuleFactory implements ModuleFactory {
                 statsModule,
                 thriftStatsModule,
                 exceptionTraceModule,
+                errorRecorderModule,
                 micrometerModule);
+    }
+
+    private Module newErrorRecorderModule(Properties properties) {
+        ConfigurationLoader configurationLoader = new ConfigurationLoader(properties);
+        ErrorRecorderConfig errorRecorderConfig = new ErrorRecorderConfig();
+        configurationLoader.load(errorRecorderConfig);
+        logger.info("{}", errorRecorderConfig);
+
+        if (errorRecorderConfig.isEnable()) {
+            logger.info("load ConfigurableErrorRecorderModule");
+            return new ConfigurableErrorRecorderModule(errorRecorderConfig);
+        } else {
+            logger.info("load SimpleErrorRecorderModule");
+            return new SimpleErrorRecorderModule();
+        }
     }
 
     protected Module newExceptionTraceModule(Properties properties) {
