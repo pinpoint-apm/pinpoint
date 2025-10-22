@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.recorder;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.context.ErrorRecorder;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -34,8 +35,6 @@ import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import jakarta.annotation.Nullable;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
@@ -43,15 +42,12 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEventRecorder, AutoCloseable {
-    private static final Logger logger = LogManager.getLogger(WrappedSpanEventRecorder.class);
-    private static final boolean isDebug = logger.isDebugEnabled();
-
-    private final SqlCountService sqlCountService;
-
     private final TraceRoot traceRoot;
     private final AsyncContextFactory asyncContextFactory;
     @Nullable
     private final AsyncState asyncState;
+
+    private final SqlCountService sqlCountService;
 
     private SpanEvent spanEvent;
 
@@ -61,8 +57,9 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
                                     SqlMetaDataService sqlMetaDataService,
                                     IgnoreErrorHandler ignoreErrorHandler,
                                     ExceptionRecorder exceptionRecorder,
+                                    ErrorRecorder errorRecorder,
                                     SqlCountService sqlCountService) {
-        this(traceRoot, asyncContextFactory, null, stringMetaDataService, sqlMetaDataService, ignoreErrorHandler, exceptionRecorder, sqlCountService);
+        this(traceRoot, asyncContextFactory, null, stringMetaDataService, sqlMetaDataService, ignoreErrorHandler, exceptionRecorder, errorRecorder, sqlCountService);
     }
 
     public WrappedSpanEventRecorder(TraceRoot traceRoot,
@@ -72,8 +69,9 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
                                     final SqlMetaDataService sqlMetaCacheService,
                                     final IgnoreErrorHandler errorHandler,
                                     final ExceptionRecorder exceptionRecorder,
+                                    final ErrorRecorder errorRecorder,
                                     final SqlCountService sqlCountService) {
-        super(stringMetaDataService, sqlMetaCacheService, errorHandler, exceptionRecorder);
+        super(stringMetaDataService, sqlMetaCacheService, errorHandler, exceptionRecorder, errorRecorder);
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
 
         this.asyncContextFactory = Objects.requireNonNull(asyncContextFactory, "asyncContextFactory");
@@ -110,7 +108,7 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
         spanEvent.addAnnotation(sqlAnnotation);
 
         if (spanEvent.isExecuteQueryType()) {
-            sqlCountService.recordSqlCount(this.traceRoot.getShared());
+            sqlCountService.recordSqlCount(this.traceRoot.getShared(), this);
         }
     }
 
@@ -160,12 +158,6 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
             return asyncContextFactory.newAsyncContext(this.traceRoot, asyncIdObject, isDisabled, asyncState);
         }
         return recordNextAsyncContext();
-    }
-
-
-    @Override
-    void maskErrorCode(int errorCode) {
-        this.traceRoot.getShared().maskErrorCode(errorCode);
     }
 
     @Override

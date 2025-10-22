@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.ErrorRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -64,6 +65,8 @@ public class TraceTest {
     @Mock
     private ExceptionRecorder exceptionRecorder;
     @Mock
+    private ErrorRecorder errorRecorder;
+    @Mock
     private SqlCountService sqlCountService;
 
     private final IgnoreErrorHandler errorHandler = new BypassErrorHandler();
@@ -77,8 +80,8 @@ public class TraceTest {
         final CallStack<SpanEvent> callStack = newCallStack();
         final Span span = newSpan(traceRoot);
 
-        SpanRecorder spanRecorder = new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder);
-        WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder, sqlCountService);
+        SpanRecorder spanRecorder = newSpanRecorder(span);
+        WrappedSpanEventRecorder wrappedSpanEventRecorder = newSpanEventRecorder(traceRoot);
 
         Storage storage = mock(Storage.class);
 
@@ -107,8 +110,8 @@ public class TraceTest {
 
         final Span span = newSpan(traceRoot);
 
-        SpanRecorder spanRecorder = new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder);
-        WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder, sqlCountService);
+        SpanRecorder spanRecorder = newSpanRecorder(span);
+        WrappedSpanEventRecorder wrappedSpanEventRecorder = newSpanEventRecorder(traceRoot);
 
         Storage storage = mock(Storage.class);
 
@@ -139,4 +142,11 @@ public class TraceTest {
         return spanFactory.newSpan(traceRoot);
     }
 
+    private WrappedSpanEventRecorder newSpanEventRecorder(TraceRoot traceRoot) {
+        return new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder, errorRecorder, sqlCountService);
+    }
+
+    private DefaultSpanRecorder newSpanRecorder(Span span) {
+        return new DefaultSpanRecorder(span, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder, errorRecorder);
+    }
 }
