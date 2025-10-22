@@ -1,5 +1,7 @@
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.ErrorRecorder;
+import com.navercorp.pinpoint.common.trace.ErrorCategory;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 
 public class DefaultSqlCountService implements SqlCountService {
@@ -10,7 +12,7 @@ public class DefaultSqlCountService implements SqlCountService {
     }
 
     @Override
-    public void recordSqlCount(Shared shared) {
+    public void recordSqlCount(Shared shared, ErrorRecorder errorRecorder) {
         boolean isError = shared.getErrorCode() != 0;
         if (isError) {
             return;
@@ -18,11 +20,7 @@ public class DefaultSqlCountService implements SqlCountService {
 
         int sqlExecutionCount = shared.incrementAndGetSqlCount();
         if (sqlExecutionCount >= sqlErrorLimit) {
-            recordError(shared);
+            errorRecorder.recordError(ErrorCategory.SQL);
         }
-    }
-
-    private void recordError(Shared shared) {
-        shared.maskErrorCode(1);
     }
 }

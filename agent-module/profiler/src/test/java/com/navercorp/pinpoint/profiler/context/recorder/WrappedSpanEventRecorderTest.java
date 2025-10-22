@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.recorder;
 
+import com.navercorp.pinpoint.bootstrap.context.ErrorRecorder;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SqlCountService;
@@ -66,13 +67,16 @@ public class WrappedSpanEventRecorderTest {
     private ExceptionRecorder exceptionRecorder;
 
     @Mock
+    private ErrorRecorder errorRecorder;
+
+    @Mock
     private SqlCountService sqlCountService;
 
     private final IgnoreErrorHandler errorHandler = new BypassErrorHandler();
 
     @BeforeEach
     void setUp() {
-        sut = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder, sqlCountService);
+        sut = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, errorHandler, exceptionRecorder, errorRecorder, sqlCountService);
     }
 
     @Test

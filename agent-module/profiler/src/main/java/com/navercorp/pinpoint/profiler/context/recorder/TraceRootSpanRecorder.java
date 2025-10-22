@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.context.recorder;
 
+import com.navercorp.pinpoint.bootstrap.context.ErrorRecorder;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.ErrorCategory;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.DataType;
@@ -35,9 +37,11 @@ public class TraceRootSpanRecorder implements SpanRecorder {
 
     private final TraceRoot traceRoot;
     private final UriTemplateFilter uriTemplateFilter = new UriTemplateFilter();
+    private final ErrorRecorder errorRecorder;
 
-    public TraceRootSpanRecorder(TraceRoot traceRoot) {
+    public TraceRootSpanRecorder(TraceRoot traceRoot, ErrorRecorder errorRecorder) {
         this.traceRoot = Objects.requireNonNull(traceRoot, "traceRoot");
+        this.errorRecorder = Objects.requireNonNull(errorRecorder, "errorRecorder");
     }
 
     @Override
@@ -61,14 +65,14 @@ public class TraceRootSpanRecorder implements SpanRecorder {
     }
 
     @Override
-    public void recordError() {
-        getShared().maskErrorCode(1);
+    public void recordError(ErrorCategory errorCategory) {
+        errorRecorder.recordError(errorCategory);
     }
 
     @Override
     public void recordException(boolean markError, Throwable throwable) {
         if (markError) {
-            recordError();
+            recordError(ErrorCategory.EXCEPTION);
         }
     }
 
