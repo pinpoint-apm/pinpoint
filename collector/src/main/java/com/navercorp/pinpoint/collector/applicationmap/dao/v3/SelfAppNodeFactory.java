@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
+package com.navercorp.pinpoint.collector.applicationmap.dao.v3;
 
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
@@ -22,13 +22,13 @@ import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
-public interface SelfNodeFactory {
+public interface SelfAppNodeFactory {
     RowKey rowkey(Vertex vertex, long rowTimeSlot);
 
-    ColumnName histogram(String agentId, HistogramSlot slot);
+    ColumnName histogram(HistogramSlot slot);
 
-    ColumnName sum(String agentId, ServiceType serviceType);
+    ColumnName sum(ServiceType serviceType);
 
-    ColumnName max(String agentId, ServiceType serviceType);
+    ColumnName max(ServiceType serviceType);
 
 }

@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common;
+package com.navercorp.pinpoint.collector.applicationmap.dao;
+
+import com.navercorp.pinpoint.collector.dao.CachedStatisticsDao;
+import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * @author emeroad
+ * @author jaehong.kim
  */
-public final class PinpointConstants {
+public interface MapAgentResponseTimeDao extends CachedStatisticsDao {
+    void received(long requestTime, Vertex selfVertex, String agentId, int elapsed, boolean isError);
 
-    @Deprecated
-    public static final int APPLICATION_NAME_MAX_LEN = 24;
-    public static final int AGENT_ID_MAX_LEN = 24;
-
-    public static final int AGENT_NAME_MAX_LEN = 255;
-
-    public static final int SERVICE_NAME_MAX_LEN = 127;
-    public static final int APPLICATION_NAME_MAX_LEN_V3 = SERVICE_NAME_MAX_LEN;
-
-    public static final int AGENT_NAME_MAX_LEN_V4 = APPLICATION_NAME_MAX_LEN_V3;
-
+    void updatePing(long requestTime, String applicationName, ServiceType serviceType, String agentId, int elapsed, boolean isError);
 }

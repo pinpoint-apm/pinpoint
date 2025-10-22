@@ -14,27 +14,24 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.hbase;
+package com.navercorp.pinpoint.web.applicationmap.dao;
 
-public enum HbaseTableV3 implements HbaseTable {
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.web.applicationmap.histogram.AgentResponse;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.ResponseTime;
 
-    MAP_APP_SELF("MapAppSelf"),
-    MAP_AGENT_SELF("MapAgentSelf"),
-    MAP_APP_OUT("MapAppOut"),
-    MAP_APP_IN("MapAppIn"),
+import java.util.List;
 
-    MAP_APP_HOST("MapAppHost"),
+/**
+ *
+ * @author emeroad
+ * @author netspider
+ * 
+ */
+public interface MapAgentResponseDao {
+    List<ResponseTime> selectResponseTime(Application application, TimeWindow timeWindow);
 
-    TRACE_INDEX("TraceIndex");
+    AgentResponse selectAgentResponse(Application application, TimeWindow timeWindow);
 
-    private final String name;
-
-    HbaseTableV3(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
 }

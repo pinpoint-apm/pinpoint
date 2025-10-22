@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.applicationmap.statistics;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.hbase.config.DistributorConfiguration;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.RangeDoubleHash;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
@@ -32,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class UidLinkRowKeyTest {
 
-    public static final int KEY_RANGE = 262;
+    public static final int KEY_RANGE = DistributorConfiguration.UID_START_KEY_RANGE;
 
     static int secondaryKeySpace = 4;
 

@@ -25,9 +25,10 @@ import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResultExtractorFactory;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentResponse;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.apache.hadoop.hbase.TableName;
@@ -37,6 +38,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -44,7 +46,7 @@ import java.util.Objects;
  * @author emeroad
  */
 @Repository
-public class HbaseMapResponseTimeDao implements MapResponseDao {
+public class HbaseMapAgentResponseTimeDao implements MapAgentResponseDao {
 
     private static final int NUM_PARTITIONS = 8;
 
@@ -60,20 +62,17 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
     private final MapScanFactory scanFactory;
 
     private final RowKeyDistributorByHashPrefix rowKeyDistributor;
-    private final ResultExtractorFactory<ApplicationResponse> applicationHistogramResultExtractor;
 
-    public HbaseMapResponseTimeDao(HbaseColumnFamily table,
-                                   HbaseOperations hbaseOperations,
-                                   TableNameProvider tableNameProvider,
-                                   ResultExtractorFactory<List<ResponseTime>> resultExtractMapperFactory,
-                                   ResultExtractorFactory<ApplicationResponse> applicationHistogramResultExtractor,
-                                   MapScanFactory scanFactory,
-                                   RowKeyDistributorByHashPrefix rowKeyDistributor) {
+    public HbaseMapAgentResponseTimeDao(HbaseColumnFamily table,
+                                        HbaseOperations hbaseOperations,
+                                        TableNameProvider tableNameProvider,
+                                        ResultExtractorFactory<List<ResponseTime>> resultExtractMapperFactory,
+                                        MapScanFactory scanFactory,
+                                        RowKeyDistributorByHashPrefix rowKeyDistributor) {
         this.table = Objects.requireNonNull(table, "table");
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.resultExtractFactory = Objects.requireNonNull(resultExtractMapperFactory, "resultExtractMapperFactory");
-        this.applicationHistogramResultExtractor = Objects.requireNonNull(applicationHistogramResultExtractor, "applicationHistogramResultExtractor");
 
         this.scanFactory = Objects.requireNonNull(scanFactory, "scanFactory");
         this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
@@ -120,25 +119,18 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
         return builder.build();
     }
 
-    @Override
+    @Deprecated
     public ApplicationResponse selectApplicationResponse(Application application, TimeWindow timeWindow) {
-        Objects.requireNonNull(application, "application");
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("selectApplicationResponse applicationName:{}, {}", application, timeWindow);
+        List<ResponseTime> responseTimes = selectResponseTime(application, timeWindow);
+        ApplicationResponse.Builder builder = ApplicationResponse.newBuilder(application);
+        for (ResponseTime responseTime : responseTimes) {
+            for (Map.Entry<String, TimeHistogram> entry : responseTime.getAgentHistogram()) {
+                String agentId = entry.getKey();
+                TimeHistogram timeHistogram = entry.getValue();
+                builder.addResponseTime(agentId, timeHistogram.getTimeStamp(), timeHistogram);
+            }
         }
-
-        Range windowRange = timeWindow.getWindowRange();
-        Scan scan = scanFactory.createScan("MapSelfScan", ServiceUid.DEFAULT_SERVICE_UID_CODE, application, windowRange, table.getName());
-
-        ResultsExtractor<ApplicationResponse> mapper = applicationHistogramResultExtractor.newMapper(timeWindow);
-        TableName mapStatisticsSelfTableName = tableNameProvider.getTableName(table.getTable());
-
-        ApplicationResponse histogram = hbaseOperations.findParallel(mapStatisticsSelfTableName, scan, rowKeyDistributor,
-                mapper, NUM_PARTITIONS);
-        if (histogram == null) {
-            return ApplicationResponse.newBuilder(application).build();
-        }
-        return histogram;
+        return builder.build();
     }
+
 }

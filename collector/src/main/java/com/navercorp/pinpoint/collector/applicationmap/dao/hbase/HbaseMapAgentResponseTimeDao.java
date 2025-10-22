@@ -44,7 +44,7 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseMapResponseTimeDao implements MapAgentResponseTimeDao {
+public class HbaseMapAgentResponseTimeDao implements MapAgentResponseTimeDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -56,18 +56,18 @@ public class HbaseMapResponseTimeDao implements MapAgentResponseTimeDao {
     private final MapLinkProperties mapLinkProperties;
     private final SelfAgentNodeFactory selfAgentNodeFactory;
 
-    public HbaseMapResponseTimeDao(MapLinkProperties mapLinkProperties,
-                                   HbaseColumnFamily table,
-                                   TimeSlot timeSlot,
-                                   TableNameProvider tableNameProvider,
-                                   BulkWriter bulkWriter,
-                                   SelfAgentNodeFactory selfAgentNodeFactory) {
+    public HbaseMapAgentResponseTimeDao(MapLinkProperties mapLinkProperties,
+                                        HbaseColumnFamily table,
+                                        TimeSlot timeSlot,
+                                        TableNameProvider tableNameProvider,
+                                        BulkWriter bulkWriter,
+                                        SelfAgentNodeFactory selfAgentNodeFactory) {
         this.mapLinkProperties = Objects.requireNonNull(mapLinkProperties, "mapLinkConfiguration");
         this.table = Objects.requireNonNull(table, "table");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
         this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWriter");
-        this.selfAgentNodeFactory = Objects.requireNonNull(selfAgentNodeFactory, "selfNodeFactory");
+        this.selfAgentNodeFactory = Objects.requireNonNull(selfAgentNodeFactory, "selfAgentNodeFactory");
     }
 
 

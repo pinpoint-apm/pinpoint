@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRow
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.apache.hadoop.hbase.Cell;
@@ -110,12 +109,13 @@ public class ResponseTimeV3ResultExtractor implements ResultsExtractor<List<Resp
 
         final byte[] qArray = cell.getQualifierArray();
         final int qOffset = cell.getQualifierOffset();
-        short slotNumber = Bytes.toShort(qArray, qOffset);
+        byte slotCode = qArray[qOffset];
+        int offset = 1;
 
         // agentId should be added as data.
-        String agentId = Bytes.toString(qArray, qOffset + BytesUtils.SHORT_BYTE_LENGTH, cell.getQualifierLength() - BytesUtils.SHORT_BYTE_LENGTH);
+        String agentId = Bytes.toString(qArray, qOffset + offset, cell.getQualifierLength() - offset);
         long count = CellUtils.valueToLong(cell);
-        responseTimeBuilder.addResponseTime(agentId, slotNumber, count);
+        responseTimeBuilder.addResponseTimeByCode(agentId, slotCode, count);
     }
 
     private ResponseTime.Builder createResponseTimeBuilder(Map<Key, ResponseTime.Builder> map, RowKey rawRowKey) {

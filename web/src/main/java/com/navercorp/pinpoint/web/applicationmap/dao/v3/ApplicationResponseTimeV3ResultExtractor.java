@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRow
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -118,13 +117,13 @@ public class ApplicationResponseTimeV3ResultExtractor implements ResultsExtracto
 
         final byte[] qArray = cell.getQualifierArray();
         final int qOffset = cell.getQualifierOffset();
-        final short slotNumber = Bytes.toShort(qArray, qOffset);
+        final byte slotCode = qArray[qOffset];
 
         // agentId should be added as data.
-        String agentId = Bytes.toString(qArray, qOffset + BytesUtils.SHORT_BYTE_LENGTH, cell.getQualifierLength() - BytesUtils.SHORT_BYTE_LENGTH);
+
         long count = CellUtils.valueToLong(cell);
 
-        responseTimeBuilder.addResponseTime(agentId, timestamp, slotNumber, count);
+        responseTimeBuilder.addResponseTimeBySlotCode("-UNSUPPORTED-", timestamp, slotCode, count);
     }
 
 }

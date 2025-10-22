@@ -32,13 +32,15 @@ import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
 import com.navercorp.pinpoint.web.applicationmap.dao.HostApplicationMapDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseHostApplicationMapDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapAgentResponseTimeDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapInLinkDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapOutLinkDao;
-import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapResponseTimeDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.hbase.HbaseMapResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.MapScanFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.MapScanKeyFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.MapScanKeyFactoryV2;
@@ -129,18 +131,29 @@ public class MapMapperConfiguration {
     }
 
     @Bean
-    public MapResponseDao mapResponseDao(@Qualifier("mapHbaseTemplate")
-                                         HbaseTemplate hbaseTemplate,
-                                         TableNameProvider tableNameProvider,
-                                         @Qualifier("responseTimeResultExtractor")
-                                         ResultExtractorFactory<List<ResponseTime>> resultExtractFactory,
-                                         @Qualifier("applicationResponseTimeResultExtractor")
-                                         ResultExtractorFactory<ApplicationResponse> applicationHistogramResultExtractor,
-                                         MapScanFactory mapScanFactory,
-                                         @Qualifier("mapSelfRowKeyDistributor")
-                                         RowKeyDistributorByHashPrefix rowKeyDistributor) {
+    public MapAgentResponseDao mapAgentResponseDao(@Qualifier("mapHbaseTemplate")
+                                                   HbaseTemplate hbaseTemplate,
+                                                   TableNameProvider tableNameProvider,
+                                                   @Qualifier("responseTimeResultExtractor")
+                                                   ResultExtractorFactory<List<ResponseTime>> resultExtractFactory,
+                                                   MapScanFactory mapScanFactory,
+                                                   @Qualifier("mapSelfRowKeyDistributor")
+                                                   RowKeyDistributorByHashPrefix rowKeyDistributor) {
         HbaseColumnFamily table = HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER;
-        return new HbaseMapResponseTimeDao(table, hbaseTemplate, tableNameProvider, resultExtractFactory, applicationHistogramResultExtractor, mapScanFactory, rowKeyDistributor);
+        return new HbaseMapAgentResponseTimeDao(table, hbaseTemplate, tableNameProvider, resultExtractFactory, mapScanFactory, rowKeyDistributor);
+    }
+
+    @Bean
+    public MapResponseDao mapResponseDao(@Qualifier("mapHbaseTemplate")
+                                                    HbaseTemplate hbaseTemplate,
+                                                    TableNameProvider tableNameProvider,
+                                                    @Qualifier("applicationResponseTimeResultExtractor")
+                                                    ResultExtractorFactory<ApplicationResponse> resultExtractFactory,
+                                                    MapScanFactory mapScanFactory,
+                                                    @Qualifier("mapSelfRowKeyDistributor")
+                                                    RowKeyDistributorByHashPrefix rowKeyDistributor) {
+        HbaseColumnFamily table = HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER;
+        return new HbaseMapResponseDao(table, hbaseTemplate, tableNameProvider, resultExtractFactory, mapScanFactory, rowKeyDistributor);
     }
 
     @Bean

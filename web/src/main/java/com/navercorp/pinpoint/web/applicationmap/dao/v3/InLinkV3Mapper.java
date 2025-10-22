@@ -100,7 +100,7 @@ public class InLinkV3Mapper implements RowMapper<LinkDataMap> {
                 continue;
             }
 
-            short histogramSlot = buffer.readShort();
+            byte slotCode = buffer.readByte();
             long requestCount = CellUtils.valueToLong(cell);
             String selfHost = readOutHost(buffer);
             // There may be no outHost for virtual queue nodes from user-defined entry points.
@@ -112,10 +112,10 @@ public class InLinkV3Mapper implements RowMapper<LinkDataMap> {
 
             if (logger.isDebugEnabled()) {
                 logger.debug("    Fetched IN_LINK {} outHost:{} -> {} (slot:{}/{})",
-                        self, selfHost, inApplication, histogramSlot, requestCount);
+                        self, selfHost, inApplication, slotCode, requestCount);
             }
 
-            linkDataMap.addLinkData(self, self.getName(), inApplication, selfHost, timestamp, histogramSlot, requestCount);
+            linkDataMap.addLinkDataByCode(self, self.getName(), inApplication, selfHost, timestamp, slotCode, requestCount);
 
             if (logger.isTraceEnabled()) {
                 logger.trace("    Fetched IN_LINK inLink:{}", linkDataMap);

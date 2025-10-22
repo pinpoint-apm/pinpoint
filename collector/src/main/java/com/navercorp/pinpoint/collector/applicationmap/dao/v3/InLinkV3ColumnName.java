@@ -32,29 +32,29 @@ public class InLinkV3ColumnName implements ColumnName {
     private final String selfApplicationName;
     // called or calling host
     private final String outHost;
-    private final short columnSlotNumber;
+    private final byte slotCode;
 
-    public static ColumnName histogram(Vertex selfVertex, String outHost, short columnSlotNumber) {
-        return histogram(selfVertex.applicationName(), selfVertex.serviceType(), outHost, columnSlotNumber);
+    public static ColumnName histogram(Vertex selfVertex, String outHost, byte slotCode) {
+        return histogram(selfVertex.applicationName(), selfVertex.serviceType(), outHost, slotCode);
     }
 
-    public static ColumnName histogram(String selfApplicationName, ServiceType selfServiceType, String outHost, short columnSlotNumber) {
-        return new InLinkV3ColumnName(selfApplicationName, selfServiceType.getCode(), outHost, columnSlotNumber);
+    public static ColumnName histogram(String selfApplicationName, ServiceType selfServiceType, String outHost, byte slotCode) {
+        return new InLinkV3ColumnName(selfApplicationName, selfServiceType.getCode(), outHost, slotCode);
     }
 
-    public InLinkV3ColumnName(String selfApplicationName, short selfServiceType, String outHost, short columnSlotNumber) {
+    public InLinkV3ColumnName(String selfApplicationName, short selfServiceType, String outHost, byte slotCode) {
         this.selfServiceType = selfServiceType;
         this.selfApplicationName = Objects.requireNonNull(selfApplicationName, "selfApplicationName");
         this.outHost = Objects.requireNonNull(outHost, "outHost");
-        this.columnSlotNumber = columnSlotNumber;
+        this.slotCode = slotCode;
     }
 
 
     public byte[] getColumnName() {
-        return makeColumnName(selfServiceType, selfApplicationName, outHost, columnSlotNumber);
+        return makeColumnName(selfServiceType, selfApplicationName, outHost, slotCode);
     }
 
-    public static byte[] makeColumnName(int serviceType, String applicationName, String destHost, short slotNumber) {
+    public static byte[] makeColumnName(int serviceType, String applicationName, String destHost, byte slotNumber) {
         Objects.requireNonNull(applicationName, "applicationName");
         destHost = Objects.toString(destHost, "");
 
@@ -62,7 +62,7 @@ public class InLinkV3ColumnName implements ColumnName {
         final Buffer buffer = new AutomaticBuffer(64);
         buffer.putInt(serviceType);
         buffer.putUnsignedBytePrefixedString(applicationName);
-        buffer.putShort(slotNumber);
+        buffer.putByte(slotNumber);
         buffer.putPrefixedString(destHost);
         return buffer.getBuffer();
     }
@@ -73,7 +73,7 @@ public class InLinkV3ColumnName implements ColumnName {
 
         InLinkV3ColumnName that = (InLinkV3ColumnName) o;
         return selfServiceType == that.selfServiceType
-               && columnSlotNumber == that.columnSlotNumber
+               && slotCode == that.slotCode
                && selfApplicationName.equals(that.selfApplicationName)
                && outHost.equals(that.outHost);
     }
@@ -83,7 +83,7 @@ public class InLinkV3ColumnName implements ColumnName {
         int result = selfServiceType;
         result = 31 * result + selfApplicationName.hashCode();
         result = 31 * result + outHost.hashCode();
-        result = 31 * result + columnSlotNumber;
+        result = 31 * result + slotCode;
         return result;
     }
 
@@ -93,7 +93,7 @@ public class InLinkV3ColumnName implements ColumnName {
                "callerServiceType=" + selfServiceType +
                ", callerApplicationName='" + selfApplicationName + '\'' +
                ", callHost='" + outHost + '\'' +
-               ", columnSlotNumber=" + columnSlotNumber +
+               ", slotCode=" + slotCode +
                '}';
     }
 }

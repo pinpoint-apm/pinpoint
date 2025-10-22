@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -49,6 +49,11 @@ public class LinkDataMap {
     public void addLinkData(Application sourceApplication, String sourceAgentId, Application destinationApplication, String destinationAgentId, long timestamp, short slotTime, long count) {
         final LinkData linkData = getLinkData(sourceApplication, destinationApplication);
         linkData.addLinkData(sourceAgentId, sourceApplication.getServiceType(), destinationAgentId, destinationApplication.getServiceType(), timestamp, slotTime, count);
+    }
+
+    public void addLinkDataByCode(Application sourceApplication, String sourceAgentId, Application destinationApplication, String destinationAgentId, long timestamp, byte slotCode, long count) {
+        final LinkData linkData = getLinkData(sourceApplication, destinationApplication);
+        linkData.addLinkDataByCode(sourceAgentId, sourceApplication.getServiceType(), destinationAgentId, destinationApplication.getServiceType(), timestamp, slotCode, count);
     }
 
     @Override

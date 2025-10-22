@@ -119,6 +119,7 @@ public class HbaseTables {
     // ------------------- Map Self V3 -------------------
     public static final byte[] MAP_V3_COLUMN_FAMILY_NAME = Bytes.toBytes("C");
     public static final HbaseColumnFamily MAP_APP_SELF = new HbaseColumnFamily(HbaseTableV3.MAP_APP_SELF, MAP_V3_COLUMN_FAMILY_NAME);
+    public static final HbaseColumnFamily MAP_AGENT_SELF = new HbaseColumnFamily(HbaseTableV3.MAP_AGENT_SELF, MAP_V3_COLUMN_FAMILY_NAME);
     public static final HbaseColumnFamily MAP_APP_OUT = new HbaseColumnFamily(HbaseTableV3.MAP_APP_OUT, MAP_V3_COLUMN_FAMILY_NAME);
     public static final HbaseColumnFamily MAP_APP_IN = new HbaseColumnFamily(HbaseTableV3.MAP_APP_IN, MAP_V3_COLUMN_FAMILY_NAME);
 
