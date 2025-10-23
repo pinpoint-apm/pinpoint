@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.profiler.context.SqlCountService;
 import com.navercorp.pinpoint.profiler.context.errorhandler.BypassErrorHandler;
 import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.exception.ExceptionRecorder;
-import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
@@ -34,11 +33,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.mockito.Mockito.anyInt;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 
 /**
@@ -50,9 +48,6 @@ public class WrappedSpanEventRecorderTest {
 
     @Mock
     private TraceRoot traceRoot;
-
-    @Mock
-    private Shared shared;
 
     @Mock
     private AsyncContextFactory asyncContextFactory;
@@ -80,9 +75,7 @@ public class WrappedSpanEventRecorderTest {
     }
 
     @Test
-    public void testSetExceptionInfo_RootMarkError() throws Exception {
-        when(traceRoot.getShared()).thenReturn(shared);
-
+    public void testSetExceptionInfo_RootMarkError() {
         SpanEvent spanEvent = new SpanEvent();
         sut.setWrapped(spanEvent);
 
@@ -91,7 +84,7 @@ public class WrappedSpanEventRecorderTest {
         sut.recordException(false, exception1);
 
         Assertions.assertEquals(spanEvent.getExceptionInfo().getStringValue(), exceptionMessage1, "Exception recoding");
-        verify(shared, never()).maskErrorCode(anyInt());
+        verify(errorRecorder, never()).recordError(any());
 
 
         final String exceptionMessage2 = "exceptionMessage2";
@@ -99,11 +92,11 @@ public class WrappedSpanEventRecorderTest {
         sut.recordException(true, exception2);
 
         Assertions.assertEquals(spanEvent.getExceptionInfo().getStringValue(), exceptionMessage2, "Exception recoding");
-        verify(shared, only()).maskErrorCode(1);
+        verify(errorRecorder, only()).recordError(any());
     }
 
     @Test
-    public void testRecordAPIId() throws Exception {
+    public void testRecordAPIId() {
         SpanEvent spanEvent = new SpanEvent();
         sut.setWrapped(spanEvent);
 
