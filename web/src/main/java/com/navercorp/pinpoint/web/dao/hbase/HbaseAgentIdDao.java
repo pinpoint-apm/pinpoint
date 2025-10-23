@@ -1,13 +1,12 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
-import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.server.util.ServiceGroupRowKeyPrefixUtils;
 import com.navercorp.pinpoint.web.dao.AgentIdDao;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Delete;
@@ -37,7 +36,7 @@ public class HbaseAgentIdDao implements AgentIdDao {
 
     @Override
     public List<String> getAgentIds(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
-        byte[] rowKeyPrefix = createRowKey(serviceUid, applicationName, serviceTypeCode);
+        byte[] rowKeyPrefix = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
         Scan scan = createScan(rowKeyPrefix);
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
@@ -46,7 +45,7 @@ public class HbaseAgentIdDao implements AgentIdDao {
 
     @Override
     public List<String> getAgentIds(ServiceUid serviceUid, String applicationName) {
-        byte[] rowKeyPrefix = createRowKey(serviceUid, applicationName);
+        byte[] rowKeyPrefix = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName);
         Scan scan = createScan(rowKeyPrefix);
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
@@ -65,7 +64,7 @@ public class HbaseAgentIdDao implements AgentIdDao {
     public void deleteAgents(ServiceUid serviceUid, String applicationName, int serviceTypeCode, List<String> agentIdList) {
         List<Delete> deleteLists = new ArrayList<>(agentIdList.size());
         for (String agentId : agentIdList) {
-            byte[] rowKey = createRowKey(serviceUid, applicationName, serviceTypeCode, agentId);
+            byte[] rowKey = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName, serviceTypeCode, agentId);
             Delete delete = new Delete(rowKey);
 
             delete.addColumns(DESCRIPTOR.getName(), DESCRIPTOR.getName());
@@ -77,36 +76,12 @@ public class HbaseAgentIdDao implements AgentIdDao {
 
     @Override
     public void insert(ServiceUid serviceUid, String applicationName, int serviceTypeCode, String agentId) {
-        byte[] rowKey = createRowKey(serviceUid, applicationName, serviceTypeCode, agentId);
+        byte[] rowKey = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName, serviceTypeCode, agentId);
         final Put put = new Put(rowKey, true);
         put.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName(), PREFIXED_EMPTY_VALUE);
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         hbaseTemplate.put(applicationIndexTableName, put);
-    }
-
-    private byte[] createRowKey(ServiceUid serviceUid, String ApplicationName, int serviceTypeCode, String agentId) {
-        Buffer buffer = new AutomaticBuffer();
-        buffer.putInt(serviceUid.getUid());
-        buffer.putPrefixedString(ApplicationName);
-        buffer.putInt(serviceTypeCode);
-        buffer.putPrefixedString(agentId);
-        return buffer.getBuffer();
-    }
-
-    private byte[] createRowKey(ServiceUid serviceUid, String ApplicationName, int serviceTypeCode) {
-        Buffer buffer = new AutomaticBuffer();
-        buffer.putInt(serviceUid.getUid());
-        buffer.putPrefixedString(ApplicationName);
-        buffer.putInt(serviceTypeCode);
-        return buffer.getBuffer();
-    }
-
-    private byte[] createRowKey(ServiceUid serviceUid, String ApplicationName) {
-        Buffer buffer = new AutomaticBuffer();
-        buffer.putInt(serviceUid.getUid());
-        buffer.putPrefixedString(ApplicationName);
-        return buffer.getBuffer();
     }
 
 }

@@ -1,13 +1,12 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
-import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.server.util.ServiceGroupRowKeyPrefixUtils;
 import com.navercorp.pinpoint.web.dao.ApplicationDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.hadoop.hbase.TableName;
@@ -38,13 +37,13 @@ public class HbaseApplicationDao implements ApplicationDao {
 
     @Override
     public List<Application> getApplications(ServiceUid serviceUid) {
-        byte[] rewKeyPrefix = createRowKey(serviceUid);
+        byte[] rewKeyPrefix = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid);
         return scanApplications(rewKeyPrefix);
     }
 
     @Override
     public List<Application> getApplications(ServiceUid serviceUid, String applicationName) {
-        byte[] rewKeyPrefix = createRowKey(serviceUid, applicationName);
+        byte[] rewKeyPrefix = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName);
         return scanApplications(rewKeyPrefix);
     }
 
@@ -60,7 +59,7 @@ public class HbaseApplicationDao implements ApplicationDao {
 
     @Override
     public void deleteApplication(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
-        byte[] rowKey = createRowKey(serviceUid, applicationName, serviceTypeCode);
+        byte[] rowKey = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
         Delete delete = new Delete(rowKey);
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
@@ -69,34 +68,12 @@ public class HbaseApplicationDao implements ApplicationDao {
 
     @Override
     public void insert(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
-        byte[] rowKey = createRowKey(serviceUid, applicationName, serviceTypeCode);
+        byte[] rowKey = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
         final Put put = new Put(rowKey, true);
         put.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName(), PREFIXED_EMPTY_VALUE);
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         hbaseTemplate.put(applicationIndexTableName, put);
-
-    }
-
-    private byte[] createRowKey(ServiceUid serviceUid) {
-        Buffer buffer = new AutomaticBuffer();
-        buffer.putInt(serviceUid.getUid());
-        return buffer.getBuffer();
-    }
-
-    private byte[] createRowKey(ServiceUid serviceUid, String ApplicationName) {
-        Buffer buffer = new AutomaticBuffer();
-        buffer.putInt(serviceUid.getUid());
-        buffer.putPrefixedString(ApplicationName);
-        return buffer.getBuffer();
-    }
-
-    private byte[] createRowKey(ServiceUid serviceUid, String ApplicationName, int serviceTypeCode) {
-        Buffer buffer = new AutomaticBuffer();
-        buffer.putInt(serviceUid.getUid());
-        buffer.putPrefixedString(ApplicationName);
-        buffer.putInt(serviceTypeCode);
-        return buffer.getBuffer();
     }
 
 }
