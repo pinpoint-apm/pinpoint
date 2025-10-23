@@ -1,20 +1,17 @@
-import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
+import { APP_PATH, Configuration } from '@pinpoint-fe/ui/src/constants';
 import { Separator } from '../../components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { t } from 'i18next';
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { configurationAtom } from '@pinpoint-fe/ui/src/atoms';
-import { useAtomValue } from 'jotai';
-
 export interface LayoutWithAlarmProps {
+  configuration?: Configuration;
   children?: React.ReactNode;
 }
 
-export const LayoutWithAlarm = ({ children }: LayoutWithAlarmProps) => {
+export const LayoutWithAlarm = ({ children, configuration }: LayoutWithAlarmProps) => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const configuration = useAtomValue(configurationAtom);
 
   const alarmTabs = [
     { id: 'alarm', text: 'Alarms', path: APP_PATH.CONFIG_ALARM },

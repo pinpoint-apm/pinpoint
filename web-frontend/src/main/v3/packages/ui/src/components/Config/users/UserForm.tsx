@@ -156,6 +156,7 @@ export const UserForm = ({
                       'border-status-fail': fieldState.invalid,
                     })}
                     readOnly={!!userInfo}
+                    disabled={!!userInfo}
                   />
                 </FormControl>
                 <FormMessage />
@@ -175,6 +176,7 @@ export const UserForm = ({
                       'border-status-fail': fieldState.invalid,
                     })}
                     readOnly={!enableUserEdit}
+                    disabled={!enableUserEdit}
                   />
                 </FormControl>
                 <FormMessage />
@@ -198,6 +200,7 @@ export const UserForm = ({
                       'border-status-fail': fieldState.invalid,
                     })}
                     readOnly={!enableUserEdit}
+                    disabled={!enableUserEdit}
                   />
                 </FormControl>
                 <FormMessage />
@@ -234,6 +237,7 @@ export const UserForm = ({
                     }}
                     inputProps={{
                       readOnly: !enableUserEdit,
+                      disabled: !enableUserEdit,
                     }}
                   />
                 </FormControl>
@@ -256,6 +260,7 @@ export const UserForm = ({
                       'border-status-fail': fieldState.invalid,
                     })}
                     readOnly={!enableUserEdit}
+                    disabled={!enableUserEdit}
                   />
                 </FormControl>
                 <FormMessage />
