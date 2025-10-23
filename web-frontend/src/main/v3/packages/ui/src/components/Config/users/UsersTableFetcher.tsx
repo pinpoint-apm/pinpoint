@@ -118,7 +118,7 @@ export const UsersTableFetcher = ({ configuration }: UsersTableFetcherProps) => 
         onClickRow={handleClickRow}
         onClickAdd={handleOnClickAdd}
       />
-      <UsersSheet open={open} onOpenChange={() => setOpen(false)}>
+      <UsersSheet open={open} onOpenChange={() => setOpen(false)} isEdit={!!selectedUser}>
         <UserForm
           userInfo={selectedUser}
           enableUserEdit={true}

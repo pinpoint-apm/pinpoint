@@ -51,8 +51,8 @@ export const WebhookDetail = ({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      alias: data?.alias,
-      url: data?.url,
+      alias: data?.alias || '',
+      url: data?.url || '',
     },
   });
   const { mutate: webhookMutate } = useWebhookMutation({

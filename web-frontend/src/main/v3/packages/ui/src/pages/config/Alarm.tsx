@@ -97,7 +97,7 @@ export const AlarmPage = ({
   }, [selectedApplication]);
 
   return (
-    <LayoutWithAlarm>
+    <LayoutWithAlarm configuration={configuration}>
       <div className="space-y-3">
         <div className="flex gap-2">
           <ApplicationList
@@ -160,35 +160,7 @@ export const AlarmPage = ({
                   ? t('CONFIGURATION.ALARM.EDIT')
                   : t('CONFIGURATION.ALARM.ADD')
                 : t('CONFIGURATION.ALARM.DETAIL')}
-              <div className="flex gap-1">
-                {isEditable ? null : (
-                  <>
-                    <Button
-                      variant="outline"
-                      className="py-1 text-destructive hover:text-destructive"
-                      disabled={!permissionContext.delete}
-                      onClick={() =>
-                        setCurrentDeletingTarget(currentTargetAlarmData as AlarmRule.AlarmRuleData)
-                      }
-                    >
-                      {t('COMMON.DELETE')}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="py-1"
-                      onClick={() => setEditable(true)}
-                      disabled={!permissionContext.edit}
-                    >
-                      {t('COMMON.EDIT')}
-                    </Button>
-                  </>
-                )}
-              </div>
-              <SheetClose
-                className={cn({
-                  'absolute left-0 top-1 text-muted-foreground': !isEditable,
-                })}
-              >
+              <SheetClose>
                 <Cross2Icon className="w-4 h-4" />
               </SheetClose>
             </SheetTitle>
@@ -205,6 +177,28 @@ export const AlarmPage = ({
                   refetchAlarmList();
                 }}
               />
+              {!isEditable && (
+                <div className="flex justify-end gap-2 mt-4">
+                  <Button
+                    variant="outline"
+                    className="py-1 text-destructive hover:text-destructive"
+                    disabled={!permissionContext.delete}
+                    onClick={() =>
+                      setCurrentDeletingTarget(currentTargetAlarmData as AlarmRule.AlarmRuleData)
+                    }
+                  >
+                    {t('COMMON.DELETE')}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="py-1"
+                    onClick={() => setEditable(true)}
+                    disabled={!permissionContext.edit}
+                  >
+                    {t('COMMON.EDIT')}
+                  </Button>
+                </div>
+              )}
             </div>
           </ScrollArea>
         </SheetContent>

@@ -8,7 +8,12 @@ import {
   Separator,
   useReactToastifyToast,
 } from '../../components';
-import { APP_SETTING_KEYS, ApplicationType, Webhook } from '@pinpoint-fe/ui/src/constants';
+import {
+  APP_SETTING_KEYS,
+  ApplicationType,
+  Configuration,
+  Webhook,
+} from '@pinpoint-fe/ui/src/constants';
 import { cn } from '../../lib/utils';
 import { WebhookList } from '../../components/Webhook/WebhookList';
 import { WebhookTable } from '../../components/Webhook/WebhookTable';
@@ -37,9 +42,13 @@ import { MdOutlineAdd } from 'react-icons/md';
 
 export interface WebhookPageProps {
   ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
+  configuration?: Configuration;
 }
 
-export const WebhookPage = ({ ApplicationList = ApplicationCombinedList }: WebhookPageProps) => {
+export const WebhookPage = ({
+  ApplicationList = ApplicationCombinedList,
+  configuration,
+}: WebhookPageProps) => {
   const toast = useReactToastifyToast();
   const { t } = useTranslation();
   const [selectedApplication, setSelectedApplication] = useLocalStorage<
@@ -66,7 +75,7 @@ export const WebhookPage = ({ ApplicationList = ApplicationCombinedList }: Webho
   });
 
   return (
-    <LayoutWithAlarm>
+    <LayoutWithAlarm configuration={configuration}>
       <div className="space-y-3">
         <div className="flex gap-2">
           <ApplicationList
@@ -127,29 +136,7 @@ export const WebhookPage = ({ ApplicationList = ApplicationCombinedList }: Webho
                   ? t('CONFIGURATION.WEBHOOK.EDIT')
                   : t('CONFIGURATION.WEBHOOK.CREATE')
                 : t('CONFIGURATION.WEBHOOK.DETAIL')}
-              <div className="flex gap-1">
-                {isEditable ? null : (
-                  <>
-                    <Button
-                      variant="outline"
-                      className="py-1 text-destructive hover:text-destructive"
-                      onClick={() =>
-                        setCurrentDeletingTarget(currentTargetWebhookData as Webhook.WebhookData)
-                      }
-                    >
-                      {t('COMMON.DELETE')}
-                    </Button>
-                    <Button variant="outline" className="py-1" onClick={() => setEditable(true)}>
-                      {t('COMMON.EDIT')}
-                    </Button>
-                  </>
-                )}
-              </div>
-              <SheetClose
-                className={cn({
-                  'absolute left-0 top-1 text-muted-foreground': !isEditable,
-                })}
-              >
+              <SheetClose>
                 <Cross2Icon className="w-4 h-4" />
               </SheetClose>
             </SheetTitle>
@@ -168,6 +155,24 @@ export const WebhookPage = ({ ApplicationList = ApplicationCombinedList }: Webho
                   refetchWebhookList();
                 }}
               />
+              <div className="flex justify-end gap-2 mt-4">
+                {isEditable ? null : (
+                  <>
+                    <Button
+                      variant="outline"
+                      className="py-1 text-destructive hover:text-destructive"
+                      onClick={() =>
+                        setCurrentDeletingTarget(currentTargetWebhookData as Webhook.WebhookData)
+                      }
+                    >
+                      {t('COMMON.DELETE')}
+                    </Button>
+                    <Button variant="outline" className="py-1" onClick={() => setEditable(true)}>
+                      {t('COMMON.EDIT')}
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
           </ScrollArea>
         </SheetContent>
