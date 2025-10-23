@@ -1,12 +1,11 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.ApplicationDao;
-import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
-import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.server.util.ServiceGroupRowKeyPrefixUtils;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
@@ -29,19 +28,11 @@ public class HbaseApplicationDao implements ApplicationDao {
 
     @Override
     public void insert(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
-        byte[] rowKey = createRowKey(serviceUid, applicationName, serviceTypeCode);
+        byte[] rowKey = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
         final Put put = new Put(rowKey, true);
         put.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName(), PREFIXED_EMPTY_VALUE);
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         hbaseTemplate.put(applicationIndexTableName, put);
-    }
-
-    private byte[] createRowKey(ServiceUid serviceUid, String ApplicationName, int serviceTypeCode) {
-        Buffer buffer = new AutomaticBuffer();
-        buffer.putInt(serviceUid.getUid());
-        buffer.putPrefixedString(ApplicationName);
-        buffer.putInt(serviceTypeCode);
-        return buffer.getBuffer();
     }
 }
