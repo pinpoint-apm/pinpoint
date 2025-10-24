@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,7 +94,7 @@ public class JavaAgentPathResolver {
                 return null;
             }
 
-            if (classURL.getProtocol().equals("jar")) {
+            if ("jar".equals(classURL.getProtocol())) {
                 String path = classURL.getPath();
                 int jarIndex = path.indexOf("!/");
                 if (jarIndex == -1) {

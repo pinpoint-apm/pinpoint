@@ -1,11 +1,11 @@
 /*
- * Copyright 2024 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,9 +36,9 @@ public class OtlpChartSummaryViewBuilder extends OtlpChartViewBuilder {
 
     @Override
     protected String checkChartType(String fieldName, String description) {
-        if (fieldName.equals(FIELD_KEYWORD_COUNT) || fieldName.equals(FIELD_KEYWORD_SUM)) {
+        if (FIELD_KEYWORD_COUNT.equals(fieldName) || FIELD_KEYWORD_SUM.equals(fieldName)) {
             return CHART_TYPE_SPLINE;
-        } else if (fieldName.equals(METADATA_KEYWORD_NUMQUANTILES)) {
+        } else if (METADATA_KEYWORD_NUMQUANTILES.equals(fieldName)) {
             return CHART_TYPE_NONE;
         } else {
             return CHART_TYPE_AREA;
@@ -47,7 +47,7 @@ public class OtlpChartSummaryViewBuilder extends OtlpChartViewBuilder {
 
     @Override
     protected void setMetadata(String name, List<Number> values, String description) {
-        if (name.equals(METADATA_KEYWORD_NUMQUANTILES)) {
+        if (METADATA_KEYWORD_NUMQUANTILES.equals(name)) {
             this.numQuantiles = values;
             this.description = description;
         } else {

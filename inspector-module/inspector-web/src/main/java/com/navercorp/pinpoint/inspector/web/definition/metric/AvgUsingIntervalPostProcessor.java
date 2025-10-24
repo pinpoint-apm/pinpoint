@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,13 +96,13 @@ public class AvgUsingIntervalPostProcessor implements MetricPostProcessor {
 
     private List<InspectorMetricValue> extractMetricCount(List<InspectorMetricValue> metricValueList) {
         return metricValueList.stream()
-                .filter(metricValue -> !metricValue.getFieldName().equals(COLLECT_INTERVAL_FIELD))
+                .filter(metricValue -> !COLLECT_INTERVAL_FIELD.equals(metricValue.getFieldName()))
                 .collect(Collectors.toList());
     }
 
     protected InspectorMetricValue findCollectInterval(List<InspectorMetricValue> metricValueList) {
         return metricValueList.stream()
-                .filter(metricValue -> metricValue.getFieldName().equals(COLLECT_INTERVAL_FIELD))
+                .filter(metricValue -> COLLECT_INTERVAL_FIELD.equals(metricValue.getFieldName()))
                 .findFirst()
                 .orElse(null);
     }
