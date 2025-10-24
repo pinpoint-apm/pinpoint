@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ public class UsingDataSourceTagForAgentPreProcessor implements MetricPreProcesso
 
         //TODO : (minwoo) Performance improvement, it seems that you need to import jdbcurl only once and fill the rest of the fields with data, rather than doing it in turn.
         for (Field field : metricDefinition.getFields()) {
-            if (!field.getMatchingRule().equals(MatchingRule.ALL)) {
+            if (!MatchingRule.ALL.equals(field.getMatchingRule())) {
                 continue;
             }
 
@@ -63,7 +63,7 @@ public class UsingDataSourceTagForAgentPreProcessor implements MetricPreProcesso
 
             List<Tag> filteredTagList = new ArrayList<>();
             for (Tag tag : tagList) {
-                if (tag.getName().equals(JDBC_URL)) {
+                if (JDBC_URL.equals(tag.getName())) {
                     filteredTagList.add(tag);
                 }
             }

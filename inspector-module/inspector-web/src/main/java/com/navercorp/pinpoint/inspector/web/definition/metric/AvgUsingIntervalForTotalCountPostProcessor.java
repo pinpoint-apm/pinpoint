@@ -1,15 +1,15 @@
 /*
- * Copyright 2024 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express implied.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -51,7 +51,7 @@ public class AvgUsingIntervalForTotalCountPostProcessor extends AvgUsingInterval
 
     private List<InspectorMetricValue> extractOtherMetric(List<InspectorMetricValue> metricValueList) {
         return metricValueList.stream()
-                .filter(metricValue -> !metricValue.getFieldName().equals(TOTAL_COUNT_FIELD) && !metricValue.getFieldName().equals(COLLECT_INTERVAL_FIELD))
+                .filter(metricValue -> !TOTAL_COUNT_FIELD.equals(metricValue.getFieldName()) && !COLLECT_INTERVAL_FIELD.equals(metricValue.getFieldName()))
                 .collect(Collectors.toList());
     }
 
@@ -65,7 +65,7 @@ public class AvgUsingIntervalForTotalCountPostProcessor extends AvgUsingInterval
 
     private InspectorMetricValue extractTotalCount(List<InspectorMetricValue> metricValueList) {
         return metricValueList.stream()
-                .filter(metricValue -> metricValue.getFieldName().equals(TOTAL_COUNT_FIELD))
+                .filter(metricValue -> TOTAL_COUNT_FIELD.equals(metricValue.getFieldName()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("not found totalCount"));
     }

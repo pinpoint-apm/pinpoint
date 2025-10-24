@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,13 +58,13 @@ public final class GrpcUtils {
     public static void addServerListenerMethod(InstrumentClass target, boolean traceOnMessage) throws InstrumentException {
         List<InstrumentMethod> declaredMethods = target.getDeclaredMethods();
         for (InstrumentMethod declaredMethod : declaredMethods) {
-            if (declaredMethod.getName().equals("onMessage") && !traceOnMessage) {
+            if ("onMessage".equals(declaredMethod.getName()) && !traceOnMessage) {
                 PluginLogger logger = PluginLogManager.getLogger(GrpcUtils.class.getName());
                 logger.debug("skip add onMessage interceptor");
                 continue;
             }
 
-            if (declaredMethod.getName().equals("onHalfClose")) {
+            if ("onHalfClose".equals(declaredMethod.getName())) {
                 declaredMethod.addInterceptor(ServerHalfCloseListenerInterceptor.class);
                 continue;
             }
