@@ -44,7 +44,10 @@ public class DefaultShared implements Shared {
     private static final AtomicIntegerFieldUpdater<DefaultShared> SQL_COUNT_UPDATER
             = AtomicIntegerFieldUpdater.newUpdater(DefaultShared.class, "sqlExecutionCount");
 
-    private volatile int errorCode;
+    private static final AtomicIntegerFieldUpdater<DefaultShared> ERROR_CODE_UPDATER
+            = AtomicIntegerFieldUpdater.newUpdater(DefaultShared.class, "errorCode");
+
+    private volatile int errorCode = 0;
     private volatile byte loggingInfo;
 
     @SuppressWarnings("unused")
@@ -64,20 +67,13 @@ public class DefaultShared implements Shared {
     private volatile int sqlExecutionCount = 0;
 
     @Override
-    public void maskErrorCode(int errorCode) {
-//        synchronized (this) {
-////            TODO Refactor bit masking rule
-//            this.errorCode |= errorCode;
-//        }
-        this.errorCode = errorCode;
+    public void maskErrorCode(int mask) {
+        ERROR_CODE_UPDATER.getAndUpdate(this, x -> x | mask);
     }
 
     @Override
     public int getErrorCode() {
-//        synchronized (this) {
-//            return errorCode;
-//        }
-        return errorCode;
+        return ERROR_CODE_UPDATER.get(this);
     }
 
     @Override
