@@ -162,13 +162,7 @@ export const ApplicationCombinedListForCommon = ({
     const favoriteListLength = filteredLists['favoriteList']?.length || 0;
     const applicationListLength = filteredLists['applicationList']?.length || 0;
 
-    if (isMouseMove) {
-      if (favoriteListLength > 0) {
-        setFocusInfo({ id: 'favoriteList', index: 0 });
-      } else {
-        setFocusInfo({ id: 'applicationList', index: 0 });
-      }
-    } else if (e.key === 'ArrowDown') {
+    if (e.key === 'ArrowDown') {
       e.preventDefault();
       setFocusInfo((prev) => {
         const nowInfo = isMouseMove ? mouseEnterInfo : prev;
