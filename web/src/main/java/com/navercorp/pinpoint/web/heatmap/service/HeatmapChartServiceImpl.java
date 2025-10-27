@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,11 +39,11 @@ public class HeatmapChartServiceImpl implements HeatmapChartService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final String POSTFIX_SORT_KEY_SUCCESS = "#suc";
-    private final String POSTFIX_SORT_KEY_FAIL = "#fal";
+    private static final String POSTFIX_SORT_KEY_SUCCESS = "#suc";
+    private static final String POSTFIX_SORT_KEY_FAIL = "#fal";
 
-    private final int YAXIS_CELL_MAXCOUNT = 50;
-    private final int MIN_INTERVAL_FOR_ELAPSED_TIME = 200;
+    private static final int YAXIS_CELL_MAXCOUNT = 50;
+    private static final int MIN_INTERVAL_FOR_ELAPSED_TIME = 200;
 
     private final HeatmapChartDao heatmapChartDao;
 

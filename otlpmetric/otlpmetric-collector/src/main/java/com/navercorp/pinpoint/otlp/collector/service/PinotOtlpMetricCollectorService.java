@@ -38,8 +38,9 @@ import java.util.stream.Collectors;
 @Service
 public class PinotOtlpMetricCollectorService implements OtlpMetricCollectorService {
 
+    private static final String DEFAULT_SERVICE_NAME = "";
+
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private final String DEFAULT_SERVICE_NAME = "";
 
     @NonNull
     private final OtlpMetricDao otlpMetricDao;
