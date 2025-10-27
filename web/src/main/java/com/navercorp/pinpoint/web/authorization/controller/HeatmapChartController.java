@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -44,8 +44,9 @@ import java.util.Optional;
 @Validated
 public class HeatmapChartController {
 
-    private final int MAX_TIMESLOT_COUNT = 60;
-    private final static String DEFAULT_SERVCIE_NAME = "DEFAULT";
+    private static final int MAX_TIMESLOT_COUNT = 60;
+    private static final String DEFAULT_SERVICE_NAME = "DEFAULT";
+
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(10000L, MAX_TIMESLOT_COUNT);
     private final HeatmapChartService heatmapChartService;
 
@@ -62,7 +63,7 @@ public class HeatmapChartController {
                                   @RequestParam("maxElapsedTime") @Positive int maxElapsedTime) {
         Range range = Range.between(from, to);
         TimeWindow timeWindow = getTimeWindow(range);
-        HeatMapData heatMapData = heatmapChartService.getHeatmapAppData(DEFAULT_SERVCIE_NAME, applicationName, timeWindow, minElapsedTime, maxElapsedTime);
+        HeatMapData heatMapData = heatmapChartService.getHeatmapAppData(DEFAULT_SERVICE_NAME, applicationName, timeWindow, minElapsedTime, maxElapsedTime);
         return new HeatMapDataView(heatMapData);
     }
 
