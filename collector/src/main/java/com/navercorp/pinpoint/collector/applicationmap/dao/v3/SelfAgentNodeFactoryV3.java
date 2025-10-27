@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.collector.applicationmap.dao.v3;
 
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.SelfAgentNodeFactory;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
-import com.navercorp.pinpoint.collector.applicationmap.statistics.ResponseColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
@@ -34,7 +33,7 @@ public class SelfAgentNodeFactoryV3 implements SelfAgentNodeFactory {
 
     @Override
     public ColumnName histogram(String agentId, HistogramSlot slot) {
-        return ResponseColumnName.histogram(agentId, slot.getSlotTime());
+        return ResponseV3ColumnName.histogram(agentId, slot.getSlotCode());
     }
 
     @Override
