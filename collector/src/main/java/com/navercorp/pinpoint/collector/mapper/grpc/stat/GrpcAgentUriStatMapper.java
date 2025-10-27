@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.grpc.trace.PUriHistogram;
 import com.navercorp.pinpoint.io.request.ServerHeader;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,9 +43,11 @@ public class GrpcAgentUriStatMapper {
         int bucketVersion = agentUriStat.getBucketVersion();
         List<PEachUriStat> eachUriStatList = agentUriStat.getEachUriStatList();
 
-        List<EachUriStatBo> list = eachUriStatList.stream()
-                .map(this::createEachUriStatBo)
-                .toList();
+        List<EachUriStatBo> list = new ArrayList<>(eachUriStatList.size());
+        for (PEachUriStat pEachUriStat : eachUriStatList) {
+            EachUriStatBo eachUriStatBo = createEachUriStatBo(pEachUriStat);
+            list.add(eachUriStatBo);
+        }
 
         return new AgentUriStatBo(
                 (byte) bucketVersion,

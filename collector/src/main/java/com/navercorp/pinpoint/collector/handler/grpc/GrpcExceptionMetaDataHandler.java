@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,9 +35,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author intr3p1d
@@ -107,15 +107,18 @@ public class GrpcExceptionMetaDataHandler implements RequestResponseHandler<PExc
     private List<ExceptionWrapperBo> mapExceptionWrapperBo(
             List<PException> exceptions, final ServerHeader header
     ) {
-        return exceptions.stream().map(
-                (PException p) -> new ExceptionWrapperBo(
-                        StringUtils.defaultIfEmpty(p.getExceptionClassName(), EMPTY),
-                        StringUtils.defaultIfEmpty(p.getExceptionMessage(), EMPTY),
-                        getFallbackTime(p.getStartTime(), p, header),
-                        p.getExceptionId(), p.getExceptionDepth(),
-                        handleStackTraceElements(p.getStackTraceElementList())
-                )
-        ).collect(Collectors.toList());
+        List<ExceptionWrapperBo> list = new ArrayList<>(exceptions.size());
+        for (PException p : exceptions) {
+            ExceptionWrapperBo exceptionWrapperBo = new ExceptionWrapperBo(
+                    StringUtils.defaultIfEmpty(p.getExceptionClassName(), EMPTY),
+                    StringUtils.defaultIfEmpty(p.getExceptionMessage(), EMPTY),
+                    getFallbackTime(p.getStartTime(), p, header),
+                    p.getExceptionId(), p.getExceptionDepth(),
+                    handleStackTraceElements(p.getStackTraceElementList())
+            );
+            list.add(exceptionWrapperBo);
+        }
+        return list;
     }
 
     private long getFallbackTime(long actual, PException p, final ServerHeader header) {
@@ -130,15 +133,17 @@ public class GrpcExceptionMetaDataHandler implements RequestResponseHandler<PExc
     }
 
     private List<StackTraceElementWrapperBo> handleStackTraceElements(List<PStackTraceElement> pStackTraceElements) {
-        return pStackTraceElements.stream().map(
-                (PStackTraceElement p) ->
-                        new StackTraceElementWrapperBo(
-                                StringUtils.defaultIfEmpty(p.getClassName(), EMPTY),
-                                StringUtils.defaultIfEmpty(p.getFileName(), EMPTY),
-                                p.getLineNumber(),
-                                StringUtils.defaultIfEmpty(p.getMethodName(), EMPTY)
-                        )
-        ).collect(Collectors.toList());
+        List<StackTraceElementWrapperBo> list = new ArrayList<>(pStackTraceElements.size());
+        for (PStackTraceElement p : pStackTraceElements) {
+            StackTraceElementWrapperBo stackTraceElementWrapperBo = new StackTraceElementWrapperBo(
+                    StringUtils.defaultIfEmpty(p.getClassName(), EMPTY),
+                    StringUtils.defaultIfEmpty(p.getFileName(), EMPTY),
+                    p.getLineNumber(),
+                    StringUtils.defaultIfEmpty(p.getMethodName(), EMPTY)
+            );
+            list.add(stackTraceElementWrapperBo);
+        }
+        return list;
     }
 
     private TransactionId newTransactionId(PTransactionId pTransactionId, String spanAgentId) {
