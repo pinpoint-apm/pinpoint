@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.web.WebHbaseModule;
 import com.navercorp.pinpoint.web.WebServiceConfig;
 import com.navercorp.pinpoint.web.component.config.ComponentConfiguration;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkConfiguration;
+import com.navercorp.pinpoint.web.uid.WebUidConfiguration;
 import com.navercorp.pinpoint.web.webhook.WebhookModule;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
@@ -66,6 +67,8 @@ import java.util.List;
         AlarmJobModule.class,
 
         WebServiceConfig.CommonConfig.class,
+        WebUidConfiguration.class,
+
         WebhookModule.class,
         WebHbaseModule.class,
         RestTemplateConfiguration.class,

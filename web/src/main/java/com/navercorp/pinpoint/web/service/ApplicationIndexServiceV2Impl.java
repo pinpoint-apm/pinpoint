@@ -68,6 +68,10 @@ public class ApplicationIndexServiceV2Impl implements ApplicationIndexServiceV2 
         if (StringUtils.isEmpty(serviceName)) {
             return ServiceUid.DEFAULT;
         }
-        return serviceUidService.getServiceUid(serviceName);
+        ServiceUid serviceUid = serviceUidService.getServiceUid(serviceName);
+        if (serviceUid == null) {
+            throw new IllegalArgumentException("service not found. name: " + serviceName);
+        }
+        return serviceUid;
     }
 }
