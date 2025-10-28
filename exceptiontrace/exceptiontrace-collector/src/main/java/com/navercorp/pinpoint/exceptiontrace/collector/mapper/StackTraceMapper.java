@@ -1,11 +1,11 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.exceptiontrace.collector.mapper;
 
-import com.navercorp.pinpoint.common.server.mapper.MapStructUtils;
 import com.navercorp.pinpoint.common.timeseries.array.IntArray;
 import com.navercorp.pinpoint.exceptiontrace.common.model.StackTraceElementWrapper;
 import org.mapstruct.Qualifier;
@@ -25,9 +24,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author intr3p1d
@@ -35,10 +33,7 @@ import java.util.stream.Collectors;
 @Component
 public class StackTraceMapper {
 
-    private final MapStructUtils mapStructUtils;
-
-    public StackTraceMapper(MapStructUtils mapStructUtils) {
-        this.mapStructUtils = Objects.requireNonNull(mapStructUtils, "mapStructUtils");
+    public StackTraceMapper() {
     }
 
     @Qualifier
@@ -67,16 +62,22 @@ public class StackTraceMapper {
 
     @StackTraceToClassNames
     public List<String> stackTraceToClassNames(List<StackTraceElementWrapper> classNames) {
-        return classNames.stream()
-                .map(StackTraceElementWrapper::getClassName)
-                .collect(Collectors.toList());
+        List<String> list = new ArrayList<>(classNames.size());
+        for (StackTraceElementWrapper className : classNames) {
+            String name = className.getClassName();
+            list.add(name);
+        }
+        return list;
     }
 
     @StackTraceToFileNames
     public List<String> stackTraceToFileNames(List<StackTraceElementWrapper> fileNames) {
-        return fileNames.stream()
-                .map(StackTraceElementWrapper::getFileName)
-                .collect(Collectors.toList());
+        List<String> list = new ArrayList<>(fileNames.size());
+        for (StackTraceElementWrapper fileName : fileNames) {
+            String name = fileName.getFileName();
+            list.add(name);
+        }
+        return list;
     }
 
     @StackTraceToLineNumbers
@@ -86,9 +87,12 @@ public class StackTraceMapper {
 
     @StackTraceToMethodNames
     public List<String> stackTraceToMethodNames(List<StackTraceElementWrapper> methodNames) {
-        return methodNames.stream()
-                .map(StackTraceElementWrapper::getMethodName)
-                .collect(Collectors.toList());
+        List<String> list = new ArrayList<>(methodNames.size());
+        for (StackTraceElementWrapper methodName : methodNames) {
+            String name = methodName.getMethodName();
+            list.add(name);
+        }
+        return list;
     }
 
 }

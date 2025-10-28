@@ -1,11 +1,11 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,22 +26,18 @@ import com.navercorp.pinpoint.exceptiontrace.common.model.ExceptionMetaData;
 import com.navercorp.pinpoint.exceptiontrace.common.model.StackTraceElementWrapper;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
-import jakarta.validation.Valid;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author intr3p1d
  */
 @Service
 @ConditionalOnProperty(name = "pinpoint.modules.collector.exceptiontrace.enabled", havingValue = "true")
-@Validated
 public class PinotExceptionMetaDataService implements ExceptionMetaDataService {
     private final ExceptionTraceDao exceptionTraceDao;
     private final ServiceTypeRegistryService registry;
@@ -67,10 +63,12 @@ public class PinotExceptionMetaDataService implements ExceptionMetaDataService {
     private List<ExceptionMetaData> toExceptionMetaData(
             ExceptionMetaDataBo exceptionMetaDataBo
     ) {
-        List<ExceptionMetaData> exceptionMetaData = new ArrayList<>();
+        List<ExceptionWrapperBo> exceptionWrapperBos = exceptionMetaDataBo.getExceptionWrapperBos();
+
+        List<ExceptionMetaData> exceptionMetaData = new ArrayList<>(exceptionWrapperBos.size());
         final ServiceType serviceType = registry.findServiceType(exceptionMetaDataBo.getServiceType());
         final String tenantId = tenantProvider.getTenantId();
-        for (ExceptionWrapperBo e : exceptionMetaDataBo.getExceptionWrapperBos()) {
+        for (ExceptionWrapperBo e : exceptionWrapperBos) {
             final List<StackTraceElementWrapper> wrappers = traceElementWrappers(e.getStackTraceElements());
             exceptionMetaData.add(
                     ExceptionMetaData.valueOf(
@@ -94,9 +92,12 @@ public class PinotExceptionMetaDataService implements ExceptionMetaDataService {
     }
 
     private static List<StackTraceElementWrapper> traceElementWrappers(List<StackTraceElementWrapperBo> wrapperBos) {
-        return wrapperBos.stream().map(
-                (StackTraceElementWrapperBo s) -> new StackTraceElementWrapper(s.getClassName(), s.getFileName(), s.getLineNumber(), s.getMethodName())
-        ).collect(Collectors.toList());
+        List<StackTraceElementWrapper> list = new ArrayList<>(wrapperBos.size());
+        for (StackTraceElementWrapperBo s : wrapperBos) {
+            StackTraceElementWrapper stackTraceElementWrapper = new StackTraceElementWrapper(s.getClassName(), s.getFileName(), s.getLineNumber(), s.getMethodName());
+            list.add(stackTraceElementWrapper);
+        }
+        return list;
     }
 
 }
