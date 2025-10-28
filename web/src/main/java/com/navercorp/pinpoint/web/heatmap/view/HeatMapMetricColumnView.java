@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,10 +16,11 @@
 
 package com.navercorp.pinpoint.web.heatmap.view;
 
+import com.google.common.collect.Iterators;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatMapMetricCell;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatMapMetricColumn;
 
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -42,14 +43,8 @@ public class HeatMapMetricColumnView {
         return heatMapMetricColumn.timestamp();
     }
 
-    public List<HeatMapMetricCellView> getCellDataList() {
+    public Iterator<HeatMapMetricCellView> getCellDataList() {
         List<HeatMapMetricCell> heatMapMetricCellList = heatMapMetricColumn.getHeatMapMetricCellList();
-        List<HeatMapMetricCellView> heatMapMetricCellViewList = new ArrayList<>(heatMapMetricCellList.size());
-
-        heatMapMetricCellList.stream()
-                                .map(HeatMapMetricCellView::new)
-                                .forEach(heatMapMetricCellViewList::add);
-
-        return heatMapMetricCellViewList;
+        return Iterators.transform(heatMapMetricCellList.iterator(), HeatMapMetricCellView::new);
     }
 }
