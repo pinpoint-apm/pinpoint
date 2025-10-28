@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,14 @@
 
 package com.navercorp.pinpoint.web.heatmap.view;
 
+import com.google.common.collect.Iterators;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatMapData;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatMapMetricColumn;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatmapSize;
 import com.navercorp.pinpoint.web.heatmap.vo.HeatmapSummary;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Objects;
 
 /**
@@ -43,16 +44,8 @@ public class HeatMapDataView {
         return heatmapData.getHeatmapSummary();
     }
 
-    public List<HeatMapMetricColumnView> getHeatmapData() {
-        List<HeatMapMetricColumn> heatMapMetricColumnList = heatmapData.getAscHeatMapMetricColumnList();
-
-        List<HeatMapMetricColumnView> heatMapMetricColumnViewList = new ArrayList<>(heatMapMetricColumnList.size());
-
-        heatMapMetricColumnList.stream()
-                                .map(HeatMapMetricColumnView::new)
-                                .forEach(heatMapMetricColumnViewList::add);
-
-        return heatMapMetricColumnViewList;
-
+    public Iterator<HeatMapMetricColumnView> getHeatmapData() {
+        Collection<HeatMapMetricColumn> heatMapMetricColumnList = heatmapData.getAscHeatMapMetricColumnList();
+        return Iterators.transform(heatMapMetricColumnList.iterator(), HeatMapMetricColumnView::new);
     }
 }
