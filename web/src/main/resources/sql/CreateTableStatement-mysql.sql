@@ -67,8 +67,8 @@ CREATE TABLE `webhook` (
   `webhook_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `alias` VARCHAR(256) NULL,
   `url` VARCHAR(256) NOT NULL,
-  `application_id` VARCHAR(45) NULL,
-  `service_name` VARCHAR(45) NULL,
+  `application_id` VARCHAR(127) NULL,
+  `service_name` VARCHAR(127) NULL,
   PRIMARY KEY (`webhook_id`)
 );
 
