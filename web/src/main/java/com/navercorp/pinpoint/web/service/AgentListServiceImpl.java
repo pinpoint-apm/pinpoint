@@ -41,7 +41,7 @@ public class AgentListServiceImpl implements AgentListService {
     public List<AgentAndStatus> getApplicationAgentList(String serviceName, String applicationName) {
         long currentTimeMillis = System.currentTimeMillis();
         ServiceUid serviceUid = handleServiceUid(serviceName);
-        List<String> agentList = agentIdDao.scanAgentId(serviceUid, applicationName);
+        List<String> agentList = agentIdDao.getAgentIds(serviceUid, applicationName);
         return getAgentAndStatuses(agentList, currentTimeMillis);
     }
 
@@ -49,7 +49,7 @@ public class AgentListServiceImpl implements AgentListService {
     public List<AgentAndStatus> getApplicationAgentList(String serviceName, String applicationName, int serviceTypeCode) {
         long currentTimeMillis = System.currentTimeMillis();
         ServiceUid serviceUid = handleServiceUid(serviceName);
-        List<String> agentList = agentIdDao.scanAgentId(serviceUid, applicationName, serviceTypeCode);
+        List<String> agentList = agentIdDao.getAgentIds(serviceUid, applicationName, serviceTypeCode);
         return getAgentAndStatuses(agentList, currentTimeMillis);
     }
 
@@ -74,7 +74,7 @@ public class AgentListServiceImpl implements AgentListService {
 
     public void deleteAllAgents(String serviceName, String applicationName, int serviceTypeCode) {
         ServiceUid serviceUid = handleServiceUid(serviceName);
-        List<String> agentList = agentIdDao.scanAgentId(serviceUid, applicationName, serviceTypeCode);
+        List<String> agentList = agentIdDao.getAgentIds(serviceUid, applicationName, serviceTypeCode);
         deleteAgents(serviceName, applicationName, serviceTypeCode, agentList);
     }
 
@@ -86,7 +86,7 @@ public class AgentListServiceImpl implements AgentListService {
     public int cleanupInactiveAgent(String serviceName, String applicationName, int serviceTypeCode, Range range) {
         Objects.requireNonNull(applicationName, "applicationName");
         ServiceUid serviceUid = handleServiceUid(serviceName);
-        List<String> agentIdList = agentIdDao.scanAgentId(serviceUid, applicationName, serviceTypeCode);
+        List<String> agentIdList = agentIdDao.getAgentIds(serviceUid, applicationName, serviceTypeCode);
         List<AgentAndStatus> agentAndStatusList = getAgentAndStatuses(agentIdList, range.getTo());
 
         return deleteInactiveAgent(range, serviceUid, applicationName, serviceTypeCode, agentIdList, agentAndStatusList);
