@@ -36,7 +36,7 @@ public class HbaseAgentIdDao implements AgentIdDao {
     }
 
     @Override
-    public List<String> scanAgentId(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
+    public List<String> getAgentIds(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
         byte[] rowKeyPrefix = createRowKey(serviceUid, applicationName, serviceTypeCode);
         Scan scan = createScan(rowKeyPrefix);
 
@@ -45,7 +45,7 @@ public class HbaseAgentIdDao implements AgentIdDao {
     }
 
     @Override
-    public List<String> scanAgentId(ServiceUid serviceUid, String applicationName) {
+    public List<String> getAgentIds(ServiceUid serviceUid, String applicationName) {
         byte[] rowKeyPrefix = createRowKey(serviceUid, applicationName);
         Scan scan = createScan(rowKeyPrefix);
 

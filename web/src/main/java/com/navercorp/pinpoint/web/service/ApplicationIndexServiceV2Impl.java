@@ -41,7 +41,7 @@ public class ApplicationIndexServiceV2Impl implements ApplicationIndexServiceV2 
     @Override
     public List<String> getAgentIds(String serviceName, String applicationName, int serviceTypeCode) {
         ServiceUid serviceUid = handleServiceUid(serviceName);
-        return agentIdDao.scanAgentId(serviceUid, applicationName, serviceTypeCode);
+        return agentIdDao.getAgentIds(serviceUid, applicationName, serviceTypeCode);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class ApplicationIndexServiceV2Impl implements ApplicationIndexServiceV2 
     @Override
     public void deleteAllAgents(String serviceName, String applicationName, int serviceTypeCode) {
         ServiceUid serviceUid = handleServiceUid(serviceName);
-        List<String> agentList = agentIdDao.scanAgentId(serviceUid, applicationName, serviceTypeCode);
+        List<String> agentList = agentIdDao.getAgentIds(serviceUid, applicationName, serviceTypeCode);
         agentIdDao.deleteAgents(serviceUid, applicationName, serviceTypeCode, agentList);
     }
 
