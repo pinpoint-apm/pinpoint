@@ -1,8 +1,27 @@
+/*
+ * Copyright 2025 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.service.dao.mysql;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
 import com.navercorp.pinpoint.service.dao.ServiceDao;
 import com.navercorp.pinpoint.service.vo.ServiceEntry;
 import com.navercorp.pinpoint.service.vo.ServiceInfo;
@@ -96,36 +115,38 @@ public class MysqlServiceDao implements ServiceDao {
     }
 
     static class Mapper {
-        private static final String EMPTY_MAP_JSON = "{}";
+            private static final String EMPTY_MAP_JSON = "{}";
 
-        private final ObjectMapper mapper;
+            private final ObjectReader reader;
+            private final ObjectWriter writer;
 
-        Mapper(ObjectMapper objectMapper) {
-            this.mapper = Objects.requireNonNull(objectMapper, "objectMapper");
-        }
+            Mapper(ObjectMapper mapper) {
+                Objects.requireNonNull(mapper, "mapper");
+                this.reader = mapper.readerForMapOf(String.class);
+                this.writer = mapper.writerFor(new TypeReference<Map<String, String>>() {});
+            }
 
-        public String toJson(Map<String, String> configuration) {
-            if (configuration == null || configuration.isEmpty()) {
-                return EMPTY_MAP_JSON;
+            public String toJson(Map<String, String> configuration) {
+                if (configuration == null || configuration.isEmpty()) {
+                    return EMPTY_MAP_JSON;
+                }
+                try {
+                    return writer.writeValueAsString(configuration);
+                } catch (JacksonException e) {
+                    throw new JsonRuntimeException("Failed to convert configuration to JSON", e);
+                }
             }
-            try {
-                return mapper.writeValueAsString(configuration);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to convert configuration to JSON", e);
-            }
-        }
 
-        public Map<String, String> fromJson(String json) {
-            if (json == null || json.isBlank()) {
-                return Collections.emptyMap();
+            public Map<String, String> fromJson(String json) {
+                if (json == null || json.isBlank()) {
+                    return Collections.emptyMap();
+                }
+                try {
+                    return reader.readValue(json);
+                } catch (JacksonException e) {
+                    throw new JsonRuntimeException("Failed to convert JSON to configuration", e);
+                }
             }
-            try {
-                return mapper.readValue(json, new TypeReference<Map<String, String>>() {
-                });
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to convert JSON to configuration", e);
-            }
-        }
     }
 
     public static class ServiceParam {

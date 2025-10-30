@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.navercorp.pinpoint.common.server.mapper;
@@ -21,6 +20,7 @@ import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.navercorp.pinpoint.common.server.util.json.JsonRuntimeException;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -39,20 +39,22 @@ import java.util.Objects;
 @Component
 public class MapStructUtils {
 
-    private final ObjectMapper mapper;
-
     private final ObjectReader integerListReader;
     private final ObjectReader longListReader;
     private final ObjectReader stringListReader;
     private final ObjectReader stringMapListReader;
 
+    private final ObjectWriter listWriter;
+
     public MapStructUtils(ObjectMapper mapper) {
-        this.mapper = Objects.requireNonNull(mapper, "mapper");
+        Objects.requireNonNull(mapper, "mapper");
 
         this.integerListReader = mapper.readerForListOf(Integer.class);
         this.longListReader = mapper.readerForListOf(Long.class);
         this.stringListReader = mapper.readerForListOf(String.class);
         this.stringMapListReader = mapper.readerFor(new TypeReference<List<Map<String, String>>>() {});
+
+        this.listWriter = mapper.writerFor(List.class);
     }
 
     @Qualifier
@@ -136,7 +138,7 @@ public class MapStructUtils {
             return "";
         }
         try {
-            return mapper.writeValueAsString(lists);
+            return listWriter.writeValueAsString(lists);
         } catch (JacksonException e) {
             throw new JsonRuntimeException("Json Write error", e);
         }
