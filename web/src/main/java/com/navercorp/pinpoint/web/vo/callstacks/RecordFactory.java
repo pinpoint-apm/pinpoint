@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.server.trace.ApiParserProvider;
 import com.navercorp.pinpoint.common.server.util.AnnotationUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
+import com.navercorp.pinpoint.common.trace.ErrorCategory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
@@ -33,6 +34,7 @@ import com.navercorp.pinpoint.web.component.AnnotationKeyMatcherService;
 import com.navercorp.pinpoint.web.service.ProxyRequestTypeRegistryService;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -205,6 +207,10 @@ public class RecordFactory {
 
     public Record getParameter(final int depth, final int parentId, final String method, final String argument) {
         return new ParameterRecord(depth, getNextId(), parentId, method, argument);
+    }
+
+    public Record getErrorCategory(final int depth, final int parentId, final EnumSet<ErrorCategory> categories) {
+        return new ErrorCategoryRecord(depth, getNextId(), parentId, categories);
     }
 
     int getParentId(final CallTreeNode node) {
