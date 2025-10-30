@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.bo.Event;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
+import com.navercorp.pinpoint.common.trace.ErrorCategory;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
@@ -44,6 +45,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -377,6 +379,25 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
                 final Record record = factory.get(node);
                 recordList.add(record);
+
+                // add error category record.(span only)
+                if (align.isSpan()) {
+                    final SpanBo spanBo = align.getSpanBo();
+                    if (spanBo.hasError()) {
+                        EnumSet<ErrorCategory> displayCandidate = EnumSet.complementOf(EnumSet.of(ErrorCategory.UNKNOWN));
+                        EnumSet<ErrorCategory> flagged = EnumSet.noneOf(ErrorCategory.class);
+                        for (ErrorCategory category : displayCandidate) {
+                            if ((spanBo.getErrCode() & category.getBitMask()) != 0) {
+                                flagged.add(category);
+                            }
+                        }
+
+                        if (!flagged.isEmpty()) {
+                            final Record errorCategoryRecord = factory.getErrorCategory(record.getTab() + 1, record.getId(), flagged);
+                            recordList.add(errorCategoryRecord);
+                        }
+                    }
+                }
 
                 // add exception record.
                 if (align.hasException()) {
