@@ -14,19 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.applicationmap.map;
+package com.navercorp.pinpoint.web.applicationmap;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-class MapViewsTest {
-
-
-    @Test
-    void extend_test_complex() {
-        MapViews mapViews = MapViews.ofDetailed().withDetailed();
-        Assertions.assertFalse(mapViews.isBasic());
-        Assertions.assertTrue(mapViews.isDetailed());
-    }
-
+public interface MapView {
 }
