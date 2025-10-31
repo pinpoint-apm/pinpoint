@@ -112,23 +112,27 @@ public class NodeView {
 
             final MapViews activeView = nodeView.getActiveView();
             if (serverGroupList == null) {
-                jgen.writeNumberField("instanceCount", 0);
-                jgen.writeNumberField("instanceErrorCount", 0);
+                writeAgentCount(0, 0, jgen);
+
                 JacksonWriterUtils.writeEmptyArray(jgen, "agents");
 
                 if (activeView.isDetailed()) {
                     JacksonWriterUtils.writeEmptyObject(jgen, "serverList");
                 }
             } else {
-                jgen.writeNumberField("instanceCount", serverGroupList.getInstanceCount());
-                long instanceErrorCount = getInstanceErrorCount(node);
-                jgen.writeNumberField("instanceErrorCount", instanceErrorCount);
+                writeAgentCount(serverGroupList.getInstanceCount(), getInstanceErrorCount(node), jgen);
+
                 writeAgentList("agents", serverGroupList, jgen);
 
                 if (activeView.isDetailed()) {
                     jgen.writeObjectField("serverList", new ServerGroupListView(serverGroupList, nodeView.getHyperLinkFactory()));
                 }
             }
+        }
+
+        private void writeAgentCount(int instanceCount, long instanceErrorCount, JsonGenerator jgen) throws IOException {
+            jgen.writeNumberField("instanceCount", instanceCount);
+            jgen.writeNumberField("instanceErrorCount", instanceErrorCount);
         }
 
         private void writeAgentList(String fieldName, ServerGroupList serverGroupList, JsonGenerator jgen) throws IOException {
