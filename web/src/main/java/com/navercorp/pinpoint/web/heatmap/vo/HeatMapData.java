@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.web.heatmap.vo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.TreeMap;
 
 /**
  * @author minwoo-jung
@@ -30,9 +30,9 @@ public class HeatMapData {
     private final HeatmapSize heatmapSize;
     private final HeatmapSummary heatmapSummary;
 
-    private final TreeMap<Long, HeatMapMetricColumn> heatMapMetricColumnMap;
+    private final Map<Long, HeatMapMetricColumn> heatMapMetricColumnMap;
 
-    public HeatMapData(int width, int height, long totalSuccessCount, long totalFailCount, TreeMap<Long, HeatMapMetricColumn> heatMapMetricColumnMap) {
+    public HeatMapData(int width, int height, long totalSuccessCount, long totalFailCount, Map<Long, HeatMapMetricColumn> heatMapMetricColumnMap) {
         this.heatmapSize = new HeatmapSize(width, height);
         this.heatmapSummary = new HeatmapSummary(totalSuccessCount, totalFailCount);
         this.heatMapMetricColumnMap = Objects.requireNonNull(heatMapMetricColumnMap, "heatMapMetricColumnMap");
@@ -55,7 +55,9 @@ public class HeatMapData {
     }
 
     public List<HeatMapMetricColumn> getDescHeatMapMetricColumnList() {
-        return new ArrayList<>(heatMapMetricColumnMap.descendingMap().values());
+        List<HeatMapMetricColumn> list = new ArrayList<>(heatMapMetricColumnMap.values());
+        Collections.reverse(list);
+        return list;
     }
 
     public List<HeatMapMetricColumn> getAscHeatMapMetricColumnList() {
