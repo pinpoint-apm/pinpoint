@@ -127,7 +127,7 @@ public class ServerMapHistogramController {
         final Range range = toRange(rangeForm);
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
-        final TimeHistogramFormat format = TimeHistogramFormat.V1;
+        final TimeHistogramFormat format = TimeHistogramFormat.V3;
         final Application application = getApplication(appForm);
 
         final LinkDataDuplexMap map = newLinkDataDuplexMap(
@@ -172,7 +172,7 @@ public class ServerMapHistogramController {
         final Range range = toRange(rangeForm);
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
-        final TimeHistogramFormat format = TimeHistogramFormat.V1;
+        final TimeHistogramFormat format = TimeHistogramFormat.V3;
 
         final LinkDataDuplexMap map = newLinkDataDuplexMap(
                 application, timeWindow, searchForm.getCallerRange(), searchForm.getCalleeRange(),
@@ -235,7 +235,7 @@ public class ServerMapHistogramController {
 
         ServerGroupList serverGroupList = nodeHistogramSummary.getServerGroupList();
         ServerGroupListView serverGroupListView = new ServerGroupListView(serverGroupList, hyperLinkFactory);
-        return new NodeHistogramSummaryView(nodeHistogramSummary, serverGroupListView, format);
+        return new NodeHistogramSummaryView(nodeHistogramSummary, timeWindow, serverGroupListView, format);
     }
 
 
@@ -317,10 +317,10 @@ public class ServerMapHistogramController {
 
         final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
 
-        final TimeHistogramFormat format = TimeHistogramFormat.V1;
+        final TimeHistogramFormat format = TimeHistogramFormat.V3;
         ServerGroupList serverGroupList = nodeHistogramSummary.getServerGroupList();
         ServerGroupListView serverGroupListView = new ServerGroupListView(serverGroupList, hyperLinkFactory);
-        return new NodeHistogramSummaryView(nodeHistogramSummary, serverGroupListView, format);
+        return new NodeHistogramSummaryView(nodeHistogramSummary, timeWindow, serverGroupListView, format);
     }
 
     private List<Application> toApplications(List<String> applicationNames, List<Short> serviceTypeCodes) {
@@ -360,7 +360,7 @@ public class ServerMapHistogramController {
         final LinkHistogramSummary linkHistogramSummary =
                 histogramService.selectLinkHistogramData(fromApplication, toApplication, timeWindow);
 
-        TimeHistogramFormat format = TimeHistogramFormat.V1;
-        return new LinkHistogramSummaryView(linkHistogramSummary, format);
+        TimeHistogramFormat format = TimeHistogramFormat.V3;
+        return new LinkHistogramSummaryView(linkHistogramSummary, timeWindow, format);
     }
 }

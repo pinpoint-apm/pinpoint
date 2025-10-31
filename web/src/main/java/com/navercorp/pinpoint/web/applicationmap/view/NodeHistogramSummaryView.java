@@ -1,6 +1,7 @@
 package com.navercorp.pinpoint.web.applicationmap.view;
 
 import com.navercorp.pinpoint.common.server.util.json.JsonFields;
+import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
@@ -17,15 +18,18 @@ public class NodeHistogramSummaryView {
 
     private final NodeHistogramSummary nodeHistogramSummary;
     private final NodeHistogram nodeHistogram;
+    private final TimeWindow timeWindow;
     private final TimeHistogramFormat format;
 
     private final ServerGroupListView serverGroupListView;
 
 
     public NodeHistogramSummaryView(NodeHistogramSummary nodeHistogramSummary,
+                                    TimeWindow timeWindow,
                                     ServerGroupListView serverGroupListView,
                                     TimeHistogramFormat format) {
         this.nodeHistogramSummary = Objects.requireNonNull(nodeHistogramSummary, "nodeHistogramSummary");
+        this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
         this.nodeHistogram = nodeHistogramSummary.getNodeHistogram();
 
         this.serverGroupListView = Objects.requireNonNull(serverGroupListView, "serverGroupListView");
@@ -63,6 +67,10 @@ public class NodeHistogramSummaryView {
 
     public Histogram getHistogram() {
         return nodeHistogram.getApplicationHistogram();
+    }
+
+    public List<Long> getTimestamp() {
+        return timeWindow.getTimeseriesWindows();
     }
 
     public Map<String, Histogram> getAgentHistogram() {

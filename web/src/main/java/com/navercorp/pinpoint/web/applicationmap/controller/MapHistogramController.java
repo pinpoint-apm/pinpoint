@@ -147,7 +147,7 @@ public class MapHistogramController {
         TimeHistogramFormat format = TimeHistogramFormat.V1;
         ServerGroupList serverGroupList = nodeHistogramSummary.getServerGroupList();
         ServerGroupListView serverGroupListView = new ServerGroupListView(serverGroupList, hyperLinkFactory);
-        return new NodeHistogramSummaryView(nodeHistogramSummary, serverGroupListView, format);
+        return new NodeHistogramSummaryView(nodeHistogramSummary, timeWindow, serverGroupListView, format);
     }
 
 
@@ -194,7 +194,7 @@ public class MapHistogramController {
         final TimeHistogramFormat format = TimeHistogramFormat.V1;
         ServerGroupList serverGroupList = nodeHistogramSummary.getServerGroupList();
         ServerGroupListView serverGroupListView = new ServerGroupListView(serverGroupList, hyperLinkFactory);
-        return new NodeHistogramSummaryView(nodeHistogramSummary, serverGroupListView, format);
+        return new NodeHistogramSummaryView(nodeHistogramSummary, timeWindow, serverGroupListView, format);
     }
 
     private List<Application> toApplications(List<String> applicationNames, List<Short> serviceTypeCodes) {
@@ -240,7 +240,7 @@ public class MapHistogramController {
                 responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, timeWindow);
 
         TimeHistogramFormat format = TimeHistogramFormat.V1;
-        return new LinkHistogramSummaryView(linkHistogramSummary, format);
+        return new LinkHistogramSummaryView(linkHistogramSummary, timeWindow, format);
     }
 
     @Nullable
