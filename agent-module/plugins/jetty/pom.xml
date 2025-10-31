@@ -126,7 +126,7 @@
                     </includes>
                     <archive>
                         <manifestEntries>
-                            <Pinpoint-Plugin-Package-Class-Requirements>com.navercorp.pinpoint.plugin.jetty.javax:javax.servlet.http.HttpServletRequest, com.navercorp.pinpoint.jetty.tomcat.jakarta:jakarta.servlet.http.HttpServletRequest</Pinpoint-Plugin-Package-Class-Requirements>
+                            <Pinpoint-Plugin-Package-Class-Requirements>com.navercorp.pinpoint.plugin.jetty.javax:javax.servlet.http.HttpServletRequest, com.navercorp.pinpoint.plugin.jetty.jakarta:jakarta.servlet.http.HttpServletRequest</Pinpoint-Plugin-Package-Class-Requirements>
                         </manifestEntries>
                     </archive>
                 </configuration>
