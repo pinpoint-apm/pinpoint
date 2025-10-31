@@ -31,11 +31,15 @@ import com.navercorp.pinpoint.web.applicationmap.controller.form.ApplicationForm
 import com.navercorp.pinpoint.web.applicationmap.controller.form.FilterForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.GroupForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.RangeForm;
-import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapServiceOption;
 import com.navercorp.pinpoint.web.applicationmap.service.TraceIndexService;
+import com.navercorp.pinpoint.web.applicationmap.view.AgentHistogramNodeView;
+import com.navercorp.pinpoint.web.applicationmap.view.AgentLinkView;
+import com.navercorp.pinpoint.web.applicationmap.view.AgentTimeSeriesHistogramNodeView;
 import com.navercorp.pinpoint.web.applicationmap.view.ScatterDataMapView;
+import com.navercorp.pinpoint.web.applicationmap.view.ServerListNodeView;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
@@ -135,7 +139,13 @@ public class FilteredMapController {
         }
 
         TimeWindow timeWindow = new TimeWindow(scannerRange);
-        ApplicationMapViewV3 applicationMapView = new ApplicationMapViewV3(map.getApplicationMap(), timeWindow, MapViews.ofDetailed(), hyperLinkFactory);
+        TimeHistogramFormat format = TimeHistogramFormat.V3;
+        ApplicationMapViewV3 applicationMapView = new ApplicationMapViewV3(map.getApplicationMap(), timeWindow,
+                ServerListNodeView.detailedView(),
+                AgentHistogramNodeView.detailedView(),
+                AgentTimeSeriesHistogramNodeView.detailedView(format),
+                AgentLinkView.detailedView(format),
+                hyperLinkFactory);
         ScatterDataMapView scatterDataMapView = new ScatterDataMapView(map.getScatterDataMap());
 //        FilteredHistogramView filteredHistogramView = new FilteredHistogramView(map.getApplicationMap(), timeWindow, hyperLinkFactory);
         return new FilterMapViewV3(applicationMapView, scatterDataMapView, null, lastScanTime);

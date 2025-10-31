@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.controller;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.service.MapService;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.util.ApplicationValidator;
@@ -37,6 +38,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -56,6 +58,9 @@ class MapControllerTest {
 
     @BeforeEach
     public void setup() {
+        ApplicationMap map = mock(ApplicationMap.class);
+        when(mapService.selectApplicationMap(any())).thenReturn(map);
+
         Duration duration = Duration.ofMinutes(1);
         MapController controller = new MapController(mapService, applicationValidator, hyperLinkFactory, duration);
         when(applicationValidator.newApplication(any(), anyInt(), any()))

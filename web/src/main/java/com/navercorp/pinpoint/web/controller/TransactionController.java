@@ -25,10 +25,14 @@ import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapView;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapViewV3;
+import com.navercorp.pinpoint.web.applicationmap.MapView;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
-import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapServiceOption;
+import com.navercorp.pinpoint.web.applicationmap.view.AgentHistogramNodeView;
+import com.navercorp.pinpoint.web.applicationmap.view.AgentLinkView;
+import com.navercorp.pinpoint.web.applicationmap.view.AgentTimeSeriesHistogramNodeView;
+import com.navercorp.pinpoint.web.applicationmap.view.ServerListNodeView;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.SpanFilters;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
@@ -236,16 +240,30 @@ public class TransactionController {
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
         final ApplicationMap map = filteredMapService.selectApplicationMap(option);
-        Object mapView = getApplicationMap(map, format);
+        MapView mapView = getApplicationMap(map, format);
 
         return new TransactionServerMapViewModel(transactionId, spanId, mapView);
     }
 
-    private Object getApplicationMap(ApplicationMap map, TimeHistogramFormat format) {
+    private MapView getApplicationMap(ApplicationMap map, TimeHistogramFormat format) {
         if (format == TimeHistogramFormat.V3) {
             TimeWindow timeWindow = new TimeWindow(map.getRange());
-            return new ApplicationMapViewV3(map, timeWindow, MapViews.ofDetailed(), hyperLinkFactory);
+            return new ApplicationMapViewV3(map, timeWindow,
+                    ServerListNodeView.detailedView(),
+                    AgentHistogramNodeView.detailedView(),
+                    AgentTimeSeriesHistogramNodeView.detailedView(format),
+
+                    AgentLinkView.detailedView(format),
+
+                    hyperLinkFactory);
         }
-        return new ApplicationMapView(map, MapViews.ofDetailed(), hyperLinkFactory, format);
+        return new ApplicationMapView(map,
+                ServerListNodeView.detailedView(),
+                AgentHistogramNodeView.detailedView(),
+                AgentTimeSeriesHistogramNodeView.detailedView(format),
+
+                AgentLinkView.detailedView(format),
+
+                hyperLinkFactory, format);
     }
 }

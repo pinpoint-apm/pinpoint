@@ -21,18 +21,14 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.server.util.json.JacksonWriterUtils;
-import com.navercorp.pinpoint.common.server.util.json.JsonFields;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
-import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
-import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 
 import java.io.IOException;
@@ -43,23 +39,43 @@ import java.util.Objects;
 @JsonSerialize(using = NodeView.NodeViewSerializer.class)
 public class NodeView {
     private final Node node;
-    private final MapViews activeView;
+
+    private final ServerListNodeView serverListNodeView;
+    private final AgentHistogramNodeView agentHistogramNodeView;
+    private final AgentTimeSeriesHistogramNodeView agentTimeSeriesHistogramNodeView;
+
     private final HyperLinkFactory hyperLinkFactory;
     private final TimeHistogramFormat format;
 
-    public NodeView(Node node, MapViews activeView, HyperLinkFactory hyperLinkFactory, TimeHistogramFormat format) {
+    public NodeView(Node node,
+                    ServerListNodeView serverListNodeView,
+                    AgentHistogramNodeView agentHistogramNodeView,
+                    AgentTimeSeriesHistogramNodeView agentTimeSeriesHistogramNodeView,
+
+                    HyperLinkFactory hyperLinkFactory, TimeHistogramFormat format) {
         this.node = Objects.requireNonNull(node, "node");
-        this.activeView = Objects.requireNonNull(activeView, "activeView");
+        this.serverListNodeView = Objects.requireNonNull(serverListNodeView, "serverListView");
+        this.agentHistogramNodeView = Objects.requireNonNull(agentHistogramNodeView, "agentHistogramView");
+        this.agentTimeSeriesHistogramNodeView = Objects.requireNonNull(agentTimeSeriesHistogramNodeView, "agentTimeSeriesHistogramView");
+
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
         this.format = Objects.requireNonNull(format, "format");
     }
 
-    private Node getNode() {
+    public Node getNode() {
         return node;
     }
 
-    public MapViews getActiveView() {
-        return activeView;
+    public ServerListNodeView getServerListView() {
+        return serverListNodeView;
+    }
+
+    public AgentHistogramNodeView getAgentHistogramView() {
+        return agentHistogramNodeView;
+    }
+
+    public AgentTimeSeriesHistogramNodeView getAgentTimeSeriesHistogramView() {
+        return agentTimeSeriesHistogramNodeView;
     }
 
     public HyperLinkFactory getHyperLinkFactory() {
@@ -71,8 +87,6 @@ public class NodeView {
     }
 
     static class NodeViewSerializer extends JsonSerializer<NodeView> {
-
-        public static final String AGENT_TIME_SERIES_HISTOGRAM = "agentTimeSeriesHistogram";
 
         @Override
         public void serialize(NodeView nodeView, JsonGenerator jgen, SerializerProvider provider) throws IOException {
@@ -108,27 +122,21 @@ public class NodeView {
         private void writeServerGroupList(NodeView nodeView, JsonGenerator jgen) throws IOException {
             final Node node = nodeView.getNode();
             ServerGroupList serverGroupList = node.getServerGroupList();
-            if (node.getServiceType().isUnknown()) {
-                serverGroupList = null;
-            }
 
-            final MapViews activeView = nodeView.getActiveView();
-            if (serverGroupList == null) {
+            if (node.getServiceType().isUnknown()) {
                 writeAgentCount(0, 0, jgen);
 
                 JacksonWriterUtils.writeEmptyArray(jgen, "agents");
 
-                if (activeView.isDetailed()) {
-                    JacksonWriterUtils.writeEmptyObject(jgen, "serverList");
-                }
+                ServerListNodeView detailedServerListNodeView = nodeView.getServerListView();
+                detailedServerListNodeView.writeServerList(nodeView, jgen);
             } else {
                 writeAgentCount(serverGroupList.getInstanceCount(), getInstanceErrorCount(node), jgen);
 
                 writeAgentList("agents", serverGroupList, jgen);
 
-                if (activeView.isDetailed()) {
-                    jgen.writeObjectField("serverList", new ServerGroupListView(serverGroupList, nodeView.getHyperLinkFactory()));
-                }
+                ServerListNodeView serverListNodeView = nodeView.getServerListView();
+                serverListNodeView.writeServerList(nodeView, jgen);
             }
         }
 
@@ -169,7 +177,6 @@ public class NodeView {
             final Node node = nodeView.getNode();
             final ServiceType serviceType = node.getServiceType();
             final NodeHistogram nodeHistogram = node.getNodeHistogram();
-            final MapViews activeView = nodeView.getActiveView();
 
             // FIXME isn't this all ServiceTypes that can be a node?
             final boolean nodeServiceType = isNodeServiceType(serviceType);
@@ -193,18 +200,9 @@ public class NodeView {
                     jgen.writeObjectField("histogram", applicationHistogram);
                 }
 
-
                 // agent histogram
-                if (activeView.isDetailed()) {
-                    Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
-                    if (agentHistogramMap == null) {
-                        JacksonWriterUtils.writeEmptyObject(jgen, "agentHistogram");
-                        JacksonWriterUtils.writeEmptyObject(jgen, ResponseTimeStatics.AGENT_RESPONSE_STATISTICS);
-                    } else {
-                        jgen.writeObjectField("agentHistogram", agentHistogramMap);
-                        jgen.writeObjectField(ResponseTimeStatics.AGENT_RESPONSE_STATISTICS, nodeHistogram.getAgentResponseStatisticsMap());
-                    }
-                }
+                AgentHistogramNodeView agentHistogramNodeView = nodeView.getAgentHistogramView();
+                agentHistogramNodeView.writeAgentHistogram(nodeView, jgen);
             } else {
                 jgen.writeBooleanField("hasAlert", false);  // for go.js
             }
@@ -223,12 +221,8 @@ public class NodeView {
                     jgen.writeObjectField("timeSeriesHistogram", applicationTimeSeriesHistogram);
                 }
 
-                if (activeView.isDetailed()) {
-                    AgentTimeHistogram agentTimeHistogram = nodeHistogram.getAgentTimeHistogram();
-                    JsonFields<AgentNameView, List<TimeHistogramViewModel>> agentFields = agentTimeHistogram.createViewModel(format);
-                    jgen.writeFieldName(AGENT_TIME_SERIES_HISTOGRAM);
-                    jgen.writeObject(agentFields);
-                }
+                AgentTimeSeriesHistogramNodeView agentTimeSeriesHistogramNodeView = nodeView.getAgentTimeSeriesHistogramView();
+                agentTimeSeriesHistogramNodeView.writeAgentTimeSeriesHistogram(nodeView, jgen);
             }
         }
 

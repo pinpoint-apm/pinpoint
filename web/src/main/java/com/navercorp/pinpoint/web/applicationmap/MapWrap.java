@@ -13,39 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.web.view;
 
+package com.navercorp.pinpoint.web.applicationmap;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
-import com.navercorp.pinpoint.web.applicationmap.MapView;
 
 import java.util.Objects;
 
-public class TransactionServerMapViewModel {
-
-    private final TransactionId transactionId;
-    private final long spanId;
+/**
+ * @author emeroad
+ */
+@JsonInclude(content = JsonInclude.Include.NON_NULL)
+public class MapWrap {
     private final MapView mapView;
 
-    public TransactionServerMapViewModel(TransactionId transactionId, long spanId,
-                                         MapView mapView) {
-        this.transactionId = transactionId;
-        this.spanId = spanId;
+    public MapWrap(MapView mapView) {
         this.mapView = Objects.requireNonNull(mapView, "mapView");
-    }
 
-    @JsonProperty("transactionId")
-    public String getTransactionId() {
-        return transactionId.toString();
-    }
-
-    @JsonProperty("spanId")
-    public long getSpanId() {
-        return spanId;
     }
 
     @JsonProperty("applicationMapData")
-    public MapView getApplicationMapData() {
+    public MapView getApplicationMap() {
         return mapView;
+    }
+
+    @Override
+    public String toString() {
+        return "MapWrap{" +
+               ", mapView=" + mapView +
+               '}';
     }
 }

@@ -20,17 +20,12 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.common.server.util.json.JsonFields;
-import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
-import com.navercorp.pinpoint.web.applicationmap.map.MapViews;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
-import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
-import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 
@@ -43,21 +38,22 @@ import java.util.Objects;
 @JsonSerialize(using = LinkView.LinkViewSerializer.class)
 public class LinkView {
     private final Link link;
-    private final MapViews activeView;
+    private final AgentLinkView agentLinkView;
+
     private final TimeHistogramFormat format;
 
-    public LinkView(Link link, MapViews activeView, TimeHistogramFormat format) {
+    public LinkView(Link link, AgentLinkView agentLinkView, TimeHistogramFormat format) {
         this.link = Objects.requireNonNull(link, "link");
-        this.activeView = Objects.requireNonNull(activeView, "activeView");
+        this.agentLinkView = Objects.requireNonNull(agentLinkView, "agentLinkView");
         this.format = Objects.requireNonNull(format, "format");
     }
 
-    private Link getLink() {
+    public Link getLink() {
         return link;
     }
 
-    public MapViews getActiveView() {
-        return activeView;
+    public AgentLinkView getAgentLinkView() {
+        return agentLinkView;
     }
 
     private TimeHistogramFormat getFormat() {
@@ -96,24 +92,12 @@ public class LinkView {
 
 
             jgen.writeObjectField("histogram", histogram);
-            final MapViews activeView = linkView.getActiveView();
             // time histogram
             writeTimeSeriesHistogram(link, linkView.getFormat(), jgen);
 
 
-            //agent histogram
-            if (activeView.isDetailed()) {
-                // data showing how agents call each of their respective links
-                final List<AgentHistogram> sourceList = link.getSourceList().getAgentHistogramList();
-                writeAgentHistogram("sourceHistogram", sourceList, jgen);
-                writeAgentResponseStatistics("sourceResponseStatistics", sourceList, jgen);
-
-                final List<AgentHistogram> targetList = link.getTargetList().getAgentHistogramList();
-                writeAgentHistogram("targetHistogram", targetList, jgen);
-                writeAgentResponseStatistics("targetResponseStatistics", targetList, jgen);
-
-                writeSourceAgentTimeSeriesHistogram(linkView, jgen);
-            }
+            AgentLinkView agentLinkView = linkView.getAgentLinkView();
+            agentLinkView.writeAgentLink(linkView, jgen);
 
 //        String state = link.getLinkState();
 //        jgen.writeStringField("state", state); // for go.js
@@ -187,35 +171,6 @@ public class LinkView {
             List<TimeHistogramViewModel> sourceApplicationHistogram = builder.build(linkApplicationTimeSeriesHistogram);
             jgen.writeFieldName("timeSeriesHistogram");
             jgen.writeObject(sourceApplicationHistogram);
-        }
-
-        private void writeAgentResponseStatistics(String fieldName, Collection<AgentHistogram> agentHistogramList, JsonGenerator jgen) throws IOException {
-            jgen.writeFieldName(fieldName);
-            jgen.writeStartObject();
-            for (AgentHistogram agentHistogram : agentHistogramList) {
-                jgen.writeFieldName(agentHistogram.getId());
-                jgen.writeObject(ResponseTimeStatics.fromHistogram(agentHistogram.getHistogram()));
-            }
-            jgen.writeEndObject();
-        }
-
-        private void writeAgentHistogram(String fieldName, Collection<AgentHistogram> agentHistogramList, JsonGenerator jgen) throws IOException {
-            jgen.writeFieldName(fieldName);
-            jgen.writeStartObject();
-            for (AgentHistogram agentHistogram : agentHistogramList) {
-                jgen.writeFieldName(agentHistogram.getId());
-                jgen.writeObject(agentHistogram.getHistogram());
-            }
-            jgen.writeEndObject();
-        }
-
-        private void writeSourceAgentTimeSeriesHistogram(LinkView linkView, JsonGenerator jgen) throws IOException {
-            Link link = linkView.getLink();
-            TimeHistogramFormat format = linkView.getFormat();
-            AgentTimeHistogram agentTimeHistogram = link.getSourceAgentTimeSeriesHistogram();
-            JsonFields<AgentNameView, List<TimeHistogramViewModel>> sourceAgentTimeSeriesHistogram = agentTimeHistogram.createViewModel(format);
-            jgen.writeFieldName("sourceTimeSeriesHistogram");
-            jgen.writeObject(sourceAgentTimeSeriesHistogram);
         }
 
         private void writeSimpleNode(String fieldName, Node node, JsonGenerator jgen) throws IOException {
