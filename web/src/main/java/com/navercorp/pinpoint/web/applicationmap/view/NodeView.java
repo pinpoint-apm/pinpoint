@@ -96,6 +96,8 @@ public class NodeView {
             jgen.writeBooleanField("isQueue", serviceType.isQueue());
             jgen.writeBooleanField("isAuthorized", node.isAuthorized());
 
+            jgen.writeObjectField("apdex", node.getApdexScore());
+
             writeHistogram(nodeView, jgen, provider);
             writeServerGroupList(nodeView, jgen);
 
