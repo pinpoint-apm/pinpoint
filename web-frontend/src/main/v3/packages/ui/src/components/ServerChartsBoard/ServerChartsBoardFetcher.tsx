@@ -2,7 +2,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { ChartsBoard, ChartsBoardProps } from '..';
-import { END_POINTS, GetResponseTimeHistogram, GetServerMap } from '@pinpoint-fe/ui/src/constants';
+import { END_POINTS, GetHistogramStatistics, GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import {
   serverMapCurrentTargetDataAtom,
   currentNodeStatisticsAtom,
@@ -32,9 +32,9 @@ export const ServerChartsBoardFetcher = ({
     serverMapData: serverMapData?.applicationMapData as GetServerMap.ApplicationMapData,
     currentTargetData: currentTargetData as GetServerMap.NodeData,
   });
-  const queryParams: GetResponseTimeHistogram.Parameters = {
+  const queryParams: GetHistogramStatistics.Parameters = {
     applicationName: (currentTargetData as GetServerMap.NodeData)?.applicationName,
-    serviceTypeCode: (currentTargetData as GetServerMap.NodeData)?.serviceTypeCode,
+    serviceTypeName: (currentTargetData as GetServerMap.NodeData)?.serviceType,
     from: getParsedDate(searchParameters.from).getTime(),
     to: getParsedDate(searchParameters.to).getTime(),
     fromApplicationNames: serverMapLinkedData?.from
@@ -59,7 +59,7 @@ export const ServerChartsBoardFetcher = ({
       queryParams.from &&
       queryParams.to &&
       queryParams.applicationName &&
-      queryParams.serviceTypeCode &&
+      queryParams.serviceTypeName &&
       (queryParams.fromApplicationNames ||
         queryParams.fromServiceTypeCodes ||
         queryParams.toApplicationNames ||
@@ -71,7 +71,7 @@ export const ServerChartsBoardFetcher = ({
     return '';
   }, [queryParams]);
 
-  const { data } = useQuery<GetResponseTimeHistogram.Response | null>({
+  const { data } = useQuery<GetHistogramStatistics.Response | null>({
     queryKey: [END_POINTS.HISTOGRAM_STATISTICS, queryParams],
     queryFn: queryFn(`${END_POINTS.HISTOGRAM_STATISTICS}${getQueryString()}`),
     enabled: !!getQueryString() && !disableFetch,

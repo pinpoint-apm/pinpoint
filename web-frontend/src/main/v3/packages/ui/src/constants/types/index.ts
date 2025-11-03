@@ -21,7 +21,6 @@ export * from './ErrorResponse';
 export * from './FilteredMap';
 export * from './GetApdexScore';
 export * from './GetHeatmapAppData';
-export * from './GetResponseTimeHistogram';
 export * from './GetScatter';
 export * from './GetServerMap';
 export * from './GetHistogramStatistics';
