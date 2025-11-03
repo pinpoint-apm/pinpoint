@@ -179,7 +179,7 @@
         <spring.batch.version>5.1.1</spring.batch.version>
 
 <!--        <spring.security.version>5.8.1</spring.security.version>-->
-        <spring.security.version>6.1.8</spring.security.version>
+        <spring.security.version>6.5.6</spring.security.version>
         <spring-boot2.version>2.7.13</spring-boot2.version>
         <spring.kafka.version>3.0.13</spring.kafka.version>
         <kafka.client.version>3.3.2</kafka.client.version>
@@ -188,8 +188,8 @@
         <spring-boot.version>${spring-boot3.version}</spring-boot.version>
 
         <!-- spring boot3 dependency -->
-        <spring6.version>6.1.5</spring6.version>
-        <spring-boot3.version>3.2.4</spring-boot3.version>
+        <spring6.version>6.2.12</spring6.version>
+        <spring-boot3.version>3.4.11</spring-boot3.version>
         <spring-shell.version>3.2.3</spring-shell.version>
 
         <spring-cloud3.version>3.1.8</spring-cloud3.version>
