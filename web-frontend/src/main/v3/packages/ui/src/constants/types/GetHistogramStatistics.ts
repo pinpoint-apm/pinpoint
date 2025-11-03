@@ -25,6 +25,7 @@ export namespace GetHistogramStatistics {
     responseStatistics: ResponseStatistics;
     serverList: ServerList;
     timeSeriesHistogram: TimeSeriesHistogram[];
+    timestamp: number[];
   }
 
   export interface ServerList {
@@ -87,7 +88,7 @@ export namespace GetHistogramStatistics {
 
   export interface TimeSeriesHistogram {
     key: string;
-    values: number[][];
+    values: number[];
   }
 
   export interface AgentTimeSeriesHistogram {
