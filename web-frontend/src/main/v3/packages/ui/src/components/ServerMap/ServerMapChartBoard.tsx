@@ -147,7 +147,7 @@ export const ServerMapChartsBoardFetcher = ({
   }, [currentTargetData]);
 
   const timestamp = React.useMemo(() => {
-    return data?.timeSeriesHistogram?.[0]?.values?.map((v) => v?.[0]);
+    return data?.timestamp;
   }, [data]);
 
   const histogramStatisticsData = React.useMemo(() => {
@@ -155,12 +155,7 @@ export const ServerMapChartsBoardFetcher = ({
       return {
         histogram: data?.histogram,
         responseStatistics: data?.responseStatistics,
-        timeSeriesHistogram: data?.timeSeriesHistogram?.map((tsh) => {
-          return {
-            ...tsh,
-            values: tsh.values.map((v) => v?.[1]),
-          };
-        }),
+        timeSeriesHistogram: data?.timeSeriesHistogram,
       };
     }
 
@@ -172,14 +167,7 @@ export const ServerMapChartsBoardFetcher = ({
       return {
         histogram: data?.agentHistogram?.[currentServer?.agentId || ''],
         responseStatistics: data?.agentResponseStatistics?.[currentServer?.agentId || ''],
-        timeSeriesHistogram: data?.agentTimeSeriesHistogram?.[currentServer?.agentId || '']?.map(
-          (tsh) => {
-            return {
-              ...tsh,
-              values: tsh.values.map((v) => v?.[1]),
-            };
-          },
-        ),
+        timeSeriesHistogram: data?.agentTimeSeriesHistogram?.[currentServer?.agentId || ''],
       };
     }
 
