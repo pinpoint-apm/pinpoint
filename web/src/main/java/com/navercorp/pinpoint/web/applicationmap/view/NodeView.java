@@ -22,17 +22,14 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.server.util.json.JacksonWriterUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -40,30 +37,37 @@ import java.util.Objects;
 public class NodeView {
     private final Node node;
 
+    private final ApplicationTimeSeriesHistogramNodeView applicationTimeSeriesHistogramNodeView;
+
     private final ServerListNodeView serverListNodeView;
     private final AgentHistogramNodeView agentHistogramNodeView;
     private final AgentTimeSeriesHistogramNodeView agentTimeSeriesHistogramNodeView;
 
     private final HyperLinkFactory hyperLinkFactory;
-    private final TimeHistogramFormat format;
 
     public NodeView(Node node,
+                    ApplicationTimeSeriesHistogramNodeView applicationTimeSeriesHistogramNodeView,
                     ServerListNodeView serverListNodeView,
                     AgentHistogramNodeView agentHistogramNodeView,
                     AgentTimeSeriesHistogramNodeView agentTimeSeriesHistogramNodeView,
 
-                    HyperLinkFactory hyperLinkFactory, TimeHistogramFormat format) {
+                    HyperLinkFactory hyperLinkFactory) {
         this.node = Objects.requireNonNull(node, "node");
+
+        this.applicationTimeSeriesHistogramNodeView = Objects.requireNonNull(applicationTimeSeriesHistogramNodeView, "applicationTimeSeriesHistogramNodeView");
         this.serverListNodeView = Objects.requireNonNull(serverListNodeView, "serverListView");
         this.agentHistogramNodeView = Objects.requireNonNull(agentHistogramNodeView, "agentHistogramView");
         this.agentTimeSeriesHistogramNodeView = Objects.requireNonNull(agentTimeSeriesHistogramNodeView, "agentTimeSeriesHistogramView");
 
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
-        this.format = Objects.requireNonNull(format, "format");
     }
 
     public Node getNode() {
         return node;
+    }
+
+    public ApplicationTimeSeriesHistogramNodeView getApplicationTimeSeriesHistogramNodeView() {
+        return applicationTimeSeriesHistogramNodeView;
     }
 
     public ServerListNodeView getServerListView() {
@@ -82,9 +86,6 @@ public class NodeView {
         return hyperLinkFactory;
     }
 
-    private TimeHistogramFormat getFormat() {
-        return format;
-    }
 
     static class NodeViewSerializer extends JsonSerializer<NodeView> {
 
@@ -210,16 +211,9 @@ public class NodeView {
             // time histogram
             // FIXME isn't this all ServiceTypes that can be a node?
             if (nodeServiceType) {
-                final TimeHistogramFormat format = nodeView.getFormat();
 
-                ApplicationTimeHistogram applicationTimeHistogram = nodeHistogram.getApplicationTimeHistogram();
-                TimeHistogramBuilder builder = new TimeHistogramBuilder(format);
-                List<TimeHistogramViewModel> applicationTimeSeriesHistogram = builder.build(applicationTimeHistogram);
-                if (applicationTimeSeriesHistogram == null) {
-                    JacksonWriterUtils.writeEmptyArray(jgen, "timeSeriesHistogram");
-                } else {
-                    jgen.writeObjectField("timeSeriesHistogram", applicationTimeSeriesHistogram);
-                }
+                ApplicationTimeSeriesHistogramNodeView applicationTimeSeriesHistogramNodeView = nodeView.getApplicationTimeSeriesHistogramNodeView();
+                applicationTimeSeriesHistogramNodeView.writeTimeSeriesHistogram(nodeView, jgen);
 
                 AgentTimeSeriesHistogramNodeView agentTimeSeriesHistogramNodeView = nodeView.getAgentTimeSeriesHistogramView();
                 agentTimeSeriesHistogramNodeView.writeAgentTimeSeriesHistogram(nodeView, jgen);
