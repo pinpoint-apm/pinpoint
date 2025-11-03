@@ -1,14 +1,14 @@
 import React from 'react';
 import { GoDotFill } from 'react-icons/go';
 import { FaChartLine } from 'react-icons/fa';
-import { GetResponseTimeHistogram, SearchApplication } from '@pinpoint-fe/ui/src/constants';
+import { GetHistogramStatistics, SearchApplication } from '@pinpoint-fe/ui/src/constants';
 import { Button, cn, Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '../..';
 
 export interface ServerListProps {
   className?: string;
   selectedId?: string;
   data?: SearchApplication.Response;
-  statistics?: GetResponseTimeHistogram.Response;
+  statistics?: GetHistogramStatistics.Response;
   onClick?: (inscance: SearchApplication.Instance) => void;
   onClickInspectorLink?: (agentId: string) => void;
   groupNameRenderer?: (application: SearchApplication.Application) => React.ReactNode;

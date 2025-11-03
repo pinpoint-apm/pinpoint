@@ -2,7 +2,7 @@ import { atom } from 'jotai';
 import {
   EXPERIMENTAL_CONFIG_KEYS,
   FilteredMapType as FilteredMap,
-  GetResponseTimeHistogram,
+  GetHistogramStatistics,
   GetServerMap,
   SearchApplication,
 } from '@pinpoint-fe/ui/src/constants';
@@ -57,7 +57,7 @@ export const serverMapCurrentTargetDataAtom = atom((get) => {
   }
 });
 
-export const currentNodeStatisticsAtom = atom<GetResponseTimeHistogram.Response | undefined>(
+export const currentNodeStatisticsAtom = atom<GetHistogramStatistics.Response | undefined>(
   undefined,
 );
 

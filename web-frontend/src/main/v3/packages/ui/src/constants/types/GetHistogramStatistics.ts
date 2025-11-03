@@ -5,13 +5,17 @@ export namespace GetHistogramStatistics {
     serviceTypeName: string;
     from: number;
     to: number;
-    calleeRange: number;
-    callerRange: number;
-    wasOnly: boolean;
-    bidirectional: boolean;
-    useStatisticsAgentState: boolean;
+    calleeRange?: number;
+    callerRange?: number;
+    wasOnly?: boolean;
+    bidirectional?: boolean;
+    useStatisticsAgentState?: boolean;
     nodeKey?: string;
     linkKey?: string;
+    fromApplicationNames?: string;
+    fromServiceTypeCodes?: string;
+    toApplicationNames?: string;
+    toServiceTypeCodes?: string;
   }
 
   export interface Response {
