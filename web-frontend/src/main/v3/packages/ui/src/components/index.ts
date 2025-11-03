@@ -36,7 +36,6 @@ export * from './ProgressBar';
 export * from './Realtime';
 export * from './ReChart';
 export * from './ScatterChart';
-export * from './ServerChartsBoard';
 export * from './ServerList';
 export * from './ServerMap';
 export * from './ServerMapQueryOptions';

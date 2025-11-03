@@ -46,6 +46,8 @@ export interface ServermapPageProps {
   ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
 }
 
+const SERVERMAP_CONTAINER_ID = 'server-map-main-container';
+
 export const ServerMapPage = ({
   authorizationGuideUrl,
   configuration,
@@ -53,7 +55,6 @@ export const ServerMapPage = ({
 }: ServermapPageProps) => {
   const periodMax = configuration?.[`periodMax.serverMap`];
   const periodInterval = configuration?.[`periodInterval.serverMap`];
-  const SERVERMAP_CONTAINER_ID = 'server-map-main-container';
   const containerRef = React.useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { dateRange, application, searchParameters, queryOption, pathname } =
