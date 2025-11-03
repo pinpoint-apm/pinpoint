@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   convertParamsToQueryString,
@@ -7,25 +7,17 @@ import {
   getFilteredMapPath,
   getApplicationKey,
   getServerMapPath,
-  getTransactionListPath,
-  getTranscationListQueryString,
 } from '@pinpoint-fe/ui/src/utils';
 import { useFilteredMapParameters } from '@pinpoint-fe/ui/src/hooks';
-import { MdArrowBackIosNew, MdArrowForwardIos } from 'react-icons/md';
-import { ServerListForCommon } from '@pinpoint-fe/ui/src/components/ServerList/ServerListForCommon';
 import {
   serverMapDataAtom,
   serverMapCurrentTargetAtom,
-  serverMapCurrentTargetDataAtom,
-  currentServerAtom,
   scatterDataByApplicationKeyAtom,
   CurrentTarget,
 } from '@pinpoint-fe/ui/src/atoms';
 import {
   FilteredMapType as FilteredMap,
   GetServerMap,
-  SCATTER_DATA_TOTAL_KEY,
-  BASE_PATH,
   Configuration,
 } from '@pinpoint-fe/ui/src/constants';
 import {
@@ -33,42 +25,31 @@ import {
   ApplicationCombinedListProps,
   FilteredMap as FilteredMapComponent,
   LayoutWithHorizontalResizable,
-  Separator,
-  ServerChartsBoard,
 } from '@pinpoint-fe/ui';
 import { differenceInMinutes } from 'date-fns';
 import { useUpdateEffect } from 'usehooks-ts';
 import { useTranslation } from 'react-i18next';
 import {
-  ApdexScore,
-  Button,
-  ChartsBoard,
-  ChartsBoardHeader,
   DatetimePicker,
   DatetimePickerChangeHandler,
-  Drawer,
   FilterWizard,
-  getDefaultFilters,
-  InstanceCount,
   MainHeader,
-  MergedServerSearchList,
-  MergedServerSearchListProps,
   ProgressBarWithControls,
-  SERVERMAP_MENU_FUNCTION_TYPE,
-  ScatterChartStatic,
 } from '@pinpoint-fe/ui';
-import { Node, Edge } from '@pinpoint-fe/ui/src/utils/helper/serverMap';
-import { PiTreeStructureDuotone, PiArrowSquareOut } from 'react-icons/pi';
+import { PiTreeStructureDuotone } from 'react-icons/pi';
 import {
   useFilterWizardOnClickApply,
   useServerMapOnClickMenuItem,
 } from '@pinpoint-fe/ui/src/hooks/serverMap';
+import { FilteredMapChartsBoard } from '@pinpoint-fe/ui/src/components/FilterMap/FilteredMapChartsBoard';
 
 export interface FilteredMapPageProps {
   authorizationGuideUrl?: string;
   configuration?: Configuration & Record<string, string>;
   ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
 }
+
+const FILTERED_MAP_CONTAINER_ID = 'filtered-map-main-container';
 
 export const FilteredMapPage = ({
   authorizationGuideUrl,
@@ -82,11 +63,7 @@ export const FilteredMapPage = ({
   const { dateRange, application, parsedFilters, parsedHint, searchParameters, search } =
     useFilteredMapParameters();
   const [serverMapCurrentTarget, setServerMapCurrentTarget] = useAtom(serverMapCurrentTargetAtom);
-  const currentServer = useAtomValue(currentServerAtom);
-  const currentTargetData = useAtomValue(serverMapCurrentTargetDataAtom);
   const [serverMapData, setServerMapData] = useAtom(serverMapDataAtom);
-  const [openServerView, setOpenServerView] = React.useState(false);
-  const [openServerViewTransitionEnd, setServerViewTransitionEnd] = React.useState(false);
   const [appliedFilters, setAppliedFilters] =
     React.useState<FilteredMap.FilterState[]>(parsedFilters);
   const [filter, setFilter] = React.useState<FilteredMap.FilterState>();
@@ -187,16 +164,6 @@ export const FilteredMapPage = ({
     };
   }, []);
 
-  const shouldHideScatter = () => {
-    if (!currentTargetData) {
-      return true;
-    }
-    return !(
-      (currentTargetData && (currentTargetData as FilteredMap.NodeData)?.isWas)
-      // && !currentTargetData?.isMerged
-    );
-  };
-
   const handleChangeDateRagePicker = React.useCallback(
     (({ formattedDates }) => {
       if (formattedDates) {
@@ -212,35 +179,6 @@ export const FilteredMapPage = ({
     }) as DatetimePickerChangeHandler,
     [application?.applicationName, searchParameters.filter, searchParameters.hint],
   );
-
-  const handleClickMergedItem: MergedServerSearchListProps['onClickItem'] = (nodeData) => {
-    const { key, applicationName, serviceType } = nodeData;
-    setServerMapCurrentTarget({
-      id: key,
-      applicationName,
-      serviceType,
-      imgPath: getServerImagePath(nodeData),
-      type: 'node',
-      nodes: serverMapCurrentTarget?.nodes,
-      edges: serverMapCurrentTarget?.edges,
-    });
-  };
-
-  const getClickedMergedNodeList = ({ nodes, edges }: CurrentTarget) => {
-    if (!serverMapData) {
-      return [];
-    }
-
-    const nodeIds = nodes
-      ? nodes.map((node) => node.id)
-      : edges
-        ? edges.map((edge) => edge.target)
-        : [];
-
-    return (serverMapData.applicationMapData.nodeDataArray as FilteredMap.NodeData[])
-      .filter(({ key }: FilteredMap.NodeData) => nodeIds.includes(key))
-      .sort((node1, node2) => node2.totalCount - node1.totalCount);
-  };
 
   // FilterWizard
   const handleClickApply = useFilterWizardOnClickApply<FilteredMap.LinkData>({
@@ -293,14 +231,11 @@ export const FilteredMapPage = ({
       </MainHeader>
       {application && (
         <div
-          id="server-map-main-container"
+          id={FILTERED_MAP_CONTAINER_ID}
           className="relative flex-1 h-full overflow-x-hidden"
           ref={containerRef}
         >
-          <LayoutWithHorizontalResizable
-            withHandle={!openServerView}
-            disabled={!serverMapCurrentTarget || openServerView}
-          >
+          <LayoutWithHorizontalResizable disabled={true}>
             <div className="relative flex flex-col w-full h-full gap-4">
               {application && (
                 <>
@@ -332,185 +267,16 @@ export const FilteredMapPage = ({
                 </>
               )}
             </div>
-            {({ currentPanelWidth, SERVER_LIST_WIDTH, resizeHandleWidth }) =>
-              serverMapCurrentTarget && (
-                <>
-                  <ChartsBoard
-                    timestamp={serverMapData?.applicationMapData?.timestamp}
-                    nodeData={
-                      (currentTargetData as FilteredMap.NodeData)?.isAuthorized === false
-                        ? undefined
-                        : (currentTargetData as FilteredMap.NodeData)
-                    }
-                    header={
-                      <ChartsBoardHeader
-                        currentTarget={openServerView ? null : serverMapCurrentTarget}
-                      />
-                    }
-                    emptyMessage={t('COMMON.NO_DATA')}
-                  >
-                    {serverMapCurrentTarget.nodes ||
-                    serverMapCurrentTarget.edges ||
-                    currentTargetData === undefined ||
-                    serverMapCurrentTarget.type === 'edge' ||
-                    (currentTargetData as GetServerMap.NodeData).isAuthorized ? (
-                      <>
-                        {serverMapCurrentTarget?.nodes || serverMapCurrentTarget?.edges ? (
-                          <MergedServerSearchList
-                            list={getClickedMergedNodeList(serverMapCurrentTarget)}
-                            onClickItem={handleClickMergedItem}
-                          />
-                        ) : (
-                          <>
-                            {serverMapCurrentTarget?.type === 'node' &&
-                            (currentTargetData as GetServerMap.NodeData)?.instanceCount ? (
-                              <div className="flex items-center h-12 py-2.5 px-4">
-                                <Button
-                                  className="px-2 py-1 text-xs"
-                                  variant="outline"
-                                  onClick={() => setOpenServerView(!openServerView)}
-                                >
-                                  {openServerView ? <MdArrowForwardIos /> : <MdArrowBackIosNew />}
-                                  <span className="ml-2">VIEW SERVERS</span>
-                                </Button>
-                                <InstanceCount
-                                  nodeData={currentTargetData as GetServerMap.NodeData}
-                                />
-                              </div>
-                            ) : null}
-                            {!shouldHideScatter() && application && (
-                              <>
-                                <div className="w-full p-5 mb-12 aspect-[1.618]">
-                                  <div className="h-7">
-                                    <ApdexScore
-                                      nodeData={currentTargetData as GetServerMap.NodeData}
-                                    />
-                                  </div>
-                                  <ScatterChartStatic
-                                    application={serverMapCurrentTarget!}
-                                    data={
-                                      scatterDataByApplicationKey?.[
-                                        getApplicationKey(serverMapCurrentTarget)
-                                      ]?.acc[SCATTER_DATA_TOTAL_KEY]
-                                    }
-                                    range={[dateRange.from.getTime(), dateRange.to.getTime()]}
-                                    selectedAgentId={SCATTER_DATA_TOTAL_KEY}
-                                    onDragEnd={(data, checkedLables) => {
-                                      if (checkedLables.length) {
-                                        window.__pp_scatter_data__ =
-                                          scatterDataByApplicationKey?.[
-                                            getApplicationKey(serverMapCurrentTarget)
-                                          ]?.acc;
-                                        window.open(
-                                          `${BASE_PATH}${getTransactionListPath(
-                                            serverMapCurrentTarget,
-                                            searchParameters,
-                                          )}&${getTranscationListQueryString({
-                                            ...data,
-                                            checkedLegends: checkedLables,
-                                            agentId: '',
-                                          })}&withFilter=true`,
-                                        );
-                                      }
-                                    }}
-                                  />
-                                </div>
-                                <Separator />
-                              </>
-                            )}
-                          </>
-                        )}
-                      </>
-                    ) : (
-                      <div className="flex justify-center font-semibold pt-25 text-status-fail">
-                        <a href={authorizationGuideUrl} target="_blank">
-                          You don't have authorization.
-                          {authorizationGuideUrl && <PiArrowSquareOut />}
-                        </a>
-                      </div>
-                    )}
-                  </ChartsBoard>
-                  <Drawer
-                    open={openServerView}
-                    getContainer={'#server-map-main-container'}
-                    contentWrapperStyle={{
-                      width: currentPanelWidth + SERVER_LIST_WIDTH,
-                      right: currentPanelWidth + resizeHandleWidth,
-                    }}
-                    afterOpenChange={(openChange) => setServerViewTransitionEnd(openChange)}
-                    onClose={() => setOpenServerView(false)}
-                  >
-                    <div style={{ width: SERVER_LIST_WIDTH }}>
-                      <div className="flex items-center h-12 gap-1 font-semibold border-b-1 shrink-0">
-                        <img src={serverMapCurrentTarget?.imgPath} width={52} />
-                        <div className="truncate">{serverMapCurrentTarget?.applicationName}</div>
-                      </div>
-                      <ServerListForCommon disableFetch={!openServerView} />
-                    </div>
-                    <div style={{ width: currentPanelWidth }}>
-                      <ServerChartsBoard
-                        header={
-                          <div className="flex items-center h-12 gap-1 font-semibold border-b-1 shrink-0">
-                            <div className="flex items-center justify-center">
-                              <MdArrowForwardIos />
-                            </div>
-                            {currentServer?.agentId}
-                          </div>
-                        }
-                        disableFetch={!openServerView && !openServerViewTransitionEnd}
-                        nodeData={currentTargetData as GetServerMap.NodeData}
-                      >
-                        {!shouldHideScatter() && application && (
-                          <>
-                            <div className="w-full p-5 mb-12 aspect-[1.618]">
-                              <div className="h-7">
-                                {currentServer?.agentId && (
-                                  <ApdexScore
-                                    nodeData={currentTargetData as GetServerMap.NodeData}
-                                    agentId={currentServer?.agentId}
-                                  />
-                                )}
-                              </div>
-                              <ScatterChartStatic
-                                application={application}
-                                data={
-                                  currentServer?.agentId
-                                    ? scatterDataByApplicationKey?.[
-                                        getApplicationKey(serverMapCurrentTarget)
-                                      ]?.acc[currentServer?.agentId]
-                                    : undefined
-                                }
-                                range={[dateRange.from.getTime(), dateRange.to.getTime()]}
-                                selectedAgentId={currentServer?.agentId}
-                                onDragEnd={(data, checkedLables) => {
-                                  if (checkedLables.length) {
-                                    window.__pp_scatter_data__ =
-                                      scatterDataByApplicationKey?.[
-                                        getApplicationKey(serverMapCurrentTarget)
-                                      ]?.acc;
-                                    window.open(
-                                      `${BASE_PATH}${getTransactionListPath(
-                                        application,
-                                        searchParameters,
-                                      )}&${getTranscationListQueryString({
-                                        ...data,
-                                        checkedLegends: checkedLables,
-                                        agentId: currentServer?.agentId,
-                                      })}&withFilter=true`,
-                                    );
-                                  }
-                                }}
-                              />
-                            </div>
-                            <Separator />
-                          </>
-                        )}
-                      </ServerChartsBoard>
-                    </div>
-                  </Drawer>
-                </>
-              )
-            }
+            {({ currentPanelWidth, SERVER_LIST_WIDTH, resizeHandleWidth }) => (
+              <FilteredMapChartsBoard
+                authorizationGuideUrl={authorizationGuideUrl}
+                currentPanelWidth={currentPanelWidth}
+                SERVER_LIST_WIDTH={SERVER_LIST_WIDTH}
+                resizeHandleWidth={resizeHandleWidth}
+                FILTERED_MAP_CONTAINER_ID={FILTERED_MAP_CONTAINER_ID}
+                configuration={configuration}
+              />
+            )}
           </LayoutWithHorizontalResizable>
         </div>
       )}

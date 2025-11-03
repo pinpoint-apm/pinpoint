@@ -4,9 +4,9 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import {
   serverMapCurrentTargetDataAtom,
   currentServerAtom,
-  currentNodeStatisticsAtom,
   currentServerAgentIdAtom,
   serverMapDataAtom,
+  serverMapCurrentTargetAtom,
 } from '@pinpoint-fe/ui/src/atoms';
 import {
   END_POINTS,
@@ -32,8 +32,8 @@ export interface ServerListFetcherProps extends ServerListProps {
 
 export const ServerListFetcher = ({ nodeStatistics, disableFetch }: ServerListFetcherProps) => {
   const { searchParameters } = useSearchParameters();
+  const currentTarget = useAtomValue(serverMapCurrentTargetAtom);
   const currentTargetData = useAtomValue(serverMapCurrentTargetDataAtom) as GetServerMap.NodeData;
-  const currentNodeStatistics = useAtomValue(currentNodeStatisticsAtom);
   const setCurrentServer = useSetAtom(currentServerAtom);
   const currentServerAgent = useAtomValue(currentServerAgentIdAtom);
   const serverMapData = useAtomValue(serverMapDataAtom);
@@ -87,7 +87,7 @@ export const ServerListFetcher = ({ nodeStatistics, disableFetch }: ServerListFe
       const servers = getServers();
       setCurrentServer(servers?.[0]);
     }
-  }, [data]);
+  }, [data, currentTarget]);
 
   const getServers = () => {
     return data?.reduce<SearchApplication.Instance[]>((prev, curr) => {
@@ -156,7 +156,7 @@ export const ServerListFetcher = ({ nodeStatistics, disableFetch }: ServerListFe
     <SL
       data={data || []}
       className={'border-t border-r bg-neutral-100'}
-      statistics={nodeStatistics || currentNodeStatistics} // FilteredMap에서는 atom값을 사용하고 servermap은 props값을 사용
+      statistics={nodeStatistics}
       selectedId={currentServerAgent}
       onClick={handleClickItem}
       groupNameRenderer={renderGroupName}

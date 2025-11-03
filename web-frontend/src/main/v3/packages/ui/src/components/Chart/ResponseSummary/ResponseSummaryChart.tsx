@@ -99,6 +99,9 @@ export const ResponseSummaryChart = ({
       tooltip: {
         show: false,
       },
+      resize: {
+        auto: 'parent',
+      },
     };
   };
 

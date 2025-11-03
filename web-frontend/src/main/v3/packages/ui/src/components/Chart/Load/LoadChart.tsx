@@ -152,6 +152,9 @@ export const LoadChart = ({
       transition: {
         duration: 0,
       },
+      resize: {
+        auto: 'parent',
+      },
     };
   };
 
