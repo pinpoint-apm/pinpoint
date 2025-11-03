@@ -3,6 +3,7 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { getLocalStorageValue } from './localStorage';
 import { enUS, ko } from 'date-fns/locale';
 import { isValidTimezone } from './date';
+import { isValid } from 'date-fns';
 
 const getLocale = () => {
   const language = getLocalStorageValue(APP_SETTING_KEYS.LANGUAGE);
@@ -47,8 +48,15 @@ export const format = (
   const timezone = getTimezone();
   const formatStr = formatStrProp || getCurrentFormat();
 
-  return formatInTimeZone(date, timezone, formatStr, {
-    ...option,
-    locale,
-  });
+  const isValidDate =
+    typeof date === 'number'
+      ? date >= 0 && isFinite(date) && isValid(new Date(date))
+      : isValid(date);
+
+  return isValidDate
+    ? formatInTimeZone(date, timezone, formatStr, {
+        ...option,
+        locale,
+      })
+    : 'N/A';
 };
