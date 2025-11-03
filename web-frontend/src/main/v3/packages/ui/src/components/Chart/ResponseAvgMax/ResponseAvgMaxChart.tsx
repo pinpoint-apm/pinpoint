@@ -101,6 +101,9 @@ export const ResponseAvgMaxChart = ({
       transition: {
         duration: 0,
       },
+      resize: {
+        auto: 'parent',
+      },
     };
   };
 
