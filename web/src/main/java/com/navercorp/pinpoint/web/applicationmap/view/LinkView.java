@@ -20,9 +20,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
@@ -31,21 +29,22 @@ import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 @JsonSerialize(using = LinkView.LinkViewSerializer.class)
 public class LinkView {
     private final Link link;
+
+    private final ApplicationTimeSeriesHistogramLinkView applicationTimeSeriesHistogramLinkView;
     private final AgentLinkView agentLinkView;
 
-    private final TimeHistogramFormat format;
-
-    public LinkView(Link link, AgentLinkView agentLinkView, TimeHistogramFormat format) {
+    public LinkView(Link link,
+                    ApplicationTimeSeriesHistogramLinkView applicationTimeSeriesHistogramLinkView,
+                    AgentLinkView agentLinkView) {
         this.link = Objects.requireNonNull(link, "link");
+        this.applicationTimeSeriesHistogramLinkView = Objects.requireNonNull(applicationTimeSeriesHistogramLinkView, "applicationTimeSeriesHistogramLinkView");
         this.agentLinkView = Objects.requireNonNull(agentLinkView, "agentLinkView");
-        this.format = Objects.requireNonNull(format, "format");
     }
 
     public Link getLink() {
@@ -56,8 +55,8 @@ public class LinkView {
         return agentLinkView;
     }
 
-    private TimeHistogramFormat getFormat() {
-        return format;
+    public ApplicationTimeSeriesHistogramLinkView getApplicationTimeSeriesHistogramLinkView() {
+        return applicationTimeSeriesHistogramLinkView;
     }
 
     public static class LinkViewSerializer extends JsonSerializer<LinkView> {
@@ -93,7 +92,8 @@ public class LinkView {
 
             jgen.writeObjectField("histogram", histogram);
             // time histogram
-            writeTimeSeriesHistogram(link, linkView.getFormat(), jgen);
+            ApplicationTimeSeriesHistogramLinkView applicationTimeSeriesHistogramLinkView = linkView.getApplicationTimeSeriesHistogramLinkView();
+            applicationTimeSeriesHistogramLinkView.writeTimeSeriesHistogram(linkView, jgen);
 
 
             AgentLinkView agentLinkView = linkView.getAgentLinkView();
@@ -163,14 +163,6 @@ public class LinkView {
             }
             jgen.writeEndArray();
 
-        }
-
-        private void writeTimeSeriesHistogram(Link link, TimeHistogramFormat format, JsonGenerator jgen) throws IOException {
-            ApplicationTimeHistogram linkApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram();
-            TimeHistogramBuilder builder = new TimeHistogramBuilder(format);
-            List<TimeHistogramViewModel> sourceApplicationHistogram = builder.build(linkApplicationTimeSeriesHistogram);
-            jgen.writeFieldName("timeSeriesHistogram");
-            jgen.writeObject(sourceApplicationHistogram);
         }
 
         private void writeSimpleNode(String fieldName, Node node, JsonGenerator jgen) throws IOException {

@@ -20,16 +20,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Iterators;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
-import com.navercorp.pinpoint.web.applicationmap.view.AgentHistogramNodeView;
-import com.navercorp.pinpoint.web.applicationmap.view.AgentLinkView;
-import com.navercorp.pinpoint.web.applicationmap.view.AgentTimeSeriesHistogramNodeView;
+import com.navercorp.pinpoint.web.applicationmap.view.LinkRender;
 import com.navercorp.pinpoint.web.applicationmap.view.LinkView;
+import com.navercorp.pinpoint.web.applicationmap.view.NodeRender;
 import com.navercorp.pinpoint.web.applicationmap.view.NodeView;
-import com.navercorp.pinpoint.web.applicationmap.view.ServerListNodeView;
-import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -38,34 +34,16 @@ import java.util.Objects;
 public class ApplicationMapView implements MapView {
     private final ApplicationMap applicationMap;
 
-    private final ServerListNodeView serverListNodeView;
-    private final AgentHistogramNodeView agentHistogramNodeView;
-    private final AgentTimeSeriesHistogramNodeView agentTimeSeriesHistogramNodeView;
+    private final NodeRender nodeRender;
+    private final LinkRender linkRender;
 
-    private final AgentLinkView agentLinkView;
-
-    private final HyperLinkFactory hyperLinkFactory;
-    private final TimeHistogramFormat timeHistogramFormat;
 
     public ApplicationMapView(ApplicationMap applicationMap,
-
-                              ServerListNodeView serverListNodeView,
-                              AgentHistogramNodeView agentHistogramNodeView,
-                              AgentTimeSeriesHistogramNodeView agentTimeSeriesHistogramNodeView,
-
-                              AgentLinkView agentLinkView,
-
-                              HyperLinkFactory hyperLinkFactory, TimeHistogramFormat timeHistogramFormat) {
+                              NodeRender nodeRender,
+                              LinkRender linkRender) {
         this.applicationMap = Objects.requireNonNull(applicationMap, "applicationMap");
-
-        this.serverListNodeView = Objects.requireNonNull(serverListNodeView, "serverListNodeView");
-        this.agentHistogramNodeView = Objects.requireNonNull(agentHistogramNodeView, "agentHistogramNodeView");
-        this.agentTimeSeriesHistogramNodeView = Objects.requireNonNull(agentTimeSeriesHistogramNodeView, "agentTimeSeriesHistogramNodeView");
-
-        this.agentLinkView = Objects.requireNonNull(agentLinkView, "agentLinkView");
-
-        this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
-        this.timeHistogramFormat = Objects.requireNonNull(timeHistogramFormat, "timeHistogramFormat");
+        this.nodeRender = Objects.requireNonNull(nodeRender, "nodeRender");
+        this.linkRender = Objects.requireNonNull(linkRender, "linkRender");
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -77,20 +55,14 @@ public class ApplicationMapView implements MapView {
     public Iterator<NodeView> getNodes() {
         Collection<Node> nodes = applicationMap.getNodes();
 
-        return Iterators.transform(nodes.iterator(), node -> new NodeView(node,
-                serverListNodeView,
-                agentHistogramNodeView,
-                agentTimeSeriesHistogramNodeView,
-
-                hyperLinkFactory, timeHistogramFormat));
+        return Iterators.transform(nodes.iterator(), nodeRender::render);
     }
 
     @JsonProperty("linkDataArray")
     public Iterator<LinkView> getLinks() {
         Collection<Link> links = applicationMap.getLinks();
 
-        return Iterators.transform(links.iterator(), link ->
-                new LinkView(link, agentLinkView, timeHistogramFormat));
+        return Iterators.transform(links.iterator(), linkRender::render);
     }
 
 }

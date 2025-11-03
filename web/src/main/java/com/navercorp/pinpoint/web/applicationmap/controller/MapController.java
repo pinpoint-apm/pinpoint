@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
-import com.navercorp.pinpoint.web.applicationmap.ApplicationMapViewV3;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapView;
 import com.navercorp.pinpoint.web.applicationmap.MapWrap;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.ApplicationForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.RangeForm;
@@ -29,10 +29,8 @@ import com.navercorp.pinpoint.web.applicationmap.controller.form.SearchOptionFor
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.service.MapService;
 import com.navercorp.pinpoint.web.applicationmap.service.MapServiceOption;
-import com.navercorp.pinpoint.web.applicationmap.view.AgentHistogramNodeView;
-import com.navercorp.pinpoint.web.applicationmap.view.AgentLinkView;
-import com.navercorp.pinpoint.web.applicationmap.view.AgentTimeSeriesHistogramNodeView;
-import com.navercorp.pinpoint.web.applicationmap.view.ServerListNodeView;
+import com.navercorp.pinpoint.web.applicationmap.view.LinkRender;
+import com.navercorp.pinpoint.web.applicationmap.view.NodeRender;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.util.ApplicationValidator;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -117,16 +115,12 @@ public class MapController {
         logger.info("Select applicationMap {}. option={}", TimeHistogramFormat.V3, option);
         final ApplicationMap map = this.mapService.selectApplicationMap(option);
 
-        ApplicationMapViewV3 applicationMapViewV3 = new ApplicationMapViewV3(map, timeWindow,
-                ServerListNodeView.emptyView(),
-                AgentHistogramNodeView.emptyView(),
-                AgentTimeSeriesHistogramNodeView.emptyView(),
-                AgentLinkView.emptyView(),
-                hyperLinkFactory);
+        NodeRender nodeRender = NodeRender.emptyRender(hyperLinkFactory);
+        LinkRender linkRender = LinkRender.emptyRender();
+        ApplicationMapView applicationMapView = new ApplicationMapView(map, nodeRender, linkRender);
 
-        return new MapWrap(applicationMapViewV3);
+        return new MapWrap(applicationMapView);
     }
-
 
     private Application getApplication(ApplicationForm appForm) {
         return applicationValidator.newApplication(appForm.getApplicationName(), appForm.getServiceTypeCode(), appForm.getServiceTypeName());

@@ -17,12 +17,8 @@
 package com.navercorp.pinpoint.web.applicationmap;
 
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
-import com.navercorp.pinpoint.web.applicationmap.view.AgentHistogramNodeView;
-import com.navercorp.pinpoint.web.applicationmap.view.AgentLinkView;
-import com.navercorp.pinpoint.web.applicationmap.view.AgentTimeSeriesHistogramNodeView;
-import com.navercorp.pinpoint.web.applicationmap.view.ServerListNodeView;
-import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
+import com.navercorp.pinpoint.web.applicationmap.view.LinkRender;
+import com.navercorp.pinpoint.web.applicationmap.view.NodeRender;
 
 import java.util.List;
 import java.util.Objects;
@@ -32,17 +28,8 @@ public class ApplicationMapViewV3 extends ApplicationMapView {
     private final TimeWindow timeWindow;
 
     public ApplicationMapViewV3(ApplicationMap applicationMap, TimeWindow timeWindow,
-                                ServerListNodeView serverListNodeView,
-                                AgentHistogramNodeView agentHistogramNodeView,
-                                AgentTimeSeriesHistogramNodeView agentTimeSeriesHistogramNodeView,
-                                AgentLinkView agentLinkView,
-                                HyperLinkFactory hyperLinkFactory) {
-        super(applicationMap,
-                serverListNodeView,
-                agentHistogramNodeView,
-                agentTimeSeriesHistogramNodeView,
-                agentLinkView,
-                hyperLinkFactory, TimeHistogramFormat.V3);
+                                NodeRender nodeRender, LinkRender linkRender) {
+        super(applicationMap, nodeRender, linkRender);
         this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
 
     }

@@ -29,10 +29,8 @@ import com.navercorp.pinpoint.web.applicationmap.MapView;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapServiceOption;
-import com.navercorp.pinpoint.web.applicationmap.view.AgentHistogramNodeView;
-import com.navercorp.pinpoint.web.applicationmap.view.AgentLinkView;
-import com.navercorp.pinpoint.web.applicationmap.view.AgentTimeSeriesHistogramNodeView;
-import com.navercorp.pinpoint.web.applicationmap.view.ServerListNodeView;
+import com.navercorp.pinpoint.web.applicationmap.view.LinkRender;
+import com.navercorp.pinpoint.web.applicationmap.view.NodeRender;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.SpanFilters;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
@@ -248,22 +246,17 @@ public class TransactionController {
     private MapView getApplicationMap(ApplicationMap map, TimeHistogramFormat format) {
         if (format == TimeHistogramFormat.V3) {
             TimeWindow timeWindow = new TimeWindow(map.getRange());
-            return new ApplicationMapViewV3(map, timeWindow,
-                    ServerListNodeView.detailedView(),
-                    AgentHistogramNodeView.detailedView(),
-                    AgentTimeSeriesHistogramNodeView.detailedView(format),
 
-                    AgentLinkView.detailedView(format),
+            NodeRender nodeRender = NodeRender.detailedRender(format, hyperLinkFactory);
+            LinkRender linkRender = LinkRender.detailedRender(format);
 
-                    hyperLinkFactory);
+            return new ApplicationMapViewV3(map, timeWindow, nodeRender, linkRender);
         }
-        return new ApplicationMapView(map,
-                ServerListNodeView.detailedView(),
-                AgentHistogramNodeView.detailedView(),
-                AgentTimeSeriesHistogramNodeView.detailedView(format),
 
-                AgentLinkView.detailedView(format),
+        NodeRender nodeRender = NodeRender.detailedRender(format, hyperLinkFactory);
+        LinkRender linkRender = LinkRender.detailedRender(format);
 
-                hyperLinkFactory, format);
+        return new ApplicationMapView(map, nodeRender, linkRender);
     }
+
 }
