@@ -175,29 +175,28 @@
         <reactor-core.version>3.6.9</reactor-core.version>
 
         <spring4.version>4.3.30.RELEASE</spring4.version>
-        <spring5.version>5.3.28</spring5.version>
-        <spring.batch.version>5.1.1</spring.batch.version>
+        <spring5.version>5.3.39</spring5.version>
+        <spring.batch.version>5.1.2</spring.batch.version>
 
-<!--        <spring.security.version>5.8.1</spring.security.version>-->
-        <spring.security.version>6.1.8</spring.security.version>
-        <spring-boot2.version>2.7.13</spring-boot2.version>
-        <spring.kafka.version>3.0.13</spring.kafka.version>
-        <kafka.client.version>3.3.2</kafka.client.version>
+        <spring.security.version>6.5.6</spring.security.version>
+        <spring-boot2.version>2.7.18</spring-boot2.version>
+        <spring.kafka.version>3.2.9</spring.kafka.version>
+        <kafka.client.version>3.7.1</kafka.client.version>
 
         <spring.version>${spring6.version}</spring.version>
         <spring-boot.version>${spring-boot3.version}</spring-boot.version>
 
         <!-- spring boot3 dependency -->
-        <spring6.version>6.1.5</spring6.version>
-        <spring-boot3.version>3.2.4</spring-boot3.version>
+        <spring6.version>6.2.10</spring6.version>
+        <spring-boot3.version>3.5.5</spring-boot3.version>
         <spring-shell.version>3.2.3</spring-shell.version>
 
-        <spring-cloud3.version>3.1.8</spring-cloud3.version>
-        <spring-cloud4.version>4.1.2</spring-cloud4.version>
+        <spring-cloud3.version>3.1.9</spring-cloud3.version>
+        <spring-cloud4.version>4.3.0</spring-cloud4.version>
         <spring-cloud.version>${spring-cloud4.version}</spring-cloud.version>
 
         <spring-data2.version>2.7.18</spring-data2.version>
-        <spring-data3.version>3.2.4</spring-data3.version>
+        <spring-data3.version>3.5.3</spring-data3.version>
         <spring-data.version>${spring-data3.version}</spring-data.version>
 
         <jakarta.servlet5.version>5.0.0</jakarta.servlet5.version>
@@ -871,7 +870,7 @@
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-rsa</artifactId>
-                <version>1.0.11.RELEASE</version>
+                <version>1.1.5</version>
             </dependency>
 
             <dependency>
@@ -1645,7 +1644,7 @@
             <dependency>
                 <groupId>io.lettuce</groupId>
                 <artifactId>lettuce-core</artifactId>
-                <version>6.3.2.RELEASE</version>
+                <version>6.5.2.RELEASE</version>
             </dependency>
 
             <dependency>
