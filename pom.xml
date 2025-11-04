@@ -196,6 +196,8 @@
         <spring-data3.version>3.5.3</spring-data3.version>
         <spring-data.version>${spring-data3.version}</spring-data.version>
 
+        <lettuce-core.version>6.5.2.RELEASE</lettuce-core.version>
+
         <spring.kafka.version>3.2.9</spring.kafka.version>
         <kafka.client2.version>2.8.2</kafka.client2.version>
         <kafka.client3.version>3.7.1</kafka.client3.version>
@@ -1670,7 +1672,7 @@
             <dependency>
                 <groupId>io.lettuce</groupId>
                 <artifactId>lettuce-core</artifactId>
-                <version>6.5.2.RELEASE</version>
+                <version>${lettuce-core.version}</version>
             </dependency>
 
             <dependency>
