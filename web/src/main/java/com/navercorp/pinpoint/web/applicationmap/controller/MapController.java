@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapView;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapViewV3;
 import com.navercorp.pinpoint.web.applicationmap.MapWrap;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.ApplicationForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.RangeForm;
@@ -115,9 +116,9 @@ public class MapController {
         logger.info("Select applicationMap {}. option={}", TimeHistogramFormat.V3, option);
         final ApplicationMap map = this.mapService.selectApplicationMap(option);
 
-        NodeRender nodeRender = NodeRender.emptyRender();
-        LinkRender linkRender = LinkRender.emptyRender();
-        ApplicationMapView applicationMapView = new ApplicationMapView(map, nodeRender, linkRender);
+        NodeRender nodeRender = NodeRender.forServerMap();
+        LinkRender linkRender = LinkRender.forServerMap();
+        ApplicationMapView applicationMapView = new ApplicationMapViewV3(map, timeWindow, nodeRender, linkRender);
 
         return new MapWrap(applicationMapView);
     }

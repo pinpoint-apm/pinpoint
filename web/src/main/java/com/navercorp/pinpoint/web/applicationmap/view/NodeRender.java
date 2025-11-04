@@ -33,9 +33,9 @@ public interface NodeRender {
                 AgentTimeSeriesHistogramNodeView.detailedView(format));
     }
 
-    static NodeRender emptyRender() {
+    static NodeRender forServerMap() {
         return new DefaultNodeRender(
-                ApplicationTimeSeriesHistogramNodeView.emptyView(),
+                ApplicationTimeSeriesHistogramNodeView.detailedView(TimeHistogramFormat.V3),
                 ServerListNodeView.emptyView(),
                 AgentHistogramNodeView.emptyView(),
                 AgentTimeSeriesHistogramNodeView.emptyView());

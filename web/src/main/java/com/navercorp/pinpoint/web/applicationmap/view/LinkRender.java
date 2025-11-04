@@ -25,9 +25,9 @@ public interface LinkRender {
     LinkView render(Link link);
 
 
-    static LinkRender emptyRender() {
+    static LinkRender forServerMap() {
         return new DefaultLinkRender(
-                ApplicationTimeSeriesHistogramLinkView.emptyView(),
+                ApplicationTimeSeriesHistogramLinkView.detailedView(TimeHistogramFormat.V3),
                 AgentLinkView.emptyView());
     }
 
