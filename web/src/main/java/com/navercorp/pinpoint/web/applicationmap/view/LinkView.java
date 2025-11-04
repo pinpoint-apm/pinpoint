@@ -19,20 +19,20 @@ package com.navercorp.pinpoint.web.applicationmap.view;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
+import com.navercorp.pinpoint.web.applicationmap.service.AlertViewService;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
+import org.springframework.boot.jackson.JsonComponent;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
-@JsonSerialize(using = LinkView.LinkViewSerializer.class)
 public class LinkView {
     private final Link link;
 
@@ -59,7 +59,14 @@ public class LinkView {
         return applicationTimeSeriesHistogramLinkView;
     }
 
+    @JsonComponent
     public static class LinkViewSerializer extends JsonSerializer<LinkView> {
+
+        private final AlertViewService alertViewService;
+
+        public LinkViewSerializer(AlertViewService alertViewService) {
+            this.alertViewService = Objects.requireNonNull(alertViewService, "alertViewService");
+        }
 
         @Override
         public void serialize(LinkView linkView, JsonGenerator jgen, SerializerProvider provider) throws IOException {
@@ -101,7 +108,8 @@ public class LinkView {
 
 //        String state = link.getLinkState();
 //        jgen.writeStringField("state", state); // for go.js
-            jgen.writeBooleanField("hasAlert", link.getLinkAlert()); // for go.js
+            boolean alert = alertViewService.hasAlert(link.getHistogram());
+            jgen.writeBooleanField("hasAlert", alert); // for go.js
 
             jgen.writeEndObject();
         }
@@ -117,20 +125,6 @@ public class LinkView {
                 writeWasToWasTargetRpcList("outRpcList", link, jgen);
             }
             jgen.writeEndObject();
-        }
-
-        private void writeAgentId(String fieldName, Node node, JsonGenerator jgen) throws IOException {
-            if (node.getServiceType().isWas()) {
-                jgen.writeFieldName(fieldName);
-                jgen.writeStartArray();
-                ServerGroupList serverGroupList = node.getServerGroupList();
-                if (serverGroupList != null) {
-                    for (String agentId : serverGroupList.getAgentIdList()) {
-                        jgen.writeObject(agentId);
-                    }
-                }
-                jgen.writeEndArray();
-            }
         }
 
         private void writeAgents(String fieldName, Node node, JsonGenerator jgen) throws IOException {

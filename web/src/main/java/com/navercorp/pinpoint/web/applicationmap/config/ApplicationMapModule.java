@@ -71,7 +71,10 @@ import java.util.function.Supplier;
 @ComponentScan(basePackages = {
         "com.navercorp.pinpoint.web.applicationmap.service",
 })
-@Import(MapHbaseConfiguration.class)
+@Import({
+        MapHbaseConfiguration.class,
+        MapViewConfiguration.class
+})
 public class ApplicationMapModule {
     private static final Logger logger = LogManager.getLogger(ApplicationMapModule.class);
 

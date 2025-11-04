@@ -19,20 +19,20 @@ package com.navercorp.pinpoint.web.applicationmap.view;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.server.util.json.JacksonWriterUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
+import com.navercorp.pinpoint.web.applicationmap.service.AlertViewService;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
+import org.springframework.boot.jackson.JsonComponent;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 
-@JsonSerialize(using = NodeView.NodeViewSerializer.class)
 public class NodeView {
     private final Node node;
 
@@ -76,7 +76,13 @@ public class NodeView {
     }
 
 
-    static class NodeViewSerializer extends JsonSerializer<NodeView> {
+    @JsonComponent
+    public static class NodeViewSerializer extends JsonSerializer<NodeView> {
+        private final AlertViewService alertViewService;
+
+        public NodeViewSerializer(AlertViewService alertViewService) {
+            this.alertViewService = Objects.requireNonNull(alertViewService, "alertService");
+        }
 
         @Override
         public void serialize(NodeView nodeView, JsonGenerator jgen, SerializerProvider provider) throws IOException {
@@ -179,7 +185,7 @@ public class NodeView {
                     jgen.writeNumberField("errorCount", applicationHistogram.getTotalErrorCount());
                     jgen.writeNumberField("slowCount", applicationHistogram.getSlowCount());
 
-                    jgen.writeBooleanField("hasAlert", hasAlert(applicationHistogram));  // for go.js
+                    jgen.writeBooleanField("hasAlert", alertViewService.hasAlert(applicationHistogram));  // for go.js
                 }
 
                 ResponseTimeStatics responseTimeStatics = ResponseTimeStatics.fromHistogram(applicationHistogram);
