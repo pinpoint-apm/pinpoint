@@ -53,7 +53,7 @@ public class MapApplicationResponseNodeHistogramDataSource implements WasNodeHis
         NodeHistogram.Builder builder = NodeHistogram.newBuilder(application, windowRange);
         builder.setApplicationTimeHistogram(applicationTimeHistogram);
 
-        Histogram appHistogram = getHistogram(application, applicationTimeHistogram);
+        Histogram appHistogram = getHistogram(application, applicationTimeHistogram.getHistogramList());
         builder.setApplicationHistogram(appHistogram);
 
         Map<String, Histogram> agentMap = getAgentIdMap(application, applicationResponse.getAgentIds());
@@ -68,9 +68,9 @@ public class MapApplicationResponseNodeHistogramDataSource implements WasNodeHis
         return builder.buildFromTimeHistogram(histogram);
     }
 
-    private Histogram getHistogram(Application application, ApplicationTimeHistogram applicationTimeHistogram) {
+    private Histogram getHistogram(Application application, List<? extends Histogram> histograms) {
         Histogram histogram = new Histogram(application.getServiceType());
-        applicationTimeHistogram.getHistogramList().forEach(histogram::add);
+        histograms.forEach(histogram::add);
         return histogram;
     }
 
