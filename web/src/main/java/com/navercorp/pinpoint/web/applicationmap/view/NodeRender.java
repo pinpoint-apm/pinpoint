@@ -28,32 +28,29 @@ public interface NodeRender {
     static NodeRender detailedRender(TimeHistogramFormat format, HyperLinkFactory hyperLinkFactory) {
         return new DefaultNodeRender(
                 ApplicationTimeSeriesHistogramNodeView.detailedView(format),
-                ServerListNodeView.detailedView(),
+                ServerListNodeView.detailedView(hyperLinkFactory),
                 AgentHistogramNodeView.detailedView(),
-                AgentTimeSeriesHistogramNodeView.detailedView(format), hyperLinkFactory);
+                AgentTimeSeriesHistogramNodeView.detailedView(format));
     }
 
-    static NodeRender emptyRender(HyperLinkFactory hyperLinkFactory) {
+    static NodeRender emptyRender() {
         return new DefaultNodeRender(
                 ApplicationTimeSeriesHistogramNodeView.emptyView(),
                 ServerListNodeView.emptyView(),
                 AgentHistogramNodeView.emptyView(),
-                AgentTimeSeriesHistogramNodeView.emptyView(), hyperLinkFactory);
+                AgentTimeSeriesHistogramNodeView.emptyView());
     }
 
 
     record DefaultNodeRender(ApplicationTimeSeriesHistogramNodeView applicationTimeSeriesHistogramNodeView,
                                     ServerListNodeView serverListNodeView, AgentHistogramNodeView agentHistogramNodeView,
-                                    AgentTimeSeriesHistogramNodeView agentTimeSeriesHistogramNodeView,
-                                    HyperLinkFactory hyperLinkFactory) implements NodeRender {
+                                    AgentTimeSeriesHistogramNodeView agentTimeSeriesHistogramNodeView) implements NodeRender {
 
         public DefaultNodeRender {
             Objects.requireNonNull(applicationTimeSeriesHistogramNodeView, "applicationTimeSeriesHistogramNodeView");
             Objects.requireNonNull(serverListNodeView, "serverListNodeView");
             Objects.requireNonNull(agentHistogramNodeView, "agentHistogramNodeView");
             Objects.requireNonNull(agentTimeSeriesHistogramNodeView, "agentTimeSeriesHistogramNodeView");
-
-            Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
         }
 
 
@@ -63,9 +60,7 @@ public interface NodeRender {
                     applicationTimeSeriesHistogramNodeView,
                     serverListNodeView,
                     agentHistogramNodeView,
-                    agentTimeSeriesHistogramNodeView,
-
-                    hyperLinkFactory);
+                    agentTimeSeriesHistogramNodeView);
         }
 
     }
