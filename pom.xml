@@ -224,7 +224,7 @@
 
         <jakarta.validation-api.version>${jakarta.validation-api3.version}</jakarta.validation-api.version>
 
-        <asm.version>9.8</asm.version>
+        <asm.version>9.9</asm.version>
         <thrift.version>0.16.0</thrift.version>
         <caffeine.version>2.9.2</caffeine.version>
         <resilience4j-jdk8.version>1.7.1</resilience4j-jdk8.version>
