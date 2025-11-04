@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.view;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -26,9 +27,11 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
+import com.navercorp.pinpoint.web.applicationmap.service.AlertViewService;
 import com.navercorp.pinpoint.web.applicationmap.view.AgentLinkView;
 import com.navercorp.pinpoint.web.applicationmap.view.ApplicationTimeSeriesHistogramLinkView;
 import com.navercorp.pinpoint.web.applicationmap.view.LinkView;
+import com.navercorp.pinpoint.web.applicationmap.view.NodeView;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,9 +42,22 @@ import org.junit.jupiter.api.Test;
  */
 public class LinkViewTest {
 
-    private final Logger logger = LogManager.getLogger(this.getClass());
+    final Logger logger = LogManager.getLogger(this.getClass());
 
-    final ObjectMapper MAPPER = Jackson.newMapper();
+    final ObjectMapper MAPPER = mapper();
+
+
+    static ObjectMapper mapper() {
+        ObjectMapper mapper = Jackson.newMapper();
+
+        SimpleModule module = new SimpleModule();
+        AlertViewService alertViewService = new AlertViewService();
+        module.addSerializer(NodeView.class, new NodeView.NodeViewSerializer(alertViewService));
+        module.addSerializer(LinkView.class, new LinkView.LinkViewSerializer(alertViewService));
+        mapper.registerModule(module);
+
+        return mapper;
+    }
 
 
     @Test

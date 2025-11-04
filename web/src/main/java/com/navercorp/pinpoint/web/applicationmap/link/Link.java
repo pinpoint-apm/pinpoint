@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.applicationmap.link;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
@@ -52,8 +51,6 @@ public class Link {
     private final Node toNode;
 
     private final Range range;
-
-    private final LinkStateResolver linkStateResolver = LinkStateResolver.DEFAULT_LINK_STATE_RESOLVER;
 
     private final LinkCallDataMap inLink = new LinkCallDataMap();
 
@@ -118,7 +115,6 @@ public class Link {
         return direction;
     }
 
-    @JsonIgnore
     public AgentHistogramList getSourceList() {
         return inLink.getInLinkList();
     }
@@ -212,14 +208,6 @@ public class Link {
             agentList.add(linkCallData.getTarget());
         }
         return agentList;
-    }
-
-    public String getLinkState() {
-        return linkStateResolver.resolve(this);
-    }
-
-    public Boolean getLinkAlert() {
-        return linkStateResolver.isAlert(this);
     }
 
     public boolean isWasToWasLink() {
