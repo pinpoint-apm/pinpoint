@@ -20,16 +20,18 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.navercorp.pinpoint.common.server.util.json.JacksonWriterUtils;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
+import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public interface ServerListNodeView {
 
     default void writeServerList(NodeView nodeView, JsonGenerator jgen) throws IOException {
     }
 
-    static ServerListNodeView detailedView() {
-        return new DetailedServerListNodeView();
+    static ServerListNodeView detailedView(HyperLinkFactory hyperLinkFactory) {
+        return new DetailedServerListNodeView(hyperLinkFactory);
     }
 
     static ServerListNodeView emptyView() {
@@ -40,6 +42,12 @@ public interface ServerListNodeView {
 
     class DetailedServerListNodeView implements ServerListNodeView {
 
+        private final HyperLinkFactory hyperLinkFactory;
+
+        public DetailedServerListNodeView(HyperLinkFactory hyperLinkFactory) {
+            this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
+        }
+
         @Override
         public void writeServerList(NodeView nodeView, JsonGenerator jgen) throws IOException {
             Node node = nodeView.getNode();
@@ -47,7 +55,7 @@ public interface ServerListNodeView {
                 JacksonWriterUtils.writeEmptyObject(jgen, "serverList");
             } else {
                 ServerGroupList serverGroupList = node.getServerGroupList();
-                jgen.writeObjectField("serverList", new ServerGroupListView(serverGroupList, nodeView.getHyperLinkFactory()));
+                jgen.writeObjectField("serverList", new ServerGroupListView(serverGroupList, hyperLinkFactory));
             }
         }
     }

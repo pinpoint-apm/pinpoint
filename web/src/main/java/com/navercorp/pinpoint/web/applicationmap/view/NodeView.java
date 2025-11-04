@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
-import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 
 import java.io.IOException;
@@ -43,23 +42,17 @@ public class NodeView {
     private final AgentHistogramNodeView agentHistogramNodeView;
     private final AgentTimeSeriesHistogramNodeView agentTimeSeriesHistogramNodeView;
 
-    private final HyperLinkFactory hyperLinkFactory;
-
     public NodeView(Node node,
                     ApplicationTimeSeriesHistogramNodeView applicationTimeSeriesHistogramNodeView,
                     ServerListNodeView serverListNodeView,
                     AgentHistogramNodeView agentHistogramNodeView,
-                    AgentTimeSeriesHistogramNodeView agentTimeSeriesHistogramNodeView,
-
-                    HyperLinkFactory hyperLinkFactory) {
+                    AgentTimeSeriesHistogramNodeView agentTimeSeriesHistogramNodeView) {
         this.node = Objects.requireNonNull(node, "node");
 
         this.applicationTimeSeriesHistogramNodeView = Objects.requireNonNull(applicationTimeSeriesHistogramNodeView, "applicationTimeSeriesHistogramNodeView");
         this.serverListNodeView = Objects.requireNonNull(serverListNodeView, "serverListView");
         this.agentHistogramNodeView = Objects.requireNonNull(agentHistogramNodeView, "agentHistogramView");
         this.agentTimeSeriesHistogramNodeView = Objects.requireNonNull(agentTimeSeriesHistogramNodeView, "agentTimeSeriesHistogramView");
-
-        this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
     }
 
     public Node getNode() {
@@ -80,10 +73,6 @@ public class NodeView {
 
     public AgentTimeSeriesHistogramNodeView getAgentTimeSeriesHistogramView() {
         return agentTimeSeriesHistogramNodeView;
-    }
-
-    public HyperLinkFactory getHyperLinkFactory() {
-        return hyperLinkFactory;
     }
 
 

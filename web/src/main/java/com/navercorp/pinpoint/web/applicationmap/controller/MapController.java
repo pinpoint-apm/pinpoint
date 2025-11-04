@@ -115,7 +115,7 @@ public class MapController {
         logger.info("Select applicationMap {}. option={}", TimeHistogramFormat.V3, option);
         final ApplicationMap map = this.mapService.selectApplicationMap(option);
 
-        NodeRender nodeRender = NodeRender.emptyRender(hyperLinkFactory);
+        NodeRender nodeRender = NodeRender.emptyRender();
         LinkRender linkRender = LinkRender.emptyRender();
         ApplicationMapView applicationMapView = new ApplicationMapView(map, nodeRender, linkRender);
 
