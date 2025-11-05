@@ -27,7 +27,7 @@ import {
   scatterDataByApplicationKeyAtom,
   CurrentTarget,
 } from '@pinpoint-fe/ui/src/atoms';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { useAtomValue, useAtom } from 'jotai';
 import {
   getApplicationKey,
@@ -60,6 +60,7 @@ export const FilteredMapChartsBoard = ({
   children,
   ...props
 }: FilteredMapChartsBoardProps) => {
+  const { t } = useTranslation();
   const { dateRange, application, searchParameters } = useFilteredMapParameters();
 
   const [openServerView, setOpenServerView] = React.useState(false);
@@ -73,9 +74,7 @@ export const FilteredMapChartsBoard = ({
   // VIEW SERVERS로 열었을 때 왼쪽에 클릭된 서버
   const currentServer = useAtomValue(currentServerAtom);
 
-  const [scatterDataByApplicationKey, setScatterDataByApplicationKey] = useAtom(
-    scatterDataByApplicationKeyAtom,
-  );
+  const scatterDataByApplicationKey = useAtomValue(scatterDataByApplicationKeyAtom);
 
   const shouldHideScatter = () => {
     if (!currentTargetData) {
