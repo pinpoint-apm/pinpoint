@@ -37,7 +37,12 @@ export const ResponseSummaryChart = ({
     chart?.config('axis.x.categories', categories);
     chart?.config('axis.y.max', getMaxTickValue([chartData]));
     chart?.config('data.color', getColors());
-    chart?.load({ columns: getColumns() });
+
+    if (chartData.length > 0) {
+      chart?.load({ columns: getColumns() });
+    } else {
+      chart?.unload();
+    }
   }, [chartData, categories, colors]);
 
   const getColumns = () => {
