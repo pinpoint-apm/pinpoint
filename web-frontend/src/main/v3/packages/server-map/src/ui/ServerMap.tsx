@@ -12,7 +12,7 @@ cytoscape.use(dagre);
 
 type ClickEventHandler<T> = (param: {
   data?: T;
-  eventType: 'right' | 'left' | 'programmatic';
+  eventType: 'right' | 'left' | 'programmatic' | 'hover';
   position: Partial<cytoscape.Position>;
 }) => void;
 
@@ -24,6 +24,7 @@ export interface ServerMapProps extends Pick<React.HTMLProps<HTMLDivElement>, 'c
   baseNodeId: string;
   customTheme?: ServerMapTheme;
   forceLayoutUpdate?: boolean;
+  onHoverNode?: ClickEventHandler<MergedNode>;
   onClickNode?: ClickEventHandler<MergedNode>;
   onClickEdge?: ClickEventHandler<MergedEdge>;
   onClickBackground?: ClickEventHandler<{}>;
@@ -39,6 +40,7 @@ export const ServerMap = ({
   customTheme = {},
   baseNodeId,
   forceLayoutUpdate,
+  onHoverNode,
   onClickNode,
   onClickEdge,
   onClickBackground,
@@ -248,6 +250,10 @@ export const ServerMap = ({
     onClickBackground?.(param);
   };
 
+  const handleHoverNode = (param: Parameters<ClickEventHandler<MergedNode>>[0]) => {
+    onHoverNode?.(param);
+  };
+
   const addEventListener = React.useCallback(() => {
     const cy = cyRef?.current;
 
@@ -258,10 +264,33 @@ export const ServerMap = ({
         cy.resize();
         cy.center(baseNode);
       })
-        .on('mouseover', ({ target }) => {
+        .on('mouseover', ({ target, renderedPosition }) => {
           cy.container()!.style.cursor = target === cy ? 'default' : 'pointer';
+
+          const position = {
+            x: renderedPosition?.x,
+            y: renderedPosition?.y,
+          };
+
+          if (target?.isNode?.()) {
+            handleHoverNode({
+              eventType: 'hover',
+              position,
+              data: target.data(),
+            });
+          }
         })
-        .on('mouseout', () => {
+        .on('mouseout', ({ target }) => {
+          if (target?.isNode?.()) {
+            handleHoverNode({
+              eventType: 'hover',
+              position: {
+                x: 0,
+                y: 0,
+              },
+              data: undefined,
+            });
+          }
           cy.container()!.style.cursor = 'default';
         })
         .on('tap', ({ target, originalEvent, renderedPosition }: InputEventObject) => {

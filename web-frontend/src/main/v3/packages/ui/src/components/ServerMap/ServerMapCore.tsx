@@ -35,6 +35,7 @@ import {
   ServerMapSkeleton,
 } from '..';
 import cytoscape from 'cytoscape';
+import { ApdexScoreApdexFormula } from '../ApdexScore/ApdexScoreFetcher';
 
 export interface ServerMapCoreProps extends Omit<ServerMapComponentProps, 'data'> {
   data?: GetServerMap.Response | FilteredMap.Response;
@@ -53,6 +54,7 @@ export const ServerMapCore = ({
   isLoading,
   error,
   baseNodeId,
+  onHoverNode,
   onClickNode,
   onClickEdge,
   onClickMenuItem,
@@ -67,6 +69,7 @@ export const ServerMapCore = ({
   const { t } = useTranslation();
   const containerRef = React.useRef(null);
   const rightClickTargetRef = React.useRef<Node | Edge>();
+  const hoverNodeRef = React.useRef<Node>();
   const [popperContentType, setPopperContentType] = React.useState<SERVERMAP_MENU_CONTENT_TYPE>();
   const [popperPosition, setPopperPosition] = React.useState<
     Partial<{
@@ -106,6 +109,7 @@ export const ServerMapCore = ({
         id: node.key,
         label: node.applicationName,
         type: node.serviceType,
+        apdex: node.apdex,
         imgPath: getServerImagePath(node),
         transactionInfo: getTransactionInfo(node),
         timeSeriesApdexInfo: isFilteredMap ? undefined : getTimeSeriesApdexInfo(node), // filtered map에서는 시간 시리즈 Apdex 정보를 사용하지 않는다.
@@ -230,6 +234,21 @@ export const ServerMapCore = ({
       setPopperPosition(position);
       setPopperContentType(SERVERMAP_MENU_CONTENT_TYPE.BACKGROUND);
     }
+  };
+
+  const handleHoverNode: ServerMapCoreProps['onHoverNode'] = (params) => {
+    const { eventType, position, data } = params;
+    if (eventType === 'hover') {
+      if (data && data?.apdex) {
+        setPopperPosition(position);
+        setPopperContentType(SERVERMAP_MENU_CONTENT_TYPE.HOVER_NODE);
+        hoverNodeRef.current = data;
+      } else {
+        setPopperContentType(undefined);
+        hoverNodeRef.current = undefined;
+      }
+    }
+    onHoverNode?.(params);
   };
 
   const handleClickNode: ServerMapCoreProps['onClickNode'] = (params) => {
@@ -440,6 +459,19 @@ export const ServerMapCore = ({
                     </ServerMapMenuItem>
                   </ServerMapMenuContent>
                 )}
+                {popperContentType === SERVERMAP_MENU_CONTENT_TYPE.HOVER_NODE && (
+                  <ServerMapMenuContent title={'Apdex Score'}>
+                    <ApdexScoreApdexFormula
+                      satisfiedCount={
+                        hoverNodeRef?.current?.apdex?.apdexFormula?.satisfiedCount || 0
+                      }
+                      toleratingCount={
+                        hoverNodeRef?.current?.apdex?.apdexFormula?.toleratingCount || 0
+                      }
+                      totalSamples={hoverNodeRef?.current?.apdex?.apdexFormula?.totalSamples || 0}
+                    />
+                  </ServerMapMenuContent>
+                )}
               </div>
             </ServerMapMenu>
           )}
@@ -455,14 +487,14 @@ export const ServerMapCore = ({
                     return `
                   ${transactionStatusSVGString}
                   ${
-                    node.transactionInfo?.instanceCount &&
+                    node?.apdex?.apdexScore !== undefined &&
                     `<text 
                       x="50" y="80"
                       font-size="smaller"
                       dominant-baseline="middle"
                       text-anchor="middle"
                       font-family="Arial, Helvetica, sans-serif"
-                    >${node.transactionInfo?.instanceCount}</text>`
+                    >${(Math.floor(node?.apdex?.apdexScore * 100) / 100).toFixed(2)}</text>`
                   }
                 `;
                   }}
@@ -481,6 +513,7 @@ export const ServerMapCore = ({
                     }
                     return '';
                   }}
+                  onHoverNode={handleHoverNode}
                   onClickBackground={handleClickBackground}
                   onClickNode={handleClickNode}
                   onClickEdge={handleClickEdge}

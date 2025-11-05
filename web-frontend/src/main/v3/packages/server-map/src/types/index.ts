@@ -3,6 +3,14 @@ export interface Node {
   label: string;
   type?: string;
   imgPath?: string;
+  apdex?: {
+    apdexScore: number;
+    apdexFormula: {
+      satisfiedCount: number;
+      toleratingCount: number;
+      totalSamples: number;
+    };
+  };
   transactionInfo?: {
     good: number;
     slow: number;
