@@ -1,4 +1,5 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace GetServerMap {
   export interface Response {
     applicationMapData: ApplicationMapData;
@@ -123,8 +124,10 @@ export namespace GetServerMap {
     hasAlert: boolean;
     responseStatistics: ResponseStatistics;
     histogram: Histogram;
-    apdexScore: number;
-    apdexFormula: ApdexFormula;
+    apdex: {
+      apdexScore: number;
+      apdexFormula: ApdexFormula;
+    };
     timeSeriesHistogram: TimeSeriesHistogram[];
     instanceCount: number;
     instanceErrorCount: number;

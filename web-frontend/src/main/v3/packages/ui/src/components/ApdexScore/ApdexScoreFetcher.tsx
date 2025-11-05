@@ -1,6 +1,7 @@
 import { Separator } from '../ui/separator';
 import { useGetApdexScore, UseGetApdexScoreProps } from '@pinpoint-fe/ui/src/hooks';
 import { HelpPopover } from '..';
+import { GetServerMap } from '@pinpoint-fe/ui/src/constants';
 export interface ApdexScoreFetcherProps extends UseGetApdexScoreProps {}
 
 enum RANK {
@@ -48,23 +49,37 @@ export const ApdexScoreFetcher = (props: ApdexScoreFetcherProps) => {
         <HelpPopover
           helpKey="HELP_VIEWER.APDEX_SCORE"
           prevContent={
-            <>
-              <div className="flex flex-col gap-3 p-4 pt-2.5 text-xs">
-                <div className="text-center">
-                  <span>{data?.apdexFormula?.satisfiedCount || 0}</span>
-                  <span>{` + [ `}</span>
-                  <span>{data?.apdexFormula?.toleratingCount || 0}</span>
-                  <span>{` / `}</span>
-                  <span>{` 2 `}</span>
-                  <span>{` ] `}</span>
-                </div>
-                <Separator />
-                <div className="text-center">{data?.apdexFormula?.totalSamples || 0}</div>
-              </div>
-            </>
+            <ApdexScoreApdexFormula
+              satisfiedCount={data?.apdexFormula?.satisfiedCount || 0}
+              toleratingCount={data?.apdexFormula?.toleratingCount || 0}
+              totalSamples={data?.apdexFormula?.totalSamples || 0}
+            />
           }
         />
       </div>
     </div>
+  );
+};
+
+export const ApdexScoreApdexFormula = ({
+  satisfiedCount,
+  toleratingCount,
+  totalSamples,
+}: GetServerMap.ApdexFormula) => {
+  return (
+    <>
+      <div className="flex flex-col gap-3 p-4 pt-2.5 text-xs">
+        <div className="text-center">
+          <span>{satisfiedCount || 0}</span>
+          <span>{` + [ `}</span>
+          <span>{toleratingCount || 0}</span>
+          <span>{` / `}</span>
+          <span>{` 2 `}</span>
+          <span>{` ] `}</span>
+        </div>
+        <Separator />
+        <div className="text-center">{totalSamples || 0}</div>
+      </div>
+    </>
   );
 };

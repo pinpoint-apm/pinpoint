@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-namespace */
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 export namespace FilteredMapType {
   export interface Agent {
@@ -217,8 +218,10 @@ export namespace FilteredMapType {
     hasAlert: boolean;
     responseStatistics: ResponseStatistics;
     histogram: Histogram;
-    apdexScore: number;
-    apdexFormula: ApdexFormula;
+    apdex: {
+      apdexScore: number;
+      apdexFormula: ApdexFormula;
+    };
     agentHistogram: AgentHistogram;
     agentResponseStatistics: AgentResponseStatistics;
     timeSeriesHistogram: TimeSeriesHistogram[];
