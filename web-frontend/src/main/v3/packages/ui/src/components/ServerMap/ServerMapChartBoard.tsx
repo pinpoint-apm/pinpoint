@@ -143,7 +143,11 @@ export const ServerMapChartsBoardFetcher = ({
   };
 
   const shouldHideScatter = React.useCallback(() => {
-    return currentTargetData && !(currentTargetData as GetServerMap.NodeData)?.isWas;
+    return (
+      currentTargetData &&
+      (currentTargetData as GetServerMap.NodeData)?.nodeCategory !==
+        GetServerMap.NodeCategory.SERVER
+    );
   }, [currentTargetData]);
 
   const timestamp = React.useMemo(() => {

@@ -115,7 +115,7 @@ export const ServerMapCore = ({
         timeSeriesApdexInfo: isFilteredMap ? undefined : getTimeSeriesApdexInfo(node), // filtered map에서는 시간 시리즈 Apdex 정보를 사용하지 않는다.
         shouldNotMerge: () => {
           return (
-            node.isWas ||
+            node.nodeCategory === GetServerMap.NodeCategory.SERVER ||
             node.serviceType === 'USER' ||
             unCheckedServiceTypes.some((t) => t === node.serviceType)
           );
@@ -145,9 +145,9 @@ export const ServerMapCore = ({
   }
 
   const getTransactionInfo = (node: GetServerMap.NodeData | FilteredMap.NodeData) => {
-    const { isWas, isAuthorized } = node;
+    const { nodeCategory, isAuthorized } = node;
 
-    if (isWas && isAuthorized) {
+    if (nodeCategory === GetServerMap.NodeCategory.SERVER && isAuthorized) {
       return {
         good: ['1s', '3s', '5s'].reduce((prev, curr) => {
           return prev + node?.histogram?.[curr as keyof GetServerMap.Histogram];
@@ -160,7 +160,7 @@ export const ServerMapCore = ({
   };
 
   const getTimeSeriesApdexInfo = (node: GetServerMap.NodeData | FilteredMap.NodeData) => {
-    const { isWas, isAuthorized, timeSeriesHistogram } = node;
+    const { isAuthorized, timeSeriesHistogram } = node;
 
     if (!isAuthorized || !timeSeriesHistogram) {
       return [];

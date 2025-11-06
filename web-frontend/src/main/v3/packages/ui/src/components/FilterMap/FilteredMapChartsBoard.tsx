@@ -81,7 +81,11 @@ export const FilteredMapChartsBoard = ({
       return true;
     }
     return !(
-      (currentTargetData && (currentTargetData as FilteredMap.NodeData)?.isWas)
+      (
+        currentTargetData &&
+        (currentTargetData as FilteredMap.NodeData)?.nodeCategory ===
+          GetServerMap.NodeCategory.SERVER
+      )
       // && !currentTargetData?.isMerged
     );
   };

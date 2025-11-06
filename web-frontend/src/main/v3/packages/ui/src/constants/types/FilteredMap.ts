@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 /* eslint-disable  @typescript-eslint/no-explicit-any */
+
+import { GetServerMap } from './GetServerMap';
 export namespace FilteredMapType {
   export interface Agent {
     id: string;
@@ -227,6 +229,7 @@ export namespace FilteredMapType {
     instanceErrorCount: number;
     agents: Agent[];
     serverList: ServerList;
+    nodeCategory: GetServerMap.NodeCategory;
   }
 
   export interface ApdexFormula {
