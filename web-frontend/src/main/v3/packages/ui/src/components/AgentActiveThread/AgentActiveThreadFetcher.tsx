@@ -127,7 +127,8 @@ export const AgentActiveThreadFetcher = () => {
   return (
     <div className="w-full h-full">
       {webSocketState === WebSocket.OPEN ? (
-        isApplicationLocked || currentTargetData?.isWas ? (
+        isApplicationLocked ||
+        currentTargetData?.nodeCategory === GetServerMap.NodeCategory.SERVER ? (
           <div className="flex flex-col items-center h-full p-4">
             <div className="flex flex-row items-center justify-between w-full gap-1 p-1 text-sm font-semibold truncate">
               <TooltipProvider>

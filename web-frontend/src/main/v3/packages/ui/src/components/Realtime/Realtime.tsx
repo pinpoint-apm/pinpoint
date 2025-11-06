@@ -68,7 +68,12 @@ export const Realtime = ({ configuration }: RealtimeProps) => {
       return true;
     }
     return (
-      serverMapData && !(currentTargetData && (currentTargetData as GetServerMap.NodeData)?.isWas)
+      serverMapData &&
+      !(
+        currentTargetData &&
+        (currentTargetData as GetServerMap.NodeData)?.nodeCategory ===
+          GetServerMap.NodeCategory.SERVER
+      )
     );
   }, [serverMapData, currentTargetData]);
 

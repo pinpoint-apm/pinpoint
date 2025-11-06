@@ -145,4 +145,14 @@ export namespace GetServerMap {
   export interface AgentIdNameMap {
     [key: string]: string | null;
   }
+
+  export enum NodeCategory {
+    UNDEFINED = 'UNDEFINED', //((byte) -1)
+    USER = 'USER', //((byte) -10)
+    UNKNOWN = 'UNKNOWN', //((byte) -20)
+    SERVER = 'SERVER', //((byte) 10)
+    DATABASE = 'DATABASE', //((byte) 20)
+    MESSAGE_BROKER = 'MESSAGE_BROKER', //((byte) 30)
+    CACHE = 'CACHE', //((byte) 40)
+  }
 }
