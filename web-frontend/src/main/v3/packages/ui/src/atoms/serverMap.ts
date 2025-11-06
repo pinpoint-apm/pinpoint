@@ -40,7 +40,7 @@ export const serverMapCurrentTargetDataAtom = atom((get) => {
 
   if (currentTarget?.serviceType === 'USER') {
     return (serverMapData?.applicationMapData?.nodeDataArray as ServerMapNodeDataArray)?.find(
-      ({ category }) => category === currentTarget.serviceType,
+      ({ serviceType }) => serviceType === currentTarget.serviceType,
     );
   } else if (currentTarget?.type === 'node') {
     return (serverMapData?.applicationMapData?.nodeDataArray as ServerMapNodeDataArray)?.find(

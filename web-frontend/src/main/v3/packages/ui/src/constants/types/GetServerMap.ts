@@ -112,11 +112,8 @@ export namespace GetServerMap {
     key: string;
     nodeKey?: string;
     applicationName: string;
-    category: string;
     serviceType: string;
     serviceTypeCode: number;
-    isWas: boolean;
-    isQueue: boolean;
     isAuthorized: boolean;
     totalCount: number;
     errorCount: number;
@@ -136,6 +133,7 @@ export namespace GetServerMap {
     mergedNodes?: any[];
     topCountNodes?: any[];
     mergedSourceNodes?: any[];
+    nodeCategory: NodeCategory;
   }
 
   export interface ApdexFormula {

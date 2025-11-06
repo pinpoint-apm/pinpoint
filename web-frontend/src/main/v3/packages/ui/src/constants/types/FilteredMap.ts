@@ -206,11 +206,8 @@ export namespace FilteredMapType {
   export interface NodeData {
     key: string;
     applicationName: string;
-    category: string;
     serviceType: string;
     serviceTypeCode: number;
-    isWas: boolean;
-    isQueue: boolean;
     isAuthorized: boolean;
     totalCount: number;
     errorCount: number;
