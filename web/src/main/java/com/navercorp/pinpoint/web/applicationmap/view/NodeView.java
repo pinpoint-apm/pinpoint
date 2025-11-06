@@ -95,15 +95,16 @@ public class NodeView {
 
             jgen.writeStringField("applicationName", node.getApplicationTextName()); // for go.js
 
-            jgen.writeStringField("category", node.getServiceType().toString());  // necessary for go.js
-            jgen.writeStringField("serviceType", node.getServiceType().toString());
+            final ServiceType serviceType = node.getServiceType();
 
-            final ServiceType serviceType = node.getApplication().getServiceType();
-
+            jgen.writeStringField("category", serviceType.toString());
+            jgen.writeStringField("serviceType", serviceType.toString());
             jgen.writeNumberField("serviceTypeCode", serviceType.getCode());
-//        jgen.writeStringField("terminal", Boolean.toString(serviceType.isTerminal()));
-            jgen.writeBooleanField("isWas", serviceType.isWas());  // for go.js
+
+            jgen.writeStringField("nodeCategory", serviceType.getCategory().nodeCategory().toString());
+            jgen.writeBooleanField("isWas", serviceType.isWas());
             jgen.writeBooleanField("isQueue", serviceType.isQueue());
+
             jgen.writeBooleanField("isAuthorized", node.isAuthorized());
 
             jgen.writeObjectField("apdex", node.getApdexScore());
