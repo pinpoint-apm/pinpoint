@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,17 @@
 
 package com.navercorp.pinpoint.inspector.web.view;
 
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricGroupData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricValue;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author minwoo.jung
@@ -46,27 +47,24 @@ public class InspectorMetricGroupDataView {
         return inspectorMetricGroupData.timestamps();
     }
 
-    public List<MetricValueGroupView> getMetricValueGroups() {
+    public Iterator<MetricValueGroupView> getMetricValueGroups() {
         Map<List<Tag>, List<InspectorMetricValue>> metricValueGroups = inspectorMetricGroupData.metricValueGroups();
 
-        List<MetricValueGroupView> metricValueGroupViewList= new ArrayList<>(metricValueGroups.size());
-
-        for (Map.Entry<List<Tag>, List<InspectorMetricValue>> entry : metricValueGroups.entrySet()) {
-            MetricValueGroupView metricValueGroupView = new MetricValueGroupView(entry.getKey(), entry.getValue());
-            metricValueGroupViewList.add(metricValueGroupView);
-        }
-
-        return metricValueGroupViewList;
+        Iterator<Map.Entry<List<Tag>, List<InspectorMetricValue>>> iterator = metricValueGroups.entrySet().iterator();
+        return Iterators.transform(iterator, MetricValueGroupView::ofEntry);
     }
 
     public static class MetricValueGroupView {
         private final List<Tag> tags;
-        private final List<MetricValueView> metricValues;
+        private final List<InspectorMetricValue> metricValues;
+
+        public static MetricValueGroupView ofEntry(Map.Entry<List<Tag>, List<InspectorMetricValue>> entry) {
+            return new MetricValueGroupView(entry.getKey(), entry.getValue());
+        }
 
         public MetricValueGroupView(List<Tag> tags, List<InspectorMetricValue> metricValues) {
             this.tags = Objects.requireNonNull(tags, "tags");
-            Objects.requireNonNull(metricValues, "metricValues");
-            this.metricValues = metricValues.stream().map(MetricValueView::new).collect(Collectors.toList());
+            this.metricValues = Objects.requireNonNull(metricValues, "metricValues");
         }
 
         public List<Tag> getTags() {
@@ -74,7 +72,7 @@ public class InspectorMetricGroupDataView {
         }
 
         public List<MetricValueView> getMetricValues() {
-            return metricValues;
+            return Lists.transform(metricValues, MetricValueView::new);
         }
     }
 

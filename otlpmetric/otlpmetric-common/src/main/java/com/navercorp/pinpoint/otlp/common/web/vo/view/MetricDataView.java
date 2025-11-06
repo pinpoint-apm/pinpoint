@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.otlp.common.web.vo.view;
 
+import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.otlp.common.web.definition.property.ChartType;
 import com.navercorp.pinpoint.otlp.common.web.vo.MetricData;
 import com.navercorp.pinpoint.otlp.common.web.vo.MetricValue;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 /**
  * @author minwoo-jung
@@ -58,7 +59,7 @@ public class MetricDataView {
     }
 
     public List<MetricValueView> getMetricValues() {
-        return metricValueList.stream().map(MetricValueView::new).collect(Collectors.toList());
+        return Lists.transform(metricValueList, MetricValueView::new);
     }
 
     public String getMessage() {
@@ -71,6 +72,7 @@ public class MetricDataView {
         private final String version;
 
         public MetricValueView(MetricValue metricValue) {
+            Objects.requireNonNull(metricValue, "metricValue");
             this.legendName = metricValue.legendName();
             this.valueList = metricValue.valueList();
             this.version = metricValue.version();

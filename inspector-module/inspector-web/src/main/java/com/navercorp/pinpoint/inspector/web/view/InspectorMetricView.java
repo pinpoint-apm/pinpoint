@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.inspector.web.view;
 
+import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricValue;
@@ -23,7 +24,6 @@ import com.navercorp.pinpoint.metric.common.model.Tag;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author minwoo.jung
@@ -45,9 +45,7 @@ public class InspectorMetricView {
     }
 
     public List<MetricValueView> getMetricValues() {
-        return inspectorMetricData.metricValues().stream()
-                .map(MetricValueView::new)
-                .collect(Collectors.toList());
+        return Lists.transform(inspectorMetricData.metricValues(), MetricValueView::new);
     }
 
     public static class MetricValueView {
