@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.view;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
@@ -119,8 +120,9 @@ public class LinkView {
             jgen.writeFieldName("filter");
             jgen.writeStartObject();
             jgen.writeStringField("applicationName", filterApplication.getName());
-            jgen.writeNumberField("serviceTypeCode", filterApplication.getServiceTypeCode());
-            jgen.writeStringField("serviceTypeName", filterApplication.getServiceType().getName());
+            ServiceType serviceType = filterApplication.getServiceType();
+            jgen.writeNumberField("serviceTypeCode", serviceType.getCode());
+            jgen.writeStringField("serviceTypeName", serviceType.getName());
             if (link.isWasToWasLink()) {
                 writeWasToWasTargetRpcList("outRpcList", link, jgen);
             }
@@ -165,9 +167,12 @@ public class LinkView {
             jgen.writeStartObject();
             Application application = node.getApplication();
             jgen.writeStringField("applicationName", application.getName());
-            jgen.writeStringField("serviceType", application.getServiceType().toString());
-            jgen.writeNumberField("serviceTypeCode", application.getServiceTypeCode());
-            jgen.writeBooleanField("isWas", application.getServiceType().isWas());
+            ServiceType serviceType = application.getServiceType();
+            jgen.writeStringField("serviceType", serviceType.toString());
+            jgen.writeNumberField("serviceTypeCode", serviceType.getCode());
+            jgen.writeBooleanField("isWas", serviceType.isWas());
+            jgen.writeStringField("nodeCategory", serviceType.getCategory().nodeCategory().toString());
+
             jgen.writeEndObject();
         }
     }
