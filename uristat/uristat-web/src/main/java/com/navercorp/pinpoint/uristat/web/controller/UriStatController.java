@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.uristat.web.controller;
 
+import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.timeseries.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
@@ -109,16 +110,11 @@ public class UriStatController {
 
         if (type == null) {
             List<UriStatSummary> summaries = uriStatService.getUriStatPagedSummary(query);
-            return summaries.stream()
-                    .map(mapper::toSummaryView
-                    ).toList();
+            return Lists.transform(summaries, mapper::toSummaryView);
         } else {
             UriStatChartType chartType = chartTypeFactory.valueOf(type.toLowerCase());
             List<UriStatSummary> summaries = uriStatService.getUriStatMiniChart(chartType, query);
-            return summaries.stream()
-                    .map((UriStatSummary e)
-                            -> mapper.toSummaryView(e, timeWindow, chartType)
-                    ).toList();
+            return Lists.transform(summaries, e -> mapper.toSummaryView(e, timeWindow, chartType));
         }
     }
 
