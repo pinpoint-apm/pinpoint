@@ -62,7 +62,7 @@ public class SystemMetricView extends DefaultTimeSeriesView {
 
         @Override
         public TimeseriesChartType getChartType() {
-            return TimeseriesChartType.line;
+            return BasicTimeseriesChartType.LINE;
         }
 
         @Override

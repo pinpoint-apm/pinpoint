@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,16 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.navercorp.pinpoint.web.view.histogram;
 
 import com.navercorp.pinpoint.common.timeseries.array.LongArray;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
+import com.navercorp.pinpoint.metric.web.view.TimeSeriesValueView;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
-import com.navercorp.pinpoint.web.view.TimeSeries.TimeSeriesValueView;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 
 import java.util.Collections;
@@ -54,7 +53,7 @@ public class TimeHistogramChartBuilder {
         List<TimeSeriesValueView> metricValueList = createLoadValueList(orderedTimeHistograms);
         List<Long> timestamp = getTimestamp();
         return new TimeHistogramChart("Load", timestamp,
-                List.of(new TimeHistogramValueGroupView("load", "count", "area-step", metricValueList)));
+                List.of(new TimeHistogramValueGroupView("load", "count", TimeHistogramChartType.AREA_STEP, metricValueList)));
     }
 
     private List<TimeSeriesValueView> createLoadValueList(List<TimeHistogram> histogramList) {
@@ -75,7 +74,7 @@ public class TimeHistogramChartBuilder {
         List<TimeSeriesValueView> metricValueList = createLoadStatisticsValueList(orderedTimeHistograms);
         List<Long> timestamp = getTimestamp();
         return new TimeHistogramChart("Load Avg & Max", timestamp,
-                List.of(new TimeHistogramValueGroupView("loadStatistics", "ms", "area-step", metricValueList)));
+                List.of(new TimeHistogramValueGroupView("loadStatistics", "ms", TimeHistogramChartType.AREA_STEP, metricValueList)));
     }
 
     private List<Long> getTimestamp() {

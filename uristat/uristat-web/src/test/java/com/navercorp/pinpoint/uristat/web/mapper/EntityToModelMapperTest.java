@@ -1,7 +1,23 @@
+/*
+ * Copyright 2025 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.uristat.web.mapper;
 
-import com.navercorp.pinpoint.uristat.web.entity.UriHistogramTotalEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriHistogramFailEntity;
+import com.navercorp.pinpoint.uristat.web.entity.UriHistogramTotalEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriLatencyChartEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriStatChartEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriStatSummaryEntity;
@@ -68,7 +84,7 @@ class EntityToModelMapperTest {
         assertEquals(60.0, model.getValues().get(5));
         assertEquals(70.0, model.getValues().get(6));
         assertEquals(80.0, model.getValues().get(7));
-        assertEquals("bar", model.getChartType().name());
+        assertEquals("bar", model.getChartType().getName());
         assertEquals("count", model.getUnit());
     }
 
@@ -99,7 +115,7 @@ class EntityToModelMapperTest {
         assertEquals(60.0, model.getValues().get(5));
         assertEquals(70.0, model.getValues().get(6));
         assertEquals(80.0, model.getValues().get(7));
-        assertEquals("bar", model.getChartType().name());
+        assertEquals("bar", model.getChartType().getName());
         assertEquals("count", model.getUnit());
     }
 
@@ -119,7 +135,7 @@ class EntityToModelMapperTest {
         assertEquals(2, model.getValues().size());
         assertEquals(400.0, model.getValues().get(0));
         assertEquals(500.0, model.getValues().get(1));
-        assertEquals("line", model.getChartType().name());
+        assertEquals("line", model.getChartType().getName());
         assertEquals("ms", model.getUnit());
     }
 
@@ -137,7 +153,7 @@ class EntityToModelMapperTest {
         assertEquals(entity.getVersion(), model.getVersion());
         assertEquals(1, model.getValues().size());
         assertEquals(0.5, model.getValues().get(0));
-        assertEquals("line", model.getChartType().name());
+        assertEquals("line", model.getChartType().getName());
         assertEquals("", model.getUnit());
     }
 }

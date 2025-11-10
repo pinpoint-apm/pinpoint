@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.web.view;
 
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchemas;
+import com.navercorp.pinpoint.metric.web.view.TimeSeriesValueView;
+import com.navercorp.pinpoint.metric.web.view.TimeSeriesView;
+import com.navercorp.pinpoint.metric.web.view.TimeseriesValueGroupView;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
-import com.navercorp.pinpoint.web.view.TimeSeries.TimeSeriesValueGroupView;
-import com.navercorp.pinpoint.web.view.TimeSeries.TimeSeriesValueView;
-import com.navercorp.pinpoint.web.view.TimeSeries.TimeSeriesView;
 import com.navercorp.pinpoint.web.view.histogram.TimeHistogramChartBuilder;
 import com.navercorp.pinpoint.web.view.histogram.TimeHistogramType;
 import org.apache.logging.log4j.LogManager;
@@ -68,10 +68,10 @@ public class TimeHistogramChartTest {
         TimeSeriesView loadChart = builder.build(TimeHistogramType.load);
 
         Assertions.assertThat(loadChart.getTimestamp()).isEqualTo(List.of(0L, 60000L));
-        List<TimeSeriesValueGroupView> metricValueGroups = loadChart.getMetricValueGroups();
+        List<TimeseriesValueGroupView> metricValueGroups = loadChart.getMetricValueGroups();
         Assertions.assertThat(metricValueGroups).isNotEmpty();
 
-        TimeSeriesValueGroupView groupView = metricValueGroups.get(0);
+        TimeseriesValueGroupView groupView = metricValueGroups.get(0);
         List<TimeSeriesValueView> metricValues = groupView.getMetricValues();
         Assertions.assertThat(metricValues.size()).isEqualTo(5);
 
