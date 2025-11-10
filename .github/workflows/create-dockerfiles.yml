@@ -1,8 +1,10 @@
 name: Create and push dockerfiles
 
 on:
-  workflow_dispatch
-
+  workflow_dispatch:
+  release:
+    types: [released]
+    
 jobs:
   latest:
     runs-on: ubuntu-22.04
