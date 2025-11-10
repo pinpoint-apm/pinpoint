@@ -62,7 +62,8 @@ export function useServerMapOnClickMenuItem<
         (l) => l.key === data.id,
       );
       const addedHint =
-        link?.sourceInfo.isWas && link.targetInfo.isWas
+        link?.sourceInfo.nodeCategory === GetServerMap.NodeCategory.SERVER &&
+        link?.targetInfo.nodeCategory === GetServerMap.NodeCategory.SERVER
           ? {
               [link.targetInfo.applicationName]: link.filter?.outRpcList,
             }
@@ -71,7 +72,7 @@ export function useServerMapOnClickMenuItem<
       window.open(
         `${BASE_PATH}${getFilteredMapPath(
           defaultFilterState!,
-          link?.sourceInfo.isWas,
+          link?.sourceInfo.nodeCategory === GetServerMap.NodeCategory.SERVER,
         )}?from=${from}&to=${to}${getFilteredMapQueryString({
           filterStates: [...(parsedFilters || [])!, defaultFilterState!],
           hint: {

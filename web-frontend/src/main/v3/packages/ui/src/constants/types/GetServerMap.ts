@@ -72,14 +72,14 @@ export namespace GetServerMap {
     applicationName: string;
     serviceType: string;
     serviceTypeCode: number;
-    isWas: boolean;
+    nodeCategory: NodeCategory;
   }
 
   export interface TargetInfo {
     applicationName: string;
     serviceType: string;
     serviceTypeCode: number;
-    isWas: boolean;
+    nodeCategory: NodeCategory;
   }
 
   export interface FilterTargetRpcList {
