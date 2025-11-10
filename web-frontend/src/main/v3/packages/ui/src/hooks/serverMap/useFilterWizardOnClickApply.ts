@@ -33,9 +33,10 @@ export function useFilterWizardOnClickApply<
           `${filterState.fromApplication}^${filterState.fromServiceType}~${filterState.toApplication}^${filterState.toServiceType}`,
       );
       if (link) {
-        soureIsWas = link.sourceInfo.isWas;
+        soureIsWas = link.sourceInfo.nodeCategory === GetServerMap.NodeCategory.SERVER;
         addedHint =
-          link.sourceInfo.isWas && link.targetInfo.isWas
+          link.sourceInfo.nodeCategory === GetServerMap.NodeCategory.SERVER &&
+          link.targetInfo.nodeCategory === GetServerMap.NodeCategory.SERVER
             ? {
                 [link.targetInfo.applicationName]: link.filter?.outRpcList,
               }

@@ -149,14 +149,14 @@ export namespace FilteredMapType {
     applicationName: string;
     serviceType: string;
     serviceTypeCode: number;
-    isWas: boolean;
+    nodeCategory: GetServerMap.NodeCategory;
   }
 
   export interface TargetInfo {
     applicationName: string;
     serviceType: string;
     serviceTypeCode: number;
-    isWas: boolean;
+    nodeCategory: GetServerMap.NodeCategory;
   }
 
   export interface FilterTargetRpcList {
