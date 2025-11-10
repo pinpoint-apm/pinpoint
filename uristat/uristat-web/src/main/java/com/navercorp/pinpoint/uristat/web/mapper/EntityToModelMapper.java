@@ -1,11 +1,11 @@
 /*
- * Copyright 2024 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,9 +15,10 @@
  */
 package com.navercorp.pinpoint.uristat.web.mapper;
 
+import com.navercorp.pinpoint.metric.web.view.BasicTimeseriesChartType;
 import com.navercorp.pinpoint.uristat.web.entity.UriApdexChartEntity;
-import com.navercorp.pinpoint.uristat.web.entity.UriHistogramTotalEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriHistogramFailEntity;
+import com.navercorp.pinpoint.uristat.web.entity.UriHistogramTotalEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriLatencyChartEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriStatChartEntity;
 import com.navercorp.pinpoint.uristat.web.entity.UriStatSummaryEntity;
@@ -40,6 +41,7 @@ import java.util.function.Function;
 @Mapper(
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,
         collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
+        imports = { BasicTimeseriesChartType.class },
         uses = {MapperUtils.class}
 )
 public interface EntityToModelMapper {
@@ -91,16 +93,18 @@ public interface EntityToModelMapper {
     public @interface ToChartValue {
     }
 
+    String BAR_CHART = "java(BasicTimeseriesChartType.BAR)";
+
     @ToChartValue
     @Named("toTotalChart")
-    @Mapping(target = "chartType", constant = "bar")
+    @Mapping(target = "chartType", expression = BAR_CHART)
     @Mapping(target = "unit", constant = "count")
     @Mapping(target = "values", source = "totalHistogram")
     UriStatChartValue toTotalChart(UriHistogramTotalEntity entity);
 
     @ToChartValue
     @Named("toFailureChart")
-    @Mapping(target = "chartType", constant = "bar")
+    @Mapping(target = "chartType", expression = BAR_CHART)
     @Mapping(target = "unit", constant = "count")
     @Mapping(target = "values", source = "failureHistogram")
     UriStatChartValue toFailureChart(UriHistogramFailEntity entity);
@@ -108,28 +112,30 @@ public interface EntityToModelMapper {
 
     @ToChartValue
     @Named("toTotalChart")
-    @Mapping(target = "chartType", constant = "bar")
+    @Mapping(target = "chartType", expression = BAR_CHART)
     @Mapping(target = "unit", constant = "count")
     @Mapping(target = "values", source = "totalHistogram")
     UriStatChartValue toTotalChart(UriStatChartEntity entity);
 
     @ToChartValue
     @Named("toFailureChart")
-    @Mapping(target = "chartType", constant = "bar")
+    @Mapping(target = "chartType", expression = BAR_CHART)
     @Mapping(target = "unit", constant = "count")
     @Mapping(target = "values", source = "failureHistogram")
     UriStatChartValue toFailureChart(UriStatChartEntity entity);
 
+    String LINE_CHART = "java(BasicTimeseriesChartType.LINE)";
+
     @ToChartValue
     @Named("toLatencyChart")
-    @Mapping(target = "chartType", constant = "line")
+    @Mapping(target = "chartType", expression = LINE_CHART)
     @Mapping(target = "unit", constant = "ms")
     @Mapping(target = "values", source = "entity", qualifiedByName = "toSimpleLatency")
     UriStatChartValue toSimpleLatencyChart(UriLatencyChartEntity entity);
 
     @ToChartValue
     @Named("toLatencyChart")
-    @Mapping(target = "chartType", constant = "line")
+    @Mapping(target = "chartType", expression = LINE_CHART)
     @Mapping(target = "unit", constant = "ms")
     @Mapping(target = "values", source = "entity", qualifiedByName = "toLatency")
     UriStatChartValue toLatencyChart(UriStatChartEntity entity);
@@ -137,14 +143,14 @@ public interface EntityToModelMapper {
 
     @ToChartValue
     @Named("toApdexChart")
-    @Mapping(target = "chartType", constant = "line")
+    @Mapping(target = "chartType", expression = LINE_CHART)
     @Mapping(target = "unit", constant = "")
     @Mapping(target = "values", source = "entity", qualifiedByName = "toApdexList")
     UriStatChartValue toSimpleApdexChart(UriApdexChartEntity entity);
 
     @ToChartValue
     @Named("toApdexChart")
-    @Mapping(target = "chartType", constant = "line")
+    @Mapping(target = "chartType", expression = LINE_CHART)
     @Mapping(target = "unit", constant = "")
     @Mapping(target = "values", source = "entity", qualifiedByName = "toApdexList")
     UriStatChartValue toApdexChart(UriStatChartEntity entity);

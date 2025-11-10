@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.web.view.TimeSeries;
 
-import java.util.List;
+package com.navercorp.pinpoint.metric.web.view;
 
-// duplicated from com.navercorp.pinpoint.metric.web.view.TimeSeriesValueView
-public interface TimeSeriesValueView {
-    String getFieldName();
-    List<String> getTags();
-    List<? extends Number> getValues();
+import java.util.Objects;
+
+public enum BasicTimeseriesChartType implements TimeseriesChartType {
+
+    LINE("line"),
+    BAR("bar");
+
+    private final String name;
+
+    BasicTimeseriesChartType(String name) {
+        this.name = Objects.requireNonNull(name, "name");
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }
-

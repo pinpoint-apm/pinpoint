@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.web.view.TimeSeries;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+package com.navercorp.pinpoint.web.view.histogram;
 
-import java.util.List;
+import com.navercorp.pinpoint.metric.web.view.TimeseriesChartType;
 
-// duplicated from com.navercorp.pinpoint.metric.web.view.TimeSeriesView
-public interface TimeSeriesView {
-    String getTitle();
+import java.util.Objects;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    List<Long> getTimestamp();
+public enum TimeHistogramChartType implements TimeseriesChartType {
+    AREA_STEP("area-step");
 
-    List<TimeSeriesValueGroupView> getMetricValueGroups();
+    private final String name;
 
+    TimeHistogramChartType(String name) {
+        this.name = Objects.requireNonNull(name, "name");
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }
