@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.util.json.JacksonWriterUtils;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.nodes.AgentServerGroupListWriter;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.service.AlertViewService;
@@ -80,6 +81,8 @@ public class NodeView {
     public static class NodeViewSerializer extends JsonSerializer<NodeView> {
         private final AlertViewService alertViewService;
 
+        private final AgentServerGroupListWriter agentServerGroupListWriter = new AgentServerGroupListWriter();
+
         public NodeViewSerializer(AlertViewService alertViewService) {
             this.alertViewService = Objects.requireNonNull(alertViewService, "alertService");
         }
@@ -97,12 +100,10 @@ public class NodeView {
 
             final ServiceType serviceType = node.getServiceType();
 
-            jgen.writeStringField("category", serviceType.toString());
             jgen.writeStringField("serviceType", serviceType.toString());
             jgen.writeNumberField("serviceTypeCode", serviceType.getCode());
 
             jgen.writeStringField("nodeCategory", serviceType.getCategory().nodeCategory().toString());
-            jgen.writeBooleanField("isWas", serviceType.isWas());
             jgen.writeBooleanField("isQueue", serviceType.isQueue());
 
             jgen.writeBooleanField("isAuthorized", node.isAuthorized());
@@ -130,7 +131,7 @@ public class NodeView {
             } else {
                 writeAgentCount(serverGroupList.getInstanceCount(), getInstanceErrorCount(node), jgen);
 
-                writeAgentList("agents", serverGroupList, jgen);
+                agentServerGroupListWriter.write("agents", serverGroupList, jgen);
 
                 ServerListNodeView serverListNodeView = nodeView.getServerListView();
                 serverListNodeView.writeServerList(nodeView, jgen);
@@ -142,17 +143,6 @@ public class NodeView {
             jgen.writeNumberField("instanceErrorCount", instanceErrorCount);
         }
 
-        private void writeAgentList(String fieldName, ServerGroupList serverGroupList, JsonGenerator jgen) throws IOException {
-            jgen.writeFieldName(fieldName);
-            jgen.writeStartArray();
-            for (Map.Entry<String, String> entry : serverGroupList.getAgentIdNameMap().entrySet()) {
-                jgen.writeStartObject();
-                jgen.writeStringField("id", entry.getKey());
-                jgen.writeStringField("name", entry.getValue());
-                jgen.writeEndObject();
-            }
-            jgen.writeEndArray();
-        }
 
         private long getInstanceErrorCount(Node node) {
             final NodeHistogram nodeHistogram = node.getNodeHistogram();
@@ -218,16 +208,6 @@ public class NodeView {
 
         private boolean isNodeServiceType(ServiceType serviceType) {
             return serviceType.isWas() || serviceType.isTerminal() || serviceType.isUser() || serviceType.isUnknown() || serviceType.isQueue() || serviceType.isAlias();
-        }
-
-        private boolean hasAlert(Histogram applicationHistogram) {
-            final long totalCount = applicationHistogram.getTotalCount();
-            if (totalCount == 0) {
-                return false;
-            } else {
-                long error = applicationHistogram.getTotalErrorCount() / totalCount;
-                return error * 100 > 10;
-            }
         }
 
     }

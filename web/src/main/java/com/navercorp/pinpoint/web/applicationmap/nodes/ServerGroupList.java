@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,6 @@ package com.navercorp.pinpoint.web.applicationmap.nodes;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -59,18 +58,6 @@ public class ServerGroupList {
             }
         }
         return list;
-    }
-
-    public Map<String, String> getAgentIdNameMap() {
-        // Stream is not recommended
-        final Map<String, String> map = new LinkedHashMap<>();
-        for (ServerGroup serverGroup : this.serverGroupList) {
-            for (ServerInstance serverInstance : serverGroup.getInstanceList()) {
-                // NPE
-                map.put(serverInstance.getName(), serverInstance.getAgentName());
-            }
-        }
-        return map;
     }
 
     public int getInstanceCount() {
@@ -122,7 +109,7 @@ public class ServerGroupList {
         }
 
         public ServerGroupList build() {
-            List<ServerGroup> serverGroups = new ArrayList<>();
+            List<ServerGroup> serverGroups = new ArrayList<>(map.size());
             for (Map.Entry<String, List<ServerInstance>> entry : map.entrySet()) {
                 String hostName = entry.getKey();
                 List<ServerInstance> serverInstances = entry.getValue();
