@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint-pinot</artifactId>
-        <version>3.0.4-SNAPSHOT</version>
+        <version>3.0.4</version>
     </parent>
 
     <artifactId>pinpoint-pinot-batch</artifactId>
