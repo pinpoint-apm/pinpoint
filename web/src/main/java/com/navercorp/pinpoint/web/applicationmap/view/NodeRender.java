@@ -28,6 +28,7 @@ public interface NodeRender {
     static NodeRender detailedRender(TimeHistogramFormat format, HyperLinkFactory hyperLinkFactory) {
         return new DefaultNodeRender(
                 ApplicationTimeSeriesHistogramNodeView.detailedView(format),
+                ApplicationApdexScoreSlotView.detailedView(),
                 ServerListNodeView.detailedView(hyperLinkFactory),
                 AgentHistogramNodeView.detailedView(),
                 AgentTimeSeriesHistogramNodeView.detailedView(format));
@@ -36,6 +37,7 @@ public interface NodeRender {
     static NodeRender forServerMap() {
         return new DefaultNodeRender(
                 ApplicationTimeSeriesHistogramNodeView.detailedView(TimeHistogramFormat.V3),
+                ApplicationApdexScoreSlotView.detailedView(),
                 ServerListNodeView.emptyView(),
                 AgentHistogramNodeView.emptyView(),
                 AgentTimeSeriesHistogramNodeView.emptyView());
@@ -43,11 +45,13 @@ public interface NodeRender {
 
 
     record DefaultNodeRender(ApplicationTimeSeriesHistogramNodeView applicationTimeSeriesHistogramNodeView,
-                                    ServerListNodeView serverListNodeView, AgentHistogramNodeView agentHistogramNodeView,
-                                    AgentTimeSeriesHistogramNodeView agentTimeSeriesHistogramNodeView) implements NodeRender {
+                             ApplicationApdexScoreSlotView applicationApdexScoreSlotView,
+                             ServerListNodeView serverListNodeView, AgentHistogramNodeView agentHistogramNodeView,
+                             AgentTimeSeriesHistogramNodeView agentTimeSeriesHistogramNodeView) implements NodeRender {
 
         public DefaultNodeRender {
             Objects.requireNonNull(applicationTimeSeriesHistogramNodeView, "applicationTimeSeriesHistogramNodeView");
+            Objects.requireNonNull(applicationApdexScoreSlotView, "applicationApdexScoreSlotView");
             Objects.requireNonNull(serverListNodeView, "serverListNodeView");
             Objects.requireNonNull(agentHistogramNodeView, "agentHistogramNodeView");
             Objects.requireNonNull(agentTimeSeriesHistogramNodeView, "agentTimeSeriesHistogramNodeView");
@@ -58,6 +62,7 @@ public interface NodeRender {
         public NodeView render(Node node) {
             return new NodeView(node,
                     applicationTimeSeriesHistogramNodeView,
+                    applicationApdexScoreSlotView,
                     serverListNodeView,
                     agentHistogramNodeView,
                     agentTimeSeriesHistogramNodeView);
