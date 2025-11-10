@@ -38,6 +38,7 @@ public class NodeView {
     private final Node node;
 
     private final ApplicationTimeSeriesHistogramNodeView applicationTimeSeriesHistogramNodeView;
+    private final ApplicationApdexScoreSlotView applicationApdexScoreSlotView;
 
     private final ServerListNodeView serverListNodeView;
     private final AgentHistogramNodeView agentHistogramNodeView;
@@ -45,12 +46,13 @@ public class NodeView {
 
     public NodeView(Node node,
                     ApplicationTimeSeriesHistogramNodeView applicationTimeSeriesHistogramNodeView,
-                    ServerListNodeView serverListNodeView,
+                    ApplicationApdexScoreSlotView applicationApdexScoreSlotView, ServerListNodeView serverListNodeView,
                     AgentHistogramNodeView agentHistogramNodeView,
                     AgentTimeSeriesHistogramNodeView agentTimeSeriesHistogramNodeView) {
         this.node = Objects.requireNonNull(node, "node");
 
         this.applicationTimeSeriesHistogramNodeView = Objects.requireNonNull(applicationTimeSeriesHistogramNodeView, "applicationTimeSeriesHistogramNodeView");
+        this.applicationApdexScoreSlotView = Objects.requireNonNull(applicationApdexScoreSlotView, "applicationApdexScoreSlotView");
         this.serverListNodeView = Objects.requireNonNull(serverListNodeView, "serverListView");
         this.agentHistogramNodeView = Objects.requireNonNull(agentHistogramNodeView, "agentHistogramView");
         this.agentTimeSeriesHistogramNodeView = Objects.requireNonNull(agentTimeSeriesHistogramNodeView, "agentTimeSeriesHistogramView");
@@ -62,6 +64,10 @@ public class NodeView {
 
     public ApplicationTimeSeriesHistogramNodeView getApplicationTimeSeriesHistogramNodeView() {
         return applicationTimeSeriesHistogramNodeView;
+    }
+
+    public ApplicationApdexScoreSlotView getApplicationApdexScoreSlotView() {
+        return applicationApdexScoreSlotView;
     }
 
     public ServerListNodeView getServerListView() {
@@ -201,6 +207,10 @@ public class NodeView {
 
                 ApplicationTimeSeriesHistogramNodeView applicationTimeSeriesHistogramNodeView = nodeView.getApplicationTimeSeriesHistogramNodeView();
                 applicationTimeSeriesHistogramNodeView.writeTimeSeriesHistogram(nodeView, jgen);
+
+                // time series apdex score with max 24 slots
+                ApplicationApdexScoreSlotView applicationApdexScoreSlotView = nodeView.getApplicationApdexScoreSlotView();
+                applicationApdexScoreSlotView.writeApdexScoreSlot(nodeView, jgen);
 
                 AgentTimeSeriesHistogramNodeView agentTimeSeriesHistogramNodeView = nodeView.getAgentTimeSeriesHistogramView();
                 agentTimeSeriesHistogramNodeView.writeAgentTimeSeriesHistogram(nodeView, jgen);
