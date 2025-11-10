@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
+import com.navercorp.pinpoint.web.applicationmap.nodes.AgentServerGroupListWriter;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.service.AlertViewService;
@@ -31,7 +32,6 @@ import org.springframework.boot.jackson.JsonComponent;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Objects;
 
 public class LinkView {
@@ -64,6 +64,8 @@ public class LinkView {
     public static class LinkViewSerializer extends JsonSerializer<LinkView> {
 
         private final AlertViewService alertViewService;
+
+        private final AgentServerGroupListWriter agentServerGroupListWriter = new AgentServerGroupListWriter();
 
         public LinkViewSerializer(AlertViewService alertViewService) {
             this.alertViewService = Objects.requireNonNull(alertViewService, "alertViewService");
@@ -131,18 +133,8 @@ public class LinkView {
 
         private void writeAgents(String fieldName, Node node, JsonGenerator jgen) throws IOException {
             if (node.getServiceType().isWas()) {
-                jgen.writeFieldName(fieldName);
-                jgen.writeStartArray();
-                ServerGroupList serverGroupList = node.getServerGroupList();
-                if (serverGroupList != null) {
-                    for (Map.Entry<String, String> entry : serverGroupList.getAgentIdNameMap().entrySet()) {
-                        jgen.writeStartObject();
-                        jgen.writeStringField("id", entry.getKey());
-                        jgen.writeStringField("name", entry.getValue());
-                        jgen.writeEndObject();
-                    }
-                }
-                jgen.writeEndArray();
+                ServerGroupList serverGroups = node.getServerGroupList();
+                agentServerGroupListWriter.write(fieldName, serverGroups, jgen);
             }
         }
 
@@ -170,7 +162,6 @@ public class LinkView {
             ServiceType serviceType = application.getServiceType();
             jgen.writeStringField("serviceType", serviceType.toString());
             jgen.writeNumberField("serviceTypeCode", serviceType.getCode());
-            jgen.writeBooleanField("isWas", serviceType.isWas());
             jgen.writeStringField("nodeCategory", serviceType.getCategory().nodeCategory().toString());
 
             jgen.writeEndObject();

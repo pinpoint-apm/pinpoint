@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.ApdexScore;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -60,6 +61,7 @@ public class Node {
         this.serverGroupList = Objects.requireNonNull(serverGroupList, "serverGroupList");
     }
 
+    @Nullable
     public ServerGroupList getServerGroupList() {
         return serverGroupList;
     }
@@ -81,6 +83,7 @@ public class Node {
         return application.getServiceType();
     }
 
+    @Nullable
     public NodeHistogram getNodeHistogram() {
         return nodeHistogram;
     }
