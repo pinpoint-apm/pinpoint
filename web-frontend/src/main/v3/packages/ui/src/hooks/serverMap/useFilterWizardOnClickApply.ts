@@ -26,19 +26,19 @@ export function useFilterWizardOnClickApply<
     let addedHint = {} as any;
     let soureIsWas;
 
-    if (!filterState.applicationName) {
-      const link = (serverMapData?.applicationMapData.linkDataArray as T[]).find(
+    if (!filterState?.applicationName) {
+      const link = (serverMapData?.applicationMapData?.linkDataArray as T[])?.find(
         (l) =>
-          l.key ===
-          `${filterState.fromApplication}^${filterState.fromServiceType}~${filterState.toApplication}^${filterState.toServiceType}`,
+          l?.key ===
+          `${filterState?.fromApplication}^${filterState?.fromServiceType}~${filterState?.toApplication}^${filterState?.toServiceType}`,
       );
       if (link) {
-        soureIsWas = link.sourceInfo.nodeCategory === GetServerMap.NodeCategory.SERVER;
+        soureIsWas = link?.sourceInfo?.nodeCategory === GetServerMap.NodeCategory.SERVER;
         addedHint =
-          link.sourceInfo.nodeCategory === GetServerMap.NodeCategory.SERVER &&
-          link.targetInfo.nodeCategory === GetServerMap.NodeCategory.SERVER
+          link?.sourceInfo?.nodeCategory === GetServerMap.NodeCategory.SERVER &&
+          link?.targetInfo?.nodeCategory === GetServerMap.NodeCategory.SERVER
             ? {
-                [link.targetInfo.applicationName]: link.filter?.outRpcList,
+                [link?.targetInfo?.applicationName]: link?.filter?.outRpcList,
               }
             : {};
       }

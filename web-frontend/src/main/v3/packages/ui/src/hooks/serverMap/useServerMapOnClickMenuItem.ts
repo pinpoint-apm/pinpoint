@@ -58,21 +58,21 @@ export function useServerMapOnClickMenuItem<
       setShowFilterConfig?.(true);
     } else if (type === SERVERMAP_MENU_FUNCTION_TYPE.FILTER_TRANSACTION) {
       const defaultFilterState = getDefaultFilters(data);
-      const link = (serverMapData?.applicationMapData.linkDataArray as R[]).find(
-        (l) => l.key === data.id,
+      const link = (serverMapData?.applicationMapData?.linkDataArray as R[])?.find(
+        (l) => l?.key === data?.id,
       );
       const addedHint =
-        link?.sourceInfo.nodeCategory === GetServerMap.NodeCategory.SERVER &&
-        link?.targetInfo.nodeCategory === GetServerMap.NodeCategory.SERVER
+        link?.sourceInfo?.nodeCategory === GetServerMap.NodeCategory.SERVER &&
+        link?.targetInfo?.nodeCategory === GetServerMap.NodeCategory.SERVER
           ? {
-              [link.targetInfo.applicationName]: link.filter?.outRpcList,
+              [link?.targetInfo?.applicationName]: link?.filter?.outRpcList,
             }
           : // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ({} as any);
       window.open(
         `${BASE_PATH}${getFilteredMapPath(
           defaultFilterState!,
-          link?.sourceInfo.nodeCategory === GetServerMap.NodeCategory.SERVER,
+          link?.sourceInfo?.nodeCategory === GetServerMap.NodeCategory.SERVER,
         )}?from=${from}&to=${to}${getFilteredMapQueryString({
           filterStates: [...(parsedFilters || [])!, defaultFilterState!],
           hint: {
