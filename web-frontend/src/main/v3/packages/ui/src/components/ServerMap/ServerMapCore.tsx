@@ -35,7 +35,6 @@ import {
   ServerMapSkeleton,
 } from '..';
 import cytoscape from 'cytoscape';
-import { ApdexScoreApdexFormula } from '../ApdexScore/ApdexScoreFetcher';
 
 export interface ServerMapCoreProps extends Omit<ServerMapComponentProps, 'data'> {
   data?: GetServerMap.Response | FilteredMap.Response;
@@ -323,6 +322,30 @@ export const ServerMapCore = ({
     }
   };
 
+  const renderApdexScore = () => {
+    const totalSamples = hoverNodeRef?.current?.apdex?.apdexFormula?.totalSamples || 0;
+    const satisfiedCount = hoverNodeRef?.current?.apdex?.apdexFormula?.satisfiedCount || 0;
+    const toleratingCount = hoverNodeRef?.current?.apdex?.apdexFormula?.toleratingCount || 0;
+    const frustratedCount = totalSamples - satisfiedCount - toleratingCount;
+
+    return (
+      <div className="flex flex-col gap-1 px-4 py-2 text-xs">
+        <div className="flex items-center justify-between gap-2">
+          Total<div className="font-semibold">{totalSamples}</div>
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          Satisfied<div className="font-semibold text-primary">{satisfiedCount}</div>
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          Tolerating<div className="font-semibold text-green-600">{toleratingCount}</div>
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          Frustrated<div className="font-semibold text-red-600">{frustratedCount}</div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="relative w-full h-full" ref={containerRef}>
       {isEmpty ? (
@@ -461,15 +484,7 @@ export const ServerMapCore = ({
                 )}
                 {popperContentType === SERVERMAP_MENU_CONTENT_TYPE.HOVER_NODE && (
                   <ServerMapMenuContent title={'Apdex Score'}>
-                    <ApdexScoreApdexFormula
-                      satisfiedCount={
-                        hoverNodeRef?.current?.apdex?.apdexFormula?.satisfiedCount || 0
-                      }
-                      toleratingCount={
-                        hoverNodeRef?.current?.apdex?.apdexFormula?.toleratingCount || 0
-                      }
-                      totalSamples={hoverNodeRef?.current?.apdex?.apdexFormula?.totalSamples || 0}
-                    />
+                    {renderApdexScore()}
                   </ServerMapMenuContent>
                 )}
               </div>
