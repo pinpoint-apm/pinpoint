@@ -49,17 +49,14 @@ jobs:
       - name: Build Project
         run: mvn install -DskipTests=true
         
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-             
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-        
       - name: Build Docker Images
         run: |
           mvn docker:build -pl agent-module/agent
           mvn docker:build -pl flink
           mvn docker:build -pl hbase/hbase-docker
+          # Set up Buildx for multi-arch Spring Boot builds
+          docker buildx create --use --name multiarch-builder || true
+          docker buildx inspect --bootstrap
           mvn -pl collector-starter clean package spring-boot:build-image -DskipTests=true -Dspring-boot.build-image.platform=linux/amd64,linux/arm64
           mvn -pl web-starter clean package spring-boot:build-image -DskipTests=true -Dspring-boot.build-image.platform=linux/amd64,linux/arm64
           mvn -pl batch clean package spring-boot:build-image -DskipTests=true -Dspring-boot.build-image.platform=linux/amd64,linux/arm64
