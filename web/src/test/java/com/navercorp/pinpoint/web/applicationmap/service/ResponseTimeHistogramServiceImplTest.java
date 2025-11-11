@@ -48,7 +48,7 @@ import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.assertj.core.api.Assertions;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -98,7 +98,7 @@ public class ResponseTimeHistogramServiceImplTest {
         nodeHistogramService = new NodeHistogramServiceImpl(mapAgentResponseDao, mapResponseDao);
     }
 
-    private @NotNull ResponseTimeHistogramService newResponseService() {
+    private @NonNull ResponseTimeHistogramService newResponseService() {
         return new ResponseTimeHistogramServiceImpl(linkSelectorFactory, nodeHistogramService, serverInstanceDatasourceService, mapAgentResponseDao);
     }
 
