@@ -1,11 +1,11 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.log.collector.repository;
 
 import com.navercorp.pinpoint.log.dto.LogDemand;
 import com.navercorp.pinpoint.log.vo.FileKey;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -59,7 +59,7 @@ public class LogAcceptorRepositoryTest {
                 .hasSameElementsAs(List.of(fileKey1));
     }
 
-    @NotNull
+    @NonNull
     private static LogDemandAcceptor mockAcceptor(Consumer<LogDemand> delegate, FileKey fileKey) {
         return new LogDemandAcceptor() {
             @Override

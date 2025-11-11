@@ -1,11 +1,11 @@
 /*
- * Copyright 2020 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -125,7 +125,8 @@ public class TelegrafMetricController {
         return new Metrics(tenantId, hostGroupName, hostName, metricList);
     }
 
-    private @NotNull List<DoubleMetric> toDoubleMetric(List<TelegrafMetric> metrics) {
+    @NonNull
+    private List<DoubleMetric> toDoubleMetric(List<TelegrafMetric> metrics) {
         List<DoubleMetric> result = new ArrayList<>();
         for (TelegrafMetric metric : metrics) {
             result.addAll(toMetric(metric));

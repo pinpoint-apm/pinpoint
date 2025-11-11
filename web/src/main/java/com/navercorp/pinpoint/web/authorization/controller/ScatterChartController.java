@@ -43,7 +43,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -154,7 +154,7 @@ public class ScatterChartController {
         return wrapScatterResultView(range, dotView);
     }
 
-    private ScatterView.@NotNull DotView getDotView(String applicationName, int xGroupUnit, int yGroupUnit, boolean backwardDirection, String filterText, Range range, int limit) {
+     private ScatterView.@NonNull DotView getDotView(String applicationName, int xGroupUnit, int yGroupUnit, boolean backwardDirection, String filterText, Range range, int limit) {
         if (StringUtils.isEmpty(filterText)) {
             return selectScatterData(
                     applicationName, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection);
@@ -224,7 +224,7 @@ public class ScatterChartController {
         return new ScatterView.DotView(scatterData, requestComplete);
     }
 
-    private ScatterView.@NotNull DotView getDotViewV2(int serviceUid, String applicationName, int serviceTypeCode, int xGroupUnit, int yGroupUnit, boolean backwardDirection, String filterText, Range range, int limit) {
+    private ScatterView.@NonNull DotView getDotViewV2(int serviceUid, String applicationName, int serviceTypeCode, int xGroupUnit, int yGroupUnit, boolean backwardDirection, String filterText, Range range, int limit) {
         if (StringUtils.isEmpty(filterText)) {
             return selectScatterDataV2(
                     serviceUid, applicationName, serviceTypeCode, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection);
