@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -34,4 +35,5 @@ public interface MapAgentResponseDao {
 
     AgentResponse selectAgentResponse(Application application, TimeWindow timeWindow);
 
+    Set<String> selectAgentIds(Application application, TimeWindow timeWindow);
 }

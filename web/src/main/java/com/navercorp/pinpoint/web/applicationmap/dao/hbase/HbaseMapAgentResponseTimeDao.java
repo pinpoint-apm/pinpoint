@@ -24,11 +24,9 @@ import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
-import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResultExtractorFactory;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentResponse;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.apache.hadoop.hbase.TableName;
@@ -37,9 +35,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author netspider
@@ -119,18 +118,14 @@ public class HbaseMapAgentResponseTimeDao implements MapAgentResponseDao {
         return builder.build();
     }
 
-    @Deprecated
-    public ApplicationResponse selectApplicationResponse(Application application, TimeWindow timeWindow) {
+    @Override
+    public Set<String> selectAgentIds(Application application, TimeWindow timeWindow) {
         List<ResponseTime> responseTimes = selectResponseTime(application, timeWindow);
-        ApplicationResponse.Builder builder = ApplicationResponse.newBuilder(application);
+        Set<String> agentIds = new HashSet<>();
         for (ResponseTime responseTime : responseTimes) {
-            for (Map.Entry<String, TimeHistogram> entry : responseTime.getAgentHistogram()) {
-                String agentId = entry.getKey();
-                TimeHistogram timeHistogram = entry.getValue();
-                builder.addResponseTime(agentId, timeHistogram.getTimeStamp(), timeHistogram);
-            }
+            agentIds.addAll(responseTime.getAgentIds());
         }
-        return builder.build();
+        return agentIds;
     }
 
 }

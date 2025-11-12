@@ -52,6 +52,7 @@ public class ApplicationResponse {
         return application;
     }
 
+    @Deprecated
     public Set<String> getAgentIds() {
         return agentIdMap;
     }
