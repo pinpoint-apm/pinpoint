@@ -50,16 +50,12 @@ import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-//@ConditionalOnProperty(name = ServerNameVersion.KEY, havingValue = "v2")
-@ConditionalOnMissingBean(MapV3Configuration.class)
 public class MapV2Configuration {
     private static final Logger logger = LogManager.getLogger(MapV2Configuration.class);
-
 
     public MapV2Configuration() {
         logger.info("Install {}", MapV2Configuration.class.getName());
