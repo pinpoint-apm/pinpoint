@@ -77,9 +77,7 @@ public class ResponseTime {
     }
 
     public Histogram getApplicationResponseHistogram() {
-        Histogram result = new Histogram(applicationServiceType);
-        result.addAll(responseHistogramMap.values());
-        return result;
+        return Histogram.sumOf(applicationServiceType, responseHistogramMap.values());
     }
 
     public Set<Map.Entry<String, TimeHistogram>> getAgentHistogram() {
@@ -88,7 +86,8 @@ public class ResponseTime {
 
     @Override
     public String toString() {
-        return "ResponseTime{" + "applicationName='" + applicationName + '\'' +
+        return "ResponseTime{" +
+                "applicationName='" + applicationName + '\'' +
                 ", applicationServiceType=" + applicationServiceType +
                 ", timeStamp=" + timeStamp +
                 ", responseHistogramMap=" + responseHistogramMap +

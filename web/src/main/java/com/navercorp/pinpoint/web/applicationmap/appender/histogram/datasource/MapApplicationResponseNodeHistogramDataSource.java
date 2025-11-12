@@ -69,9 +69,7 @@ public class MapApplicationResponseNodeHistogramDataSource implements WasNodeHis
     }
 
     private Histogram getHistogram(Application application, List<? extends Histogram> histograms) {
-        Histogram histogram = new Histogram(application.getServiceType());
-        histograms.forEach(histogram::add);
-        return histogram;
+        return Histogram.sumOf(application.getServiceType(), histograms);
     }
 
     private Map<String, Histogram> getAgentIdMap(Application application, Set<String> agentIds) {

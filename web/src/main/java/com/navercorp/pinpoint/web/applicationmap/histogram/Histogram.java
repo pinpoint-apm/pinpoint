@@ -55,6 +55,12 @@ public class Histogram implements StatisticsHistogram {
 
     private long pingCount; // for internal
 
+    public static Histogram sumOf(ServiceType serviceType, Collection<? extends Histogram> histograms) {
+        Histogram result = new Histogram(serviceType);
+        result.addAll(histograms);
+        return result;
+    }
+
     public Histogram(ServiceType serviceType) {
         Objects.requireNonNull(serviceType, "serviceType");
         this.schema = serviceType.getHistogramSchema();
