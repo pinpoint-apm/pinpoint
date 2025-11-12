@@ -1,15 +1,28 @@
+/*
+ * Copyright 2025 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
-import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
@@ -26,6 +39,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -40,10 +54,7 @@ public class ApplicationAgentListServiceImplTest {
     private Application testApplication;
     private AgentInfo testAgentInfo;
     private AgentStatus testAgentStatus;
-    private ApplicationResponse applicationResponse;
 
-    @Mock
-    ApplicationIndexDao applicationIndexDao;
     @Mock
     AgentInfoDao agentInfoDao;
 
@@ -51,7 +62,7 @@ public class ApplicationAgentListServiceImplTest {
     AgentLifeCycleDao agentLifeCycleDao;
 
     @Mock
-    MapResponseDao mapResponseDao;
+    MapAgentResponseDao mapAgentResponseDao;
 
     @Mock
     ApplicationIndexService applicationIndexService;
@@ -78,12 +89,7 @@ public class ApplicationAgentListServiceImplTest {
 
         testAgentStatus = new AgentStatus(testAgentId, AgentLifeCycleState.RUNNING, 2000);
 
-        Histogram histogram = new Histogram(ServiceType.TEST);
-        ApplicationResponse.Builder appBuilder = ApplicationResponse.newBuilder(testApplication);
-        appBuilder.addResponseTime(testAgentId, 3000, histogram);
-        applicationResponse = appBuilder.build();
-
-        applicationAgentListService = new ApplicationAgentListServiceImpl(agentInfoDao, agentLifeCycleDao, mapResponseDao, applicationIndexService);
+        applicationAgentListService = new ApplicationAgentListServiceImpl(agentInfoDao, agentLifeCycleDao, mapAgentResponseDao, applicationIndexService);
     }
 
     @Test
@@ -155,7 +161,7 @@ public class ApplicationAgentListServiceImplTest {
         TimeWindow timeWindow = new TimeWindow(range);
 
         List<String> agentIds = List.of(testAgentId);
-        when(mapResponseDao.selectApplicationResponse(any(), any())).thenReturn(applicationResponse);
+        when(mapAgentResponseDao.selectAgentIds(any(), any())).thenReturn(Set.of(testAgentId));
         when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
 
         List<AgentAndStatus> agentAndStatusList = applicationAgentListService.activeStatisticsAgentList(testApplicationName, testApplicationServiceType, timeWindow, AgentInfoFilters.acceptAll());
@@ -172,7 +178,7 @@ public class ApplicationAgentListServiceImplTest {
 
         List<String> agentIds = List.of(testAgentId);
         when(applicationIndexService.selectApplication(testApplicationName)).thenReturn(List.of(testApplication));
-        when(mapResponseDao.selectApplicationResponse(any(), any())).thenReturn(applicationResponse);
+        when(mapAgentResponseDao.selectAgentIds(any(), any())).thenReturn(Set.of(testAgentId));
         when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
 
         List<AgentAndStatus> agentAndStatusList = applicationAgentListService.activeStatisticsAgentList(testApplicationName, null, timeWindow, AgentInfoFilters.acceptAll());
@@ -188,6 +194,7 @@ public class ApplicationAgentListServiceImplTest {
         Range range = Range.between(0, 60_000);
         List<String> agentIds = List.of(testAgentId);
         when(applicationIndexService.selectAgentIds(testApplicationName)).thenReturn(agentIds);
+
         List<AgentInfo> nullAgentInfoList = new ArrayList<>();
         nullAgentInfoList.add(null);
         when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(nullAgentInfoList);
@@ -208,7 +215,8 @@ public class ApplicationAgentListServiceImplTest {
         TimeWindow timeWindow = new TimeWindow(range);
 
         List<String> agentIds = List.of(testAgentId);
-        when(mapResponseDao.selectApplicationResponse(any(), any())).thenReturn(applicationResponse);
+        when(mapAgentResponseDao.selectAgentIds(any(), any())).thenReturn(Set.of(testAgentId));
+
         List<AgentInfo> nullAgentInfoList = new ArrayList<>();
         nullAgentInfoList.add(null);
         when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(nullAgentInfoList);

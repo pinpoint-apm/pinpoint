@@ -20,8 +20,7 @@ import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
-import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -52,17 +51,17 @@ public class ApplicationAgentListServiceImpl implements ApplicationAgentListServ
 
     private final AgentInfoDao agentInfoDao;
     private final AgentLifeCycleDao agentLifeCycleDao;
-    private final MapResponseDao mapResponseDao;
+    private final MapAgentResponseDao mapAgentResponseDao;
 
     private final ApplicationIndexService applicationIndexService;
 
     public ApplicationAgentListServiceImpl(AgentInfoDao agentInfoDao,
                                            AgentLifeCycleDao agentLifeCycleDao,
-                                           MapResponseDao mapResponseDao,
+                                           MapAgentResponseDao mapAgentResponseDao,
                                            ApplicationIndexService applicationIndexService) {
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
-        this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
+        this.mapAgentResponseDao = Objects.requireNonNull(mapAgentResponseDao, "mapAgentResponseDao");
         this.applicationIndexService = Objects.requireNonNull(applicationIndexService, "applicationIndexService");
     }
 
@@ -154,21 +153,20 @@ public class ApplicationAgentListServiceImpl implements ApplicationAgentListServ
 
     private List<String> getActiveAgentIdsFromStatistics(String applicationName, ServiceType serviceType, TimeWindow timeWindow) {
         if (isValidServiceType(serviceType)) {
-            return new ArrayList<>(getAgentIdsFromStatistics(new Application(applicationName, serviceType), timeWindow));
+            return List.copyOf(getAgentIdsFromStatistics(new Application(applicationName, serviceType), timeWindow));
         }
 
         // find all serviceType with applicationName
-        Set<String> result = new HashSet<>();
         List<Application> applications = applicationIndexService.selectApplication(applicationName);
+        Set<String> result = new HashSet<>();
         for (Application application : applications) {
             result.addAll(getAgentIdsFromStatistics(application, timeWindow));
         }
-        return new ArrayList<>(result);
+        return List.copyOf(result);
     }
 
     private Set<String> getAgentIdsFromStatistics(Application application, TimeWindow timeWindow) {
-        ApplicationResponse response = mapResponseDao.selectApplicationResponse(application, timeWindow);
-        return response.getAgentIds();
+        return mapAgentResponseDao.selectAgentIds(application, timeWindow);
     }
 
     private List<AgentInfo> getNullHandledAgentInfo(String applicationName, ServiceType serviceType, List<String> agentIds, long toTimestamp) {
