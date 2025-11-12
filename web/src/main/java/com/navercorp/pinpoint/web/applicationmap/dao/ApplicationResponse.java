@@ -62,9 +62,7 @@ public class ApplicationResponse {
     }
 
     public Histogram getApplicationTotalHistogram() {
-        Histogram histogram = new Histogram(application.getServiceType());
-        histogram.addAll(histograms);
-        return histogram;
+        return Histogram.sumOf(application.getServiceType(), histograms);
     }
 
     @Override
