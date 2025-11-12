@@ -16,18 +16,13 @@
 
 package com.navercorp.pinpoint.web.authorization.controller;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.scatter.DragArea;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
-import com.navercorp.pinpoint.web.scatter.Status;
-import com.navercorp.pinpoint.web.scatter.heatmap.HeatMap;
-import com.navercorp.pinpoint.web.scatter.heatmap.Point;
 import com.navercorp.pinpoint.web.service.HeatMapService;
 import com.navercorp.pinpoint.web.util.LimitUtils;
 import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
@@ -37,10 +32,8 @@ import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PositiveOrZero;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,7 +44,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 @RestController()
 @RequestMapping("/api/heatmap")
@@ -114,7 +106,6 @@ public class HeatMapController {
 
     }
 
-
     private Dot.Status toDotStatus(Boolean dotStatus) {
         if (dotStatus == null) {
             return null;
@@ -133,93 +124,6 @@ public class HeatMapController {
     }
 
     public record PagingStatus(boolean complete, long resultFrom) {
-    }
-
-    @GetMapping(value = "/get")
-    public HeatMapController.HeatMapViewModel getHeatMapData(
-            @RequestParam("application") @NotBlank String applicationName,
-            @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
-            @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
-            @RequestParam(value = "traceIndexReadV2", required = false) Optional<Boolean> traceIndexReadV2) {
-        // TODO range check verification exception occurs. "from" is bigger than "to"
-        final Range range = Range.unchecked(from, to);
-        logger.debug("fetch getHeatMapData. RANGE={}, ", range);
-
-        final boolean useTraceIndexV2 = traceIndexReadV2.orElse(defaultTraceIndexReadV2);
-
-        final LimitedScanResult<HeatMap> scanResult;
-        if (!useTraceIndexV2) {
-            scanResult = this.heatMap.getHeatMap(applicationName, range, TimeUnit.SECONDS.toMillis(10), LimitUtils.MAX);
-        } else {
-            final ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
-            scanResult = this.heatMap.getHeatMapV2(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceType.getCode(), range, TimeUnit.SECONDS.toMillis(10), LimitUtils.MAX);
-        }
-
-        final Status status = new Status(System.currentTimeMillis(), range);
-        return new HeatMapController.HeatMapViewModel(scanResult.scanData(), status);
-    }
-
-
-    public static class HeatMapViewModel {
-        private final HeatMap heatMap;
-        private final Status status;
-
-        public HeatMapViewModel(HeatMap heatMap, Status status) {
-            this.heatMap = Objects.requireNonNull(heatMap, "heatMap");
-            this.status = Objects.requireNonNull(status, "status");
-        }
-
-        @JsonProperty("data")
-        public List<long[]> getData() {
-            List<Point> pointList = heatMap.getData();
-            return Lists.transform(pointList, this::toLongArray);
-        }
-
-        private long @NotNull [] toLongArray(Point point) {
-            return new long[] {point.x(), point.y(), point.success(), point.fail()};
-        }
-
-        public long getSuccess() {
-            return heatMap.getSuccess();
-        }
-
-        public long getFail() {
-            return heatMap.getFail();
-        }
-
-
-        public long getResultFrom() {
-            return heatMap.getOldestAcceptedTime();
-        }
-
-        public long getResultTo() {
-            return heatMap.getLatestAcceptedTime();
-        }
-
-        public long[] getXIndex() {
-            return heatMap.getXIndex();
-        }
-
-        public long getXTick() {
-            return heatMap.getXTick();
-        }
-
-        public long[] getYIndex() {
-            return heatMap.getYIndex();
-        }
-
-        public long getYTick() {
-            return heatMap.getYTick();
-        }
-
-
-        @JsonUnwrapped
-        public Status getStatus() {
-            return status;
-        }
-
     }
 
     private ServiceType findServiceType(Integer serviceTypeCode, String serviceTypeName) {
