@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.config;
 
+import com.navercorp.pinpoint.web.applicationmap.nodes.AgentServerGroupListWriter;
 import com.navercorp.pinpoint.web.applicationmap.service.AlertViewService;
 import com.navercorp.pinpoint.web.applicationmap.view.LinkView;
 import com.navercorp.pinpoint.web.applicationmap.view.NodeView;
@@ -31,12 +32,17 @@ public class MapViewConfiguration {
     }
 
     @Bean
-    public NodeView.NodeViewSerializer nodeViewSerializer(AlertViewService alertViewService) {
-        return new NodeView.NodeViewSerializer(alertViewService);
+    public AgentServerGroupListWriter agentServerGroupListWriter() {
+        return new AgentServerGroupListWriter();
     }
 
     @Bean
-    public LinkView.LinkViewSerializer linkViewSerializer(AlertViewService alertViewService) {
-        return new LinkView.LinkViewSerializer(alertViewService);
+    public NodeView.NodeViewSerializer nodeViewSerializer(AlertViewService alertViewService, AgentServerGroupListWriter agentServerGroupListWriter) {
+        return new NodeView.NodeViewSerializer(alertViewService, agentServerGroupListWriter);
+    }
+
+    @Bean
+    public LinkView.LinkViewSerializer linkViewSerializer(AlertViewService alertViewService, AgentServerGroupListWriter agentServerGroupListWriter) {
+        return new LinkView.LinkViewSerializer(alertViewService, agentServerGroupListWriter);
     }
 }

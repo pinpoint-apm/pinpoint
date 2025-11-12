@@ -65,10 +65,11 @@ public class LinkView {
 
         private final AlertViewService alertViewService;
 
-        private final AgentServerGroupListWriter agentServerGroupListWriter = new AgentServerGroupListWriter();
+        private final AgentServerGroupListWriter agentServerGroupListWriter;
 
-        public LinkViewSerializer(AlertViewService alertViewService) {
+        public LinkViewSerializer(AlertViewService alertViewService, AgentServerGroupListWriter agentServerGroupListWriter) {
             this.alertViewService = Objects.requireNonNull(alertViewService, "alertViewService");
+            this.agentServerGroupListWriter = Objects.requireNonNull(agentServerGroupListWriter, "agentServerGroupListWriter");
         }
 
         @Override

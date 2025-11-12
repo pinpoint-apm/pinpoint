@@ -81,10 +81,11 @@ public class NodeView {
     public static class NodeViewSerializer extends JsonSerializer<NodeView> {
         private final AlertViewService alertViewService;
 
-        private final AgentServerGroupListWriter agentServerGroupListWriter = new AgentServerGroupListWriter();
+        private final AgentServerGroupListWriter agentServerGroupListWriter;
 
-        public NodeViewSerializer(AlertViewService alertViewService) {
+        public NodeViewSerializer(AlertViewService alertViewService, AgentServerGroupListWriter agentServerGroupListWriter) {
             this.alertViewService = Objects.requireNonNull(alertViewService, "alertService");
+            this.agentServerGroupListWriter = Objects.requireNonNull(agentServerGroupListWriter, "agentServerGroupListWriter");
         }
 
         @Override
