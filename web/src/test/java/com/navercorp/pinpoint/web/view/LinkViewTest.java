@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
+import com.navercorp.pinpoint.web.applicationmap.nodes.AgentServerGroupListWriter;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.service.AlertViewService;
 import com.navercorp.pinpoint.web.applicationmap.view.AgentLinkView;
@@ -52,8 +53,9 @@ public class LinkViewTest {
 
         SimpleModule module = new SimpleModule();
         AlertViewService alertViewService = new AlertViewService();
-        module.addSerializer(NodeView.class, new NodeView.NodeViewSerializer(alertViewService));
-        module.addSerializer(LinkView.class, new LinkView.LinkViewSerializer(alertViewService));
+        AgentServerGroupListWriter agentServerGroupListWriter = new AgentServerGroupListWriter();
+        module.addSerializer(NodeView.class, new NodeView.NodeViewSerializer(alertViewService, agentServerGroupListWriter));
+        module.addSerializer(LinkView.class, new LinkView.LinkViewSerializer(alertViewService, agentServerGroupListWriter));
         mapper.registerModule(module);
 
         return mapper;
