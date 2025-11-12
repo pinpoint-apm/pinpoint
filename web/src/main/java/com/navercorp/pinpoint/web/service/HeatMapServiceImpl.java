@@ -18,14 +18,11 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.dao.TraceIndexDao;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
-import com.navercorp.pinpoint.web.scatter.heatmap.HeatMap;
-import com.navercorp.pinpoint.web.scatter.heatmap.HeatMapBuilder;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.SpanHint;
@@ -161,46 +158,6 @@ public class HeatMapServiceImpl implements HeatMapService {
             }
         }
         return dots;
-    }
-
-    @Override
-    public LimitedScanResult<HeatMap> getHeatMap(String applicationName, Range range, long maxY, int limit) {
-        Objects.requireNonNull(applicationName, "applicationName");
-        Objects.requireNonNull(range, "range");
-
-
-        LimitedScanResult<List<Dot>> scanResult = applicationTraceIndexDao.scanTraceScatterData(applicationName, range, limit, true);
-
-        final int slotSize = 100;
-        HeatMapBuilder builder = HeatMapBuilder.newBuilder(range.getFrom(), range.getTo(), slotSize, 0, maxY, slotSize);
-        for (Dot dot : scanResult.scanData()) {
-            final boolean success = dot.getExceptionCode() == Dot.EXCEPTION_NONE;
-            builder.addDataPoint(dot.getAcceptedTime(), dot.getElapsedTime(), success);
-        }
-        HeatMap heatMap = builder.build();
-        logger.debug("getHeatMap applicationName:{} dots:{} heatMap:{}", applicationName, scanResult.scanData().size(), heatMap);
-
-        return new LimitedScanResult<>(scanResult.limitedTime(), heatMap);
-    }
-
-    @Override
-    public LimitedScanResult<HeatMap> getHeatMapV2(int serviceUid, String applicationName, int serviceTypeCode, Range range, long maxY, int limit) {
-        Objects.requireNonNull(applicationName, "applicationName");
-        Objects.requireNonNull(range, "range");
-
-
-        LimitedScanResult<List<Dot>> scanResult = traceIndexDao.scanTraceScatterData(serviceUid, applicationName, serviceTypeCode, range, limit, true);
-
-        final int slotSize = 100;
-        HeatMapBuilder builder = HeatMapBuilder.newBuilder(range.getFrom(), range.getTo(), slotSize, 0, maxY, slotSize);
-        for (Dot dot : scanResult.scanData()) {
-            final boolean success = dot.getExceptionCode() == Dot.EXCEPTION_NONE;
-            builder.addDataPoint(dot.getAcceptedTime(), dot.getElapsedTime(), success);
-        }
-        HeatMap heatMap = builder.build();
-        logger.debug("getHeatMap applicationName:{} dots:{} heatMap:{}", applicationName, scanResult.scanData().size(), heatMap);
-
-        return new LimitedScanResult<>(scanResult.limitedTime(), heatMap);
     }
 
     private List<GetTraceInfo> buildQuery(String applicationName, List<Dot> dots) {
