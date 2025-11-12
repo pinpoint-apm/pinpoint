@@ -159,56 +159,122 @@ export const MetricDefinitionFormFetcher = ({
     return metricItem.metricName === metricName;
   });
 
-  const propertyList = React.useMemo(() => {
+  const propertyList: { name: string; isOutdated?: boolean }[] = React.useMemo(() => {
     if (primaryForFieldAndTagRelation === 'tag') {
-      return (
+      // property api로 부터 받은 tag list
+      const tagPropertyList =
         selectedMetricItem?.tagClusterList
           ?.filter((tagCluster) => !!tagCluster?.tagGroup) // Prevents error when tagGroup is empty string
-          ?.map((tagCluster) => tagCluster?.tagGroup) || []
-      );
-    }
-    return (
-      selectedMetricItem?.fieldClusterList
-        ?.filter((fieldCluster) => !!fieldCluster?.fieldName) // Sometimes fieldName is empty string
-        ?.map((fieldCluster) => fieldCluster?.fieldName) || []
-    );
-  }, [primaryForFieldAndTagRelation, selectedMetricItem]);
-
-  const propertyLegendList = React.useMemo(() => {
-    if (primaryForFieldAndTagRelation === 'tag') {
-      return (
-        selectedMetricItem?.tagClusterList
-          ?.find((tagCluster) => {
-            return tagCluster.tagGroup === tagGroupList?.[0];
-          })
-          ?.fieldAndUnitList?.filter((fieldItem) => !!fieldItem?.fieldName) // Sometimes fieldName is empty string
-          ?.map((fieldItem) => {
+          ?.map((tagCluster) => {
             return {
-              name: fieldItem?.fieldName,
-              unit: fieldItem?.unit,
+              name: tagCluster?.tagGroup,
+              isOutdated: false,
             };
-          }) || []
-      );
-    }
-    const fieldCluster = selectedMetricItem?.fieldClusterList?.find((fieldCluster) => {
-      return fieldCluster.fieldName === fieldNameList?.[0];
-    });
+          }) || [];
 
-    return (
-      fieldCluster?.tagGroupList?.map((tagItem) => {
-        return {
-          name: tagItem,
-          unit: fieldCluster?.unit,
-        };
-      }) || []
-    );
-  }, [
-    defPropertyData,
-    selectedMetricItem,
-    primaryForFieldAndTagRelation,
-    tagGroupList,
-    fieldNameList,
-  ]);
+      // property list에는 없지만 metric definition에는 있는 경우 추가 (예전에는 수집했지만 현재는 수집하지 않는 tag의 경우)
+      metric?.tagGroupList?.forEach((tagItem) => {
+        if (!tagPropertyList.find((tagProperty) => tagProperty.name === tagItem)) {
+          tagPropertyList.push({
+            name: tagItem,
+            isOutdated: true,
+          });
+        }
+      });
+
+      return tagPropertyList;
+    } else {
+      // property api로 부터 받은 field list
+      const fieldPropertyList =
+        selectedMetricItem?.fieldClusterList
+          ?.filter((fieldCluster) => !!fieldCluster?.fieldName) // Sometimes fieldName is empty string
+          ?.map((fieldCluster) => {
+            return {
+              name: fieldCluster?.fieldName,
+              isOutdated: false,
+            };
+          }) || [];
+
+      // property list에는 없지만 metric definition에는 있는 경우 추가 (예전에는 수집했지만 현재는 수집하지 않는 field의 경우)
+      metric?.fieldNameList?.forEach((fieldName) => {
+        if (!fieldPropertyList.find((fieldProperty) => fieldProperty.name === fieldName)) {
+          fieldPropertyList.push({
+            name: fieldName,
+            isOutdated: true,
+          });
+        }
+      });
+
+      return fieldPropertyList;
+    }
+  }, [primaryForFieldAndTagRelation, selectedMetricItem, metric]);
+
+  const propertyLegendList: { name: string; unit: string; isOutdated?: boolean }[] =
+    React.useMemo(() => {
+      if (primaryForFieldAndTagRelation === 'tag') {
+        // property api로 부터 받은 tag cluster
+        const tagCluster = selectedMetricItem?.tagClusterList?.find((tagCluster) => {
+          return tagCluster.tagGroup === tagGroupList?.[0];
+        });
+
+        // 예전에는 수집했지만 현재는 수집하지 않는 field의 경우 (definition에는 있지만 property에는 없는 경우)
+        const outdatedFieldList = metric?.fieldNameList?.filter((fieldFromDefinition) => {
+          return !tagCluster?.fieldAndUnitList?.some(
+            (fieldItem) => fieldItem?.fieldName === fieldFromDefinition,
+          );
+        });
+
+        const tagPropertyLegendList =
+          tagCluster?.fieldAndUnitList
+            ?.filter((fieldItem) => !!fieldItem?.fieldName) // Sometimes fieldName is empty string
+            ?.map((fieldItem) => {
+              return {
+                name: fieldItem?.fieldName,
+                unit: fieldItem?.unit,
+                isOutdated: false,
+              };
+            }) || [];
+
+        outdatedFieldList?.forEach((outdatedField) => {
+          tagPropertyLegendList.push({
+            name: outdatedField,
+            unit: '',
+            isOutdated: true,
+          });
+        });
+
+        return tagPropertyLegendList;
+      } else {
+        // property api로 부터 받은 field cluster
+        const fieldCluster = selectedMetricItem?.fieldClusterList?.find((fieldCluster) => {
+          return fieldCluster.fieldName === fieldNameList?.[0];
+        });
+
+        // 예전에는 수집했지만 현재는 수집하지 않는 tag의 경우 (definition에는 있지만 property에는 없는 경우)
+        const outdatedTagList = metric?.tagGroupList?.filter((tagFromDefinition) => {
+          return !fieldCluster?.tagGroupList?.includes(tagFromDefinition);
+        });
+
+        const fieldPropertyLegendList =
+          fieldCluster?.tagGroupList?.map((tagItem) => {
+            return {
+              name: tagItem,
+              unit: fieldCluster?.unit || '',
+              isOutdated: false,
+            };
+          }) || [];
+
+        outdatedTagList?.forEach((outdatedTag) => {
+          fieldPropertyLegendList.push({
+            name: outdatedTag,
+            unit: '',
+            isOutdated: true,
+          });
+        });
+
+        return fieldPropertyLegendList;
+      }
+    }, [metric, selectedMetricItem, primaryForFieldAndTagRelation, tagGroupList, fieldNameList]);
 
   const { mutate: updateMetrics } = usePatchOtlpMetricDefUserDefined({
     onSuccess: (res) => {
@@ -480,10 +546,15 @@ export const MetricDefinitionFormFetcher = ({
                           return (
                             <SelectItem
                               key={i}
-                              value={propertyItem}
+                              value={propertyItem.name}
                               // className="[&>span]:block [&>span]:truncate [&>span]:flex-1"
                             >
-                              {propertyItem}
+                              {propertyItem.name}
+                              {propertyItem.isOutdated && (
+                                <span className="ml-1 text-red-500 break-words">
+                                  (No longer collected)
+                                </span>
+                              )}
                             </SelectItem>
                           );
                         })}
@@ -569,8 +640,13 @@ export const MetricDefinitionFormFetcher = ({
                                     }}
                                   />
                                 </FormControl>
-                                <FormLabel className="w-auto text-sm font-normal break-all">
+                                <FormLabel className="w-auto gap-1 text-sm font-normal break-all">
                                   {legendItem?.name}
+                                  {legendItem?.isOutdated && (
+                                    <span className="ml-1 text-red-500 break-normal whitespace-normal">
+                                      (No longer collected)
+                                    </span>
+                                  )}
                                 </FormLabel>
                               </FormItem>
                             );
