@@ -29,6 +29,9 @@ import static com.navercorp.pinpoint.common.server.log.Makers.AOP;
 public class PerformanceLoggingInterceptor {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
+    private static final String LOG_TYPE_ERROR = "ERROR";
+    private static final String LOG_TYPE_SLOW = "SLOW";
+
     private final long slow;
 
     public PerformanceLoggingInterceptor(int threadhold) {
@@ -71,7 +74,7 @@ public class PerformanceLoggingInterceptor {
         if (logger.isInfoEnabled(AOP)) {
             final String className = joinPoint.getTarget().getClass().getSimpleName();
             final String methodName = joinPoint.getSignature().getName();
-            logger.info(AOP, "[AOP] {} {}.{} execution time:{}ms param:{} error:{}", "ERROR", className, methodName, time, joinPoint.getArgs(), throwable.getMessage());
+            logger.info(AOP, "[AOP] {} {}.{} execution time:{}ms param:{} error:{}", LOG_TYPE_ERROR, className, methodName, time, joinPoint.getArgs(), throwable.getMessage());
         }
     }
 
@@ -80,7 +83,7 @@ public class PerformanceLoggingInterceptor {
         if (logger.isInfoEnabled(AOP)) {
             final String className = joinPoint.getTarget().getClass().getSimpleName();
             final String methodName = joinPoint.getSignature().getName();
-            logger.info(AOP, "[AOP] {} {}.{} execution time:{}ms param:{}", "SLOW", className, methodName, time, joinPoint.getArgs());
+            logger.info(AOP, "[AOP] {} {}.{} execution time:{}ms param:{}", LOG_TYPE_SLOW, className, methodName, time, joinPoint.getArgs());
         }
     }
 

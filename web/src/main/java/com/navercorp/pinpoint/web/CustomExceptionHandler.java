@@ -16,6 +16,8 @@
 package com.navercorp.pinpoint.web;
 
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpHeaders;
@@ -23,15 +25,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Collection;
+import java.util.Objects;
 
 import static com.navercorp.pinpoint.web.problem.StackTraceProcessor.COMPOUND;
 import static java.util.Arrays.asList;
@@ -40,31 +42,32 @@ import static java.util.Arrays.asList;
  * @author intr3p1d
  */
 @ControllerAdvice
-final class CustomExceptionHandler extends ResponseEntityExceptionHandler {
+public final class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final ToStringSerializer serializer = ToStringSerializer.instance;
 
     private final String hostname;
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
-    CustomExceptionHandler() {
-        this.hostname = getHostName();
+    public CustomExceptionHandler(String hostname) {
+        this.hostname = Objects.requireNonNull(hostname, "hostname");
     }
 
-    static private String getHostName() {
-        try {
-            return InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            return "unknown";
-        }
-    }
-
-    @ExceptionHandler({Exception.class})
+    @ExceptionHandler({Throwable.class})
     public ResponseEntity<ProblemDetail> handleGeneralException(
-            Exception ex,
+            Throwable ex,
             WebRequest request
     ) {
+        logger.warn("handleGeneralException: {}", ex.getMessage(), ex);
+
+        if (ex instanceof ErrorResponse errorResponse) {
+            ProblemDetail problemDetail = errorResponse.getBody();
+            addProperties(problemDetail, request);
+            addStackTraces(problemDetail, ex);
+            return new ResponseEntity<>(problemDetail, errorResponse.getHeaders(), errorResponse.getStatusCode());
+        }
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-        ProblemDetail problemDetail = ProblemDetail.forStatus(status.value());
+        ProblemDetail problemDetail = ProblemDetail.forStatus(status);
         problemDetail.setTitle("Internal Server Error");
         problemDetail.setDetail(ex.getMessage());
         addProperties(problemDetail, request);
@@ -81,6 +84,8 @@ final class CustomExceptionHandler extends ResponseEntityExceptionHandler {
             @NonNull HttpStatusCode statusCode,
             @NonNull WebRequest request
     ) {
+        logger.warn("handleExceptionInternal: {}", ex, ex);
+
         ResponseEntity<Object> response = super.handleExceptionInternal(ex, body, headers, statusCode, request);
         if (response == null) {
             return ResponseEntity.status(statusCode).build();
@@ -95,28 +100,26 @@ final class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     public void addProperties(ProblemDetail problemDetail, WebRequest request) {
-        if (request instanceof ServletWebRequest servletWebRequest) {
-            problemDetail.setProperty("method", servletWebRequest.getRequest().getMethod());
-        } else {
-            problemDetail.setProperty("method", "UNKNOWN");
-        }
+        problemDetail.setProperty("method", getMethod(request));
         problemDetail.setProperty("parameters", request.getParameterMap());
         problemDetail.setProperty("hostname", hostname);
     }
 
+    private String getMethod(WebRequest request) {
+        if (request instanceof ServletWebRequest servletWebRequest) {
+            return servletWebRequest.getRequest().getMethod();
+        } else {
+            return "UNKNOWN";
+        }
+    }
+
     public void addStackTraces(ProblemDetail problemDetail, Throwable th) {
         final Collection<StackTraceElement> stackTrace = COMPOUND.process(asList(th.getStackTrace()));
-        String[] trace = traceToString(stackTrace);
+        String[] trace = traceToStringArray(stackTrace);
         problemDetail.setProperty("trace", trace);
     }
 
-    private String[] traceToString(Collection<StackTraceElement> stackTrace) {
-        String[] traces = new String[stackTrace.size()];
-        int i = 0;
-        for (StackTraceElement stackTraceElement : stackTrace) {
-            String stackTraceString = serializer.valueToString(stackTraceElement);
-            traces[i++] = stackTraceString;
-        }
-        return traces;
+    private String[] traceToStringArray(Collection<StackTraceElement> stackTrace) {
+        return stackTrace.stream().map(serializer::valueToString).toArray(String[]::new);
     }
 }
