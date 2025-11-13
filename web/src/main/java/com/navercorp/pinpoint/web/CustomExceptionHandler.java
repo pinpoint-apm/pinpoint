@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,18 +15,19 @@
  */
 package com.navercorp.pinpoint.web;
 
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -41,7 +42,8 @@ import static java.util.Arrays.asList;
 @ControllerAdvice
 final class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private static final ToStringSerializer serializer = new ToStringSerializer();
+    private static final ToStringSerializer serializer = ToStringSerializer.instance;
+
     private final String hostname;
 
     CustomExceptionHandler() {
@@ -73,20 +75,23 @@ final class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(
-            Exception ex,
+            @NonNull Exception ex,
             @Nullable Object body,
-            HttpHeaders headers,
-            HttpStatusCode statusCode,
-            WebRequest request
+            @NonNull HttpHeaders headers,
+            @NonNull HttpStatusCode statusCode,
+            @NonNull WebRequest request
     ) {
         ResponseEntity<Object> response = super.handleExceptionInternal(ex, body, headers, statusCode, request);
-
-        if (response != null && response.getBody() instanceof ProblemDetail problemDetail) {
+        if (response == null) {
+            return ResponseEntity.status(statusCode).build();
+        }
+        Object responseBody = response.getBody();
+        if (responseBody instanceof ProblemDetail problemDetail) {
             addProperties(problemDetail, request);
             addStackTraces(problemDetail, ex);
             return this.createResponseEntity(problemDetail, headers, statusCode, request);
         }
-        return response != null ? response : ResponseEntity.status(statusCode).body(body);
+        return response;
     }
 
     public void addProperties(ProblemDetail problemDetail, WebRequest request) {
@@ -101,11 +106,17 @@ final class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
     public void addStackTraces(ProblemDetail problemDetail, Throwable th) {
         final Collection<StackTraceElement> stackTrace = COMPOUND.process(asList(th.getStackTrace()));
-        String[] trace = traceToStringArray(stackTrace);
+        String[] trace = traceToString(stackTrace);
         problemDetail.setProperty("trace", trace);
     }
 
-    private String[] traceToStringArray(Collection<StackTraceElement> stackTrace) {
-        return stackTrace.stream().map(serializer::valueToString).toArray(String[]::new);
+    private String[] traceToString(Collection<StackTraceElement> stackTrace) {
+        String[] traces = new String[stackTrace.size()];
+        int i = 0;
+        for (StackTraceElement stackTraceElement : stackTrace) {
+            String stackTraceString = serializer.valueToString(stackTraceElement);
+            traces[i++] = stackTraceString;
+        }
+        return traces;
     }
 }

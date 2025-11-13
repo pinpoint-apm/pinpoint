@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.web.interceptor;
 
 import org.apache.logging.log4j.LogManager;
@@ -32,29 +48,39 @@ public class PerformanceLoggingInterceptor {
         } finally {
             final long time = System.currentTimeMillis() - start;
             if (capture != null) {
-                warnLog(joinPoint, time, capture);
+                errorLog(joinPoint, time, capture);
             } else if (time > slow) {
-                warnLog(joinPoint, time, capture);
+                slowLog(joinPoint, time);
             } else {
-                if (logger.isDebugEnabled(AOP)) {
-                    final String className = joinPoint.getTarget().getClass().getSimpleName();
-                    final String methodName = joinPoint.getSignature().getName();
-                    logger.debug(AOP, "[AOP] {}.{} execution time:{}ms param:{}", className, methodName, time, joinPoint.getArgs());
-                }
+                debugLog(joinPoint, time);
             }
         }
     }
 
-    private void warnLog(ProceedingJoinPoint joinPoint, long time, Throwable throwable) {
+    private void debugLog(ProceedingJoinPoint joinPoint, long time) {
         final Logger logger = getLogger(joinPoint);
-        if (logger.isWarnEnabled()) {
+        if (logger.isDebugEnabled(AOP)) {
             final String className = joinPoint.getTarget().getClass().getSimpleName();
             final String methodName = joinPoint.getSignature().getName();
-            if (throwable != null) {
-                logger.warn(AOP, "[AOP] {}.{} execution time:{}ms param:{}", className, methodName, time, joinPoint.getArgs(), throwable);
-            } else {
-                logger.warn(AOP, "[AOP] {}.{} execution time:{}ms param:{}", className, methodName, time, joinPoint.getArgs());
-            }
+            logger.debug(AOP, "[AOP] {}.{} execution time:{}ms param:{}", className, methodName, time, joinPoint.getArgs());
+        }
+    }
+
+    private void errorLog(ProceedingJoinPoint joinPoint, long time, Throwable throwable) {
+        final Logger logger = getLogger(joinPoint);
+        if (logger.isInfoEnabled(AOP)) {
+            final String className = joinPoint.getTarget().getClass().getSimpleName();
+            final String methodName = joinPoint.getSignature().getName();
+            logger.info(AOP, "[AOP] {} {}.{} execution time:{}ms param:{} error:{}", "ERROR", className, methodName, time, joinPoint.getArgs(), throwable.getMessage());
+        }
+    }
+
+    private void slowLog(ProceedingJoinPoint joinPoint, long time) {
+        final Logger logger = getLogger(joinPoint);
+        if (logger.isInfoEnabled(AOP)) {
+            final String className = joinPoint.getTarget().getClass().getSimpleName();
+            final String methodName = joinPoint.getSignature().getName();
+            logger.info(AOP, "[AOP] {} {}.{} execution time:{}ms param:{}", "SLOW", className, methodName, time, joinPoint.getArgs());
         }
     }
 
