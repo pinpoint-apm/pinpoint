@@ -334,13 +334,13 @@ export const ServerMapCore = ({
           Total<div className="font-semibold">{totalSamples}</div>
         </div>
         <div className="flex items-center justify-between gap-2">
-          Satisfied<div className="font-semibold text-primary">{satisfiedCount}</div>
+          Satisfied<div className="font-semibold text-[#34b994]">{satisfiedCount}</div>
         </div>
         <div className="flex items-center justify-between gap-2">
-          Tolerating<div className="font-semibold text-green-600">{toleratingCount}</div>
+          Tolerating<div className="font-semibold text-[#51afdf]">{toleratingCount}</div>
         </div>
         <div className="flex items-center justify-between gap-2">
-          Frustrated<div className="font-semibold text-red-600">{frustratedCount}</div>
+          Frustrated<div className="font-semibold text-[#e95459]">{frustratedCount}</div>
         </div>
       </div>
     );
