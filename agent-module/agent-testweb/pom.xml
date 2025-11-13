@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2018 NAVER Corp.
+  ~ Copyright 2025 NAVER Corp.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -30,8 +30,6 @@
     <properties>
         <jdk.version>1.8</jdk.version>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
-
-        <javax.servlet.version>${javax.servlet4.version}</javax.servlet.version>
 
         <spring-boot-build-skip>false</spring-boot-build-skip>
 
