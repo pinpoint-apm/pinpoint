@@ -105,7 +105,7 @@ const HeatmapChartCore = ({
   ) => {
     window.open(
       `${BASE_PATH}${getTransactionListPath(
-        application,
+        nodeData,
         isRealtime ? getFormattedDateRange(dateRange) : searchParameters,
       )}&${getTranscationListQueryString({
         ...data,
