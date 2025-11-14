@@ -37,7 +37,9 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.navercorp.pinpoint.web.problem.StackTraceProcessor.COMPOUND;
 import static java.util.Arrays.asList;
@@ -158,12 +160,12 @@ public final class CustomExceptionHandler extends ResponseEntityExceptionHandler
     public void addStackTraces(ProblemDetail problemDetail, Throwable th) {
         if (errorProperties.getIncludeStacktrace() == ErrorProperties.IncludeAttribute.ALWAYS) {
             final Collection<StackTraceElement> stackTrace = COMPOUND.process(asList(th.getStackTrace()));
-            String[] trace = traceToStringArray(stackTrace);
+            List<String> trace = traceToStringArray(stackTrace);
             problemDetail.setProperty("trace", trace);
         }
     }
 
-    private String[] traceToStringArray(Collection<StackTraceElement> stackTrace) {
-        return stackTrace.stream().map(serializer::valueToString).toArray(String[]::new);
+    private List<String> traceToStringArray(Collection<StackTraceElement> stackTrace) {
+        return stackTrace.stream().map(serializer::valueToString).collect(Collectors.toList());
     }
 }
