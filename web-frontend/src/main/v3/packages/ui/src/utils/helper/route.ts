@@ -25,12 +25,12 @@ export const getApplicationPath =
   ) => {
     let subPath = '';
     let queryString = '';
-    if (application?.applicationName && application.serviceType) {
-      subPath = `/${application.applicationName}@${application.serviceType}`;
+    if (application?.applicationName && application?.serviceType) {
+      subPath = `/${application?.applicationName}@${application?.serviceType}`;
       if (queryParams?.from && queryParams?.to) {
         queryString = `${convertParamsToQueryString({
-          from: queryParams.from,
-          to: queryParams.to,
+          from: queryParams?.from,
+          to: queryParams?.to,
         })}`;
       }
       return `${pagePath}${subPath}${queryString ? `?${queryString}` : queryString}`;
