@@ -1,11 +1,11 @@
 /*
- * Copyright 2020 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -61,6 +61,7 @@ public class HttpClientRequestWrapper implements ClientRequestWrapper {
     private String toRemoteHost() {
         if (request instanceof ChannelOperations) {
             try {
+                @SuppressWarnings("rawtypes")
                 final ChannelOperations channelOperations = (ChannelOperations) request;
                 final InetSocketAddress inetSocketAddress = (InetSocketAddress) channelOperations.channel().remoteAddress();
                 if (inetSocketAddress != null) {
@@ -76,21 +77,17 @@ public class HttpClientRequestWrapper implements ClientRequestWrapper {
     }
 
     private String toHost(String hostName, int port) {
-        final StringBuilder sb = new StringBuilder();
-        if (hostName != null) {
-            sb.append(hostName);
-            sb.append(':');
-            sb.append(port);
+        if (hostName == null) {
+            return "";
         }
-        return sb.toString();
+        return hostName + ':' + port;
     }
 
+    @SuppressWarnings("ConstantConditions")
     private String toUri() {
         if (request instanceof HttpInfos) {
-            final String uri = ((HttpInfos) request).uri();
-            return uri;
+            return request.uri();
         }
-
         return null;
     }
 }
