@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo.grpc;
 
 
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationComparator;
@@ -138,7 +139,7 @@ public class GrpcSpanBinder {
                 final String parentApplicationName = parentInfo.getParentApplicationName();
                 // If root node, parentApplicationName is null
                 if (StringUtils.hasLength(parentApplicationName)) {
-                    if (!IdValidateUtils.validateId(parentApplicationName)) {
+                    if (!IdValidateUtils.validateId(parentApplicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN_V3)) {
                         throw new IllegalArgumentException("Invalid parentApplicationName " + parentApplicationName
                                 + " agent:" + attribute.getApplicationName() + "/" + attribute.getAgentId());
                     }
