@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.common.server.bo.grpc;
 
 import com.google.protobuf.ByteString;
-import com.google.protobuf.Descriptors;
 import com.navercorp.pinpoint.common.server.bo.AnnotationFactory;
 import com.navercorp.pinpoint.common.util.BytesStringStringValue;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
@@ -50,11 +49,24 @@ public class GrpcAnnotationHandler implements AnnotationFactory.AnnotationTypeHa
             return null;
         }
         final PAnnotationValue value = annotation.getValue();
-
-        Descriptors.Descriptor descriptorForType = value.getDescriptorForType();
-        int number = value.getFieldCase().getNumber();
-        Descriptors.FieldDescriptor fieldByNumber = descriptorForType.findFieldByNumber(number);
-        return value.getField(fieldByNumber);
+        PAnnotationValue.FieldCase fieldCase = value.getFieldCase();
+        return switch (fieldCase) {
+            case STRINGVALUE -> value.getStringValue();
+            case BOOLVALUE -> value.getBoolValue();
+            case INTVALUE -> value.getIntValue();
+            case LONGVALUE -> value.getLongValue();
+            case SHORTVALUE -> value.getShortValue();
+            case DOUBLEVALUE -> value.getDoubleValue();
+            case BINARYVALUE -> value.getBinaryValue();
+            case BYTEVALUE -> value.getByteValue();
+            case INTSTRINGVALUE -> value.getIntStringValue();
+            case STRINGSTRINGVALUE -> value.getStringStringValue();
+            case INTSTRINGSTRINGVALUE -> value.getIntStringStringValue();
+            case LONGINTINTBYTEBYTESTRINGVALUE -> value.getLongIntIntByteByteStringValue();
+            case INTBOOLEANINTBOOLEANVALUE -> value.getIntBooleanIntBooleanValue();
+            case BYTESSTRINGSTRINGVALUE -> value.getBytesStringStringValue();
+            case FIELD_NOT_SET -> null;
+        };
     }
 
 
