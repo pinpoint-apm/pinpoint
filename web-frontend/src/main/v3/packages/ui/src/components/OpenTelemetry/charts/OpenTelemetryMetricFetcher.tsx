@@ -14,6 +14,7 @@ import { ErrorDetailDialog } from '../../Error/ErrorDetailDialog';
 import { Widget } from '../../Dashboard/Widget';
 import { HiMiniExclamationCircle } from 'react-icons/hi2';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
+import { ChartSkeleton } from '../../Chart';
 
 export interface OpenTelemetryMetricFetcherProps {
   metricDefinition: OtlpMetricDefUserDefined.Metric;
@@ -29,7 +30,7 @@ export const OpenTelemetryMetricFetcher = ({
   onEdit,
 }: OpenTelemetryMetricFetcherProps) => {
   const { t } = useTranslation();
-  const { mutate, data, error } = usePostOtlpMetricData();
+  const { mutate, data, error, isPending } = usePostOtlpMetricData();
   const { dateRange, agentId } = useOpenTelemetrySearchParameters();
   const prevDateRange = React.useRef<{ from: Date; to: Date }>();
   const prevAgentId = React.useRef<string>();
@@ -140,31 +141,35 @@ export const OpenTelemetryMetricFetcher = ({
       }}
     >
       <div ref={ref} className="w-full h-full">
-        <ReChart
-          syncId={dashboardId}
-          chartData={{
-            title: '',
-            timestamp: data?.timestamp || [],
-            metricValueGroups: [
-              {
-                groupName: '',
-                chartType: data?.chartType || '',
-                unit: data?.unit || '',
-                metricValues: (data?.metricValues || [])?.map((mv) => {
-                  return {
-                    fieldName: mv?.legendName,
-                    values: mv?.values,
-                  };
-                }),
-              },
-            ],
-          }}
-          isAnimationActive={false}
-          unit={data?.unit}
-          tooltipConfig={{
-            showTotal: stack && stackDetails?.showTotal,
-          }}
-        />
+        {isPending ? (
+          <ChartSkeleton />
+        ) : (
+          <ReChart
+            syncId={dashboardId}
+            chartData={{
+              title: '',
+              timestamp: data?.timestamp || [],
+              metricValueGroups: [
+                {
+                  groupName: '',
+                  chartType: data?.chartType || '',
+                  unit: data?.unit || '',
+                  metricValues: (data?.metricValues || [])?.map((mv) => {
+                    return {
+                      fieldName: mv?.legendName,
+                      values: mv?.values,
+                    };
+                  }),
+                },
+              ],
+            }}
+            isAnimationActive={false}
+            unit={data?.unit}
+            tooltipConfig={{
+              showTotal: stack && stackDetails?.showTotal,
+            }}
+          />
+        )}
       </div>
     </Widget>
   );
