@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.jdbc;
 
+
+import com.navercorp.pinpoint.bootstrap.plugin.util.MethodSignature;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -31,21 +33,23 @@ public final class PreparedStatementUtils {
 
     private static final Pattern BIND_SETTER = Pattern.compile("set[A-Z]([a-zA-Z]+)");
 
-    private static final List<Method> bindMethod = findBindVariableSetMethod0();
+    private static final List<MethodSignature> bindMethod = findBindVariableSetMethod0();
+
+    private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
     private PreparedStatementUtils() {
     }
 
 
-    public static List<Method> findBindVariableSetMethod() {
+    public static List<MethodSignature> findBindVariableSetMethod() {
         return Collections.unmodifiableList(bindMethod);
     }
 
-    public static List<Method> findBindVariableSetMethod(BindVariableFilter filter) {
+    public static List<MethodSignature> findBindVariableSetMethod(BindVariableFilter filter) {
         Objects.requireNonNull(filter, "filter");
 
-        List<Method> temp = new ArrayList<>(bindMethod.size());
-        for (Method method : bindMethod) {
+        List<MethodSignature> temp = new ArrayList<>(bindMethod.size());
+        for (MethodSignature method : bindMethod) {
             if (filter.filter(method)) {
                 temp.add(method);
             }
@@ -54,13 +58,13 @@ public final class PreparedStatementUtils {
     }
 
 
-    static List<Method> findBindVariableSetMethod0() {
+    static List<MethodSignature> findBindVariableSetMethod0() {
         if (!SqlModule.isSqlModuleEnable()) {
             return Collections.emptyList();
         }
         final Class<?> preparedStatement = SqlModule.getSqlPreparedStatement();
         Method[] methods = preparedStatement.getDeclaredMethods();
-        List<Method> bindMethod = new ArrayList<>();
+        List<MethodSignature> bindMethod = new ArrayList<>();
         for (Method method : methods) {
             if (isSetter(method.getName())) {
                 if (method.getParameterCount() < 2) {
@@ -77,11 +81,29 @@ public final class PreparedStatementUtils {
                 if (!throwSqlException(method)) {
                     continue;
                 }
-                bindMethod.add(method);
+                bindMethod.add(new MethodSignature(method.getName(), getParameterTypeNames(method)));
             }
         }
         return Collections.unmodifiableList(bindMethod);
     }
+
+    private static String[] getParameterTypeNames(Method method) {
+        if (method.getParameterCount() == 0) {
+            return EMPTY_STRING_ARRAY;
+        }
+        return getParameterTypeNames(method.getParameterTypes());
+    }
+
+    private static String[] getParameterTypeNames(Class<?>[] paramTypes) {
+        int len = paramTypes.length;
+        String[] paramTypeNames = new String[len];
+        for (int i = 0; i < len; i++) {
+            Class<?> paramType = paramTypes[i];
+            paramTypeNames[i] = ReflectionUtils.getParameterTypeName(paramType);
+        }
+        return paramTypeNames;
+    }
+
 
     private static boolean throwSqlException(Method method) {
         Class<?>[] exceptionTypes = method.getExceptionTypes();
