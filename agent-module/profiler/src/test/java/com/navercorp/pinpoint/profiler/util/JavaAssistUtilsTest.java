@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -107,14 +107,14 @@ public class JavaAssistUtilsTest {
 
     @Test
     public void toJvmSignature() {
-        Assertions.assertEquals(JavaAssistUtils.toJvmSignature("int"), "I");
-        Assertions.assertEquals(JavaAssistUtils.toJvmSignature("int[]"), "[I");
-        Assertions.assertEquals(JavaAssistUtils.toJvmSignature("int[][][]"), "[[[I");
+        Assertions.assertEquals("I", JavaAssistUtils.toJvmSignature("int"));
+        Assertions.assertEquals("[I", JavaAssistUtils.toJvmSignature("int[]"));
+        Assertions.assertEquals("[[[I", JavaAssistUtils.toJvmSignature("int[][][]"));
 
-        Assertions.assertEquals(JavaAssistUtils.toJvmSignature("void"), "V");
+        Assertions.assertEquals("V", JavaAssistUtils.toJvmSignature("void"));
 
-        Assertions.assertEquals(JavaAssistUtils.toJvmSignature("java.lang.String"), "Ljava/lang/String;");
-        Assertions.assertEquals(JavaAssistUtils.toJvmSignature("java.lang.String[][]"), "[[Ljava/lang/String;");
+        Assertions.assertEquals("Ljava/lang/String;", JavaAssistUtils.toJvmSignature("java.lang.String"));
+        Assertions.assertEquals("[[Ljava/lang/String;", JavaAssistUtils.toJvmSignature("java.lang.String[][]"));
 
         Assertions.assertThrows(Exception.class, () -> {
             JavaAssistUtils.toJvmSignature("");
@@ -127,69 +127,69 @@ public class JavaAssistUtilsTest {
 
     @Test
     public void javaTypeToJvmSignature() {
-        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{}), "()");
+        Assertions.assertEquals("()", JavaAssistUtils.javaTypeToJvmSignature(new String[]{}));
 
-        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"int"}), "(I)");
-        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"int", "double"}), "(ID)");
-        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"byte", "float", "short"}), "(BFS)");
+        Assertions.assertEquals("(I)", JavaAssistUtils.javaTypeToJvmSignature(new String[]{"int"}));
+        Assertions.assertEquals("(ID)", JavaAssistUtils.javaTypeToJvmSignature(new String[]{"int", "double"}));
+        Assertions.assertEquals("(BFS)", JavaAssistUtils.javaTypeToJvmSignature(new String[]{"byte", "float", "short"}));
 
 
-        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"java.lang.String"}), "(Ljava/lang/String;)");
-        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"java.lang.String", "long"}), "(Ljava/lang/String;J)");
+        Assertions.assertEquals("(Ljava/lang/String;)", JavaAssistUtils.javaTypeToJvmSignature(new String[]{"java.lang.String"}));
+        Assertions.assertEquals("(Ljava/lang/String;J)", JavaAssistUtils.javaTypeToJvmSignature(new String[]{"java.lang.String", "long"}));
 
-        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"long", "java.lang.Object", "boolean"}), "(JLjava/lang/Object;Z)");
-        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"char", "long", "java.lang.Object", "boolean"}), "(CJLjava/lang/Object;Z)");
+        Assertions.assertEquals("(JLjava/lang/Object;Z)", JavaAssistUtils.javaTypeToJvmSignature(new String[]{"long", "java.lang.Object", "boolean"}));
+        Assertions.assertEquals("(CJLjava/lang/Object;Z)", JavaAssistUtils.javaTypeToJvmSignature(new String[]{"char", "long", "java.lang.Object", "boolean"}));
     }
 
     @Test
     public void javaTypeToJvmSignatureReturnType() {
-        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{}, "void"), "()V");
+        Assertions.assertEquals("()V", JavaAssistUtils.javaTypeToJvmSignature(new String[]{}, "void"));
 
-        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"int"}, "int"), "(I)I");
-        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"int", "double"}, "double"), "(ID)D");
-        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"byte", "float", "short"}, "float"), "(BFS)F");
+        Assertions.assertEquals("(I)I", JavaAssistUtils.javaTypeToJvmSignature(new String[]{"int"}, "int"));
+        Assertions.assertEquals("(ID)D", JavaAssistUtils.javaTypeToJvmSignature(new String[]{"int", "double"}, "double"));
+        Assertions.assertEquals("(BFS)F", JavaAssistUtils.javaTypeToJvmSignature(new String[]{"byte", "float", "short"}, "float"));
 
 
-        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"java.lang.String"}, "java.lang.String"), "(Ljava/lang/String;)Ljava/lang/String;");
-        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"java.lang.String", "long"}, "long"), "(Ljava/lang/String;J)J");
+        Assertions.assertEquals("(Ljava/lang/String;)Ljava/lang/String;", JavaAssistUtils.javaTypeToJvmSignature(new String[]{"java.lang.String"}, "java.lang.String"));
+        Assertions.assertEquals("(Ljava/lang/String;J)J", JavaAssistUtils.javaTypeToJvmSignature(new String[]{"java.lang.String", "long"}, "long"));
 
-        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"long", "java.lang.Object", "boolean"}, "boolean"), "(JLjava/lang/Object;Z)Z");
-        Assertions.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"char", "long", "java.lang.Object", "boolean"}, "java.lang.Object"), "(CJLjava/lang/Object;Z)Ljava/lang/Object;");
+        Assertions.assertEquals("(JLjava/lang/Object;Z)Z", JavaAssistUtils.javaTypeToJvmSignature(new String[]{"long", "java.lang.Object", "boolean"}, "boolean"));
+        Assertions.assertEquals("(CJLjava/lang/Object;Z)Ljava/lang/Object;", JavaAssistUtils.javaTypeToJvmSignature(new String[]{"char", "long", "java.lang.Object", "boolean"}, "java.lang.Object"));
     }
 
 
     @Test
     public void testParseParameterDescriptor() {
-        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("()V"), new String[]{});
+        Assertions.assertArrayEquals(new String[]{}, JavaAssistUtils.parseParameterSignature("()V"));
 
-        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(I)I"), new String[]{"int"});
-        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(ID)I"), new String[]{"int", "double"});
-        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(BFS)I"), new String[]{"byte", "float", "short"});
+        Assertions.assertArrayEquals(new String[]{"int"}, JavaAssistUtils.parseParameterSignature("(I)I"));
+        Assertions.assertArrayEquals(new String[]{"int", "double"}, JavaAssistUtils.parseParameterSignature("(ID)I"));
+        Assertions.assertArrayEquals(new String[]{"byte", "float", "short"}, JavaAssistUtils.parseParameterSignature("(BFS)I"));
 
 
-        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(Ljava/lang/String;)I"), new String[]{"java.lang.String"});
-        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(Ljava/lang/String;J)I"), new String[]{"java.lang.String", "long"});
+        Assertions.assertArrayEquals(new String[]{"java.lang.String"}, JavaAssistUtils.parseParameterSignature("(Ljava/lang/String;)I"));
+        Assertions.assertArrayEquals(new String[]{"java.lang.String", "long"}, JavaAssistUtils.parseParameterSignature("(Ljava/lang/String;J)I"));
 
-        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(JLjava/lang/Object;Z)I"), new String[]{"long", "java.lang.Object", "boolean"});
-        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(CJLjava/lang/Object;Z)I"), new String[]{"char", "long", "java.lang.Object", "boolean"});
+        Assertions.assertArrayEquals(new String[]{"long", "java.lang.Object", "boolean"}, JavaAssistUtils.parseParameterSignature("(JLjava/lang/Object;Z)I"));
+        Assertions.assertArrayEquals(new String[]{"char", "long", "java.lang.Object", "boolean"}, JavaAssistUtils.parseParameterSignature("(CJLjava/lang/Object;Z)I"));
 
     }
 
     @Test
     public void testParseParameterDescriptor_array() {
 
-        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([I)I"), new String[]{"int[]"});
-        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([IJ)I"), new String[]{"int[]", "long"});
-        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([J[I)I"), new String[]{"long[]", "int[]"});
+        Assertions.assertArrayEquals(new String[]{"int[]"}, JavaAssistUtils.parseParameterSignature("([I)I"));
+        Assertions.assertArrayEquals(new String[]{"int[]", "long"}, JavaAssistUtils.parseParameterSignature("([IJ)I"));
+        Assertions.assertArrayEquals(new String[]{"long[]", "int[]"}, JavaAssistUtils.parseParameterSignature("([J[I)I"));
 
-        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([Ljava/lang/String;)"), new String[]{"java.lang.String[]"});
+        Assertions.assertArrayEquals(new String[]{"java.lang.String[]"}, JavaAssistUtils.parseParameterSignature("([Ljava/lang/String;)"));
 
-        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(Ljava/lang/String;[[J)"), new String[]{"java.lang.String", "long[][]"});
-        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(Ljava/lang/Object;[[Ljava/lang/String;)"), new String[]{"java.lang.Object", "java.lang.String[][]"});
+        Assertions.assertArrayEquals(new String[]{"java.lang.String", "long[][]"}, JavaAssistUtils.parseParameterSignature("(Ljava/lang/String;[[J)"));
+        Assertions.assertArrayEquals(new String[]{"java.lang.Object", "java.lang.String[][]"}, JavaAssistUtils.parseParameterSignature("(Ljava/lang/Object;[[Ljava/lang/String;)"));
 
-        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([[[Ljava/lang/String;)"), new String[]{"java.lang.String[][][]"});
+        Assertions.assertArrayEquals(new String[]{"java.lang.String[][][]"}, JavaAssistUtils.parseParameterSignature("([[[Ljava/lang/String;)"));
 
-        Assertions.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([[[I)"), new String[]{"int[][][]"});
+        Assertions.assertArrayEquals(new String[]{"int[][][]"}, JavaAssistUtils.parseParameterSignature("([[[I)"));
     }
 
 
