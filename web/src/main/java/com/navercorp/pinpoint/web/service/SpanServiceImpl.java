@@ -209,7 +209,7 @@ public class SpanServiceImpl implements SpanService {
         this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
             @Override
             public void replacement(Align align, List<AnnotationBo> annotationBoList) {
-                AnnotationBo sqlIdAnnotation = findAnnotation(annotationBoList, AnnotationKey.SQL_ID.getCode());
+                AnnotationBo sqlIdAnnotation = AnnotationUtils.findAnnotation(annotationBoList, AnnotationKey.SQL_ID.getCode());
                 if (sqlIdAnnotation == null) {
                     return;
                 }
@@ -276,7 +276,7 @@ public class SpanServiceImpl implements SpanService {
         this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
             @Override
             public void replacement(Align align, List<AnnotationBo> annotationBoList) {
-                AnnotationBo sqlUidAnnotation = findAnnotation(annotationBoList, AnnotationKey.SQL_UID.getCode());
+                AnnotationBo sqlUidAnnotation = AnnotationUtils.findAnnotation(annotationBoList, AnnotationKey.SQL_UID.getCode());
                 if (sqlUidAnnotation == null) {
                     return;
                 }
@@ -347,14 +347,14 @@ public class SpanServiceImpl implements SpanService {
                 for (int i = 0; i < annotationBoList.size(); i++) {
                     final AnnotationBo annotationBo = annotationBoList.get(i);
                     if (annotationBo.getKey() == MongoConstants.MONGO_COLLECTION_INFO.getCode()) {
-                        AnnotationBo collectionOption = findAnnotation(annotationBoList, MongoConstants.MONGO_COLLECTION_OPTION.getCode());
+                        AnnotationBo collectionOption = AnnotationUtils.findAnnotation(annotationBoList, MongoConstants.MONGO_COLLECTION_OPTION.getCode());
                         String collectionValue = getCollectionInfo(align.getDestinationId(), annotationBo, collectionOption);
                         AnnotationBo replace = AnnotationBo.of(annotationBo.getKey(), collectionValue);
                         annotationBoList.set(i, replace);
                     }
                 }
 
-                AnnotationBo jsonAnnotation = findAnnotation(annotationBoList, MongoConstants.MONGO_JSON_DATA.getCode());
+                AnnotationBo jsonAnnotation = AnnotationUtils.findAnnotation(annotationBoList, MongoConstants.MONGO_JSON_DATA.getCode());
                 if (jsonAnnotation == null) {
                     return;
                 }
@@ -389,15 +389,6 @@ public class SpanServiceImpl implements SpanService {
                 return builder.toString();
             }
         });
-    }
-
-    private AnnotationBo findAnnotation(List<AnnotationBo> annotationBoList, int key) {
-        for (AnnotationBo annotationBo : annotationBoList) {
-            if (key == annotationBo.getKey()) {
-                return annotationBo;
-            }
-        }
-        return null;
     }
 
     private void transitionDynamicApiId(List<Align> spans) {
@@ -456,7 +447,8 @@ public class SpanServiceImpl implements SpanService {
             @Override
             public void replacement(Align align, List<AnnotationBo> annotationBoList) {
 
-                List<AnnotationBo> cachedStringAnnotation = findCachedStringAnnotation(annotationBoList);
+                List<AnnotationBo> cachedStringAnnotation = AnnotationUtils.findAnnotations(annotationBoList,
+                        e -> AnnotationKeyUtils.isCachedArgsKey(e.getKey()));
                 if (cachedStringAnnotation.isEmpty()) {
                     return;
                 }
@@ -486,15 +478,6 @@ public class SpanServiceImpl implements SpanService {
         });
     }
 
-    private List<AnnotationBo> findCachedStringAnnotation(List<AnnotationBo> annotationBoList) {
-        List<AnnotationBo> findAnnotationBoList = new ArrayList<>(annotationBoList.size());
-        for (AnnotationBo annotationBo : annotationBoList) {
-            if (AnnotationKeyUtils.isCachedArgsKey(annotationBo.getKey())) {
-                findAnnotationBoList.add(annotationBo);
-            }
-        }
-        return findAnnotationBoList;
-    }
 
     private void transitionException(List<Align> alignList) {
         for (Align align : alignList) {
