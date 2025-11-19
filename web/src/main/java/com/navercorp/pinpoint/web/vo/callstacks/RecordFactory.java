@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -227,7 +227,7 @@ public class RecordFactory {
     }
 
     private Api getApi(final Align align) {
-        final AnnotationBo annotation = AnnotationUtils.findAnnotationBo(align.getAnnotationBoList(), AnnotationKey.API_METADATA);
+        final AnnotationBo annotation = AnnotationUtils.findAnnotation(align.getAnnotationBoList(), AnnotationKey.API_METADATA);
         if (annotation != null) {
             final ApiMetaDataBo apiMetaData = (ApiMetaDataBo) annotation.getValue();
             String apiInfo = apiMetaData.getDescription();
