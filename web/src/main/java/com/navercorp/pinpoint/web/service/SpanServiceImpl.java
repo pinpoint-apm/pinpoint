@@ -55,6 +55,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -97,6 +98,8 @@ public class SpanServiceImpl implements SpanService {
     private final SqlNormalizer sqlNormalizer = new DefaultSqlNormalizer();
     private final OutputParameterParser outputParameterParser = new OutputParameterParser();
 
+    private final AnnotationCallbackExecutor annotationCallback;
+
     public SpanServiceImpl(TraceDao traceDao,
                            SqlMetaDataDao sqlMetaDataDao,
                            SqlUidMetaDataDao sqlUidMetaDataDao,
@@ -113,6 +116,18 @@ public class SpanServiceImpl implements SpanService {
         this.stringMetaDataDao = Objects.requireNonNull(stringMetaDataDao, "stringMetaDataDao");
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+
+        this.annotationCallback = newAnnotationCallback();
+    }
+
+    private @NonNull AnnotationCallbackExecutor newAnnotationCallback() {
+        return new AnnotationCallbackExecutor(
+                transitionDynamicApiId(),
+                transitionSqlId(),
+                transitionSqlUid(),
+                transitionMongoJson(),
+                transitionCachedString(),
+                transitionException());
     }
 
     @Override
@@ -141,15 +156,31 @@ public class SpanServiceImpl implements SpanService {
         final CallTreeIterator callTreeIterator = result.callTree();
         final List<Align> values = callTreeIterator.values();
 
-        transitionDynamicApiId(values);
-        transitionSqlId(values);
-        transitionSqlUid(values);
-        transitionMongoJson(values);
-        transitionCachedString(values);
-        transitionException(values);
+        annotationCallback.replacement(values);
 
         // TODO need to at least show the row data when root span is not found.
         return result;
+    }
+
+    public static class AnnotationCallbackExecutor {
+        private final AnnotationReplacementCallback[] callbacks;
+
+        public AnnotationCallbackExecutor(AnnotationReplacementCallback... callbacks) {
+            this.callbacks = callbacks;
+        }
+
+        public void replacement(List<Align> spans) {
+            for (Align align : spans) {
+                List<AnnotationBo> annotationBoList = align.getAnnotationBoList();
+                if (annotationBoList == null) {
+                    annotationBoList = new ArrayList<>();
+                    align.setAnnotationBoList(annotationBoList);
+                }
+                for (AnnotationReplacementCallback callback : callbacks) {
+                    callback.replacement(align, annotationBoList);
+                }
+            }
+        }
     }
 
     @Override
@@ -193,20 +224,8 @@ public class SpanServiceImpl implements SpanService {
         return nameMap;
     }
 
-
-    private void transitionAnnotation(List<Align> spans, AnnotationReplacementCallback annotationReplacementCallback) {
-        for (Align align : spans) {
-            List<AnnotationBo> annotationBoList = align.getAnnotationBoList();
-            if (annotationBoList == null) {
-                annotationBoList = new ArrayList<>();
-                align.setAnnotationBoList(annotationBoList);
-            }
-            annotationReplacementCallback.replacement(align, annotationBoList);
-        }
-    }
-
-    private void transitionSqlId(final List<Align> spans) {
-        this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
+    private AnnotationReplacementCallback transitionSqlId() {
+        return new AnnotationReplacementCallback() {
             @Override
             public void replacement(Align align, List<AnnotationBo> annotationBoList) {
                 AnnotationBo sqlIdAnnotation = AnnotationUtils.findAnnotation(annotationBoList, AnnotationKey.SQL_ID.getCode());
@@ -256,9 +275,9 @@ public class SpanServiceImpl implements SpanService {
                 } else {
                     // TODO need a separate test case to test for hashCode collision (probability way too low for easy replication)
                     String collisionSqlIdCodeMessage = "Collision Sql sqlId:" + sqlId + "\n" +
-                            sqlMetaDataList.stream()
-                                    .map(SqlMetaDataBo::getSql)
-                                    .collect(Collectors.joining("or\n"));
+                                                       sqlMetaDataList.stream()
+                                                               .map(SqlMetaDataBo::getSql)
+                                                               .collect(Collectors.joining("or\n"));
                     AnnotationBo api = AnnotationBo.of(AnnotationKey.SQL.getCode(), collisionSqlIdCodeMessage);
                     annotationBoList.add(api);
                 }
@@ -269,11 +288,11 @@ public class SpanServiceImpl implements SpanService {
                     annotationBoList.add(bindValueAnnotation);
                 }
             }
-        });
+        };
     }
 
-    private void transitionSqlUid(final List<Align> spans) {
-        this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
+    private AnnotationReplacementCallback transitionSqlUid() {
+        return new AnnotationReplacementCallback() {
             @Override
             public void replacement(Align align, List<AnnotationBo> annotationBoList) {
                 AnnotationBo sqlUidAnnotation = AnnotationUtils.findAnnotation(annotationBoList, AnnotationKey.SQL_UID.getCode());
@@ -323,9 +342,9 @@ public class SpanServiceImpl implements SpanService {
                 } else {
                     // TODO need a separate test case to test for hashCode collision (probability way too low for easy replication)
                     String collisionSqlUidCodeMessage = "Collision Sql sqlUid:" + Arrays.toString(sqlUid) + "\n" +
-                            sqlUidMetaDataList.stream()
-                                    .map(SqlUidMetaDataBo::getSql)
-                                    .collect(Collectors.joining("or\n"));
+                                                        sqlUidMetaDataList.stream()
+                                                                .map(SqlUidMetaDataBo::getSql)
+                                                                .collect(Collectors.joining("or\n"));
                     AnnotationBo api = AnnotationBo.of(AnnotationKey.SQL.getCode(), collisionSqlUidCodeMessage);
                     annotationBoList.add(api);
                 }
@@ -336,11 +355,11 @@ public class SpanServiceImpl implements SpanService {
                     annotationBoList.add(bindValueAnnotation);
                 }
             }
-        });
+        };
     }
 
-    private void transitionMongoJson(final List<Align> spans) {
-        this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
+    private AnnotationReplacementCallback transitionMongoJson() {
+        return new AnnotationReplacementCallback() {
             @Override
             public void replacement(Align align, List<AnnotationBo> annotationBoList) {
 
@@ -388,11 +407,11 @@ public class SpanServiceImpl implements SpanService {
                 }
                 return builder.toString();
             }
-        });
+        };
     }
 
-    private void transitionDynamicApiId(List<Align> spans) {
-        this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
+    private AnnotationReplacementCallback transitionDynamicApiId() {
+        return new AnnotationReplacementCallback() {
             @Override
             public void replacement(Align align, List<AnnotationBo> annotationBoList) {
 
@@ -439,11 +458,11 @@ public class SpanServiceImpl implements SpanService {
 
             }
 
-        });
+        };
     }
 
-    private void transitionCachedString(List<Align> spans) {
-        this.transitionAnnotation(spans, new AnnotationReplacementCallback() {
+    private AnnotationReplacementCallback transitionCachedString() {
+        return new AnnotationReplacementCallback() {
             @Override
             public void replacement(Align align, List<AnnotationBo> annotationBoList) {
 
@@ -475,19 +494,21 @@ public class SpanServiceImpl implements SpanService {
                 }
             }
 
-        });
+
+        };
     }
 
-
-    private void transitionException(List<Align> alignList) {
-        for (Align align : alignList) {
-            if (align.hasException()) {
-                ExceptionInfo exceptionInfo = align.getExceptionInfo();
-                StringMetaDataBo stringMetaData = selectStringMetaData(align.getAgentId(), exceptionInfo.id(), align.getAgentStartTime());
-                align.setExceptionClass(stringMetaData.getStringValue());
+    private AnnotationReplacementCallback transitionException() {
+        return new AnnotationReplacementCallback() {
+            @Override
+            public void replacement(Align align, List<AnnotationBo> annotationBoList) {
+                if (align.hasException()) {
+                    ExceptionInfo exceptionInfo = align.getExceptionInfo();
+                    StringMetaDataBo stringMetaData = selectStringMetaData(align.getAgentId(), exceptionInfo.id(), align.getAgentStartTime());
+                    align.setExceptionClass(stringMetaData.getStringValue());
+                }
             }
-        }
-
+        };
     }
 
     private StringMetaDataBo selectStringMetaData(String agentId, int cacheId, long agentStartTime) {
