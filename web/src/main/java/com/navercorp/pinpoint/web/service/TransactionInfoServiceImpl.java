@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.ErrorCategory;
+import com.navercorp.pinpoint.common.trace.ErrorCategoryResolver;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
@@ -68,6 +69,8 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     private final RecorderFactoryProvider recordFactoryProvider;
     private final ServiceTypeRegistryService registry;
+
+    private final ErrorCategoryResolver errorCategoryResolver = new ErrorCategoryResolver();
 
     public TransactionInfoServiceImpl(TraceDao traceDao,
                                       AnnotationKeyMatcherService annotationKeyMatcherService,
@@ -384,14 +387,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                 if (align.isSpan()) {
                     final SpanBo spanBo = align.getSpanBo();
                     if (spanBo.hasError()) {
-                        EnumSet<ErrorCategory> displayCandidate = EnumSet.complementOf(EnumSet.of(ErrorCategory.UNKNOWN));
-                        EnumSet<ErrorCategory> flagged = EnumSet.noneOf(ErrorCategory.class);
-                        for (ErrorCategory category : displayCandidate) {
-                            if ((spanBo.getErrCode() & category.getBitMask()) != 0) {
-                                flagged.add(category);
-                            }
-                        }
-
+                        EnumSet<ErrorCategory> flagged = errorCategoryResolver.resolve(spanBo.getErrCode());
                         if (!flagged.isEmpty()) {
                             final Record errorCategoryRecord = factory.getErrorCategory(record.getTab() + 1, record.getId(), flagged);
                             recordList.add(errorCategoryRecord);
