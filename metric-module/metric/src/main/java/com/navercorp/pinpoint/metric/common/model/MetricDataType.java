@@ -1,9 +1,21 @@
+/*
+ * Copyright 2025 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.metric.common.model;
 
-import com.navercorp.pinpoint.common.util.apache.IntHashMap;
-
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 public enum MetricDataType {
@@ -13,25 +25,6 @@ public enum MetricDataType {
 
     private final int code;
     private final String type;
-
-    private static final IntHashMap<MetricDataType> CODE_MAP = newCodeMap();
-    private static final Map<String, MetricDataType> TYPE_MAP = newTypeMap();
-
-    private static IntHashMap<MetricDataType> newCodeMap() {
-        IntHashMap<MetricDataType> map = new IntHashMap<>();
-        for (MetricDataType metricDataType : MetricDataType.values()) {
-            map.put(metricDataType.getCode(), metricDataType);
-        }
-        return map;
-    }
-
-    private static Map<String, MetricDataType> newTypeMap() {
-        Map<String, MetricDataType> map = new HashMap<>();
-        for (MetricDataType metricDataType : MetricDataType.values()) {
-            map.put(metricDataType.getType(), metricDataType);
-        }
-        return map;
-    }
 
     MetricDataType(int code, String type) {
         this.code = code;
@@ -47,18 +40,20 @@ public enum MetricDataType {
     }
 
     public static MetricDataType getByCode(int code) {
-        final MetricDataType metricDataType = CODE_MAP.get(code);
-        if (metricDataType == null) {
-            throw new IllegalArgumentException("Unknown code : " + code);
-        }
-        return metricDataType;
+        return switch (code) {
+            case 1 -> LONG;
+            case 2 -> DOUBLE;
+            case -1 -> UNKNOWN;
+            default -> throw new IllegalArgumentException("Unknown code : " + code);
+        };
     }
 
     public static MetricDataType getByType(String name) {
-        MetricDataType metricDataType = TYPE_MAP.get(name);
-        if (metricDataType == null) {
-            throw new IllegalArgumentException("Unknown name : " + name);
-        }
-        return metricDataType;
+        return switch (name) {
+            case "long" -> LONG;
+            case "double" -> DOUBLE;
+            case "unknown" -> UNKNOWN;
+            default -> throw new IllegalArgumentException("Unknown name : " + name);
+        };
     }
 }
