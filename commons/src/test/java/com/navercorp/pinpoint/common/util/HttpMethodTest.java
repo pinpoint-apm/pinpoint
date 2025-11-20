@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.common.util;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class HttpMethodTest {
@@ -48,7 +47,7 @@ class HttpMethodTest {
     @Test
     void testValueOfUnknownMethod() {
         HttpMethod unknownMethod = HttpMethod.valueOf("UNKNOWN_METHOD");
-        assertNull(unknownMethod);
+        assertEquals(HttpMethod.UNKNOWN, unknownMethod);
     }
 
     /**
