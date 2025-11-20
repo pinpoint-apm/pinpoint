@@ -22,10 +22,10 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
+import org.eclipse.collections.api.factory.primitive.LongObjectMaps;
+import org.eclipse.collections.api.map.primitive.MutableLongObjectMap;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -39,11 +39,11 @@ public class AgentHistogram {
      */
     private final Application agentId;
 
-    private final Map<Long, TimeHistogram> timeHistogramMap;
+    private final MutableLongObjectMap<TimeHistogram> timeHistogramMap;
 
     public AgentHistogram(Application agentId) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
-        this.timeHistogramMap = new HashMap<>();
+        this.timeHistogramMap = LongObjectMaps.mutable.of();
     }
 
     static AgentHistogram copyOf(AgentHistogram copyAgentHistogram) {
@@ -55,7 +55,7 @@ public class AgentHistogram {
 
         this.agentId = copyAgentHistogram.agentId;
 
-        this.timeHistogramMap = new HashMap<>();
+        this.timeHistogramMap = LongObjectMaps.mutable.of();
         addTimeHistogram(copyAgentHistogram.timeHistogramMap.values());
     }
 

@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,16 +22,16 @@ import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
+import org.eclipse.collections.api.factory.primitive.LongObjectMaps;
+import org.eclipse.collections.api.map.primitive.MutableLongObjectMap;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -199,21 +199,20 @@ public class AgentStatusTimelineBuilder {
     }
 
     private List<AgentLifeCycle> createAgentLifeCycles(List<AgentEvent> agentEvents) {
-        Map<Long, List<AgentEvent>> partitions = partitionByStartTimestamp(agentEvents);
+        MutableLongObjectMap<List<AgentEvent>> partitions = partitionByStartTimestamp(agentEvents);
         List<AgentLifeCycle> agentLifeCycles = new ArrayList<>(partitions.size());
-        for (Map.Entry<Long, List<AgentEvent>> e : partitions.entrySet()) {
-            Long agentStartTimestamp = e.getKey();
-            List<AgentEvent> agentLifeCycleEvents = e.getValue();
+
+        partitions.forEachKeyValue((agentStartTimestamp, agentLifeCycleEvents) -> {
             agentLifeCycles.add(createAgentLifeCycle(agentStartTimestamp, agentLifeCycleEvents));
-        }
+        });
         return mergeOverlappingLifeCycles(agentLifeCycles);
     }
 
-    private Map<Long, List<AgentEvent>> partitionByStartTimestamp(List<AgentEvent> agentEvents) {
-        Map<Long, List<AgentEvent>> partitions = new HashMap<>();
+    private MutableLongObjectMap<List<AgentEvent>> partitionByStartTimestamp(List<AgentEvent> agentEvents) {
+        MutableLongObjectMap<List<AgentEvent>> partitions = LongObjectMaps.mutable.of();
         for (AgentEvent agentEvent : agentEvents) {
             long startTimestamp = agentEvent.getStartTimestamp();
-            List<AgentEvent> partition = partitions.computeIfAbsent(startTimestamp, k -> new ArrayList<>());
+            List<AgentEvent> partition = partitions.getIfAbsentPutWithKey(startTimestamp, k -> new ArrayList<>());
             partition.add(agentEvent);
         }
         return partitions;

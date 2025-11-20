@@ -20,12 +20,12 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
+import org.eclipse.collections.api.factory.primitive.LongObjectMaps;
+import org.eclipse.collections.api.map.primitive.MutableLongObjectMap;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -81,7 +81,7 @@ public class ApplicationResponse {
 
     public static class Builder {
 
-        private final Map<Long, TimeHistogram> histogramMap;
+        private final MutableLongObjectMap<TimeHistogram> histogramMap;
         // agentId is the key
         private final Set<String> agentIdMap;
 
@@ -89,7 +89,7 @@ public class ApplicationResponse {
 
         Builder(Application application) {
             this.application = Objects.requireNonNull(application, "application");
-            this.histogramMap = new HashMap<>();
+            this.histogramMap = LongObjectMaps.mutable.of();
             this.agentIdMap = new HashSet<>();
         }
 
@@ -118,7 +118,7 @@ public class ApplicationResponse {
         }
 
         private TimeHistogram getTimeHistogram(long timeStamp) {
-            return this.histogramMap.computeIfAbsent(timeStamp, k -> new TimeHistogram(application.getServiceType(), timeStamp));
+            return this.histogramMap.getIfAbsentPutWithKey(timeStamp, k -> new TimeHistogram(application.getServiceType(), timeStamp));
         }
 
 
