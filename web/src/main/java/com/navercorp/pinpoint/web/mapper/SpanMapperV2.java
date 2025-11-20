@@ -39,7 +39,7 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.LRUCache;
 import com.navercorp.pinpoint.io.SpanVersion;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
@@ -242,10 +242,10 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         if (spanBo.getAgentStartTime() != spanChunkBo.getAgentStartTime()) {
             return false;
         }
-        if (!StringUtils.equals(spanBo.getAgentId(), spanChunkBo.getAgentId())) {
+        if (!Strings.CS.equals(spanBo.getAgentId(), spanChunkBo.getAgentId())) {
             return false;
         }
-        if (!StringUtils.equals(spanBo.getApplicationName(), spanChunkBo.getApplicationName())) {
+        if (!Strings.CS.equals(spanBo.getApplicationName(), spanChunkBo.getApplicationName())) {
             return false;
         }
         return true;

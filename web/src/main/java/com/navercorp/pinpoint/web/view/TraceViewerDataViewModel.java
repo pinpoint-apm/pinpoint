@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.view;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,7 +77,7 @@ public class TraceViewerDataViewModel {
 
         for (Record record : recordSet.getRecordList()) {
             if (record.getElapsed() != 0) {
-                boolean isRecordHighlighted = StringUtils.equals(recordSet.getApplicationName(), record.getApplicationName());
+                boolean isRecordHighlighted = Strings.CS.equals(recordSet.getApplicationName(), record.getApplicationName());
                 boolean isApplicationNameChanged = !previousAppName.equals(record.getApplicationName());
 
                 if (recordTraces.isEmpty()) {
