@@ -21,14 +21,13 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.HttpMethod;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.common.util.StringStringValue;
-import com.navercorp.pinpoint.common.util.apache.IntHashMap;
-import com.navercorp.pinpoint.common.util.apache.IntHashMapUtils;
 import com.navercorp.pinpoint.web.calltree.span.Align;
 import com.navercorp.pinpoint.web.service.ProxyRequestTypeRegistryService;
+import org.eclipse.collections.api.factory.primitive.IntObjectMaps;
+import org.eclipse.collections.api.map.primitive.IntObjectMap;
+import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -36,10 +35,10 @@ import java.util.Objects;
  */
 public class AnnotationRecordFormatter {
 
-    private final IntHashMap<AnnotationHandler> titleHandlers;
-    private final IntHashMap<AnnotationHandler> argumentHandlers;
+    private final IntObjectMap<AnnotationHandler> titleHandlers;
+    private final IntObjectMap<AnnotationHandler> argumentHandlers;
 
-    AnnotationRecordFormatter(IntHashMap<AnnotationHandler> titleHandlers, IntHashMap<AnnotationHandler> argumentHandlers) {
+    AnnotationRecordFormatter(IntObjectMap<AnnotationHandler> titleHandlers, IntObjectMap<AnnotationHandler> argumentHandlers) {
         this.titleHandlers = Objects.requireNonNull(titleHandlers, "titleHandlers");
         this.argumentHandlers = Objects.requireNonNull(argumentHandlers, "argumentHandlers");
     }
@@ -83,8 +82,8 @@ public class AnnotationRecordFormatter {
 
     public static class Builder {
 
-        private final Map<Integer, AnnotationHandler> titleHandlers = new HashMap<>();
-        private final Map<Integer, AnnotationHandler> argumentHandlers = new HashMap<>();
+        private final MutableIntObjectMap<AnnotationHandler> titleHandlers = IntObjectMaps.mutable.of();
+        private final MutableIntObjectMap<AnnotationHandler> argumentHandlers = IntObjectMaps.mutable.of();
 
         public void addTitleHandler(int code, AnnotationHandler handler) {
             Objects.requireNonNull(handler, "handler");
@@ -107,9 +106,9 @@ public class AnnotationRecordFormatter {
         }
 
         public AnnotationRecordFormatter build() {
-            IntHashMap<AnnotationHandler> copyTitleHandlers = IntHashMapUtils.copy(titleHandlers);
-            IntHashMap<AnnotationHandler> copyArgumentHandlers = IntHashMapUtils.copy(argumentHandlers);
-            return new AnnotationRecordFormatter(copyTitleHandlers, copyArgumentHandlers);
+            IntObjectMap<AnnotationHandler> titleHandlers = IntObjectMaps.mutable.ofAll(this.titleHandlers);
+            IntObjectMap<AnnotationHandler> argumentHandlers = IntObjectMaps.mutable.ofAll(this.argumentHandlers);
+            return new AnnotationRecordFormatter(titleHandlers, argumentHandlers);
         }
 
         public void addProxyHeaderAnnotationHeader(ProxyRequestTypeRegistryService proxyRequestTypeRegistryService) {

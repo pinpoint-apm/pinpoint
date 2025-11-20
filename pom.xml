@@ -1064,6 +1064,18 @@
                 <version>1.3.4</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.eclipse.collections</groupId>
+                <artifactId>eclipse-collections-api</artifactId>
+                <version>13.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.collections</groupId>
+                <artifactId>eclipse-collections</artifactId>
+                <version>13.0.0</version>
+                <scope>runtime</scope>
+            </dependency>
+
             <!-- thrift logging lib -->
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>

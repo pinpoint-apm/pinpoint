@@ -19,6 +19,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 import org.apache.commons.lang3.Strings;
+import org.eclipse.collections.api.factory.primitive.IntObjectMaps;
+import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +35,7 @@ public class TraceViewerDataViewModel {
     private final RecordSet recordSet;
     private final List<TraceEvent> traceEvents;
     private final List<Long[]> occupiedRange;
-    private final Map<Integer, Integer> invisibleRecords;
+    private final MutableIntObjectMap<Integer> invisibleRecords;
     private final long minBlank;
     private int maxTid;
 
@@ -42,7 +44,7 @@ public class TraceViewerDataViewModel {
         this.maxTid = 0;
         this.traceEvents = new ArrayList<>();
         this.occupiedRange = new ArrayList<>();
-        this.invisibleRecords = new HashMap<>();
+        this.invisibleRecords = IntObjectMaps.mutable.of();
         this.minBlank = (recordSet.getEndTime() - recordSet.getStartTime()) / 100;
         initialize();
     }
@@ -168,7 +170,7 @@ public class TraceViewerDataViewModel {
         traceEvents.add(arrowEnd);
 
         /* Adds the start call of an asynchronous call stack */
-        Stack<Record> recordTrace = new Stack<Record>();
+        Stack<Record> recordTrace = new Stack<>();
         recordTrace.push(record);
         recordTraces.add(recordTrace);
 

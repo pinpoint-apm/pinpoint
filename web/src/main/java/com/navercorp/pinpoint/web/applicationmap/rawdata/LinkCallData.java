@@ -20,10 +20,10 @@ import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
 import com.navercorp.pinpoint.web.vo.Application;
+import org.eclipse.collections.api.factory.primitive.LongObjectMaps;
+import org.eclipse.collections.api.map.primitive.MutableLongObjectMap;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -36,7 +36,7 @@ public class LinkCallData {
 
     private final Application target;
 
-    private final Map<Long, TimeHistogram> targetHistogramTimeMap;
+    private final MutableLongObjectMap<TimeHistogram> targetHistogramTimeMap;
     private final TimeWindowFunction timeWindow;
 
     public LinkCallData(LinkKey linkKey) {
@@ -49,7 +49,7 @@ public class LinkCallData {
         this.source = linkKey.getFrom();
         this.target = linkKey.getTo();
 
-        this.targetHistogramTimeMap = new HashMap<>();
+        this.targetHistogramTimeMap = LongObjectMaps.mutable.of();
         this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
     }
 
@@ -93,15 +93,13 @@ public class LinkCallData {
             throw new IllegalArgumentException("target not equals");
         }
 
-        for (Map.Entry<Long, TimeHistogram> copyEntry : copyLinkCallData.targetHistogramTimeMap.entrySet()) {
-            final Long timeStamp = copyEntry.getKey();
-            TimeHistogram histogram = getTimeHistogram(timeStamp);
-            histogram.add(copyEntry.getValue());
-        }
+        copyLinkCallData.targetHistogramTimeMap.forEachKeyValue(
+                (timeStamp, timeHistogram) -> getTimeHistogram(timeStamp).add(timeHistogram)
+        );
     }
 
     private TimeHistogram getTimeHistogram(final long timeStamp) {
-        final Long refineTimestamp = timeWindow.refineTimestamp(timeStamp);
+        final long refineTimestamp = timeWindow.refineTimestamp(timeStamp);
         TimeHistogram histogram = targetHistogramTimeMap.get(refineTimestamp);
         if (histogram == null) {
             histogram = new TimeHistogram(target.getServiceType(), refineTimestamp);
