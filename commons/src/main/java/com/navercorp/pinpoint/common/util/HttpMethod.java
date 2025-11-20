@@ -23,6 +23,11 @@ import java.util.Objects;
 public class HttpMethod implements Comparable<HttpMethod> {
 
     /**
+     * UNKNOWN
+     */
+    public static final HttpMethod UNKNOWN = new HttpMethod("UNKNOWN");
+
+    /**
      * GET method
      */
     public static final HttpMethod GET = new HttpMethod("GET");
@@ -290,7 +295,7 @@ public class HttpMethod implements Comparable<HttpMethod> {
         if (httpMethod != null) {
             return httpMethod;
         }
-        return null;
+        return UNKNOWN;
     }
 
     /**

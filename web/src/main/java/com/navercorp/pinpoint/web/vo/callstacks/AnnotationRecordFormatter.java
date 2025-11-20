@@ -84,7 +84,7 @@ public class AnnotationRecordFormatter {
                 final String method = (String) annotationBo.getValue();
                 if (StringUtils.hasLength(method)) {
                     HttpMethod httpMethod = HttpMethod.valueOf(method);
-                    if (httpMethod != null) {
+                    if (httpMethod != HttpMethod.UNKNOWN) {
                         return httpMethod.name();
                     }
                 }
