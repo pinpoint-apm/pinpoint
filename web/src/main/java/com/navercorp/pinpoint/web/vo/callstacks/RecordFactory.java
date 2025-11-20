@@ -31,7 +31,6 @@ import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.calltree.span.Align;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeNode;
 import com.navercorp.pinpoint.web.component.AnnotationKeyMatcherService;
-import com.navercorp.pinpoint.web.service.ProxyRequestTypeRegistryService;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -57,13 +56,13 @@ public class RecordFactory {
     public RecordFactory(final AnnotationKeyMatcherService annotationKeyMatcherService,
                          final ServiceTypeRegistryService registry,
                          final AnnotationKeyRegistryService annotationKeyRegistryService,
-                         final ProxyRequestTypeRegistryService proxyRequestTypeRegistryService,
+                         final AnnotationRecordFormatter annotationRecordFormatter,
                          final ApiParserProvider apiParserProvider) {
         this.annotationKeyMatcherService = Objects.requireNonNull(annotationKeyMatcherService, "annotationKeyMatcherService");
         this.registry = Objects.requireNonNull(registry, "registry");
         this.annotationKeyRegistryService = Objects.requireNonNull(annotationKeyRegistryService, "annotationKeyRegistryService");
 
-        this.annotationRecordFormatter = new AnnotationRecordFormatter(proxyRequestTypeRegistryService);
+        this.annotationRecordFormatter = Objects.requireNonNull(annotationRecordFormatter, "annotationRecordFormatter");
         this.apiParserProvider = Objects.requireNonNull(apiParserProvider, "apiParserRegistry");
     }
 
