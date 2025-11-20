@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.agent.plugin.proxy.common.ProxyRequestType;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.HttpMethod;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
 import com.navercorp.pinpoint.common.util.StringStringValue;
@@ -82,10 +83,9 @@ public class AnnotationRecordFormatter {
             if (annotationBo.getValue() instanceof String) {
                 final String method = (String) annotationBo.getValue();
                 if (StringUtils.hasLength(method)) {
-                    for (String m : METHODS) {
-                        if (m.equalsIgnoreCase(method)) {
-                            return method.toUpperCase();
-                        }
+                    HttpMethod httpMethod = HttpMethod.valueOf(method);
+                    if (httpMethod != null) {
+                        return httpMethod.name();
                     }
                 }
             }
