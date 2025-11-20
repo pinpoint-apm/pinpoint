@@ -23,7 +23,7 @@
     "cytoscape-dagre": "^2.5.0",
     "date-fns": "^2.28.0",
     "lodash": "^4.17.21",
-    "react": "^18.2.0"
+    "react": "^18.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.17.10",
