@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,6 @@ import com.navercorp.pinpoint.web.calltree.span.SpanEventAlign;
 import com.navercorp.pinpoint.web.calltree.span.SpanFilters;
 import com.navercorp.pinpoint.web.component.AnnotationKeyMatcherService;
 import com.navercorp.pinpoint.web.dao.TraceDao;
-import com.navercorp.pinpoint.web.service.ProxyRequestTypeRegistryService;
 import com.navercorp.pinpoint.web.service.RecorderFactoryProvider;
 import com.navercorp.pinpoint.web.service.TransactionInfoService;
 import com.navercorp.pinpoint.web.service.TransactionInfoServiceImpl;
@@ -74,14 +73,14 @@ public class RecordFactoryTest {
     private AnnotationKeyMatcherService mockAnnotationKeyMatcherService;
 
     @Mock
-    private ProxyRequestTypeRegistryService mockProxyRequestTypeRegistryService;
+    private AnnotationRecordFormatter mockAnnotationRecordFormatter;
 
     @Mock
     private ApiParserProvider apiParserProvider;
 
     private RecordFactory newRecordFactory() {
         RecorderFactoryProvider recorderFactoryProvider = new RecorderFactoryProvider(mockServiceTypeRegistryService,
-                mockAnnotationKeyMatcherService, mockAnnotationKeyRegistryService, mockProxyRequestTypeRegistryService, apiParserProvider);
+                mockAnnotationKeyMatcherService, mockAnnotationKeyRegistryService, mockAnnotationRecordFormatter, apiParserProvider);
         return recorderFactoryProvider.getRecordFactory();
     }
 
@@ -334,10 +333,10 @@ public class RecordFactoryTest {
         AnnotationKeyMatcherService mockedAnnotationKeyMatcherService = mock(AnnotationKeyMatcherService.class);
 
         RecorderFactoryProvider mockedProvider = mock(RecorderFactoryProvider.class);
-        ProxyRequestTypeRegistryService mockedProxyRequestTypeRegistryService = mock(ProxyRequestTypeRegistryService.class);
         ServiceTypeRegistryService mockedRegistry = mock(ServiceTypeRegistryService.class);
+        AnnotationRecordFormatter annotationRecordFormatter = mock(AnnotationRecordFormatter.class);
         ApiParserProvider mockedApiParserProvider = new ApiParserProvider();
-        when(mockedProvider.getRecordFactory()).thenReturn(new RecordFactory(mockedAnnotationKeyMatcherService, mockedRegistry, mockedAnnotationKeyRegistryService, mockedProxyRequestTypeRegistryService, mockedApiParserProvider));
+        when(mockedProvider.getRecordFactory()).thenReturn(new RecordFactory(mockedAnnotationKeyMatcherService, mockedRegistry, mockedAnnotationKeyRegistryService, annotationRecordFormatter, mockedApiParserProvider));
 
         TransactionInfoService dut = new TransactionInfoServiceImpl(mockedDao, mockedAnnotationKeyMatcherService, Optional.empty(), mockedProvider, mockServiceTypeRegistryService);
 

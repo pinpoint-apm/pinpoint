@@ -16,89 +16,55 @@
 
 package com.navercorp.pinpoint.web.vo.callstacks;
 
-import com.navercorp.pinpoint.agent.plugin.proxy.common.ProxyRequestType;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
-import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.HttpMethod;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
-import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
 import com.navercorp.pinpoint.common.util.StringStringValue;
-import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.common.util.apache.IntHashMap;
+import com.navercorp.pinpoint.common.util.apache.IntHashMapUtils;
 import com.navercorp.pinpoint.web.calltree.span.Align;
 import com.navercorp.pinpoint.web.service.ProxyRequestTypeRegistryService;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author jaehong.kim
  */
 public class AnnotationRecordFormatter {
-    private static final long DAY = TimeUnit.DAYS.toMillis(1);
-    private static final long HOUR = TimeUnit.HOURS.toMillis(1);
-    private static final long MINUTE = TimeUnit.MINUTES.toMillis(1);
-    private static final long SECOND = TimeUnit.SECONDS.toMillis(1);
-    private final ProxyRequestTypeRegistryService proxyRequestTypeRegistryService;
-    private static final String[] METHODS = {
-            "GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH", "TRACE", "CONNECT"
-    };
 
-    public AnnotationRecordFormatter(final ProxyRequestTypeRegistryService proxyRequestTypeRegistryService) {
-        this.proxyRequestTypeRegistryService = proxyRequestTypeRegistryService;
+    private final IntHashMap<AnnotationHandler> titleHandlers;
+    private final IntHashMap<AnnotationHandler> argumentHandlers;
+
+    AnnotationRecordFormatter(IntHashMap<AnnotationHandler> titleHandlers, IntHashMap<AnnotationHandler> argumentHandlers) {
+        this.titleHandlers = Objects.requireNonNull(titleHandlers, "titleHandlers");
+        this.argumentHandlers = Objects.requireNonNull(argumentHandlers, "argumentHandlers");
     }
 
     public String formatTitle(final AnnotationKey annotationKey, final AnnotationBo annotationBo, Align align) {
-        if (annotationKey.getCode() == AnnotationKey.PROXY_HTTP_HEADER.getCode()) {
-            if (!(annotationBo.getValue() instanceof LongIntIntByteByteStringValue value)) {
-                return proxyRequestTypeRegistryService.unknown().getDisplayName();
+        final AnnotationHandler handler = titleHandlers.get(annotationKey.getCode());
+        if (handler != null) {
+            String title = handler.format(annotationKey, annotationBo, align);
+            if (title != null) {
+                return title;
             }
-
-            final ProxyRequestType type = this.proxyRequestTypeRegistryService.findByCode(value.getIntValue1());
-            return type.getDisplayName(value.getStringValue());
         }
         return annotationKey.getName();
     }
 
     String formatArguments(final AnnotationKey annotationKey, final AnnotationBo annotationBo, final Align align) {
-        if (annotationKey.getCode() == AnnotationKey.PROXY_HTTP_HEADER.getCode()) {
-            if (annotationBo.getValue() instanceof LongIntIntByteByteStringValue value) {
-                return buildProxyHttpHeaderAnnotationArguments(value, align.getStartTime());
-            } else {
-                return "Unsupported type(collector server needs to be upgraded)";
+        final AnnotationHandler handler = argumentHandlers.get(annotationKey.getCode());
+        if (handler != null) {
+            String argument = handler.format(annotationKey, annotationBo, align);
+            if (argument != null) {
+                return argument;
             }
-        } else if (annotationKey.getCode() == AnnotationKey.HTTP_IO.getCode() || annotationKey.getCode() == AnnotationKey.REDIS_IO.getCode()) {
-            if (annotationBo.getValue() instanceof IntBooleanIntBooleanValue value) {
-                return buildHttpIoArguments(value);
-            }
-        } else if (annotationKey.getCode() == AnnotationKey.HTTP_STATUS_CODE.getCode()) {
-            if (annotationBo.getValue() instanceof Integer) {
-                final Integer statusCode = (Integer) annotationBo.getValue();
-                if (statusCode == null || statusCode < 0) {
-                    return "UNKNOWN(invalid status code)";
-                }
-                return String.valueOf(statusCode);
-            }
-        } else if (annotationKey.getCode() == AnnotationKey.HTTP_METHOD.getCode()) {
-            if (annotationBo.getValue() instanceof String) {
-                final String method = (String) annotationBo.getValue();
-                if (StringUtils.hasLength(method)) {
-                    HttpMethod httpMethod = HttpMethod.valueOf(method);
-                    if (httpMethod != HttpMethod.UNKNOWN) {
-                        return httpMethod.name();
-                    }
-                }
-            }
-            return "UNKNOWN(invalid method)";
-        } else if (annotationKey.getCode() == AnnotationKey.HTTP_SECURE.getCode()) {
-            if (annotationBo.getValue() instanceof Boolean) {
-                final Boolean secure = (Boolean) annotationBo.getValue();
-                return secure ? "HTTPS" : "HTTP";
-            }
-            return "UNKNOWN";
         }
 
-        // TODO complext-type formatting
+        // complex-type formatting
         final Object value = annotationBo.getValue();
         if (value instanceof StringStringValue stringStringValue) {
             return formatStringStringValue(stringStringValue);
@@ -111,179 +77,105 @@ public class AnnotationRecordFormatter {
         return value.getStringValue1() + '=' + value.getStringValue2();
     }
 
-    String buildProxyHttpHeaderAnnotationArguments(final LongIntIntByteByteStringValue value, final long startTimeMillis) {
-        final ProxyRequestType type = this.proxyRequestTypeRegistryService.findByCode(value.getIntValue1());
-        final StringBuilder sb = new StringBuilder(150);
-        if (value.getLongValue() != 0) {
-            sb.append(toDifferenceTimeFormat(value.getLongValue(), startTimeMillis));
-        }
-        if (value.getIntValue2() != -1) {
-            appendComma(sb);
-            sb.append(toDurationTimeFormat(value.getIntValue2()));
-        }
-        if (value.getByteValue1() != -1) {
-            appendComma(sb);
-            sb.append("idle: ").append(value.getByteValue1()).append("%");
-        }
-        if (value.getByteValue2() != -1) {
-            appendComma(sb);
-            sb.append("busy: ").append(value.getByteValue2()).append("%");
-        }
-
-        if (type.useApp()) {
-            if (StringUtils.hasLength(value.getStringValue())) {
-                appendComma(sb);
-                sb.append("app: ").append(value.getStringValue());
-            }
-        }
-
-        return sb.toString();
+    public static Builder newBuilder() {
+        return new Builder();
     }
 
-    private void appendComma(final StringBuilder buffer) {
-        if (!buffer.isEmpty()) {
-            buffer.append(", ");
-        }
-    }
+    public static class Builder {
 
-    String toDifferenceTimeFormat(final long proxyTimeMillis, final long startTimeMillis) {
-        final StringBuilder buffer = new StringBuilder(60);
-        final long difference = startTimeMillis - proxyTimeMillis;
-        final long absoluteDifference = Math.abs(difference);
-        if (absoluteDifference > (DAY * 2)) {
-            buffer.append("days");
-        } else if (absoluteDifference > DAY) {
-            buffer.append("a day");
-        } else if (absoluteDifference > HOUR) {
-            final long hours = toHours(absoluteDifference);
-            if (hours > 0) {
-                buffer.append(hours).append("h ");
+        private final Map<Integer, AnnotationHandler> titleHandlers = new HashMap<>();
+        private final Map<Integer, AnnotationHandler> argumentHandlers = new HashMap<>();
+
+        public void addTitleHandler(int code, AnnotationHandler handler) {
+            Objects.requireNonNull(handler, "handler");
+            AnnotationHandler exist = titleHandlers.put(code, handler);
+            if (exist != null) {
+                throw new IllegalArgumentException("code already exist : " + code);
             }
-            final long minutes = toMinutes(absoluteDifference);
-            if (minutes > 0) {
-                buffer.append(minutes).append("m ");
-            }
-            final long seconds = toSecond(absoluteDifference);
-            if (seconds > 0) {
-                buffer.append(seconds).append("s ");
-            }
-            final long millis = toMillis(absoluteDifference);
-            if (millis > 0) {
-                buffer.append(millis).append("ms");
-            }
-        } else if (absoluteDifference > MINUTE) {
-            final long minutes = toMinutes(absoluteDifference);
-            if (minutes > 0) {
-                buffer.append(minutes).append("m ");
-            }
-            final long seconds = toSecond(absoluteDifference);
-            if (seconds > 0) {
-                buffer.append(seconds).append("s ");
-            }
-            final long millis = toMillis(absoluteDifference);
-            if (millis > 0) {
-                buffer.append(millis).append("ms");
-            }
-        } else if (absoluteDifference > SECOND) {
-            final long seconds = toSecond(absoluteDifference);
-            if (seconds > 0) {
-                buffer.append(seconds).append("s ");
-            }
-            final long millis = toMillis(absoluteDifference);
-            if (millis > 0) {
-                buffer.append(millis).append("ms");
-            }
-        } else {
-            buffer.append(toMillis(absoluteDifference)).append("ms");
         }
 
-        if (difference >= 0) {
-            buffer.append(" ago");
-        } else {
-            buffer.append(" from now");
+        public void addArgumentHandler(int code, AnnotationHandler handler) {
+            Objects.requireNonNull(handler, "handler");
+            AnnotationHandler exist = argumentHandlers.put(code, handler);
+            if (exist != null) {
+                throw new IllegalArgumentException("code already exist : " + code);
+            }
         }
 
-        buffer.append('(');
-        buffer.append(format(proxyTimeMillis, startTimeMillis));
-        buffer.append(')');
-        return buffer.toString();
-    }
+        public void addArgumentHandlers(List<Integer> codes, AnnotationHandler handler) {
+            codes.forEach(code -> addArgumentHandler(code, handler));
+        }
 
-    private String format(long proxyTimeMillis, long startTimeMillis) {
-        if (TimeUnit.MILLISECONDS.toDays(proxyTimeMillis) == TimeUnit.MILLISECONDS.toDays(startTimeMillis)) {
-            return DateTimeFormatUtils.formatAbsolute(proxyTimeMillis);
-        } else {
-            return DateTimeFormatUtils.format(proxyTimeMillis);
+        public AnnotationRecordFormatter build() {
+            IntHashMap<AnnotationHandler> copyTitleHandlers = IntHashMapUtils.copy(titleHandlers);
+            IntHashMap<AnnotationHandler> copyArgumentHandlers = IntHashMapUtils.copy(argumentHandlers);
+            return new AnnotationRecordFormatter(copyTitleHandlers, copyArgumentHandlers);
+        }
+
+        public void addProxyHeaderAnnotationHeader(ProxyRequestTypeRegistryService proxyRequestTypeRegistryService) {
+            addTitleHandler(AnnotationKey.PROXY_HTTP_HEADER.getCode(), new ProxyHeaderAnnotationTitleHandler(proxyRequestTypeRegistryService));
+            addArgumentHandler(AnnotationKey.PROXY_HTTP_HEADER.getCode(), new ProxyHeaderAnnotationArgumentHandler(proxyRequestTypeRegistryService));
+        }
+
+        public void addDefaultHandlers() {
+            addArgumentHandlers(List.of(AnnotationKey.HTTP_IO.getCode(), AnnotationKey.REDIS_IO.getCode()), new AnnotationHandler() {
+                @Override
+                public String format(AnnotationKey annotationKey, AnnotationBo annotationBo, Align align) {
+                    if (annotationBo.getValue() instanceof IntBooleanIntBooleanValue value) {
+                        return buildHttpIoArguments(value);
+                    }
+                    return null;
+                }
+
+                private String buildHttpIoArguments(final IntBooleanIntBooleanValue value) {
+                    final StringBuilder sb = new StringBuilder();
+                    sb.append("write: ").append(value.getIntValue1()).append("ms");
+                    if (value.isBooleanValue1()) {
+                        sb.append("(FAILED)");
+                    }
+                    sb.append(", read: ").append(value.getIntValue2()).append("ms");
+                    if (value.isBooleanValue2()) {
+                        sb.append("(FAILED)");
+                    }
+                    return sb.toString();
+                }
+            });
+
+            addArgumentHandler(AnnotationKey.HTTP_STATUS_CODE.getCode(), new AnnotationHandler() {
+                @Override
+                public String format(AnnotationKey annotationKey, AnnotationBo annotationBo, Align align) {
+                    if (annotationBo.getValue() instanceof Integer statusCode) {
+                        if (statusCode < 0) {
+                            return "UNKNOWN(invalid status code)";
+                        }
+                        return String.valueOf(statusCode);
+                    }
+                    return null;
+                }
+            });
+            addArgumentHandler(AnnotationKey.HTTP_METHOD.getCode(), new AnnotationHandler() {
+                @Override
+                public String format(AnnotationKey annotationKey, AnnotationBo annotationBo, Align align) {
+                    if (annotationBo.getValue() instanceof String method) {
+                        HttpMethod httpMethod = HttpMethod.valueOf(method);
+                        if (httpMethod != HttpMethod.UNKNOWN) {
+                            return httpMethod.name();
+                        }
+                    }
+                    return "UNKNOWN(invalid method)";
+                }
+            });
+
+            addArgumentHandler(AnnotationKey.HTTP_SECURE.getCode(), new AnnotationHandler() {
+                @Override
+                public String format(AnnotationKey annotationKey, AnnotationBo annotationBo, Align align) {
+                    if (annotationBo.getValue() instanceof Boolean secure) {
+                        return secure ? "HTTPS" : "HTTP";
+                    }
+                    return "UNKNOWN";
+                }
+            });
         }
     }
 
-    String toDurationTimeFormat(final int durationTimeMicroseconds) {
-        StringBuilder buffer = new StringBuilder(30);
-        buffer.append("duration: ");
-        final long millis = durationTimeMicroseconds / 1000;
-        final long micros = durationTimeMicroseconds % 1000;
-        if (millis > HOUR) {
-            buffer.append("over an hour");
-        } else if (millis > MINUTE) {
-            final long minutes = toMinutes(millis);
-            if (minutes > 0) {
-                buffer.append(minutes).append("m ");
-            }
-            final long seconds = toSecond(millis);
-            if (seconds > 0) {
-                buffer.append(seconds).append("s ");
-            }
-            buffer.append(toMillis(millis));
-            if (micros > 0) {
-                buffer.append('.').append(micros);
-            }
-            buffer.append("ms");
-        } else if (millis > SECOND) {
-            final long seconds = toSecond(millis);
-            if (seconds > 0) {
-                buffer.append(seconds).append("s ");
-            }
-            buffer.append(toMillis(millis));
-            if (micros > 0) {
-                buffer.append('.').append(micros);
-            }
-            buffer.append("ms");
-        } else {
-            buffer.append(toMillis(millis));
-            if (micros > 0) {
-                buffer.append('.').append(micros);
-            }
-            buffer.append("ms");
-        }
-        return buffer.toString();
-    }
-
-    long toHours(final long timeMillis) {
-        return (timeMillis / HOUR) % 24;
-    }
-
-    long toMinutes(final long timeMillis) {
-        return (timeMillis / MINUTE) % 60;
-    }
-
-    long toSecond(final long timeMillis) {
-        return (timeMillis / SECOND) % 60;
-    }
-
-    long toMillis(final long timeMillis) {
-        return timeMillis % 1000;
-    }
-
-    private String buildHttpIoArguments(final IntBooleanIntBooleanValue value) {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("write: ").append(value.getIntValue1()).append("ms");
-        if (value.isBooleanValue1()) {
-            sb.append("(FAILED)");
-        }
-        sb.append(", read: ").append(value.getIntValue2()).append("ms");
-        if (value.isBooleanValue2()) {
-            sb.append("(FAILED)");
-        }
-        return sb.toString();
-    }
 }
