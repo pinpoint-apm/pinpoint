@@ -21,10 +21,8 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
-import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapView;
-import com.navercorp.pinpoint.web.applicationmap.ApplicationMapViewV3;
 import com.navercorp.pinpoint.web.applicationmap.MapView;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
@@ -43,7 +41,6 @@ import com.navercorp.pinpoint.web.view.LogLinkView;
 import com.navercorp.pinpoint.web.view.TraceViewerDataViewModel;
 import com.navercorp.pinpoint.web.view.TransactionCallTreeViewModel;
 import com.navercorp.pinpoint.web.view.TransactionServerMapViewModel;
-import com.navercorp.pinpoint.web.view.TransactionTimelineInfoViewModel;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -55,10 +52,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -75,7 +69,6 @@ public class TransactionController {
 
     public static final String DEFAULT_FOCUS_TIMESTAMP = "0";
     public static final String DEFAULT_SPAN_ID = "-1"; // SpanId.NULL
-    private static final String SERVER_PREFIX = "api";
 
     private final SpanService spanService;
     private final TransactionInfoService transactionInfoService;
@@ -105,44 +98,13 @@ public class TransactionController {
             @RequestParam(value = "focusTimestamp", required = false, defaultValue = DEFAULT_FOCUS_TIMESTAMP)
             @PositiveOrZero
             long focusTimestamp,
-            @RequestParam(value = "agentId", required = false) String agentId,
-            @RequestParam(value = "spanId", required = false, defaultValue = DEFAULT_SPAN_ID) long spanId,
-            @RequestParam(value = "useStatisticsAgentState", required = false, defaultValue = "false")
-            boolean useStatisticsAgentState
+            @RequestParam(value = "agentId", required = false)
+            String agentId,
+            @RequestParam(value = "spanId", required = false, defaultValue = DEFAULT_SPAN_ID)
+            long spanId
     ) {
-        return getTransaction0(traceId, focusTimestamp, agentId, spanId, useStatisticsAgentState, TimeHistogramFormat.V3);
-    }
-
-    /**
-     * info lookup for a selected transaction
-     *
-     * @param traceId        traceId
-     * @param focusTimestamp focusTimestamp
-     * @return TransactionInfoViewModel
-     */
-    @GetMapping(value = "/transactionInfo")
-    public TransactionCallTreeViewModel transactionInfo(
-            @RequestParam("traceId") @NotBlank String traceId,
-            @RequestParam(value = "focusTimestamp", required = false, defaultValue = DEFAULT_FOCUS_TIMESTAMP)
-            @PositiveOrZero
-            long focusTimestamp,
-            @RequestParam(value = "agentId", required = false) String agentId,
-            @RequestParam(value = "spanId", required = false, defaultValue = DEFAULT_SPAN_ID) long spanId,
-            @RequestParam(value = "useStatisticsAgentState", required = false, defaultValue = "false")
-            boolean useStatisticsAgentState
-    ) {
-        TimeHistogramFormat format = TimeHistogramFormat.V1;
-        return getTransaction0(traceId, focusTimestamp, agentId, spanId, useStatisticsAgentState, format);
-    }
-
-    private TransactionCallTreeViewModel getTransaction0(String traceId,
-                                                         long focusTimestamp,
-                                                         String agentId,
-                                                         long spanId,
-                                                         boolean useStatisticsAgentState,
-                                                         TimeHistogramFormat format) {
-        logger.debug("GET /trace params {traceId={}, focusTimestamp={}, agentId={}, spanId={}, format={}}",
-                traceId, focusTimestamp, agentId, spanId, format);
+        logger.debug("GET /trace params {traceId={}, focusTimestamp={}, agentId={}, spanId={}}",
+                traceId, focusTimestamp, agentId, spanId);
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
         final ColumnGetCount columnGetCount = ColumnGetCount.of(callstackSelectSpansLimit);
         final Predicate<SpanBo> spanMatchFilter = SpanFilters.spanFilter(spanId, agentId, focusTimestamp);
@@ -155,51 +117,17 @@ public class TransactionController {
         return new TransactionCallTreeViewModel(transactionId, spanId, recordSet, spanResult.traceState(), logLinkView);
     }
 
-    /**
-     * info lookup for a selected transaction
-     *
-     * @param traceId        traceId
-     * @param focusTimestamp focusTimestamp
-     * @return TransactionTimelineInfoViewModel
-     */
-    @GetMapping(value = "/transactionTimelineInfo")
-    public TransactionTimelineInfoViewModel transactionTimelineInfo(
-            @RequestParam("traceId") @NotBlank String traceId,
-            @RequestParam(value = "focusTimestamp", required = false, defaultValue = DEFAULT_FOCUS_TIMESTAMP)
-            @PositiveOrZero
-            long focusTimestamp,
-            @RequestParam(value = "agentId", required = false) @NullOrNotBlank String agentId,
-            @RequestParam(value = "spanId", required = false, defaultValue = DEFAULT_SPAN_ID) long spanId
-    ) {
-        logger.debug("GET /transactionTimelineInfo params {traceId={}, focusTimestamp={}, agentId={}, spanId={}}",
-                traceId, focusTimestamp, agentId, spanId);
-        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
-        final ColumnGetCount columnGetCount = ColumnGetCount.of(callstackSelectSpansLimit);
-
-        // select spans
-        final Predicate<SpanBo> spanMatchFilter = SpanFilters.spanFilter(spanId, agentId, focusTimestamp);
-        final SpanResult spanResult = this.spanService.selectSpan(transactionId, spanMatchFilter, columnGetCount);
-        final CallTreeIterator callTreeIterator = spanResult.callTree();
-
-        final String traceViewerDataURL = ServletUriComponentsBuilder.fromPath(SERVER_PREFIX + "/traceViewerData")
-                .queryParam("traceId", URLEncoder.encode(traceId, StandardCharsets.UTF_8))
-                .queryParam("focusTimestamp", focusTimestamp)
-                .queryParam("agentId", URLEncoder.encode(agentId, StandardCharsets.UTF_8))
-                .queryParam("spanId", spanId)
-                .build()
-                .toUriString();
-
-        final RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
-        return new TransactionTimelineInfoViewModel(transactionId, recordSet, traceViewerDataURL);
-    }
 
     @GetMapping(value = "/traceViewerData")
     public TraceViewerDataViewModel traceViewerData(
-            @RequestParam("traceId") @NotBlank String traceIdParam,
+            @RequestParam("traceId") @NotBlank
+            String traceIdParam,
             @RequestParam(value = "focusTimestamp", required = false, defaultValue = "0") @PositiveOrZero
             long focusTimestamp,
-            @RequestParam(value = "agentId", required = false) @NullOrNotBlank String agentId,
-            @RequestParam(value = "spanId", required = false, defaultValue = "-1") long spanId
+            @RequestParam(value = "agentId", required = false) @NullOrNotBlank
+            String agentId,
+            @RequestParam(value = "spanId", required = false, defaultValue = "-1")
+            long spanId
     ) {
         logger.debug("GET /traceViewerData params {traceId={}, focusTimestamp={}, agentId={}, spanId={}}",
                 traceIdParam, focusTimestamp, agentId, spanId);
@@ -238,21 +166,12 @@ public class TransactionController {
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
         final ApplicationMap map = filteredMapService.selectApplicationMap(option);
-        MapView mapView = getApplicationMap(map, format);
+        MapView mapView = getApplicationMap(map, TimeHistogramFormat.V1);
 
         return new TransactionServerMapViewModel(transactionId, spanId, mapView);
     }
 
     private MapView getApplicationMap(ApplicationMap map, TimeHistogramFormat format) {
-        if (format == TimeHistogramFormat.V3) {
-            TimeWindow timeWindow = new TimeWindow(map.getRange());
-
-            NodeRender nodeRender = NodeRender.detailedRender(format, hyperLinkFactory);
-            LinkRender linkRender = LinkRender.detailedRender(format);
-
-            return new ApplicationMapViewV3(map, timeWindow, nodeRender, linkRender);
-        }
-
         NodeRender nodeRender = NodeRender.detailedRender(format, hyperLinkFactory);
         LinkRender linkRender = LinkRender.detailedRender(format);
 
