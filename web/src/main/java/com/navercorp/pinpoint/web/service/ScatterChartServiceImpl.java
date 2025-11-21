@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,8 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
-import com.navercorp.pinpoint.web.dao.TraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
-import com.navercorp.pinpoint.web.filter.Filter;
+import com.navercorp.pinpoint.web.dao.TraceIndexDao;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.scatter.ScatterDataBuilder;
 import com.navercorp.pinpoint.web.util.ListListUtils;
@@ -34,7 +33,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -66,33 +64,6 @@ public class ScatterChartServiceImpl implements ScatterChartService {
         this.spanService = Objects.requireNonNull(spanService, "spanService");
     }
 
-    @Override
-    public List<Dot> selectScatterData(List<TransactionId> transactionIdList, String applicationName, Filter<List<SpanBo>> filter) {
-        Objects.requireNonNull(transactionIdList, "transactionIdList");
-        Objects.requireNonNull(applicationName, "applicationName");
-        Objects.requireNonNull(filter, "filter");
-
-        final List<List<SpanBo>> traceList = traceDao.selectAllSpans(transactionIdList);
-
-        final List<Dot> result = new ArrayList<>();
-
-        for (List<SpanBo> trace : traceList) {
-            if (!filter.include(trace)) {
-                continue;
-            }
-
-            for (SpanBo span : trace) {
-                if (applicationName.equals(span.getApplicationName())) {
-                    final TransactionId transactionId = span.getTransactionId();
-                    final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
-                    result.add(dot);
-                }
-            }
-        }
-
-        return result;
-    }
-
     /**
      * Queries for details on dots selected from the scatter chart.
      */
@@ -113,82 +84,6 @@ public class ScatterChartServiceImpl implements ScatterChartService {
         return selectedSpans;
     }
 
-    @Override
-    public ScatterData selectScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection) {
-        Objects.requireNonNull(applicationName, "applicationName");
-        Objects.requireNonNull(range, "range");
-        LimitedScanResult<List<Dot>> scanResult = applicationTraceIndexDao.scanTraceScatterData(applicationName, range, limit, backwardDirection);
-
-        ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
-        builder.addDot(scanResult.scanData());
-        return builder.build();
-    }
-
-    @Override
-    public ScatterData selectScatterData(List<TransactionId> transactionIdList, String applicationName, Range range, int xGroupUnit, int yGroupUnit, Filter<List<SpanBo>> filter) {
-        Objects.requireNonNull(transactionIdList, "transactionIdList");
-        Objects.requireNonNull(applicationName, "applicationName");
-        Objects.requireNonNull(filter, "filter");
-
-        final List<List<SpanBo>> traceList = traceDao.selectAllSpans(transactionIdList);
-        populateAgentNameListOfList(traceList);
-
-        ScatterDataBuilder scatterData = new ScatterDataBuilder(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
-        for (List<SpanBo> trace : traceList) {
-            if (!filter.include(trace)) {
-                continue;
-            }
-
-            for (SpanBo span : trace) {
-                if (applicationName.equals(span.getApplicationName())) {
-                    final TransactionId transactionId = span.getTransactionId();
-                    final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
-                    scatterData.addDot(dot);
-                }
-            }
-        }
-
-        return scatterData.build();
-    }
-
-    @Override
-    public ScatterData selectScatterDataV2(int serviceUid, String applicationName, int serviceTypeCode, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection) {
-        Objects.requireNonNull(applicationName, "applicationName");
-        Objects.requireNonNull(range, "range");
-        LimitedScanResult<List<Dot>> scanResult = traceIndexDao.scanTraceScatterData(serviceUid, applicationName, serviceTypeCode, range, limit, backwardDirection);
-
-        ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
-        builder.addDot(scanResult.scanData());
-        return builder.build();
-    }
-
-    @Override
-    public ScatterData selectScatterDataV2(List<TransactionId> transactionIdList, String applicationName, int serviceTypeCode, Range range, int xGroupUnit, int yGroupUnit, Filter<List<SpanBo>> filter) {
-        Objects.requireNonNull(transactionIdList, "transactionIdList");
-        Objects.requireNonNull(applicationName, "applicationName");
-        Objects.requireNonNull(filter, "filter");
-
-        final List<List<SpanBo>> traceList = traceDao.selectAllSpans(transactionIdList);
-        populateAgentNameListOfList(traceList);
-
-        ScatterDataBuilder scatterData = new ScatterDataBuilder(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
-        for (List<SpanBo> trace : traceList) {
-            if (!filter.include(trace)) {
-                continue;
-            }
-
-            for (SpanBo span : trace) {
-                if (applicationName.equals(span.getApplicationName()) && serviceTypeCode == span.getServiceType()) {
-                    final TransactionId transactionId = span.getTransactionId();
-                    final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
-                    scatterData.addDot(dot);
-                }
-            }
-        }
-
-        return scatterData.build();
-    }
-
     private void populateAgentNameListOfList(Collection<List<SpanBo>> listOfList) {
         if (CollectionUtils.isEmpty(listOfList)) {
             return;
@@ -202,6 +97,28 @@ public class ScatterChartServiceImpl implements ScatterChartService {
             return;
         }
         spanService.populateAgentName(list);
+    }
+
+    @Override
+    public ScatterData selectScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection) {
+        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(range, "range");
+        LimitedScanResult<List<Dot>> scanResult = applicationTraceIndexDao.scanTraceScatterData(applicationName, range, limit, backwardDirection);
+
+        ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
+        builder.addDot(scanResult.scanData());
+        return builder.build();
+    }
+
+    @Override
+    public ScatterData selectScatterDataV2(int serviceUid, String applicationName, int serviceTypeCode, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection) {
+        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(range, "range");
+        LimitedScanResult<List<Dot>> scanResult = traceIndexDao.scanTraceScatterData(serviceUid, applicationName, serviceTypeCode, range, limit, backwardDirection);
+
+        ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
+        builder.addDot(scanResult.scanData());
+        return builder.build();
     }
 
 }
