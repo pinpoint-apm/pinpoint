@@ -2,7 +2,6 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { END_POINTS, TransactionInfoType as TransactionInfo } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { useTransactionSearchParameters } from '../searchParameters';
-import { useExperimentals } from '../utility';
 import { queryFn } from './reactQueryHelper';
 
 const getQueryString = (queryParams: Partial<TransactionInfo.Parameters>) => {
@@ -13,15 +12,13 @@ const getQueryString = (queryParams: Partial<TransactionInfo.Parameters>) => {
 };
 
 export const useGetTransactionInfo = () => {
-  const { statisticsAgentState } = useExperimentals();
   const { transactionInfo } = useTransactionSearchParameters();
 
-  const queryParams = {
+  const queryParams: Partial<TransactionInfo.Parameters> = {
     agentId: transactionInfo?.agentId,
     spanId: transactionInfo?.spanId,
     traceId: transactionInfo?.traceId,
     focusTimestamp: transactionInfo?.focusTimestamp,
-    useStatisticsAgentState: statisticsAgentState.value,
   };
 
   const queryString = getQueryString(queryParams);
