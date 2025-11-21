@@ -20,7 +20,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.navercorp.pinpoint.common.server.util.json.JsonFields;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;
 
 import java.io.IOException;
@@ -32,8 +31,8 @@ public interface AgentTimeSeriesHistogramNodeView {
     default void writeAgentTimeSeriesHistogram(NodeView nodeView, JsonGenerator jgen) throws IOException {
     }
 
-    static AgentTimeSeriesHistogramNodeView detailedView(TimeHistogramFormat format) {
-        return new DetailedAgentHistogramNodeView(format);
+    static AgentTimeSeriesHistogramNodeView detailedView(TimeHistogramView timeHistogramView) {
+        return new DetailedAgentHistogramNodeView(timeHistogramView);
     }
 
     static AgentTimeSeriesHistogramNodeView emptyView() {
@@ -42,10 +41,10 @@ public interface AgentTimeSeriesHistogramNodeView {
     }
 
     class DetailedAgentHistogramNodeView implements AgentTimeSeriesHistogramNodeView {
-        private final TimeHistogramFormat format;
+        private final TimeHistogramView timeHistogramView;
 
-        public DetailedAgentHistogramNodeView(TimeHistogramFormat format) {
-            this.format = Objects.requireNonNull(format, "format");
+        public DetailedAgentHistogramNodeView(TimeHistogramView timeHistogramView) {
+            this.timeHistogramView = Objects.requireNonNull(timeHistogramView, "timeHistogramView");
         }
 
         @Override
@@ -53,7 +52,7 @@ public interface AgentTimeSeriesHistogramNodeView {
             NodeHistogram nodeHistogram = nodeView.getNode().getNodeHistogram();
             AgentTimeHistogram agentTimeHistogram = nodeHistogram.getAgentTimeHistogram();
 
-            JsonFields<AgentNameView, List<TimeHistogramViewModel>> agentFields = agentTimeHistogram.createViewModel(format);
+            JsonFields<AgentNameView, List<TimeHistogramViewModel>> agentFields = timeHistogramView.build(agentTimeHistogram);
             jgen.writeFieldName("agentTimeSeriesHistogram");
             jgen.writeObject(agentFields);
         }

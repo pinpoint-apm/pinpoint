@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSchemas;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
+import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramView;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramViewModel;
 import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -60,7 +61,7 @@ public class AgentTimeHistogramTest {
         List<ResponseTime> responseHistogramList = createResponseTime(app, "test1", "test2");
         AgentTimeHistogram histogram = builder.build(responseHistogramList);
 
-        JsonFields<AgentNameView, List<TimeHistogramViewModel>> viewModel = histogram.createViewModel(TimeHistogramFormat.V3);
+        JsonFields<AgentNameView, List<TimeHistogramViewModel>> viewModel = TimeHistogramView.TimeseriesHistogram.build(histogram);
         logger.debug("{}", viewModel);
 
         String json = mapper.writeValueAsString(viewModel);
@@ -145,12 +146,12 @@ public class AgentTimeHistogramTest {
         Map<String, Histogram> defaultResult = new HashMap<>();
         Map<String, Histogram> aggregatedResult = new HashMap<>();
         for (String sourceAgentId : sourceAgentIdList) {
-            for (TimeHistogram timeHistogram : agentTimeHistogram.getTimeHistogramMap().get(sourceAgentId)) {
+            for (TimeHistogram timeHistogram : agentTimeHistogram.getTimeHistogram(sourceAgentId)) {
                 Histogram histogram = defaultResult.computeIfAbsent(sourceAgentId, k -> new Histogram(ServiceType.STAND_ALONE));
                 histogram.add(timeHistogram);
             }
 
-            for (TimeHistogram timeHistogram : aggregatedAgentTimeHistogram.getTimeHistogramMap().get(sourceAgentId)) {
+            for (TimeHistogram timeHistogram : aggregatedAgentTimeHistogram.getTimeHistogram(sourceAgentId)) {
                 Histogram histogram = aggregatedResult.computeIfAbsent(sourceAgentId, k -> new Histogram(ServiceType.STAND_ALONE));
                 histogram.add(timeHistogram);
             }

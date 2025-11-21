@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.applicationmap.view;
 
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 
@@ -25,17 +24,17 @@ import java.util.Objects;
 public interface NodeRender {
     NodeView render(Node node);
 
-    static NodeRender detailedRender(TimeHistogramFormat format, HyperLinkFactory hyperLinkFactory) {
+    static NodeRender detailedRender(TimeHistogramView timeHistogramView, HyperLinkFactory hyperLinkFactory) {
         return new DefaultNodeRender(
-                ApplicationTimeSeriesHistogramNodeView.detailedView(format),
+                ApplicationTimeSeriesHistogramNodeView.detailedView(timeHistogramView),
                 ServerListNodeView.detailedView(hyperLinkFactory),
                 AgentHistogramNodeView.detailedView(),
-                AgentTimeSeriesHistogramNodeView.detailedView(format));
+                AgentTimeSeriesHistogramNodeView.detailedView(timeHistogramView));
     }
 
     static NodeRender forServerMap() {
         return new DefaultNodeRender(
-                ApplicationTimeSeriesHistogramNodeView.detailedView(TimeHistogramFormat.V3),
+                ApplicationTimeSeriesHistogramNodeView.detailedView(TimeHistogramView.TimeseriesHistogram),
                 ServerListNodeView.emptyView(),
                 AgentHistogramNodeView.emptyView(),
                 AgentTimeSeriesHistogramNodeView.emptyView());

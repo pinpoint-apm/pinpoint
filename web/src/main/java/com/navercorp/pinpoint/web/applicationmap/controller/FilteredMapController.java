@@ -31,13 +31,13 @@ import com.navercorp.pinpoint.web.applicationmap.controller.form.ApplicationForm
 import com.navercorp.pinpoint.web.applicationmap.controller.form.FilterForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.GroupForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.RangeForm;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapServiceOption;
 import com.navercorp.pinpoint.web.applicationmap.service.TraceIndexService;
 import com.navercorp.pinpoint.web.applicationmap.view.LinkRender;
 import com.navercorp.pinpoint.web.applicationmap.view.NodeRender;
 import com.navercorp.pinpoint.web.applicationmap.view.ScatterDataMapView;
+import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramView;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
@@ -137,10 +137,10 @@ public class FilteredMapController {
         }
 
         TimeWindow timeWindow = new TimeWindow(scannerRange);
-        TimeHistogramFormat format = TimeHistogramFormat.V3;
+        TimeHistogramView timeHistogramView = TimeHistogramView.TimeseriesHistogram;
 
-        NodeRender nodeRender = NodeRender.detailedRender(format, hyperLinkFactory);
-        LinkRender linkRender = LinkRender.detailedRender(format);
+        NodeRender nodeRender = NodeRender.detailedRender(timeHistogramView, hyperLinkFactory);
+        LinkRender linkRender = LinkRender.detailedRender(timeHistogramView);
 
         ApplicationMapViewV3 applicationMapView = new ApplicationMapViewV3(map.getApplicationMap(), timeWindow, nodeRender, linkRender);
         ScatterDataMapView scatterDataMapView = new ScatterDataMapView(map.getScatterDataMap());

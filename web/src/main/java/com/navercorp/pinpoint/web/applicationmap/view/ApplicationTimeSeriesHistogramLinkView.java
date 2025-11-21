@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.applicationmap.view;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 
 import java.io.IOException;
@@ -30,8 +29,8 @@ public interface ApplicationTimeSeriesHistogramLinkView {
     default void writeTimeSeriesHistogram(LinkView linkView, JsonGenerator jgen) throws IOException {
     }
 
-    static ApplicationTimeSeriesHistogramLinkView detailedView(TimeHistogramFormat format) {
-        return new DetailedAgentHistogramNodeView(format);
+    static ApplicationTimeSeriesHistogramLinkView detailedView(TimeHistogramView timeHistogramView) {
+        return new DetailedAgentHistogramNodeView(timeHistogramView);
     }
 
     static ApplicationTimeSeriesHistogramLinkView emptyView() {
@@ -41,18 +40,17 @@ public interface ApplicationTimeSeriesHistogramLinkView {
 
     class DetailedAgentHistogramNodeView implements ApplicationTimeSeriesHistogramLinkView {
 
-        private final TimeHistogramFormat format;
+        private final TimeHistogramView timeHistogramView;
 
-        public DetailedAgentHistogramNodeView(TimeHistogramFormat format) {
-            this.format = Objects.requireNonNull(format, "format");
+        public DetailedAgentHistogramNodeView(TimeHistogramView timeHistogramView) {
+            this.timeHistogramView = Objects.requireNonNull(timeHistogramView, "timeHistogramView");
         }
 
         @Override
         public void writeTimeSeriesHistogram(LinkView linkView, JsonGenerator jgen) throws IOException {
             Link link = linkView.getLink();
             ApplicationTimeHistogram linkApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram();
-            TimeHistogramBuilder builder = new TimeHistogramBuilder(format);
-            List<TimeHistogramViewModel> sourceApplicationHistogram = builder.build(linkApplicationTimeSeriesHistogram);
+            List<TimeHistogramViewModel> sourceApplicationHistogram = timeHistogramView.build(linkApplicationTimeSeriesHistogram);
             jgen.writeFieldName("timeSeriesHistogram");
             jgen.writeObject(sourceApplicationHistogram);
         }

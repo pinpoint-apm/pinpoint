@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.ApplicationForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.RangeForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.SearchOptionForm;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeName;
@@ -37,6 +36,7 @@ import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramSe
 import com.navercorp.pinpoint.web.applicationmap.view.LinkHistogramSummaryView;
 import com.navercorp.pinpoint.web.applicationmap.view.NodeHistogramSummaryView;
 import com.navercorp.pinpoint.web.applicationmap.view.ServerGroupListView;
+import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramView;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.util.ApplicationValidator;
@@ -54,7 +54,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Nullable;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -127,12 +126,11 @@ public class ServerMapHistogramController {
         final Range range = toRange(rangeForm);
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
-        final TimeHistogramFormat format = TimeHistogramFormat.V3;
         final Application application = getApplication(appForm);
 
         final LinkDataDuplexMap map = newLinkDataDuplexMap(
                 application, timeWindow, searchForm.getCallerRange(), searchForm.getCalleeRange(),
-                searchForm.isBidirectional(), searchForm.isWasOnly(), useStatisticsAgentState, format
+                searchForm.isBidirectional(), searchForm.isWasOnly(), useStatisticsAgentState
         );
 
         final List<Application> fromApplications = this.histogramService.getFromApplications(map);
@@ -140,7 +138,7 @@ public class ServerMapHistogramController {
 
         return newNodeHistogramSummaryView(
                 application, timeWindow, fromApplications, toApplications,
-                useStatisticsAgentState, format
+                useStatisticsAgentState, TimeHistogramView.TimeseriesHistogram
         );
     }
 
@@ -172,11 +170,10 @@ public class ServerMapHistogramController {
         final Range range = toRange(rangeForm);
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
-        final TimeHistogramFormat format = TimeHistogramFormat.V3;
 
         final LinkDataDuplexMap map = newLinkDataDuplexMap(
                 application, timeWindow, searchForm.getCallerRange(), searchForm.getCalleeRange(),
-                searchForm.isBidirectional(), searchForm.isWasOnly(), useStatisticsAgentState, format
+                searchForm.isBidirectional(), searchForm.isWasOnly(), useStatisticsAgentState
         );
 
         // To or From node is the original application
@@ -192,7 +189,7 @@ public class ServerMapHistogramController {
 
         return newNodeHistogramSummaryView(
                 nodeApplication, timeWindow, fromApplications, toApplications,
-                useStatisticsAgentState, format
+                useStatisticsAgentState, TimeHistogramView.TimeseriesHistogram
         );
     }
 
@@ -203,8 +200,7 @@ public class ServerMapHistogramController {
             int calleeRange,
             boolean bidirectional,
             boolean wasOnly,
-            boolean useStatisticsAgentState,
-            TimeHistogramFormat format
+            boolean useStatisticsAgentState
     ) {
         final SearchOption searchOption = searchOptionBuilder()
                 .build(callerRange, calleeRange, bidirectional, wasOnly);
@@ -214,7 +210,7 @@ public class ServerMapHistogramController {
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 
-        logger.info("Select ApplicationMap {} option={}", format, option);
+        logger.info("Select ApplicationMap option={}", option);
         return this.histogramService.selectLinkDataDuplexMap(option);
     }
 
@@ -224,7 +220,7 @@ public class ServerMapHistogramController {
             List<Application> fromApplications,
             List<Application> toApplications,
             boolean useStatisticsAgentState,
-            TimeHistogramFormat format
+            TimeHistogramView timeHistogramView
     ) {
         final ResponseTimeHistogramServiceOption histogramServiceOption = new ResponseTimeHistogramServiceOption
                 .Builder(application, timeWindow, fromApplications, toApplications)
@@ -235,7 +231,7 @@ public class ServerMapHistogramController {
 
         ServerGroupList serverGroupList = nodeHistogramSummary.getServerGroupList();
         ServerGroupListView serverGroupListView = new ServerGroupListView(serverGroupList, hyperLinkFactory);
-        return new NodeHistogramSummaryView(nodeHistogramSummary, timeWindow, serverGroupListView, format);
+        return new NodeHistogramSummaryView(nodeHistogramSummary, timeWindow, serverGroupListView, timeHistogramView);
     }
 
 
@@ -317,10 +313,9 @@ public class ServerMapHistogramController {
 
         final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
 
-        final TimeHistogramFormat format = TimeHistogramFormat.V3;
         ServerGroupList serverGroupList = nodeHistogramSummary.getServerGroupList();
         ServerGroupListView serverGroupListView = new ServerGroupListView(serverGroupList, hyperLinkFactory);
-        return new NodeHistogramSummaryView(nodeHistogramSummary, timeWindow, serverGroupListView, format);
+        return new NodeHistogramSummaryView(nodeHistogramSummary, timeWindow, serverGroupListView, TimeHistogramView.TimeseriesHistogram);
     }
 
     private List<Application> toApplications(List<String> applicationNames, List<Short> serviceTypeCodes) {
@@ -360,7 +355,6 @@ public class ServerMapHistogramController {
         final LinkHistogramSummary linkHistogramSummary =
                 histogramService.selectLinkHistogramData(fromApplication, toApplication, timeWindow);
 
-        TimeHistogramFormat format = TimeHistogramFormat.V3;
-        return new LinkHistogramSummaryView(linkHistogramSummary, timeWindow, format);
+        return new LinkHistogramSummaryView(linkHistogramSummary, timeWindow, TimeHistogramView.TimeseriesHistogram);
     }
 }

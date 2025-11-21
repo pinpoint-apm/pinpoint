@@ -20,7 +20,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.navercorp.pinpoint.common.server.util.json.JacksonWriterUtils;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 
 import java.io.IOException;
 import java.util.List;
@@ -31,8 +30,8 @@ public interface ApplicationTimeSeriesHistogramNodeView {
     default void writeTimeSeriesHistogram(NodeView nodeView, JsonGenerator jgen) throws IOException {
     }
 
-    static ApplicationTimeSeriesHistogramNodeView detailedView(TimeHistogramFormat format) {
-        return new DetailedAgentHistogramNodeView(format);
+    static ApplicationTimeSeriesHistogramNodeView detailedView(TimeHistogramView timeHistogramView) {
+        return new DetailedAgentHistogramNodeView(timeHistogramView);
     }
 
     static ApplicationTimeSeriesHistogramNodeView emptyView() {
@@ -42,18 +41,17 @@ public interface ApplicationTimeSeriesHistogramNodeView {
 
     class DetailedAgentHistogramNodeView implements ApplicationTimeSeriesHistogramNodeView {
 
-        private final TimeHistogramFormat format;
+        private final TimeHistogramView timeHistogramView;
 
-        public DetailedAgentHistogramNodeView(TimeHistogramFormat format) {
-            this.format = Objects.requireNonNull(format, "format");
+        public DetailedAgentHistogramNodeView(TimeHistogramView timeHistogramView) {
+            this.timeHistogramView = Objects.requireNonNull(timeHistogramView, "timeHistogramView");
         }
 
         @Override
         public void writeTimeSeriesHistogram(NodeView nodeView, JsonGenerator jgen) throws IOException {
             NodeHistogram nodeHistogram = nodeView.getNode().getNodeHistogram();
             ApplicationTimeHistogram applicationTimeHistogram = nodeHistogram.getApplicationTimeHistogram();
-            TimeHistogramBuilder builder = new TimeHistogramBuilder(format);
-            List<TimeHistogramViewModel> applicationTimeSeriesHistogram = builder.build(applicationTimeHistogram);
+            List<TimeHistogramViewModel> applicationTimeSeriesHistogram = timeHistogramView.build(applicationTimeHistogram);
             if (applicationTimeSeriesHistogram == null) {
                 JacksonWriterUtils.writeEmptyArray(jgen, "timeSeriesHistogram");
             } else {

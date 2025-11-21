@@ -39,11 +39,10 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeCount;
-import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramBuilder;
+import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramView;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramViewModel;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeseriesHistogramViewModel;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
@@ -113,7 +112,7 @@ public class FilteredMapServiceImplTest {
     // Mocked
     private final ServiceTypeRegistryService registry = TestTraceUtils.mockServiceTypeRegistryService();
 
-    TimeHistogramFormat format = TimeHistogramFormat.V3;
+    TimeHistogramView timeHistogramView = TimeHistogramView.TimeseriesHistogram;
 
     @Spy
     private ApplicationMapBuilderFactory applicationMapBuilderFactory = new ApplicationMapBuilderFactory(
@@ -332,19 +331,17 @@ public class FilteredMapServiceImplTest {
 
     private List<TimeHistogramViewModel> getTimeHistogramViewModels(Link link) {
         ApplicationTimeHistogram linkApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram();
-        TimeHistogramBuilder builder = new TimeHistogramBuilder(format);
-        return builder.build(linkApplicationTimeSeriesHistogram);
+        return timeHistogramView.build(linkApplicationTimeSeriesHistogram);
     }
 
     private List<TimeHistogramViewModel> getApplicationTimeHistogram(NodeHistogram nodeHistogram) {
         ApplicationTimeHistogram applicationTimeHistogram = nodeHistogram.getApplicationTimeHistogram();
-        TimeHistogramBuilder builder = new TimeHistogramBuilder(format);
-        return builder.build(applicationTimeHistogram);
+        return timeHistogramView.build(applicationTimeHistogram);
     }
 
     private JsonFields<AgentNameView, List<TimeHistogramViewModel>> getAgentTimeHistogram(NodeHistogram nodeHistogram) {
         AgentTimeHistogram factory = nodeHistogram.getAgentTimeHistogram();
-        return factory.createViewModel(format);
+        return timeHistogramView.build(factory);
     }
 
     private void assertHistogram(Histogram histogram, int fastCount, int normalCount, int slowCount, int verySlowCount, int totalErrorCount) {
