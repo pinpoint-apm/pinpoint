@@ -5,7 +5,6 @@ export namespace TransactionInfoType {
     spanId: string;
     traceId: string;
     focusTimestamp: number;
-    useStatisticsAgentState?: boolean;
   }
 
   export interface Response {
