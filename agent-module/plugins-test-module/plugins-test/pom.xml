@@ -9,6 +9,7 @@
     </parent>
 
     <artifactId>pinpoint-plugins-test</artifactId>
+    <name>pinpoint-plugins-test</name>
     <packaging>jar</packaging>
 
     <properties>

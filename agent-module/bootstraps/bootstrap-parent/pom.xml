@@ -26,6 +26,7 @@
     </parent>
 
     <artifactId>pinpoint-bootstrap-parent</artifactId>
+    <name>pinpoint-bootstrap-parent</name>
     <packaging>pom</packaging>
 
 

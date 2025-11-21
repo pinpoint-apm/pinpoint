@@ -25,6 +25,7 @@
     </parent>
 
     <artifactId>pinpoint-agent-module</artifactId>
+    <name>pinpoint-agent-module</name>
     <packaging>pom</packaging>
 
     <modules>

@@ -13,6 +13,7 @@
     </parent>
 
     <artifactId>pinpoint-profiler-optional-parent</artifactId>
+    <name>pinpoint-profiler-optional-parent</name>
     <packaging>pom</packaging>
     <description>pinpoint profiler optional package parent</description>
 

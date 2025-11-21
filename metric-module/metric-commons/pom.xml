@@ -30,6 +30,7 @@
     </parent>
 
     <artifactId>pinpoint-metric-commons</artifactId>
+    <name>pinpoint-metric-commons</name>
     <packaging>jar</packaging>
 
     <properties>

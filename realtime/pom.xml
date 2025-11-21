@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>pinpoint-realtime</artifactId>
+    <name>pinpoint-realtime</name>
     <packaging>pom</packaging>
 
     <modules>

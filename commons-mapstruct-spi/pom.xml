@@ -9,6 +9,7 @@
     </parent>
 
     <artifactId>pinpoint-commons-mapstruct-spi</artifactId>
+    <name>pinpoint-commons-mapstruct-spi</name>
     <dependencies>
         <dependency>
             <groupId>org.mapstruct</groupId>

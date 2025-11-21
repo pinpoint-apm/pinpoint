@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>pinpoint-inspector-module</artifactId>
+    <name>pinpoint-inspector-module</name>
     <packaging>pom</packaging>
 
     <modules>

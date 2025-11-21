@@ -25,6 +25,7 @@
     </parent>
 
     <artifactId>pinpoint-plugins-test-module</artifactId>
+    <name>pinpoint-plugins-test-module</name>
     <packaging>pom</packaging>
 
     <modules>

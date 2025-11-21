@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>pinpoint-realtime-web</artifactId>
+    <name>pinpoint-realtime-web</name>
 
     <properties>
         <jdk.version>17</jdk.version>

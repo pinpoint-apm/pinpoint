@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>pinpoint-testcase</artifactId>
+    <name>pinpoint-testcase</name>
     <packaging>jar</packaging>
 
     <properties>

@@ -24,6 +24,7 @@
     </parent>
     
     <artifactId>pinpoint-bootstraps</artifactId>
+    <name>pinpoint-bootstraps</name>
     <packaging>pom</packaging>
     <description>pinpoint bootstraps pom</description>
 

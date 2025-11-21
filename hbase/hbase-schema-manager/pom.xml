@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>pinpoint-hbase-schema-manager</artifactId>
+    <name>pinpoint-hbase-schema-manager</name>
     <packaging>jar</packaging>
 
     <dependencies>

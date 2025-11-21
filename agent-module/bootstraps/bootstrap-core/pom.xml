@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>pinpoint-bootstrap-core</artifactId>
+    <name>pinpoint-bootstrap-core</name>
     <packaging>jar</packaging>
 
     <dependencies>

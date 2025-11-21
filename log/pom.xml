@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>pinpoint-log-module</artifactId>
+    <name>pinpoint-log-module</name>
     <packaging>pom</packaging>
 
     <modules>

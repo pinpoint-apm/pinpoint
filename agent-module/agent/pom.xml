@@ -25,6 +25,7 @@
     </parent>
 
     <artifactId>pinpoint-agent</artifactId>
+    <name>pinpoint-agent</name>
 
     <!-- this module contains property verification tests. if we set packaging to pom,
         tests are not run. so we set it to jar even though the project will not be
