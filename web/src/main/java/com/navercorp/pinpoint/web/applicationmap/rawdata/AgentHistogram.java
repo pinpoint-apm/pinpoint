@@ -22,10 +22,13 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
+import org.eclipse.collections.api.block.procedure.primitive.LongObjectProcedure;
 import org.eclipse.collections.api.factory.primitive.LongObjectMaps;
 import org.eclipse.collections.api.map.primitive.MutableLongObjectMap;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -38,25 +41,11 @@ public class AgentHistogram {
      * to uniquely identify a host from UI, we can use things like hostname, agentId, endpoint, etc
      */
     private final Application agentId;
+    private final List<TimeHistogram> timeHistogramList;
 
-    private final MutableLongObjectMap<TimeHistogram> timeHistogramMap;
-
-    public AgentHistogram(Application agentId) {
+    AgentHistogram(Application agentId, List<TimeHistogram> timeHistogramList) {
         this.agentId = Objects.requireNonNull(agentId, "agentId");
-        this.timeHistogramMap = LongObjectMaps.mutable.of();
-    }
-
-    static AgentHistogram copyOf(AgentHistogram copyAgentHistogram) {
-        return new AgentHistogram(copyAgentHistogram);
-    }
-
-    private AgentHistogram(AgentHistogram copyAgentHistogram) {
-        Objects.requireNonNull(copyAgentHistogram, "copyAgentHistogram");
-
-        this.agentId = copyAgentHistogram.agentId;
-
-        this.timeHistogramMap = LongObjectMaps.mutable.of();
-        addTimeHistogram(copyAgentHistogram.timeHistogramMap.values());
+        this.timeHistogramList = Objects.requireNonNull(timeHistogramList, "timeHistogramList");
     }
 
     @JsonProperty("name")
@@ -76,41 +65,60 @@ public class AgentHistogram {
 
     @JsonProperty("histogram")
     public Histogram getHistogram() {
-        return Histogram.sumOf(agentId.getServiceType(), timeHistogramMap.values());
+        return Histogram.sumOf(agentId.getServiceType(), timeHistogramList);
     }
 
     @JsonIgnore
-    public Collection<TimeHistogram> getTimeHistogram() {
-        return timeHistogramMap.values();
+    public List<TimeHistogram> getTimeHistogram() {
+        return timeHistogramList;
     }
 
-    public void addTimeHistogram(TimeHistogram timeHistogram) {
-        TimeHistogram find = this.timeHistogramMap.get(timeHistogram.getTimeStamp());
-        if (find == null) {
-            find = new TimeHistogram(agentId.getServiceType(), timeHistogram.getTimeStamp());
-            this.timeHistogramMap.put(timeHistogram.getTimeStamp(), find);
+    public static Builder newBuilder(Application agentId) {
+        return new Builder(agentId);
+    }
+
+    public static class Builder {
+        private final Application agentId;
+
+        private final MutableLongObjectMap<TimeHistogram> timeHistogramMap;
+
+        Builder(Application agentId) {
+            this.agentId = Objects.requireNonNull(agentId, "agentId");
+            this.timeHistogramMap = LongObjectMaps.mutable.of();
         }
-        find.add(timeHistogram);
-    }
 
-    public void addTimeHistogram(Collection<TimeHistogram> histogramList) {
-        Objects.requireNonNull(histogramList, "histogramList");
+        public void addTimeHistogram(TimeHistogram timeHistogram) {
+            TimeHistogram find = this.timeHistogramMap.get(timeHistogram.getTimeStamp());
+            if (find == null) {
+                find = new TimeHistogram(agentId.getServiceType(), timeHistogram.getTimeStamp());
+                this.timeHistogramMap.put(timeHistogram.getTimeStamp(), find);
+            }
+            find.add(timeHistogram);
+        }
 
-        for (TimeHistogram timeHistogram : histogramList) {
-            addTimeHistogram(timeHistogram);
+        public void addTimeHistogram(Collection<TimeHistogram> histogramList) {
+            Objects.requireNonNull(histogramList, "histogramList");
+
+            for (TimeHistogram timeHistogram : histogramList) {
+                addTimeHistogram(timeHistogram);
+            }
+        }
+
+        public AgentHistogram build() {
+            List<TimeHistogram> result = new ArrayList<>(timeHistogramMap.size());
+            timeHistogramMap.forEachKeyValue((LongObjectProcedure<TimeHistogram>) (key, value) -> result.add(value));
+            result.sort(TimeHistogram.TIME_STAMP_ASC_COMPARATOR);
+            return new AgentHistogram(agentId, result);
         }
     }
-
 
 
     @Override
     public String toString() {
-        // FIXME temporarily hard-coded due to a change in the data structure
         return "AgentHistogram{" +
                 "agent='" + agentId.getName() + '\'' +
                 ", serviceType=" + agentId.getServiceType() +
-                // FIXME temporarily hard-coded due to a change in the data structure
-                ", " + timeHistogramMap +
+                ", " + timeHistogramList +
                 '}';
     }
 

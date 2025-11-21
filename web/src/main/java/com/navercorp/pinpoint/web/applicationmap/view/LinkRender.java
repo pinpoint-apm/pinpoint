@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.applicationmap.view;
 
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 
 import java.util.Objects;
@@ -27,14 +26,14 @@ public interface LinkRender {
 
     static LinkRender forServerMap() {
         return new DefaultLinkRender(
-                ApplicationTimeSeriesHistogramLinkView.detailedView(TimeHistogramFormat.V3),
+                ApplicationTimeSeriesHistogramLinkView.detailedView(TimeHistogramView.TimeseriesHistogram),
                 AgentLinkView.emptyView());
     }
 
-    static LinkRender detailedRender(TimeHistogramFormat format) {
+    static LinkRender detailedRender(TimeHistogramView timeHistogramView) {
         return new DefaultLinkRender(
-                ApplicationTimeSeriesHistogramLinkView.detailedView(format),
-                AgentLinkView.detailedView(format));
+                ApplicationTimeSeriesHistogramLinkView.detailedView(timeHistogramView),
+                AgentLinkView.detailedView(timeHistogramView));
     }
 
     record DefaultLinkRender(ApplicationTimeSeriesHistogramLinkView applicationTimeSeriesHistogramLinkView,

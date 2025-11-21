@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,7 +23,9 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +35,8 @@ import java.util.Objects;
  * @author emeroad
  */
 public class AgentHistogramList {
+    public static final Comparator<AgentHistogram> AGENT_HISTOGRAM_COMPARATOR
+            = Comparator.comparing((e) -> e.getAgentId().getName());
 
     // stores times series data per agent
     private final List<AgentHistogram> agentHistogramList;
@@ -73,7 +77,9 @@ public class AgentHistogramList {
     }
 
     public static class Builder {
-        private final Map<Application, AgentHistogram> agentHistogramMap = new HashMap<>();
+
+
+        private final Map<Application, AgentHistogram.Builder> agentHistogramMap = new HashMap<>();
 
 
         Builder() {
@@ -83,16 +89,16 @@ public class AgentHistogramList {
             Objects.requireNonNull(agentId, "agentId");
             Objects.requireNonNull(histogramList, "histogramList");
 
-            AgentHistogram agentHistogram = getAgentHistogram(agentId);
-            agentHistogram.addTimeHistogram(histogramList);
+            AgentHistogram.Builder builder = getBuilder(agentId);
+            builder.addTimeHistogram(histogramList);
         }
 
         public void addTimeHistogram(Application agentId, TimeHistogram timeHistogram) {
             Objects.requireNonNull(agentId, "agentId");
             Objects.requireNonNull(timeHistogram, "timeHistogram");
 
-            AgentHistogram agentHistogram = getAgentHistogram(agentId);
-            agentHistogram.addTimeHistogram(timeHistogram);
+            AgentHistogram.Builder builder = getBuilder(agentId);
+            builder.addTimeHistogram(timeHistogram);
         }
 
         public void addAgentHistogram(String agentName, ServiceType serviceType, Collection<TimeHistogram> histogramList) {
@@ -120,13 +126,13 @@ public class AgentHistogramList {
             ServiceType serviceType = agentHistogram.getServiceType();
 
             Application agentId = new Application(hostName, serviceType);
-            AgentHistogram findAgentHistogram = getAgentHistogram(agentId);
-            findAgentHistogram.addTimeHistogram(agentHistogram.getTimeHistogram());
+            AgentHistogram.Builder builder = getBuilder(agentId);
+            builder.addTimeHistogram(agentHistogram.getTimeHistogram());
         }
 
 
-        private AgentHistogram getAgentHistogram(Application agentId) {
-            return agentHistogramMap.computeIfAbsent(agentId, k -> new AgentHistogram(agentId));
+        private AgentHistogram.Builder getBuilder(Application agentId) {
+            return agentHistogramMap.computeIfAbsent(agentId, k -> AgentHistogram.newBuilder(agentId));
         }
 
         public AgentHistogramList build(Application application, List<ResponseTime> responseHistogramList) {
@@ -137,13 +143,22 @@ public class AgentHistogramList {
                     addAgentHistogram(agentEntry.getKey(), application.getServiceType(), timeHistogram);
                 }
             }
-            List<AgentHistogram> copy = List.copyOf(agentHistogramMap.values());
+            List<AgentHistogram> copy = build(agentHistogramMap.values());
             return new AgentHistogramList(copy);
         }
 
         public AgentHistogramList build() {
-            List<AgentHistogram> copy = List.copyOf(agentHistogramMap.values());
+            List<AgentHistogram> copy = build(agentHistogramMap.values());
             return new AgentHistogramList(copy);
+        }
+
+        private List<AgentHistogram> build(Collection<AgentHistogram.Builder> values) {
+            List<AgentHistogram> copy = new ArrayList<>(values.size());
+            for (AgentHistogram.Builder builder : values) {
+                copy.add(builder.build());
+            }
+            copy.sort(AGENT_HISTOGRAM_COMPARATOR);
+            return copy;
         }
     }
 }

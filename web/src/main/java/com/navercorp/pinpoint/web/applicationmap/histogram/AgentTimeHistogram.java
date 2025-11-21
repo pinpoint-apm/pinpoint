@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,10 +16,7 @@
 
 package com.navercorp.pinpoint.web.applicationmap.histogram;
 
-import com.google.common.collect.Ordering;
 import com.google.common.primitives.Doubles;
-import com.navercorp.pinpoint.common.server.util.json.JsonField;
-import com.navercorp.pinpoint.common.server.util.json.JsonFields;
 import com.navercorp.pinpoint.common.timeseries.array.DoubleArray;
 import com.navercorp.pinpoint.common.timeseries.point.DataPoint;
 import com.navercorp.pinpoint.common.timeseries.point.Points;
@@ -27,17 +24,13 @@ import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindows;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
-import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramBuilder;
-import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramViewModel;
-import com.navercorp.pinpoint.web.view.id.AgentNameView;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.stat.SampledApdexScore;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationStatPoint;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -54,11 +47,6 @@ public class AgentTimeHistogram {
     private static final double DEFAULT_MAX_APDEX_SCORE = -2D;
     private static final String DEFAULT_AGENT_ID = "defaultAgentId";
 
-    private static final Comparator<JsonField<AgentNameView, List<TimeHistogramViewModel>>> AGENT_NAME_COMPARATOR
-            = Comparator.comparing((jsonField) -> jsonField.name().agentName());
-
-    private static final Ordering<TimeHistogram> histogramOrdering = Ordering.from(TimeHistogram.TIME_STAMP_ASC_COMPARATOR);
-
     private final Application application;
     private final AgentHistogramList agentHistogramList;
 
@@ -72,37 +60,25 @@ public class AgentTimeHistogram {
         this.agentHistogramList = Objects.requireNonNull(agentHistogramList, "agentHistogramList");
     }
 
-    public JsonFields<AgentNameView, List<TimeHistogramViewModel>> createViewModel(TimeHistogramFormat timeHistogramFormat) {
-
-        JsonFields.Builder<AgentNameView, List<TimeHistogramViewModel>> builder = JsonFields.newBuilder();
-        builder.comparator(AGENT_NAME_COMPARATOR);
-        for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
-            Application agentId = agentHistogram.getAgentId();
-            List<TimeHistogram> timeList = histogramOrdering.sortedCopy(agentHistogram.getTimeHistogram());
-            JsonField<AgentNameView, List<TimeHistogramViewModel>> model = createAgentResponseTimeViewModel(agentId, timeList, timeHistogramFormat);
-            builder.addField(model);
-        }
-        return builder.build();
+    public Application getApplication() {
+        return application;
     }
 
+    /**
+     * @return key is agentId
+     *         value is sorted list of timeHistogram
+     */
     public Map<String, List<TimeHistogram>> getTimeHistogramMap() {
-        Map<String, List<TimeHistogram>> result = new HashMap<>();
+        Map<String, List<TimeHistogram>> result = new LinkedHashMap<>();
+
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
-            List<TimeHistogram> histogram = histogramOrdering.sortedCopy(agentHistogram.getTimeHistogram());
-            result.put(agentHistogram.getAgentId().getName(), histogram);
+            result.put(agentHistogram.getAgentId().getName(), agentHistogram.getTimeHistogram());
         }
         return result;
     }
 
-
-    private JsonField<AgentNameView, List<TimeHistogramViewModel>> createAgentResponseTimeViewModel(Application agentName, List<TimeHistogram> timeHistogramList, TimeHistogramFormat timeHistogramFormat) {
-        List<TimeHistogramViewModel> responseTimeViewModel = createResponseTimeViewModel(timeHistogramList, timeHistogramFormat);
-        return JsonField.of(AgentNameView.of(agentName), responseTimeViewModel);
-    }
-
-    private List<TimeHistogramViewModel> createResponseTimeViewModel(List<TimeHistogram> timeHistogramList, TimeHistogramFormat timeHistogramFormat) {
-        TimeHistogramBuilder builder = new TimeHistogramBuilder(timeHistogramFormat);
-        return builder.build(application, timeHistogramList);
+    public List<AgentHistogram> getAgentHistogramList() {
+        return agentHistogramList.getAgentHistogramList();
     }
 
     public List<SampledApdexScore> getSampledAgentApdexScoreList(String agentName) {
@@ -119,6 +95,14 @@ public class AgentTimeHistogram {
             }
         }
         return result;
+    }
+
+    public List<TimeHistogram> getTimeHistogram(String agentId) {
+        AgentHistogram agentHistogram = selectAgentHistogram(agentId);
+        if (agentHistogram != null) {
+            return agentHistogram.getTimeHistogram();
+        }
+        return List.of();
     }
 
     private AgentHistogram selectAgentHistogram(String agentName) {

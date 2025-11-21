@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.common.trace.HistogramSchemas;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
-import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramBuilder;
+import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramView;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramViewModel;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
@@ -54,7 +54,7 @@ public class ApplicationTimeHistogramTest {
         List<ResponseTime> responseHistogramList = createResponseTime(app);
         ApplicationTimeHistogram histogram = builder.build(responseHistogramList);
 
-        TimeHistogramBuilder builder1 = new TimeHistogramBuilder(TimeHistogramFormat.V3);
+        TimeHistogramView builder1 = TimeHistogramView.TimeseriesHistogram;
         List<TimeHistogramViewModel> viewModel = builder1.build(histogram);
         logger.debug("{}", viewModel);
         ObjectWriter writer = mapper.writer();
@@ -89,7 +89,7 @@ public class ApplicationTimeHistogramTest {
 
         ApplicationTimeHistogram histogram = builder.build(responseHistogramList);
 
-        TimeHistogramBuilder histogramBuilder = new TimeHistogramBuilder(TimeHistogramFormat.V3);
+        TimeHistogramView histogramBuilder = TimeHistogramView.TimeseriesHistogram;
         List<TimeHistogramViewModel> viewModelList = histogramBuilder.build(histogram);
         logger.debug("{}", viewModelList);
     }

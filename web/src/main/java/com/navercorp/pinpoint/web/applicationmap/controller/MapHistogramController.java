@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.ApplicationForm;
 import com.navercorp.pinpoint.web.applicationmap.controller.form.RangeForm;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
@@ -33,6 +32,7 @@ import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramSe
 import com.navercorp.pinpoint.web.applicationmap.view.LinkHistogramSummaryView;
 import com.navercorp.pinpoint.web.applicationmap.view.NodeHistogramSummaryView;
 import com.navercorp.pinpoint.web.applicationmap.view.ServerGroupListView;
+import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramView;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.util.ApplicationValidator;
@@ -110,7 +110,7 @@ public class MapHistogramController {
         final Application application = getApplication(appForm);
 
         AgentHistogramList responseTimes = responseTimeHistogramService.selectResponseTimeHistogramData(application, timeWindow);
-        return new ApplicationTimeHistogramViewModel(TimeHistogramFormat.V1, application, responseTimes);
+        return new ApplicationTimeHistogramViewModel(TimeHistogramView.ResponseTime, application, responseTimes);
     }
 
     private Range toRange(RangeForm rangeForm) {
@@ -144,10 +144,9 @@ public class MapHistogramController {
                 .build();
         final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
 
-        TimeHistogramFormat format = TimeHistogramFormat.V1;
         ServerGroupList serverGroupList = nodeHistogramSummary.getServerGroupList();
         ServerGroupListView serverGroupListView = new ServerGroupListView(serverGroupList, hyperLinkFactory);
-        return new NodeHistogramSummaryView(nodeHistogramSummary, timeWindow, serverGroupListView, format);
+        return new NodeHistogramSummaryView(nodeHistogramSummary, timeWindow, serverGroupListView, TimeHistogramView.ResponseTime);
     }
 
 
@@ -191,10 +190,9 @@ public class MapHistogramController {
 
         final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
 
-        final TimeHistogramFormat format = TimeHistogramFormat.V1;
         ServerGroupList serverGroupList = nodeHistogramSummary.getServerGroupList();
         ServerGroupListView serverGroupListView = new ServerGroupListView(serverGroupList, hyperLinkFactory);
-        return new NodeHistogramSummaryView(nodeHistogramSummary, timeWindow, serverGroupListView, format);
+        return new NodeHistogramSummaryView(nodeHistogramSummary, timeWindow, serverGroupListView, TimeHistogramView.ResponseTime);
     }
 
     private List<Application> toApplications(List<String> applicationNames, List<Short> serviceTypeCodes) {
@@ -239,8 +237,7 @@ public class MapHistogramController {
         final LinkHistogramSummary linkHistogramSummary =
                 responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, timeWindow);
 
-        TimeHistogramFormat format = TimeHistogramFormat.V1;
-        return new LinkHistogramSummaryView(linkHistogramSummary, timeWindow, format);
+        return new LinkHistogramSummaryView(linkHistogramSummary, timeWindow, TimeHistogramView.ResponseTime);
     }
 
     @Nullable

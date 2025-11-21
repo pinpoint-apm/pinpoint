@@ -24,11 +24,11 @@ import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapView;
 import com.navercorp.pinpoint.web.applicationmap.MapView;
-import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapService;
 import com.navercorp.pinpoint.web.applicationmap.service.FilteredMapServiceOption;
 import com.navercorp.pinpoint.web.applicationmap.view.LinkRender;
 import com.navercorp.pinpoint.web.applicationmap.view.NodeRender;
+import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramView;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.SpanFilters;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
@@ -156,7 +156,6 @@ public class TransactionController {
             @RequestParam(value = "useStatisticsAgentState", required = false, defaultValue = "false")
             boolean useStatisticsAgentState
     ) {
-        TimeHistogramFormat format = TimeHistogramFormat.V1;
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
         final ColumnGetCount columnGetCount = ColumnGetCount.of(callstackSelectSpansLimit);
 
@@ -166,14 +165,15 @@ public class TransactionController {
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
         final ApplicationMap map = filteredMapService.selectApplicationMap(option);
-        MapView mapView = getApplicationMap(map, TimeHistogramFormat.V1);
+        MapView mapView = getApplicationMap(map);
 
         return new TransactionServerMapViewModel(transactionId, spanId, mapView);
     }
 
-    private MapView getApplicationMap(ApplicationMap map, TimeHistogramFormat format) {
-        NodeRender nodeRender = NodeRender.detailedRender(format, hyperLinkFactory);
-        LinkRender linkRender = LinkRender.detailedRender(format);
+    private MapView getApplicationMap(ApplicationMap map) {
+        TimeHistogramView view = TimeHistogramView.ResponseTime;
+        NodeRender nodeRender = NodeRender.detailedRender(view, hyperLinkFactory);
+        LinkRender linkRender = LinkRender.detailedRender(view);
 
         return new ApplicationMapView(map, nodeRender, linkRender);
     }
