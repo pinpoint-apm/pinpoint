@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 package com.navercorp.pinpoint.web.view.transactionlist;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -35,12 +35,7 @@ public class TransactionDotMetaDataViewModel {
 
     @JsonProperty("metadata")
     public List<DotMetaDataView> getMetadata() {
-        List<DotMetaDataView> list = new ArrayList<>(dotMetaDataList.size());
-        for (DotMetaData span : dotMetaDataList) {
-            list.add(new MetaData(span));
-        }
-
-        return list;
+        return Lists.transform(dotMetaDataList, MetaData::new);
     }
 
     public static class MetaData implements DotMetaDataView {
