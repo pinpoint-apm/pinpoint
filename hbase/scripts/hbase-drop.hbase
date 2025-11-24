@@ -39,4 +39,11 @@ drop 'ApplicationMapStatisticsSelf_Ver2'
 
 drop 'HostApplicationMap_Ver2'
 
+
+drop 'MapAppSelf'
+drop 'MapAgentSelf'
+drop 'MapAppOut'
+drop 'MapAppIn'
+drop 'MapAppHost'
+
 exit

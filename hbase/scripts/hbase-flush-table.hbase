@@ -16,4 +16,10 @@ flush 'ApplicationMapStatisticsSelf_Ver2'
 
 flush 'HostApplicationMap_Ver2'
 
+flush 'MapAppSelf'
+flush 'MapAgentSelf'
+flush 'MapAppOut'
+flush 'MapAppIn'
+flush 'MapAppHost'
+
 exit

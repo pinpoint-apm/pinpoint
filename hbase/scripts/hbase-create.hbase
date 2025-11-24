@@ -20,6 +20,13 @@ create 'ApplicationMapStatisticsSelf_Ver2', { NAME => 'C', TTL => 5184000, VERSI
 
 create 'HostApplicationMap_Ver2', { NAME => 'M', TTL => 5184000, VERSIONS => 1, DATA_BLOCK_ENCODING => 'PREFIX' }, {SPLITS=>["\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00","\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00","\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"]}
 
+create 'MapAppSelf',   { NAME => 'C', TTL => 5184000, VERSIONS => 1, DATA_BLOCK_ENCODING => 'PREFIX' }, {NUMREGIONS => 256, SPLITALGO => 'UniformSplit'}
+create 'MapAgentSelf', { NAME => 'C', TTL => 5184000, VERSIONS => 1, DATA_BLOCK_ENCODING => 'PREFIX' }, {NUMREGIONS => 256, SPLITALGO => 'UniformSplit'}
+create 'MapAppOut',    { NAME => 'C', TTL => 5184000, VERSIONS => 1, DATA_BLOCK_ENCODING => 'PREFIX' }, {NUMREGIONS => 256, SPLITALGO => 'UniformSplit'}
+create 'MapAppIn',     { NAME => 'C', TTL => 5184000, VERSIONS => 1, DATA_BLOCK_ENCODING => 'PREFIX' }, {NUMREGIONS => 256, SPLITALGO => 'UniformSplit'}
+create 'MapAppHost',   { NAME => 'C', TTL => 5184000, VERSIONS => 1, DATA_BLOCK_ENCODING => 'PREFIX' }, {NUMREGIONS => 256, SPLITALGO => 'UniformSplit'}
+
+
 =begin
 # The tables below are not currently in use.
 
