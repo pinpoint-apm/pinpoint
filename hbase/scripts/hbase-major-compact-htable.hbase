@@ -19,4 +19,10 @@ major_compact 'ApplicationMapStatisticsSelf_Ver2'
 
 major_compact 'HostApplicationMap_Ver2'
 
+major_compact 'MapAppSelf'
+major_compact 'MapAgentSelf'
+major_compact 'MapAppOut'
+major_compact 'MapAppIn'
+major_compact 'MapAppHost'
+
 exit
