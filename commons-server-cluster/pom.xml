@@ -25,6 +25,7 @@
     </parent>
 
     <artifactId>pinpoint-commons-server-cluster</artifactId>
+    <name>pinpoint-commons-server-cluster</name>
     <packaging>jar</packaging>
 
     <properties>

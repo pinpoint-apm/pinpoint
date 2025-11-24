@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>hbase-docker</artifactId>
+    <name>hbase-docker</name>
 
     <properties>
         <jdk.version>17</jdk.version>

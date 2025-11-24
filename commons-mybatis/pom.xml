@@ -25,6 +25,7 @@
     </parent>
 
     <artifactId>pinpoint-commons-mybatis</artifactId>
+    <name>pinpoint-commons-mybatis</name>
     <packaging>jar</packaging>
 
     <properties>

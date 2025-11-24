@@ -27,6 +27,7 @@
     </parent>
 
     <artifactId>pinpoint-profiler-optional-jdk9</artifactId>
+    <name>pinpoint-profiler-optional-jdk9</name>
     <packaging>jar</packaging>
     <description>pinpoint profiler optional package for jdk 9</description>
 

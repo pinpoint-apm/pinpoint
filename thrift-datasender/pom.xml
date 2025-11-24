@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>pinpoint-thrift-datasender</artifactId>
+    <name>pinpoint-thrift-datasender</name>
     <packaging>jar</packaging>
     <description>pinpoint profiler thrift(deprecated)</description>
 
