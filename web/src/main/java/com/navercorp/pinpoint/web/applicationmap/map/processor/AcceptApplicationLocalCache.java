@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.navercorp.pinpoint.web.applicationmap.map.processor;
@@ -20,10 +19,8 @@ package com.navercorp.pinpoint.web.applicationmap.map.processor;
 import com.navercorp.pinpoint.web.applicationmap.map.AcceptApplication;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.util.CollectionUtils;
+import org.jspecify.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -34,38 +31,46 @@ import java.util.concurrent.ConcurrentMap;
 class AcceptApplicationLocalCache {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
+    private final boolean isDebugEnabled = logger.isDebugEnabled();
 
-    private final ConcurrentMap<RpcApplication, Set<AcceptApplication>> acceptApplicationLocalCache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<RpcApplication, AcceptApplicationSet> acceptApplicationLocalCache = new ConcurrentHashMap<>();
 
-    public Set<AcceptApplication> get(RpcApplication findKey) {
-        final Set<AcceptApplication> hit = this.acceptApplicationLocalCache.get(findKey);
+    @Nullable
+    public AcceptApplicationSet get(RpcApplication findKey) {
+        final AcceptApplicationSet hit = this.acceptApplicationLocalCache.get(findKey);
         if (hit != null) {
-            logger.debug("acceptApplicationLocalCache hit {}:{}", findKey, hit);
+            if (isDebugEnabled) {
+                logger.debug("acceptApplicationLocalCache hit {}:{}", findKey, hit);
+            }
             return hit;
         }
-        logger.debug("acceptApplicationLocalCache miss {}", findKey);
-        return Collections.emptySet();
+        if (isDebugEnabled) {
+            logger.debug("acceptApplicationLocalCache miss {}", findKey);
+        }
+        return null;
     }
 
-    public void put(RpcApplication findKey, Set<AcceptApplication> acceptApplicationSet) {
-        if (CollectionUtils.isEmpty(acceptApplicationSet)) {
+    public void put(RpcApplication findKey, AcceptApplicationSet acceptApplicationSet) {
+        if (AcceptApplicationSet.isEmpty(acceptApplicationSet)) {
             // initialize for empty value
             computeIfAbsent(findKey);
             return;
         }
-        logger.debug("findAcceptApplication:{}", acceptApplicationSet);
+        if (isDebugEnabled) {
+            logger.debug("findAcceptApplication:{}", acceptApplicationSet);
+        }
         // build cache
         // set AcceptApplication for each url
         for (AcceptApplication acceptApplication : acceptApplicationSet) {
             // acceptApplicationSet data contains the url and the accept node's applicationName.
             // we need to recreate the key set based on the url and the calling application.
             RpcApplication newKey = new RpcApplication(acceptApplication.getHost(), findKey.getApplication());
-            Set<AcceptApplication> findSet = computeIfAbsent(newKey);
+            AcceptApplicationSet findSet = computeIfAbsent(newKey);
             findSet.add(acceptApplication);
         }
     }
 
-    private Set<AcceptApplication> computeIfAbsent(RpcApplication key) {
-        return this.acceptApplicationLocalCache.computeIfAbsent(key, rpcApplication -> ConcurrentHashMap.newKeySet());
+    private AcceptApplicationSet computeIfAbsent(RpcApplication key) {
+        return this.acceptApplicationLocalCache.computeIfAbsent(key, rpcApplication -> new AcceptApplicationSet());
     }
 }

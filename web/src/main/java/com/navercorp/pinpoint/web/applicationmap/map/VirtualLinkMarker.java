@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,11 +12,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.navercorp.pinpoint.web.applicationmap.map;
 
+import com.navercorp.pinpoint.web.applicationmap.map.processor.AcceptApplicationSet;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
@@ -41,7 +41,7 @@ public class VirtualLinkMarker {
         return Collections.unmodifiableSet(virtualLinkDataMarker);
     }
 
-    public List<LinkData> createVirtualLink(LinkData linkData, Application toApplication, Set<AcceptApplication> acceptApplicationList) {
+    public List<LinkData> createVirtualLink(LinkData linkData, Application toApplication, AcceptApplicationSet acceptApplicationList) {
         logger.info("one to N replaced. node:{}->host:{} accept:{}", linkData.getFromApplication(), toApplication.getName(), acceptApplicationList);
         List<LinkData> virtualLinkDataList = new ArrayList<>();
         logger.debug("acceptApplicationList:{}", acceptApplicationList);
