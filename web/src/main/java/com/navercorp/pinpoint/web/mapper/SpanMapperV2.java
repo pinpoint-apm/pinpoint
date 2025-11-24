@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.common.buffer.CachedStringAllocator;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.buffer.StringAllocator;
 import com.navercorp.pinpoint.common.buffer.StringCacheableBuffer;
+import com.navercorp.pinpoint.common.cache.Cache;
+import com.navercorp.pinpoint.common.cache.LRUCache;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
@@ -37,7 +39,6 @@ import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingContext;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.common.util.LRUCache;
 import com.navercorp.pinpoint.io.SpanVersion;
 import org.apache.commons.lang3.Strings;
 import org.apache.hadoop.hbase.Cell;
@@ -51,7 +52,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -154,7 +154,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
         public BufferFactory(int cacheSize) {
             if (cacheSize > 0) {
-                Map<ByteBuffer, String> lruCache = new LRUCache<>(cacheSize);
+                Cache<ByteBuffer, String> lruCache = new LRUCache<>(cacheSize);
                 this.stringAllocator = new CachedStringAllocator(lruCache);
             } else {
                 this.stringAllocator = null;
