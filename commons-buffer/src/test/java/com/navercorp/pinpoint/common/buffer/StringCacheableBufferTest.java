@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.common.buffer;
 
-import com.navercorp.pinpoint.common.util.LRUCache;
+import com.navercorp.pinpoint.common.cache.LRUCache;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
