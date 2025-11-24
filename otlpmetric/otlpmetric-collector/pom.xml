@@ -10,6 +10,8 @@
     </parent>
 
     <artifactId>pinpoint-otlpmetric-collector</artifactId>
+    <name>pinpoint-otlpmetric-collector</name>
+
     <properties>
         <jdk.version>17</jdk.version>
         <jdk.home>${env.JAVA_17_HOME}</jdk.home>

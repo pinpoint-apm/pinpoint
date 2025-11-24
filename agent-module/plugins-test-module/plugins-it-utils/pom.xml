@@ -25,6 +25,7 @@
     </parent>
 
     <artifactId>pinpoint-plugin-it-utils</artifactId>
+    <name>pinpoint-plugin-it-utils</name>
 
     <packaging>jar</packaging>
 

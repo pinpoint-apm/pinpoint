@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>pinpoint-profiler-logging</artifactId>
+    <name>pinpoint-profiler-logging</name>
     <packaging>jar</packaging>
     <description>pinpoint profiler logging system</description>
 

@@ -10,6 +10,8 @@
     </parent>
 
     <artifactId>pinpoint-otlpmetric-web</artifactId>
+    <name>pinpoint-otlpmetric-web</name>
+
     <properties>
         <jdk.version>17</jdk.version>
         <jdk.home>${env.JAVA_17_HOME}</jdk.home>

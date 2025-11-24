@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>pinpoint-otlpmetric-common</artifactId>
+    <name>pinpoint-otlpmetric-common</name>
 
     <properties>
         <jdk.version>17</jdk.version>

@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>pinpoint-log-web</artifactId>
+    <name>pinpoint-log-web</name>
 
     <properties>
         <jdk.version>17</jdk.version>

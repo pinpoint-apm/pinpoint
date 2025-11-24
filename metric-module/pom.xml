@@ -25,6 +25,7 @@
     </parent>
     
     <artifactId>pinpoint-metric-module</artifactId>
+    <name>pinpoint-metric-module</name>
     <packaging>pom</packaging>
     <description>pinpoint metric-module pom</description>
 

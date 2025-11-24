@@ -32,6 +32,7 @@
     </properties>
 
     <artifactId>pinpoint-bootstrap-java15</artifactId>
+    <name>pinpoint-bootstrap-java15</name>
     <packaging>jar</packaging>
 
     <dependencies>
