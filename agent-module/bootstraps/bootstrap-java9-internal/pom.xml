@@ -32,6 +32,7 @@
     </properties>
 
     <artifactId>pinpoint-bootstrap-java9-internal</artifactId>
+    <name>pinpoint-bootstrap-java9-internal</name>
     <packaging>jar</packaging>
 
     <dependencies>

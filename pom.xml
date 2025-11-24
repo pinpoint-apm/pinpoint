@@ -2156,6 +2156,7 @@
                 <spring.profiles.active>release</spring.profiles.active>
                 <maven.source.skip>false</maven.source.skip>
                 <maven.javadoc.skip>false</maven.javadoc.skip>
+                <spring-boot.repackage.skip>true</spring-boot.repackage.skip>
             </properties>
             <build>
                 <plugins>
@@ -2181,15 +2182,13 @@
                         </configuration>
                     </plugin>
                     <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.13</version>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.7.0</version>
                         <extensions>true</extensions>
                         <configuration>
-                            <serverId>ossrh</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
-                            <stagingProgressTimeoutMinutes>30</stagingProgressTimeoutMinutes>
+                            <publishingServerId>central</publishingServerId>
+                            <autoPublish>false</autoPublish>
                         </configuration>
                     </plugin>
                 </plugins>

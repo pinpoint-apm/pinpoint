@@ -26,6 +26,7 @@
     </parent>
 
     <artifactId>pinpoint-agent-plugins-parent</artifactId>
+    <name>pinpoint-agent-plugins-parent</name>
     <packaging>pom</packaging>
 
 

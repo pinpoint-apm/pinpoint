@@ -27,6 +27,7 @@
 
 
     <artifactId>pinpoint-hbase-schema</artifactId>
+    <name>pinpoint-hbase-schema</name>
     <packaging>jar</packaging>
 
     <dependencies>

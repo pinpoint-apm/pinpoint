@@ -25,6 +25,7 @@
     </parent>
 
     <artifactId>pinpoint-webhook</artifactId>
+    <name>pinpoint-webhook</name>
     <packaging>jar</packaging>
 
     <properties>

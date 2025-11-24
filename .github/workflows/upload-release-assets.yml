@@ -80,5 +80,3 @@ jobs:
             **/pinpoint-collector-starter-*-exec.jar
             **/pinpoint-web-*-exec.jar
             **/pinpoint-web-starter-*-exec.jar
-        env:
-          GITHUB_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
