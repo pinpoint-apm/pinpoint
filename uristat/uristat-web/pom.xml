@@ -10,6 +10,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>pinpoint-uristat-web</artifactId>
+    <name>pinpoint-uristat-web</name>
+
     <dependencies>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>

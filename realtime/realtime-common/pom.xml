@@ -11,6 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>pinpoint-realtime-common</artifactId>
+    <name>pinpoint-realtime-common</name>
 
     <properties>
         <jdk.version>17</jdk.version>
