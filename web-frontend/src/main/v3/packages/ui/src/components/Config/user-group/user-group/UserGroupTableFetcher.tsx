@@ -28,7 +28,7 @@ export const UserGroupTableFetcher = ({
   const [query, setQuery] = React.useState('');
   const queryParams = query ? { userGroupId: query } : userId ? { userId } : {};
   const { data, refetch } = useGetUserGroup(queryParams);
-  const myUserGroupListRef = React.useRef<ConfigUserGroup.UserGroup[]>();
+  const myUserGroupListRef = React.useRef<ConfigUserGroup.UserGroup[]>([]);
   const myUserGroupList = query ? myUserGroupListRef.current : data;
   const { isMutating, onRemove } = useDeleteUserGroup({
     onCompleteRemove: () => {
@@ -62,7 +62,7 @@ export const UserGroupTableFetcher = ({
       return;
     }
 
-    myUserGroupListRef.current = data;
+    myUserGroupListRef.current = data || [];
   }, [data]);
 
   return (

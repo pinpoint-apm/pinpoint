@@ -292,7 +292,7 @@ export const FlameGraph = <T,>({
                       <FlameNode
                         scrollLeft={scrollLeft}
                         node={node}
-                        svgRef={svgRef}
+                        svgRef={svgRef as React.RefObject<SVGSVGElement>}
                         customNodeStyle={customNodeStyle}
                         customTextStyle={customTextStyle}
                         onClickNode={onClickNode}

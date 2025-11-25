@@ -12,7 +12,7 @@ export interface HostSearchListProps {
 }
 
 export const HostSearchList = ({ className, selectedHost, onClickHost }: HostSearchListProps) => {
-  const listContainerRef = React.useRef(null);
+  const listContainerRef = React.useRef<HTMLDivElement>(null);
   const height = useHeightToBottom({ ref: listContainerRef, offset: 0 });
 
   return (

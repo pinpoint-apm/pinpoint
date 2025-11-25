@@ -31,7 +31,7 @@ export const Popper = ({
   ...props
 }: PopperProps) => {
   const referenceRef = React.useRef<HTMLDivElement>(null);
-  const popperRef = React.useRef(null);
+  const popperRef = React.useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = React.useState(shouldAlwaysShow);
 
   useCaptureKeydown((event: KeyboardEvent) => {
@@ -42,7 +42,7 @@ export const Popper = ({
     }
   });
 
-  useOnClickOutside(referenceRef, () => {
+  useOnClickOutside(referenceRef as React.RefObject<HTMLElement>, () => {
     if (!shouldAlwaysShow) setOpen(false);
   });
 
@@ -69,7 +69,7 @@ export const Popper = ({
           React.cloneElement(children, {
             ref: mergeRefs([ref, referenceRef]),
             onClick: handleClickTarget,
-          })
+          } as Partial<{ ref: React.Ref<HTMLElement>; onClick: () => void }>)
         }
       </Reference>
       {open && (

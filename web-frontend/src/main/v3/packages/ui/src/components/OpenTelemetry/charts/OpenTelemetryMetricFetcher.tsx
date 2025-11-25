@@ -32,8 +32,8 @@ export const OpenTelemetryMetricFetcher = ({
   const { t } = useTranslation();
   const { mutate, data, error, isPending } = usePostOtlpMetricData();
   const { dateRange, agentId } = useOpenTelemetrySearchParameters();
-  const prevDateRange = React.useRef<{ from: Date; to: Date }>();
-  const prevAgentId = React.useRef<string>();
+  const prevDateRange = React.useRef<{ from: Date; to: Date } | undefined>(undefined);
+  const prevAgentId = React.useRef<string | undefined>(undefined);
   const { ref, inView } = useInView({
     initialInView: false,
     threshold: 0.1,
@@ -78,9 +78,9 @@ export const OpenTelemetryMetricFetcher = ({
 
     // Even if inView changes, if dateRange and agentId are the same value, no new call is made.
     if (
-      prevDateRange.current?.from === dateRange?.from &&
-      prevDateRange.current?.to === dateRange?.to &&
-      prevAgentId.current === agentId
+      prevDateRange?.current?.from === dateRange?.from &&
+      prevDateRange?.current?.to === dateRange?.to &&
+      prevAgentId?.current === agentId
     ) {
       return;
     }

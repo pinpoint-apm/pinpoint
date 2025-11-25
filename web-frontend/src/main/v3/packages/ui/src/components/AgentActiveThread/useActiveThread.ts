@@ -29,13 +29,13 @@ export interface ActiveThradStatusWithTotal {
 }
 
 export const useActiveThread = () => {
-  const prevActiveThreadCountsWithTotal = React.useRef<ActiveThradStatusWithTotal>();
+  const prevActiveThreadCountsWithTotal = React.useRef<ActiveThradStatusWithTotal | null>(null);
   const [activeThreadCounts, setActiveThreadCounts] = React.useState<AgentActiveThread.Response>();
   const [activeThreadCountsWithTotal, setActiveThreadCountsWithTotal] =
     React.useState<ActiveThradStatusWithTotal>();
 
   React.useEffect(() => {
-    const prevThreadCounts = prevActiveThreadCountsWithTotal.current;
+    const prevThreadCounts = prevActiveThreadCountsWithTotal?.current;
 
     const newTimestamp = activeThreadCounts?.result?.timeStamp;
     const nweThreadCounts = activeThreadCounts?.result?.activeThreadCounts || {};
@@ -93,7 +93,7 @@ export const useActiveThread = () => {
       },
     };
 
-    if (prevActiveThreadCountsWithTotal.current) {
+    if (prevActiveThreadCountsWithTotal?.current) {
       prevActiveThreadCountsWithTotal.current = threadWithTotal as ActiveThradStatusWithTotal;
     }
     setActiveThreadCountsWithTotal(threadWithTotal as ActiveThradStatusWithTotal);
