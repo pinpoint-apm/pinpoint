@@ -121,10 +121,12 @@ public class TransactionCallTreeViewModel {
     @JsonProperty("callStack")
     public List<CallStack> getCallStack() {
 
-        List<CallStack> list = new ArrayList<>();
+        List<Record> recordList = recordSet.getRecordList();
+
+        List<CallStack> list = new ArrayList<>(recordList.size());
         boolean first = true;
         long barRatio = 0;
-        for (Record record : recordSet.getRecordList()) {
+        for (Record record : recordList) {
             if (first) {
                 if (record.isMethod()) {
                     long begin = record.getBegin();
