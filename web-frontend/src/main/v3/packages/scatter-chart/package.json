@@ -25,6 +25,7 @@
     "chromatic": "npx chromatic --project-token=8e9829505277"
   },
   "dependencies": {
+    "@testing-library/dom": "^10.4.1",
     "color": "^4.2.3",
     "html2canvas": "^1.4.1",
     "lodash.clonedeep": "^4.5.0",
