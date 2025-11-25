@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ public class SpanDecoderV0 implements SpanDecoder {
         spanChunk.setCollectorAcceptTime(decodingContext.getCollectorAcceptedTime());
 
 
-        readQualifier(spanChunk, qualifier);
+        readQualifier(spanChunk, qualifier, decodingContext);
 
         readSpanChunkValue(columnValue, spanChunk, decodingContext);
 
@@ -86,7 +86,7 @@ public class SpanDecoderV0 implements SpanDecoder {
         span.setTransactionId(transactionId);
         span.setCollectorAcceptTime(decodingContext.getCollectorAcceptedTime());
 
-        readQualifier(span, qualifier);
+        readQualifier(span, qualifier, decodingContext);
 
         readSpanValue(columnValue, span, decodingContext);
 
@@ -372,11 +372,11 @@ public class SpanDecoderV0 implements SpanDecoder {
     }
 
 
-    private void readQualifier(BasicSpan basicSpan, Buffer buffer) {
-        String applicationName = buffer.readPrefixedString();
+    private void readQualifier(BasicSpan basicSpan, Buffer buffer, SpanDecodingContext decodingContext) {
+        String applicationName = decodingContext.encoding(buffer.readPrefixedBytes());;
         basicSpan.setApplicationName(applicationName);
 
-        String agentId = buffer.readPrefixedString();
+        String agentId = decodingContext.encoding(buffer.readPrefixedBytes());
         basicSpan.setAgentId(agentId);
 
         long agentStartTime = buffer.readVLong();

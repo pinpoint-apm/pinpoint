@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
 import com.google.common.collect.Lists;
@@ -131,8 +147,7 @@ public class SpanEncoderTest {
         Buffer qualifier = wrapBuffer(spanEncoder.encodeSpanQualifier(encodingContext));
         Buffer column = wrapBuffer(spanEncoder.encodeSpanColumnValue(encodingContext));
 
-        SpanDecodingContext decodingContext = new SpanDecodingContext();
-        decodingContext.setTransactionId(spanBo.getTransactionId());
+        SpanDecodingContext decodingContext = new SpanDecodingContext(spanBo.getTransactionId());
         decodingContext.setCollectorAcceptedTime(spanBo.getCollectorAcceptTime());
 
         SpanBo decode = (SpanBo) spanDecoder.decode(qualifier, column, decodingContext);
@@ -166,8 +181,7 @@ public class SpanEncoderTest {
         Buffer qualifier = wrapBuffer(spanEncoder.encodeSpanChunkQualifier(encodingContext));
         Buffer column = wrapBuffer(spanEncoder.encodeSpanChunkColumnValue(encodingContext));
 
-        SpanDecodingContext decodingContext = new SpanDecodingContext();
-        decodingContext.setTransactionId(spanChunkBo.getTransactionId());
+        SpanDecodingContext decodingContext = new SpanDecodingContext(spanChunkBo.getTransactionId());
         decodingContext.setCollectorAcceptedTime(spanChunkBo.getCollectorAcceptTime());
 
         SpanChunkBo decode = (SpanChunkBo) spanDecoder.decode(qualifier, column, decodingContext);
