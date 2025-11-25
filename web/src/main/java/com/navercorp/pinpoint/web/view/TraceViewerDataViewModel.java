@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 import org.apache.commons.lang3.Strings;
 import org.eclipse.collections.api.factory.primitive.IntObjectMaps;
 import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -125,16 +126,26 @@ public class TraceViewerDataViewModel {
     }
 
     private void addToInvisibleRecords(Record record) {
-        Integer nonZeroAncestorId;
-        do {
-            nonZeroAncestorId = invisibleRecords.get(record.getParentId());
-        } while (invisibleRecords.get(nonZeroAncestorId) != null);
+        Integer nonZeroAncestorId = findAncestorId(record.getParentId());
 
         if (nonZeroAncestorId == null) {
             invisibleRecords.put(record.getId(), record.getParentId());
         } else {
             invisibleRecords.put(record.getId(), nonZeroAncestorId);
         }
+    }
+
+    @Nullable
+    private Integer findAncestorId(int parentId) {
+        Integer nonZeroAncestorId;
+        do {
+            nonZeroAncestorId = invisibleRecords.get(parentId);
+            if (nonZeroAncestorId == null) {
+                break;
+            }
+        } while (invisibleRecords.get(nonZeroAncestorId) != null);
+
+        return nonZeroAncestorId;
     }
 
     private void addQueryInfo(Record prev, Record record) {
