@@ -72,12 +72,11 @@ public class PinotOtlpMetricCollectorService implements OtlpMetricCollectorServi
 
             Map<String, String> tags = dataPoint.getTags();
 
-            List<String> tagList = tags.entrySet().stream().filter((e) -> {
-                String key = e.getKey().toLowerCase();
-                return (!key.equals(OtlpResourceAttributes.KEY_SERVICE_NAME) && !key.equals(OtlpResourceAttributes.KEY_SERVICE_NAMESPACE) && !key.equals(OtlpResourceAttributes.KEY_PINPOINT_AGENTID));
-            }).map((e) -> {
-                return e.getKey() + ":" + e.getValue();
-            }).collect(Collectors.toList());
+            List<String> tagList = tags.entrySet().stream().map((e) -> {
+                                                                    return e.getKey() + ":" + e.getValue();
+                                                                }
+                                                               )
+                                                            .collect(Collectors.toList());
 
             String rawTags = String.join(",", tagList);
             PinotOtlpMetricMetadata metadata = new PinotOtlpMetricMetadata(DEFAULT_SERVICE_NAME, applicationName, agentId,
