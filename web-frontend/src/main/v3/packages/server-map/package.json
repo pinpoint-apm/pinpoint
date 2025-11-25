@@ -33,7 +33,7 @@
     "@storybook/builder-vite": "^9.1.8",
     "@storybook/react-vite": "^9.1.8",
     "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^13.3.0",
+    "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.2.1",
     "@types/cytoscape": "^3.21.9",
     "@types/cytoscape-dagre": "^2.3.3",
