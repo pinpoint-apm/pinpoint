@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.collector.mapper;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.otlp.collector.model.OtlpMetricData;
 import com.navercorp.pinpoint.otlp.collector.model.OtlpResourceAttributes;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
@@ -25,9 +26,9 @@ import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Component
 public class OtlpMetricMapper {
@@ -49,34 +50,25 @@ public class OtlpMetricMapper {
         this.tenantId = tenantId;
     }
 
-    public OtlpMetricData map(Metric metric, Map<String, String> commonTags) {
+    public OtlpMetricData map(Metric metric, Map<String, String> tags) {
         if (metric == null) {
             return null;
         }
 
         final OtlpMetricData.Builder builder = OtlpMetricData.newBuilder();
+
+        builder.setTenantId(tenantId);
+        builder.setUnit(metric.getUnit());
+
         try {
-            parseCommonTags(builder, commonTags);
+            Map<String, String> commonTags = parseCommonTags(builder, tags);
+            this.map(builder, metric, commonTags);
         } catch (OtlpMappingException ex) {
             logger.info("Failed saving OTLP metric {}: {}", metric.getName(), ex.getMessage());
             return null;
         }
 
-        Map<String, String> filteredTags = removeTagsByKeyword(commonTags);
-
-        builder.setTenantId(tenantId);
-        builder.setUnit(metric.getUnit());
-
-        this.map(builder, metric, filteredTags);
         return builder.build();
-    }
-
-    private Map<String, String> removeTagsByKeyword(Map<String, String> commonTags) {
-        Map<String, String> filteredTags = commonTags.entrySet().stream()
-                .filter(entry -> !entry.getKey().contains(OtlpResourceAttributes.KEY_PINPOINT_AGENTID))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-        return filteredTags;
     }
 
     private void map(OtlpMetricData.Builder builder, Metric metric, Map<String, String> commonTags) {
@@ -85,23 +77,27 @@ public class OtlpMetricMapper {
         }
     }
 
-    private void parseCommonTags(OtlpMetricData.Builder builder, Map<String, String> commonTags) {
-        String serviceName = commonTags.get(OtlpResourceAttributes.KEY_SERVICE_NAME);
-        if (serviceName == null) {
+    private Map<String, String> parseCommonTags(OtlpMetricData.Builder builder, Map<String, String> tags) {
+        Map<String, String> commonTags = new HashMap<>(tags);
+
+        String serviceName = commonTags.remove(OtlpResourceAttributes.KEY_SERVICE_NAME);
+        if (StringUtils.isEmpty(serviceName)) {
             throw new OtlpMappingException("Resource attribute `service.name` is required to save OTLP metrics to Pinpoint.");
         }
         builder.setServiceName(serviceName);
 
-        String agentId= commonTags.get(OtlpResourceAttributes.KEY_PINPOINT_AGENTID);
-        if (agentId == null) {
+        String agentId = commonTags.remove(OtlpResourceAttributes.KEY_PINPOINT_AGENTID);
+        if (StringUtils.isEmpty(serviceName)) {
             throw new OtlpMappingException("Resource attribute `pinpoint.agentId` is required to save OTLP metrics to Pinpoint");
         }
 
         builder.setAgentId(agentId);
 
-        String version = commonTags.get(OtlpResourceAttributes.KEY_PINPOINT_METRIC_VERSION);
-        if (version != null) {
+        String version = commonTags.remove(OtlpResourceAttributes.KEY_PINPOINT_METRIC_VERSION);
+        if (StringUtils.isEmpty(version) == false) {
             builder.setVersion(version);
         }
+
+        return commonTags;
     }
 }
