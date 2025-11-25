@@ -24,7 +24,7 @@ export const ScatterSetting = ({
   const Y_MAX = 'yMax';
   const Y_MIN_ID = `${SCATTER_SETTING_BOX_ID}_${Y_MIN}`;
   const Y_MAX_ID = `${SCATTER_SETTING_BOX_ID}_${Y_MAX}`;
-  const containerRef = React.useRef(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
   const {
     register,
     getValues,
@@ -45,7 +45,7 @@ export const ScatterSetting = ({
     onClose?.();
   };
 
-  useOnClickOutside(containerRef, handleClickClose);
+  useOnClickOutside(containerRef as React.RefObject<HTMLElement>, handleClickClose);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {

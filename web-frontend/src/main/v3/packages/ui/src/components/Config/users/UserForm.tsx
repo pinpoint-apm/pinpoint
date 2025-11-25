@@ -97,7 +97,7 @@ export const UserForm = ({
     };
   }, [userInfo]);
   const { t } = useTranslation();
-  const userCountryDialCode = React.useRef<string>();
+  const userCountryDialCode = React.useRef<string | undefined>(undefined);
   const phoneUtil = React.useMemo(() => PhoneNumberUtil.getInstance(), []);
   const isPhoneValid = React.useCallback((phone: string) => {
     if (extractStringAfterSubstring(phone, userCountryDialCode?.current) === '') {

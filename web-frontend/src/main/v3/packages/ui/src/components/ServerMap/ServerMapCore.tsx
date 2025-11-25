@@ -66,9 +66,9 @@ export const ServerMapCore = ({
 }: ServerMapCoreProps) => {
   const isEmpty = data?.applicationMapData?.nodeDataArray.length === 0;
   const { t } = useTranslation();
-  const containerRef = React.useRef(null);
-  const rightClickTargetRef = React.useRef<Node | Edge>();
-  const hoverNodeRef = React.useRef<Node>();
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const rightClickTargetRef = React.useRef<Node | Edge | undefined>(undefined);
+  const hoverNodeRef = React.useRef<Node | undefined>(undefined);
   const [popperContentType, setPopperContentType] = React.useState<SERVERMAP_MENU_CONTENT_TYPE>();
   const [popperPosition, setPopperPosition] = React.useState<
     Partial<{
@@ -79,11 +79,13 @@ export const ServerMapCore = ({
     x: 0,
     y: 0,
   });
-  const allServiceTypes = React.useRef<string[]>();
-  const popperContentRef = React.useRef(null);
+  const allServiceTypes = React.useRef<string[] | undefined>(undefined);
+  const popperContentRef = React.useRef<HTMLDivElement>(null);
   const [unCheckedServiceTypes, setUnCheckedServiceTypes] = React.useState<string[]>([]);
   const [checkedServiceTypes, setCheckedServiceTypes] = React.useState<string[]>([]);
-  const cyRef = React.useRef<Parameters<NonNullable<ServerMapComponentProps['cy']>>[0]>();
+  const cyRef = React.useRef<Parameters<NonNullable<ServerMapComponentProps['cy']>>[0] | undefined>(
+    undefined,
+  );
   const [serverMapData, setServerMapData] = React.useState<{
     nodes: Node[];
     edges: Edge[];
@@ -92,7 +94,7 @@ export const ServerMapCore = ({
     edges: [],
   });
 
-  useOnClickOutside(popperContentRef, () => {
+  useOnClickOutside(popperContentRef as React.RefObject<HTMLDivElement>, () => {
     setPopperContentType(undefined);
   });
 

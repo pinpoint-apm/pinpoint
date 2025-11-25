@@ -2,7 +2,7 @@ import React from 'react';
 import { throttle } from 'lodash';
 
 interface UseHeightToBottomProps {
-  ref: React.RefObject<HTMLElement>;
+  ref: React.RefObject<HTMLElement | null>;
   offset?: number;
   deps?: unknown[];
   disabled?: boolean;
