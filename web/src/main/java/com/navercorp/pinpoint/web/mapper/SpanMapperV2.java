@@ -114,7 +114,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
                 final Buffer columnValue = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
 
                 spanDecoder = resolveDecoder(columnValue);
-                final Object decodeObject = spanDecoder.decode(qualifier, columnValue, decodingContext);
+                final BasicSpan decodeObject = spanDecoder.decode(qualifier, columnValue, decodingContext);
                 if (decodeObject instanceof SpanBo spanBo) {
                     if (logger.isTraceEnabled()) {
                         logger.trace("spanBo:{}", spanBo);
