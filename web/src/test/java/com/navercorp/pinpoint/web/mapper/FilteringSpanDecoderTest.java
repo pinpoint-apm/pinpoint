@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,27 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
 import com.navercorp.pinpoint.web.dao.hbase.SpanQuery;
 import com.navercorp.pinpoint.web.dao.hbase.SpanQueryBuilder;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.SpanHint;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+
+import static org.mockito.ArgumentMatchers.any;
 
 /**
  * @author Taejin Koo
@@ -74,8 +81,17 @@ public class FilteringSpanDecoderTest {
 
         FilteringSpanDecoder filteringSpanDecoder = new FilteringSpanDecoder(mockSpanDecoder, query.getSpanFilter());
 
-        Object result = filteringSpanDecoder.decode(null, null, null);
+        Buffer buffer = newSpanBuffer();
+
+        BasicSpan result = filteringSpanDecoder.decode(buffer, null, null);
         Assertions.assertNull(result);
+    }
+
+    private @NotNull Buffer newSpanBuffer() {
+        Buffer buffer = new FixedBuffer(1);
+        buffer.putByte(SpanEncoder.TYPE_SPAN);
+        buffer.setOffset(0);
+        return buffer;
     }
 
     @Test
@@ -89,7 +105,8 @@ public class FilteringSpanDecoderTest {
 
         FilteringSpanDecoder filteringSpanDecoder = new FilteringSpanDecoder(mockSpanDecoder, query.getSpanFilter());
 
-        Object result = filteringSpanDecoder.decode(null, null, null);
+        Buffer buffer = newSpanBuffer();
+        BasicSpan result = filteringSpanDecoder.decode(buffer, null, null);
         Assertions.assertNotNull(result);
     }
 
@@ -105,7 +122,8 @@ public class FilteringSpanDecoderTest {
 
         FilteringSpanDecoder filteringSpanDecoder = new FilteringSpanDecoder(mockSpanDecoder, query.getSpanFilter());
 
-        Object result = filteringSpanDecoder.decode(null, null, null);
+        Buffer buffer = newSpanBuffer();
+        BasicSpan result = filteringSpanDecoder.decode(buffer, null, null);
         Assertions.assertNull(result);
     }
 
@@ -121,7 +139,8 @@ public class FilteringSpanDecoderTest {
 
         FilteringSpanDecoder filteringSpanDecoder = new FilteringSpanDecoder(mockSpanDecoder, query.getSpanFilter());
 
-        Object result = filteringSpanDecoder.decode(null, null, null);
+        Buffer buffer = newSpanBuffer();
+        BasicSpan result = filteringSpanDecoder.decode(buffer, null, null);
         Assertions.assertNotNull(result);
     }
 
@@ -140,7 +159,7 @@ public class FilteringSpanDecoderTest {
 
     private SpanDecoder createMockSpanDecoder(SpanBo spanBo) {
         SpanDecoder mockSpanDecoder = Mockito.mock(SpanDecoder.class);
-        Mockito.when(mockSpanDecoder.decode(null, null, null)).thenReturn(spanBo);
+        Mockito.when(mockSpanDecoder.decode(any(Buffer.class), any(), any())).thenReturn(spanBo);
         return mockSpanDecoder;
     }
 

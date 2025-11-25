@@ -50,7 +50,7 @@ public class SpanDecoderV0 implements SpanDecoder {
     private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
 
     @Override
-    public Object decode(Buffer qualifier, Buffer columnValue, SpanDecodingContext decodingContext) {
+    public BasicSpan decode(Buffer qualifier, Buffer columnValue, SpanDecodingContext decodingContext) {
         final byte type = qualifier.readByte();
 
         if (SpanEncoder.TYPE_SPAN == type) {
@@ -59,7 +59,7 @@ public class SpanDecoderV0 implements SpanDecoder {
             return readSpanChunk(qualifier, columnValue, decodingContext);
         } else {
             logger.warn("Unknown span type {}", type);
-            return UNKNOWN;
+            return null;
         }
     }
 
