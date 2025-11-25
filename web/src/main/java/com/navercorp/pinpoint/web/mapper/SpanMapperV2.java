@@ -21,10 +21,6 @@ import com.google.common.collect.ListMultimap;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.CachedStringAllocator;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
-import com.navercorp.pinpoint.common.buffer.StringAllocator;
-import com.navercorp.pinpoint.common.buffer.StringCacheableBuffer;
-import com.navercorp.pinpoint.common.cache.Cache;
-import com.navercorp.pinpoint.common.cache.LRUCache;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
@@ -48,7 +44,6 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -103,10 +98,10 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         ListMultimap<AgentKey, SpanBo> spanMap = LinkedListMultimap.create();
         List<SpanChunkBo> spanChunkList = new ArrayList<>();
 
-        final SpanDecodingContext decodingContext = new SpanDecodingContext();
-        decodingContext.setTransactionId(transactionId);
-
-        final BufferFactory bufferFactory = new BufferFactory(cacheSize);
+        final SpanDecodingContext decodingContext = new SpanDecodingContext(transactionId);
+        if (cacheSize > 0) {
+            decodingContext.setStringAllocator(new CachedStringAllocator(cacheSize));
+        }
 
         for (Cell cell : rawCells) {
             SpanDecoder spanDecoder = null;
@@ -115,8 +110,8 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
                 decodingContext.setCollectorAcceptedTime(cell.getTimestamp());
 
-                final Buffer qualifier = bufferFactory.createBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
-                final Buffer columnValue = bufferFactory.createBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+                final Buffer qualifier = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
+                final Buffer columnValue = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
 
                 spanDecoder = resolveDecoder(columnValue);
                 final Object decodeObject = spanDecoder.decode(qualifier, columnValue, decodingContext);
@@ -146,28 +141,6 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
         return buildSpanBoList(spanMap, spanChunkList);
 
-    }
-
-    public static class BufferFactory {
-
-        private final StringAllocator stringAllocator;
-
-        public BufferFactory(int cacheSize) {
-            if (cacheSize > 0) {
-                Cache<ByteBuffer, String> lruCache = new LRUCache<>(cacheSize);
-                this.stringAllocator = new CachedStringAllocator(lruCache);
-            } else {
-                this.stringAllocator = null;
-            }
-        }
-
-        public Buffer createBuffer(byte[] buffer, int offset, int length) {
-            if (stringAllocator != null) {
-                return new StringCacheableBuffer(buffer, offset, length, stringAllocator);
-            } else {
-                return new OffsetFixedBuffer(buffer, offset, length);
-            }
-        }
     }
 
     private void nextCell(SpanDecoder spanDecoder, SpanDecodingContext decodingContext) {

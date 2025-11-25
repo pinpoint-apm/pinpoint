@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.buffer;
 
 import com.navercorp.pinpoint.common.cache.Cache;
+import com.navercorp.pinpoint.common.cache.LRUCache;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -24,6 +25,10 @@ import java.util.Objects;
 
 public class CachedStringAllocator implements StringAllocator {
     private final Cache<ByteBuffer, String> cache;
+
+    public CachedStringAllocator(int cacheSize) {
+        this(new LRUCache<>(cacheSize));
+    }
 
     public CachedStringAllocator(Cache<ByteBuffer, String> cache) {
         this.cache = Objects.requireNonNull(cache, "cache");

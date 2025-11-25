@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,27 @@
 
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
+import com.navercorp.pinpoint.common.buffer.StringAllocator;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class SpanDecodingContext {
 
-//    private AnnotationBo prevAnnotationBo;
+    private final TransactionId transactionId;
+
+    //    private AnnotationBo prevAnnotationBo;
     private long collectorAcceptedTime;
-    private TransactionId transactionId;
+
+    private StringAllocator stringAllocator = StringAllocator.DEFAULT_ALLOCATOR;
+
+    public SpanDecodingContext(TransactionId transactionId) {
+        this.transactionId = Objects.requireNonNull(transactionId, "transactionId");
+    }
 
 //    public AnnotationBo getPrevFirstAnnotationBo() {
 //        return prevAnnotationBo;
@@ -35,7 +46,6 @@ public class SpanDecodingContext {
 //        this.prevAnnotationBo = prevAnnotationBo;
 //    }
 
-
     public void setCollectorAcceptedTime(long collectorAcceptedTime) {
         this.collectorAcceptedTime = collectorAcceptedTime;
     }
@@ -44,14 +54,17 @@ public class SpanDecodingContext {
         return collectorAcceptedTime;
     }
 
-    public void setTransactionId(TransactionId transactionId) {
-        this.transactionId = transactionId;
-    }
-
     public TransactionId getTransactionId() {
         return transactionId;
     }
 
+    public String encoding(byte[] bytes) {
+        return stringAllocator.allocate(bytes, 0, bytes.length, StandardCharsets.UTF_8);
+    }
+
+    public void setStringAllocator(StringAllocator stringAllocator) {
+        this.stringAllocator = Objects.requireNonNull(stringAllocator, "stringAllocator");
+    }
 
     public void next() {
     }
