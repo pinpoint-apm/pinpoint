@@ -714,16 +714,14 @@ export const MetricDefinitionFormFetcher = ({
                     )}
                   >
                     <FormControl>
-                      <>
-                        <Input
-                          type="number"
-                          min={1}
-                          className={`text-right flex h-full w-full rounded-md bg-transparent py-2 pr-0 text-sm placeholder:text-muted-foreground shadow-none outline-none border-none
+                      <Input
+                        type="number"
+                        min={1}
+                        className={`text-right flex h-full w-full rounded-md bg-transparent py-2 pr-0 text-sm placeholder:text-muted-foreground shadow-none outline-none border-none
                             focus-visible:ring-0 focus-visible:outline-none focus-visible:border-none focus-visible:shadow-none`}
-                          {...field}
-                          placeholder={'Input interval (ex. 30)'}
-                        />
-                      </>
+                        {...field}
+                        placeholder={'Input interval (ex. 30)'}
+                      />
                     </FormControl>
                     <div className={cn('text-muted-foreground')}>s</div>
                   </div>
