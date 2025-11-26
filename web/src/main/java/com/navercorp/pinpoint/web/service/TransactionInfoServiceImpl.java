@@ -41,6 +41,7 @@ import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordFactory;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -214,13 +215,11 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             if (viewPointTimeAlign.getSpanId() == record.getSpanId() && record.getBegin() == viewPointTimeAlign.getStartTime()) {
                 if (agentId == null) {
                     if (record.getAgentId() == null) {
-                        record.setFocused(true);
                         recordSet.setFocusCallStackId(record.getId());
                         break;
                     }
                 } else {
-                    if (record.getAgentId() != null && agentId.equals(record.getAgentId())) {
-                        record.setFocused(true);
+                    if (Strings.CS.equals(record.getAgentId(), record.getAgentId())) {
                         recordSet.setFocusCallStackId(record.getId());
                         break;
                     }

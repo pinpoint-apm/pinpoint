@@ -262,7 +262,7 @@ public class TransactionCallTreeViewModel {
             apiType = record.getApiType();
             agent = record.getAgentId();
             agentName = record.getAgentName();
-            isFocused = record.isFocused();
+            isFocused = false;
             hasException = record.getHasException();
             exceptionChainId = record.getExceptionChainId();
             isAuthorized = record.isAuthorized();
@@ -376,7 +376,7 @@ public class TransactionCallTreeViewModel {
 
         @Deprecated
         public boolean isFocused() {
-            return isFocused;
+            return false;
         }
 
         public boolean isHasException() {
