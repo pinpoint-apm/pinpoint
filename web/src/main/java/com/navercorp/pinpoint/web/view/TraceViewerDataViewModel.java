@@ -19,25 +19,29 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 import org.apache.commons.lang3.Strings;
-import org.eclipse.collections.api.factory.primitive.IntObjectMaps;
-import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
-import org.jspecify.annotations.Nullable;
+import org.eclipse.collections.api.factory.Stacks;
+import org.eclipse.collections.api.factory.primitive.IntIntMaps;
+import org.eclipse.collections.api.map.primitive.MutableIntIntMap;
+import org.eclipse.collections.api.stack.MutableStack;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Stack;
 
 public class TraceViewerDataViewModel {
     private static final int START_TIME_INDEX = 0;
     private static final int END_TIME_INDEX = 1;
 
+    private static final int ID_NOT_EXIST = -1;
+
+    private static final int NOT_FOUND = -1;
+
     private final RecordSet recordSet;
     private final List<TraceEvent> traceEvents;
     private final List<Long[]> occupiedRange;
-    private final MutableIntObjectMap<Integer> invisibleRecords;
+    private final MutableIntIntMap invisibleRecords;
     private final long minBlank;
     private int maxTid;
 
@@ -46,7 +50,7 @@ public class TraceViewerDataViewModel {
         this.maxTid = 0;
         this.traceEvents = new ArrayList<>();
         this.occupiedRange = new ArrayList<>();
-        this.invisibleRecords = IntObjectMaps.mutable.of();
+        this.invisibleRecords = IntIntMaps.mutable.of();
         this.minBlank = (recordSet.getEndTime() - recordSet.getStartTime()) / 100;
         initialize();
     }
@@ -77,7 +81,7 @@ public class TraceViewerDataViewModel {
         Record prev = null;
         Record possibleException = null;
 
-        List<Stack<Record>> recordTraces = new ArrayList<>();
+        List<MutableStack<Record>> recordTraces = new ArrayList<>();
 
         for (Record record : recordSet.getRecordList()) {
             if (record.getElapsed() != 0) {
@@ -85,8 +89,9 @@ public class TraceViewerDataViewModel {
                 boolean isApplicationNameChanged = !previousAppName.equals(record.getApplicationName());
 
                 if (recordTraces.isEmpty()) {
-                    Stack<Record> recordTrace = new Stack<>();
+                    MutableStack<Record> recordTrace = Stacks.mutable.of();
                     recordTrace.push(record);
+
                     recordTraces.add(recordTrace);
                     occupiedRange.add(new Long[]{record.getBegin(), record.getBegin() + record.getElapsed()});
                 } else if (record.getApiType().equals("ASYNC")) {
@@ -127,25 +132,26 @@ public class TraceViewerDataViewModel {
     }
 
     private void addToInvisibleRecords(Record record) {
-        Integer nonZeroAncestorId = findAncestorId(record.getParentId());
-
-        if (nonZeroAncestorId == null) {
-            invisibleRecords.put(record.getId(), record.getParentId());
-        } else {
-            invisibleRecords.put(record.getId(), nonZeroAncestorId);
-        }
+        int nonZeroAncestorId = findAncestorId(record.getParentId());
+        int parentId = getParentId(record, nonZeroAncestorId);
+        invisibleRecords.put(record.getId(), parentId);
     }
 
-    @Nullable
-    private Integer findAncestorId(int parentId) {
-        Integer nonZeroAncestorId;
+    private int getParentId(Record record, int nonZeroAncestorId) {
+        if (nonZeroAncestorId == ID_NOT_EXIST) {
+            return record.getParentId();
+        }
+        return nonZeroAncestorId;
+    }
+
+    private int findAncestorId(int parentId) {
+        int nonZeroAncestorId;
         do {
-            nonZeroAncestorId = invisibleRecords.get(parentId);
-            if (nonZeroAncestorId == null) {
+            nonZeroAncestorId = invisibleRecords.getIfAbsent(parentId, ID_NOT_EXIST);
+            if (nonZeroAncestorId == ID_NOT_EXIST) {
                 break;
             }
-        } while (invisibleRecords.get(nonZeroAncestorId) != null);
-
+        } while (invisibleRecords.getIfAbsent(nonZeroAncestorId, ID_NOT_EXIST) != ID_NOT_EXIST);
         return nonZeroAncestorId;
     }
 
@@ -169,7 +175,7 @@ public class TraceViewerDataViewModel {
         }
     }
 
-    private int newAsyncStack(int tid, List<Stack<Record>> recordTraces, int arrowId, Record record) {
+    private int newAsyncStack(int tid, List<MutableStack<Record>> recordTraces, int arrowId, Record record) {
         /* Makes the start point of an asynchronous trace arrow */
         int parentTid = getParentTid(recordTraces, tid, record);
         TraceEvent arrowStart = TraceEvent.arrowStartTrace(parentTid, recordTraces.get(parentTid).peek(), record.getBegin(), arrowId);
@@ -182,8 +188,9 @@ public class TraceViewerDataViewModel {
         traceEvents.add(arrowEnd);
 
         /* Adds the start call of an asynchronous call stack */
-        Stack<Record> recordTrace = new Stack<>();
+        MutableStack<Record> recordTrace = Stacks.mutable.of();
         recordTrace.push(record);
+
         recordTraces.add(recordTrace);
 
         long recordEndTime = record.getBegin() + record.getElapsed();
@@ -203,38 +210,56 @@ public class TraceViewerDataViewModel {
         return tid;
     }
 
-    private boolean isContinuingParentStack(List<Stack<Record>> recordTraces, int tid, Record record) {
+    private boolean isContinuingParentStack(List<MutableStack<Record>> recordTraces, int tid, Record record) {
         int parentTid = getParentTid(recordTraces, tid, record);
         return recordTraces.get(parentTid).peek().getApplicationName().equals(record.getApplicationName());
     }
 
-    private int updateRecordTrace(List<Stack<Record>> recordTraces, int tid, Record record) {
+    private int updateRecordTrace(List<MutableStack<Record>> recordTraces, int tid, Record record) {
         int parentTid = getParentTid(recordTraces, tid, record);
-        Stack<Record> recordTrace = recordTraces.get(parentTid);
-        recordTrace.add(record);
+        MutableStack<Record> recordTrace = recordTraces.get(parentTid);
+        recordTrace.push(record);
 
         return parentTid;
     }
 
-    private int getParentTid(List<Stack<Record>> recordTraces, int tid, Record record) {
+    private int getParentTid(List<MutableStack<Record>> recordTraces, int tid, Record record) {
         int nextTid = tid;
-        Integer searchingFor = invisibleRecords.get(record.getParentId());
-
-        if (searchingFor == null) {
-            searchingFor = record.getParentId();
-        }
+        int searchingFor = getParentId(record);
 
         while (nextTid >= 0) {
-            Stack<Record> recordTrace = recordTraces.get(nextTid);
-            for (int i = recordTrace.size() - 1; i >= 0 ; i--) {
-                if (recordTrace.get(i).getId() == searchingFor) {
-                    recordTrace.setSize(i+1);
-                    return nextTid;
-                }
+            MutableStack<Record> recordTrace = recordTraces.get(nextTid);
+            final int index = pop(recordTrace, searchingFor);
+            if (index != NOT_FOUND) {
+                return nextTid;
             }
             nextTid--;
         }
         return tid;
+    }
+
+    static int pop(MutableStack<Record> stack, int id) {
+        final int index = indexOf(stack, id);
+        if (index != NOT_FOUND) {
+            stack.pop(index);
+        }
+        return index;
+    }
+
+    static int indexOf(MutableStack<Record> stack, int id) {
+        int i = 0;
+        for (Record r : stack) {
+            if (r.getId() == id) {
+                return i;
+            }
+            i++;
+        }
+        return NOT_FOUND;
+    }
+
+    private int getParentId(Record record) {
+        int searchingFor = invisibleRecords.getIfAbsent(record.getParentId(), ID_NOT_EXIST);
+        return getParentId(record, searchingFor);
     }
 
     public enum RecordType {
