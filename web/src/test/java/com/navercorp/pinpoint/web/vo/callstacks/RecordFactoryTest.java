@@ -345,10 +345,10 @@ public class RecordFactoryTest {
         assertThat(actuals.getEndTime()).isEqualTo(1670305848583L);
         List<Record> recordActuals = actuals.getRecordList();
         Record recordActual = recordActuals.get(0);
-        assertThat(recordActual).extracting("tab", "id", "parentId", "method", "title", "arguments", "begin", "elapsed", "gap", "agentId", "agentName", "applicationName", "apiServiceType", "destinationId", "hasChild", "hasException", "spanId", "executionMilliseconds", "methodTypeEnum", "isAuthorized", "excludeFromTimeline", "focused", "simpleClassName", "fullApiDescription", "lineNumber", "location")
+        assertThat(recordActual).extracting("tab", "id", "parentId", "method", "title", "arguments", "begin", "elapsed", "gap", "agentId", "agentName", "applicationName", "apiServiceType", "destinationId", "hasChild", "hasException", "spanId", "executionMilliseconds", "methodTypeEnum", "isAuthorized", "excludeFromTimeline", "simpleClassName", "fullApiDescription", "lineNumber", "location")
                 .contains(0, 1, 0, true, "Node Server Process", "/", 1670305848569L, 14L, 0, "express-node-sample-id", " ", "express-node-sample-name", null, null, true, false, 8174884636707391L, 13L, MethodTypeEnum.WEB_REQUEST, true, true, true, "", "Node Server Process", 0, "");
         recordActual = recordActuals.get(4);
-        assertThat(recordActual).extracting("tab", "id", "parentId", "method", "title", "arguments", "begin", "elapsed", "gap", "agentId", "agentName", "applicationName", "apiServiceType", "destinationId", "hasChild", "hasException", "spanId", "executionMilliseconds", "methodTypeEnum", "isAuthorized", "excludeFromTimeline", "focused", "simpleClassName", "fullApiDescription", "lineNumber", "location")
+        assertThat(recordActual).extracting("tab", "id", "parentId", "method", "title", "arguments", "begin", "elapsed", "gap", "agentId", "agentName", "applicationName", "apiServiceType", "destinationId", "hasChild", "hasException", "spanId", "executionMilliseconds", "methodTypeEnum", "isAuthorized", "excludeFromTimeline", "simpleClassName", "fullApiDescription", "lineNumber", "location")
                 .contains(1, 5, 1, true, "use(logger)", "", 1670305848569L, 1L, 0L, "express-node-sample-id", "", "express-node-sample-name", null, "localhost:3000", false, false, 8174884636707391L, 1L, MethodTypeEnum.DEFAULT, true, true, false, "Function", "express.Function.use(logger)", 42, "/Users/workspace/pinpoint/@pinpoint-naver-apm/pinpoint-agent-node/samples/express/src/app.js");
     }
 }

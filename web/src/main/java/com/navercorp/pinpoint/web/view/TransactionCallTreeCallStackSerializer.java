@@ -35,8 +35,8 @@ public class TransactionCallTreeCallStackSerializer extends JsonSerializer<Trans
         writeInteger(jgen, value.getParentId());
         jgen.writeBoolean(value.isMethod());
         jgen.writeBoolean(value.isHasChild());
-        // index 10
         jgen.writeString(value.getTitle());
+        // index 10
         jgen.writeString(value.getArguments());
         jgen.writeString(value.getExecuteTime());
         writeLong(jgen, value.getGap());
@@ -46,8 +46,8 @@ public class TransactionCallTreeCallStackSerializer extends JsonSerializer<Trans
         jgen.writeString(value.getSimpleClassName());
         jgen.writeNumber(value.getMethodType());
         jgen.writeString(value.getApiType());
-        // index 20
         jgen.writeString(value.getAgent());
+        // index 20
         jgen.writeBoolean(value.isHasException());
         jgen.writeBoolean(value.isAuthorized());
         jgen.writeString(value.getAgentName());
