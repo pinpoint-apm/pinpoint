@@ -26,7 +26,6 @@ public class TransactionCallTreeCallStackSerializer extends JsonSerializer<Trans
     @Override
     public void serialize(TransactionCallTreeViewModel.CallStack value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeStartArray();
-        jgen.writeString(value.getDepth());
         jgen.writeNumber(value.getBegin());
         jgen.writeNumber(value.getEnd());
         jgen.writeBoolean(value.isExcludeFromTimeline());
@@ -49,7 +48,6 @@ public class TransactionCallTreeCallStackSerializer extends JsonSerializer<Trans
         jgen.writeString(value.getApiType());
         // index 20
         jgen.writeString(value.getAgent());
-        jgen.writeBoolean(value.isFocused());
         jgen.writeBoolean(value.isHasException());
         jgen.writeBoolean(value.isAuthorized());
         jgen.writeString(value.getAgentName());
