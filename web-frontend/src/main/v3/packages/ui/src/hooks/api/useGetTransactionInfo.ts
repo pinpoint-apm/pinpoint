@@ -30,7 +30,7 @@ export const useGetTransactionInfo = () => {
       : async () => null,
   });
   const mapData = getMapData(data);
-  const tableData = convertToTree(mapData, '');
+  const tableData = convertToTree(mapData, null);
 
   return { data, tableData, isLoading, isValidating: isFetching, mapData };
 };
@@ -55,7 +55,7 @@ const getMapData = (data?: TransactionInfo.Response | null) => {
 
 const convertToTree = (
   items: TransactionInfo.CallStackKeyValueMap[] = [],
-  parentId?: string,
+  parentId?: string | null,
 ): TransactionInfo.CallStackKeyValueMap[] => {
   const result: TransactionInfo.CallStackKeyValueMap[] = [];
 
