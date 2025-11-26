@@ -79,10 +79,7 @@ export const OpenTelemetryChart = ({
         margin={{ right: 12 }}
         syncId={dashboardId}
       >
-        {OpenTelemetryChartCommon(
-          chartCommonProps,
-          chartContainerRef as React.RefObject<HTMLDivElement>,
-        )}
+        {OpenTelemetryChartCommon(chartCommonProps, chartContainerRef)}
         {dataKeys.map((key) => (
           <ChartChildComponent
             key={key}
