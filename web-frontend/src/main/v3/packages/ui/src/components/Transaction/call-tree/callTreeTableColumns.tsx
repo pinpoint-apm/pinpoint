@@ -112,7 +112,11 @@ export const callTreeTableColumns = ({
     header: 'Exec(ms)',
     size: 65,
     cell: (props) => {
-      return addCommas(props.getValue() as string);
+      const value = props.getValue();
+      if (value) {
+        return addCommas(value as string);
+      }
+      return '';
     },
     meta: {
       cellClassName: 'grow-0 text-right',
@@ -154,7 +158,11 @@ export const callTreeTableColumns = ({
     header: 'Self(ms)',
     size: 65,
     cell: (props) => {
-      return addCommas(props.getValue() as string);
+      const value = props.getValue();
+      if (value) {
+        return addCommas(value as string);
+      }
+      return '';
     },
     meta: {
       cellClassName: 'grow-0 text-right',
