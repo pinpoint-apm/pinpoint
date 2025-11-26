@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Stack;
 
 public class TraceViewerDataViewModel {
@@ -236,13 +237,30 @@ public class TraceViewerDataViewModel {
         return tid;
     }
 
+    public enum RecordType {
+        TRACE("X"),
+        EXCEPTION("I"),
+        ARROW_START("s"),
+        ARROW_END("f");
+
+        private final String key;
+
+        RecordType(String key) {
+            this.key = Objects.requireNonNull(key, "key");
+        }
+
+        public String key() {
+            return key;
+        }
+    }
+
     public static class TraceEvent {
         private static final String PID = "";                  /* process id (not used in timeline, but necessary for trace_viewer spec. */
         private String cat;                             /* category name (Exception, Database, Trace) */
         private int tid;                               /* thread id (used to separate async call stacks) */
         private String id;                               /* thread id (used to separate async call stacks) */
         private long ts;                                /* start time (us) */
-        private String ph;                              /* trace viewer record type (I = Exception, X = Trace, s = Arrow start, f = Arrow end) */
+        private RecordType ph;                              /* trace viewer record type (I = Exception, X = Trace, s = Arrow start, f = Arrow end) */
         private long dur;                               /* process duration (us) */
         private String s = "p";                         /* scope (only uses "p" = process in timeline ) */
         private String name;                            /* trace name */
@@ -250,7 +268,7 @@ public class TraceViewerDataViewModel {
         private Map<String, String> args;               /* other arguments */
 
 
-        public TraceEvent(String cat, int tid, String ph, String cname, final Record record, boolean showApplicationName) {
+        public TraceEvent(String cat, int tid, RecordType ph, String cname, final Record record, boolean showApplicationName) {
             this.cat = cat;
             this.tid = tid;
             this.ph = ph;
@@ -270,19 +288,19 @@ public class TraceViewerDataViewModel {
         }
 
         static TraceEvent defaultTrace(int tid, boolean isHighlighted, final Record record, boolean showApplicationName) {
-            return new TraceEvent("Trace", tid, "X", (isHighlighted? "": "grey"), record, showApplicationName);
+            return new TraceEvent("Trace", tid, RecordType.TRACE, (isHighlighted? "": "grey"), record, showApplicationName);
         }
 
         static TraceEvent exceptionTrace(int tid, final Record record) {
-            return new TraceEvent("Exception", tid, "I", "terrible", record, false);
+            return new TraceEvent("Exception", tid, RecordType.EXCEPTION, "terrible", record, false);
         }
 
         static TraceEvent databaseTrace(int tid, boolean isHighlighted, final Record record, boolean showApplicationName) {
-            return new TraceEvent("Database", tid, "X", (isHighlighted? "": "grey"), record, showApplicationName);
+            return new TraceEvent("Database", tid, RecordType.TRACE, (isHighlighted? "": "grey"), record, showApplicationName);
         }
 
         static TraceEvent arrowStartTrace(int tid, final Record parent, long startTime, int arrowId) {
-            TraceEvent event = new TraceEvent("Trace", tid, "s", "", parent, false);
+            TraceEvent event = new TraceEvent("Trace", tid, RecordType.ARROW_START, "", parent, false);
             event.name = "Async Trace";
             event.id = Integer.toString(arrowId);
             event.ts = startTime * 1000;
@@ -290,7 +308,7 @@ public class TraceViewerDataViewModel {
         }
 
         static TraceEvent arrowEndTrace(int tid, final Record record, int arrowId) {
-            TraceEvent event = new TraceEvent("Trace", tid, "f", "", record, false);
+            TraceEvent event = new TraceEvent("Trace", tid, RecordType.ARROW_END, "", record, false);
             event.name = "Async Trace";
             event.id = Integer.toString(arrowId);
             return event;
@@ -306,7 +324,9 @@ public class TraceViewerDataViewModel {
 
         public String getId() { return id; }
 
-        public String getPh() { return ph; }
+        public String getPh() {
+            return ph.key();
+        }
 
         public long getDur() { return dur; }
 
