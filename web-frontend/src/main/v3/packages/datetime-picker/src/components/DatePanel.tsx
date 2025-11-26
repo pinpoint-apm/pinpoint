@@ -66,10 +66,6 @@ export const DatePanel = ({
   const [openMore, setOpenMore] = React.useState(false);
   const [showDatePicker, setShowDatePicker] = React.useState(false);
 
-  const close = React.useCallback(() => {
-    // Panel close handler - can be extended if needed
-  }, []);
-
   const defatulCustomTimes = {
     ...getDefaultCustomTimes(locale, seamToken, timeZone),
     ...customTimes,
