@@ -29,7 +29,7 @@
     "date-fns": "^2.30.0",
     "date-fns-tz": "^2.0.0",
     "react": "^19.0.0",
-    "react-datepicker": "^4.16.0",
+    "react-datepicker": "^8.9.0",
     "react-dom": "^19.0.0",
     "usehooks-ts": "^2.9.1"
   },
@@ -45,7 +45,6 @@
     "@testing-library/user-event": "^14.4.3",
     "@types/jest": "^30.0.0",
     "@types/react": "^19.0.0",
-    "@types/react-datepicker": "^4.15.0",
     "@types/react-dom": "^19.0.0",
     "@typescript-eslint/eslint-plugin": "^8.44.1",
     "@typescript-eslint/parser": "^8.44.1",
