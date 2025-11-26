@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -48,7 +48,6 @@ public abstract class BaseRecord implements Record {
     protected boolean isAuthorized;
 
     protected boolean excludeFromTimeline;
-    protected boolean focused;
     protected String simpleClassName = "";
     protected String fullApiDescription = "";
 
@@ -154,14 +153,6 @@ public abstract class BaseRecord implements Record {
         this.fullApiDescription = fullApiDescription;
     }
 
-    public boolean isFocused() {
-        return focused;
-    }
-
-    public void setFocused(boolean focused) {
-        this.focused = focused;
-    }
-
     public boolean getHasChild() {
         return hasChild;
     }
@@ -229,7 +220,6 @@ public abstract class BaseRecord implements Record {
                 ", methodTypeEnum=" + methodTypeEnum +
                 ", isAuthorized=" + isAuthorized +
                 ", excludeFromTimeline=" + excludeFromTimeline +
-                ", focused=" + focused +
                 ", simpleClassName='" + simpleClassName + '\'' +
                 ", fullApiDescription='" + fullApiDescription + '\'' +
                 ", lineNumber=" + lineNumber +

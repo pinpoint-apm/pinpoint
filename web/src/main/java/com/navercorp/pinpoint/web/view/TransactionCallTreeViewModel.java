@@ -208,16 +208,23 @@ public class TransactionCallTreeViewModel {
         private final String applicationServiceType;
         private final int tab;
         private final int id;
+        @Nullable
         private final Integer parentId;
         private final boolean isMethod;
         private final boolean hasChild;
         private final String title;
         private final String arguments;
         private final String executeTime;
+
+        @Nullable
         private final Long gap;
+        @Nullable
         private final Long elapsedTime;
+        @Nullable
         private final Integer barWidth;
+        @Nullable
         private final Long executionMilliseconds;
+
         private final String simpleClassName;
         private final int methodType;
         private final String apiType;
@@ -262,7 +269,7 @@ public class TransactionCallTreeViewModel {
             apiType = record.getApiType();
             agent = record.getAgentId();
             agentName = record.getAgentName();
-            isFocused = record.isFocused();
+            isFocused = false;
             hasException = record.getHasException();
             exceptionChainId = record.getExceptionChainId();
             isAuthorized = record.isAuthorized();
@@ -314,6 +321,7 @@ public class TransactionCallTreeViewModel {
             return id;
         }
 
+        @Nullable
         public Integer getParentId() {
             return parentId;
         }
@@ -338,18 +346,22 @@ public class TransactionCallTreeViewModel {
             return executeTime;
         }
 
+        @Nullable
         public Long getGap() {
             return gap;
         }
 
+        @Nullable
         public Long getElapsedTime() {
             return elapsedTime;
         }
 
+        @Nullable
         public Integer getBarWidth() {
             return barWidth;
         }
 
+        @Nullable
         public Long getExecutionMilliseconds() {
             return executionMilliseconds;
         }
@@ -376,7 +388,7 @@ public class TransactionCallTreeViewModel {
 
         @Deprecated
         public boolean isFocused() {
-            return isFocused;
+            return false;
         }
 
         public boolean isHasException() {
