@@ -32,20 +32,22 @@ public class TransactionCallTreeCallStackSerializer extends JsonSerializer<Trans
         jgen.writeBoolean(value.isExcludeFromTimeline());
         jgen.writeString(value.getApplicationName());
         jgen.writeNumber(value.getTab());
-        jgen.writeString(value.getId());
-        jgen.writeString(value.getParentId());
+        jgen.writeNumber(value.getId());
+        writeInteger(jgen, value.getParentId());
         jgen.writeBoolean(value.isMethod());
         jgen.writeBoolean(value.isHasChild());
+        // index 10
         jgen.writeString(value.getTitle());
         jgen.writeString(value.getArguments());
         jgen.writeString(value.getExecuteTime());
-        jgen.writeString(value.getGap());
-        jgen.writeString(value.getElapsedTime());
-        jgen.writeString(value.getBarWidth());
-        jgen.writeString(value.getExecutionMilliseconds());
+        writeLong(jgen, value.getGap());
+        writeLong(jgen, value.getElapsedTime());
+        writeInteger(jgen, value.getBarWidth());
+        writeLong(jgen, value.getExecutionMilliseconds());
         jgen.writeString(value.getSimpleClassName());
-        jgen.writeString(value.getMethodType());
+        jgen.writeNumber(value.getMethodType());
         jgen.writeString(value.getApiType());
+        // index 20
         jgen.writeString(value.getAgent());
         jgen.writeBoolean(value.isFocused());
         jgen.writeBoolean(value.isHasException());
@@ -54,7 +56,24 @@ public class TransactionCallTreeCallStackSerializer extends JsonSerializer<Trans
         jgen.writeNumber(value.getLineNumber());
         jgen.writeString(value.getLocation());
         jgen.writeString(value.getApplicationServiceType());
-        jgen.writeString(value.getExceptionChainId());
+        // json number overflow
+        jgen.writeString(String.valueOf(value.getExceptionChainId()));
         jgen.writeEndArray();
+    }
+
+    void writeLong(JsonGenerator jgen, Long value) throws IOException {
+        if (value == null) {
+            jgen.writeNull();
+        } else {
+            jgen.writeNumber(value);
+        }
+    }
+
+    void writeInteger(JsonGenerator jgen, Integer value) throws IOException {
+        if (value == null) {
+            jgen.writeNull();
+        } else {
+            jgen.writeNumber(value);
+        }
     }
 }

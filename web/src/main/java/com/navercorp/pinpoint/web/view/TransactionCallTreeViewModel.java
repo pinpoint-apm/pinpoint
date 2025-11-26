@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.web.calltree.span.TraceState;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -129,11 +130,7 @@ public class TransactionCallTreeViewModel {
         for (Record record : recordList) {
             if (first) {
                 if (record.isMethod()) {
-                    long begin = record.getBegin();
-                    long end = record.getBegin() + record.getElapsed();
-                    if (end - begin > 0) {
-                        barRatio = 100 / (end - begin);
-                    }
+                    barRatio = getBarRatio(record, barRatio);
                 }
                 first = false;
             }
@@ -142,6 +139,15 @@ public class TransactionCallTreeViewModel {
         }
 
         return list;
+    }
+
+    private long getBarRatio(Record record, long barRatio) {
+        long begin = record.getBegin();
+        long end = record.getBegin() + record.getElapsed();
+        if (end - begin > 0) {
+            barRatio = 100 / (end - begin);
+        }
+        return barRatio;
     }
 
     enum Field {
@@ -193,35 +199,37 @@ public class TransactionCallTreeViewModel {
 
     @JsonSerialize(using = TransactionCallTreeCallStackSerializer.class)
     public static class CallStack {
-        private String depth = "";
-        private long begin;
-        private long end;
-        private boolean excludeFromTimeline;
-        private String applicationName = "";
-        private String applicationServiceType = "";
-        private int tab;
-        private String id = "";
-        private String parentId = "";
-        private boolean isMethod;
-        private boolean hasChild;
-        private String title = "";
-        private String arguments = "";
-        private String executeTime = "";
-        private String gap = "";
-        private String elapsedTime = "";
-        private String barWidth = "";
-        private String executionMilliseconds = "";
-        private String simpleClassName = "";
-        private String methodType = "";
-        private String apiType = "";
-        private String agent = "";
-        private String agentName = "";
-        private boolean isFocused;
-        private boolean hasException;
-        private String exceptionChainId = "";
-        private boolean isAuthorized;
-        private int lineNumber;
-        private String location = "";
+        @Deprecated
+        private final String depth = "";
+        private final long begin;
+        private final long end;
+        private final boolean excludeFromTimeline;
+        private final String applicationName;
+        private final String applicationServiceType;
+        private final int tab;
+        private final int id;
+        private final Integer parentId;
+        private final boolean isMethod;
+        private final boolean hasChild;
+        private final String title;
+        private final String arguments;
+        private final String executeTime;
+        private final Long gap;
+        private final Long elapsedTime;
+        private final Integer barWidth;
+        private final Long executionMilliseconds;
+        private final String simpleClassName;
+        private final int methodType;
+        private final String apiType;
+        private final String agent;
+        private final String agentName;
+        @Deprecated
+        private final boolean isFocused;
+        private final boolean hasException;
+        private final long exceptionChainId;
+        private final boolean isAuthorized;
+        private final int lineNumber;
+        private final String location;
 
         public CallStack(final Record record, long barRatio) {
             begin = record.getBegin();
@@ -230,34 +238,50 @@ public class TransactionCallTreeViewModel {
             applicationName = record.getApplicationName();
             applicationServiceType = record.getApplicationServiceType();
             tab = record.getTab();
-            id = String.valueOf(record.getId());
-            if (record.getParentId() > 0) {
-                parentId = String.valueOf(record.getParentId());
-            }
+            id = record.getId();
+            parentId = getParentId(record.getParentId());
             isMethod = record.isMethod();
             hasChild = record.getHasChild();
             title = record.getTitle();
             arguments = record.getArguments();
             if (record.isMethod()) {
                 executeTime = DateTimeFormatUtils.formatAbsolute(record.getBegin()); // time format
-                gap = String.valueOf(record.getGap());
-                elapsedTime = String.valueOf(record.getElapsed());
-                barWidth = String.format("%1d", (int) (((end - begin) * barRatio) + 0.9));
-                executionMilliseconds = String.valueOf(record.getExecutionMilliseconds());
+                gap = record.getGap();
+                elapsedTime = record.getElapsed();
+                barWidth = getBarWidth(barRatio, elapsedTime);
+                executionMilliseconds = record.getExecutionMilliseconds();
+            } else {
+                executeTime = "";
+                gap = null;
+                elapsedTime = null;
+                barWidth = null;
+                executionMilliseconds = null;
             }
             simpleClassName = record.getSimpleClassName();
-            methodType = String.valueOf(record.getMethodTypeEnum().getCode());
+            methodType = record.getMethodTypeEnum().getCode();
             apiType = record.getApiType();
             agent = record.getAgentId();
             agentName = record.getAgentName();
             isFocused = record.isFocused();
             hasException = record.getHasException();
-            exceptionChainId = record.getExceptionChainId() >= 0 ? String.valueOf(record.getExceptionChainId()) : "";
+            exceptionChainId = record.getExceptionChainId();
             isAuthorized = record.isAuthorized();
             lineNumber = record.getLineNumber();
             location = record.getLocation();
         }
 
+        private @Nullable Integer getParentId(int parentId) {
+            if (parentId > 0) {
+                return parentId;
+            }
+            return null;
+        }
+
+        private int getBarWidth(long barRatio, long elapsedTime) {
+            return (int) ((elapsedTime * barRatio) + 0.9);
+        }
+
+        @Deprecated
         public String getDepth() {
             return depth;
         }
@@ -286,11 +310,11 @@ public class TransactionCallTreeViewModel {
             return tab;
         }
 
-        public String getId() {
+        public int getId() {
             return id;
         }
 
-        public String getParentId() {
+        public Integer getParentId() {
             return parentId;
         }
 
@@ -314,19 +338,19 @@ public class TransactionCallTreeViewModel {
             return executeTime;
         }
 
-        public String getGap() {
+        public Long getGap() {
             return gap;
         }
 
-        public String getElapsedTime() {
+        public Long getElapsedTime() {
             return elapsedTime;
         }
 
-        public String getBarWidth() {
+        public Integer getBarWidth() {
             return barWidth;
         }
 
-        public String getExecutionMilliseconds() {
+        public Long getExecutionMilliseconds() {
             return executionMilliseconds;
         }
 
@@ -334,7 +358,7 @@ public class TransactionCallTreeViewModel {
             return simpleClassName;
         }
 
-        public String getMethodType() {
+        public int getMethodType() {
             return methodType;
         }
 
@@ -350,6 +374,7 @@ public class TransactionCallTreeViewModel {
             return agentName;
         }
 
+        @Deprecated
         public boolean isFocused() {
             return isFocused;
         }
@@ -359,7 +384,7 @@ public class TransactionCallTreeViewModel {
         }
 
         public String getExceptionChainId() {
-            return exceptionChainId;
+            return exceptionChainId  >= 0 ? String.valueOf(exceptionChainId) : "";
         }
 
         public boolean isAuthorized() {
