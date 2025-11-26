@@ -151,7 +151,6 @@ public class TransactionCallTreeViewModel {
     }
 
     enum Field {
-        depth,
         begin,
         end,
         excludeFromTimeline,
@@ -172,7 +171,6 @@ public class TransactionCallTreeViewModel {
         methodType,
         apiType,
         agent,
-        isFocused,
         hasException,
         isAuthorized,
         agentName,
@@ -199,8 +197,6 @@ public class TransactionCallTreeViewModel {
 
     @JsonSerialize(using = TransactionCallTreeCallStackSerializer.class)
     public static class CallStack {
-        @Deprecated
-        private final String depth = "";
         private final long begin;
         private final long end;
         private final boolean excludeFromTimeline;
@@ -230,8 +226,6 @@ public class TransactionCallTreeViewModel {
         private final String apiType;
         private final String agent;
         private final String agentName;
-        @Deprecated
-        private final boolean isFocused;
         private final boolean hasException;
         private final long exceptionChainId;
         private final boolean isAuthorized;
@@ -269,7 +263,6 @@ public class TransactionCallTreeViewModel {
             apiType = record.getApiType();
             agent = record.getAgentId();
             agentName = record.getAgentName();
-            isFocused = false;
             hasException = record.getHasException();
             exceptionChainId = record.getExceptionChainId();
             isAuthorized = record.isAuthorized();
@@ -286,11 +279,6 @@ public class TransactionCallTreeViewModel {
 
         private int getBarWidth(long barRatio, long elapsedTime) {
             return (int) ((elapsedTime * barRatio) + 0.9);
-        }
-
-        @Deprecated
-        public String getDepth() {
-            return depth;
         }
 
         public long getBegin() {
@@ -384,11 +372,6 @@ public class TransactionCallTreeViewModel {
 
         public String getAgentName() {
             return agentName;
-        }
-
-        @Deprecated
-        public boolean isFocused() {
-            return false;
         }
 
         public boolean isHasException() {
