@@ -34,8 +34,8 @@ export const useServerMapSearchParameters = () => {
         }));
       }, 2000);
     } else {
-      if (intervalRef?.current) {
-        clearInterval(intervalRef?.current);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
       }
     }
   }, [isRealtime]);

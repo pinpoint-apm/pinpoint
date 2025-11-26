@@ -60,7 +60,7 @@ export const ServerMap = ({
 
   React.useEffect(() => {
     return () => {
-      cyRef?.current?.destroy();
+      cyRef.current?.destroy();
     };
   }, []);
 
@@ -69,11 +69,11 @@ export const ServerMap = ({
 
     if (cyRef.current) {
       layoutRef.current?.removeAllListeners();
-      layoutRef?.current?.stop();
+      layoutRef.current?.stop();
       layoutRef.current = undefined;
-      cyRef?.current?.removeData();
-      cyRef?.current?.removeAllListeners();
-      cyRef?.current?.destroy();
+      cyRef.current?.removeData();
+      cyRef.current?.removeAllListeners();
+      cyRef.current?.destroy();
       cyRef.current = undefined;
     }
 
@@ -147,7 +147,7 @@ export const ServerMap = ({
                 const sourceNode = cy.getElementById(data.source);
                 const targetNode = cy.getElementById(data.target);
 
-                if (sourceNode?.inside() && targetNode?.inside() && cy) {
+                if (sourceNode.inside() && targetNode.inside() && cy) {
                   cy.add({ data }); // add edge
                 }
               });
@@ -164,7 +164,7 @@ export const ServerMap = ({
             rankDir: 'LR',
             rankSep: 200,
           } as DagreLayoutOptions);
-          layoutRef?.current?.run();
+          layoutRef.current?.run();
         } else {
           if (addedNodes && addedNodes.length > 0) {
             const centerNode = cy.getElementById(baseNodeId);
@@ -261,7 +261,7 @@ export const ServerMap = ({
   };
 
   const addEventListener = React.useCallback(() => {
-    const cy = cyRef?.current;
+    const cy = cyRef.current;
 
     if (cy) {
       cy.on('layoutready', () => {
@@ -364,41 +364,25 @@ export const ServerMap = ({
 
   const highlightNode = (target: cytoscape.CollectionReturnValue) => {
     const cy = cyRef.current!;
-    if (serverMapTheme?.node?.default) {
-      cy?.nodes().style(serverMapTheme.node.default!);
-    }
-    if (serverMapTheme?.edge?.default) {
-      cy?.edges().style(serverMapTheme.edge.default!);
-    }
-    if (serverMapTheme?.node?.main) {
-      cy?.getElementById(baseNodeId).style(serverMapTheme.node.main!);
-    }
-    if (serverMapTheme?.node?.highlight) {
-      target?.style(serverMapTheme.node.highlight!);
-    }
-    if (serverMapTheme?.edge?.highlight) {
-      target?.connectedEdges().style(serverMapTheme.edge.highlight!);
-    }
+    /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
+    cy.nodes().style(serverMapTheme.node?.default!);
+    cy.edges().style(serverMapTheme.edge?.default!);
+    cy.getElementById(baseNodeId).style(serverMapTheme.node?.main!);
+    target.style(serverMapTheme.node?.highlight!);
+    target.connectedEdges().style(serverMapTheme.edge?.highlight!);
+    /* eslint-enable @typescript-eslint/no-non-null-asserted-optional-chain */
   };
 
   const highlightEdge = (target: cytoscape.CollectionReturnValue) => {
     const cy = cyRef.current!;
 
-    if (serverMapTheme?.node?.default) {
-      cy?.nodes().style(serverMapTheme.node.default!);
-    }
-    if (serverMapTheme?.edge?.default) {
-      cy?.edges().style(serverMapTheme.edge.default!);
-    }
-    if (serverMapTheme?.node?.main) {
-      cy?.getElementById(baseNodeId).style(serverMapTheme.node.main!);
-    }
-    if (serverMapTheme?.node?.highlight?.['border-color']) {
-      target?.connectedNodes().style({ 'border-color': serverMapTheme.node.highlight['border-color']! });
-    }
-    if (serverMapTheme?.edge?.highlight) {
-      target?.style(serverMapTheme.edge.highlight!);
-    }
+    /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
+    cy.nodes().style(serverMapTheme.node?.default!);
+    cy.edges().style(serverMapTheme.edge?.default!);
+    cy.getElementById(baseNodeId).style(serverMapTheme.node?.main!);
+    target.connectedNodes().style({ 'border-color': serverMapTheme.node?.highlight?.['border-color']! });
+    target.style(serverMapTheme.edge?.highlight!);
+    /* eslint-enable @typescript-eslint/no-non-null-asserted-optional-chain */
   };
 
   return (
