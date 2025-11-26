@@ -6,10 +6,21 @@ export const usePostTransactionMetaData = (
 ) => {
   const postData = async (formData: FormData) => {
     try {
-      const response = await fetch(`${END_POINTS.TRANSACTION_META_DATA}?`, {
+      const params = new URLSearchParams();
+      formData.forEach((value, key) => {
+        if (typeof value === 'string') {
+          params.append(key, value);
+        } else {
+          params.append(key, String(value));
+        }
+      });
+
+      const response = await fetch(`${END_POINTS.TRANSACTION_META_DATA}`, {
         method: 'POST',
-        body: formData,
-        // body: formData,
+        body: params.toString(),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
       });
       const data = await response.json();
       return data;
