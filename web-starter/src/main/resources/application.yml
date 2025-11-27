@@ -17,8 +17,6 @@ server:
     include-stacktrace: always
     whitelabel:
       enabled: true
-  tomcat:
-    max-part-count: 200
   max-http-request-header-size: 32678
   compression:
     enabled: true
