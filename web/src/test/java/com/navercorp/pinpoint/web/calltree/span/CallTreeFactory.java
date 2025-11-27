@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,15 +15,17 @@
  */
 package com.navercorp.pinpoint.web.calltree.span;
 
+import org.eclipse.collections.api.factory.Stacks;
+import org.eclipse.collections.api.stack.MutableStack;
+
 import java.util.List;
-import java.util.Stack;
 
 /**
  * @author jaehong.kim
  */
 public class CallTreeFactory {
 
-    private final Stack<CallStackMock> callStacks = new Stack<CallStackMock>();
+    private final MutableStack<CallStackMock> callStacks = Stacks.mutable.of();
     private int nextAsyncId = 0;
 
     public CallTree get(List<String> events) {
@@ -39,7 +41,7 @@ public class CallTreeFactory {
                 type = EventType.END;
             }
 
-            if (callStacks.empty() && type == EventType.REMOTE) {
+            if (callStacks.isEmpty() && type == EventType.REMOTE) {
                 callStacks.push(new CallStackMock());
                 continue;
             }
