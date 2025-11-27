@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,11 +18,12 @@ package com.navercorp.pinpoint.web.query.util;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import org.eclipse.collections.api.factory.Stacks;
+import org.eclipse.collections.api.stack.MutableStack;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Stack;
 
 /**
  * @author Roy Kim
@@ -70,7 +71,7 @@ public class DefaultMongoJsonParser implements MongoJsonParser {
         final int length = json.length();
         final StringBuilder result = new StringBuilder(length + additionalSize);
 
-        Stack<Character> stack = new Stack<>();
+        MutableStack<Character> stack = Stacks.mutable.of();
 
         boolean statusKey = true;
         boolean inString = false;
@@ -88,9 +89,9 @@ public class DefaultMongoJsonParser implements MongoJsonParser {
                 } else if (ch == '{') {
                     statusKey = true;
                     stack.push(ch);
-                } else if (ch == '}' && !stack.empty()) {
+                } else if (ch == '}' && !stack.isEmpty()) {
                     stack.pop();
-                    if (!stack.empty()){
+                    if (!stack.isEmpty()){
                         if(stack.peek() != '[') {
                             statusKey = true;
                         } else if(stack.peek() == '[') {
@@ -99,9 +100,9 @@ public class DefaultMongoJsonParser implements MongoJsonParser {
                     }
                 } else if (ch == '[') {
                     stack.push(ch);
-                } else if (ch == ']' && !stack.empty()) {
+                } else if (ch == ']' && !stack.isEmpty()) {
                     stack.pop();
-                    if (!stack.empty() && stack.peek() != '[') {
+                    if (!stack.isEmpty() && stack.peek() != '[') {
                         statusKey = true;
                     }
                 }
@@ -111,7 +112,7 @@ public class DefaultMongoJsonParser implements MongoJsonParser {
                     if (!bindValueQueue.isEmpty()) {
                         result.append(bindValueQueue.poll());
                         i += 2;
-                        if (!stack.empty() && stack.peek() != '[') {
+                        if (!stack.isEmpty() && stack.peek() != '[') {
                             statusKey = true;
                         }
                     }
