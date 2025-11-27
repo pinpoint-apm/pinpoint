@@ -18,7 +18,8 @@ export interface TransactionListTableProps
 
 export const TransactionListTable = ({ data, ...props }: TransactionListTableProps) => {
   const navigate = useNavigate();
-  const { transactionInfo, searchParameters, application } = useTransactionSearchParameters();
+  const { transactionInfo, searchParameters, application, withFilter } =
+    useTransactionSearchParameters();
   const [timezone] = useTimezone();
   const setCallTreeFocusId = useSetAtom(transactionInfoCallTreeFocusId);
 
@@ -64,6 +65,7 @@ export const TransactionListTable = ({ data, ...props }: TransactionListTablePro
               focusTimestamp: rowData.collectorAcceptTime,
               path: rowData.application,
             }),
+            withFilter: withFilter ? 'true' : 'false',
           })}`,
         );
       }}
