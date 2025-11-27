@@ -17,7 +17,7 @@ server:
     include-stacktrace: always
     whitelabel:
       enabled: true
-  max-http-request-header-size: 32678
+  max-http-request-header-size: 32KB
   compression:
     enabled: true
     mime-types: application/json
