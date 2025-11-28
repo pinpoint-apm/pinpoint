@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.RowTypeHint;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.util.SpanUtils;
+import com.navercorp.pinpoint.web.util.TraceIndexUtils;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
 import org.apache.hadoop.hbase.Cell;
@@ -42,19 +43,13 @@ import java.util.stream.Collectors;
  */
 public class TraceIndexMetaScatterMapper implements RowMapper<List<DotMetaData>>, RowTypeHint {
 
-    private final HbaseColumnFamily index;
-    private final HbaseColumnFamily meta;
+    private final HbaseColumnFamily index = HbaseTables.APPLICATION_TRACE_INDEX_TRACE;
+    private final HbaseColumnFamily meta = HbaseTables.APPLICATION_TRACE_INDEX_META;
     // @Nullable
     private final Predicate<Dot> filter;
 
-    public TraceIndexMetaScatterMapper(HbaseColumnFamily index, HbaseColumnFamily meta, Predicate<Dot> filter) {
-        this.index = Objects.requireNonNull(index, "index");
-        this.meta = Objects.requireNonNull(meta, "meta");
+    public TraceIndexMetaScatterMapper(Predicate<Dot> filter) {
         this.filter = filter;
-    }
-
-    public TraceIndexMetaScatterMapper() {
-        this(HbaseTables.APPLICATION_TRACE_INDEX_TRACE, HbaseTables.APPLICATION_TRACE_INDEX_META, null);
     }
 
     @Override
@@ -65,12 +60,7 @@ public class TraceIndexMetaScatterMapper implements RowMapper<List<DotMetaData>>
         Map<TransactionId, DotMetaData.Builder> metaDataMap = new HashMap<>();
         for (Cell cell : result.rawCells()) {
             if (CellUtil.matchingFamily(cell, index.getName())) {
-                Dot dot;
-                if (index == HbaseTables.APPLICATION_TRACE_INDEX_TRACE) {
-                    dot = TraceIndexScatterMapper.createDotV1(cell);
-                } else {
-                    dot = TraceIndexScatterMapper.createDot(cell);
-                }
+                Dot dot = TraceIndexScatterMapper.createDot(cell);
                 DotMetaData.Builder builder = getMetaDataBuilder(metaDataMap, dot.getTransactionId());
                 builder.setDot(dot);
             }

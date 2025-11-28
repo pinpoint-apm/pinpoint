@@ -54,6 +54,16 @@ public final class SpanUtils {
         Objects.requireNonNull(bytes, "bytes");
 
         final Buffer buffer = new OffsetFixedBuffer(bytes, offset, length);
+        return readTransactionIdV1(buffer);
+    }
+
+    public static void writeTransactionIdV1(Buffer buffer, TransactionId transactionId) {
+        buffer.putPrefixedString(transactionId.getAgentId());
+        buffer.putSVLong(transactionId.getAgentStartTime());
+        buffer.putVLong(transactionId.getTransactionSequence());
+    }
+
+    public static TransactionId readTransactionIdV1(Buffer buffer) {
         String agentId = buffer.readPrefixedString();
         long agentStartTime = buffer.readSVLong();
         long transactionSequence = buffer.readVLong();

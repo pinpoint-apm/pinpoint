@@ -32,6 +32,8 @@ public class DistributorConfiguration {
 
     private final Logger logger = LogManager.getLogger(DistributorConfiguration.class);
 
+    public static final int TRACE_INDEX_DISTRIBUTOR_MOD = 8;
+
     public DistributorConfiguration() {
         logger.info("Install {}", DistributorConfiguration.class.getSimpleName());
     }
@@ -44,7 +46,7 @@ public class DistributorConfiguration {
 
     @Bean
     public RowKeyDistributorByHashPrefix traceIndexDistributor() {
-        ByteHasher hasher = RangeDoubleHash.ofRandom(0, HbaseTableConstants.TRACE_INDEX_HASH_PREFIX_SIZE + 4, 256, 8);
+        ByteHasher hasher = RangeDoubleHash.ofRandom(0, HbaseTableConstants.TRACE_INDEX_HASH_PREFIX_SIZE + 4, 256, TRACE_INDEX_DISTRIBUTOR_MOD);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 
