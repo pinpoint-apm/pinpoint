@@ -99,7 +99,7 @@ class UidLinkRowKeyTest {
 
     @Test
     void makeRow_error() {
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
             UidLinkRowKey.makeRowKey(0,
                     ServiceUid.DEFAULT_SERVICE_UID_CODE,
                     "a".repeat(PinpointConstants.APPLICATION_NAME_MAX_LEN_V3 + 1),

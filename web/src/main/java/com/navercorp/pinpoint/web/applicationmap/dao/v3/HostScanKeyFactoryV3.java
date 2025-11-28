@@ -16,28 +16,18 @@
 
 package com.navercorp.pinpoint.web.applicationmap.dao.v3;
 
-import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.HostScanKeyFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 
 public class HostScanKeyFactoryV3 implements HostScanKeyFactory {
-
-    private final int applicationNameMaxLength = PinpointConstants.APPLICATION_NAME_MAX_LEN_V3;
+    private static final int saltKeySize = ByteSaltKey.NONE.size();
 
     @Override
     public byte[] scanKey(Application parentApplication, long timestamp) {
-//        Buffer buffer = new AutomaticBuffer();
-//        buffer.putPadString(parentApplication.getName(), applicationNameMaxLength);
-//        buffer.putInt(parentApplication.getServiceTypeCode());
-//        buffer.putInt(ServiceUid.DEFAULT_SERVICE_UID_CODE);
-//        long reverseTimestamp = LongInverter.invert(timestamp);
-//        buffer.putLong(reverseTimestamp);
-//        return buffer.getBuffer();
-
-
-        return UidLinkRowKey.makeRowKey(0, ServiceUid.DEFAULT_SERVICE_UID_CODE,
+        return UidLinkRowKey.makeRowKey(saltKeySize, ServiceUid.DEFAULT_SERVICE_UID_CODE,
                 parentApplication.getName(), parentApplication.getServiceTypeCode(),
                 timestamp);
     }

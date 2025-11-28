@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.common.server.applicationmap.statistics;
 
+import com.google.common.hash.HashCode;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
@@ -31,7 +34,13 @@ import java.util.Objects;
  * @author emeroad
  */
 public class UidLinkRowKey implements TimestampRowKey {
-    public static final int TIMESTAMP_SIZE = 4;
+    public static final int TIMESTAMP_SIZE = BytesUtils.INT_BYTE_LENGTH;
+    public static final int PREFIX_SIZE = BytesUtils.INT_BYTE_LENGTH +
+                                          BytesUtils.INT_BYTE_LENGTH +
+                                          BytesUtils.INT_BYTE_LENGTH +
+                                          TIMESTAMP_SIZE;
+
+    private static final HashFunction hashFunction = Hashing.murmur3_32_fixed();
 
     private final int serviceUid;
     private final String applicationName;
@@ -39,7 +48,9 @@ public class UidLinkRowKey implements TimestampRowKey {
     private final long timestamp;
 
     public static RowKey of(Vertex vertex, long rowTimeSlot) {
-        return new UidLinkRowKey(vertex.serviceUid(), vertex.applicationName(), vertex.serviceType().getCode(), rowTimeSlot);
+
+        String applicationName = vertex.applicationName();
+        return new UidLinkRowKey(vertex.serviceUid(), applicationName, vertex.serviceType().getCode(), rowTimeSlot);
     }
 
     public static RowKey of(int serviceUid, String applicationName, ServiceType serviceType, long rowTimeSlot) {
@@ -47,10 +58,17 @@ public class UidLinkRowKey implements TimestampRowKey {
     }
 
     public UidLinkRowKey(int serviceUid, String applicationName, int serviceType, long timestamp) {
+        if (requireLength(applicationName) > PinpointConstants.APPLICATION_NAME_MAX_LEN_V3) {
+            throw new IllegalArgumentException("applicationName too long:" + applicationName);
+        }
         this.serviceUid = serviceUid;
-        this.applicationName = Objects.requireNonNull(applicationName, "callApplicationName");
+        this.applicationName = applicationName;
         this.serviceType = serviceType;
         this.timestamp = timestamp;
+    }
+
+    private static int requireLength(String applicationName) {
+        return Objects.requireNonNull(applicationName, "applicationName").length();
     }
 
     public int getServiceUid() {
@@ -72,7 +90,7 @@ public class UidLinkRowKey implements TimestampRowKey {
 
     /**
      * <pre>
-     * rowkey format = "APPLICATIONNAME(max 254)" + apptype(4) + serivceUid(4)+ "TIMESTAMP(8)"
+     * rowkey format = "hash(APPLICATIONNAME)(4)" + serivceUid(4) + apptype(4) + "TIMESTAMP(4) + APPLICATIONNAME"
      * </pre>
      *
      * @param saltKeySize
@@ -82,41 +100,58 @@ public class UidLinkRowKey implements TimestampRowKey {
     }
 
     public static byte[] makeRowKey(int saltKeySize, int serviceUid, String applicationName, int serviceType, long timestamp) {
+        if (requireLength(applicationName) > PinpointConstants.APPLICATION_NAME_MAX_LEN_V3) {
+            throw new IllegalArgumentException("applicationName too long:" + applicationName);
+        }
+
+        byte[] applicationNameBytes = BytesUtils.toBytes(applicationName);
+
         final Buffer buffer = new AutomaticBuffer(saltKeySize +
-                                                  PinpointConstants.APPLICATION_NAME_MAX_LEN_V3 +
-                                                  BytesUtils.INT_BYTE_LENGTH +
-                                                  BytesUtils.INT_BYTE_LENGTH +
-                                                  TIMESTAMP_SIZE);
+                                                  PREFIX_SIZE +
+                                                  applicationNameBytes.length
+                                                  );
         buffer.setOffset(saltKeySize);
-        buffer.putPadString(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN_V3);
-        buffer.putInt(serviceType);
+        buffer.putInt(hash(applicationNameBytes));
         buffer.putInt(serviceUid);
+        buffer.putInt(serviceType);
 
         int secondTimestamp = SecondTimestamp.convertSecondTimestamp(timestamp);
-
         int reverseTimeMillis = IntInverter.invert(secondTimestamp);
         buffer.putInt(reverseTimeMillis);
+
+
+        buffer.putBytes(applicationNameBytes);
         return buffer.getBuffer();
+    }
+
+
+    static int hash(byte[] bytes) {
+        HashCode hashCode = hashFunction.hashBytes(bytes);
+        return hashCode.hashCode();
     }
 
     public static UidLinkRowKey read(int saltKey, byte[] bytes) {
 
         int offset = saltKey;
 
-        String applicationName = BytesUtils.toStringAndRightTrim(bytes, offset, PinpointConstants.APPLICATION_NAME_MAX_LEN_V3);
-        offset += PinpointConstants.APPLICATION_NAME_MAX_LEN_V3;
-
-        int applicationServiceType = BytesUtils.bytesToInt(bytes, offset);
+        // skip applicationNameHash
+//        long applicationNameHash = BytesUtils.bytesToLong(bytes, offset);
         offset += BytesUtils.INT_BYTE_LENGTH;
 
         int serviceUid = BytesUtils.bytesToInt(bytes, offset);
         offset += BytesUtils.INT_BYTE_LENGTH;
 
-        int secondTimestamp = IntInverter.restore(BytesUtils.bytesToInt(bytes, offset));
-        long msTimestamp = SecondTimestamp.restoreSecondTimestamp(secondTimestamp);
-//        long timestamp = LongInverter.restore(BytesUtils.bytesToLong(bytes, offset));
+        int serviceType = BytesUtils.bytesToInt(bytes, offset);
+        offset += BytesUtils.INT_BYTE_LENGTH;
 
-        return new UidLinkRowKey(serviceUid, applicationName, applicationServiceType, msTimestamp);
+        int secondTimestamp = IntInverter.restore(BytesUtils.bytesToInt(bytes, offset));
+        offset += BytesUtils.INT_BYTE_LENGTH;
+        long msTimestamp = SecondTimestamp.restoreSecondTimestamp(secondTimestamp);
+
+
+        String applicationName = BytesUtils.toString(bytes, offset, bytes.length - offset);
+
+        return new UidLinkRowKey(serviceUid, applicationName, serviceType, msTimestamp);
     }
 
 

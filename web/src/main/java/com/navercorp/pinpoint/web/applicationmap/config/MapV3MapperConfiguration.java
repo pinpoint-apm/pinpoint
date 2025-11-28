@@ -52,6 +52,7 @@ import com.navercorp.pinpoint.web.applicationmap.dao.mapper.LinkRowKeyDecoder;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.ResultExtractorFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.RowMapperFactory;
 import com.navercorp.pinpoint.web.applicationmap.dao.v3.ApplicationResponseTimeV3ResultExtractor;
+import com.navercorp.pinpoint.web.applicationmap.dao.v3.HostApplicationMapperV3;
 import com.navercorp.pinpoint.web.applicationmap.dao.v3.HostScanKeyFactoryV3;
 import com.navercorp.pinpoint.web.applicationmap.dao.v3.InLinkV3Mapper;
 import com.navercorp.pinpoint.web.applicationmap.dao.v3.MapScanKeyFactoryV3;
@@ -194,9 +195,14 @@ public class MapV3MapperConfiguration {
     }
 
     @Bean
+    public ResultsExtractor<Set<AcceptApplication>> hostApplicationResultExtractorV3(ApplicationFactory applicationFactory) {
+        return new HostApplicationMapperV3(applicationFactory);
+    }
+
+    @Bean
     public HostApplicationMapDao hostApplicationMapDao(HbaseOperations hbaseOperations,
                                                        TableNameProvider tableNameProvider,
-                                                       @Qualifier("hostApplicationResultExtractor")
+                                                       @Qualifier("hostApplicationResultExtractorV3")
                                                        ResultsExtractor<Set<AcceptApplication>> hostApplicationResultExtractor,
                                                        TimeSlot timeSlot,
                                                        @Qualifier("acceptApplicationRowKeyDistributor")
