@@ -34,10 +34,8 @@ public final class HbaseTableConstants {
     public static final int APPLICATION_STAT_TIMESPAN_MS = 5 * 60 * 1000;
 
     // trace index (applicationTraceIndexV2)
-    public static final int TRACE_INDEX_SALT_KEY_SIZE = 1; // 1 byte for salt key
-    public static final int TRACE_INDEX_HASH_PREFIX_SIZE = PinpointConstants.APPLICATION_NAME_MAX_LEN_V3 + 4; // applicationName + serviceUid
+    public static final int TRACE_INDEX_DISTRIBUTOR_MOD = 8;
 
-    public static final int TRACE_INDEX_TIMESTAMP_OFFSET = PinpointConstants.APPLICATION_NAME_MAX_LEN_V3 + 4 + 4; // applicationName + serviceUid + serviceTypeCode
-    public static final int TRACE_INDEX_ROW_KEY_SIZE = TRACE_INDEX_TIMESTAMP_OFFSET + 8; // + timestamp
+    public static final int TRACE_INDEX_TIMESTAMP_OFFSET = 1 + 4 + 4 + 4; // salt(1) + applicationNameHash(4) + serviceUid(4) + serviceType(4)
 
 }

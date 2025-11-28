@@ -44,7 +44,7 @@ public class DistributorConfiguration {
 
     @Bean
     public RowKeyDistributorByHashPrefix traceIndexDistributor() {
-        ByteHasher hasher = RangeDoubleHash.ofRandom(0, HbaseTableConstants.TRACE_INDEX_HASH_PREFIX_SIZE + 4, 256, 8);
+        ByteHasher hasher = RangeDoubleHash.ofRandom(0, HbaseTableConstants.TRACE_INDEX_TIMESTAMP_OFFSET, 256, HbaseTableConstants.TRACE_INDEX_DISTRIBUTOR_MOD);
         return new RowKeyDistributorByHashPrefix(hasher);
     }
 

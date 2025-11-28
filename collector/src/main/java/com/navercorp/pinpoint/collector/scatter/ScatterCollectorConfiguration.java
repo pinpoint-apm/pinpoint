@@ -16,37 +16,33 @@
 
 package com.navercorp.pinpoint.collector.scatter;
 
-import com.navercorp.pinpoint.collector.scatter.dao.ApplicationTraceIndexDao;
-import com.navercorp.pinpoint.collector.scatter.dao.hbase.HbaseApplicationTraceIndexDao;
-import com.navercorp.pinpoint.common.hbase.HbaseTables;
-import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
+import com.navercorp.pinpoint.collector.dao.hbase.encode.ApplicationIndexRowKeyEncoder;
+import com.navercorp.pinpoint.collector.dao.hbase.encode.TraceIndexRowKeyEncoder;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 
 @ComponentScan(basePackages = {
+        "com.navercorp.pinpoint.collector.scatter.dao",
         "com.navercorp.pinpoint.collector.scatter.service",
 })
 @Configuration
 public class ScatterCollectorConfiguration {
+
     @Bean
-    @Primary
-    ApplicationTraceIndexDao hbaseApplicationTraceIndexDao(HbasePutWriter putWriter, TableNameProvider tableNameProvider,
-                                                           @Qualifier("applicationIndexRowKeyEncoder") RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoder) {
-        return new HbaseApplicationTraceIndexDao(HbaseTables.APPLICATION_TRACE_INDEX_TRACE, HbaseTables.APPLICATION_TRACE_INDEX_META,
-                putWriter, tableNameProvider, applicationIndexRowKeyEncoder);
+    public RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoder(ApplicationNameRowKeyEncoder rowKeyEncoder,
+                                                               @Qualifier("applicationTraceIndexDistributor")
+                                                                       RowKeyDistributor rowKeyDistributor) {
+        return new ApplicationIndexRowKeyEncoder(rowKeyEncoder, rowKeyDistributor);
     }
 
-
     @Bean
-    ApplicationTraceIndexDao hbaseApplicationTraceIndexDaoV2(HbasePutWriter putWriter, TableNameProvider tableNameProvider,
-                                                             @Qualifier("applicationIndexRowKeyEncoderV2") RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoder) {
-        return new HbaseApplicationTraceIndexDao(HbaseTables.TRACE_INDEX, HbaseTables.TRACE_INDEX_META,
-                putWriter, tableNameProvider, applicationIndexRowKeyEncoder);
+    public RowKeyEncoder<SpanBo> traceIndexRowKeyEncoder(@Qualifier("traceIndexDistributor") RowKeyDistributor rowKeyDistributor) {
+        return new TraceIndexRowKeyEncoder(rowKeyDistributor);
     }
 }

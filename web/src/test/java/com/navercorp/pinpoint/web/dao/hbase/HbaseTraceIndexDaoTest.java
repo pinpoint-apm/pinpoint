@@ -23,18 +23,18 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionIdV1;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.config.ScatterChartProperties;
 import com.navercorp.pinpoint.web.dao.TraceIndexDao;
 import com.navercorp.pinpoint.web.mapper.TraceIndexScatterMapper;
-import com.navercorp.pinpoint.web.mapper.TransactionIdMapper;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.scatter.ScatterDataBuilder;
-import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
+import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.junit.jupiter.api.Assertions;
@@ -46,6 +46,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -58,7 +59,9 @@ import static org.mockito.Mockito.when;
 
 public class HbaseTraceIndexDaoTest {
 
-    private final int serviceUid = ServiceUid.DEFAULT_SERVICE_UID_CODE;
+    private static final int serviceUid = ServiceUid.DEFAULT_SERVICE_UID_CODE;
+    private static final DotMetaData testDotMetaData = new DotMetaData(new Dot(TransactionIdV1.EMPTY_ID, 10, 10, 0, "testAgentId"),
+            "testAgentName", "remoteAddr", "rpc", "endpoint", -1, 0);
 
     @Mock
     private HbaseOperations hbaseOperations;
@@ -80,40 +83,33 @@ public class HbaseTraceIndexDaoTest {
         openMocks = MockitoAnnotations.openMocks(this);
         ScatterChartProperties scatterChartProperties = new ScatterChartProperties();
 
-        RowMapper<List<TransactionId>> transactionIdMapper = new TransactionIdMapper();
         RowMapper<List<Dot>> traceScatterMapper = new TraceIndexScatterMapper();
-        this.traceIndexDao = new HbaseTraceIndexDao(scatterChartProperties, hbaseOperations, tableNameProvider, transactionIdMapper, traceScatterMapper, traceIndexRowKeyDistributor);
+        this.traceIndexDao = new HbaseTraceIndexDao(scatterChartProperties, hbaseOperations, tableNameProvider, traceScatterMapper, traceIndexRowKeyDistributor);
     }
 
     @Test
     public void scanTraceIndexExceptionTest() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            this.traceIndexDao.scanTraceIndex(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), Range.between(0, 10), -20, false);
-        });
+        assertThrows(IllegalArgumentException.class, () -> this.traceIndexDao.scanTraceIndex(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), Range.between(0, 10), -20, false));
     }
 
     @Test
     public void scanTraceIndexTest() {
-        final List<List<TransactionId>> scannedList = createTraceIndexList();
+        final List<List<DotMetaData>> scannedList = List.of(Collections.nCopies(10, testDotMetaData));
         when(this.hbaseOperations.findParallel(any(TableName.class), any(Scan.class), any(RowKeyDistributor.class),
                 anyInt(), any(RowMapper.class), any(LimitEventHandler.class), anyInt())).thenReturn(scannedList);
-        LimitedScanResult<List<TransactionId>> result =
+        LimitedScanResult<List<DotMetaData>> result =
                 this.traceIndexDao.scanTraceIndex(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), Range.between(1000L, 5000L), 20, false);
         Assertions.assertEquals(1000L, result.limitedTime());
-        Assertions.assertEquals(ListListUtils.toList(scannedList), result.scanData());
 
         // using last row accessor
         result = this.traceIndexDao.scanTraceIndex(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), Range.between(1000L, 5000L), 5, true);
         Assertions.assertEquals(-1L, result.limitedTime());
-        Assertions.assertEquals(ListListUtils.toList(scannedList), result.scanData());
 
     }
 
     @Test
     public void scanTraceScatterDataExceptionTest() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            this.traceIndexDao.scanTraceScatterData(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), Range.between(1000L, 5000L), -10, false);
-        });
+        assertThrows(IllegalArgumentException.class, () -> this.traceIndexDao.scanTraceScatterData(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), Range.between(1000L, 5000L), -10, false));
     }
 
     @Test
@@ -161,18 +157,6 @@ public class HbaseTraceIndexDaoTest {
 
     private void addDot(List<List<Dot>> list, Dot dot) {
         list.add(List.of(dot));
-    }
-
-
-    private List<List<TransactionId>> createTraceIndexList() {
-        List<List<TransactionId>> ret = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            ret.add(new ArrayList<>());
-            for (int j = 0; j < 2; j++) {
-                ret.get(i).add(j, TransactionId.of("agentId" + i, 1000L * (i + 1), j));
-            }
-        }
-        return ret;
     }
 
     @Test

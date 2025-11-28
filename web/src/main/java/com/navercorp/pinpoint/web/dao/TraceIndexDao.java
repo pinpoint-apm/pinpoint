@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.dao;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
@@ -30,7 +29,7 @@ public interface TraceIndexDao {
 
     boolean hasTraceIndex(int serviceUid, String applicationName, int serviceTypeCode, Range range, boolean backwardDirection);
 
-    LimitedScanResult<List<TransactionId>> scanTraceIndex(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit, boolean backwardDirection);
+    LimitedScanResult<List<DotMetaData>> scanTraceIndex(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit, boolean backwardDirection);
 
     LimitedScanResult<List<Dot>> scanTraceScatterData(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit, boolean scanBackward);
 

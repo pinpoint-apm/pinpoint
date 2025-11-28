@@ -23,7 +23,6 @@ public class FuzzyRowKeyBuilder {
     private static final int HBASE_SALT_KEY_SIZE = HbaseTables.ApplicationTraceIndexTrace.ROW_DISTRIBUTE_SIZE; // one byte
 
     private static final int FUZZY_KEY_LENGTH = HBASE_SALT_KEY_SIZE + PinpointConstants.AGENT_ID_MAX_LEN + BytesUtils.LONG_BYTE_LENGTH + MASK_SIZE;
-    private static final int FUZZY_FILTER_LENGTH_V2 = HbaseTableConstants.TRACE_INDEX_SALT_KEY_SIZE + HbaseTableConstants.TRACE_INDEX_ROW_KEY_SIZE + MASK_SIZE;
 
     private final FuzzyRowKeyFactory<Byte> fuzzyRowKeyFactory = new OneByteFuzzyRowKeyFactory();
 
@@ -37,10 +36,6 @@ public class FuzzyRowKeyBuilder {
 
     public FuzzyRowKeyBuilder() {
         this(FUZZY_KEY_LENGTH);
-    }
-
-    public static FuzzyRowKeyBuilder createBuilderV2() {
-        return new FuzzyRowKeyBuilder(FUZZY_FILTER_LENGTH_V2);
     }
 
     private static byte[] fill(int length, byte c) {

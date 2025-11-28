@@ -16,53 +16,58 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.RowTypeHint;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
-import com.navercorp.pinpoint.common.server.util.SpanUtils;
+import com.navercorp.pinpoint.common.profiler.util.TransactionIdV1;
+import com.navercorp.pinpoint.common.server.bo.serializer.agent.TraceIndexRowUtils;
+import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * @author emeroad
- * @author netspider
- */
+// TraceIndexScatterMapper version 2
 @Component
-public class TransactionIdMapper implements RowMapper<List<TransactionId>>, RowTypeHint {
+public class TraceIndexDotMapper implements RowMapper<List<Dot>>, RowTypeHint {
+    private final HbaseColumnFamily index = HbaseTables.TRACE_INDEX;
 
-    private final Logger logger = LogManager.getLogger(this.getClass());
-
-    private final HbaseColumnFamily traceIndex;
-
-    public TransactionIdMapper() {
-        this.traceIndex = HbaseTables.APPLICATION_TRACE_INDEX_TRACE;
+    public TraceIndexDotMapper() {
     }
 
     @Override
-    public List<TransactionId> mapRow(Result result, int rowNum) throws Exception {
+    public List<Dot> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
+
         Cell[] rawCells = result.rawCells();
-        List<TransactionId> traceIdList = new ArrayList<>(rawCells.length);
+        List<Dot> list = new ArrayList<>(rawCells.length);
+        long acceptedTime = TraceIndexRowUtils.extractAcceptTime(result.getRow(), 0);
         for (Cell cell : rawCells) {
-            if (CellUtil.matchingFamily(cell, traceIndex.getName())) {
-                TransactionId traceId = SpanUtils.parseVarTransactionId(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
-                traceIdList.add(traceId);
-                logger.debug("found traceId {}", traceId);
+            if (CellUtil.matchingFamily(cell, index.getName())) {
+                Dot dot = createDot(acceptedTime, cell);
+                list.add(dot);
             }
         }
-        return traceIdList;
+        return list;
+    }
+
+    private Dot createDot(long acceptedTime, Cell cell) {
+        final Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+        valueBuffer.readByte(); // hasError byte
+        String agentId = valueBuffer.readPrefixedString();
+        int elapsed = valueBuffer.readVInt();
+        int exceptionCode = valueBuffer.readSVInt();
+
+        return new Dot(TransactionIdV1.EMPTY_ID, acceptedTime, elapsed, exceptionCode, agentId);
     }
 
     @Override

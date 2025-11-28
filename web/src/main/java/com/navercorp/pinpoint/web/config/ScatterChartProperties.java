@@ -7,7 +7,14 @@ public class ScatterChartProperties {
     @Value("${web.scatter.serverside-scan.use-fuzzyrowfilter:false}")
     private boolean enableFuzzyRowFilter;
 
+    @Value("${web.scatter.index.value-filter.enable:false}")
+    private boolean enableIndexValueFilter;
+
     public boolean isEnableFuzzyRowFilter() {
         return enableFuzzyRowFilter;
+    }
+
+    public boolean isEnableIndexValueFilter() {
+        return enableIndexValueFilter;
     }
 }

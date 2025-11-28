@@ -32,7 +32,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -42,19 +41,13 @@ import java.util.stream.Collectors;
  */
 public class TraceIndexMetaScatterMapper implements RowMapper<List<DotMetaData>>, RowTypeHint {
 
-    private final HbaseColumnFamily index;
-    private final HbaseColumnFamily meta;
+    private final HbaseColumnFamily index = HbaseTables.APPLICATION_TRACE_INDEX_TRACE;
+    private final HbaseColumnFamily meta = HbaseTables.APPLICATION_TRACE_INDEX_META;
     // @Nullable
     private final Predicate<Dot> filter;
 
-    public TraceIndexMetaScatterMapper(HbaseColumnFamily index, HbaseColumnFamily meta, Predicate<Dot> filter) {
-        this.index = Objects.requireNonNull(index, "index");
-        this.meta = Objects.requireNonNull(meta, "meta");
+    public TraceIndexMetaScatterMapper(Predicate<Dot> filter) {
         this.filter = filter;
-    }
-
-    public TraceIndexMetaScatterMapper() {
-        this(HbaseTables.APPLICATION_TRACE_INDEX_TRACE, HbaseTables.APPLICATION_TRACE_INDEX_META, null);
     }
 
     @Override
@@ -65,12 +58,7 @@ public class TraceIndexMetaScatterMapper implements RowMapper<List<DotMetaData>>
         Map<TransactionId, DotMetaData.Builder> metaDataMap = new HashMap<>();
         for (Cell cell : result.rawCells()) {
             if (CellUtil.matchingFamily(cell, index.getName())) {
-                Dot dot;
-                if (index == HbaseTables.APPLICATION_TRACE_INDEX_TRACE) {
-                    dot = TraceIndexScatterMapper.createDotV1(cell);
-                } else {
-                    dot = TraceIndexScatterMapper.createDot(cell);
-                }
+                Dot dot = TraceIndexScatterMapper.createDot(cell);
                 DotMetaData.Builder builder = getMetaDataBuilder(metaDataMap, dot.getTransactionId());
                 builder.setDot(dot);
             }

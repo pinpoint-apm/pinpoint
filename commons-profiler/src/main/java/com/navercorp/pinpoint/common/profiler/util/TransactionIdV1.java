@@ -25,6 +25,8 @@ import java.util.Objects;
  */
 public class TransactionIdV1 implements TransactionId {
 
+    public static TransactionIdV1 EMPTY_ID = new TransactionIdV1("EMPTY", 0, 0);
+
     private final String agentId;
     private final long agentStartTime;
     private final long transactionSequence;

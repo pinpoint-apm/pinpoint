@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.scatter.dao.hbase;
 
-import com.navercorp.pinpoint.collector.scatter.dao.ApplicationTraceIndexDao;
+import com.navercorp.pinpoint.collector.scatter.dao.TraceIndexDao;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
@@ -36,34 +36,26 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
 
-
-/**
- * find traceids by application name
- *
- * @author netspider
- * @author emeroad
- */
 @Repository
-public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
+public class HbaseTraceIndexDao implements TraceIndexDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final HbaseColumnFamily indexTable = HbaseTables.APPLICATION_TRACE_INDEX_TRACE;
-    private final HbaseColumnFamily metaTable = HbaseTables.APPLICATION_TRACE_INDEX_META;
+    private final HbaseColumnFamily indexTable = HbaseTables.TRACE_INDEX;
+    private final HbaseColumnFamily metaTable = HbaseTables.TRACE_INDEX_META;
 
     private final HbasePutWriter putWriter;
     private final TableNameProvider tableNameProvider;
 
     private final RowKeyEncoder<SpanBo> traceIndexRowKeyEncoder;
 
-    public HbaseApplicationTraceIndexDao(
-            HbasePutWriter putWriter,
-            TableNameProvider tableNameProvider,
-            @Qualifier("applicationIndexRowKeyEncoder") RowKeyEncoder<SpanBo> traceIndexRowKeyEncoder) {
+    public HbaseTraceIndexDao(HbasePutWriter putWriter,
+                              TableNameProvider tableNameProvider,
+                              @Qualifier("traceIndexRowKeyEncoder") RowKeyEncoder<SpanBo> traceIndexRowKeyEncoder) {
         this.putWriter = Objects.requireNonNull(putWriter, "putWriter");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
-        this.traceIndexRowKeyEncoder = Objects.requireNonNull(traceIndexRowKeyEncoder, "applicationIndexRowKeyEncoder");
-        logger.info("ApplicationIndexRowKeyEncoder:{}", traceIndexRowKeyEncoder);
+        this.traceIndexRowKeyEncoder = Objects.requireNonNull(traceIndexRowKeyEncoder, "traceIndexRowKeyEncoder");
+        logger.info("traceIndexRowKeyEncoder:{}", traceIndexRowKeyEncoder);
     }
 
     @Override
@@ -71,7 +63,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         Objects.requireNonNull(span, "span");
 
         if (logger.isDebugEnabled()) {
-            logger.debug("insert ApplicationTraceIndex: {}", span);
+            logger.debug("insert TraceIndex: {}", span);
         }
 
         final long acceptedTime = span.getCollectorAcceptTime();
@@ -79,42 +71,43 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
         final Put put = new Put(distributedKey, true);
 
-        final byte[] qualifier = SpanUtils.getVarTransactionId(span);
-
         final byte[] indexValue = buildIndexValue(span);
-        put.addColumn(indexTable.getName(), qualifier, acceptedTime, indexValue);
+        put.addColumn(indexTable.getName(), indexTable.getName(), acceptedTime, indexValue);
 
-        final byte[] metaDataValue = buildMetaData(span);
-        put.addColumn(metaTable.getName(), qualifier, metaDataValue);
+        final byte[] metaDataValue = buildMetaValue(span);
+        put.addColumn(metaTable.getName(), metaTable.getName(), acceptedTime, metaDataValue);
 
         final TableName applicationTraceIndexTableName = tableNameProvider.getTableName(indexTable.getTable());
         putWriter.put(applicationTraceIndexTableName, put);
     }
 
+    /**
+     * DotMetaData.BuilderV2.readIndex();
+     */
     private byte[] buildIndexValue(SpanBo span) {
         final Buffer buffer = new AutomaticBuffer(10 + HbaseTableConstants.AGENT_ID_MAX_LEN);
+        byte hasError = span.getErrCode() == 0 ? (byte) 0 : (byte) 1;
+        buffer.putByte(hasError);
+        buffer.putPrefixedString(span.getAgentId());
         buffer.putVInt(span.getElapsed());
         buffer.putSVInt(span.getErrCode());
-        buffer.putPrefixedString(span.getAgentId());
         return buffer.getBuffer();
     }
 
     /**
-     * DotMetaData.Builder.read();
+     * DotMetaData.BuilderV2.readMeta();
      */
-    private byte[] buildMetaData(SpanBo span) {
+    private byte[] buildMetaValue(SpanBo span) {
         Buffer buffer = new AutomaticBuffer(64);
-        buffer.putByte((byte) 0);
-        buffer.putLong(span.getSpanId());
-        buffer.putLong(span.getStartTime());
-        // fixed field offset
-        buffer.setByte(0, (byte) buffer.getOffset());
+        buffer.putInt(span.getElapsed());
+        buffer.putByte((byte) 1); // txId version
+        SpanUtils.writeTransactionIdV1(buffer, span.getTransactionId());
 
+        buffer.putLong(span.getStartTime());
         buffer.putPrefixedString(span.getRpc());
         buffer.putPrefixedString(span.getRemoteAddr());
         buffer.putPrefixedString(span.getEndPoint());
         buffer.putPrefixedString(span.getAgentName());
-
         return buffer.getBuffer();
     }
 

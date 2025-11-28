@@ -17,14 +17,16 @@
 package com.navercorp.pinpoint.web.mapper;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.RowTypeHint;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
-import com.navercorp.pinpoint.common.server.bo.serializer.agent.TraceIndexRowUtils;
 import com.navercorp.pinpoint.common.server.util.SpanUtils;
+import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -44,12 +46,7 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>>, RowTypeHin
     private final HbaseColumnFamily index;
 
     public TraceIndexScatterMapper() {
-        this.index = HbaseTables.TRACE_INDEX;
-    }
-
-    // for ApplicationTraceIndexDao
-    public TraceIndexScatterMapper(HbaseColumnFamily index) {
-        this.index = index;
+        index = HbaseTables.APPLICATION_TRACE_INDEX_TRACE;
     }
 
     @Override
@@ -62,12 +59,7 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>>, RowTypeHin
         List<Dot> list = new ArrayList<>(rawCells.length);
         for (Cell cell : rawCells) {
             if (CellUtil.matchingFamily(cell, index.getName())) {
-                Dot dot;
-                if (index == HbaseTables.APPLICATION_TRACE_INDEX_TRACE) {
-                    dot = createDotV1(cell);
-                } else {
-                    dot = createDot(cell);
-                }
+                Dot dot = createDot(cell);
                 list.add(dot);
             }
         }
@@ -80,22 +72,16 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>>, RowTypeHin
         int exceptionCode = valueBuffer.readSVInt();
         String agentId = valueBuffer.readPrefixedString();
 
-        long acceptedTime = TraceIndexRowUtils.extractAcceptTime(cell.getRowArray(), cell.getRowOffset());
+        long acceptedTime = extractAcceptTime(cell.getRowArray(), cell.getRowOffset());
         TransactionId transactionId = SpanUtils.parseVarTransactionId(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
 
         return new Dot(transactionId, acceptedTime, elapsed, exceptionCode, agentId);
     }
 
-    static Dot createDotV1(Cell cell) {
-        final Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
-        int elapsed = valueBuffer.readVInt();
-        int exceptionCode = valueBuffer.readSVInt();
-        String agentId = valueBuffer.readPrefixedString();
-
-        long acceptedTime = TraceIndexRowUtils.extractAcceptTimeV1(cell.getRowArray(), cell.getRowOffset());
-        TransactionId transactionId = SpanUtils.parseVarTransactionId(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
-
-        return new Dot(transactionId, acceptedTime, elapsed, exceptionCode, agentId);
+    static long extractAcceptTime(byte[] bytes, int baseOffset) {
+        int timestampOffset = baseOffset + HbaseTableConstants.APPLICATION_NAME_MAX_LEN + HbaseTables.ApplicationTraceIndexTrace.ROW_DISTRIBUTE_SIZE;
+        long reverseStartTime = ByteArrayUtils.bytesToLong(bytes, timestampOffset);
+        return LongInverter.restore(reverseStartTime);
     }
 
     @Override
