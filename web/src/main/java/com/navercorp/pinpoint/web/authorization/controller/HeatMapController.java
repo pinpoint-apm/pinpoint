@@ -92,7 +92,7 @@ public class HeatMapController {
             dotMetaData = heatMap.dragScatterDataV2(applicationName, query, limit);
         } else {
             final ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
-            dotMetaData = heatMap.dragScatterDataV3(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceType.getCode(), query, limit);
+            dotMetaData = heatMap.dragTraceIndex(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceType.getCode(), query, limit);
         }
         if (logger.isDebugEnabled()) {
             logger.debug("dragScatterArea applicationName:{} dots:{}", applicationName, dotMetaData.scanData().size());

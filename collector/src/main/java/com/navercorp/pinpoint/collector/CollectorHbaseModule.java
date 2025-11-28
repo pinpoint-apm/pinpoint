@@ -70,18 +70,6 @@ public class CollectorHbaseModule {
     private final Logger logger = LogManager.getLogger(CollectorHbaseModule.class);
 
     @Bean
-    public RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoder(ApplicationNameRowKeyEncoder rowKeyEncoder,
-                                                               @Qualifier("applicationTraceIndexDistributor")
-                                                                       RowKeyDistributor rowKeyDistributor) {
-        return new ApplicationIndexRowKeyEncoder(rowKeyEncoder, rowKeyDistributor);
-    }
-
-    @Bean
-    public RowKeyEncoder<SpanBo> applicationIndexRowKeyEncoderV2(@Qualifier("traceIndexDistributor") RowKeyDistributor rowKeyDistributor) {
-        return new TraceIndexRowKeyEncoder(rowKeyDistributor);
-    }
-
-    @Bean
     public DurabilityApplier spanPutWriterDurabilityApplier(@Value("${collector.span.durability:USE_DEFAULT}") String spanDurability) {
         logger.info("Span(Trace Put) durability:{}", spanDurability);
         return new DurabilityApplier(spanDurability);

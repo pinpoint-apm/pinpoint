@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.collector.scatter.service;
 
 import com.navercorp.pinpoint.collector.scatter.dao.ApplicationTraceIndexDao;
+import com.navercorp.pinpoint.collector.scatter.dao.TraceIndexDao;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -28,21 +28,20 @@ import java.util.Objects;
 public class HbaseScatterService implements ScatterService {
 
     private final ApplicationTraceIndexDao applicationTraceIndexDao;
-    private final ApplicationTraceIndexDao applicationTraceIndexDaoV2;
+    private final TraceIndexDao traceIndexDao;
     private final boolean enableApplicationTraceIndexV1;
     private final boolean enableApplicationTraceIndexV2;
 
     public HbaseScatterService(
             ApplicationTraceIndexDao applicationTraceIndexDao,
-            @Qualifier("hbaseApplicationTraceIndexDaoV2")
-            ApplicationTraceIndexDao applicationTraceIndexDaoV2,
+            TraceIndexDao traceIndexDao,
             @Value("${pinpoint.collector.application.trace.index.v1.enabled:true}")
             boolean enableApplicationTraceIndexV1,
             @Value("${pinpoint.collector.application.trace.index.v2.enabled:false}")
             boolean enableApplicationTraceIndexV2
     ) {
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
-        this.applicationTraceIndexDaoV2 = Objects.requireNonNull(applicationTraceIndexDaoV2, "applicationTraceIndexDaoV2");
+        this.traceIndexDao = Objects.requireNonNull(traceIndexDao, "traceIndexDao");
         this.enableApplicationTraceIndexV1 = enableApplicationTraceIndexV1;
         this.enableApplicationTraceIndexV2 = enableApplicationTraceIndexV2;
     }
@@ -53,7 +52,7 @@ public class HbaseScatterService implements ScatterService {
             applicationTraceIndexDao.insert(span);
         }
         if (enableApplicationTraceIndexV2) {
-            applicationTraceIndexDaoV2.insert(span);
+            traceIndexDao.insert(span);
         }
     }
 }

@@ -124,46 +124,22 @@ public class ScatterChartController {
                 range, xGroupUnit, yGroupUnit, limit, backwardDirection
         );
         final boolean useTraceIndexV2 = traceIndexReadV2.orElse(defaultTraceIndexReadV2);
-        ScatterView.DotView dotView;
+
+        final ScatterData scatterData;
         if (!useTraceIndexV2) {
-            dotView = selectScatterData(applicationName, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection);
+            scatterData = scatterChartService.selectScatterData(applicationName, range, xGroupUnit, yGroupUnit, limit, backwardDirection);
         } else {
             final ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
-            dotView = selectScatterDataV2(applicationName, serviceType.getCode(), range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection);
+            scatterData = scatterChartService.selectScatterDataV2(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceType.getCode(), range, xGroupUnit, yGroupUnit, limit, backwardDirection);
         }
+        final boolean requestComplete = scatterData.getDotSize() < limit;
+        ScatterView.DotView dotView = new ScatterView.DotView(scatterData, requestComplete);
         return wrapScatterResultView(range, dotView);
     }
 
     private static ScatterView.ResultView wrapScatterResultView(Range range, ScatterView.DotView dotView) {
         final Status status = new Status(System.currentTimeMillis(), range);
         return ScatterView.wrapResult(dotView, status);
-    }
-
-    private ScatterView.DotView selectScatterData(
-            String applicationName,
-            Range range,
-            int xGroupUnit,
-            int yGroupUnit,
-            int limit,
-            boolean backwardDirection) {
-        final ScatterData scatterData =
-                scatterChartService.selectScatterData(applicationName, range, xGroupUnit, yGroupUnit, limit, backwardDirection);
-        final boolean requestComplete = scatterData.getDotSize() < limit;
-        return new ScatterView.DotView(scatterData, requestComplete);
-    }
-
-    private ScatterView.DotView selectScatterDataV2(
-            String applicationName,
-            int serviceTypeCode,
-            Range range,
-            int xGroupUnit,
-            int yGroupUnit,
-            int limit,
-            boolean backwardDirection) {
-        final ScatterData scatterData =
-                scatterChartService.selectScatterDataV2(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode, range, xGroupUnit, yGroupUnit, limit, backwardDirection);
-        final boolean requestComplete = scatterData.getDotSize() < limit;
-        return new ScatterView.DotView(scatterData, requestComplete);
     }
 
     private ServiceType findServiceType(Integer serviceTypeCode, String serviceTypeName) {
