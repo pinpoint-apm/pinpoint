@@ -27,7 +27,7 @@ export interface ServerMapProps extends Pick<React.HTMLProps<HTMLDivElement>, 'c
   onHoverNode?: ClickEventHandler<MergedNode>;
   onClickNode?: ClickEventHandler<MergedNode>;
   onClickEdge?: ClickEventHandler<MergedEdge>;
-  onClickBackground?: ClickEventHandler<{}>;
+  onClickBackground?: ClickEventHandler<object>;
   onDataMerged?: (mergeInfo: MergeInfo) => void;
   renderNodeLabel?: (node: MergedNode) => string | undefined;
   renderEdgeLabel?: (edge: MergedEdge) => string | undefined;
@@ -53,14 +53,14 @@ export const ServerMap = ({
   cy,
 }: ServerMapProps) => {
   const containerRef = React.useRef<HTMLDivElement>(null);
-  const cyRef = React.useRef<cytoscape.Core>();
-  const layoutRef = React.useRef<cytoscape.Layouts>();
+  const cyRef = React.useRef<cytoscape.Core | undefined>(undefined);
+  const layoutRef = React.useRef<cytoscape.Layouts | undefined>(undefined);
   const serverMapTheme = getTheme(customTheme);
   const [selectedElementId, setSelectedElementId] = React.useState('');
 
   React.useEffect(() => {
     return () => {
-      cyRef?.current?.destroy();
+      cyRef.current?.destroy();
     };
   }, []);
 
@@ -71,9 +71,9 @@ export const ServerMap = ({
       layoutRef.current?.removeAllListeners();
       layoutRef.current?.stop();
       layoutRef.current = undefined;
-      cyRef.current.removeData();
-      cyRef.current.removeAllListeners();
-      cyRef.current.destroy();
+      cyRef.current?.removeData();
+      cyRef.current?.removeAllListeners();
+      cyRef.current?.destroy();
       cyRef.current = undefined;
     }
 
@@ -147,7 +147,9 @@ export const ServerMap = ({
                 const sourceNode = cy.getElementById(data.source);
                 const targetNode = cy.getElementById(data.target);
 
-                sourceNode.inside() && targetNode.inside() && cy.add({ data }); // add edge
+                if (sourceNode.inside() && targetNode.inside() && cy) {
+                  cy.add({ data }); // add edge
+                }
               });
             } else {
               return;
@@ -162,7 +164,7 @@ export const ServerMap = ({
             rankDir: 'LR',
             rankSep: 200,
           } as DagreLayoutOptions);
-          layoutRef.current.run();
+          layoutRef.current?.run();
         } else {
           if (addedNodes && addedNodes.length > 0) {
             const centerNode = cy.getElementById(baseNodeId);
@@ -227,10 +229,14 @@ export const ServerMap = ({
 
             const selectedElement = cy.getElementById(selectedElementId);
 
-            if (selectedElement.inside()) {
-              selectedElement.isNode() ? highlightNode(selectedElement) : highlightEdge(selectedElement);
+            if (selectedElement?.inside()) {
+              if (selectedElement?.isNode()) {
+                highlightNode(selectedElement);
+              } else {
+                highlightEdge(selectedElement);
+              }
             } else {
-              highlightNode(cy.getElementById(baseNodeId));
+              highlightNode(cy?.getElementById(baseNodeId));
             }
           }
         }
@@ -255,7 +261,7 @@ export const ServerMap = ({
   };
 
   const addEventListener = React.useCallback(() => {
-    const cy = cyRef?.current;
+    const cy = cyRef.current;
 
     if (cy) {
       cy.on('layoutready', () => {
@@ -358,21 +364,25 @@ export const ServerMap = ({
 
   const highlightNode = (target: cytoscape.CollectionReturnValue) => {
     const cy = cyRef.current!;
+    /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
     cy.nodes().style(serverMapTheme.node?.default!);
     cy.edges().style(serverMapTheme.edge?.default!);
     cy.getElementById(baseNodeId).style(serverMapTheme.node?.main!);
     target.style(serverMapTheme.node?.highlight!);
     target.connectedEdges().style(serverMapTheme.edge?.highlight!);
+    /* eslint-enable @typescript-eslint/no-non-null-asserted-optional-chain */
   };
 
   const highlightEdge = (target: cytoscape.CollectionReturnValue) => {
     const cy = cyRef.current!;
 
+    /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
     cy.nodes().style(serverMapTheme.node?.default!);
     cy.edges().style(serverMapTheme.edge?.default!);
     cy.getElementById(baseNodeId).style(serverMapTheme.node?.main!);
     target.connectedNodes().style({ 'border-color': serverMapTheme.node?.highlight?.['border-color']! });
     target.style(serverMapTheme.edge?.highlight!);
+    /* eslint-enable @typescript-eslint/no-non-null-asserted-optional-chain */
   };
 
   return (

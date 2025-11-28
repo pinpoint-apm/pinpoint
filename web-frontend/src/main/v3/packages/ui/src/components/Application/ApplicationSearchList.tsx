@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React from 'react';
 
 import { cn } from '../../lib/utils';
 import { Input } from '../ui/input';
@@ -28,9 +28,14 @@ export const ApplicationSearchList = ({
       />
       {typeof children === 'function'
         ? children({ filterKeyword })
-        : React.Children.map(children, (child) =>
-            React.cloneElement(child as ReactElement, { filterKeyword }),
-          )}
+        : React.Children.map(children, (child) => {
+            if (React.isValidElement(child)) {
+              return React.cloneElement(child, {
+                filterKeyword,
+              } as Partial<{ filterKeyword: string }>);
+            }
+            return child;
+          })}
     </div>
   );
 };

@@ -62,9 +62,10 @@ export const DatePanel = ({
   const {
     appContext: { seamToken, timeZone },
   } = React.useContext(AppContext);
-  const delayCloseRef = React.useRef<NodeJS.Timeout>();
+  const delayCloseRef = React.useRef<NodeJS.Timeout | undefined>(undefined);
   const [openMore, setOpenMore] = React.useState(false);
   const [showDatePicker, setShowDatePicker] = React.useState(false);
+
   const defatulCustomTimes = {
     ...getDefaultCustomTimes(locale, seamToken, timeZone),
     ...customTimes,

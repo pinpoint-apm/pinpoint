@@ -24,12 +24,13 @@
   },
   "dependencies": {
     "@headlessui/react": "1.7.16",
+    "@testing-library/dom": "^10.4.1",
     "classnames": "^2.3.2",
     "date-fns": "^2.30.0",
     "date-fns-tz": "^2.0.0",
-    "react": "^18.3.0",
-    "react-datepicker": "^4.16.0",
-    "react-dom": "^18.3.0",
+    "react": "^19.0.0",
+    "react-datepicker": "^8.9.0",
+    "react-dom": "^19.0.0",
     "usehooks-ts": "^2.9.1"
   },
   "devDependencies": {
@@ -40,12 +41,11 @@
     "@storybook/builder-vite": "^9.1.8",
     "@storybook/react-vite": "^9.1.8",
     "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^14.0.0",
+    "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.4.3",
     "@types/jest": "^30.0.0",
-    "@types/react": "^18.2.15",
-    "@types/react-datepicker": "^4.15.0",
-    "@types/react-dom": "^18.2.7",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "@typescript-eslint/eslint-plugin": "^8.44.1",
     "@typescript-eslint/parser": "^8.44.1",
     "@vitejs/plugin-react-swc": "^3.3.2",
@@ -78,8 +78,8 @@
     "vite-plugin-svgr": "^4.3.0"
   },
   "peerDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "resolutions": {
     "jackspeak": "2.1.1"

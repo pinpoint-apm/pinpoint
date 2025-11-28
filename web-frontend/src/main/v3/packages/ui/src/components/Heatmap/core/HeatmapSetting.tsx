@@ -47,13 +47,13 @@ export const HeatmapSetting = ({
   onClose,
   defaultValues = DefaultValue,
 }: HeatmapSettingProps) => {
-  const containerRef = React.useRef(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
   const handleClickClose = () => {
     onClose?.();
   };
 
-  useOnClickOutside(containerRef, handleClickClose);
+  useOnClickOutside(containerRef as React.RefObject<HTMLElement>, handleClickClose);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),

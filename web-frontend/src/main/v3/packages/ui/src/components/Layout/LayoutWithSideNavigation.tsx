@@ -67,10 +67,10 @@ export const LayoutWithSideNavigation = ({
   const { pathname } = useLocation();
 
   const SubMenuItem = ({ item }: MenuItemProps) => {
-    const hoverRef = React.useRef<HTMLLIElement>(null);
+    const hoverRef = React.useRef<HTMLLIElement | null>(null);
     const subMenuContentElement =
       hoverRef.current?.querySelector<HTMLDivElement>('.ps-submenu-content');
-    const isHover = useDebounce(useHover(hoverRef), 150);
+    const isHover = useDebounce(useHover(hoverRef as React.RefObject<HTMLElement>), 150);
     const isActive = item.childItems?.some(({ href }) => {
       if (href) {
         return pathname.includes(href);

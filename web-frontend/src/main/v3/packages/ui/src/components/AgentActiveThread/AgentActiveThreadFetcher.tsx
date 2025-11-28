@@ -24,7 +24,7 @@ import { useTimezone } from '@pinpoint-fe/ui/src/hooks';
 export interface ActiveRequestProps {}
 
 export const AgentActiveThreadFetcher = () => {
-  const wsRef = React.useRef<WebSocket>();
+  const wsRef = React.useRef<WebSocket | undefined>(undefined);
   const [timezone] = useTimezone();
   const [webSocketState, setWebSocketState] = React.useState<number>(WebSocket.CLOSED);
   const currentServerMapTarget = useAtomValue(serverMapCurrentTargetAtom);

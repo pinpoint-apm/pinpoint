@@ -36,7 +36,7 @@ export const HeatmapRealtimeFetcher = ({
   ...props
 }: HeatmapRealtimeFetcherProps) => {
   const now = new Date();
-  const lastToTimestamp = React.useRef<number>(); // 마지막 호출 시간을 기억해서 from~to 보다 전이면 "lastToDate ~ new Date()" 로 호출
+  const lastToTimestamp = React.useRef<number | undefined>(undefined); // 마지막 호출 시간을 기억해서 from~to 보다 전이면 "lastToDate ~ new Date()" 로 호출
   const [realtimeDateRange, setRealtimeDateRange] = React.useState({
     from: subMinutes(now, 5),
     to: now,
@@ -83,8 +83,8 @@ export const HeatmapRealtimeFetcher = ({
       applicationName: nodeData?.applicationName,
       serviceTypeName: nodeData?.serviceType,
       from:
-        !!lastToTimestamp.current && lastToTimestamp.current < realtimeDateRange.from.getTime()
-          ? lastToTimestamp.current
+        !!lastToTimestamp?.current && lastToTimestamp?.current < realtimeDateRange.from.getTime()
+          ? lastToTimestamp?.current
           : realtimeDateRange.from.getTime(),
       to: realtimeDateRange.to.getTime(),
       minElapsedTime: Number(setting?.yMin) || DefaultAxisY[0],

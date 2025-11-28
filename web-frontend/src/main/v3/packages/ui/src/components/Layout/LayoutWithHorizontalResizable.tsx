@@ -80,7 +80,7 @@ export const useLayoutWithHorizontalResizable = () => {
     resizeHandleWidth: defaultSize.resizeHandleWidth,
     SERVER_LIST_WIDTH,
   });
-  const resizableRef = React.useRef<ResizableRefsType>();
+  const resizableRef = React.useRef<ResizableRefsType | null>(null);
 
   React.useEffect(() => {
     const groupElement = getPanelGroupElement(resizableId);

@@ -80,7 +80,7 @@ export const RichDatetimePicker = ({
   const [displayInput, setDisplayInput] = React.useState(displayedInput);
   const [appContext, setAppContext] = React.useState({ seamToken, timeZone: tz });
 
-  useOnClickOutside(containerRef, () => {
+  useOnClickOutside(containerRef as React.RefObject<HTMLElement>, () => {
     if (!hasPanelContainer) {
       setOpen(false);
     }

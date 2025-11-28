@@ -7,7 +7,7 @@ import { getSearchParameters, getDateRange } from './utils';
 export const useServerMapSearchParameters = () => {
   const regex =
     /^(\/serverMap\/realtime|\/scatterFullScreenMode\/realtime|\/heatmapFullScreenMode\/realtime)/;
-  const intervalRef = React.useRef<NodeJS.Timeout>();
+  const intervalRef = React.useRef<NodeJS.Timeout | undefined>(undefined);
   const { search, pathname } = useLocation();
   const searchParameters = getSearchParameters(search);
   const queryOption = getServerMapQueryOption(searchParameters);

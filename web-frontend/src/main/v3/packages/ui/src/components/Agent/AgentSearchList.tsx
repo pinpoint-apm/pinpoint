@@ -21,7 +21,7 @@ export const AgentSearchList = ({
   onClickAgent,
 }: AgentSearchListProps) => {
   const [sortBy] = useAgentListSortBy();
-  const listContainerRef = React.useRef(null);
+  const listContainerRef = React.useRef<HTMLDivElement>(null);
   const height = useHeightToBottom({ ref: listContainerRef });
 
   return (

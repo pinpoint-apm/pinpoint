@@ -68,7 +68,7 @@ export const OpenTelemetryDashboardFetcher = () => {
   }>({
     layouts: { sm: [], xxs: [] },
   });
-  const prevLayouts = React.useRef<ReactGridLayout.Layouts>();
+  const prevLayouts = React.useRef<ReactGridLayout.Layouts | undefined>(undefined);
   const [isChanged, setIsChanged] = React.useState(false);
 
   const updateMetricsWithToastMessage = (
@@ -118,7 +118,9 @@ export const OpenTelemetryDashboardFetcher = () => {
         h: l?.h,
       };
     });
-    setIsChanged(!!prevLayouts.current?.sm && !isEqual(layoutForCompare, prevLayouts.current?.sm));
+    setIsChanged(
+      !!prevLayouts?.current?.sm && !isEqual(layoutForCompare, prevLayouts?.current?.sm),
+    );
   }, [state]);
 
   React.useEffect(() => {

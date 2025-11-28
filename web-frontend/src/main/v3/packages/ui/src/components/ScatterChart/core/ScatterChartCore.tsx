@@ -83,9 +83,9 @@ export const ScatterChartCore = React.forwardRef<ScatterChartHandle, ScatterChar
   ) => {
     const toast = useReactToastifyToast();
     const wrapperRef = React.useRef<HTMLDivElement>(null);
-    const scatterRef = React.useRef<InstanceType<typeof SC>>();
-    const resizeObserverRef = React.useRef<ResizeObserver>();
-    const resizeTimeout = React.useRef<NodeJS.Timeout>();
+    const scatterRef = React.useRef<InstanceType<typeof SC> | undefined>(undefined);
+    const resizeObserverRef = React.useRef<ResizeObserver | null>(null);
+    const resizeTimeout = React.useRef<NodeJS.Timeout | undefined>(undefined);
     const [isCapturingImage, setIsCapturingImage] = React.useState(false);
     const [isSettingAxis, setIsSettingAxis] = React.useState(false);
     const [checkedLegends, setCheckedLegends] = React.useState(['success', 'fail']);
@@ -93,28 +93,28 @@ export const ScatterChartCore = React.forwardRef<ScatterChartHandle, ScatterChar
     React.useImperativeHandle(ref, () => {
       return {
         isMounted: () => {
-          return !!scatterRef.current;
+          return !!scatterRef?.current;
         },
         getChartSize: () => {
           return getChartSize();
         },
         startRealtime: (duration: number) => {
-          scatterRef.current?.startRealtime(duration);
+          scatterRef?.current?.startRealtime(duration);
         },
         stopRealtime: () => {
-          scatterRef.current?.stopRealtime();
+          scatterRef?.current?.stopRealtime();
         },
         isRealtime: () => {
-          return !!scatterRef.current?.isRealtime;
+          return !!scatterRef?.current?.isRealtime;
         },
         render: (data: ScatterDataType[]) => {
-          scatterRef.current?.render(data, { append: true });
+          scatterRef?.current?.render(data, { append: true });
         },
         clear: () => {
-          scatterRef.current?.clear();
+          scatterRef?.current?.clear();
         },
         setAxisOption: (option: Partial<ScatterChartOption['axis']>) => {
-          scatterRef.current?.setOption({
+          scatterRef?.current?.setOption({
             axis: option,
           });
         },
@@ -123,7 +123,7 @@ export const ScatterChartCore = React.forwardRef<ScatterChartHandle, ScatterChar
 
     React.useEffect(() => {
       return () => {
-        const sc = scatterRef.current;
+        const sc = scatterRef?.current;
         sc?.stopRealtime();
         sc?.destroy();
         scatterRef.current = undefined;
@@ -134,49 +134,49 @@ export const ScatterChartCore = React.forwardRef<ScatterChartHandle, ScatterChar
     }, []);
 
     React.useEffect(() => {
-      const wrapperElement = wrapperRef.current;
-      const sc = scatterRef.current;
+      const wrapperElement = wrapperRef?.current;
+      const sc = scatterRef?.current;
       if (!sc && wrapperElement) {
         scatterRef.current = new SC(wrapperElement as HTMLElement, getOption({ x, y }));
 
         addEventListeners();
         setResizeHandler();
       }
-    }, [wrapperRef.current, scatterRef.current]);
+    }, [wrapperRef?.current, scatterRef?.current]);
 
     React.useEffect(() => {
       addEventListeners();
     }, [onResize, onDragEnd, checkedLegends]);
 
     const setResizeHandler = () => {
-      const wrapperElement = wrapperRef.current;
-      const sc = scatterRef.current;
+      const wrapperElement = wrapperRef?.current;
+      const sc = scatterRef?.current;
       if (!wrapperElement || !sc) return;
       if (resizable) {
         // add resizeObserver
-        if (resizeObserverRef.current) resizeObserverRef?.current?.disconnect();
+        if (resizeObserverRef?.current) resizeObserverRef?.current?.disconnect();
         resizeObserverRef.current = new ResizeObserver(() => {
           // You can iterate all of the element entries observed
           clearTimeout(resizeTimeout.current);
           resizeTimeout.current = setTimeout(() => {
-            const wrapperWidth = wrapperElement.clientWidth;
-            const wrapperHeight = wrapperElement.clientHeight;
+            const wrapperWidth = wrapperElement?.clientWidth;
+            const wrapperHeight = wrapperElement?.clientHeight;
 
             if (wrapperWidth && wrapperHeight) {
-              if (!sc.isRealtime) {
-                sc.resize(wrapperWidth, wrapperHeight);
+              if (!sc?.isRealtime) {
+                sc?.resize(wrapperWidth, wrapperHeight);
               }
             }
           }, 200);
         });
-        resizeObserverRef.current.observe(wrapperElement);
+        resizeObserverRef?.current?.observe(wrapperElement);
       }
     };
 
     React.useEffect(() => {
-      if (!scatterRef.current?.isRealtime) {
-        scatterRef.current?.clear();
-        scatterRef.current?.setOption({
+      if (!scatterRef?.current?.isRealtime) {
+        scatterRef?.current?.clear();
+        scatterRef?.current?.setOption({
           axis: {
             x: {
               min: x?.[0],
@@ -188,9 +188,9 @@ export const ScatterChartCore = React.forwardRef<ScatterChartHandle, ScatterChar
     }, [x?.[0], x?.[1]]);
 
     React.useEffect(() => {
-      if (!scatterRef.current?.isRealtime) {
-        scatterRef.current?.clear();
-        scatterRef.current?.setOption({
+      if (!scatterRef?.current?.isRealtime) {
+        scatterRef?.current?.clear();
+        scatterRef?.current?.setOption({
           axis: {
             y: {
               min: y?.[0],
@@ -202,7 +202,7 @@ export const ScatterChartCore = React.forwardRef<ScatterChartHandle, ScatterChar
         // TODO scatter chart개선 후 정리 필요
         // eslint-disable-next-line
         // @ts-ignore
-        const prevDatas = Object.keys(scatterRef.current.datas).reduce((acc, key) => {
+        const prevDatas = Object.keys(scatterRef?.current?.datas || {}).reduce((acc, key) => {
           return [
             ...acc,
             // eslint-disable-next-line
@@ -210,38 +210,38 @@ export const ScatterChartCore = React.forwardRef<ScatterChartHandle, ScatterChar
             ...(scatterRef.current?.datas[key].map((d) => ({ ...d, type: key })) || []),
           ];
         }, [] as ScatterDataType[]);
-        scatterRef.current.clear();
+        scatterRef?.current?.clear();
         // eslint-disable-next-line
         // @ts-ignore
-        scatterRef.current?.yAxis.setOption({
+        scatterRef?.current?.yAxis?.setOption({
           min: y?.[0],
           max: y?.[1],
         });
         // eslint-disable-next-line
         // @ts-ignore
-        scatterRef.current.setPadding();
+        scatterRef?.current?.setPadding();
         // eslint-disable-next-line
         // @ts-ignore
-        scatterRef.current.setYRatio();
-        scatterRef.current.render(prevDatas);
+        scatterRef?.current?.setYRatio();
+        scatterRef?.current?.render(prevDatas);
       }
     }, [y?.[0], y?.[1]]);
 
     const addEventListeners = () => {
-      const sc = scatterRef.current;
+      const sc = scatterRef?.current;
       if (sc) {
-        sc.off('dragEnd');
-        sc.off('resize');
-        sc.on('dragEnd', (_, data) => {
+        sc?.off('dragEnd');
+        sc?.off('resize');
+        sc?.on('dragEnd', (_, data) => {
           onDragEnd?.(
             { ...data, y1: data.y1 > y[1] ? Number.MAX_SAFE_INTEGER : data.y1 },
             checkedLegends,
           );
         });
-        sc.on('clickLegend', (_, data) => {
+        sc?.on('clickLegend', (_, data) => {
           setCheckedLegends(data.checked);
         });
-        sc.on('resize', () => {
+        sc?.on('resize', () => {
           if (onResize) {
             const option = sc?.getOption();
 
@@ -255,16 +255,16 @@ export const ScatterChartCore = React.forwardRef<ScatterChartHandle, ScatterChar
     };
 
     const getChartSize = () => {
-      const sc = scatterRef.current;
-      const wrapperElement = wrapperRef.current;
+      const sc = scatterRef?.current;
+      const wrapperElement = wrapperRef?.current;
       let chartSize = { width: 0, height: 0 };
       if (sc && wrapperElement) {
         const option = sc?.getOption();
         const { padding, axis } = option;
         const chartWidth =
-          wrapperElement.clientWidth - padding.left - padding.right - axis.x.padding! * 2;
+          wrapperElement?.clientWidth - padding.left - padding.right - axis.x.padding! * 2;
         const chartHeight =
-          wrapperElement.clientHeight - padding.bottom - padding.top - axis.y.padding! * 2;
+          wrapperElement?.clientHeight - padding.bottom - padding.top - axis.y.padding! * 2;
         chartSize = { width: chartWidth, height: chartHeight };
       }
       return chartSize;
@@ -289,20 +289,20 @@ export const ScatterChartCore = React.forwardRef<ScatterChartHandle, ScatterChar
     };
 
     const handleClickCaptureImage = React.useCallback(async () => {
-      const sc = scatterRef.current;
+      const sc = scatterRef?.current;
       const fileName = toolbarOption?.captureImage?.fileName;
 
       if (sc) {
         setIsCapturingImage(true);
         try {
-          const image = await sc.toBase64Image();
+          const image = await sc?.toBase64Image();
           const downloadElement = document.createElement('a');
-          downloadElement.setAttribute('href', image);
-          downloadElement.setAttribute('download', `${fileName}.png`);
-          wrapperRef.current?.appendChild(downloadElement);
-          downloadElement.click();
+          downloadElement?.setAttribute('href', image);
+          downloadElement?.setAttribute('download', `${fileName}.png`);
+          wrapperRef?.current?.appendChild(downloadElement);
+          downloadElement?.click();
           setIsCapturingImage(false);
-          wrapperRef.current?.removeChild(downloadElement);
+          wrapperRef?.current?.removeChild(downloadElement);
         } catch {
           setIsCapturingImage(false);
           toast.error('An error occurred while capturing the image. Please try again.');

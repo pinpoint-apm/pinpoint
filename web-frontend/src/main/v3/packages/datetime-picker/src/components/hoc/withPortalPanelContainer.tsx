@@ -5,7 +5,7 @@ import { useOnClickOutside } from 'usehooks-ts';
 import { throttle } from '../../utils/functions';
 
 interface WithPortalPanelContainerProps extends DatePanelProps {
-  triggerRef: React.RefObject<HTMLDivElement>;
+  triggerRef: React.RefObject<HTMLDivElement | null>;
   onClickOutside: () => void;
   getPanelContainer?: () => HTMLElement | null;
 }
@@ -20,7 +20,7 @@ export const withPortalPanelContainer = (WrappedComponent: React.ComponentType<D
     const panelWrapperRef = React.useRef<HTMLDivElement>(null);
     const [datePanelStyle, setDatePanelStyle] = React.useState<React.CSSProperties>();
 
-    useOnClickOutside(panelWrapperRef, (event) => {
+    useOnClickOutside(panelWrapperRef as React.RefObject<HTMLElement>, (event) => {
       const clickedElement = event.target as HTMLElement;
       const parentElement = clickedElement.parentNode as HTMLElement;
 
