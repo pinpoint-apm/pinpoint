@@ -27,7 +27,7 @@ public final class PinpointConstants {
 
     public static final int AGENT_NAME_MAX_LEN = 255;
 
-    public static final int SERVICE_NAME_MAX_LEN = 127;
+    public static final int SERVICE_NAME_MAX_LEN = 254;
     public static final int APPLICATION_NAME_MAX_LEN_V3 = SERVICE_NAME_MAX_LEN;
 
     public static final int AGENT_NAME_MAX_LEN_V4 = APPLICATION_NAME_MAX_LEN_V3;
