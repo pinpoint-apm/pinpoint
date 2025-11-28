@@ -20,6 +20,7 @@ package com.navercorp.pinpoint.common.server.util.json;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import com.fasterxml.jackson.datatype.eclipsecollections.EclipseCollectionsModule;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 public final class Jackson {
@@ -40,6 +41,7 @@ public final class Jackson {
                 SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
                 SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS
         );
+        builder.modulesToInstall(new EclipseCollectionsModule());
         return builder;
     }
 
