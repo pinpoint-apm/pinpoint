@@ -34,6 +34,9 @@ public final class BytesUtils {
     public static final int VLONG_MAX_SIZE = 10;
     public static final int VINT_MAX_SIZE = 5;
 
+    public static final int UNSIGNED_BYTE_MIN = 0;
+    public static final int UNSIGNED_BYTE_MAX = 255;
+
     private static final byte[] EMPTY_BYTES = new byte[0];
 
     private static final Charset UTF8_CHARSET = StandardCharsets.UTF_8;
@@ -96,6 +99,10 @@ public final class BytesUtils {
                 | ((buf[offset + 3] & 0xff));
 
         return v;
+    }
+
+    public static int bytesToUnsignedInt(final byte[] buf, final int offset) {
+        return buf[offset] & 0xff;
     }
 
     public static short bytesToShort(final byte[] buf, final int offset) {
@@ -266,6 +273,15 @@ public final class BytesUtils {
         return offset;
     }
 
+    public static int writeUnsignedByte(final int value, final byte[] buf, int offset) {
+        if (buf == null) {
+            throw new NullPointerException("buf");
+        }
+        checkBounds(buf, offset, BYTE_LENGTH);
+
+        buf[offset++] = toUnsignedByte(value);
+        return offset;
+    }
 
     public static int writeShort(final short value, final byte[] buf, int offset) {
         if (buf == null) {
@@ -507,6 +523,16 @@ public final class BytesUtils {
         System.arraycopy(b1, 0, b, 0, b1.length);
 
         return b;
+    }
+
+    /**
+     * Range : 0 ~ 255
+     */
+    public static byte toUnsignedByte(int value) {
+        if (value < UNSIGNED_BYTE_MIN || value > UNSIGNED_BYTE_MAX) {
+            throw new IllegalArgumentException("UnsignedByte Out of Range (0~255)");
+        }
+        return (byte) (value & 0xff);
     }
 
 

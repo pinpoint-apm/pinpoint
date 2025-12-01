@@ -115,17 +115,4 @@ public final class ByteArrayUtils {
         return Arrays.compare(bytes1, offset, bytes1.length, bytes2, offset, bytes2.length);
     }
 
-
-    public static final int UNSIGNED_BYTE_MIN_VALUE = 0;
-    public static final int UNSIGNED_BYTE_MAX_VALUE = 255;
-
-    /**
-     * Range : 0 ~ 255
-     */
-    public static byte toUnsignedByte(int value) {
-        if (value < UNSIGNED_BYTE_MIN_VALUE || value > UNSIGNED_BYTE_MAX_VALUE) {
-            throw new IllegalArgumentException("UnsignedByte Out of Range (0~255)");
-        }
-        return (byte) (value & 0xff);
-    }
 }

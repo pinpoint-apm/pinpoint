@@ -95,7 +95,7 @@ public class AutomaticBuffer extends FixedBuffer {
                 throw new IndexOutOfBoundsException("too large bytes length:" + bytes.length);
             }
             checkExpand(bytes.length + 1);
-            super.putByte(ByteArrayUtils.toUnsignedByte(bytes.length));
+            super.putByte(BytesUtils.toUnsignedByte(bytes.length));
             super.putBytes(bytes);
         }
     }
