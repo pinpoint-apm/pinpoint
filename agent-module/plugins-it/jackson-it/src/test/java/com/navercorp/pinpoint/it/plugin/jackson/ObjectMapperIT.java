@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,8 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
 // 2.7.0, 2.7.1 has JDK6 compatibility issue - https://github.com/FasterXML/jackson-databind/issues/1134
-@Dependency({"com.fasterxml.jackson.core:jackson-databind:[2.8.0,]"})
+// 2.19.3 required JDK11
+@Dependency({"com.fasterxml.jackson.core:jackson-databind:[2.8.0,2.19.2]", "com.fasterxml.jackson.core:jackson-databind:[2.19.4,2.max]"})
 public class ObjectMapperIT {
 
     private static final Charset UTF_8 = StandardCharsets.UTF_8;
