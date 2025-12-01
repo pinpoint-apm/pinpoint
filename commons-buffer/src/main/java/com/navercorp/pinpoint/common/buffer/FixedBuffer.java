@@ -135,7 +135,7 @@ public class FixedBuffer implements Buffer {
             if (bytes.length > UNSIGNED_BYTE_MAX) {
                 throw new IndexOutOfBoundsException("too large bytes length:" + bytes.length);
             }
-            putByte(ByteArrayUtils.toUnsignedByte(bytes.length));
+            putByte(BytesUtils.toUnsignedByte(bytes.length));
             putBytes(bytes);
         }
     }

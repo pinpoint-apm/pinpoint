@@ -47,6 +47,7 @@ class UidLinkRowKeyTest {
 
         UidLinkRowKey read = UidLinkRowKey.read(1, rowKeyBytes);
 
+
         Assertions.assertEquals(rowKey, read);
     }
 
@@ -106,5 +107,17 @@ class UidLinkRowKeyTest {
                     ServiceType.STAND_ALONE.getCode(),
                     1000);
         });
+    }
+
+    @Test
+    void makeRow_254() {
+        byte[] bytes = UidLinkRowKey.makeRowKey(0,
+                ServiceUid.DEFAULT_SERVICE_UID_CODE,
+                "a".repeat(PinpointConstants.APPLICATION_NAME_MAX_LEN_V3),
+                ServiceType.STAND_ALONE.getCode(),
+                1000);
+
+        UidLinkRowKey rowKey = UidLinkRowKey.read(0, bytes);
+        Assertions.assertEquals(PinpointConstants.APPLICATION_NAME_MAX_LEN_V3, rowKey.getApplicationName().length());
     }
 }

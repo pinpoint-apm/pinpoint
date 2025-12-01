@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.common.timeseries.util.IntInverter;
 import com.navercorp.pinpoint.common.timeseries.util.SecondTimestamp;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -120,7 +121,7 @@ public class UidLinkRowKey implements TimestampRowKey {
         buffer.putInt(reverseTimeMillis);
 
 
-        buffer.putBytes(applicationNameBytes);
+        buffer.putUnsignedBytePrefixedBytes(applicationNameBytes);
         return buffer.getBuffer();
     }
 
@@ -148,10 +149,17 @@ public class UidLinkRowKey implements TimestampRowKey {
         offset += BytesUtils.INT_BYTE_LENGTH;
         long msTimestamp = SecondTimestamp.restoreSecondTimestamp(secondTimestamp);
 
-
-        String applicationName = BytesUtils.toString(bytes, offset, bytes.length - offset);
-
+        String applicationName = readUnsignedString(bytes, offset);
         return new UidLinkRowKey(serviceUid, applicationName, serviceType, msTimestamp);
+    }
+
+    static @Nullable String readUnsignedString(byte[] bytes, int offset) {
+        int length = BytesUtils.bytesToUnsignedInt(bytes, offset);
+        if (length == Buffer.UNSIGNED_BYTE_NULL) {
+            return null;
+        }
+        offset += BytesUtils.BYTE_LENGTH;
+        return BytesUtils.toString(bytes, offset, length);
     }
 
 

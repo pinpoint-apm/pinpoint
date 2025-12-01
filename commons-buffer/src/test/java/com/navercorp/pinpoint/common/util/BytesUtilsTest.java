@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,8 +34,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class BytesUtilsTest {
     private final Logger logger = LogManager.getLogger(this.getClass());
-
-
 
 
     @Test
@@ -539,5 +537,21 @@ public class BytesUtilsTest {
         byte[] result = BytesUtils.add(prefix, longBytes);
         Assertions.assertEquals(prefix, result[0]);
         Assertions.assertArrayEquals(longBytes, Arrays.copyOfRange(result, 1, result.length));
+    }
+
+    @Test
+    public void writeUnsignedByte() {
+        byte[] bytes = new byte[1];
+        BytesUtils.writeUnsignedByte(10, bytes, 0);
+        int i = BytesUtils.bytesToUnsignedInt(bytes, 0);
+        Assertions.assertEquals(10, i);
+    }
+
+    @Test
+    public void writeUnsignedByte_128over() {
+        byte[] bytes = new byte[1];
+        BytesUtils.writeUnsignedByte(254, bytes, 0);
+        int i = BytesUtils.bytesToUnsignedInt(bytes, 0);
+        Assertions.assertEquals(254, i);
     }
 }

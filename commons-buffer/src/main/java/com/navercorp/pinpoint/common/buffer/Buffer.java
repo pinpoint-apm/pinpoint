@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.buffer;
 
+import com.navercorp.pinpoint.common.util.BytesUtils;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -28,8 +30,8 @@ public interface Buffer {
     int NULL = -1;
 
     byte BYTE_NULL = NULL;
-    int UNSIGNED_BYTE_NULL = 255;
-    int UNSIGNED_BYTE_MAX = 254;
+    int UNSIGNED_BYTE_NULL = BytesUtils.UNSIGNED_BYTE_MAX;
+    int UNSIGNED_BYTE_MAX = UNSIGNED_BYTE_NULL - 1;
 
     int BOOLEAN_FALSE = 0;
     int BOOLEAN_TRUE = 1;
