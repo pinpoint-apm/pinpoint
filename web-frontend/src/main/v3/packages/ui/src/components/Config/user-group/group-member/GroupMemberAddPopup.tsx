@@ -71,6 +71,7 @@ export const GroupMemberAddPopup = ({
       <PopoverTrigger asChild>{popupTrigger}</PopoverTrigger>
       <PopoverContent align="start" className="w-[650px]">
         <UsersTable
+          classNames="flex flex-col max-h-[calc(100vh-26rem)]"
           data={data || []}
           hideAddButton={true}
           enableUserEdit={false}
