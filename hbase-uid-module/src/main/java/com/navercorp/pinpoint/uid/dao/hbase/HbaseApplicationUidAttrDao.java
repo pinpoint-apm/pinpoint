@@ -12,7 +12,6 @@ import com.navercorp.pinpoint.uid.dao.ApplicationUidAttrDao;
 import com.navercorp.pinpoint.uid.utils.UidBytesCreateUtils;
 import com.navercorp.pinpoint.uid.vo.ApplicationUidAttrRow;
 import com.navercorp.pinpoint.uid.vo.ApplicationUidAttribute;
-import jakarta.annotation.Nullable;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.CheckAndMutate;
 import org.apache.hadoop.hbase.client.CheckAndMutateResult;
@@ -20,6 +19,7 @@ import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Scan;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 

@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
-import jakarta.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 

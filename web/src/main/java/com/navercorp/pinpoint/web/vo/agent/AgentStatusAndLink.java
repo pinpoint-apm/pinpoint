@@ -3,8 +3,8 @@ package com.navercorp.pinpoint.web.vo.agent;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.navercorp.pinpoint.web.hyperlink.HyperLink;
+import org.jspecify.annotations.Nullable;
 
-import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 
