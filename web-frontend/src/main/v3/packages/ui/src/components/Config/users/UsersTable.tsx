@@ -6,6 +6,7 @@ import { DataTable } from '../../../components';
 import { cn } from '../../../lib';
 
 export interface UsersTableFetcherProps {
+  classNames?: string;
   data?: ConfigUsers.User[];
   hideAddButton?: UsersTableToolbarProps['hideAddButton'];
   enableUserEdit?: UsersTableToolbarProps['enableUserEdit'];
@@ -20,6 +21,7 @@ export interface UsersTableAction {
 }
 
 export const UsersTable = ({
+  classNames,
   data,
   hideAddButton,
   enableUserEdit,
@@ -34,6 +36,10 @@ export const UsersTable = ({
     {
       accessorKey: 'name',
       header: t('CONFIGURATION.USERS.LABEL.USER_NAME') || 'Name',
+      meta: {
+        headerClassName: 'max-w-[300px]',
+        cellClassName: 'max-w-[300px] break-all',
+      },
     },
     {
       accessorKey: 'department',
@@ -59,7 +65,7 @@ export const UsersTable = ({
         onClickSearch={onClickSearch}
         onClickAdd={onClickAdd}
       />
-      <div className={cn('border rounded-md')}>
+      <div className={cn('border rounded-md overflow-hidden', classNames)}>
         <DataTable
           autoResize={true}
           columns={columns}
