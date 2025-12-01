@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,11 +87,13 @@ public class DefaultAgent implements Agent {
         ObjectName objectName = buildObjectName();
 
         // save system config
-        saveSystemConfig(objectName);
+        AgentSystemConfig agentSystemConfig = agentSystemConfig(objectName);
         this.loggingSystem = newLoggingSystem(logConfigPath);
         this.loggingSystem.start();
 
         logger = LogManager.getLogger(this.getClass());
+        logger.info("Pinpoint agentId:{}, version:{}", agentSystemConfig.getAgentId(), agentSystemConfig.getVersion());
+
 
         logger.info("logConfig path:{}", loggingSystem.getConfigLocation());
 
@@ -123,11 +125,10 @@ public class DefaultAgent implements Agent {
         return AgentContextOptionBuilder.build(agentOption, objectName, profilerConfig);
     }
 
-    private void saveSystemConfig(ObjectName objectName) {
-        // set the path of log file as a system property
-        AgentSystemConfig agentSystemConfig = new AgentSystemConfig();
-        agentSystemConfig.saveAgentIdForLog(objectName.getAgentId());
-        agentSystemConfig.savePinpointVersion(Version.VERSION);
+    private AgentSystemConfig agentSystemConfig(ObjectName objectName) {
+        AgentSystemConfig agentSystemConfig = new AgentSystemConfig(objectName.getAgentId(), Version.VERSION);
+        agentSystemConfig.dump(System.getProperties());
+        return agentSystemConfig;
     }
 
     private void dumpAgentOption(AgentContextOption agentOption) {
