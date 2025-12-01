@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.web.vo.agent;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import org.jspecify.annotations.Nullable;
 
-import jakarta.annotation.Nullable;
 import java.util.Objects;
 
 public class AgentAndStatus {

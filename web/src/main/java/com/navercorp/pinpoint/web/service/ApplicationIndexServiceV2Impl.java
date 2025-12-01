@@ -6,6 +6,7 @@ import com.navercorp.pinpoint.web.dao.AgentIdDao;
 import com.navercorp.pinpoint.web.dao.ApplicationDao;
 import com.navercorp.pinpoint.web.uid.service.ServiceUidService;
 import com.navercorp.pinpoint.web.vo.Application;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,10 +19,10 @@ public class ApplicationIndexServiceV2Impl implements ApplicationIndexServiceV2 
     private final ApplicationDao applicationDao;
     private final AgentIdDao agentIdDao;
 
-    public ApplicationIndexServiceV2Impl(ServiceUidService serviceUidService,
+    public ApplicationIndexServiceV2Impl(@Autowired(required = false) ServiceUidService serviceUidService,
                                          ApplicationDao applicationDao,
                                          AgentIdDao agentIdDao) {
-        this.serviceUidService = Objects.requireNonNull(serviceUidService, "serviceUidService");
+        this.serviceUidService = serviceUidService;
         this.applicationDao = Objects.requireNonNull(applicationDao, "applicationDao");
         this.agentIdDao = Objects.requireNonNull(agentIdDao, "agentIdDao");
     }
@@ -65,7 +66,7 @@ public class ApplicationIndexServiceV2Impl implements ApplicationIndexServiceV2 
     }
 
     private ServiceUid handleServiceUid(String serviceName) {
-        if (StringUtils.isEmpty(serviceName)) {
+        if (serviceUidService == null || StringUtils.isEmpty(serviceName)) {
             return ServiceUid.DEFAULT;
         }
         ServiceUid serviceUid = serviceUidService.getServiceUid(serviceName);
