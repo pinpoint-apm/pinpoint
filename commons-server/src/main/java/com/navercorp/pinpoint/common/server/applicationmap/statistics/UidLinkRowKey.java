@@ -22,12 +22,12 @@ import com.google.common.hash.Hashing;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.timeseries.util.IntInverter;
 import com.navercorp.pinpoint.common.timeseries.util.SecondTimestamp;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -35,6 +35,8 @@ import java.util.Objects;
  * @author emeroad
  */
 public class UidLinkRowKey implements TimestampRowKey {
+    public static final int KEY_SIZE = 1024;
+
     public static final int TIMESTAMP_SIZE = BytesUtils.INT_BYTE_LENGTH;
     public static final int PREFIX_SIZE = BytesUtils.INT_BYTE_LENGTH +
                                           BytesUtils.INT_BYTE_LENGTH +
@@ -59,7 +61,7 @@ public class UidLinkRowKey implements TimestampRowKey {
     }
 
     public UidLinkRowKey(int serviceUid, String applicationName, int serviceType, long timestamp) {
-        if (requireLength(applicationName) > PinpointConstants.APPLICATION_NAME_MAX_LEN_V3) {
+        if (requireLength(applicationName) > KEY_SIZE) {
             throw new IllegalArgumentException("applicationName too long:" + applicationName);
         }
         this.serviceUid = serviceUid;
@@ -121,7 +123,7 @@ public class UidLinkRowKey implements TimestampRowKey {
         buffer.putInt(reverseTimeMillis);
 
 
-        buffer.putUnsignedBytePrefixedBytes(applicationNameBytes);
+        buffer.putPrefixedBytes(applicationNameBytes);
         return buffer.getBuffer();
     }
 
@@ -134,32 +136,19 @@ public class UidLinkRowKey implements TimestampRowKey {
     public static UidLinkRowKey read(int saltKey, byte[] bytes) {
 
         int offset = saltKey;
+        final Buffer buffer = new FixedBuffer(bytes);
+        // skip offset & applicationNameHash
+        buffer.setOffset(offset + BytesUtils.INT_BYTE_LENGTH);
 
-        // skip applicationNameHash
-//        long applicationNameHash = BytesUtils.bytesToLong(bytes, offset);
-        offset += BytesUtils.INT_BYTE_LENGTH;
+        int serviceUid = buffer.readInt(); // serviceUid
+        int serviceType = buffer.readInt(); // serviceUid
 
-        int serviceUid = BytesUtils.bytesToInt(bytes, offset);
-        offset += BytesUtils.INT_BYTE_LENGTH;
-
-        int serviceType = BytesUtils.bytesToInt(bytes, offset);
-        offset += BytesUtils.INT_BYTE_LENGTH;
-
-        int secondTimestamp = IntInverter.restore(BytesUtils.bytesToInt(bytes, offset));
+        int secondTimestamp = IntInverter.restore(buffer.readInt());
         offset += BytesUtils.INT_BYTE_LENGTH;
         long msTimestamp = SecondTimestamp.restoreSecondTimestamp(secondTimestamp);
 
-        String applicationName = readUnsignedString(bytes, offset);
+        String applicationName = buffer.readPrefixedString();
         return new UidLinkRowKey(serviceUid, applicationName, serviceType, msTimestamp);
-    }
-
-    static @Nullable String readUnsignedString(byte[] bytes, int offset) {
-        int length = BytesUtils.bytesToUnsignedInt(bytes, offset);
-        if (length == Buffer.UNSIGNED_BYTE_NULL) {
-            return null;
-        }
-        offset += BytesUtils.BYTE_LENGTH;
-        return BytesUtils.toString(bytes, offset, length);
     }
 
 
