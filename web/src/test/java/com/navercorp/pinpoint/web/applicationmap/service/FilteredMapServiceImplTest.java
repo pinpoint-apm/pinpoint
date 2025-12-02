@@ -44,7 +44,7 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeCount;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramView;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramViewModel;
-import com.navercorp.pinpoint.web.applicationmap.view.TimeseriesHistogramViewModel;
+import com.navercorp.pinpoint.web.applicationmap.view.TimeseriesHistogramView;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
@@ -358,11 +358,12 @@ public class FilteredMapServiceImplTest {
         }
         String slotName = histogramSlot.getSlotName();
         for (TimeHistogramViewModel timeViewModel : histogramList) {
-            TimeseriesHistogramViewModel view = (TimeseriesHistogramViewModel) timeViewModel;
+            TimeseriesHistogramView view = (TimeseriesHistogramView) timeViewModel;
 
             if (view.getKey().equals(slotName)) {
                 List<Long> expected = expectedTimeCounts.stream().map(TimeCount::count).toList();
-                List<Long> actual = view.getValues().stream().map(Number::longValue).toList();
+                List<Long> actual = view.getValues().primitiveStream().boxed().toList();
+
                 Assertions.assertEquals(expected, actual, "Mismatch for slot : " + slotName);
                 return;
             }

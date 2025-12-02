@@ -61,7 +61,7 @@ public interface TimeHistogramView {
 
     class TimeseriesHistogramBuilder implements TimeHistogramView {
         public List<TimeHistogramViewModel> build(Application application, List<TimeHistogram> histogramList) {
-            return new TimeseriesHistogramViewModelBuilder(application, histogramList).build();
+            return new TimeseriesHistogramViewBuilder(application, histogramList).build();
         }
     }
 
