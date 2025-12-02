@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,12 +18,11 @@ package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.web.service.CacheService;
 import com.navercorp.pinpoint.web.service.CommonService;
+import com.navercorp.pinpoint.web.util.TagApplicationsUtils;
 import com.navercorp.pinpoint.web.util.etag.ETag;
 import com.navercorp.pinpoint.web.util.etag.ETagUtils;
-import com.navercorp.pinpoint.web.util.TagApplicationsUtils;
 import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
 import com.navercorp.pinpoint.web.view.ApplicationGroup;
-import com.navercorp.pinpoint.web.view.ServerTime;
 import com.navercorp.pinpoint.web.view.TagApplications;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
@@ -123,11 +122,6 @@ public class MainController {
 
     private static boolean needClearCache(ETag eTag, String clearCache) {
         return eTag == null || clearCache != null;
-    }
-
-    @GetMapping(value = {"/api/serverTime", "/api-public/serverTime"})
-    public ServerTime getServerTime() {
-        return new ServerTime();
     }
 
 }
