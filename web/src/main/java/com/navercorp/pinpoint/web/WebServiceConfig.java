@@ -17,8 +17,6 @@ package com.navercorp.pinpoint.web;
 
 import com.navercorp.pinpoint.common.server.trace.ApiParserProvider;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkConfiguration;
-import com.navercorp.pinpoint.web.service.ProxyRequestTypeRegistryService;
-import com.navercorp.pinpoint.web.vo.callstacks.AnnotationRecordFormatter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -45,14 +43,6 @@ public class WebServiceConfig {
         public ApiParserProvider apiParserProvider() {
             return new ApiParserProvider();
         }
-    }
-
-    @Bean
-    public AnnotationRecordFormatter annotationRecordFormatter(ProxyRequestTypeRegistryService proxyRequestTypeRegistryService) {
-        AnnotationRecordFormatter.Builder builder = AnnotationRecordFormatter.newBuilder();
-        builder.addDefaultHandlers();
-        builder.addProxyHeaderAnnotationHeader(proxyRequestTypeRegistryService);
-        return builder.build();
     }
 
 }
