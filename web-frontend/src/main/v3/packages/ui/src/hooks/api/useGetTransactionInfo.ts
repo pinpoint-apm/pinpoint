@@ -81,7 +81,7 @@ const getAgentKey = (datas: TransactionInfo.Response, rowIndex: number) => {
   let agentKey = null;
 
   for (let i = rowIndex - 1; agentKey === null; i--) {
-    agentKey = datas.callStack[i][20]; // 20th index indicates agentKey
+    agentKey = datas.callStack[i][datas?.callStackIndex?.agent];
   }
   return agentKey;
 };
