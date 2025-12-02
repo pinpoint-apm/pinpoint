@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.web.view;
+package com.navercorp.pinpoint.web.trace.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 import org.apache.commons.lang3.Strings;
@@ -30,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class TraceViewerDataViewModel {
+public class TraceViewerData {
     private static final int START_TIME_INDEX = 0;
     private static final int END_TIME_INDEX = 1;
 
@@ -45,7 +44,7 @@ public class TraceViewerDataViewModel {
     private final long minBlank;
     private int maxTid;
 
-    public TraceViewerDataViewModel(RecordSet recordSet) {
+    public TraceViewerData(RecordSet recordSet) {
         this.recordSet = recordSet;
         this.maxTid = 0;
         this.traceEvents = new ArrayList<>();
@@ -55,8 +54,7 @@ public class TraceViewerDataViewModel {
         initialize();
     }
 
-    @JsonProperty("traceEvents")
-    public List<TraceEvent> getTransactionId() {
+    public List<TraceEvent> getTraceEvents() {
         return traceEvents;
     }
 

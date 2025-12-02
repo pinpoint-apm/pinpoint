@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.controller;
+package com.navercorp.pinpoint.web.trace.controller;
 
 import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
@@ -32,13 +32,14 @@ import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramView;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.SpanFilters;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
-import com.navercorp.pinpoint.web.service.SpanResult;
-import com.navercorp.pinpoint.web.service.SpanService;
-import com.navercorp.pinpoint.web.service.TransactionInfoService;
+import com.navercorp.pinpoint.web.trace.model.TraceViewerData;
+import com.navercorp.pinpoint.web.trace.service.SpanResult;
+import com.navercorp.pinpoint.web.trace.service.SpanService;
+import com.navercorp.pinpoint.web.trace.service.TransactionInfoService;
+import com.navercorp.pinpoint.web.trace.view.TraceViewerDataView;
 import com.navercorp.pinpoint.web.validation.NullOrNotBlank;
 import com.navercorp.pinpoint.web.view.LogLinkBuilder;
 import com.navercorp.pinpoint.web.view.LogLinkView;
-import com.navercorp.pinpoint.web.view.TraceViewerDataViewModel;
 import com.navercorp.pinpoint.web.view.TransactionCallTreeViewModel;
 import com.navercorp.pinpoint.web.view.TransactionServerMapViewModel;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
@@ -119,7 +120,7 @@ public class TransactionController {
 
 
     @GetMapping(value = "/traceViewerData")
-    public TraceViewerDataViewModel traceViewerData(
+    public TraceViewerDataView traceViewerData(
             @RequestParam("traceId") @NotBlank
             String traceIdParam,
             @RequestParam(value = "focusTimestamp", required = false, defaultValue = "0") @PositiveOrZero
@@ -142,7 +143,8 @@ public class TransactionController {
         final CallTreeIterator callTreeIterator = spanResult.callTree();
 
         final RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
-        return new TraceViewerDataViewModel(recordSet);
+        TraceViewerData traceViewerData = new TraceViewerData(recordSet);
+        return new TraceViewerDataView(traceViewerData.getTraceEvents());
     }
 
     @GetMapping(value = "/transaction/traceServerMap")

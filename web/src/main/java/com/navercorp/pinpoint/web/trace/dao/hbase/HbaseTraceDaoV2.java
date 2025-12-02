@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.dao.hbase;
+package com.navercorp.pinpoint.web.trace.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
@@ -31,9 +31,12 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
-import com.navercorp.pinpoint.web.dao.TraceDao;
+import com.navercorp.pinpoint.web.dao.hbase.HBaseUtils;
+import com.navercorp.pinpoint.web.dao.hbase.SpanQuery;
+import com.navercorp.pinpoint.web.dao.hbase.SpanQueryBuilder;
 import com.navercorp.pinpoint.web.mapper.SpanMapperFactory;
 import com.navercorp.pinpoint.web.service.FetchResult;
+import com.navercorp.pinpoint.web.trace.dao.TraceDao;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;

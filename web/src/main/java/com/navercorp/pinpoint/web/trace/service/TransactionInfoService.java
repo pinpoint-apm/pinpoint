@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.service;
+package com.navercorp.pinpoint.web.trace.service;
 
-import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
+import com.navercorp.pinpoint.web.filter.Filter;
+import com.navercorp.pinpoint.web.vo.BusinessTransactions;
+import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 
 import java.util.List;
 import java.util.function.Predicate;
 
 /**
- * @author emeroad
+ * @author jaehong.kim
  */
-public interface SpanService {
+public interface TransactionInfoService {
+    RecordSet createRecordSet(CallTreeIterator callTreeIterator, Predicate<SpanBo> viewPointFilter);
 
-    SpanResult selectSpan(TransactionId transactionId, Predicate<SpanBo> filter);
-
-    SpanResult selectSpan(TransactionId transactionId, Predicate<SpanBo> filter, ColumnGetCount columnGetCount);
-
-    void populateAgentName(List<SpanBo> spanBoList);
-
+    BusinessTransactions selectBusinessTransactions(List<TransactionId> traceIds, String applicationName, Range range, Filter<List<SpanBo>> filter);
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.view;
+package com.navercorp.pinpoint.web.trace.model;
 
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import org.eclipse.collections.api.factory.Stacks;
@@ -28,7 +28,7 @@ import java.util.Stack;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class TraceViewerDataViewModelTest {
+class TraceViewerDataTest {
 
     @Test
     @Disabled
@@ -57,7 +57,7 @@ class TraceViewerDataViewModelTest {
         stack.push(newRecord(4));
         stack.push(newRecord(5));
 
-        int index = TraceViewerDataViewModel.pop(stack, 2);
+        int index = TraceViewerData.pop(stack, 2);
 
         Assertions.assertEquals(3, index);
         Assertions.assertEquals(2, stack.size());
@@ -71,7 +71,7 @@ class TraceViewerDataViewModelTest {
         stack.push(newRecord(1));
         stack.push(newRecord(2));
 
-        int index = TraceViewerDataViewModel.pop(stack, 10);
+        int index = TraceViewerData.pop(stack, 10);
 
         Assertions.assertEquals(-1, index);
         Assertions.assertEquals(2, stack.size());
