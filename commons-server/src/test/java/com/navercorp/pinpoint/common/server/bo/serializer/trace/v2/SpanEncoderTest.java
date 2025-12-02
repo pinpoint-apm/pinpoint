@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.common.server.bo.grpc.BindAttribute;
 import com.navercorp.pinpoint.common.server.bo.grpc.CollectorGrpcSpanFactory;
 import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanBinder;
 import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanFactory;
-import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
@@ -59,7 +58,7 @@ public class SpanEncoderTest {
     private final RandomTSpan randomTSpan = new RandomTSpan();
     private final Random random = new Random();
 
-    private final BindAttribute attribute = new BindAttribute("agentId", "agentName", "applicationName", () -> ApplicationUid.of(1), 88, spanAcceptedTime);
+    private final BindAttribute attribute = new BindAttribute("agentId", "agentName", "applicationName", 88, spanAcceptedTime);
     private final GrpcSpanBinder grpcSpanBinder = new GrpcSpanBinder();
     private final SpanEventFilter filter = new EmptySpanEventFilter();
     private final GrpcSpanFactory grpcSpanFactory = new CollectorGrpcSpanFactory(grpcSpanBinder, filter);
