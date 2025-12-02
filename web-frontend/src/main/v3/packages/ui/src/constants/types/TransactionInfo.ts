@@ -18,7 +18,7 @@ export namespace TransactionInfoType {
     callStackStart: number;
     callStackEnd: number;
     callStackIndex: CallStackIndex;
-    callStack: any[][]; // ['depth', 'begin', 'end', 'excludeFromTimeline', 'applicationName', 'tab', 'id', 'parentId', 'isMethod', 'hasChild', 'title', 'arguments', 'executeTime', 'gap', 'elapsedTime', 'barWidth', 'executionMilliseconds', 'simpleClassName', 'methodType', 'apiType', 'agent', 'isFocused', 'hasException', 'isAuthorized', 'agentName', 'lineNumber', 'location', 'applicationServiceType', 'exceptionChainId']
+    callStack: any[][]; // ['begin', 'end', 'excludeFromTimeline', 'applicationName', 'tab', 'id', 'parentId', 'isMethod', 'hasChild', 'title', 'arguments', 'executeTime', 'gap', 'elapsedTime', 'barWidth', 'executionMilliseconds', 'simpleClassName', 'methodType', 'apiType', 'agent', 'hasException', 'isAuthorized', 'agentName', 'lineNumber', 'location', 'applicationServiceType', 'exceptionChainId']
     loggingTransactionInfo: boolean;
     agentId: string;
     agentName: string;
@@ -29,7 +29,6 @@ export namespace TransactionInfoType {
   }
 
   export interface CallStackIndex {
-    depth: number;
     begin: number;
     end: number;
     excludeFromTimeline: number;
@@ -50,7 +49,6 @@ export namespace TransactionInfoType {
     methodType: number;
     apiType: number;
     agent: number;
-    isFocused: number;
     hasException: number;
     isAuthorized: number;
     agentName: number;
