@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.web.install.InstallModule;
 import com.navercorp.pinpoint.web.problem.ProblemSpringWebConfig;
 import com.navercorp.pinpoint.web.query.QueryServiceConfiguration;
 import com.navercorp.pinpoint.web.realtime.RealtimeConfig;
+import com.navercorp.pinpoint.web.servertime.ServerTimeConfiguration;
 import com.navercorp.pinpoint.web.uid.WebUidConfiguration;
 import com.navercorp.pinpoint.web.webhook.WebhookFacadeModule;
 import org.springframework.context.annotation.Bean;
@@ -59,6 +60,7 @@ import org.springframework.core.env.StandardEnvironment;
 
         CacheConfiguration.class,
 
+        ServerTimeConfiguration.class,
         ApplicationMapModule.class,
         WebHbaseModule.class,
 
