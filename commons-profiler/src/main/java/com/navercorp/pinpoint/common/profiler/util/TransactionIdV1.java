@@ -33,7 +33,7 @@ public class TransactionIdV1 implements TransactionId {
 
     TransactionIdV1(String agentId, long agentStartTime, long transactionSequence) {
         if (!IdValidateUtils.validateId(agentId)) {
-            throw new IllegalArgumentException("invalid agentId");
+            throw new IllegalArgumentException("invalid agentId " + agentId);
         }
         this.agentId = agentId;
         this.agentStartTime = agentStartTime;
