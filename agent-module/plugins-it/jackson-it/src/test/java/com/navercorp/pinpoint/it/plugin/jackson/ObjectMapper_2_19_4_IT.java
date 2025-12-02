@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.it.plugin.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PluginTest;
 import org.junit.jupiter.api.Test;
@@ -44,8 +45,9 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
 // 2.7.0, 2.7.1 has JDK6 compatibility issue - https://github.com/FasterXML/jackson-databind/issues/1134
-@Dependency({"com.fasterxml.jackson.core:jackson-databind:[2.8.0,2.19.2]"})
-public class ObjectMapperIT {
+@JvmVersion(9)
+@Dependency({"com.fasterxml.jackson.core:jackson-databind:[2.19.4,2.max]"})
+public class ObjectMapper_2_19_4_IT {
 
     private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
