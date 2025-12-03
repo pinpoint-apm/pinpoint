@@ -16,15 +16,19 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.config;
 
+import com.navercorp.pinpoint.collector.applicationmap.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapAgentResponseTimeDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapResponseTimeDao;
+import com.navercorp.pinpoint.collector.applicationmap.service.ApplicationMapService;
+import com.navercorp.pinpoint.collector.applicationmap.service.HbaseApplicationMapService;
 import com.navercorp.pinpoint.collector.applicationmap.service.LinkService;
 import com.navercorp.pinpoint.collector.applicationmap.service.LinkServiceDualWriteImpl;
 import com.navercorp.pinpoint.collector.applicationmap.service.LinkServiceImpl;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.config.BulkConfiguration;
 import com.navercorp.pinpoint.common.server.uid.ObjectNameVersion;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -70,5 +74,12 @@ public class ApplicationMapModule {
                                          MapAgentResponseTimeDao responseAgentTimeDao,
                                          MapResponseTimeDao responseTimeDao) {
         return new LinkServiceImpl(inLinkDao, outLinkDao, responseAgentTimeDao, responseTimeDao);
+    }
+
+    @Bean
+    public ApplicationMapService applicationMapService(HostApplicationMapDao hostApplicationMapDao,
+                                                       LinkService linkService,
+                                                       ServiceTypeRegistryService registry) {
+        return new HbaseApplicationMapService(hostApplicationMapDao, linkService, registry);
     }
 }

@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.collector.applicationmap.dao.MapOutLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapResponseTimeDao;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
@@ -30,6 +31,7 @@ import java.util.Objects;
  * @author netspider
  * @author jaehong.kim
  */
+@Service
 public class LinkServiceImpl implements LinkService {
     private final MapInLinkDao inLinkDao;
     private final MapOutLinkDao outLinkDao;
