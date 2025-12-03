@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
@@ -38,14 +40,14 @@ import java.util.List;
  * @author netspider
  */
 @Component
-public class TransactionIdMapper implements RowMapper<List<TransactionId>>, RowTypeHint {
+public class TransactionIdMapperV2 implements RowMapper<List<TransactionId>>, RowTypeHint {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
-    private final HbaseColumnFamily traceIndex;
+    private final HbaseColumnFamily meta;
 
-    public TransactionIdMapper() {
-        this.traceIndex = HbaseTables.APPLICATION_TRACE_INDEX_TRACE;
+    public TransactionIdMapperV2() {
+        this.meta = HbaseTables.TRACE_INDEX_META;
     }
 
     @Override
@@ -56,14 +58,18 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>>, RowT
         Cell[] rawCells = result.rawCells();
         List<TransactionId> traceIdList = new ArrayList<>(rawCells.length);
         for (Cell cell : rawCells) {
-            if (CellUtil.matchingFamily(cell, traceIndex.getName())) {
-                TransactionId traceId = SpanUtils.parseVarTransactionId(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
+            if (CellUtil.matchingFamily(cell, meta.getName())) {
+                final Buffer buffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+                buffer.readLong(); // skip timestamp
+                int txIdVersion = (int) buffer.readByte();
+                TransactionId traceId = SpanUtils.readTransactionIdV1(buffer);
                 traceIdList.add(traceId);
                 logger.debug("found traceId {}", traceId);
             }
         }
         return traceIdList;
     }
+
 
     @Override
     public Class<?> rowType() {

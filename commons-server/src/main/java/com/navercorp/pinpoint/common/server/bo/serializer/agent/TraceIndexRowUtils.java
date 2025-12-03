@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
-import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 
 public class TraceIndexRowUtils {
@@ -59,12 +58,6 @@ public class TraceIndexRowUtils {
     // TraceIndex
     public static long extractAcceptTime(byte[] bytes, int baseOffset) {
         int timestampOffset = baseOffset + HbaseTableConstants.TRACE_INDEX_SALT_KEY_SIZE + HbaseTableConstants.TRACE_INDEX_TIMESTAMP_OFFSET;
-        return extractTimestamp(bytes, timestampOffset);
-    }
-
-    // ApplicationTraceIndex
-    public static long extractAcceptTimeV1(byte[] bytes, int baseOffset) {
-        int timestampOffset = baseOffset + HbaseTableConstants.APPLICATION_NAME_MAX_LEN + HbaseTables.ApplicationTraceIndexTrace.ROW_DISTRIBUTE_SIZE;
         return extractTimestamp(bytes, timestampOffset);
     }
 }

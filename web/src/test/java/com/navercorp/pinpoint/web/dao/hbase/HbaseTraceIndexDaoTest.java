@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.config.ScatterChartProperties;
 import com.navercorp.pinpoint.web.dao.TraceIndexDao;
 import com.navercorp.pinpoint.web.mapper.TraceIndexScatterMapper;
-import com.navercorp.pinpoint.web.mapper.TransactionIdMapper;
+import com.navercorp.pinpoint.web.mapper.TransactionIdMapperV2;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.scatter.ScatterDataBuilder;
 import com.navercorp.pinpoint.web.util.ListListUtils;
@@ -80,9 +80,9 @@ public class HbaseTraceIndexDaoTest {
         openMocks = MockitoAnnotations.openMocks(this);
         ScatterChartProperties scatterChartProperties = new ScatterChartProperties();
 
-        RowMapper<List<TransactionId>> transactionIdMapper = new TransactionIdMapper();
+        TransactionIdMapperV2 transactionIdMapperV2 = new TransactionIdMapperV2();
         RowMapper<List<Dot>> traceScatterMapper = new TraceIndexScatterMapper();
-        this.traceIndexDao = new HbaseTraceIndexDao(scatterChartProperties, hbaseOperations, tableNameProvider, transactionIdMapper, traceScatterMapper, traceIndexRowKeyDistributor);
+        this.traceIndexDao = new HbaseTraceIndexDao(scatterChartProperties, hbaseOperations, tableNameProvider, transactionIdMapperV2, traceScatterMapper, traceIndexRowKeyDistributor);
     }
 
     @Test

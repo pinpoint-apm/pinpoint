@@ -88,10 +88,9 @@ public class HeatMapServiceImpl implements HeatMapService {
     }
 
     @Override
-    public LimitedScanResult<List<DotMetaData>> dragScatterDataV3(int serviceUid, String applicationName, int serviceTypeCode, DragAreaQuery dragAreaQuery, int limit) {
+    public LimitedScanResult<List<DotMetaData>> dragTraceIndex(int serviceUid, String applicationName, int serviceTypeCode, DragAreaQuery dragAreaQuery, int limit) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(dragAreaQuery, "dragAreaQuery");
-
 
         LimitedScanResult<List<DotMetaData>> scanResult = traceIndexDao.scanScatterDataV2(serviceUid, applicationName, serviceTypeCode, dragAreaQuery, limit);
         List<DotMetaData> scanData = scanResult.scanData();

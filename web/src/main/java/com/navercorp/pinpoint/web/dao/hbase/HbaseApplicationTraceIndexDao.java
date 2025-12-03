@@ -79,8 +79,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private final FuzzyRowKeyBuilder fuzzyRowKeyBuilder = new FuzzyRowKeyBuilder();
 
-    private final RowMapper<List<TransactionId>> transactionIdMapper = new TransactionIdMapper(HbaseTables.APPLICATION_TRACE_INDEX_TRACE);
-    private final RowMapper<List<Dot>> traceIndexScatterMapper = new TraceIndexScatterMapper(HbaseTables.APPLICATION_TRACE_INDEX_TRACE);
+    private final RowMapper<List<TransactionId>> transactionIdMapper = new TransactionIdMapper();
+    private final RowMapper<List<Dot>> traceIndexScatterMapper = new TraceIndexScatterMapper();
 
     private final RowKeyDistributor traceIdRowKeyDistributor;
 
@@ -279,7 +279,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
         Predicate<Dot> filter = buildDotPredicate(dragAreaQuery);
 
-        RowMapper<List<DotMetaData>> mapper = new TraceIndexMetaScatterMapper(INDEX, META, filter);
+        RowMapper<List<DotMetaData>> mapper = new TraceIndexMetaScatterMapper(filter);
 
         return scanScatterData0(applicationName, dragAreaQuery, limit, true, mapper);
     }

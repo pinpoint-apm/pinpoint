@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.collector.applicationmap.dao.HostApplicationMapDao
 import com.navercorp.pinpoint.collector.applicationmap.service.LinkService;
 import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.collector.dao.TraceDao;
+import com.navercorp.pinpoint.collector.dao.TraceIndexDao;
 import com.navercorp.pinpoint.collector.event.SpanStorePublisher;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
@@ -59,7 +60,7 @@ public class HbaseTraceService implements TraceService {
     private final TraceDao traceDao;
 
     private final ApplicationTraceIndexDao applicationTraceIndexDao;
-    private final ApplicationTraceIndexDao applicationTraceIndexDaoV2;
+    private final TraceIndexDao traceIndexDao;
     private final boolean enableApplicationTraceIndexV1;
     private final boolean enableApplicationTraceIndexV2;
 
@@ -74,7 +75,7 @@ public class HbaseTraceService implements TraceService {
 
     public HbaseTraceService(TraceDao traceDao,
                              ApplicationTraceIndexDao applicationTraceIndexDao,
-                             @Qualifier("hbaseApplicationTraceIndexDaoV2") ApplicationTraceIndexDao applicationTraceIndexDaoV2,
+                             TraceIndexDao traceIndexDao,
                              @Value("${pinpoint.collector.application.trace.index.v1.enabled:true}") boolean enableApplicationTraceIndexV1,
                              @Value("${pinpoint.collector.application.trace.index.v2.enabled:false}") boolean enableApplicationTraceIndexV2,
                              HostApplicationMapDao hostApplicationMapDao,
@@ -84,7 +85,7 @@ public class HbaseTraceService implements TraceService {
                              @Qualifier("grpcSpanServerExecutor") Executor grpcSpanServerExecutor) {
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
         this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
-        this.applicationTraceIndexDaoV2 = Objects.requireNonNull(applicationTraceIndexDaoV2, "applicationTraceIndexDaoV2");
+        this.traceIndexDao = Objects.requireNonNull(traceIndexDao, "traceIndexDao");
         this.enableApplicationTraceIndexV1 = enableApplicationTraceIndexV1;
         this.enableApplicationTraceIndexV2 = enableApplicationTraceIndexV2;
         this.hostApplicationMapDao = Objects.requireNonNull(hostApplicationMapDao, "hostApplicationMapDao");
@@ -147,7 +148,7 @@ public class HbaseTraceService implements TraceService {
             applicationTraceIndexDao.insert(span);
         }
         if (enableApplicationTraceIndexV2) {
-            applicationTraceIndexDaoV2.insert(span);
+            traceIndexDao.insert(span);
         }
     }
 
