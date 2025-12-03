@@ -66,11 +66,12 @@ export const Popper = ({
     <Manager>
       <Reference>
         {({ ref }) =>
-          children &&
-          React.cloneElement(children, {
-            ref: mergeRefs([ref, referenceRef]),
-            onClick: handleClickTarget,
-          } as Partial<{ ref: React.Ref<HTMLElement>; onClick: () => void }>)
+          children
+            ? React.cloneElement(children, {
+                ref: mergeRefs([ref, referenceRef]),
+                onClick: handleClickTarget,
+              } as Partial<{ ref: React.Ref<HTMLElement>; onClick: () => void }>)
+            : null
         }
       </Reference>
       {open && (

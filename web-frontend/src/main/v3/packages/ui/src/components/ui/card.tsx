@@ -23,9 +23,7 @@ const CardHeader = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & {
   ref?: React.Ref<HTMLDivElement>;
-}) => (
-  <div ref={ref} className={cn('flex flex-col space-y-1.5 p-6', className)} {...props} />
-);
+}) => <div ref={ref} className={cn('flex flex-col space-y-1.5 p-6', className)} {...props} />;
 CardHeader.displayName = 'CardHeader';
 
 const CardTitle = ({
@@ -33,13 +31,9 @@ const CardTitle = ({
   ref,
   ...props
 }: React.HTMLAttributes<HTMLHeadingElement> & {
-  ref?: React.Ref<HTMLParagraphElement>;
+  ref?: React.Ref<HTMLHeadingElement>;
 }) => (
-  <h3
-    ref={ref}
-    className={cn('font-semibold leading-none tracking-tight', className)}
-    {...props}
-  />
+  <h3 ref={ref} className={cn('font-semibold leading-none tracking-tight', className)} {...props} />
 );
 CardTitle.displayName = 'CardTitle';
 
@@ -49,9 +43,7 @@ const CardDescription = ({
   ...props
 }: React.HTMLAttributes<HTMLParagraphElement> & {
   ref?: React.Ref<HTMLParagraphElement>;
-}) => (
-  <p ref={ref} className={cn('text-sm text-muted-foreground', className)} {...props} />
-);
+}) => <p ref={ref} className={cn('text-sm text-muted-foreground', className)} {...props} />;
 CardDescription.displayName = 'CardDescription';
 
 const CardContent = ({
@@ -60,9 +52,7 @@ const CardContent = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & {
   ref?: React.Ref<HTMLDivElement>;
-}) => (
-  <div ref={ref} className={cn('p-6 pt-0', className)} {...props} />
-);
+}) => <div ref={ref} className={cn('p-6 pt-0', className)} {...props} />;
 CardContent.displayName = 'CardContent';
 
 const CardFooter = ({
@@ -71,9 +61,7 @@ const CardFooter = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & {
   ref?: React.Ref<HTMLDivElement>;
-}) => (
-  <div ref={ref} className={cn('flex items-center p-6 pt-0', className)} {...props} />
-);
+}) => <div ref={ref} className={cn('flex items-center p-6 pt-0', className)} {...props} />;
 CardFooter.displayName = 'CardFooter';
 
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent };

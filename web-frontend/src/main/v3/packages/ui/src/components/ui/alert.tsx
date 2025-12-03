@@ -39,7 +39,7 @@ const AlertTitle = ({
   ref,
   ...props
 }: React.HTMLAttributes<HTMLHeadingElement> & {
-  ref?: React.Ref<HTMLParagraphElement>;
+  ref?: React.Ref<HTMLHeadingElement>;
 }) => (
   <h5
     ref={ref}
@@ -55,9 +55,7 @@ const AlertDescription = ({
   ...props
 }: React.HTMLAttributes<HTMLParagraphElement> & {
   ref?: React.Ref<HTMLParagraphElement>;
-}) => (
-  <div ref={ref} className={cn('text-sm [&_p]:leading-relaxed', className)} {...props} />
-);
+}) => <div ref={ref} className={cn('text-sm [&_p]:leading-relaxed', className)} {...props} />;
 AlertDescription.displayName = 'AlertDescription';
 
 export { Alert, AlertTitle, AlertDescription };
