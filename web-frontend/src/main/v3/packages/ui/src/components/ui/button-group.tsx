@@ -3,10 +3,13 @@ import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 
 import { cn } from '../../lib/utils';
 
-const ButtonGroup = React.forwardRef<
-  React.ElementRef<typeof RadioGroupPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
->(({ className, ...props }, ref) => {
+const ButtonGroup = ({
+  className,
+  ref,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root> & {
+  ref?: React.Ref<React.ElementRef<typeof RadioGroupPrimitive.Root>>;
+}) => {
   return (
     <RadioGroupPrimitive.Root
       className={cn(
@@ -17,13 +20,17 @@ const ButtonGroup = React.forwardRef<
       ref={ref}
     />
   );
-});
+};
 ButtonGroup.displayName = RadioGroupPrimitive.Root.displayName;
 
-const ButtonGroupItem = React.forwardRef<
-  React.ElementRef<typeof RadioGroupPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>
->(({ className, children, ...props }, ref) => {
+const ButtonGroupItem = ({
+  className,
+  children,
+  ref,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item> & {
+  ref?: React.Ref<React.ElementRef<typeof RadioGroupPrimitive.Item>>;
+}) => {
   return (
     <RadioGroupPrimitive.Item
       ref={ref}
@@ -37,7 +44,7 @@ const ButtonGroupItem = React.forwardRef<
       <button type="button">{children}</button>
     </RadioGroupPrimitive.Item>
   );
-});
+};
 ButtonGroupItem.displayName = RadioGroupPrimitive.Item.displayName;
 
 export { ButtonGroup, ButtonGroupItem };
