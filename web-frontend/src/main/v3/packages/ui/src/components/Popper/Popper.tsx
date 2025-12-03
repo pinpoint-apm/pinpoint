@@ -7,7 +7,7 @@ import { cn } from '../../lib';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface PopperProps extends Omit<PPProps<any>, 'children'> {
   content: React.ReactNode;
-  children: React.ReactElement;
+  children?: React.ReactElement;
   className?: string;
   positionUpdatable?: boolean;
   hideArrow?: boolean;
@@ -66,6 +66,7 @@ export const Popper = ({
     <Manager>
       <Reference>
         {({ ref }) =>
+          children &&
           React.cloneElement(children, {
             ref: mergeRefs([ref, referenceRef]),
             onClick: handleClickTarget,
