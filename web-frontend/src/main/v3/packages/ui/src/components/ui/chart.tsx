@@ -37,13 +37,18 @@ function useChart() {
   return context;
 }
 
-const ChartContainer = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<'div'> & {
-    config: ChartConfig;
-    children: React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>['children'];
-  }
->(({ id, className, children, config, ...props }, ref) => {
+const ChartContainer = ({
+  id,
+  className,
+  children,
+  config,
+  ref,
+  ...props
+}: React.ComponentProps<'div'> & {
+  config: ChartConfig;
+  children: React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>['children'];
+  ref?: React.Ref<HTMLDivElement>;
+}) => {
   const uniqueId = React.useId();
   const chartId = `chart-${id || uniqueId.replace(/:/g, '')}`;
 
@@ -63,7 +68,7 @@ const ChartContainer = React.forwardRef<
       </div>
     </ChartContext.Provider>
   );
-});
+};
 ChartContainer.displayName = 'Chart';
 
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
@@ -97,40 +102,36 @@ ${colorConfig
 
 const ChartTooltip = RechartsPrimitive.Tooltip;
 
-const ChartTooltipContent = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
-    React.ComponentProps<'div'> & {
-      isReverse?: boolean;
-      hideLabel?: boolean;
-      hideIndicator?: boolean;
-      indicator?: 'line' | 'dot' | 'dashed';
-      nameKey?: string;
-      labelKey?: string;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      valueFormatter?: (value: any, payload: Payload[]) => React.ReactNode;
-    }
->(
-  (
-    {
-      isReverse,
-      active,
-      payload,
-      className,
-      indicator = 'dot',
-      hideLabel = false,
-      hideIndicator = false,
-      label,
-      labelFormatter,
-      labelClassName,
-      valueFormatter,
-      formatter,
-      color,
-      nameKey,
-      labelKey,
-    },
-    ref,
-  ) => {
+const ChartTooltipContent = ({
+  isReverse,
+  active,
+  payload,
+  className,
+  indicator = 'dot',
+  hideLabel = false,
+  hideIndicator = false,
+  label,
+  labelFormatter,
+  labelClassName,
+  valueFormatter,
+  formatter,
+  color,
+  nameKey,
+  labelKey,
+  ref,
+  ...props
+}: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
+  React.ComponentProps<'div'> & {
+    isReverse?: boolean;
+    hideLabel?: boolean;
+    hideIndicator?: boolean;
+    indicator?: 'line' | 'dot' | 'dashed';
+    nameKey?: string;
+    labelKey?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    valueFormatter?: (value: any, payload: Payload[]) => React.ReactNode;
+    ref?: React.Ref<HTMLDivElement>;
+  }) => {
     const { config } = useChart();
 
     const tooltipLabel = React.useMemo(() => {
@@ -245,37 +246,32 @@ const ChartTooltipContent = React.forwardRef<
         </div>
       </div>
     );
-  },
-);
+};
 ChartTooltipContent.displayName = 'ChartTooltip';
 
 const ChartLegend = RechartsPrimitive.Legend;
 
-const ChartLegendContent = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<'div'> &
-    Pick<RechartsPrimitive.LegendProps, 'payload' | 'verticalAlign'> & {
-      isReverse?: boolean;
-      hideIcon?: boolean;
-      nameKey?: string;
-      mouseHoverDataKey?: Payload['dataKey'] | undefined;
-      onLegendMouseOver?: (item: Payload) => void;
-    }
->(
-  (
-    {
-      isReverse,
-      className,
-      hideIcon = false,
-      payload,
-      verticalAlign = 'bottom',
-      nameKey,
-      mouseHoverDataKey,
-      onMouseLeave,
-      onLegendMouseOver,
-    },
-    ref,
-  ) => {
+const ChartLegendContent = ({
+  isReverse,
+  className,
+  hideIcon = false,
+  payload,
+  verticalAlign = 'bottom',
+  nameKey,
+  mouseHoverDataKey,
+  onMouseLeave,
+  onLegendMouseOver,
+  ref,
+  ...props
+}: React.ComponentProps<'div'> &
+  Pick<RechartsPrimitive.LegendProps, 'payload' | 'verticalAlign'> & {
+    isReverse?: boolean;
+    hideIcon?: boolean;
+    nameKey?: string;
+    mouseHoverDataKey?: Payload['dataKey'] | undefined;
+    onLegendMouseOver?: (item: Payload) => void;
+    ref?: React.Ref<HTMLDivElement>;
+  }) => {
     const { config } = useChart();
 
     if (!payload?.length) {
@@ -339,8 +335,7 @@ const ChartLegendContent = React.forwardRef<
         </div>
       </TooltipProvider>
     );
-  },
-);
+};
 ChartLegendContent.displayName = 'ChartLegend';
 
 // Helper to extract item config from a payload.
