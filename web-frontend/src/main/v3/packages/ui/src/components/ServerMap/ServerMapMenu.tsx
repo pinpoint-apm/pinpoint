@@ -39,9 +39,7 @@ export const ServerMapMenu = ({ children, position, contentType }: ServerMapMenu
             },
           ]}
           hideArrow
-        >
-          <></>
-        </Popper>
+        />
       )}
     </>
   );
