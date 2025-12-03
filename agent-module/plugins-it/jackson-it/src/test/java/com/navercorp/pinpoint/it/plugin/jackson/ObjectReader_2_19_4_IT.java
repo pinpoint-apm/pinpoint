@@ -41,8 +41,8 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
 // 2.7.0, 2.7.1 has JDK6 compatibility issue - https://github.com/FasterXML/jackson-databind/issues/1134
-@Dependency({"com.fasterxml.jackson.core:jackson-databind:[2.8.0,2.19.2]"})
-public class ObjectReaderIT {
+@Dependency({"com.fasterxml.jackson.core:jackson-databind:[2.19.4,2.max]"})
+public class ObjectReader_2_19_4_IT {
 
     private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
