@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.applicationmap.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.collector.applicationmap.service.LinkService;
-import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.collector.dao.TraceDao;
 import com.navercorp.pinpoint.collector.event.SpanStorePublisher;
+import com.navercorp.pinpoint.collector.scatter.service.ScatterService;
 import com.navercorp.pinpoint.common.profiler.logging.ThrottledLogger;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
@@ -36,7 +36,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -58,10 +57,7 @@ public class HbaseTraceService implements TraceService {
 
     private final TraceDao traceDao;
 
-    private final ApplicationTraceIndexDao applicationTraceIndexDao;
-    private final ApplicationTraceIndexDao applicationTraceIndexDaoV2;
-    private final boolean enableApplicationTraceIndexV1;
-    private final boolean enableApplicationTraceIndexV2;
+    private final ScatterService scatterService;
 
     private final HostApplicationMapDao hostApplicationMapDao;
 
@@ -73,20 +69,14 @@ public class HbaseTraceService implements TraceService {
     private final Executor grpcSpanServerExecutor;
 
     public HbaseTraceService(TraceDao traceDao,
-                             ApplicationTraceIndexDao applicationTraceIndexDao,
-                             @Qualifier("hbaseApplicationTraceIndexDaoV2") ApplicationTraceIndexDao applicationTraceIndexDaoV2,
-                             @Value("${pinpoint.collector.application.trace.index.v1.enabled:true}") boolean enableApplicationTraceIndexV1,
-                             @Value("${pinpoint.collector.application.trace.index.v2.enabled:false}") boolean enableApplicationTraceIndexV2,
+                             ScatterService scatterService,
                              HostApplicationMapDao hostApplicationMapDao,
                              LinkService linkService,
                              ServiceTypeRegistryService registry,
                              SpanStorePublisher spanStorePublisher,
                              @Qualifier("grpcSpanServerExecutor") Executor grpcSpanServerExecutor) {
         this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
-        this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
-        this.applicationTraceIndexDaoV2 = Objects.requireNonNull(applicationTraceIndexDaoV2, "applicationTraceIndexDaoV2");
-        this.enableApplicationTraceIndexV1 = enableApplicationTraceIndexV1;
-        this.enableApplicationTraceIndexV2 = enableApplicationTraceIndexV2;
+        this.scatterService = Objects.requireNonNull(scatterService, "scatterService");
         this.hostApplicationMapDao = Objects.requireNonNull(hostApplicationMapDao, "hostApplicationMapDao");
         this.linkService = Objects.requireNonNull(linkService, "statisticsService");
         this.registry = Objects.requireNonNull(registry, "registry");
@@ -125,7 +115,7 @@ public class HbaseTraceService implements TraceService {
     public void insertSpan(final SpanBo spanBo) {
         SpanInsertEvent event = publisher.captureContext(spanBo);
         CompletableFuture<Void> future = traceDao.asyncInsert(spanBo);
-        insertApplicationTraceIndex(spanBo);
+        this.scatterService.insert(spanBo);
 
         final Vertex selfVertex = getSelfVertex(spanBo);
 
@@ -142,14 +132,6 @@ public class HbaseTraceService implements TraceService {
         }, grpcSpanServerExecutor);
     }
 
-    private void insertApplicationTraceIndex(SpanBo span) {
-        if (enableApplicationTraceIndexV1) {
-            applicationTraceIndexDao.insert(span);
-        }
-        if (enableApplicationTraceIndexV2) {
-            applicationTraceIndexDaoV2.insert(span);
-        }
-    }
 
     private void insertAcceptorHost(long requestTime, SpanEventBo spanEvent, Vertex selfVertex) {
         final String endPoint = spanEvent.getEndPoint();
