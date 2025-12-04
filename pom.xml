@@ -244,8 +244,11 @@
         <mybatis.version>3.5.16</mybatis.version>
 
         <jjwt.version>0.12.3</jjwt.version>
-        <javax.jaxb.version>2.3.1</javax.jaxb.version>
-        <jakarta.jaxb.version>4.0.1</jakarta.jaxb.version>
+
+        <!-- jaxb -->
+        <javax.jaxb-api.version>2.3.1</javax.jaxb-api.version>
+        <jakarta.jaxb-api.version>4.0.4</jakarta.jaxb-api.version>
+        <jaxb-impl.version>4.0.6</jaxb-impl.version>
 
         <zookeeper.version>3.8.4</zookeeper.version>
 
@@ -1410,7 +1413,7 @@
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
-                <version>${javax.jaxb.version}</version>
+                <version>${javax.jaxb-api.version}</version>
                 <exclusions>
                     <exclusion>
                         <!-- use com.sun.activation:jakarta.activation -->
@@ -1422,7 +1425,7 @@
             <dependency>
                 <groupId>jakarta.xml.bind</groupId>
                 <artifactId>jakarta.xml.bind-api</artifactId>
-                <version>${jakarta.jaxb.version}</version>
+                <version>${jakarta.jaxb-api.version}</version>
                 <exclusions>
                     <exclusion>
                         <!-- use com.sun.activation:jakarta.activation -->
@@ -1434,7 +1437,13 @@
             <dependency>
                 <groupId>com.sun.xml.bind</groupId>
                 <artifactId>jaxb-impl</artifactId>
-                <version>4.0.4</version>
+                <version>${jaxb-impl.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-core</artifactId>
+                <version>${jaxb-impl.version}</version>
                 <scope>runtime</scope>
             </dependency>
             <dependency>
