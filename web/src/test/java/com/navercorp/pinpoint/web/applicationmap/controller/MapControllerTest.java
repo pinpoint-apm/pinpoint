@@ -62,7 +62,7 @@ class MapControllerTest {
         when(mapService.selectApplicationMap(any())).thenReturn(map);
 
         Duration duration = Duration.ofMinutes(1);
-        MapController controller = new MapController(mapService, applicationValidator, hyperLinkFactory, duration);
+        MapController controller = new MapController(mapService, applicationValidator, duration);
         when(applicationValidator.newApplication(any(), anyInt(), any()))
                 .thenReturn(new Application("test", ServiceType.STAND_ALONE));
 
