@@ -18,7 +18,7 @@ import { APP_SETTING_KEYS, Configuration } from '@pinpoint-fe/ui/src/constants';
 
 export interface OpenTelemetryPageProps {
   configuration?: Configuration & Record<string, unknown>;
-  ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
+  ApplicationList?: (props: ApplicationCombinedListProps) => React.ReactElement;
 }
 
 export const OpenTelemetryPage = ({

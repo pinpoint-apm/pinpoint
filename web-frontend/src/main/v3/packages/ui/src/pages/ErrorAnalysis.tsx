@@ -43,7 +43,7 @@ import { ServerIcon } from '../components/Application/ServerIcon';
 
 export interface ErrorAnalysisPageProps {
   configuration?: Configuration;
-  ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
+  ApplicationList?: (props: ApplicationCombinedListProps) => React.ReactElement;
 }
 
 export const ErrorAnalysisPage = ({

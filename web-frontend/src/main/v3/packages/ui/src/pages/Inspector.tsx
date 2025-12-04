@@ -23,7 +23,7 @@ import { APP_SETTING_KEYS, Configuration } from '@pinpoint-fe/ui/src/constants';
 
 export interface InspectorPageProps {
   configuration?: Configuration;
-  ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
+  ApplicationList?: (props: ApplicationCombinedListProps) => React.ReactElement;
 }
 
 export const InspectorPage = ({

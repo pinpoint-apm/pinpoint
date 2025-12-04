@@ -47,7 +47,7 @@ interface MenuItemProps {
 }
 
 interface TooltipProps {
-  trigger: React.JSX.Element;
+  trigger: React.ReactNode;
   content: React.ReactNode;
 }
 

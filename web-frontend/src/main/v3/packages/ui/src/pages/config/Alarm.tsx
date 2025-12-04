@@ -48,7 +48,7 @@ import { MdOutlineAdd } from 'react-icons/md';
 
 export interface AlarmPageProps {
   configuration?: Configuration;
-  ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
+  ApplicationList?: (props: ApplicationCombinedListProps) => React.ReactElement;
   onChangeApplication?: (application: ApplicationType) => void;
 }
 

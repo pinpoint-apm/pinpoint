@@ -43,7 +43,7 @@ import { ServerMapChartsBoard } from '@pinpoint-fe/ui/src/components/ServerMap/S
 export interface ServermapPageProps {
   authorizationGuideUrl?: string;
   configuration?: Configuration & Record<string, string>;
-  ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
+  ApplicationList?: (props: ApplicationCombinedListProps) => React.ReactElement;
 }
 
 const SERVERMAP_CONTAINER_ID = 'server-map-main-container';

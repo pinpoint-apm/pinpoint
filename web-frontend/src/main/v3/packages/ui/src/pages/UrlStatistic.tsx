@@ -31,7 +31,7 @@ type TYPE = UrlStatSummary.Parameters['type'];
 
 export interface UrlStatisticPageProps {
   configuration?: Configuration & Record<string, unknown>;
-  ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
+  ApplicationList?: (props: ApplicationCombinedListProps) => React.ReactElement;
 }
 
 export const UrlStatisticPage = ({
