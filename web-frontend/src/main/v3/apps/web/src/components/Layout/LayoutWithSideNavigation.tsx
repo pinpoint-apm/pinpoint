@@ -6,7 +6,7 @@ import {
 } from '@pinpoint-fe/ui';
 import { FaCog } from 'react-icons/fa';
 import { APP_PATH } from '@pinpoint-fe/ui/src/constants';
-import { LuUserCircle2 } from 'react-icons/lu';
+import { LuCircleUser } from 'react-icons/lu';
 import { CONFIG_MENU_MAP } from './LayoutWithConfiguration';
 import { MdOutlineAdminPanelSettings } from 'react-icons/md';
 import { useMenuItems } from '@pinpoint-fe/web/src/hooks/useMenuItems';
@@ -30,7 +30,7 @@ export const LayoutWithSideNavigation = ({ ...props }: LayoutWithSideNavigationP
       childItems: CONFIG_MENU_MAP.CONFIGURATION.menus,
     },
     {
-      icon: <LuUserCircle2 />,
+      icon: <LuCircleUser />,
       name: 'User',
       path: APP_PATH.CONFIG_GENERAL,
       childItems: CONFIG_MENU_MAP.PERSONAL_SETTINGS.menus,

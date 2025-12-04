@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.17.10",
-    "@storybook/addon-docs": "9.1.8",
+    "@storybook/addon-docs": "^9.1.8",
     "@storybook/addon-links": "^9.1.8",
     "@storybook/builder-vite": "^9.1.8",
     "@storybook/html-vite": "^9.1.8",

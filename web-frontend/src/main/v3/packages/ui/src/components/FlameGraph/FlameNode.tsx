@@ -134,7 +134,7 @@ const FlameNodeComponent = <T,>({
 
 export const FlameNode = React.memo(FlameNodeComponent) as <T>(
   props: FlameNodeProps<T>,
-) => JSX.Element;
+) => React.ReactElement;
 
 const getEllipsizedText = (text: string, maxWidth = 1, svgRef?: React.RefObject<SVGSVGElement>) => {
   if (!svgRef?.current) return text;

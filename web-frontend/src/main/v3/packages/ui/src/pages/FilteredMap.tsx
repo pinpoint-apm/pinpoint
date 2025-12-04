@@ -46,7 +46,7 @@ import { FilteredMapChartsBoard } from '@pinpoint-fe/ui/src/components/FilterMap
 export interface FilteredMapPageProps {
   authorizationGuideUrl?: string;
   configuration?: Configuration & Record<string, string>;
-  ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
+  ApplicationList?: (props: ApplicationCombinedListProps) => React.ReactElement;
 }
 
 const FILTERED_MAP_CONTAINER_ID = 'filtered-map-main-container';

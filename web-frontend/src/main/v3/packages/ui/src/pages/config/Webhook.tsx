@@ -41,7 +41,7 @@ import { useGetWebhook, useLocalStorage, useWebhookMutation } from '@pinpoint-fe
 import { MdOutlineAdd } from 'react-icons/md';
 
 export interface WebhookPageProps {
-  ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
+  ApplicationList?: (props: ApplicationCombinedListProps) => React.ReactElement;
   configuration?: Configuration;
 }
 

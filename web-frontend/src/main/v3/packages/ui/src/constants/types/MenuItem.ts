@@ -2,6 +2,6 @@ export type MenuItemType = {
   name: string;
   path: string | string[];
   href?: string;
-  icon?: JSX.Element;
+  icon?: React.ReactElement;
   hide?: boolean;
 };

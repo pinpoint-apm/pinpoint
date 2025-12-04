@@ -18,7 +18,7 @@ import { PiTreeStructureDuotone } from 'react-icons/pi';
 
 export interface RealtimePageProps {
   configuration?: Configuration & Record<string, string>;
-  ApplicationList?: (props: ApplicationCombinedListProps) => JSX.Element;
+  ApplicationList?: (props: ApplicationCombinedListProps) => React.ReactElement;
 }
 
 export const RealtimePage = ({
