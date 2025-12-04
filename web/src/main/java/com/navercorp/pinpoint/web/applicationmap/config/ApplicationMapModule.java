@@ -85,10 +85,9 @@ public class ApplicationMapModule {
     @Bean
     public MapController mapController(MapService mapService,
                                        ApplicationValidator applicationValidator,
-                                       HyperLinkFactory hyperLinkFactory,
                                        ConfigProperties configProperties) {
         Duration maxPeriod = Duration.ofDays(configProperties.getServerMapPeriodMax());
-        return new MapController(mapService, applicationValidator, hyperLinkFactory, maxPeriod);
+        return new MapController(mapService, applicationValidator, maxPeriod);
     }
 
     @Bean

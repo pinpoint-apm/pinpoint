@@ -32,7 +32,6 @@ import com.navercorp.pinpoint.web.applicationmap.service.MapService;
 import com.navercorp.pinpoint.web.applicationmap.service.MapServiceOption;
 import com.navercorp.pinpoint.web.applicationmap.view.LinkRender;
 import com.navercorp.pinpoint.web.applicationmap.view.NodeRender;
-import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.util.ApplicationValidator;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.SearchOption;
@@ -63,7 +62,6 @@ public class MapController {
 
     private final MapService mapService;
     private final RangeValidator rangeValidator;
-    private final HyperLinkFactory hyperLinkFactory;
     private final ApplicationValidator applicationValidator;
 
     private static final int DEFAULT_MAX_SEARCH_DEPTH = 4;
@@ -71,11 +69,9 @@ public class MapController {
     public MapController(
             MapService mapService,
             ApplicationValidator applicationValidator,
-            HyperLinkFactory hyperLinkFactory,
             Duration limitDay) {
         this.mapService = Objects.requireNonNull(mapService, "mapService");
         this.applicationValidator = Objects.requireNonNull(applicationValidator, "applicationValidator");
-        this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
         this.rangeValidator = new ForwardRangeValidator(Objects.requireNonNull(limitDay, "limitDay"));
     }
 
