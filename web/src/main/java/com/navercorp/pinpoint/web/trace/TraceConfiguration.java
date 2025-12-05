@@ -27,31 +27,38 @@ import org.springframework.context.annotation.Import;
 import java.util.Optional;
 
 @Configuration
-@ComponentScan(
-        basePackages = {
-                "com.navercorp.pinpoint.web.trace.controller",
-                "com.navercorp.pinpoint.web.trace.service",
-
-                "com.navercorp.pinpoint.web.trace.dao.hbase",
-                "com.navercorp.pinpoint.web.trace.dao.mapper",
-        }
-)
 @Import(
         value = {
-                SpanSerializeConfiguration.class,
+                SpanSerializeConfiguration.class
         }
 )
 public class TraceConfiguration {
 
-    @Bean
-    public AnnotationRecordFormatter annotationRecordFormatter(Optional<ProxyRequestTypeRegistryService> proxyRequestTypeRegistryService) {
-        AnnotationRecordFormatter.Builder builder = AnnotationRecordFormatter.newBuilder();
-        builder.addDefaultHandlers();
-
-        if (proxyRequestTypeRegistryService.isPresent()) {
-            builder.addProxyHeaderAnnotationHeader(proxyRequestTypeRegistryService.get());
-        }
-        return builder.build();
+    @Configuration
+    @ComponentScan(basePackages = {
+            "com.navercorp.pinpoint.web.trace.controller",
+    })
+    public static class TraceWebConfiguration {
     }
 
+    @Configuration
+    @ComponentScan(
+            basePackages = {
+                    "com.navercorp.pinpoint.web.trace.service",
+                    "com.navercorp.pinpoint.web.trace.dao.hbase",
+                    "com.navercorp.pinpoint.web.trace.dao.mapper",
+            }
+    )
+    public static class TraceServiceConfiguration {
+        @Bean
+        public AnnotationRecordFormatter annotationRecordFormatter(Optional<ProxyRequestTypeRegistryService> proxyRequestTypeRegistryService) {
+            AnnotationRecordFormatter.Builder builder = AnnotationRecordFormatter.newBuilder();
+            builder.addDefaultHandlers();
+
+            if (proxyRequestTypeRegistryService.isPresent()) {
+                builder.addProxyHeaderAnnotationHeader(proxyRequestTypeRegistryService.get());
+            }
+            return builder.build();
+        }
+    }
 }
