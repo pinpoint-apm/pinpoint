@@ -116,7 +116,7 @@ public class UidLinkRowKey implements TimestampRowKey {
         buffer.setOffset(saltKeySize);
         buffer.putInt(hash(applicationNameBytes));
         buffer.putInt(serviceUid);
-        buffer.putInt(serviceType);
+        buffer.putInt(IntInverter.invert(serviceType));
 
         int secondTimestamp = SecondTimestamp.convertSecondTimestamp(timestamp);
         int reverseTimeMillis = IntInverter.invert(secondTimestamp);
@@ -141,7 +141,7 @@ public class UidLinkRowKey implements TimestampRowKey {
         buffer.setOffset(offset + BytesUtils.INT_BYTE_LENGTH);
 
         int serviceUid = buffer.readInt(); // serviceUid
-        int serviceType = buffer.readInt(); // serviceUid
+        int serviceType = IntInverter.restore(buffer.readInt()); // serviceType
 
         int secondTimestamp = IntInverter.restore(buffer.readInt());
         offset += BytesUtils.INT_BYTE_LENGTH;
