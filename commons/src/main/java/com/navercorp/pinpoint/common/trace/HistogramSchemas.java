@@ -16,29 +16,27 @@
 
 package com.navercorp.pinpoint.common.trace;
 
-import com.navercorp.pinpoint.common.util.apache.IntHashMap;
-
-import static com.navercorp.pinpoint.common.trace.HistogramSchemas.SlotCodes.ERROR;
-import static com.navercorp.pinpoint.common.trace.HistogramSchemas.SlotCodes.F_FAST;
-import static com.navercorp.pinpoint.common.trace.HistogramSchemas.SlotCodes.F_FAST_ERROR;
-import static com.navercorp.pinpoint.common.trace.HistogramSchemas.SlotCodes.F_NORMAL;
-import static com.navercorp.pinpoint.common.trace.HistogramSchemas.SlotCodes.F_NORMAL_ERROR;
-import static com.navercorp.pinpoint.common.trace.HistogramSchemas.SlotCodes.F_SLOW;
-import static com.navercorp.pinpoint.common.trace.HistogramSchemas.SlotCodes.F_SLOW_ERROR;
-import static com.navercorp.pinpoint.common.trace.HistogramSchemas.SlotCodes.F_VERY_SLOW;
-import static com.navercorp.pinpoint.common.trace.HistogramSchemas.SlotCodes.F_VERY_SLOW_ERROR;
-import static com.navercorp.pinpoint.common.trace.HistogramSchemas.SlotCodes.MAX_STAT;
-import static com.navercorp.pinpoint.common.trace.HistogramSchemas.SlotCodes.N_FAST;
-import static com.navercorp.pinpoint.common.trace.HistogramSchemas.SlotCodes.N_FAST_ERROR;
-import static com.navercorp.pinpoint.common.trace.HistogramSchemas.SlotCodes.N_NORMAL;
-import static com.navercorp.pinpoint.common.trace.HistogramSchemas.SlotCodes.N_NORMAL_ERROR;
-import static com.navercorp.pinpoint.common.trace.HistogramSchemas.SlotCodes.N_SLOW;
-import static com.navercorp.pinpoint.common.trace.HistogramSchemas.SlotCodes.N_SLOW_ERROR;
-import static com.navercorp.pinpoint.common.trace.HistogramSchemas.SlotCodes.N_VERY_SLOW;
-import static com.navercorp.pinpoint.common.trace.HistogramSchemas.SlotCodes.N_VERY_SLOW_ERROR;
-import static com.navercorp.pinpoint.common.trace.HistogramSchemas.SlotCodes.PING;
-import static com.navercorp.pinpoint.common.trace.HistogramSchemas.SlotCodes.SUM_STAT;
 import static com.navercorp.pinpoint.common.trace.HistogramSlotGroup.entry;
+import static com.navercorp.pinpoint.common.trace.SlotCode.ERROR;
+import static com.navercorp.pinpoint.common.trace.SlotCode.F_FAST;
+import static com.navercorp.pinpoint.common.trace.SlotCode.F_FAST_ERROR;
+import static com.navercorp.pinpoint.common.trace.SlotCode.F_NORMAL;
+import static com.navercorp.pinpoint.common.trace.SlotCode.F_NORMAL_ERROR;
+import static com.navercorp.pinpoint.common.trace.SlotCode.F_SLOW;
+import static com.navercorp.pinpoint.common.trace.SlotCode.F_SLOW_ERROR;
+import static com.navercorp.pinpoint.common.trace.SlotCode.F_VERY_SLOW;
+import static com.navercorp.pinpoint.common.trace.SlotCode.F_VERY_SLOW_ERROR;
+import static com.navercorp.pinpoint.common.trace.SlotCode.MAX_STAT;
+import static com.navercorp.pinpoint.common.trace.SlotCode.N_FAST;
+import static com.navercorp.pinpoint.common.trace.SlotCode.N_FAST_ERROR;
+import static com.navercorp.pinpoint.common.trace.SlotCode.N_NORMAL;
+import static com.navercorp.pinpoint.common.trace.SlotCode.N_NORMAL_ERROR;
+import static com.navercorp.pinpoint.common.trace.SlotCode.N_SLOW;
+import static com.navercorp.pinpoint.common.trace.SlotCode.N_SLOW_ERROR;
+import static com.navercorp.pinpoint.common.trace.SlotCode.N_VERY_SLOW;
+import static com.navercorp.pinpoint.common.trace.SlotCode.N_VERY_SLOW_ERROR;
+import static com.navercorp.pinpoint.common.trace.SlotCode.PING;
+import static com.navercorp.pinpoint.common.trace.SlotCode.SUM_STAT;
 
 public final class HistogramSchemas {
 
@@ -52,34 +50,6 @@ public final class HistogramSchemas {
     private static final short PING_SLOT_TIME = Short.MAX_VALUE - 1;
     private static final short STAT_SLOT_TIME_TOTAL = Short.MAX_VALUE - 2;
     private static final short STAT_SLOT_TIME_MAX = Short.MAX_VALUE - 3;
-
-    public static class SlotCodes {
-        public static final byte F_FAST = 1;
-        public static final byte F_NORMAL = 2;
-        public static final byte F_SLOW = 3;
-        public static final byte F_VERY_SLOW = 4;
-
-        public static final byte F_FAST_ERROR = -1;
-        public static final byte F_NORMAL_ERROR = -2;
-        public static final byte F_SLOW_ERROR = -3;
-        public static final byte F_VERY_SLOW_ERROR = -4;
-
-        public static final byte N_FAST = 11;
-        public static final byte N_NORMAL = 12;
-        public static final byte N_SLOW = 13;
-        public static final byte N_VERY_SLOW = 14;
-
-        public static final byte N_FAST_ERROR = -11;
-        public static final byte N_NORMAL_ERROR = -12;
-        public static final byte N_SLOW_ERROR = -13;
-        public static final byte N_VERY_SLOW_ERROR = -14;
-
-        @Deprecated
-        public static final byte ERROR =  -128;
-        public static final byte SUM_STAT = 112;
-        public static final byte MAX_STAT = 114;
-        public static final byte PING = 126;
-    }
 
     @Deprecated
     public static final HistogramSlot ERROR_SLOT = new HistogramSlot(ERROR, ERROR_SLOT_TIME, SlotType.ERROR, "Error");
@@ -117,53 +87,5 @@ public final class HistogramSchemas {
                     entry(N_VERY_SLOW_ERROR, -9999, "Slow", SlotType.VERY_SLOW_ERROR)),
             ERROR_SLOT, SUM_STAT_SLOT, MAX_STAT_SLOT, PING_SLOT
     );
-
-    private static final IntHashMap<HistogramSlot> SLOT_MAP = toSlotCodeMap(FAST_SCHEMA, NORMAL_SCHEMA);
-
-
-    private static IntHashMap<HistogramSlot> toSlotCodeMap(HistogramSchema... schemas) {
-        HistogramSlotMapBuilder builder = new HistogramSlotMapBuilder();
-        for (HistogramSchema schema : schemas) {
-            builder.addSchema(schema);
-        }
-        builder.addSlot(SUM_STAT_SLOT);
-        builder.addSlot(MAX_STAT_SLOT);
-        builder.addSlot(PING_SLOT);
-        builder.addSlot(ERROR_SLOT);
-
-        return builder.build();
-    }
-
-    public static HistogramSlot getSlotFromCode(int code) {
-        return SLOT_MAP.get(code);
-    }
-
-    static class HistogramSlotMapBuilder {
-
-        private final IntHashMap<HistogramSlot> map = new IntHashMap<>();
-
-        public HistogramSlotMapBuilder() {
-        }
-
-        public HistogramSlotMapBuilder addSlot(HistogramSlot slot) {
-            HistogramSlot exist = map.put(slot.getSlotCode(), slot);
-            if (exist != null) {
-                throw new IllegalArgumentException("Duplicate slot:" + slot);
-            }
-            return this;
-        }
-
-        public HistogramSlotMapBuilder addSchema(HistogramSchema schema) {
-            addSlot(schema.getFastSlot());
-            addSlot(schema.getNormalSlot());
-            addSlot(schema.getSlowSlot());
-            addSlot(schema.getVerySlowSlot());
-            return this;
-        }
-
-        public IntHashMap<HistogramSlot> build() {
-            return map;
-        }
-    }
 
 }

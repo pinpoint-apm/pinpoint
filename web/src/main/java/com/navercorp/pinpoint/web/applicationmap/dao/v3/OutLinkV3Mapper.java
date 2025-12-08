@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.server.applicationmap.statistics.TimestampR
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
+import com.navercorp.pinpoint.common.trace.SlotCode;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.LinkFilter;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
@@ -90,7 +91,7 @@ public class OutLinkV3Mapper implements RowMapper<LinkDataMap> {
                 continue;
             }
 
-            byte slotCode = buffer.readByte();
+            SlotCode slotCode = SlotCode.valueOf(buffer.readByte());
             String outSubLink = buffer.readPrefixedString();
 
 

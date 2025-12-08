@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.util.UserNodeUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.SlotCode;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.dao.mapper.LinkFilter;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
@@ -100,7 +101,7 @@ public class InLinkV3Mapper implements RowMapper<LinkDataMap> {
                 continue;
             }
 
-            byte slotCode = buffer.readByte();
+            SlotCode slotCode = SlotCode.valueOf(buffer.readByte());
             long requestCount = CellUtils.valueToLong(cell);
             String selfHost = readOutHost(buffer);
             // There may be no outHost for virtual queue nodes from user-defined entry points.

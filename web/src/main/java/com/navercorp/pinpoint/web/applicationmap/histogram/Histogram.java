@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.SlotCode;
 import com.navercorp.pinpoint.web.view.HistogramSerializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -78,7 +79,7 @@ public class Histogram implements StatisticsHistogram {
         addCallCount(slotTime, 1);
     }
 
-    public void addCallCountByCode(final byte code, final long count) {
+    public void addCallCountByCode(final SlotCode code, final long count) {
         final HistogramSchema schema = this.schema;
 
         if (code == schema.getSumStatSlot().getSlotCode()) {
