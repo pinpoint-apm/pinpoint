@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.SlotCode;
 
 import java.util.Objects;
 
@@ -34,12 +35,12 @@ public class InLinkV3ColumnName implements ColumnName {
     private final String outHost;
     private final byte slotCode;
 
-    public static ColumnName histogram(Vertex selfVertex, String outHost, byte slotCode) {
+    public static ColumnName histogram(Vertex selfVertex, String outHost, SlotCode slotCode) {
         return histogram(selfVertex.applicationName(), selfVertex.serviceType(), outHost, slotCode);
     }
 
-    public static ColumnName histogram(String selfApplicationName, ServiceType selfServiceType, String outHost, byte slotCode) {
-        return new InLinkV3ColumnName(selfApplicationName, selfServiceType.getCode(), outHost, slotCode);
+    public static ColumnName histogram(String selfApplicationName, ServiceType selfServiceType, String outHost, SlotCode slotCode) {
+        return new InLinkV3ColumnName(selfApplicationName, selfServiceType.getCode(), outHost, slotCode.code());
     }
 
     public InLinkV3ColumnName(String selfApplicationName, short selfServiceType, String outHost, byte slotCode) {

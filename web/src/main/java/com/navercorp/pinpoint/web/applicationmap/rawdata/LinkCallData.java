@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
+import com.navercorp.pinpoint.common.trace.SlotCode;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -66,7 +67,7 @@ public class LinkCallData {
         return targetHistogramTimeMap.values();
     }
 
-    public void addCallDataByCode(long timestamp, byte slotCode, long count) {
+    public void addCallDataByCode(long timestamp, SlotCode slotCode, long count) {
         TimeHistogram histogram = getTimeHistogram(timestamp);
         histogram.addCallCountByCode(slotCode, count);
     }

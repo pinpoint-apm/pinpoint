@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.SlotCode;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.Objects;
@@ -77,7 +78,7 @@ public class LinkData {
     }
 
     public void addLinkDataByCode(String outAgentId, ServiceType outServiceTypeCode, String hostname,
-                                  ServiceType serviceTypeCode, long timestamp, byte slotCode, long count) {
+                                  ServiceType serviceTypeCode, long timestamp, SlotCode slotCode, long count) {
         Objects.requireNonNull(hostname, "hostname");
 
         this.linkCallDataMap.addCallDataByCode(outAgentId, outServiceTypeCode, hostname, serviceTypeCode, timestamp, slotCode, count);

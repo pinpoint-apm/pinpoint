@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.applicationmap.dao.v3;
 
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
+import com.navercorp.pinpoint.common.trace.SlotCode;
 
 /**
  * @author emeroad
@@ -25,8 +26,8 @@ public class ApplicationResponseColumnName implements ColumnName {
 
     private final byte slotCode;
 
-    public static ColumnName histogram(byte slotCode) {
-        return new ApplicationResponseColumnName(slotCode);
+    public static ColumnName histogram(SlotCode slotCode) {
+        return new ApplicationResponseColumnName(slotCode.code());
     }
 
     public ApplicationResponseColumnName(byte slotCode) {

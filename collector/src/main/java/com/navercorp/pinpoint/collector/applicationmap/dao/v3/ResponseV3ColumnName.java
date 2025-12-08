@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.applicationmap.dao.v3;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.trace.SlotCode;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import java.util.Objects;
@@ -31,8 +32,8 @@ public class ResponseV3ColumnName implements ColumnName {
     private final String agentId;
     private final byte slotCode;
 
-    public static ColumnName histogram(String agentId, byte slotCode) {
-        return new ResponseV3ColumnName(agentId, slotCode);
+    public static ColumnName histogram(String agentId, SlotCode slotCode) {
+        return new ResponseV3ColumnName(agentId, slotCode.code());
     }
 
     public ResponseV3ColumnName(String agentId, byte slotCode) {

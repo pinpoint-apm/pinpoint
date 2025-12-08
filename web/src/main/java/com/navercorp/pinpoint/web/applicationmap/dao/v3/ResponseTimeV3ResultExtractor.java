@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRow
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.SlotCode;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
@@ -110,7 +111,7 @@ public class ResponseTimeV3ResultExtractor implements ResultsExtractor<List<Resp
 
         final byte[] qArray = cell.getQualifierArray();
         final int qOffset = cell.getQualifierOffset();
-        byte slotCode = qArray[qOffset];
+        SlotCode slotCode = SlotCode.valueOf(qArray[qOffset]);
         int offset = BytesUtils.BYTE_LENGTH;
 
         // agentId should be added as data.

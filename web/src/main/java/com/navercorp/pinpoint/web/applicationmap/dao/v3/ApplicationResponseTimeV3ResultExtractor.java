@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRow
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.SlotCode;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -117,7 +118,7 @@ public class ApplicationResponseTimeV3ResultExtractor implements ResultsExtracto
 
         final byte[] qArray = cell.getQualifierArray();
         final int qOffset = cell.getQualifierOffset();
-        final byte slotCode = qArray[qOffset];
+        final SlotCode slotCode = SlotCode.valueOf(qArray[qOffset]);
 
         // agentId should be added as data.
 

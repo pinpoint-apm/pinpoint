@@ -23,19 +23,19 @@ import java.util.Objects;
  */
 public class HistogramSlot {
 
-    private final byte slotCode;
+    private final SlotCode slotCode;
     private final short slotTime;
     private final SlotType slotType;
     private final String slotName;
 
-    public HistogramSlot(byte slotCode, short slotTime, SlotType slotType, String slotName) {
-        this.slotCode = slotCode;
+    public HistogramSlot(SlotCode slotCode, short slotTime, SlotType slotType, String slotName) {
+        this.slotCode = Objects.requireNonNull(slotCode, "slotCode");
         this.slotTime = slotTime;
         this.slotType = Objects.requireNonNull(slotType, "slotType");
         this.slotName = Objects.requireNonNull(slotName, "slotName");
     }
 
-    public byte getSlotCode() {
+    public SlotCode getSlotCode() {
         return slotCode;
     }
 

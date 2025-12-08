@@ -25,7 +25,7 @@ public class HistogramSlotGroup {
     private final HistogramSlot verySlow;
 
 
-    public static HistogramSlot entry(byte code, int slotTime, String slotName, SlotType slotType) {
+    public static HistogramSlot entry(SlotCode code, int slotTime, String slotName, SlotType slotType) {
         return new HistogramSlot(code, (short) slotTime, slotType, slotName);
     }
 

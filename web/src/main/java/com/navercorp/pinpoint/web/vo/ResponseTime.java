@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.vo;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.SlotCode;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
 
@@ -118,7 +119,7 @@ public class ResponseTime {
             histogram.addCallCount(slotNumber, count);
         }
 
-        public void addResponseTimeByCode(String agentId, byte slotCode, long count) {
+        public void addResponseTimeByCode(String agentId, SlotCode slotCode, long count) {
             Histogram histogram = getHistogram(agentId);
             histogram.addCallCountByCode(slotCode, count);
         }
