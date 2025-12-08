@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetaDataRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.metadata.MetadataDecoder;
 import com.navercorp.pinpoint.common.server.hbase.config.HbaseClientConfiguration;
-import com.navercorp.pinpoint.web.applicationmap.config.MapHbaseConfiguration;
+import com.navercorp.pinpoint.web.applicationmap.config.MapDaoConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;
@@ -42,7 +42,7 @@ import org.springframework.context.annotation.PropertySource;
 
         HbaseClientConfiguration.class,
         HbaseTemplateConfiguration.class,
-        MapHbaseConfiguration.class
+        MapDaoConfiguration.class
 })
 @ComponentScan(
         basePackages = {

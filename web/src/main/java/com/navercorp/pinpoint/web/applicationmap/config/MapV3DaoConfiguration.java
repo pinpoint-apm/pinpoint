@@ -77,12 +77,12 @@ import java.util.Set;
 
 @Configuration
 @ConditionalOnProperty(name = ObjectNameVersion.KEY, havingValue = "v3")
-public class MapV3MapperConfiguration {
+public class MapV3DaoConfiguration {
 
-    private static final Logger logger = LogManager.getLogger(MapV3MapperConfiguration.class);
+    private static final Logger logger = LogManager.getLogger(MapV3DaoConfiguration.class);
 
-    public MapV3MapperConfiguration() {
-        logger.info("Install {}", MapV3MapperConfiguration.class.getSimpleName());
+    public MapV3DaoConfiguration() {
+        logger.info("Install {}", MapV3DaoConfiguration.class.getSimpleName());
     }
 
     @Bean
