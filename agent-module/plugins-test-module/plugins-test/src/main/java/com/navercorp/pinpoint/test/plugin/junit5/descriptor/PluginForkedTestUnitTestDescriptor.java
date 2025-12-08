@@ -1,11 +1,11 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -131,23 +131,30 @@ public class PluginForkedTestUnitTestDescriptor extends PluginTestDescriptor {
                     } else if ("executionFinished".equals(event)) {
                         final String reportId = rootUniqueId + "/" + tokens[2];
                         final PluginTestReport report = store.get(reportId, PluginTestReport.class);
-                        report.setOutput(pluginTestOutputList.toArray(new String[0]));
+
+                        String[] output = pluginTestOutputList.toArray(new String[0]);
                         pluginTestOutputList.clear();
                         isAgentOutput = true;
 
-                        final TestExecutionResult.Status status = TestExecutionResult.Status.valueOf(tokens[3]);
-                        if (status == TestExecutionResult.Status.SUCCESSFUL) {
-                            report.setResult(TestExecutionResult.successful());
-                        } else if (status == TestExecutionResult.Status.FAILED) {
-                            List<String> stackTrace = slice(tokens);
-                            Exception exception = toException(tokens[4], tokens[5], stackTrace);
-                            report.setResult(TestExecutionResult.failed(exception));
-                        } else if (status == TestExecutionResult.Status.ABORTED) {
-                            List<String> stackTrace = slice(tokens);
-                            Exception exception = toException(tokens[4], tokens[5], stackTrace);
-                            report.setResult(TestExecutionResult.aborted(exception));
+                        if (report != null) {
+                            report.setOutput(output);
+
+                            final TestExecutionResult.Status status = TestExecutionResult.Status.valueOf(tokens[3]);
+                            if (status == TestExecutionResult.Status.SUCCESSFUL) {
+                                report.setResult(TestExecutionResult.successful());
+                            } else if (status == TestExecutionResult.Status.FAILED) {
+                                List<String> stackTrace = slice(tokens);
+                                Exception exception = toException(tokens[4], tokens[5], stackTrace);
+                                report.setResult(TestExecutionResult.failed(exception));
+                            } else if (status == TestExecutionResult.Status.ABORTED) {
+                                List<String> stackTrace = slice(tokens);
+                                Exception exception = toException(tokens[4], tokens[5], stackTrace);
+                                report.setResult(TestExecutionResult.aborted(exception));
+                            } else {
+                                throw new IllegalStateException("unknown status=" + status);
+                            }
                         } else {
-                            throw new IllegalStateException("unknown status=" + status);
+                            System.out.println("report is null " + reportId + " token:" + Arrays.toString(tokens) + " output:" + Arrays.toString(output));
                         }
                     }
                 } else {
