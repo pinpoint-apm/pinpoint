@@ -47,16 +47,16 @@ import java.util.concurrent.ExecutorService;
 
 @org.springframework.context.annotation.Configuration
 @Import({
-        MapV3MapperConfiguration.class,
-        MapMapperConfiguration.class
+        MapV3DaoConfiguration.class,
+        MapV2DaoConfiguration.class
 })
-public class MapHbaseConfiguration {
-    private static final Logger logger = LogManager.getLogger(MapHbaseConfiguration.class);
+public class MapDaoConfiguration {
+    private static final Logger logger = LogManager.getLogger(MapDaoConfiguration.class);
 
     private final HbaseTemplateConfiguration config = new HbaseTemplateConfiguration();
 
-    public MapHbaseConfiguration() {
-        logger.info("Install {}", MapHbaseConfiguration.class.getSimpleName());
+    public MapDaoConfiguration() {
+        logger.info("Install {}", MapDaoConfiguration.class.getSimpleName());
     }
 
     @Bean

@@ -72,12 +72,12 @@ import java.util.List;
 import java.util.Set;
 
 @Configuration
-@ConditionalOnMissingBean(MapV3MapperConfiguration.class)
-public class MapMapperConfiguration {
-    private static final Logger logger = LogManager.getLogger(MapMapperConfiguration.class);
+@ConditionalOnMissingBean(MapV3DaoConfiguration.class)
+public class MapV2DaoConfiguration {
+    private static final Logger logger = LogManager.getLogger(MapV2DaoConfiguration.class);
 
-    public MapMapperConfiguration() {
-        logger.info("Install {}", MapMapperConfiguration.class.getSimpleName());
+    public MapV2DaoConfiguration() {
+        logger.info("Install {}", MapV2DaoConfiguration.class.getSimpleName());
     }
 
     @Bean
