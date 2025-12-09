@@ -41,7 +41,7 @@ class UidLinkRowKeyTest {
 
     @Test
     void uidRowKey() {
-        RowKey rowKey = UidLinkRowKey.of(12, "appName", ServiceType.STAND_ALONE, 1000);
+        RowKey rowKey = UidLinkRowKey.of(12, "appName", ServiceType.STAND_ALONE, 3000);
 
         byte[] rowKeyBytes = rowKey.getRowKey(1);
 
@@ -55,7 +55,7 @@ class UidLinkRowKeyTest {
     void hashing() {
         int saltKeySize = hasher.getSaltKey().size();
 
-        RowKey rowKey = UidLinkRowKey.of(12, "appName", ServiceType.STAND_ALONE, 1000);
+        RowKey rowKey = UidLinkRowKey.of(12, "appName", ServiceType.STAND_ALONE, 3000);
         byte[] bytes = rowKey.getRowKey(saltKeySize);
 
         byte[] saltRowKey = hasher.writeSaltKey(bytes);
@@ -103,7 +103,7 @@ class UidLinkRowKeyTest {
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             UidLinkRowKey.makeRowKey(0,
                     ServiceUid.DEFAULT_SERVICE_UID_CODE,
-                    "a".repeat(PinpointConstants.APPLICATION_NAME_MAX_LEN_V3 + 1),
+                    "a".repeat(UidLinkRowKey.KEY_SIZE + 1),
                     ServiceType.STAND_ALONE.getCode(),
                     1000);
         });

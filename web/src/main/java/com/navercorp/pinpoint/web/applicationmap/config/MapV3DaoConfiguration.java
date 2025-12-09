@@ -195,8 +195,10 @@ public class MapV3DaoConfiguration {
     }
 
     @Bean
-    public ResultsExtractor<Set<AcceptApplication>> hostApplicationResultExtractorV3(ApplicationFactory applicationFactory) {
-        return new HostApplicationMapperV3(applicationFactory);
+    public ResultsExtractor<Set<AcceptApplication>> hostApplicationResultExtractorV3(ApplicationFactory applicationFactory,
+                                                                                     @Qualifier("uidRowKeyDistributor")
+                                                                                     RowKeyDistributor rowKeyDistributor) {
+        return new HostApplicationMapperV3(applicationFactory, rowKeyDistributor);
     }
 
     @Bean
@@ -205,10 +207,10 @@ public class MapV3DaoConfiguration {
                                                        @Qualifier("hostApplicationResultExtractorV3")
                                                        ResultsExtractor<Set<AcceptApplication>> hostApplicationResultExtractor,
                                                        TimeSlot timeSlot,
-                                                       @Qualifier("acceptApplicationRowKeyDistributor")
-                                                       RowKeyDistributor acceptApplicationRowKeyDistributor) {
+                                                       @Qualifier("uidRowKeyDistributor")
+                                                       RowKeyDistributor rowKeyDistributor) {
         HbaseColumnFamily table = HbaseTables.MAP_APP_HOST;
         HostScanKeyFactory hostScanKeyFactory = new HostScanKeyFactoryV3();
-        return new HbaseHostApplicationMapDao(table, hbaseOperations, tableNameProvider, hostScanKeyFactory, hostApplicationResultExtractor, timeSlot, acceptApplicationRowKeyDistributor);
+        return new HbaseHostApplicationMapDao(table, hbaseOperations, tableNameProvider, hostScanKeyFactory, hostApplicationResultExtractor, timeSlot, rowKeyDistributor);
     }
 }

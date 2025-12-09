@@ -173,7 +173,7 @@ public class MapV3Configuration {
     @Bean(name = "hostApplicationMapDaoV3")
     public HostApplicationMapDao hostApplicationMapDao(HbaseOperations hbaseTemplate,
                                                        TableNameProvider tableNameProvider,
-                                                       @Qualifier("acceptApplicationRowKeyDistributor") RowKeyDistributor rowKeyDistributor,
+                                                       @Qualifier("uidRowKeyDistributor") RowKeyDistributor rowKeyDistributor,
                                                        TimeSlot timeSlot) {
         HostRowKeyEncoder encoder = new HostRowKeyEncoderV3(rowKeyDistributor.getByteHasher());
         HostLinkFactory hostLinkFactory = new HostLinkFactoryV3(encoder);

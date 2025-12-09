@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.web.applicationmap.dao.v3;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
+import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
 import com.navercorp.pinpoint.web.applicationmap.map.AcceptApplication;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -44,9 +46,11 @@ public class HostApplicationMapperV3 implements ResultsExtractor<Set<AcceptAppli
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ApplicationFactory applicationFactory;
+    private final RowKeyDistributor rowKeyDistributor;
 
-    public HostApplicationMapperV3(ApplicationFactory applicationFactory) {
+    public HostApplicationMapperV3(ApplicationFactory applicationFactory, RowKeyDistributor rowKeyDistributor) {
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
+        this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
     }
 
     @Override
@@ -61,7 +65,13 @@ public class HostApplicationMapperV3 implements ResultsExtractor<Set<AcceptAppli
 
     private void mapRow(Result result, Set<AcceptApplication> acceptApplicationSet) throws Exception {
         if (result.isEmpty()) {
+            logger.debug("row is empty");
             return;
+        }
+        if (logger.isDebugEnabled()) {
+            byte[] row = result.getRow();
+            UidLinkRowKey uidLinkRowKey = UidLinkRowKey.read(rowKeyDistributor.getSaltKeySize(), row);
+            logger.debug("mapRow rowKey:{}", uidLinkRowKey);
         }
         for (Cell cell : result.rawCells()) {
             AcceptApplication acceptedApplication = createAcceptedApplication(cell);
@@ -75,7 +85,7 @@ public class HostApplicationMapperV3 implements ResultsExtractor<Set<AcceptAppli
         String bindApplicationName = reader.readPrefixedString();
         int bindServiceTypeCode = reader.readInt();
         // skip
-//        int serviceCode = reader.readInt();
+//        int serviceUid = reader.readInt();
 
         final Application bindApplication = applicationFactory.createApplication(bindApplicationName, bindServiceTypeCode);
         return new AcceptApplication(host, bindApplication);
