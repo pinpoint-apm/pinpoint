@@ -1,11 +1,11 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,7 +30,9 @@ import org.junit.platform.engine.support.descriptor.MethodSource;
 import org.junit.platform.engine.support.hierarchical.ThrowableCollector;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class PluginForkedTestMethodTestDescriptor extends TestMethodTestDescriptor {
 
@@ -39,8 +41,8 @@ public class PluginForkedTestMethodTestDescriptor extends TestMethodTestDescript
     private PluginTestReport testReport;
 
 
-    public PluginForkedTestMethodTestDescriptor(UniqueId uniqueId, Class<?> testClass, Method testMethod, JupiterConfiguration configuration, PluginForkedTestInstance pluginTestInstance) {
-        super(uniqueId, testClass, testMethod, configuration);
+    public PluginForkedTestMethodTestDescriptor(UniqueId uniqueId, Class<?> testClass, Method testMethod, Supplier<List<Class<?>>> enclosingInstanceTypes, JupiterConfiguration configuration, PluginForkedTestInstance pluginTestInstance) {
+        super(uniqueId, testClass, testMethod, enclosingInstanceTypes, configuration);
         this.pluginTestInstance = pluginTestInstance;
         this.source = MethodSource.from(testClass.getName(), testMethod.getName() + "[" + pluginTestInstance.getTestId() + "]");
     }
@@ -60,6 +62,7 @@ public class PluginForkedTestMethodTestDescriptor extends TestMethodTestDescript
     @Override
     public JupiterEngineExecutionContext execute(JupiterEngineExecutionContext context, DynamicTestExecutor dynamicTestExecutor) {
         PluginForkedTestThrowableCollector throwableCollector = (PluginForkedTestThrowableCollector) context.getThrowableCollector();
+        PluginTestReport testReport = this.testReport;
         if (testReport != null && testReport.isStarted()) {
             if (testReport.getOutput() != null) {
                 for (String line : testReport.getOutput()) {
@@ -67,9 +70,10 @@ public class PluginForkedTestMethodTestDescriptor extends TestMethodTestDescript
                 }
             }
 
-            if (testReport.getResult().getStatus() != TestExecutionResult.Status.SUCCESSFUL) {
+            final TestExecutionResult result = testReport.getResult();
+            if (result.getStatus() != TestExecutionResult.Status.SUCCESSFUL) {
                 throwableCollector.execute(() -> {
-                    Throwable throwable = testReport.getResult().getThrowable().orElse(new IllegalStateException("unknown"));
+                    Throwable throwable = result.getThrowable().orElse(new IllegalStateException("unknown"));
                     throwable.printStackTrace();
                     throw throwable;
                 });
@@ -80,7 +84,8 @@ public class PluginForkedTestMethodTestDescriptor extends TestMethodTestDescript
     }
 
     @Override
-    public SkipResult shouldBeSkipped(JupiterEngineExecutionContext context) throws Exception {
+    public SkipResult shouldBeSkipped(JupiterEngineExecutionContext context) {
+        PluginTestReport testReport = this.testReport;
         if (testReport != null) {
             if (testReport.isSkipped()) {
                 if (testReport.getSkipReason() != null) {

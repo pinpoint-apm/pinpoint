@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.test.plugin.junit5.engine.discovery;
 
 import com.navercorp.pinpoint.test.plugin.PluginForkedTestInstance;
@@ -87,7 +103,7 @@ public class TestDescriptorFactory {
             final Method testMethod = ReflectionUtils.findMethod(testClass, method.getName(), method.getParameterTypes()).orElseThrow(() -> new IllegalStateException("not found method"));
             final String testId = testMethod.getName();
             final UniqueId childId = childUniqueId(parentTestDescriptor, TestMethodTestDescriptor.SEGMENT_TYPE, testId);
-            return new PluginTestMethodTestDescriptor(childId, testClass, testMethod, configuration, pluginTestInstance);
+            return new PluginTestMethodTestDescriptor(childId, testClass, testMethod, parentTestDescriptor::getEnclosingTestClasses, configuration, pluginTestInstance);
         } catch (Throwable t) {
             logger.warn(t, () -> "newPluginTestMethodTestDescriptor error " + t.getMessage());
             return null;
@@ -100,7 +116,7 @@ public class TestDescriptorFactory {
             final Method testMethod = ReflectionUtils.findMethod(testClass, method.getName(), method.getParameterTypes()).orElseThrow(() -> new IllegalStateException("not found method"));
             final String testId = String.format("%s(%s)", method.getName(), ClassUtils.nullSafeToString(method.getParameterTypes()));
             final UniqueId childId = childUniqueId(parentTestDescriptor, TestMethodTestDescriptor.SEGMENT_TYPE, testId);
-            return new PluginForkedTestMethodTestDescriptor(childId, testClass, testMethod, configuration, pluginTestInstance);
+            return new PluginForkedTestMethodTestDescriptor(childId, testClass, testMethod, parentTestDescriptor::getEnclosingTestClasses, configuration, pluginTestInstance);
         } catch (Throwable t) {
             logger.warn(t, () -> "newPluginForkedTestMethodTestDescriptor error " + t.getMessage());
             return null;
