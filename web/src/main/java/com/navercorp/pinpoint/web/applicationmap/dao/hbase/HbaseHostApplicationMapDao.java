@@ -93,9 +93,14 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         TableName hostApplicationMapTableName = tableNameProvider.getTableName(table.getTable());
         final Set<AcceptApplication> result = hbaseOperations.findParallel(hostApplicationMapTableName, scan, acceptApplicationRowKeyDistributor, hostApplicationResultExtractor, NUM_PARTITIONS);
         if (CollectionUtils.isNotEmpty(result)) {
-            logger.debug("findAcceptApplicationName result:{}", result);
+            if (logger.isDebugEnabled()) {
+                logger.debug("findAcceptApplicationName found {} {}", fromApplication, result);
+            }
             return result;
         } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("findAcceptApplicationName not found {}", fromApplication);
+            }
             return Collections.emptySet();
         }
     }

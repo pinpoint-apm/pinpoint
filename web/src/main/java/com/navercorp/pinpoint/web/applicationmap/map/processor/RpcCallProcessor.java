@@ -89,6 +89,9 @@ public class RpcCallProcessor implements LinkDataMapProcessor {
                     final LinkData acceptedLinkData = LinkData.copyOf(linkData.getFromApplication(), first.getApplication(), linkData.getLinkCallDataMap());
                     return Collections.singletonList(acceptedLinkData);
                 } else {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("virtualLinkMarker {} => {}", toApplication, acceptApplicationList);
+                    }
                     // special case - there are more than 2 nodes grouped by a single url
                     return virtualLinkMarker.createVirtualLink(linkData, toApplication, acceptApplicationList);
                 }

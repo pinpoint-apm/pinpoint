@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.common.server.applicationmap.statistics;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
-import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
@@ -103,7 +102,7 @@ public class UidLinkRowKey implements TimestampRowKey {
     }
 
     public static byte[] makeRowKey(int saltKeySize, int serviceUid, String applicationName, int serviceType, long timestamp) {
-        if (requireLength(applicationName) > PinpointConstants.APPLICATION_NAME_MAX_LEN_V3) {
+        if (requireLength(applicationName) > KEY_SIZE) {
             throw new IllegalArgumentException("applicationName too long:" + applicationName);
         }
 
@@ -116,7 +115,7 @@ public class UidLinkRowKey implements TimestampRowKey {
         buffer.setOffset(saltKeySize);
         buffer.putInt(hash(applicationNameBytes));
         buffer.putInt(serviceUid);
-        buffer.putInt(serviceType);
+        buffer.putInt(IntInverter.invert(serviceType));
 
         int secondTimestamp = SecondTimestamp.convertSecondTimestamp(timestamp);
         int reverseTimeMillis = IntInverter.invert(secondTimestamp);
@@ -141,10 +140,9 @@ public class UidLinkRowKey implements TimestampRowKey {
         buffer.setOffset(offset + BytesUtils.INT_BYTE_LENGTH);
 
         int serviceUid = buffer.readInt(); // serviceUid
-        int serviceType = buffer.readInt(); // serviceUid
+        int serviceType = IntInverter.restore(buffer.readInt()); // serviceType
 
         int secondTimestamp = IntInverter.restore(buffer.readInt());
-        offset += BytesUtils.INT_BYTE_LENGTH;
         long msTimestamp = SecondTimestamp.restoreSecondTimestamp(secondTimestamp);
 
         String applicationName = buffer.readPrefixedString();
