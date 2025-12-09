@@ -23,7 +23,6 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.descriptor.ExtensionContextFactory;
 import org.junit.jupiter.engine.descriptor.JupiterEngineDescriptor;
-import org.junit.jupiter.engine.execution.DefaultExecutableInvoker;
 import org.junit.jupiter.engine.execution.JupiterEngineExecutionContext;
 import org.junit.jupiter.engine.extension.MutableExtensionRegistry;
 import org.junit.platform.engine.TestExecutionResult;
@@ -73,7 +72,7 @@ public class PluginForkedTestUnitTestDescriptor extends PluginTestDescriptor {
         JupiterEngineDescriptor engineDescriptor = new JupiterEngineDescriptor(this.getUniqueId(), configuration);
         ExtensionContext jupiterExtensionContext = ExtensionContextFactory.jupiterEngineContext(
                 context.getExecutionListener(), engineDescriptor,
-                context.getConfiguration(), ec -> new DefaultExecutableInvoker(ec, extensionRegistry));
+                context.getConfiguration(), extensionRegistry);
 
         // @formatter:off
         return context.extend()
