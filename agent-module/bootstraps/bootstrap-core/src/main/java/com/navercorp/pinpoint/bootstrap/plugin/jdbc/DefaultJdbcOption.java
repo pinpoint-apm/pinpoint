@@ -5,12 +5,15 @@ import com.navercorp.pinpoint.common.config.Value;
 public class DefaultJdbcOption implements JdbcOption {
     @Value("${profiler.jdbc.sqlcachesize}")
     private int jdbcSqlCacheSize = 1024;
+    @Value("${profiler.jdbc.sqlcachelengthlimit}")
+    private int maxSqlCacheLength = 2048;
+    @Value("${profiler.jdbc.sqlcacheexpirehours}")
+    private long sqlCacheExpireHours = 168; // 7d
+
     @Value("${profiler.jdbc.tracesqlbindvalue}")
     private boolean traceSqlBindValue = false;
     @Value("${profiler.jdbc.maxsqlbindvaluesize}")
     private int maxSqlBindValueSize = 1024;
-    @Value("${profiler.jdbc.sqlcachelengthlimit}")
-    private int maxSqlCacheLength = 2048;
     @Value("${profiler.jdbc.maxsqllength}")
     private int maxSqlLength = 65536;
     @Value("${profiler.jdbc.removecomments}")
@@ -21,15 +24,18 @@ public class DefaultJdbcOption implements JdbcOption {
 
     public DefaultJdbcOption(
             int jdbcSqlCacheSize,
+            int maxSqlCacheLength,
+            long sqlCacheExpireHours,
             boolean traceSqlBindValue,
             int maxSqlBindValueSize,
-            int maxSqlCacheLength,
             int maxSqlLength,
-            boolean removeComments) {
+            boolean removeComments
+    ) {
         this.jdbcSqlCacheSize = jdbcSqlCacheSize;
+        this.maxSqlCacheLength = maxSqlCacheLength;
+        this.sqlCacheExpireHours = sqlCacheExpireHours;
         this.traceSqlBindValue = traceSqlBindValue;
         this.maxSqlBindValueSize = maxSqlBindValueSize;
-        this.maxSqlCacheLength = maxSqlCacheLength;
         this.maxSqlLength = maxSqlLength;
         this.removeComments = removeComments;
     }
@@ -40,6 +46,16 @@ public class DefaultJdbcOption implements JdbcOption {
     }
 
     @Override
+    public int getMaxSqlCacheLength() {
+        return maxSqlCacheLength;
+    }
+
+    @Override
+    public long getSqlCacheExpireHours() {
+        return sqlCacheExpireHours;
+    }
+
+    @Override
     public boolean isTraceSqlBindValue() {
         return traceSqlBindValue;
     }
@@ -47,11 +63,6 @@ public class DefaultJdbcOption implements JdbcOption {
     @Override
     public int getMaxSqlBindValueSize() {
         return maxSqlBindValueSize;
-    }
-
-    @Override
-    public int getMaxSqlCacheLength() {
-        return maxSqlCacheLength;
     }
 
     @Override
@@ -68,9 +79,10 @@ public class DefaultJdbcOption implements JdbcOption {
     public String toString() {
         return "DefaultJdbcOption{" +
                 "jdbcSqlCacheSize=" + jdbcSqlCacheSize +
+                ", maxSqlCacheLength=" + maxSqlCacheLength +
+                ", sqlCacheExpireHours=" + sqlCacheExpireHours +
                 ", traceSqlBindValue=" + traceSqlBindValue +
                 ", maxSqlBindValueSize=" + maxSqlBindValueSize +
-                ", maxSqlCacheLength=" + maxSqlCacheLength +
                 ", maxSqlLength=" + maxSqlLength +
                 ", removeComments=" + removeComments +
                 '}';

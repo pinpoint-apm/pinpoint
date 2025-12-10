@@ -27,10 +27,12 @@ import com.navercorp.pinpoint.profiler.cache.UidGenerator;
 public class SimpleCacheFactory {
     private final int sqlCacheSize;
     private final int sqlCacheBypassLength;
+    private final long sqlCacheExpireHours;
 
     public SimpleCacheFactory(JdbcOption jdbcOption) {
         this.sqlCacheSize = jdbcOption.getJdbcSqlCacheSize();
         this.sqlCacheBypassLength = jdbcOption.getMaxSqlCacheLength();
+        this.sqlCacheExpireHours = jdbcOption.getSqlCacheExpireHours();
     }
 
     public <T> SimpleCache<T, Integer> newSimpleCache() {
@@ -42,7 +44,7 @@ public class SimpleCacheFactory {
     }
 
     public SimpleCache<String, byte[]> newSqlUidCache() {
-        return new UidCache(sqlCacheSize, new UidGenerator.Murmur(), sqlCacheBypassLength);
+        return new UidCache(sqlCacheSize, sqlCacheExpireHours, new UidGenerator.Murmur(), sqlCacheBypassLength);
     }
 }
 
