@@ -35,7 +35,6 @@ import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.UidFetcher;
 import com.navercorp.pinpoint.io.request.UidFetcherStreamService;
-import com.navercorp.pinpoint.io.request.UidFetchers;
 import io.github.bucket4j.Bandwidth;
 import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
@@ -113,7 +112,7 @@ public class SpanServerTestMain {
 
         SimpleHandler<PSpan> handler1 = new MockSimpleHandler<>();
         SimpleHandler<PSpanChunk> handler2 = new MockSimpleHandler<>();
-        ServerRequestFactory serverRequestFactory = new DefaultServerRequestFactory(UidFetchers::empty);
+        ServerRequestFactory serverRequestFactory = new DefaultServerRequestFactory();
 
         UidFetcherStreamService uidFetcherStreamService = mock(UidFetcherStreamService.class);
         UidFetcher uidFetcher = mock(UidFetcher.class);

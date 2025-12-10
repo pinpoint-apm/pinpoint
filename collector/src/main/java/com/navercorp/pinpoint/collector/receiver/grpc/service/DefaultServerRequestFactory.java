@@ -20,12 +20,11 @@ import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
 import com.navercorp.pinpoint.io.request.DefaultServerRequest;
-import com.navercorp.pinpoint.io.request.DefaultUidFetcherService;
 import com.navercorp.pinpoint.io.request.GrpcServerHeaderV1;
 import com.navercorp.pinpoint.io.request.ServerHeader;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.UidFetcher;
-import com.navercorp.pinpoint.io.request.UidFetcherService;
+import com.navercorp.pinpoint.io.request.UidFetchers;
 import com.navercorp.pinpoint.io.util.MessageType;
 import io.grpc.Context;
 
@@ -36,22 +35,18 @@ import java.util.Objects;
  */
 public class DefaultServerRequestFactory implements ServerRequestFactory {
     private final ServerRequestPostProcessor postProcessor;
-    private final UidFetcherService uidFetcherService;
 
-    public DefaultServerRequestFactory(UidFetcherService uidFetcherService) {
+    public DefaultServerRequestFactory() {
         this.postProcessor = null;
-        this.uidFetcherService = Objects.requireNonNull(uidFetcherService, "uidFetcherService");
     }
 
-    public DefaultServerRequestFactory(ServerRequestPostProcessor postProcessor, UidFetcherService uidFetcherService) {
+    public DefaultServerRequestFactory(ServerRequestPostProcessor postProcessor) {
         this.postProcessor = Objects.requireNonNull(postProcessor, "postProcessor");
-        this.uidFetcherService = Objects.requireNonNull(uidFetcherService, "uidFetcherService");
     }
 
     @Override
     public <T> ServerRequest<T> newServerRequest(Context context, MessageType messageType, T data) {
-        UidFetcher uidFetcher = uidFetcherService.newUidFetcher();
-        return newServerRequest(context, uidFetcher, messageType, data);
+        return newServerRequest(context, UidFetchers.empty(), messageType, data);
     }
 
     @Override
