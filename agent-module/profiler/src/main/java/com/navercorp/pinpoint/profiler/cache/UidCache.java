@@ -8,6 +8,11 @@ public class UidCache extends SimpleCache<String, byte[]> {
         this.bypassLength = bypassLength;
     }
 
+    public UidCache(int cacheSize, long expireAfterWriteHours, UidGenerator idFunction, int bypassLength) {
+        super(cacheSize, expireAfterWriteHours, idFunction);
+        this.bypassLength = bypassLength;
+    }
+
     @Override
     public Result<byte[]> put(String key) {
         if (bypassLength == -1 || key.length() < bypassLength) {
