@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.v2.InLinkV2ColumnName;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.util.UserNodeUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
@@ -90,9 +90,10 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
         for (Cell cell : result.rawCells()) {
 
             final Buffer buffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
-            short selfServiceType = buffer.readShort();
-            short histogramSlot = buffer.readShort();
-            String selfApplicationName = buffer.read2PrefixedString();
+            InLinkV2ColumnName columnName = InLinkV2ColumnName.parseColumnName(buffer);
+            short selfServiceType = columnName.getSelfServiceType();
+            short histogramSlot = columnName.getSlotNumber();
+            String selfApplicationName = columnName.getSelfApplicationName();
 
             final Application self = readSelfApplication(selfApplicationName, selfServiceType, inApplication.getServiceType());
             if (filter.filter(self)) {
@@ -100,7 +101,7 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
             }
 
             long requestCount = CellUtils.valueToLong(cell);
-            String selfHost = readOutHost(buffer);
+            String selfHost = outHost(columnName.getOutHost());
             // There may be no outHost for virtual queue nodes from user-defined entry points.
             // Terminal nodes, such as httpclient will not have outHost set as well, but since they're terminal
             // nodes, they would not have reached here in the first place.
@@ -123,8 +124,7 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
         return linkDataMap;
     }
 
-    private String readOutHost(Buffer buffer) {
-        String outHost = buffer.readPadStringAndRightTrim(buffer.remaining());
+    private String outHost(String outHost) {
         if (MERGE_AGENT.equals(outHost)) {
             return MERGE_AGENT;
         }

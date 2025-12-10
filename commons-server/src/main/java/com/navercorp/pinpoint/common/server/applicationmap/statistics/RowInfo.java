@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.statistics;
+package com.navercorp.pinpoint.common.server.applicationmap.statistics;
 
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import org.apache.hadoop.hbase.TableName;
 
 /**

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.TimestampRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.v3.InLinkV3ColumnName;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.util.UserNodeUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
@@ -94,16 +95,17 @@ public class InLinkV3Mapper implements RowMapper<LinkDataMap> {
         for (Cell cell : result.rawCells()) {
 
             final Buffer buffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
-            int selfServiceType = buffer.readInt();
-            String selfApplicationName = buffer.readUnsignedBytePrefixedString();
+            InLinkV3ColumnName columnName = InLinkV3ColumnName.parseColumnName(buffer);
+            int selfServiceType = columnName.getSelfServiceType();
+            String selfApplicationName = columnName.getSelfApplicationName();
             final Application self = readSelfApplication(selfApplicationName, selfServiceType, inApplication.getServiceType());
             if (filter.filter(self)) {
                 continue;
             }
 
-            SlotCode slotCode = SlotCode.valueOf(buffer.readByte());
+            SlotCode slotCode = SlotCode.valueOf(columnName.getSlotCode());
             long requestCount = CellUtils.valueToLong(cell);
-            String selfHost = readOutHost(buffer);
+            String selfHost = outHost(columnName.getOutHost());
             // There may be no outHost for virtual queue nodes from user-defined entry points.
             // Terminal nodes, such as httpclient will not have outHost set as well, but since they're terminal
             // nodes, they would not have reached here in the first place.
@@ -126,8 +128,7 @@ public class InLinkV3Mapper implements RowMapper<LinkDataMap> {
         return linkDataMap;
     }
 
-    private String readOutHost(Buffer buffer) {
-        String outHost = buffer.readPadStringAndRightTrim(buffer.remaining());
+    private String outHost(String outHost) {
         if (MERGE_AGENT.equals(outHost)) {
             return MERGE_AGENT;
         }

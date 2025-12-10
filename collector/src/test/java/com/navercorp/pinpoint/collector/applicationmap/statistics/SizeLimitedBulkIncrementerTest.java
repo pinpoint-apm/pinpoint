@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkIncremente
 import com.navercorp.pinpoint.collector.applicationmap.statistics.config.BulkIncrementerFactory;
 import com.navercorp.pinpoint.collector.monitor.dao.hbase.BulkOperationReporter;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.hadoop.hbase.TableName;
@@ -63,7 +64,7 @@ public class SizeLimitedBulkIncrementerTest {
             new DefaultBulkIncrementer(), 1000, reporter);
 
     private Map<TableName, List<Increment>> createIncrements() {
-        Map<RowInfo, Long> increments = bulkIncrementer.getIncrements();
+        Map<com.navercorp.pinpoint.common.server.applicationmap.statistics.RowInfo, Long> increments = bulkIncrementer.getIncrements();
         return merge.createBulkIncrement(increments, CF);
     }
 
@@ -71,8 +72,8 @@ public class SizeLimitedBulkIncrementerTest {
     public void singleTable() {
         // Given
         TableName tableA = TableName.valueOf("A");
-        TestDataSet testDataSetA_0_0 = new TestDataSet(tableA, 0, 0, 100);
-        TestDataSet testDataSetA_0_1 = new TestDataSet(tableA, 0, 1, 200);
+        TestDataSet testDataSetA_0_0 = TestDataSet.testSet(tableA, 0, 0, 100);
+        TestDataSet testDataSetA_0_1 = TestDataSet.testSet(tableA, 0, 1, 200);
 
         List<TestData> testDatas = new ArrayList<>();
         testDatas.addAll(testDataSetA_0_0.getTestDatas());
@@ -97,14 +98,14 @@ public class SizeLimitedBulkIncrementerTest {
         // Given
         TableName tableA = TableName.valueOf("a", "A");
         TableName tableB = TableName.valueOf("b", "A");
-        TestDataSet testDataSetA_0_0 = new TestDataSet(tableA, 0, 0, 100);
-        TestDataSet testDataSetA_0_1 = new TestDataSet(tableA, 0, 1, 200);
-        TestDataSet testDataSetA_1_0 = new TestDataSet(tableA, 1, 0, 300);
-        TestDataSet testDataSetA_1_1 = new TestDataSet(tableA, 1, 1, 400);
-        TestDataSet testDataSetB_0_0 = new TestDataSet(tableB, 0, 0, 500);
-        TestDataSet testDataSetB_0_1 = new TestDataSet(tableB, 0, 1, 600);
-        TestDataSet testDataSetB_1_0 = new TestDataSet(tableB, 1, 0, 700);
-        TestDataSet testDataSetB_1_1 = new TestDataSet(tableB, 1, 1, 800);
+        TestDataSet testDataSetA_0_0 = TestDataSet.testSet(tableA, 0, 0, 100);
+        TestDataSet testDataSetA_0_1 = TestDataSet.testSet(tableA, 0, 1, 200);
+        TestDataSet testDataSetA_1_0 = TestDataSet.testSet(tableA, 1, 0, 300);
+        TestDataSet testDataSetA_1_1 = TestDataSet.testSet(tableA, 1, 1, 400);
+        TestDataSet testDataSetB_0_0 = TestDataSet.testSet(tableB, 0, 0, 500);
+        TestDataSet testDataSetB_0_1 = TestDataSet.testSet(tableB, 0, 1, 600);
+        TestDataSet testDataSetB_1_0 = TestDataSet.testSet(tableB, 1, 0, 700);
+        TestDataSet testDataSetB_1_1 = TestDataSet.testSet(tableB, 1, 1, 800);
 
         List<TestData> testDatas = new ArrayList<>();
         testDatas.addAll(testDataSetA_0_0.getTestDatas());
@@ -140,8 +141,8 @@ public class SizeLimitedBulkIncrementerTest {
     public void singleTableConcurrent() throws Exception {
         // Given
         TableName tableA = TableName.valueOf("A");
-        TestDataSet testDataSetA_0_0 = new TestDataSet(tableA, 0, 0, 1000000);
-        TestDataSet testDataSetA_0_1 = new TestDataSet(tableA, 0, 1, 1000001);
+        TestDataSet testDataSetA_0_0 = TestDataSet.testSet(tableA, 0, 0, 1000000);
+        TestDataSet testDataSetA_0_1 = TestDataSet.testSet(tableA, 0, 1, 1000001);
 
         List<TestData> testDatas = new ArrayList<>();
         testDatas.addAll(testDataSetA_0_0.getTestDatas());

@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.v2.InLinkV2ColumnName;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

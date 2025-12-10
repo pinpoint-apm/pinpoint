@@ -20,8 +20,8 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
-import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.v2.OutLinkV2ColumnName;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
@@ -83,15 +83,16 @@ public class OutLinkMapper implements RowMapper<LinkDataMap> {
         final LinkDataMap linkDataMap = new LinkDataMap();
         for (Cell cell : result.rawCells()) {
             final Buffer buffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
-            final Application inApplication = readInApplication(buffer);
+            OutLinkV2ColumnName columnName = OutLinkV2ColumnName.parseColumnName(buffer);
+            final Application inApplication = inApplication(columnName);
             if (filter.filter(inApplication)) {
                 continue;
             }
 
-            String inHost = buffer.readPrefixedString();
-            short histogramSlot = buffer.readShort();
+            String inHost = columnName.getCallHost();
+            short histogramSlot = columnName.getSlotNumber();
 
-            String outAgentId = readOutAgentId(buffer);
+            String outAgentId = outAgentId(columnName.getOutAgentId());
 
 
             long requestCount = CellUtils.valueToLong(cell);
@@ -109,8 +110,7 @@ public class OutLinkMapper implements RowMapper<LinkDataMap> {
         return linkDataMap;
     }
 
-    private String readOutAgentId(Buffer buffer) {
-        String outAgentId = buffer.readPrefixedString();
+    private String outAgentId(String outAgentId) {
         if (MERGE_AGENT.equals(outAgentId)) {
             // for gc
             return MERGE_AGENT;
@@ -119,9 +119,9 @@ public class OutLinkMapper implements RowMapper<LinkDataMap> {
     }
 
 
-    private Application readInApplication(Buffer buffer) {
-        short inServiceType = buffer.readShort();
-        String inApplicationName = buffer.readPrefixedString();
+    private Application inApplication(OutLinkV2ColumnName columnName) {
+        short inServiceType = columnName.getInServiceType();
+        String inApplicationName = columnName.getInApplicationName();
         return applicationFactory.createApplication(inApplicationName, inServiceType);
     }
 

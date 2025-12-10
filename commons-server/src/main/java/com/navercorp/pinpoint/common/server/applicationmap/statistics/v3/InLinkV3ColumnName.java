@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.dao.v3;
+package com.navercorp.pinpoint.common.server.applicationmap.statistics.v3;
 
-import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
+import com.navercorp.pinpoint.common.timeseries.util.IntInverter;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.SlotCode;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import java.util.Objects;
 
@@ -43,29 +45,58 @@ public class InLinkV3ColumnName implements ColumnName {
         return new InLinkV3ColumnName(selfApplicationName, selfServiceType.getCode(), outHost, slotCode.code());
     }
 
-    public InLinkV3ColumnName(String selfApplicationName, short selfServiceType, String outHost, byte slotCode) {
+    public InLinkV3ColumnName(String selfApplicationName, int selfServiceType, String outHost, byte slotCode) {
         this.selfServiceType = selfServiceType;
         this.selfApplicationName = Objects.requireNonNull(selfApplicationName, "selfApplicationName");
         this.outHost = Objects.requireNonNull(outHost, "outHost");
         this.slotCode = slotCode;
     }
 
+    public int getSelfServiceType() {
+        return selfServiceType;
+    }
 
+    public String getSelfApplicationName() {
+        return selfApplicationName;
+    }
+
+    public String getOutHost() {
+        return outHost;
+    }
+
+    public byte getSlotCode() {
+        return slotCode;
+    }
+
+    @Override
     public byte[] getColumnName() {
         return makeColumnName(selfServiceType, selfApplicationName, outHost, slotCode);
     }
 
-    public static byte[] makeColumnName(int serviceType, String applicationName, String destHost, byte slotNumber) {
-        Objects.requireNonNull(applicationName, "applicationName");
+    public static byte[] makeColumnName(int selfServiceType, String selfApplicationName, String destHost, byte slotCode) {
+        Objects.requireNonNull(selfApplicationName, "selfApplicationName");
         destHost = Objects.toString(destHost, "");
 
         // approximate size of destHost
-        final Buffer buffer = new AutomaticBuffer(64);
-        buffer.putInt(serviceType);
-        buffer.putUnsignedBytePrefixedString(applicationName);
-        buffer.putByte(slotNumber);
+        final Buffer buffer = new AutomaticBuffer(
+                BytesUtils.INT_BYTE_LENGTH + BytesUtils.BYTE_LENGTH +
+                BytesUtils.computeVar32StringSize(selfApplicationName) +
+                BytesUtils.computeVar32StringSize(destHost)
+        );
+        buffer.putInt(IntInverter.invert(selfServiceType));
+        buffer.putByte(slotCode);
+        buffer.putPrefixedString(selfApplicationName);
         buffer.putPrefixedString(destHost);
         return buffer.getBuffer();
+    }
+
+
+    public static InLinkV3ColumnName parseColumnName(Buffer buffer) {
+        int selfServiceType = IntInverter.restore(buffer.readInt());
+        byte slotCode = buffer.readByte();
+        String selfApplicationName = buffer.readPrefixedString();
+        String destHost = buffer.readPrefixedString();
+        return new InLinkV3ColumnName(selfApplicationName, selfServiceType, destHost, slotCode);
     }
 
     @Override

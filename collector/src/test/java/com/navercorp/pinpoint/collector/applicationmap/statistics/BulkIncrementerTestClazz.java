@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.apache.hadoop.hbase.TableName;
@@ -32,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -59,7 +61,7 @@ public class BulkIncrementerTestClazz {
             for (int i = 0; i < numRowIds; i++) {
                 for (int j = 0; j < numColumnIds; j++) {
                     int callCount = random.nextInt(maxCallCount - 100) + 100;
-                    TestDataSet testDataSet = new TestDataSet(tableName, i, j, callCount);
+                    TestDataSet testDataSet = TestDataSet.testSet(tableName, i, j, callCount);
                     testDataSets.add(testDataSet);
                 }
             }
@@ -139,14 +141,33 @@ public class BulkIncrementerTestClazz {
         private final TableName tableName;
         private final TestRowKey rowKey;
         private final TestColumnName columnName;
-        private final int count;
-        private List<TestData> testDatas;
+        private final List<TestData> testDatas;
 
-        TestDataSet(TableName tableName, int rowId, int columnId, int count) {
-            this.tableName = tableName;
-            this.rowKey = new TestRowKey(rowId);
-            this.columnName = new TestColumnName(columnId);
-            this.count = count;
+        TestDataSet(TableName tableName, TestRowKey rowKey, TestColumnName columnName, List<TestData> testDatas) {
+            this.tableName = Objects.requireNonNull(tableName, "tableName");
+            this.rowKey = Objects.requireNonNull(rowKey, "rowKey");
+            this.columnName = Objects.requireNonNull(columnName, "columnName");
+            this.testDatas = Objects.requireNonNull(testDatas, "testDatas");
+        }
+
+       public static TestDataSet testSet(TableName tableName, int rowId, int columnId, int count) {
+            TestRowKey testRowKey = new TestRowKey(rowId);
+            TestColumnName columnName = new TestColumnName(columnId);
+
+           List<TestData> testDatas = dataSet(tableName, testRowKey, columnName, count);
+           return new TestDataSet(tableName, testRowKey, columnName, testDatas);
+        }
+
+        static List<TestData> dataSet(TableName tableName, TestRowKey rowKey, TestColumnName columnName, int count) {
+            if (count < 1) {
+                return Collections.emptyList();
+            }
+            List<TestData> testDatas = new ArrayList<>(count);
+            for (int i = 0; i < count; i++) {
+                TestData testData = new TestData(tableName, rowKey, columnName);
+                testDatas.add(testData);
+            }
+            return testDatas;
         }
 
         public TableName getTableName() {
@@ -162,21 +183,10 @@ public class BulkIncrementerTestClazz {
         }
 
         public int getCount() {
-            return count;
+            return testDatas.size();
         }
 
         public List<TestData> getTestDatas() {
-            if (testDatas == null) {
-                if (count < 1) {
-                    testDatas = Collections.emptyList();
-                } else {
-                    testDatas = new ArrayList<>(count);
-                    for (int i = 0; i < count; i++) {
-                        TestData testData = new TestData(this.tableName, this.rowKey, this.columnName);
-                        testDatas.add(testData);
-                    }
-                }
-            }
             return testDatas;
         }
 
@@ -185,7 +195,7 @@ public class BulkIncrementerTestClazz {
             return "TestDataSet{" + "tableName=" + tableName +
                     ", row=" + rowKey.getId() +
                     ", column=" + columnName.getId() +
-                    ", count=" + count +
+                    ", testDatas=" + testDatas +
                     '}';
         }
     }
@@ -327,7 +337,7 @@ public class BulkIncrementerTestClazz {
         }
 
         private void flushToMap(Map<TableName, List<Increment>> resultMap) {
-            Map<RowInfo, Long> snapshot = bulkIncrementer.getIncrements();
+            Map<com.navercorp.pinpoint.common.server.applicationmap.statistics.RowInfo, Long> snapshot = bulkIncrementer.getIncrements();
             Map<TableName, List<Increment>> incrementMap = merge.createBulkIncrement(snapshot, CF);
 
             for (Map.Entry<TableName, List<Increment>> incrementMapEntry : incrementMap.entrySet()) {
