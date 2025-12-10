@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.web.scatter;
 
-import com.navercorp.pinpoint.web.vo.scatter.Dot;
+import com.navercorp.pinpoint.web.scatter.vo.Dot;
 
 import java.util.Objects;
 import java.util.function.Predicate;

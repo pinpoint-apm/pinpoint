@@ -19,7 +19,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.scatter.ScatterAgentMetaData;
-import com.navercorp.pinpoint.web.vo.scatter.DotAgentInfo;
+import com.navercorp.pinpoint.web.scatter.vo.DotAgentInfo;
 
 import java.io.IOException;
 import java.util.Map;

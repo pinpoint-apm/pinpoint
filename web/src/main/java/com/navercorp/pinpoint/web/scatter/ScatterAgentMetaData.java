@@ -19,8 +19,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.navercorp.pinpoint.web.view.ScatterAgentMetaDataSerializer;
-import com.navercorp.pinpoint.web.vo.scatter.Dot;
-import com.navercorp.pinpoint.web.vo.scatter.DotAgentInfo;
+import com.navercorp.pinpoint.web.scatter.vo.Dot;
+import com.navercorp.pinpoint.web.scatter.vo.DotAgentInfo;
 
 import java.util.Map;
 import java.util.Objects;

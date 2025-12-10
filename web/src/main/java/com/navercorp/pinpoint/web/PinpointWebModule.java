@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.web.install.InstallModule;
 import com.navercorp.pinpoint.web.problem.ProblemSpringWebConfig;
 import com.navercorp.pinpoint.web.query.QueryServiceConfiguration;
 import com.navercorp.pinpoint.web.realtime.RealtimeConfig;
+import com.navercorp.pinpoint.web.scatter.config.ScatterWebConfiguration;
 import com.navercorp.pinpoint.web.servertime.ServerTimeConfiguration;
 import com.navercorp.pinpoint.web.trace.TraceConfiguration;
 import com.navercorp.pinpoint.web.uid.WebUidConfiguration;
@@ -76,6 +77,7 @@ import org.springframework.core.env.StandardEnvironment;
         TraceConfiguration.class,
         WebUidConfiguration.class,
         HeatmapWebModule.class,
+        ScatterWebConfiguration.class,
 })
 @ComponentScan(basePackages = {
         "com.navercorp.pinpoint.web.mapper",

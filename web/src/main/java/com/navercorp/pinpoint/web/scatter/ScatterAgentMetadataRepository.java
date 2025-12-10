@@ -15,7 +15,7 @@
 
 package com.navercorp.pinpoint.web.scatter;
 
-import com.navercorp.pinpoint.web.vo.scatter.DotAgentInfo;
+import com.navercorp.pinpoint.web.scatter.vo.DotAgentInfo;
 
 import java.util.HashSet;
 import java.util.Objects;

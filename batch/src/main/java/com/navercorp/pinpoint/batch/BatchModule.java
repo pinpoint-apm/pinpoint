@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.web.WebHbaseModule;
 import com.navercorp.pinpoint.web.WebServiceConfig;
 import com.navercorp.pinpoint.web.component.config.ComponentConfiguration;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkConfiguration;
+import com.navercorp.pinpoint.web.scatter.config.ScatterWebConfiguration;
 import com.navercorp.pinpoint.web.trace.TraceConfiguration;
 import com.navercorp.pinpoint.web.uid.WebUidConfiguration;
 import com.navercorp.pinpoint.web.webhook.WebhookModule;
@@ -70,6 +71,7 @@ import java.util.List;
         WebServiceConfig.CommonConfig.class,
         TraceConfiguration.TraceServiceConfiguration.class,
         WebUidConfiguration.class,
+        ScatterWebConfiguration.class,
 
         WebhookModule.class,
         WebHbaseModule.class,
