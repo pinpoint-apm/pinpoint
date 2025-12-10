@@ -177,4 +177,124 @@ class NumberPreconditionTest {
                 NumberPrecondition.requireNegativeOrZero(1L, "Number must be negative or zero")
         );
     }
+
+    // Tests for Integer type methods
+
+    @Test
+    public void requirePositive_Integer_returnsNumber_whenPositive() {
+        Integer result = NumberPrecondition.requirePositive(5, "value");
+        assertEquals(5, result);
+    }
+
+    @Test
+    public void requirePositive_Integer_throwsException_whenNull() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                NumberPrecondition.requirePositive((Integer) null, "value")
+        );
+        assertEquals("value must not be null", exception.getMessage());
+    }
+
+    @Test
+    public void requirePositive_Integer_throwsException_whenZero() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                NumberPrecondition.requirePositive(Integer.valueOf(0), "value")
+        );
+        assertEquals("value must be positive", exception.getMessage());
+    }
+
+    @Test
+    public void requirePositive_Integer_throwsException_whenNegative() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                NumberPrecondition.requirePositive(Integer.valueOf(-1), "value")
+        );
+        assertEquals("value must be positive", exception.getMessage());
+    }
+
+    @Test
+    public void requirePositiveOrZero_Integer_returnsNumber_whenPositive() {
+        Integer result = NumberPrecondition.requirePositiveOrZero(5, "value");
+        assertEquals(5, result);
+    }
+
+    @Test
+    public void requirePositiveOrZero_Integer_returnsZero_whenZero() {
+        Integer result = NumberPrecondition.requirePositiveOrZero(0, "value");
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void requirePositiveOrZero_Integer_throwsException_whenNull() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                NumberPrecondition.requirePositiveOrZero((Integer) null, "value")
+        );
+        assertEquals("value must not be null", exception.getMessage());
+    }
+
+    @Test
+    public void requirePositiveOrZero_Integer_throwsException_whenNegative() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                NumberPrecondition.requirePositiveOrZero(Integer.valueOf(-1), "value")
+        );
+        assertEquals("value must be non-negative", exception.getMessage());
+    }
+
+    // Tests for Long type methods
+
+    @Test
+    public void requirePositive_Long_returnsNumber_whenPositive() {
+        Long result = NumberPrecondition.requirePositive(5L, "value");
+        assertEquals(5L, result);
+    }
+
+    @Test
+    public void requirePositive_Long_throwsException_whenNull() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                NumberPrecondition.requirePositive((Long) null, "value")
+        );
+        assertEquals("value must not be null", exception.getMessage());
+    }
+
+    @Test
+    public void requirePositive_Long_throwsException_whenZero() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                NumberPrecondition.requirePositive(Long.valueOf(0), "value")
+        );
+        assertEquals("value must be positive", exception.getMessage());
+    }
+
+    @Test
+    public void requirePositive_Long_throwsException_whenNegative() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                NumberPrecondition.requirePositive(Long.valueOf(-1), "value")
+        );
+        assertEquals("value must be positive", exception.getMessage());
+    }
+
+    @Test
+    public void requirePositiveOrZero_Long_returnsNumber_whenPositive() {
+        Long result = NumberPrecondition.requirePositiveOrZero(5L, "value");
+        assertEquals(5L, result);
+    }
+
+    @Test
+    public void requirePositiveOrZero_Long_returnsZero_whenZero() {
+        Long result = NumberPrecondition.requirePositiveOrZero(0L, "value");
+        assertEquals(0L, result);
+    }
+
+    @Test
+    public void requirePositiveOrZero_Long_throwsException_whenNull() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                NumberPrecondition.requirePositiveOrZero((Long) null, "value")
+        );
+        assertEquals("value must not be null", exception.getMessage());
+    }
+
+    @Test
+    public void requirePositiveOrZero_Long_throwsException_whenNegative() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                NumberPrecondition.requirePositiveOrZero(Long.valueOf(-1), "value")
+        );
+        assertEquals("value must be non-negative", exception.getMessage());
+    }
 }
