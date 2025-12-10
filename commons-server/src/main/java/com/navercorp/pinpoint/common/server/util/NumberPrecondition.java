@@ -78,4 +78,46 @@ public class NumberPrecondition {
         throw new IllegalArgumentException(message);
     }
 
+    //-----------
+
+    public static Integer requirePositive(Integer number, String message) {
+        if (number == null) {
+            throw new IllegalArgumentException(message + " must not be null");
+        }
+        if (number > 0) {
+            return number;
+        }
+        throw new IllegalArgumentException(message + " must be positive");
+    }
+
+    public static Integer requirePositiveOrZero(Integer number, String message) {
+        if (number == null) {
+            throw new IllegalArgumentException(message + " must not be null");
+        }
+        if (number >= 0) {
+            return number;
+        }
+        throw new IllegalArgumentException(message + " must be non-negative");
+    }
+
+    public static Long requirePositive(Long number, String message) {
+        if (number == null) {
+            throw new IllegalArgumentException(message + " must not be null");
+        }
+        if (number > 0) {
+            return number;
+        }
+        throw new IllegalArgumentException(message + " must be positive");
+    }
+
+    public static Long requirePositiveOrZero(Long number, String message) {
+        if (number == null) {
+            throw new IllegalArgumentException(message + " must not be null");
+        }
+        if (number >= 0) {
+            return number;
+        }
+        throw new IllegalArgumentException(message + " must be non-negative");
+    }
+
 }
