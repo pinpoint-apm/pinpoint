@@ -32,7 +32,6 @@ import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.UidFetcher;
 import com.navercorp.pinpoint.io.request.UidFetcherStreamService;
-import com.navercorp.pinpoint.io.request.UidFetchers;
 import io.github.bucket4j.Bandwidth;
 import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
@@ -83,7 +82,7 @@ public class StatServerTestMain {
         SimpleHandler<PAgentStatBatch> agentStatBatch = new MockDispatchHandler<>();
         SimpleHandler<PAgentStat> agentStat = new MockDispatchHandler<>();
         SimpleHandler<PAgentUriStat> agentUriStat = new MockDispatchHandler<>();
-        ServerRequestFactory serverRequestFactory = new DefaultServerRequestFactory(UidFetchers::empty);
+        ServerRequestFactory serverRequestFactory = new DefaultServerRequestFactory();
 
         UidFetcherStreamService uidFetcherStreamService = mock(UidFetcherStreamService.class);
         UidFetcher uidFetcher = mock(UidFetcher.class);
