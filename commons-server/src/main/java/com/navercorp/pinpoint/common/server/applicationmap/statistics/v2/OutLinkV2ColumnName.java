@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.statistics;
+package com.navercorp.pinpoint.common.server.applicationmap.statistics.v2;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.Objects;
@@ -33,7 +34,27 @@ public class OutLinkV2ColumnName implements ColumnName {
     private final String inApplicationName;
     // called or calling host
     private final String callHost;
-    private final short columnSlotNumber;
+    private final short slotNumber;
+
+    public String getOutAgentId() {
+        return outAgentId;
+    }
+
+    public short getInServiceType() {
+        return inServiceType;
+    }
+
+    public String getInApplicationName() {
+        return inApplicationName;
+    }
+
+    public String getCallHost() {
+        return callHost;
+    }
+
+    public short getSlotNumber() {
+        return slotNumber;
+    }
 
     public static ColumnName histogram(String outAgentId, Vertex inVertex, String callHost, short columnSlotNumber) {
         return histogram(outAgentId, inVertex.serviceType(), inVertex.applicationName(), callHost, columnSlotNumber);
@@ -43,24 +64,34 @@ public class OutLinkV2ColumnName implements ColumnName {
         return new OutLinkV2ColumnName(outAgentId, inServiceType.getCode(), inApplicationName, callHost, columnSlotNumber);
     }
 
-    public OutLinkV2ColumnName(String outAgentId, short inServiceType, String inApplicationName, String callHost, short columnSlotNumber) {
+    public OutLinkV2ColumnName(String outAgentId, short inServiceType, String inApplicationName, String callHost, short slotNumber) {
         this.outAgentId = Objects.requireNonNull(outAgentId, "outAgentId");
         this.inServiceType = inServiceType;
         this.inApplicationName = Objects.requireNonNull(inApplicationName, "inApplicationName");
         this.callHost = Objects.requireNonNull(callHost, "callHost");
-        this.columnSlotNumber = columnSlotNumber;
+        this.slotNumber = slotNumber;
     }
 
-
+    @Override
     public byte[] getColumnName() {
         final Buffer buffer = new AutomaticBuffer(64);
         buffer.putShort(inServiceType);
         buffer.putPrefixedString(inApplicationName);
         buffer.putPrefixedString(callHost);
-        buffer.putShort(columnSlotNumber);
+        buffer.putShort(slotNumber);
         buffer.putPrefixedString(outAgentId);
         return buffer.getBuffer();
     }
+
+    public static OutLinkV2ColumnName parseColumnName(Buffer buffer) {
+        short inServiceType = buffer.readShort();
+        String inApplication = buffer.readPrefixedString();
+        String callHost = buffer.readPrefixedString();
+        short slotNumber = buffer.readShort();
+        String outAgentId = buffer.readPrefixedString();
+        return new OutLinkV2ColumnName(outAgentId, inServiceType, inApplication, callHost, slotNumber);
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -68,10 +99,10 @@ public class OutLinkV2ColumnName implements ColumnName {
 
         OutLinkV2ColumnName that = (OutLinkV2ColumnName) o;
         return inServiceType == that.inServiceType
-                && columnSlotNumber == that.columnSlotNumber
-                && outAgentId.equals(that.outAgentId)
-                && inApplicationName.equals(that.inApplicationName)
-                && callHost.equals(that.callHost);
+               && slotNumber == that.slotNumber
+               && outAgentId.equals(that.outAgentId)
+               && inApplicationName.equals(that.inApplicationName)
+               && callHost.equals(that.callHost);
     }
 
     @Override
@@ -80,18 +111,18 @@ public class OutLinkV2ColumnName implements ColumnName {
         result = 31 * result + inServiceType;
         result = 31 * result + inApplicationName.hashCode();
         result = 31 * result + callHost.hashCode();
-        result = 31 * result + columnSlotNumber;
+        result = 31 * result + slotNumber;
         return result;
     }
 
     @Override
     public String toString() {
         return "OutColumnName{" +
-                "outAgentId='" + outAgentId + '\'' +
-                ", columnSlotNumber=" + columnSlotNumber +
-                ", inServiceType=" + inServiceType +
-                ", inApplicationName='" + inApplicationName + '\'' +
-                ", inHost='" + callHost + '\'' +
-                '}';
+               "outAgentId='" + outAgentId + '\'' +
+               ", columnSlotNumber=" + slotNumber +
+               ", inServiceType=" + inServiceType +
+               ", inApplicationName='" + inApplicationName + '\'' +
+               ", inHost='" + callHost + '\'' +
+               '}';
     }
 }

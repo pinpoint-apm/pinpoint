@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.dao.v3;
 
-import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.trace.SlotCode;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 

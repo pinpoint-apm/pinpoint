@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowInfo;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import org.apache.hadoop.hbase.TableName;
 

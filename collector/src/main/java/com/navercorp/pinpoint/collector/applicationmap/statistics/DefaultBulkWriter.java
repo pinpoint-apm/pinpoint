@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.hbase.CheckAndMax;
 import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTemplate;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.hadoop.hbase.TableName;
@@ -91,7 +92,7 @@ public class DefaultBulkWriter implements BulkWriter {
     public void flushLink() {
 
         // update statistics by rowkey and column for now. need to update it by rowkey later.
-        Map<RowInfo, Long> snapshot = bulkIncrementer.getIncrements();
+        Map<com.navercorp.pinpoint.common.server.applicationmap.statistics.RowInfo, Long> snapshot = bulkIncrementer.getIncrements();
         if (snapshot.isEmpty()) {
             return;
         }
@@ -115,7 +116,7 @@ public class DefaultBulkWriter implements BulkWriter {
     @Override
     public void flushAvgMax() {
 
-        Map<RowInfo, Long> maxUpdateMap = bulkUpdater.getMaxUpdate();
+        Map<com.navercorp.pinpoint.common.server.applicationmap.statistics.RowInfo, Long> maxUpdateMap = bulkUpdater.getMaxUpdate();
         if (logger.isDebugEnabled()) {
             final int size = maxUpdateMap.size();
             if (size > 0) {
@@ -124,8 +125,8 @@ public class DefaultBulkWriter implements BulkWriter {
         }
 
         Map<TableName, List<CheckAndMax>> maxUpdates = new HashMap<>();
-        for (Map.Entry<RowInfo, Long> entry : maxUpdateMap.entrySet()) {
-            final RowInfo rowInfo = entry.getKey();
+        for (Map.Entry<com.navercorp.pinpoint.common.server.applicationmap.statistics.RowInfo, Long> entry : maxUpdateMap.entrySet()) {
+            final com.navercorp.pinpoint.common.server.applicationmap.statistics.RowInfo rowInfo = entry.getKey();
             final Long val = entry.getValue();
             final byte[] rowKey = getDistributedKey(rowInfo.rowKey());
             byte[] columnName = rowInfo.columnName().getColumnName();

@@ -382,6 +382,14 @@ public final class BytesUtils {
         }
     }
 
+    public static int computeVar32StringSize(String str) {
+        if (str == null) {
+            throw new NullPointerException("str");
+        }
+        final int length = str.length();
+        return BytesUtils.computeVar32Size(length) + length;
+    }
+
     public static void checkBounds(byte[] bytes, final int offset) {
         final int length = bytes.length;
         checkFromIndexSize(offset, length - offset, length);

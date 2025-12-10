@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 
-import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
-import com.navercorp.pinpoint.collector.applicationmap.statistics.InLinkV2ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.v2.InLinkV2ColumnName;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 

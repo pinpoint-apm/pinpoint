@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.statistics;
+package com.navercorp.pinpoint.common.server.applicationmap.statistics.v2;
 
-import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
@@ -33,7 +33,23 @@ public class InLinkV2ColumnName implements ColumnName {
     private final String selfApplicationName;
     // called or calling host
     private final String outHost;
-    private final short columnSlotNumber;
+    private final short slotNumber;
+
+    public short getSelfServiceType() {
+        return selfServiceType;
+    }
+
+    public String getSelfApplicationName() {
+        return selfApplicationName;
+    }
+
+    public String getOutHost() {
+        return outHost;
+    }
+
+    public short getSlotNumber() {
+        return slotNumber;
+    }
 
     public static ColumnName histogram(Vertex selfVertex, String outHost, short columnSlotNumber) {
         return histogram(selfVertex.applicationName(), selfVertex.serviceType(), outHost, columnSlotNumber);
@@ -43,17 +59,16 @@ public class InLinkV2ColumnName implements ColumnName {
         return new InLinkV2ColumnName(selfApplicationName, selfServiceType.getCode(), outHost, columnSlotNumber);
     }
 
-
-    public InLinkV2ColumnName(String selfApplicationName, short selfServiceType, String outHost, short columnSlotNumber) {
+    public InLinkV2ColumnName(String selfApplicationName, short selfServiceType, String outHost, short slotNumber) {
         this.selfServiceType = selfServiceType;
         this.selfApplicationName = Objects.requireNonNull(selfApplicationName, "selfApplicationName");
         this.outHost = Objects.requireNonNull(outHost, "outHost");
-        this.columnSlotNumber = columnSlotNumber;
+        this.slotNumber = slotNumber;
     }
 
-
+    @Override
     public byte[] getColumnName() {
-        return makeColumnName(selfServiceType, selfApplicationName, outHost, columnSlotNumber);
+        return makeColumnName(selfServiceType, selfApplicationName, outHost, slotNumber);
     }
 
     public static byte[] makeColumnName(short serviceType, String applicationName, String destHost, short slotNumber) {
@@ -61,12 +76,24 @@ public class InLinkV2ColumnName implements ColumnName {
         destHost = Objects.toString(destHost, "");
 
         // approximate size of destHost
-        final Buffer buffer = new AutomaticBuffer(BytesUtils.SHORT_BYTE_LENGTH + PinpointConstants.APPLICATION_NAME_MAX_LEN + destHost.length() + BytesUtils.SHORT_BYTE_LENGTH);
+        final Buffer buffer = new AutomaticBuffer(
+                BytesUtils.SHORT_BYTE_LENGTH + BytesUtils.SHORT_BYTE_LENGTH +
+                BytesUtils.computeVar32StringSize(applicationName) +
+                BytesUtils.computeVar32StringSize(destHost)
+        );
         buffer.putShort(serviceType);
         buffer.putShort(slotNumber);
         buffer.put2PrefixedString(applicationName);
         buffer.putBytes(BytesUtils.toBytes(destHost));
         return buffer.getBuffer();
+    }
+
+    public static InLinkV2ColumnName parseColumnName(Buffer buffer) {
+        short selfServiceType = buffer.readShort();
+        short histogramSlot = buffer.readShort();
+        String selfApplicationName = buffer.read2PrefixedString();
+        String outHost = buffer.readPadStringAndRightTrim(buffer.remaining());
+        return new InLinkV2ColumnName(selfApplicationName, selfServiceType, outHost, histogramSlot);
     }
 
     @Override
@@ -75,7 +102,7 @@ public class InLinkV2ColumnName implements ColumnName {
 
         InLinkV2ColumnName that = (InLinkV2ColumnName) o;
         return selfServiceType == that.selfServiceType
-               && columnSlotNumber == that.columnSlotNumber
+               && slotNumber == that.slotNumber
                && selfApplicationName.equals(that.selfApplicationName)
                && outHost.equals(that.outHost);
     }
@@ -85,7 +112,7 @@ public class InLinkV2ColumnName implements ColumnName {
         int result = selfServiceType;
         result = 31 * result + selfApplicationName.hashCode();
         result = 31 * result + outHost.hashCode();
-        result = 31 * result + columnSlotNumber;
+        result = 31 * result + slotNumber;
         return result;
     }
 
@@ -95,7 +122,7 @@ public class InLinkV2ColumnName implements ColumnName {
                "callerServiceType=" + selfServiceType +
                ", callerApplicationName='" + selfApplicationName + '\'' +
                ", callHost='" + outHost + '\'' +
-               ", columnSlotNumber=" + columnSlotNumber +
+               ", columnSlotNumber=" + slotNumber +
                '}';
     }
 }

@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.dao.v3;
+package com.navercorp.pinpoint.common.server.applicationmap.statistics.v3;
 
-import com.navercorp.pinpoint.collector.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
+import com.navercorp.pinpoint.common.timeseries.util.IntInverter;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.SlotCode;
 
@@ -29,8 +30,8 @@ import java.util.Objects;
  * @author emeroad
  */
 public class OutLinkV3ColumnName implements ColumnName {
-    private final int inServiceType;
-    private final String inApplicationName;
+    private final String outApplicationName;
+    private final int outServiceType;
     // called or calling host
     private final String outSubLink;
     private final byte slotCode;
@@ -39,25 +40,49 @@ public class OutLinkV3ColumnName implements ColumnName {
         return histogram(outVertex.serviceType(), outVertex.applicationName(), outSubLink, slotCode);
     }
 
-    public static ColumnName histogram(ServiceType outServiceType, String inApplicationName, String outSubLink, SlotCode slotCode) {
-        return new OutLinkV3ColumnName(outServiceType.getCode(), inApplicationName, outSubLink, slotCode.code());
+    public static ColumnName histogram(ServiceType outServiceType, String outApplicationName, String outSubLink, SlotCode slotCode) {
+        return new OutLinkV3ColumnName(outApplicationName, outServiceType.getCode(), outSubLink, slotCode.code());
     }
 
-    public OutLinkV3ColumnName(int inServiceType, String inApplicationName, String outSubLink, byte slotCode) {
-        this.inServiceType = inServiceType;
-        this.inApplicationName = Objects.requireNonNull(inApplicationName, "inApplicationName");
+    public OutLinkV3ColumnName(String outApplicationName, int outServiceType, String outSubLink, byte slotCode) {
+        this.outApplicationName = Objects.requireNonNull(outApplicationName, "outApplicationName");
+        this.outServiceType = outServiceType;
         this.outSubLink = Objects.requireNonNull(outSubLink, "outSubLink");
         this.slotCode = slotCode;
     }
 
+    public String getOutApplicationName() {
+        return outApplicationName;
+    }
 
+    public int getOutServiceType() {
+        return outServiceType;
+    }
+
+    public String getOutSubLink() {
+        return outSubLink;
+    }
+
+    public byte getSlotCode() {
+        return slotCode;
+    }
+
+    @Override
     public byte[] getColumnName() {
         final Buffer buffer = new AutomaticBuffer(64);
-        buffer.putInt(inServiceType);
-        buffer.putUnsignedBytePrefixedString(inApplicationName);
+        buffer.putInt(IntInverter.invert(outServiceType));
         buffer.putByte(slotCode);
+        buffer.putPrefixedString(outApplicationName);
         buffer.putPrefixedString(outSubLink);
         return buffer.getBuffer();
+    }
+
+    public static OutLinkV3ColumnName parseColumnName(Buffer buffer) {
+        int inServiceType = IntInverter.restore(buffer.readInt());
+        byte slotNumber = buffer.readByte();
+        String inApplicationName = buffer.readPrefixedString();
+        String outSubLink = buffer.readPrefixedString();
+        return new OutLinkV3ColumnName(inApplicationName, inServiceType, outSubLink, slotNumber);
     }
 
     @Override
@@ -65,13 +90,13 @@ public class OutLinkV3ColumnName implements ColumnName {
         if (o == null || getClass() != o.getClass()) return false;
 
         OutLinkV3ColumnName that = (OutLinkV3ColumnName) o;
-        return inServiceType == that.inServiceType && slotCode == that.slotCode && inApplicationName.equals(that.inApplicationName) && outSubLink.equals(that.outSubLink);
+        return outServiceType == that.outServiceType && slotCode == that.slotCode && outApplicationName.equals(that.outApplicationName) && outSubLink.equals(that.outSubLink);
     }
 
     @Override
     public int hashCode() {
-        int result = inServiceType;
-        result = 31 * result + inApplicationName.hashCode();
+        int result = outServiceType;
+        result = 31 * result + outApplicationName.hashCode();
         result = 31 * result + outSubLink.hashCode();
         result = 31 * result + slotCode;
         return result;
@@ -81,8 +106,8 @@ public class OutLinkV3ColumnName implements ColumnName {
     public String toString() {
         return "OutColumnName{" +
                ", slotCode=" + slotCode +
-               ", inServiceType=" + inServiceType +
-               ", inApplicationName='" + inApplicationName + '\'' +
+               ", inServiceType=" + outServiceType +
+               ", inApplicationName='" + outApplicationName + '\'' +
                ", inHost='" + outSubLink + '\'' +
                '}';
     }

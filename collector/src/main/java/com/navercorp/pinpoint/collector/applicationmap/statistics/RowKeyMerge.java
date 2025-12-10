@@ -50,7 +50,7 @@ public class RowKeyMerge {
         this.rowKeyFunction = Objects.requireNonNull(rowKeyFunction, "rowKeyFunction");
     }
 
-    public Map<TableName, List<Increment>> createBulkIncrement(Map<RowInfo, Long> data, byte[] family) {
+    public Map<TableName, List<Increment>> createBulkIncrement(Map<com.navercorp.pinpoint.common.server.applicationmap.statistics.RowInfo, Long> data, byte[] family) {
         if (data.isEmpty()) {
             return Collections.emptyMap();
         }
@@ -84,11 +84,11 @@ public class RowKeyMerge {
         return increment;
     }
 
-    private Map<TableName, Map<RowKey, List<ColumnCallCount>>> mergeRowKeys(Map<RowInfo, Long> data) {
+    private Map<TableName, Map<RowKey, List<ColumnCallCount>>> mergeRowKeys(Map<com.navercorp.pinpoint.common.server.applicationmap.statistics.RowInfo, Long> data) {
         final Map<TableName, Map<RowKey, List<ColumnCallCount>>> tables = new HashMap<>();
 
-        for (Map.Entry<RowInfo, Long> entry : data.entrySet()) {
-            final RowInfo rowInfo = entry.getKey();
+        for (Map.Entry<com.navercorp.pinpoint.common.server.applicationmap.statistics.RowInfo, Long> entry : data.entrySet()) {
+            final com.navercorp.pinpoint.common.server.applicationmap.statistics.RowInfo rowInfo = entry.getKey();
             // write callCount to columnName and throw away
             final long callCount = entry.getValue();
 

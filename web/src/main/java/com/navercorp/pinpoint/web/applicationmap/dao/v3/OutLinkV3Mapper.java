@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.TimestampRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.v3.OutLinkV3ColumnName;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.SlotCode;
@@ -86,13 +87,14 @@ public class OutLinkV3Mapper implements RowMapper<LinkDataMap> {
         final LinkDataMap linkDataMap = new LinkDataMap();
         for (Cell cell : result.rawCells()) {
             final Buffer buffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
-            final Application inApplication = readInApplication(buffer);
+            OutLinkV3ColumnName columnName = OutLinkV3ColumnName.parseColumnName(buffer);
+            final Application inApplication = inApplication(columnName);
             if (filter.filter(inApplication)) {
                 continue;
             }
 
-            SlotCode slotCode = SlotCode.valueOf(buffer.readByte());
-            String outSubLink = buffer.readPrefixedString();
+            SlotCode slotCode = SlotCode.valueOf(columnName.getSlotCode());
+            String outSubLink = columnName.getOutSubLink();
 
 
             long requestCount = CellUtils.valueToLong(cell);
@@ -112,9 +114,9 @@ public class OutLinkV3Mapper implements RowMapper<LinkDataMap> {
     }
 
 
-    private Application readInApplication(Buffer buffer) {
-        int inServiceType = buffer.readInt();
-        String inApplicationName = buffer.readUnsignedBytePrefixedString();
+    private Application inApplication(OutLinkV3ColumnName columnName) {
+        int inServiceType = columnName.getOutServiceType();
+        String inApplicationName = columnName.getOutApplicationName();
         return applicationFactory.createApplication(inApplicationName, inServiceType);
     }
 

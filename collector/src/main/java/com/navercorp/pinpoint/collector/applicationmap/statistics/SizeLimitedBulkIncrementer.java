@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.collector.applicationmap.statistics;
 
 import com.navercorp.pinpoint.collector.monitor.dao.hbase.BulkOperationReporter;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
 import com.navercorp.pinpoint.common.util.Assert;
 import org.apache.hadoop.hbase.TableName;
@@ -67,7 +68,7 @@ public class SizeLimitedBulkIncrementer implements BulkIncrementer, BulkState {
     }
 
     @Override
-    public Map<RowInfo, Long> getIncrements() {
+    public Map<com.navercorp.pinpoint.common.server.applicationmap.statistics.RowInfo, Long> getIncrements() {
         try {
             return delegate.getIncrements();
         } finally {

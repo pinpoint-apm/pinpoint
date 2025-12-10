@@ -351,6 +351,17 @@ public class BytesUtilsTest {
     }
 
     @Test
+    public void testVar32String() {
+        String str = "a";
+        int size = BytesUtils.computeVar32StringSize(str);
+        Assertions.assertEquals(2, size);
+
+        String repeat = str.repeat(129);
+        int size2 = BytesUtils.computeVar32StringSize(repeat);
+        Assertions.assertEquals(129 + 2, size2);
+    }
+
+    @Test
     public void testVar32_indexCheck() {
         final byte[] bytes = new byte[1];
         Assertions.assertThrows(ArrayIndexOutOfBoundsException.class,
