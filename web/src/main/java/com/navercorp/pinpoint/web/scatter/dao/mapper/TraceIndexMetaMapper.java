@@ -14,24 +14,20 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.mapper;
+package com.navercorp.pinpoint.web.scatter.dao.mapper;
 
-import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.RowTypeHint;
-import com.navercorp.pinpoint.common.server.bo.serializer.agent.TraceIndexRowUtils;
-import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
+import com.navercorp.pinpoint.common.server.scatter.TraceIndexRowKeyUtils;
+import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
 
 // TraceIndexMetaScatterMapper version 2
@@ -60,36 +56,31 @@ public class TraceIndexMetaMapper implements RowMapper<List<DotMetaData>>, RowTy
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<Long, DotMetaData.BuilderV2> metaDataMap = new HashMap<>();
+
+        DotMetaData.BuilderV2 builder = new DotMetaData.BuilderV2();
+        byte[] row = result.getRow();
+        builder.setAcceptedTime(TraceIndexRowKeyUtils.extractAcceptTime(row, 0, row.length));
+        builder.setSpanId(TraceIndexRowKeyUtils.extractSpanId(row, 0, row.length));
         for (Cell cell : result.rawCells()) {
-            long spanId = ByteArrayUtils.bytesToLong(cell.getRowArray(), cell.getRowOffset() + cell.getRowLength() - ByteArrayUtils.LONG_BYTE_LENGTH);
-            DotMetaData.BuilderV2 builder = getMetaDataBuilder(metaDataMap, spanId);
-            if (CellUtil.matchingFamily(cell, index.getName())) {
-                builder.setSpanId(spanId);
-                builder.setAcceptedTime(TraceIndexRowUtils.extractAcceptTime(cell.getRowArray(), cell.getRowOffset()));
+            if (CellUtil.matchingColumn(cell, index.getName(), index.getName())) {
                 builder.readIndex(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
-            }
-            if (CellUtil.matchingFamily(cell, meta.getName())) {
+            } else if (CellUtil.matchingColumn(cell, meta.getName(), meta.getName())) {
                 builder.readMeta(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+            } else if (CellUtil.matchingColumn(cell, meta.getName(), HbaseTables.TRACE_INDEX_META_QUALIFIER_RPC)) {
+                builder.readMetaRpc(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
             }
         }
-        return filterAndBuild(metaDataMap);
+        return filterAndBuild(builder);
     }
 
-    public List<DotMetaData> filterAndBuild(Map<?, DotMetaData.BuilderV2> metaDataMap) {
-        List<DotMetaData> result = new ArrayList<>(metaDataMap.size());
-        for (DotMetaData.BuilderV2 builderV2 : metaDataMap.values()) {
-            if ((elapsedTimeFilter == null || elapsedTimeFilter.test(builderV2.getElapsedTime()))
-                    && (exceptionCodeFilter == null || exceptionCodeFilter.test(builderV2.getExceptionCode()))
-                    && (agentIdFilter == null || agentIdFilter.test(builderV2.getAgentId()))) {
-                result.add(builderV2.build());
-            }
+    public List<DotMetaData> filterAndBuild(DotMetaData.BuilderV2 builder) {
+        if ((elapsedTimeFilter == null || elapsedTimeFilter.test(builder.getElapsedTime()))
+                && (exceptionCodeFilter == null || exceptionCodeFilter.test(builder.getExceptionCode()))
+                && (agentIdFilter == null || agentIdFilter.test(builder.getAgentId()))) {
+            return List.of(builder.build());
+        } else {
+            return Collections.emptyList();
         }
-        return result;
-    }
-
-    private DotMetaData.BuilderV2 getMetaDataBuilder(Map<Long, DotMetaData.BuilderV2> metaDataMap, Long qualifier) {
-        return metaDataMap.computeIfAbsent(qualifier, pair -> new DotMetaData.BuilderV2());
     }
 
     @Override

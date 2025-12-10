@@ -17,16 +17,13 @@
 package com.navercorp.pinpoint.collector.scatter.dao.hbase;
 
 import com.navercorp.pinpoint.collector.scatter.dao.TraceIndexDao;
-import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
-import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
-import com.navercorp.pinpoint.common.server.util.SpanUtils;
+import com.navercorp.pinpoint.common.server.scatter.TraceIndexValue;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.logging.log4j.LogManager;
@@ -43,6 +40,7 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 
     private final HbaseColumnFamily indexTable = HbaseTables.TRACE_INDEX;
     private final HbaseColumnFamily metaTable = HbaseTables.TRACE_INDEX_META;
+    private final byte[] rpcQualifier = HbaseTables.TRACE_INDEX_META_QUALIFIER_RPC;
 
     private final HbasePutWriter putWriter;
     private final TableNameProvider tableNameProvider;
@@ -65,50 +63,35 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
         if (logger.isDebugEnabled()) {
             logger.debug("insert TraceIndex: {}", span);
         }
-
-        final long acceptedTime = span.getCollectorAcceptTime();
         final byte[] distributedKey = traceIndexRowKeyEncoder.encodeRowKey(span);
 
         final Put put = new Put(distributedKey, true);
 
         final byte[] indexValue = buildIndexValue(span);
-        put.addColumn(indexTable.getName(), indexTable.getName(), acceptedTime, indexValue);
+        put.addColumn(indexTable.getName(), indexTable.getName(), indexValue);
 
         final byte[] metaDataValue = buildMetaValue(span);
-        put.addColumn(metaTable.getName(), metaTable.getName(), acceptedTime, metaDataValue);
+        put.addColumn(metaTable.getName(), metaTable.getName(), metaDataValue);
+        if (span.getRpc() != null) {
+            final byte[] metaRpcValue = buildMetaRpcValue(span);
+            put.addColumn(metaTable.getName(), rpcQualifier, metaRpcValue);
+        }
 
         final TableName applicationTraceIndexTableName = tableNameProvider.getTableName(indexTable.getTable());
         putWriter.put(applicationTraceIndexTableName, put);
     }
 
-    /**
-     * DotMetaData.BuilderV2.readIndex();
-     */
+
     private byte[] buildIndexValue(SpanBo span) {
-        final Buffer buffer = new AutomaticBuffer(10 + HbaseTableConstants.AGENT_ID_MAX_LEN);
-        byte hasError = span.getErrCode() == 0 ? (byte) 0 : (byte) 1;
-        buffer.putByte(hasError);
-        buffer.putPrefixedString(span.getAgentId());
-        buffer.putVInt(span.getElapsed());
-        buffer.putSVInt(span.getErrCode());
-        return buffer.getBuffer();
+        return TraceIndexValue.Index.encode(span.getAgentId(), span.getElapsed(), span.getErrCode());
     }
 
-    /**
-     * DotMetaData.BuilderV2.readMeta();
-     */
     private byte[] buildMetaValue(SpanBo span) {
-        Buffer buffer = new AutomaticBuffer(64);
-        buffer.putInt(span.getElapsed());
-        buffer.putByte((byte) 1); // txId version
-        SpanUtils.writeTransactionIdV1(buffer, span.getTransactionId());
+        return TraceIndexValue.Meta.encode(span.getTransactionId(), span.getStartTime(), span.getRemoteAddr(), span.getEndPoint(), span.getAgentName());
+    }
 
-        buffer.putLong(span.getStartTime());
-        buffer.putPrefixedString(span.getRpc());
-        buffer.putPrefixedString(span.getRemoteAddr());
-        buffer.putPrefixedString(span.getEndPoint());
-        buffer.putPrefixedString(span.getAgentName());
-        return buffer.getBuffer();
+    private byte[] buildMetaRpcValue(SpanBo span) {
+        return TraceIndexValue.MetaRpc.encode(span.getRpc());
     }
 
 }

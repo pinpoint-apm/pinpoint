@@ -19,10 +19,10 @@ package com.navercorp.pinpoint.web.applicationmap.service;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
-import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
-import com.navercorp.pinpoint.web.dao.TraceIndexDao;
+import com.navercorp.pinpoint.web.scatter.dao.ApplicationTraceIndexDao;
+import com.navercorp.pinpoint.web.scatter.dao.TraceIndexDao;
+import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -60,12 +60,12 @@ public class TraceIndexServiceImpl implements TraceIndexService {
     }
 
     @Override
-    public LimitedScanResult<List<DotMetaData>> getTraceIndexV2(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit) {
+    public LimitedScanResult<List<TransactionId>> getTraceIndexV2(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit) {
         return getTraceIndexV2(serviceUid, applicationName, serviceTypeCode, range, limit, true);
     }
 
     @Override
-    public LimitedScanResult<List<DotMetaData>> getTraceIndexV2(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit, boolean backwardDirection) {
+    public LimitedScanResult<List<TransactionId>> getTraceIndexV2(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit, boolean backwardDirection) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(range, "range");
 
@@ -73,7 +73,11 @@ public class TraceIndexServiceImpl implements TraceIndexService {
             logger.trace("scan(selectTraceIdsFromApplicationTraceIndexV2) {}, {}", applicationName, range);
         }
 
-        return this.traceIndexDao.scanTraceIndex(serviceUid, applicationName, serviceTypeCode, range, limit, backwardDirection);
+        LimitedScanResult<List<DotMetaData>> listLimitedScanResult = this.traceIndexDao.scanTraceIndex(serviceUid, applicationName, serviceTypeCode, range, limit, backwardDirection);
+        List<TransactionId> transactionIds = listLimitedScanResult.scanData().stream()
+                .map(meta -> meta.getDot().getTransactionId())
+                .toList();
+        return new LimitedScanResult<>(listLimitedScanResult.limitedTime(), transactionIds);
     }
 
 }

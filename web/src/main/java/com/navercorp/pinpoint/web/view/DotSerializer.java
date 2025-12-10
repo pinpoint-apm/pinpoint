@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.view;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.navercorp.pinpoint.web.vo.scatter.Dot;
+import com.navercorp.pinpoint.web.scatter.vo.Dot;
 
 import java.io.IOException;
 

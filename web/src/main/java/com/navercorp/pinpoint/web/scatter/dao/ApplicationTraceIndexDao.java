@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.dao;
+package com.navercorp.pinpoint.web.scatter.dao;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.web.vo.scatter.Dot;
-import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
+import com.navercorp.pinpoint.web.scatter.vo.Dot;
+import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
 
 import java.util.List;
 

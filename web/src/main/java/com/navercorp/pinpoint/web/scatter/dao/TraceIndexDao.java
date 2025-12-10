@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.dao;
+package com.navercorp.pinpoint.web.scatter.dao;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.web.vo.scatter.Dot;
-import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
+import com.navercorp.pinpoint.web.scatter.vo.Dot;
+import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
 
 import java.util.List;
 
@@ -33,6 +33,6 @@ public interface TraceIndexDao {
 
     LimitedScanResult<List<Dot>> scanTraceScatterData(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit, boolean scanBackward);
 
-    LimitedScanResult<List<DotMetaData>> scanScatterDataV2(int serviceUid, String applicationName, int serviceTypeCode, DragAreaQuery dragAreaQuery, int limit);
+    LimitedScanResult<List<DotMetaData>> scanScatterDataV2(int serviceUid, String applicationName, int serviceTypeCode, DragAreaQuery dragAreaQuery, String rpcRegex, int limit);
 
 }

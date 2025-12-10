@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.dao.hbase;
+package com.navercorp.pinpoint.web.scatter.dao.hbase;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
@@ -33,17 +33,15 @@ import com.navercorp.pinpoint.common.server.util.SpanUtils;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.web.config.ScatterChartProperties;
-import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
-import com.navercorp.pinpoint.web.mapper.TraceIndexMetaScatterMapper;
-import com.navercorp.pinpoint.web.mapper.TraceIndexScatterMapper;
-import com.navercorp.pinpoint.web.mapper.TransactionIdMapper;
+import com.navercorp.pinpoint.web.scatter.dao.ApplicationTraceIndexDao;
+import com.navercorp.pinpoint.web.scatter.dao.mapper.TraceIndexMetaScatterMapper;
 import com.navercorp.pinpoint.web.scatter.DragArea;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
 import com.navercorp.pinpoint.web.scatter.ElpasedTimeDotPredicate;
 import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.web.vo.scatter.Dot;
-import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
+import com.navercorp.pinpoint.web.scatter.vo.Dot;
+import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Result;
@@ -78,11 +76,10 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     private final TableNameProvider tableNameProvider;
 
     private final FuzzyRowKeyBuilder fuzzyRowKeyBuilder = new FuzzyRowKeyBuilder();
-
-    private final RowMapper<List<TransactionId>> transactionIdMapper = new TransactionIdMapper();
-    private final RowMapper<List<Dot>> traceIndexScatterMapper = new TraceIndexScatterMapper();
-
     private final RowKeyDistributor traceIdRowKeyDistributor;
+
+    private final RowMapper<List<TransactionId>> transactionIdMapper;
+    private final RowMapper<List<Dot>> traceIndexScatterMapper;
 
     private int scanCacheSize = 256;
 
@@ -92,12 +89,16 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
                                          HbaseOperations hbaseOperations,
                                          ApplicationNameRowKeyEncoder rowKeyEncoder,
                                          TableNameProvider tableNameProvider,
-                                         @Qualifier("applicationTraceIndexDistributor") RowKeyDistributor traceIdRowKeyDistributor) {
+                                         @Qualifier("applicationTraceIndexDistributor") RowKeyDistributor traceIdRowKeyDistributor,
+                                         @Qualifier("transactionIdMapper") RowMapper<List<TransactionId>> transactionIdMapper,
+                                         @Qualifier("traceIndexScatterMapper") RowMapper<List<Dot>> traceIndexScatterMapper) {
         this.scatterChartProperties = Objects.requireNonNull(scatterChartProperties, "scatterChartProperties");
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.traceIdRowKeyDistributor = Objects.requireNonNull(traceIdRowKeyDistributor, "traceIdRowKeyDistributor");
+        this.transactionIdMapper = Objects.requireNonNull(transactionIdMapper, "transactionIdMapper");
+        this.traceIndexScatterMapper = Objects.requireNonNull(traceIndexScatterMapper, "traceIndexScatterMapper");
     }
 
     public void setScanCacheSize(int scanCacheSize) {

@@ -1,9 +1,6 @@
 package com.navercorp.pinpoint.common.server.scatter;
 
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
-import com.navercorp.pinpoint.common.server.bo.serializer.agent.TraceIndexRowUtils;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.logging.log4j.LogManager;

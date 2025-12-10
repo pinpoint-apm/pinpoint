@@ -19,16 +19,16 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
-import com.navercorp.pinpoint.web.dao.TraceIndexDao;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
+import com.navercorp.pinpoint.web.scatter.dao.ApplicationTraceIndexDao;
+import com.navercorp.pinpoint.web.scatter.dao.TraceIndexDao;
+import com.navercorp.pinpoint.web.scatter.vo.Dot;
+import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
 import com.navercorp.pinpoint.web.trace.dao.TraceDao;
 import com.navercorp.pinpoint.web.trace.service.SpanService;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.SpanHint;
-import com.navercorp.pinpoint.web.vo.scatter.Dot;
-import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
@@ -92,7 +92,7 @@ public class HeatMapServiceImpl implements HeatMapService {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(dragAreaQuery, "dragAreaQuery");
 
-        LimitedScanResult<List<DotMetaData>> scanResult = traceIndexDao.scanScatterDataV2(serviceUid, applicationName, serviceTypeCode, dragAreaQuery, limit);
+        LimitedScanResult<List<DotMetaData>> scanResult = traceIndexDao.scanScatterDataV2(serviceUid, applicationName, serviceTypeCode, dragAreaQuery, null, limit);
         List<DotMetaData> scanData = scanResult.scanData();
         logger.debug("dragScatterArea applicationName:{} dots:{}", applicationName, scanResult);
 

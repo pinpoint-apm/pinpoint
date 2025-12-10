@@ -17,7 +17,7 @@ package com.navercorp.pinpoint.web.view.transactionlist;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
-import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
+import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
 
 import java.util.List;
 import java.util.Objects;

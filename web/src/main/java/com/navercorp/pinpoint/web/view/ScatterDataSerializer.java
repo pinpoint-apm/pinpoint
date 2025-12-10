@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.web.scatter.DotGroup;
 import com.navercorp.pinpoint.web.scatter.DotGroups;
 import com.navercorp.pinpoint.web.scatter.ScatterAgentMetaData;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
-import com.navercorp.pinpoint.web.vo.scatter.Dot;
+import com.navercorp.pinpoint.web.scatter.vo.Dot;
 
 import java.io.IOException;
 import java.util.List;

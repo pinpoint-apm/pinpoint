@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.scatter.FuzzyRowKeyFactory;
 import com.navercorp.pinpoint.common.server.scatter.OneByteFuzzyRowKeyFactory;
-import com.navercorp.pinpoint.common.server.scatter.TraceIndexRowKey;
+import com.navercorp.pinpoint.common.server.scatter.TraceIndexRowKeyUtils;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 
 import java.util.Objects;
@@ -39,7 +39,7 @@ public class TraceIndexRowKeyEncoder implements RowKeyEncoder<SpanBo> {
 
     public byte[] encodeRowKey(int saltKeySize, int serviceUid, String applicationName, int serviceTypeCode, int elapsedTime, long acceptedTime, long spanId) {
         byte fuzzySlotKey = fuzzyRowKeyFactory.getKey(elapsedTime);
-        final byte[] rowKey = TraceIndexRowKey.createFuzzyRowKey(saltKeySize, serviceUid, applicationName, serviceTypeCode, acceptedTime, fuzzySlotKey, spanId);
+        final byte[] rowKey = TraceIndexRowKeyUtils.createFuzzyRowKey(saltKeySize, serviceUid, applicationName, serviceTypeCode, acceptedTime, fuzzySlotKey, spanId);
         if (saltKeySize == 0) {
             return rowKey;
         }
