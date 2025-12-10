@@ -4,12 +4,17 @@ import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 
-public class TraceIndexRowKey {
+public class TraceIndexRowKeyUtils {
 
     private static final HashFunction hashFunction = Hashing.murmur3_32_fixed();
+
+    private TraceIndexRowKeyUtils() {
+    }
 
     public static byte[] createFuzzyRowKey(int saltKeySize, int serviceUid, String applicationName, int serviceTypeCode,
                                            long timestamp, byte fuzzySlotKey, long spanId) {
@@ -40,6 +45,16 @@ public class TraceIndexRowKey {
 
     private static int hashApplicationName(String applicationName) {
         return hashFunction.hashUnencodedChars(applicationName).asInt();
+    }
+
+    public static long extractAcceptTime(byte[] bytes, int offset, int length) {
+        int timestampOffset = offset + HbaseTableConstants.TRACE_INDEX_TIMESTAMP_OFFSET;
+        long reverseStartTime = ByteArrayUtils.bytesToLong(bytes, timestampOffset);
+        return LongInverter.restore(reverseStartTime);
+    }
+
+    public static long extractSpanId(byte[] row, int offset, int length) {
+        return ByteArrayUtils.bytesToLong(row, offset + length - ByteArrayUtils.LONG_BYTE_LENGTH);
     }
 }
 

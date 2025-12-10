@@ -129,5 +129,5 @@ public class HbaseTables {
     // ------------------- Application Trace Index V2 -------------------
     public static final HbaseColumnFamily TRACE_INDEX = new HbaseColumnFamily(HbaseTableV3.TRACE_INDEX, Bytes.toBytes("I"));
     public static final HbaseColumnFamily TRACE_INDEX_META = new HbaseColumnFamily(HbaseTableV3.TRACE_INDEX, Bytes.toBytes("M"));
-
+    public static final byte[] TRACE_INDEX_META_QUALIFIER_RPC = Bytes.toBytes("r");
 }

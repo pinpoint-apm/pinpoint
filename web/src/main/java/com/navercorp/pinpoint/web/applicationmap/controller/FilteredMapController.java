@@ -43,7 +43,6 @@ import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.util.LimitUtils;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.apache.logging.log4j.LogManager;
@@ -116,28 +115,22 @@ public class FilteredMapController {
         final Range range = toRange(rangeForm);
         final boolean useTraceIndexV2 = traceIndexReadV2.orElse(defaultTraceIndexReadV2);
 
-        final long lastScanTime;
-        final List<TransactionId> scanData;
+
+        final LimitedScanResult<List<TransactionId>> limitedScanResult;
         if (!useTraceIndexV2) {
-            final LimitedScanResult<List<TransactionId>> limitedScanResult = traceIndexService.getTraceIndex(applicationName, range, limit);
-            lastScanTime = limitedScanResult.limitedTime();
-            scanData = limitedScanResult.scanData();
+            limitedScanResult = traceIndexService.getTraceIndex(applicationName, range, limit);
         } else {
             final ServiceType serviceType = findServiceType(appForm.getServiceTypeCode(), appForm.getServiceTypeName());
-            final LimitedScanResult<List<DotMetaData>> limitedScanResult = traceIndexService.getTraceIndexV2(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceType.getCode(), range, limit);
-            // #TODO filter metadata
-            lastScanTime = limitedScanResult.limitedTime();
-            scanData = limitedScanResult.scanData().stream()
-                    .map(meta -> meta.getDot().getTransactionId())
-                    .toList();
+            limitedScanResult = traceIndexService.getTraceIndexV2(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceType.getCode(), range, limit);
         }
 
+        final long lastScanTime = limitedScanResult.limitedTime();
         // original range: needed for visual chart data sampling
         final Range originalRange = Range.between(rangeForm.getFrom(), originTo);
         // needed to figure out already scanned ranged
         final Range scannerRange = Range.between(lastScanTime, range.getTo());
         logger.debug("originalRange:{} scannerRange:{} ", originalRange, scannerRange);
-        final FilteredMapServiceOption option = newFilteredOption(scanData, originalRange, groupForm, filter, useStatisticsAgentState);
+        final FilteredMapServiceOption option = newFilteredOption(limitedScanResult.scanData(), originalRange, groupForm, filter, useStatisticsAgentState);
         final FilterMapWithScatter map = filteredMapService.selectApplicationMapWithScatterData(option);
 
         if (logger.isDebugEnabled()) {
