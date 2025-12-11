@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.web.applicationmap.service;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkDirection;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
@@ -34,7 +33,9 @@ import com.navercorp.pinpoint.web.applicationmap.map.processor.WasOnlyProcessor;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeListFactory;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.SearchOption;
 import org.apache.logging.log4j.LogManager;
@@ -140,12 +141,7 @@ public class HistogramServiceImpl implements HistogramService {
         // Get the 'from' applications from the target link data map
         // In the target link, 'from' -> 'to' where 'to' Application is the main application,
         // so we get the 'from' applications from the target link data map.
-        return linkDataDuplexMap.getTargetLinkDataMap()
-                .getLinkDataMap()
-                .keySet()
-                .stream()
-                .map(LinkKey::getFrom)
-                .toList();
+        return linkDataDuplexMap.getTargetFromApplication();
     }
 
     @Override
@@ -155,12 +151,7 @@ public class HistogramServiceImpl implements HistogramService {
         // Get the 'to' applications from the source link data map
         // In the source link, 'from' -> 'to' where 'from' Application is the main application,
         // so we get the 'to' applications from the source link data map.
-        return linkDataDuplexMap.getSourceLinkDataMap()
-                .getLinkDataMap()
-                .keySet()
-                .stream()
-                .map(LinkKey::getTo)
-                .toList();
+        return linkDataDuplexMap.getSourceToApplication();
     }
 
     @Override
@@ -170,16 +161,9 @@ public class HistogramServiceImpl implements HistogramService {
         Objects.requireNonNull(linkDataDuplexMap, "linkDataDuplexMap");
         Objects.requireNonNull(nodeApplication, "nodeApplication");
 
-        List<Application> fromApplication = linkDataDuplexMap.getTargetLinkDataMap()
-                .getLinkDataMap()
-                .keySet()
-                .stream()
-                .map(LinkKey::getFrom)
-                .toList();
-
-        for (Application application : fromApplication) {
-            if (application.getName().equals(nodeApplication.getName())
-                    && application.getServiceType().equals(nodeApplication.getServiceType())) {
+        LinkDataMap targetLinkDataMap = linkDataDuplexMap.getTargetLinkDataMap();
+        for (LinkData linkData : targetLinkDataMap.getLinkDataList()) {
+            if (linkData.getFromApplication().equals(nodeApplication)) {
                 return true;
             }
         }

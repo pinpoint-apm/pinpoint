@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,8 +17,11 @@
 package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
 import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
+import com.navercorp.pinpoint.web.vo.Application;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -40,12 +43,30 @@ public class LinkDataDuplexMap {
         return sourceLinkDataMap;
     }
 
+    public List<Application> getSourceToApplication() {
+        Collection<LinkData> linkDataList = sourceLinkDataMap.getLinkDataList();
+        List<Application> list = new ArrayList<>(linkDataList.size());
+        for (LinkData linkData : linkDataList) {
+            list.add(linkData.getToApplication());
+        }
+        return list;
+    }
+
     public Collection<LinkData> getSourceLinkDataList() {
         return sourceLinkDataMap.getLinkDataList();
     }
 
     public LinkDataMap getTargetLinkDataMap() {
         return targetLinkDataMap;
+    }
+
+    public List<Application> getTargetFromApplication() {
+        Collection<LinkData> linkDataList = targetLinkDataMap.getLinkDataList();
+        List<Application> list = new ArrayList<>(linkDataList.size());
+        for (LinkData linkData : linkDataList) {
+            list.add(linkData.getFromApplication());
+        }
+        return list;
     }
 
     public Collection<LinkData> getTargetLinkDataList() {
