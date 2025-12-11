@@ -4,7 +4,7 @@ import com.navercorp.pinpoint.common.config.Value;
 
 public class ErrorRecorderConfig {
     @Value("${profiler.error.enable}")
-    private boolean enable = false;
+    private boolean enable = true;
 
     @Value("${profiler.error.mark}")
     private String errorMarkString;
