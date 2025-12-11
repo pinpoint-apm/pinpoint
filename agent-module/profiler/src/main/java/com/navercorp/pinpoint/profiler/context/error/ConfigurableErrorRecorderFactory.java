@@ -4,8 +4,8 @@ import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.context.ErrorRecorder;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.trace.ErrorCategory;
-import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import com.navercorp.pinpoint.profiler.context.config.ErrorRecorderConfig;
+import com.navercorp.pinpoint.profiler.context.id.LocalTraceRoot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,35 +20,42 @@ public class ConfigurableErrorRecorderFactory implements ErrorRecorderFactory {
     @Inject
     public ConfigurableErrorRecorderFactory(ErrorRecorderConfig errorRecorderConfig) {
         Objects.requireNonNull(errorRecorderConfig, "errorRecorderConfig");
-        this.enabledTypes = getEnabledTypes(errorRecorderConfig.getErrorMarkString());
+        this.enabledTypes = getEnabledTypes(errorRecorderConfig.getErrorMarkString(), errorRecorderConfig.getErrorMarkExcludeString());
     }
 
     @VisibleForTesting
-    static EnumSet<ErrorCategory> getEnabledTypes(String errorMarkString) {
-        if (errorMarkString == null) {
-            return EnumSet.allOf(ErrorCategory.class);
-        }
+    static EnumSet<ErrorCategory> getEnabledTypes(String errorMarkString, String errorMarkExcludeString) {
+        EnumSet<ErrorCategory> mark = errorMarkString != null ? toCategorySet(errorMarkString) : EnumSet.allOf(ErrorCategory.class);
+        EnumSet<ErrorCategory> exclude = errorMarkExcludeString != null ? toCategorySet(errorMarkExcludeString) : EnumSet.noneOf(ErrorCategory.class);
 
-        EnumSet<ErrorCategory> enabledTypes = EnumSet.of(ErrorCategory.UNKNOWN);
+        mark.removeAll(exclude);
+        mark.add(ErrorCategory.UNKNOWN);
 
-        for (String category : errorMarkString.split(",")) {
+        return mark;
+    }
+
+    private static EnumSet<ErrorCategory> toCategorySet(String categoryString) {
+        EnumSet<ErrorCategory> result = EnumSet.noneOf(ErrorCategory.class);
+
+        for (String category : categoryString.split(",")) {
             switch (category.trim().toLowerCase()) {
                 case "exception":
-                    enabledTypes.add(ErrorCategory.EXCEPTION);
+                    result.add(ErrorCategory.EXCEPTION);
                     break;
                 case "http-status":
-                    enabledTypes.add(ErrorCategory.HTTP_STATUS);
+                    result.add(ErrorCategory.HTTP_STATUS);
                     break;
                 case "sql":
-                    enabledTypes.add(ErrorCategory.SQL);
+                    result.add(ErrorCategory.SQL);
+                    break;
+                case "":
                     break;
                 default:
-                    logger.warn("Unknown error category string: {}", category);
+                    logger.warn("Invalid error category string: {}", category);
                     break;
             }
         }
-
-        return enabledTypes;
+        return result;
     }
 
     @Override
