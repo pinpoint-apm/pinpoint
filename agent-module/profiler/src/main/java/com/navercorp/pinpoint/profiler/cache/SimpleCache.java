@@ -20,6 +20,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 
 import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 /**
@@ -43,14 +44,21 @@ public class SimpleCache<K, V> implements Cache<K, Result<V>> {
     }
 
     public SimpleCache(int cacheSize, Function<K, V> idFunction) {
-        this.cache = createCache(cacheSize);
+        this(cacheSize, -1, idFunction);
+    }
+
+    public SimpleCache(int cacheSize, long expireAfterWriteHours, Function<K, V> idFunction) {
+        this.cache = createCache(cacheSize, expireAfterWriteHours);
         this.idFunction = Objects.requireNonNull(idFunction, "idFunction");
     }
 
-    private ConcurrentMap<K, V> createCache(int maxCacheSize) {
+    private ConcurrentMap<K, V> createCache(int maxCacheSize, long expireAfterWriteHours) {
         final Caffeine<Object, Object> cacheBuilder = CaffeineBuilder.newBuilder();
         cacheBuilder.initialCapacity(maxCacheSize);
         cacheBuilder.maximumSize(maxCacheSize);
+        if (expireAfterWriteHours > 0) {
+            cacheBuilder.expireAfterWrite(expireAfterWriteHours, TimeUnit.HOURS);
+        }
         com.github.benmanes.caffeine.cache.Cache<K, V> localCache = cacheBuilder.build();
         return localCache.asMap();
     }

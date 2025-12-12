@@ -8,11 +8,13 @@ public interface JdbcOption {
 
     int getJdbcSqlCacheSize();
 
+    int getMaxSqlCacheLength();
+
+    long getSqlCacheExpireHours();
+
     boolean isTraceSqlBindValue();
 
     int getMaxSqlBindValueSize();
-
-    int getMaxSqlCacheLength();
 
     int getMaxSqlLength();
 
