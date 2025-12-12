@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.vo.scatter;
+package com.navercorp.pinpoint.web.scatter.vo;
 
 /**
  * @author Taejin Koo

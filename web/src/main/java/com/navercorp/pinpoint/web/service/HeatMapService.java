@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.web.vo.scatter.DotMetaData;
+import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
 
 import java.util.List;
 

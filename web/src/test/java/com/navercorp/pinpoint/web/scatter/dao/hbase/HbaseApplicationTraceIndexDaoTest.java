@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.dao.hbase;
+package com.navercorp.pinpoint.web.scatter.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTableNameProvider;
@@ -24,16 +24,16 @@ import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.config.ScatterChartProperties;
-import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.scatter.ScatterDataBuilder;
+import com.navercorp.pinpoint.web.scatter.dao.ApplicationTraceIndexDao;
+import com.navercorp.pinpoint.web.scatter.dao.mapper.TraceIndexScatterMapper;
+import com.navercorp.pinpoint.web.scatter.dao.mapper.TransactionIdMapper;
+import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.junit.jupiter.api.Assertions;
@@ -71,13 +71,15 @@ public class HbaseApplicationTraceIndexDaoTest {
     @AutoClose
     @SuppressWarnings("unused")
     private AutoCloseable openMocks;
-    
+
     @BeforeEach
     public void beforeEach() {
         openMocks = MockitoAnnotations.openMocks(this);
         ScatterChartProperties scatterChartProperties = new ScatterChartProperties();
         ApplicationNameRowKeyEncoder applicationNameRowKeyEncoder = new ApplicationNameRowKeyEncoder();
-        this.applicationTraceIndexDao = new HbaseApplicationTraceIndexDao(scatterChartProperties, hbaseOperations, applicationNameRowKeyEncoder, tableNameProvider, traceIdRowKeyDistributor);
+        TransactionIdMapper transactionIdMapper = new TransactionIdMapper();
+        TraceIndexScatterMapper traceIndexScatterMapper = new TraceIndexScatterMapper();
+        this.applicationTraceIndexDao = new HbaseApplicationTraceIndexDao(scatterChartProperties, hbaseOperations, applicationNameRowKeyEncoder, tableNameProvider, traceIdRowKeyDistributor, transactionIdMapper, traceIndexScatterMapper);
     }
 
     @Test

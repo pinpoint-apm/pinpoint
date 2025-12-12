@@ -57,7 +57,7 @@ public class TraceIndexFilterBuilder {
         if (!includeValueFilter) {
             return rowFilter;
         }
-        Filter valueFilter = createValueFilter();
+        Filter valueFilter = createValueFilter(success, agentId);
         if (valueFilter == null) {
             return rowFilter;
         }
@@ -74,40 +74,34 @@ public class TraceIndexFilterBuilder {
         return fuzzyRowFilter.build(prefixedApplicationNameBytes, allowedBytes);
     }
 
-    private Filter createValueFilter() {
+    private Filter createValueFilter(Boolean success, String agentId) {
         if (success == null && agentId == null) {
             return null;
         }
 
-        if (success != null && agentId == null) {
-            // only success is specified
-            byte[] valuePrefix = new byte[1];
+        if (success != null) {
+            // success is specified
+            byte[] valuePrefix = getAgentIdPrefix(agentId);
             if (!success) {
                 valuePrefix[0] = 1; // 1 for failure/error (hasError flag)
             }
             return new SingleColumnValueFilter(INDEX.getName(), INDEX.getName(), CompareOperator.EQUAL, new BinaryPrefixComparator(valuePrefix));
-        } else if (success == null) {
-            // only agentId is specified
-            byte[] successValuePrefix = getAgentIdPrefix(agentId);
-            byte[] failureValuePrefix = Arrays.copyOf(successValuePrefix, successValuePrefix.length);
-            failureValuePrefix[0] = 1;
-
-            return new FilterList(FilterList.Operator.MUST_PASS_ONE,
-                    new SingleColumnValueFilter(INDEX.getName(), INDEX.getName(), CompareOperator.EQUAL, new BinaryPrefixComparator(successValuePrefix)),
-                    new SingleColumnValueFilter(INDEX.getName(), INDEX.getName(), CompareOperator.EQUAL, new BinaryPrefixComparator(failureValuePrefix))
-            );
-        } else {
-            // both success and agentId are specified
-            byte[] valuePrefix = getAgentIdPrefix(agentId);
-            if (!success) {
-                valuePrefix[0] = 1;
-            }
-            return new SingleColumnValueFilter(INDEX.getName(), INDEX.getName(), CompareOperator.EQUAL, new BinaryPrefixComparator(valuePrefix));
         }
+        // only agentId is specified
+        byte[] successValuePrefix = getAgentIdPrefix(agentId);
+        byte[] failureValuePrefix = Arrays.copyOf(successValuePrefix, successValuePrefix.length);
+        failureValuePrefix[0] = 1;
+        return new FilterList(FilterList.Operator.MUST_PASS_ONE,
+                new SingleColumnValueFilter(INDEX.getName(), INDEX.getName(), CompareOperator.EQUAL, new BinaryPrefixComparator(successValuePrefix)),
+                new SingleColumnValueFilter(INDEX.getName(), INDEX.getName(), CompareOperator.EQUAL, new BinaryPrefixComparator(failureValuePrefix))
+        );
     }
 
     private byte[] getAgentIdPrefix(String agentId) {
-        Buffer buffer = new AutomaticBuffer(1 + agentId.length() + 1);
+        if (agentId == null) {
+            return new byte[1];
+        }
+        Buffer buffer = new AutomaticBuffer(1 + 1 + agentId.length());
         buffer.putByte((byte) 0);
         buffer.putPrefixedString(agentId);
         return buffer.getBuffer();

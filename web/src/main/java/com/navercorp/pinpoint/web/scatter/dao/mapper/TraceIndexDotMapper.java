@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.mapper;
+package com.navercorp.pinpoint.web.scatter.dao.mapper;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.RowTypeHint;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdV1;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.TraceIndexRowUtils;
-import com.navercorp.pinpoint.web.vo.scatter.Dot;
+import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
@@ -48,10 +48,9 @@ public class TraceIndexDotMapper implements RowMapper<List<Dot>>, RowTypeHint {
             return Collections.emptyList();
         }
 
-        Cell[] rawCells = result.rawCells();
-        List<Dot> list = new ArrayList<>(rawCells.length);
+        List<Dot> list = new ArrayList<>(1);
         long acceptedTime = TraceIndexRowUtils.extractAcceptTime(result.getRow(), 0);
-        for (Cell cell : rawCells) {
+        for (Cell cell : result.rawCells()) {
             if (CellUtil.matchingFamily(cell, index.getName())) {
                 Dot dot = createDot(acceptedTime, cell);
                 list.add(dot);
@@ -61,12 +60,11 @@ public class TraceIndexDotMapper implements RowMapper<List<Dot>>, RowTypeHint {
     }
 
     private Dot createDot(long acceptedTime, Cell cell) {
-        final Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
-        valueBuffer.readByte(); // hasError byte
-        String agentId = valueBuffer.readPrefixedString();
-        int elapsed = valueBuffer.readVInt();
-        int exceptionCode = valueBuffer.readSVInt();
-
+        final Buffer buffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+        buffer.readByte(); // hasError byte
+        String agentId = buffer.readPrefixedString();
+        int elapsed = buffer.readVInt();
+        int exceptionCode = buffer.readSVInt();
         return new Dot(TransactionIdV1.EMPTY_ID, acceptedTime, elapsed, exceptionCode, agentId);
     }
 

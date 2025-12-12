@@ -20,7 +20,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
+import com.navercorp.pinpoint.web.scatter.vo.ApplicationScatterScanResult;
 
 import java.io.IOException;
 

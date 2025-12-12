@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.vo.scatter;
+package com.navercorp.pinpoint.web.scatter.vo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

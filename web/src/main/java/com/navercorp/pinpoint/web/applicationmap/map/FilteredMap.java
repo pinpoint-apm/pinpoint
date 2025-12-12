@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.service.DotExtractor;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
-import com.navercorp.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
+import com.navercorp.pinpoint.web.scatter.vo.ApplicationScatterScanResult;
 
 import java.util.List;
 import java.util.Map;
