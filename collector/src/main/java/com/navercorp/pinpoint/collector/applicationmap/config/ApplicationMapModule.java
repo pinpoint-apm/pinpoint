@@ -90,9 +90,9 @@ public class ApplicationMapModule {
     private HostApplicationMapDao deleageHostApplicationMapDao(HostApplicationMapDao[] hostApplicationMapDaos) {
         Objects.requireNonNull(hostApplicationMapDaos, "hostApplicationMapDaos");
         if (hostApplicationMapDaos.length == 1) {
-            return new HostApplicationMapDaoDelegate(hostApplicationMapDaos);
-        } else {
             return hostApplicationMapDaos[0];
+        } else {
+            return new HostApplicationMapDaoDelegate(hostApplicationMapDaos);
         }
     }
 
