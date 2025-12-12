@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.applicationmap.config;
 
 import com.navercorp.pinpoint.collector.applicationmap.dao.HostApplicationMapDao;
+import com.navercorp.pinpoint.collector.applicationmap.dao.HostApplicationMapDaoDelegate;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapAgentResponseTimeDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapOutLinkDao;
@@ -38,6 +39,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.Objects;
+
 @Configuration
 @Import(value = {
         BulkConfiguration.class,
@@ -56,7 +59,7 @@ public class ApplicationMapModule {
         logger.info("Install {}", ApplicationMapModule.class.getName());
     }
 
-    @Bean()
+    @Bean
     @Validated
     @ConditionalOnProperty(name = ObjectNameVersion.KEY, havingValue = "dual")
     public LinkService statisticsServiceDualWrite(MapInLinkDao[] inLinkDaos,
@@ -77,9 +80,21 @@ public class ApplicationMapModule {
     }
 
     @Bean
-    public ApplicationMapService applicationMapService(HostApplicationMapDao hostApplicationMapDao,
+    public ApplicationMapService applicationMapService(HostApplicationMapDao[] hostApplicationMapDaos,
                                                        LinkService linkService,
                                                        ServiceTypeRegistryService registry) {
+        HostApplicationMapDao hostApplicationMapDao = deleageHostApplicationMapDao(hostApplicationMapDaos);
         return new HbaseApplicationMapService(hostApplicationMapDao, linkService, registry);
     }
+
+    private HostApplicationMapDao deleageHostApplicationMapDao(HostApplicationMapDao[] hostApplicationMapDaos) {
+        Objects.requireNonNull(hostApplicationMapDaos, "hostApplicationMapDaos");
+        if (hostApplicationMapDaos.length == 1) {
+            return new HostApplicationMapDaoDelegate(hostApplicationMapDaos);
+        } else {
+            return hostApplicationMapDaos[0];
+        }
+    }
+
+
 }
