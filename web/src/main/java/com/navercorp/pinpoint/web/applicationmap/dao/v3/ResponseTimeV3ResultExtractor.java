@@ -19,13 +19,11 @@ package com.navercorp.pinpoint.web.applicationmap.dao.v3;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidAgentIdLinkRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.SlotCode;
-import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.apache.hadoop.hbase.Cell;
@@ -54,13 +52,13 @@ public class ResponseTimeV3ResultExtractor implements ResultsExtractor<List<Resp
     private final HbaseColumnFamily table;
     private final ServiceTypeRegistryService registry;
 
-    private final RowKeyDecoder<UidLinkRowKey> rowKeyDecoder;
+    private final RowKeyDecoder<UidAgentIdLinkRowKey> rowKeyDecoder;
 
     private final TimeWindowFunction timeWindowFunction;
 
     public ResponseTimeV3ResultExtractor(HbaseColumnFamily table,
                                          ServiceTypeRegistryService registry,
-                                         RowKeyDecoder<UidLinkRowKey> rowKeyDecoder,
+                                         RowKeyDecoder<UidAgentIdLinkRowKey> rowKeyDecoder,
                                          TimeWindowFunction timeWindowFunction) {
         this.table = Objects.requireNonNull(table, "table");
         this.registry = Objects.requireNonNull(registry, "registry");
@@ -91,12 +89,12 @@ public class ResponseTimeV3ResultExtractor implements ResultsExtractor<List<Resp
             return;
         }
 
-        RowKey uidRowKey = rowKeyDecoder.decodeRowKey(result.getRow());
+        UidAgentIdLinkRowKey uidRowKey = rowKeyDecoder.decodeRowKey(result.getRow());
 
         ResponseTime.Builder responseTimeBuilder = createResponseTimeBuilder(map, uidRowKey);
         for (Cell cell : result.rawCells()) {
             if (CellUtil.matchingFamily(cell, table.getName())) {
-                recordColumn(responseTimeBuilder, cell);
+                recordColumn(responseTimeBuilder, cell, uidRowKey);
             }
 
             if (logger.isTraceEnabled()) {
@@ -107,21 +105,20 @@ public class ResponseTimeV3ResultExtractor implements ResultsExtractor<List<Resp
 
     }
 
-    void recordColumn(ResponseTime.Builder responseTimeBuilder, Cell cell) {
+    void recordColumn(ResponseTime.Builder responseTimeBuilder, Cell cell, UidAgentIdLinkRowKey rowKey) {
 
         final byte[] qArray = cell.getQualifierArray();
         final int qOffset = cell.getQualifierOffset();
         SlotCode slotCode = SlotCode.valueOf(qArray[qOffset]);
-        int offset = BytesUtils.BYTE_LENGTH;
 
         // agentId should be added as data.
-        String agentId = Bytes.toString(qArray, qOffset + offset, cell.getQualifierLength() - offset);
         long count = CellUtils.valueToLong(cell);
+
+        String agentId = rowKey.getAgentId();
         responseTimeBuilder.addResponseTimeByCode(agentId, slotCode, count);
     }
 
-    private ResponseTime.Builder createResponseTimeBuilder(Map<Key, ResponseTime.Builder> map, RowKey rawRowKey) {
-        UidLinkRowKey rowKey = (UidLinkRowKey) rawRowKey;
+    private ResponseTime.Builder createResponseTimeBuilder(Map<Key, ResponseTime.Builder> map, UidAgentIdLinkRowKey rowKey) {
         final long timestamp = timeWindowFunction.refineTimestamp(rowKey.getTimestamp());
         final ServiceType serviceType = registry.findServiceType(rowKey.getServiceType());
 

@@ -81,7 +81,7 @@ public class HbaseMapResponseTimeDao implements MapAgentResponseTimeDao {
 
         // make row key. rowkey is me
         final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
-        final RowKey selfRowKey = selfAgentNodeFactory.rowkey(selfVertex, rowTimeSlot);
+        final RowKey selfRowKey = selfAgentNodeFactory.rowkey(selfVertex, rowTimeSlot, agentId);
 
         final HistogramSlot slot = MapSlotUtils.getHistogramSlot(selfVertex.serviceType(), elapsed, isError);
         final ColumnName selfColumnName = selfAgentNodeFactory.histogram(agentId, slot);
@@ -112,7 +112,7 @@ public class HbaseMapResponseTimeDao implements MapAgentResponseTimeDao {
         final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
 
         Vertex selfVertex = Vertex.of(applicationName, applicationServiceType);
-        final RowKey selfRowKey = selfAgentNodeFactory.rowkey(selfVertex, rowTimeSlot);
+        final RowKey selfRowKey = selfAgentNodeFactory.rowkey(selfVertex, rowTimeSlot, agentId);
 
         final HistogramSlot pingSlot = MapSlotUtils.getPingSlot(applicationServiceType);
 //        final ColumnName selfColumnName = ResponseColumnName.histogram(agentId, slotNumber);

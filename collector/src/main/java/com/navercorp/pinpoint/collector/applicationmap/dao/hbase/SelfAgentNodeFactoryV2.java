@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 public class SelfAgentNodeFactoryV2 implements SelfAgentNodeFactory {
 
     @Override
-    public RowKey rowkey(Vertex selfVertex, long rowTimeSlot) {
+    public RowKey rowkey(Vertex selfVertex, long rowTimeSlot, String agentId) {
         return LinkRowKey.of(selfVertex, rowTimeSlot);
     };
 
