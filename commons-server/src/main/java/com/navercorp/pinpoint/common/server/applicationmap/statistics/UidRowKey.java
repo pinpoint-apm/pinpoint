@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
+package com.navercorp.pinpoint.common.server.applicationmap.statistics;
 
-import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
-import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
-import com.navercorp.pinpoint.web.vo.Application;
+public interface UidRowKey extends TimestampRowKey {
+    int getServiceUid() ;
 
-@FunctionalInterface
-public interface ResultExtractorFactory<R> {
+    String getApplicationName();
 
-    ResultsExtractor<R> newMapper(TimeWindowFunction timeWindow, Application application);
+    int getServiceType();
+
+    long getTimestamp();
 }

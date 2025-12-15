@@ -16,18 +16,21 @@
 
 package com.navercorp.pinpoint.web.applicationmap.dao.v3;
 
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidAgentIdLinkRowKey;
-import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidRowKey;
+import com.navercorp.pinpoint.web.vo.Application;
 
-public class UidAgentIdLinkRowKeyDecoder implements RowKeyDecoder<UidAgentIdLinkRowKey> {
-    private final int saltKeySize;
+import java.util.Objects;
+import java.util.function.Predicate;
 
-    public UidAgentIdLinkRowKeyDecoder(int saltKeySize) {
-        this.saltKeySize = saltKeySize;
+public class RowFilter<T extends UidRowKey> implements Predicate<T> {
+
+    private final Application application;
+
+    public RowFilter(Application application) {
+        this.application = Objects.requireNonNull(application, "application");
     }
 
-    @Override
-    public UidAgentIdLinkRowKey decodeRowKey(byte[] rowKey) {
-        return UidAgentIdLinkRowKey.read(saltKeySize, rowKey);
+    public boolean test(UidRowKey row) {
+        return application.equals(row.getApplicationName(), row.getServiceType());
     }
 }

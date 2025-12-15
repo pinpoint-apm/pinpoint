@@ -278,16 +278,16 @@ public class HbaseApplicationMapService implements ApplicationMapService {
                 continue;
             }
 
-            Vertex spanEventVertex = Vertex.of(spanEventApplicationName, spanEventType);
+            Vertex outVertex = Vertex.of(spanEventApplicationName, spanEventType);
             /*
              * save information to draw a server map based on statistics
              */
             // save the information of outLink (the spanevent that called span)
             linkService.updateOutLink(requestTime, selfVertex, MERGE_AGENT,
-                    spanEventVertex, spanEventEndPoint, elapsed, hasException);
+                    outVertex, spanEventEndPoint, elapsed, hasException);
 
             // save the information of inLink (the span that spanevent called)
-            linkService.updateInLink(requestTime, spanEventVertex,
+            linkService.updateInLink(requestTime, outVertex,
                     selfVertex, endPoint, elapsed, hasException);
         }
     }

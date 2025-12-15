@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidAppRowKey;
 import com.navercorp.pinpoint.web.applicationmap.map.AcceptApplication;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -70,8 +70,8 @@ public class HostApplicationMapperV3 implements ResultsExtractor<Set<AcceptAppli
         }
         if (logger.isDebugEnabled()) {
             byte[] row = result.getRow();
-            UidLinkRowKey uidLinkRowKey = UidLinkRowKey.read(rowKeyDistributor.getSaltKeySize(), row);
-            logger.debug("mapRow rowKey:{}", uidLinkRowKey);
+            UidAppRowKey uidAppRowKey = UidAppRowKey.read(rowKeyDistributor.getSaltKeySize(), row);
+            logger.debug("mapRow rowKey:{}", uidAppRowKey);
         }
         for (Cell cell : result.rawCells()) {
             AcceptApplication acceptedApplication = createAcceptedApplication(cell);

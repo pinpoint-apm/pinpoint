@@ -16,19 +16,21 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 
-import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
-import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public interface InLinkFactory {
 
-    RowKey rowkey(Vertex vertex, long rowTimeSlot);
+    InLink newLink(String inApplicationName, ServiceType inServiceType, String selfApplicationName, ServiceType selfServiceType, String selfSubLink);
 
-    ColumnName histogram(Vertex outVertex, String outHost, HistogramSlot columnSlotNumber);
+    interface InLink {
+        RowKey rowkey(long requestTime);
 
-    ColumnName sum(Vertex outVertex, String outHost, ServiceType inServiceType);
+        ColumnName histogram(int elapsed, boolean isError);
 
-    ColumnName max(Vertex outVertex, String outHost, ServiceType inServiceType);
+        ColumnName sum();
+
+        ColumnName max();
+    }
 }

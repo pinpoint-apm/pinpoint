@@ -83,7 +83,7 @@ public class LinkRowKey implements TimestampRowKey {
                                                   + applicationNameBytes.length
                                                   + BytesUtils.SHORT_BYTE_LENGTH
                                                   + BytesUtils.LONG_BYTE_LENGTH);
-        buffer.setOffset(saltKeySize);
+        buffer.skip(saltKeySize);
         buffer.put2PrefixedBytes(applicationNameBytes);
         buffer.putShort(applicationType);
         long reverseTimeMillis = LongInverter.invert(timestamp);

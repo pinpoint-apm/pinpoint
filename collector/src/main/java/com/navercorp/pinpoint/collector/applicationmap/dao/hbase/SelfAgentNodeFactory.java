@@ -16,19 +16,24 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 
-import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
-import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public interface SelfAgentNodeFactory {
-    RowKey rowkey(Vertex vertex, long rowTimeSlot, String agentId);
 
-    ColumnName histogram(String agentId, HistogramSlot slot);
+    Node newNode(String applicationName, ServiceType serviceType, String agentId) ;
 
-    ColumnName sum(String agentId, ServiceType serviceType);
+    interface Node {
+        RowKey rowkey (long requestTime);
 
-    ColumnName max(String agentId, ServiceType serviceType);
+        ColumnName histogram(int elapsed, boolean isError);
+
+        ColumnName sum ();
+
+        ColumnName max ();
+
+        ColumnName ping ();
+    }
 
 }

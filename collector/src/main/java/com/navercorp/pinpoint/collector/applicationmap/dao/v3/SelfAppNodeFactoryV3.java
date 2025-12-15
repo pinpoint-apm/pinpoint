@@ -16,32 +16,69 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.dao.v3;
 
-import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidAppRowKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.v3.ColumnNameV3;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
+import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
+import java.util.Objects;
+
 public class SelfAppNodeFactoryV3 implements SelfAppNodeFactory {
-    @Override
-    public RowKey rowkey(Vertex selfVertex, long rowTimeSlot) {
-        return UidLinkRowKey.of(selfVertex, rowTimeSlot);
+
+    public static final ServiceUid DEFAULT = ServiceUid.DEFAULT;
+
+    private final TimeSlot timeSlot;
+
+    public SelfAppNodeFactoryV3(TimeSlot timeSlot) {
+        this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
     }
 
     @Override
-    public ColumnName histogram(HistogramSlot slot) {
-        return ApplicationResponseColumnName.histogram(slot.getSlotCode());
+    public SelfAppNodeFactory.Node newNode(String applicationName, ServiceType serviceType) {
+        return new SelfAppNode(applicationName, serviceType);
     }
 
-    public ColumnName sum(ServiceType selfServiceType) {
-        HistogramSlot slot = selfServiceType.getHistogramSchema().getSumStatSlot();
-        return histogram(slot);
-    }
+    public class SelfAppNode implements Node {
 
-    public ColumnName max(ServiceType selfServiceType) {
-        HistogramSlot slot = selfServiceType.getHistogramSchema().getMaxStatSlot();
-        return histogram(slot);
-    }
+        private final String applicationName;
+        private final ServiceType serviceType;
 
+        public SelfAppNode(String applicationName, ServiceType serviceType) {
+            this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+            this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
+        }
+
+        @Override
+        public RowKey rowkey(long requestTime) {
+            final long timestamp = timeSlot.getTimeSlot(requestTime);
+            return UidAppRowKey.of(DEFAULT.getUid(), applicationName, serviceType, timestamp);
+        }
+
+        @Override
+        public ColumnName histogram(int elapsed, boolean isError) {
+            HistogramSlot slot = getHistogramSchema().findHistogramSlot(elapsed, isError);
+            return ColumnNameV3.histogram(slot.getSlotCode());
+        }
+
+        @Override
+        public ColumnName sum() {
+            HistogramSlot slot = getHistogramSchema().getSumStatSlot();
+            return ColumnNameV3.histogram(slot.getSlotCode());
+        }
+
+        @Override
+        public ColumnName max() {
+            HistogramSlot slot = getHistogramSchema().getMaxStatSlot();
+            return ColumnNameV3.histogram(slot.getSlotCode());
+        }
+
+        private HistogramSchema getHistogramSchema() {
+            return serviceType.getHistogramSchema();
+        }
+    }
 }

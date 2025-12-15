@@ -52,16 +52,16 @@ public interface LinkService {
      * emeroad-app (TOMCAT) -> MySQL (MYSQL)[10.25.141.69:3306]
      *
      * @param inVertex  inVertex
-     * @param outVertex outVertex
-     * @param outHost   outHost
+     * @param selfVertex selfVertex
+     * @param selfHost   selfHost
      * @param elapsed   elapsed
      * @param isError   isError
      */
     void updateInLink(
             long requestTime,
             Vertex inVertex,
-            Vertex outVertex,
-            String outHost,
+            Vertex selfVertex,
+            String selfHost,
             int elapsed, boolean isError
     );
 

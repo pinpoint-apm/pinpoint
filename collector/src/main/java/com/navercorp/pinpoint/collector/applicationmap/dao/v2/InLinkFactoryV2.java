@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.dao.v3;
+package com.navercorp.pinpoint.collector.applicationmap.dao.v2;
 
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.InLinkFactory;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.v3.ColumnNameV3;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.v2.InLinkV2ColumnName;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
@@ -29,23 +28,20 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.Objects;
 
-public class InLinkFactoryV3 implements InLinkFactory {
-    public static final ServiceUid DEFAULT = ServiceUid.DEFAULT;
+public class InLinkFactoryV2 implements InLinkFactory {
 
     private final TimeSlot timeSlot;
 
-    public InLinkFactoryV3(TimeSlot timeSlot) {
+    public InLinkFactoryV2(TimeSlot timeSlot) {
         this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
     }
 
     @Override
     public InLink newLink(String inApplicationName, ServiceType inServiceType, String selfApplicationName, ServiceType selfServiceType, String selfSubLink) {
-
-        return new InLinkV3(inApplicationName, inServiceType, selfApplicationName, selfServiceType, selfSubLink);
+        return new InLinkV2(inApplicationName, inServiceType, selfApplicationName, selfServiceType, selfSubLink);
     }
 
-    public class InLinkV3 implements InLink {
-
+    public class InLinkV2 implements InLink {
         private final String inApplicationName;
         private final ServiceType inServiceType;
 
@@ -53,7 +49,7 @@ public class InLinkFactoryV3 implements InLinkFactory {
         private final ServiceType selfServiceType;
         private final String selfSubLink;
 
-        public InLinkV3(String inApplicationName, ServiceType inServiceType, String selfApplicationName, ServiceType selfServiceType, String selfSubLink) {
+        public InLinkV2(String inApplicationName, ServiceType inServiceType, String selfApplicationName, ServiceType selfServiceType, String selfSubLink) {
             this.inApplicationName = Objects.requireNonNull(inApplicationName, "inApplicationName");
             this.inServiceType = Objects.requireNonNull(inServiceType, "inServiceType");
 
@@ -64,29 +60,29 @@ public class InLinkFactoryV3 implements InLinkFactory {
 
         @Override
         public RowKey rowkey(long requestTime) {
-            final long timestamp = timeSlot.getTimeSlot(requestTime);
-            return UidLinkRowKey.of(DEFAULT.getUid(), inApplicationName, inServiceType, timestamp, selfApplicationName, selfServiceType.getCode(), selfSubLink);
+            long timestamp = timeSlot.getTimeSlot(requestTime);
+            return LinkRowKey.of(inApplicationName, inServiceType, timestamp);
         }
 
         @Override
         public ColumnName histogram(int elapsed, boolean isError) {
-            HistogramSlot slot = inSchema().findHistogramSlot(elapsed, isError);
-            return ColumnNameV3.histogram(slot.getSlotCode());
+            HistogramSlot slot = inHistogramSchema().findHistogramSlot(elapsed, isError);
+            return InLinkV2ColumnName.histogram(selfApplicationName, selfServiceType, selfSubLink, slot.getSlotTime());
         }
 
         @Override
         public ColumnName sum() {
-            HistogramSlot slot = inSchema().getSumStatSlot();
-            return ColumnNameV3.histogram(slot.getSlotCode());
+            final short slotTime = inHistogramSchema().getSumStatSlot().getSlotTime();
+            return InLinkV2ColumnName.histogram(selfApplicationName, selfServiceType, selfSubLink, slotTime);
         }
 
         @Override
         public ColumnName max() {
-            HistogramSlot slot = inSchema().getMaxStatSlot();
-            return ColumnNameV3.histogram(slot.getSlotCode());
+            final short slotTime = inHistogramSchema().getMaxStatSlot().getSlotTime();
+            return InLinkV2ColumnName.histogram(selfApplicationName, selfServiceType, selfSubLink, slotTime);
         }
 
-        private HistogramSchema inSchema() {
+        private HistogramSchema inHistogramSchema() {
             return inServiceType.getHistogramSchema();
         }
     }

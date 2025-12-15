@@ -390,6 +390,14 @@ public final class BytesUtils {
         return BytesUtils.computeVar32Size(length) + length;
     }
 
+    public static int computeVar32ByteArraySize(byte[] bytes) {
+        if (bytes == null) {
+            throw new NullPointerException("bytes");
+        }
+        final int length = bytes.length;
+        return BytesUtils.computeVar32Size(length) + length;
+    }
+
     public static void checkBounds(byte[] bytes, final int offset) {
         final int length = bytes.length;
         checkFromIndexSize(offset, length - offset, length);

@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
+package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 
-import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
-import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.collector.applicationmap.dao.MapApplicationResponseDao;
+import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 
-@FunctionalInterface
-public interface ResultExtractorFactory<R> {
+public class EmptyMapApplicationResponseDao implements MapApplicationResponseDao {
 
-    ResultsExtractor<R> newMapper(TimeWindowFunction timeWindow, Application application);
+    public void received(long requestTime, Vertex selfVertex, int elapsed, boolean isError) {
+
+    }
+
 }

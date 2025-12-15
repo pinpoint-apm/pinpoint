@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
+package com.navercorp.pinpoint.collector.applicationmap.dao;
 
-import com.navercorp.pinpoint.collector.applicationmap.dao.MapResponseTimeDao;
+import com.navercorp.pinpoint.collector.dao.CachedStatisticsDao;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
-public class EmptyMapResponseTimeDao implements MapResponseTimeDao {
+/**
+ * @author emeroad
+ * @author jaehong.kim
+ */
+public interface MapAgentResponseDao extends CachedStatisticsDao {
+    void received(long requestTime, Vertex selfVertex, String agentId, int elapsed, boolean isError);
 
-    public void received(long requestTime, Vertex selfVertex, int elapsed, boolean isError) {
-
-    }
-
+    void updatePing(long requestTime, String applicationName, ServiceType serviceType, String agentId, int elapsed, boolean isError);
 }

@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.collector.applicationmap.config;
 
 import com.navercorp.pinpoint.collector.applicationmap.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.HostApplicationMapDaoDelegate;
-import com.navercorp.pinpoint.collector.applicationmap.dao.MapAgentResponseTimeDao;
+import com.navercorp.pinpoint.collector.applicationmap.dao.MapAgentResponseDao;
+import com.navercorp.pinpoint.collector.applicationmap.dao.MapApplicationResponseDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapOutLinkDao;
-import com.navercorp.pinpoint.collector.applicationmap.dao.MapResponseTimeDao;
 import com.navercorp.pinpoint.collector.applicationmap.service.ApplicationMapService;
 import com.navercorp.pinpoint.collector.applicationmap.service.HbaseApplicationMapService;
 import com.navercorp.pinpoint.collector.applicationmap.service.LinkService;
@@ -64,8 +64,8 @@ public class ApplicationMapModule {
     @ConditionalOnProperty(name = ObjectNameVersion.KEY, havingValue = "dual")
     public LinkService statisticsServiceDualWrite(MapInLinkDao[] inLinkDaos,
                                                   MapOutLinkDao[] outLinkDaos,
-                                                  MapAgentResponseTimeDao[] responseAgentTimeDaos,
-                                                  MapResponseTimeDao[] responseTimeDaos) {
+                                                  MapAgentResponseDao[] responseAgentTimeDaos,
+                                                  MapApplicationResponseDao[] responseTimeDaos) {
         return new LinkServiceDualWriteImpl(inLinkDaos, outLinkDaos, responseAgentTimeDaos, responseTimeDaos);
     }
 
@@ -74,8 +74,8 @@ public class ApplicationMapModule {
     @ConditionalOnMissingBean(LinkService.class)
     public LinkService statisticsService(MapInLinkDao inLinkDao,
                                          MapOutLinkDao outLinkDao,
-                                         MapAgentResponseTimeDao responseAgentTimeDao,
-                                         MapResponseTimeDao responseTimeDao) {
+                                         MapAgentResponseDao responseAgentTimeDao,
+                                         MapApplicationResponseDao responseTimeDao) {
         return new LinkServiceImpl(inLinkDao, outLinkDao, responseAgentTimeDao, responseTimeDao);
     }
 

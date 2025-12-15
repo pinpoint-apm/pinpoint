@@ -93,35 +93,35 @@ public class MapV2DaoConfiguration {
     @Bean
     public RowMapperFactory<LinkDataMap> mapOutLinkMapper(ApplicationFactory applicationFactory,
                                                           RowKeyDecoder<LinkRowKey> rowKeyDecoder) {
-        return (windowFunction) -> new OutLinkMapper(applicationFactory, rowKeyDecoder, LinkFilter::skip, windowFunction);
+        return (windowFunction, rowFilter) -> new OutLinkMapper(applicationFactory, rowKeyDecoder, LinkFilter::skip, windowFunction);
     }
 
     @Bean
     public RowMapperFactory<LinkDataMap> mapInLinkMapper(ServiceTypeRegistryService registry,
                                                          ApplicationFactory applicationFactory,
                                                          RowKeyDecoder<LinkRowKey> rowKeyDecoder) {
-        return (windowFunction) -> new InLinkMapper(registry, applicationFactory, rowKeyDecoder, LinkFilter::skip, windowFunction);
+        return (windowFunction, rowFilter) -> new InLinkMapper(registry, applicationFactory, rowKeyDecoder, LinkFilter::skip, windowFunction);
     }
 
     @Bean
     public RowMapperFactory<ResponseTime> responseTimeMapper(ServiceTypeRegistryService registry,
                                                              RowKeyDecoder<LinkRowKey> rowKeyDecoder) {
         HbaseColumnFamily table = HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER;
-        return (windowFunction) -> new ResponseTimeMapper(table, registry, rowKeyDecoder, windowFunction);
+        return (windowFunction, rowFilter) -> new ResponseTimeMapper(table, registry, rowKeyDecoder, windowFunction);
     }
 
     @Bean
     public ResultExtractorFactory<List<ResponseTime>> responseTimeResultExtractor(ServiceTypeRegistryService registry,
                                                                                   RowKeyDecoder<LinkRowKey> rowKeyDecoder) {
         HbaseColumnFamily table = HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER;
-        return (windowFunction) -> new ResponseTimeResultExtractor(table, registry, rowKeyDecoder, windowFunction);
+        return (windowFunction, rowFilter) -> new ResponseTimeResultExtractor(table, registry, rowKeyDecoder, windowFunction);
     }
 
     @Bean
     public ResultExtractorFactory<ApplicationResponse> applicationResponseTimeResultExtractor(ServiceTypeRegistryService registry,
                                                                                               RowKeyDecoder<LinkRowKey> rowKeyDecoder) {
         HbaseColumnFamily table = HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER;
-        return (windowFunction) -> new ApplicationResponseTimeResultExtractor(table, registry, rowKeyDecoder, windowFunction);
+        return (windowFunction, rowFilter) -> new ApplicationResponseTimeResultExtractor(table, registry, rowKeyDecoder, windowFunction);
     }
 
     @Bean

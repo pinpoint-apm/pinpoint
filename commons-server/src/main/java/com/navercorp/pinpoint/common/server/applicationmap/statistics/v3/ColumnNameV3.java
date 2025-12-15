@@ -14,24 +14,30 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.dao.v3;
+package com.navercorp.pinpoint.common.server.applicationmap.statistics.v3;
 
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.trace.SlotCode;
+import org.apache.hadoop.hbase.Cell;
+
 
 /**
  * @author emeroad
  */
-public class ResponseV3ColumnName implements ColumnName {
+public class ColumnNameV3 implements ColumnName {
 
     private final byte slotCode;
 
     public static ColumnName histogram(SlotCode slotCode) {
-        return new ResponseV3ColumnName(slotCode.code());
+        return new ColumnNameV3(slotCode.code());
     }
 
-    public ResponseV3ColumnName(byte slotCode) {
+    public ColumnNameV3(byte slotCode) {
         this.slotCode = slotCode;
+    }
+
+    public byte getSlotCode() {
+        return slotCode;
     }
 
     public byte[] getColumnName() {
@@ -42,11 +48,17 @@ public class ResponseV3ColumnName implements ColumnName {
         return new byte[] { slotCode };
     }
 
+    public static ColumnNameV3 makeColumnName(Cell cell) {
+        byte[] qualifierArray = cell.getQualifierArray();
+        byte slotCode = qualifierArray[cell.getQualifierOffset()];
+        return new ColumnNameV3(slotCode);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
 
-        ResponseV3ColumnName that = (ResponseV3ColumnName) o;
+        ColumnNameV3 that = (ColumnNameV3) o;
         return slotCode == that.slotCode;
     }
 
@@ -57,7 +69,7 @@ public class ResponseV3ColumnName implements ColumnName {
 
     @Override
     public String toString() {
-        return "ResponseV3ColumnName{" +
+        return "ColumnNameV3{" +
                "slotCode=" + slotCode +
                '}';
     }

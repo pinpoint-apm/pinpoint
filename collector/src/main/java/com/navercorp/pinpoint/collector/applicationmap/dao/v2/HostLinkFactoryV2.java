@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
+package com.navercorp.pinpoint.collector.applicationmap.dao.v2;
 
+import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HostLinkFactory;
+import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HostRowKeyEncoder;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;

@@ -17,16 +17,13 @@
 package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 
 import com.navercorp.pinpoint.collector.applicationmap.config.MapLinkProperties;
-import com.navercorp.pinpoint.collector.applicationmap.dao.MapAgentResponseTimeDao;
+import com.navercorp.pinpoint.collector.applicationmap.dao.MapAgentResponseDao;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
-import com.navercorp.pinpoint.common.server.util.MapSlotUtils;
-import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
-import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.logging.log4j.LogManager;
@@ -44,30 +41,27 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseMapResponseTimeDao implements MapAgentResponseTimeDao {
+public class HbaseMapAgentResponseDao implements MapAgentResponseDao {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final HbaseColumnFamily table;
-    private final TimeSlot timeSlot;
 
     private final TableNameProvider tableNameProvider;
     private final BulkWriter bulkWriter;
     private final MapLinkProperties mapLinkProperties;
     private final SelfAgentNodeFactory selfAgentNodeFactory;
 
-    public HbaseMapResponseTimeDao(MapLinkProperties mapLinkProperties,
-                                   HbaseColumnFamily table,
-                                   TimeSlot timeSlot,
-                                   TableNameProvider tableNameProvider,
-                                   BulkWriter bulkWriter,
-                                   SelfAgentNodeFactory selfAgentNodeFactory) {
+    public HbaseMapAgentResponseDao(MapLinkProperties mapLinkProperties,
+                                    HbaseColumnFamily table,
+                                    TableNameProvider tableNameProvider,
+                                    BulkWriter bulkWriter,
+                                    SelfAgentNodeFactory selfAgentNodeFactory) {
         this.mapLinkProperties = Objects.requireNonNull(mapLinkProperties, "mapLinkConfiguration");
         this.table = Objects.requireNonNull(table, "table");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
-        this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
         this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWriter");
-        this.selfAgentNodeFactory = Objects.requireNonNull(selfAgentNodeFactory, "selfNodeFactory");
+        this.selfAgentNodeFactory = Objects.requireNonNull(selfAgentNodeFactory, "selfAgentNodeFactory");
     }
 
 
@@ -79,22 +73,21 @@ public class HbaseMapResponseTimeDao implements MapAgentResponseTimeDao {
             logger.debug("[Self] {}/[{}]", selfVertex, agentId);
         }
 
+        SelfAgentNodeFactory.Node node = selfAgentNodeFactory.newNode(selfVertex.applicationName(), selfVertex.serviceType(), agentId);
         // make row key. rowkey is me
-        final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
-        final RowKey selfRowKey = selfAgentNodeFactory.rowkey(selfVertex, rowTimeSlot, agentId);
+        final RowKey selfRowKey = node.rowkey(requestTime);
 
-        final HistogramSlot slot = MapSlotUtils.getHistogramSlot(selfVertex.serviceType(), elapsed, isError);
-        final ColumnName selfColumnName = selfAgentNodeFactory.histogram(agentId, slot);
+        final ColumnName selfColumnName = node.histogram(elapsed, isError);
         final TableName tableName = tableNameProvider.getTableName(table.getTable());
         this.bulkWriter.increment(tableName, selfRowKey, selfColumnName);
 
         if (mapLinkProperties.isEnableAvg()) {
-            final ColumnName sumColumnName = selfAgentNodeFactory.sum(agentId, selfVertex.serviceType());
+            final ColumnName sumColumnName = node.sum();
             this.bulkWriter.increment(tableName, selfRowKey, sumColumnName, elapsed);
         }
 
         if (mapLinkProperties.isEnableMax()) {
-            final ColumnName maxColumnName = selfAgentNodeFactory.max(agentId, selfVertex.serviceType());
+            final ColumnName maxColumnName = node.max();
             this.bulkWriter.updateMax(tableName, selfRowKey, maxColumnName, elapsed);
         }
     }
@@ -108,16 +101,11 @@ public class HbaseMapResponseTimeDao implements MapAgentResponseTimeDao {
             logger.debug("[Self] {} ({})[{}]", applicationName, applicationServiceType, agentId);
         }
 
+        SelfAgentNodeFactory.Node node = selfAgentNodeFactory.newNode(applicationName, applicationServiceType, agentId);
         // make row key. rowkey is me
-        final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
+        final RowKey selfRowKey = node.rowkey(requestTime);
 
-        Vertex selfVertex = Vertex.of(applicationName, applicationServiceType);
-        final RowKey selfRowKey = selfAgentNodeFactory.rowkey(selfVertex, rowTimeSlot, agentId);
-
-        final HistogramSlot pingSlot = MapSlotUtils.getPingSlot(applicationServiceType);
-//        final ColumnName selfColumnName = ResponseColumnName.histogram(agentId, slotNumber);
-
-        final ColumnName selfColumnName = selfAgentNodeFactory.histogram(agentId, pingSlot);
+        final ColumnName selfColumnName = node.ping();
         final TableName tableName = tableNameProvider.getTableName(table.getTable());
         this.bulkWriter.increment(tableName, selfRowKey, selfColumnName);
     }

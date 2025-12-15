@@ -24,9 +24,6 @@ import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
-import com.navercorp.pinpoint.common.server.util.MapSlotUtils;
-import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
-import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -47,7 +44,6 @@ public class HbaseMapOutLinkDao implements MapOutLinkDao {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final HbaseColumnFamily table;
-    private final TimeSlot timeSlot;
 
     private final TableNameProvider tableNameProvider;
     private final BulkWriter bulkWriter;
@@ -57,13 +53,11 @@ public class HbaseMapOutLinkDao implements MapOutLinkDao {
 
     public HbaseMapOutLinkDao(MapLinkProperties mapLinkProperties,
                               HbaseColumnFamily table,
-                              TimeSlot timeSlot,
                               TableNameProvider tableNameProvider,
                               BulkWriter bulkWriter,
                               OutLinkFactory outLinkFactory) {
         this.mapLinkProperties = Objects.requireNonNull(mapLinkProperties, "mapLinkConfiguration");
         this.table = Objects.requireNonNull(table, "table");
-        this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
 
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWrtier");
@@ -85,21 +79,21 @@ public class HbaseMapOutLinkDao implements MapOutLinkDao {
         outHost = Objects.toString(outHost, "");
 
         // make row key. rowkey is me
-        final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
-        final RowKey selfLinkRowKey = outLinkFactory.rowkey(selfVertex, rowTimeSlot);
+        OutLinkFactory.OutLink outLink = outLinkFactory.newOutLink(selfVertex.applicationName(), selfVertex.serviceType(), selfAgentId,
+                outVertex.applicationName(), outVertex.serviceType(), outHost);
 
-        final HistogramSlot outSlot = MapSlotUtils.getHistogramSlot(outVertex.serviceType(), elapsed, isError);
+        final RowKey selfLinkRowKey = outLink.rowkey(requestTime);
 
-        final ColumnName inLink = outLinkFactory.histogram(selfAgentId, outVertex, outHost, outSlot);
+        final ColumnName inLink = outLink.histogram(elapsed, isError);
         final TableName tableName = tableNameProvider.getTableName(table.getTable());
         this.bulkWriter.increment(tableName, selfLinkRowKey, inLink);
 
         if (mapLinkProperties.isEnableAvg()) {
-            final ColumnName sumInLink = outLinkFactory.sum(selfAgentId, outVertex, outHost, selfVertex.serviceType());
+            final ColumnName sumInLink = outLink.sum();
             this.bulkWriter.increment(tableName, selfLinkRowKey, sumInLink, elapsed);
         }
         if (mapLinkProperties.isEnableMax()) {
-            final ColumnName maxInLink = outLinkFactory.max(selfAgentId, outVertex, outHost, selfVertex.serviceType());
+            final ColumnName maxInLink = outLink.max();
             this.bulkWriter.updateMax(tableName, selfLinkRowKey, maxInLink, elapsed);
         }
 

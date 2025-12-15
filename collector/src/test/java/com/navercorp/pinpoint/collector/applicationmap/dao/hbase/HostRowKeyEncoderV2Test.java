@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.dao.hbase;
 
+import com.navercorp.pinpoint.collector.applicationmap.dao.v2.HostRowKeyEncoderV2;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;

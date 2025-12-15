@@ -16,19 +16,20 @@
 
 package com.navercorp.pinpoint.web.applicationmap.dao.v3;
 
+import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
+import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidAppRowKey;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
-import com.navercorp.pinpoint.web.applicationmap.dao.mapper.HostScanKeyFactory;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidPrefix;
+import com.navercorp.pinpoint.web.applicationmap.dao.hbase.MapScanKeyFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 
-public class HostScanKeyFactoryV3 implements HostScanKeyFactory {
+public class MapAppScanKeyFactoryV3 implements MapScanKeyFactory {
     private static final int saltKeySize = ByteSaltKey.NONE.size();
 
-    @Override
-    public byte[] scanKey(Application parentApplication, long timestamp) {
-        return UidAppRowKey.makeRowKey(saltKeySize, ServiceUid.DEFAULT_SERVICE_UID_CODE,
-                parentApplication.getName(), parentApplication.getServiceTypeCode(),
-                timestamp);
+    public byte[] scanKey(int serviceUid, Application application, long timestamp) {
+        final Buffer buffer = new AutomaticBuffer(64);
+        buffer.skip(saltKeySize);
+        UidPrefix.writePrefix(buffer, serviceUid, application.getName().getBytes(), application.getServiceTypeCode(), timestamp);
+        return buffer.getBuffer();
     }
 }
