@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.service;
 
-import com.navercorp.pinpoint.collector.applicationmap.dao.MapAgentResponseTimeDao;
+import com.navercorp.pinpoint.collector.applicationmap.dao.MapAgentResponseDao;
+import com.navercorp.pinpoint.collector.applicationmap.dao.MapApplicationResponseDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapOutLinkDao;
-import com.navercorp.pinpoint.collector.applicationmap.dao.MapResponseTimeDao;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
@@ -33,12 +33,12 @@ import java.util.Objects;
 public class LinkServiceDualWriteImpl implements LinkService {
     private final MapInLinkDao[] inLinkDao;
     private final MapOutLinkDao[] outLinkDao;
-    private final MapAgentResponseTimeDao[] responseTimeDao;
-    private final MapResponseTimeDao[] applicationResponseTimeDao;
+    private final MapAgentResponseDao[] responseTimeDao;
+    private final MapApplicationResponseDao[] applicationResponseTimeDao;
 
     public LinkServiceDualWriteImpl(MapInLinkDao[] inLinkDao, MapOutLinkDao[] outLinkDao,
-                                    MapAgentResponseTimeDao[] responseTimeDao,
-                                    MapResponseTimeDao[] applicationResponseTimeDao) {
+                                    MapAgentResponseDao[] responseTimeDao,
+                                    MapApplicationResponseDao[] applicationResponseTimeDao) {
         this.inLinkDao = Objects.requireNonNull(inLinkDao, "inLinkDao");
         this.outLinkDao = Objects.requireNonNull(outLinkDao, "outLinkDao");
         this.responseTimeDao = Objects.requireNonNull(responseTimeDao, "responseTimeDao");
@@ -80,10 +80,10 @@ public class LinkServiceDualWriteImpl implements LinkService {
             String agentId,
             int elapsed, boolean isError
     ) {
-        for (MapAgentResponseTimeDao dao : responseTimeDao) {
+        for (MapAgentResponseDao dao : responseTimeDao) {
             dao.received(requestTime, selfVertex, agentId, elapsed, isError);
         }
-        for (MapResponseTimeDao dao : applicationResponseTimeDao) {
+        for (MapApplicationResponseDao dao : applicationResponseTimeDao) {
             dao.received(requestTime, selfVertex, elapsed, isError);
         }
     }
@@ -95,7 +95,7 @@ public class LinkServiceDualWriteImpl implements LinkService {
             final ServiceType outServiceType,
             final String outAgentId
     ) {
-        for (MapAgentResponseTimeDao dao : responseTimeDao) {
+        for (MapAgentResponseDao dao : responseTimeDao) {
             dao.updatePing(requestTime, outApplicationName, outServiceType, outAgentId, 0, false);
         }
     }

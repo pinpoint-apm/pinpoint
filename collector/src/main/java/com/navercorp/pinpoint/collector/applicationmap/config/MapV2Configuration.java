@@ -17,25 +17,25 @@
 package com.navercorp.pinpoint.collector.applicationmap.config;
 
 import com.navercorp.pinpoint.collector.applicationmap.dao.HostApplicationMapDao;
-import com.navercorp.pinpoint.collector.applicationmap.dao.MapAgentResponseTimeDao;
+import com.navercorp.pinpoint.collector.applicationmap.dao.MapAgentResponseDao;
+import com.navercorp.pinpoint.collector.applicationmap.dao.MapApplicationResponseDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapOutLinkDao;
-import com.navercorp.pinpoint.collector.applicationmap.dao.MapResponseTimeDao;
-import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.EmptyMapResponseTimeDao;
+import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.EmptyMapApplicationResponseDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HbaseHostApplicationMapDao;
-import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HbaseMapAgentResponseTimeDao;
+import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HbaseMapAgentResponseDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HbaseMapInLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HbaseMapOutLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HostLinkFactory;
-import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HostLinkFactoryV2;
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HostRowKeyEncoder;
-import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.HostRowKeyEncoderV2;
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.InLinkFactory;
-import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.InLinkFactoryV2;
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.OutLinkFactory;
-import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.OutLinkFactoryV2;
 import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.SelfAgentNodeFactory;
-import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.SelfAgentNodeFactoryV2;
+import com.navercorp.pinpoint.collector.applicationmap.dao.v2.HostLinkFactoryV2;
+import com.navercorp.pinpoint.collector.applicationmap.dao.v2.HostRowKeyEncoderV2;
+import com.navercorp.pinpoint.collector.applicationmap.dao.v2.InLinkFactoryV2;
+import com.navercorp.pinpoint.collector.applicationmap.dao.v2.OutLinkFactoryV2;
+import com.navercorp.pinpoint.collector.applicationmap.dao.v2.SelfAgentNodeFactoryV2;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.BulkWriter;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.config.BulkFactory;
 import com.navercorp.pinpoint.collector.applicationmap.statistics.config.BulkProperties;
@@ -99,7 +99,7 @@ public class MapV2Configuration {
                                      RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
 
         int limitSize = bulkProperties.getSelfLimitSize();
-        String loggerName = newBulkWriterName(HbaseMapAgentResponseTimeDao.class.getName());
+        String loggerName = newBulkWriterName(HbaseMapAgentResponseDao.class.getName());
 
         BulkFactory.Builder builder = factory.newBuilder(loggerName, HbaseTables.MAP_V2_COLUMN_FAMILY_NAME, rowKeyDistributorByHashPrefix);
         builder.setIncrementer("selfIncrementReporter", limitSize);
@@ -117,9 +117,9 @@ public class MapV2Configuration {
                                      TimeSlot timeSlot,
                                      TableNameProvider tableNameProvider,
                                      @Qualifier("inLinkBulkWriter") BulkWriter bulkWriter) {
-        InLinkFactory inLinkFactory = new InLinkFactoryV2();
+        InLinkFactory inLinkFactory = new InLinkFactoryV2(timeSlot);
         HbaseColumnFamily table = HbaseTables.MAP_STATISTICS_CALLER_VER2_COUNTER;
-        return new HbaseMapInLinkDao(mapLinkProperties, table, ignoreStatFilter, timeSlot, tableNameProvider, bulkWriter, inLinkFactory);
+        return new HbaseMapInLinkDao(mapLinkProperties, table, ignoreStatFilter, tableNameProvider, bulkWriter, inLinkFactory);
     }
 
     @Bean
@@ -127,24 +127,24 @@ public class MapV2Configuration {
                                        TimeSlot timeSlot,
                                        TableNameProvider tableNameProvider,
                                        @Qualifier("outLinkBulkWriter") BulkWriter bulkWriter) {
-        OutLinkFactory outLinkFactory = new OutLinkFactoryV2();
+        OutLinkFactory outLinkFactory = new OutLinkFactoryV2(timeSlot);
         HbaseColumnFamily table = HbaseTables.MAP_STATISTICS_CALLEE_VER2_COUNTER;
-        return new HbaseMapOutLinkDao(mapLinkProperties, table, timeSlot, tableNameProvider, bulkWriter, outLinkFactory);
+        return new HbaseMapOutLinkDao(mapLinkProperties, table, tableNameProvider, bulkWriter, outLinkFactory);
     }
 
     @Bean
-    public MapAgentResponseTimeDao mapAgentResponseDao(MapLinkProperties mapLinkProperties,
-                                                       TimeSlot timeSlot,
-                                                       TableNameProvider tableNameProvider,
-                                                       @Qualifier("selfBulkWriter") BulkWriter bulkWriter) {
-        SelfAgentNodeFactory selfAgentNodeFactory = new SelfAgentNodeFactoryV2();
+    public MapAgentResponseDao mapAgentResponseDao(MapLinkProperties mapLinkProperties,
+                                                   TimeSlot timeSlot,
+                                                   TableNameProvider tableNameProvider,
+                                                   @Qualifier("selfBulkWriter") BulkWriter bulkWriter) {
+        SelfAgentNodeFactory selfAgentNodeFactory = new SelfAgentNodeFactoryV2(timeSlot);
         HbaseColumnFamily table = HbaseTables.MAP_STATISTICS_SELF_VER2_COUNTER;
-        return new HbaseMapAgentResponseTimeDao(mapLinkProperties, table, timeSlot, tableNameProvider, bulkWriter, selfAgentNodeFactory);
+        return new HbaseMapAgentResponseDao(mapLinkProperties, table, tableNameProvider, bulkWriter, selfAgentNodeFactory);
     }
 
     @Bean
-    public MapResponseTimeDao mapResponseDao() {
-        return new EmptyMapResponseTimeDao();
+    public MapApplicationResponseDao mapResponseDao() {
+        return new EmptyMapApplicationResponseDao();
     }
 
     @Bean

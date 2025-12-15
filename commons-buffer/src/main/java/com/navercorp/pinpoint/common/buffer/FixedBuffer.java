@@ -642,6 +642,15 @@ public class FixedBuffer implements Buffer {
     }
 
     @Override
+    public void skip(int skipLength) {
+        int remaining = remaining();
+        if (skipLength > remaining) {
+            throw new IndexOutOfBoundsException("skipLength:" + skipLength + " remaining:" + remaining);
+        }
+        this.offset += skipLength;
+    }
+
+    @Override
     public int getOffset() {
         return offset;
     }

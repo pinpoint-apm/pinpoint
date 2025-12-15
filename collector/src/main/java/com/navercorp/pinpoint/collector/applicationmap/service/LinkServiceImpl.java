@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.service;
 
-import com.navercorp.pinpoint.collector.applicationmap.dao.MapAgentResponseTimeDao;
+import com.navercorp.pinpoint.collector.applicationmap.dao.MapAgentResponseDao;
+import com.navercorp.pinpoint.collector.applicationmap.dao.MapApplicationResponseDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapInLinkDao;
 import com.navercorp.pinpoint.collector.applicationmap.dao.MapOutLinkDao;
-import com.navercorp.pinpoint.collector.applicationmap.dao.MapResponseTimeDao;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.springframework.stereotype.Service;
@@ -35,12 +35,12 @@ import java.util.Objects;
 public class LinkServiceImpl implements LinkService {
     private final MapInLinkDao inLinkDao;
     private final MapOutLinkDao outLinkDao;
-    private final MapAgentResponseTimeDao responseTimeDao;
-    private final MapResponseTimeDao applicationResponseTimeDao;
+    private final MapAgentResponseDao responseTimeDao;
+    private final MapApplicationResponseDao applicationResponseTimeDao;
 
     public LinkServiceImpl(MapInLinkDao inLinkDao, MapOutLinkDao outLinkDao,
-                           MapAgentResponseTimeDao responseTimeDao,
-                           MapResponseTimeDao applicationResponseTimeDao) {
+                           MapAgentResponseDao responseTimeDao,
+                           MapApplicationResponseDao applicationResponseTimeDao) {
         this.inLinkDao = Objects.requireNonNull(inLinkDao, "inLinkDao");
         this.outLinkDao = Objects.requireNonNull(outLinkDao, "outLinkDao");
         this.responseTimeDao = Objects.requireNonNull(responseTimeDao, "responseTimeDao");

@@ -31,7 +31,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-class UidLinkRowKeyTest {
+class UidAppRowKeyTest {
 
     public static final int KEY_RANGE = DistributorConfiguration.UID_START_KEY_RANGE;
 
@@ -41,11 +41,11 @@ class UidLinkRowKeyTest {
 
     @Test
     void uidRowKey() {
-        RowKey rowKey = UidLinkRowKey.of(12, "appName", ServiceType.STAND_ALONE, 3000);
+        RowKey rowKey = UidAppRowKey.of(12, "appName", ServiceType.STAND_ALONE, 3000);
 
         byte[] rowKeyBytes = rowKey.getRowKey(1);
 
-        UidLinkRowKey read = UidLinkRowKey.read(1, rowKeyBytes);
+        UidAppRowKey read = UidAppRowKey.read(1, rowKeyBytes);
 
 
         Assertions.assertEquals(rowKey, read);
@@ -55,12 +55,12 @@ class UidLinkRowKeyTest {
     void hashing() {
         int saltKeySize = hasher.getSaltKey().size();
 
-        RowKey rowKey = UidLinkRowKey.of(12, "appName", ServiceType.STAND_ALONE, 3000);
+        RowKey rowKey = UidAppRowKey.of(12, "appName", ServiceType.STAND_ALONE, 3000);
         byte[] bytes = rowKey.getRowKey(saltKeySize);
 
         byte[] saltRowKey = hasher.writeSaltKey(bytes);
 
-        UidLinkRowKey read = UidLinkRowKey.read(saltKeySize, saltRowKey);
+        UidAppRowKey read = UidAppRowKey.read(saltKeySize, saltRowKey);
 
         Assertions.assertEquals(rowKey, read);
     }
@@ -74,7 +74,7 @@ class UidLinkRowKeyTest {
         long timestamp = 9000;
         int second = 1000;
         for (int i = 0; i < 16; i++) {
-            RowKey rowKey = UidLinkRowKey.of(12, "appName", ServiceType.STAND_ALONE, timestamp += second);
+            RowKey rowKey = UidAppRowKey.of(12, "appName", ServiceType.STAND_ALONE, timestamp += second);
             byte[] saltKey = hasher.writeSaltKey(rowKey.getRowKey(saltKeySize));
             saltKeySet.add(saltKey[0]);
         }
@@ -84,26 +84,26 @@ class UidLinkRowKeyTest {
 
     @Test
     void makeRow() {
-        UidLinkRowKey key = (UidLinkRowKey) UidLinkRowKey.of(ServiceUid.DEFAULT_SERVICE_UID_CODE,
+        UidAppRowKey key = (UidAppRowKey) UidAppRowKey.of(ServiceUid.DEFAULT_SERVICE_UID_CODE,
                 "a".repeat(PinpointConstants.APPLICATION_NAME_MAX_LEN_V3),
                 ServiceType.STAND_ALONE, 1000);
 
-        byte[] bytes = UidLinkRowKey.makeRowKey(0,
+        byte[] bytes = UidAppRowKey.makeRowKey(0,
                 key.getServiceUid(),
                 key.getApplicationName(),
                 key.getServiceType(),
                 key.getTimestamp());
 
-        UidLinkRowKey rowKey = UidLinkRowKey.read(0, bytes);
+        UidAppRowKey rowKey = UidAppRowKey.read(0, bytes);
         Assertions.assertEquals(key, rowKey);
     }
 
     @Test
     void makeRow_error() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            UidLinkRowKey.makeRowKey(0,
+            UidAppRowKey.makeRowKey(0,
                     ServiceUid.DEFAULT_SERVICE_UID_CODE,
-                    "a".repeat(UidLinkRowKey.KEY_SIZE + 1),
+                    "a".repeat(UidPrefix.KEY_SIZE + 1),
                     ServiceType.STAND_ALONE.getCode(),
                     1000);
         });
@@ -111,13 +111,13 @@ class UidLinkRowKeyTest {
 
     @Test
     void makeRow_254() {
-        byte[] bytes = UidLinkRowKey.makeRowKey(0,
+        byte[] bytes = UidAppRowKey.makeRowKey(0,
                 ServiceUid.DEFAULT_SERVICE_UID_CODE,
                 "a".repeat(PinpointConstants.APPLICATION_NAME_MAX_LEN_V3),
                 ServiceType.STAND_ALONE.getCode(),
                 1000);
 
-        UidLinkRowKey rowKey = UidLinkRowKey.read(0, bytes);
+        UidAppRowKey rowKey = UidAppRowKey.read(0, bytes);
         Assertions.assertEquals(PinpointConstants.APPLICATION_NAME_MAX_LEN_V3, rowKey.getApplicationName().length());
     }
 }

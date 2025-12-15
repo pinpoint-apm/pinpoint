@@ -748,4 +748,29 @@ public class FixedBufferTest {
         Assertions.assertEquals(2, buffer.getBufferLength());
 
     }
+
+    @Test
+    void skip() {
+        FixedBuffer buffer = new FixedBuffer(BytesUtils.INT_BYTE_LENGTH * 2);
+        buffer.putInt(1);
+        buffer.putInt(2);
+
+        byte[] bytes = buffer.getBuffer();
+
+        Buffer reader = new FixedBuffer(bytes);
+        reader.skip(BytesUtils.INT_BYTE_LENGTH);
+        Assertions.assertEquals(2, reader.readInt());
+    }
+
+    @Test
+    void skip_overflow() {
+        FixedBuffer buffer = new FixedBuffer(BytesUtils.INT_BYTE_LENGTH);
+        buffer.putInt(1);
+
+        byte[] bytes = buffer.getBuffer();
+
+        Buffer reader = new FixedBuffer(bytes);
+        Assertions.assertEquals(1, reader.readInt());
+        Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, () -> reader.skip(BytesUtils.INT_BYTE_LENGTH));
+    }
 }

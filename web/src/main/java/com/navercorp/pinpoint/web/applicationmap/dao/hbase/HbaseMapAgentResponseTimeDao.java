@@ -89,7 +89,7 @@ public class HbaseMapAgentResponseTimeDao implements MapAgentResponseDao {
         Range windowRange = timeWindow.getWindowRange();
         Scan scan = scanFactory.createScan("MapSelfScan", ServiceUid.DEFAULT_SERVICE_UID_CODE, application, windowRange, table.getName());
 
-        ResultsExtractor<List<ResponseTime>> resultsExtractor = resultExtractFactory.newMapper(timeWindow);
+        ResultsExtractor<List<ResponseTime>> resultsExtractor = resultExtractFactory.newMapper(timeWindow, application);
 
         TableName mapStatisticsSelfTableName = tableNameProvider.getTableName(table.getTable());
         List<ResponseTime> responseTimeList = hbaseOperations.findParallel(mapStatisticsSelfTableName, scan, rowKeyDistributor,

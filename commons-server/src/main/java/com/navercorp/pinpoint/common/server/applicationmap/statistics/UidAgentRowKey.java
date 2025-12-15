@@ -16,15 +16,10 @@
 
 package com.navercorp.pinpoint.common.server.applicationmap.statistics;
 
-import com.google.common.hash.HashCode;
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hashing;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
-import com.navercorp.pinpoint.common.timeseries.util.IntInverter;
-import com.navercorp.pinpoint.common.timeseries.util.SecondTimestamp;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
@@ -33,16 +28,7 @@ import java.util.Objects;
 /**
  * @author emeroad
  */
-public class UidAgentIdLinkRowKey implements TimestampRowKey {
-    public static final int KEY_SIZE = 1024;
-
-    public static final int TIMESTAMP_SIZE = BytesUtils.INT_BYTE_LENGTH;
-    public static final int PREFIX_SIZE = BytesUtils.INT_BYTE_LENGTH +
-                                          BytesUtils.INT_BYTE_LENGTH +
-                                          BytesUtils.INT_BYTE_LENGTH +
-                                          TIMESTAMP_SIZE;
-
-    private static final HashFunction hashFunction = Hashing.murmur3_32_fixed();
+public class UidAgentRowKey implements UidRowKey {
 
     private final int serviceUid;
     private final String applicationName;
@@ -54,39 +40,35 @@ public class UidAgentIdLinkRowKey implements TimestampRowKey {
     public static RowKey of(Vertex vertex, long rowTimeSlot, String agentId) {
 
         String applicationName = vertex.applicationName();
-        return new UidAgentIdLinkRowKey(vertex.serviceUid(), applicationName, vertex.serviceType().getCode(),
+        return new UidAgentRowKey(vertex.serviceUid(), applicationName, vertex.serviceType().getCode(),
                 rowTimeSlot, agentId);
     }
 
     public static RowKey of(int serviceUid, String applicationName, ServiceType serviceType,
                             long timestamp, String agentId) {
-        return new UidAgentIdLinkRowKey(serviceUid, applicationName, serviceType.getCode(), timestamp, agentId);
+        return new UidAgentRowKey(serviceUid, applicationName, serviceType.getCode(), timestamp, agentId);
     }
 
-    public UidAgentIdLinkRowKey(int serviceUid, String applicationName, int serviceType, long timestamp, String agentId) {
-        if (requireLength(applicationName) > KEY_SIZE) {
-            throw new IllegalArgumentException("applicationName too long:" + applicationName);
-        }
+    public UidAgentRowKey(int serviceUid, String applicationName, int serviceType, long timestamp, String agentId) {
         this.serviceUid = serviceUid;
-        this.applicationName = applicationName;
+        this.applicationName = UidPrefix.requireNameLength(applicationName, "applicationName");
         this.serviceType = serviceType;
         this.timestamp = timestamp;
 
         this.agentId = Objects.requireNonNull(agentId, "agentId");
     }
 
-    private static int requireLength(String applicationName) {
-        return Objects.requireNonNull(applicationName, "applicationName").length();
-    }
-
+    @Override
     public int getServiceUid() {
         return serviceUid;
     }
 
+    @Override
     public String getApplicationName() {
         return applicationName;
     }
 
+    @Override
     public int getServiceType() {
         return serviceType;
     }
@@ -102,7 +84,7 @@ public class UidAgentIdLinkRowKey implements TimestampRowKey {
 
     /**
      * <pre>
-     * rowkey format = "hash(APPLICATIONNAME)(4)" + serivceUid(4) + apptype(4) + "TIMESTAMP(4) + APPLICATIONNAME"
+     * rowkey format = "UidPrefix(16) + AgentIdHash(4) + applicationName + agentId"
      * </pre>
      *
      * @param saltKeySize
@@ -113,57 +95,51 @@ public class UidAgentIdLinkRowKey implements TimestampRowKey {
 
     public static byte[] makeRowKey(int saltKeySize, int serviceUid, String applicationName,
                                     int serviceType, long timestamp, String agentId) {
-        if (requireLength(applicationName) > KEY_SIZE) {
-            throw new IllegalArgumentException("applicationName too long:" + applicationName);
-        }
+        UidPrefix.requireNameLength(applicationName, "applicationName");
 
         byte[] applicationNameBytes = BytesUtils.toBytes(applicationName);
         byte[] agentIdBytes = BytesUtils.toBytes(agentId);
 
         final Buffer buffer = new AutomaticBuffer(saltKeySize +
-                                                  PREFIX_SIZE +
-                                                  applicationNameBytes.length
-                                                  );
-        buffer.setOffset(saltKeySize);
-        buffer.putInt(hash(applicationNameBytes));
-        buffer.putInt(serviceUid);
-        buffer.putInt(IntInverter.invert(serviceType));
+                                                  UidPrefix.PREFIX_SIZE +
 
-        int secondTimestamp = SecondTimestamp.convertSecondTimestamp(timestamp);
-        int reverseTimeMillis = IntInverter.invert(secondTimestamp);
-        buffer.putInt(reverseTimeMillis);
+                                                  BytesUtils.INT_BYTE_LENGTH +
+                                                  BytesUtils.computeVar32ByteArraySize(applicationNameBytes) +
+                                                  BytesUtils.computeVar32ByteArraySize(agentIdBytes)
+        );
+        buffer.skip(saltKeySize);
 
-        buffer.putInt(hash(agentIdBytes));
-        buffer.putPrefixedBytes(agentIdBytes);
+        UidPrefix.writePrefix(buffer, serviceUid, applicationNameBytes, serviceType, timestamp);
+
+        buffer.putInt(UidPrefix.hash(agentIdBytes));
 
         buffer.putPrefixedBytes(applicationNameBytes);
+        buffer.putPrefixedBytes(agentIdBytes);
+
         return buffer.getBuffer();
     }
 
 
-    static int hash(byte[] bytes) {
-        HashCode hashCode = hashFunction.hashBytes(bytes);
-        return hashCode.hashCode();
-    }
+    public static UidAgentRowKey read(int saltKey, byte[] bytes) {
 
-    public static UidAgentIdLinkRowKey read(int saltKey, byte[] bytes) {
-
-        int offset = saltKey;
         final Buffer buffer = new FixedBuffer(bytes);
         // skip offset & applicationNameHash
-        buffer.setOffset(offset + BytesUtils.INT_BYTE_LENGTH);
+        buffer.skip(saltKey);
 
-        int serviceUid = buffer.readInt(); // serviceUid
-        int serviceType = IntInverter.restore(buffer.readInt()); // serviceType
+        UidPrefix prefix = UidPrefix.readPrefix(buffer);
 
-        int secondTimestamp = IntInverter.restore(buffer.readInt());
-        long msTimestamp = SecondTimestamp.restoreSecondTimestamp(secondTimestamp);
+        int serviceUid = prefix.getServiceUid(); // serviceUid
+        int serviceType = prefix.getServiceType(); // serviceType
 
-        int agentIdHash = buffer.readInt();
-        String agentId = buffer.readPrefixedString();
+        long timestamp = prefix.getTimestamp();
+
+        // agentIdHash
+        buffer.skip(BytesUtils.INT_BYTE_LENGTH);
 
         String applicationName = buffer.readPrefixedString();
-        return new UidAgentIdLinkRowKey(serviceUid, applicationName, serviceType, msTimestamp, agentId);
+        String agentId = buffer.readPrefixedString();
+
+        return new UidAgentRowKey(serviceUid, applicationName, serviceType, timestamp, agentId);
     }
 
 
@@ -171,7 +147,7 @@ public class UidAgentIdLinkRowKey implements TimestampRowKey {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
 
-        UidAgentIdLinkRowKey that = (UidAgentIdLinkRowKey) o;
+        UidAgentRowKey that = (UidAgentRowKey) o;
         return serviceUid == that.serviceUid && serviceType == that.serviceType && timestamp == that.timestamp && Objects.equals(applicationName, that.applicationName) && Objects.equals(agentId, that.agentId);
     }
 
@@ -187,7 +163,7 @@ public class UidAgentIdLinkRowKey implements TimestampRowKey {
 
     @Override
     public String toString() {
-        return "UidLinkRowKey{" +
+        return "UidAgentRowKey{" +
                "serviceUid=" + serviceUid +
                ", applicationName='" + applicationName + '\'' +
                ", serviceType=" + serviceType +

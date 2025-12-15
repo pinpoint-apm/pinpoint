@@ -16,14 +16,10 @@
 
 package com.navercorp.pinpoint.web.applicationmap.dao.v3;
 
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.TimestampRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.v3.OutLinkV3ColumnName;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.SlotCode;
@@ -33,11 +29,13 @@ import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
+import java.util.function.Predicate;
 
 /**
  * rowkey = caller col = callee
@@ -58,17 +56,20 @@ public class OutLinkV3Mapper implements RowMapper<LinkDataMap> {
 
     private final TimeWindowFunction timeWindowFunction;
 
+    private final Predicate<UidLinkRowKey> rowFilter;
 
     public OutLinkV3Mapper(ApplicationFactory applicationFactory,
                            RowKeyDecoder<UidLinkRowKey> rowKeyDecoder,
                            LinkFilter filter,
-                           TimeWindowFunction timeWindowFunction) {
+                           TimeWindowFunction timeWindowFunction,
+                           Predicate<UidLinkRowKey> rowFilter) {
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
 
         this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
 
         this.filter = Objects.requireNonNull(filter, "filter");
         this.timeWindowFunction = Objects.requireNonNull(timeWindowFunction, "timeWindowFunction");
+        this.rowFilter = Objects.requireNonNull(rowFilter, "rowFilter");
     }
 
     @Override
@@ -80,22 +81,24 @@ public class OutLinkV3Mapper implements RowMapper<LinkDataMap> {
             logger.debug("mapRow num:{} size:{}", rowNum, result.size());
         }
 
-        TimestampRowKey selfRowKey = rowKeyDecoder.decodeRowKey(result.getRow());
-        final long timestamp = timeWindowFunction.refineTimestamp(selfRowKey.getTimestamp());
-
         // key is destApplicationName.
         final LinkDataMap linkDataMap = new LinkDataMap();
         for (Cell cell : result.rawCells()) {
-            final Buffer buffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
-            OutLinkV3ColumnName columnName = OutLinkV3ColumnName.parseColumnName(buffer);
-            final Application inApplication = inApplication(columnName);
+            byte[] row = CellUtil.cloneRow(cell);
+            UidLinkRowKey selfRowKey = rowKeyDecoder.decodeRowKey(row);
+            if (!rowFilter.test(selfRowKey)) {
+                continue;
+            }
+
+            final long timestamp = timeWindowFunction.refineTimestamp(selfRowKey.getTimestamp());
+
+            final Application inApplication = inApplication(selfRowKey);
             if (filter.filter(inApplication)) {
                 continue;
             }
 
-            SlotCode slotCode = SlotCode.valueOf(columnName.getSlotCode());
-            String outSubLink = columnName.getOutSubLink();
-
+            SlotCode slotCode = readSlotCode(cell);
+            String outSubLink = selfRowKey.getSubLink();
 
             long requestCount = CellUtils.valueToLong(cell);
             if (logger.isDebugEnabled()) {
@@ -113,15 +116,20 @@ public class OutLinkV3Mapper implements RowMapper<LinkDataMap> {
         return linkDataMap;
     }
 
+    private SlotCode readSlotCode(Cell cell) {
+        byte[] qualifierArray = cell.getQualifierArray();
+        byte slotCodeByte = qualifierArray[cell.getQualifierOffset()];
+        return SlotCode.valueOf(slotCodeByte);
+    }
 
-    private Application inApplication(OutLinkV3ColumnName columnName) {
-        int inServiceType = columnName.getOutServiceType();
-        String inApplicationName = columnName.getOutApplicationName();
+
+    private Application inApplication(UidLinkRowKey rowKey) {
+        String inApplicationName = rowKey.getLinkApplicationName();
+        int inServiceType = rowKey.getLinkServiceType();
         return applicationFactory.createApplication(inApplicationName, inServiceType);
     }
 
-    private Application getApplication(RowKey rawRowKey) {
-        UidLinkRowKey rowKey = (UidLinkRowKey) rawRowKey;
+    private Application getApplication(UidRowKey rowKey) {
         String applicationName = rowKey.getApplicationName();
         int outServiceType = rowKey.getServiceType();
         return this.applicationFactory.createApplication(applicationName, outServiceType);

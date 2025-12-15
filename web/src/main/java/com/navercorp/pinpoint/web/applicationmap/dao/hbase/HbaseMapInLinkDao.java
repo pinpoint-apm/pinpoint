@@ -85,7 +85,8 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
         Objects.requireNonNull(timeWindow, "timeWindow");
 
         TimeWindowFunction mapperWindow = TimeWindowFunction.newTimeWindow(timeAggregated);
-        RowMapper<LinkDataMap> rowMapper = this.inLinkMapperFactory.newMapper(mapperWindow);
+
+        RowMapper<LinkDataMap> rowMapper = this.inLinkMapperFactory.newMapper(mapperWindow, inApplication);
         ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(rowMapper, new LinkTimeWindowReducer(timeWindow));
 
         final Scan scan = scanFactory.createScan("MapInLinkScan", ServiceUid.DEFAULT_SERVICE_UID_CODE, inApplication, timeWindow.getWindowRange(), table.getName());

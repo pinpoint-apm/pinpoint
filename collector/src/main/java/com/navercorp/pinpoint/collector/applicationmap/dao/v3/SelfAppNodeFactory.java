@@ -16,19 +16,21 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.dao.v3;
 
-import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
-import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public interface SelfAppNodeFactory {
-    RowKey rowkey(Vertex vertex, long rowTimeSlot);
 
-    ColumnName histogram(HistogramSlot slot);
+    SelfAppNodeFactory.Node newNode(String applicationName, ServiceType serviceType);
 
-    ColumnName sum(ServiceType serviceType);
+    interface Node {
+        RowKey rowkey(long rowTimeSlot);
 
-    ColumnName max(ServiceType serviceType);
+        ColumnName histogram(int elapsed, boolean isError);
 
+        ColumnName sum();
+
+        ColumnName max();
+    }
 }

@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.applicationmap.dao;
+package com.navercorp.pinpoint.web.applicationmap.dao.v3;
 
-import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidAppRowKey;
+import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 
-public interface MapResponseTimeDao {
+public class UidAppRowKeyDecoder implements RowKeyDecoder<UidAppRowKey> {
+    private final int saltKeySize;
 
-    void received(long requestTime, Vertex selfVertex, int elapsed, boolean isError);
+    public UidAppRowKeyDecoder(int saltKeySize) {
+        this.saltKeySize = saltKeySize;
+    }
 
+    @Override
+    public UidAppRowKey decodeRowKey(byte[] rowKey) {
+        return UidAppRowKey.read(saltKeySize, rowKey);
+    }
 }

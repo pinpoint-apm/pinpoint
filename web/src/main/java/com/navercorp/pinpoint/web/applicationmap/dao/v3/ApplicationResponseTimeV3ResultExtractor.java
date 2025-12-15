@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.dao.v3;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidAppRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -36,6 +36,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
+import java.util.function.Predicate;
 
 
 /**
@@ -49,20 +50,23 @@ public class ApplicationResponseTimeV3ResultExtractor implements ResultsExtracto
 
     private final ServiceTypeRegistryService registry;
 
-    private final RowKeyDecoder<UidLinkRowKey> rowKeyDecoder;
+    private final RowKeyDecoder<UidAppRowKey> rowKeyDecoder;
 
     private final TimeWindowFunction timeWindowFunction;
+    private final Predicate<UidAppRowKey> rowFilter;
 
 
     public ApplicationResponseTimeV3ResultExtractor(HbaseColumnFamily table,
                                                     ServiceTypeRegistryService registry,
-                                                    RowKeyDecoder<UidLinkRowKey> rowKeyDecoder,
-                                                    TimeWindowFunction timeWindowFunction) {
+                                                    RowKeyDecoder<UidAppRowKey> rowKeyDecoder,
+                                                    TimeWindowFunction timeWindowFunction,
+                                                    Predicate<UidAppRowKey> rowFilter) {
         this.table = Objects.requireNonNull(table, "table");
         this.registry = Objects.requireNonNull(registry, "registry");
 
         this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
         this.timeWindowFunction = Objects.requireNonNull(timeWindowFunction, "timeWindowFunction");
+        this.rowFilter = Objects.requireNonNull(rowFilter, "rowFilter");
     }
 
     public ApplicationResponse extractData(ResultScanner results) throws Exception {
@@ -81,28 +85,20 @@ public class ApplicationResponseTimeV3ResultExtractor implements ResultsExtracto
         if (result.isEmpty()) {
             return null;
         }
-        final byte[] rowKey = result.getRow();
-        UidLinkRowKey uidRowKey = rowKeyDecoder.decodeRowKey(rowKey);
-
-        final String applicationName = uidRowKey.getApplicationName();
-        final int serviceTypeCode = uidRowKey.getServiceType();
-        final long timestamp = timeWindowFunction.refineTimestamp(uidRowKey.getTimestamp());
-
-        if (builder == null) {
-            ServiceType serviceType = registry.findServiceType(serviceTypeCode);
-            Application application = new Application(applicationName, serviceType);
-            builder = ApplicationResponse.newBuilder(application);
-        } else {
-            Application builderApp = builder.getApplication();
-            if (!builderApp.getName().equals(applicationName)) {
-                throw new IllegalStateException("applicationName must match");
-            }
-            if (builderApp.getServiceType().getCode() != serviceTypeCode) {
-                throw new IllegalStateException("serviceType must match");
-            }
-        }
         for (Cell cell : result.rawCells()) {
             if (CellUtil.matchingFamily(cell, table.getName())) {
+                byte[] row = CellUtil.cloneRow(cell);
+                UidAppRowKey uidRowKey = rowKeyDecoder.decodeRowKey(row);
+                if (!rowFilter.test(uidRowKey)) {
+                    continue;
+                }
+                final long timestamp = timeWindowFunction.refineTimestamp(uidRowKey.getTimestamp());
+
+                if (builder == null) {
+                    ServiceType serviceType = registry.findServiceType(uidRowKey.getServiceType());
+                    Application application = new Application(uidRowKey.getApplicationName(), serviceType);
+                    builder = ApplicationResponse.newBuilder(application);
+                }
                 recordColumn(builder, timestamp, cell);
             }
 

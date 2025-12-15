@@ -25,9 +25,6 @@ import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
-import com.navercorp.pinpoint.common.server.util.MapSlotUtils;
-import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
-import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,7 +45,6 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final HbaseColumnFamily table;
-    private final TimeSlot timeSlot;
 
     private final IgnoreStatFilter ignoreStatFilter;
 
@@ -61,14 +57,12 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
     public HbaseMapInLinkDao(MapLinkProperties mapLinkProperties,
                              HbaseColumnFamily table,
                              IgnoreStatFilter ignoreStatFilter,
-                             TimeSlot timeSlot,
                              TableNameProvider tableNameProvider,
                              BulkWriter bulkWriter,
                              InLinkFactory inLinkFactory) {
         this.mapLinkProperties = Objects.requireNonNull(mapLinkProperties, "mapLinkConfiguration");
         this.table = Objects.requireNonNull(table, "table");
         this.ignoreStatFilter = Objects.requireNonNull(ignoreStatFilter, "ignoreStatFilter");
-        this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
 
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.bulkWriter = Objects.requireNonNull(bulkWriter, "bulkWriter");
@@ -96,22 +90,23 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
         }
 
         // make row key. rowkey is me
-        final long rowTimeSlot = timeSlot.getTimeSlot(requestTime);
-        final RowKey inLinkRowKey = inLinkFactory.rowkey(inVertex, rowTimeSlot);
+        InLinkFactory.InLink inLink = inLinkFactory.newLink(inVertex.applicationName(), inVertex.serviceType(),
+                selfVertex.applicationName(), selfVertex.serviceType(), selfHost);
 
-        final HistogramSlot outSlotNumber = MapSlotUtils.getHistogramSlot(inVertex.serviceType(), elapsed, isError);
+        final RowKey inLinkRowKey = inLink.rowkey(requestTime);
 
-        final ColumnName outLink = inLinkFactory.histogram(selfVertex, selfHost, outSlotNumber);
+        final ColumnName selfLink = inLink.histogram(elapsed, isError);
+
         final TableName tableName = tableNameProvider.getTableName(table.getTable());
-        this.bulkWriter.increment(tableName, inLinkRowKey, outLink);
+        this.bulkWriter.increment(tableName, inLinkRowKey, selfLink);
 
         if (mapLinkProperties.isEnableAvg()) {
-            final ColumnName sumOutLink = inLinkFactory.sum(selfVertex, selfHost, inVertex.serviceType());
-            this.bulkWriter.increment(tableName, inLinkRowKey, sumOutLink, elapsed);
+            final ColumnName sumSelfLink = inLink.sum();
+            this.bulkWriter.increment(tableName, inLinkRowKey, sumSelfLink, elapsed);
         }
         if (mapLinkProperties.isEnableMax()) {
-            final ColumnName maxOutLink = inLinkFactory.max(selfVertex, selfHost, inVertex.serviceType());
-            this.bulkWriter.updateMax(tableName, inLinkRowKey, maxOutLink, elapsed);
+            final ColumnName maxSelfLink = inLink.max();
+            this.bulkWriter.updateMax(tableName, inLinkRowKey, maxSelfLink, elapsed);
         }
     }
 

@@ -16,14 +16,10 @@
 
 package com.navercorp.pinpoint.web.applicationmap.dao.v3;
 
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.TimestampRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.v3.InLinkV3ColumnName;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.util.UserNodeUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
@@ -35,11 +31,13 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
+import java.util.function.Predicate;
 
 /**
  *
@@ -63,11 +61,15 @@ public class InLinkV3Mapper implements RowMapper<LinkDataMap> {
 
     private final TimeWindowFunction timeWindowFunction;
 
+    private final Predicate<UidLinkRowKey> rowFilter;
+
+
     public InLinkV3Mapper(ServiceTypeRegistryService registry,
                           ApplicationFactory applicationFactory,
                           RowKeyDecoder<UidLinkRowKey> rowKeyDecoder,
                           LinkFilter filter,
-                          TimeWindowFunction timeWindowFunction) {
+                          TimeWindowFunction timeWindowFunction,
+                          Predicate<UidLinkRowKey> rowFilter) {
         this.registry = Objects.requireNonNull(registry, "registry");
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
 
@@ -75,6 +77,7 @@ public class InLinkV3Mapper implements RowMapper<LinkDataMap> {
 
         this.filter = Objects.requireNonNull(filter, "filter");
         this.timeWindowFunction = Objects.requireNonNull(timeWindowFunction, "timeWindowFunction");
+        this.rowFilter = Objects.requireNonNull(rowFilter, "rowFilter");
     }
 
     @Override
@@ -86,26 +89,28 @@ public class InLinkV3Mapper implements RowMapper<LinkDataMap> {
             logger.debug("mapRow num:{} size:{}", rowNum, result.size());
         }
 
-        final TimestampRowKey inRowKey = rowKeyDecoder.decodeRowKey(result.getRow());
-
-        final long timestamp = timeWindowFunction.refineTimestamp(inRowKey.getTimestamp());
-        final Application inApplication = readInApplication(inRowKey);
-
         final LinkDataMap linkDataMap = new LinkDataMap(timeWindowFunction);
         for (Cell cell : result.rawCells()) {
+            byte[] row = CellUtil.cloneRow(cell);
+            final UidLinkRowKey inRowKey = rowKeyDecoder.decodeRowKey(row);
+            if (!rowFilter.test(inRowKey)) {
+                continue;
+            }
 
-            final Buffer buffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
-            InLinkV3ColumnName columnName = InLinkV3ColumnName.parseColumnName(buffer);
-            int selfServiceType = columnName.getSelfServiceType();
-            String selfApplicationName = columnName.getSelfApplicationName();
+            final long timestamp = timeWindowFunction.refineTimestamp(inRowKey.getTimestamp());
+            final Application inApplication = readInApplication(inRowKey);
+
+            int selfServiceType = inRowKey.getLinkServiceType();
+            String selfApplicationName = inRowKey.getLinkApplicationName();
             final Application self = readSelfApplication(selfApplicationName, selfServiceType, inApplication.getServiceType());
             if (filter.filter(self)) {
                 continue;
             }
 
-            SlotCode slotCode = SlotCode.valueOf(columnName.getSlotCode());
+            SlotCode slotCode = readSlotCode(cell);
+
             long requestCount = CellUtils.valueToLong(cell);
-            String selfHost = outHost(columnName.getOutHost());
+            String selfHost = outHost(inRowKey.getSubLink());
             // There may be no outHost for virtual queue nodes from user-defined entry points.
             // Terminal nodes, such as httpclient will not have outHost set as well, but since they're terminal
             // nodes, they would not have reached here in the first place.
@@ -128,11 +133,18 @@ public class InLinkV3Mapper implements RowMapper<LinkDataMap> {
         return linkDataMap;
     }
 
+
     private String outHost(String outHost) {
         if (MERGE_AGENT.equals(outHost)) {
             return MERGE_AGENT;
         }
         return outHost;
+    }
+
+    private SlotCode readSlotCode(Cell cell) {
+        byte[] qualifierArray = cell.getQualifierArray();
+        byte slotCodeByte = qualifierArray[cell.getQualifierOffset()];
+        return SlotCode.valueOf(slotCodeByte);
     }
 
     private Application readSelfApplication(String selfApplicationName, int selfServiceType, ServiceType inServiceType) {
@@ -144,8 +156,7 @@ public class InLinkV3Mapper implements RowMapper<LinkDataMap> {
         return this.applicationFactory.createApplication(selfApplicationName, selfServiceType);
     }
 
-    private Application readInApplication(RowKey rawRowKey) {
-        UidLinkRowKey rowKey = (UidLinkRowKey) rawRowKey;
+    private Application readInApplication(UidRowKey rowKey) {
         String selfApplicationName = rowKey.getApplicationName();
         int selfServiceType = rowKey.getServiceType();
 

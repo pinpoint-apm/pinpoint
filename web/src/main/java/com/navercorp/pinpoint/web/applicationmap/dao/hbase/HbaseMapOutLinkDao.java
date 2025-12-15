@@ -83,7 +83,8 @@ public class HbaseMapOutLinkDao implements MapOutLinkDao {
     public LinkDataMap selectOutLink(Application outApplication, TimeWindow timeWindow, boolean timeAggregated) {
 
         TimeWindowFunction mapperWindow = TimeWindowFunction.newTimeWindow(timeAggregated);
-        RowMapper<LinkDataMap> rowMapper = this.outMapperFactory.newMapper(mapperWindow);
+
+        RowMapper<LinkDataMap> rowMapper = this.outMapperFactory.newMapper(mapperWindow, outApplication);
 
         ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(rowMapper, new LinkTimeWindowReducer(timeWindow));
 

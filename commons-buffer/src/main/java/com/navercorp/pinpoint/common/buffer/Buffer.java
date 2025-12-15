@@ -207,6 +207,8 @@ public interface Buffer {
 
     void setOffset(int offset);
 
+    void skip(int offset);
+
     int getOffset();
 
     int remaining();

@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.applicationmap.dao.mapper;
+package com.navercorp.pinpoint.web.applicationmap.dao.v3;
 
-import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
-import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
-import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidAgentRowKey;
+import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 
-@FunctionalInterface
-public interface ResultExtractorFactory<R> {
+public class UidAgentLinkRowKeyDecoder implements RowKeyDecoder<UidAgentRowKey> {
+    private final int saltKeySize;
 
-    ResultsExtractor<R> newMapper(TimeWindowFunction timeWindow, Application application);
+    public UidAgentLinkRowKeyDecoder(int saltKeySize) {
+        this.saltKeySize = saltKeySize;
+    }
+
+    @Override
+    public UidAgentRowKey decodeRowKey(byte[] rowKey) {
+        return UidAgentRowKey.read(saltKeySize, rowKey);
+    }
 }

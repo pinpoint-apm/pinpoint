@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.dao.v3;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidAgentIdLinkRowKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidAgentRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 
 /**
@@ -52,18 +53,22 @@ public class ResponseTimeV3ResultExtractor implements ResultsExtractor<List<Resp
     private final HbaseColumnFamily table;
     private final ServiceTypeRegistryService registry;
 
-    private final RowKeyDecoder<UidAgentIdLinkRowKey> rowKeyDecoder;
+    private final RowKeyDecoder<UidAgentRowKey> rowKeyDecoder;
 
     private final TimeWindowFunction timeWindowFunction;
+    private final Predicate<UidAgentRowKey> rowFilter;
 
     public ResponseTimeV3ResultExtractor(HbaseColumnFamily table,
                                          ServiceTypeRegistryService registry,
-                                         RowKeyDecoder<UidAgentIdLinkRowKey> rowKeyDecoder,
-                                         TimeWindowFunction timeWindowFunction) {
+                                         RowKeyDecoder<UidAgentRowKey> rowKeyDecoder,
+                                         TimeWindowFunction timeWindowFunction,
+                                         Predicate<UidAgentRowKey> rowFilter) {
         this.table = Objects.requireNonNull(table, "table");
         this.registry = Objects.requireNonNull(registry, "registry");
         this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
         this.timeWindowFunction = Objects.requireNonNull(timeWindowFunction, "timeWindowFunction");
+
+        this.rowFilter = Objects.requireNonNull(rowFilter, "rowFilter");
     }
 
     public List<ResponseTime> extractData(ResultScanner results) throws Exception {
@@ -89,11 +94,17 @@ public class ResponseTimeV3ResultExtractor implements ResultsExtractor<List<Resp
             return;
         }
 
-        UidAgentIdLinkRowKey uidRowKey = rowKeyDecoder.decodeRowKey(result.getRow());
-
-        ResponseTime.Builder responseTimeBuilder = createResponseTimeBuilder(map, uidRowKey);
+        ResponseTime.Builder responseTimeBuilder = null;
         for (Cell cell : result.rawCells()) {
             if (CellUtil.matchingFamily(cell, table.getName())) {
+                byte[] row = CellUtil.cloneRow(cell);
+                UidAgentRowKey uidRowKey = rowKeyDecoder.decodeRowKey(row);
+                if (!rowFilter.test(uidRowKey)) {
+                    continue;
+                }
+                if (responseTimeBuilder == null) {
+                    responseTimeBuilder = createResponseTimeBuilder(map, uidRowKey);
+                }
                 recordColumn(responseTimeBuilder, cell, uidRowKey);
             }
 
@@ -102,10 +113,9 @@ public class ResponseTimeV3ResultExtractor implements ResultsExtractor<List<Resp
                 logger.trace("unknown column family:{}", columnFamily);
             }
         }
-
     }
 
-    void recordColumn(ResponseTime.Builder responseTimeBuilder, Cell cell, UidAgentIdLinkRowKey rowKey) {
+    void recordColumn(ResponseTime.Builder responseTimeBuilder, Cell cell, UidAgentRowKey rowKey) {
 
         final byte[] qArray = cell.getQualifierArray();
         final int qOffset = cell.getQualifierOffset();
@@ -118,7 +128,7 @@ public class ResponseTimeV3ResultExtractor implements ResultsExtractor<List<Resp
         responseTimeBuilder.addResponseTimeByCode(agentId, slotCode, count);
     }
 
-    private ResponseTime.Builder createResponseTimeBuilder(Map<Key, ResponseTime.Builder> map, UidAgentIdLinkRowKey rowKey) {
+    private ResponseTime.Builder createResponseTimeBuilder(Map<Key, ResponseTime.Builder> map, UidAgentRowKey rowKey) {
         final long timestamp = timeWindowFunction.refineTimestamp(rowKey.getTimestamp());
         final ServiceType serviceType = registry.findServiceType(rowKey.getServiceType());
 
