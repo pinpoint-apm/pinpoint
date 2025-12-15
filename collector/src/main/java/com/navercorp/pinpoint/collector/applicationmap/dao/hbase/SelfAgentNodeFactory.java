@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public interface SelfAgentNodeFactory {
-    RowKey rowkey(Vertex vertex, long rowTimeSlot);
+    RowKey rowkey(Vertex vertex, long rowTimeSlot, String agentId);
 
     ColumnName histogram(String agentId, HistogramSlot slot);
 

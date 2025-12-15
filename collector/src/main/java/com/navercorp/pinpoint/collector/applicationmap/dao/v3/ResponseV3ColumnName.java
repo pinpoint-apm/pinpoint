@@ -16,45 +16,30 @@
 
 package com.navercorp.pinpoint.collector.applicationmap.dao.v3;
 
-import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
-import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.trace.SlotCode;
-import com.navercorp.pinpoint.common.util.BytesUtils;
-
-import java.util.Objects;
 
 /**
  * @author emeroad
  */
 public class ResponseV3ColumnName implements ColumnName {
 
-    private final String agentId;
     private final byte slotCode;
 
-    public static ColumnName histogram(String agentId, SlotCode slotCode) {
-        return new ResponseV3ColumnName(agentId, slotCode.code());
+    public static ColumnName histogram(SlotCode slotCode) {
+        return new ResponseV3ColumnName(slotCode.code());
     }
 
-    public ResponseV3ColumnName(String agentId, byte slotCode) {
-        this.agentId = Objects.requireNonNull(agentId, "agentId");
+    public ResponseV3ColumnName(byte slotCode) {
         this.slotCode = slotCode;
     }
 
     public byte[] getColumnName() {
-        return makeColumnName(agentId, slotCode);
+        return makeColumnName(slotCode);
     }
 
-    public static byte[] makeColumnName(String agentId, byte slotCode) {
-        Objects.requireNonNull(agentId, "agentId");
-
-        final Buffer buffer = new AutomaticBuffer(agentId.length() + 1);
-        buffer.putByte(slotCode);
-
-        final byte[] agentIdBytes = BytesUtils.toBytes(agentId);
-        buffer.putBytes(agentIdBytes);
-
-        return buffer.getBuffer();
+    public static byte[] makeColumnName(byte slotCode) {
+        return new byte[] { slotCode };
     }
 
     @Override
@@ -62,21 +47,18 @@ public class ResponseV3ColumnName implements ColumnName {
         if (o == null || getClass() != o.getClass()) return false;
 
         ResponseV3ColumnName that = (ResponseV3ColumnName) o;
-        return slotCode == that.slotCode && agentId.equals(that.agentId);
+        return slotCode == that.slotCode;
     }
 
     @Override
     public int hashCode() {
-        int result = agentId.hashCode();
-        result = 31 * result + slotCode;
-        return result;
+        return slotCode;
     }
 
     @Override
     public String toString() {
-        return "ResponseColumnName{" +
-               "agentId='" + agentId + '\'' +
-               ", slotCode=" + slotCode +
+        return "ResponseV3ColumnName{" +
+               "slotCode=" + slotCode +
                '}';
     }
 }

@@ -20,20 +20,20 @@ import com.navercorp.pinpoint.collector.applicationmap.dao.hbase.SelfAgentNodeFa
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.ColumnName;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.RowKey;
-import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidAgentIdLinkRowKey;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public class SelfAgentNodeFactoryV3 implements SelfAgentNodeFactory {
 
     @Override
-    public RowKey rowkey(Vertex selfVertex, long rowTimeSlot) {
-        return UidLinkRowKey.of(selfVertex, rowTimeSlot);
+    public RowKey rowkey(Vertex selfVertex, long rowTimeSlot, String agentId) {
+        return UidAgentIdLinkRowKey.of(selfVertex, rowTimeSlot, agentId);
     };
 
     @Override
     public ColumnName histogram(String agentId, HistogramSlot slot) {
-        return ResponseV3ColumnName.histogram(agentId, slot.getSlotCode());
+        return ResponseV3ColumnName.histogram(slot.getSlotCode());
     }
 
     @Override

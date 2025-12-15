@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.LinkRowKey;
+import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidAgentIdLinkRowKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidLinkRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.uid.ObjectNameVersion;
@@ -58,6 +59,7 @@ import com.navercorp.pinpoint.web.applicationmap.dao.v3.InLinkV3Mapper;
 import com.navercorp.pinpoint.web.applicationmap.dao.v3.MapScanKeyFactoryV3;
 import com.navercorp.pinpoint.web.applicationmap.dao.v3.OutLinkV3Mapper;
 import com.navercorp.pinpoint.web.applicationmap.dao.v3.ResponseTimeV3ResultExtractor;
+import com.navercorp.pinpoint.web.applicationmap.dao.v3.UidAgentIdLinkRowKeyDecoder;
 import com.navercorp.pinpoint.web.applicationmap.dao.v3.UidLinkRowKeyDecoder;
 import com.navercorp.pinpoint.web.applicationmap.map.AcceptApplication;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
@@ -95,6 +97,11 @@ public class MapV3DaoConfiguration {
     }
 
     @Bean
+    public RowKeyDecoder<UidAgentIdLinkRowKey> uidAgentIdLinkRowKeyDecoder() {
+        return new UidAgentIdLinkRowKeyDecoder(ByteSaltKey.SALT.size());
+    }
+
+    @Bean
     public RowKeyDecoder<LinkRowKey> linkRowKeyRowKeyDecoder() {
         return new LinkRowKeyDecoder(ByteSaltKey.SALT.size());
     }
@@ -114,7 +121,7 @@ public class MapV3DaoConfiguration {
 
     @Bean
     public ResultExtractorFactory<List<ResponseTime>> agentResponseTimeResultExtractor(ServiceTypeRegistryService registry,
-                                                                                         RowKeyDecoder<UidLinkRowKey> rowKeyDecoder) {
+                                                                                         RowKeyDecoder<UidAgentIdLinkRowKey> rowKeyDecoder) {
         HbaseColumnFamily table = HbaseTables.MAP_AGENT_SELF;
         return (windowFunction) -> new ResponseTimeV3ResultExtractor(table, registry, rowKeyDecoder, windowFunction);
     }
