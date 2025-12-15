@@ -57,7 +57,6 @@ import com.navercorp.pinpoint.web.applicationmap.dao.v3.HostScanKeyFactoryV3;
 import com.navercorp.pinpoint.web.applicationmap.dao.v3.InLinkV3Mapper;
 import com.navercorp.pinpoint.web.applicationmap.dao.v3.MapScanKeyFactoryV3;
 import com.navercorp.pinpoint.web.applicationmap.dao.v3.OutLinkV3Mapper;
-import com.navercorp.pinpoint.web.applicationmap.dao.v3.ResponseTimeV3Mapper;
 import com.navercorp.pinpoint.web.applicationmap.dao.v3.ResponseTimeV3ResultExtractor;
 import com.navercorp.pinpoint.web.applicationmap.dao.v3.UidLinkRowKeyDecoder;
 import com.navercorp.pinpoint.web.applicationmap.map.AcceptApplication;
@@ -114,15 +113,8 @@ public class MapV3DaoConfiguration {
     }
 
     @Bean
-    public RowMapperFactory<ResponseTime> responseTimeMapper(ServiceTypeRegistryService registry,
-                                                             RowKeyDecoder<UidLinkRowKey> rowKeyDecoder) {
-        HbaseColumnFamily table = HbaseTables.MAP_AGENT_SELF;
-        return (windowFunction) -> new ResponseTimeV3Mapper(table, registry, rowKeyDecoder, windowFunction);
-    }
-
-    @Bean
-    public ResultExtractorFactory<List<ResponseTime>> responseTimeResultExtractor(ServiceTypeRegistryService registry,
-                                                                                  RowKeyDecoder<UidLinkRowKey> rowKeyDecoder) {
+    public ResultExtractorFactory<List<ResponseTime>> agentResponseTimeResultExtractor(ServiceTypeRegistryService registry,
+                                                                                         RowKeyDecoder<UidLinkRowKey> rowKeyDecoder) {
         HbaseColumnFamily table = HbaseTables.MAP_AGENT_SELF;
         return (windowFunction) -> new ResponseTimeV3ResultExtractor(table, registry, rowKeyDecoder, windowFunction);
     }
@@ -130,7 +122,7 @@ public class MapV3DaoConfiguration {
     @Bean
     public ResultExtractorFactory<ApplicationResponse> applicationResponseTimeResultExtractor(ServiceTypeRegistryService registry,
                                                                                                  RowKeyDecoder<UidLinkRowKey> rowKeyDecoder) {
-        HbaseColumnFamily table = HbaseTables.MAP_AGENT_SELF;
+        HbaseColumnFamily table = HbaseTables.MAP_APP_SELF;
         return (windowFunction) -> new ApplicationResponseTimeV3ResultExtractor(table, registry, rowKeyDecoder, windowFunction);
     }
 
@@ -145,7 +137,7 @@ public class MapV3DaoConfiguration {
     public MapAgentResponseDao mapAgentResponseDao(@Qualifier("mapHbaseTemplate")
                                               HbaseTemplate hbaseTemplate,
                                               TableNameProvider tableNameProvider,
-                                              @Qualifier("responseTimeResultExtractor")
+                                              @Qualifier("agentResponseTimeResultExtractor")
                                               ResultExtractorFactory<List<ResponseTime>> resultExtractFactory,
                                               MapScanFactory mapScanFactory,
                                               @Qualifier("uidRowKeyDistributor")
