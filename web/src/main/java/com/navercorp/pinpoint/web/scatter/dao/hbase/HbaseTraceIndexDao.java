@@ -34,10 +34,11 @@ import com.navercorp.pinpoint.web.config.ScatterChartProperties;
 import com.navercorp.pinpoint.web.scatter.DragArea;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
 import com.navercorp.pinpoint.web.scatter.dao.TraceIndexDao;
+import com.navercorp.pinpoint.web.scatter.dao.mapper.ExistMapper;
+import com.navercorp.pinpoint.web.scatter.dao.mapper.TraceIndexDotMapper;
 import com.navercorp.pinpoint.web.scatter.dao.mapper.TraceIndexMetaMapper;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
-import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.TableName;
@@ -66,8 +67,6 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
     private final HbaseOperations hbaseOperations;
     private final TableNameProvider tableNameProvider;
 
-    private final RowMapper<Boolean> existMapper;
-    private final RowMapper<List<Dot>> traceIndexDotMapper;
     private final RowKeyDistributor traceIndexDistributor;
 
     private int scanCacheSize = 512; // increase default caching since v2 table uses 2 cells per row
@@ -75,14 +74,10 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
     public HbaseTraceIndexDao(ScatterChartProperties scatterChartProperties,
                               HbaseOperations hbaseOperations,
                               TableNameProvider tableNameProvider,
-                              @Qualifier("existMapper") RowMapper<Boolean> existMapper,
-                              @Qualifier("traceIndexDotMapper") RowMapper<List<Dot>> traceIndexDotMapper,
                               @Qualifier("traceIndexDistributor") RowKeyDistributor traceIndexDistributor) {
         this.scatterChartProperties = Objects.requireNonNull(scatterChartProperties, "scatterChartProperties");
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
-        this.existMapper = Objects.requireNonNull(existMapper, "existMapper");
-        this.traceIndexDotMapper = Objects.requireNonNull(traceIndexDotMapper, "traceIndexDotMapper");
         this.traceIndexDistributor = Objects.requireNonNull(traceIndexDistributor, "traceIndexDistributor");
     }
 
@@ -91,12 +86,13 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
     }
 
     @Override
-    public boolean hasTraceIndex(int serviceUid, String applicationName, int serviceTypeCode, Range range, boolean backwardDirection) {
+    public boolean hasTraceIndex(int serviceUid, String applicationName, int serviceTypeCode, Range range) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(range, "range");
         logger.debug("hasTraceIndex {}", range);
-        Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range, backwardDirection, 1);
+        Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range);
 
+        RowMapper<Boolean> existMapper = new ExistMapper(buildApplicationNamePredicate(applicationName));
         TableName applicationTraceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
         List<Boolean> existsList = hbaseOperations.findParallel(applicationTraceIndexTableName,
                 scan, traceIndexDistributor, 1, existMapper, TRACE_INDEX_NUM_PARTITIONS);
@@ -104,29 +100,31 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
     }
 
     @Override
-    public LimitedScanResult<List<DotMetaData>> scanTraceIndex(int serviceUid, final String applicationName, int serviceTypeCode, Range range, int limit, boolean scanBackward) {
+    public LimitedScanResult<List<DotMetaData>> scanTraceIndex(int serviceUid, final String applicationName, int serviceTypeCode, Range range, int limit) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(range, "range");
         if (limit < 0) {
             throw new IllegalArgumentException("negative limit:" + limit);
         }
         logger.debug("scanTraceIndex {}", range);
-        Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range, scanBackward, -1);
+        Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range);
         scan.addFamily(META.getName()); //for txId
 
+        RowMapper<DotMetaData> dotMetaMapper = createDotMetaMapper(applicationName);
         LastRowAccessor lastRowAccessor = new LastRowAccessor();
         TableName applicationTraceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
-        List<List<DotMetaData>> traceIndexList = hbaseOperations.findParallel(applicationTraceIndexTableName,
-                scan, traceIndexDistributor, limit, new TraceIndexMetaMapper(null, null, null), lastRowAccessor, TRACE_INDEX_NUM_PARTITIONS);
-
-        List<DotMetaData> transactionIdSum = ListListUtils.toList(traceIndexList);
+        List<DotMetaData> scanResult = hbaseOperations.findParallel(applicationTraceIndexTableName,
+                scan, traceIndexDistributor, limit, dotMetaMapper, lastRowAccessor, TRACE_INDEX_NUM_PARTITIONS);
+        List<DotMetaData> transactionIdSum = scanResult.stream()
+                .filter(Objects::nonNull)
+                .toList();
         final long lastTime = getLastTime(range, limit, lastRowAccessor, transactionIdSum);
 
         return new LimitedScanResult<>(lastTime, transactionIdSum);
     }
 
     @Override
-    public LimitedScanResult<List<Dot>> scanTraceScatterData(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit, boolean scanBackward) {
+    public LimitedScanResult<List<Dot>> scanTraceScatterData(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(range, "range");
         if (limit < 0) {
@@ -135,12 +133,15 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
         logger.debug("scanTraceScatterDataMadeOfDotGroup");
         LastRowAccessor lastRowAccessor = new LastRowAccessor();
 
-        Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range, scanBackward, -1);
+        Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range);
 
+        RowMapper<Dot> dotMapper = new TraceIndexDotMapper(buildApplicationNamePredicate(applicationName));
         TableName applicationTraceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
-        List<List<Dot>> listList = hbaseOperations.findParallel(applicationTraceIndexTableName, scan,
-                traceIndexDistributor, limit, this.traceIndexDotMapper, TRACE_INDEX_NUM_PARTITIONS);
-        List<Dot> dots = ListListUtils.toList(listList);
+        List<Dot> scanResult = hbaseOperations.findParallel(applicationTraceIndexTableName, scan,
+                traceIndexDistributor, limit, dotMapper, TRACE_INDEX_NUM_PARTITIONS);
+        List<Dot> dots = scanResult.stream()
+                .filter(Objects::nonNull)
+                .toList();
 
         final long lastTime = getLastTime(range, limit, lastRowAccessor, dots);
         return new LimitedScanResult<>(lastTime, dots);
@@ -155,73 +156,72 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
         Range range = Range.unchecked(dragArea.getXLow(), dragArea.getXHigh());
         logger.debug("scanTraceScatterData-range:{}", range);
 
-        Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range, true, -1);
+        Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range);
+        setHbaseFilter(scan, dragAreaQuery, rpcRegex);
+        scan.setLimit(limit);
         scan.addFamily(META.getName());
-        setHbaseFilter(scan, applicationName, dragAreaQuery, rpcRegex);
 
-        RowMapper<List<DotMetaData>> mapper = createDotMetaMapper(dragAreaQuery);
+        RowMapper<DotMetaData> mapper = createDotMetaMapper(applicationName, dragAreaQuery);
         LastRowAccessor lastRowAccessor = new LastRowAccessor();
 
         TableName applicationTraceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
-        List<List<DotMetaData>> scanResult = hbaseOperations.findParallel(applicationTraceIndexTableName, scan,
+        List<DotMetaData> scanResult = hbaseOperations.findParallel(applicationTraceIndexTableName, scan,
                 traceIndexDistributor, limit, mapper, lastRowAccessor, TRACE_INDEX_NUM_PARTITIONS);
-        List<DotMetaData> dotMetaDataList = ListListUtils.toList(scanResult);
+        List<DotMetaData> dotMetaDataList = scanResult.stream()
+                .filter(Objects::nonNull)
+                .toList();
 
         final long lastTime = getLastTime(range, limit, lastRowAccessor, dotMetaDataList);
         return new LimitedScanResult<>(lastTime, dotMetaDataList);
     }
 
-    private Scan createScan(int serviceUid, String applicationName, int serviceTypeCode, Range range, boolean scanBackward, int limit) {
+    private Scan createScan(int serviceUid, String applicationName, int serviceTypeCode, Range range) {
         Scan scan = new Scan();
         scan.setCaching(this.scanCacheSize);
-        applyLimitForScan(scan, limit);
 
         byte[] traceIndexStartKey = TraceIndexRowKeyUtils.createScanRowKey(serviceUid, applicationName, serviceTypeCode, range.getFrom());
         byte[] traceIndexEndKey = TraceIndexRowKeyUtils.createScanRowKey(serviceUid, applicationName, serviceTypeCode, range.getTo());
-
-        if (scanBackward) {
-            // start key is replaced by end key because key has been reversed
-            scan.withStartRow(traceIndexEndKey);
-            scan.withStopRow(traceIndexStartKey);
-        } else {
-            scan.setReversed(true);
-            scan.withStartRow(traceIndexStartKey);
-            scan.withStopRow(traceIndexEndKey);
-        }
+        // start key is replaced by end key because row timestamp has been reversed
+        scan.withStartRow(traceIndexEndKey);
+        scan.withStopRow(traceIndexStartKey);
 
         scan.addColumn(INDEX.getName(), INDEX.getName());
         scan.setId(INDEX.getTable().getName() + "scan");
         return scan;
     }
 
-    private void applyLimitForScan(Scan scan, int limit) {
-        if (limit == 1) {
-            scan.setOneRowLimit();
-        } else if (limit > 1) {
-            scan.setLimit(limit);
-        }
-    }
-
-    private void setHbaseFilter(Scan scan, String applicationName, DragAreaQuery dragAreaQuery, String rpcRegex) {
-        TraceIndexFilterBuilder filterBuilder = new TraceIndexFilterBuilder(applicationName);
+    private void setHbaseFilter(Scan scan, DragAreaQuery dragAreaQuery, String rpcRegex) {
+        TraceIndexFilterBuilder filterBuilder = new TraceIndexFilterBuilder();
         filterBuilder.setElapsedMinMax(new LongPair(dragAreaQuery.getDragArea().getYLow(), dragAreaQuery.getDragArea().getYHigh()));
         filterBuilder.setAgentId(dragAreaQuery.getAgentId());
         filterBuilder.setRpcRegex(rpcRegex);
         if (dragAreaQuery.getDotStatus() != null) {
             filterBuilder.setSuccess(dragAreaQuery.getDotStatus() == Dot.Status.SUCCESS);
         }
-        scan.setFilter(filterBuilder.build(scatterChartProperties.isEnableFuzzyRowFilter(), scatterChartProperties.isEnableIndexValueFilter()));
+        scan.setFilter(filterBuilder.build(scatterChartProperties.isEnableHbaseRowFilter(), scatterChartProperties.isEnableHbaseValueFilter()));
     }
 
-    private RowMapper<List<DotMetaData>> createDotMetaMapper(DragAreaQuery dragAreaQuery) {
-        if (scatterChartProperties.isEnableIndexValueFilter()) {
-            return new TraceIndexMetaMapper(null, null, null);
-        } else {
-            Predicate<Integer> elapsedTimePredicate = buildElapsedTimePredicate(dragAreaQuery);
-            Predicate<Integer> exceptionCodePredicate = buildExceptionCodePredicate(dragAreaQuery);
-            Predicate<String> agentIdPredicate = buildAgentIdPredicate(dragAreaQuery);
-            return new TraceIndexMetaMapper(elapsedTimePredicate, exceptionCodePredicate, agentIdPredicate);
+    private RowMapper<DotMetaData> createDotMetaMapper(String applicationName) {
+        Predicate<byte[]> applicationNamePredicate = buildApplicationNamePredicate(applicationName);
+        return new TraceIndexMetaMapper(applicationNamePredicate, null, null, null);
+    }
+
+    private RowMapper<DotMetaData> createDotMetaMapper(String applicationName, DragAreaQuery dragAreaQuery) {
+        Predicate<String> agentIdPredicate = buildAgentIdPredicate(dragAreaQuery);
+        Predicate<byte[]> applicationNamePredicate = buildApplicationNamePredicate(applicationName);
+        Predicate<Integer> exceptionCodePredicate = buildExceptionCodePredicate(dragAreaQuery);
+        Predicate<Integer> elapsedTimePredicate = null;
+        if (!scatterChartProperties.isEnableHbaseValueFilter()) {
+            elapsedTimePredicate = buildElapsedTimePredicate(dragAreaQuery);
         }
+        return new TraceIndexMetaMapper(applicationNamePredicate, exceptionCodePredicate, elapsedTimePredicate, agentIdPredicate);
+    }
+
+    private Predicate<byte[]> buildApplicationNamePredicate(String applicationName) {
+        return row -> {
+            String rowApplicationName = TraceIndexRowKeyUtils.extractApplicationName(row, 0);
+            return applicationName.equals(rowApplicationName);
+        };
     }
 
     private Predicate<Integer> buildElapsedTimePredicate(DragAreaQuery dragAreaQuery) {
@@ -258,11 +258,11 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
                 return;
             }
             byte[] row = lastResult.getRow();
-            this.lastRowTimestamp = TraceIndexRowKeyUtils.extractAcceptTime(row, 0, row.length);
+            this.lastRowTimestamp = TraceIndexRowKeyUtils.extractAcceptTime(row, 0);
             if (logger.isDebugEnabled()) {
                 final Cell lastMeta = lastResult.getColumnLatestCell(META.getName(), META.getName());
                 if (lastMeta != null) {
-                    long spanId = TraceIndexRowKeyUtils.extractSpanId(row, 0, row.length);
+                    long spanId = TraceIndexRowKeyUtils.extractSpanId(row, 0);
                     TraceIndexValue.Meta meta = TraceIndexValue.Meta.decode(lastMeta.getValueArray(), lastMeta.getValueOffset(), lastMeta.getValueLength());
                     logger.debug("lastRowTimestamp={}, txId={}, spanId={}", DateTimeFormatUtils.format(lastRowTimestamp), meta.transactionId(), spanId);
                 } else {

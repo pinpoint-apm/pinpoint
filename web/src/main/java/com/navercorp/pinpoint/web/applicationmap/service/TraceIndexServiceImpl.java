@@ -61,11 +61,6 @@ public class TraceIndexServiceImpl implements TraceIndexService {
 
     @Override
     public LimitedScanResult<List<TransactionId>> getTraceIndexV2(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit) {
-        return getTraceIndexV2(serviceUid, applicationName, serviceTypeCode, range, limit, true);
-    }
-
-    @Override
-    public LimitedScanResult<List<TransactionId>> getTraceIndexV2(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit, boolean backwardDirection) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(range, "range");
 
@@ -73,7 +68,7 @@ public class TraceIndexServiceImpl implements TraceIndexService {
             logger.trace("scan(selectTraceIdsFromApplicationTraceIndexV2) {}, {}", applicationName, range);
         }
 
-        LimitedScanResult<List<DotMetaData>> listLimitedScanResult = this.traceIndexDao.scanTraceIndex(serviceUid, applicationName, serviceTypeCode, range, limit, backwardDirection);
+        LimitedScanResult<List<DotMetaData>> listLimitedScanResult = this.traceIndexDao.scanTraceIndex(serviceUid, applicationName, serviceTypeCode, range, limit);
         List<TransactionId> transactionIds = listLimitedScanResult.scanData().stream()
                 .map(meta -> meta.getDot().getTransactionId())
                 .toList();
