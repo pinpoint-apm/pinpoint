@@ -31,8 +31,6 @@ import com.navercorp.pinpoint.web.config.ScatterChartProperties;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.scatter.ScatterDataBuilder;
 import com.navercorp.pinpoint.web.scatter.dao.TraceIndexDao;
-import com.navercorp.pinpoint.web.scatter.dao.mapper.ExistMapper;
-import com.navercorp.pinpoint.web.scatter.dao.mapper.TraceIndexScatterMapper;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
@@ -49,13 +47,11 @@ import org.mockito.Spy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class HbaseTraceIndexDaoTest {
@@ -83,45 +79,43 @@ public class HbaseTraceIndexDaoTest {
     public void beforeEach() {
         openMocks = MockitoAnnotations.openMocks(this);
         ScatterChartProperties scatterChartProperties = new ScatterChartProperties();
-
-        RowMapper<List<Dot>> traceScatterMapper = new TraceIndexScatterMapper();
-        RowMapper<Boolean> existsMapper = new ExistMapper();
-        this.traceIndexDao = new HbaseTraceIndexDao(scatterChartProperties, hbaseOperations, tableNameProvider, existsMapper, traceScatterMapper, traceIndexRowKeyDistributor);
+        this.traceIndexDao = new HbaseTraceIndexDao(scatterChartProperties, hbaseOperations, tableNameProvider, traceIndexRowKeyDistributor);
     }
 
     @Test
     public void scanTraceIndexExceptionTest() {
-        assertThrows(IllegalArgumentException.class, () -> this.traceIndexDao.scanTraceIndex(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), Range.between(0, 10), -20, false));
+        int limit = -20;
+        assertThrows(IllegalArgumentException.class, () -> this.traceIndexDao.scanTraceIndex(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), Range.between(0, 10), limit));
     }
 
     @Test
-    public void scanTraceIndexTest() {
-        final List<List<DotMetaData>> scannedList = List.of(Collections.nCopies(10, testDotMetaData));
+    public void scanTraceIndexMetaTest() {
+        final List<List<DotMetaData>> scannedList = Collections.nCopies(10, List.of(testDotMetaData));
         when(this.hbaseOperations.findParallel(any(TableName.class), any(Scan.class), any(RowKeyDistributor.class),
                 anyInt(), any(RowMapper.class), any(LastRowHandler.class), anyInt())).thenReturn(scannedList);
         LimitedScanResult<List<DotMetaData>> result =
-                this.traceIndexDao.scanTraceIndex(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), Range.between(1000L, 5000L), 20, false);
+                this.traceIndexDao.scanTraceIndex(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), Range.between(1000L, 5000L), 20);
         Assertions.assertEquals(1000L, result.limitedTime());
 
         // using last row accessor
-        result = this.traceIndexDao.scanTraceIndex(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), Range.between(1000L, 5000L), 5, true);
+        result = this.traceIndexDao.scanTraceIndex(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), Range.between(1000L, 5000L), 5);
         Assertions.assertEquals(-1L, result.limitedTime());
 
     }
 
     @Test
     public void scanTraceScatterDataExceptionTest() {
-        assertThrows(IllegalArgumentException.class, () -> this.traceIndexDao.scanTraceScatterData(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), Range.between(1000L, 5000L), -10, false));
+        assertThrows(IllegalArgumentException.class, () -> this.traceIndexDao.scanTraceScatterData(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), Range.between(1000L, 5000L), -10));
     }
 
     @Test
-    public void scanTraceScatterDataEmptyTest() {
+    public void scanTraceIndexEmptyTest() {
 
         when(this.hbaseOperations.findParallel(any(TableName.class), any(Scan.class), any(RowKeyDistributor.class),
                 anyInt(), any(RowMapper.class), any(LastRowHandler.class), anyInt())).thenReturn(List.of());
         Range range = Range.between(1000L, 5000L);
         LimitedScanResult<List<Dot>> scanResult
-                = this.traceIndexDao.scanTraceScatterData(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), range, 10, false);
+                = this.traceIndexDao.scanTraceScatterData(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), range, 10);
         ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), 1, 5);
         scanResult.scanData().forEach(builder::addDot);
         ScatterData result = builder.build();
@@ -132,15 +126,15 @@ public class HbaseTraceIndexDaoTest {
     }
 
     @Test
-    public void scanTraceScatterDataTest() {
-        List<List<Dot>> scatterDotList = createScatterDotList();
+    public void scanTraceIndexDotTest() {
+        List<List<Dot>> scanResult = createScatterDotList();
         when(this.hbaseOperations.findParallel(any(TableName.class), any(Scan.class), any(RowKeyDistributor.class),
-                anyInt(), any(RowMapper.class), anyInt())).thenReturn(scatterDotList);
+                anyInt(), any(RowMapper.class), anyInt())).thenReturn(scanResult);
         Range range = Range.between(1000L, 5000L);
-        LimitedScanResult<List<Dot>> scanResult
-                = this.traceIndexDao.scanTraceScatterData(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), range, 10, false);
+        LimitedScanResult<List<Dot>> limitedScanResult
+                = this.traceIndexDao.scanTraceScatterData(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), range, 10);
         ScatterDataBuilder builder = new ScatterDataBuilder(range.getFrom(), range.getTo(), 1, 5);
-        scanResult.scanData().forEach(builder::addDot);
+        limitedScanResult.scanData().forEach(builder::addDot);
         ScatterData result = builder.build();
         Assertions.assertEquals(1000L, result.getFrom());
         Assertions.assertEquals(5000L, result.getTo());
@@ -149,48 +143,12 @@ public class HbaseTraceIndexDaoTest {
     }
 
     private List<List<Dot>> createScatterDotList() {
-        List<List<Dot>> ret = new ArrayList<>();
+        List<List<Dot>> result = new ArrayList<>();
         TransactionId transactionId = TransactionId.of("A", 1, 1);
-        addDot(ret, new Dot(transactionId, 2000L, 1000, 0, "a1"));
-        addDot(ret, new Dot(transactionId, 3000L, 5000, 0, "a2"));
-        addDot(ret, new Dot(transactionId, 2400L, 3000, 0, "a3"));
-        return ret;
-    }
-
-    private void addDot(List<List<Dot>> list, Dot dot) {
-        list.add(List.of(dot));
-    }
-
-    @Test
-    public void dotStatusFilterTest() {
-        Predicate<Dot> dotStatusFilter = new HbaseApplicationTraceIndexDao.DotStatusFilter("agent", Dot.Status.SUCCESS);
-        Dot dot = mock(Dot.class);
-        when(dot.getAgentId()).thenReturn("agent");
-        when(dot.getStatus()).thenReturn(Dot.Status.SUCCESS);
-
-        Assertions.assertTrue(dotStatusFilter.test(dot));
-    }
-
-    @Test
-    public void dotStatusFilterTest_fail1() {
-        Predicate<Dot> dotStatusFilter = new HbaseApplicationTraceIndexDao.DotStatusFilter("agent", Dot.Status.SUCCESS);
-        Dot dot = mock(Dot.class);
-        when(dot.getAgentId()).thenReturn("agent");
-        when(dot.getStatus()).thenReturn(Dot.Status.FAILED);
-
-        Assertions.assertFalse(dotStatusFilter.test(dot));
-
-    }
-
-    @Test
-    public void dotStatusFilterTest_fail2() {
-        Predicate<Dot> dotStatusFilter = new HbaseApplicationTraceIndexDao.DotStatusFilter("agent", Dot.Status.SUCCESS);
-        Dot dot = mock(Dot.class);
-        when(dot.getAgentId()).thenReturn("xxx");
-        when(dot.getStatus()).thenReturn(Dot.Status.SUCCESS);
-
-        Assertions.assertFalse(dotStatusFilter.test(dot));
-
+        result.add(List.of(new Dot(transactionId, 2000L, 1000, 0, "a1")));
+        result.add(List.of(new Dot(transactionId, 3000L, 5000, 0, "a2")));
+        result.add(List.of(new Dot(transactionId, 2400L, 3000, 0, "a3")));
+        return result;
     }
 
 }

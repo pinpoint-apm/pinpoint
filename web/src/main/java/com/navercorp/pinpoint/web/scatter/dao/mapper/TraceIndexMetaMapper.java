@@ -36,18 +36,18 @@ public class TraceIndexMetaMapper implements RowMapper<List<DotMetaData>>, RowTy
     private final HbaseColumnFamily index = HbaseTables.TRACE_INDEX;
     private final HbaseColumnFamily meta = HbaseTables.TRACE_INDEX_META;
 
-    // @Nullable
-    private final Predicate<Integer> elapsedTimeFilter;
-    // @Nullable
+    private final Predicate<byte[]> rowPredicate;
     private final Predicate<Integer> exceptionCodeFilter;
-    // @Nullable
+    private final Predicate<Integer> elapsedTimeFilter;
     private final Predicate<String> agentIdFilter;
 
-    public TraceIndexMetaMapper(Predicate<Integer> elapsedTimeFilter,
+    public TraceIndexMetaMapper(Predicate<byte[]> rowPredicate,
                                 Predicate<Integer> exceptionCodeFilter,
+                                Predicate<Integer> elapsedTimeFilter,
                                 Predicate<String> agentIdFilter) {
-        this.elapsedTimeFilter = elapsedTimeFilter;
+        this.rowPredicate = rowPredicate;
         this.exceptionCodeFilter = exceptionCodeFilter;
+        this.elapsedTimeFilter = elapsedTimeFilter;
         this.agentIdFilter = agentIdFilter;
     }
 
@@ -56,11 +56,14 @@ public class TraceIndexMetaMapper implements RowMapper<List<DotMetaData>>, RowTy
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
+        if (rowPredicate != null && !rowPredicate.test(result.getRow())) {
+            return Collections.emptyList();
+        }
 
         DotMetaData.BuilderV2 builder = new DotMetaData.BuilderV2();
         byte[] row = result.getRow();
-        builder.setAcceptedTime(TraceIndexRowKeyUtils.extractAcceptTime(row, 0, row.length));
-        builder.setSpanId(TraceIndexRowKeyUtils.extractSpanId(row, 0, row.length));
+        builder.setAcceptedTime(TraceIndexRowKeyUtils.extractAcceptTime(row, 0));
+        builder.setSpanId(TraceIndexRowKeyUtils.extractSpanId(row, 0));
         for (Cell cell : result.rawCells()) {
             if (CellUtil.matchingColumn(cell, index.getName(), index.getName())) {
                 builder.readIndex(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());

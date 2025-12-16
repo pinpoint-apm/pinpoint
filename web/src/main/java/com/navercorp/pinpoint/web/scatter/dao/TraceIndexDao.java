@@ -27,11 +27,11 @@ import java.util.List;
 // ApplicationTraceIndexDao V2
 public interface TraceIndexDao {
 
-    boolean hasTraceIndex(int serviceUid, String applicationName, int serviceTypeCode, Range range, boolean backwardDirection);
+    boolean hasTraceIndex(int serviceUid, String applicationName, int serviceTypeCode, Range range);
 
-    LimitedScanResult<List<DotMetaData>> scanTraceIndex(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit, boolean backwardDirection);
+    LimitedScanResult<List<DotMetaData>> scanTraceIndex(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit);
 
-    LimitedScanResult<List<Dot>> scanTraceScatterData(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit, boolean scanBackward);
+    LimitedScanResult<List<Dot>> scanTraceScatterData(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit);
 
     LimitedScanResult<List<DotMetaData>> scanScatterDataV2(int serviceUid, String applicationName, int serviceTypeCode, DragAreaQuery dragAreaQuery, String rpcRegex, int limit);
 
