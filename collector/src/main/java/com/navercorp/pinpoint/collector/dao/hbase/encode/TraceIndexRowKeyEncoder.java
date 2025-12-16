@@ -20,8 +20,6 @@ import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
-import com.navercorp.pinpoint.common.server.scatter.FuzzyRowKeyFactory;
-import com.navercorp.pinpoint.common.server.scatter.OneByteFuzzyRowKeyFactory;
 import com.navercorp.pinpoint.common.server.scatter.TraceIndexRowKeyUtils;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 
@@ -29,7 +27,6 @@ import java.util.Objects;
 
 public class TraceIndexRowKeyEncoder implements RowKeyEncoder<SpanBo> {
 
-    private final FuzzyRowKeyFactory<Byte> fuzzyRowKeyFactory = new OneByteFuzzyRowKeyFactory();
     private final ByteHasher hasher;
 
     public TraceIndexRowKeyEncoder(RowKeyDistributor rowKeyDistributor) {
@@ -37,9 +34,8 @@ public class TraceIndexRowKeyEncoder implements RowKeyEncoder<SpanBo> {
         this.hasher = rowKeyDistributor.getByteHasher();
     }
 
-    public byte[] encodeRowKey(int saltKeySize, int serviceUid, String applicationName, int serviceTypeCode, int elapsedTime, long acceptedTime, long spanId) {
-        byte fuzzySlotKey = fuzzyRowKeyFactory.getKey(elapsedTime);
-        final byte[] rowKey = TraceIndexRowKeyUtils.createFuzzyRowKey(saltKeySize, serviceUid, applicationName, serviceTypeCode, acceptedTime, fuzzySlotKey, spanId);
+    public byte[] encodeRowKey(int saltKeySize, int serviceUid, String applicationName, int serviceTypeCode, long acceptedTime, String agentId, long spanId, int elapsedTime, int errorCode) {
+        final byte[] rowKey = TraceIndexRowKeyUtils.createRowKeyWithSaltSize(saltKeySize, serviceUid, applicationName, serviceTypeCode, acceptedTime, spanId, elapsedTime, errorCode, agentId);
         if (saltKeySize == 0) {
             return rowKey;
         }
@@ -49,12 +45,18 @@ public class TraceIndexRowKeyEncoder implements RowKeyEncoder<SpanBo> {
     @Override
     public byte[] encodeRowKey(SpanBo span) {
         ServiceUid serviceUid = ServiceUid.DEFAULT; //span.getServiceUid();
-        return encodeRowKey(hasher.getSaltKey().size(), serviceUid.getUid(), span.getApplicationName(), span.getApplicationServiceType(), span.getElapsed(), span.getCollectorAcceptTime(), span.getSpanId());
+        return encodeRowKey(hasher.getSaltKey().size(),
+                serviceUid.getUid(), span.getApplicationName(), span.getApplicationServiceType(),
+                span.getCollectorAcceptTime(), span.getAgentId(),
+                span.getSpanId(), span.getElapsed(), span.getErrCode());
     }
 
     @Override
     public byte[] encodeRowKey(int saltKeySize, SpanBo span) {
         ServiceUid serviceUid = ServiceUid.DEFAULT; //span.getServiceUid();
-        return encodeRowKey(saltKeySize, serviceUid.getUid(), span.getApplicationName(), span.getApplicationServiceType(), span.getElapsed(), span.getCollectorAcceptTime(), span.getSpanId());
+        return encodeRowKey(saltKeySize,
+                serviceUid.getUid(), span.getApplicationName(), span.getApplicationServiceType(),
+                span.getCollectorAcceptTime(), span.getAgentId(),
+                span.getSpanId(), span.getElapsed(), span.getErrCode());
     }
 }

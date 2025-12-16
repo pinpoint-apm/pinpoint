@@ -106,7 +106,7 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
         if (readTraceIndexV2) {
             List<Application> applicationList = getApplications(applicationName);
             for (Application application : applicationList) {
-                if (this.traceIndexDao.hasTraceIndex(ServiceUid.DEFAULT_SERVICE_UID_CODE, application.getName(), application.getServiceTypeCode(), range, false)) {
+                if (this.traceIndexDao.hasTraceIndex(ServiceUid.DEFAULT_SERVICE_UID_CODE, application.getName(), application.getServiceTypeCode(), range)) {
                     return true;
                 }
             }
