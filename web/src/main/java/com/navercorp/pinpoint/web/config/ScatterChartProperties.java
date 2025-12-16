@@ -7,15 +7,21 @@ public class ScatterChartProperties {
     @Value("${web.scatter.serverside-scan.use-fuzzyrowfilter:false}")
     private boolean enableFuzzyRowFilter;
 
-    // Requires HBase 2.2 or higher (HBASE-22969)
-    @Value("${web.scatter.index.value-filter.enable:false}")
-    private boolean enableIndexValueFilter;
+    @Value("${web.scatter.hbase.row-filter.enabled:true}")
+    private boolean enableHbaseRowFilter;
+
+    @Value("${web.scatter.hbase.value-filter.enabled:true}")
+    private boolean enableHbaseValueFilter;
 
     public boolean isEnableFuzzyRowFilter() {
         return enableFuzzyRowFilter;
     }
 
-    public boolean isEnableIndexValueFilter() {
-        return enableIndexValueFilter;
+    public boolean isEnableHbaseRowFilter() {
+        return enableHbaseRowFilter;
+    }
+
+    public boolean isEnableHbaseValueFilter() {
+        return enableHbaseValueFilter;
     }
 }

@@ -27,18 +27,18 @@ import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
-import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
 // TraceIndexScatterMapper version 2
-@Component
 public class TraceIndexDotMapper implements RowMapper<List<Dot>>, RowTypeHint {
     private final HbaseColumnFamily index = HbaseTables.TRACE_INDEX;
+    private final Predicate<byte[]> rowPredicate;
 
-    public TraceIndexDotMapper() {
+    public TraceIndexDotMapper(Predicate<byte[]> rowPredicate) {
+        this.rowPredicate = rowPredicate;
     }
 
     @Override
@@ -46,16 +46,17 @@ public class TraceIndexDotMapper implements RowMapper<List<Dot>>, RowTypeHint {
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
+        if (rowPredicate != null && !rowPredicate.test(result.getRow())) {
+            return Collections.emptyList();
+        }
 
-        List<Dot> list = new ArrayList<>(1);
-        long acceptedTime = TraceIndexRowKeyUtils.extractAcceptTime(result.getRow(), 0, result.getRow().length);
+        long acceptedTime = TraceIndexRowKeyUtils.extractAcceptTime(result.getRow(), 0);
         for (Cell cell : result.rawCells()) {
-            if (CellUtil.matchingFamily(cell, index.getName())) {
-                Dot dot = createDot(acceptedTime, cell);
-                list.add(dot);
+            if (CellUtil.matchingColumn(cell, index.getName(), index.getName())) {
+                return List.of(createDot(acceptedTime, cell));
             }
         }
-        return list;
+        return Collections.emptyList();
     }
 
     private Dot createDot(long acceptedTime, Cell cell) {

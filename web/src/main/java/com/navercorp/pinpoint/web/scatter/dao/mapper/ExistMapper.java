@@ -18,14 +18,24 @@ package com.navercorp.pinpoint.web.scatter.dao.mapper;
 
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import org.apache.hadoop.hbase.client.Result;
-import org.springframework.stereotype.Component;
 
-@Component
+import java.util.function.Predicate;
+
 public class ExistMapper implements RowMapper<Boolean> {
+
+    private final Predicate<byte[]> rowPredicate;
+
+    public ExistMapper(Predicate<byte[]> rowPredicate) {
+        this.rowPredicate = rowPredicate;
+    }
+
     @Override
     public Boolean mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
-            return Boolean.FALSE;
+            return null;
+        }
+        if (rowPredicate != null && !rowPredicate.test(result.getRow())) {
+            return null; // null for no count
         }
         return Boolean.TRUE;
     }
