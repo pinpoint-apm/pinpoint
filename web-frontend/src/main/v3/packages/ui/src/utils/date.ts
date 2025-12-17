@@ -95,7 +95,7 @@ export const convertToTimeUnit = (milliseconds = 0) => {
   }
 };
 
-export const spilitDateStringByHour = (dateString: string) => {
+export const splitDateStringByHour = (dateString: string) => {
   const delimiter = /(?<=\s)hh/i;
   const splitArray = dateString.split(delimiter);
   // return splitArray;
@@ -105,7 +105,7 @@ export const spilitDateStringByHour = (dateString: string) => {
 };
 
 export const formatNewLinedDateString = (date: Date | number) => {
-  const [firstFormat, secondFormat] = spilitDateStringByHour(getCurrentFormat());
+  const [firstFormat, secondFormat] = splitDateStringByHour(getCurrentFormat());
 
   return `${format(date, firstFormat)}\n${format(date, secondFormat)}`;
 };

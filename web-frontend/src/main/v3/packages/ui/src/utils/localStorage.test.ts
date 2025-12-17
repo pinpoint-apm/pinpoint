@@ -21,7 +21,7 @@ describe('Test localStorage utils', () => {
     });
 
     test('Return parsed object from localStorage', () => {
-      const key = APP_SETTING_KEYS.FAVORLIITE_APPLICATION_LIST;
+      const key = APP_SETTING_KEYS.FAVORIITE_APPLICATION_LIST;
       const value = [{ name: 'app1', type: 'node' }];
       localStorage.setItem(key, JSON.stringify(value));
 

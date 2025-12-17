@@ -6,7 +6,7 @@ import {
   getFormattedDateRange,
   getParsedDate,
   getParsedDates,
-  spilitDateStringByHour,
+  splitDateStringByHour,
   formatNewLinedDateString,
   convertTimeStringToTime,
   isValidTimezone,
@@ -179,10 +179,10 @@ describe('Test date utils', () => {
     });
   });
 
-  describe('Test "spilitDateStringByHour"', () => {
+  describe('Test "splitDateStringByHour"', () => {
     test('Split date string by hour delimiter', () => {
       const dateString = 'yyyy.MM.dd hh:mm:ss aa';
-      const result = spilitDateStringByHour(dateString);
+      const result = splitDateStringByHour(dateString);
       expect(result).toHaveLength(2);
       expect(result[0]).toBeTruthy();
       expect(result[1]).toBeTruthy();
@@ -190,7 +190,7 @@ describe('Test date utils', () => {
 
     test('Handle date string without hour delimiter', () => {
       const dateString = 'yyyy.MM.dd HH:mm:ss';
-      const result = spilitDateStringByHour(dateString);
+      const result = splitDateStringByHour(dateString);
       expect(result).toHaveLength(2);
     });
   });

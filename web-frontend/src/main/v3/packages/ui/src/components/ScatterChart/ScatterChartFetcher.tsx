@@ -5,7 +5,7 @@ import {
   convertParamsToQueryString,
   getScatterFullScreenPath,
   getTransactionListPath,
-  getTranscationListQueryString,
+  getTransactionListQueryString,
 } from '@pinpoint-fe/ui/src/utils';
 import { useGetScatterData, useServerMapSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 import { scatterDataAtom } from '@pinpoint-fe/ui/src/atoms';
@@ -101,7 +101,7 @@ export const ScatterChartFetcher = ({
           `${BASE_PATH}${getTransactionListPath(
             node,
             searchParameters,
-          )}&${getTranscationListQueryString({
+          )}&${getTransactionListQueryString({
             ...data,
             checkedLegends,
             agentId: agentId === SCATTER_DATA_TOTAL_KEY ? '' : agentId,

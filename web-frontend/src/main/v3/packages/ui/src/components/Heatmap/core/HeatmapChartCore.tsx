@@ -15,7 +15,7 @@ import {
   getHeatmapFullScreenPath,
   getHeatmapFullScreenRealtimePath,
   getTransactionListPath,
-  getTranscationListQueryString,
+  getTransactionListQueryString,
   useServerMapSearchParameters,
   useStoragedSetting,
 } from '@pinpoint-fe/ui';
@@ -107,7 +107,7 @@ const HeatmapChartCore = ({
       `${BASE_PATH}${getTransactionListPath(
         nodeData,
         isRealtime ? getFormattedDateRange(dateRange) : searchParameters,
-      )}&${getTranscationListQueryString({
+      )}&${getTransactionListQueryString({
         ...data,
         checkedLegends,
         agentId,

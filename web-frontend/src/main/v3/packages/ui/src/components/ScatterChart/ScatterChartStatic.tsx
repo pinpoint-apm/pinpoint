@@ -3,7 +3,7 @@ import { ScatterDataType } from '@pinpoint-fe/scatter-chart';
 import {
   getScatterFullScreenPath,
   convertParamsToQueryString,
-  getTranscationListQueryString,
+  getTransactionListQueryString,
   getTransactionListPath,
 } from '@pinpoint-fe/ui/src/utils';
 import {
@@ -21,8 +21,10 @@ import {
 import { useServerMapSearchParameters, useTimezone } from '@pinpoint-fe/ui/src/hooks';
 import { useStoragedAxisY } from './core/useStoragedAxisY';
 
-export interface ScatterChartStaticProps
-  extends Pick<ScatterChartCoreProps, 'toolbarOption' | 'onDragEnd'> {
+export interface ScatterChartStaticProps extends Pick<
+  ScatterChartCoreProps,
+  'toolbarOption' | 'onDragEnd'
+> {
   application: ApplicationType;
   data?: ScatterDataType[];
   range: [number, number];
@@ -110,7 +112,7 @@ export const ScatterChartStatic = ({
             `${BASE_PATH}${getTransactionListPath(
               application,
               searchParameters,
-            )}&${getTranscationListQueryString({
+            )}&${getTransactionListQueryString({
               ...data,
               checkedLegends,
               agentId: selectedAgentId === SCATTER_DATA_TOTAL_KEY ? '' : selectedAgentId,

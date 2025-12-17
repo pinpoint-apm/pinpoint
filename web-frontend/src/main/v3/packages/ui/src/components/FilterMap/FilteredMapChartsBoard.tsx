@@ -33,15 +33,17 @@ import {
   getApplicationKey,
   getServerImagePath,
   getTransactionListPath,
-  getTranscationListQueryString,
+  getTransactionListQueryString,
 } from '@pinpoint-fe/ui/src/utils';
 import { useFilteredMapParameters } from '@pinpoint-fe/ui/src/hooks';
 import { ServerListForCommon } from '@pinpoint-fe/ui/src/components/ServerList/ServerListForCommon';
 import { MdArrowForwardIos, MdArrowBackIosNew } from 'react-icons/md';
 import { PiArrowSquareOut } from 'react-icons/pi';
 
-export interface FilteredMapChartsBoardProps
-  extends Omit<ChartsBoardProps, 'timestamp' | 'nodeData' | 'header'> {
+export interface FilteredMapChartsBoardProps extends Omit<
+  ChartsBoardProps,
+  'timestamp' | 'nodeData' | 'header'
+> {
   authorizationGuideUrl?: string;
   currentPanelWidth: number;
   SERVER_LIST_WIDTH: number;
@@ -213,7 +215,7 @@ export const FilteredMapChartsBoard = ({
                               `${BASE_PATH}${getTransactionListPath(
                                 serverMapCurrentTarget,
                                 searchParameters,
-                              )}&${getTranscationListQueryString({
+                              )}&${getTransactionListQueryString({
                                 ...data,
                                 checkedLegends: checkedLables,
                                 agentId: '',
@@ -302,7 +304,7 @@ export const FilteredMapChartsBoard = ({
                           `${BASE_PATH}${getTransactionListPath(
                             application,
                             searchParameters,
-                          )}&${getTranscationListQueryString({
+                          )}&${getTransactionListQueryString({
                             ...data,
                             checkedLegends: checkedLables,
                             agentId: currentServer?.agentId,

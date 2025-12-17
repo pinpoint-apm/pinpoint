@@ -10,7 +10,7 @@ export type TransactionListQueryParam = {
   agentId?: string;
 };
 
-export const getTranscationListQueryString = (queryParam: TransactionListQueryParam) => {
+export const getTransactionListQueryString = (queryParam: TransactionListQueryParam) => {
   return `dragInfo=${encodeURI(
     JSON.stringify({
       x1: Math.floor(queryParam.x1),
