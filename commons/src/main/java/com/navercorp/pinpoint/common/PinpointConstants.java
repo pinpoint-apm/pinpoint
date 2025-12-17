@@ -31,5 +31,5 @@ public final class PinpointConstants {
     public static final int APPLICATION_NAME_MAX_LEN_V3 = SERVICE_NAME_MAX_LEN;
 
     public static final int AGENT_NAME_MAX_LEN_V4 = APPLICATION_NAME_MAX_LEN_V3;
-
+    public static final int OPENTELEMETRY_TRACE_ID_LEN = 32;
 }

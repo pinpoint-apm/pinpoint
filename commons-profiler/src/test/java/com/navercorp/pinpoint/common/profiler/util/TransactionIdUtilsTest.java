@@ -71,14 +71,4 @@ public class TransactionIdUtilsTest {
         TransactionId transactionId = TransactionIdUtils.parseTransactionId(agentId + "^1^2");
         Assertions.assertEquals(agentId, transactionId.getAgentId());
     }
-
-    @Test
-    public void tooLongAgentId() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            String agentId = StringUtils.repeat('a', PinpointConstants.AGENT_ID_MAX_LEN + 1);
-            TransactionId transactionId = TransactionIdUtils.parseTransactionId(agentId + "^1^2");
-            Assertions.assertEquals(agentId, transactionId.getAgentId());
-        });
-    }
-
 }

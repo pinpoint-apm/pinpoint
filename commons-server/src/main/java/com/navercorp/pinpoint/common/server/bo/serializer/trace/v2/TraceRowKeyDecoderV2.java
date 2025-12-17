@@ -32,6 +32,8 @@ import java.util.Objects;
 public class TraceRowKeyDecoderV2 implements RowKeyDecoder<TransactionId> {
 
     public static final int AGENT_ID_MAX_LEN = TraceRowKeyEncoderV2.AGENT_ID_MAX_LEN;
+    private static final int OPENTELEMETRY_TRACE_ID_LEN = TraceRowKeyEncoderV2.OPENTELEMETRY_TRACE_ID_LEN;
+    private static final int OPENTELEMTRY_LEN = OPENTELEMETRY_TRACE_ID_LEN + BytesUtils.LONG_BYTE_LENGTH + BytesUtils.LONG_BYTE_LENGTH;
 
     private final ByteSaltKey saltKey;
 
@@ -52,6 +54,9 @@ public class TraceRowKeyDecoderV2 implements RowKeyDecoder<TransactionId> {
     }
 
     private TransactionId readTransactionId(byte[] rowKey, int offset) {
+        if (rowKey.length == offset + OPENTELEMTRY_LEN) {
+            return readOpenTelemetryTransactionId(rowKey, offset);
+        }
 
         String agentId = BytesUtils.toStringAndRightTrim(rowKey, offset, AGENT_ID_MAX_LEN);
         long agentStartTime = ByteArrayUtils.bytesToLong(rowKey, offset + AGENT_ID_MAX_LEN);
@@ -60,4 +65,11 @@ public class TraceRowKeyDecoderV2 implements RowKeyDecoder<TransactionId> {
         return TransactionId.of(agentId, agentStartTime, transactionSequence);
     }
 
+    private TransactionId readOpenTelemetryTransactionId(byte[] rowKey, int offset) {
+        String agentId = BytesUtils.toStringAndRightTrim(rowKey, offset, OPENTELEMETRY_TRACE_ID_LEN);
+        long agentStartTime = ByteArrayUtils.bytesToLong(rowKey, offset + OPENTELEMETRY_TRACE_ID_LEN);
+        long transactionSequence = ByteArrayUtils.bytesToLong(rowKey, offset + BytesUtils.LONG_BYTE_LENGTH + OPENTELEMETRY_TRACE_ID_LEN);
+
+        return TransactionId.of(agentId, agentStartTime, transactionSequence);
+    }
 }

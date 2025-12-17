@@ -31,6 +31,7 @@ import java.util.Objects;
 public class TraceRowKeyEncoderV2 implements RowKeyEncoder<TransactionId> {
 
     public static final int AGENT_ID_MAX_LEN = PinpointConstants.AGENT_ID_MAX_LEN;
+    public static final int OPENTELEMETRY_TRACE_ID_LEN = PinpointConstants.OPENTELEMETRY_TRACE_ID_LEN;
 
     private final ByteHasher byteHasher;
 
@@ -47,7 +48,12 @@ public class TraceRowKeyEncoderV2 implements RowKeyEncoder<TransactionId> {
     public byte[] encodeRowKey(int saltKeySize, TransactionId transactionId) {
         Objects.requireNonNull(transactionId, "transactionId");
 
-        byte[] rowKey = RowKeyUtils.stringLongLongToBytes(saltKeySize, transactionId.getAgentId(), AGENT_ID_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
+        final String agentId = transactionId.getAgentId();
+        int maxStringSize = AGENT_ID_MAX_LEN;
+        if(agentId.length() == OPENTELEMETRY_TRACE_ID_LEN) {
+            maxStringSize = OPENTELEMETRY_TRACE_ID_LEN;
+        }
+        byte[] rowKey = RowKeyUtils.stringLongLongToBytes(saltKeySize, agentId, maxStringSize, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
         if (saltKeySize == 0) {
             return rowKey;
         }
