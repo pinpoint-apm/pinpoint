@@ -33,4 +33,8 @@ public interface TransactionId {
     static TransactionId of(String agentId, long agentStartTime, long transactionSequence) {
         return new TransactionIdV1(agentId, agentStartTime, transactionSequence);
     }
+
+    static TransactionId of(String openTelemetryTraceId) {
+        return new TransactionIdV1(openTelemetryTraceId, 0, 0);
+    }
 }
