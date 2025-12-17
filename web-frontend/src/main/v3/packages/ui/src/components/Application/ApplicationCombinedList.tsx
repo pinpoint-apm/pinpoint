@@ -11,7 +11,7 @@ export interface ApplicationCombinedListProps extends ApplicationCombinedListFor
 
 export const ApplicationCombinedList = (props: ApplicationCombinedListProps) => {
   const [favoriteList, setFavoriteList] = useLocalStorage<ApplicationType[]>(
-    APP_SETTING_KEYS.FAVORLIITE_APPLICATION_LIST,
+    APP_SETTING_KEYS.FAVORIITE_APPLICATION_LIST,
     [],
   );
 

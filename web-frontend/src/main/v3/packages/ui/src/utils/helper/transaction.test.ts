@@ -1,5 +1,5 @@
 import {
-  getTranscationListQueryString,
+  getTransactionListQueryString,
   getTransactionDetailQueryString,
   getTransactionTableUniqueKey,
   getTransactionDetailPathByTransactionId,
@@ -11,7 +11,7 @@ jest.mock('./route', () => ({
 }));
 
 describe('Test transaction helper utils', () => {
-  describe('Test "getTranscationListQueryString"', () => {
+  describe('Test "getTransactionListQueryString"', () => {
     test('Generate query string with all parameters', () => {
       const queryParam = {
         x1: 100.5,
@@ -21,7 +21,7 @@ describe('Test transaction helper utils', () => {
         checkedLegends: ['success', 'failed'],
         agentId: 'agent-123',
       };
-      const result = getTranscationListQueryString(queryParam);
+      const result = getTransactionListQueryString(queryParam);
       const decoded = JSON.parse(decodeURI(result.split('=')[1]));
 
       expect(decoded.x1).toBe(100);
@@ -40,7 +40,7 @@ describe('Test transaction helper utils', () => {
         y2: -10,
         checkedLegends: ['success'],
       };
-      const result = getTranscationListQueryString(queryParam);
+      const result = getTransactionListQueryString(queryParam);
       const decoded = JSON.parse(decodeURI(result.split('=')[1]));
 
       expect(decoded.y1).toBe(0);
@@ -54,7 +54,7 @@ describe('Test transaction helper utils', () => {
         y2: 150,
         checkedLegends: ['success'],
       };
-      const result = getTranscationListQueryString(queryParam);
+      const result = getTransactionListQueryString(queryParam);
       const decoded = JSON.parse(decodeURI(result.split('=')[1]));
 
       expect(decoded.agentId).toBe('');
@@ -68,7 +68,7 @@ describe('Test transaction helper utils', () => {
         y2: 150,
         checkedLegends: [],
       };
-      const result = getTranscationListQueryString(queryParam);
+      const result = getTransactionListQueryString(queryParam);
       const decoded = JSON.parse(decodeURI(result.split('=')[1]));
 
       expect(decoded.dotStatus).toEqual([]);

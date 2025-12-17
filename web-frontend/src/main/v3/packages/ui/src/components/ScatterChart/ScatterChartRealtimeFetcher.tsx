@@ -7,7 +7,7 @@ import {
   getScatterData,
   getScatterFullScreenRealtimePath,
   getTransactionListPath,
-  getTranscationListQueryString,
+  getTransactionListQueryString,
 } from '@pinpoint-fe/ui/src/utils';
 import {
   useGetScatterData,
@@ -145,7 +145,7 @@ export const ScatterChartRealtimeFetcher = ({
           `${getTransactionListPath(
             node,
             getFormattedDateRange(dateRange),
-          )}&${getTranscationListQueryString({
+          )}&${getTransactionListQueryString({
             ...data,
             checkedLegends,
             agentId: agentId === SCATTER_DATA_TOTAL_KEY ? '' : agentId,

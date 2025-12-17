@@ -1,5 +1,5 @@
 export enum APP_SETTING_KEYS {
-  FAVORLIITE_APPLICATION_LIST = 'pp.favoriteApplicationList',
+  FAVORIITE_APPLICATION_LIST = 'pp.favoriteApplicationList',
   TIMEZONE = 'pp.timezone',
   DATE_FORMAT = 'pp.dateFormat',
   SPLIT_SIZE = 'pp.splitSize',

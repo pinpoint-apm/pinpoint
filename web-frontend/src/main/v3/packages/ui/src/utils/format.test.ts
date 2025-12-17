@@ -1,7 +1,6 @@
 import { format, getTimezone, getCurrentFormat } from './format';
 import { APP_SETTING_KEYS, DATE_FORMATS } from '@pinpoint-fe/ui/src/constants';
 import { getLocalStorageValue } from './localStorage';
-import { formatInTimeZone } from 'date-fns-tz';
 
 // Mock localStorage and date utils
 jest.mock('./localStorage', () => ({
@@ -31,7 +30,7 @@ describe('Test format utils', () => {
     jest.spyOn(Intl, 'DateTimeFormat').mockImplementation(() => {
       return {
         resolvedOptions: () => ({ timeZone: 'Asia/Seoul' }),
-      } as any;
+      } as unknown as Intl.DateTimeFormat;
     });
   });
 
