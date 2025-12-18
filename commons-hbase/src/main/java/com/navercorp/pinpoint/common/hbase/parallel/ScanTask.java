@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.hbase.parallel;
 import com.navercorp.pinpoint.common.hbase.TableFactory;
 import com.navercorp.pinpoint.common.hbase.scan.ScanUtils;
 import com.navercorp.pinpoint.common.hbase.wd.DistributedScanner;
+import com.navercorp.pinpoint.common.hbase.wd.LocalScanner;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -27,6 +28,7 @@ import org.apache.hadoop.hbase.client.Table;
 import org.springframework.util.Assert;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -34,7 +36,7 @@ import java.util.concurrent.BlockingQueue;
 /**
  * @author HyunGil Jeong
  */
-public class ScanTask implements Runnable {
+public class ScanTask implements Runnable, LocalScanner {
 
     private static final Result END_RESULT = new Result();
 
@@ -48,6 +50,8 @@ public class ScanTask implements Runnable {
     private volatile Throwable throwable;
     private volatile boolean isQueueClosed = false;
     private volatile boolean isDone = false;
+
+    private Result localBuffer;
 
     public ScanTask(ScanTaskConfig scanTaskConfig, Scan... scans) {
         Objects.requireNonNull(scanTaskConfig, "scanTaskConfig");
@@ -97,18 +101,42 @@ public class ScanTask implements Runnable {
         }
     }
 
-    public Result getResult() throws InterruptedException {
+    @Override
+    public Result next() throws IOException {
         if (this.isQueueClosed) {
             return null;
         }
-        Result take = this.resultQueue.take();
+        if (localBuffer != null) {
+            return localBuffer;
+        }
+        Result take = null;
+        try {
+            take = this.resultQueue.take();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            isDone = true;
+            throw new InterruptedIOException("ScanTask Interrupted");
+        }
         if (take == END_RESULT) {
             this.isQueueClosed = true;
+            localBuffer = null;
             return null;
         }
-        return take;
+        localBuffer = take;
+        return localBuffer;
     }
 
+    @Override
+    public void consume() {
+        localBuffer = null;
+    }
+
+    @Override
+    public boolean isExhausted() {
+        return this.isQueueClosed;
+    }
+
+    @Override
     public void close() {
         this.isDone = true;
         // signal threads blocked on resultQueue
