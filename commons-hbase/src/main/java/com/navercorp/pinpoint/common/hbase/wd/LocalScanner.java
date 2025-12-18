@@ -18,9 +18,10 @@ package com.navercorp.pinpoint.common.hbase.wd;
 
 import org.apache.hadoop.hbase.client.Result;
 
+import java.io.Closeable;
 import java.io.IOException;
 
-public interface LocalScanner {
+public interface LocalScanner extends Closeable {
     Result next() throws IOException;
 
     boolean isExhausted();
