@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.navercorp.pinpoint.common.hbase.scan;
@@ -85,15 +84,18 @@ public final class ScanUtils {
     public static void closeScanner(ResultScanner[] scannerList, int startOffset) {
         for (int i = startOffset; i < scannerList.length; i++) {
             ResultScanner scanner = scannerList[i];
-            if (scanner != null) {
-                try {
-                    scanner.close();
-                } catch (Throwable ignore) {
-                    // ignore
-                }
-            }
+            closeScanner(scanner);
         }
     }
 
+    public static void closeScanner(ResultScanner scanner) {
+        if (scanner != null) {
+            try {
+                scanner.close();
+            } catch (Throwable ignore) {
+                // ignore
+            }
+        }
+    }
 
 }
