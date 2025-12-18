@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.common.hbase.wd;
 
-import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
+import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
@@ -138,7 +138,7 @@ public class DistributedScanner implements ResultScanner {
             }
 
             // if result is null or next record has original key less than the candidate to be returned
-            if (result == null || ByteArrayUtils.compare(nextOfScanners[i].get(0).getRow(), result.getRow(), saltKeySize) < 0) {
+            if (result == null || CellUtils.compareFirstRow(nextOfScanners[i].get(0), result, saltKeySize) < 0) {
                 result = nextOfScanners[i].get(0);
                 indexOfScannerToUse = i;
             }

@@ -22,6 +22,7 @@ import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 public final class CellUtils {
@@ -87,5 +88,35 @@ public final class CellUtils {
             }
         }
         return last;
+    }
+
+    public static int compareFirstRow(Result left, Result right, int saltKeySize) {
+        if (isEmpty(left)) {
+            throw new IllegalArgumentException("left");
+        }
+        if (isEmpty(right)) {
+            throw new IllegalArgumentException("right");
+        }
+        final Cell leftCell = left.rawCells()[0];
+        final Cell rightCell = right.rawCells()[0];
+
+        return compareRow(leftCell, rightCell, saltKeySize);
+    }
+
+    public static boolean isEmpty(Result result) {
+        return result == null || result.isEmpty();
+    }
+
+    public static int compareRow(Cell leftCell, Cell rightCell, int saltKeySize) {
+        if (leftCell == null) {
+            throw new NullPointerException("leftCell");
+        }
+        if (rightCell == null) {
+            throw new NullPointerException("rightCell");
+        }
+        final int leftOffset = leftCell.getRowOffset();
+        final int rightOffset = rightCell.getRowOffset();
+        return Arrays.compare(leftCell.getRowArray(), leftOffset + saltKeySize, leftOffset + leftCell.getRowLength(),
+                rightCell.getRowArray(), rightOffset + saltKeySize, rightOffset + rightCell.getRowLength());
     }
 }
