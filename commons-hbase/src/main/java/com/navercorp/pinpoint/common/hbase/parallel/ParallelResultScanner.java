@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.common.hbase.parallel;
 
-import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseAccessor;
 import com.navercorp.pinpoint.common.hbase.scan.ScanUtils;
+import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Result;
@@ -126,7 +126,7 @@ public class ParallelResultScanner implements ResultScanner {
                     continue;
                 }
             }
-            if (result == null || ByteArrayUtils.compare(nextResults[i].getRow(), result.getRow(), saltKeySize) < 0) {
+            if (result == null || CellUtils.compareFirstRow(nextResults[i], result, saltKeySize) < 0) {
                 result = nextResults[i];
                 indexOfResultToUse = i;
             }
