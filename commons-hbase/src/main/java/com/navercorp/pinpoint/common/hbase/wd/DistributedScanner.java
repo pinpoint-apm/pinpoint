@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.hbase.wd;
 
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
@@ -78,11 +79,7 @@ public class DistributedScanner implements ResultScanner {
     @Override
     public void close() {
         for (LocalScanner scanner : localScanners) {
-            try {
-                scanner.close();
-            } catch (IOException ignore) {
-                // ignore
-            }
+            IOUtils.closeQuietly(scanner);
         }
     }
 
