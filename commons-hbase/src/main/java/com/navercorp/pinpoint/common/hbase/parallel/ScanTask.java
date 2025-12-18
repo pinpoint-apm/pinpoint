@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.hbase.parallel;
 
 import com.navercorp.pinpoint.common.hbase.TableFactory;
+import com.navercorp.pinpoint.common.hbase.scan.ScanUtils;
 import com.navercorp.pinpoint.common.hbase.wd.DistributedScanner;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Result;
@@ -75,7 +76,7 @@ public class ScanTask implements Runnable {
             } finally {
                 this.isDone = true;
                 this.resultQueue.put(END_RESULT);
-                scanner.close();
+                ScanUtils.closeScanner(scanner);
             }
         } catch (Throwable th) {
             this.throwable = th;
@@ -91,10 +92,7 @@ public class ScanTask implements Runnable {
             Scan scan = scans[0];
             return table.getScanner(scan);
         } else {
-            ResultScanner[] scanners = new ResultScanner[this.scans.length];
-            for (int i = 0; i < scanners.length; i++) {
-                scanners[i] = table.getScanner(this.scans[i]);
-            }
+            ResultScanner[] scanners = ScanUtils.newScanners(table, scans);
             return new DistributedScanner(saltKeySize, scanners);
         }
     }
