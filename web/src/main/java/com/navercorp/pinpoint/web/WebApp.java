@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.datasource.MainDataSourcePropertySource;
 import com.navercorp.pinpoint.login.basic.PinpointBasicLoginConfig;
 import com.navercorp.pinpoint.redis.RedisPropertySources;
 import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration;
@@ -40,6 +41,7 @@ import org.springframework.context.annotation.Import;
         RedisAutoConfiguration.class,
         RedisRepositoriesAutoConfiguration.class,
         RedisReactiveAutoConfiguration.class,
+        ManagementWebSecurityAutoConfiguration.class
 })
 @Import({
         PinpointWebModule.class,
