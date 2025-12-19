@@ -89,7 +89,7 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
         RowMapper<LinkDataMap> rowMapper = this.inLinkMapperFactory.newMapper(mapperWindow, inApplication);
         ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(rowMapper, new LinkTimeWindowReducer(timeWindow));
 
-        final Scan scan = scanFactory.createScan("MapInLinkScan", ServiceUid.DEFAULT_SERVICE_UID_CODE, inApplication, timeWindow.getWindowRange(), table.getName());
+        final Scan scan = scanFactory.createScan("MInLink", ServiceUid.DEFAULT_SERVICE_UID_CODE, inApplication, timeWindow.getWindowRange(), table.getName());
 
         final LinkDataMap linkDataMap = selectInLink(scan, table.getTable(), resultExtractor, NUM_PARTITIONS);
         if (logger.isDebugEnabled()) {
