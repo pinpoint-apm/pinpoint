@@ -29,10 +29,14 @@
                         writer="cleanTargetListWriter"
                         commit-interval="100"
                         retry-limit="10"
+                        skip-limit="10"
                 >
                     <batch:retryable-exception-classes>
                         <batch:include class="java.lang.Exception"/>
                     </batch:retryable-exception-classes>
+                    <batch:skippable-exception-classes>
+                        <batch:include class="java.lang.IllegalArgumentException"/>
+                    </batch:skippable-exception-classes>
                 </batch:chunk>
             </batch:tasklet>
         </batch:step>
