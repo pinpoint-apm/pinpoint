@@ -116,7 +116,7 @@ public final class CellUtils {
         }
         final int leftOffset = leftCell.getRowOffset();
         final int rightOffset = rightCell.getRowOffset();
-        return Arrays.compare(leftCell.getRowArray(), leftOffset + saltKeySize, leftOffset + leftCell.getRowLength(),
+        return Arrays.compareUnsigned(leftCell.getRowArray(), leftOffset + saltKeySize, leftOffset + leftCell.getRowLength(),
                 rightCell.getRowArray(), rightOffset + saltKeySize, rightOffset + rightCell.getRowLength());
     }
 }
