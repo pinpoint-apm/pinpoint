@@ -3,6 +3,7 @@ import typescript from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
 import prettier from 'eslint-plugin-prettier';
 import prettierConfig from 'eslint-config-prettier';
+import globals from 'globals';
 
 export default [
   // 기본 JavaScript 권장 설정
@@ -17,6 +18,11 @@ export default [
         ecmaVersion: 'latest',
         sourceType: 'module',
         project: './tsconfig.json',
+      },
+      globals: {
+        ...globals.browser,
+        ...globals.es2021,
+        ...globals.jest,
       },
     },
     plugins: {
