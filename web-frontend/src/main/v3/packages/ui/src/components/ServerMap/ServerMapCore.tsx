@@ -238,10 +238,25 @@ export const ServerMapCore = ({
   };
 
   const handleHoverNode: ServerMapCoreProps['onHoverNode'] = (params) => {
-    const { eventType, position, data } = params;
+    const { eventType, position, data, isLeftNode, target } = params;
     if (eventType === 'hover') {
       if (data && data?.apdex) {
-        setPopperPosition(position);
+        if (target) {
+          setPopperPosition(
+            isLeftNode
+              ? {
+                  x: target.renderedPosition()?.x + (target.renderedWidth() || 0) / 2,
+                  y: target.renderedPosition()?.y,
+                }
+              : {
+                  x: target.renderedPosition()?.x - (target.renderedWidth() || 0) - 160, // Popper content min width is 160px (min-w-40)
+                  y: target.renderedPosition()?.y,
+                },
+          );
+        } else {
+          setPopperPosition(position);
+        }
+
         setPopperContentType(SERVERMAP_MENU_CONTENT_TYPE.HOVER_NODE);
         hoverNodeRef.current = data;
       } else {
