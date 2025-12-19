@@ -46,7 +46,6 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.client.metrics.ScanMetrics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
@@ -55,11 +54,9 @@ import org.springframework.beans.factory.InitializingBean;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -375,10 +372,9 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
     public <T> List<T> findParallel0(final TableName tableName, final List<Scan> scans, final ResultsExtractor<T> action) {
         final Scan[] copy = scans.toArray(new Scan[0]);
 
-        final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "block-multi", copy);
-        final Collection<ScanMetrics> scanMetricsList = new ArrayBlockingQueue<>(copy.length);
+        final ScanMetricReporter.ReportCollector reporter = scanMetric.collect(tableName, "block-multi", copy);
 
-        List<Callable<T>> callables = callable(tableName, action, copy, scanMetricsList);
+        List<Callable<T>> callables = callable(tableName, action, copy, reporter);
 
         List<T> results = new ArrayList<>(copy.length);
         List<List<Callable<T>>> callablePartitions = ListUtils.partition(callables, this.maxThreadsPerParallelScan);
@@ -393,15 +389,16 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
                 logger.warn("interrupted while findParallel [{}].", tableName);
                 return Collections.emptyList();
             } catch (ExecutionException e) {
-                logger.warn("findParallel [{}], error : {}", tableName, e);
+                logger.warn("findParallel [{}] error", tableName, e);
                 return Collections.emptyList();
             }
         }
-        reporter.report(scanMetricsList);
+        reporter.report();
         return results;
     }
 
-    private <T> List<Callable<T>> callable(TableName tableName, ResultsExtractor<T> action, Scan[] scans, Collection<ScanMetrics> scanMetricsList) {
+    private <T> List<Callable<T>> callable(TableName tableName, ResultsExtractor<T> action, Scan[] scans,
+                                           ScanMetricReporter.ReportCollector reporter) {
         List<Callable<T>> callables = new ArrayList<>(scans.length);
 
         for (Scan scan : scans) {
@@ -417,7 +414,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
                                 return action.extractData(scanner);
                             } finally {
                                 IOUtils.closeQuietly(scanner);
-                                scanMetricsList.add(scanner.getScanMetrics());
+                                reporter.collect(scanner.getScanMetrics());
                             }
                         }
                     });
