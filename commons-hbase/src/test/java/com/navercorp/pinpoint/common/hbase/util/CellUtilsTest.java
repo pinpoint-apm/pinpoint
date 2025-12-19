@@ -154,6 +154,20 @@ public class CellUtilsTest {
     }
 
     @Test
+    public void testCompareRow_unsigned() {
+        byte[] row1 = new byte[] {(byte) 0x00 }; // 0
+        byte[] row2 = new byte[] {(byte) 0xFF }; // -1 (unsigned 255)
+
+        Cell leftCell = new KeyValue(row1, 1000L);
+        Cell rightCell = new KeyValue(row2, 2000L);
+        int saltKeySize = 0;
+
+        int result = CellUtils.compareRow(leftCell, rightCell, saltKeySize);
+
+        Assertions.assertTrue(result < 0, "Left row should be less than right row.");
+    }
+
+    @Test
     public void testCompareRow_saltKey() {
         byte[] leftRow = Bytes.add(new byte[]{2}, Bytes.toBytes(1));
         Cell leftCell = new KeyValue(leftRow, 2000L);
