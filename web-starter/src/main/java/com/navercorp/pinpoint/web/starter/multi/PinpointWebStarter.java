@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.web.PinpointWebModule;
 import com.navercorp.pinpoint.web.WebApp;
 import com.navercorp.pinpoint.web.WebStarter;
 import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration;
@@ -50,6 +51,7 @@ import org.springframework.context.annotation.Import;
         RedisAutoConfiguration.class,
         RedisRepositoriesAutoConfiguration.class,
         RedisReactiveAutoConfiguration.class,
+        ManagementWebSecurityAutoConfiguration.class
 })
 @Import({
         PinpointWebModule.class,

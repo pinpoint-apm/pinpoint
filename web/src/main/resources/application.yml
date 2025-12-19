@@ -21,6 +21,57 @@ server:
     mime-types: application/json
     min-response-size: 2KB
 
+management:
+  health:
+    defaults:
+      enabled: false
+    diskspace:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+      enabled: true
+    beans:
+      enabled: true
+    conditions:
+      enabled: true
+    configprops:
+      enabled: true
+      show-values: always
+    env:
+      enabled: true
+      show-values: always
+    logfile:
+      enabled: true
+    loggers:
+      enabled: true
+    mappings:
+      enabled: true
+    info:
+      enabled: true
+    threaddump:
+      enabled: true
+    heapdump:
+      enabled: true
+    metrics:
+      enabled: false
+    httptrace:
+      enabled: false
+    prometheus:
+      enabled: false
+    shutdown:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,beans,conditions,configprops,env,logfile,loggers,mappings,info,threaddump,heapdump,pause
+      base-path: /monitor
+      path-mapping:
+        health: l7check
+  server:
+    ssl:
+      enabled: false
+    port: 8443
 
 pinpoint:
   modules:
