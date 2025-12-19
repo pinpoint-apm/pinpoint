@@ -471,7 +471,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
                 final StopWatch watch = StopWatch.createStarted();
                 final boolean debugEnabled = logger.isDebugEnabled();
 
-                Scan[] scans = ScanUtils.splitScans(scan, rowKeyDistributor);
+                Scan[] scans = rowKeyDistributor.getDistributedScans(scan);
                 final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "block-multi", scans);
 
                 final ResultScanner[] splitScanners = ScanUtils.newScanners(table, scans);

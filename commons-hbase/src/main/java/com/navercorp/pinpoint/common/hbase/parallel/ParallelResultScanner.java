@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.common.hbase.parallel;
 
 import com.navercorp.pinpoint.common.hbase.HbaseAccessor;
-import com.navercorp.pinpoint.common.hbase.scan.ScanUtils;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.hbase.wd.LocalScanner;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
@@ -53,7 +52,7 @@ public class ParallelResultScanner implements ResultScanner {
         this.saltKeySize = keyDistributor.getSaltKeySize();
 
         final ScanTaskConfig scanTaskConfig = ScanTaskConfig.of(tableName, hbaseAccessor, saltKeySize, originalScan.getCaching());
-        final Scan[] splitScans = ScanUtils.splitScans(originalScan, keyDistributor);
+        final Scan[] splitScans = keyDistributor.getDistributedScans(originalScan);
 
         this.scanTasks = createScanTasks(scanTaskConfig, splitScans, numParallelThreads);
         for (ScanTask scanTask : scanTasks) {
