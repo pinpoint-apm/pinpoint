@@ -28,6 +28,10 @@ import java.util.function.Function;
 
 public final class ScanUtils {
 
+    /**
+     * @deprecated Use {@link RowKeyDistributor#getDistributedScans(Scan)} instead.
+     */
+    @Deprecated
     public static Scan[] splitScans(Scan originalScan, RowKeyDistributor keyDistributor) throws IOException {
         Scan[] scans = keyDistributor.getDistributedScans(originalScan);
         applyScanOptions(originalScan, scans);

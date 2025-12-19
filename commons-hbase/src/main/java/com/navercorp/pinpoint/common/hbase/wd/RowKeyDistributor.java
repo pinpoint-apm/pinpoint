@@ -83,9 +83,18 @@ public interface RowKeyDistributor {
 
         Scan[] scans = new Scan[intervals.length];
         for (int i = 0; i < intervals.length; i++) {
-            scans[i] = new Scan(original);
-            scans[i].setStartRow(intervals[i].getFirst());
-            scans[i].setStopRow(intervals[i].getSecond());
+            Scan copy = new Scan(original);
+
+            Pair<byte[], byte[]> interval = intervals[i];
+            copy.setStartRow(interval.getFirst());
+            copy.setStopRow(interval.getSecond());
+
+            final String scanId = original.getId();
+            if (scanId != null) {
+                copy.setId(scanId + "-" + i);
+            }
+
+            scans[i] = copy;
         }
         return scans;
     }
