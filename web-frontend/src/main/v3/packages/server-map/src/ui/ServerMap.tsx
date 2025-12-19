@@ -14,6 +14,8 @@ type ClickEventHandler<T> = (param: {
   data?: T;
   eventType: 'right' | 'left' | 'programmatic' | 'hover';
   position: Partial<cytoscape.Position>;
+  target?: cytoscape.CollectionReturnValue;
+  isLeftNode?: boolean;
 }) => void;
 
 export interface ServerMapProps extends Pick<React.HTMLProps<HTMLDivElement>, 'className' | 'style'> {
@@ -279,10 +281,15 @@ export const ServerMap = ({
           };
 
           if (target?.isNode?.()) {
+            const baseNode = cy.getElementById(baseNodeId);
+            const isLeftNode = target.renderedPosition()?.x <= baseNode.renderedPosition()?.x;
+
             handleHoverNode({
               eventType: 'hover',
               position,
               data: target.data(),
+              target: target,
+              isLeftNode,
             });
           }
         })
