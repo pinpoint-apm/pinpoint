@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.profiler.util;
 
-import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
@@ -87,9 +86,6 @@ public final class TransactionIdUtils {
         final int agentIdIndex = nextIndex(transactionId, 0);
         if (agentIdIndex == -1) {
             throw new IllegalArgumentException("agentIndex not found:" + transactionId);
-        }
-        if (agentIdIndex > PinpointConstants.AGENT_ID_MAX_LEN) {
-            throw new IllegalArgumentException("invalid transactionId:" + transactionId);
         }
         if (!IdValidateUtils.checkId(transactionId, 0, agentIdIndex)) {
             throw new IllegalArgumentException("invalid transactionId:" + transactionId);
