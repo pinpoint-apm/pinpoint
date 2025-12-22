@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.hbase.util;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
@@ -23,12 +24,8 @@ import org.apache.hadoop.hbase.client.metrics.ScanMetrics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Supplier;
 
 public class DefaultScanMetricReporter implements ScanMetricReporter {
 
@@ -51,7 +48,7 @@ public class DefaultScanMetricReporter implements ScanMetricReporter {
     public ReportCollector collect(TableName tableName, String comment, Scan[] scans) {
         applyMetricsEnabled(scans);
         MetricReporter reporter = new MetricReporter(tableName, comment);
-        return new DefaultReportCollector(reporter, scans.length);
+        return new DefaultReportCollector(reporter);
     }
 
     public static class MetricReporter implements Reporter {
@@ -66,30 +63,38 @@ public class DefaultScanMetricReporter implements ScanMetricReporter {
         }
 
         @Override
+        public void report(ScanMetrics scanMetrics) {
+            if (scanMetrics == null) {
+                return;
+            }
+            if (logger.isInfoEnabled()) {
+                logger.info("ScanMetric {} {}:{}", name, comment, scanMetrics);
+            }
+        }
+
+        @Override
         public void report(ResultScanner[] scanners) {
             if (!logger.isInfoEnabled()) {
                 return;
             }
-            List<ScanMetrics> scanMetrics = scanMetric(scanners);
+            ScanMetrics scanMetrics = scanMetric(scanners);
 
             report(scanMetrics);
         }
 
-        private List<ScanMetrics> scanMetric(ResultScanner[] scanners) {
-            List<ScanMetrics> scanMetricsList = new ArrayList<>(scanners.length);
+        private ScanMetrics scanMetric(ResultScanner[] scanners) {
+            ScanMetrics result = null;
             for (ResultScanner scanner : scanners) {
                 ScanMetrics scanMetrics = scanner.getScanMetrics();
-                if (scanMetrics != null) {
-                    scanMetricsList.add(scanMetrics);
+                if (scanMetrics == null) {
+                    continue;
                 }
+                if (result == null) {
+                    result = new ScanMetrics();
+                }
+                ScanMetricUtils.sum(result, scanMetrics);
             }
-            return scanMetricsList;
-        }
-
-        @Override
-        public void report(Supplier<List<ScanMetrics>> scanners) {
-            List<ScanMetrics> scanMetrics = scanners.get();
-            this.report(scanMetrics);
+            return result;
         }
 
         @Override
@@ -98,61 +103,21 @@ public class DefaultScanMetricReporter implements ScanMetricReporter {
                 return;
             }
             // simple metric
-            ScanMetrics summary = new ScanMetrics();
-            int actual = 0;
-            for (ScanMetrics scanMetrics : scanMetricsList) {
-                if (scanMetrics == null) {
-                    continue;
-                }
-                actual++;
-                sum(summary, scanMetrics);
-            }
-            if (actual != 0) {
-                logger.info("ScanMetric {}/{} {} {}:{}", actual, scanMetricsList.size(), name, comment, summary.getMetricsMap());
+            ScanMetrics summary = ScanMetricUtils.merge(scanMetricsList);
+            if (CollectionUtils.hasLength(scanMetricsList)) {
+                logger.info("ScanMetric {} {} {}:{}", name, scanMetricsList.size(), comment, summary);
             }
         }
 
-        public void sum(ScanMetrics source, ScanMetrics target) {
-            add(source.countOfRPCcalls, target.countOfRPCcalls);
-            add(source.countOfRemoteRPCcalls, target.countOfRemoteRPCcalls);
-            add(source.sumOfMillisSecBetweenNexts, target.sumOfMillisSecBetweenNexts);
-            add(source.countOfNSRE, target.countOfNSRE);
-            add(source.countOfBytesInResults, target.countOfBytesInResults);
-            add(source.countOfBytesInRemoteResults, target.countOfBytesInRemoteResults);
-            add(source.countOfRegions, target.countOfRegions);
-            add(source.countOfRPCRetries, target.countOfRPCRetries);
-            add(source.countOfRemoteRPCRetries, target.countOfRemoteRPCRetries);
-        }
-
-        private void add(AtomicLong source, AtomicLong target) {
-            source.addAndGet(target.get());
-        }
-
-        @Override
-        public void report(ResultScanner scanner) {
-            if (!logger.isInfoEnabled()) {
-                return;
-            }
-            if (scanner == null) {
-                return;
-            }
-            ScanMetrics scanMetrics = scanner.getScanMetrics();
-            if (scanMetrics != null) {
-                logger.info("ScanMetric {} {}:{}", name, comment, scanMetrics.getMetricsMap());
-            } else {
-                logger.info("ScanMetric is null {} {}", name, comment);
-            }
-        }
     }
 
     static class DefaultReportCollector implements ReportCollector {
 
         private final MetricReporter reporter;
-        private final List<ScanMetrics> scanMetricsList;
+        private volatile ScanMetrics metrics;
 
-        public DefaultReportCollector(MetricReporter reporter, int capacity) {
+        public DefaultReportCollector(MetricReporter reporter) {
             this.reporter = Objects.requireNonNull(reporter, "reporter");
-            this.scanMetricsList = new ArrayList<>(capacity);
         }
 
         @Override
@@ -160,18 +125,33 @@ public class DefaultScanMetricReporter implements ScanMetricReporter {
             if (scanMetrics == null) {
                 return;
             }
-            synchronized (scanMetricsList) {
-                scanMetricsList.add(scanMetrics);
+            ScanMetrics metrics = getScanMetric();
+            ScanMetricUtils.sum(metrics, scanMetrics);
+        }
+
+        private ScanMetrics getScanMetric() {
+            ScanMetrics copy = this.metrics;
+            if (copy != null) {
+                return copy;
+            }
+            synchronized (this) {
+                ScanMetrics sc = this.metrics;
+                if (sc != null) {
+                    return sc;
+                }
+                sc = new ScanMetrics();
+                this.metrics = sc;
+                return sc;
             }
         }
 
         @Override
         public void report() {
-            List<ScanMetrics> copy;
-            synchronized (scanMetricsList) {
-                copy = new ArrayList<>(scanMetricsList);
+            ScanMetrics metrics = this.metrics;
+            if (metrics != null) {
+                this.reporter.report(metrics);
             }
-            this.reporter.report(copy);
+
         }
     }
 

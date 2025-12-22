@@ -8,5 +8,5 @@ import java.util.List;
 public interface Scanner<T> {
     List<T> extractData(ResultsExtractor<T> action);
 
-    List<ScanMetrics> getScanMetrics();
+    ScanMetrics getScanMetrics();
 }

@@ -2,8 +2,10 @@ package com.navercorp.pinpoint.common.hbase.scan;
 
 import com.navercorp.pinpoint.common.hbase.HbaseSystemException;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
+import com.navercorp.pinpoint.common.hbase.util.ScanMetricUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.hadoop.hbase.client.metrics.ScanMetrics;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,12 +47,19 @@ public class DefaultScanner<T> implements Scanner<T> {
         }
     }
 
-
+    @Nullable
     @Override
-    public List<ScanMetrics> getScanMetrics() {
-        List<ScanMetrics> metrics = new ArrayList<>();
+    public ScanMetrics getScanMetrics() {
+        ScanMetrics metrics = null;
         for (ResultScannerSupplier resultScanner : resultScanners) {
-            metrics.add(resultScanner.getScanMetrics());
+            ScanMetrics scanMetrics = resultScanner.getScanMetrics();
+            if (scanMetrics == null) {
+                continue;
+            }
+            if (metrics == null) {
+                metrics = new ScanMetrics();
+            }
+            ScanMetricUtils.sum(metrics, scanMetrics);
         }
         return metrics;
     }
