@@ -352,11 +352,11 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
             public List<T> doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
                 final Scan[] copy = scans.toArray(new Scan[0]);
 
-                final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "async-multi", copy);
-
                 Scanner<T> scanner = scannerFactory.newScanner(table, copy);
                 List<T> results = scanner.extractData(action);
-                reporter.report(scanner::getScanMetrics);
+
+                final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "async-multi", copy);
+                reporter.report(scanner.getScanMetrics());
                 return results;
             }
         });

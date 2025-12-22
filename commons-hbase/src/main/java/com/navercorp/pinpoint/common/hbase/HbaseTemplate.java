@@ -341,12 +341,13 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
             @Override
             public List<T> doInTable(Table table) throws Throwable {
                 Scan[] copy = scanList.toArray(new Scan[0]);
-                final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "find", copy);
+
                 Scanner<T> scanner = resultScannerFactory.newScanner(table, copy);
 
                 List<T> result = scanner.extractData(action);
 
-                reporter.report(scanner::getScanMetrics);
+                final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "find", copy);
+                reporter.report(scanner.getScanMetrics());
                 return result;
             }
         });

@@ -22,8 +22,6 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.metrics.ScanMetrics;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.function.Supplier;
 
 public interface ScanMetricReporter {
 
@@ -32,13 +30,11 @@ public interface ScanMetricReporter {
     ReportCollector collect(TableName tableName, String comment, Scan[] scans);
 
     interface Reporter {
+
         default void report(ResultScanner[] scanners) {
         }
 
-        default void report(Supplier<List<ScanMetrics>> scanners) {
-        }
-
-        default void report(ResultScanner scanner) {
+        default void report(ScanMetrics scanMetrics) {
         }
 
         default void report(Collection<ScanMetrics> scanMetricsList) {
