@@ -74,8 +74,7 @@ public class AgentListServiceImpl implements AgentListService {
 
     public void deleteAllAgents(String serviceName, String applicationName, int serviceTypeCode) {
         ServiceUid serviceUid = handleServiceUid(serviceName);
-        List<String> agentList = agentIdDao.getAgentIds(serviceUid, applicationName, serviceTypeCode);
-        deleteAgents(serviceName, applicationName, serviceTypeCode, agentList);
+        agentIdDao.deleteAllAgents(serviceUid, applicationName, serviceTypeCode);
     }
 
     public void deleteAgents(String serviceName, String applicationName, int serviceTypeCode, List<String> agentIdList) {

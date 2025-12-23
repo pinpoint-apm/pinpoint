@@ -32,8 +32,8 @@ public class ApplicationIndexV2CopyServiceImpl implements ApplicationIndexV2Copy
 
     @Override
     public void copyApplication() {
-        StopWatch stopWatch = new StopWatch("copyApplicationName and create uid");
-        stopWatch.start("selectAllApplicationNames");
+        StopWatch stopWatch = new StopWatch("copyApplicationName");
+        stopWatch.start("Select all applicationNames from v1");
         List<Application> applications = this.applicationIndexDao.selectAllApplicationNames();
         stopWatch.stop();
 
@@ -42,17 +42,17 @@ public class ApplicationIndexV2CopyServiceImpl implements ApplicationIndexV2Copy
             beforeInsert = applicationDao.getApplications(ServiceUid.DEFAULT);
         }
 
-        stopWatch.start("getOrCreateApplicationUid");
+        stopWatch.start("Insert all applicationNames to v2");
         for (Application application : applications) {
             applicationDao.insert(ServiceUid.DEFAULT, application.getName(), application.getServiceTypeCode());
         }
         stopWatch.stop();
 
         if (logger.isDebugEnabled()) {
-            stopWatch.start("baseApplicationUidService.getApplications");
+            stopWatch.start("Select all applicationNames from v2");
             List<Application> afterInsert = applicationDao.getApplications(ServiceUid.DEFAULT);
             stopWatch.stop();
-            logger.debug("syncApplicationUid total:{}, time taken: {} ms, before:{} after: {}", applications.size(), stopWatch.getTotalTimeMillis(), beforeInsert.size(), afterInsert.size());
+            logger.debug("Copy applications total:{}, time taken: {} ms, before:{} after: {}", applications.size(), stopWatch.getTotalTimeMillis(), beforeInsert.size(), afterInsert.size());
         }
         logger.info(stopWatch.prettyPrint());
     }
@@ -60,10 +60,10 @@ public class ApplicationIndexV2CopyServiceImpl implements ApplicationIndexV2Copy
     @Override
     public void copyAgentId() {
         StopWatch stopWatch = new StopWatch("copyAgentId");
-        stopWatch.start("uidApplicationNames");
+        stopWatch.start("Select all applicationNames from v1");
         List<Application> ApplicationNameList = applicationDao.getApplications(ServiceUid.DEFAULT);
         stopWatch.stop();
-        stopWatch.start("insertEach");
+        stopWatch.start("Insert Each application agentIds from v1 to v2");
         for (Application application : ApplicationNameList) {
             List<String> agentIds = applicationIndexDao.selectAgentIds(application.getName(), application.getServiceTypeCode());
             for (String agentId : agentIds) {

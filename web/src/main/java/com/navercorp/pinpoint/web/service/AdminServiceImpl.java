@@ -46,12 +46,13 @@ public class AdminServiceImpl implements AdminService {
 
     private final ApplicationIndexService applicationIndexService;
 
-    public AdminServiceImpl(ActiveAgentValidator activeAgentValidator,  ApplicationIndexService applicationIndexService) {
+    public AdminServiceImpl(ActiveAgentValidator activeAgentValidator, ApplicationIndexService applicationIndexService) {
         this.activeAgentValidator = Objects.requireNonNull(activeAgentValidator, "activeAgentValidator");
         this.applicationIndexService = Objects.requireNonNull(applicationIndexService, "applicationIndexService");
     }
 
     @Override
+    @Deprecated
     public void removeApplicationName(String applicationName) {
         this.applicationIndexService.deleteApplicationName(applicationName);
     }
@@ -62,6 +63,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @Deprecated
     public void removeAgentId(String applicationName, String agentId) {
         applicationIndexService.deleteAgentId(applicationName, agentId);
     }
@@ -115,14 +117,14 @@ public class AdminServiceImpl implements AdminService {
 
             if (agentsToDelete.size() >= 100) {
                 logger.info("Delete {} of {}", agentsToDelete, applicationName);
-                applicationIndexService.deleteAgentIds(Map.of(applicationName, agentsToDelete));
+                applicationIndexService.deleteAgentIds(applicationName, agentsToDelete);
                 agentsToDelete.clear();
             }
         }
 
         if (!agentsToDelete.isEmpty()) {
             logger.info("Delete {} of {}", agentsToDelete, applicationName);
-            applicationIndexService.deleteAgentIds(Map.of(applicationName, agentsToDelete));
+            applicationIndexService.deleteAgentIds(applicationName, agentsToDelete);
         }
 
         logger.info("({}/{}) agents of {} had been cleaned up", deleteCount, agentIds.size(), applicationName);

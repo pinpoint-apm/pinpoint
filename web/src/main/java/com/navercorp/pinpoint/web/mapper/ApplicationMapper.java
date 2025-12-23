@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.web.mapper;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
@@ -24,7 +25,7 @@ public class ApplicationMapper implements RowMapper<Application> {
         byte[] rowKey = result.getRow();
         Buffer buffer = new FixedBuffer(rowKey);
         buffer.readInt(); //serviceUid
-        String applicationName = buffer.readPrefixedString(); //applicationName
+        String applicationName = buffer.readPadStringAndRightTrim(PinpointConstants.APPLICATION_NAME_MAX_LEN_V3); //applicationName
         int serviceTypeCode = buffer.readInt(); //serviceTypeCode
         return applicationFactory.createApplication(applicationName, serviceTypeCode);
     }
