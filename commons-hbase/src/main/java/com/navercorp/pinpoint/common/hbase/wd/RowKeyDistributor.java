@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.common.hbase.wd;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.hbase.util.Pair;
 import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
@@ -48,9 +47,9 @@ public interface RowKeyDistributor {
      * records between originalStartKey and originalStopKey were distributed are "covered".
      * @param originalStartKey start key
      * @param originalStopKey stop key
-     * @return array[Pair(startKey, stopKey)]
+     * @return array[ScanKey]
      */
-    default Pair<byte[], byte[]>[] getDistributedIntervals(byte[] originalStartKey, byte[] originalStopKey) {
+    default ScanKey[] getDistributedIntervals(byte[] originalStartKey, byte[] originalStopKey) {
         byte[][] startKeys = getAllDistributedKeys(originalStartKey);
         byte[][] stopKeys;
         if (Arrays.equals(originalStopKey, HConstants.EMPTY_END_ROW)) {
@@ -61,10 +60,9 @@ public interface RowKeyDistributor {
             assert stopKeys.length == startKeys.length;
         }
 
-        @SuppressWarnings("unchecked")
-        Pair<byte[], byte[]>[] intervals = new Pair[startKeys.length];
+        ScanKey[] intervals = new ScanKey[startKeys.length];
         for (int i = 0; i < startKeys.length; i++) {
-            intervals[i] = new Pair<>(startKeys[i], stopKeys[i]);
+            intervals[i] = new ScanKey(startKeys[i], stopKeys[i]);
         }
 
         return intervals;
@@ -80,23 +78,22 @@ public interface RowKeyDistributor {
     }
 
     default DistributedScan getDistributedScans(Scan original) throws IOException {
-        Pair<byte[], byte[]>[] intervals = getDistributedIntervals(original.getStartRow(), original.getStopRow());
+        ScanKey[] intervals = getDistributedIntervals(original.getStartRow(), original.getStopRow());
 
         Scan[] scans = new Scan[intervals.length];
         for (int i = 0; i < intervals.length; i++) {
-            Pair<byte[], byte[]> interval = intervals[i];
-            byte[] start = interval.getFirst();
-            byte[] stop = interval.getSecond();
-            scans[i] = copyScan(original, start, stop, i);
+            ScanKey scankey = intervals[i];
+            scans[i] = copyScan(original, scankey, i);
         }
         return new DistributedScan(scans, this.getSaltKeySize());
     }
 
-    private @NonNull Scan copyScan(Scan original, byte[] start, byte[] stop, int i) throws IOException {
+    private @NonNull Scan copyScan(Scan original, ScanKey scankey, int i) throws IOException {
         Scan copy = new Scan(original);
 
-        copy.setStartRow(start);
-        copy.setStopRow(stop);
+        copy.withStartRow(scankey.startRow());
+        copy.withStopRow(scankey.stopRow(), scankey.includeStopRow());
+
 
         final String scanId = original.getId();
         if (scanId != null) {
