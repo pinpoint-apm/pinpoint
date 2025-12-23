@@ -18,8 +18,11 @@ package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
+import com.navercorp.pinpoint.common.timeseries.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
+import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.response.CodeResult;
 import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
@@ -32,6 +35,7 @@ import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,6 +43,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
@@ -50,16 +55,21 @@ import java.util.Set;
 @RestController
 @RequestMapping("/api")
 @Validated
-public class AgentInfoController {
+public class AgentInfoController implements AccessDeniedExceptionHandler {
     private final AgentInfoService agentInfoService;
 
     private final AgentEventService agentEventService;
 
-    public AgentInfoController(AgentInfoService agentInfoService, AgentEventService agentEventService) {
+    private final RangeValidator rangeValidator;
+
+    public AgentInfoController(AgentInfoService agentInfoService, AgentEventService agentEventService, ConfigProperties configProperties) {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
         this.agentEventService = Objects.requireNonNull(agentEventService, "agentEventService");
+        Objects.requireNonNull(configProperties, "configProperties");
+        this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(configProperties.getInspectorPeriodMax()));
     }
 
+    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #timestamp), 'agentParam', 'inspector')")
     @GetMapping(value = "/getAgentInfo")
     public AgentAndStatus getAgentInfo(
             @RequestParam("agentId") @NotBlank String agentId,
@@ -95,6 +105,7 @@ public class AgentInfoController {
         return this.agentEventService.getAgentEvent(agentId, eventTimestamp, eventType);
     }
 
+    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
     @GetMapping(value = "/getAgentEvents")
     public List<AgentEvent> getAgentEvents(
             @RequestParam("agentId") @NotBlank String agentId,
@@ -118,6 +129,7 @@ public class AgentInfoController {
         return excludeEventTypes;
     }
 
+    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
     @GetMapping(value = "/getAgentStatusTimeline")
     public InspectorTimeline getAgentStatusTimeline(
             @RequestParam("applicationName") @NotBlank String applicationName,
@@ -128,6 +140,7 @@ public class AgentInfoController {
         return agentInfoService.getAgentStatusTimeline(applicationName, agentId, range);
     }
 
+    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
     @GetMapping(value = "/getAgentStatusTimeline", params = {"exclude"})
     public InspectorTimeline getAgentStatusTimeline(
             @RequestParam("applicationName") @NotBlank String applicationName,
@@ -136,6 +149,7 @@ public class AgentInfoController {
             @RequestParam("to") @PositiveOrZero long to,
             @RequestParam(value = "exclude", defaultValue = "") int[] excludeEventTypeCodes) {
         final Range range = Range.between(from, to);
+        rangeValidator.validate(range);
         return agentInfoService.getAgentStatusTimeline(applicationName, agentId, range, excludeEventTypeCodes);
     }
 

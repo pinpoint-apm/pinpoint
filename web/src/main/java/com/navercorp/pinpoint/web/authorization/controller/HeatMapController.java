@@ -35,6 +35,7 @@ import jakarta.validation.constraints.NotBlank;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -63,6 +64,7 @@ public class HeatMapController {
         this.defaultTraceIndexReadV2 = defaultTraceIndexReadV2;
     }
 
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/drag")
     public ResultView dragScatterArea(
             @RequestParam("application") @NotBlank String applicationName,

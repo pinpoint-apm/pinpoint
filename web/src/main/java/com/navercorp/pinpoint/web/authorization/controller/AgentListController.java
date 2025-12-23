@@ -1,6 +1,8 @@
 package com.navercorp.pinpoint.web.authorization.controller;
 
+import com.navercorp.pinpoint.common.timeseries.time.ForwardRangeValidator;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
@@ -10,6 +12,7 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstance;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramServiceOption;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
+import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.hyperlink.HyperLink;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.hyperlink.LinkSources;
@@ -36,6 +39,7 @@ import com.navercorp.pinpoint.web.vo.tree.InstancesListMap;
 import com.navercorp.pinpoint.web.vo.tree.SortByAgentInfo;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
@@ -44,6 +48,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -56,7 +61,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping(value = "/api/agents")
 @Validated
-public class AgentListController {
+public class AgentListController implements AccessDeniedExceptionHandler {
     private final AgentInfoService agentInfoService;
     private final ServiceTypeRegistryService registry;
     private final ApplicationFactory applicationFactory;
@@ -64,6 +69,7 @@ public class AgentListController {
 
     private final ApplicationAgentInfoMapServiceImpl applicationAgentInfoService;
     private final HyperLinkFactory hyperLinkFactory;
+    private final RangeValidator rangeValidator;
     private final SortByAgentInfo.Rules DEFAULT_SORT_BY = SortByAgentInfo.Rules.AGENT_ID_ASC;
 
     public AgentListController(
@@ -72,7 +78,8 @@ public class AgentListController {
             ApplicationFactory applicationFactory,
             ResponseTimeHistogramService responseTimeHistogramService,
             ApplicationAgentInfoMapServiceImpl applicationAgentInfoService,
-            HyperLinkFactory hyperLinkFactory) {
+            HyperLinkFactory hyperLinkFactory,
+            ConfigProperties configProperties) {
         this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
         this.registry = Objects.requireNonNull(registry, "registry");
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
@@ -80,8 +87,11 @@ public class AgentListController {
                 Objects.requireNonNull(responseTimeHistogramService, "responseTimeHistogramService");
         this.applicationAgentInfoService = applicationAgentInfoService;
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
+        Objects.requireNonNull(configProperties, "configProperties");
+        this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(configProperties.getInspectorPeriodMax()));
     }
 
+    @PreAuthorize("hasPermission(null, null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ADMINISTRATION_CALL_API_FOR_APP_AGENT_MANAGEMENT)")
     @GetMapping(value = "/search-all")
     public TreeView<InstancesList<AgentAndStatus>> getAllAgentsList() {
         final long timestamp = System.currentTimeMillis();
@@ -92,14 +102,17 @@ public class AgentListController {
         return treeView(allAgentsList);
     }
 
+    @PreAuthorize("hasPermission(null, null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ADMINISTRATION_CALL_API_FOR_APP_AGENT_MANAGEMENT)")
     @GetMapping(value = "/search-all", params = {"from", "to"})
     public TreeView<InstancesList<AgentAndStatus>> getAllAgentsList(
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to) {
+        Range range = Range.between(from, to);
+        rangeValidator.validate(range);
         final AgentStatusFilter filter = AgentStatusFilters.recentStatus(from);
         final AgentsMapByApplication<AgentAndStatus> allAgentsList = this.agentInfoService.getAllAgentsList(
                 filter,
-                Range.between(from, to)
+                range
         );
         return treeView(allAgentsList);
     }
@@ -109,6 +122,7 @@ public class AgentListController {
         return new StaticTreeView<>(list);
     }
 
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/search-application", params = {"application"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
             @RequestParam("application") @NotBlank String applicationName,
@@ -132,6 +146,7 @@ public class AgentListController {
         return treeView(list);
     }
 
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/search-application", params = {"application", "from", "to"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
             @RequestParam("application") @NotBlank String applicationName,
@@ -144,8 +159,9 @@ public class AgentListController {
         final SortByAgentInfo.Rules paramSortBy = sortBy.orElse(DEFAULT_SORT_BY);
         final ApplicationAgentListQueryRule applicationAgentListQueryRule = ApplicationAgentListQueryRule.getByValue(query, ApplicationAgentListQueryRule.ACTIVE_STATUS);
         final Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
-        Range between = Range.between(from, to);
-        TimeWindow timeWindow = new TimeWindow(between);
+        Range range = Range.between(from, to);
+        rangeValidator.validate(range);
+        TimeWindow timeWindow = new TimeWindow(range);
 
         final AgentsMapByHost list = this.applicationAgentInfoService.getAgentsListByApplicationName(
                 application,
@@ -158,6 +174,7 @@ public class AgentListController {
     }
 
     //use only for server map list
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/search-application", params = {"application", "from", "to", "applicationPairs"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsListWithVirtualNodes(
             @RequestParam("application") @NotBlank String applicationName,
@@ -176,8 +193,9 @@ public class AgentListController {
                     applicationName, serviceTypeCode, serviceTypeName, from, to, sortBy, String.valueOf(serverMapAgentListQueryRule)
             );
         }
-        Range between = Range.between(from, to);
-        TimeWindow timeWindow = new TimeWindow(between);
+        Range range = Range.between(from, to);
+        rangeValidator.validate(range);
+        TimeWindow timeWindow = new TimeWindow(range);
 
         final Application application = applicationFactory.createApplication(applicationName, serviceType.getCode());
 
@@ -252,6 +270,7 @@ public class AgentListController {
         return new StaticTreeView<>(list);
     }
 
+    @PreAuthorize("hasPermission(null, null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ADMINISTRATION_CALL_API_FOR_APP_AGENT_MANAGEMENT)")
     @GetMapping(value = "/statistics")
     public TreeView<InstancesList<DetailedAgentInfo>> getAllAgentStatistics() {
         final long timestamp = System.currentTimeMillis();
@@ -263,15 +282,18 @@ public class AgentListController {
         return treeView(allAgentsList);
     }
 
+    @PreAuthorize("hasPermission(null, null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ADMINISTRATION_CALL_API_FOR_APP_AGENT_MANAGEMENT)")
     @GetMapping(value = "/statistics", params = {"from", "to"})
     public TreeView<InstancesList<DetailedAgentInfo>> getAllAgentStatistics(
             @RequestParam("from") @PositiveOrZero long from,
             @RequestParam("to") @PositiveOrZero long to
     ) {
+        Range range = Range.between(from, to);
+        rangeValidator.validate(range);
         final AgentsMapByApplication<DetailedAgentInfo> allAgentsList =
                 this.agentInfoService.getAllAgentsStatisticsList(
                         AgentStatusFilters.acceptAll(),
-                        Range.between(from, to)
+                        range
                 );
         return treeView(allAgentsList);
     }

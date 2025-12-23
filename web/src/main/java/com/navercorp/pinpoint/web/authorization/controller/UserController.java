@@ -25,6 +25,7 @@ import jakarta.validation.constraints.NotBlank;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -56,6 +57,7 @@ public class UserController {
         this.userService = Objects.requireNonNull(userService, "userService");
     }
 
+    @PreAuthorize("hasPermission(null, null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ADMINISTRATION_EDIT_USER)")
     @PostMapping
     public Response insertUser(@RequestBody User user) {
         if (!ValueValidator.validateUser(user)) {
@@ -68,6 +70,7 @@ public class UserController {
         return SimpleResponse.ok();
     }
 
+    @PreAuthorize("hasPermission(null, null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ADMINISTRATION_EDIT_USER)")
     @DeleteMapping
     public Response deleteUser(@RequestBody User user) {
         if (StringUtils.isEmpty(user.getUserId())) {
@@ -120,6 +123,7 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("hasPermission(null, null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ADMINISTRATION_EDIT_USER)")
     @PutMapping
     public Response updateUser(@RequestBody User user) {
         if (!ValueValidator.validateUser(user)) {

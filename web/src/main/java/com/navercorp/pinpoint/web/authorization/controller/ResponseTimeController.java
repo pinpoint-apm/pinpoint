@@ -43,6 +43,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -80,6 +81,7 @@ public class ResponseTimeController {
         this.hyperLinkFactory = Objects.requireNonNull(hyperLinkFactory, "hyperLinkFactory");
     }
 
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/getWas/serverHistogramData")
     public ServerHistogramView getWasServerHistogramData(
             @RequestParam("applicationName") @NotBlank String applicationName,
@@ -101,6 +103,7 @@ public class ResponseTimeController {
         return ServerHistogramView.view(nodeHistogramSummary, hyperLinkFactory);
     }
 
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/getWas/histogram")
     public Histogram getWasHistogram(
             @RequestParam("applicationName") @NotBlank String applicationName,
@@ -122,6 +125,7 @@ public class ResponseTimeController {
         return nodeHistogramSummary.getHistogram();
     }
 
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/getWas/responseStatistics")
     public ResponseTimeStatics getWasResponseTimeStatistics(
             @RequestParam("applicationName") @NotBlank String applicationName,
@@ -134,6 +138,7 @@ public class ResponseTimeController {
         return ResponseTimeStatics.fromHistogram(histogram);
     }
 
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/getWas/{type}/chart")
     public TimeHistogramChart getWasTimeHistogramChart(
             @RequestParam("applicationName") @NotBlank String applicationName,
@@ -187,6 +192,7 @@ public class ResponseTimeController {
         return new ResponseTimeHistogramServiceOption.Builder(application, timeWindow, Collections.emptyList(), Collections.emptyList());
     }
 
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @PostMapping(value = "/getNode/serverHistogramData")
     public ServerHistogramView postNodeServerHistogramData(
             @RequestParam("applicationName") @NotBlank String applicationName,
@@ -209,6 +215,7 @@ public class ResponseTimeController {
         return ServerHistogramView.view(nodeHistogramSummary, hyperLinkFactory);
     }
 
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @PostMapping(value = "/getNode/histogramData")
     public HistogramView postNodeHistogramData(
             @RequestParam("applicationName") @NotBlank String applicationName,
@@ -232,6 +239,7 @@ public class ResponseTimeController {
         return HistogramView.view(nodeHistogramSummary);
     }
 
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @PostMapping(value = "/getNode/{type}/chart")
     public TimeHistogramChart postNodeTimeHistogramChart(
             @RequestParam("applicationName") @NotBlank String applicationName,
@@ -264,6 +272,7 @@ public class ResponseTimeController {
                 .build(timeHistogramType);
     }
 
+    @PreAuthorize("hasPermission(#fromApplicationName, 'application', 'inspector') or hasPermission(#toApplicationName, 'application', 'inspector')")
     @GetMapping(value = "/getLink/histogramData")
     public HistogramView getLinkHistogramData(
             @RequestParam("fromApplicationName") @NotBlank String fromApplicationName,
@@ -295,6 +304,7 @@ public class ResponseTimeController {
         return new HistogramView(linkName, histogram, appHistogram);
     }
 
+    @PreAuthorize("hasPermission(#fromApplicationName, 'application', 'inspector') or hasPermission(#toApplicationName, 'application', 'inspector')")
     @GetMapping(value = "/getLink/{type}/chart")
     public TimeHistogramChart getLinkTimeHistogramChart(
             @RequestParam("fromApplicationName") @NotBlank String fromApplicationName,

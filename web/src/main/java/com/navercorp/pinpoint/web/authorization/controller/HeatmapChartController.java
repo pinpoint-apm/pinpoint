@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.web.heatmap.vo.HeatMapData;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,6 +56,7 @@ public class HeatmapChartController {
         //TODO : (minwoo) need to set rangeValidator
     }
 
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/applicationData")
     public HeatMapDataView getHeatmapAppData(@RequestParam("applicationName") @NotBlank String applicationName,
                                   @RequestParam("from") @PositiveOrZero long from,

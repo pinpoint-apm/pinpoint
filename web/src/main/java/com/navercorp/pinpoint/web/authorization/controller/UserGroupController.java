@@ -30,6 +30,7 @@ import jakarta.validation.constraints.NotBlank;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -79,6 +80,7 @@ public class UserGroupController {
         }
     }
 
+    @PreAuthorize("hasPermission(#userGroup.getId(), null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_USERGROUP_EDIT_GROUP_ONLY_GROUPMEMBER)")
     @DeleteMapping
     public Response deleteUserGroup(@RequestBody UserGroup userGroup) {
         if (StringUtils.isEmpty(userGroup.getId())) {
@@ -112,6 +114,7 @@ public class UserGroupController {
         return userGroupService.selectUserGroupByUserGroupId(userGroupId);
     }
 
+    @PreAuthorize("hasPermission(#userGroupMember.getUserGroupId(), null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_USERGROUP_EDIT_GROUP_ONLY_GROUPMEMBER)")
     @PostMapping(value = "/member")
     public Response insertUserGroupMember(@RequestBody UserGroupMemberParam userGroupMember) {
         if (StringUtils.isEmpty(userGroupMember.getMemberId()) ||
@@ -126,6 +129,7 @@ public class UserGroupController {
         return SimpleResponse.ok();
     }
 
+    @PreAuthorize("hasPermission(#userGroupMember.getUserGroupId(), null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_USERGROUP_EDIT_GROUP_ONLY_GROUPMEMBER)")
     @DeleteMapping(value = "/member")
     public Response deleteUserGroupMember(@RequestBody UserGroupMemberParam userGroupMember) {
         if (StringUtils.isEmpty(userGroupMember.getUserGroupId()) ||
