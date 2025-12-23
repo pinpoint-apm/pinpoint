@@ -21,11 +21,11 @@ import com.navercorp.pinpoint.common.hbase.async.HbaseAsyncTemplate;
 import com.navercorp.pinpoint.common.hbase.parallel.ParallelResultScanner;
 import com.navercorp.pinpoint.common.hbase.parallel.ScanTaskException;
 import com.navercorp.pinpoint.common.hbase.scan.ResultScannerFactory;
-import com.navercorp.pinpoint.common.hbase.scan.ScanUtils;
 import com.navercorp.pinpoint.common.hbase.scan.Scanner;
 import com.navercorp.pinpoint.common.hbase.util.EmptyScanMetricReporter;
 import com.navercorp.pinpoint.common.hbase.util.HBaseExceptionUtils;
 import com.navercorp.pinpoint.common.hbase.util.ScanMetricReporter;
+import com.navercorp.pinpoint.common.hbase.wd.DistributedScan;
 import com.navercorp.pinpoint.common.hbase.wd.DistributedScanner;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
@@ -346,7 +346,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
 
                 List<T> result = scanner.extractData(action);
 
-                final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "find", copy);
+                final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "find");
                 reporter.report(scanner.getScanMetrics());
                 return result;
             }
@@ -373,7 +373,7 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
     public <T> List<T> findParallel0(final TableName tableName, final List<Scan> scans, final ResultsExtractor<T> action) {
         final Scan[] copy = scans.toArray(new Scan[0]);
 
-        final ScanMetricReporter.ReportCollector reporter = scanMetric.collect(tableName, "block-multi", copy);
+        final ScanMetricReporter.ReportCollector reporter = scanMetric.collect(tableName, "block-multi");
 
         List<Callable<T>> callables = callable(tableName, action, copy, reporter);
 
@@ -472,12 +472,11 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
                 final StopWatch watch = StopWatch.createStarted();
                 final boolean debugEnabled = logger.isDebugEnabled();
 
-                Scan[] scans = rowKeyDistributor.getDistributedScans(scan);
-                final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "block-multi", scans);
+                DistributedScan dScan = rowKeyDistributor.getDistributedScans(scan);
+                dScan.setScanMetricReporter(scanMetric.isEnable());
 
-                final ResultScanner[] splitScanners = ScanUtils.newScanners(table, scans);
-                final int saltKeySize = rowKeyDistributor.getSaltKeySize();
-                try (ResultScanner scanner = new DistributedScanner(saltKeySize, splitScanners)) {
+                DistributedScanner scanner = new DistributedScanner(table, dScan);
+                try (scanner) {
                     if (debugEnabled) {
                         logger.debug("DistributedScanner createTime: {}ms", watch.stop());
                     }
@@ -486,7 +485,8 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
                     if (debugEnabled) {
                         logger.debug("DistributedScanner scanTime: {}ms", watch.stop());
                     }
-                    reporter.report(splitScanners);
+                    final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "block-multi");
+                    reporter.report(scanner.getScanMetrics());
                 }
             }
         });

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.hbase.parallel;
 
 import com.navercorp.pinpoint.common.hbase.HbaseAccessor;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
+import com.navercorp.pinpoint.common.hbase.wd.DistributedScan;
 import com.navercorp.pinpoint.common.hbase.wd.LocalScanner;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import org.apache.hadoop.hbase.TableName;
@@ -51,17 +52,19 @@ public class ParallelResultScanner implements ResultScanner {
         Objects.requireNonNull(keyDistributor, "keyDistributor");
         this.saltKeySize = keyDistributor.getSaltKeySize();
 
-        final ScanTaskConfig scanTaskConfig = ScanTaskConfig.of(tableName, hbaseAccessor, saltKeySize, originalScan.getCaching());
-        final Scan[] splitScans = keyDistributor.getDistributedScans(originalScan);
+        final DistributedScan dScan = keyDistributor.getDistributedScans(originalScan);
+        final ScanTaskConfig scanTaskConfig = ScanTaskConfig.of(tableName, hbaseAccessor.getTableFactory(), saltKeySize,
+                originalScan.getCaching(), hbaseAccessor.getConfiguration(), dScan.isEnableScanMetrics());
 
-        this.scanTasks = createScanTasks(scanTaskConfig, splitScans, numParallelThreads);
+        this.scanTasks = createScanTasks(scanTaskConfig, dScan, numParallelThreads);
         for (ScanTask scanTask : scanTasks) {
             executor.execute(scanTask);
         }
     }
 
 
-    private ScanTask[] createScanTasks(ScanTaskConfig scanTaskConfig, Scan[] splitScans, int numParallelThreads) {
+    private ScanTask[] createScanTasks(ScanTaskConfig scanTaskConfig, DistributedScan distributedScan, int numParallelThreads) {
+        Scan[] splitScans = distributedScan.getScans();
         if (splitScans.length <= numParallelThreads) {
             ScanTask[] scanTasks = new ScanTask[splitScans.length];
             for (int i = 0; i < splitScans.length; i++) {
