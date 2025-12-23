@@ -30,10 +30,12 @@ public interface AdminService {
     int MIN_DURATION_DAYS_FOR_INACTIVITY = 30;
     String MIN_DURATION_DAYS_FOR_INACTIVITY_STR = "" + MIN_DURATION_DAYS_FOR_INACTIVITY;
 
+    @Deprecated
     void removeApplicationName(String applicationName);
 
     void removeApplication(String applicationName, int serviceTypeCode);
 
+    @Deprecated
     void removeAgentId(String applicationName, String agentId);
 
     void removeAgentId(String applicationName, int serviceTypeCode, String agentId);

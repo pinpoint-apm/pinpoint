@@ -21,12 +21,11 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.Application;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.hadoop.hbase.CompareOperator;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Delete;
@@ -39,9 +38,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -132,33 +129,19 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     }
 
     @Override
-    public void deleteAgentIds(Map<String, List<String>> applicationAgentIdMap) {
-        if (MapUtils.isEmpty(applicationAgentIdMap)) {
+    public void deleteAgentIds(String applicationName, List<String> agentIds) {
+        if (StringUtils.isEmpty(applicationName) || CollectionUtils.isEmpty(agentIds)) {
             return;
         }
-
-        List<Delete> deletes = new ArrayList<>(applicationAgentIdMap.size());
-
-        for (Map.Entry<String, List<String>> entry : applicationAgentIdMap.entrySet()) {
-            String applicationName = entry.getKey();
-            List<String> agentIds = entry.getValue();
-            if (StringUtils.isEmpty(applicationName) || CollectionUtils.isEmpty(agentIds)) {
-                continue;
-            }
-            Delete delete = new Delete(Bytes.toBytes(applicationName));
-            for (String agentId : agentIds) {
-                if (StringUtils.hasLength(agentId)) {
-                    delete.addColumns(DESCRIPTOR.getName(), Bytes.toBytes(agentId));
-                }
-            }
-            // don't delete if nothing has been specified except row
-            if (!delete.getFamilyCellMap().isEmpty()) {
-                deletes.add(delete);
+        Delete delete = new Delete(Bytes.toBytes(applicationName));
+        for (String agentId : agentIds) {
+            if (StringUtils.hasLength(agentId)) {
+                delete.addColumns(DESCRIPTOR.getName(), Bytes.toBytes(agentId));
             }
         }
 
         TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        hbaseOperations.delete(applicationIndexTableName, deletes);
+        hbaseOperations.delete(applicationIndexTableName, delete);
     }
 
     @Override

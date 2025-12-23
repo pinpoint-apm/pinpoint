@@ -27,7 +27,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -70,15 +69,18 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     }
 
     @Override
+    @Deprecated
     public List<String> selectAllApplicationNames() {
         if (isReadV2()) {
             return this.applicationDao.getApplications(ServiceUid.DEFAULT).stream()
                     .map(Application::getName)
+                    .distinct()
                     .toList();
         }
         return this.applicationIndexDao.selectAllApplicationNames()
                 .stream()
                 .map(Application::getName)
+                .distinct()
                 .toList();
     }
 
@@ -90,12 +92,14 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
         return this.applicationIndexDao.selectApplicationName(applicationName);
     }
 
+    @Deprecated
     @Override
     public void deleteApplicationName(String applicationName) {
         if (v2Enabled) {
             List<Application> applicationList = this.applicationDao.getApplications(ServiceUid.DEFAULT, applicationName);
             for (Application application : applicationList) {
                 this.applicationDao.deleteApplication(ServiceUid.DEFAULT, application.getName(), application.getServiceTypeCode());
+                this.agentIdDao.deleteAllAgents(ServiceUid.DEFAULT, application.getName(), application.getServiceTypeCode());
             }
         }
         if (v1Enabled) {
@@ -107,10 +111,11 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     public void deleteApplication(String applicationName, int serviceTypeCode) {
         if (v2Enabled) {
             this.applicationDao.deleteApplication(ServiceUid.DEFAULT, applicationName, serviceTypeCode);
+            this.agentIdDao.deleteAllAgents(ServiceUid.DEFAULT, applicationName, serviceTypeCode);
         }
         if (v1Enabled) {
             List<String> agentIds = applicationIndexDao.selectAgentIds(applicationName, serviceTypeCode);
-            applicationIndexDao.deleteAgentIds(Map.of(applicationName, agentIds));
+            applicationIndexDao.deleteAgentIds(applicationName, agentIds);
         }
     }
 
@@ -150,18 +155,39 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     }
 
     @Override
-    public void deleteAgentIds(Map<String, List<String>> applicationAgentIdMap) {
+    public List<String> selectAgentIds(String applicationName, int serviceTypeCode) {
+        if (isReadV2()) {
+            List<String> agentIdList = this.agentIdDao.getAgentIds(ServiceUid.DEFAULT, applicationName, serviceTypeCode);
+            Set<String> agentIdSet = new HashSet<>(agentIdList);
+            return new ArrayList<>(agentIdSet);
+        }
+
+        return applicationIndexDao.selectAgentIds(applicationName, serviceTypeCode);
+    }
+
+    @Override
+    @Deprecated
+    public void deleteAgentIds(String applicationName, List<String> agentIds) {
         if (v2Enabled) {
-            for (Map.Entry<String, List<String>> entry : applicationAgentIdMap.entrySet()) {
-                deleteAgentsV2(entry.getKey(), entry.getValue());
-            }
+            deleteAgentsV2(applicationName, agentIds);
         }
         if (v1Enabled) {
-            applicationIndexDao.deleteAgentIds(applicationAgentIdMap);
+            applicationIndexDao.deleteAgentIds(applicationName, agentIds);
         }
     }
 
     @Override
+    public void deleteAgentIds(Application application, List<String> agentIds) {
+        if (v2Enabled) {
+            deleteAgentsV2(application.getName(), application.getServiceTypeCode(), agentIds);
+        }
+        if (v1Enabled) {
+            applicationIndexDao.deleteAgentIds(application.getName(), agentIds);
+        }
+    }
+
+    @Override
+    @Deprecated
     public void deleteAgentId(String applicationName, String agentId) {
         if (v2Enabled) {
             deleteAgentsV2(applicationName, List.of(agentId));
@@ -176,6 +202,10 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
         for (Application application : applicationList) {
             this.agentIdDao.deleteAgents(ServiceUid.DEFAULT, application.getName(), application.getServiceTypeCode(), agentIds);
         }
+    }
+
+    private void deleteAgentsV2(String applicationName, int serviceTypeCode, List<String> agentIds) {
+        this.agentIdDao.deleteAgents(ServiceUid.DEFAULT, applicationName, serviceTypeCode, agentIds);
     }
 
     @Override

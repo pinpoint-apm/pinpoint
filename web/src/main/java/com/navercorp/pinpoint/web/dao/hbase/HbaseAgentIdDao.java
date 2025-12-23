@@ -7,31 +7,34 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.ServiceGroupRowKeyPrefixUtils;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.dao.AgentIdDao;
+import com.navercorp.pinpoint.web.util.ListListUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 public class HbaseAgentIdDao implements AgentIdDao {
     private static final HbaseColumnFamily DESCRIPTOR = HbaseTables.AGENT_ID;
-    private static final byte[] PREFIXED_EMPTY_VALUE = new byte[1];
+    private static final byte[] NON_EMPTY_VALUE = new byte[1];
 
     private final HbaseOperations hbaseTemplate;
     private final TableNameProvider tableNameProvider;
-    private final RowMapper<String> agentMapper;
+    private final RowMapper<List<String>> agentIdMapper;
 
     public HbaseAgentIdDao(HbaseOperations hbaseTemplate, TableNameProvider tableNameProvider,
-                           @Qualifier("agentIdMapperV2") RowMapper<String> agentMapper) {
-        this.hbaseTemplate = hbaseTemplate;
-        this.tableNameProvider = tableNameProvider;
-        this.agentMapper = agentMapper;
+                           @Qualifier("agentIdMapper") RowMapper<List<String>> agentIdMapper) {
+        this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
+        this.agentIdMapper = Objects.requireNonNull(agentIdMapper, "agentIdMapper");
     }
 
     @Override
@@ -40,7 +43,8 @@ public class HbaseAgentIdDao implements AgentIdDao {
         Scan scan = createScan(rowKeyPrefix);
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        return hbaseTemplate.find(applicationIndexTableName, scan, agentMapper);
+        List<List<String>> results = hbaseTemplate.find(applicationIndexTableName, scan, agentIdMapper);
+        return ListListUtils.toList(results);
     }
 
     @Override
@@ -49,36 +53,48 @@ public class HbaseAgentIdDao implements AgentIdDao {
         Scan scan = createScan(rowKeyPrefix);
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        return hbaseTemplate.find(applicationIndexTableName, scan, agentMapper);
+        List<List<String>> results = hbaseTemplate.find(applicationIndexTableName, scan, agentIdMapper);
+        return ListListUtils.toList(results);
     }
 
     private Scan createScan(byte[] rowKeyPrefix) {
         Scan scan = new Scan();
         scan.setStartStopRowForPrefixScan(rowKeyPrefix);
         scan.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName());
-        scan.setCaching(20);
+        scan.setCaching(5);
         return scan;
     }
 
     @Override
-    public void deleteAgents(ServiceUid serviceUid, String applicationName, int serviceTypeCode, List<String> agentIdList) {
-        List<Delete> deleteLists = new ArrayList<>(agentIdList.size());
-        for (String agentId : agentIdList) {
-            byte[] rowKey = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName, serviceTypeCode, agentId);
-            Delete delete = new Delete(rowKey);
+    public void deleteAllAgents(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
+        byte[] rowKey = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
+        Delete delete = new Delete(rowKey);
 
-            delete.addColumns(DESCRIPTOR.getName(), DESCRIPTOR.getName());
-            deleteLists.add(delete);
+        TableName agentListTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        hbaseTemplate.delete(agentListTableName, delete);
+    }
+
+    @Override
+    public void deleteAgents(ServiceUid serviceUid, String applicationName, int serviceTypeCode, List<String> agentIdList) {
+        if (CollectionUtils.isEmpty(agentIdList)) {
+            return;
+        }
+        byte[] rowKey = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
+        Delete delete = new Delete(rowKey);
+        for (String agentId : agentIdList) {
+            byte[] qualifier = Bytes.toBytes(agentId);
+            delete.addColumns(DESCRIPTOR.getName(), qualifier);
         }
         TableName agentListTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        hbaseTemplate.delete(agentListTableName, deleteLists);
+        hbaseTemplate.delete(agentListTableName, delete);
     }
 
     @Override
     public void insert(ServiceUid serviceUid, String applicationName, int serviceTypeCode, String agentId) {
-        byte[] rowKey = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName, serviceTypeCode, agentId);
+        byte[] rowKey = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
+        byte[] qualifier = Bytes.toBytes(agentId);
         final Put put = new Put(rowKey, true);
-        put.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName(), PREFIXED_EMPTY_VALUE);
+        put.addColumn(DESCRIPTOR.getName(), qualifier, NON_EMPTY_VALUE);
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         hbaseTemplate.put(applicationIndexTableName, put);

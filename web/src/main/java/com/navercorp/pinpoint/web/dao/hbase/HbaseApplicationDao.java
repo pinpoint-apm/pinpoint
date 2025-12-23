@@ -51,7 +51,6 @@ public class HbaseApplicationDao implements ApplicationDao {
         Scan scan = new Scan();
         scan.setStartStopRowForPrefixScan(rowKeyPrefix);
         scan.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName());
-        scan.setCaching(20);
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         return hbaseTemplate.find(applicationIndexTableName, scan, applicationMapper);

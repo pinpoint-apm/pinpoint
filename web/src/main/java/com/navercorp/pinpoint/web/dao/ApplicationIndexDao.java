@@ -37,7 +37,7 @@ public interface ApplicationIndexDao {
 
     void deleteApplicationName(String applicationName);
 
-    void deleteAgentIds(Map<String, List<String>> applicationAgentIdMap);
+    void deleteAgentIds(String applicationName, List<String> agentIds);
 
     void deleteAgentId(String applicationName, String agentId);
 }

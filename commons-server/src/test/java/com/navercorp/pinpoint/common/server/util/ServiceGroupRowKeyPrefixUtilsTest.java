@@ -9,14 +9,12 @@ public class ServiceGroupRowKeyPrefixUtilsTest {
 
     @Test
     public void createRowKeyTest() {
-        byte[] rowKey1 = ServiceGroupRowKeyPrefixUtils.createRowKey(ServiceUid.TEST, "appName", 1000, "agentId");
-        byte[] rowKey2 = ServiceGroupRowKeyPrefixUtils.createRowKey(ServiceUid.TEST, "appName", 1000);
-        byte[] rowKey3 = ServiceGroupRowKeyPrefixUtils.createRowKey(ServiceUid.TEST, "appName");
-        byte[] rowKey4 = ServiceGroupRowKeyPrefixUtils.createRowKey(ServiceUid.TEST);
+        byte[] rowKey1 = ServiceGroupRowKeyPrefixUtils.createRowKey(ServiceUid.TEST, "appName", 1000);
+        byte[] rowKey2 = ServiceGroupRowKeyPrefixUtils.createRowKey(ServiceUid.TEST, "appName");
+        byte[] rowKey3 = ServiceGroupRowKeyPrefixUtils.createRowKey(ServiceUid.TEST);
 
         Assertions.assertThat(rowKey1).startsWith(rowKey2);
         Assertions.assertThat(rowKey2).startsWith(rowKey3);
-        Assertions.assertThat(rowKey3).startsWith(rowKey4);
     }
 
     @Test
