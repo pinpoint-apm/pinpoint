@@ -18,16 +18,19 @@ package com.navercorp.pinpoint.common.hbase.util;
 
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.metrics.ScanMetrics;
 
 import java.util.Collection;
 
 public interface ScanMetricReporter {
 
-    Reporter newReporter(TableName tableName, String comment, Scan[] scans);
+    Reporter newReporter(TableName tableName, String comment);
 
-    ReportCollector collect(TableName tableName, String comment, Scan[] scans);
+    ReportCollector collect(TableName tableName, String comment);
+
+    default boolean isEnable() {
+        return false;
+    }
 
     interface Reporter {
 

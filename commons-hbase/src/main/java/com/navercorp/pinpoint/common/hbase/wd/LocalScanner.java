@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.common.hbase.wd;
 
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.metrics.ScanMetrics;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -29,4 +31,7 @@ public interface LocalScanner extends Closeable {
     void consume();
 
     void close() throws IOException;
+
+    @Nullable
+    ScanMetrics getScanMetrics();
 }

@@ -16,11 +16,14 @@
 
 package com.navercorp.pinpoint.common.hbase.wd;
 
+import com.navercorp.pinpoint.common.hbase.scan.ScanUtils;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
+import com.navercorp.pinpoint.common.hbase.util.ScanMetricUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.hbase.client.AsyncTable;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.client.ScanResultConsumer;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.client.metrics.ScanMetrics;
 
@@ -44,6 +47,25 @@ public class DistributedScanner implements ResultScanner {
 
         this.saltKeySize = saltKeySize;
         this.localScanners = wrapLocalScanners(scanners);
+    }
+
+    public DistributedScanner(Table table, DistributedScan scan) {
+        Objects.requireNonNull(table, "table");
+        Objects.requireNonNull(scan, "scan");
+
+        this.saltKeySize = scan.getSaltKeySize();
+
+        ResultScanner[] resultScanners = ScanUtils.newScanners(table, scan.getScans());
+        this.localScanners = wrapLocalScanners(resultScanners);
+    }
+
+    public DistributedScanner(AsyncTable<ScanResultConsumer> table, DistributedScan scan) {
+        Objects.requireNonNull(scan, "scan");
+
+        this.saltKeySize = scan.getSaltKeySize();
+
+        ResultScanner[] resultScanners = ScanUtils.newScanners(table, scan.getScans());
+        this.localScanners = wrapLocalScanners(resultScanners);
     }
 
     private LocalScanner[] wrapLocalScanners(ResultScanner[] scanners) {
@@ -83,6 +105,7 @@ public class DistributedScanner implements ResultScanner {
         }
     }
 
+
     @Override
     public boolean renewLease() {
         return false;
@@ -90,19 +113,20 @@ public class DistributedScanner implements ResultScanner {
 
     @Override
     public ScanMetrics getScanMetrics() {
-        return null;
-    }
-
-    public static DistributedScanner create(Table hTable, Scan originalScan, RowKeyDistributor keyDistributor) throws IOException {
-        Scan[] scans = keyDistributor.getDistributedScans(originalScan);
-
-        ResultScanner[] rss = new ResultScanner[scans.length];
-        for (int i = 0; i < scans.length; i++) {
-            rss[i] = hTable.getScanner(scans[i]);
+        ScanMetrics merge = null;
+        for (LocalScanner scanner : localScanners) {
+            ScanMetrics scanMetrics = scanner.getScanMetrics();
+            if (scanMetrics == null) {
+                continue;
+            }
+            if (merge == null) {
+                merge = new ScanMetrics();
+            }
+            ScanMetricUtils.sum(merge, scanMetrics);
         }
-        int saltKeySize = keyDistributor.getSaltKeySize();
-        return new DistributedScanner(saltKeySize, rss);
+        return merge;
     }
+
 
     private Result nextInternal() throws IOException {
         Result result = null;

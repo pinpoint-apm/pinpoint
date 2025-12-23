@@ -20,6 +20,7 @@ import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Pair;
+import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -78,25 +79,30 @@ public interface RowKeyDistributor {
         return stopKeys;
     }
 
-    default Scan[] getDistributedScans(Scan original) throws IOException {
+    default DistributedScan getDistributedScans(Scan original) throws IOException {
         Pair<byte[], byte[]>[] intervals = getDistributedIntervals(original.getStartRow(), original.getStopRow());
 
         Scan[] scans = new Scan[intervals.length];
         for (int i = 0; i < intervals.length; i++) {
-            Scan copy = new Scan(original);
-
             Pair<byte[], byte[]> interval = intervals[i];
-            copy.setStartRow(interval.getFirst());
-            copy.setStopRow(interval.getSecond());
-
-            final String scanId = original.getId();
-            if (scanId != null) {
-                copy.setId(scanId + "-" + i);
-            }
-
-            scans[i] = copy;
+            byte[] start = interval.getFirst();
+            byte[] stop = interval.getSecond();
+            scans[i] = copyScan(original, start, stop, i);
         }
-        return scans;
+        return new DistributedScan(scans, this.getSaltKeySize());
+    }
+
+    private @NonNull Scan copyScan(Scan original, byte[] start, byte[] stop, int i) throws IOException {
+        Scan copy = new Scan(original);
+
+        copy.setStartRow(start);
+        copy.setStopRow(stop);
+
+        final String scanId = original.getId();
+        if (scanId != null) {
+            copy.setId(scanId + "-" + i);
+        }
+        return copy;
     }
 
 }

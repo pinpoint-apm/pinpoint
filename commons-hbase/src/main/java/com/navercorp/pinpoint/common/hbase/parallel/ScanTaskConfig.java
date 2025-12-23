@@ -16,13 +16,11 @@
 
 package com.navercorp.pinpoint.common.hbase.parallel;
 
-import com.navercorp.pinpoint.common.hbase.HbaseAccessor;
 import com.navercorp.pinpoint.common.hbase.TableFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.TableName;
 
-import java.nio.charset.Charset;
 import java.util.Objects;
 
 /**
@@ -31,43 +29,39 @@ import java.util.Objects;
 public class ScanTaskConfig {
 
     private final TableName tableName;
-    private final Configuration configuration;
-    private final Charset charset;
     private final TableFactory tableFactory;
 
     private final int saltKeySize;
     private final int scanTaskQueueSize;
+    private final boolean scanMetricsEnabled;
 
-    public static ScanTaskConfig of(TableName tableName, HbaseAccessor hbaseAccessor, int saltKeySize, int scanCaching) {
-        return new ScanTaskConfig(tableName, hbaseAccessor.getConfiguration(), hbaseAccessor.getCharset(), hbaseAccessor.getTableFactory(), saltKeySize, scanCaching);
+    public static ScanTaskConfig of(TableName tableName, TableFactory tableFactory, int saltKeySize, int scanCaching, Configuration configuration, boolean scanMetricsEnabled) {
+        int scanTaskQueueSize = scanTaskQueueSize(scanCaching, configuration);
+        return new ScanTaskConfig(tableName, tableFactory, saltKeySize, scanTaskQueueSize, scanMetricsEnabled);
     }
 
-    public ScanTaskConfig(TableName tableName, Configuration configuration, Charset charset, TableFactory tableFactory, int saltKeySize, int scanCaching) {
-        this.tableName = Objects.requireNonNull(tableName, "tableName");
-        this.configuration = configuration;
-        this.charset = charset;
-        this.tableFactory = tableFactory;
-        this.saltKeySize = saltKeySize;
+    private static int scanTaskQueueSize(int scanCaching, Configuration configuration) {
         if (scanCaching > 0) {
-            this.scanTaskQueueSize = scanCaching;
+            return scanCaching;
         } else {
-            this.scanTaskQueueSize = configuration.getInt(
+            return configuration.getInt(
                     HConstants.HBASE_CLIENT_SCANNER_CACHING,
                     HConstants.DEFAULT_HBASE_CLIENT_SCANNER_CACHING);
         }
+    }
+
+    public ScanTaskConfig(TableName tableName, TableFactory tableFactory, int saltKeySize, int scanTaskQueueSize, boolean scanMetricsEnabled) {
+        this.tableName = Objects.requireNonNull(tableName, "tableName");
+        this.tableFactory = Objects.requireNonNull(tableFactory, "tableFactory");
+        this.saltKeySize = saltKeySize;
+        this.scanTaskQueueSize = scanTaskQueueSize;
+        this.scanMetricsEnabled = scanMetricsEnabled;
     }
 
     public TableName getTableName() {
         return tableName;
     }
 
-    public Configuration getConfiguration() {
-        return configuration;
-    }
-
-    public Charset getCharset() {
-        return charset;
-    }
 
     public TableFactory getTableFactory() {
         return tableFactory;
@@ -79,5 +73,9 @@ public class ScanTaskConfig {
 
     public int getScanTaskQueueSize() {
         return scanTaskQueueSize;
+    }
+
+    public boolean isScanMetricsEnabled() {
+        return scanMetricsEnabled;
     }
 }

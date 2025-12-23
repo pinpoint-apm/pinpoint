@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.common.hbase.util;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.metrics.ScanMetrics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,22 +32,19 @@ public class DefaultScanMetricReporter implements ScanMetricReporter {
     }
 
     @Override
-    public Reporter newReporter(TableName tableName, String comment, Scan[] scans) {
-        applyMetricsEnabled(scans);
+    public Reporter newReporter(TableName tableName, String comment) {
         return new MetricReporter(tableName, comment);
     }
 
-    private void applyMetricsEnabled(Scan[] scans) {
-        for (Scan scan : scans) {
-            scan.setScanMetricsEnabled(true);
-        }
+    @Override
+    public ReportCollector collect(TableName tableName, String comment) {
+        MetricReporter reporter = new MetricReporter(tableName, comment);
+        return new DefaultReportCollector(reporter);
     }
 
     @Override
-    public ReportCollector collect(TableName tableName, String comment, Scan[] scans) {
-        applyMetricsEnabled(scans);
-        MetricReporter reporter = new MetricReporter(tableName, comment);
-        return new DefaultReportCollector(reporter);
+    public boolean isEnable() {
+        return true;
     }
 
     public static class MetricReporter implements Reporter {
@@ -103,8 +99,9 @@ public class DefaultScanMetricReporter implements ScanMetricReporter {
                 return;
             }
             // simple metric
-            ScanMetrics summary = ScanMetricUtils.merge(scanMetricsList);
+
             if (CollectionUtils.hasLength(scanMetricsList)) {
+                ScanMetrics summary = ScanMetricUtils.merge(scanMetricsList);
                 logger.info("ScanMetric {} {} {}:{}", name, scanMetricsList.size(), comment, summary);
             }
         }

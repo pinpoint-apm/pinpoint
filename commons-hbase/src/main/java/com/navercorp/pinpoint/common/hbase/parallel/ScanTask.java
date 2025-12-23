@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.hbase.parallel;
 
 import com.navercorp.pinpoint.common.hbase.TableFactory;
 import com.navercorp.pinpoint.common.hbase.scan.ScanUtils;
+import com.navercorp.pinpoint.common.hbase.util.ScanMetricUtils;
 import com.navercorp.pinpoint.common.hbase.wd.DistributedScanner;
 import com.navercorp.pinpoint.common.hbase.wd.LocalScanner;
 import org.apache.hadoop.hbase.TableName;
@@ -25,6 +26,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.client.metrics.ScanMetrics;
 import org.springframework.util.Assert;
 
 import java.io.IOException;
@@ -53,6 +55,8 @@ public class ScanTask implements Runnable, LocalScanner {
 
     private Result localBuffer;
 
+    private final ScanMetrics scanMetrics;
+
     public ScanTask(ScanTaskConfig scanTaskConfig, Scan... scans) {
         Objects.requireNonNull(scanTaskConfig, "scanTaskConfig");
         Assert.notEmpty(scans, "scans");
@@ -61,6 +65,15 @@ public class ScanTask implements Runnable, LocalScanner {
         this.saltKeySize = scanTaskConfig.getSaltKeySize();
         this.scans = scans;
         this.resultQueue = new ArrayBlockingQueue<>(scanTaskConfig.getScanTaskQueueSize());
+
+        this.scanMetrics = getScanMetrics(scanTaskConfig.isScanMetricsEnabled());
+    }
+
+    private ScanMetrics getScanMetrics(boolean scanMetricsEnabled) {
+        if (scanMetricsEnabled) {
+            return new ScanMetrics();
+        }
+        return null;
     }
 
     @Override
@@ -81,6 +94,9 @@ public class ScanTask implements Runnable, LocalScanner {
                 this.isDone = true;
                 this.resultQueue.put(END_RESULT);
                 ScanUtils.closeScanner(scanner);
+                if (scanMetrics != null) {
+                    ScanMetricUtils.sum(scanMetrics, scanner.getScanMetrics());
+                }
             }
         } catch (Throwable th) {
             this.throwable = th;
@@ -148,4 +164,8 @@ public class ScanTask implements Runnable, LocalScanner {
         return this.throwable;
     }
 
+    @Override
+    public ScanMetrics getScanMetrics() {
+        return scanMetrics;
+    }
 }

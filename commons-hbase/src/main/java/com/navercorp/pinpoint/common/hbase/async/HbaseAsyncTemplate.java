@@ -25,11 +25,11 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.future.FutureDecorator;
 import com.navercorp.pinpoint.common.hbase.future.FutureLoggingDecorator;
 import com.navercorp.pinpoint.common.hbase.scan.ResultScannerFactory;
-import com.navercorp.pinpoint.common.hbase.scan.ScanUtils;
 import com.navercorp.pinpoint.common.hbase.scan.Scanner;
 import com.navercorp.pinpoint.common.hbase.util.HBaseExceptionUtils;
 import com.navercorp.pinpoint.common.hbase.util.MutationType;
 import com.navercorp.pinpoint.common.hbase.util.ScanMetricReporter;
+import com.navercorp.pinpoint.common.hbase.wd.DistributedScan;
 import com.navercorp.pinpoint.common.hbase.wd.DistributedScanner;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.util.StopWatch;
@@ -43,7 +43,6 @@ import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.ScanResultConsumer;
 import org.apache.logging.log4j.LogManager;
@@ -355,7 +354,7 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
                 Scanner<T> scanner = scannerFactory.newScanner(table, copy);
                 List<T> results = scanner.extractData(action);
 
-                final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "async-multi", copy);
+                final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "async-multi");
                 reporter.report(scanner.getScanMetrics());
                 return results;
             }
@@ -374,11 +373,11 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
                 final StopWatch watch = StopWatch.createStarted();
                 final boolean debugEnabled = logger.isDebugEnabled();
 
-                Scan[] scans = rowKeyDistributor.getDistributedScans(scan);
-                final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "async-multi", scans);
-                final ResultScanner[] splitScanners = ScanUtils.newScanners(table, scans);
-                final int saltKeySize = rowKeyDistributor.getSaltKeySize();
-                try (ResultScanner scanner = new DistributedScanner(saltKeySize, splitScanners)) {
+                DistributedScan dScan = rowKeyDistributor.getDistributedScans(scan);
+                dScan.setScanMetricReporter(scanMetric.isEnable());
+
+                DistributedScanner scanner = new DistributedScanner(table, dScan);
+                try (scanner) {
                     if (debugEnabled) {
                         logger.debug("DistributedScanner createTime: {}ms", watch.stop());
                         watch.start();
@@ -388,7 +387,8 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
                     if (debugEnabled) {
                         logger.debug("DistributedScanner scanTime: {}ms", watch.stop());
                     }
-                    reporter.report(splitScanners);
+                    final ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "async-multi");
+                    reporter.report(scanner.getScanMetrics());
                 }
             }
         });
@@ -404,18 +404,18 @@ public class HbaseAsyncTemplate implements DisposableBean, AsyncHbaseOperations 
         try {
             StopWatch watch = StopWatch.createStarted();
 
-            final Scan[] scans = rowKeyDistributor.getDistributedScans(scan);
+            final DistributedScan dScan = rowKeyDistributor.getDistributedScans(scan);
+            dScan.setScanMetricReporter(scanMetric.isEnable());
+
             T result = execute(tableName, new AsyncTableCallback<T>() {
                 @Override
                 public T doInTable(AsyncTable<ScanResultConsumer> table) throws Throwable {
-                    ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "async-multi", scans);
-                    ResultScanner[] resultScanners = ScanUtils.newScanners(table, scans);
-                    int saltKeySize = rowKeyDistributor.getSaltKeySize();
-                    ResultScanner scanner = new DistributedScanner(saltKeySize, resultScanners);
+                    DistributedScanner scanner = new DistributedScanner(table, dScan);
                     try (scanner) {
                         return action.extractData(scanner);
                     } finally {
-                        reporter.report(resultScanners);
+                        ScanMetricReporter.Reporter reporter = scanMetric.newReporter(tableName, "async-multi");
+                        reporter.report(scanner.getScanMetrics());
                     }
                 }
             });

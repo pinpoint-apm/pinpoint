@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.common.hbase.util;
 
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Scan;
 
 public class EmptyScanMetricReporter implements ScanMetricReporter {
 
@@ -31,12 +30,12 @@ public class EmptyScanMetricReporter implements ScanMetricReporter {
     }
 
     @Override
-    public Reporter newReporter(TableName tableName, String comment, Scan[] scans) {
+    public Reporter newReporter(TableName tableName, String comment) {
         return REPORTER;
     }
 
     @Override
-    public ReportCollector collect(TableName tableName, String comment, Scan[] scans) {
+    public ReportCollector collect(TableName tableName, String comment) {
         return COLLECTOR;
     }
 }

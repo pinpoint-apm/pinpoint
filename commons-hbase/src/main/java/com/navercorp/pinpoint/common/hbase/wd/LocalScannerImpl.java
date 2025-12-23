@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.hbase.wd;
 
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.metrics.ScanMetrics;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -33,14 +34,14 @@ import java.util.Objects;
  */
 public class LocalScannerImpl implements Closeable, LocalScanner {
 
-    private final ResultScanner scan;
+    private final ResultScanner scanner;
 
     private boolean exhausted = false;
 
     private Result localBuffer;
 
-    public LocalScannerImpl(ResultScanner scan) {
-        this.scan = Objects.requireNonNull(scan, "scan");
+    public LocalScannerImpl(ResultScanner scanner) {
+        this.scanner = Objects.requireNonNull(scanner, "scanner");
     }
 
     @Override
@@ -51,7 +52,7 @@ public class LocalScannerImpl implements Closeable, LocalScanner {
         if (localBuffer != null) {
             return localBuffer;
         }
-        Result next = scan.next();
+        Result next = scanner.next();
         if (next == null) {
             exhausted = true;
         }
@@ -72,6 +73,11 @@ public class LocalScannerImpl implements Closeable, LocalScanner {
 
     @Override
     public void close() throws IOException {
-        scan.close();
+        scanner.close();
+    }
+
+    @Override
+    public ScanMetrics getScanMetrics() {
+        return scanner.getScanMetrics();
     }
 }
