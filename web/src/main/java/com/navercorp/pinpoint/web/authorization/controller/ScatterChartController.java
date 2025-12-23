@@ -36,6 +36,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,7 +57,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api")
 @Validated
-public class ScatterChartController {
+public class ScatterChartController implements AccessDeniedExceptionHandler {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final ScatterChartService scatterChartService;
@@ -101,6 +102,7 @@ public class ScatterChartController {
      *                        additional calls to fetch the rest of the data
      * @return ScatterView.ResultView
      */
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/getScatterData")
     public ScatterView.ResultView getScatterData(
             @RequestParam("application") @NotBlank String applicationName,

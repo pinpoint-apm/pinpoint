@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.web.vo.activethread.AgentActiveThreadDumpList;
 import com.navercorp.pinpoint.web.vo.activethread.ThreadDumpResult;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,7 +44,7 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/api/agent")
 @Validated
-public class ActiveThreadDumpController {
+public class ActiveThreadDumpController implements AccessDeniedExceptionHandler {
     private final ConfigProperties webProperties;
     private final AgentService agentService;
     private final ActiveThreadDumpService activeThreadDumpService;
@@ -58,6 +59,7 @@ public class ActiveThreadDumpController {
         this.activeThreadDumpService = Objects.requireNonNull(activeThreadDumpService, "activeThreadDumpService");
     }
 
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/activeThreadDump")
     public CodeResult<ThreadDumpResult> getActiveThreadDump(
             @RequestParam(value = "applicationName") @NotBlank String applicationName,
@@ -82,6 +84,7 @@ public class ActiveThreadDumpController {
         ));
     }
 
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/activeThreadLightDump")
     public CodeResult<ThreadDumpResult> getActiveThreadLightDump(
             @RequestParam(value = "applicationName") @NotBlank String applicationName,

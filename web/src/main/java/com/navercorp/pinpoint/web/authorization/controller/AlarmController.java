@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.web.response.AlarmResponse;
 import com.navercorp.pinpoint.web.service.AlarmService;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,6 +58,7 @@ public class AlarmController {
         this.alarmService = Objects.requireNonNull(alarmService, "alarmService");
     }
 
+    @PreAuthorize("hasPermission(#rule.getApplicationName(), null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER)")
     @PostMapping
     public AlarmResponse insertRule(@RequestBody Rule rule) {
         if (Rule.isRuleInvalidForPost(rule)) {
@@ -66,6 +68,7 @@ public class AlarmController {
         return new AlarmResponse(Result.SUCCESS, ruleId);
     }
 
+    @PreAuthorize("hasPermission(#rule.getApplicationName(), null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER)")
     @DeleteMapping
     public Response deleteRule(@RequestBody Rule rule) {
         if (StringUtils.isEmpty(rule.getRuleId())) {
@@ -85,6 +88,7 @@ public class AlarmController {
         return alarmService.selectRuleByApplicationName(applicationName);
     }
 
+    @PreAuthorize("hasPermission(#rule.getApplicationName(), null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER)")
     @PutMapping
     public Response updateRule(@RequestBody Rule rule) {
         if (Rule.isRuleInvalid(rule)) {

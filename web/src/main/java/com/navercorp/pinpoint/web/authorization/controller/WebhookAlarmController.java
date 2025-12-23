@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.web.webhook.WebhookModule;
 import com.navercorp.pinpoint.web.webhook.facade.WebhookAlarmServiceFacade;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -49,7 +50,7 @@ public class WebhookAlarmController {
         this.webhookAlarmServiceFacade = Objects.requireNonNull(webhookAlarmServiceFacade, "webhookAlarmAdaptor");
     }
 
-
+    @PreAuthorize("hasPermission(#ruleWithWebhooks.getRule().getApplicationName(), null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER)")
     @PostMapping(value = "/includeWebhooks")
     public AlarmResponse insertRuleWithWebhooks(@RequestBody RuleWithWebhooks ruleWithWebhooks) {
         Rule rule = ruleWithWebhooks.getRule();
@@ -61,6 +62,7 @@ public class WebhookAlarmController {
         return new AlarmResponse(Result.SUCCESS, ruleId);
     }
 
+    @PreAuthorize("hasPermission(#ruleWithWebhooks.getRule().getApplicationName(), null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ALARM_EDIT_ALARM_ONLY_MANAGER)")
     @PutMapping(value = "/includeWebhooks")
     public Response updateRuleWithWebhooks(@RequestBody RuleWithWebhooks ruleWithWebhooks) {
         Rule rule = ruleWithWebhooks.getRule();
