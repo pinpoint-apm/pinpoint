@@ -87,8 +87,7 @@ public class ApplicationResponseTimeV3ResultExtractor implements ResultsExtracto
         }
         for (Cell cell : result.rawCells()) {
             if (CellUtil.matchingFamily(cell, table.getName())) {
-                byte[] row = CellUtil.cloneRow(cell);
-                UidAppRowKey uidRowKey = rowKeyDecoder.decodeRowKey(row);
+                UidAppRowKey uidRowKey = rowKeyDecoder.decodeRowKey(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength());
                 if (!rowFilter.test(uidRowKey)) {
                     continue;
                 }

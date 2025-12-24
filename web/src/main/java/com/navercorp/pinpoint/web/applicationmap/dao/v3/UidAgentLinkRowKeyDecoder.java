@@ -27,7 +27,12 @@ public class UidAgentLinkRowKeyDecoder implements RowKeyDecoder<UidAgentRowKey> 
     }
 
     @Override
-    public UidAgentRowKey decodeRowKey(byte[] rowKey) {
-        return UidAgentRowKey.read(saltKeySize, rowKey);
+    public UidAgentRowKey decodeRowKey(byte[] rowkey) {
+        return UidAgentRowKey.read(saltKeySize, rowkey);
+    }
+
+    @Override
+    public UidAgentRowKey decodeRowKey(byte[] rowKey, int offset, int length) {
+        return UidAgentRowKey.read(saltKeySize, rowKey, offset, length);
     }
 }

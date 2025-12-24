@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -84,8 +83,7 @@ public class OutLinkV3Mapper implements RowMapper<LinkDataMap> {
         // key is destApplicationName.
         final LinkDataMap linkDataMap = new LinkDataMap();
         for (Cell cell : result.rawCells()) {
-            byte[] row = CellUtil.cloneRow(cell);
-            UidLinkRowKey selfRowKey = rowKeyDecoder.decodeRowKey(row);
+            UidLinkRowKey selfRowKey = rowKeyDecoder.decodeRowKey(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength());
             if (!rowFilter.test(selfRowKey)) {
                 continue;
             }

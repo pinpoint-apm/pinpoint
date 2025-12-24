@@ -31,7 +31,6 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -91,8 +90,7 @@ public class InLinkV3Mapper implements RowMapper<LinkDataMap> {
 
         final LinkDataMap linkDataMap = new LinkDataMap(timeWindowFunction);
         for (Cell cell : result.rawCells()) {
-            byte[] row = CellUtil.cloneRow(cell);
-            final UidLinkRowKey inRowKey = rowKeyDecoder.decodeRowKey(row);
+            final UidLinkRowKey inRowKey = rowKeyDecoder.decodeRowKey(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength());
             if (!rowFilter.test(inRowKey)) {
                 continue;
             }

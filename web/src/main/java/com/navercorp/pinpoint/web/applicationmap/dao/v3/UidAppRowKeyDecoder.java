@@ -27,7 +27,12 @@ public class UidAppRowKeyDecoder implements RowKeyDecoder<UidAppRowKey> {
     }
 
     @Override
-    public UidAppRowKey decodeRowKey(byte[] rowKey) {
-        return UidAppRowKey.read(saltKeySize, rowKey);
+    public UidAppRowKey decodeRowKey(byte[] rowkey) {
+        return UidAppRowKey.read(saltKeySize, rowkey);
+    }
+
+    @Override
+    public UidAppRowKey decodeRowKey(byte[] rowKey, int offset, int length) {
+        return UidAppRowKey.read(saltKeySize, rowKey, offset, length);
     }
 }
