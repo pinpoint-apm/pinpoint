@@ -118,7 +118,6 @@
         <module>exceptiontrace</module>
         <module>agent-statistics</module>
         <module>otlpmetric</module>
-        <module>redis-timeseries</module>
         <module>feature-flag</module>
         <module>service-module</module>
         <module>hbase-uid-module</module>
