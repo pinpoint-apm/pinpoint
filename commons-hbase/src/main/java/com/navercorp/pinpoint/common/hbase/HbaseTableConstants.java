@@ -36,6 +36,4 @@ public final class HbaseTableConstants {
     // trace index (applicationTraceIndexV2)
     public static final int TRACE_INDEX_DISTRIBUTOR_MOD = 8;
 
-    public static final int TRACE_INDEX_TIMESTAMP_OFFSET = 1 + 4 + 4 + 4; // salt(1) + applicationNameHash(4) + serviceUid(4) + serviceType(4)
-
 }

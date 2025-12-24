@@ -1,60 +1,54 @@
 package com.navercorp.pinpoint.common.server.scatter;
 
-import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
-import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.server.util.pair.LongPair;
 import org.apache.hadoop.hbase.CompareOperator;
 import org.apache.hadoop.hbase.filter.BinaryComponentComparator;
+import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.RegexStringComparator;
+import org.apache.hadoop.hbase.filter.RowFilter;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class TraceIndexFilterBuilder {
     private static final HbaseColumnFamily INDEX = HbaseTables.TRACE_INDEX;
     private static final HbaseColumnFamily META = HbaseTables.TRACE_INDEX_META;
     private static final byte[] META_QUALIFIER_RPC = HbaseTables.TRACE_INDEX_META_QUALIFIER_RPC;
+    private static final int ROW_FILTER_OFFSET = TraceIndexRowKeyUtils.SALTED_ROW_TIMESTAMP_OFFSET + 8 + 8;
 
-    private static final FuzzyRowKeyFactory<Byte> fuzzyRowKeyFactory = new OneByteFuzzyRowKeyFactory();
-    private static final FuzzyRowFilterFactory fuzzyRowFilter = new FuzzyRowFilterFactory();
-
-    private final String applicationName;
     private LongPair elapsedMinMax;
     private Boolean success;
     private String agentId;
     private String rpcRegex;
 
-    public TraceIndexFilterBuilder(String applicationName) {
-        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+    public TraceIndexFilterBuilder() {
     }
 
-    public Filter build(boolean includeElapsed, boolean includeValueFilter) {
-        List<Filter> filters = new ArrayList<>(5);
-
-        // add row filter first
-        if (!includeElapsed) {
-            filters.add(createFuzzyRowFilter(applicationName, null));
-        } else {
-            filters.add(createFuzzyRowFilter(applicationName, elapsedMinMax));
-        }
-
-        // add value filters
-        if (includeValueFilter) {
+    public Filter build(boolean enableAdditionalRowFilters, boolean enableValueFilter) {
+        List<Filter> filters = new ArrayList<>();
+        // row filters
+        if (enableAdditionalRowFilters) {
             if (success != null) {
-                filters.add(createSuccessValueFilter(success));
-            }
-            if (elapsedMinMax != null) {
-                filters.add(createElapsedValueFilter(elapsedMinMax));
+                filters.add(createSuccessRowFilter(success));
             }
             if (agentId != null) {
-                filters.add(createAgentIdValueFilter(agentId));
+                filters.add(createAgentIdHashRowFilter(agentId));
+            }
+            if (elapsedMinMax != null) {
+                filters.add(createElapsedByteRowFilter(elapsedMinMax));
+            }
+        }
+
+        // value filters
+        if (enableValueFilter) {
+            if (elapsedMinMax != null) {
+                filters.add(createElapsedValueFilter(elapsedMinMax));
             }
             if (rpcRegex != null) {
                 filters.add(createRpcRegexValueFilter(rpcRegex));
@@ -63,41 +57,40 @@ public class TraceIndexFilterBuilder {
         return new FilterList(filters);
     }
 
-    private Filter createFuzzyRowFilter(String applicationName, LongPair minMax) {
-        AutomaticBuffer buffer = new AutomaticBuffer(1 + applicationName.length());
-        buffer.putPrefixedString(applicationName);
-        byte[] prefixedApplicationNameBytes = buffer.getBuffer();
-        if (minMax == null) {
-            return fuzzyRowFilter.build(prefixedApplicationNameBytes);
+    private Filter createElapsedByteRowFilter(LongPair elapsedMinMax) {
+        List<Byte> allowedBytes = TraceIndexRowKeyUtils.toElapsedByteList(elapsedMinMax);
+        if (allowedBytes.size() == 1) {
+            return new RowFilter(CompareOperator.EQUAL, new BinaryComponentComparator(new byte[]{allowedBytes.get(0)}, ROW_FILTER_OFFSET));
+        } else {
+            return new FilterList(
+                    new RowFilter(CompareOperator.GREATER_OR_EQUAL, new BinaryComponentComparator(new byte[]{allowedBytes.get(0)}, ROW_FILTER_OFFSET)),
+                    new RowFilter(CompareOperator.LESS_OR_EQUAL, new BinaryComponentComparator(new byte[]{allowedBytes.get(allowedBytes.size() - 1)}, ROW_FILTER_OFFSET))
+            );
         }
-        long yLow = minMax.first();
-        long yHigh = minMax.second();
-        List<Byte> allowedBytes = fuzzyRowKeyFactory.getRangeKey(yHigh, yLow);
-        return fuzzyRowFilter.build(prefixedApplicationNameBytes, allowedBytes);
     }
 
-    private Filter createSuccessValueFilter(Boolean success) {
-        byte[] hasError = new byte[]{0};
-        if (!success) {
-            hasError[0] = 1; // 1 for failure/error (hasError flag)
+    private Filter createSuccessRowFilter(boolean success) {
+        // 0 for success
+        BinaryComponentComparator comparator = new BinaryComponentComparator(new byte[]{0}, ROW_FILTER_OFFSET + 1); // elapsed(1)
+        if (success) {
+            return new RowFilter(CompareOperator.EQUAL, comparator);
+        } else {
+            return new RowFilter(CompareOperator.NOT_EQUAL, comparator);
         }
-        return new SingleColumnValueFilter(INDEX.getName(), INDEX.getName(), CompareOperator.EQUAL, new BinaryComponentComparator(hasError, 0));
+    }
+
+    private Filter createAgentIdHashRowFilter(String agentId) {
+        short agentIdHash = TraceIndexRowKeyUtils.toAgentIdHash(agentId);
+        return new RowFilter(CompareOperator.EQUAL, new BinaryComponentComparator(Bytes.toBytes(agentIdHash), ROW_FILTER_OFFSET + 2)); // elapsed(1) + error(1)
     }
 
     private Filter createElapsedValueFilter(LongPair elapsedMinMax) {
         int yLow = (int) elapsedMinMax.first();
         int yHigh = (int) elapsedMinMax.second();
         return new FilterList(
-                new SingleColumnValueFilter(INDEX.getName(), INDEX.getName(), CompareOperator.GREATER_OR_EQUAL, new BinaryComponentComparator(Bytes.toBytes(yLow), 1)),
-                new SingleColumnValueFilter(INDEX.getName(), INDEX.getName(), CompareOperator.LESS_OR_EQUAL, new BinaryComponentComparator(Bytes.toBytes(yHigh), 1))
+                new SingleColumnValueFilter(INDEX.getName(), INDEX.getName(), CompareOperator.GREATER_OR_EQUAL, new BinaryPrefixComparator(Bytes.toBytes(yLow))),
+                new SingleColumnValueFilter(INDEX.getName(), INDEX.getName(), CompareOperator.LESS_OR_EQUAL, new BinaryPrefixComparator(Bytes.toBytes(yHigh)))
         );
-    }
-
-    private Filter createAgentIdValueFilter(String agentId) {
-        Buffer buffer = new AutomaticBuffer(1 + 1 + agentId.length());
-        buffer.putPrefixedString(agentId);
-        byte[] prefixedAgentId = buffer.getBuffer();
-        return new SingleColumnValueFilter(INDEX.getName(), INDEX.getName(), CompareOperator.EQUAL, new BinaryComponentComparator(prefixedAgentId, 1 + 4));
     }
 
     private Filter createRpcRegexValueFilter(String rpcRegex) {

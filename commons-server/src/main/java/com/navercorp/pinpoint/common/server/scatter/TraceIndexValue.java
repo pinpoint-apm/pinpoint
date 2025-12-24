@@ -20,8 +20,6 @@ public class TraceIndexValue {
 
         public static byte[] encode(String agentId, int elapsed, int errorCode) {
             final Buffer buffer = new AutomaticBuffer(64);
-            byte hasError = errorCode == 0 ? (byte) 0 : (byte) 1;
-            buffer.putByte(hasError);
             buffer.putInt(elapsed);
             buffer.putPrefixedString(agentId);
             buffer.putSVInt(errorCode);
@@ -30,7 +28,6 @@ public class TraceIndexValue {
 
         public static Index decode(byte[] bytes, int offset, int length) {
             Buffer buffer = new OffsetFixedBuffer(bytes, offset, length);
-            buffer.readByte();// hasError byte
             int elapsed = buffer.readInt();
             String agentId = buffer.readPrefixedString();
             int errorCode = buffer.readSVInt();
@@ -49,10 +46,9 @@ public class TraceIndexValue {
 
         public static byte[] encode(TransactionId transactionId, long startTime, String remoteAddr, String endpoint, String agentName) {
             final Buffer buffer = new AutomaticBuffer(128);
+            buffer.putLong(startTime);
             buffer.putByte((byte) 1); // version
             SpanUtils.writeTransactionIdV1(buffer, transactionId);
-
-            buffer.putLong(startTime);
             buffer.putPrefixedString(remoteAddr);
             buffer.putPrefixedString(endpoint);
             buffer.putPrefixedString(agentName);
@@ -61,10 +57,9 @@ public class TraceIndexValue {
 
         public static Meta decode(byte[] bytes, int offset, int length) {
             Buffer buffer = new OffsetFixedBuffer(bytes, offset, length);
+            long startTime = buffer.readLong();
             buffer.readByte(); // version
             TransactionId transactionId = SpanUtils.readTransactionIdV1(buffer);
-
-            long startTime = buffer.readLong();
             String remoteAddr = buffer.readPrefixedString();
             String endpoint = buffer.readPrefixedString();
             String agentName = buffer.readPrefixedString();

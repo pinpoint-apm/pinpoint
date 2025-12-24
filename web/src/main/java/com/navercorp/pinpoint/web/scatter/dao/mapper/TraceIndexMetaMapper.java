@@ -26,41 +26,42 @@ import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.function.Predicate;
 
 // TraceIndexMetaScatterMapper version 2
-public class TraceIndexMetaMapper implements RowMapper<List<DotMetaData>>, RowTypeHint {
+public class TraceIndexMetaMapper implements RowMapper<DotMetaData>, RowTypeHint {
 
     private final HbaseColumnFamily index = HbaseTables.TRACE_INDEX;
     private final HbaseColumnFamily meta = HbaseTables.TRACE_INDEX_META;
 
-    // @Nullable
-    private final Predicate<Integer> elapsedTimeFilter;
-    // @Nullable
+    private final Predicate<byte[]> applicationNameFilter;
     private final Predicate<Integer> exceptionCodeFilter;
-    // @Nullable
+    private final Predicate<Integer> elapsedTimeFilter;
     private final Predicate<String> agentIdFilter;
 
-    public TraceIndexMetaMapper(Predicate<Integer> elapsedTimeFilter,
+    public TraceIndexMetaMapper(Predicate<byte[]> applicationNameFilter,
                                 Predicate<Integer> exceptionCodeFilter,
+                                Predicate<Integer> elapsedTimeFilter,
                                 Predicate<String> agentIdFilter) {
-        this.elapsedTimeFilter = elapsedTimeFilter;
+        this.applicationNameFilter = applicationNameFilter;
         this.exceptionCodeFilter = exceptionCodeFilter;
+        this.elapsedTimeFilter = elapsedTimeFilter;
         this.agentIdFilter = agentIdFilter;
     }
 
     @Override
-    public List<DotMetaData> mapRow(Result result, int rowNum) throws Exception {
+    public DotMetaData mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
-            return Collections.emptyList();
+            return null;
+        }
+        byte[] row = result.getRow();
+        if (applicationNameFilter != null && !applicationNameFilter.test(row)) {
+            return null;
         }
 
         DotMetaData.BuilderV2 builder = new DotMetaData.BuilderV2();
-        byte[] row = result.getRow();
-        builder.setAcceptedTime(TraceIndexRowKeyUtils.extractAcceptTime(row, 0, row.length));
-        builder.setSpanId(TraceIndexRowKeyUtils.extractSpanId(row, 0, row.length));
+        builder.setAcceptedTime(TraceIndexRowKeyUtils.extractAcceptTime(row, 0));
+        builder.setSpanId(TraceIndexRowKeyUtils.extractSpanId(row, 0));
         for (Cell cell : result.rawCells()) {
             if (CellUtil.matchingColumn(cell, index.getName(), index.getName())) {
                 builder.readIndex(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
@@ -73,18 +74,18 @@ public class TraceIndexMetaMapper implements RowMapper<List<DotMetaData>>, RowTy
         return filterAndBuild(builder);
     }
 
-    public List<DotMetaData> filterAndBuild(DotMetaData.BuilderV2 builder) {
-        if ((elapsedTimeFilter == null || elapsedTimeFilter.test(builder.getElapsedTime()))
-                && (exceptionCodeFilter == null || exceptionCodeFilter.test(builder.getExceptionCode()))
-                && (agentIdFilter == null || agentIdFilter.test(builder.getAgentId()))) {
-            return List.of(builder.build());
+    public DotMetaData filterAndBuild(DotMetaData.BuilderV2 builder) {
+        if ((exceptionCodeFilter == null || exceptionCodeFilter.test(builder.getExceptionCode()))
+                && (agentIdFilter == null || agentIdFilter.test(builder.getAgentId()))
+                && (elapsedTimeFilter == null || elapsedTimeFilter.test(builder.getElapsedTime()))) {
+            return builder.build();
         } else {
-            return Collections.emptyList();
+            return null;
         }
     }
 
     @Override
     public Class<?> rowType() {
-        return List.class;
+        return Object.class;
     }
 }

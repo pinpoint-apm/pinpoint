@@ -132,7 +132,8 @@ public class ScatterChartController implements AccessDeniedExceptionHandler {
             scatterData = scatterChartService.selectScatterData(applicationName, range, xGroupUnit, yGroupUnit, limit, backwardDirection);
         } else {
             final ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
-            scatterData = scatterChartService.selectScatterDataV2(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceType.getCode(), range, xGroupUnit, yGroupUnit, limit, backwardDirection);
+            // always scan backwardDirection in V2
+            scatterData = scatterChartService.selectScatterDataV2(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceType.getCode(), range, xGroupUnit, yGroupUnit, limit);
         }
         final boolean requestComplete = scatterData.getDotSize() < limit;
         ScatterView.DotView dotView = new ScatterView.DotView(scatterData, requestComplete);
