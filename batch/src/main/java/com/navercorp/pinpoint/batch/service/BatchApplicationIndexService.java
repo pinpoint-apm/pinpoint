@@ -28,6 +28,7 @@ public interface BatchApplicationIndexService {
 
     List<Application> selectAllApplications();
 
+    @Deprecated
     List<String> selectAllApplicationNames();
 
     boolean isActive(String applicationName, Duration duration);

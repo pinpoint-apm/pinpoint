@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.web.vo.Application;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Taejin Koo
@@ -48,7 +47,7 @@ public interface ApplicationIndexService {
     @Deprecated
     void deleteAgentIds(String applicationName, List<String> agentIds);
 
-    void deleteAgentIds(Application application, List<String> agentIds);
+    void deleteAgentIds(String applicationName, int serviceTypeCode, List<String> agentIds);
 
     @Deprecated
     void deleteAgentId(String applicationName, String agentId);
