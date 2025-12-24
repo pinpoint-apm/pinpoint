@@ -27,7 +27,12 @@ public class UidLinkRowKeyDecoder implements RowKeyDecoder<UidLinkRowKey> {
     }
 
     @Override
-    public UidLinkRowKey decodeRowKey(byte[] rowKey) {
-        return UidLinkRowKey.read(saltKeySize, rowKey);
+    public UidLinkRowKey decodeRowKey(byte[] rowkey) {
+        return UidLinkRowKey.read(saltKeySize, rowkey);
+    }
+
+    @Override
+    public UidLinkRowKey decodeRowKey(byte[] rowKey, int offset, int length) {
+        return UidLinkRowKey.read(saltKeySize, rowKey, offset, length);
     }
 }

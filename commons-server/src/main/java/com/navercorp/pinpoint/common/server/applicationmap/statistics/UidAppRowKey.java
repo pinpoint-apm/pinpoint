@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.common.server.applicationmap.statistics;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.server.applicationmap.Vertex;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
@@ -103,8 +103,12 @@ public class UidAppRowKey implements UidRowKey {
     }
 
     public static UidAppRowKey read(int saltKey, byte[] bytes) {
+        return read(saltKey, bytes, 0, bytes.length);
+    }
 
-        final Buffer buffer = new FixedBuffer(bytes);
+    public static UidAppRowKey read(int saltKey, byte[] bytes, int offset, int length) {
+
+        final Buffer buffer = new OffsetFixedBuffer(bytes, offset, length);
         // skip offset & applicationNameHash
         buffer.skip(saltKey);
 

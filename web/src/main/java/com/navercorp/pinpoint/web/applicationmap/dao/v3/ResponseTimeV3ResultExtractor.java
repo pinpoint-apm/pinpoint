@@ -97,8 +97,7 @@ public class ResponseTimeV3ResultExtractor implements ResultsExtractor<List<Resp
         ResponseTime.Builder responseTimeBuilder = null;
         for (Cell cell : result.rawCells()) {
             if (CellUtil.matchingFamily(cell, table.getName())) {
-                byte[] row = CellUtil.cloneRow(cell);
-                UidAgentRowKey uidRowKey = rowKeyDecoder.decodeRowKey(row);
+                UidAgentRowKey uidRowKey = rowKeyDecoder.decodeRowKey(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength());
                 if (!rowFilter.test(uidRowKey)) {
                     continue;
                 }
