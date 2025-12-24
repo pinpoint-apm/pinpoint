@@ -31,7 +31,6 @@ import com.navercorp.pinpoint.inspector.web.service.ApdexStatService;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricGroupDataView;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricView;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
-import com.navercorp.pinpoint.web.authorization.controller.AccessDeniedExceptionHandler;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,7 +46,7 @@ import java.util.Objects;
  */
 @RestController
 @RequestMapping("/api/inspector/agentStat")
-public class AgentInspectorStatController implements AccessDeniedExceptionHandler {
+public class AgentInspectorStatController {
 
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(10000L, 200);
     private final AgentStatService agentStatService;
