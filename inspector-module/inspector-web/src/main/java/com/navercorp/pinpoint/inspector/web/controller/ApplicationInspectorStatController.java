@@ -15,7 +15,6 @@ import com.navercorp.pinpoint.inspector.web.service.ApplicationStatService;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricGroupDataView;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricView;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
-import com.navercorp.pinpoint.web.authorization.controller.AccessDeniedExceptionHandler;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +27,7 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/inspector/applicationStat")
-public class ApplicationInspectorStatController implements AccessDeniedExceptionHandler {
+public class ApplicationInspectorStatController {
     private final TimeWindowSampler DEFAULT_TIME_WINDOW_SAMPLER_30M = new TimeWindowSlotCentricSampler(30000L, 200);
     private final TenantProvider tenantProvider;
     private final ApplicationStatService applicationStatService;
