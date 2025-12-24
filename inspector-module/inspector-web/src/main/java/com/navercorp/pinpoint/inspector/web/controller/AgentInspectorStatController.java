@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.inspector.web.view.InspectorMetricGroupDataView;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricView;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -62,6 +63,7 @@ public class AgentInspectorStatController {
     }
 
     // TODO : (minwoo) tenantId should be considered. The collector side should also be considered.
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/chart")
     public InspectorMetricView getAgentStatChart(
             @RequestParam("applicationName") String applicationName,
@@ -80,6 +82,7 @@ public class AgentInspectorStatController {
         return new InspectorMetricView(inspectorMetricData);
     }
 
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/chart", params = "metricDefinitionId=apdex")
     public InspectorMetricView getApdexStatChart(
             @RequestParam("applicationName") String applicationName,
@@ -95,6 +98,7 @@ public class AgentInspectorStatController {
         return new InspectorMetricView(inspectorMetricData);
     }
 
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/chartList")
     public InspectorMetricGroupDataView getAgentStatChartList(
             @RequestParam("applicationName") String applicationName,

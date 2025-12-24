@@ -16,6 +16,7 @@ import com.navercorp.pinpoint.inspector.web.view.InspectorMetricGroupDataView;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricView;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -41,6 +42,7 @@ public class ApplicationInspectorStatController {
         this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(inspectorWebProperties.getInspectorPeriodMax()));
     }
 
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/chart")
     public InspectorMetricView getApplicationStatChart(
             @RequestParam("applicationName") String applicationName,
@@ -58,6 +60,7 @@ public class ApplicationInspectorStatController {
         return new InspectorMetricView(inspectorMetricData);
     }
 
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/chart", params = "metricDefinitionId=apdex")
     public InspectorMetricView getApdexStatChart(
             @RequestParam("applicationName") String applicationName,
@@ -72,6 +75,7 @@ public class ApplicationInspectorStatController {
         return new InspectorMetricView(inspectorMetricData);
     }
 
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/chartList")
     public InspectorMetricGroupDataView getApplicationStatChartList(
             @RequestParam("applicationName") String applicationName,
