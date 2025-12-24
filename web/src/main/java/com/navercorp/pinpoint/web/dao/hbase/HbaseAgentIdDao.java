@@ -60,7 +60,7 @@ public class HbaseAgentIdDao implements AgentIdDao {
     private Scan createScan(byte[] rowKeyPrefix) {
         Scan scan = new Scan();
         scan.setStartStopRowForPrefixScan(rowKeyPrefix);
-        scan.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName());
+        scan.addFamily(DESCRIPTOR.getName());
         scan.setCaching(5);
         return scan;
     }
