@@ -1,8 +1,6 @@
 // import '@pinpoint-fe/ui/src/dist/pinpoint-fe-common-ui.css';
+import { lazy } from 'react';
 import { createBrowserRouter, redirect } from 'react-router-dom';
-import ServerMap from '@pinpoint-fe/web/src/pages/ServerMap';
-import Realtime from '@pinpoint-fe/web/src/pages/ServerMap/Realtime';
-import ScatterOrHeatmapFullScreen from '@pinpoint-fe/web/src/pages/ScatterOrHeatmapFullScreen';
 import {
   serverMapRouteLoader,
   realtimeLoader,
@@ -18,29 +16,34 @@ import {
   scatterOrHeatmapFullScreenLoader,
   scatterOrHeatmapFullScreenRealtimeLoader,
 } from '@pinpoint-fe/ui/src/loader';
-
-import FilteredMap from '@pinpoint-fe/web/src/pages/FilteredMap';
 import { BASE_PATH, APP_PATH } from '@pinpoint-fe/ui/src/constants';
-import NotFound from '@pinpoint-fe/web/src/pages/NotFound';
-import ErrorAnalysis from '@pinpoint-fe/web/src/pages/ErrorAnalysis';
-import ApiCheck from '@pinpoint-fe/web/src/pages/ApiCheck';
-import UrlStatistic from '@pinpoint-fe/web/src/pages/UrlStatistic';
-import SystemMetric from '@pinpoint-fe/web/src/pages/SystemMetric';
-import General from '@pinpoint-fe/web/src/pages/config/General';
-import Experimentals from '@pinpoint-fe/web/src/pages/config/Experimentals';
-import TransactionList from '@pinpoint-fe/web/src/pages/TransactionList';
-import TransactionDetail from '@pinpoint-fe/web/src/pages/TransactionDetail';
-import Inspector from '@pinpoint-fe/web/src/pages/Inspector';
-import ThreadDump from '@pinpoint-fe/web/src/pages/ThreadDump';
-import OpenTelemetry from '@pinpoint-fe/web/src/pages/OpenTelemetry';
-import Help from '@pinpoint-fe/web/src/pages/config/Help';
-import Installation from '@pinpoint-fe/web/src/pages/config/Installation';
-import UserGroup from '@pinpoint-fe/web/src/pages/config/UserGroup';
-import Users from '@pinpoint-fe/web/src/pages/config/Users';
-import Alarm from '@pinpoint-fe/web/src/pages/config/Alarm';
-import Webhook from '@pinpoint-fe/web/src/pages/config/Webhook';
-import AgentManagement from '@pinpoint-fe/web/src/pages/config/AgentManagement';
-import AgentStatistic from '@pinpoint-fe/web/src/pages/config/AgentStatistic';
+
+import ServerMap from '@pinpoint-fe/web/src/pages/ServerMap';
+const Realtime = lazy(() => import('@pinpoint-fe/web/src/pages/ServerMap/Realtime'));
+const ScatterOrHeatmapFullScreen = lazy(
+  () => import('@pinpoint-fe/web/src/pages/ScatterOrHeatmapFullScreen'),
+);
+const FilteredMap = lazy(() => import('@pinpoint-fe/web/src/pages/FilteredMap'));
+const NotFound = lazy(() => import('@pinpoint-fe/web/src/pages/NotFound'));
+const ErrorAnalysis = lazy(() => import('@pinpoint-fe/web/src/pages/ErrorAnalysis'));
+const ApiCheck = lazy(() => import('@pinpoint-fe/web/src/pages/ApiCheck'));
+const UrlStatistic = lazy(() => import('@pinpoint-fe/web/src/pages/UrlStatistic'));
+const SystemMetric = lazy(() => import('@pinpoint-fe/web/src/pages/SystemMetric'));
+const General = lazy(() => import('@pinpoint-fe/web/src/pages/config/General'));
+const Experimentals = lazy(() => import('@pinpoint-fe/web/src/pages/config/Experimentals'));
+const TransactionList = lazy(() => import('@pinpoint-fe/web/src/pages/TransactionList'));
+const TransactionDetail = lazy(() => import('@pinpoint-fe/web/src/pages/TransactionDetail'));
+const Inspector = lazy(() => import('@pinpoint-fe/web/src/pages/Inspector'));
+const ThreadDump = lazy(() => import('@pinpoint-fe/web/src/pages/ThreadDump'));
+const OpenTelemetry = lazy(() => import('@pinpoint-fe/web/src/pages/OpenTelemetry'));
+const Help = lazy(() => import('@pinpoint-fe/web/src/pages/config/Help'));
+const Installation = lazy(() => import('@pinpoint-fe/web/src/pages/config/Installation'));
+const UserGroup = lazy(() => import('@pinpoint-fe/web/src/pages/config/UserGroup'));
+const Users = lazy(() => import('@pinpoint-fe/web/src/pages/config/Users'));
+const Alarm = lazy(() => import('@pinpoint-fe/web/src/pages/config/Alarm'));
+const Webhook = lazy(() => import('@pinpoint-fe/web/src/pages/config/Webhook'));
+const AgentManagement = lazy(() => import('@pinpoint-fe/web/src/pages/config/AgentManagement'));
+const AgentStatistic = lazy(() => import('@pinpoint-fe/web/src/pages/config/AgentStatistic'));
 
 const defaultLoader = () => {
   return redirect('/serverMap');

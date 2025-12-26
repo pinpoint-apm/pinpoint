@@ -11,8 +11,10 @@ import { Button } from '../ui';
 import { TraceViewerData } from '@pinpoint-fe/ui/src/constants';
 import { FlameArrow } from './FlameArrow';
 
-export interface FlameGraphProps<T>
-  extends Pick<FlameNodeProps<T>, 'customNodeStyle' | 'customTextStyle' | 'onClickNode'> {
+export interface FlameGraphProps<T> extends Pick<
+  FlameNodeProps<T>,
+  'customNodeStyle' | 'customTextStyle' | 'onClickNode'
+> {
   data: FlameNodeType<T>[][];
   start?: number;
   end?: number;
