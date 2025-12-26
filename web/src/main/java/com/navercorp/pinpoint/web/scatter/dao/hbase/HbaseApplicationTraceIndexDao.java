@@ -18,8 +18,10 @@ package com.navercorp.pinpoint.web.scatter.dao.hbase;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
+import com.navercorp.pinpoint.common.hbase.DefaultLastRowHandler;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
+import com.navercorp.pinpoint.common.hbase.LastRowHandler;
 import com.navercorp.pinpoint.common.hbase.LimitEventHandler;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
@@ -29,19 +31,18 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.scatter.FuzzyRowKeyBuilder;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
-import com.navercorp.pinpoint.common.server.util.SpanUtils;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.web.config.ScatterChartProperties;
-import com.navercorp.pinpoint.web.scatter.dao.ApplicationTraceIndexDao;
-import com.navercorp.pinpoint.web.scatter.dao.mapper.TraceIndexMetaScatterMapper;
 import com.navercorp.pinpoint.web.scatter.DragArea;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
 import com.navercorp.pinpoint.web.scatter.ElpasedTimeDotPredicate;
-import com.navercorp.pinpoint.web.util.ListListUtils;
-import com.navercorp.pinpoint.web.vo.LimitedScanResult;
+import com.navercorp.pinpoint.web.scatter.dao.ApplicationTraceIndexDao;
+import com.navercorp.pinpoint.web.scatter.dao.mapper.TraceIndexMetaScatterMapper;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
+import com.navercorp.pinpoint.web.util.ListListUtils;
+import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Result;
@@ -137,14 +138,14 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
                 scan, traceIdRowKeyDistributor, limit, transactionIdMapper, lastRowAccessor, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
 
         List<TransactionId> transactionIdSum = ListListUtils.toList(traceIndexList);
-        final long lastTime = getLastTime(range, limit, lastRowAccessor, transactionIdSum);
+        final long lastTime = getLastTime(range, limit, lastRowAccessor, transactionIdSum.size());
 
         return new LimitedScanResult<>(lastTime, transactionIdSum);
     }
 
-    private <T> long getLastTime(Range range, int limit, LastRowAccessor lastRowAccessor, List<T> list) {
-        if (list.size() >= limit) {
-            Long lastRowTimestamp = lastRowAccessor.getLastRowTimestamp();
+    private long getLastTime(Range range, int limit, LastRowAccessor lastRowAccessor, int rowSize) {
+        if (rowSize >= limit) {
+            long lastRowTimestamp = lastRowAccessor.getLastRowTimestamp();
             if (logger.isDebugEnabled()) {
                 logger.debug("lastRowTimestamp lastTime:{}", DateTimeFormatUtils.format(lastRowTimestamp));
             }
@@ -160,29 +161,15 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
 
     private class LastRowAccessor implements LimitEventHandler {
-        private Long lastRowTimestamp = -1L;
-        private TransactionId lastTransactionId = null;
-        private int lastTransactionElapsed = -1;
+        private long lastRowTimestamp = -1L;
 
         @Override
         public void handleLastResult(Result lastResult) {
             if (lastResult == null) {
                 return;
             }
-
             final Cell last = CellUtils.lastCell(lastResult.rawCells(), HbaseTables.APPLICATION_TRACE_INDEX_TRACE.getName());
-
             this.lastRowTimestamp = this.readTimestamp(last);
-
-            byte[] qualifier = last.getQualifierArray();
-            int qualifierOffset = last.getQualifierOffset();
-            int qualifierLength = last.getQualifierLength();
-            this.lastTransactionId = SpanUtils.parseVarTransactionId(qualifier, qualifierOffset, qualifierLength);
-            this.lastTransactionElapsed = ByteArrayUtils.bytesToInt(qualifier, qualifierOffset);
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("lastRowTimestamp={}, lastTransactionId={}, lastTransactionElapsed={}", DateTimeFormatUtils.format(lastRowTimestamp), lastTransactionId, lastTransactionElapsed);
-            }
         }
 
         private long readTimestamp(Cell last) {
@@ -194,16 +181,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             return LongInverter.restore(reverseStartTime);
         }
 
-        private Long getLastRowTimestamp() {
+        private long getLastRowTimestamp() {
             return lastRowTimestamp;
-        }
-
-        public TransactionId getLastTransactionId() {
-            return lastTransactionId;
-        }
-
-        public int getLastTransactionElapsed() {
-            return lastTransactionElapsed;
         }
     }
 
@@ -250,7 +229,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             throw new IllegalArgumentException("negative limit:" + limit);
         }
         logger.debug("scanTraceScatterDataMadeOfDotGroup");
-        LastRowAccessor lastRowAccessor = new LastRowAccessor();
+        LastRowHandler<List<Dot>> lastRowAccessor = new DefaultLastRowHandler<>();
 
         Scan scan = createScan(applicationName, range, scanBackward, -1);
 
@@ -259,7 +238,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
                 traceIdRowKeyDistributor, limit, this.traceIndexScatterMapper, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
         List<Dot> dots = ListListUtils.toList(listList);
 
-        final long lastTime = getLastTime(range, limit, lastRowAccessor, dots);
+        final long lastTime = HbaseTraceIndexDao.getLastTime(range, limit, lastRowAccessor, dots.size(), Dot::getAcceptedTime);
         return new LimitedScanResult<>(lastTime, dots);
     }
 
@@ -285,8 +264,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         return scanScatterData0(applicationName, dragAreaQuery, limit, true, mapper);
     }
 
-    private <R> LimitedScanResult<List<R>> scanScatterData0(String applicationName, DragAreaQuery dragAreaQuery, int limit,
-                                                         boolean metadataScan, RowMapper<List<R>> mapper) {
+    private LimitedScanResult<List<DotMetaData>> scanScatterData0(String applicationName, DragAreaQuery dragAreaQuery, int limit,
+                                                         boolean metadataScan, RowMapper<List<DotMetaData>> mapper) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(dragAreaQuery, "dragAreaQuery");
 
@@ -294,7 +273,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         Range range = Range.unchecked(dragArea.getXLow(), dragArea.getXHigh());
         logger.debug("scanTraceScatterData-range:{}", range);
 
-        LastRowAccessor lastRowAccessor = new LastRowAccessor();
+        LastRowHandler<List<DotMetaData>> lastRowAccessor = new DefaultLastRowHandler<>();
 
         Scan scan = newFuzzyScanner(applicationName, dragArea, range);
         if (metadataScan) {
@@ -302,11 +281,11 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         }
 
         TableName applicationTraceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
-        List<List<R>> dotListList = hbaseOperations.findParallel(applicationTraceIndexTableName, scan,
+        List<List<DotMetaData>> dotListList = hbaseOperations.findParallel(applicationTraceIndexTableName, scan,
                 traceIdRowKeyDistributor, limit, mapper, lastRowAccessor, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
-        List<R> dots = ListListUtils.toList(dotListList);
+        List<DotMetaData> dots = ListListUtils.toList(dotListList);
 
-        final long lastTime = getLastTime(range, limit, lastRowAccessor, dots);
+        final long lastTime = HbaseTraceIndexDao.getLastTime(range, limit, lastRowAccessor, dots.size(), value -> value.getDot().getAcceptedTime());
 
         return new LimitedScanResult<>(lastTime, dots);
     }
