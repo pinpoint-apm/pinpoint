@@ -38,6 +38,7 @@ import com.navercorp.pinpoint.web.scatter.DragArea;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
 import com.navercorp.pinpoint.web.scatter.ElpasedTimeDotPredicate;
 import com.navercorp.pinpoint.web.scatter.dao.ApplicationTraceIndexDao;
+import com.navercorp.pinpoint.web.scatter.dao.LastTimeListExtractor;
 import com.navercorp.pinpoint.web.scatter.dao.mapper.TraceIndexMetaScatterMapper;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
@@ -238,7 +239,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
                 traceIdRowKeyDistributor, limit, this.traceIndexScatterMapper, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
         List<Dot> dots = ListListUtils.toList(listList);
 
-        final long lastTime = HbaseTraceIndexDao.getLastTime(range, limit, lastRowAccessor, dots.size(), Dot::getAcceptedTime);
+        boolean overflow = LastTimeListExtractor.isOverflow(dots, limit);
+        final long lastTime = LastTimeListExtractor.getLastTime(overflow, lastRowAccessor, Dot::getAcceptedTime, range.getFrom());
         return new LimitedScanResult<>(lastTime, dots);
     }
 
@@ -285,7 +287,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
                 traceIdRowKeyDistributor, limit, mapper, lastRowAccessor, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
         List<DotMetaData> dots = ListListUtils.toList(dotListList);
 
-        final long lastTime = HbaseTraceIndexDao.getLastTime(range, limit, lastRowAccessor, dots.size(), value -> value.getDot().getAcceptedTime());
+        boolean overflow = LastTimeListExtractor.isOverflow(dots, limit);
+        final long lastTime = LastTimeListExtractor.getLastTime(overflow, lastRowAccessor, value -> value.getDot().getAcceptedTime(), range.getFrom());
 
         return new LimitedScanResult<>(lastTime, dots);
     }

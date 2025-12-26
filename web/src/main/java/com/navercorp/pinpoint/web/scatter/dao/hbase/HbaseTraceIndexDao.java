@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.config.ScatterChartProperties;
 import com.navercorp.pinpoint.web.scatter.DragArea;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
+import com.navercorp.pinpoint.web.scatter.dao.LastTimeListExtractor;
 import com.navercorp.pinpoint.web.scatter.dao.TraceIndexDao;
 import com.navercorp.pinpoint.web.scatter.dao.mapper.TraceIndexMetaMapper;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
@@ -44,12 +45,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
-import java.util.function.ToLongFunction;
 
 // HbaseApplicationTraceIndexDao V2
 @Repository
@@ -119,7 +118,9 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
                 scan, traceIndexDistributor, limit, new TraceIndexMetaMapper(null, null, null), lastRowAccessor, TRACE_INDEX_NUM_PARTITIONS);
 
         List<DotMetaData> transactionIdSum = ListListUtils.toList(traceIndexList);
-        final long lastTime = getLastTime(range, limit, lastRowAccessor, transactionIdSum.size(), value -> value.getDot().getAcceptedTime());
+
+        boolean overflow = LastTimeListExtractor.isOverflow(transactionIdSum, limit);
+        final long lastTime = LastTimeListExtractor.getLastTime(overflow, lastRowAccessor, value -> value.getDot().getAcceptedTime(), range.getFrom());
 
         return new LimitedScanResult<>(lastTime, transactionIdSum);
     }
@@ -141,7 +142,8 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
                 traceIndexDistributor, limit, this.traceIndexDotMapper, TRACE_INDEX_NUM_PARTITIONS);
         List<Dot> dots = ListListUtils.toList(listList);
 
-        final long lastTime = getLastTime(range, limit, lastRowAccessor, dots.size(), Dot::getAcceptedTime);
+        boolean overflow = LastTimeListExtractor.isOverflow(dots, limit);
+        final long lastTime = LastTimeListExtractor.getLastTime(overflow, lastRowAccessor, Dot::getAcceptedTime, range.getFrom());
         return new LimitedScanResult<>(lastTime, dots);
     }
 
@@ -166,7 +168,8 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
                 traceIndexDistributor, limit, mapper, lastRowAccessor, TRACE_INDEX_NUM_PARTITIONS);
         List<DotMetaData> dotMetaDataList = ListListUtils.toList(scanResult);
 
-        final long lastTime = getLastTime(range, limit, lastRowAccessor, dotMetaDataList.size(), value -> value.getDot().getAcceptedTime());
+        boolean overflow = LastTimeListExtractor.isOverflow(dotMetaDataList, limit);
+        final long lastTime = LastTimeListExtractor.getLastTime(overflow, lastRowAccessor, value -> value.getDot().getAcceptedTime(), range.getFrom());
         return new LimitedScanResult<>(lastTime, dotMetaDataList);
     }
 
@@ -248,20 +251,4 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
                 : exceptionCode -> exceptionCode != Dot.EXCEPTION_NONE;
     }
 
-
-    public static <T> long getLastTime(Range range, int limit, LastRowHandler<List<T>> lastRowAccessor, int rowSize, ToLongFunction<T> timestampExtractor) {
-        if (rowSize >= limit) {
-            List<T> lastRow = lastRowAccessor.getLastRow();
-            if (CollectionUtils.isEmpty(lastRow)) {
-                return -1;
-            }
-            T dot = CollectionUtils.lastElement(lastRow);
-            if (dot == null) {
-                return -1;
-            }
-            return timestampExtractor.applyAsLong(dot);
-        } else {
-            return range.getFrom();
-        }
-    }
 }
