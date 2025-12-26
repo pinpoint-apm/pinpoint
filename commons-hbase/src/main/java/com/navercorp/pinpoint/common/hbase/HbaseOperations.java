@@ -82,12 +82,14 @@ public interface HbaseOperations {
     <T> List<T> find(TableName tableName, final Scan scan, final RowKeyDistributor rowKeyDistributor, final RowMapper<T> action);
     <T> List<T> find(TableName tableName, final Scan scan, final RowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action);
     <T> List<T> find(TableName tableName, final Scan scan, final RowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action, final LimitEventHandler limitEventHandler);
+    <T> List<T> find(TableName tableName, final Scan scan, final RowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action, final LastRowHandler<T> limitEventHandler);
     <T> T find(TableName tableName, final Scan scan, final RowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action);
 
     // Parallel scanners for distributed scans
     <T> List<T> findParallel(TableName tableName, final Scan scan, final RowKeyDistributor rowKeyDistributor, final RowMapper<T> action, int numParallelThreads);
     <T> List<T> findParallel(TableName tableName, final Scan scan, final RowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action, int numParallelThreads);
     <T> List<T> findParallel(TableName tableName, final Scan scan, final RowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action, final LimitEventHandler limitEventHandler, int numParallelThreads);
+    <T> List<T> findParallel(TableName tableName, final Scan scan, final RowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action, final LastRowHandler<T> limitEventHandler, int numParallelThreads);
     <T> T findParallel(TableName tableName, final Scan scan, final RowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action, int numParallelThreads);
 
     Result increment(TableName tableName, final Increment increment);

@@ -453,6 +453,12 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
     }
 
     @Override
+    public <T> List<T> find(TableName tableName, final Scan scan, final RowKeyDistributor rowKeyDistributor, int limit, final RowMapper<T> action, final LastRowHandler<T> limitEventHandler) {
+        final ResultsExtractor<List<T>> resultsExtractor = new LastRowResultsExtractor<>(action, limit, limitEventHandler);
+        return executeDistributedScan(tableName, scan, rowKeyDistributor, resultsExtractor);
+    }
+
+    @Override
     public <T> T find(TableName tableName, final Scan scan, final RowKeyDistributor rowKeyDistributor, final ResultsExtractor<T> action) {
         return executeDistributedScan(tableName, scan, rowKeyDistributor, action);
     }
@@ -529,6 +535,18 @@ public class HbaseTemplate extends HbaseAccessor implements HbaseOperations, Ini
         } else {
             int numThreadsUsed = getThreadsUsedNum(numParallelThreads);
             final ResultsExtractor<List<T>> resultsExtractor = new LimitRowMapperResultsExtractor<>(action, limit, limitEventHandler);
+            return executeParallelDistributedScan(tableName, scan, rowKeyDistributor, resultsExtractor, numThreadsUsed);
+        }
+    }
+
+    @Override
+    public <T> List<T> findParallel(TableName tableName, Scan scan, RowKeyDistributor rowKeyDistributor, int limit, RowMapper<T> action, LastRowHandler<T> limitEventHandler, int numParallelThreads) {
+        if (isSimpleScan(numParallelThreads)) {
+            // use DistributedScanner if parallel scan is disabled or if called to use a single thread
+            return find(tableName, scan, rowKeyDistributor, limit, action, limitEventHandler);
+        } else {
+            int numThreadsUsed = getThreadsUsedNum(numParallelThreads);
+            final ResultsExtractor<List<T>> resultsExtractor = new LastRowResultsExtractor<>(action, limit, limitEventHandler);
             return executeParallelDistributedScan(tableName, scan, rowKeyDistributor, resultsExtractor, numThreadsUsed);
         }
     }

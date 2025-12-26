@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.scatter.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTableNameProvider;
-import com.navercorp.pinpoint.common.hbase.LimitEventHandler;
+import com.navercorp.pinpoint.common.hbase.LastRowHandler;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
@@ -98,7 +98,7 @@ public class HbaseTraceIndexDaoTest {
     public void scanTraceIndexTest() {
         final List<List<DotMetaData>> scannedList = List.of(Collections.nCopies(10, testDotMetaData));
         when(this.hbaseOperations.findParallel(any(TableName.class), any(Scan.class), any(RowKeyDistributor.class),
-                anyInt(), any(RowMapper.class), any(LimitEventHandler.class), anyInt())).thenReturn(scannedList);
+                anyInt(), any(RowMapper.class), any(LastRowHandler.class), anyInt())).thenReturn(scannedList);
         LimitedScanResult<List<DotMetaData>> result =
                 this.traceIndexDao.scanTraceIndex(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), Range.between(1000L, 5000L), 20, false);
         Assertions.assertEquals(1000L, result.limitedTime());
@@ -118,7 +118,7 @@ public class HbaseTraceIndexDaoTest {
     public void scanTraceScatterDataEmptyTest() {
 
         when(this.hbaseOperations.findParallel(any(TableName.class), any(Scan.class), any(RowKeyDistributor.class),
-                anyInt(), any(RowMapper.class), any(LimitEventHandler.class), anyInt())).thenReturn(List.of());
+                anyInt(), any(RowMapper.class), any(LastRowHandler.class), anyInt())).thenReturn(List.of());
         Range range = Range.between(1000L, 5000L);
         LimitedScanResult<List<Dot>> scanResult
                 = this.traceIndexDao.scanTraceScatterData(serviceUid, "app", ServiceType.TEST_STAND_ALONE.getCode(), range, 10, false);
