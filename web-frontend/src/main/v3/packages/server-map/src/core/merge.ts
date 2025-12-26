@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { partition } from 'lodash';
 import { Node, Edge, MergedNode, MergedEdge } from '../types';
 import { getNodeSVGString } from '../ui/template/node';
 import { ServerMapProps } from '../ui';
@@ -221,7 +221,7 @@ export const getMergedData = (data: { nodes: Node[]; edges: Edge[] }, renderNode
           const id = `${source}_MergeSingleNodesByServerMap^${type}`;
           const imgPath = mergedNodes.find((node) => node.id === targetIds[0])?.imgPath;
 
-          const [notToMergeNodes, toMergeNodes] = _.partition(mergedNodes, (node) => !targetIds.includes(node.id));
+          const [notToMergeNodes, toMergeNodes] = partition(mergedNodes, (node) => !targetIds.includes(node.id));
 
           mergedNodes = [
             ...notToMergeNodes,
@@ -234,7 +234,7 @@ export const getMergedData = (data: { nodes: Node[]; edges: Edge[] }, renderNode
             },
           ];
 
-          const [notToMergeEdge, toMergeEdge] = _.partition(mergedEdges, (edge) => !targetIds.includes(edge.target));
+          const [notToMergeEdge, toMergeEdge] = partition(mergedEdges, (edge) => !targetIds.includes(edge.target));
           mergedEdges = [
             ...notToMergeEdge,
             {
@@ -268,7 +268,7 @@ export const getMergedData = (data: { nodes: Node[]; edges: Edge[] }, renderNode
 
           const id = `${source}_MergeMultiNodesByServerMap^${type}`;
           const imgPath = mergedNodes.find((node) => node.id === targetIds[0])?.imgPath;
-          const [notToMergeNodes, toMergeNodes] = _.partition(mergedNodes, (node) => !targetIds.includes(node.id));
+          const [notToMergeNodes, toMergeNodes] = partition(mergedNodes, (node) => !targetIds.includes(node.id));
           mergedNodes = [
             ...notToMergeNodes,
             {
@@ -286,7 +286,7 @@ export const getMergedData = (data: { nodes: Node[]; edges: Edge[] }, renderNode
           //   e4,e5,e6, => e11 (same source)
           //   e7,e8,e9 => e12 (same source)
           // ]
-          const [notToMergeEdge, toMergeEdge] = _.partition(
+          const [notToMergeEdge, toMergeEdge] = partition(
             mergedEdges,
             (edge) => !(sources.includes(edge.source) && targetIds.includes(edge.target)),
           );

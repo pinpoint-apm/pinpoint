@@ -17,7 +17,9 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
       <QueryClientProvider client={queryClient}>
         <JotaiProvider>
           <IconContext.Provider value={{ style: { verticalAlign: 'middle' } }}>
-            <RouterProvider router={router} />
+            <React.Suspense fallback={null}>
+              <RouterProvider router={router} />
+            </React.Suspense>
             <ReactToastContainer />
           </IconContext.Provider>
         </JotaiProvider>

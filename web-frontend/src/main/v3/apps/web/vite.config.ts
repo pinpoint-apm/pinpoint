@@ -43,4 +43,15 @@ export default defineConfig({
     // visualizer({ open: true }),
   ],
   base: basePath,
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom'],
+          charts: ['echarts', 'recharts'],
+          graph: ['cytoscape'],
+        },
+      },
+    },
+  },
 });

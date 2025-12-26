@@ -1,10 +1,10 @@
 import cytoscape from 'cytoscape';
-import _ from 'lodash';
+import { merge } from 'lodash';
 import { ServerMapProps } from '../../ui';
 import { defaultTheme, GraphStyle, ServerMapTheme } from './theme';
 
 export const getTheme = (theme: ServerMapTheme) => {
-  return _.merge({}, defaultTheme, theme);
+  return merge({}, defaultTheme, theme);
 };
 
 export const getServerMapStyle = ({
