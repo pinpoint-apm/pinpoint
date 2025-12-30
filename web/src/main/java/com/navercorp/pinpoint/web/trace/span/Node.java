@@ -16,9 +16,12 @@
 
 package com.navercorp.pinpoint.web.trace.span;
 
+import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.OpenTelemetryServiceTypeCategory;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.logging.log4j.LogManager;
@@ -28,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -123,11 +127,29 @@ public class Node {
         List<SpanChunkBo> spanChunkBoList = spanBo.getSpanChunkBoList();
         List<Align> chunkSpanEventList = node.buildSpanChunkBaseAligns(spanChunkBoList);
 
-        return mergeAndSort(alignList, chunkSpanEventList);
+        return mergeAndSort(spanBo, alignList, chunkSpanEventList);
     }
 
-    private static List<Align> mergeAndSort(List<Align> alignList1, List<Align> alignList2) {
+    private static List<Align> mergeAndSort(SpanBo spanBo, List<Align> alignList1, List<Align> alignList2) {
         List<Align> mergedList = ListUtils.union(alignList1, alignList2);
+        if (mergedList.size() > 1 && OpenTelemetryServiceTypeCategory.isServer(spanBo.getServiceType())) {
+            mergedList.sort(AlignComparator.OPENTELEMETRY);
+            short sequence = 0;
+            for (Align align : mergedList) {
+                SpanEventBo spanEventBo = align.getSpanEventBo();
+                for (AnnotationBo annotationBo : spanEventBo.getAnnotationBoList()) {
+                    if (AnnotationKey.OPENTELEMETRY_START_TIME.getCode() == annotationBo.getKey()) {
+                        if (annotationBo.getValue() instanceof Long) {
+                            final long eventStartTime = TimeUnit.NANOSECONDS.toMillis((Long) annotationBo.getValue());
+                            // ignored overflow
+                            final int startElapsed = (int) (eventStartTime - spanBo.getStartTime());
+                            spanEventBo.setStartElapsed(startElapsed);
+                        }
+                    }
+                }
+                spanEventBo.setSequence(sequence++);
+            }
+        }
 
         mergedList.sort(AlignComparator.INSTANCE);
         return mergedList;
