@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.RowTypeHint;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
-import com.navercorp.pinpoint.common.server.util.SpanUtils;
+import com.navercorp.pinpoint.common.server.util.TransactionIdParser;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
 import org.apache.hadoop.hbase.Cell;
@@ -63,7 +63,7 @@ public class TraceIndexMetaScatterMapper implements RowMapper<List<DotMetaData>>
                 builder.setDot(dot);
             }
             if (CellUtil.matchingFamily(cell, meta.getName())) {
-                TransactionId transactionId = SpanUtils.parseVarTransactionId(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
+                TransactionId transactionId = TransactionIdParser.parseVarTransactionId(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
                 DotMetaData.Builder builder = getMetaDataBuilder(metaDataMap, transactionId);
                 builder.read(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
             }
