@@ -34,6 +34,8 @@ public class DefaultDisplayArgument {
     
     public static final DisplayArgumentMatcher COLLECTOR_MATCHER = createArgumentMatcher(ServiceType.COLLECTOR, AnnotationKey.ARGS0);
 
+    public static final DisplayArgumentMatcher OPENTELEMETRY_CLIENT_MATCHER = createArgumentMatcher(ServiceType.OPENTELEMETY_CLIENT, AnnotationKey.ARGS0);
+    public static final DisplayArgumentMatcher OPENTELEMETRY_INTERNAL_MATCHER = createArgumentMatcher(ServiceType.OPENTELEMETY_INTERNAL, AnnotationKey.ARGS0);
 
     private static AnnotationKeyMatcher createMatcher(AnnotationKey displayArgument) {
         return AnnotationKeyMatchers.exact(displayArgument);

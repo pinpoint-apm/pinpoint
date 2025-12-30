@@ -252,4 +252,7 @@ public interface AnnotationKey {
     AnnotationKey PROXY_HTTP_HEADER = AnnotationKeyFactory.of(300, "PROXY_HTTP_HEADER", VIEW_IN_RECORD_SET);
     AnnotationKey REDIS_IO = AnnotationKeyFactory.of(310, "redis.io");
     AnnotationKey MEMORY_USAGE = AnnotationKeyFactory.of(330, "memory.usage", VIEW_IN_RECORD_SET);
+
+    AnnotationKey OPENTELEMETRY_ATTRIBUTE = AnnotationKeyFactory.of(400, "Attribute", VIEW_IN_RECORD_SET);
+    AnnotationKey OPENTELEMETRY_START_TIME = AnnotationKeyFactory.of(401, "StartTimeUnixNano");
 }

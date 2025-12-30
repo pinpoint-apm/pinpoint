@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.trace.span;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.trace.OpenTelemetryServiceTypeCategory;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.apache.logging.log4j.LogManager;
@@ -220,11 +221,19 @@ public class SpanAligner {
                     if (isDebug) {
                         logger.debug("Fill link {} to node {}", matchedLink, node);
                     }
-                    final CallTree unknownSpanCallTree = this.metaSpanCallTreeFactory.unknown(spanBo.getStartTime());
-                    unknownSpanCallTree.add(node.getSpanCallTree());
-                    node.setLinked(true);
-                    matchedLink.getLinkedCallTree().update(unknownSpanCallTree);
-                    matchedLink.setLinked(true);
+                    if (OpenTelemetryServiceTypeCategory.isServer(spanBo.getServiceType())) {
+                        // OpeanTelemetry Span to Span
+                        node.setLinked(true);
+                        matchedLink.getLinkedCallTree().update(node.getSpanCallTree());
+                        matchedLink.setLinked(true);
+                    } else {
+                        final CallTree unknownSpanCallTree = this.metaSpanCallTreeFactory.unknown(spanBo.getStartTime());
+                        unknownSpanCallTree.add(node.getSpanCallTree());
+                        node.setLinked(true);
+                        matchedLink.getLinkedCallTree().update(unknownSpanCallTree);
+                        matchedLink.setLinked(true);
+                    }
+
                     // clear
                     this.linkList.remove(matchedLink);
                     traceState.progress();

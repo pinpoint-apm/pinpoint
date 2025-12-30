@@ -18,11 +18,13 @@
 package com.navercorp.pinpoint.web.applicationmap.map;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.util.UserNodeUtils;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
+import com.navercorp.pinpoint.common.trace.OpenTelemetryServiceTypeCategory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
@@ -34,11 +36,11 @@ import com.navercorp.pinpoint.web.filter.visitor.SpanEventVisitAdaptor;
 import com.navercorp.pinpoint.web.filter.visitor.SpanEventVisitor;
 import com.navercorp.pinpoint.web.filter.visitor.SpanReader;
 import com.navercorp.pinpoint.web.filter.visitor.SpanVisitor;
+import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.service.DotExtractor;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
-import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.LinkedMultiValueMap;
@@ -171,11 +173,24 @@ public class FilteredMapBuilder {
     private MultiValueMap<Long, SpanBo> createTransactionSpanMap(List<SpanBo> transaction) {
         final MultiValueMap<Long, SpanBo> transactionSpanMap = new LinkedMultiValueMap<>(transaction.size());
         for (SpanBo span : transaction) {
-            if (transactionSpanMap.containsKey(span.getSpanId())) {
-                logger.warn("duplicated span found:{}", span);
-            }
+            if (OpenTelemetryServiceTypeCategory.isServer(span.getServiceType())) {
+                for (SpanEventBo spanEventBo : span.getSpanEventBoList()) {
+                    final long key = spanEventBo.getNextSpanId();
+                    transactionSpanMap.add(key, span);
+                }
+                for (SpanChunkBo spanChunkBo : span.getSpanChunkBoList()) {
+                    for (SpanEventBo spanEventBo : spanChunkBo.getSpanEventBoList()) {
+                        final long key = spanEventBo.getNextSpanId();
+                        transactionSpanMap.add(key, span);
+                    }
+                }
+            } else {
+                if (transactionSpanMap.containsKey(span.getSpanId())) {
+                    logger.warn("duplicated span found:{}", span);
+                }
 
-            transactionSpanMap.add(span.getSpanId(), span);
+                transactionSpanMap.add(span.getSpanId(), span);
+            }
         }
         return transactionSpanMap;
     }
