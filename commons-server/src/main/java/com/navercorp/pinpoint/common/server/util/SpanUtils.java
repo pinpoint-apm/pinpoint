@@ -16,17 +16,16 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
-import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 
-import java.util.Objects;
-
 /**
+ * @deprecated use {@link TransactionIdParser}
+ *
  * @author emeroad
  */
+@Deprecated
 public final class SpanUtils {
     private SpanUtils() {
     }
@@ -35,38 +34,18 @@ public final class SpanUtils {
      * deserializer ref : TransactionIdMapper.parseVarTransactionId
      */
     public static byte[] getVarTransactionId(SpanBo span) {
-        Objects.requireNonNull(span, "span");
-
-        final TransactionId transactionId = span.getTransactionId();
-        String agentId = transactionId.getAgentId();
-        if (agentId == null) {
-            agentId = span.getAgentId();
-        }
-
-        final Buffer buffer = new AutomaticBuffer(32);
-        buffer.putPrefixedString(agentId);
-        buffer.putSVLong(transactionId.getAgentStartTime());
-        buffer.putVLong(transactionId.getTransactionSequence());
-        return buffer.getBuffer();
+        return TransactionIdParser.getVarTransactionId(span.getTransactionId(), span::getAgentId);
     }
 
     public static TransactionId parseVarTransactionId(byte[] bytes, int offset, int length) {
-        Objects.requireNonNull(bytes, "bytes");
-
-        final Buffer buffer = new OffsetFixedBuffer(bytes, offset, length);
-        return readTransactionIdV1(buffer);
+        return TransactionIdParser.parseVarTransactionId(bytes, offset, length);
     }
 
     public static void writeTransactionIdV1(Buffer buffer, TransactionId transactionId) {
-        buffer.putPrefixedString(transactionId.getAgentId());
-        buffer.putSVLong(transactionId.getAgentStartTime());
-        buffer.putVLong(transactionId.getTransactionSequence());
+        TransactionIdParser.writeTransactionIdV1(buffer, transactionId);
     }
 
     public static TransactionId readTransactionIdV1(Buffer buffer) {
-        String agentId = buffer.readPrefixedString();
-        long agentStartTime = buffer.readSVLong();
-        long transactionSequence = buffer.readVLong();
-        return TransactionId.of(agentId, agentStartTime, transactionSequence);
+        return TransactionIdParser.readTransactionIdV1(buffer);
     }
 }

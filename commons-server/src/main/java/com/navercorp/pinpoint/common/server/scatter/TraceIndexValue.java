@@ -4,7 +4,7 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
-import com.navercorp.pinpoint.common.server.util.SpanUtils;
+import com.navercorp.pinpoint.common.server.util.TransactionIdParser;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.util.Objects;
@@ -50,7 +50,7 @@ public class TraceIndexValue {
         public static byte[] encode(TransactionId transactionId, long startTime, String remoteAddr, String endpoint, String agentName) {
             final Buffer buffer = new AutomaticBuffer(128);
             buffer.putByte((byte) 1); // version
-            SpanUtils.writeTransactionIdV1(buffer, transactionId);
+            TransactionIdParser.writeTransactionIdV1(buffer, transactionId);
 
             buffer.putLong(startTime);
             buffer.putPrefixedString(remoteAddr);
@@ -62,7 +62,7 @@ public class TraceIndexValue {
         public static Meta decode(byte[] bytes, int offset, int length) {
             Buffer buffer = new OffsetFixedBuffer(bytes, offset, length);
             buffer.readByte(); // version
-            TransactionId transactionId = SpanUtils.readTransactionIdV1(buffer);
+            TransactionId transactionId = TransactionIdParser.readTransactionIdV1(buffer);
 
             long startTime = buffer.readLong();
             String remoteAddr = buffer.readPrefixedString();
