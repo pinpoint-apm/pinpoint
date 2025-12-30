@@ -139,24 +139,21 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
                 scan, traceIdRowKeyDistributor, limit, transactionIdMapper, lastRowAccessor, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
 
         List<TransactionId> transactionIdSum = ListListUtils.toList(traceIndexList);
-        final long lastTime = getLastTime(range, limit, lastRowAccessor, transactionIdSum.size());
+        boolean overflow = LastTimeListExtractor.isOverflow(transactionIdSum, limit);
+        final long lastTime = getLastTime(overflow, lastRowAccessor, range.getFrom());
 
         return new LimitedScanResult<>(lastTime, transactionIdSum);
     }
 
-    private long getLastTime(Range range, int limit, LastRowAccessor lastRowAccessor, int rowSize) {
-        if (rowSize >= limit) {
+    private long getLastTime(boolean overflow, LastRowAccessor lastRowAccessor, long fallbackLastIndex) {
+        if (overflow) {
             long lastRowTimestamp = lastRowAccessor.getLastRowTimestamp();
             if (logger.isDebugEnabled()) {
                 logger.debug("lastRowTimestamp lastTime:{}", DateTimeFormatUtils.format(lastRowTimestamp));
             }
             return lastRowTimestamp;
         } else {
-            long from = range.getFrom();
-            if (logger.isDebugEnabled()) {
-                logger.debug("scanner start lastTime:{}", DateTimeFormatUtils.format(from));
-            }
-            return from;
+            return fallbackLastIndex;
         }
     }
 
@@ -171,6 +168,10 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             }
             final Cell last = CellUtils.lastCell(lastResult.rawCells(), HbaseTables.APPLICATION_TRACE_INDEX_TRACE.getName());
             this.lastRowTimestamp = this.readTimestamp(last);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("lastRowTimestamp={}", DateTimeFormatUtils.format(lastRowTimestamp));
+            }
         }
 
         private long readTimestamp(Cell last) {
@@ -207,7 +208,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         }
 
         scan.addFamily(INDEX.getName());
-        scan.setId("ApplicationTraceIndexScan");
+        scan.setId("AppTraceIndexScan");
 
         // toString() method of Scan converts a message to json format so it is slow for the first time.
         logger.trace("create scan:{}", scan);
