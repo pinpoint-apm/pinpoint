@@ -16,11 +16,9 @@
 
 package com.navercorp.pinpoint.web.trace.service;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.Event;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.ErrorCategory;
 import com.navercorp.pinpoint.common.trace.ErrorCategoryResolver;
@@ -28,18 +26,14 @@ import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.component.AnnotationKeyMatcherService;
-import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.trace.callstacks.Record;
 import com.navercorp.pinpoint.web.trace.callstacks.RecordFactory;
 import com.navercorp.pinpoint.web.trace.callstacks.RecordSet;
-import com.navercorp.pinpoint.web.trace.dao.TraceDao;
 import com.navercorp.pinpoint.web.trace.security.MetaDataFilter;
 import com.navercorp.pinpoint.web.trace.security.MetaDataFilter.MetaData;
 import com.navercorp.pinpoint.web.trace.span.Align;
 import com.navercorp.pinpoint.web.trace.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.trace.span.CallTreeNode;
-import com.navercorp.pinpoint.web.vo.BusinessTransactions;
-import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
@@ -52,7 +46,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * @author jaehong.kim
@@ -61,8 +54,6 @@ import java.util.stream.Collectors;
 public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-
-    private final TraceDao traceDao;
 
     private final AnnotationKeyMatcherService annotationKeyMatcherService;
 
@@ -73,64 +64,14 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     private final ErrorCategoryResolver errorCategoryResolver = new ErrorCategoryResolver();
 
-    public TransactionInfoServiceImpl(TraceDao traceDao,
-                                      AnnotationKeyMatcherService annotationKeyMatcherService,
+    public TransactionInfoServiceImpl(AnnotationKeyMatcherService annotationKeyMatcherService,
                                       Optional<MetaDataFilter> metaDataFilter,
                                       RecorderFactoryProvider recordFactoryProvider,
                                       ServiceTypeRegistryService registry) {
-        this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
         this.annotationKeyMatcherService = Objects.requireNonNull(annotationKeyMatcherService, "annotationKeyMatcherService");
         this.metaDataFilter = Objects.requireNonNull(metaDataFilter, "metaDataFilter").orElse(null);
         this.recordFactoryProvider = Objects.requireNonNull(recordFactoryProvider, "recordFactoryProvider");
         this.registry = Objects.requireNonNull(registry, "registry");
-    }
-
-    // Temporarily disabled Because We need to solve authentication problem inter system.
-    // @Value("${log.enable:false}")
-    // private boolean logLinkEnable;
-
-    // @Value("${log.button.name:}")
-    // private String logButtonName;
-
-    // @Value("${log.page.url:}")
-    // private String logPageUrl;
-
-    @Override
-    public BusinessTransactions selectBusinessTransactions(List<TransactionId> transactionIdList, String applicationName,
-                                                           Range range, Filter<List<SpanBo>> filter) {
-        Objects.requireNonNull(transactionIdList, "transactionIdList");
-        Objects.requireNonNull(applicationName, "applicationName");
-        Objects.requireNonNull(filter, "filter");
-        // TODO range is not used - check the logic again
-        Objects.requireNonNull(range, "range");
-
-        List<List<SpanBo>> traceList;
-
-        if (filter == Filter.<List<SpanBo>>acceptAllFilter()) {
-            List<GetTraceInfo> queryList = transactionIdList.stream()
-                    .map(GetTraceInfo::new)
-                    .collect(Collectors.toList());
-
-            traceList = this.traceDao.selectSpans(queryList);
-        } else {
-            traceList = this.traceDao.selectAllSpans(transactionIdList);
-        }
-
-        BusinessTransactions businessTransactions = new BusinessTransactions();
-        for (List<SpanBo> trace : traceList) {
-            if (!filter.include(trace)) {
-                continue;
-            }
-
-            for (SpanBo spanBo : trace) {
-                // show application's incoming requests
-                if (applicationName.equals(spanBo.getApplicationName())) {
-                    businessTransactions.add(spanBo);
-                }
-            }
-        }
-
-        return businessTransactions;
     }
 
     @Override

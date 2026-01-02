@@ -16,15 +16,10 @@
 
 package com.navercorp.pinpoint.web.trace.service;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.timeseries.time.Range;
-import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.trace.callstacks.RecordSet;
 import com.navercorp.pinpoint.web.trace.span.CallTreeIterator;
-import com.navercorp.pinpoint.web.vo.BusinessTransactions;
 
-import java.util.List;
 import java.util.function.Predicate;
 
 /**
@@ -32,6 +27,4 @@ import java.util.function.Predicate;
  */
 public interface TransactionInfoService {
     RecordSet createRecordSet(CallTreeIterator callTreeIterator, Predicate<SpanBo> viewPointFilter);
-
-    BusinessTransactions selectBusinessTransactions(List<TransactionId> traceIds, String applicationName, Range range, Filter<List<SpanBo>> filter);
 }

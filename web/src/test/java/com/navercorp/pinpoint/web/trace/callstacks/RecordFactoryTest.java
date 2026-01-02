@@ -32,7 +32,6 @@ import com.navercorp.pinpoint.loader.service.DefaultAnnotationKeyRegistryService
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.loader.service.TraceMetadataLoaderService;
 import com.navercorp.pinpoint.web.component.AnnotationKeyMatcherService;
-import com.navercorp.pinpoint.web.trace.dao.TraceDao;
 import com.navercorp.pinpoint.web.trace.service.RecorderFactoryProvider;
 import com.navercorp.pinpoint.web.trace.service.TransactionInfoService;
 import com.navercorp.pinpoint.web.trace.service.TransactionInfoServiceImpl;
@@ -329,7 +328,6 @@ public class RecordFactoryTest {
         when(mockedTypeLoaderService.getAnnotationKeyLocator()).thenReturn(annotationKeyRegistry);
         AnnotationKeyRegistryService mockedAnnotationKeyRegistryService = new DefaultAnnotationKeyRegistryService(mockedTypeLoaderService);
 
-        TraceDao mockedDao = mock(TraceDao.class);
         AnnotationKeyMatcherService mockedAnnotationKeyMatcherService = mock(AnnotationKeyMatcherService.class);
 
         RecorderFactoryProvider mockedProvider = mock(RecorderFactoryProvider.class);
@@ -338,7 +336,7 @@ public class RecordFactoryTest {
         ApiParserProvider mockedApiParserProvider = new ApiParserProvider();
         when(mockedProvider.getRecordFactory()).thenReturn(new RecordFactory(mockedAnnotationKeyMatcherService, mockedRegistry, mockedAnnotationKeyRegistryService, annotationRecordFormatter, mockedApiParserProvider));
 
-        TransactionInfoService dut = new TransactionInfoServiceImpl(mockedDao, mockedAnnotationKeyMatcherService, Optional.empty(), mockedProvider, mockServiceTypeRegistryService);
+        TransactionInfoService dut = new TransactionInfoServiceImpl(mockedAnnotationKeyMatcherService, Optional.empty(), mockedProvider, mockServiceTypeRegistryService);
 
         RecordSet actuals = dut.createRecordSet(callTreeIterator, spanMatchFilter);
         assertThat(actuals.getStartTime()).isEqualTo(1670305848569L);
