@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.trace.dao.mapper;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
@@ -28,6 +27,8 @@ import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingC
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncodingContext;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -80,7 +81,7 @@ public class SpanMapperV2Test {
         Buffer buffer = new OffsetFixedBuffer(byteBuffer.array(), byteBuffer.arrayOffset(), byteBuffer.remaining());
 
         SpanBo readSpan = new SpanBo();
-        TransactionId transactionId = TransactionId.of("test", 100, 1);
+        ServerTraceId transactionId = new PinpointServerTraceId("test", 100, 1);
         SpanDecodingContext decodingContext = new SpanDecodingContext(transactionId);
         decoder.readSpanValue(buffer, readSpan, decodingContext);
 

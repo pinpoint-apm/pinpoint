@@ -16,16 +16,17 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
+import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
 import com.navercorp.pinpoint.web.scatter.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.scatter.dao.TraceIndexDao;
-import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
+import com.navercorp.pinpoint.web.scatter.vo.Dot;
+import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
 import com.navercorp.pinpoint.web.trace.dao.TraceDao;
 import com.navercorp.pinpoint.web.trace.service.SpanService;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.web.scatter.vo.Dot;
-import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,8 +49,8 @@ public class HeatMapServiceImplTest {
 
     private static final String APPLICATION_NAME = "applicationName";
     private static final int LIMIT = 50;
-    private static final TransactionId TRANSACTION_ID_1 = TransactionId.of("txAgent1", 10, 100);
-    private static final TransactionId TRANSACTION_ID_2 = TransactionId.of("txAgent2", 20, 200);
+    private static final ServerTraceId TRANSACTION_ID_1 = new PinpointServerTraceId("txAgent1", 10, 100);
+    private static final ServerTraceId TRANSACTION_ID_2 = new PinpointServerTraceId("txAgent2", 20, 200);
 
     @Test
     public void legacyCompatibilityCheckPassTest() {
@@ -154,7 +155,7 @@ public class HeatMapServiceImplTest {
         return List.of(List.of(), List.of());
     }
 
-    private SpanBo createSpan(TransactionId transactionId) {
+    private SpanBo createSpan(ServerTraceId transactionId) {
         SpanBo newSpan = new SpanBo();
         newSpan.setTransactionId(transactionId);
         return newSpan;

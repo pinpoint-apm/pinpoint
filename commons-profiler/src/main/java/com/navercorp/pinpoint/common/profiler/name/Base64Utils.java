@@ -66,9 +66,20 @@ public class Base64Utils {
     public static String encode(UUID uuid) {
         Objects.requireNonNull(uuid, "uuid");
 
+        return encode(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits());
+    }
+
+    public static String encode(long msb, long lsb) {
         final byte[] bytes = new byte[16];
-        BytesUtils.writeLong(uuid.getMostSignificantBits(), bytes, 0);
-        BytesUtils.writeLong(uuid.getLeastSignificantBits(), bytes, BytesUtils.LONG_BYTE_LENGTH);
+        BytesUtils.writeLong(msb, bytes, 0);
+        BytesUtils.writeLong(lsb, bytes, BytesUtils.LONG_BYTE_LENGTH);
+
+        byte[] encode = ENCODER.encode(bytes);
+        return new String(encode, ISO_8859);
+    }
+
+    public static String encode(byte[] bytes) {
+        Objects.requireNonNull(bytes, "bytes");
 
         byte[] encode = ENCODER.encode(bytes);
         return new String(encode, ISO_8859);

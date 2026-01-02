@@ -19,8 +19,10 @@ package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
+import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 
 import java.util.Objects;
@@ -28,7 +30,7 @@ import java.util.Objects;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class TraceRowKeyEncoderV2 implements RowKeyEncoder<TransactionId> {
+public class TraceRowKeyEncoderV2 implements RowKeyEncoder<ServerTraceId> {
 
     public static final int AGENT_ID_MAX_LEN = PinpointConstants.AGENT_ID_MAX_LEN;
     public static final int OPENTELEMETRY_TRACE_ID_LEN = PinpointConstants.OPENTELEMETRY_TRACE_ID_LEN;
@@ -40,23 +42,32 @@ public class TraceRowKeyEncoderV2 implements RowKeyEncoder<TransactionId> {
         this.byteHasher = rowKeyDistributor.getByteHasher();
     }
 
-    public byte[] encodeRowKey(TransactionId transactionId) {
+    public byte[] encodeRowKey(ServerTraceId transactionId) {
         return encodeRowKey(byteHasher.getSaltKey().size(), transactionId);
     }
 
     @Override
-    public byte[] encodeRowKey(int saltKeySize, TransactionId transactionId) {
-        Objects.requireNonNull(transactionId, "transactionId");
+    public byte[] encodeRowKey(int saltKeySize, ServerTraceId serverTraceId) {
+        Objects.requireNonNull(serverTraceId, "serverTraceId");
 
-        final String agentId = transactionId.getAgentId();
-        int maxStringSize = AGENT_ID_MAX_LEN;
-        if(agentId.length() == OPENTELEMETRY_TRACE_ID_LEN) {
-            maxStringSize = OPENTELEMETRY_TRACE_ID_LEN;
+        if (serverTraceId instanceof PinpointServerTraceId pinpointTraceId) {
+            final String agentId = pinpointTraceId.getAgentId();
+            byte[] rowKey = RowKeyUtils.stringLongLongToBytes(saltKeySize, agentId, AGENT_ID_MAX_LEN, pinpointTraceId.getAgentStartTime(), pinpointTraceId.getTransactionSequence());
+            if (saltKeySize == 0) {
+                return rowKey;
+            }
+            return byteHasher.writeSaltKey(rowKey);
         }
-        byte[] rowKey = RowKeyUtils.stringLongLongToBytes(saltKeySize, agentId, maxStringSize, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
-        if (saltKeySize == 0) {
+
+        if (serverTraceId instanceof OtelServerTraceId otelTraceId) {
+            byte[] otelTraceIdBytes = otelTraceId.getId();
+            byte saltKey = byteHasher.getHashPrefix(otelTraceIdBytes);
+            byte[] rowKey = new byte[otelTraceIdBytes.length + 1];
+            rowKey[0] = saltKey;
+            System.arraycopy(otelTraceIdBytes, 0, rowKey, 1, otelTraceIdBytes.length);
             return rowKey;
         }
-        return byteHasher.writeSaltKey(rowKey);
+
+        throw new IllegalStateException("Unsupported ServerTraceId:" + serverTraceId);
     }
 }

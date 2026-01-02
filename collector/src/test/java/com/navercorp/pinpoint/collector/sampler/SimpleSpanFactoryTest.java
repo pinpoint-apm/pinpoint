@@ -1,11 +1,11 @@
 package com.navercorp.pinpoint.collector.sampler;
 
 import com.navercorp.pinpoint.collector.config.CollectorProperties;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
-import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -43,7 +43,7 @@ public class SimpleSpanFactoryTest {
         SpanChunkBo mockSpanChunkBo = mock(SpanChunkBo.class);
         SpanBo mockSpanBo = mock(SpanBo.class);
         for (long i = 0; i < 10; i++) {
-            TransactionId transactionId = createTransactionId(agentId, time, i);
+            ServerTraceId transactionId = createTransactionId(agentId, time, i);
             when(mockSpanBo.getTransactionId()).thenReturn(transactionId);
             when(mockSpanChunkBo.getTransactionId()).thenReturn(transactionId);
 
@@ -54,8 +54,8 @@ public class SimpleSpanFactoryTest {
         verify(mockSpanChunkBo, atLeastOnce()).getTransactionId();
     }
 
-    private TransactionId createTransactionId(String agentId, long agentStartTime, long sequenceId) {
-        return TransactionIdUtils.parseTransactionId(TransactionIdUtils.formatString(agentId, agentStartTime, sequenceId));
+    private ServerTraceId createTransactionId(String agentId, long agentStartTime, long sequenceId) {
+        return new PinpointServerTraceId(agentId, agentStartTime, sequenceId);
     }
 
     @Test

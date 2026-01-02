@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.trace.service;
 
 import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -28,9 +28,9 @@ import java.util.function.Predicate;
  */
 public interface SpanService {
 
-    SpanResult selectSpan(TransactionId transactionId, Predicate<SpanBo> filter);
+    SpanResult selectSpan(ServerTraceId transactionId, Predicate<SpanBo> filter);
 
-    SpanResult selectSpan(TransactionId transactionId, Predicate<SpanBo> filter, ColumnGetCount columnGetCount);
+    SpanResult selectSpan(ServerTraceId transactionId, Predicate<SpanBo> filter, ColumnGetCount columnGetCount);
 
     void populateAgentName(List<SpanBo> spanBoList);
 

@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.common.hbase.LastRowHandler;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
-import com.navercorp.pinpoint.common.profiler.util.TransactionIdV1;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -56,8 +56,10 @@ import static org.mockito.Mockito.when;
 
 public class HbaseTraceIndexDaoTest {
 
+    private static final ServerTraceId EMPTY = new PinpointServerTraceId("EMPTY", 0, 0);
+
     private static final int serviceUid = ServiceUid.DEFAULT_SERVICE_UID_CODE;
-    private static final DotMetaData testDotMetaData = new DotMetaData(new Dot(TransactionIdV1.EMPTY_ID, 10, 10, 0, "testAgentId"),
+    private static final DotMetaData testDotMetaData = new DotMetaData(new Dot(EMPTY, 10, 10, 0, "testAgentId"),
             "testAgentName", "remoteAddr", "rpc", "endpoint", -1, 0);
 
     @Mock
@@ -144,7 +146,7 @@ public class HbaseTraceIndexDaoTest {
 
     private List<List<Dot>> createScatterDotList() {
         List<List<Dot>> result = new ArrayList<>();
-        TransactionId transactionId = TransactionId.of("A", 1, 1);
+        ServerTraceId transactionId = new PinpointServerTraceId("A", 1, 1);
         result.add(List.of(new Dot(transactionId, 2000L, 1000, 0, "a1")));
         result.add(List.of(new Dot(transactionId, 3000L, 5000, 0, "a2")));
         result.add(List.of(new Dot(transactionId, 2400L, 3000, 0, "a3")));

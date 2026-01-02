@@ -3,7 +3,8 @@ package com.navercorp.pinpoint.common.server.scatter;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.util.TransactionIdParser;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -35,9 +36,8 @@ public class TraceIndexValue {
         }
     }
 
-    public record Meta(TransactionId transactionId, long startTime, String remoteAddr, String endpoint,
-                       String agentName) {
-        public Meta(TransactionId transactionId, long startTime, String remoteAddr, String endpoint, String agentName) {
+    public record Meta(ServerTraceId transactionId, long startTime, String remoteAddr, String endpoint, String agentName) {
+        public Meta(ServerTraceId transactionId, long startTime, String remoteAddr, String endpoint, String agentName) {
             this.transactionId = Objects.requireNonNull(transactionId, "transactionId");
             this.startTime = startTime;
             this.remoteAddr = remoteAddr;
@@ -45,7 +45,7 @@ public class TraceIndexValue {
             this.agentName = agentName;
         }
 
-        public static byte[] encode(TransactionId transactionId, long startTime, String remoteAddr, String endpoint, String agentName) {
+        public static byte[] encode(ServerTraceId transactionId, long startTime, String remoteAddr, String endpoint, String agentName) {
             final Buffer buffer = new AutomaticBuffer(128);
             buffer.putLong(startTime);
             buffer.putByte((byte) 1); // version
@@ -60,11 +60,11 @@ public class TraceIndexValue {
             Buffer buffer = new OffsetFixedBuffer(bytes, offset, length);
             long startTime = buffer.readLong();
             buffer.readByte(); // version
-            TransactionId transactionId = TransactionIdParser.readTransactionIdV1(buffer);
+            ServerTraceId serverTraceId = PinpointServerTraceId.of(buffer);
             String remoteAddr = buffer.readPrefixedString();
             String endpoint = buffer.readPrefixedString();
             String agentName = buffer.readPrefixedString();
-            return new Meta(transactionId, startTime, remoteAddr, endpoint, agentName);
+            return new Meta(serverTraceId, startTime, remoteAddr, endpoint, agentName);
         }
     }
 

@@ -155,8 +155,8 @@ public class CellUtilsTest {
 
     @Test
     public void testCompareRow_unsigned() {
-        byte[] row1 = new byte[] {(byte) 0x00 }; // 0
-        byte[] row2 = new byte[] {(byte) 0xFF }; // -1 (unsigned 255)
+        byte[] row1 = new byte[]{(byte) 0x00 }; // 0
+        byte[] row2 = new byte[]{(byte) 0xFF }; // -1 (unsigned 255)
 
         Cell leftCell = new KeyValue(row1, 1000L);
         Cell rightCell = new KeyValue(row2, 2000L);
@@ -169,9 +169,9 @@ public class CellUtilsTest {
 
     @Test
     public void testCompareRow_saltKey() {
-        byte[] leftRow = Bytes.add(new byte[]{2}, Bytes.toBytes(1));
+        byte[] leftRow = new byte[]{2, 1};
         Cell leftCell = new KeyValue(leftRow, 2000L);
-        byte[] rightRow = Bytes.add(new byte[]{1}, Bytes.toBytes(2));
+        byte[] rightRow = new byte[]{1, 2};
         Cell rightCell = new KeyValue(rightRow, 1000L);
 
         int saltKeySize = 1;

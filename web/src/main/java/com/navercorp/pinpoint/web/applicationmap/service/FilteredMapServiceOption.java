@@ -18,8 +18,8 @@
 package com.navercorp.pinpoint.web.applicationmap.service;
 
 import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.filter.Filter;
 
@@ -31,7 +31,7 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class FilteredMapServiceOption {
-    private final List<TransactionId> transactionIdList;
+    private final List<ServerTraceId> transactionIdList;
     private final Range range;
     private final int xGroupUnit;
     private final int yGroupUnit;
@@ -49,7 +49,7 @@ public class FilteredMapServiceOption {
         this.columnGetCount = builder.columnGetCount;
     }
 
-    public List<TransactionId> getTransactionIdList() {
+    public List<ServerTraceId> getTransactionIdList() {
         return transactionIdList;
     }
 
@@ -90,7 +90,7 @@ public class FilteredMapServiceOption {
     }
 
     public static class Builder {
-        private final List<TransactionId> transactionIdList;
+        private final List<ServerTraceId> transactionIdList;
         private final Range range;
         private int xGroupUnit;
         private int yGroupUnit;
@@ -99,7 +99,7 @@ public class FilteredMapServiceOption {
 
         private boolean useStatisticsAgentState;
 
-        public Builder(TransactionId transactionId, Range range, ColumnGetCount columnGetCount) {
+        public Builder(ServerTraceId transactionId, Range range, ColumnGetCount columnGetCount) {
             Objects.requireNonNull(transactionId, "transactionId");
             this.transactionIdList = Collections.singletonList(transactionId);
             this.range = Objects.requireNonNull(range, "scanRange");
@@ -107,7 +107,7 @@ public class FilteredMapServiceOption {
             this.filter = Filter.acceptAllFilter();
         }
 
-        public Builder(List<TransactionId> transactionIdList, Range range, int xGroupUnit, int yGroupUnit, Filter<List<SpanBo>> filter) {
+        public Builder(List<ServerTraceId> transactionIdList, Range range, int xGroupUnit, int yGroupUnit, Filter<List<SpanBo>> filter) {
             this.transactionIdList = Objects.requireNonNull(transactionIdList, "transactionIdList");
             this.filter = Objects.requireNonNull(filter, "filter");
             this.range = Objects.requireNonNull(range, "range");

@@ -16,7 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
 import com.navercorp.pinpoint.grpc.trace.PAnnotation;
 import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
@@ -39,7 +40,7 @@ import java.util.Map;
 public class SpanFactoryAssert {
 
     public void assertSpan(PSpan pSpan, SpanBo spanBo) {
-        TransactionId transactionId = spanBo.getTransactionId();
+        ServerTraceId transactionId = spanBo.getTransactionId();
         PTransactionId pTransactionId = pSpan.getTransactionId();
         assertTransactionId(transactionId, pTransactionId);
 
@@ -86,10 +87,11 @@ public class SpanFactoryAssert {
 
     }
 
-    private void assertTransactionId(TransactionId transactionId, PTransactionId pTransactionId) {
-        Assertions.assertEquals(transactionId.getAgentId(), pTransactionId.getAgentId());
-        Assertions.assertEquals(transactionId.getAgentStartTime(), pTransactionId.getAgentStartTime());
-        Assertions.assertEquals(transactionId.getTransactionSequence(), pTransactionId.getSequence());
+    private void assertTransactionId(ServerTraceId transactionId, PTransactionId pTransactionId) {
+        PinpointServerTraceId pinpointServerTraceId = (PinpointServerTraceId) transactionId;
+        Assertions.assertEquals(pinpointServerTraceId.getAgentId(), pTransactionId.getAgentId());
+        Assertions.assertEquals(pinpointServerTraceId.getAgentStartTime(), pTransactionId.getAgentStartTime());
+        Assertions.assertEquals(pinpointServerTraceId.getTransactionSequence(), pTransactionId.getSequence());
     }
 
     public void assertAnnotation(List<PAnnotation> tAnnotationList, List<AnnotationBo> annotationBoList) {
@@ -147,7 +149,7 @@ public class SpanFactoryAssert {
     public void assertSpanChunk(PSpanChunk pSpanChunk, SpanChunkBo spanChunkBo) {
 
 
-        TransactionId transactionId = spanChunkBo.getTransactionId();
+        ServerTraceId transactionId = spanChunkBo.getTransactionId();
         PTransactionId pTransactionId = pSpanChunk.getTransactionId();
         assertTransactionId(transactionId, pTransactionId);
 

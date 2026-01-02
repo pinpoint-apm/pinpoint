@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.util.ByteUtils;
 import com.navercorp.pinpoint.common.server.util.NumberPrecondition;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
@@ -42,7 +42,7 @@ public class SpanChunkBo implements BasicSpan {
     private String applicationName;
     private long agentStartTime;
 
-    private TransactionId transactionId;
+    private ServerTraceId transactionId;
 
     private long spanId;
     private String endPoint;
@@ -118,11 +118,11 @@ public class SpanChunkBo implements BasicSpan {
     }
 
     @Override
-    public TransactionId getTransactionId() {
+    public ServerTraceId getTransactionId() {
         return transactionId;
     }
 
-    public void setTransactionId(TransactionId transactionId) {
+    public void setTransactionId(ServerTraceId transactionId) {
         this.transactionId = transactionId;
     }
 

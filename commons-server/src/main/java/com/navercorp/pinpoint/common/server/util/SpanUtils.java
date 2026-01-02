@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.common.server.util;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 
 /**
  * @deprecated use {@link TransactionIdParser}
@@ -34,7 +36,12 @@ public final class SpanUtils {
      * deserializer ref : TransactionIdMapper.parseVarTransactionId
      */
     public static byte[] getVarTransactionId(SpanBo span) {
-        return TransactionIdParser.getVarTransactionId(span.getTransactionId(), span::getAgentId);
+        ServerTraceId serverTraceId = span.getTransactionId();
+        if (serverTraceId instanceof PinpointServerTraceId) {
+            return TransactionIdParser.getVarTransactionId(serverTraceId, span::getAgentId);
+        } else {
+            return serverTraceId.getId();
+        }
     }
 
     public static TransactionId parseVarTransactionId(byte[] bytes, int offset, int length) {

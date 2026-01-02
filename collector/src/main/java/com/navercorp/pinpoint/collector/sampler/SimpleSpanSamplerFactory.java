@@ -45,7 +45,7 @@ public class SimpleSpanSamplerFactory implements SpanSamplerFactory {
     }
 
     private ToLongFunction<BasicSpan> createBasicSpanSamplingFunction() {
-        return (span -> span.getTransactionId().getTransactionSequence());
+        return new BasicSpanSampler();
     }
 
     private Sampler<BasicSpan> createPercentageSampler(String percentSamplingRateStr,

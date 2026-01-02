@@ -27,9 +27,9 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.scatter.FuzzyRowKeyBuilder;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
@@ -80,7 +80,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     private final FuzzyRowKeyBuilder fuzzyRowKeyBuilder = new FuzzyRowKeyBuilder();
     private final RowKeyDistributor traceIdRowKeyDistributor;
 
-    private final RowMapper<List<TransactionId>> transactionIdMapper;
+    private final RowMapper<List<ServerTraceId>> transactionIdMapper;
     private final RowMapper<List<Dot>> traceIndexScatterMapper;
 
     private int scanCacheSize = 256;
@@ -92,7 +92,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
                                          ApplicationNameRowKeyEncoder rowKeyEncoder,
                                          TableNameProvider tableNameProvider,
                                          @Qualifier("applicationTraceIndexDistributor") RowKeyDistributor traceIdRowKeyDistributor,
-                                         @Qualifier("transactionIdMapper") RowMapper<List<TransactionId>> transactionIdMapper,
+                                         @Qualifier("transactionIdMapper") RowMapper<List<ServerTraceId>> transactionIdMapper,
                                          @Qualifier("traceIndexScatterMapper") RowMapper<List<Dot>> traceIndexScatterMapper) {
         this.scatterChartProperties = Objects.requireNonNull(scatterChartProperties, "scatterChartProperties");
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
@@ -116,15 +116,15 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
         LastRowAccessor lastRowAccessor = new LastRowAccessor();
         TableName applicationTraceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
-        List<List<TransactionId>> traceIndexList = hbaseOperations.findParallel(applicationTraceIndexTableName,
+        List<List<ServerTraceId>> traceIndexList = hbaseOperations.findParallel(applicationTraceIndexTableName,
                 scan, traceIdRowKeyDistributor, 1, transactionIdMapper, lastRowAccessor, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
 
-        List<TransactionId> transactionIdSum = ListListUtils.toList(traceIndexList);
+        List<ServerTraceId> transactionIdSum = ListListUtils.toList(traceIndexList);
         return !transactionIdSum.isEmpty();
     }
 
     @Override
-    public LimitedScanResult<List<TransactionId>> scanTraceIndex(final String applicationName, Range range, int limit, boolean scanBackward) {
+    public LimitedScanResult<List<ServerTraceId>> scanTraceIndex(final String applicationName, Range range, int limit, boolean scanBackward) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(range, "range");
         if (limit < 0) {
@@ -135,10 +135,10 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
         LastRowAccessor lastRowAccessor = new LastRowAccessor();
         TableName applicationTraceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
-        List<List<TransactionId>> traceIndexList = hbaseOperations.findParallel(applicationTraceIndexTableName,
+        List<List<ServerTraceId>> traceIndexList = hbaseOperations.findParallel(applicationTraceIndexTableName,
                 scan, traceIdRowKeyDistributor, limit, transactionIdMapper, lastRowAccessor, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
 
-        List<TransactionId> transactionIdSum = ListListUtils.toList(traceIndexList);
+        List<ServerTraceId> transactionIdSum = ListListUtils.toList(traceIndexList);
         boolean overflow = LastTimeListExtractor.isOverflow(transactionIdSum, limit);
         final long lastTime = getLastTime(overflow, lastRowAccessor, range.getFrom());
 

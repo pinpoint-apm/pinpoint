@@ -22,8 +22,9 @@ import com.navercorp.pinpoint.common.hbase.LimitEventHandler;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.ApplicationNameRowKeyEncoder;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.config.ScatterChartProperties;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
@@ -91,10 +92,10 @@ public class HbaseApplicationTraceIndexDaoTest {
 
     @Test
     public void scanTraceIndexTest() {
-        final List<List<TransactionId>> scannedList = createTraceIndexList();
+        final List<List<ServerTraceId>> scannedList = createTraceIndexList();
         when(this.hbaseOperations.findParallel(any(TableName.class), any(Scan.class), any(RowKeyDistributor.class),
                 anyInt(), any(RowMapper.class), any(LimitEventHandler.class), anyInt())).thenReturn(scannedList);
-        LimitedScanResult<List<TransactionId>> result =
+        LimitedScanResult<List<ServerTraceId>> result =
                 this.applicationTraceIndexDao.scanTraceIndex("app", Range.between(1000L, 5000L), 20, false);
         Assertions.assertEquals(1000L, result.limitedTime());
         Assertions.assertEquals(ListListUtils.toList(scannedList), result.scanData());
@@ -149,7 +150,7 @@ public class HbaseApplicationTraceIndexDaoTest {
 
     private List<List<Dot>> createScatterDotList() {
         List<List<Dot>> ret = new ArrayList<>();
-        TransactionId transactionId = TransactionId.of("A", 1, 1);
+        ServerTraceId transactionId = new PinpointServerTraceId("A", 1, 1);
         addDot(ret, new Dot(transactionId, 2000L, 1000, 0, "a1"));
         addDot(ret, new Dot(transactionId, 3000L, 5000, 0, "a2"));
         addDot(ret, new Dot(transactionId, 2400L, 3000, 0, "a3"));
@@ -161,12 +162,12 @@ public class HbaseApplicationTraceIndexDaoTest {
     }
 
 
-    private List<List<TransactionId>> createTraceIndexList() {
-        List<List<TransactionId>> ret = new ArrayList<>();
+    private List<List<ServerTraceId>> createTraceIndexList() {
+        List<List<ServerTraceId>> ret = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             ret.add(new ArrayList<>());
             for (int j = 0; j < 2; j++) {
-                ret.get(i).add(j, TransactionId.of("agentId" + i, 1000L * (i + 1), j));
+                ret.get(i).add(j, new PinpointServerTraceId("agentId" + i, 1000L * (i + 1), j));
             }
         }
         return ret;

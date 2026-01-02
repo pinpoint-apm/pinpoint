@@ -18,11 +18,12 @@ package com.navercorp.pinpoint.web.trace.dao.mapper;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.web.trace.dao.hbase.SpanQuery;
 import com.navercorp.pinpoint.web.trace.dao.hbase.SpanQueryBuilder;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
@@ -63,7 +64,7 @@ public class FilteringSpanDecoderTest {
         Assertions.assertThrows(NullPointerException.class, () -> {
             SpanDecoder mockSpanDecoder = Mockito.mock(SpanDecoder.class);
 
-            TransactionId transactionId = Random.createTransactionId();
+            ServerTraceId transactionId = Random.createTransactionId();
             GetTraceInfo getTraceInfo = new GetTraceInfo(transactionId);
             SpanQueryBuilder builder = new SpanQueryBuilder();
             SpanQuery query = builder.build(getTraceInfo);
@@ -183,7 +184,7 @@ public class FilteringSpanDecoderTest {
             return spanBo;
         }
 
-        private static TransactionId createTransactionId() {
+        private static ServerTraceId createTransactionId() {
             String agentId = RandomStringUtils.insecure().nextAlphanumeric(4, 24);
 
             long boundAgentStartTime = System.currentTimeMillis();
@@ -191,7 +192,7 @@ public class FilteringSpanDecoderTest {
             long agentStartTime = ThreadLocalRandom.current().nextLong(originAgentStartTime, boundAgentStartTime);
 
             int transactionSequence = ThreadLocalRandom.current().nextInt(0, 10);
-            return TransactionId.of(agentId, agentStartTime, transactionSequence);
+            return new PinpointServerTraceId(agentId, agentStartTime, transactionSequence);
         }
 
         private static long createCollectorAcceptTime() {

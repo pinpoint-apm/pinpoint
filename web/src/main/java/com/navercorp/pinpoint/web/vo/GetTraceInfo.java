@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 
 import java.util.Objects;
 
@@ -27,20 +27,20 @@ public class GetTraceInfo {
 
     private static final SpanHint NO_HINT = new SpanHint();
 
-    private final TransactionId transactionId;
+    private final ServerTraceId transactionId;
     private final SpanHint hint;
 
-    public GetTraceInfo(TransactionId transactionId) {
+    public GetTraceInfo(ServerTraceId transactionId) {
         this.transactionId = Objects.requireNonNull(transactionId, "transactionId");
         this.hint = NO_HINT;
     }
 
-    public GetTraceInfo(TransactionId transactionId, SpanHint hint) {
+    public GetTraceInfo(ServerTraceId transactionId, SpanHint hint) {
         this.transactionId = Objects.requireNonNull(transactionId, "transactionId");
         this.hint = Objects.requireNonNull(hint, "hint");
     }
 
-    public TransactionId getTransactionId() {
+    public ServerTraceId getTransactionId() {
         return transactionId;
     }
 

@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.web.trace.span;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
@@ -43,7 +43,7 @@ public class MetaSpanCallTreeFactory {
 
     public CallTree unknown(final long startTimeMillis) {
         final SpanBo rootSpan = new SpanBo();
-        rootSpan.setTransactionId(TransactionId.of(UNKNOWN_AGENT_ID, AGENT_START_TIME, 0));
+        rootSpan.setTransactionId(new PinpointServerTraceId(UNKNOWN_AGENT_ID, AGENT_START_TIME, 0));
         rootSpan.setAgentId(UNKNOWN_AGENT_ID);
         rootSpan.setApplicationName("UNKNOWN");
         rootSpan.setStartTime(startTimeMillis);
@@ -69,7 +69,7 @@ public class MetaSpanCallTreeFactory {
         rootSpan.setSpanId(spanId);
         rootSpan.setStartTime(startTimeMillis);
 
-        rootSpan.setTransactionId(TransactionId.of(CORRUPTED_AGENT_ID, AGENT_START_TIME, 0));
+        rootSpan.setTransactionId(new PinpointServerTraceId(CORRUPTED_AGENT_ID, AGENT_START_TIME, 0));
         rootSpan.setAgentId(CORRUPTED_AGENT_ID);
         rootSpan.setApplicationName("CORRUPTED");
         rootSpan.setServiceType(ServiceType.UNKNOWN.getCode());

@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.applicationmap.service;
 
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.scatter.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.scatter.dao.TraceIndexDao;
@@ -43,12 +43,12 @@ public class TraceIndexServiceImpl implements TraceIndexService {
     }
 
     @Override
-    public LimitedScanResult<List<TransactionId>> getTraceIndex(String applicationName, Range range, int limit) {
+    public LimitedScanResult<List<ServerTraceId>> getTraceIndex(String applicationName, Range range, int limit) {
         return getTraceIndex(applicationName, range, limit, true);
     }
 
     @Override
-    public LimitedScanResult<List<TransactionId>> getTraceIndex(String applicationName, Range range, int limit, boolean backwardDirection) {
+    public LimitedScanResult<List<ServerTraceId>> getTraceIndex(String applicationName, Range range, int limit, boolean backwardDirection) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(range, "range");
 
@@ -60,7 +60,7 @@ public class TraceIndexServiceImpl implements TraceIndexService {
     }
 
     @Override
-    public LimitedScanResult<List<TransactionId>> getTraceIndexV2(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit) {
+    public LimitedScanResult<List<ServerTraceId>> getTraceIndexV2(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(range, "range");
 
@@ -69,7 +69,7 @@ public class TraceIndexServiceImpl implements TraceIndexService {
         }
 
         LimitedScanResult<List<DotMetaData>> listLimitedScanResult = this.traceIndexDao.scanTraceIndex(serviceUid, applicationName, serviceTypeCode, range, limit);
-        List<TransactionId> transactionIds = listLimitedScanResult.scanData().stream()
+        List<ServerTraceId> transactionIds = listLimitedScanResult.scanData().stream()
                 .map(meta -> meta.getDot().getTransactionId())
                 .toList();
         return new LimitedScanResult<>(listLimitedScanResult.limitedTime(), transactionIds);
