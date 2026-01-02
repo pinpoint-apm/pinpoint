@@ -25,7 +25,7 @@ public class DotAgentInfo {
     private final long transactionAgentStartTime;
 
     public DotAgentInfo(Dot dot) {
-        this(dot.getAgentId(), dot.getTransactionId().getAgentId(), dot.getTransactionId().getAgentStartTime());
+        this(dot.getAgentId(), dot.getTransactionId().toString(), 0);
     }
 
     public DotAgentInfo(String agentId, String transactionAgentId, long transactionAgentStartTime) {

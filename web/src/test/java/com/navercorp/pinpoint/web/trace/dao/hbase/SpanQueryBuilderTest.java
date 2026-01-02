@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.web.trace.dao.hbase;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.web.trace.span.SpanFilters;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.SpanHint;
@@ -31,7 +32,7 @@ public class SpanQueryBuilderTest {
 
     private static final int COLLECTOR_ACCEPTOR_TIME = 100;
     private static final int RESPONSE_TIME = 200;
-    private static final TransactionId txId = TransactionId.of("agent", 1, 2);
+    private static final ServerTraceId txId = new PinpointServerTraceId("agent", 1, 2);
 
     @Test
     public void spanQuery_build() {
@@ -42,7 +43,7 @@ public class SpanQueryBuilderTest {
         SpanQuery spanQuery = builder.build(traceInfo);
 
         SpanBo span = new SpanBo();
-        span.setTransactionId(TransactionId.of("agent", 1, 2));
+        span.setTransactionId(new PinpointServerTraceId("agent", 1, 2));
         span.setCollectorAcceptTime(100);
         span.setElapsed(200);
         span.setApplicationName("appName");

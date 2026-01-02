@@ -27,10 +27,10 @@ import com.navercorp.pinpoint.common.hbase.rowmapper.RequestAwareRowMapper;
 import com.navercorp.pinpoint.common.hbase.rowmapper.RequestAwareRowMapperAdaptor;
 import com.navercorp.pinpoint.common.hbase.rowmapper.ResultSizeMapper;
 import com.navercorp.pinpoint.common.hbase.rowmapper.RowMapperResultAdaptor;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.web.dao.hbase.HBaseUtils;
 import com.navercorp.pinpoint.web.service.FetchResult;
 import com.navercorp.pinpoint.web.trace.dao.TraceDao;
@@ -71,7 +71,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
     private final HbaseOperations template2;
     private final TableNameProvider tableNameProvider;
 
-    private final RowKeyEncoder<TransactionId> rowKeyEncoder;
+    private final RowKeyEncoder<ServerTraceId> rowKeyEncoder;
 
     private final SpanMapperFactory spanMapperFactory;
 
@@ -88,7 +88,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     public HbaseTraceDaoV2(HbaseOperations template2,
                            TableNameProvider tableNameProvider,
-                           @Qualifier("traceRowKeyEncoderV2") RowKeyEncoder<TransactionId> rowKeyEncoder,
+                           @Qualifier("traceRowKeyEncoderV2") RowKeyEncoder<ServerTraceId> rowKeyEncoder,
                            SpanMapperFactory spanMapperFactory) {
         this.template2 = Objects.requireNonNull(template2, "template2");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
@@ -97,12 +97,12 @@ public class HbaseTraceDaoV2 implements TraceDao {
     }
 
     @Override
-    public List<SpanBo> selectSpan(TransactionId transactionId) {
+    public List<SpanBo> selectSpan(ServerTraceId transactionId) {
         return selectSpan(transactionId, null).data();
     }
 
     @Override
-    public FetchResult<List<SpanBo>> selectSpan(TransactionId transactionId, ColumnGetCount columnGetCount) {
+    public FetchResult<List<SpanBo>> selectSpan(ServerTraceId transactionId, ColumnGetCount columnGetCount) {
         Objects.requireNonNull(transactionId, "transactionId");
 
         byte[] transactionIdRowKey = rowKeyEncoder.encodeRowKey(transactionId);
@@ -146,17 +146,17 @@ public class HbaseTraceDaoV2 implements TraceDao {
     }
 
     @Override
-    public List<List<SpanBo>> selectAllSpans(List<TransactionId> transactionIdList) {
+    public List<List<SpanBo>> selectAllSpans(List<ServerTraceId> transactionIdList) {
         return selectAllSpans(transactionIdList, selectAllSpansLimit, null);
     }
 
     @Override
-    public List<List<SpanBo>> selectAllSpans(List<TransactionId> transactionIdList, ColumnGetCount columnGetCount) {
+    public List<List<SpanBo>> selectAllSpans(List<ServerTraceId> transactionIdList, ColumnGetCount columnGetCount) {
         Filter filter = ColumnGetCount.toFilter(columnGetCount);
         return selectAllSpans(transactionIdList, selectAllSpansLimit, filter);
     }
 
-    List<List<SpanBo>> selectAllSpans(List<TransactionId> transactionIdList, int eachPartitionSize, Filter filter) {
+    List<List<SpanBo>> selectAllSpans(List<ServerTraceId> transactionIdList, int eachPartitionSize, Filter filter) {
         if (CollectionUtils.isEmpty(transactionIdList)) {
             return Collections.emptyList();
         }
@@ -234,7 +234,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
         return template2.get(traceTableName, multiGet, rowMapperList);
     }
 
-    private Get createGet(TransactionId transactionId, byte[] columnFamily, Filter filter) {
+    private Get createGet(ServerTraceId transactionId, byte[] columnFamily, Filter filter) {
         byte[] transactionIdRowKey = rowKeyEncoder.encodeRowKey(transactionId);
         final Get get = new Get(transactionIdRowKey);
         get.setMaxResultsPerColumnFamily(traceMaxResultsPerColumnFamily);

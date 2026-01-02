@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.RowTypeHint;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.util.TransactionIdParser;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -38,7 +40,7 @@ import java.util.List;
  * @author netspider
  */
 @Component
-public class TransactionIdMapper implements RowMapper<List<TransactionId>>, RowTypeHint {
+public class TransactionIdMapper implements RowMapper<List<ServerTraceId>>, RowTypeHint {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -49,16 +51,17 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>>, RowT
     }
 
     @Override
-    public List<TransactionId> mapRow(Result result, int rowNum) throws Exception {
+    public List<ServerTraceId> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
         Cell[] rawCells = result.rawCells();
-        List<TransactionId> traceIdList = new ArrayList<>(rawCells.length);
+        List<ServerTraceId> traceIdList = new ArrayList<>(rawCells.length);
         for (Cell cell : rawCells) {
             if (CellUtil.matchingFamily(cell, traceIndex.getName())) {
                 TransactionId traceId = TransactionIdParser.parseVarTransactionId(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
-                traceIdList.add(traceId);
+                ServerTraceId serverTraceId = new PinpointServerTraceId(traceId.getAgentId(), traceId.getAgentStartTime(), traceId.getTransactionSequence());
+                traceIdList.add(serverTraceId);
                 logger.debug("found traceId {}", traceId);
             }
         }

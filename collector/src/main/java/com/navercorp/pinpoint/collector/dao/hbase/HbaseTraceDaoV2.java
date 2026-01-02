@@ -22,13 +22,13 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanChunkSerializerV2;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanSerializerV2;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
@@ -60,7 +60,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     private final SpanChunkSerializerV2 spanChunkSerializer;
 
-    private final RowKeyEncoder<TransactionId> rowKeyEncoder;
+    private final RowKeyEncoder<ServerTraceId> rowKeyEncoder;
     private final HbasePutWriter putWriter;
 
     private final DurabilityApplier durabilityApplier;
@@ -68,7 +68,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
     public HbaseTraceDaoV2(@Qualifier("spanPutWriter")
                            HbasePutWriter putWriter,
                            TableNameProvider tableNameProvider,
-                           @Qualifier("traceRowKeyEncoderV2") RowKeyEncoder<TransactionId> rowKeyEncoder,
+                           @Qualifier("traceRowKeyEncoderV2") RowKeyEncoder<ServerTraceId> rowKeyEncoder,
                            SpanSerializerV2 spanSerializer,
                            SpanChunkSerializerV2 spanChunkSerializer,
                            DurabilityApplier durabilityApplier) {
@@ -106,7 +106,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
         long acceptedTime = spanBo.getCollectorAcceptTime();
 
-        TransactionId transactionId = spanBo.getTransactionId();
+        ServerTraceId transactionId = spanBo.getTransactionId();
         final byte[] rowKey = this.rowKeyEncoder.encodeRowKey(transactionId);
         final Put put = new Put(rowKey, acceptedTime, true);
 
@@ -122,7 +122,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
     public void insertSpanChunk(SpanChunkBo spanChunkBo) {
         Objects.requireNonNull(spanChunkBo, "spanChunkBo");
 
-        TransactionId transactionId = spanChunkBo.getTransactionId();
+        ServerTraceId transactionId = spanChunkBo.getTransactionId();
         final byte[] rowKey = this.rowKeyEncoder.encodeRowKey(transactionId);
 
         final long acceptedTime = spanChunkBo.getCollectorAcceptTime();

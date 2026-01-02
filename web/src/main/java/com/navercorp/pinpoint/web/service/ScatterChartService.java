@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
@@ -28,7 +28,7 @@ public interface ScatterChartService {
 
     List<SpanBo> selectTransactionMetadata(List<GetTraceInfo> getTraceInfoList);
 
-    List<SpanBo> selectTransactionMetadata(TransactionId transactionId);
+    List<SpanBo> selectTransactionMetadata(ServerTraceId transactionId);
 
     ScatterData selectScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection);
 

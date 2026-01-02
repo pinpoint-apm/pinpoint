@@ -20,9 +20,10 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.RowTypeHint;
-import com.navercorp.pinpoint.common.profiler.util.TransactionIdV1;
 import com.navercorp.pinpoint.common.server.scatter.TraceIndexRowKeyUtils;
 import com.navercorp.pinpoint.common.server.scatter.TraceIndexValue;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -36,6 +37,9 @@ import java.util.List;
 // TraceIndexScatterMapper version 2
 @Component
 public class TraceIndexDotMapper implements RowMapper<List<Dot>>, RowTypeHint {
+
+    private static final ServerTraceId EMPTY = new PinpointServerTraceId("EMPTY", 0, 0);
+
     private final HbaseColumnFamily index = HbaseTables.TRACE_INDEX;
 
     public TraceIndexDotMapper() {
@@ -60,7 +64,7 @@ public class TraceIndexDotMapper implements RowMapper<List<Dot>>, RowTypeHint {
 
     private Dot createDot(long acceptedTime, Cell cell) {
         TraceIndexValue.Index index = TraceIndexValue.Index.decode(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
-        return new Dot(TransactionIdV1.EMPTY_ID, acceptedTime, index.elapsed(), index.errorCode(), index.agentId());
+        return new Dot(EMPTY, acceptedTime, index.elapsed(), index.errorCode(), index.agentId());
     }
 
     @Override

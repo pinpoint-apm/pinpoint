@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.common.server.bo.grpc;
 
 
 import com.navercorp.pinpoint.common.PinpointConstants;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationComparator;
 import com.navercorp.pinpoint.common.server.bo.AnnotationFactory;
@@ -28,6 +27,8 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventComparator;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
@@ -91,7 +92,7 @@ public class GrpcSpanBinder {
         if (!pSpan.hasTransactionId()) {
             throw new IllegalStateException("hasTransactionId() is false " + MessageFormatUtils.debugLog(pSpan));
         }
-        final TransactionId transactionId = newTransactionId(pSpan.getTransactionId(), spanBo.getAgentId());
+        final ServerTraceId transactionId = newTransactionId(pSpan.getTransactionId(), spanBo.getAgentId());
         spanBo.setTransactionId(transactionId);
 
         spanBo.setSpanId(pSpan.getSpanId());
@@ -276,7 +277,7 @@ public class GrpcSpanBinder {
 
         if (pSpanChunk.hasTransactionId()) {
             PTransactionId pTransactionId = pSpanChunk.getTransactionId();
-            TransactionId transactionId = newTransactionId(pTransactionId, spanChunkBo.getAgentId());
+            ServerTraceId transactionId = newTransactionId(pTransactionId, spanChunkBo.getAgentId());
             spanChunkBo.setTransactionId(transactionId);
         } else {
             logger.warn("PTransactionId is not set {}", pSpanChunk);
@@ -290,12 +291,12 @@ public class GrpcSpanBinder {
         return spanChunkBo;
     }
 
-    private TransactionId newTransactionId(PTransactionId pTransactionId, String spanAgentId) {
+    private ServerTraceId newTransactionId(PTransactionId pTransactionId, String spanAgentId) {
         final String transactionAgentId = pTransactionId.getAgentId();
         if (StringUtils.hasLength(transactionAgentId)) {
-            return TransactionId.of(transactionAgentId, pTransactionId.getAgentStartTime(), pTransactionId.getSequence());
+            return new PinpointServerTraceId(transactionAgentId, pTransactionId.getAgentStartTime(), pTransactionId.getSequence());
         } else {
-            return TransactionId.of(spanAgentId, pTransactionId.getAgentStartTime(), pTransactionId.getSequence());
+            return new PinpointServerTraceId(spanAgentId, pTransactionId.getAgentStartTime(), pTransactionId.getSequence());
         }
     }
 

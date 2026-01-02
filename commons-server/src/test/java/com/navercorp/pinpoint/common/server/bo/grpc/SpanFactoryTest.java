@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.server.bo.grpc;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.RandomTSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -24,6 +23,8 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.SpanFactoryAssert;
 import com.navercorp.pinpoint.common.server.bo.filter.EmptySpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
@@ -127,11 +128,12 @@ public class SpanFactoryTest {
         tSpan.setVersion(SpanVersion.TRACE_V2);
 
         SpanBo spanBo = grpcSpanBinder.bindSpanBo(tSpan.build(), attribute);
-        TransactionId transactionId = spanBo.getTransactionId();
+        ServerTraceId transactionId = spanBo.getTransactionId();
 
-        Assertions.assertEquals("agentId", transactionId.getAgentId());
-        Assertions.assertEquals(1, transactionId.getAgentStartTime());
-        Assertions.assertEquals(2, transactionId.getTransactionSequence());
+        PinpointServerTraceId pinpointServerTraceId = (PinpointServerTraceId) transactionId;
+        Assertions.assertEquals("agentId", pinpointServerTraceId.getAgentId());
+        Assertions.assertEquals(1, pinpointServerTraceId.getAgentStartTime());
+        Assertions.assertEquals(2, pinpointServerTraceId.getTransactionSequence());
     }
 
     @Test
@@ -147,11 +149,12 @@ public class SpanFactoryTest {
                 .build();
 
         SpanBo spanBo = grpcSpanFactory.buildSpanBo(tSpan, attribute);
-        TransactionId transactionId = spanBo.getTransactionId();
+        ServerTraceId transactionId = spanBo.getTransactionId();
 
-        Assertions.assertEquals("transactionAgentId", transactionId.getAgentId());
-        Assertions.assertEquals(1, transactionId.getAgentStartTime());
-        Assertions.assertEquals(2, transactionId.getTransactionSequence());
+        PinpointServerTraceId pinpointServerTraceId = (PinpointServerTraceId) transactionId;
+        Assertions.assertEquals("transactionAgentId", pinpointServerTraceId.getAgentId());
+        Assertions.assertEquals(1, pinpointServerTraceId.getAgentStartTime());
+        Assertions.assertEquals(2, pinpointServerTraceId.getTransactionSequence());
     }
 
 

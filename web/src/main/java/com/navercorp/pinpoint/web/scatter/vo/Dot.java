@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.scatter.vo;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.web.view.DotSerializer;
 
 import java.util.Objects;
@@ -40,7 +40,7 @@ public class Dot {
         }
     }
 
-    private final TransactionId transactionId;
+    private final ServerTraceId transactionId;
     private final long acceptedTime;
     private final int elapsedTime;
     private final int exceptionCode;
@@ -53,7 +53,7 @@ public class Dot {
      * @param elapsedTime
      * @param exceptionCode 0 : success, 1 : error
      */
-    public Dot(TransactionId transactionId, long acceptedTime, int elapsedTime, int exceptionCode, String agentId) {
+    public Dot(ServerTraceId transactionId, long acceptedTime, int elapsedTime, int exceptionCode, String agentId) {
         this.transactionId = Objects.requireNonNull(transactionId, "transactionId");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
 
@@ -62,7 +62,7 @@ public class Dot {
         this.exceptionCode = exceptionCode;
     }
 
-    public TransactionId getTransactionId() {
+    public ServerTraceId getTransactionId() {
         return transactionId;
     }
 

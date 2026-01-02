@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapView;
@@ -107,10 +109,12 @@ public class TransactionController {
         logger.debug("GET /trace params {traceId={}, focusTimestamp={}, agentId={}, spanId={}}",
                 traceId, focusTimestamp, agentId, spanId);
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
+        ServerTraceId serverTraceId = new PinpointServerTraceId(transactionId.getAgentId(), transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
+
         final ColumnGetCount columnGetCount = ColumnGetCount.of(callstackSelectSpansLimit);
         final Predicate<SpanBo> spanMatchFilter = SpanFilters.spanFilter(spanId, agentId, focusTimestamp);
         // select spans
-        final SpanResult spanResult = this.spanService.selectSpan(transactionId, spanMatchFilter, columnGetCount);
+        final SpanResult spanResult = this.spanService.selectSpan(serverTraceId, spanMatchFilter, columnGetCount);
         final CallTreeIterator callTreeIterator = spanResult.callTree();
         final RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
         final LogLinkView logLinkView = logLinkBuilder.build(transactionId, spanId, recordSet.getApplicationName(), recordSet.getStartTime());
@@ -134,12 +138,13 @@ public class TransactionController {
                 traceIdParam, focusTimestamp, agentId, spanId);
 
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceIdParam);
+        ServerTraceId serverTraceId = new PinpointServerTraceId(transactionId.getAgentId(), transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
 
         final ColumnGetCount columnGetCount = ColumnGetCount.of(callstackSelectSpansLimit);
 
         // select spans
         final Predicate<SpanBo> spanMatchFilter = SpanFilters.spanFilter(spanId, agentId, focusTimestamp);
-        final SpanResult spanResult = this.spanService.selectSpan(transactionId, spanMatchFilter, columnGetCount);
+        final SpanResult spanResult = this.spanService.selectSpan(serverTraceId, spanMatchFilter, columnGetCount);
         final CallTreeIterator callTreeIterator = spanResult.callTree();
 
         final RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
@@ -159,11 +164,13 @@ public class TransactionController {
             boolean useStatisticsAgentState
     ) {
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
+        ServerTraceId serverTraceId = new PinpointServerTraceId(transactionId.getAgentId(), transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
+
         final ColumnGetCount columnGetCount = ColumnGetCount.of(callstackSelectSpansLimit);
 
         Range scanRange = Range.between(focusTimestamp, focusTimestamp + 1);
         // application map
-        final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(transactionId, scanRange, columnGetCount)
+        final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(serverTraceId, scanRange, columnGetCount)
                 .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
         final ApplicationMap map = filteredMapService.selectApplicationMap(option);

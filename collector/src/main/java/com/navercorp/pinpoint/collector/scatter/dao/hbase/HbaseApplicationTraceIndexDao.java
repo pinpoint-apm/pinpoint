@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.async.HbasePutWriter;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
-import com.navercorp.pinpoint.common.server.util.TransactionIdParser;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.logging.log4j.LogManager;
@@ -79,7 +78,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
         final Put put = new Put(distributedKey, true);
 
-        final byte[] qualifier = TransactionIdParser.getVarTransactionId(span.getTransactionId(), span::getAgentId);
+        final byte[] qualifier = span.getTransactionId().getId();
 
         final byte[] indexValue = buildIndexValue(span);
         put.addColumn(indexTable.getName(), qualifier, acceptedTime, indexValue);
