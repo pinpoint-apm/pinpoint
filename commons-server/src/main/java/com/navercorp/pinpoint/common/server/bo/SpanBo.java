@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.util.ByteUtils;
 import com.navercorp.pinpoint.common.server.util.NumberPrecondition;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
@@ -25,6 +25,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -46,7 +47,7 @@ public class SpanBo implements Event, BasicSpan {
 
     private long agentStartTime;
 
-    private TransactionId transactionId;
+    private ServerTraceId transactionId;
 
     private long spanId;
     private long parentSpanId;
@@ -101,11 +102,11 @@ public class SpanBo implements Event, BasicSpan {
     }
 
     @Override
-    public TransactionId getTransactionId() {
+    public ServerTraceId getTransactionId() {
         return this.transactionId;
     }
 
-    public void setTransactionId(TransactionId transactionId) {
+    public void setTransactionId(ServerTraceId transactionId) {
         this.transactionId = transactionId;
     }
 
@@ -448,7 +449,7 @@ public class SpanBo implements Event, BasicSpan {
         private String applicationName;
         private long agentStartTime;
 
-        private TransactionId transactionId;
+        private ServerTraceId transactionId;
 
         private final long spanId;
 
@@ -523,8 +524,8 @@ public class SpanBo implements Event, BasicSpan {
             return this;
         }
 
-        public Builder setTransactionId(TransactionId transactionId) {
-            this.transactionId = transactionId;
+        public Builder setTransactionId(ServerTraceId transactionId) {
+            this.transactionId = Objects.requireNonNull(transactionId, "transactionId");
             return this;
         }
 

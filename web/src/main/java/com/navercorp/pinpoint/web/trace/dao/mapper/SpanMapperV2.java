@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.common.buffer.CachedStringAllocator;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -33,6 +32,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingContext;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.io.SpanVersion;
@@ -61,23 +61,23 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
     private final SpanDecoder spanDecoder;
 
-    private final RowKeyDecoder<TransactionId> rowKeyDecoder;
+    private final RowKeyDecoder<ServerTraceId> rowKeyDecoder;
 
     private final int cacheSize;
 
-    public SpanMapperV2(RowKeyDecoder<TransactionId> rowKeyDecoder) {
+    public SpanMapperV2(RowKeyDecoder<ServerTraceId> rowKeyDecoder) {
         this(rowKeyDecoder, new SpanDecoderV0(), DISABLED_CACHE);
     }
 
-    public SpanMapperV2(RowKeyDecoder<TransactionId> rowKeyDecoder, int cacheSize) {
+    public SpanMapperV2(RowKeyDecoder<ServerTraceId> rowKeyDecoder, int cacheSize) {
         this(rowKeyDecoder, new SpanDecoderV0(), cacheSize);
     }
 
-    public SpanMapperV2(RowKeyDecoder<TransactionId> rowKeyDecoder, SpanDecoder spanDecoder) {
+    public SpanMapperV2(RowKeyDecoder<ServerTraceId> rowKeyDecoder, SpanDecoder spanDecoder) {
         this(rowKeyDecoder, spanDecoder, DISABLED_CACHE);
     }
 
-    public SpanMapperV2(RowKeyDecoder<TransactionId> rowKeyDecoder, SpanDecoder spanDecoder, int cacheSize) {
+    public SpanMapperV2(RowKeyDecoder<ServerTraceId> rowKeyDecoder, SpanDecoder spanDecoder, int cacheSize) {
         this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
         this.spanDecoder = Objects.requireNonNull(spanDecoder, "spanDecoder");
         this.cacheSize = cacheSize;
@@ -91,7 +91,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
 
         byte[] rowKey = result.getRow();
-        final TransactionId transactionId = this.rowKeyDecoder.decodeRowKey(rowKey);
+        final ServerTraceId transactionId = this.rowKeyDecoder.decodeRowKey(rowKey);
 
         final Cell[] rawCells = result.rawCells();
 

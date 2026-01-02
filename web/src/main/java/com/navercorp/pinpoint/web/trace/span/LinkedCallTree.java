@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.web.trace.span;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.LineNumber;
 
@@ -82,7 +82,7 @@ public class LinkedCallTree implements CallTree {
 
     private SpanAlign createMultiChildSpanAlign(int serviceType, long startTime) {
         SpanBo spanBo = new SpanBo();
-        spanBo.setTransactionId(TransactionId.of("UNKNOWN", 0, 0));
+        spanBo.setTransactionId(new PinpointServerTraceId("UNKNOWN", 0, 0));
         spanBo.setServiceType(serviceType);
         spanBo.setStartTime(startTime);
 

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -52,7 +52,7 @@ public interface BasicSpan {
     long getSpanId();
     void setSpanId(long spanId);
 
-    TransactionId getTransactionId();
+    ServerTraceId getTransactionId();
 //    void setTransactionId(TransactionId transactionId);
 
     int getApplicationServiceType();

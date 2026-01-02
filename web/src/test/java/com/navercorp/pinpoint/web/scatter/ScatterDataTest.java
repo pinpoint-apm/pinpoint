@@ -16,7 +16,8 @@
 
 package com.navercorp.pinpoint.web.scatter;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import org.junit.jupiter.api.Test;
 
@@ -67,8 +68,8 @@ public class ScatterDataTest {
 
         long currentTime = System.currentTimeMillis();
 
-        TransactionId transactionId1 = TransactionId.of(transactionAgentId, currentTime, 1);
-        TransactionId transactionId2 = TransactionId.of(transactionAgentId, currentTime, 2);
+        ServerTraceId transactionId1 = new PinpointServerTraceId(transactionAgentId, currentTime, 1);
+        ServerTraceId transactionId2 = new PinpointServerTraceId(transactionAgentId, currentTime, 2);
 
         long acceptedTime = Math.max(Math.abs(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE)), from);
         int executionTime = (int) Math.abs(ThreadLocalRandom.current().nextLong(60 * 1000));
@@ -102,7 +103,7 @@ public class ScatterDataTest {
 
         long currentTime = System.currentTimeMillis();
 
-        TransactionId transactionId = TransactionId.of(transactionAgentId, currentTime, 1);
+        ServerTraceId transactionId = new PinpointServerTraceId(transactionAgentId, currentTime, 1);
 
         long acceptedTime = Math.max(Math.abs(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE)), from);
         int executionTime = (int) Math.abs(ThreadLocalRandom.current().nextLong(60 * 1000));
@@ -122,9 +123,9 @@ public class ScatterDataTest {
     private List<Dot> createDotList(String agentId, String transactionAgentId, int createSize, long from) {
         long currentTime = System.currentTimeMillis();
 
-        List<TransactionId> transactionIdList = new ArrayList<>(createSize);
+        List<ServerTraceId> transactionIdList = new ArrayList<>(createSize);
         for (int i = 0; i < createSize; i++) {
-            transactionIdList.add(TransactionId.of(transactionAgentId, currentTime, i));
+            transactionIdList.add(new PinpointServerTraceId(transactionAgentId, currentTime, i));
         }
 
         long acceptedTime = Math.max(Math.abs(ThreadLocalRandom.current().nextLong(Long.MAX_VALUE)), from);

@@ -18,22 +18,25 @@ package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
+import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 @Component
-public class TraceRowKeyDecoderV2 implements RowKeyDecoder<TransactionId> {
+public class TraceRowKeyDecoderV2 implements RowKeyDecoder<ServerTraceId> {
 
     public static final int AGENT_ID_MAX_LEN = TraceRowKeyEncoderV2.AGENT_ID_MAX_LEN;
+
     private static final int OPENTELEMETRY_TRACE_ID_LEN = TraceRowKeyEncoderV2.OPENTELEMETRY_TRACE_ID_LEN;
-    private static final int OPENTELEMTRY_LEN = OPENTELEMETRY_TRACE_ID_LEN + BytesUtils.LONG_BYTE_LENGTH + BytesUtils.LONG_BYTE_LENGTH;
 
     private final ByteSaltKey saltKey;
 
@@ -47,29 +50,25 @@ public class TraceRowKeyDecoderV2 implements RowKeyDecoder<TransactionId> {
 
 
     @Override
-    public TransactionId decodeRowKey(byte[] rowkey) {
+    public ServerTraceId decodeRowKey(byte[] rowkey) {
         Objects.requireNonNull(rowkey, "rowkey");
 
         return readTransactionId(rowkey, saltKey.size());
     }
 
-    private TransactionId readTransactionId(byte[] rowKey, int offset) {
-        if (rowKey.length == offset + OPENTELEMTRY_LEN) {
+    private ServerTraceId readTransactionId(byte[] rowKey, int offset) {
+        if (rowKey.length == offset + OPENTELEMETRY_TRACE_ID_LEN) {
             return readOpenTelemetryTransactionId(rowKey, offset);
         }
 
         String agentId = BytesUtils.toStringAndRightTrim(rowKey, offset, AGENT_ID_MAX_LEN);
         long agentStartTime = ByteArrayUtils.bytesToLong(rowKey, offset + AGENT_ID_MAX_LEN);
         long transactionSequence = ByteArrayUtils.bytesToLong(rowKey, offset + BytesUtils.LONG_BYTE_LENGTH + AGENT_ID_MAX_LEN);
-
-        return TransactionId.of(agentId, agentStartTime, transactionSequence);
+        return new PinpointServerTraceId(agentId, agentStartTime, transactionSequence);
     }
 
-    private TransactionId readOpenTelemetryTransactionId(byte[] rowKey, int offset) {
-        String agentId = BytesUtils.toStringAndRightTrim(rowKey, offset, OPENTELEMETRY_TRACE_ID_LEN);
-        long agentStartTime = ByteArrayUtils.bytesToLong(rowKey, offset + OPENTELEMETRY_TRACE_ID_LEN);
-        long transactionSequence = ByteArrayUtils.bytesToLong(rowKey, offset + BytesUtils.LONG_BYTE_LENGTH + OPENTELEMETRY_TRACE_ID_LEN);
-
-        return TransactionId.of(agentId, agentStartTime, transactionSequence);
+    private ServerTraceId readOpenTelemetryTransactionId(byte[] rowKey, int offset) {
+        byte[] otelTraceId = Arrays.copyOfRange(rowKey, offset, offset + OPENTELEMETRY_TRACE_ID_LEN);
+        return new OtelServerTraceId(otelTraceId);
     }
 }

@@ -20,9 +20,10 @@ import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.hbase.wd.RangeOneByteSimpleHash;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributorByHashPrefix;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -44,17 +45,17 @@ public class TraceRowKeyEncoderV2Test {
         return new RowKeyDistributorByHashPrefix(oneByteSimpleHash);
     }
 
-    private final RowKeyEncoder<TransactionId> traceRowKeyEncoder = new TraceRowKeyEncoderV2(distributorByHashPrefix);
+    private final RowKeyEncoder<ServerTraceId> traceRowKeyEncoder = new TraceRowKeyEncoderV2(distributorByHashPrefix);
 
-    private final RowKeyDecoder<TransactionId> traceRowKeyDecoder = new TraceRowKeyDecoderV2(ByteSaltKey.SALT);
+    private final RowKeyDecoder<ServerTraceId> traceRowKeyDecoder = new TraceRowKeyDecoderV2(ByteSaltKey.SALT);
 
     @Test
     public void encodeRowKey() {
 
-        TransactionId spanTransactionId = TransactionId.of("traceAgentId", System.currentTimeMillis(), random.nextLong(0, 10000));
+        ServerTraceId spanTransactionId = new PinpointServerTraceId("traceAgentId", System.currentTimeMillis(), random.nextLong(0, 10000));
 
         byte[] rowKey = traceRowKeyEncoder.encodeRowKey(spanTransactionId);
-        TransactionId transactionId = traceRowKeyDecoder.decodeRowKey(rowKey);
+        ServerTraceId transactionId = traceRowKeyDecoder.decodeRowKey(rowKey);
 
         Assertions.assertEquals(transactionId, spanTransactionId);
 

@@ -17,16 +17,16 @@
 package com.navercorp.pinpoint.web.applicationmap.service;
 
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 
 import java.util.List;
 
 public interface TraceIndexService {
-    LimitedScanResult<List<TransactionId>> getTraceIndex(String applicationName, Range range, int limit);
+    LimitedScanResult<List<ServerTraceId>> getTraceIndex(String applicationName, Range range, int limit);
 
-    LimitedScanResult<List<TransactionId>> getTraceIndex(String applicationName, Range range, int limit, boolean backwardDirection);
+    LimitedScanResult<List<ServerTraceId>> getTraceIndex(String applicationName, Range range, int limit, boolean backwardDirection);
 
-    LimitedScanResult<List<TransactionId>> getTraceIndexV2(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit);
+    LimitedScanResult<List<ServerTraceId>> getTraceIndexV2(int serviceUid, String applicationName, int serviceTypeCode, Range range, int limit);
 }

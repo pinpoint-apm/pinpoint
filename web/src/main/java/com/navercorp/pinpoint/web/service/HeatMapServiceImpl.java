@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
 import com.navercorp.pinpoint.web.scatter.dao.ApplicationTraceIndexDao;
@@ -173,7 +173,7 @@ public class HeatMapServiceImpl implements HeatMapService {
     }
 
     private GetTraceInfo dotToGetTraceInfo(String applicationName, Dot dot) {
-        TransactionId transactionId = dot.getTransactionId();
+        ServerTraceId transactionId = dot.getTransactionId();
 
         SpanHint spanHint = new SpanHint(dot.getAcceptedTime(),
                 dot.getElapsedTime(), applicationName, dot.getAgentId());

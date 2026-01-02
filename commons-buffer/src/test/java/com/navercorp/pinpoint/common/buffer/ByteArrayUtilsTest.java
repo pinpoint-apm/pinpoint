@@ -146,4 +146,22 @@ class ByteArrayUtilsTest {
         BytesUtils.writeInt(value, buf, 0);
         return buf;
     }
+
+
+    @Test
+    void compareByteArray() {
+        byte[] bytes1 = {1, 1, 2, 3};
+        byte[] bytes2 = {2, 1, 2, 3};
+
+        Assertions.assertEquals(-1, ByteArrayUtils.compare(bytes1, bytes2, 0));
+        Assertions.assertEquals(0, ByteArrayUtils.compare(bytes1, bytes2, 1));
+    }
+
+    @Test
+    void compareByteArray_checkLastOffset() {
+        byte[] bytes1 = {1, 2, 3, 1};
+        byte[] bytes2 = {1, 2, 3, 2};
+
+        Assertions.assertEquals(-1, ByteArrayUtils.compare(bytes1, bytes2, 0));
+    }
 }

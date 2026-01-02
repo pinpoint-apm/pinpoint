@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.applicationmap.service;
 
 import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
@@ -167,10 +167,10 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
 
-    private List<List<SpanBo>> selectFilteredSpan(List<TransactionId> transactionIdList, Filter<List<SpanBo>> filter, ColumnGetCount columnGetCount) {
+    private List<List<SpanBo>> selectFilteredSpan(List<ServerTraceId> transactionIdList, Filter<List<SpanBo>> filter, ColumnGetCount columnGetCount) {
         // filters out recursive calls by looking at each objects
         // do not filter here if we change to a tree-based collision check in the future.
-        final List<TransactionId> recursiveFilterList = recursiveCallFilter(transactionIdList);
+        final List<ServerTraceId> recursiveFilterList = recursiveCallFilter(transactionIdList);
 
         // FIXME might be better to simply traverse the List<Span> and create a process chain for execution
         final List<List<SpanBo>> originalList = this.traceDao.selectAllSpans(recursiveFilterList, columnGetCount);
@@ -196,19 +196,19 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return map;
     }
 
-    private List<TransactionId> recursiveCallFilter(List<TransactionId> transactionIdList) {
+    private List<ServerTraceId> recursiveCallFilter(List<ServerTraceId> transactionIdList) {
         Objects.requireNonNull(transactionIdList, "transactionIdList");
 
-        List<TransactionId> crashKey = new ArrayList<>();
-        Map<TransactionId, Object> filterMap = new LinkedHashMap<>(transactionIdList.size());
-        for (TransactionId transactionId : transactionIdList) {
+        List<ServerTraceId> crashKey = new ArrayList<>();
+        Map<ServerTraceId, Object> filterMap = new LinkedHashMap<>(transactionIdList.size());
+        for (ServerTraceId transactionId : transactionIdList) {
             Object old = filterMap.put(transactionId, V);
             if (old != null) {
                 crashKey.add(transactionId);
             }
         }
         if (!crashKey.isEmpty()) {
-            Set<TransactionId> filteredTransactionId = filterMap.keySet();
+            Set<ServerTraceId> filteredTransactionId = filterMap.keySet();
             logger.info("transactionId crash found. original:{} filter:{} crashKey:{}", transactionIdList.size(), filteredTransactionId.size(), crashKey);
             return new ArrayList<>(filteredTransactionId);
         }

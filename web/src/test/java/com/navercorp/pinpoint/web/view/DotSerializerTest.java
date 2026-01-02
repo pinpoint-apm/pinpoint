@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
-import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import org.apache.logging.log4j.LogManager;
@@ -37,7 +37,7 @@ public class DotSerializerTest {
 
     @Test
     public void testSerialize() throws Exception {
-        TransactionId transactionId = TransactionIdUtils.parseTransactionId("aigw.dev.1^1395798795017^1527177");
+        ServerTraceId transactionId = PinpointServerTraceId.of("aigw.dev.1^1395798795017^1527177");
         Dot dot = new Dot(transactionId, 100, 99, 1, "agent");
         String jsonValue = mapper.writeValueAsString(dot);
         Assertions.assertEquals("[100,99,\"aigw.dev.1^1395798795017^1527177\",0]", jsonValue);

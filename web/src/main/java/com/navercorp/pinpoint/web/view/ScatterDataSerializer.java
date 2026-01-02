@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.web.view;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.web.scatter.DotGroup;
 import com.navercorp.pinpoint.web.scatter.DotGroups;
 import com.navercorp.pinpoint.web.scatter.ScatterAgentMetaData;
@@ -82,10 +84,15 @@ public class ScatterDataSerializer extends JsonSerializer<ScatterData> {
         int agentId = metaData.getId(dot);
         jgen.writeNumber(agentId);
 
+        ServerTraceId serverTraceId = dot.getTransactionId();
         if (agentId == -1) {
-            jgen.writeString(dot.getTransactionId().toString());
+            jgen.writeString(serverTraceId.toString());
         } else {
-            jgen.writeNumber(dot.getTransactionId().getTransactionSequence());
+            if (serverTraceId instanceof PinpointServerTraceId pServerTraceId) {
+                jgen.writeNumber(pServerTraceId.getTransactionSequence());
+            } else {
+                jgen.writeNumber(0);
+            }
         }
 
         jgen.writeNumber(dot.getStatus().getCode());

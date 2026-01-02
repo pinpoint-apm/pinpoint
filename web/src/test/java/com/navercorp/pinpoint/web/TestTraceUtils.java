@@ -17,9 +17,10 @@
 package com.navercorp.pinpoint.web;
 
 import com.navercorp.pinpoint.bootstrap.context.SpanId;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.util.ServiceTypeRegistryMockFactory;
@@ -81,9 +82,9 @@ public class TestTraceUtils {
 
         private final Map<String, AtomicInteger> sequenceMap = new ConcurrentHashMap<>();
 
-        TransactionId generate(String agentId) {
+        ServerTraceId generate(String agentId) {
             int nextSequence = getNextSequence(agentId);
-            return TransactionId.of(agentId, 0L, nextSequence);
+            return new PinpointServerTraceId(agentId, 0L, nextSequence);
         }
 
         private int getNextSequence(String agentId) {

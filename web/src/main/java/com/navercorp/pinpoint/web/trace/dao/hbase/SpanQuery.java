@@ -16,29 +16,29 @@
 
 package com.navercorp.pinpoint.web.trace.dao.hbase;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import org.apache.hadoop.hbase.filter.Filter;
 
 import java.util.Objects;
 import java.util.function.Predicate;
 
 public class SpanQuery {
-    private final TransactionId transactionId;
+    private final ServerTraceId transactionId;
     private final Predicate<SpanBo> spanFilter;
     private final Filter filter;
 
-    public SpanQuery(TransactionId transactionId, Predicate<SpanBo> spanFilter, Filter filter) {
+    public SpanQuery(ServerTraceId transactionId, Predicate<SpanBo> spanFilter, Filter filter) {
         this.transactionId = Objects.requireNonNull(transactionId, "transactionId");
         this.spanFilter = spanFilter;
         this.filter = filter;
     }
 
-    public SpanQuery(TransactionId transactionId) {
+    public SpanQuery(ServerTraceId transactionId) {
         this(transactionId, null, null);
     }
 
-    public TransactionId getTransactionId() {
+    public ServerTraceId getTransactionId() {
         return transactionId;
     }
 
