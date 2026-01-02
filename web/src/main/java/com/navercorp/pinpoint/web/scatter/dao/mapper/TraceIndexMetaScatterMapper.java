@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.RowTypeHint;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.util.TransactionIdParser;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
@@ -55,7 +57,7 @@ public class TraceIndexMetaScatterMapper implements RowMapper<List<DotMetaData>>
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<TransactionId, DotMetaData.Builder> metaDataMap = new HashMap<>();
+        Map<ServerTraceId, DotMetaData.Builder> metaDataMap = new HashMap<>();
         for (Cell cell : result.rawCells()) {
             if (CellUtil.matchingFamily(cell, index.getName())) {
                 Dot dot = TraceIndexScatterMapper.createDot(cell);
@@ -64,7 +66,8 @@ public class TraceIndexMetaScatterMapper implements RowMapper<List<DotMetaData>>
             }
             if (CellUtil.matchingFamily(cell, meta.getName())) {
                 TransactionId transactionId = TransactionIdParser.parseVarTransactionId(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
-                DotMetaData.Builder builder = getMetaDataBuilder(metaDataMap, transactionId);
+                ServerTraceId serverTraceId = new PinpointServerTraceId(transactionId.getAgentId(), transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
+                DotMetaData.Builder builder = getMetaDataBuilder(metaDataMap, serverTraceId);
                 builder.read(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
             }
         }
@@ -75,7 +78,7 @@ public class TraceIndexMetaScatterMapper implements RowMapper<List<DotMetaData>>
                 .collect(Collectors.toList());
     }
 
-    private DotMetaData.Builder getMetaDataBuilder(Map<TransactionId, DotMetaData.Builder> metaDataMap, TransactionId transactionId) {
+    private DotMetaData.Builder getMetaDataBuilder(Map<ServerTraceId, DotMetaData.Builder> metaDataMap, ServerTraceId transactionId) {
         return metaDataMap.computeIfAbsent(transactionId, txId -> new DotMetaData.Builder());
     }
 

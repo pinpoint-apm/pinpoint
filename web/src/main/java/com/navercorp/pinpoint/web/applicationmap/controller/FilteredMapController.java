@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.applicationmap.controller;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
@@ -116,7 +116,7 @@ public class FilteredMapController {
         final boolean useTraceIndexV2 = traceIndexReadV2.orElse(defaultTraceIndexReadV2);
 
 
-        final LimitedScanResult<List<TransactionId>> limitedScanResult;
+        final LimitedScanResult<List<ServerTraceId>> limitedScanResult;
         if (!useTraceIndexV2) {
             limitedScanResult = traceIndexService.getTraceIndex(applicationName, range, limit);
         } else {
@@ -149,7 +149,7 @@ public class FilteredMapController {
         return new FilterMapViewV3(applicationMapView, scatterDataMapView, null, lastScanTime);
     }
 
-    private FilteredMapServiceOption newFilteredOption(List<TransactionId> transactionIdList,
+    private FilteredMapServiceOption newFilteredOption(List<ServerTraceId> transactionIdList,
                                                        Range originalRange,
                                                        GroupForm groupForm,
                                                        Filter<List<SpanBo>> filter,

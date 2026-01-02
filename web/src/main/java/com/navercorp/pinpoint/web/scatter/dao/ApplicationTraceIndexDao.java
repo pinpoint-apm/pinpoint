@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.web.scatter.dao;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
-import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import com.navercorp.pinpoint.web.scatter.vo.DotMetaData;
+import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 
 import java.util.List;
 
@@ -33,7 +33,7 @@ public interface ApplicationTraceIndexDao {
 
     boolean hasTraceIndex(String applicationName, Range range, boolean backwardDirection);
 
-    LimitedScanResult<List<TransactionId>> scanTraceIndex(String applicationName, Range range, int limit, boolean backwardDirection);
+    LimitedScanResult<List<ServerTraceId>> scanTraceIndex(String applicationName, Range range, int limit, boolean backwardDirection);
 
     LimitedScanResult<List<Dot>> scanTraceScatterData(String applicationName, Range range, int limit, boolean scanBackward);
 

@@ -17,11 +17,11 @@
 package com.navercorp.pinpoint.web.trace.dao.mapper;
 
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -36,7 +36,7 @@ import java.util.function.Predicate;
 @Component
 public class SpanMapperFactory {
 
-    private final RowKeyDecoder<TransactionId> rowKeyDecoder;
+    private final RowKeyDecoder<ServerTraceId> rowKeyDecoder;
 
     private final int stringCacheSize;
 
@@ -44,7 +44,7 @@ public class SpanMapperFactory {
 
     private final SpanDecoder spanDecoder = new SpanDecoderV0();
 
-    public SpanMapperFactory(@Qualifier("traceRowKeyDecoderV2") RowKeyDecoder<TransactionId> rowKeyDecoder,
+    public SpanMapperFactory(@Qualifier("traceRowKeyDecoderV2") RowKeyDecoder<ServerTraceId> rowKeyDecoder,
                              @Value("${web.hbase.mapper.cache.string.size:-1}") int stringCacheSize) {
         this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
         this.stringCacheSize = stringCacheSize;

@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.trace.span;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.trace.controller.TransactionController;
 
@@ -169,7 +169,7 @@ public class SpanFilters {
 
     // -----------------------
     // SpanQueryBuilder
-    public static Predicate<SpanBo> transactionIdFilter(TransactionId transactionId) {
+    public static Predicate<SpanBo> transactionIdFilter(ServerTraceId transactionId) {
         Objects.requireNonNull(transactionId, "transactionId");
         return new Predicate<>() {
             @Override

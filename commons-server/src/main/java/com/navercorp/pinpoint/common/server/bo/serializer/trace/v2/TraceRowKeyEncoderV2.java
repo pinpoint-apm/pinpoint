@@ -19,8 +19,9 @@ package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.hbase.wd.ByteHasher;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 
 import java.util.Objects;
@@ -28,7 +29,7 @@ import java.util.Objects;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class TraceRowKeyEncoderV2 implements RowKeyEncoder<TransactionId> {
+public class TraceRowKeyEncoderV2 implements RowKeyEncoder<ServerTraceId> {
 
     public static final int AGENT_ID_MAX_LEN = PinpointConstants.AGENT_ID_MAX_LEN;
     public static final int OPENTELEMETRY_TRACE_ID_LEN = PinpointConstants.OPENTELEMETRY_TRACE_ID_LEN;
@@ -40,20 +41,22 @@ public class TraceRowKeyEncoderV2 implements RowKeyEncoder<TransactionId> {
         this.byteHasher = rowKeyDistributor.getByteHasher();
     }
 
-    public byte[] encodeRowKey(TransactionId transactionId) {
+    public byte[] encodeRowKey(ServerTraceId transactionId) {
         return encodeRowKey(byteHasher.getSaltKey().size(), transactionId);
     }
 
     @Override
-    public byte[] encodeRowKey(int saltKeySize, TransactionId transactionId) {
-        Objects.requireNonNull(transactionId, "transactionId");
-
-        final String agentId = transactionId.getAgentId();
+    public byte[] encodeRowKey(int saltKeySize, ServerTraceId serverTraceId) {
+        Objects.requireNonNull(serverTraceId, "serverTraceId");
+        if (!(serverTraceId instanceof PinpointServerTraceId pTraceId)) {
+            throw new RuntimeException("invalid serverTraceId");
+        }
+        final String agentId = pTraceId.getAgentId();
         int maxStringSize = AGENT_ID_MAX_LEN;
         if(agentId.length() == OPENTELEMETRY_TRACE_ID_LEN) {
             maxStringSize = OPENTELEMETRY_TRACE_ID_LEN;
         }
-        byte[] rowKey = RowKeyUtils.stringLongLongToBytes(saltKeySize, agentId, maxStringSize, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
+        byte[] rowKey = RowKeyUtils.stringLongLongToBytes(saltKeySize, agentId, maxStringSize, pTraceId.getAgentStartTime(), pTraceId.getTransactionSequence());
         if (saltKeySize == 0) {
             return rowKey;
         }

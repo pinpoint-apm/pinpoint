@@ -16,14 +16,14 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.scatter.ScatterDataBuilder;
-import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.scatter.vo.ApplicationScatterScanResult;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
 import com.navercorp.pinpoint.web.scatter.vo.ScatterScanResult;
+import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -59,7 +59,7 @@ public class DotExtractor {
     public Dot newDot(SpanBo span) {
         Objects.requireNonNull(span, "span");
 
-        final TransactionId transactionId = span.getTransactionId();
+        final ServerTraceId transactionId = span.getTransactionId();
         return new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
     }
 

@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
 import com.navercorp.pinpoint.common.buffer.StringAllocator;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -27,14 +27,14 @@ import java.util.Objects;
  */
 public class SpanDecodingContext {
 
-    private final TransactionId transactionId;
+    private final ServerTraceId transactionId;
 
     //    private AnnotationBo prevAnnotationBo;
     private long collectorAcceptedTime;
 
     private StringAllocator stringAllocator = StringAllocator.DEFAULT_ALLOCATOR;
 
-    public SpanDecodingContext(TransactionId transactionId) {
+    public SpanDecodingContext(ServerTraceId transactionId) {
         this.transactionId = Objects.requireNonNull(transactionId, "transactionId");
     }
 
@@ -54,7 +54,7 @@ public class SpanDecodingContext {
         return collectorAcceptedTime;
     }
 
-    public TransactionId getTransactionId() {
+    public ServerTraceId getTransactionId() {
         return transactionId;
     }
 

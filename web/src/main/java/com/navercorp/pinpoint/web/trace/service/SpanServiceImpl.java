@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
 import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlNormalizer;
 import com.navercorp.pinpoint.common.profiler.sql.OutputParameterParser;
 import com.navercorp.pinpoint.common.profiler.sql.SqlNormalizer;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.ExceptionInfo;
@@ -29,6 +28,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.SqlUidMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.server.util.AnnotationUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.OpenTelemetryServiceTypeCategory;
@@ -134,12 +134,12 @@ public class SpanServiceImpl implements SpanService {
     }
 
     @Override
-    public SpanResult selectSpan(TransactionId transactionId, Predicate<SpanBo> filter) {
+    public SpanResult selectSpan(ServerTraceId transactionId, Predicate<SpanBo> filter) {
         return selectSpan(transactionId, filter, ColumnGetCount.UNLIMITED_COLUMN_GET_COUNT);
     }
 
     @Override
-    public SpanResult selectSpan(TransactionId transactionId, Predicate<SpanBo> filter, ColumnGetCount columnGetCount) {
+    public SpanResult selectSpan(ServerTraceId transactionId, Predicate<SpanBo> filter, ColumnGetCount columnGetCount) {
         Objects.requireNonNull(transactionId, "transactionId");
         Objects.requireNonNull(filter, "filter");
         Objects.requireNonNull(columnGetCount, "columnGetCount");

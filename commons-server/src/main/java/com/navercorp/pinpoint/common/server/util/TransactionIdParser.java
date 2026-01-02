@@ -6,6 +6,8 @@ import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
+import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 
 import java.util.Arrays;
@@ -45,11 +47,29 @@ public class TransactionIdParser {
         if (agentId == null) {
             agentId = agentIdSupplier.get();
         }
+        return getVarTransactionId(agentId, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
+    }
+
+    public static byte[] getVarTransactionId(ServerTraceId serverTraceId, Supplier<String> agentIdSupplier) {
+        Objects.requireNonNull(serverTraceId, "serverTraceId");
+
+        if (!(serverTraceId instanceof PinpointServerTraceId pinpointServerTraceId)) {
+            throw new IllegalArgumentException("unsupported ServerTraceId type:" + serverTraceId.getClass().getName());
+        }
+        String agentId = pinpointServerTraceId.getAgentId();
+        if (agentId == null) {
+            agentId = agentIdSupplier.get();
+        }
+        return getVarTransactionId(agentId, pinpointServerTraceId.getAgentStartTime(), pinpointServerTraceId.getTransactionSequence());
+    }
+
+    public static byte[] getVarTransactionId(String agentId, long agentStartTime, long sequence) {
+        Objects.requireNonNull(agentId, "agentId");
 
         final Buffer buffer = new AutomaticBuffer(32);
         buffer.putPrefixedString(agentId);
-        buffer.putSVLong(transactionId.getAgentStartTime());
-        buffer.putVLong(transactionId.getTransactionSequence());
+        buffer.putSVLong(agentStartTime);
+        buffer.putVLong(sequence);
         return buffer.getBuffer();
     }
 
@@ -64,6 +84,16 @@ public class TransactionIdParser {
         buffer.putPrefixedString(transactionId.getAgentId());
         buffer.putSVLong(transactionId.getAgentStartTime());
         buffer.putVLong(transactionId.getTransactionSequence());
+    }
+
+    public static void writeTransactionIdV1(Buffer buffer, ServerTraceId transactionId) {
+        if (transactionId instanceof PinpointServerTraceId pinpointServerTraceId) {
+            buffer.putPrefixedString(pinpointServerTraceId.getAgentId());
+            buffer.putSVLong(pinpointServerTraceId.getAgentStartTime());
+            buffer.putVLong(pinpointServerTraceId.getTransactionSequence());
+        } else {
+            throw new IllegalArgumentException("unsupported ServerTraceId type:" + transactionId.getClass().getName());
+        }
     }
 
     public static TransactionId readTransactionIdV1(Buffer buffer) {
