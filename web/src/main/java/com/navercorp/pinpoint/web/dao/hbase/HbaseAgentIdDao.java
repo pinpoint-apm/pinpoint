@@ -90,11 +90,16 @@ public class HbaseAgentIdDao implements AgentIdDao {
     }
 
     @Override
-    public void insert(ServiceUid serviceUid, String applicationName, int serviceTypeCode, String agentId) {
+    public void insert(ServiceUid serviceUid, String applicationName, int serviceTypeCode, List<String> agentIdList) {
+        if (CollectionUtils.isEmpty(agentIdList)) {
+            return;
+        }
         byte[] rowKey = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
-        byte[] qualifier = Bytes.toBytes(agentId);
         final Put put = new Put(rowKey, true);
-        put.addColumn(DESCRIPTOR.getName(), qualifier, NON_EMPTY_VALUE);
+        for (String agentId : agentIdList) {
+            byte[] qualifier = Bytes.toBytes(agentId);
+            put.addColumn(DESCRIPTOR.getName(), qualifier, NON_EMPTY_VALUE);
+        }
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         hbaseTemplate.put(applicationIndexTableName, put);

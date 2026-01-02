@@ -37,23 +37,11 @@ public class ApplicationIndexV2CopyServiceImpl implements ApplicationIndexV2Copy
         List<Application> applications = this.applicationIndexDao.selectAllApplicationNames();
         stopWatch.stop();
 
-        List<Application> beforeInsert = List.of();
-        if (logger.isInfoEnabled()) {
-            beforeInsert = applicationDao.getApplications(ServiceUid.DEFAULT);
-        }
-
         stopWatch.start("Insert all applicationNames to v2");
         for (Application application : applications) {
             applicationDao.insert(ServiceUid.DEFAULT, application.getName(), application.getServiceTypeCode());
         }
         stopWatch.stop();
-
-        if (logger.isDebugEnabled()) {
-            stopWatch.start("Select all applicationNames from v2");
-            List<Application> afterInsert = applicationDao.getApplications(ServiceUid.DEFAULT);
-            stopWatch.stop();
-            logger.debug("Copy applications total:{}, time taken: {} ms, before:{} after: {}", applications.size(), stopWatch.getTotalTimeMillis(), beforeInsert.size(), afterInsert.size());
-        }
         logger.info(stopWatch.prettyPrint());
     }
 
@@ -61,13 +49,15 @@ public class ApplicationIndexV2CopyServiceImpl implements ApplicationIndexV2Copy
     public void copyAgentId() {
         StopWatch stopWatch = new StopWatch("copyAgentId");
         stopWatch.start("Select all applicationNames from v1");
-        List<Application> ApplicationNameList = applicationDao.getApplications(ServiceUid.DEFAULT);
+        List<Application> applications = this.applicationIndexDao.selectAllApplicationNames();
         stopWatch.stop();
         stopWatch.start("Insert Each application agentIds from v1 to v2");
-        for (Application application : ApplicationNameList) {
+        for (Application application : applications) {
             List<String> agentIds = applicationIndexDao.selectAgentIds(application.getName(), application.getServiceTypeCode());
-            for (String agentId : agentIds) {
-                agentIdDao.insert(ServiceUid.DEFAULT, application.getName(), application.getServiceTypeCode(), agentId);
+            for (int i = 0; i < agentIds.size(); i += 100) {
+                int end = Math.min(i + 100, agentIds.size());
+                List<String> agentIdBatch = agentIds.subList(i, end);
+                agentIdDao.insert(ServiceUid.DEFAULT, application.getName(), application.getServiceTypeCode(), agentIdBatch);
             }
         }
         stopWatch.stop();

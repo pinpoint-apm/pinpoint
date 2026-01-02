@@ -13,5 +13,5 @@ public interface AgentIdDao {
 
     void deleteAgents(ServiceUid serviceUid, String applicationName, int serviceTypeCode, List<String> agentIdList);
 
-    void insert(ServiceUid serviceUid, String applicationName, int serviceTypeCode, String agentId);
+    void insert(ServiceUid serviceUid, String applicationName, int serviceTypeCode, List<String> agentIdList);
 }
