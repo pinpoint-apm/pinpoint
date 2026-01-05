@@ -27,7 +27,7 @@
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
     "color": "^4.2.3",
-    "html2canvas": "^1.4.1",
+    "html-to-image": "^1.11.11",
     "lodash.clonedeep": "^4.5.0",
     "lodash.merge": "^4.6.2"
   },

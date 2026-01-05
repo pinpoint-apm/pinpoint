@@ -21,3 +21,41 @@
   display: inline-block;
   margin-right: 3px;
 }
+
+.capture-mode input[type="checkbox"] {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin: 0;
+  margin-left: 2px;
+  margin-top: 8px;
+  padding: 0;
+  border: 1px solid #d1d5db;
+  border-radius: 2px;
+  background-color: transparent;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  position: relative;
+  vertical-align: baseline;
+}
+
+.capture-mode input[type="checkbox"]:checked {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.capture-mode input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 11px;
+  height: 11px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z' fill='white' stroke='white' stroke-width='1' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
