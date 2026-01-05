@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.trace.view;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.web.trace.callstacks.Record;
 import com.navercorp.pinpoint.web.trace.callstacks.RecordSet;
@@ -34,15 +33,15 @@ import java.util.Map;
 import java.util.Objects;
 
 public class TransactionCallTreeViewModel {
-    private final TransactionId transactionId;
+    private final String traceId;
     private final long spanId;
     private final RecordSet recordSet;
     private final TraceState.State completeState;
 
     private final LogLinkView logLinkView;
 
-    public TransactionCallTreeViewModel(TransactionId transactionId, long spanId, RecordSet recordSet, TraceState.State state, LogLinkView logLinkView) {
-        this.transactionId = transactionId;
+    public TransactionCallTreeViewModel(String traceId, long spanId, RecordSet recordSet, TraceState.State state, LogLinkView logLinkView) {
+        this.traceId = traceId;
         this.spanId = spanId;
 
         this.recordSet = recordSet;
@@ -57,7 +56,7 @@ public class TransactionCallTreeViewModel {
 
     @JsonProperty("transactionId")
     public String getTransactionId() {
-        return transactionId.toString();
+        return traceId;
     }
 
     @JsonProperty("spanId")

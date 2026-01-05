@@ -16,18 +16,17 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.applicationmap.MapView;
 
 import java.util.Objects;
 
 public class TransactionServerMapViewModel {
 
-    private final TransactionId transactionId;
+    private final String transactionId;
     private final long spanId;
     private final MapView mapView;
 
-    public TransactionServerMapViewModel(TransactionId transactionId, long spanId,
+    public TransactionServerMapViewModel(String transactionId, long spanId,
                                          MapView mapView) {
         this.transactionId = transactionId;
         this.spanId = spanId;
@@ -36,7 +35,7 @@ public class TransactionServerMapViewModel {
 
     @JsonProperty("transactionId")
     public String getTransactionId() {
-        return transactionId.toString();
+        return transactionId;
     }
 
     @JsonProperty("spanId")
