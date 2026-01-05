@@ -113,9 +113,10 @@ public class TransactionController {
         final SpanResult spanResult = this.spanService.selectSpan(transactionId, spanMatchFilter, columnGetCount);
         final CallTreeIterator callTreeIterator = spanResult.callTree();
         final RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
-        final LogLinkView logLinkView = logLinkBuilder.build(transactionId, spanId, recordSet.getApplicationName(), recordSet.getStartTime());
 
-        return new TransactionCallTreeViewModel(transactionId, spanId, recordSet, spanResult.traceState(), logLinkView);
+        final String traceIdStr = transactionId.toString();
+        final LogLinkView logLinkView = logLinkBuilder.build(traceIdStr, spanId, recordSet.getApplicationName(), recordSet.getStartTime());
+        return new TransactionCallTreeViewModel(traceIdStr, spanId, recordSet, spanResult.traceState(), logLinkView);
     }
 
 
@@ -169,7 +170,7 @@ public class TransactionController {
         final ApplicationMap map = filteredMapService.selectApplicationMap(option);
         MapView mapView = getApplicationMap(map);
 
-        return new TransactionServerMapViewModel(transactionId, spanId, mapView);
+        return new TransactionServerMapViewModel(transactionId.toString(), spanId, mapView);
     }
 
     private MapView getApplicationMap(ApplicationMap map) {
