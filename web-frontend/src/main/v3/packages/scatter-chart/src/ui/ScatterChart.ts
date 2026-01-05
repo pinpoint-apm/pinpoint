@@ -1,6 +1,6 @@
 import merge from 'lodash.merge';
 import Color from 'color';
-import html2canvas from 'html2canvas';
+import { toPng } from 'html-to-image';
 
 import {
   AxisOption,
@@ -291,7 +291,7 @@ export class ScatterChart {
 
   private setLegends() {
     if (!this.options.legend.hidden) {
-      this.legend = new Legend(this.rootContainer, {
+      this.legend = new Legend(this.viewport.containerElement, {
         dataStyleMap: this.dataStyleMap,
         legendOptions: this.options!.legend!,
       });
@@ -566,17 +566,20 @@ export class ScatterChart {
   }
 
   public async toBase64Image() {
-    const layer = new Layer({ width: this.width, height: this.height });
-    const containerCanvas = await html2canvas(document.querySelector(`.${Viewport.VIEW_CONTAINER_CLASS}`)!);
-    const legendCanvas = await html2canvas(document.querySelector(`.${Legend.LEGEND_CONTAINER_CLASS}`)!);
+    const container = document.querySelector(`.${Viewport.VIEW_CONTAINER_CLASS}`) as HTMLElement;
 
-    layer.setSize(containerCanvas.width, containerCanvas.height + legendCanvas.height);
-    layer.context.drawImage(containerCanvas, 0, 0);
-    layer.context.drawImage(legendCanvas, 0, containerCanvas.height);
+    try {
+      container.classList.add('capture-mode');
 
-    const image = layer.canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+      const image = await toPng(container, {
+        backgroundColor: container.style.backgroundColor || '#ffffff',
+        cacheBust: true,
+      });
 
-    return image;
+      return image;
+    } finally {
+      container.classList.remove('capture-mode');
+    }
   }
 
   public startRealtime(duration: number) {

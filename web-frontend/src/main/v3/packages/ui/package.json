@@ -69,6 +69,7 @@
     "fuse.js": "^7.0.0",
     "google-libphonenumber": "^3.2.34",
     "highlight.js": "^11.9.0",
+    "html-to-image": "^1.11.11",
     "lodash": "^4.17.21",
     "lodash.clonedeep": "^4.5.0",
     "lodash.omit": "^4.5.0",

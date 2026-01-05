@@ -1,5 +1,5 @@
 import React from 'react';
-import html2canvas from 'html2canvas';
+import { toPng } from 'html-to-image';
 import {
   APP_SETTING_KEYS,
   BASE_PATH,
@@ -48,7 +48,7 @@ const HeatmapChartCore = ({
 }: HeatmapChartCoreProps) => {
   const chartContainerRef = React.useRef<HTMLDivElement>(null);
 
-  const { dateRange, searchParameters, application } = useServerMapSearchParameters();
+  const { dateRange, searchParameters } = useServerMapSearchParameters();
   const [showSetting, setShowSetting] = React.useState(false);
   const [isCapturingImage, setIsCapturingImage] = React.useState(false);
 
@@ -83,8 +83,10 @@ const HeatmapChartCore = ({
     const currentNode = `${nodeData?.applicationName}^${nodeData?.serviceType}`;
     const fileName = `Pinpoint_Heatmap_Chart__${(agentId ? agentId : currentNode) || ''}.png`;
 
-    const canvas = await html2canvas(chartContainerRef.current);
-    const image = canvas.toDataURL('image/png');
+    const image = await toPng(chartContainerRef.current, {
+      backgroundColor: chartContainerRef.current.style.backgroundColor || '#ffffff',
+      cacheBust: true,
+    });
 
     const link = document.createElement('a');
     link.href = image;
