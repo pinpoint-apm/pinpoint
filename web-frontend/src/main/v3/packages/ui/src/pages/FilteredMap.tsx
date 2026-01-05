@@ -235,7 +235,7 @@ export const FilteredMapPage = ({
           className="relative flex-1 h-full overflow-x-hidden"
           ref={containerRef}
         >
-          <LayoutWithHorizontalResizable disabled={true}>
+          <LayoutWithHorizontalResizable>
             <div className="relative flex flex-col w-full h-full gap-4">
               {application && (
                 <>
