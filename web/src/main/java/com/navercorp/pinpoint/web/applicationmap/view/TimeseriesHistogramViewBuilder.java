@@ -64,7 +64,7 @@ public class TimeseriesHistogramViewBuilder {
         long[] result = new long[size];
         for (int i = 0; i < size; i++) {
             TimeHistogram timeHistogram = histogramList.get(i);
-            result[i++] = function.applyAsLong(timeHistogram);
+            result[i] = function.applyAsLong(timeHistogram);
         }
         return LongLists.mutable.of(result);
     }
