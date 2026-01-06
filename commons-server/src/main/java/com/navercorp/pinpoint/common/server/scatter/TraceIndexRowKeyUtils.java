@@ -41,11 +41,12 @@ public class TraceIndexRowKeyUtils {
 
     public static byte[] createScanRowKey(int serviceUid, String applicationName, int serviceTypeCode, long timestamp) {
         long reverseTimestamp = LongInverter.invert(timestamp);
-        Buffer buffer = new FixedBuffer(4 + 4 + 4 + 8);
+        Buffer buffer = new FixedBuffer(4 + 4 + 4 + 8 + 12); // pad 12 bytes to Prevent ArrayIndexOutOfBoundsException
         buffer.putInt(toApplicationNameHash(applicationName));
         buffer.putInt(serviceUid);
         buffer.putInt(serviceTypeCode);
         buffer.putLong(reverseTimestamp);
+        buffer.putPadBytes(null, 12);
         return buffer.getBuffer();
     }
 
