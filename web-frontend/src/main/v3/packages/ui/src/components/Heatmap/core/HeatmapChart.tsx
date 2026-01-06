@@ -223,7 +223,7 @@ const HeatmapChart = ({
           orient: 'horizontal',
           itemWidth: 12,
           right: '48%',
-          bottom: '0%',
+          bottom: '-2%',
           hoverLink: false,
           formatter: (value: any) => {
             const visualMaps = chartInstanceRef.current?.getOption()?.visualMap || [];
@@ -248,7 +248,7 @@ const HeatmapChart = ({
           orient: 'horizontal',
           itemWidth: 12,
           left: '56%',
-          bottom: '0%',
+          bottom: '-2%',
           hoverLink: false,
           formatter: (value: any) => {
             const visualMaps = chartInstanceRef.current?.getOption()?.visualMap || [];
