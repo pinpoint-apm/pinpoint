@@ -3,13 +3,12 @@ package com.navercorp.pinpoint.collector.sampler;
 import com.navercorp.pinpoint.common.util.Assert;
 
 import java.util.Objects;
-import java.util.function.ToLongFunction;
 
 public class ModSampler<T> implements Sampler<T> {
     private final long divisor;
-    private final ToLongFunction<T> function;
+    private final SamplingFunction<T> function;
 
-    public ModSampler(long samplingRate, ToLongFunction<T> function) {
+    public ModSampler(long samplingRate, SamplingFunction<T> function) {
         Assert.isTrue(samplingRate > 0, "must be `samplingRate > 0`");
         this.divisor = samplingRate;
         this.function = Objects.requireNonNull(function, "function");
@@ -17,7 +16,7 @@ public class ModSampler<T> implements Sampler<T> {
 
     @Override
     public boolean isSampling(T target) {
-        long dividend = function.applyAsLong(target) % divisor;
+        long dividend = function.sample(target) % divisor;
         return (dividend == 0);
     }
 }
