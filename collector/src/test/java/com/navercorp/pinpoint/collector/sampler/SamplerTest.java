@@ -2,14 +2,12 @@ package com.navercorp.pinpoint.collector.sampler;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.function.ToLongFunction;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 public class SamplerTest {
 
-    ToLongFunction<Long> identityFunction = (num -> num);
+    SamplingFunction<Long> identityFunction = (num -> num);
 
     @Test
     public void falseSamplerTest() {
