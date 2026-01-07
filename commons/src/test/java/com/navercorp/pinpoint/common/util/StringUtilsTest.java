@@ -309,4 +309,10 @@ public class StringUtilsTest {
     public void toStringAndRightTrimToEmpty() {
         Assertions.assertEquals("", StringUtils.rightTrimToEmpty(null));
     }
+
+    @Test
+    public void replace() {
+        Assertions.assertEquals("1bc", StringUtils.replace("abc", "a", "1"));
+        Assertions.assertEquals("abc", StringUtils.replace("abc", "z", "1"));
+    }
 }
