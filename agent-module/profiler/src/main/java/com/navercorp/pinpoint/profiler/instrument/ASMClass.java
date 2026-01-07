@@ -84,7 +84,7 @@ public class ASMClass implements InstrumentClass {
 
     @Override
     public boolean isInterceptable() {
-        if (isAnnotation() || isModified()) {
+        if (isAnnotation() || isModified() || isRecord()) {
             return false;
         }
         // interface static method or default method is java 1.8 or later
@@ -628,6 +628,10 @@ public class ASMClass implements InstrumentClass {
 
     void setModified(boolean modified) {
         this.modified = modified;
+    }
+
+    public boolean isRecord() {
+        return classNode.isRecord();
     }
 
     @Override
