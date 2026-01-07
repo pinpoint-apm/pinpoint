@@ -1,11 +1,14 @@
-import 'billboard.js/dist/billboard.css';
 import React from 'react';
-import bb, { bar, ChartOptions, DataItem } from 'billboard.js';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import BillboardJS, { IChart } from '@billboard.js/react';
-import { abbreviateNumber, addCommas, getMaxTickValue } from '@pinpoint-fe/ui/src/utils';
+import { abbreviateNumber, addCommas } from '@pinpoint-fe/ui/src/utils';
 import { HelpPopover } from '../../../components/HelpPopover';
+import * as echarts from 'echarts/core';
+import { BarChart as BarChartEcharts } from 'echarts/charts';
+import { AxisBreak } from 'echarts/features';
+import { GridComponent } from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+import { cn } from '../../../lib';
+
+echarts.use([BarChartEcharts, AxisBreak, GridComponent, CanvasRenderer]);
 
 export interface ResponseSummaryChartProps {
   /**
@@ -25,103 +28,168 @@ export const ResponseSummaryChart = ({
   colors = ['#34b994', '#51afdf', '#ffba00', '#e67f22', '#e95459'],
   className,
   title,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   emptyMessage = 'No Data',
 }: ResponseSummaryChartProps) => {
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  const chartComponent = React.useRef<IChart>(null);
-  const chartData = typeof data === 'function' ? data(categories) : data || [];
+  const chartRef = React.useRef(null);
+  const chartInstanceRef = React.useRef<echarts.EChartsType | null>(null);
+  const chartData = React.useMemo(
+    () => (typeof data === 'function' ? data(categories) : data || []),
+    [data, categories],
+  );
 
-  React.useEffect(() => {
-    const chart = chartComponent.current?.instance;
+  // chartData 기반으로 break 설정 계산
+  const breakConfig = React.useMemo(() => {
+    if (!chartData || chartData.length === 0) return [];
 
-    chart?.config('axis.x.categories', categories);
-    chart?.config('axis.y.max', getMaxTickValue([chartData]));
-    chart?.config('data.color', getColors());
+    const nonZeroValues = chartData.filter((v) => v > 0);
+    if (nonZeroValues.length === 0) return [];
 
-    if (chartData.length > 0) {
-      chart?.load({ columns: getColumns() });
-    } else {
-      chart?.unload();
+    const uniqueValues = Array.from(new Set(nonZeroValues)).sort((a, b) => a - b); // 중복 제거 및 정렬
+    if (uniqueValues.length < 2) return [];
+
+    const minValue = Math.min(...uniqueValues);
+    const buffer = Math.ceil(minValue / 10) * 10;
+
+    const breaks = [];
+    const GAP_RATIO = 5; // 인접한 값들 사이의 비율이 이 값보다 크면 break 생성
+
+    for (let i = 0; i < uniqueValues.length - 1; i++) {
+      const currentValue = uniqueValues[i];
+      const nextValue = uniqueValues[i + 1];
+      const ratio = nextValue / currentValue;
+
+      // 비율이 임계값보다 크면 break 생성
+      if (ratio >= GAP_RATIO) {
+        const breakStart = currentValue + buffer;
+        const breakEnd = nextValue - buffer;
+
+        if (breakStart < breakEnd) {
+          breaks.push({
+            start: breakStart,
+            end: breakEnd,
+            gap: '5%',
+          });
+        }
+      }
     }
-  }, [chartData, categories, colors]);
 
-  const getColumns = () => {
-    return [['data', ...chartData]];
-  };
+    return breaks;
+  }, [chartData]);
 
-  const getColors = (): ((color: string, d: DataItem<number>) => string) => {
-    return (defaultColor, { index }) => colors[index!] || defaultColor;
-  };
+  // 차트 초기화
+  React.useEffect(() => {
+    if (!chartRef.current) return;
 
-  const getInitialOptions = (): ChartOptions => {
-    return {
-      data: {
-        columns: getColumns(),
-        labels: {
-          // colors: window?.getComputedStyle?.(document.body).getPropertyValue('--text-primary'),
-          format: (v: number) => addCommas(v.toString()),
-        },
-        empty: {
-          label: {
-            text: emptyMessage,
-          },
-        },
-        color: getColors(),
-        // color: (_, {index}: DataItem): string => this.chartColors[index],
-        type: bar(),
-      },
-      padding: {
-        mode: 'fit',
-        top: 20,
-      },
-      legend: {
-        show: false,
-      },
-      axis: {
-        x: {
-          type: 'category',
-          categories: categories,
-        },
-        y: {
-          tick: {
-            count: 3,
-            format: (v: number): string => abbreviateNumber(v, ['', 'K', 'M', 'G']),
-          },
-          padding: {
-            top: 0,
-            bottom: 0,
-          },
-          min: 0,
-          max: getMaxTickValue([chartData]),
-          default: [0, 10],
-        },
-      },
+    const chart = echarts.init(chartRef.current);
+    chartInstanceRef.current = chart;
+
+    // chart resize
+    const wrapperElement = chartRef.current;
+    if (!wrapperElement) return;
+    const resizeObserver = new ResizeObserver(() => {
+      chart.resize();
+    });
+    resizeObserver.observe(wrapperElement);
+
+    return () => {
+      resizeObserver.disconnect();
+      chart.dispose();
+    };
+  }, []);
+
+  // data 변경 시 업데이트
+  React.useEffect(() => {
+    if (!chartInstanceRef.current) return;
+
+    chartInstanceRef.current.setOption({
       grid: {
-        y: {
+        top: 20,
+        bottom: 0,
+        right: 0,
+        left: 0,
+      },
+      xAxis: {
+        type: 'category',
+        data: categories,
+        axisTick: {
           show: true,
         },
       },
-      tooltip: {
-        show: false,
+      yAxis: {
+        type: 'value',
+        min: 0,
+        axisLine: {
+          show: true,
+        },
+        showMaxLabel: true,
+        axisTick: {
+          show: true,
+        },
+        breaks: breakConfig,
+        breakArea: {
+          expandOnClick: false,
+        },
+        breakLabelLayout: {
+          moveOverlap: true,
+        },
+        splitNumber: 2,
+        axisLabel: {
+          formatter: (value: number): string => abbreviateNumber(value, ['', 'K', 'M', 'G']),
+        },
+        splitLine: {
+          lineStyle: {
+            type: 'dashed',
+          },
+        },
       },
-      resize: {
-        auto: 'parent',
-      },
-    };
-  };
+      series: [
+        {
+          data: chartData,
+          type: 'bar',
+          itemStyle: {
+            color: (params: { dataIndex: number }) => {
+              return colors[params.dataIndex];
+            },
+          },
+          label: {
+            show: true,
+            position: 'top',
+            offset: [0, 5],
+            formatter: (params: { value: number }) => {
+              return addCommas(params.value);
+            },
+            fontSize: 10,
+            color: 'inherit',
+          },
+        },
+      ],
+      graphic:
+        chartData.length === 0
+          ? [
+              {
+                type: 'text',
+                left: 'center',
+                top: 'middle',
+                style: {
+                  text: emptyMessage,
+                  fontSize: 14,
+                  fill: '#999',
+                  textAlign: 'center',
+                },
+              },
+            ]
+          : [],
+    });
+  }, [categories, chartData, colors, breakConfig]);
 
   return (
-    <div className="w-full h-full" ref={containerRef}>
+    <div className="w-full h-full">
       <div className="flex gap-1">
         {title}
         <HelpPopover helpKey="HELP_VIEWER.RESPONSE_SUMMARY" />
       </div>
-      <BillboardJS
-        bb={bb}
-        ref={chartComponent}
-        className={className}
-        options={getInitialOptions()}
-      />
+      <div className={cn('w-full h-40', className)} ref={chartRef}></div>
     </div>
   );
 };
