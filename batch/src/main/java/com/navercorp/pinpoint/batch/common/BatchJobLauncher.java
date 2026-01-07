@@ -77,14 +77,6 @@ public class BatchJobLauncher extends JobLaunchSupport {
         }
     }
 
-    public void cleanupInactiveAgentsJob() {
-        if (batchProperties.isCleanupInactiveAgentsJobEnable()) {
-            run("cleanupInactiveAgentsJob", createTimeParameter());
-        } else {
-            logger.debug("Skip cleanupInactiveAgentsJob, because 'enableCleanupInactiveAgentsJob' is disabled.");
-        }
-    }
-
     public void cleanupInactiveApplicationsJob() {
         if (batchProperties.isCleanupInactiveApplicationsJobEnable()) {
             run("cleanupInactiveApplicationsJob", createTimeParameter());
