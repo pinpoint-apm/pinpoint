@@ -336,7 +336,7 @@ public final class StringUtils {
             }
             end = text.indexOf(searchString, start);
         }
-        buf.append(text.substring(start));
+        buf.append(text, start, text.length());
         return buf.toString();
     }
 }
