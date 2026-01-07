@@ -53,7 +53,6 @@ import java.util.List;
         "classpath:applicationContext-batch-web-component.xml",
 
         "classpath:job/applicationContext-agentCountJob.xml",
-        "classpath:job/applicationContext-cleanupInactiveAgentsJob.xml"
 })
 @Import({
         TransactionAutoConfiguration.class,

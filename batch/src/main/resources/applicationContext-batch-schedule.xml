@@ -10,7 +10,6 @@
     <task:scheduled-tasks scheduler="scheduler">
         <task:scheduled ref="batchJobLauncher" method="alarmJob" cron="#{batchProperties['alarmJobCron']}"/>
         <task:scheduled ref="batchJobLauncher" method="agentCountJob" cron="#{batchProperties['agentCountJobCron']}"/>
-        <task:scheduled ref="batchJobLauncher" method="cleanupInactiveAgentsJob" cron="#{batchProperties['cleanupInactiveAgentsJobCron']}"/>
         <task:scheduled ref="batchJobLauncher" method="cleanupInactiveApplicationsJob" cron="#{batchProperties['cleanupInactiveApplicationsJobCron']}"/>
         <task:scheduled ref="batchJobLauncher" method="uriStatAlarmJob" cron="#{batchProperties['uriStatAlarmJobCron']}"/>
     </task:scheduled-tasks>

@@ -58,12 +58,6 @@ public class BatchProperties {
     @Value("${job.agent.count.cron}")
     private String agentCountJobCron;
 
-    @Value("${job.cleanup.inactive.agents.enable:true}")
-    private boolean cleanupInactiveAgentsJobEnable;
-
-    @Value("${job.cleanup.inactive.agents.cron}")
-    private String cleanupInactiveAgentsJobCron;
-
     @Value("${job.alarm.uristat.enable:true}")
     private boolean uriStatAlarmJobEnable;
 
@@ -86,7 +80,7 @@ public class BatchProperties {
         beforeLog();
 
         if (cleanupInactiveAgentsDurationDays < MINIMUM_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS) {
-            throw new IllegalArgumentException("'cleanupInactiveAgentsDuration' must be 'cleanupInactiveAgentsDuration >= 30'");
+            throw new IllegalArgumentException("'cleanupInactiveAgentsDuration' must be >= " + MINIMUM_CLEANUP_INACTIVE_AGENTS_DURATION_DAYS);
         }
 
         afterLog();
@@ -108,16 +102,8 @@ public class BatchProperties {
         return batchEnv;
     }
 
-    public boolean isCleanupInactiveAgentsJobEnable() {
-        return cleanupInactiveAgentsJobEnable;
-    }
-
     public boolean isUriStatAlarmJobEnable() {
         return uriStatAlarmJobEnable;
-    }
-
-    public String getCleanupInactiveAgentsJobCron() {
-        return cleanupInactiveAgentsJobCron;
     }
 
     public boolean isAlarmJobEnable() {
@@ -175,8 +161,6 @@ public class BatchProperties {
                 ", agentInspectorStatTablePaddingLength=" + agentInspectorStatTablePaddingLength +
                 ", agentCountJobEnable=" + agentCountJobEnable +
                 ", agentCountJobCron='" + agentCountJobCron + '\'' +
-                ", cleanupInactiveAgentsJobEnable=" + cleanupInactiveAgentsJobEnable +
-                ", cleanupInactiveAgentsJobCron='" + cleanupInactiveAgentsJobCron + '\'' +
                 ", uriStatAlarmJobEnable=" + uriStatAlarmJobEnable +
                 ", uriStatAlarmJobCron='" + uriStatAlarmJobCron + '\'' +
                 ", cleanupInactiveAgentsDurationDays=" + cleanupInactiveAgentsDurationDays +
