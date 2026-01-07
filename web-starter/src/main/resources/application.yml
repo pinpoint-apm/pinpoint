@@ -92,6 +92,9 @@ pinpoint:
         enabled: true
     realtime:
       enabled: true
+    uid:
+      # v2: legacy table, v3: new table, dual : DualWrite for Data Migration
+      version: v3
 
 pinpoint.web.websocket:
   async-send-timeout:

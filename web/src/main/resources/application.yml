@@ -84,6 +84,9 @@ pinpoint:
       webhook: true
     realtime:
       enabled: false
+    uid:
+      # v2: legacy table, v3: new table, dual : DualWrite for Data Migration
+      version: v3
   web:
     agent-status:
       legacy-agent-support: true
