@@ -173,7 +173,8 @@ public class ApplicationAgentListServiceImpl implements ApplicationAgentListServ
         final List<AgentInfo> agentInfos = this.agentInfoDao.getSimpleAgentInfos(agentIds, toTimestamp);
         List<AgentInfo> result = new ArrayList<>(agentIds.size());
         for (int i = 0; i < agentIds.size(); i++) {
-            result.add(Objects.requireNonNullElse(agentInfos.get(i), createNotFoundAgentInfo(applicationName, serviceType, agentIds.get(i))));
+            String agentId = agentIds.get(i);
+            result.add(Objects.requireNonNullElseGet(agentInfos.get(i), () -> createNotFoundAgentInfo(applicationName, serviceType, agentId)));
         }
         return result;
     }

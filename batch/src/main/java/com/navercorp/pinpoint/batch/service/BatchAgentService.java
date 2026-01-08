@@ -32,6 +32,4 @@ public interface BatchAgentService {
 
     boolean isActive(Application agent, Range range);
 
-    void remove(String applicationName, String agentId);
-
 }

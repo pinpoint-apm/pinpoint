@@ -38,6 +38,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -112,6 +113,23 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
         Get get = new Get(rowKey);
         get.addFamily(DESCRIPTOR.getName());
         get.setFilter(new ValueFilter(CompareOperator.EQUAL, new BinaryComparator(serviceTypeCodeBytes)));
+
+        TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        return hbaseOperations.get(applicationIndexTableName, get, agentIdMapper);
+    }
+
+    @Override
+    public List<String> selectAgentIds(String applicationName, long maxTimestamp) {
+        Objects.requireNonNull(applicationName, "applicationName");
+        byte[] rowKey = Bytes.toBytes(applicationName);
+
+        Get get = new Get(rowKey);
+        get.addFamily(DESCRIPTOR.getName());
+        try {
+            get.setTimeRange(0L, maxTimestamp);
+        } catch (IOException exception) {
+            throw new IllegalArgumentException(exception);
+        }
 
         TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         return hbaseOperations.get(applicationIndexTableName, get, agentIdMapper);

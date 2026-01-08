@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.batch.service;
 
 import com.navercorp.pinpoint.web.vo.Application;
 
-import java.time.Duration;
 import java.util.List;
 
 /**
@@ -31,11 +30,11 @@ public interface BatchApplicationIndexService {
     @Deprecated
     List<String> selectAllApplicationNames();
 
-    boolean isActive(String applicationName, Duration duration);
-
     void remove(String applicationName);
 
     List<String> selectAgentIds(String applicationName);
 
-    void deleteAgentId(String applicationName, String agentId);
+    List<String> selectAgentIds(String applicationName, long maxTimestamp);
+
+    void deleteAgentIds(String applicationName, List<String> agentIds);
 }

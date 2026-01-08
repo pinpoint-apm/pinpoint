@@ -9,6 +9,8 @@ public interface AgentIdDao {
 
     List<String> getAgentIds(ServiceUid serviceUid, String applicationName);
 
+    List<String> getAgentIds(ServiceUid serviceUid, String applicationName, long maxTimestamp);
+
     void deleteAllAgents(ServiceUid serviceUid, String applicationName, int serviceTypeCode);
 
     void deleteAgents(ServiceUid serviceUid, String applicationName, int serviceTypeCode, List<String> agentIdList);
