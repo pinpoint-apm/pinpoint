@@ -127,9 +127,6 @@ export const ResponseSummaryChart = ({
           show: true,
         },
         breaks: breakConfig,
-        breakArea: {
-          expandOnClick: false,
-        },
         breakLabelLayout: {
           moveOverlap: true,
         },
