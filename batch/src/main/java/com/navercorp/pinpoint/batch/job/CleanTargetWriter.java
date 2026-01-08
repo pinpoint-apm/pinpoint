@@ -29,10 +29,10 @@ import java.util.List;
  */
 public class CleanTargetWriter implements ItemWriter<CleanTarget> {
 
-    private final ItemWriter<String> applicationRemover;
-    private final ItemWriter<String> agentRemover;
+    private final ItemWriter<CleanTarget.TypeApplication> applicationRemover;
+    private final ItemWriter<CleanTarget.TypeAgents> agentRemover;
 
-    public CleanTargetWriter(ItemWriter<String> applicationRemover, ItemWriter<String> agentRemover) {
+    public CleanTargetWriter(ItemWriter<CleanTarget.TypeApplication> applicationRemover, ItemWriter<CleanTarget.TypeAgents> agentRemover) {
         this.applicationRemover = applicationRemover;
         this.agentRemover = agentRemover;
     }
@@ -41,30 +41,31 @@ public class CleanTargetWriter implements ItemWriter<CleanTarget> {
     public void write(@Nonnull Chunk<? extends CleanTarget> chunks) throws Exception {
         List<? extends CleanTarget> items = chunks.getItems();
         if (this.applicationRemover != null) {
-            this.applicationRemover.write(new Chunk<>(getApplicationNames(items)));
+            this.applicationRemover.write(new Chunk<>(getTargetApplications(items)));
         }
 
         if (this.agentRemover != null) {
-            this.agentRemover.write(new Chunk<>(getAgents(items)));
+            this.agentRemover.write(new Chunk<>(getTargetAgents(items)));
         }
     }
 
-    private List<String> getAgents(List<? extends CleanTarget> items) {
-        return getIdsByType(items, CleanTarget.TYPE_AGENT);
-    }
-
-    private List<String> getApplicationNames(List<? extends CleanTarget> items) {
-        return getIdsByType(items, CleanTarget.TYPE_APPLICATION);
-    }
-
-    private List<String> getIdsByType(List<? extends CleanTarget> items, String type) {
-        List<String> applicationNames = new ArrayList<>(items.size());
+    private List<CleanTarget.TypeAgents> getTargetAgents(List<? extends CleanTarget> items) {
+        List<CleanTarget.TypeAgents> targets = new ArrayList<>();
         for (CleanTarget item : items) {
-            if (type.equals(item.getType())) {
-                applicationNames.add(item.getId());
+            if (item instanceof CleanTarget.TypeAgents agent) {
+                targets.add(agent);
             }
         }
-        return applicationNames;
+        return targets;
     }
 
+    private List<CleanTarget.TypeApplication> getTargetApplications(List<? extends CleanTarget> items) {
+        List<CleanTarget.TypeApplication> targets = new ArrayList<>();
+        for (CleanTarget item : items) {
+            if (item instanceof CleanTarget.TypeApplication application) {
+                targets.add(application);
+            }
+        }
+        return targets;
+    }
 }

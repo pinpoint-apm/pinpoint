@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.batch.job;
 
+import com.navercorp.pinpoint.batch.vo.CleanTarget;
 import jakarta.annotation.Nonnull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,6 +29,15 @@ public class EmptyItemWriter<T> implements ItemWriter<T> {
 
     @Override
     public void write(@Nonnull Chunk<? extends T> items) throws Exception {
-        logger.info("Write items: {}", items);
+        logger.info("EmptyItemWriter called. No items will be removed. chunk size: {}", items.size());
+        for (T item : items) {
+            if (item instanceof CleanTarget.TypeApplication application) {
+                logger.info("write application. applicationName: {}", application.applicationName());
+            } else if (item instanceof CleanTarget.TypeAgents agents) {
+                logger.info("write agents. applicationName: {}, agentIds: {}", agents.applicationName(), agents.agentIds());
+            } else {
+                logger.info("write item: {}", item);
+            }
+        }
     }
 }

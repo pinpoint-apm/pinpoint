@@ -13,40 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.navercorp.pinpoint.batch.vo;
 
-import java.util.Objects;
+import java.util.List;
 
-/**
- * @author youngjin.kim2
- */
-public class CleanTarget {
+public interface CleanTarget {
 
-    public static final String TYPE_APPLICATION = "application";
-    public static final String TYPE_AGENT = "agent";
-
-    private final String type;
-    private final String id;
-
-    public CleanTarget(String type, String id) {
-        this.type = Objects.requireNonNull(type, "type");
-        this.id = Objects.requireNonNull(id, "id");
+    record TypeAgents(String applicationName, List<String> agentIds) implements CleanTarget {
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    @Override
-    public String toString() {
-        return "CleanTarget{" +
-                "type='" + type + '\'' +
-                ", id='" + id + '\'' +
-                '}';
+    record TypeApplication(String applicationName) implements CleanTarget {
     }
 }

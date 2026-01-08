@@ -18,6 +18,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -51,6 +52,21 @@ public class HbaseAgentIdDao implements AgentIdDao {
     public List<String> getAgentIds(ServiceUid serviceUid, String applicationName) {
         byte[] rowKeyPrefix = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName);
         Scan scan = createScan(rowKeyPrefix);
+
+        final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        List<List<String>> results = hbaseTemplate.find(applicationIndexTableName, scan, agentIdMapper);
+        return ListListUtils.toList(results);
+    }
+
+    @Override
+    public List<String> getAgentIds(ServiceUid serviceUid, String applicationName, long maxTimestamp) {
+        byte[] rowKeyPrefix = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName);
+        Scan scan = createScan(rowKeyPrefix);
+        try {
+            scan.setTimeRange(0L, maxTimestamp);
+        } catch (IOException exception) {
+            throw new IllegalArgumentException(exception);
+        }
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         List<List<String>> results = hbaseTemplate.find(applicationIndexTableName, scan, agentIdMapper);

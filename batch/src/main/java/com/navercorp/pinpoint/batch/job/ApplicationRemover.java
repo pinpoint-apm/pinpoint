@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.batch.job;
 
 import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
+import com.navercorp.pinpoint.batch.vo.CleanTarget;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.batch.item.Chunk;
@@ -27,7 +28,7 @@ import java.util.Objects;
 /**
  * @author youngjin.kim2
  */
-public class ApplicationRemover implements ItemWriter<String> {
+public class ApplicationRemover implements ItemWriter<CleanTarget.TypeApplication> {
 
     private static final Logger logger = LogManager.getLogger(ApplicationRemover.class);
 
@@ -38,11 +39,14 @@ public class ApplicationRemover implements ItemWriter<String> {
     }
 
     @Override
-    public void write(Chunk<? extends String> applicationNames) throws Exception {
-        for (String applicationName : applicationNames) {
-            logger.info("Removing application: {}", applicationName);
-            this.batchApplicationIndexService.remove(applicationName);
-            logger.info("Removed application: {}", applicationName);
+    public void write(Chunk<? extends CleanTarget.TypeApplication> targets) throws Exception {
+        for (CleanTarget.TypeApplication target : targets) {
+            logger.info("Removing application: {}", target);
+            try {
+                this.batchApplicationIndexService.remove(target.applicationName());
+            } catch (Exception e) {
+                logger.error("Failed to remove application: {}", target, e);
+            }
         }
     }
 }

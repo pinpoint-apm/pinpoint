@@ -85,6 +85,7 @@ public class ApplicationReader implements ItemStreamReader<String> {
     private List<String> getAllApplications() {
         return this.batchApplicationIndexService.selectAllApplicationNames()
                 .stream()
+                .distinct()
                 .sorted()
                 .toList();
     }

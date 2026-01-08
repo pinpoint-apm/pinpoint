@@ -16,15 +16,15 @@
 
 package com.navercorp.pinpoint.batch.job;
 
-import com.navercorp.pinpoint.batch.service.BatchAgentService;
 import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
 import com.navercorp.pinpoint.batch.vo.CleanTarget;
-import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
 import jakarta.annotation.Nonnull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -38,16 +38,16 @@ public class ApplicationCleaningProcessor implements ItemProcessor<String, List<
 
     private static final Logger logger = LogManager.getLogger(ApplicationCleaningProcessor.class);
 
-    private final BatchAgentService agentService;
+    private final ActiveAgentValidator activeAgentValidator;
     private final BatchApplicationIndexService batchApplicationIndexService;
     private final Duration emptyDurationThreshold;
 
     public ApplicationCleaningProcessor(
-            BatchAgentService agentService,
+            ActiveAgentValidator activeAgentValidator,
             BatchApplicationIndexService batchApplicationIndexService,
-            Duration emptyDurationThreshold
+            @Value("${job.cleanup.inactive.applications.emptydurationthreshold:P35D}") Duration emptyDurationThreshold
     ) {
-        this.agentService = Objects.requireNonNull(agentService, "agentService");
+        this.activeAgentValidator = Objects.requireNonNull(activeAgentValidator, "activeAgentValidator");
         this.batchApplicationIndexService = Objects.requireNonNull(batchApplicationIndexService, "applicationService");
         this.emptyDurationThreshold = Objects.requireNonNull(emptyDurationThreshold, "emptyDurationThreshold");
     }
@@ -55,40 +55,48 @@ public class ApplicationCleaningProcessor implements ItemProcessor<String, List<
     @Override
     public List<CleanTarget> process(@Nonnull String applicationName) throws Exception {
         logger.info("Processing application: {}", applicationName);
-
+        boolean removeApplication = false;
         Range range = getRange();
-        List<String> agentIds = getAgents(applicationName);
-        List<CleanTarget> targets = new ArrayList<>(agentIds.size() + 1);
+        long timeBoundary = range.getFrom();
+        List<CleanTarget> targets = new ArrayList<>(2);
 
-        for (String agentId: agentIds) {
+        // Find inactive agent from old agents
+        List<String> oldAgentIds = getOldAgents(applicationName, timeBoundary);
+        List<String> targetAgentIds = new ArrayList<>(oldAgentIds.size());
+        for (String agentId : oldAgentIds) {
             if (isAgentTarget(agentId, range)) {
-                String agentKey = ClusterKey.compose(applicationName, agentId, -1);
-                targets.add(new CleanTarget(CleanTarget.TYPE_AGENT, agentKey));
+                targetAgentIds.add(agentId);
             }
         }
+        if (!targetAgentIds.isEmpty()) {
+            targets.add(new CleanTarget.TypeAgents(applicationName, targetAgentIds));
+        }
 
-        if (targets.size() == agentIds.size() && isApplicationTarget(applicationName)) {
-            targets.add(new CleanTarget(CleanTarget.TYPE_APPLICATION, applicationName));
+        // Find empty application
+        if (oldAgentIds.size() == targetAgentIds.size()) {
+            if (getAllAgents(applicationName).size() == targetAgentIds.size()) {
+                targets.add(new CleanTarget.TypeApplication(applicationName));
+                removeApplication = true;
+            }
         }
 
         if (targets.isEmpty()) {
             return null;
         }
-
-        logger.info("Cleaning application {}: {}", applicationName, targets);
+        logger.info("Cleaning application {}, remove application: {}, agents: {}", applicationName, removeApplication, targetAgentIds.size());
         return targets;
     }
 
-    private boolean isApplicationTarget(String applicationName) {
-        return !this.batchApplicationIndexService.isActive(applicationName, this.emptyDurationThreshold);
-    }
-
     private boolean isAgentTarget(String agentId, Range range) {
-        return !this.agentService.isActive(agentId, range);
+        return !this.activeAgentValidator.isActiveAgent(agentId, range);
     }
 
-    private List<String> getAgents(String applicationName) {
-        return this.agentService.getIds(applicationName);
+    private List<String> getOldAgents(String applicationName, long maxTimestamp) {
+        return this.batchApplicationIndexService.selectAgentIds(applicationName, maxTimestamp);
+    }
+
+    private List<String> getAllAgents(String applicationName) {
+        return this.batchApplicationIndexService.selectAgentIds(applicationName);
     }
 
     private Range getRange() {
