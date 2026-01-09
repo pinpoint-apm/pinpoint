@@ -14,6 +14,8 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import org.objectweb.asm.Type;
+
 import java.lang.reflect.Method;
 import java.util.Objects;
 
@@ -22,6 +24,15 @@ import java.util.Objects;
  *
  */
 public class GetterAnalyzer {
+    private static final GetterAnalyzer INSTANCE = new GetterAnalyzer();
+
+    public static GetterAnalyzer instance() {
+        return INSTANCE;
+    }
+
+    private GetterAnalyzer() {
+    }
+
     public GetterDetails analyze(Class<?> getterType) {
         Objects.requireNonNull(getterType, "getterType");
         
@@ -52,18 +63,18 @@ public class GetterAnalyzer {
 
     public static final class GetterDetails {
         private final Method getter;
-        private final Class<?> fieldType;
+        private final Type fieldType;
 
         public GetterDetails(Method getter, Class<?> fieldType) {
-            this.getter = getter;
-            this.fieldType = fieldType;
+            this.getter = Objects.requireNonNull(getter, "getter");
+            this.fieldType = Type.getType(Objects.requireNonNull(fieldType, "fieldType"));
         }
 
         public Method getGetter() {
             return getter;
         }
 
-        public Class<?> getFieldType() {
+        public Type getFieldType() {
             return fieldType;
         }
     }
