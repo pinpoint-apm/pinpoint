@@ -14,6 +14,8 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import org.objectweb.asm.Type;
+
 import java.lang.reflect.Method;
 import java.util.Objects;
 
@@ -22,6 +24,15 @@ import java.util.Objects;
  *
  */
 public class AccessorAnalyzer {
+    private static final AccessorAnalyzer INSTANCE = new AccessorAnalyzer();
+
+    public static AccessorAnalyzer instance() {
+        return INSTANCE;
+    }
+
+    private AccessorAnalyzer() {
+    }
+
     public AccessorDetails analyze(Class<?> accessorType) {
         Objects.requireNonNull(accessorType, "accessorType");
         
@@ -71,17 +82,17 @@ public class AccessorAnalyzer {
     }
 
     public static class AccessorDetails {
-        private final Class<?> fieldType;
+        private final Type fieldType;
         private final Method getter;
         private final Method setter;
         
         public AccessorDetails(Class<?> fieldType, Method getter, Method setter) {
-            this.fieldType = fieldType;
+            this.fieldType = Type.getType(Objects.requireNonNull(fieldType, "fieldType"));
             this.getter = getter;
             this.setter = setter;
         }
 
-        public Class<?> getFieldType() {
+        public Type getFieldType() {
             return fieldType;
         }
 

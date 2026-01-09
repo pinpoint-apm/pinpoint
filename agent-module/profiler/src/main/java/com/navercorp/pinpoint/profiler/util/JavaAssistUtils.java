@@ -22,9 +22,7 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,22 +38,6 @@ public final class JavaAssistUtils {
     private static final String CLASS_POST_FIX = ".class";
 
     private static final Pattern PARAMETER_SIGNATURE_PATTERN = Pattern.compile("\\[*L[^;]+;|\\[*[ZBCSIFDJ]|[ZBCSIFDJ]");
-
-    private static final Map<String, String> PRIMITIVE_JAVA_TO_JVM = createPrimitiveJavaToJvmMap();
-
-    private static Map<String, String> createPrimitiveJavaToJvmMap() {
-        final Map<String, String> primitiveJavaToJvm = new HashMap<>();
-        primitiveJavaToJvm.put("byte", "B");
-        primitiveJavaToJvm.put("char", "C");
-        primitiveJavaToJvm.put("double", "D");
-        primitiveJavaToJvm.put("float", "F");
-        primitiveJavaToJvm.put("int", "I");
-        primitiveJavaToJvm.put("long", "J");
-        primitiveJavaToJvm.put("short", "S");
-        primitiveJavaToJvm.put("void", "V");
-        primitiveJavaToJvm.put("boolean", "Z");
-        return primitiveJavaToJvm;
-    }
 
     private JavaAssistUtils() {
     }
@@ -93,31 +75,81 @@ public final class JavaAssistUtils {
         }
 
         final int javaObjectArraySize = getJavaObjectArraySize(javaType);
-        String pureJavaType;
-        if (javaObjectArraySize != 0) {
-            // pure java
-            final int javaArrayLength = javaObjectArraySize * 2;
-            pureJavaType = javaType.substring(0, javaType.length() - javaArrayLength);
-        } else {
-            pureJavaType = javaType;
-        }
-        final String signature = PRIMITIVE_JAVA_TO_JVM.get(pureJavaType);
+        final int end = getEndIndex(javaType, javaObjectArraySize);
+        final String signature = getSignature(javaType, 0);
         if (signature != null) {
             // primitive type
             return appendJvmArray(signature, javaObjectArraySize);
         }
-        return toJvmObject(javaObjectArraySize, pureJavaType);
-
+        return toJvmObject(javaObjectArraySize, javaType, 0, end);
     }
 
-    private static String toJvmObject(int javaObjectArraySize, String pureJavaType) {
+    private static int getEndIndex(String javaType, int javaObjectArraySize) {
+        if (javaObjectArraySize == 0) {
+            return javaType.length();
+        }
+        // pure java
+        final int javaArrayLength = javaObjectArraySize * 2;
+        return javaType.length() - javaArrayLength;
+    }
+
+    static String getSignature(String pureJavaType, int index) {
+        final char first = pureJavaType.charAt(index);
+        switch (first) {
+            case 'b':
+                if (pureJavaType.startsWith("boolean", index)) {
+                    return "Z";
+                } else if (pureJavaType.startsWith("byte", index)) {
+                    return "B";
+                }
+                break;
+            case 'c':
+                if (pureJavaType.startsWith("char", index)) {
+                    return "C";
+                }
+                break;
+            case 'd':
+                if (pureJavaType.startsWith("double", index)) {
+                    return "D";
+                }
+                break;
+            case 'f':
+                if (pureJavaType.startsWith("float", index)) {
+                    return "F";
+                }
+                break;
+            case 'i':
+                if (pureJavaType.startsWith("int", index)) {
+                    return "I";
+                }
+                break;
+            case 'l':
+                if (pureJavaType.startsWith("long", index)) {
+                    return "J";
+                }
+                break;
+            case 's':
+                if (pureJavaType.startsWith("short", index)) {
+                    return "S";
+                }
+                break;
+            case 'v':
+                if (pureJavaType.startsWith("void", index)) {
+                    return "V";
+                }
+                break;
+        }
+        return null;
+    }
+
+    private static String toJvmObject(int javaObjectArraySize, String pureJavaType, int begin, int end) {
         //        "java.lang.String[][]"->"[[Ljava.lang.String;"
         final StringBuilder buffer = new StringBuilder(pureJavaType.length() + javaObjectArraySize + 2);
         for (int i = 0; i < javaObjectArraySize; i++) {
             buffer.append('[');
         }
         buffer.append('L');
-        StringMatchUtils.appendAndReplace(pureJavaType, 0, '.', '/', buffer);
+        StringMatchUtils.appendAndReplace(pureJavaType, begin, end, '.', '/', buffer);
         buffer.append(';');
         return buffer.toString();
     }

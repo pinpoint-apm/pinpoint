@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.instrument;
 
+import org.objectweb.asm.Type;
+
 import java.lang.reflect.Method;
 import java.util.Objects;
 
@@ -23,6 +25,14 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 public class SetterAnalyzer {
+    private static final SetterAnalyzer INSTANCE = new SetterAnalyzer();
+
+    public static SetterAnalyzer instance() {
+        return INSTANCE;
+    }
+
+    private SetterAnalyzer() {
+    }
 
     public SetterDetails analyze(Class<?> setterType) {
         Objects.requireNonNull(setterType, "setterType");
@@ -55,18 +65,18 @@ public class SetterAnalyzer {
 
     public static final class SetterDetails {
         private final Method setter;
-        private final Class<?> fieldType;
+        private final Type fieldType;
 
         public SetterDetails(Method setter, Class<?> fieldType) {
             this.setter = setter;
-            this.fieldType = fieldType;
+            this.fieldType = Type.getType(Objects.requireNonNull(fieldType, "fieldType"));
         }
 
         public Method getSetter() {
             return setter;
         }
 
-        public Class<?> getFieldType() {
+        public Type getFieldType() {
             return fieldType;
         }
     }

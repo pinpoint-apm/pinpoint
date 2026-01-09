@@ -256,4 +256,10 @@ public class JavaAssistUtilsTest {
         Assertions.assertEquals("(a)", variableName);
     }
 
+    @Test
+    public void getSignature() {
+        Assertions.assertEquals("Z", JavaAssistUtils.getSignature("boolean", 0));
+        Assertions.assertEquals("Z", JavaAssistUtils.getSignature(" boolean", 1));
+    }
+
 }

@@ -265,10 +265,9 @@ public class ASMClass implements InstrumentClass {
         Objects.requireNonNull(accessorClass, "accessorClass");
         try {
 
-            final AccessorAnalyzer accessorAnalyzer = new AccessorAnalyzer();
-            final AccessorAnalyzer.AccessorDetails accessorDetails = accessorAnalyzer.analyze(accessorClass);
+            final AccessorAnalyzer.AccessorDetails accessorDetails = AccessorAnalyzer.instance().analyze(accessorClass);
 
-            final Type type = Type.getType(accessorDetails.getFieldType());
+            final Type type = accessorDetails.getFieldType();
             final String accessorTypeName = accessorClass.getName();
             final String fieldName = FIELD_PREFIX + JavaAssistUtils.javaClassNameToVariableName(accessorTypeName);
             final ASMFieldNodeAdapter fieldNode = this.classNode.addField(fieldName, type.getDescriptor());
@@ -287,15 +286,14 @@ public class ASMClass implements InstrumentClass {
         Objects.requireNonNull(fieldName, "fieldName");
 
         try {
-            final GetterAnalyzer.GetterDetails getterDetails = new GetterAnalyzer().analyze(getterClass);
+            final GetterAnalyzer.GetterDetails getterDetails = GetterAnalyzer.instance().analyze(getterClass);
             final ASMFieldNodeAdapter fieldNode = this.classNode.getField(fieldName, null);
             if (fieldNode == null) {
                 throw new IllegalArgumentException("Not found field. name=" + fieldName);
             }
-
-            final String fieldTypeName = JavaAssistUtils.javaClassNameToObjectName(getterDetails.getFieldType().getName());
-            if (!fieldNode.getClassName().equals(fieldTypeName)) {
-                throw new IllegalArgumentException("different return type. return=" + fieldTypeName + ", field=" + fieldNode.getClassName());
+            Type fieldType = getterDetails.getFieldType();
+            if (!fieldNode.getJavaType().equals(fieldType)) {
+                throw new IllegalArgumentException("different return type. return=" + fieldType + ", field=" + fieldNode.getJavaType());
             }
 
             this.classNode.addGetterMethod(getterDetails.getGetter().getName(), fieldNode);
@@ -315,15 +313,15 @@ public class ASMClass implements InstrumentClass {
     public void addSetter(Class<?> setterClass, String fieldName, boolean removeFinal) throws InstrumentException {
         Objects.requireNonNull(setterClass, "setterClass");
         try {
-            final SetterAnalyzer.SetterDetails setterDetails = new SetterAnalyzer().analyze(setterClass);
+            final SetterAnalyzer.SetterDetails setterDetails = SetterAnalyzer.instance().analyze(setterClass);
             final ASMFieldNodeAdapter fieldNode = this.classNode.getField(fieldName, null);
             if (fieldNode == null) {
                 throw new IllegalArgumentException("Not found field. name=" + fieldName);
             }
 
-            final String fieldTypeName = JavaAssistUtils.javaClassNameToObjectName(setterDetails.getFieldType().getName());
-            if (!fieldNode.getClassName().equals(fieldTypeName)) {
-                throw new IllegalArgumentException("Argument type of the setter is different with the field type. setterMethod: " + fieldTypeName + ", fieldType: " + fieldNode.getClassName());
+            final Type fieldType = setterDetails.getFieldType();
+            if (!fieldNode.getJavaType().equals(fieldType)) {
+                throw new IllegalArgumentException("Argument type of the setter is different with the field type. setterMethod: " + fieldType + ", fieldType: " + fieldNode.getJavaType());
             }
 
             if (fieldNode.isStatic()) {

@@ -24,6 +24,7 @@ import org.objectweb.asm.tree.FieldNode;
  */
 public class ASMFieldNodeAdapter {
     private final FieldNode fieldNode;
+    private Type type;
 
     public ASMFieldNodeAdapter(final FieldNode fieldNode) {
         this.fieldNode = fieldNode;
@@ -34,8 +35,14 @@ public class ASMFieldNodeAdapter {
     }
 
     public String getClassName() {
-        Type type = Type.getType(this.fieldNode.desc);
-        return type.getClassName();
+        return getJavaType().getClassName();
+    }
+
+    public Type getJavaType() {
+        if (this.type == null) {
+            this.type = Type.getType(this.fieldNode.desc);
+        }
+        return type;
     }
 
     public String getDesc() {

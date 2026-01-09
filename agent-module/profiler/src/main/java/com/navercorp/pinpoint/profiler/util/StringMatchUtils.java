@@ -12,7 +12,8 @@ public final class StringMatchUtils {
         Objects.requireNonNull(str, "str");
         Objects.requireNonNull(chars, "chars");
 
-        for (int i = 0; i < str.length(); i++) {
+        final int length = str.length();
+        for (int i = 0; i < length; i++) {
             final char c = str.charAt(i);
             if (contains(c, chars)) {
                 return i;
@@ -72,14 +73,19 @@ public final class StringMatchUtils {
         return count;
     }
 
+    static void appendAndReplace(String str, int startOffset, char oldChar, char newChar, StringBuilder output) {
+        Objects.requireNonNull(str, "str");
+        appendAndReplace(str, startOffset, str.length(), oldChar, newChar, output);
+    }
+
     /**
      * ExperimentalApi
      */
-    static void appendAndReplace(String str, int startOffset, char oldChar, char newChar, StringBuilder output) {
+    static void appendAndReplace(String str, int startOffset, int endOffset, char oldChar, char newChar, StringBuilder output) {
         Objects.requireNonNull(str, "str");
         Objects.requireNonNull(output, "output");
 
-        for (int i = startOffset; i < str.length(); i++) {
+        for (int i = startOffset; i < endOffset; i++) {
             final char c = str.charAt(i);
             if (c == oldChar) {
                 output.append(newChar);
