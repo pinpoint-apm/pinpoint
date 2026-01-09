@@ -282,9 +282,10 @@ public class ASMClassNodeAdapter {
             return true;
         }
 
-        if (this.classNode.superName != null) {
+        final String superName = this.classNode.superName;
+        if (superName != null) {
             // skip code.
-            final ASMClassNodeAdapter classNode = ASMClassNodeAdapter.get(this.pluginInputStreamProvider, this.classLoader, this.protectionDomain, this.classNode.superName, true);
+            final ASMClassNodeAdapter classNode = ASMClassNodeAdapter.get(this.pluginInputStreamProvider, this.classLoader, this.protectionDomain, superName, true);
             if (classNode != null) {
                 return classNode.hasMethod(methodName, desc);
             }
@@ -296,11 +297,11 @@ public class ASMClassNodeAdapter {
     public ASMFieldNodeAdapter getField(final String fieldName, final String fieldDesc) {
         Objects.requireNonNull(fieldName, "fieldName");
 
-        if (this.classNode.fields == null) {
+        final List<FieldNode> fields = this.classNode.fields;
+        if (fields == null) {
             return null;
         }
 
-        final List<FieldNode> fields = this.classNode.fields;
         for (FieldNode fieldNode : fields) {
             if (StringMatchUtils.equals(fieldNode.name, fieldName) && (fieldDesc == null || (StringMatchUtils.equals(fieldNode.desc, fieldDesc)))) {
                 return new ASMFieldNodeAdapter(fieldNode);
@@ -327,8 +328,9 @@ public class ASMClassNodeAdapter {
         }
 
         // find super class.
-        if (this.classNode.superName != null) {
-            final ASMClassNodeAdapter classNodeAdapter = ASMClassNodeAdapter.get(this.pluginInputStreamProvider, this.classLoader, this.protectionDomain, this.classNode.superName, true);
+        final String superName = this.classNode.superName;
+        if (superName != null) {
+            final ASMClassNodeAdapter classNodeAdapter = ASMClassNodeAdapter.get(this.pluginInputStreamProvider, this.classLoader, this.protectionDomain, superName, true);
             if (classNodeAdapter != null) {
                 final ASMFieldNodeAdapter fieldNode = classNodeAdapter.getField(fieldName, fieldDesc);
                 if (fieldNode != null) {
@@ -396,7 +398,7 @@ public class ASMClassNodeAdapter {
         // get fieldNode.
         instructions.add(new FieldInsnNode(Opcodes.GETFIELD, classNode.name, fieldNode.getName(), fieldNode.getDesc()));
         // return of type.
-        final Type type = Type.getType(fieldNode.getDesc());
+        final Type type = fieldNode.getJavaType();
         instructions.add(new InsnNode(type.getOpcode(Opcodes.IRETURN)));
 
         addMethodNode0(methodNode);
@@ -420,7 +422,7 @@ public class ASMClassNodeAdapter {
         final InsnList instructions = getInsnList(methodNode);
         // load this.
         instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        final Type type = Type.getType(fieldNode.getDesc());
+        final Type type = fieldNode.getJavaType();
         // put field.
         instructions.add(new VarInsnNode(type.getOpcode(Opcodes.ILOAD), 1));
         instructions.add(new FieldInsnNode(Opcodes.PUTFIELD, classNode.name, fieldNode.getName(), fieldNode.getDesc()));
