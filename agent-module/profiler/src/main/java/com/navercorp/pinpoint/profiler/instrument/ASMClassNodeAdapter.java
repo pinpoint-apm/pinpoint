@@ -50,6 +50,7 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class ASMClassNodeAdapter {
+    private static final String RECORD_CLASS_SUPER_NAME = "java/lang/Record";
 
     private static final Logger logger = LogManager.getLogger(ASMClassNodeAdapter.class);
 
@@ -534,6 +535,10 @@ public class ASMClassNodeAdapter {
         }
 
         return innerClasses;
+    }
+
+    public boolean isRecord() {
+        return RECORD_CLASS_SUPER_NAME.equals(classNode.superName);
     }
 
     public int getMajorVersion() {
