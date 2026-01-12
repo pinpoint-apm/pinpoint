@@ -176,23 +176,35 @@ public class FilteredMapBuilder {
             if (OpenTelemetryServiceTypeCategory.isServer(span.getServiceType())) {
                 for (SpanEventBo spanEventBo : span.getSpanEventBoList()) {
                     final long key = spanEventBo.getNextSpanId();
-                    transactionSpanMap.add(key, span);
+                    if (isParentSpanId(key, transaction)) {
+                        transactionSpanMap.add(key, span);
+                    }
                 }
                 for (SpanChunkBo spanChunkBo : span.getSpanChunkBoList()) {
                     for (SpanEventBo spanEventBo : spanChunkBo.getSpanEventBoList()) {
                         final long key = spanEventBo.getNextSpanId();
-                        transactionSpanMap.add(key, span);
+                        if (isParentSpanId(key, transaction)) {
+                            transactionSpanMap.add(key, span);
+                        }
                     }
                 }
             } else {
                 if (transactionSpanMap.containsKey(span.getSpanId())) {
                     logger.warn("duplicated span found:{}", span);
                 }
-
                 transactionSpanMap.add(span.getSpanId(), span);
             }
         }
         return transactionSpanMap;
+    }
+
+    boolean isParentSpanId(long parentSpanId, List<SpanBo> transaction) {
+        for (SpanBo span : transaction) {
+            if (span.getParentSpanId() == parentSpanId) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Application createParentApplication(SpanBo span, MultiValueMap<Long, SpanBo> transactionSpanMap) {

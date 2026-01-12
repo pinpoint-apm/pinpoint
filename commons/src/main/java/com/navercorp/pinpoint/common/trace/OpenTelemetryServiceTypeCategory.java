@@ -18,15 +18,15 @@ package com.navercorp.pinpoint.common.trace;
 
 public class OpenTelemetryServiceTypeCategory {
     public static boolean isServer(int code) {
-        return ServiceType.OPENTELEMETY_SERVER.getCode() == code;
+        return ServiceType.OPENTELEMETRY_SERVER.getCode() == code;
     }
 
     public static boolean isClient(int code) {
-        return ServiceType.OPENTELEMETY_CLIENT.getCode() == code;
+        return ServiceType.OPENTELEMETRY_CLIENT.getCode() == code;
     }
 
     public static boolean isInternal(int code) {
-        return ServiceType.OPENTELEMETY_INTERNAL.getCode() == code;
+        return ServiceType.OPENTELEMETRY_INTERNAL.getCode() == code;
     }
 
     public static boolean contains(int code) {
