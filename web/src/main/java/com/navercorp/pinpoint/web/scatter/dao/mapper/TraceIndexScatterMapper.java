@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.RowTypeHint;
-import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
@@ -73,7 +72,7 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>>, RowTypeHin
         String agentId = valueBuffer.readPrefixedString();
 
         long acceptedTime = extractAcceptTime(cell.getRowArray(), cell.getRowOffset());
-        ServerTraceId serverTraceId = PinpointServerTraceId.of(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
+        ServerTraceId serverTraceId = ServerTraceId.of(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
 
         return new Dot(serverTraceId, acceptedTime, elapsed, exceptionCode, agentId);
     }

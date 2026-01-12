@@ -38,7 +38,7 @@ public class GrpcReceiverProperties {
 
     private final ServerOption serverOption;
 
-    protected GrpcReceiverProperties(boolean enable,
+    public GrpcReceiverProperties(boolean enable,
                                      BindAddress bindAddress,
                                      ServerOption serverOption) {
         this.enable = enable;

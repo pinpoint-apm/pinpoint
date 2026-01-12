@@ -118,6 +118,7 @@
         <module>exceptiontrace</module>
         <module>agent-statistics</module>
         <module>otlpmetric</module>
+        <module>otlptrace</module>
         <module>feature-flag</module>
         <module>service-module</module>
         <module>hbase-uid-module</module>
@@ -580,6 +581,11 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-otlpmetric-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-otlptrace-collector</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

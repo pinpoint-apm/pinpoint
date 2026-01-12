@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -53,7 +52,7 @@ public class GetTraceInfoParser {
             }
 
             SpanHint spanHint = new SpanHint(Long.parseLong(time), Integer.parseInt(responseTime), applicationName);
-            ServerTraceId serverTraceId = PinpointServerTraceId.of(transactionId);
+            ServerTraceId serverTraceId = ServerTraceId.of(transactionId);
 
             final GetTraceInfo getTraceInfo = new GetTraceInfo(serverTraceId, spanHint);
             getTraceInfoList.add(getTraceInfo);

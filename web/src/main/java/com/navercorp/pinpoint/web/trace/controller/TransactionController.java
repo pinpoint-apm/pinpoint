@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.trace.controller;
 
 import com.navercorp.pinpoint.common.hbase.bo.ColumnGetCount;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
@@ -106,7 +105,7 @@ public class TransactionController {
     ) {
         logger.debug("GET /trace params {traceId={}, focusTimestamp={}, agentId={}, spanId={}}",
                 traceId, focusTimestamp, agentId, spanId);
-        ServerTraceId serverTraceId = PinpointServerTraceId.of(traceId);
+        ServerTraceId serverTraceId = ServerTraceId.of(traceId);
 
         final ColumnGetCount columnGetCount = ColumnGetCount.of(callstackSelectSpansLimit);
         final Predicate<SpanBo> spanMatchFilter = SpanFilters.spanFilter(spanId, agentId, focusTimestamp);
@@ -135,7 +134,7 @@ public class TransactionController {
         logger.debug("GET /traceViewerData params {traceId={}, focusTimestamp={}, agentId={}, spanId={}}",
                 traceIdParam, focusTimestamp, agentId, spanId);
 
-        ServerTraceId serverTraceId = PinpointServerTraceId.of(traceIdParam);
+        ServerTraceId serverTraceId = ServerTraceId.of(traceIdParam);
 
         final ColumnGetCount columnGetCount = ColumnGetCount.of(callstackSelectSpansLimit);
 
@@ -160,7 +159,7 @@ public class TransactionController {
             @RequestParam(value = "useStatisticsAgentState", required = false, defaultValue = "false")
             boolean useStatisticsAgentState
     ) {
-        ServerTraceId serverTraceId = PinpointServerTraceId.of(traceId);
+        ServerTraceId serverTraceId = ServerTraceId.of(traceId);
 
         final ColumnGetCount columnGetCount = ColumnGetCount.of(callstackSelectSpansLimit);
 

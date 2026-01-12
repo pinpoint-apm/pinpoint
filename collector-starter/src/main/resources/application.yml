@@ -71,6 +71,8 @@ pinpoint:
           enabled: true
       otlpmetric:
         enabled: true
+      otlptrace:
+        enabled: true
       heatmap:
         enabled: true
       uristat:
