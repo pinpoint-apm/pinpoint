@@ -140,6 +140,15 @@ public class SpringWebfluxPluginController {
         return response.bodyToMono(String.class);
     }
 
+    @GetMapping("/client/remote")
+    public Mono<String> clientRemote(ServerWebExchange exchange) {
+        WebClient client = WebClient.create("http://localhost:28080");
+
+        WebClient.ResponseSpec response = client.method(HttpMethod.GET)
+                .uri("").retrieve();
+        return response.bodyToMono(String.class);
+    }
+
     @GetMapping("/client/local")
     public Mono<String> clientLocal() {
         WebClient client = WebClient.create("http://localhost:18080");

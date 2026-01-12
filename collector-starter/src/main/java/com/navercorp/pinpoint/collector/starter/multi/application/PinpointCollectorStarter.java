@@ -18,6 +18,7 @@ import com.navercorp.pinpoint.inspector.collector.InspectorCollectorConfig;
 import com.navercorp.pinpoint.log.collector.LogCollectorModule;
 import com.navercorp.pinpoint.metric.collector.MetricCollectorApp;
 import com.navercorp.pinpoint.otlp.collector.OtlpMetricCollectorConfig;
+import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorModule;
 import com.navercorp.pinpoint.redis.RedisPropertySources;
 import com.navercorp.pinpoint.uristat.collector.UriStatCollectorConfig;
 import org.springframework.boot.Banner;
@@ -91,17 +92,25 @@ public class PinpointCollectorStarter {
             metricAppBuilder.build().run(args);
         }
 
+        // OTLP Trace must run with metric.
+        // gRPC 9998 port is used for OTLP Trace.
+        if (types.hasType(CollectorType.METRIC)) {
+            logger.info(String.format("Start OTLP trace collector"));
+            SpringApplicationBuilder logAppBuilder = createAppBuilder(builder, 0, OtlpTraceCollectorModule.class).web(WebApplicationType.NONE);
+            logAppBuilder.build().run(args);
+        }
+
+
         if (types.hasType(CollectorType.LOG)) {
             logger.info(String.format("Start %s collector", CollectorType.LOG));
             SpringApplicationBuilder logAppBuilder = createAppBuilder(builder, 0,
                     LogCollectorModule.class,
                     RedisPropertySources.class
-            )
-                    .web(WebApplicationType.NONE);
+            ).web(WebApplicationType.NONE);
             logAppBuilder.build().run(args);
         }
-    }
 
+    }
 
     private static SpringApplicationBuilder createAppBuilder(SpringApplicationBuilder builder, int port, Class<?>... appClass) {
         return builder.child(appClass)
@@ -113,5 +122,4 @@ public class PinpointCollectorStarter {
                 .listeners(new PinpointSpringBanner())
                 .properties(String.format("server.port:%1s", port));
     }
-
 }

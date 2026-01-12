@@ -11,4 +11,8 @@ public final class Base16Utils {
     public static String encodeToString(byte[] bytes) {
         return BASE16.encodeToString(bytes);
     }
+
+    public static byte[] decodeToBytes(String pArray) {
+        return BASE16.decode(pArray);
+    }
 }

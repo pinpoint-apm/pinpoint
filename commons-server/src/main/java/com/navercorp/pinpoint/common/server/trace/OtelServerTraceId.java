@@ -8,6 +8,14 @@ import java.util.Arrays;
 
 public class OtelServerTraceId implements ServerTraceId {
 
+    public static OtelServerTraceId of(byte[] traceIdBytes, int offset, int length) {
+        return new OtelServerTraceId(Arrays.copyOfRange(traceIdBytes, offset, offset + length));
+    }
+
+    public static OtelServerTraceId of(final String transactionId) {
+        return new OtelServerTraceId(Base16Utils.decodeToBytes(transactionId));
+    }
+
     private final byte[] traceId;
 
     public OtelServerTraceId(byte[] traceId) {
@@ -15,7 +23,7 @@ public class OtelServerTraceId implements ServerTraceId {
             throw new NullPointerException("traceId must not be null");
         }
         if (traceId.length != PinpointConstants.OPENTELEMETRY_TRACE_ID_LEN) {
-            throw new IllegalArgumentException("invalid OtelServerTraceId bytes length:"  + traceId.length);
+            throw new IllegalArgumentException("invalid OtelServerTraceId bytes length:" + traceId.length);
         }
         this.traceId = traceId;
     }

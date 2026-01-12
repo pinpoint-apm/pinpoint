@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 NAVER Corp.
+ * Copyright 2025 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,8 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @Import({
         PinotConfiguration.class,
-        OtlpMetricPropertySources.class})
+        OtlpMetricPropertySources.class,
+        OtlpMetricCollectorHbaseConfig.class})
 @ComponentScan({
         "com.navercorp.pinpoint.otlp.collector.config",
         "com.navercorp.pinpoint.otlp.collector.controller",

@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.RowTypeHint;
-import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -57,7 +56,7 @@ public class TransactionIdMapper implements RowMapper<List<ServerTraceId>>, RowT
         List<ServerTraceId> traceIdList = new ArrayList<>(rawCells.length);
         for (Cell cell : rawCells) {
             if (CellUtil.matchingFamily(cell, traceIndex.getName())) {
-                ServerTraceId serverTraceId = PinpointServerTraceId.of(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
+                ServerTraceId serverTraceId = ServerTraceId.of(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
                 traceIdList.add(serverTraceId);
                 logger.debug("found traceId {}", serverTraceId);
             }
