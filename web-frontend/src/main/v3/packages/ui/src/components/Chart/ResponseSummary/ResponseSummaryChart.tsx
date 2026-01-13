@@ -4,6 +4,7 @@ import { HelpPopover } from '../../../components/HelpPopover';
 import * as echarts from 'echarts/core';
 import { BarChart as BarChartEcharts } from 'echarts/charts';
 import { AxisBreak } from 'echarts/features';
+import type { ExpandAxisBreakPayload } from 'echarts/types/dist/shared';
 import { GridComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { cn } from '../../../lib';
@@ -22,6 +23,12 @@ export interface ResponseSummaryChartProps {
   emptyMessage?: string;
 }
 
+type AxisBreakOption = {
+  start: number;
+  end: number;
+  gap?: string;
+};
+
 export const ResponseSummaryChart = ({
   data,
   categories = ['1s', '3s', '5s', 'Slow', 'Error'],
@@ -38,6 +45,7 @@ export const ResponseSummaryChart = ({
     [data, categories],
   );
 
+  const expandedBreaksRef = React.useRef<AxisBreakOption[]>([]);
   // chartData 기반으로 break 설정 계산
   const breakConfig = React.useMemo(() => {
     if (!chartData || chartData.length === 0) return [];
@@ -76,6 +84,14 @@ export const ResponseSummaryChart = ({
       const start = prev + buffer;
       const end = next - buffer;
 
+      if (
+        expandedBreaksRef.current.some((expandedBreak) => {
+          return expandedBreak.start === start && expandedBreak.end === end;
+        })
+      ) {
+        return null;
+      }
+
       if (start < end) {
         return {
           start,
@@ -102,8 +118,15 @@ export const ResponseSummaryChart = ({
     });
     resizeObserver.observe(wrapperElement);
 
+    chart.on('axisbreakchanged', (params) => {
+      expandedBreaksRef.current.push(
+        ...((params as ExpandAxisBreakPayload).breaks as AxisBreakOption[]),
+      );
+    });
+
     return () => {
       resizeObserver.disconnect();
+      expandedBreaksRef.current = [];
       chart.dispose();
     };
   }, []);
@@ -188,7 +211,7 @@ export const ResponseSummaryChart = ({
             ]
           : [],
     });
-  }, [categories, chartData, colors, breakConfig]);
+  }, [categories, chartData, colors, breakConfig, emptyMessage]);
 
   return (
     <div className="w-full h-full">
