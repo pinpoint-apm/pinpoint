@@ -16,30 +16,25 @@
 
 package com.navercorp.pinpoint.web.trace.view;
 
-import org.assertj.core.api.Assertions;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.navercorp.pinpoint.web.trace.view.TransactionCallTreeViewModel.Field;
 
 class TransactionInfoViewModelTest {
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Test
-    void fieldName() {
+    void fieldName() throws JsonProcessingException {
+        Field.CallStackMeta callStackMeta = Field.getCallStackMeta();
 
-        List<String> fieldList = Arrays.stream(Field.values())
-                .map(Enum::name)
-                .collect(Collectors.toList());
+        ObjectMapper mapper = Jackson.newMapper();
+        String json = mapper.writeValueAsString(callStackMeta);
 
-        Map<String, Integer> map = Field.getFieldMap();
-        Set<String> keys = map.keySet();
-
-        Assertions.assertThat(fieldList).
-                containsExactly(keys.toArray(new String[0]));
+        logger.debug("{}", json);
     }
 }

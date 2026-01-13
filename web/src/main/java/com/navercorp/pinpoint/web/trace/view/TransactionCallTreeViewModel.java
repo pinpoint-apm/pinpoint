@@ -17,6 +17,9 @@ package com.navercorp.pinpoint.web.trace.view;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.web.trace.callstacks.Record;
@@ -25,11 +28,9 @@ import com.navercorp.pinpoint.web.trace.span.TraceState;
 import com.navercorp.pinpoint.web.view.LogLinkView;
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 public class TransactionCallTreeViewModel {
@@ -115,8 +116,8 @@ public class TransactionCallTreeViewModel {
     }
 
     @JsonProperty("callStackIndex")
-    public Map<String, Integer> getCallStackIndex() {
-        return Field.getFieldMap();
+    public Field.CallStackMeta getCallStackIndex() {
+        return Field.getCallStackMeta();
     }
 
     @JsonProperty("callStack")
@@ -179,19 +180,26 @@ public class TransactionCallTreeViewModel {
         applicationServiceType,
         exceptionChainId;
 
-        private static final Map<String, Integer> MAP = Collections.unmodifiableMap(toNameOrdinalMap());
+        private static final Field[] FIELD_CACHE = Field.values();
+        private static final CallStackMeta META = new CallStackMeta();
 
-
-        private static Map<String, Integer> toNameOrdinalMap() {
-            final Map<String, Integer> index = new LinkedHashMap<>();
-            for (Field field : Field.values()) {
-                index.put(field.name(), field.ordinal());
-            }
-            return index;
+        public static CallStackMeta getCallStackMeta() {
+            return META;
         }
 
-        public static Map<String, Integer> getFieldMap() {
-            return MAP;
+        @JsonSerialize(using = CallStackMeta.EnumSerializer.class)
+        public static class CallStackMeta {
+
+            public static class EnumSerializer extends JsonSerializer<CallStackMeta> {
+                @Override
+                public void serialize(CallStackMeta index, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+                    jgen.writeStartObject();
+                    for (Field field : FIELD_CACHE) {
+                        jgen.writeNumberField(field.name(), field.ordinal());
+                    }
+                    jgen.writeEndObject();
+                }
+            }
         }
     }
 
