@@ -1,15 +1,15 @@
-import 'billboard.js/dist/billboard.css';
 import React from 'react';
-import bb, { areaStep, ChartOptions } from 'billboard.js';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import BillboardJS, { IChart } from '@billboard.js/react';
-import { abbreviateNumber, addCommas, getMaxTickValue } from '@pinpoint-fe/ui/src/utils';
+import * as echarts from 'echarts/core';
+import { LineChart } from 'echarts/charts';
+import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+import { abbreviateNumber, addCommas } from '@pinpoint-fe/ui/src/utils';
 import { formatInTimeZone } from 'date-fns-tz';
-import { isValid } from 'date-fns';
 import { cn } from '../../../lib/utils';
 import { colors } from '@pinpoint-fe/ui/src/constants';
 import { useTimezone } from '@pinpoint-fe/ui/src/hooks';
+
+echarts.use([LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer]);
 
 export type LoadChartDataType = {
   dates?: number[];
@@ -49,124 +49,174 @@ export const LoadChart = ({
 }: LoadChartProps) => {
   const [timezone] = useTimezone();
   const chartData = typeof datas === 'function' ? datas?.(chartColors) : datas;
-  const chartComponent = React.useRef<IChart>(null);
-  const prevData = React.useRef<LoadChartDataType>({} as LoadChartDataType);
+  const chartRef = React.useRef<HTMLDivElement>(null);
+  const chartInstanceRef = React.useRef<echarts.EChartsType | null>(null);
+  // console.log('datas11', chartData);
 
+  // 차트 초기화
   React.useEffect(() => {
-    const chart = chartComponent.current?.instance;
-    const newColumns = getColumns();
-    const prevKeys = Object.keys(prevData.current).slice(1);
-    const currKeys = Object.keys(chartData).slice(1);
-    const removedKeys = prevKeys.filter((key: string) => !currKeys.includes(key));
-    const unload = prevKeys.length === 0 ? false : removedKeys.length !== 0;
+    if (!chartRef.current) return;
 
-    chart?.config('data.groups', getGroupsOption());
-    chart?.config('axis.y.max', getMaxTickValue(getColumns() as number[][], 1));
-    chart?.load({ columns: newColumns, colors: chartColors, unload });
+    const chart = echarts.init(chartRef.current);
+    chartInstanceRef.current = chart;
 
-    prevData.current = chartData;
-  }, [datas, chartColors]);
+    // chart resize
+    const wrapperElement = chartRef.current;
+    if (!wrapperElement) return;
+    const resizeObserver = new ResizeObserver(() => {
+      chart.resize();
+    });
+    resizeObserver.observe(wrapperElement);
 
-  const getColumns = () => {
-    const keys = Object.keys(chartData);
-    return keys.map((key) => [key, ...(chartData[key] || [])]);
-  };
+    return () => {
+      resizeObserver.disconnect();
+      chart.dispose();
+    };
+  }, []);
 
-  const getGroupsOption = () => {
-    return [Object.keys(chartData).filter((key) => key !== 'dates')];
-  };
+  // 데이터 변경 시 차트 업데이트
+  React.useEffect(() => {
+    if (!chartInstanceRef.current) return;
 
-  const getInitialOptions = (): ChartOptions => {
-    return {
-      data: {
-        color: (defaultColor, { id }) => {
-          return chartColors?.[id] ? chartColors?.[id] : defaultColor;
-        },
-        columns: getColumns(),
-        empty: {
-          label: {
-            text: emptyMessage,
-          },
-        },
-        groups: getGroupsOption(),
-        order: null,
-        type: areaStep(),
-        x: 'dates',
+    const dates = chartData.dates || [];
+    const dataKeys = Object.keys(chartData).filter((key) => key !== 'dates');
+    const hasData =
+      dates.length > 0 &&
+      dataKeys.length > 0 &&
+      dataKeys.some((key) => chartData[key] && chartData[key].length > 0);
+
+    // 시리즈 데이터 생성
+    const series = dataKeys.map((key) => ({
+      name: key,
+      type: 'line' as const,
+      // 데이터 값이 0임에도 stacked area chart 에 표현되는 버그가 있음
+      // 그래서 0인 값은 아예 그려지지 않도록 null 로 변환
+      // (https://github.com/apache/echarts/issues/16739)
+      // data: chartData[key]?.map((value) => (value === 0 ? null : value)) || [],
+      data: chartData[key]?.map((value, index) => {
+        return [dates[index], value === 0 ? null : value];
+      }),
+      stack: 'total',
+      areaStyle: {},
+      smooth: false,
+      step: 'middle',
+      showSymbol: false,
+      lineStyle: {
+        width: 0,
       },
-      padding: {
-        mode: 'fit',
-        top: 20,
-        bottom: 10,
-        right: 25,
+      itemStyle: {
+        color: chartColors[key] || colors.fast,
       },
-      axis: {
-        x: {
-          type: 'timeseries',
-          tick: {
-            count: 6,
-            show: false,
-            format: (date: Date) => {
-              if (isValid(date)) {
-                return `${formatInTimeZone(date, timezone, 'MM.dd')}\n${formatInTimeZone(
-                  date,
-                  timezone,
-                  'HH:mm',
-                )}`;
-              }
-              return '';
-            },
-          },
-          padding: {
-            left: 0,
-            right: 0,
-          },
-        },
-        y: {
-          tick: {
-            count: 3,
-            format: (v: number) => abbreviateNumber(v, ['', 'K', 'M', 'G']),
-          },
-          padding: {
-            top: 0,
-            bottom: 0,
-          },
-          min: 0,
-          max: getMaxTickValue(getColumns() as number[][], 1),
-          default: [0, 10],
-        },
+      emphasis: {
+        focus: 'series',
+      },
+    }));
+
+    chartInstanceRef.current.setOption({
+      legend: {
+        data: dataKeys,
+        bottom: 0,
+        icon: 'square',
+        itemWidth: 10,
+        itemHeight: 10,
+        itemGap: 15,
       },
       grid: {
-        y: {
+        top: 20,
+        bottom: 60,
+        right: 25,
+        left: 0,
+      },
+      xAxis: {
+        type: 'time',
+        boundaryGap: false,
+        splitNumber: 4,
+        axisLabel: {
+          showMinLabel: true,
+          showMaxLabel: true,
+          fontSize: 10,
+          formatter: (value: number) => {
+            try {
+              return `${formatInTimeZone(value, timezone, 'MM.dd')}\n${formatInTimeZone(
+                value,
+                timezone,
+                'HH:mm',
+              )}`;
+            } catch (error) {
+              return '';
+            }
+          },
+        },
+        zlevel: 1,
+      },
+      yAxis: {
+        type: 'value',
+        min: 0,
+        axisLine: {
           show: true,
         },
-      },
-      point: {
-        show: false,
-      },
-      tooltip: {
-        order: '',
-        format: {
-          value: (v: number) => addCommas(v.toString()),
+        zlevel: 1,
+        splitNumber: 2,
+        axisLabel: {
+          formatter: (value: number): string => abbreviateNumber(value, ['', 'K', 'M', 'G']),
+        },
+        splitLine: {
+          show: true,
+          lineStyle: {
+            type: 'dashed',
+          },
         },
       },
-      transition: {
-        duration: 0,
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'line',
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        formatter: (params: any) => {
+          if (!Array.isArray(params) || params.length === 0) return '';
+          const firstParam = params[0];
+          const dateIndex = firstParam.dataIndex;
+          const date = dates[dateIndex];
+          const dateStr = date
+            ? `${formatInTimeZone(new Date(date), timezone, 'MM.dd HH:mm')}`
+            : '';
+          const rows = params
+            .map((param: { value: [number, number]; color: string; seriesName: string }) => {
+              const value = addCommas(param.value?.[1]?.toString() || '0');
+              const color = param.color;
+              return `<div style="display: flex; align-items: center; gap: 8px;">
+                <span style="display: inline-block; width: 10px; height: 10px; background-color: ${color};"></span>
+                <span>${param.seriesName}: ${value}</span>
+              </div>`;
+            })
+            .join('');
+          return `<div style="margin-bottom: 4px;">${dateStr}</div>${rows}`;
+        },
       },
-      resize: {
-        auto: 'parent',
-      },
-    };
-  };
+      series,
+      graphic: !hasData
+        ? [
+            {
+              type: 'text',
+              left: 'center',
+              top: '30%',
+              style: {
+                text: emptyMessage,
+                fontSize: 14,
+                fill: '#999',
+                textAlign: 'center',
+              },
+            },
+          ]
+        : [],
+    });
+  }, [chartData, chartColors, timezone, emptyMessage]);
 
   return (
     <div className="w-full h-full">
       {title}
-      <BillboardJS
-        className={cn(`[&_.bb-line]:stroke-0`, className)}
-        bb={bb}
-        ref={chartComponent}
-        options={getInitialOptions()}
-      />
+      <div className={cn('w-full h-full', className)} ref={chartRef}></div>
     </div>
   );
 };
