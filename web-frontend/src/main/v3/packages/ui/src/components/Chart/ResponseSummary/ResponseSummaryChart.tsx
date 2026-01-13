@@ -42,39 +42,49 @@ export const ResponseSummaryChart = ({
   const breakConfig = React.useMemo(() => {
     if (!chartData || chartData.length === 0) return [];
 
-    const nonZeroValues = chartData.filter((v) => v > 0);
-    if (nonZeroValues.length === 0) return [];
+    const values = chartData.filter((v) => v > 0);
+    if (values.length < 2) return [];
 
-    const uniqueValues = Array.from(new Set(nonZeroValues)).sort((a, b) => a - b); // 중복 제거 및 정렬
-    if (uniqueValues.length < 2) return [];
+    const uniqueValues = Array.from(new Set(values)).sort((a, b) => a - b);
 
-    const minValue = Math.min(...uniqueValues);
-    const buffer = Math.ceil(minValue / 10) * 10;
+    const GAP_RATIO = 5;
+    const MAX_BREAKS = 2;
 
-    const breaks = [];
-    const GAP_RATIO = 5; // 인접한 값들 사이의 비율이 이 값보다 크면 break 생성
+    // 1. gap 후보 수집
+    const candidates = [];
 
     for (let i = 0; i < uniqueValues.length - 1; i++) {
-      const currentValue = uniqueValues[i];
-      const nextValue = uniqueValues[i + 1];
-      const ratio = nextValue / currentValue;
+      const prev = Math.max(uniqueValues[i], 10);
+      const next = uniqueValues[i + 1];
+      const ratio = next / prev;
 
-      // 비율이 임계값보다 크면 break 생성
       if (ratio >= GAP_RATIO) {
-        const breakStart = currentValue + buffer;
-        const breakEnd = nextValue - buffer;
-
-        if (breakStart < breakEnd) {
-          breaks.push({
-            start: breakStart,
-            end: breakEnd,
-            gap: '5%',
-          });
-        }
+        candidates.push({
+          prev,
+          next,
+          ratio,
+        });
       }
     }
 
-    return breaks;
+    // 2. 차이가 큰 순서대로 정렬
+    candidates.sort((a, b) => b.ratio - a.ratio);
+
+    // 3. 최대 2개만 break 생성
+    return candidates.slice(0, MAX_BREAKS).map(({ prev, next }) => {
+      const buffer = Math.round(prev * 0.2); // 각 구간에 맞는 buffer
+      const start = prev + buffer;
+      const end = next - buffer;
+
+      if (start < end) {
+        return {
+          start,
+          end,
+          gap: '5%',
+        };
+      }
+      return null;
+    });
   }, [chartData]);
 
   // 차트 초기화
