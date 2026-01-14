@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 /**
@@ -209,7 +210,8 @@ public class RecordFactory {
     }
 
     public Record getErrorCategory(final int depth, final int parentId, final Set<ErrorCategory> categories) {
-        return new ErrorCategoryRecord(depth, getNextId(), parentId, categories);
+        String argument = categories.stream().map(Enum::name).collect(Collectors.joining(", "));
+        return ParameterRecord.errorRecord(depth, getNextId(), parentId, argument);
     }
 
     int getParentId(final CallTreeNode node) {
