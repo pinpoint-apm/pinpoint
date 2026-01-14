@@ -16,12 +16,20 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
+import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import io.opentelemetry.proto.common.v1.AnyValue;
+import io.opentelemetry.proto.common.v1.ArrayValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class OtlpTraceMapperUtils {
     public static String getAgentId(List<KeyValue> attributesList) {
@@ -58,45 +66,53 @@ public class OtlpTraceMapperUtils {
         return ByteArrayUtils.bytesToLong(bytes, 0);
     }
 
-    public static String getAttributeAnnotationValue(List<KeyValue> keyValueList) {
-        StringBuilder sb = new StringBuilder();
-        for (KeyValue kv : keyValueList) {
-            // TODO add filter
-            if (kv.getKey().equals("exception.stacktrace") || kv.getKey().equals("db.user")) {
-                continue;
+    public static void addAttributesToAnnotation(ObjectMapper objectMapper, List<KeyValue> keyValueList, List<AnnotationBo> annotationBoList) {
+        try {
+            final Map<String, Object> map = getAttributeToMap(keyValueList);
+            if (!map.isEmpty()) {
+                map.entrySet().removeIf(entry -> OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY_MAP.containsKey(entry.getKey()));
+                final String value = objectMapper.writeValueAsString(map);
+                annotationBoList.add(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_ATTRIBUTE.getCode(), value));
             }
-
-            if (sb.isEmpty()) {
-                sb.append("{ ");
-            } else {
-                sb.append(" , ");
-            }
-            sb.append(getKeyValue(kv));
+        } catch (JsonProcessingException e) {
+            annotationBoList.add(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_ATTRIBUTE.getCode(), "json processing error"));
         }
-        if (!sb.isEmpty()) {
-            sb.append(" }");
-        }
-        return sb.toString();
     }
 
-    public static String getKeyValue(KeyValue keyValue) {
-        AnyValue anyValue = keyValue.getValue();
+
+    static Map<String, Object> getAttributeToMap(List<KeyValue> keyValueList) {
+        Map<String, Object> map = new HashMap<>();
+        for (KeyValue kv : keyValueList) {
+            map.put(kv.getKey(), getAttriubteValueToValue(kv.getValue()));
+        }
+        return map;
+    }
+
+    static List<Object> getArrayValueToList(ArrayValue arrayValue) {
+        List<Object> list = new ArrayList<>(arrayValue.getValuesList());
+        for (AnyValue anyValue : arrayValue.getValuesList()) {
+            list.add(getAttriubteValueToValue(anyValue));
+        }
+        return list;
+    }
+
+    static Object getAttriubteValueToValue(AnyValue anyValue) {
         if (anyValue.hasIntValue()) {
-            return keyValue.getKey() + " : " + anyValue.getIntValue();
+            return anyValue.getIntValue();
         } else if (anyValue.hasDoubleValue()) {
-            return keyValue.getKey() + " : " + anyValue.getDoubleValue();
+            return anyValue.getDoubleValue();
         } else if (anyValue.hasBoolValue()) {
-            return keyValue.getKey() + " : " + anyValue.getBoolValue();
+            return anyValue.getBoolValue();
         } else if (anyValue.hasStringValue()) {
-            return keyValue.getKey() + " : " + anyValue.getStringValue();
+            return anyValue.getStringValue();
         } else if (anyValue.hasArrayValue()) {
-            return keyValue.getKey() + " : " + anyValue.getArrayValue();
+            return getArrayValueToList(anyValue.getArrayValue());
         } else if (anyValue.hasBytesValue()) {
-            return keyValue.getKey() + " : " + anyValue.getBytesValue();
+            return anyValue.getBytesValue();
         } else if (anyValue.hasKvlistValue()) {
-            return keyValue.getKey() + " : " + getAttributeAnnotationValue(anyValue.getKvlistValue().getValuesList());
+            return getAttributeToMap(anyValue.getKvlistValue().getValuesList());
         } else {
-            return keyValue.getKey() + " : " + anyValue.toString();
+            return anyValue;
         }
     }
 }
