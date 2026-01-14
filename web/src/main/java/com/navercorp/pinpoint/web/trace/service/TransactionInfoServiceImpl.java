@@ -41,10 +41,10 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -327,7 +327,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                 if (align.isSpan()) {
                     final SpanBo spanBo = align.getSpanBo();
                     if (spanBo.hasError()) {
-                        EnumSet<ErrorCategory> flagged = errorCategoryResolver.resolve(spanBo.getErrCode());
+                        Set<ErrorCategory> flagged = errorCategoryResolver.resolve(spanBo.getErrCode());
                         if (!flagged.isEmpty()) {
                             final Record errorCategoryRecord = factory.getErrorCategory(record.getTab() + 1, record.getId(), flagged);
                             recordList.add(errorCategoryRecord);

@@ -20,27 +20,28 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.EnumSet;
+import java.util.Set;
 
 class ErrorCategoryResolverTest {
 
     @Test
     public void resolveShouldReturnEmptySetForUnknownErrorCode() {
         int unknownErrorCode = ErrorCategory.UNKNOWN.getBitMask();
-        EnumSet<ErrorCategory> result = new ErrorCategoryResolver().resolve(unknownErrorCode);
+        Set<ErrorCategory> result = new ErrorCategoryResolver().resolve(unknownErrorCode);
         Assertions.assertTrue(result.isEmpty());
     }
 
     @Test
     public void resolveShouldReturnSingleCategoryForMatchingErrorCode() {
         int networkErrorCode = ErrorCategory.EXCEPTION.getBitMask();
-        EnumSet<ErrorCategory> result = new ErrorCategoryResolver().resolve(networkErrorCode);
+        Set<ErrorCategory> result = new ErrorCategoryResolver().resolve(networkErrorCode);
         Assertions.assertEquals(EnumSet.of(ErrorCategory.EXCEPTION), result);
     }
 
     @Test
     public void resolveShouldReturnEmptySetForZeroErrorCode() {
         int zeroErrorCode = 0;
-        EnumSet<ErrorCategory> result = new ErrorCategoryResolver().resolve(zeroErrorCode);
+        Set<ErrorCategory> result = new ErrorCategoryResolver().resolve(zeroErrorCode);
         Assertions.assertTrue(result.isEmpty());
     }
 
