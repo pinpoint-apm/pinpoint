@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.web.trace.callstacks;
 
 import com.navercorp.pinpoint.common.trace.ErrorCategory;
 
-import java.util.EnumSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ErrorCategoryRecord extends BaseRecord {
-    public ErrorCategoryRecord(final int tab, final int id, final int parentId, final EnumSet<ErrorCategory> categories) {
+    public ErrorCategoryRecord(final int tab, final int id, final int parentId, final Set<ErrorCategory> categories) {
         this.tab = tab;
         this.id = id;
         this.parentId = parentId;
