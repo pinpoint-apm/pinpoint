@@ -32,6 +32,12 @@ public class ParameterRecord extends BaseRecord {
         this.isAuthorized = true;
     }
 
+    public static Record errorRecord(final int tab, final int id, final int parentId, final String arguments) {
+        ParameterRecord errorCategory = new ParameterRecord(tab, id, parentId, "ERROR_CATEGORY", arguments);
+        errorCategory.hasException = true;
+        return errorCategory;
+    }
+
     String buildArgument(String argument) {
         return Objects.toString(argument, "null");
     }
