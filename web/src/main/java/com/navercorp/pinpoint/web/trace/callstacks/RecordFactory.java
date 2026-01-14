@@ -33,9 +33,9 @@ import com.navercorp.pinpoint.web.trace.span.Align;
 import com.navercorp.pinpoint.web.trace.span.CallTreeNode;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 
 /**
@@ -208,7 +208,7 @@ public class RecordFactory {
         return new ParameterRecord(depth, getNextId(), parentId, method, argument);
     }
 
-    public Record getErrorCategory(final int depth, final int parentId, final EnumSet<ErrorCategory> categories) {
+    public Record getErrorCategory(final int depth, final int parentId, final Set<ErrorCategory> categories) {
         return new ErrorCategoryRecord(depth, getNextId(), parentId, categories);
     }
 
