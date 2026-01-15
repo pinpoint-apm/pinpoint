@@ -4,7 +4,6 @@ import { HelpPopover } from '../../../components/HelpPopover';
 import * as echarts from 'echarts/core';
 import { BarChart as BarChartEcharts } from 'echarts/charts';
 import { AxisBreak } from 'echarts/features';
-import type { ExpandAxisBreakPayload } from 'echarts/types/dist/shared';
 import { GridComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { cn } from '../../../lib';
@@ -30,13 +29,15 @@ type AxisBreakOption = {
   gap?: string;
 };
 
+const DEFAULT_CATEGORIES = ['1s', '3s', '5s', 'Slow', 'Error'];
+const DEFAULT_COLORS = ['#34b994', '#51afdf', '#ffba00', '#e67f22', '#e95459'];
+
 export const ResponseSummaryChart = ({
   data,
-  categories = ['1s', '3s', '5s', 'Slow', 'Error'],
-  colors = ['#34b994', '#51afdf', '#ffba00', '#e67f22', '#e95459'],
+  categories = DEFAULT_CATEGORIES,
+  colors = DEFAULT_COLORS,
   className,
   title,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   emptyMessage = 'No Data',
   disabledBreak,
 }: ResponseSummaryChartProps) => {
@@ -47,7 +48,6 @@ export const ResponseSummaryChart = ({
     [data, categories],
   );
 
-  const expandedBreaksRef = React.useRef<AxisBreakOption[]>([]);
   // chartData 기반으로 break 설정 계산
   const breakConfig = React.useMemo(() => {
     if (!chartData || chartData.length === 0 || disabledBreak) return [];
@@ -57,6 +57,7 @@ export const ResponseSummaryChart = ({
 
     const uniqueValues = Array.from(new Set(values)).sort((a, b) => a - b);
 
+    const minValue = Math.min(...uniqueValues);
     const GAP_RATIO = 5;
     const MAX_BREAKS = 2;
 
@@ -64,7 +65,7 @@ export const ResponseSummaryChart = ({
     const candidates = [];
 
     for (let i = 0; i < uniqueValues.length - 1; i++) {
-      const prev = Math.max(uniqueValues[i], 10);
+      const prev = Math.max(uniqueValues[i], 5);
       const next = uniqueValues[i + 1];
       const ratio = next / prev;
 
@@ -78,32 +79,27 @@ export const ResponseSummaryChart = ({
     }
 
     // 2. 차이가 큰 순서대로 정렬
-    candidates.sort((a, b) => b.ratio - a.ratio);
+    const sortedCandidates = candidates.sort((a, b) => b.ratio - a.ratio).slice(0, MAX_BREAKS);
 
     // 3. 최대 2개만 break 생성
-    return candidates.slice(0, MAX_BREAKS).map(({ prev, next }) => {
-      const buffer = Math.round(prev * 0.2); // 각 구간에 맞는 buffer
+    const breakArr: AxisBreakOption[] = [];
+
+    sortedCandidates.forEach(({ prev, next }) => {
+      const buffer = Math.min(Math.round(prev * 0.2), minValue); // 각 구간에 맞는 buffer
       const start = prev + buffer;
       const end = next - buffer;
 
-      if (
-        expandedBreaksRef.current.some((expandedBreak) => {
-          return expandedBreak.start === start && expandedBreak.end === end;
-        })
-      ) {
-        return null;
-      }
-
       if (start < end) {
-        return {
+        breakArr.push({
           start,
           end,
-          gap: '5%',
-        };
+          gap: '10%',
+        });
       }
-      return null;
     });
-  }, [chartData]);
+
+    return breakArr;
+  }, [chartData, disabledBreak]);
 
   // 차트 초기화
   React.useEffect(() => {
@@ -120,15 +116,8 @@ export const ResponseSummaryChart = ({
     });
     resizeObserver.observe(wrapperElement);
 
-    chart.on('axisbreakchanged', (params) => {
-      expandedBreaksRef.current.push(
-        ...((params as ExpandAxisBreakPayload).breaks as AxisBreakOption[]),
-      );
-    });
-
     return () => {
       resizeObserver.disconnect();
-      expandedBreaksRef.current = [];
       chart.dispose();
     };
   }, []);

@@ -47,6 +47,23 @@ export const ChartsBoard = ({
     };
   }, []);
 
+  const categories = React.useMemo(() => {
+    return Object.keys(nodeData?.histogram || {});
+  }, [nodeData]);
+
+  const data = React.useCallback(
+    (categories: string[]) => {
+      const histogram = nodeData?.histogram;
+      if (histogram) {
+        return categories?.map((category) => {
+          return histogram?.[category as keyof GetServerMap.Histogram] as number;
+        });
+      }
+      return [];
+    },
+    [nodeData],
+  );
+
   return (
     <ErrorBoundary>
       <div className={cn('flex h-full w-full flex-col bg-white', className)}>
@@ -66,16 +83,8 @@ export const ChartsBoard = ({
                   title={
                     <div className="flex items-center h-12 font-semibold">Response Summary</div>
                   }
-                  categories={Object.keys(nodeData?.histogram || {})}
-                  data={(categories) => {
-                    const histogram = nodeData?.histogram;
-                    if (histogram) {
-                      return categories?.map((category) => {
-                        return histogram[category as keyof GetServerMap.Histogram] as number;
-                      });
-                    }
-                    return [];
-                  }}
+                  categories={categories}
+                  data={data}
                   emptyMessage={emptyMessage}
                   disabledBreak={disabledBreak}
                 />
