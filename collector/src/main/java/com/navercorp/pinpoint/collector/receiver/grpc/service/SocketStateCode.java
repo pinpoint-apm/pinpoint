@@ -1,8 +1,6 @@
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
-import java.util.EnumSet;
 import java.util.Objects;
-import java.util.Set;
 
 public enum SocketStateCode {
 
@@ -32,7 +30,7 @@ public enum SocketStateCode {
     private final byte id;
     private final SocketStateCode[] beforeStateSet;
 
-    private static final Set<SocketStateCode> ALL_STATE_CODES = EnumSet.allOf(SocketStateCode.class);
+    private static final SocketStateCode[] ALL_STATE_CODES = SocketStateCode.values();
 
     SocketStateCode(byte id, SocketStateCode... beforeStateSet) {
         this.id = id;

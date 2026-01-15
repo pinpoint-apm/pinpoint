@@ -16,13 +16,14 @@
 package com.navercorp.pinpoint.common.server.util;
 
 import java.util.EnumSet;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
  * @author intr3p1d
  */
 public class EnumGetter<E extends Enum<E>> {
-    private final EnumSet<E> set;
+    private final Set<E> set;
 
     public EnumGetter(Class<E> eClass) {
         this.set = EnumSet.allOf(eClass);

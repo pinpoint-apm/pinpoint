@@ -18,9 +18,6 @@ package com.navercorp.pinpoint.inspector.collector.model.kafka;
 
 import com.navercorp.pinpoint.common.server.util.ByteUtils;
 
-import java.util.EnumSet;
-import java.util.Set;
-
 /**
  * @author minwoo.jung
  */
@@ -87,7 +84,7 @@ public enum AgentStatField {
     private final String metricName;
     private final String fieldName;
 
-    private static final Set<AgentStatField> AGENT_STAT_TYPES = EnumSet.allOf(AgentStatField.class);
+    private static final AgentStatField[] AGENT_STAT_TYPES = AgentStatField.values();
 
     AgentStatField(int typeCode, String metricName, String fieldName) {
         this.typeCode = ByteUtils.toUnsignedByte(typeCode);

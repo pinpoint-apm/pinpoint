@@ -18,9 +18,6 @@ package com.navercorp.pinpoint.common.util;
 
 import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 
-import java.util.EnumSet;
-import java.util.Set;
-
 /**
  * @author hyungil.jeong
  */
@@ -63,7 +60,7 @@ public enum JvmVersion {
     private final float version;
     private final int classVersion;
 
-    private static final Set<JvmVersion> JVM_VERSION = EnumSet.allOf(JvmVersion.class);
+    private static final JvmVersion[] JVM_VERSION = JvmVersion.values();
     private static final IntHashMap<JvmVersion> CLASS_VERSION_MAP = toClassVersionMap();
 
 

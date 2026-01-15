@@ -17,9 +17,7 @@
 package com.navercorp.pinpoint.web.alarm;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author minwoo.jung
@@ -60,7 +58,7 @@ public enum CheckerCategory {
     DEADLOCK_OCCURRENCE("DEADLOCK OCCURRENCE", DataCollectorCategory.AGENT_EVENT),
     FILE_DESCRIPTOR_COUNT("FILE DESCRIPTOR COUNT", DataCollectorCategory.FILE_DESCRIPTOR);
 
-    private static final Set<CheckerCategory> CHECKER_CATEGORIES = EnumSet.allOf(CheckerCategory.class);
+    private static final CheckerCategory[] CHECKER_CATEGORIES = CheckerCategory.values();
 
     
     public static CheckerCategory getValue(String value) {
@@ -74,7 +72,7 @@ public enum CheckerCategory {
 
     public static List<String> getNames() {
 
-        final List<String> names = new ArrayList<>(CHECKER_CATEGORIES.size());
+        final List<String> names = new ArrayList<>(CHECKER_CATEGORIES.length);
         for (CheckerCategory category : CHECKER_CATEGORIES) {
             names.add(category.getName());
         }

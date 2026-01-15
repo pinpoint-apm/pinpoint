@@ -11,11 +11,12 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.EnumSet;
 import java.util.Objects;
+import java.util.Set;
 
 public class ConfigurableErrorRecorderFactory implements ErrorRecorderFactory {
     private static final Logger logger = LogManager.getLogger(ConfigurableErrorRecorderFactory.class);
 
-    private final EnumSet<ErrorCategory> enabledTypes;
+    private final Set<ErrorCategory> enabledTypes;
 
     @Inject
     public ConfigurableErrorRecorderFactory(ErrorRecorderConfig errorRecorderConfig) {
@@ -24,9 +25,9 @@ public class ConfigurableErrorRecorderFactory implements ErrorRecorderFactory {
     }
 
     @VisibleForTesting
-    static EnumSet<ErrorCategory> getEnabledTypes(String errorMarkString, String errorMarkExcludeString) {
-        EnumSet<ErrorCategory> mark = errorMarkString != null ? toCategorySet(errorMarkString) : EnumSet.allOf(ErrorCategory.class);
-        EnumSet<ErrorCategory> exclude = errorMarkExcludeString != null ? toCategorySet(errorMarkExcludeString) : EnumSet.noneOf(ErrorCategory.class);
+    static Set<ErrorCategory> getEnabledTypes(String errorMarkString, String errorMarkExcludeString) {
+        Set<ErrorCategory> mark = errorMarkString != null ? toCategorySet(errorMarkString) : EnumSet.allOf(ErrorCategory.class);
+        Set<ErrorCategory> exclude = errorMarkExcludeString != null ? toCategorySet(errorMarkExcludeString) : EnumSet.noneOf(ErrorCategory.class);
 
         mark.removeAll(exclude);
         mark.add(ErrorCategory.UNKNOWN);
@@ -34,10 +35,11 @@ public class ConfigurableErrorRecorderFactory implements ErrorRecorderFactory {
         return mark;
     }
 
-    private static EnumSet<ErrorCategory> toCategorySet(String categoryString) {
-        EnumSet<ErrorCategory> result = EnumSet.noneOf(ErrorCategory.class);
+    private static Set<ErrorCategory> toCategorySet(String categoryString) {
+        String[] categories = categoryString.split(",");
 
-        for (String category : categoryString.split(",")) {
+        Set<ErrorCategory> result = EnumSet.noneOf(ErrorCategory.class);
+        for (String category : categories) {
             switch (category.trim().toLowerCase()) {
                 case "exception":
                     result.add(ErrorCategory.EXCEPTION);

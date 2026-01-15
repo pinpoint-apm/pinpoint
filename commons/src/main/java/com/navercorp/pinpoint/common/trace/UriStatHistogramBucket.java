@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.common.trace;
 
-import java.util.EnumSet;
-
 /**
  * @author Taejin Koo
  */
@@ -37,8 +35,7 @@ public enum UriStatHistogramBucket {
     private final int index;
     private final String description;
 
-    private static final EnumSet<UriStatHistogramBucket> BUCKETS = EnumSet.allOf(UriStatHistogramBucket.class);
-    private static final int SIZE = BUCKETS.size();
+    private static final UriStatHistogramBucket[] BUCKETS = UriStatHistogramBucket.values();
 
     UriStatHistogramBucket(long from, long to, int index) {
         this.from = from;
@@ -96,7 +93,7 @@ public enum UriStatHistogramBucket {
         }
 
         public int getBucketSize() {
-            return SIZE;
+            return BUCKETS.length;
         }
 
         public byte getBucketVersion() {

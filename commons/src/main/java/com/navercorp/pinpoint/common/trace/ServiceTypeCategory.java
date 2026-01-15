@@ -15,9 +15,7 @@
  */
 package com.navercorp.pinpoint.common.trace;
 
-import java.util.EnumSet;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * @author Jongho Moon <jongho.moon@navercorp.com>
@@ -43,7 +41,7 @@ public enum ServiceTypeCategory {
 
     private final HistogramSchema histogramSchema;
 
-    private static final Set<ServiceTypeCategory> SERVICE_TYPE_CATEGORIES = EnumSet.allOf(ServiceTypeCategory.class);
+    private static final ServiceTypeCategory[] SERVICE_TYPE_CATEGORIES = ServiceTypeCategory.values();
 
     ServiceTypeCategory(int minCode, int maxCode, NodeCategory nodeCategory) {
         this(minCode, maxCode, nodeCategory, HistogramSchemas.NORMAL_SCHEMA);

@@ -27,9 +27,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author dawidmalina
@@ -41,8 +39,6 @@ public class MariaDBJdbcUrlParser implements JdbcUrlParserV2 {
     static final String MARIA_URL_PREFIX = "jdbc:mariadb:";
     static final String MYSQL_URL_PREFIX = "jdbc:mysql:";
 
-    private static final Set<Type> TYPES = EnumSet.allOf(Type.class);
-
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
 
     @Override
@@ -52,7 +48,7 @@ public class MariaDBJdbcUrlParser implements JdbcUrlParserV2 {
             return UnKnownDatabaseInfo.INSTANCE;
         }
 
-        Type type = getType(jdbcUrl);
+        Type type = Type.getType(jdbcUrl);
         if (type == null) {
             logger.info("jdbcUrl has invalid prefix.(url:{}, valid prefixes:{}, {})", jdbcUrl, MARIA_URL_PREFIX, MYSQL_URL_PREFIX);
             return UnKnownDatabaseInfo.INSTANCE;
@@ -101,21 +97,14 @@ public class MariaDBJdbcUrlParser implements JdbcUrlParserV2 {
         return MariaDBConstants.MARIADB;
     }
 
-    private static Type getType(String jdbcUrl) {
-        for (Type type : TYPES) {
-            if (jdbcUrl.startsWith(type.getUrlPrefix())) {
-                return type;
-            }
-        }
-        return null;
-    }
-
     private enum Type {
         MARIA(MARIA_URL_PREFIX),
         MYSQL(MYSQL_URL_PREFIX);
 
         private final String urlPrefix;
         private final String loadbalanceUrlPrefix;
+
+        private static final Type[] TYPES = Type.values();
 
         Type(String urlPrefix) {
             this.urlPrefix = urlPrefix;
@@ -128,6 +117,15 @@ public class MariaDBJdbcUrlParser implements JdbcUrlParserV2 {
 
         private String getLoadbalanceUrlPrefix() {
             return loadbalanceUrlPrefix;
+        }
+
+        public static Type getType(String jdbcUrl) {
+            for (Type type : TYPES) {
+                if (jdbcUrl.startsWith(type.getUrlPrefix())) {
+                    return type;
+                }
+            }
+            return null;
         }
     }
 }

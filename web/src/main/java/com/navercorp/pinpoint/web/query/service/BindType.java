@@ -1,14 +1,12 @@
 package com.navercorp.pinpoint.web.query.service;
 
-import java.util.EnumSet;
 import java.util.Objects;
-import java.util.Set;
 
 public enum BindType {
     SQL("sql"),
     MONGO_JSON("mongoJson");
 
-    private static final Set<BindType> BIND_TYPE = EnumSet.allOf(BindType.class);
+    private static final BindType[] BIND_TYPE = BindType.values();
 
     private final String typeName;
 

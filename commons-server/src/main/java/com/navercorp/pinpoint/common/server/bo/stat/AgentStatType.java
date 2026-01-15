@@ -18,9 +18,6 @@ package com.navercorp.pinpoint.common.server.bo.stat;
 
 import com.navercorp.pinpoint.common.server.util.ByteUtils;
 
-import java.util.EnumSet;
-import java.util.Set;
-
 /**
  * @author HyunGil Jeong
  */
@@ -45,7 +42,7 @@ public enum AgentStatType {
     private final String name;
     private final String chartType;
 
-    private static final Set<AgentStatType> AGENT_STAT_TYPES = EnumSet.allOf(AgentStatType.class);
+    private static final AgentStatType[] AGENT_STAT_TYPES = AgentStatType.values();
 
     AgentStatType(int typeCode, String name, String chartType) {
         this.typeCode = ByteUtils.toUnsignedByte(typeCode);

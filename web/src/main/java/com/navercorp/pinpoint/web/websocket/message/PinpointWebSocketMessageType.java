@@ -16,9 +16,6 @@
 
 package com.navercorp.pinpoint.web.websocket.message;
 
-import java.util.EnumSet;
-import java.util.Set;
-
 /**
  * @author Taejin Koo
  */
@@ -31,7 +28,7 @@ public enum PinpointWebSocketMessageType {
     PONG,
     UNKNOWN;
 
-    private static final Set<PinpointWebSocketMessageType> MESSAGE_TYPES = EnumSet.allOf(PinpointWebSocketMessageType.class);
+    private static final PinpointWebSocketMessageType[] MESSAGE_TYPES = PinpointWebSocketMessageType.values();
 
     public static PinpointWebSocketMessageType getType(String name) {
         for (PinpointWebSocketMessageType type : MESSAGE_TYPES) {
