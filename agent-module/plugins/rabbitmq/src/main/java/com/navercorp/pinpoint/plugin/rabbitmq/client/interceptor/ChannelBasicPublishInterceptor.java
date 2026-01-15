@@ -12,6 +12,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvoca
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientConstants;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientPluginConfig;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.field.accessor.RemoteAddressAccessor;
@@ -98,7 +99,7 @@ public class ChannelBasicPublishInterceptor implements AroundInterceptor {
             String exchange = (String) args[0];
             String routingKey = (String) args[1];
 
-            if (exchange == null || exchange.equals("")) {
+            if (StringUtils.isEmpty(exchange)) {
                 exchange = RabbitMQClientConstants.UNKNOWN;
             }
 
