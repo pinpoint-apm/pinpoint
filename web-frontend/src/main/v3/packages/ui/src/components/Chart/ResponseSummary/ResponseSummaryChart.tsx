@@ -21,6 +21,7 @@ export interface ResponseSummaryChartProps {
   title?: React.ReactNode;
   className?: string;
   emptyMessage?: string;
+  disabledBreak?: boolean;
 }
 
 type AxisBreakOption = {
@@ -37,6 +38,7 @@ export const ResponseSummaryChart = ({
   title,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   emptyMessage = 'No Data',
+  disabledBreak,
 }: ResponseSummaryChartProps) => {
   const chartRef = React.useRef(null);
   const chartInstanceRef = React.useRef<echarts.EChartsType | null>(null);
@@ -48,7 +50,7 @@ export const ResponseSummaryChart = ({
   const expandedBreaksRef = React.useRef<AxisBreakOption[]>([]);
   // chartData 기반으로 break 설정 계산
   const breakConfig = React.useMemo(() => {
-    if (!chartData || chartData.length === 0) return [];
+    if (!chartData || chartData.length === 0 || disabledBreak) return [];
 
     const values = chartData.filter((v) => v > 0);
     if (values.length < 2) return [];
