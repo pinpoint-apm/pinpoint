@@ -38,17 +38,17 @@ public class TraceIndexMetaMapper implements RowMapper<List<DotMetaData>>, RowTy
 
     private final Predicate<byte[]> rowPredicate;
     private final Predicate<Integer> exceptionCodeFilter;
-    private final Predicate<Integer> elapsedTimeFilter;
     private final Predicate<String> agentIdFilter;
+    private final Predicate<Integer> elapsedTimeFilter;
 
     public TraceIndexMetaMapper(Predicate<byte[]> rowPredicate,
                                 Predicate<Integer> exceptionCodeFilter,
-                                Predicate<Integer> elapsedTimeFilter,
-                                Predicate<String> agentIdFilter) {
+                                Predicate<String> agentIdFilter,
+                                Predicate<Integer> elapsedTimeFilter) {
         this.rowPredicate = rowPredicate;
         this.exceptionCodeFilter = exceptionCodeFilter;
-        this.elapsedTimeFilter = elapsedTimeFilter;
         this.agentIdFilter = agentIdFilter;
+        this.elapsedTimeFilter = elapsedTimeFilter;
     }
 
     @Override
@@ -56,7 +56,7 @@ public class TraceIndexMetaMapper implements RowMapper<List<DotMetaData>>, RowTy
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
-        if (rowPredicate != null && !rowPredicate.test(result.getRow())) {
+        if (!test(rowPredicate, result.getRow())) {
             return Collections.emptyList();
         }
 
@@ -76,14 +76,18 @@ public class TraceIndexMetaMapper implements RowMapper<List<DotMetaData>>, RowTy
         return filterAndBuild(builder);
     }
 
-    public List<DotMetaData> filterAndBuild(DotMetaData.BuilderV2 builder) {
-        if ((elapsedTimeFilter == null || elapsedTimeFilter.test(builder.getElapsedTime()))
-                && (exceptionCodeFilter == null || exceptionCodeFilter.test(builder.getExceptionCode()))
-                && (agentIdFilter == null || agentIdFilter.test(builder.getAgentId()))) {
+    private List<DotMetaData> filterAndBuild(DotMetaData.BuilderV2 builder) {
+        if (test(exceptionCodeFilter, builder.getExceptionCode()) &&
+                test(agentIdFilter, builder.getAgentId()) &&
+                test(elapsedTimeFilter, builder.getElapsedTime())) {
             return List.of(builder.build());
         } else {
             return Collections.emptyList();
         }
+    }
+
+    private <T> boolean test(Predicate<T> predicate, T value) {
+        return predicate == null || predicate.test(value);
     }
 
     @Override
