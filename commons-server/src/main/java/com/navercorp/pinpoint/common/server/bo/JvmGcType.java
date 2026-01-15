@@ -16,9 +16,6 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
-import java.util.EnumSet;
-import java.util.Set;
-
 /**
  * @author HyunGil Jeong
  */
@@ -32,7 +29,7 @@ public enum JvmGcType {
 
     private final int typeCode;
 
-    private static final Set<JvmGcType> JVM_GC_TYPES = EnumSet.allOf(JvmGcType.class);
+    private static final JvmGcType[] JVM_GC_TYPES = JvmGcType.values();
 
 
     JvmGcType(int typeCode) {

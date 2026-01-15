@@ -3,9 +3,6 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Set;
 
 public enum ManagedAgentLifeCycle {
@@ -26,10 +23,10 @@ public enum ManagedAgentLifeCycle {
             SocketStateCode.ERROR_ILLEGAL_STATE_CHANGE, SocketStateCode.ERROR_SYNC_STATE_SESSION);
 
 
-    private static final EnumSet<ManagedAgentLifeCycle> CLOSED_EVENT
-            = EnumSet.of(CLOSED_BY_CLIENT, UNEXPECTED_CLOSE_BY_CLIENT, CLOSED_BY_SERVER, UNEXPECTED_CLOSE_BY_SERVER);
+    private static final ManagedAgentLifeCycle[] CLOSED_EVENT
+            = new ManagedAgentLifeCycle[] {CLOSED_BY_CLIENT, UNEXPECTED_CLOSE_BY_CLIENT, CLOSED_BY_SERVER, UNEXPECTED_CLOSE_BY_SERVER};
 
-    private static final EnumSet<ManagedAgentLifeCycle> ALL = EnumSet.allOf(ManagedAgentLifeCycle.class);
+    private static final ManagedAgentLifeCycle[] ALL = ManagedAgentLifeCycle.values();
 
     private final int eventCounter;
     private final Set<SocketStateCode> managedStateCodeSet;
@@ -41,7 +38,7 @@ public enum ManagedAgentLifeCycle {
         this.agentLifeCycleState = agentLifeCycleState;
         this.agentEventType = agentEventType;
 
-        this.managedStateCodeSet = EnumSet.copyOf(Arrays.asList(managedStateCodes));
+        this.managedStateCodeSet = Set.of(managedStateCodes);
     }
 
     public int getEventCounter() {
@@ -49,7 +46,7 @@ public enum ManagedAgentLifeCycle {
     }
 
     public Set<SocketStateCode> getManagedStateCodes() {
-        return Collections.unmodifiableSet(this.managedStateCodeSet);
+        return this.managedStateCodeSet;
     }
 
     public AgentLifeCycleState getMappedState() {
@@ -73,6 +70,11 @@ public enum ManagedAgentLifeCycle {
     }
 
     public boolean isClosedEvent() {
-        return CLOSED_EVENT.contains(this);
+        for (ManagedAgentLifeCycle managedAgentLifeCycle : CLOSED_EVENT) {
+            if (managedAgentLifeCycle == this) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -17,10 +17,11 @@
 package com.navercorp.pinpoint.otlp.common.web.definition.property;
 
 import com.navercorp.pinpoint.common.server.util.EnumGetter;
+import org.jspecify.annotations.NonNull;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author minwoo-jung
@@ -47,8 +48,16 @@ public enum ChartType {
         return chartName;
     }
 
-    private static final EnumSet<ChartType> ENUM_SET = EnumSet.allOf(ChartType.class);
-    private static final EnumGetter<ChartType> GETTER = new EnumGetter<>(ENUM_SET);
+    private static final List<String> CHART_NAME_LIST = chartNameList();
+
+    private static @NonNull List<String> chartNameList() {
+        List<String> collect = Arrays.stream(ChartType.values())
+                .map(ChartType::getChartName)
+                .toList();
+        return List.copyOf(collect);
+    }
+
+    private static final EnumGetter<ChartType> GETTER = new EnumGetter<>(EnumSet.allOf(ChartType.class));
 
 
     public static ChartType fromChartName(String chartName) {
@@ -56,8 +65,6 @@ public enum ChartType {
     }
 
     public static List<String> getChartNameList() {
-        return ENUM_SET.stream()
-                .map(ChartType::getChartName)
-                .collect(Collectors.toList());
+        return CHART_NAME_LIST;
     }
 }

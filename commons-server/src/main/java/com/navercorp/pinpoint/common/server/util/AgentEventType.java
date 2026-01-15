@@ -17,12 +17,9 @@
 package com.navercorp.pinpoint.common.server.util;
 
 import com.navercorp.pinpoint.common.server.bo.event.DeadlockBo;
-import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static com.navercorp.pinpoint.common.server.util.AgentEventTypeCategory.AGENT_LIFECYCLE;
@@ -49,20 +46,13 @@ public enum AgentEventType {
     private final Class<?> messageType;
     private final Set<AgentEventTypeCategory> category;
 
-    private static final Set<AgentEventType> AGENT_EVENT_TYPE = EnumSet.allOf(AgentEventType.class);
+    private static final AgentEventType[] AGENT_EVENT_TYPE = AgentEventType.values();
 
     AgentEventType(int code, String desc, Class<?> messageType, AgentEventTypeCategory... category) {
         this.code = code;
         this.desc = desc;
         this.messageType = messageType;
-        this.category = asSet(category);
-    }
-
-    private Set<AgentEventTypeCategory> asSet(AgentEventTypeCategory[] category) {
-        if (ArrayUtils.isEmpty(category)) {
-           return Collections.emptySet();
-       }
-       return EnumSet.copyOf(List.of(category));
+        this.category = Set.of(category);
     }
 
     public int getCode() {

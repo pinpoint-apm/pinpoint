@@ -30,7 +30,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Constructor;
-import java.util.EnumSet;
 import java.util.Objects;
 
 /**
@@ -42,6 +41,9 @@ public class FileDescriptorMetricProvider implements Provider<FileDescriptorMetr
 
     private static final String ORACLE_FILE_DESCRIPTOR_METRIC = "com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.oracle.OracleFileDescriptorMetric";
     private static final String IBM_FILE_DESCRIPTOR_METRIC = "com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.ibm.IbmFileDescriptorMetric";
+
+    private static final JvmType[] ORACLE_JDK = new JvmType[]{JvmType.ORACLE, JvmType.OPENJDK};
+    private static final OsType[] SUPPORTED_OS = new OsType[]{OsType.MAC, OsType.SOLARIS, OsType.LINUX, OsType.AIX, OsType.HP_UX, OsType.BSD};
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -91,14 +93,21 @@ public class FileDescriptorMetricProvider implements Provider<FileDescriptorMetr
     }
 
     private boolean isOracleJdk(JvmType jvmType) {
-        EnumSet<JvmType> orackeJdk = EnumSet.of(JvmType.ORACLE, JvmType.OPENJDK);
-        return orackeJdk.contains(jvmType);
+        for (JvmType type : ORACLE_JDK) {
+            if (type == jvmType) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isSupportedOS(OsType osType) {
-        EnumSet<OsType> supportedOs = EnumSet.of(OsType.MAC, OsType.SOLARIS, OsType.LINUX
-                , OsType.AIX, OsType.HP_UX, OsType.BSD);
-        return supportedOs.contains(osType);
+        for (OsType os : SUPPORTED_OS) {
+            if (os == osType) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private JvmType getJvmType() {

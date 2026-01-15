@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import java.util.EnumSet;
-
 /**
  * @author HyunGil Jeong
  */
@@ -31,7 +29,7 @@ public enum JvmType {
 
     private final String inclusiveString;
 
-    private static final EnumSet<JvmType> JVM_TYPE = EnumSet.allOf(JvmType.class);
+    private static final JvmType[] JVM_TYPE = JvmType.values();
 
     JvmType(String inclusiveString) {
         this.inclusiveString = inclusiveString;

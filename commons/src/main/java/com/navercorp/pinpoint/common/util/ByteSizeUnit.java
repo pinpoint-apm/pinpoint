@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.common.util;
 
 
-import java.util.EnumSet;
 import java.util.Objects;
 
 /**
@@ -31,7 +30,7 @@ public enum ByteSizeUnit {
     GIGA_BYTES(new String[]{"G", "g", "GB"}, ByteSizeUnit.GIGA_SIZE),
     TERA_BYTES(new String[]{"T", "t", "TB"}, ByteSizeUnit.TERA_SIZE);
 
-    private static final EnumSet<ByteSizeUnit> ALL = EnumSet.allOf(ByteSizeUnit.class);
+    private static final ByteSizeUnit[] ALL = ByteSizeUnit.values();
 
     private static final long BYTES_SIZE = 1;
     private static final long KILO_SIZE = 1024;
