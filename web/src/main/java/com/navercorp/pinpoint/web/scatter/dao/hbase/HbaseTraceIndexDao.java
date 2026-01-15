@@ -34,7 +34,6 @@ import com.navercorp.pinpoint.web.scatter.DragArea;
 import com.navercorp.pinpoint.web.scatter.DragAreaQuery;
 import com.navercorp.pinpoint.web.scatter.dao.LastTimeListExtractor;
 import com.navercorp.pinpoint.web.scatter.dao.TraceIndexDao;
-import com.navercorp.pinpoint.web.scatter.dao.mapper.ExistMapper;
 import com.navercorp.pinpoint.web.scatter.dao.mapper.TraceIndexDotMapper;
 import com.navercorp.pinpoint.web.scatter.dao.mapper.TraceIndexMetaMapper;
 import com.navercorp.pinpoint.web.scatter.vo.Dot;
@@ -85,20 +84,6 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
     }
 
     @Override
-    public boolean hasTraceIndex(int serviceUid, String applicationName, int serviceTypeCode, Range range) {
-        Objects.requireNonNull(applicationName, "applicationName");
-        Objects.requireNonNull(range, "range");
-        logger.debug("hasTraceIndex {}", range);
-        Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range);
-
-        RowMapper<Boolean> existMapper = new ExistMapper(buildApplicationNamePredicate(applicationName));
-        TableName applicationTraceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
-        List<Boolean> existsList = hbaseOperations.findParallel(applicationTraceIndexTableName,
-                scan, traceIndexDistributor, 1, existMapper, TRACE_INDEX_NUM_PARTITIONS);
-        return existsList.contains(Boolean.TRUE);
-    }
-
-    @Override
     public LimitedScanResult<List<DotMetaData>> scanTraceIndex(int serviceUid, final String applicationName, int serviceTypeCode, Range range, int limit) {
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(range, "range");
@@ -134,7 +119,7 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 
         Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range);
 
-        RowMapper<List<Dot>> dotMapper = new TraceIndexDotMapper(buildApplicationNamePredicate(applicationName));
+        RowMapper<List<Dot>> dotMapper = new TraceIndexDotMapper(TraceIndexRowKeyUtils.createApplicationNamePredicate(applicationName));
         TableName applicationTraceIndexTableName = tableNameProvider.getTableName(INDEX.getTable());
         List<List<Dot>> scanResult = hbaseOperations.findParallel(applicationTraceIndexTableName, scan,
                 traceIndexDistributor, limit, dotMapper, TRACE_INDEX_NUM_PARTITIONS);
@@ -199,26 +184,18 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
     }
 
     private TraceIndexMetaMapper createDotMetaMapper(String applicationName) {
-        Predicate<byte[]> applicationNamePredicate = buildApplicationNamePredicate(applicationName);
+        Predicate<byte[]> applicationNamePredicate = TraceIndexRowKeyUtils.createApplicationNamePredicate(applicationName);
         return new TraceIndexMetaMapper(applicationNamePredicate, null, null, null);
     }
 
     private TraceIndexMetaMapper createDotMetaMapper(String applicationName, DragAreaQuery dragAreaQuery) {
+        Predicate<byte[]> applicationNamePredicate = TraceIndexRowKeyUtils.createApplicationNamePredicate(applicationName);
         Predicate<String> agentIdPredicate = buildAgentIdPredicate(dragAreaQuery);
-        Predicate<byte[]> applicationNamePredicate = buildApplicationNamePredicate(applicationName);
         Predicate<Integer> exceptionCodePredicate = buildExceptionCodePredicate(dragAreaQuery);
-        Predicate<Integer> elapsedTimePredicate = null;
         if (!scatterChartProperties.isEnableHbaseValueFilter()) {
-            elapsedTimePredicate = buildElapsedTimePredicate(dragAreaQuery);
+            return new TraceIndexMetaMapper(applicationNamePredicate, exceptionCodePredicate, agentIdPredicate, buildElapsedTimePredicate(dragAreaQuery));
         }
-        return new TraceIndexMetaMapper(applicationNamePredicate, exceptionCodePredicate, elapsedTimePredicate, agentIdPredicate);
-    }
-
-    private Predicate<byte[]> buildApplicationNamePredicate(String applicationName) {
-        return row -> {
-            String rowApplicationName = TraceIndexRowKeyUtils.extractApplicationName(row, 0);
-            return applicationName.equals(rowApplicationName);
-        };
+        return new TraceIndexMetaMapper(applicationNamePredicate, exceptionCodePredicate, agentIdPredicate, null);
     }
 
     private Predicate<Integer> buildElapsedTimePredicate(DragAreaQuery dragAreaQuery) {
