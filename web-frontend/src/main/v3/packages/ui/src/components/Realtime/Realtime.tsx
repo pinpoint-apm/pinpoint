@@ -137,6 +137,7 @@ export const Realtime = ({ configuration }: RealtimeProps) => {
         }}
       >
         <ChartsBoard
+          disabledBreak={true}
           timestamp={
             serverMapData?.applicationMapData
               ?.timestamp as GetServerMap.ApplicationMapData['timestamp']

@@ -14,6 +14,7 @@ export interface ChartsBoardProps {
   timestamp?: GetServerMap.ApplicationMapData['timestamp'];
   nodeData?: GetServerMap.NodeData;
   emptyMessage?: string;
+  disabledBreak?: boolean;
 }
 
 export const ChartsBoard = ({
@@ -24,6 +25,7 @@ export const ChartsBoard = ({
   timestamp,
   nodeData,
   emptyMessage,
+  disabledBreak,
 }: ChartsBoardProps) => {
   const wrapperRef = React.useRef<HTMLDivElement>(null);
   const [gridMode, setGridMode] = React.useState(false);
@@ -75,6 +77,7 @@ export const ChartsBoard = ({
                     return [];
                   }}
                   emptyMessage={emptyMessage}
+                  disabledBreak={disabledBreak}
                 />
               </div>
               {!gridMode && <Separator />}
