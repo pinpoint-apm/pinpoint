@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.batch.alarm.AlarmSenderConfiguration;
 import com.navercorp.pinpoint.batch.common.BatchJobLauncher;
 import com.navercorp.pinpoint.batch.common.StartupJobLauncher;
 import com.navercorp.pinpoint.batch.config.AlarmJobModule;
+import com.navercorp.pinpoint.batch.config.BatchXmlConfig;
+import com.navercorp.pinpoint.batch.config.BatchJavaConfigModule;
 import com.navercorp.pinpoint.batch.config.CleanupInactiveApplicationsJobConfig;
 import com.navercorp.pinpoint.common.server.config.CommonCacheManagerConfiguration;
 import com.navercorp.pinpoint.common.server.config.RestTemplateConfiguration;
@@ -46,9 +48,6 @@ import org.springframework.context.annotation.ImportResource;
 import java.util.List;
 
 @ImportResource({
-        "classpath:applicationContext-batch-schedule.xml",
-
-        "classpath:applicationContext-batch-common.xml",
         "classpath:applicationContext-batch-dao-config.xml",
         "classpath:applicationContext-batch-web-component.xml",
 
@@ -65,6 +64,9 @@ import java.util.List;
         MetaDataSourceConfiguration.class,
 
         AlarmJobModule.class,
+
+        BatchXmlConfig.class,
+        BatchJavaConfigModule.class,
 
         WebServiceConfig.CommonConfig.class,
         TraceConfiguration.TraceServiceConfiguration.class,
