@@ -73,13 +73,13 @@ public final class ASMClassWriter extends ClassWriter {
 
         final ClassReader classReader1 = getClassReader(classInternalName1);
         if (classReader1 == null) {
-            logger.warn("Skip getCommonSuperClass(). not found class {}", classInternalName1);
+            logger.debug("Skip getCommonSuperClass(). not found class {}", classInternalName1);
             return OBJECT_CLASS_INTERNAL_NAME;
         }
 
         final ClassReader classReader2 = getClassReader(classInternalName2);
         if (classReader2 == null) {
-            logger.warn("Skip getCommonSuperClass(). not found class {}", classInternalName2);
+            logger.debug"Skip getCommonSuperClass(). not found class {}", classInternalName2);
             return OBJECT_CLASS_INTERNAL_NAME;
         }
 
