@@ -23,7 +23,7 @@
 
     <select id="selectFeatureFlag" resultType="FeatureFlagResult" parameterType="FeatureFlagParameter">
         SELECT service_name, application_name
-        FROM feature_flag
+        FROM pinpoint.feature_flag
         WHERE feature_name = #{featureName}
             AND rule_type = #{ruleType}
     </select>
