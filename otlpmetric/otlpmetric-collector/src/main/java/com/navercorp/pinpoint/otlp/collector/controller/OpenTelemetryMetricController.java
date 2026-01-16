@@ -150,7 +150,11 @@ public class OpenTelemetryMetricController {
 
     private long findStartTime(OtlpMetricData metricData) {
         for (OtlpMetricDataPoint point : metricData.getValues()) {
-            return point.getStartTime();
+            try {
+                return point.getStartTime();
+            } catch(Exception ignored) {
+                return 0;
+            }
         }
         return 0;
     }
