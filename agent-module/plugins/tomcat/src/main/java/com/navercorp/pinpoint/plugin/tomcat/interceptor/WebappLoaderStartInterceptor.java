@@ -161,7 +161,7 @@ public class WebappLoaderStartInterceptor implements AroundInterceptor {
         if (StringUtils.isEmpty(jarName)) {
             return "";
         }
-        int lastIndexOfSeparator = jarName.lastIndexOf("/");
+        int lastIndexOfSeparator = jarName.lastIndexOf('/');
         if (lastIndexOfSeparator < 0) {
             return jarName;
         } else {

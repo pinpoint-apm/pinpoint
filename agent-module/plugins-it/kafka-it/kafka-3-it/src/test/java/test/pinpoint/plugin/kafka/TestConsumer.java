@@ -50,7 +50,7 @@ public class TestConsumer {
 
     public TestConsumer(OffsetStore offsetStore, String brokerUrl) {
         String testClassName = System.getProperty(SharedPluginTestConstants.TEST_CLAZZ_NAME);
-        String testSimpleClassName = testClassName != null ? testClassName.substring(testClassName.lastIndexOf(".") + 1) : "UNKNOWN";
+        String testSimpleClassName = testClassName != null ? testClassName.substring(testClassName.lastIndexOf('.') + 1) : "UNKNOWN";
         String threadName = testSimpleClassName + "-test-poller";
         poller = new Poller(offsetStore, brokerUrl);
         consumerThread = new Thread(poller, threadName);

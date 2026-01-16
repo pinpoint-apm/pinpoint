@@ -51,7 +51,7 @@ public class TestConsumer {
 
     public TestConsumer(OffsetStore offsetStore, String brokerUrl) {
         String testClassName = System.getProperty(SharedPluginTestConstants.TEST_CLAZZ_NAME);
-        String testSimpleClassName = testClassName != null ? testClassName.substring(testClassName.lastIndexOf(".") + 1) : "UNKNOWN";
+        String testSimpleClassName = testClassName != null ? testClassName.substring(testClassName.lastIndexOf('.') + 1) : "UNKNOWN";
         String threadName = testSimpleClassName + "-test-poller";
         this.props = getConsumerConfig(brokerUrl);
         poller = new Poller(offsetStore, props);

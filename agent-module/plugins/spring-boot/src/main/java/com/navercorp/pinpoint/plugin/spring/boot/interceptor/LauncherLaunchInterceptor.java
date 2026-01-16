@@ -37,8 +37,10 @@ import java.util.TreeSet;
  */
 public class LauncherLaunchInterceptor implements AroundInterceptor {
 
-    private final static String PATH_SEPARATOR = "/";
-    private final static String JAR_SEPARATOR = "!";
+    private final static char PATH_SEPARATOR_CHAR = '/';
+    private final static String PATH_SEPARATOR = "" + PATH_SEPARATOR_CHAR;
+
+    private final static char JAR_SEPARATOR = '!';
 
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -67,7 +69,7 @@ public class LauncherLaunchInterceptor implements AroundInterceptor {
         String serviceName = createServiceName(target);
         URLClassLoader classLoader = ArrayArgumentUtils.getArgument(args, classLoaderIndex, URLClassLoader.class);
         URL[] urls = classLoader.getURLs();
-        List<String> loadedJarNames = new ArrayList<String>(extractLibJarNamesFromURLs(urls));
+        List<String> loadedJarNames = new ArrayList<>(extractLibJarNamesFromURLs(urls));
         ServerMetaDataHolder holder = this.traceContext.getServerMetaDataHolder();
         holder.addServiceInfo(serviceName, loadedJarNames);
         holder.notifyListeners();
@@ -79,9 +81,7 @@ public class LauncherLaunchInterceptor implements AroundInterceptor {
     }
 
     private String createServiceName(Object target) {
-        StringBuilder sb = new StringBuilder(SpringBootConstants.ROOT_CONTEXT_KEY);
-        sb.append(" (").append(target.getClass().getSimpleName()).append(")");
-        return sb.toString();
+        return SpringBootConstants.ROOT_CONTEXT_KEY + " (" + target.getClass().getSimpleName() + ")";
     }
 
     private boolean validate(Object target, Object[] args) {
@@ -102,11 +102,11 @@ public class LauncherLaunchInterceptor implements AroundInterceptor {
         if (urls == null) {
             return Collections.emptySet();
         }
-        Set<String> libJarNames = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+        Set<String> libJarNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         for (URL url : urls) {
             try {
                 String libJarName = extractLibJarName(url);
-                if (libJarName.length() > 0) {
+                if (!libJarName.isEmpty()) {
                     libJarNames.add(libJarName);
                 }
             } catch (Exception e) {
@@ -130,7 +130,7 @@ public class LauncherLaunchInterceptor implements AroundInterceptor {
     }
 
     private String extractNameFromFile(String fileUri) {
-        int lastIndexOfSeparator = fileUri.lastIndexOf(PATH_SEPARATOR);
+        int lastIndexOfSeparator = fileUri.lastIndexOf(PATH_SEPARATOR_CHAR);
         if (lastIndexOfSeparator < 0) {
             return fileUri;
         } else {

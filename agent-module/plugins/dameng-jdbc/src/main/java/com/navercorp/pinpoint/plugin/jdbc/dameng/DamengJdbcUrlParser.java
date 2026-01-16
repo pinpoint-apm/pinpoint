@@ -133,7 +133,7 @@ public class DamengJdbcUrlParser implements JdbcUrlParserV2 {
     }
 
     private List<String> parseHost(String host) {
-        final int multiHost = host.indexOf(",");
+        final int multiHost = host.indexOf(',');
         if (multiHost == -1) {
             return Collections.singletonList(host);
         }
