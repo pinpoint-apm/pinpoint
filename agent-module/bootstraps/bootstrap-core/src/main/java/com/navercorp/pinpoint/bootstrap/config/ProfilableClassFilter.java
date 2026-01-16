@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,22 +27,30 @@ import java.util.Set;
  */
 public class ProfilableClassFilter implements Filter<String> {
 
+    private static final String SUFFIX = ".*";
+
     private final Set<String> profileInclude = new HashSet<>();
-    private final Set<String> profileIncludeSub = new HashSet<>();
+    private final String[] profileIncludeSub;
 
     public ProfilableClassFilter(String profilableClass) {
         if (StringUtils.isEmpty(profilableClass)) {
+            this.profileIncludeSub = new String[0];
             return;
         }
-        String[] className = profilableClass.split(",");
-        for (String str : className) {
-            if (str.endsWith(".*")) {
-                this.profileIncludeSub.add(str.substring(0, str.length() - 2).replace('.', '/') + "/");
+        String[] classNames = profilableClass.split(",");
+
+        Set<String> subPackages = new HashSet<>();
+        for (String className : classNames) {
+            if (className.endsWith(SUFFIX)) {
+                // "com.foo.*" -> "com/foo/"
+                String packagePath = className.substring(0, className.length() - SUFFIX.length()).replace('.', '/') + "/";
+                subPackages.add(packagePath);
             } else {
-                String replace = str.trim().replace('.', '/');
-                this.profileInclude.add(replace);
+                String classPath = className.trim().replace('.', '/');
+                this.profileInclude.add(classPath);
             }
         }
+        this.profileIncludeSub = subPackages.toArray(new String[0]);
     }
 
     /**
@@ -55,9 +64,8 @@ public class ProfilableClassFilter implements Filter<String> {
         if (profileInclude.contains(className)) {
             return true;
         } else {
-            final String packageName = className.substring(0, className.lastIndexOf("/") + 1);
             for (String pkg : profileIncludeSub) {
-                if (packageName.startsWith(pkg)) {
+                if (className.startsWith(pkg)) {
                     return true;
                 }
             }
@@ -68,10 +76,9 @@ public class ProfilableClassFilter implements Filter<String> {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ProfilableClassFilter{");
-        sb.append("profileInclude=").append(profileInclude);
-        sb.append(", profileIncludeSub=").append(profileIncludeSub);
-        sb.append('}');
-        return sb.toString();
+        return "ProfilableClassFilter{"
+                + "profileInclude=" + profileInclude +
+                ", profileIncludeSub=" + Arrays.toString(profileIncludeSub) +
+                '}';
     }
 }

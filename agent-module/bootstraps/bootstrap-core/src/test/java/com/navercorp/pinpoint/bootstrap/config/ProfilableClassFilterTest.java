@@ -24,6 +24,39 @@ import java.io.IOException;
 public class ProfilableClassFilterTest {
 
     @Test
+    public void testEmptyConfiguration() {
+        ProfilableClassFilter filter = new ProfilableClassFilter("");
+
+        Assertions.assertFalse(filter.filter("com/navercorp/pinpoint/testweb/MyClass"));
+        Assertions.assertFalse(filter.filter("com/navercorp/pinpoint/testweb/controller/MyController"));
+    }
+
+    @Test
+    public void testExactMatch() {
+        ProfilableClassFilter filter = new ProfilableClassFilter("com.navercorp.pinpoint.SomeSpecificClass");
+
+        Assertions.assertTrue(filter.filter("com/navercorp/pinpoint/SomeSpecificClass"));
+        Assertions.assertFalse(filter.filter("com/navercorp/pinpoint/SomeOtherClass"));
+    }
+
+    @Test
+    public void testSubpackageFiltering() {
+        ProfilableClassFilter filter = new ProfilableClassFilter("com.navercorp.pinpoint.testweb.controller.*");
+
+        Assertions.assertTrue(filter.filter("com/navercorp/pinpoint/testweb/controller/TestController1"));
+        Assertions.assertTrue(filter.filter("com/navercorp/pinpoint/testweb/controller/subcontroller/InnerController"));
+        Assertions.assertFalse(filter.filter("com/navercorp/pinpoint/testweb/otherpackage/NotController"));
+    }
+
+    @Test
+    public void testUnexpectedClassNames() {
+        ProfilableClassFilter filter = new ProfilableClassFilter("com.navercorp.pinpoint.testweb.*");
+
+        Assertions.assertFalse(filter.filter("random/unknown/path"));
+        Assertions.assertFalse(filter.filter("com/random/pinpoint/path"));
+    }
+
+    @Test
     public void testIsProfilableClassWithNoConfiguration() throws IOException {
         ProfilableClassFilter filter = new ProfilableClassFilter("com.navercorp.pinpoint.testweb.controller.*,com.navercorp.pinpoint.testweb.MyClass");
 
