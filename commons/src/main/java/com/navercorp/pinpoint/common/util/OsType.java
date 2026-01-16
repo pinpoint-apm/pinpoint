@@ -58,11 +58,12 @@ public enum OsType {
         if (osName == null) {
             return UNKNOWN;
         }
+        String lowerCase = osName.toLowerCase();
         for (OsType osType : OS_TYPE) {
             if (osType.inclusiveString == null) {
                 continue;
             }
-            if (osName.toLowerCase().contains(osType.inclusiveString.toLowerCase())) {
+            if (lowerCase.contains(osType.inclusiveString.toLowerCase())) {
                 return osType;
             }
         }

@@ -112,7 +112,7 @@ public class SpringBeansTarget {
 
         final List<PathMatcher> pathMatchers = new ArrayList<>(patternStrings.size());
         for (String patternString : patternStrings) {
-            final int prefixEnd = patternString.indexOf(":");
+            final int prefixEnd = patternString.indexOf(':');
             if (prefixEnd != -1) {
                 final String prefix = patternString.substring(0, prefixEnd).trim();
                 if (prefix.equals(ANT_STYLE_PATTERN_PREFIX)) {

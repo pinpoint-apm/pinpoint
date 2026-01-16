@@ -27,7 +27,8 @@ import java.util.Objects;
  */
 public final class TransactionIdUtils {
     // value is displayed as html - should not use html syntax
-    public static final String TRANSACTION_ID_DELIMITER = "^";
+    public static final char TRANSACTION_ID_DELIMITER_CHAR = '^';
+    public static final String TRANSACTION_ID_DELIMITER = "" + TRANSACTION_ID_DELIMITER_CHAR;
     public static final int NULL = -1;
 
     public static final byte VERSION = 0;
@@ -44,9 +45,9 @@ public final class TransactionIdUtils {
         Objects.requireNonNull(agentId, "agentId");
 
         return agentId +
-                TRANSACTION_ID_DELIMITER +
+                TRANSACTION_ID_DELIMITER_CHAR +
                 agentStartTime +
-                TRANSACTION_ID_DELIMITER +
+                TRANSACTION_ID_DELIMITER_CHAR +
                 transactionSequence;
     }
 
@@ -109,7 +110,7 @@ public final class TransactionIdUtils {
     }
 
     private static int nextIndex(String transactionId, int fromIndex) {
-        return transactionId.indexOf(TRANSACTION_ID_DELIMITER, fromIndex);
+        return transactionId.indexOf(TRANSACTION_ID_DELIMITER_CHAR, fromIndex);
     }
 
     private static long parseLong(String transactionId, int beginIndex, int endIndex) {

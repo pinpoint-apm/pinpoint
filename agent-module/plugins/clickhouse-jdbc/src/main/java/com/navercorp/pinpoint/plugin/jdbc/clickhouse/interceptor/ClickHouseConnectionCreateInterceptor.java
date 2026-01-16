@@ -61,7 +61,7 @@ public class ClickHouseConnectionCreateInterceptor implements AroundInterceptor 
 
         if (args[0] instanceof String) {
             jdbcUrl = (String) args[0];
-            tmpURL = jdbcUrl.substring(jdbcUrl.lastIndexOf("/") + 1);
+            tmpURL = jdbcUrl.substring(jdbcUrl.lastIndexOf('/') + 1);
         }
 
         if (args[1] instanceof Properties) {
