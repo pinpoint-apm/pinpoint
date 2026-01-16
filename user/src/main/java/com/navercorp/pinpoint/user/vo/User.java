@@ -18,6 +18,7 @@
 package com.navercorp.pinpoint.user.vo;
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -120,7 +121,7 @@ public class User {
             if (phoneNumber == null) {
                 continue;
             } else if (phoneNumber.contains("-")) {
-                editedPhoneNumberList.add(phoneNumber.replace("-", ""));
+                editedPhoneNumberList.add(removeHyphenForPhoneNumber(phoneNumber));
             } else {
                 editedPhoneNumberList.add(phoneNumber);
             }
@@ -130,20 +131,19 @@ public class User {
     }
 
     public static String removeHyphenForPhoneNumber(String phoneNumber) {
-        return phoneNumber.replace("-", "");
+        return StringUtils.remove(phoneNumber, '-');
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("User{");
-        sb.append("number='").append(number).append('\'');
-        sb.append(", userId='").append(userId).append('\'');
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", department='").append(department).append('\'');
-        sb.append(", phoneCountryCode=").append(phoneCountryCode);
-        sb.append(", phoneNumber='").append(phoneNumber).append('\'');
-        sb.append(", email='").append(email).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "User{" +
+                "number='" + number + '\'' +
+                ", userId='" + userId + '\'' +
+                ", name='" + name + '\'' +
+                ", department='" + department + '\'' +
+                ", phoneCountryCode=" + phoneCountryCode +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", email='" + email + '\'' +
+                '}';
     }
 }
