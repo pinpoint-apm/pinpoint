@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.common.server.trace;
 
 
 import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.util.Base16Utils;
 
 import java.util.Arrays;
@@ -10,6 +11,10 @@ public class OtelServerTraceId implements ServerTraceId {
 
     public static OtelServerTraceId of(byte[] traceIdBytes, int offset, int length) {
         return new OtelServerTraceId(Arrays.copyOfRange(traceIdBytes, offset, offset + length));
+    }
+
+    public static OtelServerTraceId of(Buffer buffer) {
+        return new OtelServerTraceId(buffer.readPadBytes(PinpointConstants.OPENTELEMETRY_TRACE_ID_LEN));
     }
 
     public static OtelServerTraceId of(final String transactionId) {
