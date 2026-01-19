@@ -183,7 +183,7 @@ public class DotMetaData {
         }
 
         public DotMetaData build() {
-            Dot dot = new Dot(meta.transactionId(), acceptedTime, index.elapsed(), index.errorCode(), index.agentId());
+            Dot dot = new Dot(meta.serverTraceId(), acceptedTime, index.elapsed(), index.errorCode(), index.agentId());
             String rpc = metaRpc != null ? metaRpc.rpc() : null;
             return new DotMetaData(dot, meta.agentName(), meta.remoteAddr(), rpc, meta.endpoint(), spanId, meta.startTime());
         }
