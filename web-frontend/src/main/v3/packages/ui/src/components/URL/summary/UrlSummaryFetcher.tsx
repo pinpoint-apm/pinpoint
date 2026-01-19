@@ -23,19 +23,22 @@ export const UrlSummaryFetcher = ({ className, type }: UrlSummaryFetcherProps) =
     orderBy,
     type,
   });
-  const columns = summaryColumns({
-    orderBy,
-    isDesc,
-    onClickColumnHeader: (key) => {
-      if (orderBy === key) {
-        setIsDesc(!isDesc);
-      } else {
-        setIsDesc(true);
-      }
-
-      setOrderBy(key);
-    },
-  });
+  const columns = React.useMemo(
+    () =>
+      summaryColumns({
+        orderBy,
+        isDesc,
+        onClickColumnHeader: (key) => {
+          if (orderBy === key) {
+            setIsDesc((prev) => !prev);
+          } else {
+            setIsDesc(true);
+          }
+          setOrderBy(key);
+        },
+      }),
+    [orderBy, isDesc],
+  );
 
   const getRowSelectionInfo = () => {
     const selectedRowIndex =
