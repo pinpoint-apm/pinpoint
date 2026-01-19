@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.filter;
 
-import com.google.common.collect.ImmutableSet;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -25,13 +24,14 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import org.eclipse.collections.api.factory.primitive.IntSets;
+import org.eclipse.collections.api.set.primitive.IntSet;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import org.springframework.util.AntPathMatcher;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * @author emeroad
@@ -45,7 +45,7 @@ public class RpcURLPatternFilter implements URLPatternFilter {
     private final AnnotationKeyRegistryService annotationKeyRegistryService;
 
     // TODO remove. hard coded annotation for compatibility, need a better to group rpc url annotations
-    private final Set<Integer> rpcEndpointAnnotationCodes;
+    private final IntSet rpcEndpointAnnotationCodes;
 
     public RpcURLPatternFilter(String urlPattern, ServiceTypeRegistryService serviceTypeRegistryService, AnnotationKeyRegistryService annotationKeyRegistryService) {
         this.urlPattern = Objects.requireNonNull(urlPattern, "urlPattern");
@@ -57,12 +57,12 @@ public class RpcURLPatternFilter implements URLPatternFilter {
         // TODO remove. hard coded annotation for compatibility, need a better to group rpc url annotations
         this.rpcEndpointAnnotationCodes = initRpcEndpointAnnotations(
                 AnnotationKey.HTTP_URL.getName(), AnnotationKey.MESSAGE_QUEUE_URI.getName(),
-                "thrift.url", "npc.url", "nimm.url"
+                "thrift.url", "npc.url"
         );
     }
 
-    private Set<Integer> initRpcEndpointAnnotations(String... annotationKeyNames) {
-        Set<Integer> rpcEndPointAnnotationCodes = new HashSet<>();
+    private IntSet initRpcEndpointAnnotations(String... annotationKeyNames) {
+        MutableIntSet rpcEndPointAnnotationCodes = IntSets.mutable.of();
         for (String annotationKeyName : annotationKeyNames) {
             try {
                 final AnnotationKey pluginRpcEndpointAnnotationKey = annotationKeyRegistryService.findAnnotationKeyByName(annotationKeyName);
@@ -73,7 +73,7 @@ public class RpcURLPatternFilter implements URLPatternFilter {
                 // ignore
             }
         }
-        return ImmutableSet.copyOf(rpcEndPointAnnotationCodes);
+        return rpcEndPointAnnotationCodes.freeze();
     }
 
     @Override
