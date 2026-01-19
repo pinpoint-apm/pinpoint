@@ -22,14 +22,14 @@ import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
+import org.eclipse.collections.api.factory.primitive.IntSets;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  *
@@ -48,19 +48,20 @@ public class ApplicationNameMapper implements RowMapper<List<Application>> {
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
-        Set<Short> uniqueTypeCodes = new HashSet<>();
+        MutableIntSet uniqueTypeCodes = IntSets.mutable.of();
         String applicationName = CellUtils.rowToString(result);
         
         Cell[] rawCells = result.rawCells();
         for (Cell cell : rawCells) {
-            short serviceTypeCode = CellUtils.valueToShort(cell);
+            int serviceTypeCode = CellUtils.valueToShort(cell);
             uniqueTypeCodes.add(serviceTypeCode);
         }
+
         List<Application> applicationList = new ArrayList<>();
-        for (short serviceTypeCode : uniqueTypeCodes) {
+        uniqueTypeCodes.forEach(serviceTypeCode -> {
             final Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
             applicationList.add(application);
-        }
+        });
         return applicationList;
     }
 }
