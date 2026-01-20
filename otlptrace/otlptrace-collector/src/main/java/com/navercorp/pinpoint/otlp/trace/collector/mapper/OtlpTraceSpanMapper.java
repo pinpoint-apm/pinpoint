@@ -105,19 +105,17 @@ public class OtlpTraceSpanMapper {
         if (span.getAttributesCount() > 0) {
             OtlpTraceMapperUtils.addAttributesToAnnotation(objectMapper, span.getAttributesList(), annotationBoList);
         }
-
+        // event
+        for (Span.Event event : span.getEventsList()) {
+            OtlpTraceMapperUtils.addEventToAnnotation(objectMapper, event, annotationBoList);
+        }
+        // link
+        for (Span.Link link : span.getLinksList()) {
+            OtlpTraceMapperUtils.addLinkToAnnotation(objectMapper, link, annotationBoList);
+        }
         spanBo.setAnnotationBoList(annotationBoList);
 
         final List<SpanEventBo> spanEventBoList = new ArrayList<>();
-        for (Span.Event event : span.getEventsList()) {
-            SpanEventBo eventBo = spanEventMapper.map(startTime, 0, event);
-            spanEventBoList.add(eventBo);
-        }
-        for (Span.Link link : span.getLinksList()) {
-            SpanEventBo eventBo = spanEventMapper.map(startTime, 0, link);
-            spanEventBoList.add(eventBo);
-        }
-
         spanBo.addSpanEventBoList(spanEventBoList);
         return spanBo;
     }

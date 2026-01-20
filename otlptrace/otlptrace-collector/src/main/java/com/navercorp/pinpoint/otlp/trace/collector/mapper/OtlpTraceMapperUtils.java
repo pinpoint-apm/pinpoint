@@ -20,11 +20,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.util.Base16Utils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.ArrayValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
+import io.opentelemetry.proto.trace.v1.Span;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -113,6 +115,44 @@ public class OtlpTraceMapperUtils {
             return getAttributeToMap(anyValue.getKvlistValue().getValuesList());
         } else {
             return anyValue;
+        }
+    }
+
+    public static void addEventToAnnotation(ObjectMapper objectMapper, Span.Event event, List<AnnotationBo> annotationBoList) {
+        if (event.getName() == null) {
+            return;
+        }
+
+        try {
+            Map<String, Object> map = new HashMap<>();
+            if (event.getAttributesCount() > 0) {
+                map.put(event.getName(), getAttributeToMap(event.getAttributesList()));
+            } else {
+                map.put(event.getName(), "");
+            }
+            final String value = objectMapper.writeValueAsString(map);
+            annotationBoList.add(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_EVENT.getCode(), value));
+        } catch (JsonProcessingException e) {
+            annotationBoList.add(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_EVENT.getCode(), "json processing error"));
+        }
+    }
+
+    public static void addLinkToAnnotation(ObjectMapper objectMapper, Span.Link link, List<AnnotationBo> annotationBoList) {
+        try {
+            Map<String, Object> map = new HashMap<>();
+            if (!link.getTraceId().isEmpty()) {
+                map.put("traceId", Base16Utils.encodeToString(link.getTraceId().toByteArray()));
+            }
+            if (!link.getSpanId().isEmpty()) {
+                map.put("spanId", Base16Utils.encodeToString(link.getSpanId().toByteArray()));
+            }
+            if (link.getAttributesCount() > 0) {
+                map.put("attributes", getAttributeToMap(link.getAttributesList()));
+            }
+            final String value = objectMapper.writeValueAsString(map);
+            annotationBoList.add(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_LINK.getCode(), value));
+        } catch (JsonProcessingException e) {
+            annotationBoList.add(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_LINK.getCode(), "json processing error"));
         }
     }
 }
