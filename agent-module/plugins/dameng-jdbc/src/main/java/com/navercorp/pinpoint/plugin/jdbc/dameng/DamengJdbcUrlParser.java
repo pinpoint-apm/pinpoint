@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.KeyValueTokenizer;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.Arrays;
@@ -73,10 +74,14 @@ public class DamengJdbcUrlParser implements JdbcUrlParserV2 {
         String host = DEFAULT_HOST;
         String port = DEFAULT_PORT;
         if (StringUtils.hasText(hostPort)) {
-            String[] hostPortInfo = hostPort.split(":", 2);
-            host = hostPortInfo[0];
-            if (hostPortInfo.length > 1) {
-                port = hostPortInfo[1];
+            KeyValueTokenizer.KeyValue hostPortInfo = KeyValueTokenizer.tokenize(hostPort, ":");
+            if (hostPortInfo == null) {
+                host = hostPort;
+            } else {
+                host = hostPortInfo.getKey();
+                if (!hostPortInfo.getValue().isEmpty()) {
+                    port = hostPortInfo.getValue();
+                }
             }
         }
 
@@ -122,11 +127,11 @@ public class DamengJdbcUrlParser implements JdbcUrlParserV2 {
             if (!StringUtils.hasText(v)) {
                 continue;
             }
-            String[] kv = v.split("=", 2);
-            if (kv.length > 1) {
-                map.put(kv[0], kv[1]);
+            KeyValueTokenizer.KeyValue keyValue = KeyValueTokenizer.tokenize(v, "=");
+            if (keyValue != null) {
+                map.put(keyValue.getKey(), keyValue.getValue());
             } else {
-                map.put(kv[0], StringUtils.EMPTY_STRING);
+                logger.info("Parse failed " + v) ;
             }
         }
         return map;

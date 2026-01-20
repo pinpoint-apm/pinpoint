@@ -256,7 +256,7 @@ public class ServerMapHistogramController {
         if (!NODE_KEY_VALIDATION_PATTERN.matcher(nodeKey).matches()) {
             throw new IllegalArgumentException("Invalid node key format: " + nodeKey);
         }
-        String[] parts = NODE_DELIMITER_PATTERN.split(nodeKey);
+        String[] parts = NODE_DELIMITER_PATTERN.split(nodeKey, 2);
         String applicationName = parts[0];
         String serviceTypeName = parts[1];
 
@@ -345,7 +345,7 @@ public class ServerMapHistogramController {
         if (!LINK_KEY_VALIDATION_PATTERN.matcher(linkKey).matches()) {
             throw new IllegalArgumentException("Invalid linkKey format: expected 'fromApp~toApp' but got: " + linkKey);
         }
-        String[] parts = LINK_DELIMITER_PATTERN.split(linkKey);
+        String[] parts = LINK_DELIMITER_PATTERN.split(linkKey, 2);
         if (parts.length != 2) {
             throw new IllegalArgumentException("Invalid linkKey format: expected 'fromApp~toApp' but got: " + linkKey);
         }

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.collector.grpc.channelz.service;
 
+import com.navercorp.pinpoint.common.util.KeyValueTokenizer;
+
 import javax.annotation.Nullable;
 import java.util.Collection;
 
@@ -48,16 +50,16 @@ public interface ChannelzSocketLookup {
          * @return entry of socket index
          */
         public static SocketEntry compose(Object remote, Object local, long socketId) {
-            String remoteAddr = split(remote)[0];
-            String localPort = split(local)[1];
+            String remoteAddr = split(remote).getKey();
+            String localPort = split(local).getValue();
             return new SocketEntry(remoteAddr.substring(1), parse(localPort), socketId);
         }
 
-        private static String[] split(Object obj) {
+        private static KeyValueTokenizer.KeyValue split(Object obj) {
             if (obj == null) {
                 return null;
             }
-            return obj.toString().split(":", 2);
+            return KeyValueTokenizer.tokenize(obj.toString(), ":");
         }
 
         private static Integer parse(String str) {

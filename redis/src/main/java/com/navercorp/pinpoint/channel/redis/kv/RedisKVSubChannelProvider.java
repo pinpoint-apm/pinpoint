@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.channel.redis.kv;
 
 import com.navercorp.pinpoint.channel.SubChannel;
 import com.navercorp.pinpoint.channel.SubChannelProvider;
+import com.navercorp.pinpoint.common.util.KeyValueTokenizer;
 import org.springframework.data.redis.core.RedisTemplate;
 import reactor.core.scheduler.Scheduler;
 
@@ -38,12 +39,12 @@ class RedisKVSubChannelProvider implements SubChannelProvider {
 
     @Override
     public SubChannel getSubChannel(String key) {
-        String[] words = key.split(":", 2);
-        if (words.length != 2) {
-            throw new IllegalArgumentException("the key must contain period");
+        KeyValueTokenizer.KeyValue keyValue = KeyValueTokenizer.tokenize(key, ":");
+        if (keyValue == null) {
+            throw new IllegalArgumentException("the key must contain ':' key:" + key);
         }
-        Duration period = Duration.parse(words[0]);
-        return new RedisKVSubChannel(this.template, this.scheduler, period, words[1]);
+        Duration period = Duration.parse(keyValue.getKey());
+        return new RedisKVSubChannel(this.template, this.scheduler, period, keyValue.getValue());
     }
 
 }

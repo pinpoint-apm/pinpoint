@@ -42,6 +42,14 @@ public class TagUtilsTest {
     }
 
     @Test
+    public void parseTagTest_emptyValue() {
+        Tag tag = TagUtils.parseTag("A:");
+
+        Assertions.assertEquals("A", tag.getName());
+        Assertions.assertEquals("", tag.getValue());
+    }
+
+    @Test
     public void parseTagsListTest() {
         List<Tag> tagList = List.of(
                 new Tag("A", "1"),
