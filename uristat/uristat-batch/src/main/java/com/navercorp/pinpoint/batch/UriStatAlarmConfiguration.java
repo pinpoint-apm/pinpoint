@@ -1,19 +1,24 @@
 package com.navercorp.pinpoint.batch;
 
 import com.navercorp.pinpoint.batch.alarm.config.UriStatBatchDaoConfiguration;
+import com.navercorp.pinpoint.batch.config.PinotBatchDaoConfig;
+import com.navercorp.pinpoint.batch.config.PinotBatchDaoXmlConfig;
+import com.navercorp.pinpoint.batch.config.UriAlarmJobConfig;
+import com.navercorp.pinpoint.batch.config.UriAlarmJobXmlConfig;
 import com.navercorp.pinpoint.pinot.config.PinotConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
 
 @Configuration
-@ImportResource({
-        "classpath:job/applicationContext-uriAlarmJob.xml",
-        "classpath:applicationContext-pinot-batch-dao-config.xml"
-})
 @Import({
         UriStatBatchDaoConfiguration.class,
-        PinotConfiguration.class
+        PinotConfiguration.class,
+
+        PinotBatchDaoXmlConfig.class,
+        UriAlarmJobXmlConfig.class,
+
+        PinotBatchDaoConfig.class,
+        UriAlarmJobConfig.class
 })
 public class UriStatAlarmConfiguration {
 }
