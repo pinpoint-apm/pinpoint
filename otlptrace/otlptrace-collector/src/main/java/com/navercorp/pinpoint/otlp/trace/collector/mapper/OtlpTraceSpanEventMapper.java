@@ -83,6 +83,10 @@ public class OtlpTraceSpanEventMapper {
         }
         // argument
         annotationBoList.add(AnnotationBo.of(AnnotationKey.ARGS0.getCode(), span.getName()));
+        // event
+        for (Span.Event event : span.getEventsList()) {
+            OtlpTraceMapperUtils.addEventToAnnotation(objectMapper, event, annotationBoList);
+        }
 
         spanEventBo.setAnnotationBoList(annotationBoList);
         spanEventBo.setDepth(1);
@@ -95,65 +99,7 @@ public class OtlpTraceSpanEventMapper {
         List<SpanEventBo> spanEventBoList = new ArrayList<>();
         spanEventBoList.add(spanEventBo);
 
-        for (Span.Event event : span.getEventsList()) {
-            SpanEventBo eventBo = map(spanStartTime, spanEventBo.getDepth(), event);
-            spanEventBoList.add(eventBo);
-        }
-
         return spanEventBoList;
-    }
-
-    public SpanEventBo map(long startTime, int parentDepth, Span.Event event) {
-        SpanEventBo spanEventBo = new SpanEventBo();
-        spanEventBo.setVersion((byte) 1); // TODO
-        spanEventBo.setSequence((short) 0);
-        final long eventStartTime = TimeUnit.NANOSECONDS.toMillis(event.getTimeUnixNano());
-        final int startElapsed = (int) (eventStartTime - startTime);
-        spanEventBo.setStartElapsed(startElapsed);
-        spanEventBo.setEndElapsed(0); // TODO ?
-        spanEventBo.setServiceType(ServiceType.OPENTELEMETRY_INTERNAL.getCode()); // TODO internal
-
-        final List<AnnotationBo> annotationBoList = new ArrayList<>();
-        annotationBoList.add(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_START_TIME.getCode(), event.getTimeUnixNano()));
-        // api
-        spanEventBo.setApiId(0);
-        annotationBoList.add(AnnotationBo.of(AnnotationKey.API.getCode(), OtlpTraceMapper.INTERNAL_METHOD_NAME));
-        // attributes
-        if (event.getAttributesCount() > 0) {
-            OtlpTraceMapperUtils.addAttributesToAnnotation(objectMapper, event.getAttributesList(), annotationBoList);
-        }
-        // argument
-        annotationBoList.add(AnnotationBo.of(AnnotationKey.ARGS0.getCode(), event.getName()));
-
-        spanEventBo.setAnnotationBoList(annotationBoList);
-        spanEventBo.setDepth(parentDepth + 1);
-
-        return spanEventBo;
-    }
-
-
-    public SpanEventBo map(long startTime, int parentDepth, Span.Link link) {
-        SpanEventBo spanEventBo = new SpanEventBo();
-        spanEventBo.setVersion((byte) 1); // TODO
-        spanEventBo.setSequence((short) 0);
-        spanEventBo.setStartElapsed(0);
-        spanEventBo.setEndElapsed(0); // TODO ?
-
-        final List<AnnotationBo> annotationBoList = new ArrayList<>();
-        spanEventBo.setServiceType(ServiceType.OPENTELEMETRY_INTERNAL.getCode());
-        // api
-        spanEventBo.setApiId(0);
-        annotationBoList.add(AnnotationBo.of(AnnotationKey.API.getCode(), OtlpTraceMapper.LINK_METHOD_NAME));
-
-        annotationBoList.add(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_START_TIME.getCode(), TimeUnit.MILLISECONDS.toNanos(startTime)));
-        // attributes
-        if (link.getAttributesCount() > 0) {
-            OtlpTraceMapperUtils.addAttributesToAnnotation(objectMapper, link.getAttributesList(), annotationBoList);
-        }
-        spanEventBo.setAnnotationBoList(annotationBoList);
-        spanEventBo.setDepth(parentDepth + 1);
-
-        return spanEventBo;
     }
 
     boolean isClient(Span span) {
