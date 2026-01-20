@@ -20,9 +20,11 @@ package com.navercorp.pinpoint.batch;
 import com.navercorp.pinpoint.batch.alarm.AlarmSenderConfiguration;
 import com.navercorp.pinpoint.batch.common.BatchJobLauncher;
 import com.navercorp.pinpoint.batch.common.StartupJobLauncher;
+import com.navercorp.pinpoint.batch.config.AgentCountJobConfig;
+import com.navercorp.pinpoint.batch.config.AgentCountJobXmlConfig;
 import com.navercorp.pinpoint.batch.config.AlarmJobModule;
-import com.navercorp.pinpoint.batch.config.BatchXmlConfig;
 import com.navercorp.pinpoint.batch.config.BatchJavaConfigModule;
+import com.navercorp.pinpoint.batch.config.BatchXmlConfig;
 import com.navercorp.pinpoint.batch.config.CleanupInactiveApplicationsJobConfig;
 import com.navercorp.pinpoint.common.server.config.CommonCacheManagerConfiguration;
 import com.navercorp.pinpoint.common.server.config.RestTemplateConfiguration;
@@ -50,8 +52,6 @@ import java.util.List;
 @ImportResource({
         "classpath:applicationContext-batch-dao-config.xml",
         "classpath:applicationContext-batch-web-component.xml",
-
-        "classpath:job/applicationContext-agentCountJob.xml",
 })
 @Import({
         TransactionAutoConfiguration.class,
@@ -68,6 +68,10 @@ import java.util.List;
         BatchXmlConfig.class,
         BatchJavaConfigModule.class,
 
+        AgentCountJobXmlConfig.class,
+        AgentCountJobConfig.class,
+        CleanupInactiveApplicationsJobConfig.class,
+
         WebServiceConfig.CommonConfig.class,
         TraceConfiguration.TraceServiceConfiguration.class,
         WebUidConfiguration.class,
@@ -79,8 +83,7 @@ import java.util.List;
         UserModule.class,
         UriStatAlarmConfiguration.class,
         AlarmSenderConfiguration.class,
-        CommonCacheManagerConfiguration.class,
-        CleanupInactiveApplicationsJobConfig.class,
+        CommonCacheManagerConfiguration.class
 })
 public class BatchModule {
 

@@ -16,22 +16,19 @@
 
 package com.navercorp.pinpoint.batch.config;
 
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ImportResource;
 
 @Configuration
 @ConditionalOnProperty(
     name = "batch.use-java-config",
-    havingValue = "true"
+    havingValue = "false",
+    matchIfMissing = true
 )
-@EnableBatchProcessing
-@Import({
-    BatchInfrastructureConfig.class,
-    BatchScheduleConfig.class,
-    AlarmJobConfig.class
+@ImportResource({
+    "classpath:applicationContext-pinot-batch-dao-config.xml"
 })
-public class BatchJavaConfigModule {
+public class PinotBatchDaoXmlConfig {
 }
 
