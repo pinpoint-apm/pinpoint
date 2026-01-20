@@ -9,20 +9,17 @@ public class ServiceGroupRowKeyPrefixUtilsTest {
 
     @Test
     public void createRowKeyTest() {
-        byte[] rowKey1 = ServiceGroupRowKeyPrefixUtils.createRowKey(ServiceUid.TEST, "appName", 1000);
-        byte[] rowKey2 = ServiceGroupRowKeyPrefixUtils.createRowKey(ServiceUid.TEST, "appName");
-        byte[] rowKey3 = ServiceGroupRowKeyPrefixUtils.createRowKey(ServiceUid.TEST);
+        ServiceUid serviceUid = ServiceUid.TEST;
+        String applicationName = "appName";
+        int serviceTypeCode = 1000;
+        byte[] rowKey1 = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid);
+        byte[] rowKey2 = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName);
+        byte[] rowKey3 = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
 
-        Assertions.assertThat(rowKey1).startsWith(rowKey2);
-        Assertions.assertThat(rowKey2).startsWith(rowKey3);
-    }
+        Assertions.assertThat(rowKey1).hasSize(Integer.BYTES);
+        Assertions.assertThat(rowKey2).hasSize(Integer.BYTES + PinpointConstants.APPLICATION_NAME_MAX_LEN_V3);
 
-    @Test
-    public void expectedBufferSizeTest() {
-        for (int i = 1; i <= 24; i++) {
-            String agentId = "_".repeat(i);
-            byte[] rowKey = ServiceGroupRowKeyPrefixUtils.createRowKey(ServiceUid.DEFAULT, "appName", 1000, agentId);
-            Assertions.assertThat(rowKey).hasSize(4 + PinpointConstants.APPLICATION_NAME_MAX_LEN_V3 + 4 + 1 + i);
-        }
+        Assertions.assertThat(rowKey2).startsWith(rowKey1);
+        Assertions.assertThat(rowKey3).startsWith(rowKey2);
     }
 }

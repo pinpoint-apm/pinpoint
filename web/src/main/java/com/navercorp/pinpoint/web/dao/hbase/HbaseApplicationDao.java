@@ -8,6 +8,7 @@ import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.ServiceGroupRowKeyPrefixUtils;
 import com.navercorp.pinpoint.web.dao.ApplicationDao;
+import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Delete;
@@ -26,10 +27,10 @@ public class HbaseApplicationDao implements ApplicationDao {
 
     private final HbaseOperations hbaseTemplate;
     private final TableNameProvider tableNameProvider;
-    private final RowMapper<Application> applicationMapper;
+    private final RowMapper<List<Application>> applicationMapper;
 
     public HbaseApplicationDao(HbaseOperations hbaseTemplate, TableNameProvider tableNameProvider,
-                               @Qualifier("applicationMapper") RowMapper<Application> applicationMapper) {
+                               @Qualifier("applicationMapper") RowMapper<List<Application>> applicationMapper) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.applicationMapper = Objects.requireNonNull(applicationMapper, "applicationMapper");
@@ -53,7 +54,8 @@ public class HbaseApplicationDao implements ApplicationDao {
         scan.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName());
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        return hbaseTemplate.find(applicationIndexTableName, scan, applicationMapper);
+        List<List<Application>> results = hbaseTemplate.find(applicationIndexTableName, scan, applicationMapper);
+        return ListListUtils.toList(results);
     }
 
     @Override
@@ -74,5 +76,4 @@ public class HbaseApplicationDao implements ApplicationDao {
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         hbaseTemplate.put(applicationIndexTableName, put);
     }
-
 }
