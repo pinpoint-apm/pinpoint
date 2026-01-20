@@ -52,28 +52,28 @@ const calcArc = (sum: number, value: number): number => {
   return value === 0 ? 0 : value / sum < MIN_ARC_RATIO ? DIAMETER * MIN_ARC_RATIO : (value / sum) * DIAMETER;
 };
 
+// Apdex 등급별 색상 매핑
+export const colorMap: Record<string, string> = {
+  Excellent: '#41c464',
+  Good: '#469ae4',
+  Fair: '#f7d84a',
+  Poor: '#ff8c00',
+  Unacceptable: '#eb4747',
+};
+
+// Apdex 점수에 따라 등급 반환
+export const getApdexGrade = (score: number): string => {
+  if (score >= 0.94) return 'Excellent';
+  if (score >= 0.85) return 'Good';
+  if (score >= 0.7) return 'Fair';
+  if (score >= 0.5) return 'Poor';
+  return 'Unacceptable';
+};
+
 const getTimeSeriesApdexStatusSVGCircle = (timeSeriesApdexInfo: TimeSeriesApdexInfo): string => {
   if (!timeSeriesApdexInfo || timeSeriesApdexInfo.length === 0) {
     return '';
   }
-
-  // Apdex 등급별 색상 매핑
-  const colorMap: Record<string, string> = {
-    Excellent: '#41c464',
-    Good: '#469ae4',
-    Fair: '#f7d84a',
-    Poor: '#ff8c00',
-    Unacceptable: '#eb4747',
-  };
-
-  // Apdex 점수에 따라 등급 반환
-  const getApdexGrade = (score: number): string => {
-    if (score >= 0.94) return 'Excellent';
-    if (score >= 0.85) return 'Good';
-    if (score >= 0.7) return 'Fair';
-    if (score >= 0.5) return 'Poor';
-    return 'Unacceptable';
-  };
 
   const segmentCount = timeSeriesApdexInfo.length;
   const segmentAngle = 360 / segmentCount;

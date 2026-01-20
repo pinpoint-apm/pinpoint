@@ -52,8 +52,10 @@ export const ServerMapChartsBoard = ({ ...props }: ServerMapChartsBoardProps) =>
   );
 };
 
-export interface ServerMapChartsBoardFetcherProps
-  extends Omit<ChartsBoardProps, 'timestamp' | 'nodeData' | 'header'> {
+export interface ServerMapChartsBoardFetcherProps extends Omit<
+  ChartsBoardProps,
+  'timestamp' | 'nodeData' | 'header'
+> {
   authorizationGuideUrl?: string;
   currentPanelWidth: number;
   SERVER_LIST_WIDTH: number;
@@ -211,6 +213,7 @@ export const ServerMapChartsBoardFetcher = ({
           <>
             {serverMapCurrentTarget?.nodes || serverMapCurrentTarget?.edges ? (
               <MergedServerSearchList
+                timestamp={timestamp}
                 list={getClickedMergedNodeList(serverMapCurrentTarget)}
                 onClickItem={handleClickMergedItem}
               />

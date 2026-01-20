@@ -1,12 +1,19 @@
 import { FilteredMapType as FilteredMap, GetServerMap } from '@pinpoint-fe/ui/src/constants';
 import { VirtualList, VirtualSearchList } from '../VirtualList';
+import { getTimeSeriesApdexInfo } from '@pinpoint-fe/ui/src/utils';
+import { colorMap, getApdexGrade } from '@pinpoint-fe/server-map/src/ui/template/node';
 
 export interface MergedServerSearchListProps {
+  timestamp?: number[];
   list?: (GetServerMap.NodeData | FilteredMap.NodeData)[];
   onClickItem?: (nodeData: GetServerMap.NodeData | FilteredMap.NodeData) => void;
 }
 
-export const MergedServerSearchList = ({ list = [], onClickItem }: MergedServerSearchListProps) => {
+export const MergedServerSearchList = ({
+  timestamp,
+  list = [],
+  onClickItem,
+}: MergedServerSearchListProps) => {
   const handleClickItem: MergedServerSearchListProps['onClickItem'] = (nodeData) => {
     onClickItem?.(nodeData);
   };
@@ -28,11 +35,31 @@ export const MergedServerSearchList = ({ list = [], onClickItem }: MergedServerS
                 itemClassName="block cursor-pointer"
                 onClickItem={(item) => handleClickItem(item)}
                 itemChild={(item) => {
+                  const MAX_CHART_WIDTH = 96;
+                  const timeSeriesApdexInfo = getTimeSeriesApdexInfo(item, timestamp);
                   return (
                     <>
                       <div className="flex items-center justify-between text-xs">
                         <div className="truncate">{item.applicationName}</div>
-                        <span>{item.totalCount}</span>
+                        <div className="flex items-center gap-2">
+                          <div className={'w-auto flex justify-between'}>
+                            {timeSeriesApdexInfo.map((score, index) => {
+                              const grade = getApdexGrade(score);
+                              const color = colorMap[grade] || '#cccccc';
+                              return (
+                                <div
+                                  key={index}
+                                  style={{
+                                    width: `${MAX_CHART_WIDTH / timeSeriesApdexInfo.length || 0}px`,
+                                    backgroundColor: color,
+                                    height: '6px',
+                                  }}
+                                />
+                              );
+                            })}
+                          </div>
+                          <span className="min-w-10 text-end">{item.totalCount}</span>
+                        </div>
                       </div>
                     </>
                   );
