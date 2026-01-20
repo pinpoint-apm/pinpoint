@@ -9,10 +9,12 @@ import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.hadoop.hbase.client.Result;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 @Component
-public class ApplicationMapper implements RowMapper<Application> {
+public class ApplicationMapper implements RowMapper<List<Application>> {
 
     private final ApplicationFactory applicationFactory;
 
@@ -21,12 +23,15 @@ public class ApplicationMapper implements RowMapper<Application> {
     }
 
     @Override
-    public Application mapRow(Result result, int rowNum) throws Exception {
+    public List<Application> mapRow(Result result, int rowNum) throws Exception {
+        if (result.isEmpty()) {
+            return Collections.emptyList();
+        }
         byte[] rowKey = result.getRow();
         Buffer buffer = new FixedBuffer(rowKey);
-        buffer.readInt(); //serviceUid
-        String applicationName = buffer.readPadStringAndRightTrim(PinpointConstants.APPLICATION_NAME_MAX_LEN_V3); //applicationName
-        int serviceTypeCode = buffer.readInt(); //serviceTypeCode
-        return applicationFactory.createApplication(applicationName, serviceTypeCode);
+        buffer.skip(4); //serviceUid
+        String applicationName = buffer.readPadStringAndRightTrim(PinpointConstants.APPLICATION_NAME_MAX_LEN_V3);
+        int serviceTypeCode = buffer.readInt();
+        return List.of(applicationFactory.createApplication(applicationName, serviceTypeCode));
     }
 }
