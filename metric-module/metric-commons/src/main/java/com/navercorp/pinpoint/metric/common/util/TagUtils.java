@@ -100,4 +100,11 @@ public class TagUtils {
         }
         return joiner.toString();
     }
+
+    public static List<Tag> defaultTags(List<Tag> tags) {
+        if (tags == null) {
+            return List.of();
+        }
+        return tags;
+    }
 }

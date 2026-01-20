@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.inspector.web.definition.AggregationFunction;
 import com.navercorp.pinpoint.metric.common.model.Tag;
-import com.navercorp.pinpoint.metric.common.model.TagUtils;
+import com.navercorp.pinpoint.metric.common.util.TagUtils;
 import com.navercorp.pinpoint.metric.web.model.basic.metric.group.MatchingRule;
 
 import java.util.List;

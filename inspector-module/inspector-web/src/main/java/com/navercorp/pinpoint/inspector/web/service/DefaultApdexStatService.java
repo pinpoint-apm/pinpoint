@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.inspector.web.definition.YMLInspectorManager;
 import com.navercorp.pinpoint.inspector.web.definition.metric.field.Field;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricData;
 import com.navercorp.pinpoint.inspector.web.model.InspectorMetricValue;
-import com.navercorp.pinpoint.metric.common.model.TagUtils;
+import com.navercorp.pinpoint.metric.common.util.TagUtils;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.ApdexScoreService;
 import com.navercorp.pinpoint.web.vo.Application;
