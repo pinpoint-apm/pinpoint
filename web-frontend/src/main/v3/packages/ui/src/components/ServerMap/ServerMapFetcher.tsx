@@ -15,8 +15,10 @@ import { useTranslation } from 'react-i18next';
 import { getBaseNodeId, getServerImagePath } from '@pinpoint-fe/ui/src/utils';
 import { ServerMapCore, ServerMapCoreProps } from './ServerMapCore';
 
-export interface ServerMapFetcherProps
-  extends Pick<ServerMapCoreProps, 'onClickMenuItem' | 'onApplyChangedOption' | 'queryOption'> {
+export interface ServerMapFetcherProps extends Pick<
+  ServerMapCoreProps,
+  'onClickMenuItem' | 'onApplyChangedOption' | 'queryOption'
+> {
   shouldPoll?: boolean;
 }
 
