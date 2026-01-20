@@ -58,7 +58,7 @@ jobs:
       - name: Build Docker Images
         run: |
           mvn docker:build -pl agent-module/agent
-          mvn docker:build -pl hbase/hbase-docker
+          mvn docker:build -pl hbase
           mvn jib:build -pl collector-starter
           mvn jib:build -pl web-starter
           mvn jib:build -pl batch
