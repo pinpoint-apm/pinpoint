@@ -22,7 +22,6 @@
         <module>hbase-schema</module>
         <module>hbase-schema-manager</module>
         <module>hbase-schema-definition</module>
-        <module>hbase-docker</module>
     </modules>
 
     <dependencyManagement>
@@ -46,6 +45,25 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>jaxb2-maven-plugin</artifactId>
+                </plugin>
+                <plugin>
+                    <groupId>io.fabric8</groupId>
+                    <artifactId>docker-maven-plugin</artifactId>
+                    <version>0.48.0</version>
+                    <configuration>
+                        <images>
+                            <image>
+                                <name>${docker.repository.name}/pinpoint-hbase</name>
+                                <build>
+                                    <contextDir>${basedir}</contextDir>
+                                    <tags>
+                                        <tag>${project.version}</tag>
+                                        <tag>latest</tag>
+                                    </tags>
+                                </build>
+                            </image>
+                        </images>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>

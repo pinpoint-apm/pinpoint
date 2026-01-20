@@ -195,16 +195,22 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>com.spotify</groupId>
+                <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
-                <version>1.2.2</version>
+                <version>0.48.0</version>
                 <configuration>
-                    <imageName>${docker.repository.name}/pinpoint-agent</imageName>
-                    <dockerDirectory>${basedir}</dockerDirectory>
-                    <imageTags>
-                        <imageTag>${project.version}</imageTag>
-                        <imageTag>latest</imageTag>
-                    </imageTags>
+                    <images>
+                        <image>
+                            <name>${docker.repository.name}/pinpoint-agent</name>
+                            <build>
+                                <dockerFile>${basedir}/Dockerfile</dockerFile>
+                                <tags>
+                                    <tag>${project.version}</tag>
+                                    <tag>latest</tag>
+                                </tags>
+                            </build>
+                        </image>
+                    </images>
                 </configuration>
             </plugin>
         </plugins>
