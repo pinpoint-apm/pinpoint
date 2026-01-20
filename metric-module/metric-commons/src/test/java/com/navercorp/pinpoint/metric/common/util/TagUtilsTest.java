@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.metric.common.model;
+package com.navercorp.pinpoint.metric.common.util;
 
-import com.navercorp.pinpoint.metric.common.util.TagUtils;
+import com.navercorp.pinpoint.metric.common.model.Tag;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

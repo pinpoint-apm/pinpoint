@@ -17,18 +17,19 @@
 
 package com.navercorp.pinpoint.metric.common.model;
 
-import java.util.Collections;
 import java.util.List;
 
+/**
+ * @deprecated use {@link com.navercorp.pinpoint.metric.common.util.TagUtils}
+ */
+@Deprecated
 public final class TagUtils {
 
     private TagUtils() {
     }
 
+    @Deprecated
     public static List<Tag> defaultTags(List<Tag> tags) {
-        if (tags == null) {
-            return Collections.emptyList();
-        }
-        return tags;
+        return com.navercorp.pinpoint.metric.common.util.TagUtils.defaultTags(tags);
     }
 }
