@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.profiler.plugin;
 
+import com.navercorp.pinpoint.common.util.KeyValueTokenizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -53,10 +54,10 @@ public class PluginPackageClassRequirementFilter implements ClassNameFilter {
 
     private void parseRequirementList(List<String> packageRequirementList, List<String> packageList, List<String> requirementList) {
         for (String packageWithRequirement : packageRequirementList) {
-            String[] split = packageWithRequirement.split(":", 2);
-            if (split.length == 2) {
-                packageList.add(split[0]);
-                requirementList.add(split[1]);
+            KeyValueTokenizer.KeyValue keyValue = KeyValueTokenizer.tokenize(packageWithRequirement, ":");
+            if (keyValue != null) {
+                packageList.add(keyValue.getKey());
+                requirementList.add(keyValue.getValue());
             }
         }
     }

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.exceptiontrace.web.util;
 import com.google.common.primitives.Ints;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.timeseries.window.TimePrecision;
+import com.navercorp.pinpoint.common.util.KeyValueTokenizer;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.metric.web.util.QueryParameter;
 
@@ -197,8 +198,8 @@ public class ExceptionTraceQueryParameter extends QueryParameter {
                 return self();
             }
             for (String string : strings) {
-                String[] tag = string.split(":", 2);
-                filterByAttributes.put(tag[0], tag[1]);
+                KeyValueTokenizer.KeyValue keyValue = KeyValueTokenizer.tokenize(string, ":");
+                filterByAttributes.put(keyValue.getKey(), keyValue.getValue());
             }
             return self();
         }

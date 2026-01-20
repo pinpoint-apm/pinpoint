@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.metric.common.util;
 
 
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.common.util.KeyValueTokenizer;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import org.apache.commons.lang3.StringUtils;
 
@@ -33,7 +34,14 @@ import java.util.regex.Pattern;
 public class TagUtils {
 
     private static final Pattern MULTI_VALUE_FIELD_PATTERN = Pattern.compile("[\\[\\]\"]");
-    private static final Pattern JSON_TAG_STRING_PATTERN = Pattern.compile("[{}\"]");
+    private static final String JSON_TAG_STRING = "{}\"";
+
+    public static final KeyValueTokenizer.TokenFactory<Tag> TAG_FACTORY = new KeyValueTokenizer.TokenFactory<>() {
+        @Override
+        public Tag accept(String key, String value) {
+            return new Tag(key, value);
+        }
+    };
 
     private TagUtils() {
     }
@@ -69,16 +77,7 @@ public class TagUtils {
 
     public static Tag parseTag(String tagString) {
         Objects.requireNonNull(tagString, "tagString");
-
-        String[] tag = StringUtils.split(tagString, ":", 2);
-
-        if (tag.length == 1) {
-            return new Tag(tag[0], "");
-        } else if (tag.length == 2) {
-            return new Tag(tag[0], tag[1]);
-        } else {
-            throw new IllegalArgumentException("tagString:" + tagString);
-        }
+        return KeyValueTokenizer.tokenize(tagString, ":", TAG_FACTORY);
     }
 
     private static String[] parseMultiValueFieldList(String string) {
@@ -87,10 +86,11 @@ public class TagUtils {
     }
 
     public static String toTagString(String jsonTagString) {
-        if (jsonTagString.equals("{}")) {
+        if ("{}".equals(jsonTagString)) {
             return "";
         }
-        return JSON_TAG_STRING_PATTERN.matcher(jsonTagString).replaceAll("");
+
+        return org.springframework.util.StringUtils.deleteAny(jsonTagString, JSON_TAG_STRING);
     }
 
     public static String toTagString(List<Tag> tagList) {
