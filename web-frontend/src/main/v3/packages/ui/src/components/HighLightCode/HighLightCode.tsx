@@ -5,15 +5,16 @@ import typescript from 'highlight.js/lib/languages/typescript';
 import sql from 'highlight.js/lib/languages/sql';
 import java from 'highlight.js/lib/languages/java';
 import text from 'highlight.js/lib/languages/plaintext';
+import json from 'highlight.js/lib/languages/json';
 import { cn } from '../../lib';
 
 // 추가 언어 필요시 등록
-type LanguageType = 'typescript' | 'sql' | 'java' | 'text';
+type LanguageType = 'typescript' | 'sql' | 'java' | 'text' | 'json';
 hljs.registerLanguage('typescript', typescript);
 hljs.registerLanguage('sql', sql);
 hljs.registerLanguage('java', java);
 hljs.registerLanguage('text', text);
-
+hljs.registerLanguage('json', json);
 export interface HighLightCodeProps {
   language?: LanguageType;
   code?: string;

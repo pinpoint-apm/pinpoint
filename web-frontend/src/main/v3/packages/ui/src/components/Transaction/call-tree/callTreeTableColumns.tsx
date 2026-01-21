@@ -14,6 +14,7 @@ import {
   FaExclamationTriangle,
 } from 'react-icons/fa';
 import { LuChevronRight, LuChevronDown } from 'react-icons/lu';
+import { VscJson } from 'react-icons/vsc';
 import { Button, ProgressBar } from '../..';
 import {
   addCommas,
@@ -298,6 +299,15 @@ const MethodCell = (props: {
           onClick={() => onClickDetailView?.(rowData)}
         >
           <FaDatabase /> {text}
+        </Button>
+      );
+    } else if (text === 'Attribute' || text === 'Event' || text === 'Link') {
+      return (
+        <Button
+          className="text-xs h-[1rem] gap-0.5 p-1"
+          onClick={() => onClickDetailView?.(rowData)}
+        >
+          <VscJson style={{ strokeWidth: 1 }} /> {text}
         </Button>
       );
     } else {

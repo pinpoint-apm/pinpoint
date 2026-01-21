@@ -26,6 +26,7 @@ import { RxMagnifyingGlass } from 'react-icons/rx';
 import { HighLightCode } from '../../HighLightCode';
 import { useAtomValue } from 'jotai';
 import { transactionInfoCallTreeFocusId } from '@pinpoint-fe/ui/src/atoms';
+import { safeParse } from '@pinpoint-fe/ui/src/utils/json';
 
 export interface CallTreeProps {
   data: TransactionInfo.CallStackKeyValueMap[];
@@ -49,16 +50,29 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
   const [filterInput, setFilterInput] = React.useState('');
   const [filteredListIds, setFilteredListIds] = React.useState<string[]>();
   const [focusRowId, setFocusRowId] = React.useState<string>();
-  const [sqlDetail, setSqlDetail] = React.useState<{
-    originalSql?: string;
-    bindedSql?: string;
-    bindValue?: string;
-  }>();
+  const [argumentDetail, setArgumentDetail] = React.useState<
+    | {
+        type: 'Attribute' | 'Event' | 'Link';
+        content: string;
+      }
+    | {
+        type: 'SQL' | 'MONGO-JSON';
+        content: {
+          originalSql?: string;
+          bindValue?: string;
+          bindedSql?: string;
+        };
+      }
+  >();
+
   const focusRowIdIndex = filteredListIds?.findIndex((id) => id === focusRowId) || 0;
   const { mutate } = usePostBind({
     onSuccess: (result) => {
-      setSqlDetail((prev) => {
-        return { ...prev, bindedSql: result.bindedQuery };
+      setArgumentDetail((prev) => {
+        if (prev?.type === 'SQL' || prev?.type === 'MONGO-JSON') {
+          return { ...prev, content: { ...prev.content, bindedSql: result.bindedQuery } };
+        }
+        return prev;
       });
     },
   });
@@ -222,22 +236,41 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
         }}
         onClickDetailView={(callStackData) => {
           const nextItem = mapData?.find((d) => Number(d.id) === Number(callStackData.id) + 1);
-          if (nextItem?.title === 'SQL-BindValue' || nextItem?.title === 'MONGO-JSON-BindValue') {
+
+          if (
+            callStackData.title === 'Attribute' ||
+            callStackData.title === 'Event' ||
+            callStackData.title === 'Link'
+          ) {
+            setArgumentDetail({
+              type: callStackData.title,
+              content: callStackData.arguments,
+            });
+          } else if (
+            nextItem?.title === 'SQL-BindValue' ||
+            nextItem?.title === 'MONGO-JSON-BindValue'
+          ) {
             const formData = new FormData();
             formData.append('type', callStackData.title === 'SQL' ? 'sql' : 'mongoJson');
             formData.append('metaData', callStackData.arguments);
             formData.append('bind', nextItem.arguments);
             mutate(formData);
 
-            setSqlDetail({
-              originalSql: callStackData.arguments,
-              bindValue: nextItem.arguments,
+            setArgumentDetail({
+              type: callStackData.title,
+              content: {
+                originalSql: callStackData.arguments,
+                bindValue: nextItem.arguments,
+              },
             });
           } else {
-            setSqlDetail({
-              originalSql: callStackData.arguments,
-              bindedSql: undefined,
-              bindValue: undefined,
+            setArgumentDetail({
+              type: callStackData.title,
+              content: {
+                originalSql: callStackData.arguments,
+                bindValue: undefined,
+                bindedSql: undefined,
+              },
             });
           }
           setSheetOpen(true);
@@ -251,7 +284,10 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
         >
           <SheetHeader className="px-5 pb-4">
             <SheetTitle className="flex items-center">
-              SQL Detail
+              {argumentDetail?.type === 'SQL' || argumentDetail?.type === 'MONGO-JSON'
+                ? 'SQL'
+                : argumentDetail?.type}{' '}
+              Detail
               <Button
                 variant="outline"
                 size="icon"
@@ -263,33 +299,46 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
             </SheetTitle>
           </SheetHeader>
           <Separator className="" />
-          <div className="p-4 space-y-4 overflow-auto">
-            {sqlDetail?.bindedSql && (
-              <div className="relative space-y-2">
-                <CollapsibleCodeViewer
-                  title="Binded SQL"
-                  code={sqlDetail?.bindedSql}
-                  language="sql"
-                />
-              </div>
-            )}
-            <div className="relative space-y-2">
-              <CollapsibleCodeViewer
-                title="Original SQL"
-                code={sqlDetail?.originalSql || ''}
-                language="sql"
-              />
-              {sqlDetail?.bindedSql && (
+          {(argumentDetail?.type === 'SQL' || argumentDetail?.type === 'MONGO-JSON') && (
+            <div className="p-4 space-y-4 overflow-auto">
+              {argumentDetail?.content?.bindedSql && (
                 <div className="relative space-y-2">
                   <CollapsibleCodeViewer
-                    title="SQL Bind Value"
-                    code={sqlDetail?.bindValue || ''}
+                    title="Binded SQL"
+                    code={argumentDetail?.content?.bindedSql}
                     language="sql"
                   />
                 </div>
               )}
+              <div className="relative space-y-2">
+                <CollapsibleCodeViewer
+                  title="Original SQL"
+                  code={argumentDetail?.content?.originalSql || ''}
+                  language="sql"
+                />
+                {argumentDetail?.content?.bindValue && (
+                  <div className="relative space-y-2">
+                    <CollapsibleCodeViewer
+                      title="SQL Bind Value"
+                      code={argumentDetail?.content?.bindValue || ''}
+                      language="sql"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
+          {(argumentDetail?.type === 'Attribute' ||
+            argumentDetail?.type === 'Event' ||
+            argumentDetail?.type === 'Link') && (
+            <div className="p-4 space-y-4 overflow-auto">
+              <HighLightCode
+                className="p-2 text-xs whitespace-pre-wrap min-h-20 word-break-break-all"
+                code={JSON.stringify(safeParse(argumentDetail?.content || '{}'), null, 2) || ''}
+                language="json"
+              />
+            </div>
+          )}
         </SheetContent>
       </Sheet>
       <Dialog open={openDialog} onOpenChange={setDialogOpen}>
