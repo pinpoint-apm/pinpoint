@@ -1,0 +1,4 @@
+hbase-schema/
+hbase-schema-definition/
+hbase-schema-manager/
+target/
