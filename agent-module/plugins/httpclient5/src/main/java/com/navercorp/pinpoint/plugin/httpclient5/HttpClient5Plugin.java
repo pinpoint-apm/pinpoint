@@ -146,6 +146,11 @@ public class HttpClient5Plugin implements ProfilerPlugin, MatchableTransformTemp
             if (connectMethod3 != null) {
                 connectMethod3.addScopedInterceptor(DefaultHttpClientConnectionOperatorConnectInterceptor.class, "DefaultHttpClientConnectionOperator_CONNECT");
             }
+            // 5.6
+            final InstrumentMethod connectMethod4 = target.getDeclaredMethod("connect", "org.apache.hc.client5.http.io.ManagedHttpClientConnection", "org.apache.hc.core5.http.HttpHost", "org.apache.hc.core5.net.NamedEndpoint", "java.nio.file.Path", "java.net.InetSocketAddress", "org.apache.hc.core5.util.Timeout", "org.apache.hc.core5.http.io.SocketConfig", "java.lang.Object", "org.apache.hc.core5.http.protocol.HttpContext");
+            if (connectMethod4 != null) {
+                connectMethod4.addScopedInterceptor(DefaultHttpClientConnectionOperatorConnectInterceptor.class, "DefaultHttpClientConnectionOperator_CONNECT");
+            }
 
             return target.toBytecode();
         }
