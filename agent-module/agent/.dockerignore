@@ -1,0 +1,10 @@
+target/archive-tmp/
+target/classes/
+target/docker/
+target/generated-test-sources/
+target/maven-archiver/
+target/maven-status/
+target/test-classes/
+target/pinpoint-agent-*/
+!target/pinpoint-agent-*.tar.gz
+src/

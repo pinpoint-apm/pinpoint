@@ -1,0 +1,6 @@
+hbase-schema/
+hbase-schema-definition/
+hbase-schema-manager/
+scripts/
+!scripts/hbase-create.hbase
+target/
