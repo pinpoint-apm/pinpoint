@@ -2,6 +2,7 @@ import { FilteredMapType as FilteredMap, GetServerMap } from '@pinpoint-fe/ui/sr
 import { VirtualList, VirtualSearchList } from '../VirtualList';
 import { getTimeSeriesApdexInfo } from '@pinpoint-fe/ui/src/utils';
 import { colorMap, getApdexGrade } from '@pinpoint-fe/server-map/src/ui/template/node';
+import { RankColorClassNameMap, getRank } from '../ApdexScore/ApdexScoreFetcher';
 
 export interface MergedServerSearchListProps {
   timestamp?: number[];
@@ -42,6 +43,11 @@ export const MergedServerSearchList = ({
                       <div className="flex items-center justify-between text-xs">
                         <div className="truncate">{item.applicationName}</div>
                         <div className="flex items-center gap-2">
+                          <div
+                            className={`font-bold ${RankColorClassNameMap[getRank(item.apdex.apdexScore)]}`}
+                          >
+                            {item.apdex.apdexScore.toFixed(2)}
+                          </div>
                           <div className={'w-auto flex justify-between'}>
                             {timeSeriesApdexInfo.map((score, index) => {
                               const grade = getApdexGrade(score);
