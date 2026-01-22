@@ -6,16 +6,6 @@ import {
   APP_SETTING_KEYS,
   MenuItemType as MenuItem,
 } from '@pinpoint-fe/ui/src/constants';
-import {
-  Menu,
-  MenuItem as MenuItemComponent,
-  SIDEBAR_COLLAPSED_WIDTH,
-  SIDEBAR_WIDTH,
-  Sidebar,
-  SubMenu,
-  bottomMenuItemStyles,
-  menuItemStyles,
-} from '../Sidebar';
 import { cn } from '../../lib';
 import {
   ErrorBoundary,
@@ -26,13 +16,32 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '..';
-import { useDebounce, useHover } from 'usehooks-ts';
+import { LuChevronRight, LuChevronFirst, LuChevronLast } from 'react-icons/lu';
 import { RxMagnifyingGlass } from 'react-icons/rx';
 import { LuCommand } from 'react-icons/lu';
 import { useLocalStorage } from '@pinpoint-fe/ui/src/hooks';
 import { useAtom } from 'jotai';
-import { globalSearchDisplayAtom, searchParametersAtom } from '@pinpoint-fe/ui/src/atoms';
-import { getApplicationTypeAndName } from '@pinpoint-fe/ui/src/utils';
+import { globalSearchDisplayAtom } from '@pinpoint-fe/ui/src/atoms';
+import {
+  SidebarProvider,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  Sidebar as ShadcnUiSidebar,
+  SidebarContent,
+  SidebarMenu,
+  SidebarHeader,
+  SidebarFooter,
+  SidebarInset,
+} from '@pinpoint-fe/ui/src/components/ui/sidebar';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@pinpoint-fe/ui/src/components/ui/dropdown-menu';
+
+const SIDEBAR_WIDTH = 200;
+const SIDEBAR_COLLAPSED_WIDTH = 64;
 
 export type SideNavigationMenuItem = MenuItem & {
   aHref?: string;
@@ -49,6 +58,7 @@ interface MenuItemProps {
 interface TooltipProps {
   trigger: React.ReactNode;
   content: React.ReactNode;
+  hidden?: boolean;
 }
 
 export interface LayoutWithSideNavigationProps {
@@ -63,120 +73,167 @@ export const LayoutWithSideNavigation = ({
   bottomMenuItems,
 }: LayoutWithSideNavigationProps) => {
   const [, setGlobalSearchOpen] = useAtom(globalSearchDisplayAtom);
-  const [collapsed] = useLocalStorage(APP_SETTING_KEYS.SIDE_NAV_BAR_SCALE, false);
+  const [collapsed, setCollapsed] = useLocalStorage(APP_SETTING_KEYS.SIDE_NAV_BAR_SCALE, false);
   const { pathname } = useLocation();
 
-  const SubMenuItem = ({ item }: MenuItemProps) => {
-    const hoverRef = React.useRef<HTMLLIElement | null>(null);
-    const subMenuContentElement =
-      hoverRef.current?.querySelector<HTMLDivElement>('.ps-submenu-content');
-    const isHover = useDebounce(useHover(hoverRef as React.RefObject<HTMLElement>), 150);
-    const isActive = item.childItems?.some(({ href }) => {
-      if (href) {
-        return pathname.includes(href);
+  const isActive = React.useCallback(
+    (item: SideNavigationMenuItem) => {
+      if (item?.childItems && item?.childItems?.length > 0) {
+        return item?.childItems?.some(({ path }) => {
+          return Array.isArray(path) ? path.includes(pathname) : pathname.startsWith(path);
+        });
       }
-      return false;
-    });
-    const [open, setOpen] = React.useState(isActive);
+      return Array.isArray(item.path)
+        ? item.path.includes(pathname)
+        : pathname.startsWith(item.path);
+    },
+    [pathname],
+  );
 
-    React.useEffect(() => {
-      if (collapsed && subMenuContentElement) {
-        // setOpen(false);
-        if (isHover) {
-          // setOpen(true);
-          subMenuContentElement.style.visibility = 'visible';
-          subMenuContentElement.style.marginLeft = '6px';
-        } else {
-          // setOpen(false);
-          subMenuContentElement.style.visibility = 'hidden';
-        }
-      }
-    }, [isHover, collapsed]);
+  const renderMenuItemContent = (item: SideNavigationMenuItem, isChildItem?: boolean) => {
+    const itemClassName = cn('w-full', { '!hidden': item.hide }, { 'justify-center': collapsed });
 
-    React.useEffect(() => {
-      if (collapsed) {
-        setOpen(false);
-      }
-      if (!collapsed && subMenuContentElement) {
-        subMenuContentElement.style.visibility = 'visible';
-        if (isActive) {
-          setOpen(true);
-        }
-      }
-    }, [collapsed, isActive]);
-
-    return (
-      <SubMenu
-        className={cn({ hidden: item.hide }, 'mb-1')}
-        ref={hoverRef}
-        label={item.name}
-        icon={item.icon && <span className="text-lg">{item.icon}</span>}
-        active={isActive}
-        open={open}
-        onClick={(e) => {
-          if (collapsed) {
-            e.stopPropagation();
-            e.preventDefault();
-            return;
-          } else {
-            setOpen(!open);
-          }
-        }}
-      >
-        {collapsed && (
+    const itemChildren = (
+      <div className="flex items-center w-full">
+        {item?.icon && (
+          <span
+            className={cn(
+              'text-lg mr-1 transition-opacity w-[35px] h-[35px] flex items-center justify-center relative',
+              isActive(item) ? 'opacity-100' : 'opacity-70',
+            )}
+          >
+            {item.icon}
+            {collapsed && item.childItems && item.childItems.length > 0 && (
+              <span className="absolute top-2 right-1 w-1.5 h-1.5 bg-white rounded-full" />
+            )}
+          </span>
+        )}
+        {collapsed && !isChildItem ? null : (
           <>
-            <MenuItemComponent
-              className={cn('pointer-events-none bg-[var(--snb-submenu-background)]', {
-                'font-semibold opacity-100': isActive,
-              })}
+            <span
+              className={cn(
+                'transition-opacity truncate',
+                isActive(item) ? 'opacity-100' : 'opacity-70',
+                {
+                  'pl-6 pr-2': !item?.icon,
+                },
+              )}
             >
-              {item.name}
-            </MenuItemComponent>
-            <Separator className="mb-1 opacity-50" />
+              {item.children
+                ? typeof item.children === 'function'
+                  ? item.children(collapsed)
+                  : item.children
+                : item.name}
+            </span>
+            {item.childItems && item.childItems?.length > 0 && (
+              <LuChevronRight className="ml-auto" />
+            )}
           </>
         )}
-        {open && <div className="mb-1" />}
-        <div className={cn('px-1 pb-1')}>
-          {item.childItems?.map((childItem) => MenuItem({ item: childItem, className: 'text-sm' }))}
-        </div>
-      </SubMenu>
+      </div>
     );
+
+    if (item?.childItems && item?.childItems?.length > 0) {
+      return <div className="w-full">{itemChildren}</div>;
+    } else if (item.aHref) {
+      return (
+        <a href={item.aHref} className={itemClassName}>
+          {itemChildren}
+        </a>
+      );
+    } else {
+      return (
+        <Link to={`${item.href}`} className={itemClassName}>
+          {itemChildren}
+        </Link>
+      );
+    }
   };
 
-  const MenuItem = ({ item, className }: MenuItemProps) => {
-    const isActive = Array.isArray(item.path)
-      ? item.path.includes(pathname)
-      : pathname.startsWith(item.path);
-    return (
-      <MenuItemComponent
-        component={item.aHref ? <a href={item.aHref} /> : <Link to={`${item.href}`} />}
-        className={cn('mb-0.5', { '!hidden': item.hide }, className)}
-        active={isActive}
-        icon={item.icon && <span className="text-lg">{item.icon}</span>}
-        key={getMenuKey(item.path)}
-      >
-        {item.children
-          ? typeof item.children === 'function'
-            ? item.children(collapsed)
-            : item.children
-          : item.name}
-      </MenuItemComponent>
+  const renderSidebarMenuItem = (item: SideNavigationMenuItem) => {
+    const sidebarMenuButtonClassName = cn(
+      '!h-10 !rounded p-1.5 !pl-1.5 !pr-2 text-sm',
+      'hover:bg-[var(--blue-700)] hover:text-[var(--white-default)]',
+      'focus:bg-[var(--blue-700)] focus:text-[var(--white-default)]',
     );
-  };
 
-  const WithTooltip = ({ trigger, content }: TooltipProps) => {
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>{trigger}</TooltipTrigger>
-        <TooltipContent side="right" className={cn({ hidden: !collapsed })}>
-          {content}
-        </TooltipContent>
-      </Tooltip>
-    );
+    if (item.childItems) {
+      return (
+        <SidebarMenuItem>
+          <DropdownMenu>
+            {WithTooltip({
+              trigger: (
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuButton
+                    className={cn(sidebarMenuButtonClassName, {
+                      'bg-[var(--blue-700)] font-semibold': isActive(item),
+                    })}
+                  >
+                    {renderMenuItemContent(item)}
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+              ),
+              content: item.name || '',
+              hidden: !collapsed,
+            })}
+            <DropdownMenuContent
+              side="right"
+              align="start"
+              sideOffset={15}
+              alignOffset={-50}
+              className="bg-[var(--blue-900)] border-none rounded-md min-w-[180px] shadow-lg text-[var(--white-default)] w-full"
+            >
+              <div className="opacity-50 h-10 flex items-center pl-6 pr-2 text-sm">{item.name}</div>
+              <Separator className="opacity-50 mb-2" />
+              <div className="space-y-1">
+                {item?.childItems?.map((childItem) => {
+                  return (
+                    <DropdownMenuItem
+                      key={getMenuKey(childItem.path)}
+                      className={cn(
+                        sidebarMenuButtonClassName,
+                        {
+                          'bg-[var(--blue-700)] font-semibold': isActive(childItem),
+                        },
+                        'cursor-pointer',
+                      )}
+                      asChild
+                    >
+                      {renderMenuItemContent(childItem, true)}
+                    </DropdownMenuItem>
+                  );
+                })}
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </SidebarMenuItem>
+      );
+    }
+
+    return WithTooltip({
+      trigger: (
+        <SidebarMenuButton
+          className={cn(sidebarMenuButtonClassName, {
+            'bg-[var(--blue-700)] font-semibold': isActive(item),
+          })}
+        >
+          {renderMenuItemContent(item)}
+        </SidebarMenuButton>
+      ),
+      content: item.name || '',
+      hidden: !collapsed,
+    });
   };
 
   return (
-    <div className="flex h-screen">
+    <SidebarProvider
+      style={
+        {
+          '--sidebar-width': `${collapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH}px`,
+        } as React.CSSProperties
+      }
+      className="h-screen"
+    >
       <ErrorBoundary
         fallbackRender={({ error }) => (
           <div className="flex flex-col items-center justify-center w-[200px] h-full gap-5 p-3">
@@ -186,82 +243,122 @@ export const LayoutWithSideNavigation = ({
           </div>
         )}
       >
-        <Sidebar
-          header={(collapsed) => {
-            return (
-              <Link to={APP_PATH.SERVER_MAP}>
-                <img
-                  src={collapsed ? `${IMAGE_PATH}/mini-logo.png` : `${IMAGE_PATH}/logo.png`}
-                  alt={'pinpoint-logo'}
-                />
-              </Link>
-            );
-          }}
-        >
+        <React.Fragment>
           <TooltipProvider delayDuration={100}>
-            <Menu menuItemStyles={menuItemStyles} className="px-2">
-              {WithTooltip({
-                trigger: (
-                  <MenuItemComponent
-                    component={<a>se</a>}
-                    className={cn('mb-0.5 group/global_search')}
-                    icon={<RxMagnifyingGlass className="text-lg" />}
-                    onClick={() => setGlobalSearchOpen(true)}
+            <ShadcnUiSidebar
+              style={{
+                color: 'var(--snb-text)',
+                background: 'var(--snb-background)',
+              }}
+              className="[&:hover_.scale-button-wrapper]:inline-block"
+            >
+              <SidebarHeader className="gap-0 p-0">
+                <div className="mb-2">
+                  <div
+                    className={cn(
+                      'relative h-16 min-h-[4rem] flex items-center pl-6 hover:bg-[--blue-700]',
+                      { 'justify-center pl-0': collapsed },
+                    )}
                   >
-                    <div className="flex">
-                      Search...
-                      <div className="items-center hidden gap-1 px-1 ml-auto text-xs border rounded group-hover/global_search:flex bg-muted/25">
-                        <LuCommand />K{/* <span className="text-xxs">ctrl</span> K */}
-                      </div>
-                    </div>
-                  </MenuItemComponent>
-                ),
-                content: (
-                  <div className="flex">
-                    Search...
-                    <div className="flex items-center gap-1 px-1 ml-3 text-xs border rounded bg-muted/25">
-                      <LuCommand /> K
+                    <Link to={APP_PATH.SERVER_MAP} className="flex items-center">
+                      <img
+                        src={collapsed ? `${IMAGE_PATH}/mini-logo.png` : `${IMAGE_PATH}/logo.png`}
+                        alt={'pinpoint-logo'}
+                      />
+                    </Link>
+                    <div className="absolute hidden scale-button-wrapper top-1 right-1">
+                      <button
+                        className="flex items-center justify-center w-6 h-6 text-white opacity-50 cursor-pointer hover:opacity-100 hover:font-semibold"
+                        onClick={() => setCollapsed(!collapsed)}
+                      >
+                        {collapsed ? <LuChevronLast /> : <LuChevronFirst />}
+                      </button>
                     </div>
                   </div>
-                ),
-              })}
-            </Menu>
-            <div className="px-4 my-2">
-              <Separator className="opacity-50 " />
-            </div>
-            <Menu menuItemStyles={menuItemStyles} className="px-2">
-              {topMenuItems?.map((item) => {
-                return (
-                  <React.Fragment key={getMenuKey(item.path)}>
-                    {WithTooltip({ trigger: MenuItem({ item }), content: item.name || '' })}
-                  </React.Fragment>
-                );
-              })}
-            </Menu>
-            <Menu menuItemStyles={bottomMenuItemStyles} className="px-2 mt-auto space-y-1">
-              {bottomMenuItems?.map((item) => {
-                return (
-                  <React.Fragment key={getMenuKey(item.path)}>
-                    {item.childItems
-                      ? SubMenuItem({ item })
-                      : WithTooltip({ trigger: MenuItem({ item }), content: item.name || '' })}
-                  </React.Fragment>
-                );
-              })}
-            </Menu>
+                </div>
+
+                <SidebarMenuItem className="px-2">
+                  {WithTooltip({
+                    trigger: (
+                      <SidebarMenuButton
+                        className={cn(
+                          'mb-0.5 group/global_search group/search-item !h-10 !rounded !p-0 !pl-1.5 !pr-2 text-sm',
+                          'bg-transparent hover:bg-[--blue-700] transition-colors',
+                        )}
+                        onClick={() => setGlobalSearchOpen(true)}
+                      >
+                        <div className="flex items-center w-full">
+                          <span className="w-[35px] h-[35px] flex items-center justify-center">
+                            <RxMagnifyingGlass className="mr-1 text-lg text-white/70" />
+                          </span>
+                          {collapsed ? null : (
+                            <>
+                              <span className="text-white/70">Search...</span>
+                              <div className="items-center hidden gap-1 px-1.5 ml-auto text-xs border border-white/20 rounded group-hover/global_search:flex bg-white/10 text-white">
+                                <LuCommand className="text-xs" />K
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </SidebarMenuButton>
+                    ),
+                    content: (
+                      <div className="flex">
+                        Search...
+                        <div className="flex items-center gap-1 px-1 ml-3 text-xs border rounded bg-muted/25">
+                          <LuCommand /> K
+                        </div>
+                      </div>
+                    ),
+                    hidden: !collapsed,
+                  })}
+                </SidebarMenuItem>
+                <div className="px-4 my-2">
+                  <Separator className="opacity-50 " />
+                </div>
+              </SidebarHeader>
+              <SidebarContent>
+                <SidebarMenu className="gap-1 px-2">
+                  {topMenuItems?.map((item, index) => {
+                    return (
+                      <React.Fragment key={getMenuKey(item.path)}>
+                        {renderSidebarMenuItem(item)}
+                      </React.Fragment>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarContent>
+              <SidebarFooter className="px-0 pb-10">
+                <SidebarMenu className="px-2">
+                  {bottomMenuItems?.map((item) => {
+                    return (
+                      <React.Fragment key={getMenuKey(item.path)}>
+                        {renderSidebarMenuItem(item)}
+                      </React.Fragment>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarFooter>
+            </ShadcnUiSidebar>
           </TooltipProvider>
-        </Sidebar>
+        </React.Fragment>
       </ErrorBoundary>
-      <div
-        style={{
-          width: `calc(100% - ${collapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH}px)`,
-          height: '100%',
-        }}
-      >
+      <SidebarInset>
         <ErrorBoundary>{children}</ErrorBoundary>
-      </div>
+      </SidebarInset>
       <GlobalSearch services={topMenuItems} />
-    </div>
+    </SidebarProvider>
+  );
+};
+
+const WithTooltip = ({ trigger, content, hidden }: TooltipProps) => {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{trigger}</TooltipTrigger>
+      <TooltipContent side="right" className={cn({ hidden: !!hidden })}>
+        {content}
+      </TooltipContent>
+    </Tooltip>
   );
 };
 
