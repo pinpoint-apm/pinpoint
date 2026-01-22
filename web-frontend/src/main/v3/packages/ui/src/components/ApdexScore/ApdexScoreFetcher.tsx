@@ -12,7 +12,7 @@ enum RANK {
   UNACCEPTABLE,
 }
 
-const RankColorClassNameMap: { [key: string]: string } = {
+export const RankColorClassNameMap: { [key: string]: string } = {
   [RANK.EXCELLENT]: 'text-status-success',
   [RANK.GOOD]: 'text-status-good',
   [RANK.FAIR]: 'text-[#f7d84a]',
@@ -20,24 +20,26 @@ const RankColorClassNameMap: { [key: string]: string } = {
   [RANK.UNACCEPTABLE]: 'text-status-fail',
 };
 
+export const getRank = (score: number) => {
+  if (score >= 0.94) {
+    return RANK.EXCELLENT;
+  } else if (score >= 0.85) {
+    return RANK.GOOD;
+  } else if (score >= 0.7) {
+    return RANK.FAIR;
+  } else if (score >= 0.5) {
+    return RANK.POOR;
+  } else {
+    return RANK.UNACCEPTABLE;
+  }
+};
+
 export const ApdexScoreFetcher = (props: ApdexScoreFetcherProps) => {
   const { data } = useGetApdexScore(props);
 
   const score = data?.apdexScore || 0;
-  const getRank = () => {
-    if (score >= 0.94) {
-      return RANK.EXCELLENT;
-    } else if (score >= 0.85) {
-      return RANK.GOOD;
-    } else if (score >= 0.7) {
-      return RANK.FAIR;
-    } else if (score >= 0.5) {
-      return RANK.POOR;
-    } else {
-      return RANK.UNACCEPTABLE;
-    }
-  };
-  const rank = data?.apdexScore ? getRank() : RANK.EXCELLENT;
+
+  const rank = data?.apdexScore ? getRank(score) : RANK.EXCELLENT;
 
   return (
     <div className="flex items-center h-full gap-1">
