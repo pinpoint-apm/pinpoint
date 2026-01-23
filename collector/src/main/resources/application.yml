@@ -19,37 +19,37 @@ management:
   endpoint:
     health:
       show-details: always
-      enabled: true
+      access: read_only
     beans:
-      enabled: true
+      access: read_only
     conditions:
-      enabled: true
+      access: read_only
     configprops:
-      enabled: true
       show-values: always
+      access: read_only
     env:
-      enabled: true
       show-values: always
+      access: read_only
     logfile:
-      enabled: true
+      access: read_only
     loggers:
-      enabled: true
+      access: unrestricted
     mappings:
-      enabled: true
+      access: read_only
     info:
-      enabled: true
+      access: read_only
     threaddump:
-      enabled: true
+      access: read_only
     heapdump:
-      enabled: true
+      access: read_only
     metrics:
-      enabled: true
+      access: read_only
     httptrace:
-      enabled: false
+      access: none
     prometheus:
-      enabled: false
+      access: none
     shutdown:
-      enabled: false
+      access: none
   endpoints:
     web:
       exposure:
