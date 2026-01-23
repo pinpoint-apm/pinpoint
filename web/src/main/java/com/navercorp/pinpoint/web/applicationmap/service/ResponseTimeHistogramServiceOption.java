@@ -82,7 +82,7 @@ public class ResponseTimeHistogramServiceOption {
         private final List<Application> fromApplications;
         private final List<Application> toApplications;
 
-        private boolean useStatisticsAgentState;
+        private boolean useStatisticsAgentState = true;
 
         public Builder(Application application, TimeWindow timeWindow, List<Application> fromApplications, List<Application> toApplications) {
             this.application = Objects.requireNonNull(application, "application");
