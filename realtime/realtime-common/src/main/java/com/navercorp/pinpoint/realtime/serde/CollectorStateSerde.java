@@ -23,30 +23,38 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author youngjin.kim2
  */
 public class CollectorStateSerde implements Serde<CollectorState> {
 
+    private static final Charset UTF_8 = StandardCharsets.UTF_8;
     private static final Logger logger = LogManager.getLogger(CollectorStateSerde.class);
+
+    private static final byte[] DELIMITER = "\r\n".getBytes(UTF_8);
 
     @Override
     @Nonnull
     public CollectorState deserialize(@Nonnull InputStream inputStream) throws IOException {
-        String[] profilerArray = BytesUtils.toString(inputStream.readAllBytes()).split("\r\n");
-        List<ProfilerDescription> profilers = new ArrayList<>(profilerArray.length);
-        for (String key: profilerArray) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, UTF_8));
+
+        List<ProfilerDescription> profilers = new ArrayList<>();
+        String line;
+        while(((line = reader.readLine()) != null)) {
             try {
-                profilers.add(ProfilerDescription.fromString(key));
+                profilers.add(ProfilerDescription.fromString(line));
             } catch (Exception e) {
-                logger.error("Invalid cluster key: {}", key, e);
+                logger.error("Invalid cluster key: {}", line, e);
             }
         }
         return new CollectorState(profilers);
@@ -54,10 +62,16 @@ public class CollectorStateSerde implements Serde<CollectorState> {
 
     @Override
     public void serialize(@Nonnull CollectorState state, @Nonnull OutputStream outputStream) throws IOException {
-        String serialized = state.getProfilers().stream()
-                .map(ProfilerDescription::toString)
-                .collect(Collectors.joining("\r\n"));
-        outputStream.write(BytesUtils.toBytes(serialized));
+        List<ProfilerDescription> profilers = state.getProfilers();
+        for (int i = 0; i < profilers.size(); i++) {
+            ProfilerDescription key = profilers.get(i);
+
+            outputStream.write(BytesUtils.toBytes(key.toString()));
+            if (i < profilers.size() - 1) {
+                outputStream.write(DELIMITER);
+            }
+        }
+        outputStream.flush();
     }
 
 }
