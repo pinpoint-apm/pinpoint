@@ -17,6 +17,8 @@ package com.navercorp.pinpoint.realtime.vo;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 
+import java.util.Objects;
+
 /**
  * @author youngjin.kim2
  */
@@ -25,7 +27,7 @@ public class ProfilerDescription {
     private final ClusterKey clusterKey;
 
     public ProfilerDescription(ClusterKey clusterKey) {
-        this.clusterKey = clusterKey;
+        this.clusterKey = Objects.requireNonNull(clusterKey, "clusterKey");
     }
 
     public ClusterKey getClusterKey() {
@@ -45,4 +47,17 @@ public class ProfilerDescription {
         return new ProfilerDescription(new ClusterKey(words[0], words[1], Long.parseLong(words[2])));
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ProfilerDescription that = (ProfilerDescription) o;
+        return Objects.equals(clusterKey, that.clusterKey);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(clusterKey);
+    }
 }
