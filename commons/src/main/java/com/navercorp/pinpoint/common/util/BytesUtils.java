@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.common.util;
 
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -625,11 +624,7 @@ public final class BytesUtils {
         if (length == 0) {
             return "";
         }
-        try {
-            return new String(bytes, offset, length, UTF8);
-        } catch (UnsupportedEncodingException e) {
-            return new String(bytes, offset, length, UTF8_CHARSET);
-        }
+        return new String(bytes, offset, length, UTF8_CHARSET);
     }
 
     public static String toStringAndRightTrim(final byte[] bytes, final int offset, final int length) {
