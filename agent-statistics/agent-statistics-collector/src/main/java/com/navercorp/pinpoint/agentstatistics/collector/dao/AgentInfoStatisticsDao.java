@@ -16,12 +16,11 @@
 package com.navercorp.pinpoint.agentstatistics.collector.dao;
 
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
-import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 
 /**
  * @author intr3p1d
  */
 public interface AgentInfoStatisticsDao {
-    void insert(ServiceUid serviceUid, ApplicationUid applicationUid, AgentInfoBo agentInfoBo);
+    void insert(ServiceUid serviceUid, String applicationName, AgentInfoBo agentInfoBo);
 }

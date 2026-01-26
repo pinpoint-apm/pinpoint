@@ -4,6 +4,7 @@ import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.io.request.supplier.UidSuppliers;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Map;
 import java.util.Objects;
@@ -25,21 +26,25 @@ public class GrpcServerHeaderV1 implements ServerHeader {
         this.uidFetcher = Objects.requireNonNull(uidFetcher, "uidFetcher");
     }
 
+    @NonNull
     @Override
     public String getAgentId() {
         return header.getAgentId();
     }
 
+    @NonNull
     @Override
     public String getAgentName() {
         return header.getAgentName();
     }
 
+    @NonNull
     @Override
     public String getApplicationName() {
         return header.getApplicationName();
     }
 
+    @NonNull
     @Override
     public Supplier<ApplicationUid> getApplicationUid() {
         String applicationName = getApplicationName();
@@ -47,6 +52,7 @@ public class GrpcServerHeaderV1 implements ServerHeader {
         return UidSuppliers.of(applicationName, future);
     }
 
+    @NonNull
     @Override
     public String getServiceName() {
         return header.getServiceName();

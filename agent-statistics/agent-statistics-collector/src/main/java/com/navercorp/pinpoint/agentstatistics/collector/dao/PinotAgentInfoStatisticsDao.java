@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.agentstatistics.collector.dao;
 import com.navercorp.pinpoint.agentstatistics.collector.entity.AgentInfoEntity;
 import com.navercorp.pinpoint.agentstatistics.collector.mapper.AgentInfoMapper;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
-import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.pinot.kafka.util.KafkaCallbacks;
 import org.apache.logging.log4j.LogManager;
@@ -63,7 +62,7 @@ public class PinotAgentInfoStatisticsDao implements AgentInfoStatisticsDao {
     @Override
     public void insert(
             ServiceUid serviceUid,
-            ApplicationUid applicationUid,
+            String applicationName,
             AgentInfoBo agentInfoBo
     ) {
         Objects.requireNonNull(agentInfoBo, "agentInfoBo");
