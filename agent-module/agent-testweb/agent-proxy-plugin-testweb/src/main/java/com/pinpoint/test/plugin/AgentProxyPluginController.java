@@ -86,7 +86,7 @@ public class AgentProxyPluginController {
 
     @GetMapping("/proxy/app")
     public Mono<String> proxyApp() {
-        final String proxyHeaderValue = "t=" + String.valueOf(System.currentTimeMillis()) + " app=foo-bar";
+        final String proxyHeaderValue = "t=" + System.currentTimeMillis() + " app=foo-bar";
 
         WebClient client = WebClient.create("http://localhost:18080");
         WebClient.ResponseSpec response = client.method(HttpMethod.GET)
@@ -124,7 +124,7 @@ public class AgentProxyPluginController {
 
     @GetMapping("/proxy/user/app")
     public Mono<String> proxyUserApp() {
-        final String proxyHeaderValue = "t=" + String.valueOf(System.currentTimeMillis());
+        final String proxyHeaderValue = "t=" + System.currentTimeMillis();
 
         WebClient client = WebClient.create("http://localhost:18080");
         WebClient.ResponseSpec response = client.method(HttpMethod.GET)
