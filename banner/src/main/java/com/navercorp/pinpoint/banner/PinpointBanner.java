@@ -37,10 +37,8 @@ public class PinpointBanner implements Banner {
 
         for (String key : dumpKeys) {
             String value = properties.apply(key);
-            if (value != null) {
-                banner.append(format(key, value));
-                banner.append(System.lineSeparator());
-            }
+            banner.append(format(key, value));
+            banner.append(System.lineSeparator());
         }
         return banner.toString();
     }
