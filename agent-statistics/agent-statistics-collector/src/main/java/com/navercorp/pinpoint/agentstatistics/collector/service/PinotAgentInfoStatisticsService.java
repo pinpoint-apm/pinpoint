@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.agentstatistics.collector.service;
 import com.navercorp.pinpoint.agentstatistics.collector.dao.AgentInfoStatisticsDao;
 import com.navercorp.pinpoint.collector.service.AgentInfoStatisticsService;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
-import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -52,11 +51,11 @@ public class PinotAgentInfoStatisticsService implements AgentInfoStatisticsServi
     @Override
     public void insert(
             Supplier<ServiceUid> serviceUidSupplier,
-            Supplier<ApplicationUid> applicationUidSupplier,
+            String applicationName,
             AgentInfoBo agentInfoBo
     ) {
         Objects.requireNonNull(serviceUidSupplier, "serviceUidSupplier");
-        Objects.requireNonNull(applicationUidSupplier, "applicationUidSupplier");
+        Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(agentInfoBo, "agentInfoBo");
 
         final String tenantId = tenantProvider.getTenantId();
@@ -66,7 +65,7 @@ public class PinotAgentInfoStatisticsService implements AgentInfoStatisticsServi
 
         agentInfoStatisticsDao.insert(
                 null, // TODO: will be replaced with serviceUidSupplier.get()
-                null, // TODO: will be replaced with applicationUidSupplier.get()
+                applicationName,
                 agentInfoBo
         );
     }
