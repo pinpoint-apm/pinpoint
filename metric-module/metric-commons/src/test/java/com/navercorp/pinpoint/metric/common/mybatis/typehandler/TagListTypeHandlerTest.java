@@ -42,7 +42,8 @@ public class TagListTypeHandlerTest {
     @Test
     void json() throws SQLException {
 
-        TagListTypeHandler handler = new TagListTypeHandler(mapper);
+        TagListSerializer serializer = new TagListSerializer(mapper);
+        TagListTypeHandler handler = new TagListTypeHandler(serializer);
 
         List<Tag> list = List.of(
                 new Tag("a", "1"),

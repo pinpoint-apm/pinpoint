@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.common.dao.pinot;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import com.navercorp.pinpoint.metric.common.util.TagUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -37,11 +36,10 @@ import java.util.List;
  */
 public class MultiValueTagTypeHandler implements TypeHandler<List<Tag>> {
 
-    private final static ObjectReader READER = getMapper().readerForListOf(String.class);
+    private final ObjectReader reader;
 
-    private static ObjectMapper getMapper() {
-        return Jackson.newBuilder()
-                .build();
+    public MultiValueTagTypeHandler(ObjectMapper mapper) {
+        this.reader = mapper.readerForListOf(String.class);
     }
 
     @Override
@@ -56,7 +54,7 @@ public class MultiValueTagTypeHandler implements TypeHandler<List<Tag>> {
             return List.of();
         }
         try {
-            List<String> tags = READER.readValue(json);
+            List<String> tags = reader.readValue(json);
             return TagUtils.parseTags(tags);
         } catch (JsonProcessingException e) {
             throw new SQLException(e);

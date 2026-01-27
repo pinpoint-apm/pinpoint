@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.common.dao.pinot;
 
+import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import org.apache.ibatis.type.TypeHandler;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,7 @@ class MultiValueTagTypeHandlerTest {
         ResultSet resultSet = mock(ResultSet.class);
         when(resultSet.getString(any())).thenReturn(json);
 
-        TypeHandler<List<Tag>> handler = new MultiValueTagTypeHandler();
+        TypeHandler<List<Tag>> handler = new MultiValueTagTypeHandler(Jackson.newMapper());
         List<Tag> columnName = handler.getResult(resultSet, "columnName");
         assertThat(columnName)
                 .contains(new Tag("name1", "1"), new Tag("name2", "2"));
