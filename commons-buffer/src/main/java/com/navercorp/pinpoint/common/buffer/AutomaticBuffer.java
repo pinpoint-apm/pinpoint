@@ -159,6 +159,16 @@ public class AutomaticBuffer extends FixedBuffer {
     }
 
     @Override
+    public void putNullTerminatedString(final String string) {
+        if (string == null) {
+            throw new NullPointerException("string");
+        }
+        final byte[] bytes = BytesUtils.toBytes(string);
+        checkExpand(bytes.length + 1);
+        super.putNullTerminatedBytes(bytes);
+    }
+
+    @Override
     public void putByte(final byte v) {
         checkExpand(1);
         super.putByte(v);

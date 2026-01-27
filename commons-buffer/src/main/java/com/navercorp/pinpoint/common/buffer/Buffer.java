@@ -33,6 +33,8 @@ public interface Buffer {
     int UNSIGNED_BYTE_NULL = BytesUtils.UNSIGNED_BYTE_MAX;
     int UNSIGNED_BYTE_MAX = UNSIGNED_BYTE_NULL - 1;
 
+    byte NUL_DELIMITER = 0;
+
     int BOOLEAN_FALSE = 0;
     int BOOLEAN_TRUE = 1;
 
@@ -45,6 +47,8 @@ public interface Buffer {
     void putPadBytes(byte[] bytes, int totalLength);
 
     void putPrefixedBytes(byte[] bytes);
+
+    void putNullTerminatedString(String string);
 
     /**
      * max 254 byte range
@@ -194,6 +198,8 @@ public interface Buffer {
     String read2PrefixedString();
 
     String read4PrefixedString();
+
+    String readNullTerminatedString();
 
     void setByte(int offset, byte value);
 

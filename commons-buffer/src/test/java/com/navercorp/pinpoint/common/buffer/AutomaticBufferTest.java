@@ -133,6 +133,28 @@ public class AutomaticBufferTest {
     }
 
     @Test
+    public void testNullTerminatedString() {
+        String testString = "12";
+        checkNullTerminatedString(testString);
+
+        String emptyString = "";
+        checkNullTerminatedString(emptyString);
+
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            checkNullTerminatedString(null);
+        });
+    }
+
+    private void checkNullTerminatedString(String string) {
+        Buffer buffer = new AutomaticBuffer(0);
+        buffer.putNullTerminatedString(string);
+        byte[] bytes = buffer.getBuffer();
+
+        Buffer copy = new FixedBuffer(bytes);
+        assertThat(copy.readNullTerminatedString()).isEqualTo(string);
+    }
+
+    @Test
     public void testPutUnsignedBytePrefixedBytes() {
         byte[] bytes1 = new byte[2];
         checkPutUnsignedBytePrefixedBytes(bytes1);

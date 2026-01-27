@@ -265,6 +265,37 @@ public class FixedBufferTest {
     }
 
     @Test
+    public void testNullTerminatedString() {
+        checkNullTerminatedString("test");
+    }
+
+    @Test
+    public void testNullTerminatedString_empty() {
+        checkNullTerminatedString("");
+    }
+
+    @Test
+    public void testNullTerminatedString_null() {
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            checkNullTerminatedString(null);
+        });
+    }
+
+    private void checkNullTerminatedString(String string) {
+        Buffer buffer = new FixedBuffer(1024);
+        buffer.putNullTerminatedString(string);
+        buffer.putInt(1);
+        byte[] buffer1 = buffer.getBuffer();
+
+        Buffer actual = new FixedBuffer(buffer1);
+        String result = actual.readNullTerminatedString();
+        Assertions.assertEquals(string, result);
+
+        int trailingInt = actual.readInt();
+        Assertions.assertEquals(trailingInt, 1);
+    }
+
+    @Test
     public void testPut2PrefixedBytes() {
         String test = "test";
         int endExpected = 3333;
