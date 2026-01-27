@@ -1,11 +1,12 @@
 package com.navercorp.pinpoint.metric.web.config;
 
 import com.navercorp.pinpoint.common.server.config.YAMLMapper;
+import com.navercorp.pinpoint.metric.common.config.CommonRegistryHandler;
+import com.navercorp.pinpoint.metric.common.config.MetricCommonConfiguration;
 import com.navercorp.pinpoint.metric.web.mapping.Mappings;
 import com.navercorp.pinpoint.metric.web.service.YMLSystemMetricBasicGroupManager;
 import com.navercorp.pinpoint.mybatis.MyBatisConfiguration;
 import com.navercorp.pinpoint.mybatis.MyBatisConfigurationCustomizer;
-import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
 import com.navercorp.pinpoint.pinot.mybatis.PinotAsyncTemplate;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -32,7 +33,7 @@ import java.io.InputStream;
  * @author Woonduk Kang(emeroad)
  */
 @org.springframework.context.annotation.Configuration
-@Import(MyBatisConfiguration.class)
+@Import({MyBatisConfiguration.class, MetricCommonConfiguration.class})
 public class MetricWebPinotDaoConfiguration {
     private final Logger logger = LogManager.getLogger(MetricWebPinotDaoConfiguration.class);
 
@@ -41,9 +42,10 @@ public class MetricWebPinotDaoConfiguration {
         return new DataSourceTransactionManager(dataSource);
     }
 
-
     @Bean
     public FactoryBean<SqlSessionFactory> sqlPinotSessionFactory(
+            CommonRegistryHandler commonRegistryHandler,
+            WebRegistryHandler webRegistryHandler,
             @Qualifier("pinotConfigurationCustomizer") MyBatisConfigurationCustomizer customizer,
             @Qualifier("pinotDataSource") DataSource dataSource,
             @Value("classpath*:/pinot-web/mapper/pinot/*Mapper.xml") Resource[] mappers) {
@@ -62,9 +64,9 @@ public class MetricWebPinotDaoConfiguration {
 
         sessionFactoryBean.setConfiguration(config);
 
-        MyBatisRegistryHandler registry = registryHandler();
-        registry.registerTypeAlias(config.getTypeAliasRegistry());
-        registry.registerTypeHandler(config.getTypeHandlerRegistry());
+        commonRegistryHandler.registerHandlers(config);
+        webRegistryHandler.registerHandlers(config);
+
         return sessionFactoryBean;
     }
 
@@ -72,7 +74,8 @@ public class MetricWebPinotDaoConfiguration {
         return new ManagedTransactionFactory();
     }
 
-    private MyBatisRegistryHandler registryHandler() {
+    @Bean
+    public WebRegistryHandler registryHandler() {
         return new WebRegistryHandler();
     }
 
