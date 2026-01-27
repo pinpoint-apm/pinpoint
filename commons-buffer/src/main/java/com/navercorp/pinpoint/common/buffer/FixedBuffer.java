@@ -128,6 +128,20 @@ public class FixedBuffer implements Buffer {
     }
 
     @Override
+    public void putNullTerminatedString(final String string) {
+        if (string == null){
+            throw new NullPointerException("string");
+        }
+        final byte[] bytes = BytesUtils.toBytes(string);
+        putNullTerminatedBytes(bytes);
+    }
+
+    protected void putNullTerminatedBytes(final byte[] bytes) {
+        putBytes(bytes);
+        putByte(NUL_DELIMITER);
+    }
+
+    @Override
     public void putUnsignedBytePrefixedBytes(final byte[] bytes) {
         if (bytes == null) {
             putByte(BYTE_NULL);
@@ -579,6 +593,18 @@ public class FixedBuffer implements Buffer {
         return readString(size);
     }
 
+    @Override
+    public String readNullTerminatedString() {
+        final int start = this.offset;
+        for (int off = this.offset; off < getEndOffset(); off++) {
+            if (this.buffer[off] == NUL_DELIMITER) {
+                String s = newString(off - start);
+                this.offset = off + 1;
+                return s;
+            }
+        }
+        throw new IllegalStateException("Delimiter not found");
+    }
 
     protected String readString(final int size) {
         final String s = newString(size);
