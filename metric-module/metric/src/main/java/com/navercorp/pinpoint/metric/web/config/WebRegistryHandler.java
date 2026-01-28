@@ -3,6 +3,8 @@ package com.navercorp.pinpoint.metric.web.config;
 import com.navercorp.pinpoint.common.timeseries.point.DoubleDataPoint;
 import com.navercorp.pinpoint.common.timeseries.point.LongDataPoint;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.metric.common.model.Tag;
+import com.navercorp.pinpoint.metric.common.mybatis.typehandler.TagTypeHandler;
 import com.navercorp.pinpoint.metric.web.dao.model.HostInfoSearchKey;
 import com.navercorp.pinpoint.metric.web.dao.model.MetricInfoSearchKey;
 import com.navercorp.pinpoint.metric.web.dao.model.MetricTagsSearchKey;
@@ -35,7 +37,7 @@ public class WebRegistryHandler implements MyBatisRegistryHandler {
 
     @Override
     public void registerTypeHandler(TypeHandlerRegistry typeHandlerRegistry) {
-
+        typeHandlerRegistry.register(Tag.class, TagTypeHandler.class);
         typeHandlerRegistry.register(List.class, TagListTypeHandler.class);
     }
 }
