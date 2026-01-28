@@ -28,8 +28,11 @@ public class OtlpMetricAgentInfoMapper {
 
     public AgentInfoBo map(List<KeyValue> attributesList, long agentStartTime) {
         final AgentInfoBo.Builder builder = new AgentInfoBo.Builder();
-        builder.setAgentId(OtlpMetricMapperUtils.getAgentId(attributesList));
-        builder.setAgentName(null); // TODO use agentName ?
+        final AgentIdAndName agentIdAndName = OtlpMetricMapperUtils.getAgentId(attributesList);
+        builder.setAgentId(agentIdAndName.agentId());
+        if (agentIdAndName.agentName() != null) {
+            builder.setAgentName(agentIdAndName.agentName());
+        }
         builder.setApplicationName(OtlpMetricMapperUtils.getApplicationName(attributesList));
         builder.setServiceTypeCode(ServiceType.OPENTELEMETRY_SERVER.getCode());
 
