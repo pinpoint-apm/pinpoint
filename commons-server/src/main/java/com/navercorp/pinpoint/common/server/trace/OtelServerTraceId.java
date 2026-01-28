@@ -8,6 +8,8 @@ import com.navercorp.pinpoint.common.server.util.Base16Utils;
 import java.util.Arrays;
 
 public class OtelServerTraceId implements ServerTraceId {
+    public static final byte PREFIX_BYTE_SERVER_TRACE_ID = (byte) 2;
+    public static final byte PREFIX_BYTE_APPLICATION_TRACE_INDEX = (byte) 3;
 
     public static OtelServerTraceId of(byte[] traceIdBytes, int offset, int length) {
         return new OtelServerTraceId(Arrays.copyOfRange(traceIdBytes, offset, offset + length));

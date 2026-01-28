@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
-import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 
 import java.util.Objects;
 
@@ -50,21 +49,18 @@ public class TraceRowKeyEncoderV2 implements RowKeyEncoder<ServerTraceId> {
     public byte[] encodeRowKey(int saltKeySize, ServerTraceId serverTraceId) {
         Objects.requireNonNull(serverTraceId, "serverTraceId");
 
-        if (serverTraceId instanceof PinpointServerTraceId pinpointTraceId) {
-            final String agentId = pinpointTraceId.getAgentId();
-            byte[] rowKey = RowKeyUtils.stringLongLongToBytes(saltKeySize, agentId, AGENT_ID_MAX_LEN, pinpointTraceId.getAgentStartTime(), pinpointTraceId.getTransactionSequence());
+        if (serverTraceId instanceof PinpointServerTraceId pinpointServerTraceId) {
+            byte[] rowKey = ServerTraceId.encodeTraceRowKey(saltKeySize, pinpointServerTraceId);
             if (saltKeySize == 0) {
                 return rowKey;
             }
             return byteHasher.writeSaltKey(rowKey);
         }
 
-        if (serverTraceId instanceof OtelServerTraceId otelTraceId) {
-            byte[] otelTraceIdBytes = otelTraceId.getId();
-            byte saltKey = byteHasher.getHashPrefix(otelTraceIdBytes);
-            byte[] rowKey = new byte[otelTraceIdBytes.length + 1];
+        if (serverTraceId instanceof OtelServerTraceId otelServerTraceId) {
+            byte[] rowKey = ServerTraceId.encodeTraceRowKey(saltKeySize, otelServerTraceId);
+            byte saltKey = byteHasher.getHashPrefix(otelServerTraceId.getId());
             rowKey[0] = saltKey;
-            System.arraycopy(otelTraceIdBytes, 0, rowKey, 1, otelTraceIdBytes.length);
             return rowKey;
         }
 

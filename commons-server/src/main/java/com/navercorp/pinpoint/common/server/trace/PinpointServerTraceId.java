@@ -12,11 +12,11 @@ public class PinpointServerTraceId implements ServerTraceId {
 
     public static final char DELIMITER = '^';
     public static final int DELIMITER_LENGTH = 1;
+    public static final byte PREFIX_BYTE_SERVER_TRACE_ID = (byte) 1;
 
     private final String agentId;
     private final long agentStartTime;
     private final long transactionSequence;
-
 
     public static ServerTraceId of(byte[] traceIdBytes, int offset, int length) {
         Buffer buffer = new OffsetFixedBuffer(traceIdBytes, offset, length);

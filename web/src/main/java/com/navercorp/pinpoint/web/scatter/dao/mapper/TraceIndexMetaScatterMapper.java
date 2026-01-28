@@ -62,7 +62,7 @@ public class TraceIndexMetaScatterMapper implements RowMapper<List<DotMetaData>>
                 builder.setDot(dot);
             }
             if (CellUtil.matchingFamily(cell, meta.getName())) {
-                ServerTraceId serverTraceId = ServerTraceId.of(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
+                ServerTraceId serverTraceId = ServerTraceId.decodeApplicationTraceIndexQualifier(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
                 DotMetaData.Builder builder = getMetaDataBuilder(metaDataMap, serverTraceId);
                 builder.read(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
             }

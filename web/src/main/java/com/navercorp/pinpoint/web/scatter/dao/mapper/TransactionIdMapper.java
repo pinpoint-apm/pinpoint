@@ -56,7 +56,7 @@ public class TransactionIdMapper implements RowMapper<List<ServerTraceId>>, RowT
         List<ServerTraceId> traceIdList = new ArrayList<>(rawCells.length);
         for (Cell cell : rawCells) {
             if (CellUtil.matchingFamily(cell, traceIndex.getName())) {
-                ServerTraceId serverTraceId = ServerTraceId.of(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
+                ServerTraceId serverTraceId = ServerTraceId.decodeApplicationTraceIndexQualifier(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
                 traceIdList.add(serverTraceId);
                 logger.debug("found traceId {}", serverTraceId);
             }
