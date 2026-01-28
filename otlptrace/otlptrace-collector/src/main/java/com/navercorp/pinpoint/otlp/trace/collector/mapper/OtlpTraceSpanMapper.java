@@ -51,8 +51,11 @@ public class OtlpTraceSpanMapper {
         SpanBo spanBo = new SpanBo();
 
         spanBo.setVersion(1); // TODO ?
-        spanBo.setAgentId(OtlpTraceMapperUtils.getAgentId(resourceAttributesList));
-        spanBo.setAgentName(null); // TODO use agentName ?
+        final AgentIdAndName agentIdAndName = OtlpTraceMapperUtils.getAgentId(resourceAttributesList);
+        spanBo.setAgentId(agentIdAndName.agentId());
+        if (agentIdAndName.agentName() != null) {
+            spanBo.setAgentName(agentIdAndName.agentName());
+        }
         spanBo.setApplicationName(OtlpTraceMapperUtils.getApplicationName(resourceAttributesList));
 
         spanBo.setTransactionId(new OtelServerTraceId(span.getTraceId().toByteArray()));

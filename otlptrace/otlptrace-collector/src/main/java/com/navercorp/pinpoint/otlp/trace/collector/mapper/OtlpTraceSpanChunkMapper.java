@@ -39,8 +39,11 @@ public class OtlpTraceSpanChunkMapper {
     SpanChunkBo map(List<KeyValue> resourceAttributesList, Span span) {
         SpanChunkBo spanChunkBo = new SpanChunkBo();
         spanChunkBo.setVersion((byte) 1); // TODO
-        spanChunkBo.setAgentId(OtlpTraceMapperUtils.getAgentId(resourceAttributesList));
-        spanChunkBo.setAgentName(null);
+        final AgentIdAndName agentIdAndName = OtlpTraceMapperUtils.getAgentId(resourceAttributesList);
+        spanChunkBo.setAgentId(agentIdAndName.agentId());
+        if (agentIdAndName.agentName() != null) {
+            spanChunkBo.setAgentName(agentIdAndName.agentName());
+        }
         spanChunkBo.setApplicationName(OtlpTraceMapperUtils.getApplicationName(resourceAttributesList));
 
         final long startTime = TimeUnit.NANOSECONDS.toMillis(span.getStartTimeUnixNano());

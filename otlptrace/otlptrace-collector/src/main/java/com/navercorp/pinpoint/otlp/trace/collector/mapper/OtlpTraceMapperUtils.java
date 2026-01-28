@@ -18,11 +18,14 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
+import com.navercorp.pinpoint.common.profiler.name.Base64Utils;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.util.Base16Utils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.ArrayValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
@@ -34,19 +37,40 @@ import java.util.List;
 import java.util.Map;
 
 public class OtlpTraceMapperUtils {
-    public static String getAgentId(List<KeyValue> attributesList) {
+    public static AgentIdAndName getAgentId(List<KeyValue> attributesList) {
         final String agentId = attributesList.stream().filter(kv -> kv.getKey().equals("pinpoint.agentId")).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
         if (agentId == null) {
-            throw new IllegalStateException("not found agentId");
+            final String agentName = attributesList.stream().filter(kv -> kv.getKey().equals("service.instance.id")).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+            if (agentName == null) {
+                throw new IllegalStateException("not found agentId");
+            }
+            if (!IdValidateUtils.validateId(agentName, PinpointConstants.AGENT_NAME_MAX_LEN_V4)) {
+                throw new IllegalStateException("invalid agentName=" + agentName);
+            }
+            final String encodedAgentId = Base64Utils.encode(agentName);
+            if (!IdValidateUtils.validateId(encodedAgentId, PinpointConstants.AGENT_ID_MAX_LEN)) {
+                throw new IllegalStateException("invalid agentId=" + encodedAgentId);
+            }
+            return new AgentIdAndName(encodedAgentId, agentName);
         }
 
-        return agentId;
+        if (!IdValidateUtils.validateId(agentId, PinpointConstants.AGENT_ID_MAX_LEN)) {
+            throw new IllegalStateException("invalid agentId=" + agentId);
+        }
+
+        return new AgentIdAndName(agentId, null);
     }
 
     public static String getApplicationName(List<KeyValue> attributesList) {
-        final String applicationName = attributesList.stream().filter(kv -> kv.getKey().equals("pinpoint.applicationName")).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+        String applicationName = attributesList.stream().filter(kv -> kv.getKey().equals("pinpoint.applicationName")).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
         if (applicationName == null) {
-            throw new IllegalStateException("not found applicationName");
+            applicationName = attributesList.stream().filter(kv -> kv.getKey().equals("service.name")).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+            if (applicationName == null) {
+                throw new IllegalStateException("not found applicationName");
+            }
+        }
+        if (!IdValidateUtils.validateId(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN_V3)) {
+            throw new IllegalStateException("invalid applicationName=" + applicationName);
         }
 
         return applicationName;
