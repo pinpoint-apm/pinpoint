@@ -22,17 +22,58 @@ import {
   getTimezone,
 } from '@pinpoint-fe/ui/src/utils';
 import { useTimezone, useTransactionSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import React from 'react';
 
 export interface CallTreeTableColumnsProps {
   metaData: TransactionInfo.Response;
   onClickDetailView?: (data: TransactionInfo.CallStackKeyValueMap) => void;
 }
 
+export type CallTreeTableColumnId =
+  | 'index'
+  | 'title'
+  | 'arguments'
+  | 'begin'
+  | 'gap'
+  | 'elapsedTime'
+  | 'executionPercentage'
+  | 'executionMilliseconds'
+  | 'simpleClassName'
+  | 'apiType'
+  | 'agent'
+  | 'applicationName'
+  | 'agentName';
+
+export const useCallTreeTableColumns = ({
+  metaData,
+  onClickDetailView,
+}: CallTreeTableColumnsProps) => {
+  const defaultColumns = React.useMemo(
+    () => callTreeTableColumns({ metaData, onClickDetailView }),
+    [metaData, onClickDetailView],
+  );
+
+  const [columns, setColumns] =
+    React.useState<ColumnDef<TransactionInfo.CallStackKeyValueMap>[]>(defaultColumns);
+
+  const updateColumns = React.useCallback(
+    (columnIds: CallTreeTableColumnId[]) => {
+      setColumns(
+        defaultColumns.filter((column) => columnIds.includes(column.id as CallTreeTableColumnId)),
+      );
+    },
+    [defaultColumns],
+  );
+
+  return { defaultColumns, columns, updateColumns };
+};
+
 export const callTreeTableColumns = ({
   metaData,
   onClickDetailView,
 }: CallTreeTableColumnsProps): ColumnDef<TransactionInfo.CallStackKeyValueMap>[] => [
   {
+    id: 'index',
     accessorKey: 'index',
     header: '',
     cell: (props) => {
@@ -50,6 +91,7 @@ export const callTreeTableColumns = ({
     },
   },
   {
+    id: 'title',
     accessorKey: 'title',
     header: 'Method',
     cell: (props) => {
@@ -74,6 +116,7 @@ export const callTreeTableColumns = ({
     size: 350,
   },
   {
+    id: 'arguments',
     accessorKey: 'arguments',
     header: 'Arguments',
     cell: (props) => {
@@ -81,6 +124,7 @@ export const callTreeTableColumns = ({
     },
   },
   {
+    id: 'begin',
     accessorKey: 'begin',
     header: 'StartTime',
     size: 90,
@@ -96,6 +140,7 @@ export const callTreeTableColumns = ({
     },
   },
   {
+    id: 'gap',
     accessorKey: 'gap',
     header: 'Gap(ms)',
     size: 65,
@@ -108,6 +153,7 @@ export const callTreeTableColumns = ({
     },
   },
   {
+    id: 'elapsedTime',
     accessorKey: 'elapsedTime',
     header: 'Exec(ms)',
     size: 65,
@@ -124,7 +170,8 @@ export const callTreeTableColumns = ({
     },
   },
   {
-    accessorKey: 'excutionPercentage',
+    id: 'executionPercentage',
+    accessorKey: 'executionPercentage',
     header: 'Exec(%)',
     size: 120,
     cell: (props) => {
@@ -154,6 +201,7 @@ export const callTreeTableColumns = ({
     },
   },
   {
+    id: 'executionMilliseconds',
     accessorKey: 'executionMilliseconds',
     header: 'Self(ms)',
     size: 65,
@@ -170,6 +218,7 @@ export const callTreeTableColumns = ({
     },
   },
   {
+    id: 'simpleClassName',
     accessorKey: 'simpleClassName',
     header: 'Class',
     cell: (props) => {
@@ -180,6 +229,7 @@ export const callTreeTableColumns = ({
     },
   },
   {
+    id: 'apiType',
     accessorKey: 'apiType',
     header: 'API',
     cell: (props) => {
@@ -191,6 +241,7 @@ export const callTreeTableColumns = ({
     },
   },
   {
+    id: 'agent',
     accessorKey: 'agent',
     header: 'Agent Id',
     cell: (props) => {
@@ -202,6 +253,7 @@ export const callTreeTableColumns = ({
     },
   },
   {
+    id: 'applicationName',
     accessorKey: 'applicationName',
     header: 'Application',
     cell: (props) => {
@@ -213,6 +265,7 @@ export const callTreeTableColumns = ({
     },
   },
   {
+    id: 'agentName',
     accessorKey: 'agentName',
     header: 'Agent Name',
     size: 30,
