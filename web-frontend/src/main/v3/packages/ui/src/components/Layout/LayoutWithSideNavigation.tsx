@@ -137,13 +137,13 @@ export const LayoutWithSideNavigation = ({
       return <div className="w-full">{itemChildren}</div>;
     } else if (item.aHref) {
       return (
-        <a href={item.aHref} className={itemClassName}>
+        <a href={item.aHref ?? ''} className={itemClassName}>
           {itemChildren}
         </a>
       );
     } else {
       return (
-        <Link to={`${item.href}`} className={itemClassName}>
+        <Link to={item.href ?? ''} className={itemClassName}>
           {itemChildren}
         </Link>
       );
@@ -210,19 +210,23 @@ export const LayoutWithSideNavigation = ({
       );
     }
 
-    return WithTooltip({
-      trigger: (
-        <SidebarMenuButton
-          className={cn(sidebarMenuButtonClassName, {
-            'bg-[var(--blue-700)] font-semibold': isActive(item),
-          })}
-        >
-          {renderMenuItemContent(item)}
-        </SidebarMenuButton>
-      ),
-      content: item.name || '',
-      hidden: !collapsed,
-    });
+    return (
+      <SidebarMenuItem>
+        {WithTooltip({
+          trigger: (
+            <SidebarMenuButton
+              className={cn(sidebarMenuButtonClassName, {
+                'bg-[var(--blue-700)] font-semibold': isActive(item),
+              })}
+            >
+              {renderMenuItemContent(item)}
+            </SidebarMenuButton>
+          ),
+          content: item.name || '',
+          hidden: !collapsed,
+        })}
+      </SidebarMenuItem>
+    );
   };
 
   return (
@@ -319,7 +323,7 @@ export const LayoutWithSideNavigation = ({
               </SidebarHeader>
               <SidebarContent>
                 <SidebarMenu className="gap-1 px-2">
-                  {topMenuItems?.map((item, index) => {
+                  {topMenuItems?.map((item) => {
                     return (
                       <React.Fragment key={getMenuKey(item.path)}>
                         {renderSidebarMenuItem(item)}
