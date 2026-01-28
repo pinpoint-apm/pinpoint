@@ -18,6 +18,7 @@ export enum APP_SETTING_KEYS {
   AGENT_LIST_SORT = 'pp.agentListSort',
   TRANSACTION_LIST_RESIZABLE = 'pp.transactionListResizable',
   TRANSACTION_DETAIL_RESIZABLE = 'pp.transactionDetailResizable',
+  TRANSACTION_CALL_TREE_COLUMNS_SETTING = 'pp.transactionCallTreeColumnsSetting',
   SCATTER_Y_AXIS_MIN_MAX = 'pp.scatterYAxisMinMax',
   HEATMAP_SETTING = 'pp.heatmapSetting',
   SERVER_MAP_HORIZONTAL_RESIZABLE = 'pp.serverMapHorizontalResizable',

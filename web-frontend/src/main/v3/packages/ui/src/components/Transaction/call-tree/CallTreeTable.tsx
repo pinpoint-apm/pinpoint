@@ -1,26 +1,22 @@
 import { TransactionInfoType as TransactionInfo } from '@pinpoint-fe/ui/src/constants';
 import { VirtualizedDataTable, VirtualizedDataTableProps } from '../../DataTable';
-import { CallTreeTableColumnsProps, callTreeTableColumns } from '.';
 
-export interface CallTreeTableProps
-  extends Omit<
-    VirtualizedDataTableProps<TransactionInfo.CallStackKeyValueMap, unknown>,
-    'columns'
-  > {
+export interface CallTreeTableProps extends VirtualizedDataTableProps<
+  TransactionInfo.CallStackKeyValueMap,
+  unknown
+> {
   data: TransactionInfo.CallStackKeyValueMap[];
   metaData: TransactionInfo.Response;
-  onClickDetailView?: CallTreeTableColumnsProps['onClickDetailView'];
   filteredRowIds?: string[];
 }
 
 export const CallTreeTable = ({
+  columns,
   metaData,
   data,
-  onClickDetailView,
   filteredRowIds,
   ...props
 }: CallTreeTableProps) => {
-  const columns = callTreeTableColumns({ metaData, onClickDetailView });
   return (
     <VirtualizedDataTable
       enableColumnResizing

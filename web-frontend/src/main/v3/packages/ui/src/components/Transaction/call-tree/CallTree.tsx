@@ -20,12 +20,14 @@ import {
   SelectTrigger,
   SelectValue,
   getExecPercentage,
+  useCallTreeTableColumns,
 } from '../..';
 import { TransactionInfoType as TransactionInfo } from '@pinpoint-fe/ui/src/constants';
 import { RxMagnifyingGlass } from 'react-icons/rx';
 import { HighLightCode } from '../../HighLightCode';
 import { useAtomValue } from 'jotai';
 import { transactionInfoCallTreeFocusId } from '@pinpoint-fe/ui/src/atoms';
+import { CallTreeTableColumnsSetting } from './CallTreeTableColumnsSetting';
 
 export interface CallTreeProps {
   data: TransactionInfo.CallStackKeyValueMap[];
@@ -55,6 +57,31 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
     bindValue?: string;
   }>();
   const focusRowIdIndex = filteredListIds?.findIndex((id) => id === focusRowId) || 0;
+  const { defaultColumns, columns, updateColumns } = useCallTreeTableColumns({
+    metaData,
+    onClickDetailView: (callStackData) => {
+      const nextItem = mapData?.find((d) => Number(d.id) === Number(callStackData.id) + 1);
+      if (nextItem?.title === 'SQL-BindValue' || nextItem?.title === 'MONGO-JSON-BindValue') {
+        const formData = new FormData();
+        formData.append('type', callStackData.title === 'SQL' ? 'sql' : 'mongoJson');
+        formData.append('metaData', callStackData.arguments);
+        formData.append('bind', nextItem.arguments);
+        mutate(formData);
+
+        setSqlDetail({
+          originalSql: callStackData.arguments,
+          bindValue: nextItem.arguments,
+        });
+      } else {
+        setSqlDetail({
+          originalSql: callStackData.arguments,
+          bindedSql: undefined,
+          bindValue: undefined,
+        });
+      }
+      setSheetOpen(true);
+    },
+  });
   const { mutate } = usePostBind({
     onSuccess: (result) => {
       setSqlDetail((prev) => {
@@ -130,6 +157,10 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
   return (
     <div className="relative h-full">
       <div className="absolute flex gap-1 rounded -top-10 right-4 h-7">
+        <CallTreeTableColumnsSetting
+          defaultColumns={defaultColumns}
+          updateColumns={updateColumns}
+        />
         <Select value={filter} onValueChange={(value) => setFilter(value)}>
           <SelectTrigger className="w-24 h-full text-xs">
             <SelectValue placeholder="Theme" />
@@ -201,6 +232,7 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
         </div>
       </div>
       <CallTreeTable
+        columns={columns || defaultColumns || []}
         data={data}
         metaData={metaData}
         // scrollToIndex={(row) => row.findIndex((r) => r.original.id === callTreeFocusId)}
@@ -219,28 +251,6 @@ export const CallTree = ({ data, mapData, metaData }: CallTreeProps) => {
           }
           setContent(content);
           setDialogOpen(true);
-        }}
-        onClickDetailView={(callStackData) => {
-          const nextItem = mapData?.find((d) => Number(d.id) === Number(callStackData.id) + 1);
-          if (nextItem?.title === 'SQL-BindValue' || nextItem?.title === 'MONGO-JSON-BindValue') {
-            const formData = new FormData();
-            formData.append('type', callStackData.title === 'SQL' ? 'sql' : 'mongoJson');
-            formData.append('metaData', callStackData.arguments);
-            formData.append('bind', nextItem.arguments);
-            mutate(formData);
-
-            setSqlDetail({
-              originalSql: callStackData.arguments,
-              bindValue: nextItem.arguments,
-            });
-          } else {
-            setSqlDetail({
-              originalSql: callStackData.arguments,
-              bindedSql: undefined,
-              bindValue: undefined,
-            });
-          }
-          setSheetOpen(true);
         }}
       />
       <Sheet open={openSheet} onOpenChange={setSheetOpen}>
