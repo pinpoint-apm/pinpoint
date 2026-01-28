@@ -87,18 +87,6 @@ public class SpanChunkBo implements BasicSpan {
         this.agentName = agentName;
     }
 
-    @Deprecated
-    @Override
-    public String getApplicationId() {
-        return getApplicationName();
-    }
-
-    @Deprecated
-    public void setApplicationId(String applicationName) {
-        setApplicationName(applicationName);
-    }
-
-
     @Override
     public String getApplicationName() {
         return applicationName;
