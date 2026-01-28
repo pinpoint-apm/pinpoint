@@ -72,7 +72,7 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>>, RowTypeHin
         String agentId = valueBuffer.readPrefixedString();
 
         long acceptedTime = extractAcceptTime(cell.getRowArray(), cell.getRowOffset());
-        ServerTraceId serverTraceId = ServerTraceId.of(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
+        ServerTraceId serverTraceId = ServerTraceId.decodeApplicationTraceIndexQualifier(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
 
         return new Dot(serverTraceId, acceptedTime, elapsed, exceptionCode, agentId);
     }
