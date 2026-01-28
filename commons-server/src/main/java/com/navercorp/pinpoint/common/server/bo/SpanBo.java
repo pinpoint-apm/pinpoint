@@ -130,17 +130,6 @@ public class SpanBo implements Event, BasicSpan {
         this.agentName = agentName;
     }
 
-    @Deprecated
-    @Override
-    public String getApplicationId() {
-        return getApplicationName();
-    }
-
-    @Deprecated
-    @Override
-    public void setApplicationId(String applicationName) {
-        setApplicationName(applicationName);
-    }
 
     @Override
     public String getApplicationName() {
