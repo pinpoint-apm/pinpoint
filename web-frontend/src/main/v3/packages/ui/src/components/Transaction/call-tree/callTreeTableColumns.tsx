@@ -40,8 +40,8 @@ export type CallTreeTableColumnId =
   | 'executionMilliseconds'
   | 'simpleClassName'
   | 'apiType'
-  | 'agent'
   | 'applicationName'
+  | 'agent'
   | 'agentName';
 
 export const useCallTreeTableColumns = ({
@@ -241,9 +241,9 @@ export const callTreeTableColumns = ({
     },
   },
   {
-    id: 'agent',
-    accessorKey: 'agent',
-    header: 'Agent Id',
+    id: 'applicationName',
+    accessorKey: 'applicationName',
+    header: 'Application',
     cell: (props) => {
       return props.getValue();
     },
@@ -253,9 +253,9 @@ export const callTreeTableColumns = ({
     },
   },
   {
-    id: 'applicationName',
-    accessorKey: 'applicationName',
-    header: 'Application',
+    id: 'agent',
+    accessorKey: 'agent',
+    header: 'Agent Id',
     cell: (props) => {
       return props.getValue();
     },
