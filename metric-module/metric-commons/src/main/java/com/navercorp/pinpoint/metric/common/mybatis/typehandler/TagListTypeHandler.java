@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.metric.common.mybatis.typehandler;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.common.server.util.json.Jackson;
 import com.navercorp.pinpoint.metric.common.model.Tag;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedJdbcTypes;
@@ -28,48 +26,42 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
  */
 @MappedJdbcTypes({JdbcType.VARCHAR})
-public class TagListTypeHandler extends TagListSerializer implements TypeHandler<List<Tag>> {
+public class TagListTypeHandler implements TypeHandler<List<Tag>> {
 
-    static ObjectMapper getMapper() {
-        return Jackson.newBuilder()
-                .build();
-    }
+    private final TagListSerializer serializer;
 
-    public TagListTypeHandler() {
-        this(getMapper());
-    }
-
-    public TagListTypeHandler(ObjectMapper mapper) {
-        super(mapper);
+    public TagListTypeHandler(TagListSerializer serializer) {
+        this.serializer = Objects.requireNonNull(serializer, "serializer");
     }
 
     @Override
     public void setParameter(PreparedStatement ps, int i, List<Tag> parameter, JdbcType jdbcType) throws SQLException {
-        String tagListJson = serialize(parameter);
+        String tagListJson = serializer.serialize(parameter);
         ps.setString(i, tagListJson);
     }
 
     @Override
     public List<Tag> getResult(ResultSet rs, String columnName) throws SQLException {
         String tagListJson = rs.getString(columnName);
-        return deserialize(tagListJson);
+        return serializer.deserialize(tagListJson);
     }
 
     @Override
     public List<Tag> getResult(ResultSet rs, int columnIndex) throws SQLException {
         String tagListJson = rs.getString(columnIndex);
-        return deserialize(tagListJson);
+        return serializer.deserialize(tagListJson);
     }
 
     @Override
     public List<Tag> getResult(CallableStatement cs, int columnIndex) throws SQLException {
         String tagListJson = cs.getString(columnIndex);
-        return deserialize(tagListJson);
+        return serializer.deserialize(tagListJson);
     }
 
 }

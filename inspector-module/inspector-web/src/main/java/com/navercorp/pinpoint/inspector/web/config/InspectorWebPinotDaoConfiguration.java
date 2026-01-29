@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.inspector.web.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.metric.common.config.CommonRegistryHandler;
+import com.navercorp.pinpoint.metric.common.config.MetricCommonConfiguration;
 import com.navercorp.pinpoint.mybatis.MyBatisConfiguration;
 import com.navercorp.pinpoint.mybatis.MyBatisConfigurationCustomizer;
-import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
 import com.navercorp.pinpoint.pinot.mybatis.PinotAsyncTemplate;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -41,12 +43,14 @@ import javax.sql.DataSource;
  * @author minwoo.jung
  */
 @org.springframework.context.annotation.Configuration
-@Import(MyBatisConfiguration.class)
+@Import({MyBatisConfiguration.class, MetricCommonConfiguration.class})
 public class InspectorWebPinotDaoConfiguration {
     private final Logger logger = LogManager.getLogger(InspectorWebPinotDaoConfiguration.class);
 
     @Bean
     public FactoryBean<SqlSessionFactory> inspectorPinotSessionFactory(
+            CommonRegistryHandler commonRegistryHandler,
+            InspectorRegistryHandler inspectorRegistryHandler,
             @Qualifier("pinotConfigurationCustomizer") MyBatisConfigurationCustomizer customizer,
             @Qualifier("pinotDataSource") DataSource dataSource,
             @Value("classpath*:/inspector/web/mapper/pinot/*Mapper.xml") Resource[] mappers) {
@@ -56,7 +60,9 @@ public class InspectorWebPinotDaoConfiguration {
         }
         Configuration config = new Configuration();
         customizer.customize(config);
-        registryHandler(config);
+
+        commonRegistryHandler.registerHandlers(config);
+        inspectorRegistryHandler.registerHandlers(config);
 
         SqlSessionFactoryBean sessionFactoryBean = new SqlSessionFactoryBean();
         sessionFactoryBean.setDataSource(dataSource);
@@ -73,10 +79,9 @@ public class InspectorWebPinotDaoConfiguration {
         return new ManagedTransactionFactory();
     }
 
-    private void registryHandler(Configuration config) {
-        MyBatisRegistryHandler registryHandler = new InspectorRegistryHandler();
-        registryHandler.registerTypeAlias(config.getTypeAliasRegistry());
-        registryHandler.registerTypeHandler(config.getTypeHandlerRegistry());
+    @Bean
+    public InspectorRegistryHandler inspectorRegistryHandler(ObjectMapper objectMapper) {
+        return new InspectorRegistryHandler(objectMapper);
     }
 
     @Bean

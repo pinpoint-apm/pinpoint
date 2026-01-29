@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.mybatis;
 
+import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
@@ -24,4 +25,9 @@ public interface MyBatisRegistryHandler {
     void registerTypeAlias(TypeAliasRegistry typeAliasRegistry);
 
     void registerTypeHandler(TypeHandlerRegistry typeHandlerRegistry);
+
+    default void registerHandlers(Configuration config) {
+        this.registerTypeAlias(config.getTypeAliasRegistry());
+        this.registerTypeHandler(config.getTypeHandlerRegistry());
+    }
 }

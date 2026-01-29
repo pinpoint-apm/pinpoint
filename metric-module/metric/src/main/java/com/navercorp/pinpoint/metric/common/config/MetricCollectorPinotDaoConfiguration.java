@@ -2,7 +2,6 @@ package com.navercorp.pinpoint.metric.common.config;
 
 import com.navercorp.pinpoint.mybatis.MyBatisConfiguration;
 import com.navercorp.pinpoint.mybatis.MyBatisConfigurationCustomizer;
-import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.transaction.TransactionFactory;
@@ -26,7 +25,7 @@ import javax.sql.DataSource;
  * @author Woonduk Kang(emeroad)
  */
 @org.springframework.context.annotation.Configuration
-@Import(MyBatisConfiguration.class)
+@Import({MyBatisConfiguration.class, MetricCommonConfiguration.class})
 public class MetricCollectorPinotDaoConfiguration {
     private final Logger logger = LogManager.getLogger(MetricCollectorPinotDaoConfiguration.class);
 
@@ -38,6 +37,7 @@ public class MetricCollectorPinotDaoConfiguration {
 
     @Bean
     public FactoryBean<SqlSessionFactory> sqlPinotSessionFactory(
+            CommonRegistryHandler commonRegistryHandler,
             @Qualifier("pinotConfigurationCustomizer") MyBatisConfigurationCustomizer customizer,
             @Qualifier("pinotDataSource") DataSource dataSource,
             @Value("classpath*:/pinot-collector/mapper/pinot/*Mapper.xml") Resource[] mappers) {
@@ -55,19 +55,13 @@ public class MetricCollectorPinotDaoConfiguration {
         customizer.customize(config);
         sessionFactoryBean.setConfiguration(config);
 
-        MyBatisRegistryHandler registry = registryHandler();
-        registry.registerTypeAlias(config.getTypeAliasRegistry());
-        registry.registerTypeHandler(config.getTypeHandlerRegistry());
+        commonRegistryHandler.registerHandlers(config);
 
         return sessionFactoryBean;
     }
 
     private TransactionFactory transactionFactory() {
         return new ManagedTransactionFactory();
-    }
-
-    private MyBatisRegistryHandler registryHandler() {
-        return new CommonRegistryHandler();
     }
 
 
