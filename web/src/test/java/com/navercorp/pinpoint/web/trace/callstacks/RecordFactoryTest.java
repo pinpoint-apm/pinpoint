@@ -219,6 +219,7 @@ public class RecordFactoryTest {
                 .setAgentId("express-node-sample-id")
                 .setAgentName("")
                 .setApplicationName("express-node-sample-name")
+                .setServiceName("express-node-sample-service")
                 .setAgentStartTime(1670293953108L)
                 .setTransactionId(new PinpointServerTraceId("express-node-sample-id", 1670293953108L, 30))
                 .setParentSpanId(-1)

@@ -58,7 +58,8 @@ public class SpanEncoderTest {
     private final RandomTSpan randomTSpan = new RandomTSpan();
     private final Random random = new Random();
 
-    private final BindAttribute attribute = new BindAttribute("agentId", "agentName", "applicationName", 88, spanAcceptedTime);
+    private final BindAttribute attribute = new BindAttribute("agentId", "agentName", "applicationName", "serviceName",
+            88, spanAcceptedTime);
     private final GrpcSpanBinder grpcSpanBinder = new GrpcSpanBinder();
     private final SpanEventFilter filter = new EmptySpanEventFilter();
     private final GrpcSpanFactory grpcSpanFactory = new CollectorGrpcSpanFactory(grpcSpanBinder, filter);

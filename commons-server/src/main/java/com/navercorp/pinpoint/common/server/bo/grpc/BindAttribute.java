@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.common.server.bo.grpc;
 
-import java.util.Objects;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 
 public class BindAttribute {
     private final String agentId;
     private final String agentName;
     private final String applicationName;
-
+    private final String serviceName;
 
     private final long agentStartTime;
     private final long acceptedTime;
@@ -30,11 +30,13 @@ public class BindAttribute {
     public BindAttribute(String agentId,
                          String agentName,
                          String applicationName,
+                         String serviceName,
                          long agentStartTime,
                          long acceptedTime) {
-        this.agentId = Objects.requireNonNull(agentId, "agentId");
+        this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
         this.agentName = agentName;
-        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
+        this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
         this.agentStartTime = agentStartTime;
         this.acceptedTime = acceptedTime;
     }
@@ -55,6 +57,9 @@ public class BindAttribute {
         return this.applicationName;
     }
 
+    public String getServiceName() {
+        return serviceName;
+    }
 
     public long getAgentStartTime() {
         return this.agentStartTime;
@@ -66,6 +71,7 @@ public class BindAttribute {
                "agentId='" + agentId + '\'' +
                ", agentName='" + agentName + '\'' +
                ", applicationName='" + applicationName + '\'' +
+                ", serviceName='" + serviceName + '\'' +
                ", agentStartTime=" + agentStartTime +
                ", acceptedTime=" + acceptedTime +
                '}';

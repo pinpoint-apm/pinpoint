@@ -24,6 +24,7 @@ public class BindAttributes {
         return new BindAttribute(header.getAgentId(),
                 header.getAgentName(),
                 header.getApplicationName(),
+                header.getServiceName(),
                 header.getAgentStartTime(),
                 acceptedTime);
     }
