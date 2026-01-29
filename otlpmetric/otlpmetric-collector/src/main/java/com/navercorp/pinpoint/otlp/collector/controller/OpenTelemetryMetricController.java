@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.otlp.collector.controller;
 
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.otlp.collector.mapper.OtlpMetricAgentInfoMapper;
 import com.navercorp.pinpoint.otlp.collector.mapper.OtlpMetricAgentLifeCycleMapper;
 import com.navercorp.pinpoint.otlp.collector.mapper.OtlpMetricMapper;
@@ -25,6 +26,7 @@ import com.navercorp.pinpoint.otlp.collector.model.OtlpMetricData;
 import com.navercorp.pinpoint.otlp.collector.model.OtlpMetricDataPoint;
 import com.navercorp.pinpoint.otlp.collector.service.HbaseOtlpMetricAgentInfoService;
 import com.navercorp.pinpoint.otlp.collector.service.HbaseOtlpMetricAgentLifeCycleService;
+import com.navercorp.pinpoint.otlp.collector.service.HbaseOtlpMetricApplicationIndexV2Service;
 import com.navercorp.pinpoint.otlp.collector.service.OtlpMetricCollectorService;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
 import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest;
@@ -45,9 +47,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 @RestController
 public class OpenTelemetryMetricController {
+    private static final Supplier<ServiceUid> DEFAULT_SERVICE_UID = () -> ServiceUid.DEFAULT;
+
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final String tenantId;
@@ -59,6 +64,7 @@ public class OpenTelemetryMetricController {
     private final OtlpMetricAgentInfoMapper otlpMetricAgentInfoMapper;
     private final HbaseOtlpMetricAgentLifeCycleService hbaseOtlpMetricAgentLifeCycleService;
     private final OtlpMetricAgentLifeCycleMapper otlpMetricAgentLifeCycleMapper;
+    private final HbaseOtlpMetricApplicationIndexV2Service otlpMetricApplicationIndexV2Service;
 
     public OpenTelemetryMetricController(TenantProvider tenantProvider,
                                          @Valid OtlpMetricCollectorService otlpMetricCollectorService,
@@ -66,7 +72,8 @@ public class OpenTelemetryMetricController {
                                          HbaseOtlpMetricAgentInfoService hbaseOtlpMetricAgentInfoService,
                                          OtlpMetricAgentInfoMapper otlpMetricAgentInfoMapper,
                                          HbaseOtlpMetricAgentLifeCycleService hbaseOtlpMetricAgentLifeCycleService,
-                                         OtlpMetricAgentLifeCycleMapper otlpMetricAgentLifeCycleMapper) {
+                                         OtlpMetricAgentLifeCycleMapper otlpMetricAgentLifeCycleMapper,
+                                         HbaseOtlpMetricApplicationIndexV2Service applicationIndexV2Service) {
         Objects.requireNonNull(tenantProvider, "tenantProvider");
         this.tenantId = tenantProvider.getTenantId();
         this.otlpMetricCollectorService = Objects.requireNonNull(otlpMetricCollectorService, "otlpMetricCollectorService");
@@ -77,6 +84,7 @@ public class OpenTelemetryMetricController {
         this.otlpMetricAgentInfoMapper = otlpMetricAgentInfoMapper;
         this.hbaseOtlpMetricAgentLifeCycleService = hbaseOtlpMetricAgentLifeCycleService;
         this.otlpMetricAgentLifeCycleMapper = otlpMetricAgentLifeCycleMapper;
+        this.otlpMetricApplicationIndexV2Service = applicationIndexV2Service;
     }
 
     @PostMapping(value = "/opentelemetry", consumes = "application/x-protobuf")
@@ -94,7 +102,7 @@ public class OpenTelemetryMetricController {
                 for (Metric metric : metricList) {
                     OtlpMetricData metricData = toMetrics(metric, tags);
                     if (metricData != null) {
-                        otlpMetricCollectorService.save(metricData);
+//                        otlpMetricCollectorService.save(metricData);
 
                         if (logger.isDebugEnabled()) {
                             logger.debug("tenantId:{} serviceName:{} metricGroupName:{} metricName: {}",
@@ -124,6 +132,7 @@ public class OpenTelemetryMetricController {
                 if (agentInfoBo != null && agentLifeCycleBo != null) {
                     try {
                         hbaseOtlpMetricAgentInfoService.insert(agentInfoBo);
+                        otlpMetricApplicationIndexV2Service.insert(DEFAULT_SERVICE_UID, agentInfoBo);
                         hbaseOtlpMetricAgentLifeCycleService.insert(agentLifeCycleBo);
                     } catch (Exception e) {
                         logger.warn("Failed to save", e);
