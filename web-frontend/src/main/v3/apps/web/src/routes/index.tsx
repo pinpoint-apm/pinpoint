@@ -35,18 +35,15 @@ const TransactionDetail = lazy(() => import('@pinpoint-fe/web/src/pages/Transact
 const Inspector = lazy(() => import('@pinpoint-fe/web/src/pages/Inspector'));
 const ThreadDump = lazy(() => import('@pinpoint-fe/web/src/pages/ThreadDump'));
 const OpenTelemetry = lazy(() => import('@pinpoint-fe/web/src/pages/OpenTelemetry'));
-// SubMenu인 page를 Lazy import 시 네비게이션이 지연되면서 DropdownMenu가 닫히는 시점도 지연되어
-// SubMenu클릭 -> 흰 바탕에 DropdownMenu가 닫히지 않고 보여지는 이슈가 있음
-// Config 페이지들은 Lazy import를 제거하여 컴포넌트를 미리 로드하여 DropdownMenu가 즉시 닫히도록 함
-import General from '@pinpoint-fe/web/src/pages/config/General';
-import Help from '@pinpoint-fe/web/src/pages/config/Help';
-import Installation from '@pinpoint-fe/web/src/pages/config/Installation';
-import UserGroup from '@pinpoint-fe/web/src/pages/config/UserGroup';
-import Users from '@pinpoint-fe/web/src/pages/config/Users';
-import Alarm from '@pinpoint-fe/web/src/pages/config/Alarm';
-import Webhook from '@pinpoint-fe/web/src/pages/config/Webhook';
-import AgentManagement from '@pinpoint-fe/web/src/pages/config/AgentManagement';
-import AgentStatistic from '@pinpoint-fe/web/src/pages/config/AgentStatistic';
+const General = lazy(() => import('@pinpoint-fe/web/src/pages/config/General'));
+const Help = lazy(() => import('@pinpoint-fe/web/src/pages/config/Help'));
+const Installation = lazy(() => import('@pinpoint-fe/web/src/pages/config/Installation'));
+const UserGroup = lazy(() => import('@pinpoint-fe/web/src/pages/config/UserGroup'));
+const Users = lazy(() => import('@pinpoint-fe/web/src/pages/config/Users'));
+const Alarm = lazy(() => import('@pinpoint-fe/web/src/pages/config/Alarm'));
+const Webhook = lazy(() => import('@pinpoint-fe/web/src/pages/config/Webhook'));
+const AgentManagement = lazy(() => import('@pinpoint-fe/web/src/pages/config/AgentManagement'));
+const AgentStatistic = lazy(() => import('@pinpoint-fe/web/src/pages/config/AgentStatistic'));
 
 const defaultLoader = () => {
   return redirect('/serverMap');

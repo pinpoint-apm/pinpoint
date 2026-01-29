@@ -67,6 +67,10 @@ export interface LayoutWithSideNavigationProps {
   bottomMenuItems?: SideNavigationMenuItem[];
 }
 
+const SIDEBAR_MENU_BUTTON_CLASS_NAME = `!h-10 !rounded p-1.5 !pl-1.5 !pr-2 text-sm
+  hover:bg-[var(--blue-700)] hover:text-[var(--white-default)]
+  focus:bg-[var(--blue-700)] focus:text-[var(--white-default)]`;
+
 export const LayoutWithSideNavigation = ({
   children,
   topMenuItems,
@@ -151,61 +155,15 @@ export const LayoutWithSideNavigation = ({
   };
 
   const renderSidebarMenuItem = (item: SideNavigationMenuItem) => {
-    const sidebarMenuButtonClassName = cn(
-      '!h-10 !rounded p-1.5 !pl-1.5 !pr-2 text-sm',
-      'hover:bg-[var(--blue-700)] hover:text-[var(--white-default)]',
-      'focus:bg-[var(--blue-700)] focus:text-[var(--white-default)]',
-    );
-
     if (item.childItems) {
       return (
         <SidebarMenuItem>
-          <DropdownMenu>
-            {WithTooltip({
-              trigger: (
-                <DropdownMenuTrigger asChild>
-                  <SidebarMenuButton
-                    className={cn(sidebarMenuButtonClassName, {
-                      'bg-[var(--blue-700)] font-semibold': isActive(item),
-                    })}
-                  >
-                    {renderMenuItemContent(item)}
-                  </SidebarMenuButton>
-                </DropdownMenuTrigger>
-              ),
-              content: item.name || '',
-              hidden: !collapsed,
-            })}
-            <DropdownMenuContent
-              side="right"
-              align="start"
-              sideOffset={15}
-              alignOffset={-50}
-              className="bg-[var(--blue-900)] border-none rounded-md min-w-[180px] shadow-lg text-[var(--white-default)] w-full"
-            >
-              <div className="opacity-50 h-10 flex items-center pl-6 pr-2 text-sm">{item.name}</div>
-              <Separator className="opacity-50 mb-2" />
-              <div className="space-y-1">
-                {item?.childItems?.map((childItem) => {
-                  return (
-                    <DropdownMenuItem
-                      key={getMenuKey(childItem.path)}
-                      className={cn(
-                        sidebarMenuButtonClassName,
-                        {
-                          'bg-[var(--blue-700)] font-semibold': isActive(childItem),
-                        },
-                        'cursor-pointer',
-                      )}
-                      asChild
-                    >
-                      {renderMenuItemContent(childItem, true)}
-                    </DropdownMenuItem>
-                  );
-                })}
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <SidebarMenuButtonWithDropdownMenu
+            item={item}
+            isActive={isActive}
+            renderMenuItemContent={renderMenuItemContent}
+            collapsed={collapsed}
+          />
         </SidebarMenuItem>
       );
     }
@@ -215,7 +173,7 @@ export const LayoutWithSideNavigation = ({
         {WithTooltip({
           trigger: (
             <SidebarMenuButton
-              className={cn(sidebarMenuButtonClassName, {
+              className={cn(SIDEBAR_MENU_BUTTON_CLASS_NAME, {
                 'bg-[var(--blue-700)] font-semibold': isActive(item),
               })}
             >
@@ -352,6 +310,76 @@ export const LayoutWithSideNavigation = ({
       </SidebarInset>
       <GlobalSearch services={topMenuItems} />
     </SidebarProvider>
+  );
+};
+
+const SidebarMenuButtonWithDropdownMenu = ({
+  item,
+  isActive,
+  renderMenuItemContent,
+  collapsed,
+}: {
+  item: SideNavigationMenuItem;
+  isActive: (item: SideNavigationMenuItem) => boolean;
+  renderMenuItemContent: (item: SideNavigationMenuItem, isChildItem?: boolean) => React.ReactNode;
+  collapsed: boolean;
+}) => {
+  const contentRef = React.useRef<HTMLDivElement>(null);
+
+  return (
+    <DropdownMenu>
+      {WithTooltip({
+        trigger: (
+          <DropdownMenuTrigger asChild>
+            <SidebarMenuButton
+              className={cn(SIDEBAR_MENU_BUTTON_CLASS_NAME, {
+                'bg-[var(--blue-700)] font-semibold': isActive(item),
+              })}
+            >
+              {renderMenuItemContent(item)}
+            </SidebarMenuButton>
+          </DropdownMenuTrigger>
+        ),
+        content: item.name || '',
+        hidden: !collapsed,
+      })}
+      <DropdownMenuContent
+        ref={contentRef}
+        side="right"
+        align="start"
+        sideOffset={10}
+        alignOffset={-50}
+        className="bg-[var(--blue-900)] border-none rounded-md min-w-[180px] shadow-lg text-[var(--white-default)] w-full"
+      >
+        <div className="flex items-center h-10 pl-6 pr-2 text-sm opacity-50">{item.name}</div>
+        <Separator className="mb-2 opacity-50" />
+        <div className="space-y-1">
+          {item?.childItems?.map((childItem) => {
+            return (
+              <DropdownMenuItem
+                key={getMenuKey(childItem.path)}
+                className={cn(
+                  SIDEBAR_MENU_BUTTON_CLASS_NAME,
+                  {
+                    'bg-[var(--blue-700)] font-semibold': isActive(childItem),
+                  },
+                  'cursor-pointer',
+                )}
+                asChild
+                onSelect={(e) => {
+                  e.preventDefault();
+                  if (contentRef.current) {
+                    contentRef.current.style.visibility = 'hidden';
+                  }
+                }}
+              >
+                {renderMenuItemContent(childItem, true)}
+              </DropdownMenuItem>
+            );
+          })}
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 
