@@ -41,7 +41,7 @@ public class CollectorGrpcSpanFactoryTest {
     private final BindAttribute attribute = newAttribute();
 
     private BindAttribute newAttribute() {
-        return new BindAttribute("agentId", "agentName", "applicationName", 88, System.currentTimeMillis());
+        return new BindAttribute("agentId", "agentName", "applicationName", "serviceName", 88, System.currentTimeMillis());
     }
 
     private final GrpcSpanFactory factory = new CollectorGrpcSpanFactory(binder, filter);

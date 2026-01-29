@@ -46,7 +46,7 @@ public class SpanFactoryTest {
 
     private final long spanAcceptTime = System.currentTimeMillis();
 
-    private final BindAttribute attribute = new BindAttribute("agentId", "agentName", "applicationName", 88, spanAcceptTime);
+    private final BindAttribute attribute = new BindAttribute("agentId", "agentName", "applicationName", "serviceName", 88, spanAcceptTime);
     private final GrpcSpanBinder grpcSpanBinder = new GrpcSpanBinder();
     private final SpanEventFilter filter = new EmptySpanEventFilter();
     private final GrpcSpanFactory grpcSpanFactory = new CollectorGrpcSpanFactory(grpcSpanBinder, filter);

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.ByteUtils;
 import com.navercorp.pinpoint.common.server.util.NumberPrecondition;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
@@ -24,6 +25,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,6 +46,9 @@ public class SpanBo implements BasicSpan {
 
     @NonNull
     private String applicationName;
+
+    @NonNull
+    private String serviceName = ServiceUid.DEFAULT_SERVICE_UID_NAME;
 
     private long agentStartTime;
 
@@ -110,6 +115,7 @@ public class SpanBo implements BasicSpan {
         this.transactionId = transactionId;
     }
 
+    @NonNull
     @Override
     public String getAgentId() {
         return agentId;
@@ -131,6 +137,7 @@ public class SpanBo implements BasicSpan {
     }
 
 
+    @NonNull
     @Override
     public String getApplicationName() {
         return applicationName;
@@ -140,6 +147,19 @@ public class SpanBo implements BasicSpan {
     public void setApplicationName(String applicationName) {
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
     }
+
+    @NonNull
+    @Override
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    @Override
+    public void setServiceName(String serviceName) {
+        this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
+    }
+
+    //------------
 
     @Override
     public long getAgentStartTime() {
@@ -403,6 +423,7 @@ public class SpanBo implements BasicSpan {
                 ", agentId='" + agentId + '\'' +
                 ", agentName='" + agentName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
+                ", serviceName='" + serviceName + '\'' +
                 ", agentStartTime=" + agentStartTime +
                 ", transactionId=" + transactionId +
                 ", spanId=" + spanId +
@@ -442,6 +463,8 @@ public class SpanBo implements BasicSpan {
         private String agentId;
         private String agentName;
         private String applicationName;
+        private String serviceName;
+
         private long agentStartTime;
 
         private ServerTraceId transactionId;
@@ -501,16 +524,13 @@ public class SpanBo implements BasicSpan {
             return this;
         }
 
-        /**
-         * @deprecated 3.1.0 Use {@link #setApplicationName(String)} instead.
-         */
-        @Deprecated
-        public Builder setApplicationId(String applicationName) {
-            return setApplicationName(applicationName);
-        }
-
         public Builder setApplicationName(String applicationName) {
             this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
+            return this;
+        }
+
+        public Builder setServiceName(String serviceName) {
+            this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
             return this;
         }
 
@@ -529,7 +549,7 @@ public class SpanBo implements BasicSpan {
             return this;
         }
 
-        public Builder setParentApplicationId(String parentApplicationName) {
+        public Builder setParentApplicationName(String parentApplicationName) {
             this.parentApplicationName = parentApplicationName;
             return this;
         }
@@ -619,6 +639,11 @@ public class SpanBo implements BasicSpan {
             return this;
         }
 
+        public Builder addAllAnnotationBo(Collection<AnnotationBo> annotationBos) {
+            this.annotationBoList.addAll(annotationBos);
+            return this;
+        }
+
         public Builder addSpanEventBo(SpanEventBo e) {
             this.spanEventBoList.add(e);
             return this;
@@ -632,10 +657,17 @@ public class SpanBo implements BasicSpan {
         public SpanBo build() {
             SpanBo result = new SpanBo();
             result.setVersion(this.version);
+
             result.setAgentId(StringPrecondition.requireHasLength(this.agentId, "agentId"));
             result.setAgentName(this.agentName);
             result.setApplicationName(StringPrecondition.requireHasLength(this.applicationName, "applicationName"));
+            if (serviceName == null) {
+                this.serviceName = ServiceUid.DEFAULT_SERVICE_UID_NAME;
+            }
+            result.setServiceName(StringPrecondition.requireHasLength(this.serviceName, "serviceName"));
+
             result.setAgentStartTime(this.agentStartTime);
+
             result.setTransactionId(this.transactionId);
             result.setSpanId(this.spanId);
             result.setParentSpanId(this.parentSpanId);
