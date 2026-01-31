@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.batch.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.mybatis.MyBatisConfigurationCustomizer;
-import com.navercorp.pinpoint.mybatis.MyBatisRegistryHandler;
 import com.navercorp.pinpoint.pinot.mybatis.PinotAsyncTemplate;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -45,6 +45,7 @@ public class BatchPinotDaoConfiguration {
 
     @Bean
     public FactoryBean<SqlSessionFactory> batchSessionFactory(
+            BatchRegistryHandler batchRegistryHandler,
             @Qualifier("pinotConfigurationCustomizer") MyBatisConfigurationCustomizer customizer,
             @Qualifier("pinotDataSource") DataSource dataSource,
             @Value("classpath*:/mapper/batch/*Mapper.xml") Resource[] mappers) {
@@ -54,7 +55,8 @@ public class BatchPinotDaoConfiguration {
         }
         Configuration config = new Configuration();
         customizer.customize(config);
-        registryHandler(config);
+
+        batchRegistryHandler.registerHandlers(config);
 
         SqlSessionFactoryBean sessionFactoryBean = new SqlSessionFactoryBean();
         sessionFactoryBean.setDataSource(dataSource);
@@ -71,10 +73,9 @@ public class BatchPinotDaoConfiguration {
         return new ManagedTransactionFactory();
     }
 
-    private void registryHandler(Configuration config) {
-        MyBatisRegistryHandler registryHandler = new BatchRegistryHandler();
-        registryHandler.registerTypeAlias(config.getTypeAliasRegistry());
-        registryHandler.registerTypeHandler(config.getTypeHandlerRegistry());
+    @Bean
+    public BatchRegistryHandler batchRegistryHandler(ObjectMapper objectMapper) {
+        return new BatchRegistryHandler(objectMapper);
     }
 
     @Bean
