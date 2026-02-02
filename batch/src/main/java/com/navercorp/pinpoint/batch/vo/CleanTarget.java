@@ -15,13 +15,15 @@
  */
 package com.navercorp.pinpoint.batch.vo;
 
+import com.navercorp.pinpoint.web.vo.Application;
+
 import java.util.List;
 
 public interface CleanTarget {
 
-    record TypeAgents(String applicationName, List<String> agentIds) implements CleanTarget {
+    record TypeAgents(Application application, List<String> agentIds) implements CleanTarget {
     }
 
-    record TypeApplication(String applicationName) implements CleanTarget {
+    record TypeApplication(Application application) implements CleanTarget {
     }
 }

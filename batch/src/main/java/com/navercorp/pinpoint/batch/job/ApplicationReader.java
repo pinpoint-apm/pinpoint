@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.batch.job;
 
 import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
+import com.navercorp.pinpoint.web.vo.Application;
 import jakarta.annotation.Nonnull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,14 +32,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author youngjin.kim2
  */
-public class ApplicationReader implements ItemStreamReader<String> {
+public class ApplicationReader implements ItemStreamReader<Application> {
 
     private static final Logger logger = LogManager.getLogger(ApplicationReader.class);
     private static final String CURRENT_INDEX = "current.index";
 
     private final BatchApplicationIndexService batchApplicationIndexService;
 
-    private List<String> applicationNames;
+    private List<Application> applications;
 
     private final AtomicInteger currentIndexAtom = new AtomicInteger(0);
 
@@ -47,11 +48,11 @@ public class ApplicationReader implements ItemStreamReader<String> {
     }
 
     @Override
-    public String read() {
+    public Application read() {
         int currentIndex = currentIndexAtom.getAndIncrement();
-        if (currentIndex < applicationNames.size()) {
-            logger.info("Reading application: {} / {}", currentIndex, applicationNames.size());
-            return applicationNames.get(currentIndex);
+        if (currentIndex < applications.size()) {
+            logger.info("Reading application: {} / {}", currentIndex, applications.size());
+            return applications.get(currentIndex);
         } else {
             return null;
         }
@@ -60,8 +61,8 @@ public class ApplicationReader implements ItemStreamReader<String> {
     @Override
     public void open(@Nonnull ExecutionContext executionContext) throws ItemStreamException {
         logger.info("Opened application reader");
-        this.applicationNames = getAllApplications();
-        logger.info("Application reader has {} applications", applicationNames.size());
+        this.applications = getAllApplications();
+        logger.info("Application reader has {} applications", applications.size());
         if (executionContext.containsKey(CURRENT_INDEX)) {
             int loadedIndex = executionContext.getInt(CURRENT_INDEX);
             this.currentIndexAtom.set(loadedIndex);
@@ -82,12 +83,8 @@ public class ApplicationReader implements ItemStreamReader<String> {
         logger.info("Closing application reader");
     }
 
-    private List<String> getAllApplications() {
-        return this.batchApplicationIndexService.selectAllApplicationNames()
-                .stream()
-                .distinct()
-                .sorted()
-                .toList();
+    private List<Application> getAllApplications() {
+        return this.batchApplicationIndexService.selectAllApplications();
     }
 
 }

@@ -119,12 +119,14 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     }
 
     @Override
-    public List<String> selectAgentIds(String applicationName, long maxTimestamp) {
+    public List<String> selectAgentIds(String applicationName, int serviceTypeCode, long maxTimestamp) {
         Objects.requireNonNull(applicationName, "applicationName");
         byte[] rowKey = Bytes.toBytes(applicationName);
+        byte[] serviceTypeCodeBytes = Bytes.toBytes((short) serviceTypeCode);
 
         Get get = new Get(rowKey);
         get.addFamily(DESCRIPTOR.getName());
+        get.setFilter(new ValueFilter(CompareOperator.EQUAL, new BinaryComparator(serviceTypeCodeBytes)));
         try {
             get.setTimeRange(0L, maxTimestamp);
         } catch (IOException exception) {

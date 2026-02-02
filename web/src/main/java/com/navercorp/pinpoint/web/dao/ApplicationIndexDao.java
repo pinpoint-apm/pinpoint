@@ -35,7 +35,7 @@ public interface ApplicationIndexDao {
 
     List<String> selectAgentIds(String applicationName, int serviceTypeCode);
 
-    List<String> selectAgentIds(String applicationName, long maxTimestamp);
+    List<String> selectAgentIds(String applicationName, int serviceTypeCode, long maxTimestamp);
 
     void deleteApplicationName(String applicationName);
 

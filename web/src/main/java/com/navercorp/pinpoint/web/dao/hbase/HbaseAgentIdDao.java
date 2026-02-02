@@ -59,8 +59,8 @@ public class HbaseAgentIdDao implements AgentIdDao {
     }
 
     @Override
-    public List<String> getAgentIds(ServiceUid serviceUid, String applicationName, long maxTimestamp) {
-        byte[] rowKeyPrefix = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName);
+    public List<String> getAgentIds(ServiceUid serviceUid, String applicationName, int serviceTypeCode, long maxTimestamp) {
+        byte[] rowKeyPrefix = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
         Scan scan = createScan(rowKeyPrefix);
         try {
             scan.setTimeRange(0L, maxTimestamp);

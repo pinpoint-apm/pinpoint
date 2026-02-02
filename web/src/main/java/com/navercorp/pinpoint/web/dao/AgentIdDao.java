@@ -9,7 +9,7 @@ public interface AgentIdDao {
 
     List<String> getAgentIds(ServiceUid serviceUid, String applicationName);
 
-    List<String> getAgentIds(ServiceUid serviceUid, String applicationName, long maxTimestamp);
+    List<String> getAgentIds(ServiceUid serviceUid, String applicationName, int serviceTypeCode, long maxTimestamp);
 
     void deleteAllAgents(ServiceUid serviceUid, String applicationName, int serviceTypeCode);
 

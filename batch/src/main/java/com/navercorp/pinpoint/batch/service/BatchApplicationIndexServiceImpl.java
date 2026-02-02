@@ -83,16 +83,11 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     }
 
     @Override
-    public void remove(String applicationName) {
+    public void remove(String applicationName, int serviceTypeCode) {
         if (v2Enabled) {
-            List<Application> applicationList = this.applicationDao.getApplications(ServiceUid.DEFAULT, applicationName);
-            for (Application application : applicationList) {
-                this.applicationDao.deleteApplication(ServiceUid.DEFAULT, application.getName(), application.getServiceTypeCode());
-            }
+            this.applicationDao.deleteApplication(ServiceUid.DEFAULT, applicationName, serviceTypeCode);
         }
-        if (v1Enabled) {
-            this.applicationIndexDao.deleteApplicationName(applicationName);
-        }
+        // v1 doesn't need application level deletion, just delete all agentIds
     }
 
     @Override
@@ -104,20 +99,25 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     }
 
     @Override
-    public List<String> selectAgentIds(String applicationName, long maxTimestamp) {
+    public List<String> selectAgentIds(String applicationName, int serviceTypeCode) {
         if (isReadV2()) {
-            return this.agentIdDao.getAgentIds(ServiceUid.DEFAULT, applicationName, maxTimestamp);
+            return this.agentIdDao.getAgentIds(ServiceUid.DEFAULT, applicationName, serviceTypeCode);
         }
-        return this.applicationIndexDao.selectAgentIds(applicationName, maxTimestamp);
+        return this.applicationIndexDao.selectAgentIds(applicationName, serviceTypeCode);
     }
 
     @Override
-    public void deleteAgentIds(String applicationName, List<String> agentIds) {
+    public List<String> selectAgentIds(String applicationName, int serviceTypeCode, long maxTimestamp) {
+        if (isReadV2()) {
+            return this.agentIdDao.getAgentIds(ServiceUid.DEFAULT, applicationName, serviceTypeCode, maxTimestamp);
+        }
+        return this.applicationIndexDao.selectAgentIds(applicationName, serviceTypeCode, maxTimestamp);
+    }
+
+    @Override
+    public void deleteAgentIds(String applicationName, int serviceTypeCode, List<String> agentIds) {
         if (v2Enabled) {
-            List<Application> applicationList = this.applicationDao.getApplications(ServiceUid.DEFAULT, applicationName);
-            for (Application application : applicationList) {
-                this.agentIdDao.deleteAgents(ServiceUid.DEFAULT, application.getName(), application.getServiceTypeCode(), agentIds);
-            }
+            this.agentIdDao.deleteAgents(ServiceUid.DEFAULT, applicationName, serviceTypeCode, agentIds);
         }
         if (v1Enabled) {
             applicationIndexDao.deleteAgentIds(applicationName, agentIds);
