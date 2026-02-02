@@ -30,6 +30,8 @@ import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
 import com.navercorp.pinpoint.grpc.channelz.ChannelzRegistry;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapper;
 import com.navercorp.pinpoint.otlp.trace.collector.service.GrpcOtlpTraceService;
+import com.navercorp.pinpoint.otlp.trace.collector.service.HbaseOtlpAgentInfoService;
+import com.navercorp.pinpoint.otlp.trace.collector.service.HbaseOtlpApplicationIndexV2Service;
 import io.grpc.BindableService;
 import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
@@ -66,8 +68,8 @@ public class OtlpTraceCollectorModule {
     }
 
     @Bean
-    public ServerServiceDefinition serverServiceDefinition(@Qualifier("hbaseOtlpTraceService") TraceService traceService, OtlpTraceMapper mapper) {
-        BindableService spanService = new GrpcOtlpTraceService(traceService, mapper);
+    public ServerServiceDefinition serverServiceDefinition(@Qualifier("hbaseOtlpTraceService") TraceService traceService, @Qualifier("hbaseOtlpAgentInfoService") HbaseOtlpAgentInfoService agentInfoService, @Qualifier("hbaseOtlpApplicationIndexV2Service") HbaseOtlpApplicationIndexV2Service applicationIndexV2Service, OtlpTraceMapper mapper) {
+        BindableService spanService = new GrpcOtlpTraceService(traceService, agentInfoService, applicationIndexV2Service, mapper);
         return ServerInterceptors.intercept(spanService);
     }
 

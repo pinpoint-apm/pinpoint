@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
+import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 
@@ -26,6 +27,7 @@ public class OtlpTraceMapperData {
 
     List<SpanBo> spanBoList = new ArrayList<>();
     List<SpanChunkBo> spanChunkBoList = new ArrayList<>();
+    List<AgentInfoBo> agentInfoBoList = new ArrayList<>();
 
     public List<SpanBo> getSpanBoList() {
         return spanBoList;
@@ -41,5 +43,13 @@ public class OtlpTraceMapperData {
 
     public void addSpanChunkBo(SpanChunkBo spanChunkBo) {
         spanChunkBoList.add(spanChunkBo);
+    }
+
+    public List<AgentInfoBo> getAgentInfoBoList() {
+        return agentInfoBoList;
+    }
+
+    public void addAgentInfoBo(AgentInfoBo agentInfoBo) {
+        agentInfoBoList.add(agentInfoBo);
     }
 }

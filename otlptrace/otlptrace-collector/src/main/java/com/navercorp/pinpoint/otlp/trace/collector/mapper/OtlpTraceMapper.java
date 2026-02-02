@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
+import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import io.opentelemetry.proto.common.v1.KeyValue;
@@ -37,10 +38,12 @@ public class OtlpTraceMapper {
 
     private final OtlpTraceSpanMapper spanMapper;
     private final OtlpTraceSpanChunkMapper spanChunkMapper;
+    private final OtlpAgentInfoMapper agentInfoMapper;
 
-    public OtlpTraceMapper(OtlpTraceSpanMapper spanMapper, OtlpTraceSpanChunkMapper spanChunkMapper) {
+    public OtlpTraceMapper(OtlpTraceSpanMapper spanMapper, OtlpTraceSpanChunkMapper spanChunkMapper, OtlpAgentInfoMapper agentInfoMapper) {
         this.spanMapper = spanMapper;
         this.spanChunkMapper = spanChunkMapper;
+        this.agentInfoMapper = agentInfoMapper;
     }
 
     public OtlpTraceMapperData map(List<ResourceSpans> resourceSpanList) {
@@ -55,9 +58,13 @@ public class OtlpTraceMapper {
                     if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE) {
                         final SpanBo spanBo = spanMapper.map(attributesList, span);
                         mapperData.addSpanBo(spanBo);
+                        final AgentInfoBo agentInfoBo = agentInfoMapper.map(spanBo, attributesList);
+                        mapperData.addAgentInfoBo(agentInfoBo);
                     } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE) {
                         final SpanBo spanBo = spanMapper.map(attributesList, span);
                         mapperData.addSpanBo(spanBo);
+                        final AgentInfoBo agentInfoBo = agentInfoMapper.map(spanBo, attributesList);
+                        mapperData.addAgentInfoBo(agentInfoBo);
                     } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CLIENT_VALUE) {
                         final SpanChunkBo spanChunkBo = spanChunkMapper.map(attributesList, span);
                         mapperData.addSpanChunkBo(spanChunkBo);

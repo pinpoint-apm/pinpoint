@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.otlp.collector.service;
+package com.navercorp.pinpoint.otlp.trace.collector.service;
 
 import com.navercorp.pinpoint.collector.dao.AgentInfoDao;
 import com.navercorp.pinpoint.collector.dao.ApplicationIndexDao;
@@ -27,14 +27,14 @@ import org.springframework.stereotype.Service;
 import java.util.Objects;
 
 @Service
-public class HbaseOtlpMetricAgentInfoService {
+public class HbaseOtlpAgentInfoService {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final AgentInfoDao agentInfoDao;
     private final ApplicationIndexDao applicationIndexDao;
     private final boolean applicationIndexV1Enabled;
 
-    public HbaseOtlpMetricAgentInfoService(AgentInfoDao agentInfoDao, ApplicationIndexDao applicationIndexDao, @Value("${pinpoint.collector.application.index.v1.enabled:true}") boolean applicationIndexV1Enabled) {
+    public HbaseOtlpAgentInfoService(AgentInfoDao agentInfoDao, ApplicationIndexDao applicationIndexDao, @Value("${pinpoint.collector.application.index.v1.enabled:true}") boolean applicationIndexV1Enabled) {
         this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
         this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
         this.applicationIndexV1Enabled = applicationIndexV1Enabled;

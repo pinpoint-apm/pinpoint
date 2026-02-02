@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.otlp.collector.mapper;
+package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
-public class OtlpMetricAgentInfoMapper {
+public class OtlpAgentInfoMapper {
 
-    public AgentInfoBo map(List<KeyValue> attributesList, long agentStartTime) {
+    public AgentInfoBo map(SpanBo spanBo, List<KeyValue> attributesList) {
         final AgentInfoBo.Builder builder = new AgentInfoBo.Builder();
-        final AgentIdAndName agentIdAndName = OtlpMetricMapperUtils.getAgentId(attributesList);
-        builder.setAgentId(agentIdAndName.agentId());
-        if (agentIdAndName.agentName() != null) {
-            builder.setAgentName(agentIdAndName.agentName());
+        builder.setAgentId(spanBo.getAgentId());
+        if (spanBo.getAgentName() != null) {
+            builder.setAgentName(spanBo.getAgentName());
         }
-        builder.setApplicationName(OtlpMetricMapperUtils.getApplicationName(attributesList));
-        builder.setServiceTypeCode(ServiceType.OPENTELEMETRY_SERVER.getCode());
+        builder.setApplicationName(spanBo.getApplicationName());
+        builder.setServiceTypeCode(spanBo.getServiceType());
+        builder.setStartTime(spanBo.getAgentStartTime());
 
         final String hostName = attributesList.stream().filter(kv -> kv.getKey().equals("host.name")).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
         if (hostName != null) {
@@ -48,7 +48,6 @@ public class OtlpMetricAgentInfoMapper {
         if (agentVersion != null) {
             builder.setAgentVersion(agentVersion);
         }
-        builder.setStartTime(agentStartTime);
 
         return builder.build();
     }

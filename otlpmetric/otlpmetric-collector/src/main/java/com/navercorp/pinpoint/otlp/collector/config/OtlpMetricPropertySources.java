@@ -23,12 +23,11 @@ import org.springframework.context.annotation.PropertySources;
  * @author minwoo-jung
  */
 @PropertySources({
-        @PropertySource(name = "OtlpMetricPropertySources", value = { OtlpMetricPropertySources.COLLECTOR_ROOT, OtlpMetricPropertySources.COLLECTOR_PROFILE}),
         @PropertySource(name = "OtlpMetricPropertySources-KAFKA", value = { OtlpMetricPropertySources.KAFKA_TOPIC, OtlpMetricPropertySources.COLLECTOR_CONFIG}),
 })
 public class OtlpMetricPropertySources {
-    public static final String COLLECTOR_ROOT = "classpath:pinpoint-collector-root.properties";
-    public static final String COLLECTOR_PROFILE = "classpath:profiles/${pinpoint.profiles.active:local}/pinpoint-collector.properties";
+
     public static final String KAFKA_TOPIC = "classpath:otlpmetric/collector/kafka-topic-otlpmetric.properties";
+
     public static final String COLLECTOR_CONFIG = "classpath:otlpmetric/collector/profiles/${pinpoint.profiles.active:release}/otlpmetric-collector.properties";
 }
