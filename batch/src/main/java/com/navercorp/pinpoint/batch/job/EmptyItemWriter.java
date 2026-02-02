@@ -31,10 +31,10 @@ public class EmptyItemWriter<T> implements ItemWriter<T> {
     public void write(@Nonnull Chunk<? extends T> items) throws Exception {
         logger.info("EmptyItemWriter called. No items will be removed. chunk size: {}", items.size());
         for (T item : items) {
-            if (item instanceof CleanTarget.TypeApplication application) {
-                logger.info("write application. applicationName: {}", application.applicationName());
-            } else if (item instanceof CleanTarget.TypeAgents agents) {
-                logger.info("write agents. applicationName: {}, agentIds: {}", agents.applicationName(), agents.agentIds());
+            if (item instanceof CleanTarget.TypeApplication targetApplication) {
+                logger.info("write application. application: {}", targetApplication.application());
+            } else if (item instanceof CleanTarget.TypeAgents targetAgents) {
+                logger.info("write agents. application: {}, agentIds: {}", targetAgents.application(), targetAgents.agentIds());
             } else {
                 logger.info("write item: {}", item);
             }

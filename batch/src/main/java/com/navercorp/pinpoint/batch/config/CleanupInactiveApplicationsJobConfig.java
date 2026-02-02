@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
 import com.navercorp.pinpoint.batch.service.BatchApplicationIndexServiceImpl;
 import com.navercorp.pinpoint.batch.vo.CleanTarget;
 import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
+import com.navercorp.pinpoint.web.vo.Application;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.Step;
@@ -101,8 +102,8 @@ public class CleanupInactiveApplicationsJobConfig {
             @Qualifier("cleanupExecutor") TaskExecutor cleanExecutor,
             @Qualifier("cleanupStepCustomListener") Optional<StepExecutionListener> stepExecutionListeners
     ) {
-        SimpleStepBuilder<String, List<CleanTarget>> builder = new StepBuilder("cleanupInactiveApplicationsStep", jobRepository)
-                .<String, List<CleanTarget>>chunk(100, transactionManager)
+        SimpleStepBuilder<Application, List<CleanTarget>> builder = new StepBuilder("cleanupInactiveApplicationsStep", jobRepository)
+                .<Application, List<CleanTarget>>chunk(100, transactionManager)
                 .reader(itemStreamReader)
                 .processor(itemProcessor)
                 .writer(itemWriter)

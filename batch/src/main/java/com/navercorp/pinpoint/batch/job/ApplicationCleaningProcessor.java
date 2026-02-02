@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
 import com.navercorp.pinpoint.batch.vo.CleanTarget;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
+import com.navercorp.pinpoint.web.vo.Application;
 import jakarta.annotation.Nonnull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,7 +35,7 @@ import java.util.Objects;
 /**
  * @author youngjin.kim2
  */
-public class ApplicationCleaningProcessor implements ItemProcessor<String, List<CleanTarget>> {
+public class ApplicationCleaningProcessor implements ItemProcessor<Application, List<CleanTarget>> {
 
     private static final Logger logger = LogManager.getLogger(ApplicationCleaningProcessor.class);
 
@@ -53,15 +54,15 @@ public class ApplicationCleaningProcessor implements ItemProcessor<String, List<
     }
 
     @Override
-    public List<CleanTarget> process(@Nonnull String applicationName) throws Exception {
-        logger.info("Processing application: {}", applicationName);
+    public List<CleanTarget> process(@Nonnull Application application) throws Exception {
+        logger.info("Processing application: {}", application);
         boolean removeApplication = false;
         Range range = getRange();
         long timeBoundary = range.getFrom();
         List<CleanTarget> targets = new ArrayList<>(2);
 
         // Find inactive agent from old agents
-        List<String> oldAgentIds = getOldAgents(applicationName, timeBoundary);
+        List<String> oldAgentIds = getOldAgents(application, timeBoundary);
         List<String> targetAgentIds = new ArrayList<>(oldAgentIds.size());
         for (String agentId : oldAgentIds) {
             if (isAgentTarget(agentId, range)) {
@@ -69,13 +70,13 @@ public class ApplicationCleaningProcessor implements ItemProcessor<String, List<
             }
         }
         if (!targetAgentIds.isEmpty()) {
-            targets.add(new CleanTarget.TypeAgents(applicationName, targetAgentIds));
+            targets.add(new CleanTarget.TypeAgents(application, targetAgentIds));
         }
 
         // Find empty application
         if (oldAgentIds.size() == targetAgentIds.size()) {
-            if (getAllAgents(applicationName).size() == targetAgentIds.size()) {
-                targets.add(new CleanTarget.TypeApplication(applicationName));
+            if (getAllAgents(application).size() == targetAgentIds.size()) {
+                targets.add(new CleanTarget.TypeApplication(application));
                 removeApplication = true;
             }
         }
@@ -83,7 +84,7 @@ public class ApplicationCleaningProcessor implements ItemProcessor<String, List<
         if (targets.isEmpty()) {
             return null;
         }
-        logger.info("Cleaning application {}, remove application: {}, agents: {}", applicationName, removeApplication, targetAgentIds.size());
+        logger.info("Cleaning application {}, remove application: {}, agents: {}", application, removeApplication, targetAgentIds.size());
         return targets;
     }
 
@@ -91,12 +92,12 @@ public class ApplicationCleaningProcessor implements ItemProcessor<String, List<
         return !this.activeAgentValidator.isActiveAgent(agentId, range);
     }
 
-    private List<String> getOldAgents(String applicationName, long maxTimestamp) {
-        return this.batchApplicationIndexService.selectAgentIds(applicationName, maxTimestamp);
+    private List<String> getOldAgents(Application application, long maxTimestamp) {
+        return this.batchApplicationIndexService.selectAgentIds(application.getName(), application.getServiceTypeCode(), maxTimestamp);
     }
 
-    private List<String> getAllAgents(String applicationName) {
-        return this.batchApplicationIndexService.selectAgentIds(applicationName);
+    private List<String> getAllAgents(Application application) {
+        return this.batchApplicationIndexService.selectAgentIds(application.getName(), application.getServiceTypeCode());
     }
 
     private Range getRange() {
