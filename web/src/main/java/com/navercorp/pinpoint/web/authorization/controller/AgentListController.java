@@ -122,6 +122,7 @@ public class AgentListController implements AccessDeniedExceptionHandler {
         return new StaticTreeView<>(list);
     }
 
+    @Deprecated
     @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/search-application", params = {"application"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
@@ -146,6 +147,7 @@ public class AgentListController implements AccessDeniedExceptionHandler {
         return treeView(list);
     }
 
+    @Deprecated
     @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/search-application", params = {"application", "from", "to"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsList(
@@ -174,6 +176,7 @@ public class AgentListController implements AccessDeniedExceptionHandler {
     }
 
     //use only for server map list
+    @Deprecated
     @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/search-application", params = {"application", "from", "to", "applicationPairs"})
     public TreeView<InstancesList<AgentStatusAndLink>> getAgentsListWithVirtualNodes(
