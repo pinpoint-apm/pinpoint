@@ -26,8 +26,7 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @Import({
         PinotConfiguration.class,
-        OtlpMetricPropertySources.class,
-        OtlpMetricCollectorHbaseConfig.class})
+        OtlpMetricPropertySources.class})
 @ComponentScan({
         "com.navercorp.pinpoint.otlp.collector.config",
         "com.navercorp.pinpoint.otlp.collector.controller",
