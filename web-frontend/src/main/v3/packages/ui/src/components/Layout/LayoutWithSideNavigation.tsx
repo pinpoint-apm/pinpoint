@@ -16,6 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '..';
+import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 import { LuChevronRight, LuChevronFirst, LuChevronLast } from 'react-icons/lu';
 import { RxMagnifyingGlass } from 'react-icons/rx';
 import { LuCommand } from 'react-icons/lu';
@@ -31,7 +32,6 @@ import {
   SidebarMenu,
   SidebarHeader,
   SidebarFooter,
-  SidebarInset,
 } from '@pinpoint-fe/ui/src/components/ui/sidebar';
 import {
   DropdownMenu,
@@ -102,7 +102,7 @@ export const LayoutWithSideNavigation = ({
         {item?.icon && (
           <span
             className={cn(
-              'text-lg mr-1 transition-opacity w-[35px] h-[35px] flex items-center justify-center relative',
+              'flex relative justify-center items-center mr-1 text-lg transition-opacity w-[35px] h-[35px]',
               isActive(item) ? 'opacity-100' : 'opacity-70',
             )}
           >
@@ -174,7 +174,7 @@ export const LayoutWithSideNavigation = ({
           trigger: (
             <SidebarMenuButton
               className={cn(SIDEBAR_MENU_BUTTON_CLASS_NAME, {
-                'bg-[var(--blue-700)] font-semibold': isActive(item),
+                'font-semibold bg-[var(--blue-700)]': isActive(item),
               })}
             >
               {renderMenuItemContent(item)}
@@ -218,7 +218,7 @@ export const LayoutWithSideNavigation = ({
                 <div className="mb-2">
                   <div
                     className={cn(
-                      'relative h-16 min-h-[4rem] flex items-center pl-6 hover:bg-[--blue-700]',
+                      'flex relative items-center pl-6 h-16 min-h-[4rem] hover:bg-[--blue-700]',
                       { 'justify-center pl-0': collapsed },
                     )}
                   >
@@ -228,9 +228,9 @@ export const LayoutWithSideNavigation = ({
                         alt={'pinpoint-logo'}
                       />
                     </Link>
-                    <div className="absolute hidden scale-button-wrapper top-1 right-1">
+                    <div className="hidden absolute top-1 right-1 scale-button-wrapper">
                       <button
-                        className="flex items-center justify-center w-6 h-6 text-white opacity-50 cursor-pointer hover:opacity-100 hover:font-semibold"
+                        className="flex justify-center items-center w-6 h-6 text-white opacity-50 cursor-pointer hover:opacity-100 hover:font-semibold"
                         onClick={() => setCollapsed(!collapsed)}
                       >
                         {collapsed ? <LuChevronLast /> : <LuChevronFirst />}
@@ -267,7 +267,7 @@ export const LayoutWithSideNavigation = ({
                     content: (
                       <div className="flex">
                         Search...
-                        <div className="flex items-center gap-1 px-1 ml-3 text-xs border rounded bg-muted/25">
+                        <div className="flex gap-1 items-center px-1 ml-3 text-xs rounded border bg-muted/25">
                           <LuCommand /> K
                         </div>
                       </div>
@@ -276,7 +276,7 @@ export const LayoutWithSideNavigation = ({
                   })}
                 </SidebarMenuItem>
                 <div className="px-4 my-2">
-                  <Separator className="opacity-50 " />
+                  <Separator className="opacity-50" />
                 </div>
               </SidebarHeader>
               <SidebarContent>
@@ -305,9 +305,9 @@ export const LayoutWithSideNavigation = ({
           </TooltipProvider>
         </React.Fragment>
       </ErrorBoundary>
-      <SidebarInset>
+      <SidebarContent>
         <ErrorBoundary>{children}</ErrorBoundary>
-      </SidebarInset>
+      </SidebarContent>
       <GlobalSearch services={topMenuItems} />
     </SidebarProvider>
   );
@@ -333,7 +333,7 @@ const SidebarMenuButtonWithDropdownMenu = ({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               className={cn(SIDEBAR_MENU_BUTTON_CLASS_NAME, {
-                'bg-[var(--blue-700)] font-semibold': isActive(item),
+                'font-semibold bg-[var(--blue-700)]': isActive(item),
               })}
             >
               {renderMenuItemContent(item)}
@@ -349,9 +349,12 @@ const SidebarMenuButtonWithDropdownMenu = ({
         align="start"
         sideOffset={10}
         alignOffset={-50}
-        className="bg-[var(--blue-900)] border-none rounded-md min-w-[180px] shadow-lg text-[var(--white-default)] w-full"
+        className={cn(
+          'w-full rounded-md border-none shadow-lg bg-[var(--blue-900)] min-w-[180px] text-[var(--white-default)]',
+          'z-[1110]', // servermap chartboard 영역이 z-[1099]로 되어있어 덮어씌우기 위해
+        )}
       >
-        <div className="flex items-center h-10 pl-6 pr-2 text-sm opacity-50">{item.name}</div>
+        <div className="flex items-center pr-2 pl-6 h-10 text-sm opacity-50">{item.name}</div>
         <Separator className="mb-2 opacity-50" />
         <div className="space-y-1">
           {item?.childItems?.map((childItem) => {
@@ -361,7 +364,7 @@ const SidebarMenuButtonWithDropdownMenu = ({
                 className={cn(
                   SIDEBAR_MENU_BUTTON_CLASS_NAME,
                   {
-                    'bg-[var(--blue-700)] font-semibold': isActive(childItem),
+                    'font-semibold bg-[var(--blue-700)]': isActive(childItem),
                   },
                   'cursor-pointer',
                 )}
@@ -387,9 +390,17 @@ const WithTooltip = ({ trigger, content, hidden }: TooltipProps) => {
   return (
     <Tooltip>
       <TooltipTrigger asChild>{trigger}</TooltipTrigger>
-      <TooltipContent side="right" className={cn({ hidden: !!hidden })}>
-        {content}
-      </TooltipContent>
+      <TooltipPrimitive.Portal>
+        <TooltipContent
+          side="right"
+          className={cn(
+            'z-[1110]', // servermap chartboard 영역이 z-[1099]로 되어있어 덮어씌우기 위해
+            { hidden: !!hidden },
+          )}
+        >
+          {content}
+        </TooltipContent>
+      </TooltipPrimitive.Portal>
     </Tooltip>
   );
 };
