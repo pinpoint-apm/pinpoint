@@ -7,7 +7,7 @@
 ## 1. 작업 목표
 
 - `@billboard.js/react` 및 `billboard.js`를 사용하는 모든 차트 컴포넌트와 관련 훅을 **echarts**로 교체한다.
-- 기존 **시각·동작·데이터 구조**는 유지한다. (차트 타입, 색상, 축 포맷, 툴팁, 빈 데이터 메시지 등)
+- 기존 **시각·동작·데이터 구조**는 유지한다. (차트 타입, 색상, 축 포맷, 툴팁, 범례(legend), 빈 데이터 메시지 등)
 - 프로젝트에 이미 사용 중인 **echarts 패턴**(`LoadChart`, `ResponseSummaryChart`, `HeatmapChart` 등)을 참고하여 일관된 방식으로 구현한다.
 - 변환 결과는 **기능과 스타일이 기존 billboard.js 차트와 완전히 동일**해야 한다.
 
@@ -92,6 +92,7 @@
 - **스타일**: `cn('w-full h-full', className)` 등 레이아웃 클래스와 `packages/ui` 디자인 토큰을 유지한다.
 - **데이터 라벨(label) 스타일**: 기존 billboard.js 차트에서 데이터 라벨(값 텍스트)의 색상·폰트 등이 어떻게 적용되어 있는지 확인하고, **반드시 동일한 스타일**로 맞춘다. 예: 원본에서 라벨 색상이 막대 색상과 동일했다면 ECharts에서도 `series[].label.color`를 해당 막대 색과 동일하게 설정한다. (항상 “막대와 동일”이 아니라, **원본과 동일**하게 적용한다.)
 - **그리드·데이터 겹침 순서**: 축 그리드 라인(splitLine)이 데이터 시리즈 **앞에** 와야 하는 경우, ECharts의 `zlevel`을 사용한다. `series`에 `zlevel: 0`, `xAxis`/`yAxis`에 `zlevel: 1`을 주면 축·그리드가 나중에 그려져 데이터 위에 표시된다.
+- **범례(legend)**: billboard.js는 다중 시리즈일 때 기본으로 범례를 표시한다. 원본에 범례가 있는 경우(또는 다중 시리즈 차트인 경우) ECharts에서도 `LegendComponent`를 `echarts.use([...])`에 포함하고, `legend` 옵션(`data`, `bottom`, `icon`, `itemWidth`, `itemHeight`, `itemGap` 등)을 설정하여 **원본과 동일한 위치·스타일**로 표시한다. `grid.bottom`을 넉넉히 두어 범례와 겹치지 않도록 한다.
 
 ---
 
@@ -118,6 +119,7 @@
 - [ ] 데이터 라벨(label) 색상·폰트 등이 원본 billboard.js 차트와 동일한지 확인
 - [ ] 시계열 축 포맷(`formatNewLinedDateString` 등), 숫자 축 포맷(`abbreviateNumber`, `getFormat`) 유지
 - [ ] 툴팁 내용·연동(linked) 동작이 기존과 동일한지 확인
+- [ ] 원본에 범례(legend)가 있는 경우, ECharts에서도 LegendComponent 및 legend 옵션으로 동일하게 표시하는지 확인
 - [ ] 빈 데이터 시 `emptyMessage` 표시
 - [ ] ResizeObserver + dispose로 리소스 정리
 - [ ] echarts는 필요한 모듈만 `echarts.use([...])`로 등록
