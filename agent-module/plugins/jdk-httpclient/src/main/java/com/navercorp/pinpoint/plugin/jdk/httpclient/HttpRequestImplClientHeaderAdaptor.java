@@ -32,4 +32,16 @@ public class HttpRequestImplClientHeaderAdaptor implements ClientHeaderAdaptor<H
             logger.debug("Set header {}={}", name, value);
         }
     }
+
+    @Override
+    public String getHeader(HttpRequestImpl header, String name) {
+        try {
+            if (header != null) {
+                return header.headers().firstValue(name).orElse("");
+            }
+        } catch (Exception ignored) {
+        }
+
+        return "";
+    }
 }

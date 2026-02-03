@@ -93,6 +93,7 @@
         <module>closed-module-testlib</module>
         <module>mariadb-jdbc-plugin-testweb</module>
         <module>arcus-plugin-testweb</module>
+        <module>aws-sdk-s3-plugin-testweb</module>
     </modules>
 
     <dependencyManagement>

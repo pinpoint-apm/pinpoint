@@ -43,4 +43,20 @@ public class RequestHeaderAdaptorV1 implements ClientHeaderAdaptor<Request> {
             logger.debug("Set header {}={}", name, value);
         }
     }
+
+    @Override
+    public String getHeader(Request header, String name) {
+        try {
+            final FluentCaseInsensitiveStringsMap httpRequestHeaders = header.getHeaders();
+            if (httpRequestHeaders != null) {
+                final String value = httpRequestHeaders.getFirstValue(name);
+                if (value != null) {
+                    return value;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+
+        return "";
+    }
 }

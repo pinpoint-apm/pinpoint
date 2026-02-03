@@ -39,4 +39,20 @@ public class HttpMessageClientHeaderAdaptor implements ClientHeaderAdaptor<HttpM
             }
         }
     }
+
+    @Override
+    public String getHeader(HttpMessage header, String name) {
+        try {
+            final HttpHeaders headers = header.headers();
+            if (headers != null) {
+                String value = headers.get(name);
+                if (value != null) {
+                    return value;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+
+        return "";
+    }
 }

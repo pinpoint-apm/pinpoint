@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.okhttp.v3;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
+import okhttp3.Headers;
 import okhttp3.Request;
 
 /**
@@ -35,5 +36,23 @@ public class RequestBuilder3ClientHeaderAdaptor implements ClientHeaderAdaptor<R
         if (isDebug) {
             logger.debug("Set header {}={}", name, value);
         }
+    }
+
+    @Override
+    public String getHeader(Request.Builder header, String name) {
+        try {
+            if (header instanceof HeadersBuilder) {
+                final Headers.Builder builder = ((HeadersBuilder) header)._$PINPOINT$_getHeadersBuilder();
+                if (builder != null) {
+                    final String value = builder.get(name);
+                    if (value != null) {
+                        return value;
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+
+        return "";
     }
 }

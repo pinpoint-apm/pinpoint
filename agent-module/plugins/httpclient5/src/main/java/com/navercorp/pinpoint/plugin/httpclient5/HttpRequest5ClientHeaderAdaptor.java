@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.httpclient5;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpRequest;
 
 public class HttpRequest5ClientHeaderAdaptor implements ClientHeaderAdaptor<HttpRequest> {
@@ -33,5 +34,20 @@ public class HttpRequest5ClientHeaderAdaptor implements ClientHeaderAdaptor<Http
                 logger.debug("Set header {}={}", name, value);
             }
         }
+    }
+
+    @Override
+    public String getHeader(HttpRequest header, String name) {
+        try {
+            if (header != null) {
+                Header firstHeader = header.getFirstHeader(name);
+                if (firstHeader != null) {
+                    return firstHeader.getValue();
+                }
+            }
+        } catch (Exception ignored) {
+        }
+
+        return "";
     }
 }

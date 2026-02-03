@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2026 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.request;
+package com.navercorp.pinpoint.plugin.okhttp.v3;
 
-/**
- * @author Woonduk Kang(emeroad)
- */
-public interface ClientHeaderAdaptor<T> {
-    void setHeader(T header, String name, String value);
+import okhttp3.Headers;
 
-    String getHeader(T header, String name);
+public interface HeadersBuilder {
+    Headers.Builder _$PINPOINT$_getHeadersBuilder();
 }

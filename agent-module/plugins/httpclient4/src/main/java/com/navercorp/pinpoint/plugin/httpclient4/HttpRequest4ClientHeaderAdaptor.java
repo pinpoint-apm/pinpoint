@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.plugin.httpclient4;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogManager;
 import com.navercorp.pinpoint.bootstrap.logging.PluginLogger;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
+import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 
 /**
@@ -34,5 +35,18 @@ public class HttpRequest4ClientHeaderAdaptor implements ClientHeaderAdaptor<Http
         if (isDebug) {
             logger.debug("Set header {}={}", name, value);
         }
+    }
+
+    @Override
+    public String getHeader(HttpRequest header, String name) {
+        try {
+            final Header firstHeader = header.getFirstHeader(name);
+            if (firstHeader != null) {
+                return firstHeader.getValue();
+            }
+        } catch (Exception ignored) {
+        }
+
+        return "";
     }
 }

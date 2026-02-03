@@ -1,0 +1,11 @@
+server:
+  port: 18080
+
+logging:
+  level:
+    root: debug
+
+
+springdoc:
+  swagger-ui:
+    path: /
