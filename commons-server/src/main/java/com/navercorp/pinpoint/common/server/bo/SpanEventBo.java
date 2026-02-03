@@ -23,7 +23,7 @@ import java.util.List;
  * @author emeroad
  * @author jaehong.kim
  */
-public class SpanEventBo implements Event {
+public class SpanEventBo {
 
     // version 0 means that the type of prefix's size is int
 
