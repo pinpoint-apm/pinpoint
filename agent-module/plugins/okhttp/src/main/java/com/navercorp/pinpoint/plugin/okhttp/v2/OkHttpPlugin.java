@@ -186,6 +186,7 @@ public class OkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addGetter(HeadersBuilder.class, "headers");
 
             final InstrumentMethod buildMethod = target.getDeclaredMethod("build");
             if (buildMethod != null) {

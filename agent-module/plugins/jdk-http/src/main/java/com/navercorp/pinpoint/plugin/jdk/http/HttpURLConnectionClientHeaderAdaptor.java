@@ -36,4 +36,17 @@ public class HttpURLConnectionClientHeaderAdaptor implements ClientHeaderAdaptor
             logger.debug("Set header {}={}", name, value);
         }
     }
+
+    @Override
+    public String getHeader(HttpURLConnection header, String name) {
+        try {
+            final String value = header.getRequestProperty(name);
+            if (value != null) {
+                return value;
+            }
+        } catch (Exception ignored) {
+        }
+
+        return "";
+    }
 }

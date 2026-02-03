@@ -32,6 +32,8 @@ import java.util.Objects;
 public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
 
     private static final String NOT_SET = null;
+    private static final String HEADER_AUTHORIZATION = "Authorization";
+    private static final String AWS4_HMAC_SHA256 = "AWS4-HMAC-SHA256";
 
     private final PluginLogger logger = PluginLogManager.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -57,7 +59,9 @@ public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
         if (isDebug) {
             logger.debug("Set request header that is not to be sampled.");
         }
-        clientHeaderAdaptor.setHeader(header, Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
+        if (isWritable(header)) {
+            clientHeaderAdaptor.setHeader(header, Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
+        }
     }
 
     // Set transaction information in the request.
@@ -68,19 +72,32 @@ public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
         if (isDebug) {
             logger.debug("Set request header. traceId={}, applicationName={}, serverTypeCode={}, applicationNamespace={}", traceId, applicationName, serverTypeCode, applicationNamespace);
         }
-        clientHeaderAdaptor.setHeader(header, Header.HTTP_TRACE_ID.toString(), traceId.getTransactionId());
-        clientHeaderAdaptor.setHeader(header, Header.HTTP_SPAN_ID.toString(), String.valueOf(traceId.getSpanId()));
-        clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(traceId.getParentSpanId()));
-        clientHeaderAdaptor.setHeader(header, Header.HTTP_FLAGS.toString(), String.valueOf(traceId.getFlags()));
-        clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_APPLICATION_NAME.toString(), applicationName);
-        clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(serverTypeCode));
+        if (isWritable(header)) {
+            clientHeaderAdaptor.setHeader(header, Header.HTTP_TRACE_ID.toString(), traceId.getTransactionId());
+            clientHeaderAdaptor.setHeader(header, Header.HTTP_SPAN_ID.toString(), String.valueOf(traceId.getSpanId()));
+            clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(traceId.getParentSpanId()));
+            clientHeaderAdaptor.setHeader(header, Header.HTTP_FLAGS.toString(), String.valueOf(traceId.getFlags()));
+            clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_APPLICATION_NAME.toString(), applicationName);
+            clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(serverTypeCode));
 
-        if (applicationNamespace != NOT_SET) {
-            clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_APPLICATION_NAMESPACE.toString(), applicationNamespace);
-        }
+            if (applicationNamespace != NOT_SET) {
+                clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_APPLICATION_NAMESPACE.toString(), applicationNamespace);
+            }
 
-        if (host != null) {
-            clientHeaderAdaptor.setHeader(header, Header.HTTP_HOST.toString(), host);
+            if (host != null) {
+                clientHeaderAdaptor.setHeader(header, Header.HTTP_HOST.toString(), host);
+            }
         }
+    }
+
+    private boolean isWritable(T header) {
+        final String authorization = clientHeaderAdaptor.getHeader(header, HEADER_AUTHORIZATION);
+        if (authorization != null && authorization.startsWith(AWS4_HMAC_SHA256)) {
+            if (isDebug) {
+                logger.debug("Found {} header, AWS SigV4 authentication should not modify header information.", authorization);
+            }
+            return false;
+        }
+        return true;
     }
 }

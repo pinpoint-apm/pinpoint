@@ -44,4 +44,22 @@ public class ClientHttpRequestClientHeaderAdaptor implements ClientHeaderAdaptor
             }
         }
     }
+
+    @Override
+    public String getHeader(ClientHttpRequest header, String name) {
+        try {
+            if (header != null) {
+                final HttpHeaders headers = header.getHeaders();
+                if (headers != null) {
+                    String value = headers.getFirst(name);
+                    if (value != null) {
+                        return value;
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+
+        return "";
+    }
 }

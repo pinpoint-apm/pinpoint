@@ -28,9 +28,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.ClientDatabaseRequestAdap
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientDatabaseRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientDatabaseRequestWrapper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientDatabaseRequestWrapperAdaptor;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
-import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
-import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -48,7 +45,6 @@ public class XmlProtocolMarshallerInterceptor implements AroundInterceptor {
     private final TraceContext traceContext;
     private final MethodDescriptor methodDescriptor;
     private final ClientDatabaseRequestRecorder<ClientDatabaseRequestWrapper> clientRequestRecorder;
-    private final RequestTraceWriter<SdkHttpFullRequest.Builder> requestTraceWriter;
 
     public XmlProtocolMarshallerInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
@@ -56,8 +52,6 @@ public class XmlProtocolMarshallerInterceptor implements AroundInterceptor {
 
         final ClientDatabaseRequestAdaptor<ClientDatabaseRequestWrapper> clientRequestAdaptor = ClientDatabaseRequestWrapperAdaptor.INSTANCE;
         this.clientRequestRecorder = new ClientDatabaseRequestRecorder<>(clientRequestAdaptor);
-        final ClientHeaderAdaptor<SdkHttpFullRequest.Builder> clientHeaderAdaptor = new SdkHttpFullRequestHeaderAdaptor();
-        this.requestTraceWriter = new DefaultRequestTraceWriter<>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -84,7 +78,6 @@ public class XmlProtocolMarshallerInterceptor implements AroundInterceptor {
 
             final boolean sampling = trace.canSampled();
             if (!sampling) {
-                this.requestTraceWriter.write(builder);
                 return;
             }
 
@@ -93,8 +86,6 @@ public class XmlProtocolMarshallerInterceptor implements AroundInterceptor {
             final TraceId nextId = trace.getTraceId().getNextTraceId();
             recorder.recordNextSpanId(nextId.getSpanId());
             recorder.recordServiceType(AwsSdkS3Constants.AWS_SDK_S3);
-            final ClientDatabaseRequestWrapper clientRequest = new S3ClientDatabaseRequestWrapper(uri);
-            this.requestTraceWriter.write(builder, nextId, clientRequest.getEndPoint());
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("BEFORE. Caused:{}", th.getMessage(), th);

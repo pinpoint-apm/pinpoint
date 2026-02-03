@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2026 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.plugin.request;
+package com.pinpoint.test.plugin;
 
-/**
- * @author Woonduk Kang(emeroad)
- */
-public interface ClientHeaderAdaptor<T> {
-    void setHeader(T header, String name, String value);
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-    String getHeader(T header, String name);
+@SpringBootApplication
+public class AwsSdkS3PluginTestStarter {
+
+    public static void main(String[] args) {
+        SpringApplication.run(AwsSdkS3PluginTestStarter.class, args);
+    }
 }
