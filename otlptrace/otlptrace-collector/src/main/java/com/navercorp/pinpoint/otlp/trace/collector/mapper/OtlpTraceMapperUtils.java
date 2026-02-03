@@ -109,7 +109,7 @@ public class OtlpTraceMapperUtils {
     static Map<String, Object> getAttributeToMap(List<KeyValue> keyValueList) {
         Map<String, Object> map = new HashMap<>();
         for (KeyValue kv : keyValueList) {
-            map.put(kv.getKey(), getAttriubteValueToValue(kv.getValue()));
+            map.put(kv.getKey(), getAttributeValueToValue(kv.getValue()));
         }
         return map;
     }
@@ -117,12 +117,12 @@ public class OtlpTraceMapperUtils {
     static List<Object> getArrayValueToList(ArrayValue arrayValue) {
         List<Object> list = new ArrayList<>(arrayValue.getValuesList());
         for (AnyValue anyValue : arrayValue.getValuesList()) {
-            list.add(getAttriubteValueToValue(anyValue));
+            list.add(getAttributeValueToValue(anyValue));
         }
         return list;
     }
 
-    static Object getAttriubteValueToValue(AnyValue anyValue) {
+    static Object getAttributeValueToValue(AnyValue anyValue) {
         if (anyValue.hasIntValue()) {
             return anyValue.getIntValue();
         } else if (anyValue.hasDoubleValue()) {

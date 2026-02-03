@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.proto.trace.v1.Status;
@@ -32,16 +33,17 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 
 @Component
 public class OtlpTraceSpanMapper {
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
     private OtlpTraceSpanEventMapper spanEventMapper;
 
     public OtlpTraceSpanMapper(ObjectMapper objectMapper, OtlpTraceSpanEventMapper spanEventMapper) {
-        this.objectMapper = objectMapper;
+        this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper");
         this.spanEventMapper = spanEventMapper;
     }
 
@@ -127,13 +129,13 @@ public class OtlpTraceSpanMapper {
         String endPoint = "UNKNOWN";
         if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE) {
             // HTTP Server
-            final String serverAddress = span.getAttributesList().stream().filter(kv -> kv.getKey().equals(OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS)).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+            final String serverAddress = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, null);
             if (serverAddress != null) {
-                final Long serverPort = span.getAttributesList().stream().filter(kv -> kv.getKey().equals(OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT)).findFirst().map(kv -> kv.getValue().getIntValue()).orElse(0L);
-                endPoint = HostAndPort.toHostAndPortString(serverAddress, serverPort.intValue(), 0);
+                final long serverPort = AttributeUtils.getIntValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, 0L);
+                endPoint = HostAndPort.toHostAndPortString(serverAddress, (int) serverPort, 0);
             }
         } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE) {
-            final String clientId = span.getAttributesList().stream().filter(kv -> kv.getKey().equals(OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_CLIENT_ID)).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+            final String clientId = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_CLIENT_ID, null);
             if (clientId != null) {
                 endPoint = clientId;
             }
@@ -147,20 +149,21 @@ public class OtlpTraceSpanMapper {
     String getServerSpanToRpc(Span span) {
         String rpc = "UNKNOWN";
         if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE) {
-            final String urlPath = span.getAttributesList().stream().filter(kv -> kv.getKey().equals(OtlpTraceConstants.ATTRIBUTE_KEY_URL_PATH)).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+            final String urlPath = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_URL_PATH, null);
             if (urlPath != null) {
                 rpc = urlPath;
             }
         } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE) {
-            final String destinationName = span.getAttributesList().stream().filter(kv -> kv.getKey().equals(OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_DESTINATION_NAME)).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+            final String destinationName = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_DESTINATION_NAME, null);
             if (destinationName != null) {
                 rpc = "destination=" + destinationName;
             }
-            final String partitionId = span.getAttributesList().stream().filter(kv -> kv.getKey().equals(OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_DESTINATION_PARTITION_ID)).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+            final String partitionId = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_DESTINATION_PARTITION_ID, null);
             if (partitionId != null) {
                 rpc = rpc + ", partition=" + partitionId;
             }
-            final long offset = span.getAttributesList().stream().filter(kv -> kv.getKey().equals(OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_KAFKA_MESSAGE_OFFSET)).findFirst().map(kv -> kv.getValue().getIntValue()).orElse(0L);
+            final long offset = AttributeUtils.getIntValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_MESSAGING_KAFKA_MESSAGE_OFFSET, 0L);
+
             if (offset != 0) {
                 rpc = rpc + ",offset=" + offset;
             }
@@ -173,7 +176,7 @@ public class OtlpTraceSpanMapper {
 
     String getServerSpanToRemoteAddress(Span span) {
         if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE) {
-            return span.getAttributesList().stream().filter(kv -> kv.getKey().equals(OtlpTraceConstants.ATTRIBUTE_KEY_CLIENT_ADDRESS)).findFirst().map(kv -> kv.getValue().getStringValue()).orElse("UNKNOWN");
+            return AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_CLIENT_ADDRESS, "UNKNOWN");
         } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE) {
             return null;
         } else {
@@ -182,6 +185,6 @@ public class OtlpTraceSpanMapper {
     }
 
     long getServerSpanToResponseStatusCode(Span span) {
-        return span.getAttributesList().stream().filter(kv -> kv.getKey().equals(OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_RESPONSE_STATUS_CODE)).findFirst().map(kv -> kv.getValue().getIntValue()).orElse(-1L);
+        return AttributeUtils.getIntValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_HTTP_RESPONSE_STATUS_CODE, -1L);
     }
 }
