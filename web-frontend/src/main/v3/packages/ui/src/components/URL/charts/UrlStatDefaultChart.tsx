@@ -1,10 +1,11 @@
-import 'billboard.js/dist/billboard.css';
 import React from 'react';
-import bb, { ChartOptions, line } from 'billboard.js';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import BillboardJS, { IChart } from '@billboard.js/react';
+import * as echarts from 'echarts/core';
+import { LineChart } from 'echarts/charts';
+import { GridComponent } from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
 import { cn } from '../../../lib';
+
+echarts.use([LineChart, GridComponent, CanvasRenderer]);
 
 export interface UrlStatDefaultChartProps {
   className?: string;
@@ -15,51 +16,81 @@ export const UrlStatDefaultChart = ({
   className,
   emptyMessage = 'No Data',
 }: UrlStatDefaultChartProps) => {
-  const chartComponent = React.useRef<IChart>(null);
-  const options: ChartOptions = {
-    data: {
-      x: 'dates',
-      columns: [],
-      empty: {
-        label: {
-          text: emptyMessage,
-        },
-      },
-      type: line(),
-    },
-    padding: {
-      mode: 'fit',
-      top: 20,
-      bottom: 10,
-      right: 25,
-    },
-    axis: {
-      y: {
-        tick: {
-          count: 2,
-        },
-        padding: {
-          top: 0,
-          bottom: 0,
-        },
-        min: 0,
-        default: [0, 1],
-      },
-    },
-    transition: {
-      duration: 0,
-    },
-    resize: {
-      auto: 'parent',
-    },
-  };
+  const chartRef = React.useRef<HTMLDivElement>(null);
+  const chartInstanceRef = React.useRef<echarts.EChartsType | null>(null);
 
-  return (
-    <BillboardJS
-      bb={bb}
-      ref={chartComponent}
-      className={cn('w-full h-full', className)}
-      options={options}
-    />
-  );
+  React.useEffect(() => {
+    if (!chartRef.current) return;
+
+    const chart = echarts.init(chartRef.current);
+    chartInstanceRef.current = chart;
+
+    const wrapperElement = chartRef.current;
+    const resizeObserver = new ResizeObserver(() => {
+      chart.resize();
+    });
+    resizeObserver.observe(wrapperElement);
+
+    return () => {
+      resizeObserver.disconnect();
+      chart.dispose();
+      chartInstanceRef.current = null;
+    };
+  }, []);
+
+  React.useEffect(() => {
+    if (!chartInstanceRef.current) return;
+
+    chartInstanceRef.current.setOption({
+      animation: false,
+      grid: {
+        top: 20,
+        bottom: 20,
+        right: 25,
+        left: 25,
+      },
+      xAxis: {
+        type: 'category',
+        show: true,
+        boundaryGap: true,
+        data: [''],
+        axisLine: { show: true },
+        axisTick: { show: true },
+        axisLabel: { show: true },
+      },
+      yAxis: {
+        type: 'value',
+        min: 0,
+        max: 1,
+        splitNumber: 1,
+        axisLine: { show: true },
+        axisTick: { show: true },
+        splitLine: { show: false },
+        axisLabel: { show: true },
+      },
+      series: [
+        {
+          type: 'line',
+          data: [null],
+          showSymbol: false,
+          lineStyle: { width: 0 },
+        },
+      ],
+      graphic: [
+        {
+          type: 'text',
+          left: 'center',
+          top: 'middle',
+          style: {
+            text: emptyMessage,
+            fontSize: 18,
+            fill: '#999',
+            textAlign: 'center',
+          },
+        },
+      ],
+    });
+  }, [emptyMessage]);
+
+  return <div className={cn('w-full h-full', className)} ref={chartRef} />;
 };
