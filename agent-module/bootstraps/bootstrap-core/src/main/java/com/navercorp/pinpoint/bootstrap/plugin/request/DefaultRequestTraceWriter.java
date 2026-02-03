@@ -60,7 +60,9 @@ public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
         if (isDebug) {
             logger.debug("Set request header that is not to be sampled.");
         }
-        clientHeaderAdaptor.setHeader(header, Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
+        if (isWritable(header)) {
+            clientHeaderAdaptor.setHeader(header, Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
+        }
     }
 
     // Set transaction information in the request.
@@ -71,22 +73,24 @@ public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
         if (isDebug) {
             logger.debug("Set request header. traceId={}, applicationName={}, serverTypeCode={}, clusterNamespace={}, serviceName={}", traceId, applicationName, serverTypeCode, clusterNamespace, serviceName);
         }
-        clientHeaderAdaptor.setHeader(header, Header.HTTP_TRACE_ID.toString(), traceId.getTransactionId());
-        clientHeaderAdaptor.setHeader(header, Header.HTTP_SPAN_ID.toString(), String.valueOf(traceId.getSpanId()));
-        clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(traceId.getParentSpanId()));
-        clientHeaderAdaptor.setHeader(header, Header.HTTP_FLAGS.toString(), String.valueOf(traceId.getFlags()));
-        clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_APPLICATION_NAME.toString(), applicationName);
-        clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(serverTypeCode));
-        if (serviceName != NOT_SET) {
-            clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_SERVICE_NAME.toString(), serviceName);
-        }
+        if (isWritable(header)) {
+            clientHeaderAdaptor.setHeader(header, Header.HTTP_TRACE_ID.toString(), traceId.getTransactionId());
+            clientHeaderAdaptor.setHeader(header, Header.HTTP_SPAN_ID.toString(), String.valueOf(traceId.getSpanId()));
+            clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(traceId.getParentSpanId()));
+            clientHeaderAdaptor.setHeader(header, Header.HTTP_FLAGS.toString(), String.valueOf(traceId.getFlags()));
+            clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_APPLICATION_NAME.toString(), applicationName);
+            clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(serverTypeCode));
+            if (serviceName != NOT_SET) {
+                clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_SERVICE_NAME.toString(), serviceName);
+            }
 
-        if (clusterNamespace != NOT_SET) {
-            clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_APPLICATION_NAMESPACE.toString(), clusterNamespace);
-        }
+            if (clusterNamespace != NOT_SET) {
+                clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_APPLICATION_NAMESPACE.toString(), clusterNamespace);
+            }
 
-        if (host != null) {
-            clientHeaderAdaptor.setHeader(header, Header.HTTP_HOST.toString(), host);
+            if (host != null) {
+                clientHeaderAdaptor.setHeader(header, Header.HTTP_HOST.toString(), host);
+            }
         }
     }
 
@@ -101,14 +105,17 @@ public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
             return true;
         }
 
-        final String value = clientHeaderAdaptor.getHeader(header, HEADER_AUTHORIZATION);
-        if (value != null && value.startsWith(AWS4_HMAC_SHA256)) {
-            if (isDebug) {
-                logger.debug("Found {} header, AWS SigV4 authentication should not modify header information.", value);
-            }
-            return true;
-        }
-
         return false;
+    }
+
+    private boolean isWritable(T header) {
+        final String authorization = clientHeaderAdaptor.getHeader(header, HEADER_AUTHORIZATION);
+        if (authorization != null && authorization.startsWith(AWS4_HMAC_SHA256)) {
+            if (isDebug) {
+                logger.debug("Found {} header, AWS SigV4 authentication should not modify header information.", authorization);
+            }
+            return false;
+        }
+        return true;
     }
 }
