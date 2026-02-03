@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.trace.service;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
-import com.navercorp.pinpoint.common.server.bo.Event;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.ErrorCategory;
@@ -258,31 +257,29 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         if (rpc != null) {
             return rpc;
         }
-        SpanBo spanBo = align.getSpanBo();
-        return getDisplayArgument(spanBo);
+        return getDisplayArgument(align.getServiceType(), align.getAnnotationBoList());
     }
 
-    private String getDisplayArgument(Event event) {
-        AnnotationBo displayArgument = getDisplayArgument0(event);
+    private String getDisplayArgument(int serviceType, List<AnnotationBo> annotations) {
+        AnnotationBo displayArgument = getDisplayArgument0(serviceType, annotations);
         if (displayArgument == null) {
             return "";
         }
         return Objects.toString(displayArgument.getValue(), "");
     }
 
-    private AnnotationBo getDisplayArgument0(Event event) {
+    private AnnotationBo getDisplayArgument0(int serviceType, List<AnnotationBo> annotations) {
         // TODO needs a more generalized implementation for Arcus
-        List<AnnotationBo> list = event.getAnnotationBoList();
-        if (list == null) {
+        if (CollectionUtils.isEmpty(annotations)) {
             return null;
         }
 
-        final AnnotationKeyMatcher matcher = annotationKeyMatcherService.findAnnotationKeyMatcher(event.getServiceType());
+        final AnnotationKeyMatcher matcher = annotationKeyMatcherService.findAnnotationKeyMatcher(serviceType);
         if (matcher == null) {
             return null;
         }
 
-        for (AnnotationBo annotation : list) {
+        for (AnnotationBo annotation : annotations) {
             int key = annotation.getKey();
 
             if (matcher.matches(key)) {

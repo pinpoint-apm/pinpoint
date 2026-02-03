@@ -30,7 +30,7 @@ import java.util.Objects;
 /**
  * @author emeroad
  */
-public class SpanBo implements Event, BasicSpan {
+public class SpanBo implements BasicSpan {
 
     private static final int UNDEFINED = ServiceType.UNDEFINED.getCode();
 
