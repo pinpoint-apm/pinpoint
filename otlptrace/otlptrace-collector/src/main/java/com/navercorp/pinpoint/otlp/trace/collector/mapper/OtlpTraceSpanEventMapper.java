@@ -23,19 +23,21 @@ import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.opentelemetry.proto.trace.v1.Span;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Component
 public class OtlpTraceSpanEventMapper {
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     public OtlpTraceSpanEventMapper(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
+        this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper");
     }
 
     List<SpanEventBo> map(long spanStartTime, Span span) {
@@ -111,37 +113,37 @@ public class OtlpTraceSpanEventMapper {
     }
 
     boolean isDatabase(Span span) {
-        return span.getAttributesList().stream().anyMatch(kv -> kv.getKey().equals(OtlpTraceConstants.ATTRIBUTE_KEY_DB_SYSTEM));
+        return AttributeUtils.isExist(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_DB_SYSTEM);
     }
 
     boolean isDatabaseExecuteQuery(Span span) {
-        return span.getAttributesList().stream().anyMatch(kv -> kv.getKey().equals(OtlpTraceConstants.ATTRIBUTE_KEY_DB_STATEMENT));
+        return AttributeUtils.isExist(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_DB_STATEMENT);
     }
 
     String getClientSpanDbStatement(Span span) {
-        return span.getAttributesList().stream().filter(kv -> kv.getKey().equals(OtlpTraceConstants.ATTRIBUTE_KEY_DB_STATEMENT)).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+        return AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_DB_STATEMENT, null);
     }
 
     String getClientSpanToEndPoint(Span span) {
-        final String serverAddress = span.getAttributesList().stream().filter(kv -> kv.getKey().equals(OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS)).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+        final String serverAddress = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, null);
         if (serverAddress != null) {
-            final Long serverPort = span.getAttributesList().stream().filter(kv -> kv.getKey().equals(OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT)).findFirst().map(kv -> kv.getValue().getIntValue()).orElse(0L);
-            return HostAndPort.toHostAndPortString(serverAddress, serverPort.intValue(), 0);
+            final long serverPort = AttributeUtils.getIntValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, 0L);
+            return HostAndPort.toHostAndPortString(serverAddress, (int) serverPort, 0);
         }
 
         return null;
     }
 
     String getClientSpanToDestinationId(Span span) {
-        final String dbName = span.getAttributesList().stream().filter(kv -> kv.getKey().equals(OtlpTraceConstants.ATTRIBUTE_KEY_DB_NAME)).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+        final String dbName = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_DB_NAME, null);
         if (dbName != null) {
             return dbName;
         }
 
-        final String serverAddress = span.getAttributesList().stream().filter(kv -> kv.getKey().equals(OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS)).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+        final String serverAddress = AttributeUtils.getStringValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_ADDRESS, null);
         if (serverAddress != null) {
-            final Long serverPort = span.getAttributesList().stream().filter(kv -> kv.getKey().equals(OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT)).findFirst().map(kv -> kv.getValue().getIntValue()).orElse(0L);
-            return HostAndPort.toHostAndPortString(serverAddress, serverPort.intValue(), 0);
+            final long serverPort = AttributeUtils.getIntValue(span.getAttributesList(), OtlpTraceConstants.ATTRIBUTE_KEY_SERVER_PORT, 0L);
+            return HostAndPort.toHostAndPortString(serverAddress, (int) serverPort, 0);
         }
 
         return null;
