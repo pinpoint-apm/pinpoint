@@ -49,7 +49,7 @@ public class OtlpTraceSpanMapper {
 
     SpanBo map(List<KeyValue> resourceAttributesList, Span span) {
         // annotations
-        final List<AnnotationBo> annotationBoList = new ArrayList<>();
+
         SpanBo spanBo = new SpanBo();
 
         spanBo.setVersion(1); // TODO ?
@@ -97,28 +97,27 @@ public class OtlpTraceSpanMapper {
         // api
         spanBo.setApiId(0);
         if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE) {
-            annotationBoList.add(AnnotationBo.of(AnnotationKey.API.getCode(), OtlpTraceMapper.CONSUMER_METHOD_NAME));
+            spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), OtlpTraceMapper.CONSUMER_METHOD_NAME));
         } else {
-            annotationBoList.add(AnnotationBo.of(AnnotationKey.API.getCode(), OtlpTraceMapper.SERVER_METHOD_NAME));
+            spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.API.getCode(), OtlpTraceMapper.SERVER_METHOD_NAME));
         }
         // response
         final int responseStatusCode = (int) getServerSpanToResponseStatusCode(span);
         if (responseStatusCode != -1) {
-            annotationBoList.add(AnnotationBo.of(AnnotationKey.HTTP_STATUS_CODE.getCode(), responseStatusCode));
+            spanBo.addAnnotation(AnnotationBo.of(AnnotationKey.HTTP_STATUS_CODE.getCode(), responseStatusCode));
         }
         // attributes
         if (span.getAttributesCount() > 0) {
-            OtlpTraceMapperUtils.addAttributesToAnnotation(objectMapper, span.getAttributesList(), annotationBoList);
+            OtlpTraceMapperUtils.addAttributesToAnnotation(objectMapper, span.getAttributesList(), spanBo::addAnnotation);
         }
         // event
         for (Span.Event event : span.getEventsList()) {
-            OtlpTraceMapperUtils.addEventToAnnotation(objectMapper, event, annotationBoList);
+            OtlpTraceMapperUtils.addEventToAnnotation(objectMapper, event, spanBo::addAnnotation);
         }
         // link
         for (Span.Link link : span.getLinksList()) {
-            OtlpTraceMapperUtils.addLinkToAnnotation(objectMapper, link, annotationBoList);
+            OtlpTraceMapperUtils.addLinkToAnnotation(objectMapper, link, spanBo::addAnnotation);
         }
-        spanBo.setAnnotationBoList(annotationBoList);
 
         final List<SpanEventBo> spanEventBoList = new ArrayList<>();
         spanBo.addSpanEventBoList(spanEventBoList);
