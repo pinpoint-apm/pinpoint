@@ -23,12 +23,16 @@ import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
 import io.opentelemetry.proto.trace.v1.Span;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
 public class OtlpTraceMapper {
+    private final Logger logger = LogManager.getLogger(this.getClass());
+
     public static final String SERVER_METHOD_NAME = "Server";
     public static final String CLIENT_METHOD_NAME = "Client";
     public static final String PRODUCER_METHOD_NAME = "Producer";
@@ -55,25 +59,29 @@ public class OtlpTraceMapper {
             for (ScopeSpans scopeSpan : scopeSpanList) {
                 List<Span> spansList = scopeSpan.getSpansList();
                 for (Span span : spansList) {
-                    if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE) {
-                        final SpanBo spanBo = spanMapper.map(attributesList, span);
-                        mapperData.addSpanBo(spanBo);
-                        final AgentInfoBo agentInfoBo = agentInfoMapper.map(spanBo, attributesList);
-                        mapperData.addAgentInfoBo(agentInfoBo);
-                    } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE) {
-                        final SpanBo spanBo = spanMapper.map(attributesList, span);
-                        mapperData.addSpanBo(spanBo);
-                        final AgentInfoBo agentInfoBo = agentInfoMapper.map(spanBo, attributesList);
-                        mapperData.addAgentInfoBo(agentInfoBo);
-                    } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CLIENT_VALUE) {
-                        final SpanChunkBo spanChunkBo = spanChunkMapper.map(attributesList, span);
-                        mapperData.addSpanChunkBo(spanChunkBo);
-                    } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_PRODUCER_VALUE) {
-                        final SpanChunkBo spanChunkBo = spanChunkMapper.map(attributesList, span);
-                        mapperData.addSpanChunkBo(spanChunkBo);
-                    } else {
-                        final SpanChunkBo spanChunkBo = spanChunkMapper.map(attributesList, span);
-                        mapperData.addSpanChunkBo(spanChunkBo);
+                    try {
+                        if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE) {
+                            final SpanBo spanBo = spanMapper.map(attributesList, span);
+                            mapperData.addSpanBo(spanBo);
+                            final AgentInfoBo agentInfoBo = agentInfoMapper.map(spanBo, attributesList);
+                            mapperData.addAgentInfoBo(agentInfoBo);
+                        } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE) {
+                            final SpanBo spanBo = spanMapper.map(attributesList, span);
+                            mapperData.addSpanBo(spanBo);
+                            final AgentInfoBo agentInfoBo = agentInfoMapper.map(spanBo, attributesList);
+                            mapperData.addAgentInfoBo(agentInfoBo);
+                        } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CLIENT_VALUE) {
+                            final SpanChunkBo spanChunkBo = spanChunkMapper.map(attributesList, span);
+                            mapperData.addSpanChunkBo(spanChunkBo);
+                        } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_PRODUCER_VALUE) {
+                            final SpanChunkBo spanChunkBo = spanChunkMapper.map(attributesList, span);
+                            mapperData.addSpanChunkBo(spanChunkBo);
+                        } else {
+                            final SpanChunkBo spanChunkBo = spanChunkMapper.map(attributesList, span);
+                            mapperData.addSpanChunkBo(spanChunkBo);
+                        }
+                    } catch (Exception e) {
+                        logger.warn("Failed to map", e);
                     }
                 }
             }

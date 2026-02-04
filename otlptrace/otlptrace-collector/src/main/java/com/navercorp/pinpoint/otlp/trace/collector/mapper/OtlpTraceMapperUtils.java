@@ -35,42 +35,56 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class OtlpTraceMapperUtils {
+    private static final String KEY_AGENT_ID = "pinpoint.agentId";
+    private static final String KEY_APPLICATION_NAME = "pinpoint.applicationName";
+    private static final String KEY_SERVICE_INSTANCE_ID = "service.instance.id";
+    private static final String KEY_SERVICE_NAME = "service.name";
+    private static final String PREFIX_UNKNOWN_SERVICE_NAME = "unknown_service:";
+
     public static AgentIdAndName getAgentId(List<KeyValue> attributesList) {
-        final String agentId = attributesList.stream().filter(kv -> kv.getKey().equals("pinpoint.agentId")).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+        final String agentId = attributesList.stream().filter(kv -> kv.getKey().equals(KEY_AGENT_ID)).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
         if (agentId == null) {
-            final String agentName = attributesList.stream().filter(kv -> kv.getKey().equals("service.instance.id")).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
-            if (agentName == null) {
-                throw new IllegalStateException("not found agentId");
+            final String serviceInstanceId = attributesList.stream().filter(kv -> kv.getKey().equals(KEY_SERVICE_INSTANCE_ID)).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+            if (serviceInstanceId == null) {
+                throw new IllegalArgumentException("not found agentId");
             }
-            if (!IdValidateUtils.validateId(agentName, PinpointConstants.AGENT_NAME_MAX_LEN_V4)) {
-                throw new IllegalStateException("invalid agentName=" + agentName);
+            // check UUID
+            if (serviceInstanceId.length() == 36) {
+                final UUID uuid = UUID.fromString(serviceInstanceId);
+                final String encoded = Base64Utils.encode(uuid.toString());
+                return new AgentIdAndName(encoded, serviceInstanceId);
             }
-            final String encodedAgentId = Base64Utils.encode(agentName);
-            if (!IdValidateUtils.validateId(encodedAgentId, PinpointConstants.AGENT_ID_MAX_LEN)) {
-                throw new IllegalStateException("invalid agentId=" + encodedAgentId);
+            // agentId
+            if (!IdValidateUtils.validateId(serviceInstanceId, PinpointConstants.AGENT_ID_MAX_LEN)) {
+                throw new IllegalArgumentException("invalid agentId=" + serviceInstanceId);
             }
-            return new AgentIdAndName(encodedAgentId, agentName);
+            return new AgentIdAndName(serviceInstanceId, null);
         }
 
         if (!IdValidateUtils.validateId(agentId, PinpointConstants.AGENT_ID_MAX_LEN)) {
-            throw new IllegalStateException("invalid agentId=" + agentId);
+            throw new IllegalArgumentException("invalid agentId=" + agentId);
         }
 
         return new AgentIdAndName(agentId, null);
     }
 
     public static String getApplicationName(List<KeyValue> attributesList) {
-        String applicationName = attributesList.stream().filter(kv -> kv.getKey().equals("pinpoint.applicationName")).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+        String applicationName = attributesList.stream().filter(kv -> kv.getKey().equals(KEY_APPLICATION_NAME)).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
         if (applicationName == null) {
-            applicationName = attributesList.stream().filter(kv -> kv.getKey().equals("service.name")).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+            applicationName = attributesList.stream().filter(kv -> kv.getKey().equals(KEY_SERVICE_NAME)).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
             if (applicationName == null) {
-                throw new IllegalStateException("not found applicationName");
+                throw new IllegalArgumentException("not found applicationName");
+            }
+            if (applicationName.startsWith(PREFIX_UNKNOWN_SERVICE_NAME)) {
+                // e.g. unknown_service:java
+                applicationName = applicationName.replace(':', '-');
             }
         }
         if (!IdValidateUtils.validateId(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN_V3)) {
-            throw new IllegalStateException("invalid applicationName=" + applicationName);
+            throw new IllegalArgumentException("invalid applicationName=" + applicationName);
         }
 
         return applicationName;
