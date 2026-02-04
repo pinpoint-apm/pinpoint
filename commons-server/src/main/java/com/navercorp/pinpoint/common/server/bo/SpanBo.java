@@ -223,6 +223,12 @@ public class SpanBo implements BasicSpan {
         return annotationBoList;
     }
 
+    public void addAnnotation(AnnotationBo annotationBo) {
+        if (annotationBo == null) {
+            return;
+        }
+        this.annotationBoList.add(annotationBo);
+    }
 
     public void setAnnotationBoList(List<AnnotationBo> anoList) {
         if (anoList == null) {

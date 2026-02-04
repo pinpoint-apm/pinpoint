@@ -151,6 +151,17 @@ public class SpanEventBo {
         this.annotationBoList = annotationList;
     }
 
+    public void addAnnotation(AnnotationBo annotation) {
+        if (annotation == null) {
+            return;
+        }
+        if (this.annotationBoList == null) {
+            this.annotationBoList = new ArrayList<>();
+        }
+        this.annotationBoList.add(annotation);
+    }
+
+
     public boolean hasException() {
         return exceptionInfo != null;
     }
