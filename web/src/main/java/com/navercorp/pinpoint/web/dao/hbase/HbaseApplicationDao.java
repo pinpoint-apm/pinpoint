@@ -5,7 +5,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.server.util.ServiceGroupRowKeyPrefixUtils;
+import com.navercorp.pinpoint.common.server.util.ApplicationRowKeyUtils;
 import com.navercorp.pinpoint.web.dao.ApplicationDao;
 import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -37,14 +37,14 @@ public class HbaseApplicationDao implements ApplicationDao {
 
     @Override
     public List<Application> getApplications(int serviceUid) {
-        byte[] rowKeyPrefix = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid);
+        byte[] rowKeyPrefix = ApplicationRowKeyUtils.createRowKey(serviceUid);
         return scanApplications(rowKeyPrefix);
     }
 
     @Override
     public List<Application> getApplications(int serviceUid, String applicationName) {
-        byte[] rewKeyPrefix = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName);
-        return scanApplications(rewKeyPrefix);
+        byte[] rowKeyPrefix = ApplicationRowKeyUtils.createRowKey(serviceUid, applicationName);
+        return scanApplications(rowKeyPrefix);
     }
 
     private List<Application> scanApplications(byte[] rowKeyPrefix) {
@@ -59,7 +59,7 @@ public class HbaseApplicationDao implements ApplicationDao {
 
     @Override
     public void deleteApplication(int serviceUid, String applicationName, int serviceTypeCode) {
-        byte[] rowKey = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
+        byte[] rowKey = ApplicationRowKeyUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
         Delete delete = new Delete(rowKey);
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
@@ -68,7 +68,7 @@ public class HbaseApplicationDao implements ApplicationDao {
 
     @Override
     public void insert(int serviceUid, String applicationName, int serviceTypeCode) {
-        byte[] rowKey = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
+        byte[] rowKey = ApplicationRowKeyUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
         final Put put = new Put(rowKey, true);
         put.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName(), PREFIXED_EMPTY_VALUE);
 

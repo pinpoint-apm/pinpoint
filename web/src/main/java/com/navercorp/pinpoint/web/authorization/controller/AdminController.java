@@ -80,7 +80,7 @@ public class AdminController {
         }
         logger.info("Removing application - application: {}", application);
         try {
-            this.adminService.removeApplication(application.getName(), application.getServiceTypeCode());
+            this.adminService.removeApplication(application.getApplicationName(), application.getServiceTypeCode());
             return "OK";
         } catch (Exception e) {
             logger.error("error while removing applicationName", e);
@@ -115,7 +115,7 @@ public class AdminController {
         }
         logger.info("Removing agent - application: {}, agentId: {}", application, agentId);
         try {
-            this.adminService.removeAgentId(application.getName(), application.getServiceTypeCode(), agentId);
+            this.adminService.removeAgentId(application.getApplicationName(), application.getServiceTypeCode(), agentId);
             return "OK";
         } catch (Exception e) {
             logger.error("error while removing agentId", e);

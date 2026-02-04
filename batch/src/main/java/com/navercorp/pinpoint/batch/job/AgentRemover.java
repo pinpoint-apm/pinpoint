@@ -20,21 +20,15 @@ import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
 import com.navercorp.pinpoint.batch.vo.CleanTarget;
 import com.navercorp.pinpoint.web.vo.Application;
 import jakarta.annotation.Nonnull;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
  * @author youngjin.kim2
  */
 public class AgentRemover implements ItemWriter<CleanTarget.TypeAgents> {
-
-    private static final Logger logger = LogManager.getLogger(AgentRemover.class);
-    private static final int BATCH_SIZE = 200;
 
     private final BatchApplicationIndexService batchApplicationIndexService;
 
@@ -46,16 +40,7 @@ public class AgentRemover implements ItemWriter<CleanTarget.TypeAgents> {
     public void write(@Nonnull Chunk<? extends CleanTarget.TypeAgents> targets) throws Exception {
         for (CleanTarget.TypeAgents target : targets) {
             Application application = target.application();
-            for (int i = 0; i < target.agentIds().size(); i += BATCH_SIZE) {
-                int end = Math.min(i + BATCH_SIZE, target.agentIds().size());
-                List<String> agentIdBatch = target.agentIds().subList(i, end);
-                logger.info("Removing agents. application: {}, agents: {}", application, agentIdBatch);
-                try {
-                    batchApplicationIndexService.deleteAgentIds(application.getName(), application.getServiceTypeCode(), agentIdBatch);
-                } catch (Exception e) {
-                    logger.error("Failed to remove agents. application: {}, agents: {}", application, agentIdBatch, e);
-                }
-            }
+            batchApplicationIndexService.deleteAgentIds(application.getApplicationName(), application.getServiceTypeCode(), target.agentIds());
         }
     }
 }

@@ -1,17 +1,22 @@
 package com.navercorp.pinpoint.web.dao;
 
+import com.navercorp.pinpoint.web.vo.agent.AgentIdEntry;
+
 import java.util.List;
 
 public interface AgentIdDao {
-    List<String> getAgentIds(int serviceUid, String applicationName, int serviceTypeCode);
 
-    List<String> getAgentIds(int serviceUid, String applicationName);
+    List<AgentIdEntry> getAgentIdEntry(int serviceUid, String applicationName);
 
-    List<String> getAgentIds(int serviceUid, String applicationName, int serviceTypeCode, long maxTimestamp);
+    List<AgentIdEntry> getAgentIdEntry(int serviceUid, String applicationName, int serviceTypeCode);
 
-    void deleteAllAgents(int serviceUid, String applicationName, int serviceTypeCode);
+    List<AgentIdEntry> getAgentIdEntry(int serviceUid, String applicationName, int serviceTypeCode, String agentId);
 
-    void deleteAgents(int serviceUid, String applicationName, int serviceTypeCode, List<String> agentIdList);
+    List<AgentIdEntry> getAgentIdEntryByInsertTimeAfter(int serviceUid, String applicationName, int serviceTypeCode, long minUpdateTimestamp);
 
-    void insert(int serviceUid, String applicationName, int serviceTypeCode, List<String> agentIdList);
+    void delete(int serviceUid, String applicationName, int serviceTypeCode, String agentId, long agentStartTime);
+
+    void delete(List<AgentIdEntry> agentIdEntryList);
+
+    void insert(int serviceUid, String applicationName, int serviceTypeCode, String agentId, long agentStartTime, String agentName, long timestamp);
 }
