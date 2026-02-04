@@ -21,11 +21,17 @@ import com.navercorp.pinpoint.web.dao.AgentIdDao;
 import com.navercorp.pinpoint.web.dao.ApplicationDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.agent.AgentIdEntry;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author youngjin.kim2
@@ -33,6 +39,7 @@ import java.util.Objects;
 @Service
 public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexService {
 
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final ApplicationIndexDao applicationIndexDao;
 
     private final ApplicationDao applicationDao;
@@ -93,7 +100,10 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     @Override
     public List<String> selectAgentIds(String applicationName) {
         if (isReadV2()) {
-            return this.agentIdDao.getAgentIds(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName);
+            return this.agentIdDao.getAgentIdEntry(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName).stream()
+                    .map(AgentIdEntry::getAgentId)
+                    .distinct()
+                    .toList();
         }
         return this.applicationIndexDao.selectAgentIds(applicationName);
     }
@@ -101,7 +111,10 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     @Override
     public List<String> selectAgentIds(String applicationName, int serviceTypeCode) {
         if (isReadV2()) {
-            return this.agentIdDao.getAgentIds(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode);
+            return this.agentIdDao.getAgentIdEntry(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode).stream()
+                    .map(AgentIdEntry::getAgentId)
+                    .distinct()
+                    .toList();
         }
         return this.applicationIndexDao.selectAgentIds(applicationName, serviceTypeCode);
     }
@@ -109,18 +122,77 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     @Override
     public List<String> selectAgentIds(String applicationName, int serviceTypeCode, long maxTimestamp) {
         if (isReadV2()) {
-            return this.agentIdDao.getAgentIds(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode, maxTimestamp);
+            List<AgentIdEntry> agentIdEntryList = this.agentIdDao.getAgentIdEntry(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode);
+            // dedupe first so that we can check agentId with the latest startTime
+            return dedupeConsecutiveAgentId(agentIdEntryList).stream()
+                    .filter(entry -> entry.getLastUpdated() <= maxTimestamp)
+                    .map(AgentIdEntry::getAgentId)
+                    .distinct()
+                    .toList();
         }
         return this.applicationIndexDao.selectAgentIds(applicationName, serviceTypeCode, maxTimestamp);
     }
 
+    private List<AgentIdEntry> dedupeConsecutiveAgentId(List<AgentIdEntry> orderedAgentSummaries) {
+        List<AgentIdEntry> result = new ArrayList<>();
+        AgentIdEntry previous = null;
+        for (AgentIdEntry current : orderedAgentSummaries) {
+            if (!isPreviousAgentId(previous, current)) {
+                result.add(current);
+                previous = current;
+            }
+        }
+        return result;
+    }
+
+    private boolean isPreviousAgentId(AgentIdEntry previous, AgentIdEntry current) {
+        return previous != null &&
+                previous.getAgentId().equals(current.getAgentId()) &&
+                previous.getApplication().equals(current.getApplication());
+    }
+
+
     @Override
     public void deleteAgentIds(String applicationName, int serviceTypeCode, List<String> agentIds) {
         if (v2Enabled) {
-            this.agentIdDao.deleteAgents(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode, agentIds);
+            batchDeleteAgentIdsV2(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode, agentIds);
         }
         if (v1Enabled) {
-            applicationIndexDao.deleteAgentIds(applicationName, agentIds);
+            batchDeleteAgentIdsV1(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode, agentIds);
+        }
+    }
+
+    private void batchDeleteAgentIdsV1(int serviceUid, String applicationName, int serviceTypeCode, List<String> agentIds) {
+        int batchSize = 200;
+        for (int i = 0; i < agentIds.size(); i += batchSize) {
+            int end = Math.min(i + batchSize, agentIds.size());
+            List<String> agentIdBatch = agentIds.subList(i, end);
+            logger.info("Removing agents. serviceUid: {} application: {}@{}, agents: {}", serviceUid, applicationName, serviceTypeCode, agentIdBatch);
+            try {
+                applicationIndexDao.deleteAgentIds(applicationName, agentIdBatch);
+            } catch (Exception e) {
+                logger.error("Failed to remove agents. serviceUid: {} application: {}@{}, endIndex: {}", serviceUid, applicationName, serviceTypeCode, end, e);
+            }
+        }
+    }
+
+
+    private void batchDeleteAgentIdsV2(int serviceUid, String applicationName, int serviceTypeCode, List<String> agentIds) {
+        List<AgentIdEntry> agentIdEntryList = agentIdDao.getAgentIdEntry(serviceUid, applicationName, serviceTypeCode);
+        List<AgentIdEntry> targetAgentIdEntryList = new ArrayList<>(100);
+        Set<String> agentIdsSet = new HashSet<>(agentIds);
+        for (AgentIdEntry agentIdEntry : agentIdEntryList) {
+            if (agentIdsSet.contains(agentIdEntry.getAgentId())) {
+                targetAgentIdEntryList.add(agentIdEntry);
+            }
+
+            if (targetAgentIdEntryList.size() >= 100) {
+                agentIdDao.delete(targetAgentIdEntryList);
+                targetAgentIdEntryList.clear();
+            }
+        }
+        if (!targetAgentIdEntryList.isEmpty()) {
+            agentIdDao.delete(targetAgentIdEntryList);
         }
     }
 }

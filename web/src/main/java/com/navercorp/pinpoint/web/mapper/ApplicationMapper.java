@@ -1,8 +1,7 @@
 package com.navercorp.pinpoint.web.mapper;
 
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.server.util.ApplicationRowKeyUtils;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.hadoop.hbase.client.Result;
@@ -26,11 +25,10 @@ public class ApplicationMapper implements RowMapper<List<Application>> {
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
-        byte[] rowKey = result.getRow();
-        Buffer buffer = new FixedBuffer(rowKey);
-        int serviceUid = buffer.readInt(); //serviceUid
-        String applicationName = buffer.readNullTerminatedString();
-        int serviceTypeCode = buffer.readInt();
+        byte[] row = result.getRow();
+        int serviceUid = ApplicationRowKeyUtils.extractServiceUid(row);
+        String applicationName = ApplicationRowKeyUtils.extractApplicationName(row);
+        int serviceTypeCode = ApplicationRowKeyUtils.extractServiceTypeCode(row);
         return List.of(applicationFactory.createApplication(serviceUid, applicationName, serviceTypeCode));
     }
 }

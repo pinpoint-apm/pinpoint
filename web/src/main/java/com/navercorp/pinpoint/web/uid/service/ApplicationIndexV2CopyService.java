@@ -4,5 +4,9 @@ public interface ApplicationIndexV2CopyService {
 
     void copyApplication();
 
-    void copyAgentId();
+    void copyAgentId(int durationDays, int maxIterations, int batchSize);
+
+    void copyAgentId(int serviceTypeCode);
+
+    void copyAgentId(String applicationName);
 }

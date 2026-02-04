@@ -64,7 +64,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
     public HbaseAgentLifeCycleDao(HbaseOperations hbaseOperations,
                                   AgentIdRowKeyEncoder rowKeyEncoder,
                                   TableNameProvider tableNameProvider,
-                                  @Qualifier("agentLifeCycleMapper")RowMapper<AgentLifeCycleBo> agentLifeCycleMapper) {
+                                  @Qualifier("agentLifeCycleMapper") RowMapper<AgentLifeCycleBo> agentLifeCycleMapper) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
@@ -108,7 +108,6 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
     }
 
     /**
-     *
      * @param agentStatusQuery agentId and agentStartTime
      */
     @Override
@@ -132,18 +131,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         TableName agentLifeCycleTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         ResultsExtractor<AgentLifeCycleBo> action = getRecentAgentLifeCycleResultsExtractor(agentStatusQuery.getQueryTimestamp());
         List<AgentLifeCycleBo> agentLifeCycles = this.hbaseOperations.findParallel(agentLifeCycleTableName, scans, action);
-
-        int idx = 0;
-        List<Optional<AgentStatus>> agentStatusResult = new ArrayList<>(agentKeyList.size());
-        for (SimpleAgentKey agentInfo : agentKeyList) {
-            if (agentInfo != null) {
-                AgentStatus agentStatus = createAgentStatus(agentInfo.agentId(), agentLifeCycles.get(idx++));
-                agentStatusResult.add(Optional.of(agentStatus));
-            } else {
-                agentStatusResult.add(Optional.empty());
-            }
-        }
-        return agentStatusResult;
+        return mergeResult(agentKeyList, agentLifeCycles);
     }
 
     private Scan createScan(String agentId, long fromTimestamp, long toTimestamp) {
@@ -160,6 +148,48 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         scan.setMaxResultSize(MAX_RESULT_SIZE);
 
         return scan;
+    }
+
+    @Override
+    public List<Optional<AgentStatus>> getLatestAgentStatus(List<SimpleAgentKey> agentKeyList) {
+        Objects.requireNonNull(agentKeyList, "agentKeyList");
+        if (agentKeyList.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<Scan> scans = new ArrayList<>(agentKeyList.size());
+        for (SimpleAgentKey agentInfo : agentKeyList) {
+            if (agentInfo != null) {
+                scans.add(createScan(agentInfo.agentId(), agentInfo.agentStartTime()));
+            }
+        }
+
+        TableName agentLifeCycleTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        ResultsExtractor<AgentLifeCycleBo> action = getRecentAgentLifeCycleResultsExtractor(Long.MAX_VALUE);
+        List<AgentLifeCycleBo> agentLifeCycles = this.hbaseOperations.findParallel(agentLifeCycleTableName, scans, action);
+        return mergeResult(agentKeyList, agentLifeCycles);
+    }
+
+    private Scan createScan(String agentId, long agentStartTime) {
+        byte[] rowPreFix = rowKeyEncoder.encodeRowKey(agentId, agentStartTime);
+        Scan scan = new Scan();
+        scan.setStartStopRowForPrefixScan(rowPreFix);
+        scan.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.QUALIFIER_STATES);
+        scan.setOneRowLimit();
+        return scan;
+    }
+
+    private List<Optional<AgentStatus>> mergeResult(List<SimpleAgentKey> agentKeyList, List<AgentLifeCycleBo> agentLifeCycles) {
+        int idx = 0;
+        List<Optional<AgentStatus>> agentStatusResult = new ArrayList<>(agentKeyList.size());
+        for (SimpleAgentKey agentInfo : agentKeyList) {
+            if (agentInfo != null) {
+                AgentStatus agentStatus = createAgentStatus(agentInfo.agentId(), agentLifeCycles.get(idx++));
+                agentStatusResult.add(Optional.of(agentStatus));
+            } else {
+                agentStatusResult.add(Optional.empty());
+            }
+        }
+        return agentStatusResult;
     }
 
     private AgentStatus createAgentStatus(String agentId, AgentLifeCycleBo agentLifeCycle) {

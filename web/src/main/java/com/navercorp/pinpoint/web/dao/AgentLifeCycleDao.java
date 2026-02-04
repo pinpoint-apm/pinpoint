@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.dao;
 
+import com.navercorp.pinpoint.common.server.bo.SimpleAgentKey;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
 
@@ -33,4 +34,5 @@ public interface AgentLifeCycleDao {
 
     List<Optional<AgentStatus>> getAgentStatus(AgentStatusQuery agentStatusQuery);
 
+    List<Optional<AgentStatus>> getLatestAgentStatus(List<SimpleAgentKey> agentKeyList);
 }

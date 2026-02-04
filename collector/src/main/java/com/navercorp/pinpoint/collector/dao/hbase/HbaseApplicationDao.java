@@ -5,7 +5,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.server.util.ServiceGroupRowKeyPrefixUtils;
+import com.navercorp.pinpoint.common.server.util.ApplicationRowKeyUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.springframework.stereotype.Repository;
@@ -27,7 +27,7 @@ public class HbaseApplicationDao implements ApplicationDao {
 
     @Override
     public void insert(int serviceUid, String applicationName, int serviceTypeCode) {
-        byte[] rowKey = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
+        byte[] rowKey = ApplicationRowKeyUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
         final Put put = new Put(rowKey, true);
         put.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName(), PREFIXED_EMPTY_VALUE);
 
