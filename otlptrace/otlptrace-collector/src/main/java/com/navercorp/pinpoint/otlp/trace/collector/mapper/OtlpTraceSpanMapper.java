@@ -67,8 +67,8 @@ public class OtlpTraceSpanMapper {
         spanBo.setEndPoint(getServerSpanToEndPoint(span));
         spanBo.setRemoteAddr(getServerSpanToRemoteAddress(span));
 
-        spanBo.setSpanId(OtlpTraceMapperUtils.getSpanId(span.getSpanId().toByteArray()));
-        spanBo.setParentSpanId(OtlpTraceMapperUtils.getParentSpanId(span.getParentSpanId().toByteArray()));
+        spanBo.setSpanId(OtlpTraceMapperUtils.getSpanId(span.getSpanId()));
+        spanBo.setParentSpanId(OtlpTraceMapperUtils.getParentSpanId(span.getParentSpanId()));
         if (spanBo.getParentSpanId() != -1) {
             spanBo.setAcceptorHost(spanBo.getEndPoint());
         }

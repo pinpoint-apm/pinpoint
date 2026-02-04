@@ -25,15 +25,16 @@ import io.opentelemetry.proto.trace.v1.Span;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Component
 public class OtlpTraceSpanChunkMapper {
 
-    private OtlpTraceSpanEventMapper spanEventMapper;
+    private final OtlpTraceSpanEventMapper spanEventMapper;
 
     public OtlpTraceSpanChunkMapper(OtlpTraceSpanEventMapper spanEventMapper) {
-        this.spanEventMapper = spanEventMapper;
+        this.spanEventMapper = Objects.requireNonNull(spanEventMapper, "spanEventMapper");
     }
 
     SpanChunkBo map(List<KeyValue> resourceAttributesList, Span span) {
@@ -49,7 +50,7 @@ public class OtlpTraceSpanChunkMapper {
         final long startTime = TimeUnit.NANOSECONDS.toMillis(span.getStartTimeUnixNano());
         spanChunkBo.setAgentStartTime(startTime);
         spanChunkBo.setTransactionId(new OtelServerTraceId(span.getTraceId().toByteArray()));
-        spanChunkBo.setSpanId(OtlpTraceMapperUtils.getSpanId(span.getParentSpanId().toByteArray()));
+        spanChunkBo.setSpanId(OtlpTraceMapperUtils.getSpanId(span.getParentSpanId()));
         // spanChunkBo.setEndPoint();
         spanChunkBo.setApplicationServiceType(ServiceType.OPENTELEMETRY_SERVER.getCode());
         final List<SpanEventBo> spanEventBoList = spanEventMapper.map(startTime, span);

@@ -18,15 +18,16 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.common.PinpointConstants;
-import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.profiler.name.Base64Utils;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.grpc.AnnotationWriter;
 import com.navercorp.pinpoint.common.server.util.Base16Utils;
+import com.navercorp.pinpoint.common.server.util.ByteStringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
+import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.ArrayValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
@@ -39,9 +40,9 @@ import java.util.Map;
 
 public class OtlpTraceMapperUtils {
     public static AgentIdAndName getAgentId(List<KeyValue> attributesList) {
-        final String agentId = attributesList.stream().filter(kv -> kv.getKey().equals("pinpoint.agentId")).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+        final String agentId = AttributeUtils.getStringValue(attributesList, "pinpoint.agentId", null);
         if (agentId == null) {
-            final String agentName = attributesList.stream().filter(kv -> kv.getKey().equals("service.instance.id")).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+            final String agentName = AttributeUtils.getStringValue(attributesList, "service.instance.id", null);
             if (agentName == null) {
                 throw new IllegalStateException("not found agentId");
             }
@@ -63,9 +64,9 @@ public class OtlpTraceMapperUtils {
     }
 
     public static String getApplicationName(List<KeyValue> attributesList) {
-        String applicationName = attributesList.stream().filter(kv -> kv.getKey().equals("pinpoint.applicationName")).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+        String applicationName = AttributeUtils.getStringValue(attributesList, "pinpoint.applicationName", null);
         if (applicationName == null) {
-            applicationName = attributesList.stream().filter(kv -> kv.getKey().equals("service.name")).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+            applicationName = AttributeUtils.getStringValue(attributesList, "service.name", null);
             if (applicationName == null) {
                 throw new IllegalStateException("not found applicationName");
             }
@@ -77,20 +78,19 @@ public class OtlpTraceMapperUtils {
         return applicationName;
     }
 
-    public static long getSpanId(byte[] bytes) {
-        if (ArrayUtils.isEmpty(bytes)) {
+    public static long getSpanId(ByteString bytes) {
+        if (ByteStringUtils.isEmpty(bytes)) {
             throw new IllegalArgumentException("not found spanId");
         }
 
-        return ByteArrayUtils.bytesToLong(bytes, 0);
+        return ByteStringUtils.parseLong(bytes);
     }
 
-    public static long getParentSpanId(byte[] bytes) {
-        if (ArrayUtils.isEmpty(bytes)) {
+    public static long getParentSpanId(ByteString bytes) {
+        if (ByteStringUtils.isEmpty(bytes)) {
             return -1;
         }
-
-        return ByteArrayUtils.bytesToLong(bytes, 0);
+        return ByteStringUtils.parseLong(bytes);
     }
 
     public static void addAttributesToAnnotation(ObjectMapper objectMapper, List<KeyValue> keyValueList, AnnotationWriter annotationWriter) {

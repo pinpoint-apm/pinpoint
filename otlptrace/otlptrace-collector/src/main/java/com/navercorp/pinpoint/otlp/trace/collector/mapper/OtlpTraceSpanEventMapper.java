@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.util.ByteStringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
@@ -91,7 +91,7 @@ public class OtlpTraceSpanEventMapper {
         spanEventBo.setDepth(1);
 
         if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CLIENT_VALUE || span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_PRODUCER_VALUE) {
-            final long nextSpanId = ByteArrayUtils.bytesToLong(span.getSpanId().toByteArray(), 0);
+            final long nextSpanId = ByteStringUtils.parseLong(span.getSpanId());
             spanEventBo.setNextSpanId(nextSpanId);
         }
 

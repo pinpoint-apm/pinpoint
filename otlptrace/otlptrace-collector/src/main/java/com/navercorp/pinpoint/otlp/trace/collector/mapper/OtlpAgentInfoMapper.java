@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import org.springframework.stereotype.Component;
 
@@ -36,15 +37,15 @@ public class OtlpAgentInfoMapper {
         builder.setServiceTypeCode(spanBo.getServiceType());
         builder.setStartTime(spanBo.getAgentStartTime());
 
-        final String hostName = attributesList.stream().filter(kv -> kv.getKey().equals("host.name")).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+        final String hostName = AttributeUtils.getStringValue(attributesList, "host.name", null);
         if (hostName != null) {
             builder.setHostName(hostName);
         }
-        final long pid = attributesList.stream().filter(kv -> kv.getKey().equals("process.pid")).findFirst().map(kv -> kv.getValue().getIntValue()).orElse(0L);
+        final long pid = AttributeUtils.getIntValue(attributesList, "process.pid", 0L);
         builder.setPid((int) pid);
-        final String vmVersion = attributesList.stream().filter(kv -> kv.getKey().equals("process.runtime.description")).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+        final String vmVersion = AttributeUtils.getStringValue(attributesList, "process.runtime.description", null);
         builder.setVmVersion(vmVersion);
-        final String agentVersion = attributesList.stream().filter(kv -> kv.getKey().equals("telemetry.sdk.version")).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
+        final String agentVersion = AttributeUtils.getStringValue(attributesList, "telemetry.sdk.version", null);
         if (agentVersion != null) {
             builder.setAgentVersion(agentVersion);
         }
