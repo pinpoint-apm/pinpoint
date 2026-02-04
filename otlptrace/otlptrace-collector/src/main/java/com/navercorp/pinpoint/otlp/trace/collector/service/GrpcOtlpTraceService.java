@@ -40,6 +40,7 @@ import java.util.function.Supplier;
 @Service
 public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase {
     private static final Supplier<ServiceUid> DEFAULT_SERVICE_UID = () -> ServiceUid.DEFAULT;
+
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     @NotNull
