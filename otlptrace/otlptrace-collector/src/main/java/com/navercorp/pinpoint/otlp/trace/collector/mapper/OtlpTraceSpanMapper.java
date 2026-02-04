@@ -138,7 +138,7 @@ public class OtlpTraceSpanMapper {
                 endPoint = clientId;
             }
         } else {
-            throw new IllegalStateException("not supported span kind=" + span.getKind().getNumber());
+            throw new IllegalArgumentException("not supported span kind=" + span.getKind().getNumber());
         }
 
         return endPoint;
@@ -165,7 +165,7 @@ public class OtlpTraceSpanMapper {
                 rpc = rpc + ",offset=" + offset;
             }
         } else {
-            throw new IllegalStateException("not supported span kind=" + span.getKind().getNumber());
+            throw new IllegalArgumentException("not supported span kind=" + span.getKind().getNumber());
         }
 
         return rpc;
@@ -177,7 +177,7 @@ public class OtlpTraceSpanMapper {
         } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE) {
             return null;
         } else {
-            throw new IllegalStateException("not supported span kind=" + span.getKind().getNumber());
+            throw new IllegalArgumentException("not supported span kind=" + span.getKind().getNumber());
         }
     }
 
