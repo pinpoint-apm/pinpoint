@@ -176,6 +176,13 @@ public class SpanChunkBo implements BasicSpan {
         this.spanEventBoList.addAll(spanEventBoList);
     }
 
+    public void addSpanEvent(SpanEventBo spanEvent) {
+        if (spanEvent == null) {
+            return;
+        }
+        this.spanEventBoList.add(spanEvent);
+    }
+
     public boolean isAsyncSpanChunk() {
         return localAsyncId != null;
     }
