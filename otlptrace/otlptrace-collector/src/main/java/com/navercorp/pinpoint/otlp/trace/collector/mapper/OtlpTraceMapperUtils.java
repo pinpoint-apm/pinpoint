@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.profiler.name.Base64Utils;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.grpc.AnnotationWriter;
 import com.navercorp.pinpoint.common.server.util.Base16Utils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
@@ -92,16 +93,16 @@ public class OtlpTraceMapperUtils {
         return ByteArrayUtils.bytesToLong(bytes, 0);
     }
 
-    public static void addAttributesToAnnotation(ObjectMapper objectMapper, List<KeyValue> keyValueList, List<AnnotationBo> annotationBoList) {
+    public static void addAttributesToAnnotation(ObjectMapper objectMapper, List<KeyValue> keyValueList, AnnotationWriter annotationWriter) {
         try {
             final Map<String, Object> map = getAttributeToMap(keyValueList);
             if (!map.isEmpty()) {
                 map.entrySet().removeIf(entry -> OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY_MAP.containsKey(entry.getKey()));
                 final String value = objectMapper.writeValueAsString(map);
-                annotationBoList.add(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_ATTRIBUTE.getCode(), value));
+                annotationWriter.write(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_ATTRIBUTE.getCode(), value));
             }
         } catch (JsonProcessingException e) {
-            annotationBoList.add(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_ATTRIBUTE.getCode(), "json processing error"));
+            annotationWriter.write(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_ATTRIBUTE.getCode(), "json processing error"));
         }
     }
 
@@ -142,7 +143,7 @@ public class OtlpTraceMapperUtils {
         }
     }
 
-    public static void addEventToAnnotation(ObjectMapper objectMapper, Span.Event event, List<AnnotationBo> annotationBoList) {
+    public static void addEventToAnnotation(ObjectMapper objectMapper, Span.Event event, AnnotationWriter annotationWriter) {
         if (event.getName() == null) {
             return;
         }
@@ -155,13 +156,13 @@ public class OtlpTraceMapperUtils {
                 map.put(event.getName(), "");
             }
             final String value = objectMapper.writeValueAsString(map);
-            annotationBoList.add(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_EVENT.getCode(), value));
+            annotationWriter.write(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_EVENT.getCode(), value));
         } catch (JsonProcessingException e) {
-            annotationBoList.add(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_EVENT.getCode(), "json processing error"));
+            annotationWriter.write(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_EVENT.getCode(), "json processing error"));
         }
     }
 
-    public static void addLinkToAnnotation(ObjectMapper objectMapper, Span.Link link, List<AnnotationBo> annotationBoList) {
+    public static void addLinkToAnnotation(ObjectMapper objectMapper, Span.Link link, AnnotationWriter annotationWriter) {
         try {
             Map<String, Object> map = new HashMap<>();
             if (!link.getTraceId().isEmpty()) {
@@ -174,9 +175,9 @@ public class OtlpTraceMapperUtils {
                 map.put("attributes", getAttributeToMap(link.getAttributesList()));
             }
             final String value = objectMapper.writeValueAsString(map);
-            annotationBoList.add(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_LINK.getCode(), value));
+            annotationWriter.write(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_LINK.getCode(), value));
         } catch (JsonProcessingException e) {
-            annotationBoList.add(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_LINK.getCode(), "json processing error"));
+            annotationWriter.write(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_LINK.getCode(), "json processing error"));
         }
     }
 }
