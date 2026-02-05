@@ -46,7 +46,7 @@ public class SpanDecoderV0 implements SpanDecoder {
 
     private static final SequenceSpanEventFilter SEQUENCE_SPAN_EVENT_FILTER = new SequenceSpanEventFilter(SequenceSpanEventFilter.MAX_SEQUENCE);
 
-    private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
+    private static final AnnotationDecoder annotationDecoder = new AnnotationDecoder();
 
     @Override
     public BasicSpan decode(Buffer qualifier, Buffer columnValue, SpanDecodingContext decodingContext) {
@@ -164,7 +164,7 @@ public class SpanDecoderV0 implements SpanDecoder {
 
 
         if (bitField.isSetAnnotation()) {
-            readAnnotationList(span::addAnnotation, buffer, decodingContext);
+            annotationDecoder.readAnnotationList(span::addAnnotation, buffer, decodingContext);
         }
 
         readSpanEvent(span::addSpanEvent, buffer, decodingContext, SEQUENCE_SPAN_EVENT_FILTER);
@@ -268,7 +268,7 @@ public class SpanDecoderV0 implements SpanDecoder {
         }
 
         if (bitField.isSetAnnotation()) {
-            readAnnotationList(spanEventBo::addAnnotation, buffer, decodingContext);
+            annotationDecoder.readAnnotationList(spanEventBo::addAnnotation, buffer, decodingContext);
         }
 
         if (bitField.isSetNextAsyncId()) {
@@ -310,7 +310,7 @@ public class SpanDecoderV0 implements SpanDecoder {
         }
 
         if (bitField.isSetAnnotation()) {
-            readAnnotationList(firstSpanEvent::addAnnotation, buffer, decodingContext);
+            annotationDecoder.readAnnotationList(firstSpanEvent::addAnnotation, buffer, decodingContext);
         }
 
         if (bitField.isSetNextAsyncId()) {
@@ -320,43 +320,44 @@ public class SpanDecoderV0 implements SpanDecoder {
         return firstSpanEvent;
     }
 
-    private void readAnnotationList(AnnotationWriter writer, Buffer buffer, SpanDecodingContext decodingContext) {
-        int annotationListSize = buffer.readVInt();
+    public static class AnnotationDecoder {
 
-        AnnotationBo prev = null;
-        for (int i = 0; i < annotationListSize; i++) {
-            AnnotationBo current;
-            if (i == 0) {
-                current = readFirstAnnotationBo(buffer);
-            } else {
-                current = readDeltaAnnotationBo(buffer, prev);
+        private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
+
+        public void readAnnotationList(AnnotationWriter writer, Buffer buffer, SpanDecodingContext decodingContext) {
+            int annotationListSize = buffer.readVInt();
+
+            AnnotationBo prev = null;
+            for (int i = 0; i < annotationListSize; i++) {
+                AnnotationBo current;
+                if (i == 0) {
+                    current = readFirstAnnotationBo(buffer);
+                } else {
+                    current = readDeltaAnnotationBo(buffer, prev);
+                }
+
+                prev = current;
+                writer.write(current);
             }
+        }
 
-            prev = current;
-            writer.write(current);
+        public AnnotationBo readFirstAnnotationBo(Buffer buffer) {
+            final int key = buffer.readSVInt();
+            byte valueType = buffer.readByte();
+            byte[] valueBytes = buffer.readPrefixedBytes();
+            return transcoder.decodeAnnotation(key, valueType, valueBytes);
+        }
+
+        public AnnotationBo readDeltaAnnotationBo(Buffer buffer, AnnotationBo prev) {
+            final int prevKey = prev.getKey();
+            int key = buffer.readSVInt() + prevKey;
+
+            byte valueType = buffer.readByte();
+            byte[] valueBytes = buffer.readPrefixedBytes();
+
+            return transcoder.decodeAnnotation(key, valueType, valueBytes);
         }
     }
-
-    private AnnotationBo readFirstAnnotationBo(Buffer buffer) {
-        final int key = buffer.readSVInt();
-        byte valueType = buffer.readByte();
-        byte[] valueBytes = buffer.readPrefixedBytes();
-        Object value = transcoder.decode(valueType, valueBytes);
-
-        return AnnotationBo.of(key, value);
-    }
-
-    private AnnotationBo readDeltaAnnotationBo(Buffer buffer, AnnotationBo prev) {
-        final int prevKey = prev.getKey();
-        int key = buffer.readSVInt() + prevKey;
-
-        byte valueType = buffer.readByte();
-        byte[] valueBytes = buffer.readPrefixedBytes();
-        Object value = transcoder.decode(valueType, valueBytes);
-
-        return AnnotationBo.of(key, value);
-    }
-
 
     private void readQualifier(BasicSpan basicSpan, Buffer buffer, SpanDecodingContext decodingContext) {
         String applicationName = decodingContext.encoding(buffer.readPrefixedBytes());
