@@ -17,6 +17,17 @@
 package com.navercorp.pinpoint.common.server.bo.grpc;
 
 import com.google.protobuf.ByteString;
+import com.navercorp.pinpoint.common.server.annotation.BinaryAnnotationBo;
+import com.navercorp.pinpoint.common.server.annotation.BooleanAnnotationBo;
+import com.navercorp.pinpoint.common.server.annotation.ByteAnnotationBo;
+import com.navercorp.pinpoint.common.server.annotation.DataTypeAnnotationBo;
+import com.navercorp.pinpoint.common.server.annotation.DoubleAnnotationBo;
+import com.navercorp.pinpoint.common.server.annotation.IntAnnotationBo;
+import com.navercorp.pinpoint.common.server.annotation.LongAnnotationBo;
+import com.navercorp.pinpoint.common.server.annotation.NullAnnotationBo;
+import com.navercorp.pinpoint.common.server.annotation.ShortAnnotationBo;
+import com.navercorp.pinpoint.common.server.annotation.StringAnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationFactory;
 import com.navercorp.pinpoint.common.util.BytesStringStringValue;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
@@ -69,30 +80,61 @@ public class GrpcAnnotationHandler implements AnnotationFactory.AnnotationTypeHa
         };
     }
 
+    @Override
+    public AnnotationBo getAnnotation(PAnnotation annotation) {
+        if (!annotation.hasValue()) {
+            return new NullAnnotationBo(annotation.getKey());
+        }
+        final int key = annotation.getKey();
+
+        final PAnnotationValue value = annotation.getValue();
+        PAnnotationValue.FieldCase fieldCase = value.getFieldCase();
+        return switch (fieldCase) {
+            case STRINGVALUE -> new StringAnnotationBo(key, value.getStringValue());
+            case BOOLVALUE -> new BooleanAnnotationBo(key, value.getBoolValue());
+            case INTVALUE -> new IntAnnotationBo(key, value.getIntValue());
+            case LONGVALUE -> new LongAnnotationBo(key, value.getLongValue());
+            case SHORTVALUE -> new ShortAnnotationBo(key, (short) value.getShortValue());
+            case DOUBLEVALUE -> new DoubleAnnotationBo(key, value.getDoubleValue());
+            case BINARYVALUE -> new BinaryAnnotationBo(key, value.getBinaryValue().toByteArray());
+            case BYTEVALUE -> new ByteAnnotationBo(key, (byte) value.getByteValue());
+            // DataType ---------------
+            case INTSTRINGVALUE -> new DataTypeAnnotationBo(key, newIntStringValue(value.getIntStringValue()));
+            case STRINGSTRINGVALUE -> new DataTypeAnnotationBo(key, newStringStringValue(value.getStringStringValue()));
+            case INTSTRINGSTRINGVALUE -> new DataTypeAnnotationBo(key, newIntStringString(value.getIntStringStringValue()));
+            case LONGINTINTBYTEBYTESTRINGVALUE -> new DataTypeAnnotationBo(key, newLongIntIntByteByteStringValue(value.getLongIntIntByteByteStringValue()));
+            case INTBOOLEANINTBOOLEANVALUE -> new DataTypeAnnotationBo(key, newIntBooleanIntBooleanValue(value.getIntBooleanIntBooleanValue()));
+            case BYTESSTRINGSTRINGVALUE -> new DataTypeAnnotationBo(key, newBytesStringString(value.getBytesStringStringValue()));
+            // -----------------
+            case FIELD_NOT_SET -> new NullAnnotationBo(key);
+        };
+    }
+
 
     @Override
     public Object buildCustomAnnotationValue(Object annotationValue) {
         if (annotationValue instanceof ByteString byteString) {
             return byteString.toByteArray();
-        } else if (annotationValue instanceof PIntStringValue) {
-            return newIntStringValue(annotationValue);
-        } else if (annotationValue instanceof PIntStringStringValue) {
-            return newIntStringString(annotationValue);
-        } else if (annotationValue instanceof PStringStringValue) {
-            return newStringStringValue(annotationValue);
-        } else if (annotationValue instanceof PLongIntIntByteByteStringValue) {
-            return newLongIntIntByteByteStringValue(annotationValue);
-        } else if (annotationValue instanceof PIntBooleanIntBooleanValue) {
-            return newIntBooleanIntBooleanValue(annotationValue);
-        } else if (annotationValue instanceof PBytesStringStringValue) {
-            return newBytesStringString(annotationValue);
+        }
+
+        if (annotationValue instanceof PIntStringValue pValue) {
+            return newIntStringValue(pValue);
+        } else if (annotationValue instanceof PIntStringStringValue pValue) {
+            return newIntStringString(pValue);
+        } else if (annotationValue instanceof PStringStringValue pValue) {
+            return newStringStringValue(pValue);
+        } else if (annotationValue instanceof PLongIntIntByteByteStringValue pValue) {
+            return newLongIntIntByteByteStringValue(pValue);
+        } else if (annotationValue instanceof PIntBooleanIntBooleanValue pValue) {
+            return newIntBooleanIntBooleanValue(pValue);
+        } else if (annotationValue instanceof PBytesStringStringValue pValue) {
+            return newBytesStringString(pValue);
         }
         return null;
     }
 
 
-    private IntStringValue newIntStringValue(Object annotationValue) {
-        final PIntStringValue pValue = (PIntStringValue) annotationValue;
+    private IntStringValue newIntStringValue(PIntStringValue pValue) {
         String stringValue = null;
         if (pValue.hasStringValue()) {
             stringValue = pValue.getStringValue().getValue();
@@ -100,8 +142,7 @@ public class GrpcAnnotationHandler implements AnnotationFactory.AnnotationTypeHa
         return new IntStringValue(pValue.getIntValue(), stringValue);
     }
 
-    private IntStringStringValue newIntStringString(Object annotationValue) {
-        final PIntStringStringValue pValue = (PIntStringStringValue) annotationValue;
+    private IntStringStringValue newIntStringString(PIntStringStringValue pValue) {
         String stringValue1 = null;
         if (pValue.hasStringValue1()) {
             stringValue1 = pValue.getStringValue1().getValue();
@@ -113,8 +154,7 @@ public class GrpcAnnotationHandler implements AnnotationFactory.AnnotationTypeHa
         return new IntStringStringValue(pValue.getIntValue(), stringValue1, stringValue2);
     }
 
-    private BytesStringStringValue newBytesStringString(Object annotationValue) {
-        final PBytesStringStringValue pValue = (PBytesStringStringValue) annotationValue;
+    private BytesStringStringValue newBytesStringString(PBytesStringStringValue pValue) {
         String stringValue1 = null;
         if (pValue.hasStringValue1()) {
             stringValue1 = pValue.getStringValue1().getValue();
@@ -126,9 +166,7 @@ public class GrpcAnnotationHandler implements AnnotationFactory.AnnotationTypeHa
         return new BytesStringStringValue(pValue.getBytesValue().toByteArray(), stringValue1, stringValue2);
     }
 
-    private StringStringValue newStringStringValue(Object annotationValue) {
-        final PStringStringValue pValue = (PStringStringValue) annotationValue;
-
+    private StringStringValue newStringStringValue(PStringStringValue pValue) {
         String stringValue1 = null;
         if (pValue.hasStringValue1()) {
             stringValue1 = pValue.getStringValue1().getValue();
@@ -141,14 +179,12 @@ public class GrpcAnnotationHandler implements AnnotationFactory.AnnotationTypeHa
         return new StringStringValue(stringValue1, stringValue2);
     }
 
-    private IntBooleanIntBooleanValue newIntBooleanIntBooleanValue(Object annotationValue) {
-        final PIntBooleanIntBooleanValue pValue = (PIntBooleanIntBooleanValue) annotationValue;
+    private IntBooleanIntBooleanValue newIntBooleanIntBooleanValue(PIntBooleanIntBooleanValue pValue) {
         return new IntBooleanIntBooleanValue(pValue.getIntValue1(), pValue.getBoolValue1(),
                 pValue.getIntValue2(), pValue.getBoolValue2());
     }
 
-    private LongIntIntByteByteStringValue newLongIntIntByteByteStringValue(Object annotationValue) {
-        final PLongIntIntByteByteStringValue pValue = (PLongIntIntByteByteStringValue) annotationValue;
+    private LongIntIntByteByteStringValue newLongIntIntByteByteStringValue(PLongIntIntByteByteStringValue pValue) {
         String stringValue = null;
         if (pValue.hasStringValue()) {
             stringValue = pValue.getStringValue().getValue();

@@ -21,6 +21,17 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.ByteArrayUtils;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.server.annotation.BinaryAnnotationBo;
+import com.navercorp.pinpoint.common.server.annotation.BooleanAnnotationBo;
+import com.navercorp.pinpoint.common.server.annotation.ByteAnnotationBo;
+import com.navercorp.pinpoint.common.server.annotation.DataTypeAnnotationBo;
+import com.navercorp.pinpoint.common.server.annotation.DoubleAnnotationBo;
+import com.navercorp.pinpoint.common.server.annotation.FloatAnnotationBo;
+import com.navercorp.pinpoint.common.server.annotation.IntAnnotationBo;
+import com.navercorp.pinpoint.common.server.annotation.LongAnnotationBo;
+import com.navercorp.pinpoint.common.server.annotation.NullAnnotationBo;
+import com.navercorp.pinpoint.common.server.annotation.ShortAnnotationBo;
+import com.navercorp.pinpoint.common.server.annotation.StringAnnotationBo;
 import com.navercorp.pinpoint.common.server.util.BitFieldUtils;
 import com.navercorp.pinpoint.common.util.BytesStringStringValue;
 import com.navercorp.pinpoint.common.util.BytesUtils;
@@ -65,48 +76,29 @@ public class AnnotationTranscoder {
 
 
     public Object decode(final byte dataType, final byte[] data) {
-        switch (dataType) {
-            case CODE_STRING:
-                return decodeString(data);
-            case CODE_BOOLEAN_TRUE:
-                return Boolean.TRUE;
-            case CODE_BOOLEAN_FALSE:
-                return Boolean.FALSE;
-            case CODE_INT: {
-                return BytesUtils.bytesToSVar32(data, 0);
-            }
-            case CODE_LONG: {
-                return BytesUtils.bytesToSVar64(data, 0);
-            }
-            case CODE_BYTE:
-                return data[0];
-            case CODE_SHORT:
+        return switch (dataType) {
+            case CODE_STRING -> decodeString(data);
+            case CODE_BOOLEAN_TRUE -> Boolean.TRUE;
+            case CODE_BOOLEAN_FALSE -> Boolean.FALSE;
+            case CODE_INT -> BytesUtils.bytesToSVar32(data, 0);
+            case CODE_LONG -> BytesUtils.bytesToSVar64(data, 0);
+            case CODE_BYTE -> data[0];
+            case CODE_SHORT ->
                 // need short casting
-                return (short) BytesUtils.bytesToSVar32(data, 0);
-            case CODE_FLOAT:
-                return Float.intBitsToFloat(ByteArrayUtils.bytesToInt(data, 0));
-            case CODE_DOUBLE:
-                return Double.longBitsToDouble(ByteArrayUtils.bytesToLong(data, 0));
-            case CODE_BYTEARRAY:
-                return data;
-            case CODE_NULL:
-                return null;
-            case CODE_TOSTRING:
-                return decodeString(data);
-            case CODE_INT_STRING:
-                return decodeIntStringValue(data);
-            case CODE_INT_STRING_STRING:
-                return decodeIntStringStringValue(data);
-            case CODE_STRING_STRING:
-                return decodeStringStringValue(data);
-            case CODE_LONG_INT_INT_BYTE_BYTE_STRING:
-                return decodeLongIntIntByteByteStringValue(data);
-            case CODE_INT_BOOLEAN_INT_BOOLEAN:
-                return decodeIntBooleanIntBooleanValue(data);
-            case CODE_BYTES_STRING_STRING:
-                return decodeBytesStringStringValue(data);
-        }
-        throw new IllegalArgumentException("unsupported DataType:" + dataType);
+                    (short) BytesUtils.bytesToSVar32(data, 0);
+            case CODE_FLOAT -> Float.intBitsToFloat(ByteArrayUtils.bytesToInt(data, 0));
+            case CODE_DOUBLE -> Double.longBitsToDouble(ByteArrayUtils.bytesToLong(data, 0));
+            case CODE_BYTEARRAY -> data;
+            case CODE_NULL -> null;
+            case CODE_TOSTRING -> decodeString(data);
+            case CODE_INT_STRING -> decodeIntStringValue(data);
+            case CODE_INT_STRING_STRING -> decodeIntStringStringValue(data);
+            case CODE_STRING_STRING -> decodeStringStringValue(data);
+            case CODE_LONG_INT_INT_BYTE_BYTE_STRING -> decodeLongIntIntByteByteStringValue(data);
+            case CODE_INT_BOOLEAN_INT_BOOLEAN -> decodeIntBooleanIntBooleanValue(data);
+            case CODE_BYTES_STRING_STRING -> decodeBytesStringStringValue(data);
+            default -> throw new IllegalArgumentException("unsupported DataType:" + dataType);
+        };
     }
 
     public byte getTypeCode(Object o) {
@@ -155,6 +147,32 @@ public class AnnotationTranscoder {
             }
         }
         return CODE_TOSTRING;
+    }
+
+    public AnnotationBo decodeAnnotation(int key, final byte dataType, final byte[] data) {
+        return switch (dataType) {
+            case CODE_STRING -> new StringAnnotationBo(key, decodeString(data));
+            case CODE_BOOLEAN_TRUE -> new BooleanAnnotationBo(key, Boolean.TRUE);
+            case CODE_BOOLEAN_FALSE -> new BooleanAnnotationBo(key, Boolean.FALSE);
+            case CODE_INT -> new IntAnnotationBo(key, BytesUtils.bytesToSVar32(data, 0));
+            case CODE_LONG -> new LongAnnotationBo(key, BytesUtils.bytesToSVar64(data, 0));
+            case CODE_BYTE -> new ByteAnnotationBo(key, data[0]);
+            case CODE_SHORT -> new ShortAnnotationBo(key, (short) BytesUtils.bytesToSVar32(data, 0));
+            case CODE_FLOAT -> new FloatAnnotationBo(key, Float.intBitsToFloat(ByteArrayUtils.bytesToInt(data, 0)));
+            case CODE_DOUBLE ->
+                    new DoubleAnnotationBo(key, Double.longBitsToDouble(ByteArrayUtils.bytesToLong(data, 0)));
+            case CODE_BYTEARRAY -> new BinaryAnnotationBo(key, data);
+            case CODE_NULL -> new NullAnnotationBo(key);
+            case CODE_TOSTRING -> new StringAnnotationBo(key, decodeString(data));
+            case CODE_INT_STRING -> new DataTypeAnnotationBo(key, decodeIntStringValue(data));
+            case CODE_INT_STRING_STRING -> new DataTypeAnnotationBo(key, decodeIntStringStringValue(data));
+            case CODE_STRING_STRING -> new DataTypeAnnotationBo(key, decodeStringStringValue(data));
+            case CODE_LONG_INT_INT_BYTE_BYTE_STRING ->
+                    new DataTypeAnnotationBo(key, decodeLongIntIntByteByteStringValue(data));
+            case CODE_INT_BOOLEAN_INT_BOOLEAN -> new DataTypeAnnotationBo(key, decodeIntBooleanIntBooleanValue(data));
+            case CODE_BYTES_STRING_STRING -> new DataTypeAnnotationBo(key, decodeBytesStringStringValue(data));
+            default -> throw new IllegalArgumentException("unsupported DataType:" + dataType);
+        };
     }
 
     public byte[] encode(Object o, int typeCode) {
@@ -215,7 +233,7 @@ public class AnnotationTranscoder {
     }
 
 
-    private Object decodeIntStringValue(byte[] data) {
+    private DataType decodeIntStringValue(byte[] data) {
         final Buffer buffer = new FixedBuffer(data);
         final int intValue = buffer.readSVInt();
         final String stringValue = BytesUtils.toString(buffer.readPrefixedBytes());
@@ -243,7 +261,7 @@ public class AnnotationTranscoder {
         }
     }
 
-    private Object decodeIntStringStringValue(byte[] data) {
+    private DataType decodeIntStringStringValue(byte[] data) {
         final Buffer buffer = new FixedBuffer(data);
         final int intValue = buffer.readSVInt();
         final String stringValue1 = BytesUtils.toString(buffer.readPrefixedBytes());
@@ -251,7 +269,7 @@ public class AnnotationTranscoder {
         return new IntStringStringValue(intValue, stringValue1, stringValue2);
     }
 
-    private Object decodeBytesStringStringValue(byte[] data) {
+    private DataType decodeBytesStringStringValue(byte[] data) {
         final Buffer buffer = new FixedBuffer(data);
         final byte[] bytesValue = buffer.readPrefixedBytes();
         final String stringValue1 = BytesUtils.toString(buffer.readPrefixedBytes());
@@ -312,7 +330,7 @@ public class AnnotationTranscoder {
         return length + reserve;
     }
 
-    private Object decodeLongIntIntByteByteStringValue(byte[] data) {
+    private DataType decodeLongIntIntByteByteStringValue(byte[] data) {
         final Buffer buffer = new FixedBuffer(data);
         final byte bitField = buffer.readByte();
         final long longValue = buffer.readVLong();
@@ -389,7 +407,7 @@ public class AnnotationTranscoder {
         return value.getIntValue2() != 0;
     }
 
-    private Object decodeIntBooleanIntBooleanValue(byte[] data) {
+    private DataType decodeIntBooleanIntBooleanValue(byte[] data) {
         final Buffer buffer = new FixedBuffer(data);
         final int intValue1 = buffer.readVInt();
         final boolean booleanValue1 = buffer.readBoolean();
@@ -410,42 +428,8 @@ public class AnnotationTranscoder {
         buffer.putBoolean(value.isBooleanValue2());
         return buffer.getBuffer();
     }
-//    private Object decodeIntStringStringValue(byte[] data) {
-//        final Buffer buffer = new FixedBuffer(data);
-//        final int intValue = buffer.readSVInt();
-//        final String stringValue1 = BytesUtils.toString(buffer.readPrefixedBytes());
-//        final String stringValue2 = BytesUtils.toString(buffer.readPrefixedBytes());
-//        return new IntStringStringValue(intValue, stringValue1, stringValue2);
-//    }
-//
-//    private byte[] encodeIntStringStringValue(Object o) {
-//        final TIntStringStringValue tIntStringStringValue = (TIntStringStringValue) o;
-//        final int intValue = tIntStringStringValue.getIntValue();
-//        final byte[] stringValue1 = BytesUtils.toBytes(tIntStringStringValue.getStringValue1());
-//        final byte[] stringValue2 = BytesUtils.toBytes(tIntStringStringValue.getStringValue2());
-//        // TODO increase by a more precise value
-//        final int bufferSize = getBufferSize(stringValue1, stringValue2, 4 + 8);
-//        final Buffer buffer = new AutomaticBuffer(bufferSize);
-//        buffer.putSVInt(intValue);
-//        buffer.putPrefixedBytes(stringValue1);
-//        buffer.putPrefixedBytes(stringValue2);
-//        return buffer.getBuffer();
-//    }
-//
-//    private int getBufferSize(byte[] stringValue1, byte[] stringValue2, int reserve) {
-//        int length = 0;
-//        if (stringValue1 != null) {
-//            length += stringValue1.length;
-//        }
-//        if (stringValue2 != null) {
-//            length += stringValue2.length;
-//
-//        }
-//        return length + reserve;
-//    }
-//
 
-    private Object decodeStringStringValue(byte[] data) {
+    private DataType decodeStringStringValue(byte[] data) {
         final Buffer buffer = new FixedBuffer(data);
         final String stringValue1 = BytesUtils.toString(buffer.readPrefixedBytes());
         final String stringValue2 = BytesUtils.toString(buffer.readPrefixedBytes());

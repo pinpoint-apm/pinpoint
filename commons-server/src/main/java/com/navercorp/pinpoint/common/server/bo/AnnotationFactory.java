@@ -31,48 +31,12 @@ public class AnnotationFactory<T> {
 
     public AnnotationBo buildAnnotation(T annotation) {
         Objects.requireNonNull(annotation, "annotation");
-        int annotationkey = typeHandler.getKey(annotation);
-        Object annotationValue = typeHandler.getValue(annotation);
-        Object commonType = buildAnnotationValue(annotationValue);
-        return AnnotationBo.of(annotationkey, commonType);
-    }
-
-    public Object buildAnnotationValue(Object value) {
-        if (value == null) {
-            return null;
-        }
-        if (value instanceof String) {
-            return value;
-        } else if (value instanceof Long) {
-            return value;
-        } else if (value instanceof Integer) {
-            return value;
-        } else if (value instanceof Boolean) {
-            return value;
-        } else if (value instanceof Byte) {
-            return value;
-        } else if (value instanceof Short) {
-            return value;
-        } else if (value instanceof Float) {
-            // not supported by thrift
-            return value;
-        } else if (value instanceof Double) {
-            return value;
-        } else if (value instanceof byte[]) {
-            // not supported by protobuf
-            return value;
-        }
-
-        // custom type
-        final Object custom = typeHandler.buildCustomAnnotationValue(value);
-        if (custom != null) {
-            return custom;
-        }
-
-        return value.toString();
+        return typeHandler.getAnnotation(annotation);
     }
 
     public interface AnnotationTypeHandler<T> {
+        AnnotationBo getAnnotation(T annotation);
+
         int getKey(T annotation);
 
         Object getValue(T annotation);
