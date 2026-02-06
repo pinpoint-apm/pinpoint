@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
 import com.navercorp.pinpoint.web.agentlist.AgentsFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
@@ -35,6 +36,7 @@ import java.util.Objects;
 /**
  * @author intr3p1d
  */
+@Service
 public class AgentsServiceImpl implements AgentsService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
