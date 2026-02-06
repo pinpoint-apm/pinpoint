@@ -34,6 +34,9 @@ public interface BasicSpan {
     String getApplicationName();
     void setApplicationName(String applicationName);
 
+    String getServiceName();
+    void setServiceName(String serviceName);
+
     long getAgentStartTime();
     void setAgentStartTime(long agentStartTime);
 

@@ -186,21 +186,17 @@ public class SpanAlign implements Align {
         return StringUtils.isEmpty(agentName) ? def : agentName;
     }
 
-    /**
-     * @deprecated Since 3.1.0. Use {@link #getApplicationName()} instead.
-     */
-    @Deprecated
-    @Override
-    public String getApplicationId() {
-        return getApplicationName();
-    }
-
     @Override
     public String getApplicationName() {
         if (isMeta()) {
             return " ";
         }
         return spanBo.getApplicationName();
+    }
+
+    @Override
+    public String getServiceName() {
+        return spanBo.getServiceName();
     }
 
     @Override

@@ -67,17 +67,15 @@ public interface Align {
 
     long getElapsed();
 
+
     String getAgentId();
 
     String getAgentName();
 
-    /**
-     * @deprecated Since 3.1.0. Use {@link #getApplicationName()} instead.
-     */
-    @Deprecated
-    String getApplicationId();
-
     String getApplicationName();
+
+    String getServiceName();
+
 
     int getApplicationServiceType();
 
