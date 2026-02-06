@@ -1,3 +1,4 @@
+import 'billboard.js/dist/billboard.css';
 import React from 'react';
 import bb, { ChartOptions } from 'billboard.js';
 import { isValid } from 'date-fns';
