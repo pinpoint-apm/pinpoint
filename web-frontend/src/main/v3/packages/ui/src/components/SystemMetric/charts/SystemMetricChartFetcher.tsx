@@ -1,3 +1,4 @@
+import 'billboard.js/dist/billboard.css';
 import React from 'react';
 import { SystemMetricMetricInfo } from '@pinpoint-fe/ui/src/constants';
 import { useGetSystemMetricChartData, useGetSystemMetricTagsData } from '@pinpoint-fe/ui/src/hooks';

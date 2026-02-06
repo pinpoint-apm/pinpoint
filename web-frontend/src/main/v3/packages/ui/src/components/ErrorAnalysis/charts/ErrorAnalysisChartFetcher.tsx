@@ -1,3 +1,4 @@
+import 'billboard.js/dist/billboard.css';
 import React from 'react';
 import { useGetErrorAnalysisChartData } from '@pinpoint-fe/ui/src/hooks';
 import bb, { ChartOptions, line } from 'billboard.js';
