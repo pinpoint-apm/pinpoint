@@ -1,5 +1,5 @@
-export namespace SearchApplication {
-  export type Response = Application[];
+export namespace AgentOverview {
+  export type Response = Instance[];
 
   export interface Parameters {
     application: string;
@@ -10,28 +10,23 @@ export namespace SearchApplication {
     to?: number;
   }
 
-  export interface Application {
-    groupName: string;
-    instancesList: Instance[];
-  }
-
   export interface Instance {
-    applicationName: string;
     agentId: string;
     agentName: string;
-    startTimestamp: number;
+    agentVersion: string;
+    applicationName: string;
+    container: boolean;
+    hasInspector: boolean;
     hostName: string;
     ip: string;
+    linkList: LinkList[];
+    pid: number;
     ports: string;
     serviceType: string;
-    pid: number;
-    vmVersion: string;
-    agentVersion: string;
-    container: boolean;
     serviceTypeCode: number;
+    startTimestamp: number;
     status: Status;
-    linkList: LinkList[];
-    hasInspector: boolean;
+    vmVersion: string;
   }
 
   export interface Status {

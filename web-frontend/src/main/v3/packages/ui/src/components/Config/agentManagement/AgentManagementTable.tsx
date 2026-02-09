@@ -1,5 +1,5 @@
 import React from 'react';
-import { SearchApplication } from '@pinpoint-fe/ui/src/constants';
+import { AgentOverview } from '@pinpoint-fe/ui/src/constants';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button, DataTable } from '../../../components';
 import { cn } from '../../../lib';
@@ -7,13 +7,13 @@ import { FaRegTrashCan } from 'react-icons/fa6';
 import { AgentManagementRemovePopup } from './AgentManagementRemovePopup';
 
 export interface AgentManagementTableProps {
-  data?: SearchApplication.Instance[];
-  onRemove?: (instance: SearchApplication.Instance, password?: string) => void;
+  data?: AgentOverview.Instance[];
+  onRemove?: (instance: AgentOverview.Instance, password?: string) => void;
 }
 
 export const AgentManagementTable = ({ data, onRemove }: AgentManagementTableProps) => {
   // https://github.com/shadcn-ui/ui/issues/4261#issuecomment-2295547143
-  const columns: ColumnDef<SearchApplication.Instance>[] = React.useMemo(
+  const columns: ColumnDef<AgentOverview.Instance>[] = React.useMemo(
     () => [
       {
         accessorKey: 'hostName',
@@ -69,7 +69,7 @@ export const AgentManagementTable = ({ data, onRemove }: AgentManagementTablePro
   );
 
   return (
-    <div className={cn('border rounded-md')}>
+    <div className={cn('rounded-md border')}>
       <DataTable autoResize={true} columns={columns} data={data || []} />
     </div>
   );

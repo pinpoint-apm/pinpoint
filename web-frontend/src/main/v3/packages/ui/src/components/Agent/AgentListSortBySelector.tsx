@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from '../ui';
 
-import { AGENT_LIST_SORT, useAgentListSortBy } from '@pinpoint-fe/ui/src/hooks';
+import { AGENT_LIST_SORT_BY, useAgentListSortBy } from '@pinpoint-fe/ui/src/hooks';
 
 export interface AgentListSortBySelectorProps {
   align?: 'center' | 'end' | 'start' | undefined;
@@ -24,7 +24,7 @@ export const AgentListSortBySelector = ({
     <Select
       value={sortBy}
       onValueChange={(value) => {
-        setSortBy(value as AGENT_LIST_SORT);
+        setSortBy(value as AGENT_LIST_SORT_BY);
       }}
     >
       <SelectTrigger className={triggerClassName}>
@@ -33,12 +33,12 @@ export const AgentListSortBySelector = ({
       <SelectContent align={align}>
         <SelectGroup>
           <SelectLabel className="text-xs">Sort List</SelectLabel>
-          {Object.keys(AGENT_LIST_SORT).map((key, i) => {
+          {Object.keys(AGENT_LIST_SORT_BY).map((key, i) => {
             return (
               <SelectItem
                 key={i}
                 className="text-xs"
-                value={AGENT_LIST_SORT[key as keyof typeof AGENT_LIST_SORT]}
+                value={AGENT_LIST_SORT_BY[key as keyof typeof AGENT_LIST_SORT_BY]}
               >
                 {key}
               </SelectItem>
