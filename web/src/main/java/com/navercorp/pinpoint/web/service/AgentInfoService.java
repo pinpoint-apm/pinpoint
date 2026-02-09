@@ -24,9 +24,7 @@ import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentAndStatus;
-import com.navercorp.pinpoint.web.vo.agent.DetailedAgentInfo;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
-import com.navercorp.pinpoint.web.vo.tree.AgentsMapByApplication;
 import com.navercorp.pinpoint.web.vo.tree.ApplicationAgentHostList;
 
 import java.util.List;
@@ -42,9 +40,7 @@ public interface AgentInfoService {
 
     int NO_DURATION = -1;
 
-    AgentsMapByApplication<AgentAndStatus> getAllAgentsList(AgentStatusFilter filter, Range range);
-
-    AgentsMapByApplication<DetailedAgentInfo> getAllAgentsStatisticsList(AgentStatusFilter filter, Range range);
+    List<DetailedAgentAndStatus> getAllAgentsStatisticsList(AgentStatusFilter filter, Range range);
 
     ApplicationAgentHostList getApplicationAgentHostList(int offset, int limit, int durationDays, List<Application> applicationList, Predicate<AgentInfo> agentInfoFilter);
 
