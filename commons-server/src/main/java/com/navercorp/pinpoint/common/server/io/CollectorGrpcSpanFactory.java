@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.bo.grpc;
+package com.navercorp.pinpoint.common.server.io;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -42,8 +42,8 @@ public class CollectorGrpcSpanFactory implements GrpcSpanFactory {
     }
 
     @Override
-    public SpanBo buildSpanBo(PSpan pSpan, BindAttribute attribute) {
-        final SpanBo spanBo = this.grpcBinder.bindSpanBo(pSpan, attribute);
+    public SpanBo buildSpanBo(PSpan pSpan, ServerHeader header, long requestTime) {
+        final SpanBo spanBo = this.grpcBinder.bindSpanBo(pSpan, header, requestTime);
         final List<PSpanEvent> pSpanEventList = pSpan.getSpanEventList();
         List<SpanEventBo> spanEventBos = buildSpanEventBoList(pSpanEventList);
         spanBo.addSpanEventBoList(spanEventBos);
@@ -52,8 +52,8 @@ public class CollectorGrpcSpanFactory implements GrpcSpanFactory {
     }
 
     @Override
-    public SpanChunkBo buildSpanChunkBo(PSpanChunk pSpanChunk, BindAttribute attribute) {
-        final SpanChunkBo spanChunkBo = this.grpcBinder.bindSpanChunkBo(pSpanChunk, attribute);
+    public SpanChunkBo buildSpanChunkBo(PSpanChunk pSpanChunk, ServerHeader header, long requestTime) {
+        final SpanChunkBo spanChunkBo = this.grpcBinder.bindSpanChunkBo(pSpanChunk, header, requestTime);
         final List<PSpanEvent> pSpanEventList = pSpanChunk.getSpanEventList();
         List<SpanEventBo> spanEventList = buildSpanEventBoList(pSpanEventList);
         spanChunkBo.addSpanEventBoList(spanEventList);

@@ -1,7 +1,7 @@
 package com.navercorp.pinpoint.collector.aop;
 
 import com.navercorp.pinpoint.collector.manage.HandlerManager;
-import com.navercorp.pinpoint.io.request.ServerResponse;
+import com.navercorp.pinpoint.common.server.io.ServerResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -54,7 +54,7 @@ public class AvailabilityHandlerAop {
 
     @Around("requestResponseHandlerPointcut()" +
             " && execution(public void handleRequest(..))" +
-            " && args(com.navercorp.pinpoint.io.request.ServerRequest, serverResponse)"
+            " && args(com.navercorp.pinpoint.common.server.io.ServerRequest, serverResponse)"
     )
     public Object aroundHandleRequest(ProceedingJoinPoint joinPoint, ServerResponse<?> serverResponse) throws Throwable {
         if (isDebug) {

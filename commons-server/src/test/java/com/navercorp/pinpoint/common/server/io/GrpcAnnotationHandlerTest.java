@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.bo.grpc;
+package com.navercorp.pinpoint.common.server.io;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationFactory;
 import com.navercorp.pinpoint.grpc.trace.PAnnotation;

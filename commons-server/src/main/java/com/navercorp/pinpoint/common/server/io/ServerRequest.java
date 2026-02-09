@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.io.request;
+package com.navercorp.pinpoint.common.server.io;
 
-import com.navercorp.pinpoint.io.util.MessageType;
 
 /**
  * @author minwoo.jung

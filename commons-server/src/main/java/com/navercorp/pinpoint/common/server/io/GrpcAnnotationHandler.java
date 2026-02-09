@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.bo.grpc;
+package com.navercorp.pinpoint.common.server.io;
 
 import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.common.server.annotation.BinaryAnnotationBo;

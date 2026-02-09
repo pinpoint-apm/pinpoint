@@ -25,10 +25,12 @@ import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.filter.EmptySpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
-import com.navercorp.pinpoint.common.server.bo.grpc.BindAttribute;
-import com.navercorp.pinpoint.common.server.bo.grpc.CollectorGrpcSpanFactory;
-import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanBinder;
-import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanFactory;
+import com.navercorp.pinpoint.common.server.io.CollectorGrpcSpanFactory;
+import com.navercorp.pinpoint.common.server.io.DefaultServerHeader;
+import com.navercorp.pinpoint.common.server.io.GrpcSpanBinder;
+import com.navercorp.pinpoint.common.server.io.GrpcSpanFactory;
+import com.navercorp.pinpoint.common.server.io.ServerHeader;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
@@ -53,12 +55,13 @@ public class SpanEncoderTest {
 
     private static final int REPEAT_COUNT = 10;
 
-    private final long spanAcceptedTime = System.currentTimeMillis();
+    private final long requestTime = System.currentTimeMillis();
 
     private final RandomTSpan randomTSpan = new RandomTSpan();
     private final Random random = new Random();
 
-    private final BindAttribute attribute = new BindAttribute("agentId", "agentName", "applicationName", 88, spanAcceptedTime);
+    private final ServerHeader header = new DefaultServerHeader("agentId", "agentName", "applicationName", "serviceName", () -> ServiceUid.DEFAULT, 88, 100, false);
+
     private final GrpcSpanBinder grpcSpanBinder = new GrpcSpanBinder();
     private final SpanEventFilter filter = new EmptySpanEventFilter();
     private final GrpcSpanFactory grpcSpanFactory = new CollectorGrpcSpanFactory(grpcSpanBinder, filter);
@@ -108,7 +111,7 @@ public class SpanEncoderTest {
 
     private SpanBo randomSpan() {
         PSpan.Builder tSpan = randomTSpan.randomPSpan();
-        return grpcSpanFactory.buildSpanBo(tSpan.build(), attribute);
+        return grpcSpanFactory.buildSpanBo(tSpan.build(), header, requestTime);
     }
 
     public SpanBo randomComplexSpan() {
@@ -119,12 +122,12 @@ public class SpanEncoderTest {
         PSpanEvent spanEvent4 = randomTSpan.randomTSpanEvent((short) 5);
 
         pSpan.addAllSpanEvent(List.of(spanEvent1, spanEvent2, spanEvent3, spanEvent4));
-        return grpcSpanFactory.buildSpanBo(pSpan.build(), attribute);
+        return grpcSpanFactory.buildSpanBo(pSpan.build(), header, requestTime);
     }
 
     private SpanChunkBo randomSpanChunk() {
         PSpanChunk.Builder spanChunk = randomTSpan.randomTSpanChunk();
-        return grpcSpanFactory.buildSpanChunkBo(spanChunk.build(), attribute);
+        return grpcSpanFactory.buildSpanChunkBo(spanChunk.build(), header, requestTime);
     }
 
     public SpanChunkBo randomComplexSpanChunk() {
@@ -135,7 +138,7 @@ public class SpanEncoderTest {
         PSpanEvent spanEvent4 = randomTSpan.randomTSpanEvent((short) 5);
 
         spanChunk.addAllSpanEvent(List.of(spanEvent1, spanEvent2, spanEvent3, spanEvent4));
-        return grpcSpanFactory.buildSpanChunkBo(spanChunk.build(), attribute);
+        return grpcSpanFactory.buildSpanChunkBo(spanChunk.build(), header, requestTime);
     }
 
 

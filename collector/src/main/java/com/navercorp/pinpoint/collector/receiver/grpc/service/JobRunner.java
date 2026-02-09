@@ -1,10 +1,10 @@
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 
-import com.navercorp.pinpoint.io.request.ServerHeader;
-import com.navercorp.pinpoint.io.request.ServerRequest;
-import com.navercorp.pinpoint.io.request.ServerResponse;
-import com.navercorp.pinpoint.io.util.MessageType;
+import com.navercorp.pinpoint.common.server.io.MessageType;
+import com.navercorp.pinpoint.common.server.io.ServerHeader;
+import com.navercorp.pinpoint.common.server.io.ServerRequest;
+import com.navercorp.pinpoint.common.server.io.ServerResponse;
 import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.Logger;

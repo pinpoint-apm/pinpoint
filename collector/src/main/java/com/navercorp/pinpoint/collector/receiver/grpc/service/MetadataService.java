@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
+import com.navercorp.pinpoint.common.server.io.MessageType;
+import com.navercorp.pinpoint.common.server.io.MessageTypes;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
@@ -26,8 +28,6 @@ import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PSqlUidMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
-import com.navercorp.pinpoint.io.util.MessageType;
-import com.navercorp.pinpoint.io.util.MessageTypes;
 import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
 import org.apache.logging.log4j.LogManager;

@@ -1,6 +1,5 @@
-package com.navercorp.pinpoint.io.request;
+package com.navercorp.pinpoint.common.server.io;
 
-import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import org.jspecify.annotations.NonNull;
 
@@ -18,8 +17,6 @@ public interface ServerHeader {
     @NonNull
     String getApplicationName();
 
-    Supplier<ApplicationUid> getApplicationUid();
-
     // Service -----------------
     String getServiceName();
 
@@ -28,8 +25,6 @@ public interface ServerHeader {
     // ----------------------
 
     long getAgentStartTime();
-
-    long getSocketId();
 
     int getServiceType();
 

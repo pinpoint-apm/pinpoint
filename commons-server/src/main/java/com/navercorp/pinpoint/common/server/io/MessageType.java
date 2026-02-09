@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.io.util;
+package com.navercorp.pinpoint.common.server.io;
 
 public interface MessageType {
     int getCode();

@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.collector.mapper.grpc.event;
 
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
+import com.navercorp.pinpoint.common.server.io.ServerHeader;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PDeadlock;
-import com.navercorp.pinpoint.io.request.ServerHeader;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;

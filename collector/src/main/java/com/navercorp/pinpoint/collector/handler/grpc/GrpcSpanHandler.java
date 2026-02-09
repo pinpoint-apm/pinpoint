@@ -24,15 +24,13 @@ import com.navercorp.pinpoint.common.hbase.RequestNotPermittedException;
 import com.navercorp.pinpoint.common.profiler.logging.LogSampler;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.server.bo.grpc.BindAttribute;
-import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanFactory;
+import com.navercorp.pinpoint.common.server.io.GrpcSpanFactory;
+import com.navercorp.pinpoint.common.server.io.ServerHeader;
+import com.navercorp.pinpoint.common.server.io.ServerRequest;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.grpc.trace.PTransactionId;
-import com.navercorp.pinpoint.io.request.BindAttributes;
-import com.navercorp.pinpoint.io.request.ServerHeader;
-import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -72,24 +70,24 @@ public class GrpcSpanHandler implements SimpleHandler<PSpan> {
         final PSpan span = serverRequest.getData();
 
         final ServerHeader header = serverRequest.getHeader();
-        BindAttribute attribute = BindAttributes.of(header, serverRequest.getRequestTime());
-        handleSpan(attribute, span);
+
+        handleSpan(span, header, serverRequest.getRequestTime());
 
     }
 
-    private void handleSpan(BindAttribute attribute, PSpan span) {
+    private void handleSpan(PSpan span, ServerHeader serverHeader, long requestTime) {
         if (isDebug) {
-            logger.debug("Handle {} {}", attribute, createSimpleSpanLog(span));
+            logger.debug("Handle {} {}", serverHeader, createSimpleSpanLog(span));
         }
 
-        final SpanBo spanBo = spanFactory.buildSpanBo(span, attribute);
+        final SpanBo spanBo = spanFactory.buildSpanBo(span, serverHeader, requestTime);
         if (!sampler.isSampling(spanBo)) {
             if (isDebug) {
-                logger.debug("Unsampled {} {}", attribute, createSimpleSpanLog(span));
+                logger.debug("Unsampled {} {}", serverHeader, createSimpleSpanLog(span));
             } else {
                 infoLog.log(() -> {
                     if (logger.isInfoEnabled()) {
-                        logger.info("Unsampled {} {}", attribute, createSimpleSpanLog(span));
+                        logger.info("Unsampled {} {}", serverHeader, createSimpleSpanLog(span));
                     }
                 });
             }
@@ -99,9 +97,9 @@ public class GrpcSpanHandler implements SimpleHandler<PSpan> {
             try {
                 traceService.insertSpan(spanBo);
             } catch (RequestNotPermittedException notPermitted) {
-                warnLog.log((c) -> logger.warn("Failed to handle Span {} RequestNotPermitted:{} {}", attribute, notPermitted.getMessage(), c));
+                warnLog.log((c) -> logger.warn("Failed to handle Span {} RequestNotPermitted:{} {}", serverHeader, notPermitted.getMessage(), c));
             } catch (Throwable e) {
-                logger.warn("Failed to handle {} {}", attribute, MessageFormatUtils.debugLog(span), e);
+                logger.warn("Failed to handle {} {}", serverHeader, MessageFormatUtils.debugLog(span), e);
             }
         }
     }

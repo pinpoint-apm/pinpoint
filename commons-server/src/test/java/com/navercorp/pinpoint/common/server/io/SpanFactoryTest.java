@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.bo.grpc;
+package com.navercorp.pinpoint.common.server.io;
 
 import com.navercorp.pinpoint.common.server.bo.RandomTSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.server.bo.filter.EmptySpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.trace.PinpointServerTraceId;
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
@@ -46,7 +47,8 @@ public class SpanFactoryTest {
 
     private final long spanAcceptTime = System.currentTimeMillis();
 
-    private final BindAttribute attribute = new BindAttribute("agentId", "agentName", "applicationName", 88, spanAcceptTime);
+    private final ServerHeader header = new DefaultServerHeader("agentId", "agentName", "applicationName", "serviceName", () -> ServiceUid.DEFAULT, 88, 1000, false);
+
     private final GrpcSpanBinder grpcSpanBinder = new GrpcSpanBinder();
     private final SpanEventFilter filter = new EmptySpanEventFilter();
     private final GrpcSpanFactory grpcSpanFactory = new CollectorGrpcSpanFactory(grpcSpanBinder, filter);
@@ -60,7 +62,7 @@ public class SpanFactoryTest {
     public void testNewSpanBo() {
         PSpan.Builder pSpan = random.randomPSpan();
 
-        SpanBo spanBo = grpcSpanBinder.newSpanBo(pSpan.build(), attribute);
+        SpanBo spanBo = grpcSpanBinder.newSpanBo(pSpan.build(), header, spanAcceptTime);
 
         spanFactoryAssert.assertSpan(pSpan.build(), spanBo);
     }
@@ -70,7 +72,7 @@ public class SpanFactoryTest {
     public void testNewSpanChunkBo() {
         PSpanChunk.Builder tSpanChunk = random.randomTSpanChunk();
 
-        SpanChunkBo spanChunkBo = grpcSpanBinder.bindSpanChunkBo(tSpanChunk.build(), attribute);
+        SpanChunkBo spanChunkBo = grpcSpanBinder.bindSpanChunkBo(tSpanChunk.build(), header, spanAcceptTime);
 
         spanFactoryAssert.assertSpanChunk(tSpanChunk.build(), spanChunkBo);
 
@@ -96,7 +98,7 @@ public class SpanFactoryTest {
         PSpanEvent tSpanEvent4 = random.randomTSpanEvent((short) 2);
         span.addAllSpanEvent(List.of(tSpanEvent1, tSpanEvent2, tSpanEvent3, tSpanEvent4));
 
-        SpanBo spanBo = grpcSpanFactory.buildSpanBo(span.build(), attribute);
+        SpanBo spanBo = grpcSpanFactory.buildSpanBo(span.build(), header, spanAcceptTime);
 
         spanFactoryAssert.assertSpan(span.build(), spanBo);
     }
@@ -111,7 +113,7 @@ public class SpanFactoryTest {
         PSpanEvent tSpanEvent4 = random.randomTSpanEvent((short) 2);
         tSpanChunk.addAllSpanEvent(List.of(tSpanEvent1, tSpanEvent2, tSpanEvent3, tSpanEvent4));
 
-        SpanChunkBo spanChunkBo = grpcSpanFactory.buildSpanChunkBo(tSpanChunk.build(), attribute);
+        SpanChunkBo spanChunkBo = grpcSpanFactory.buildSpanChunkBo(tSpanChunk.build(), header, spanAcceptTime);
 
         spanFactoryAssert.assertSpanChunk(tSpanChunk.build(), spanChunkBo);
 
@@ -127,7 +129,7 @@ public class SpanFactoryTest {
         tSpan.setTransactionId(pTransactionId);
         tSpan.setVersion(SpanVersion.TRACE_V2);
 
-        SpanBo spanBo = grpcSpanBinder.bindSpanBo(tSpan.build(), attribute);
+        SpanBo spanBo = grpcSpanBinder.bindSpanBo(tSpan.build(), header, spanAcceptTime);
         ServerTraceId transactionId = spanBo.getTransactionId();
 
         PinpointServerTraceId pinpointServerTraceId = (PinpointServerTraceId) transactionId;
@@ -148,7 +150,7 @@ public class SpanFactoryTest {
                 .setVersion(SpanVersion.TRACE_V2)
                 .build();
 
-        SpanBo spanBo = grpcSpanFactory.buildSpanBo(tSpan, attribute);
+        SpanBo spanBo = grpcSpanFactory.buildSpanBo(tSpan, header, spanAcceptTime);
         ServerTraceId transactionId = spanBo.getTransactionId();
 
         PinpointServerTraceId pinpointServerTraceId = (PinpointServerTraceId) transactionId;

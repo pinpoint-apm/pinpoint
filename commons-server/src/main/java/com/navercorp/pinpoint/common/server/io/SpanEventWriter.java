@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.common.server.bo.grpc;
+package com.navercorp.pinpoint.common.server.io;
 
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 

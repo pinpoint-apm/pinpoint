@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.collector.handler;
 
-import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.common.server.io.ServerRequest;
 
 public class DisableSimpleHandler<T> implements SimpleHandler<T> {
 

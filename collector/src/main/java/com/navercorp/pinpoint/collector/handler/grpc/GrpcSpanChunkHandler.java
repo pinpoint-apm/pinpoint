@@ -25,15 +25,13 @@ import com.navercorp.pinpoint.common.hbase.RequestNotPermittedException;
 import com.navercorp.pinpoint.common.profiler.logging.LogSampler;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
-import com.navercorp.pinpoint.common.server.bo.grpc.BindAttribute;
-import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanFactory;
+import com.navercorp.pinpoint.common.server.io.GrpcSpanFactory;
+import com.navercorp.pinpoint.common.server.io.ServerHeader;
+import com.navercorp.pinpoint.common.server.io.ServerRequest;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.grpc.trace.PTransactionId;
-import com.navercorp.pinpoint.io.request.BindAttributes;
-import com.navercorp.pinpoint.io.request.ServerHeader;
-import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -71,23 +69,23 @@ public class GrpcSpanChunkHandler implements SimpleHandler<PSpanChunk> {
     public void handleSimple(ServerRequest<PSpanChunk> serverRequest) {
         final PSpanChunk spanChunk = serverRequest.getData();
         final ServerHeader header = serverRequest.getHeader();
-        final BindAttribute attribute = BindAttributes.of(header, serverRequest.getRequestTime());
-        handleSpanChunk(attribute, spanChunk);
+
+        handleSpanChunk(spanChunk, header, serverRequest.getRequestTime());
     }
 
 
-    private void handleSpanChunk(BindAttribute attribute, PSpanChunk spanChunk) {
+    private void handleSpanChunk(PSpanChunk spanChunk, ServerHeader header, long requestTime) {
         if (isDebug) {
-            logger.debug("Handle {} {}", attribute, createSimpleSpanChunkLog(spanChunk));
+            logger.debug("Handle {} {}", header, createSimpleSpanChunkLog(spanChunk));
         }
-        final SpanChunkBo spanChunkBo = spanFactory.buildSpanChunkBo(spanChunk, attribute);
+        final SpanChunkBo spanChunkBo = spanFactory.buildSpanChunkBo(spanChunk, header, requestTime);
         if (!sampler.isSampling(spanChunkBo)) {
             if (isDebug) {
-                logger.debug("Unsampled {} {}", attribute, createSimpleSpanChunkLog(spanChunk));
+                logger.debug("Unsampled {} {}", header, createSimpleSpanChunkLog(spanChunk));
             } else {
                 infoLog.log(() -> {
                     if (logger.isInfoEnabled()) {
-                        logger.info("Unsampled {} {}", attribute, createSimpleSpanChunkLog(spanChunk));
+                        logger.info("Unsampled {} {}", header, createSimpleSpanChunkLog(spanChunk));
                     }
                 });
             }
@@ -97,9 +95,9 @@ public class GrpcSpanChunkHandler implements SimpleHandler<PSpanChunk> {
             try {
                 traceService.insertSpanChunk(spanChunkBo);
             } catch (RequestNotPermittedException notPermitted) {
-                warnLog.log(c -> logger.warn("Failed to handle SpanChunk {} RequestNotPermitted:{} {}", attribute, notPermitted.getMessage(), c));
+                warnLog.log(c -> logger.warn("Failed to handle SpanChunk {} RequestNotPermitted:{} {}", header, notPermitted.getMessage(), c));
             } catch (Throwable e) {
-                logger.warn("Failed to handle {} {}", attribute, MessageFormatUtils.debugLog(spanChunk), e);
+                logger.warn("Failed to handle {} {}", header, MessageFormatUtils.debugLog(spanChunk), e);
             }
         }
     }

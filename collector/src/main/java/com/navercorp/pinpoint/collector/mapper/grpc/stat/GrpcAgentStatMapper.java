@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.collector.mapper.grpc.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
+import com.navercorp.pinpoint.common.server.io.ServerHeader;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
-import com.navercorp.pinpoint.io.request.ServerHeader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;

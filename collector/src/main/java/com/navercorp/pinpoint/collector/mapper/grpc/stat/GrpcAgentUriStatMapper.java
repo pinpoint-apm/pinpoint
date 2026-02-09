@@ -19,10 +19,10 @@ package com.navercorp.pinpoint.collector.mapper.grpc.stat;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentUriStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.EachUriStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.UriStatHistogram;
+import com.navercorp.pinpoint.common.server.io.ServerHeader;
 import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.grpc.trace.PEachUriStat;
 import com.navercorp.pinpoint.grpc.trace.PUriHistogram;
-import com.navercorp.pinpoint.io.request.ServerHeader;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

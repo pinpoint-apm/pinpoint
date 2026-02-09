@@ -142,6 +142,7 @@ public class SpanEventAlign implements Align {
         return spanEventBo.getEndElapsed();
     }
 
+
     @Override
     public String getAgentId() {
         return spanBo.getAgentId();
@@ -152,18 +153,16 @@ public class SpanEventAlign implements Align {
         return spanBo.getAgentName();
     }
 
-    /**
-     * @deprecated Since 3.1.0. Use {@link #getApplicationName()} instead.
-     */
-    @Override
-    public String getApplicationId() {
-        return getApplicationName();
-    }
-
     @Override
     public String getApplicationName() {
         return spanBo.getApplicationName();
     }
+
+    @Override
+    public String getServiceName() {
+        return spanBo.getServiceName();
+    }
+
 
     @Override
     public int getApplicationServiceType() {
