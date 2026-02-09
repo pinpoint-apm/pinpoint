@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.bo.grpc;
+package com.navercorp.pinpoint.common.server.io;
 
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.filter.SequenceSpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
 import com.navercorp.pinpoint.grpc.trace.PTransactionId;
@@ -38,10 +39,11 @@ public class CollectorGrpcSpanFactoryTest {
     private final GrpcSpanBinder binder = new GrpcSpanBinder();
     private final SpanEventFilter filter = new SequenceSpanEventFilter(MAX_SEQUENCE);
 
-    private final BindAttribute attribute = newAttribute();
+    private final long requestTime = System.currentTimeMillis();
+    private final ServerHeader header = newAttribute();
 
-    private BindAttribute newAttribute() {
-        return new BindAttribute("agentId", "agentName", "applicationName", 88, System.currentTimeMillis());
+    private ServerHeader newAttribute() {
+        return new DefaultServerHeader("agentId", "agentName", "applicationName", "serviceName", () -> ServiceUid.DEFAULT, 88, 1000, false);
     }
 
     private final GrpcSpanFactory factory = new CollectorGrpcSpanFactory(binder, filter);
@@ -50,7 +52,7 @@ public class CollectorGrpcSpanFactoryTest {
     public void buildSpanChunkBo_sequence_overflow_NPE() {
         final PSpanChunk chunk = newSpanChunk_overflow();
 
-        SpanChunkBo spanChunkBo = factory.buildSpanChunkBo(chunk, attribute);
+        SpanChunkBo spanChunkBo = factory.buildSpanChunkBo(chunk, header, requestTime);
 
         List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
         Assertions.assertTrue(spanEventBoList.isEmpty());
@@ -60,7 +62,7 @@ public class CollectorGrpcSpanFactoryTest {
     public void buildSpanChunkBo_compact_depth() {
         final PSpanChunk chunk = newSpanChunk_compact_depth();
 
-        SpanChunkBo spanChunkBo = factory.buildSpanChunkBo(chunk, attribute);
+        SpanChunkBo spanChunkBo = factory.buildSpanChunkBo(chunk, header, requestTime);
 
         List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
 
@@ -74,7 +76,7 @@ public class CollectorGrpcSpanFactoryTest {
     public void buildSpanChunkBo_compact_depth_NPE() {
         final PSpanChunk chunk = newSpanChunk_compact_depth_error();
 
-        SpanChunkBo spanChunkBo = factory.buildSpanChunkBo(chunk, attribute);
+        SpanChunkBo spanChunkBo = factory.buildSpanChunkBo(chunk, header, requestTime);
 
         List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
         SpanEventBo spanEventBo0 = spanEventBoList.get(0);
@@ -85,7 +87,7 @@ public class CollectorGrpcSpanFactoryTest {
     public void buildSpanChunkBo_first_depth_zero() {
         final PSpanChunk chunk = newSpanChunk_first_depth_zero();
 
-        SpanChunkBo spanChunkBo = factory.buildSpanChunkBo(chunk, attribute);
+        SpanChunkBo spanChunkBo = factory.buildSpanChunkBo(chunk, header, requestTime);
 
         List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
         SpanEventBo spanEventBo0 = spanEventBoList.get(0);

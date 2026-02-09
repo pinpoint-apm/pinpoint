@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.bo.grpc;
+package com.navercorp.pinpoint.common.server.io;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
 import com.navercorp.pinpoint.grpc.trace.PParentInfo;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
@@ -28,7 +29,8 @@ class GrpcSpanBinderTest {
 
     GrpcSpanBinder grpcSpanBinder = new GrpcSpanBinder();
 
-    BindAttribute bindAttribute = new BindAttribute("agentId-1", "agentName-1", "appName-1", 1234, System.currentTimeMillis());
+    long requestTime = System.currentTimeMillis();
+    ServerHeader header = new DefaultServerHeader("agentId-1", "agentName-1", "appName-1", "serviceName", () -> ServiceUid.DEFAULT, 1234, 1000, false);
 
     @Test
     void bindSpanBo_parentApplicationName_invalid() {
@@ -40,7 +42,7 @@ class GrpcSpanBinderTest {
                 .build();
         PSpan span = newSpan(event);
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> grpcSpanBinder.newSpanBo(span, bindAttribute));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> grpcSpanBinder.newSpanBo(span, header, requestTime));
     }
 
     @Test
@@ -54,7 +56,7 @@ class GrpcSpanBinderTest {
                 .build();
         PSpan span = newSpan(event);
 
-        SpanBo spanBo = grpcSpanBinder.newSpanBo(span, bindAttribute);
+        SpanBo spanBo = grpcSpanBinder.newSpanBo(span, header, requestTime);
         Assertions.assertEquals("validId", spanBo.getParentApplicationName());
         Assertions.assertEquals(1000, spanBo.getParentApplicationServiceType());
     }
@@ -81,7 +83,7 @@ class GrpcSpanBinderTest {
 
         PSpan span = newSpan(null);
 
-        SpanBo spanBo = grpcSpanBinder.newSpanBo(span, bindAttribute);
+        SpanBo spanBo = grpcSpanBinder.newSpanBo(span, header, requestTime);
         Assertions.assertNull(spanBo.getParentApplicationName());
 
     }

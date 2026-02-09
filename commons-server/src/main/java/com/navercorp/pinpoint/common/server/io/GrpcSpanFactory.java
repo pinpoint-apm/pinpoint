@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.bo.grpc;
+package com.navercorp.pinpoint.common.server.io;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
  * @author Woonduk Kang(emeroad)
  */
 public interface GrpcSpanFactory {
-    SpanBo buildSpanBo(PSpan pSpan, BindAttribute attribute);
+    SpanBo buildSpanBo(PSpan pSpan, ServerHeader header, long requestTime);
 
-    SpanChunkBo buildSpanChunkBo(PSpanChunk pSpanChunk, BindAttribute attribute);
+    SpanChunkBo buildSpanChunkBo(PSpanChunk pSpanChunk, ServerHeader header, long requestTime);
 }

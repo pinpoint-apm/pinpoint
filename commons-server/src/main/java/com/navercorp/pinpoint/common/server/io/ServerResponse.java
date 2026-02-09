@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.io.request;
+package com.navercorp.pinpoint.common.server.io;
 
 /**
  * @author Woonduk Kang(emeroad)

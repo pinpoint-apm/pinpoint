@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
-import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.common.server.io.MessageType;
+import com.navercorp.pinpoint.common.server.io.ServerRequest;
 import com.navercorp.pinpoint.io.request.UidFetcher;
-import com.navercorp.pinpoint.io.util.MessageType;
 import io.grpc.Context;
 
 /**

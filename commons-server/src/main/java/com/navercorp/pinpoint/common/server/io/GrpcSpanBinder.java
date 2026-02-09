@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.server.bo.grpc;
+package com.navercorp.pinpoint.common.server.io;
 
 
 import com.navercorp.pinpoint.common.PinpointConstants;
@@ -53,6 +53,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -67,10 +68,10 @@ public class GrpcSpanBinder {
     }
 
 
-    public SpanBo bindSpanBo(PSpan pSpan, BindAttribute attribute) {
+    public SpanBo bindSpanBo(PSpan pSpan, ServerHeader serverHeader, long requestTime) {
         checkVersion(pSpan.getVersion());
 
-        return newSpanBo(pSpan, attribute);
+        return newSpanBo(pSpan, serverHeader, requestTime);
     }
 
     private void checkVersion(int version) {
@@ -80,14 +81,14 @@ public class GrpcSpanBinder {
     }
 
     // for test
-    SpanBo newSpanBo(PSpan pSpan, BindAttribute attribute) {
+    SpanBo newSpanBo(PSpan pSpan, ServerHeader serverHeader, long requestTime) {
         final SpanBo spanBo = new SpanBo();
         spanBo.setVersion(pSpan.getVersion());
-        spanBo.setAgentId(attribute.getAgentId());
-        spanBo.setApplicationName(attribute.getApplicationName());
-        spanBo.setAgentName(attribute.getAgentName());
-        spanBo.setAgentStartTime(attribute.getAgentStartTime());
-        spanBo.setCollectorAcceptTime(attribute.getAcceptedTime());
+        spanBo.setAgentId(serverHeader.getAgentId());
+        spanBo.setApplicationName(serverHeader.getApplicationName());
+        spanBo.setAgentName(serverHeader.getAgentName());
+        spanBo.setAgentStartTime(serverHeader.getAgentStartTime());
+        spanBo.setCollectorAcceptTime(requestTime);
 
         if (!pSpan.hasTransactionId()) {
             throw new IllegalStateException("hasTransactionId() is false " + MessageFormatUtils.debugLog(pSpan));
@@ -142,7 +143,7 @@ public class GrpcSpanBinder {
                 if (StringUtils.hasLength(parentApplicationName)) {
                     if (!IdValidateUtils.validateId(parentApplicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN_V3)) {
                         throw new IllegalArgumentException("Invalid parentApplicationName " + parentApplicationName
-                                + " agent:" + attribute.getApplicationName() + "/" + attribute.getAgentId());
+                                + " agent:" + serverHeader.getApplicationName() + "/" + serverHeader.getAgentId());
                     }
                     spanBo.setParentApplicationName(parentApplicationName);
                     spanBo.setParentApplicationServiceType((short) parentInfo.getParentApplicationType());
@@ -250,10 +251,10 @@ public class GrpcSpanBinder {
         }
     }
 
-    public SpanChunkBo bindSpanChunkBo(PSpanChunk pSpanChunk, BindAttribute attribute) {
+    public SpanChunkBo bindSpanChunkBo(PSpanChunk pSpanChunk, ServerHeader serverHeader, long requestTime) {
         checkVersion(pSpanChunk.getVersion());
 
-        final SpanChunkBo spanChunkBo = newSpanChunkBo(pSpanChunk, attribute);
+        final SpanChunkBo spanChunkBo = newSpanChunkBo(pSpanChunk, serverHeader, requestTime);
         if (pSpanChunk.hasLocalAsyncId()) {
             final PLocalAsyncId pLocalAsyncId = pSpanChunk.getLocalAsyncId();
             LocalAsyncIdBo localAsyncIdBo = new LocalAsyncIdBo(pLocalAsyncId.getAsyncId(), pLocalAsyncId.getSequence());
@@ -265,13 +266,13 @@ public class GrpcSpanBinder {
 
 
     // for test
-    SpanChunkBo newSpanChunkBo(PSpanChunk pSpanChunk, BindAttribute attribute) {
+    SpanChunkBo newSpanChunkBo(PSpanChunk pSpanChunk, ServerHeader serverHeader, long requestTime) {
         final SpanChunkBo spanChunkBo = new SpanChunkBo();
         spanChunkBo.setVersion(pSpanChunk.getVersion());
-        spanChunkBo.setAgentId(attribute.getAgentId());
-        spanChunkBo.setApplicationName(attribute.getApplicationName());
-        spanChunkBo.setAgentStartTime(attribute.getAgentStartTime());
-        spanChunkBo.setCollectorAcceptTime(attribute.getAcceptedTime());
+        spanChunkBo.setAgentId(serverHeader.getAgentId());
+        spanChunkBo.setApplicationName(serverHeader.getApplicationName());
+        spanChunkBo.setAgentStartTime(serverHeader.getAgentStartTime());
+        spanChunkBo.setCollectorAcceptTime(requestTime);
 
         spanChunkBo.setApplicationServiceType((short) pSpanChunk.getApplicationServiceType());
 

@@ -2,9 +2,9 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcServerResponse;
 import com.navercorp.pinpoint.collector.receiver.grpc.retry.GrpcRetryFriendlyServerResponse;
-import com.navercorp.pinpoint.io.request.ServerHeader;
-import com.navercorp.pinpoint.io.request.ServerRequest;
-import com.navercorp.pinpoint.io.request.ServerResponse;
+import com.navercorp.pinpoint.common.server.io.ServerHeader;
+import com.navercorp.pinpoint.common.server.io.ServerRequest;
+import com.navercorp.pinpoint.common.server.io.ServerResponse;
 import io.grpc.stub.StreamObserver;
 
 public class DefaultServerResponseFactory implements ServerResponseFactory {

@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.io.request;
+package com.navercorp.pinpoint.common.server.io;
 
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
-import com.navercorp.pinpoint.io.util.MessageType;
 
 import java.util.Objects;
 
@@ -77,6 +76,7 @@ public class DefaultServerRequest<T> extends DefaultAttributeMap implements Serv
     public String toString() {
         return "DefaultServerRequest{" +
                 "header=" + header +
+                ", requestTime=" + requestTime +
                 ", messageType=" + messageType +
                 ", data=" + data +
                 ", address='" + transport.getRemoteAddress() + '\'' +

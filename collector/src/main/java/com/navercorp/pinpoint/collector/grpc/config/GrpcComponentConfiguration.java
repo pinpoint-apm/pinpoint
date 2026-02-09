@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestPostP
 import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerResponseFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamCloseOnError;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
-import com.navercorp.pinpoint.common.server.bo.grpc.CollectorGrpcSpanFactory;
-import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanBinder;
+import com.navercorp.pinpoint.common.server.io.CollectorGrpcSpanFactory;
+import com.navercorp.pinpoint.common.server.io.GrpcSpanBinder;
 import com.navercorp.pinpoint.io.request.UidFetcherService;
 import com.navercorp.pinpoint.io.request.UidFetcherStreamService;
 import com.navercorp.pinpoint.io.request.UidFetchers;
@@ -51,12 +51,12 @@ public class GrpcComponentConfiguration {
 
     @Bean
     public UidFetcherStreamService UidFetcherStreamService() {
-        return UidFetchers::empty;
+        return UidFetchers::defaultUidFetcher;
     }
 
     @Bean
     public UidFetcherService uidFetcherService() {
-        return UidFetchers::empty;
+        return UidFetchers::defaultUidFetcher;
     }
 
     @Bean

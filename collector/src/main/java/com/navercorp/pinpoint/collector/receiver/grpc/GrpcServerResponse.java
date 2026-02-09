@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.navercorp.pinpoint.collector.util.ErrorStatus;
-import com.navercorp.pinpoint.io.request.ServerResponse;
+import com.navercorp.pinpoint.common.server.io.ServerResponse;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;

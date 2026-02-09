@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.io.request;
+package com.navercorp.pinpoint.common.server.io;
 
-import com.navercorp.pinpoint.common.server.bo.grpc.BindAttribute;
+/**
+ * @author Woonduk Kang(emeroad)
+ */
+public interface AttributeMap {
 
-public class BindAttributes {
+    void setAttribute(Object key, Object value);
 
-    public static BindAttribute of(ServerHeader header, long acceptedTime) {
-        return new BindAttribute(header.getAgentId(),
-                header.getAgentName(),
-                header.getApplicationName(),
-                header.getAgentStartTime(),
-                acceptedTime);
-    }
-
+    Object getAttribute(Object key);
 }

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo;
 
 import com.navercorp.pinpoint.common.server.trace.ServerTraceId;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.ByteUtils;
 import com.navercorp.pinpoint.common.server.util.NumberPrecondition;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
@@ -40,6 +41,9 @@ public class SpanChunkBo implements BasicSpan {
     private String agentName;
     @NonNull
     private String applicationName;
+    @NonNull
+    private String serviceName = ServiceUid.DEFAULT_SERVICE_UID_NAME;
+
     private long agentStartTime;
 
     private ServerTraceId transactionId;
@@ -87,6 +91,7 @@ public class SpanChunkBo implements BasicSpan {
         this.agentName = agentName;
     }
 
+    @NonNull
     @Override
     public String getApplicationName() {
         return applicationName;
@@ -94,6 +99,17 @@ public class SpanChunkBo implements BasicSpan {
 
     public void setApplicationName(String applicationName) {
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
+    }
+
+    @NonNull
+    @Override
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    @Override
+    public void setServiceName(String serviceName) {
+        this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
     }
 
     @Override
@@ -202,6 +218,7 @@ public class SpanChunkBo implements BasicSpan {
                 ", agentId='" + agentId + '\'' +
                 ", agentName='" + agentName + '\'' +
                 ", applicationName='" + applicationName + '\'' +
+                ", serviceName='" + serviceName + '\'' +
                 ", agentStartTime=" + agentStartTime +
                 ", transactionId=" + transactionId +
                 ", spanId=" + spanId +

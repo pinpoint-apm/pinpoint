@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.handler.grpc.metric.AgentUriMetricHandler;
 import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentUriStatMapper;
 import com.navercorp.pinpoint.collector.service.AgentUriStatService;
+import com.navercorp.pinpoint.common.server.io.ServerHeader;
+import com.navercorp.pinpoint.common.server.io.ServerRequest;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.UriStatHistogramBucket;
 import com.navercorp.pinpoint.grpc.Header;
@@ -29,8 +31,6 @@ import com.navercorp.pinpoint.grpc.trace.PAgentUriStat;
 import com.navercorp.pinpoint.grpc.trace.PEachUriStat;
 import com.navercorp.pinpoint.grpc.trace.PUriHistogram;
 import com.navercorp.pinpoint.io.request.GrpcServerHeaderV1;
-import com.navercorp.pinpoint.io.request.ServerHeader;
-import com.navercorp.pinpoint.io.request.ServerRequest;
 import io.grpc.Context;
 import org.junit.jupiter.api.Test;
 

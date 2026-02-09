@@ -1,24 +1,23 @@
 package com.navercorp.pinpoint.io.request;
 
-import com.navercorp.pinpoint.common.server.uid.ApplicationUid;
+import com.navercorp.pinpoint.common.server.io.ServerHeader;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.grpc.Header;
-import com.navercorp.pinpoint.io.request.supplier.UidSuppliers;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 
 public class GrpcServerHeaderV1 implements ServerHeader {
 
     private final Header header;
+
     private final UidFetcher uidFetcher;
 
     public GrpcServerHeaderV1(Header header) {
-        this(header, UidFetchers.empty());
+        this(header, UidFetchers.defaultUidFetcher());
     }
 
     public GrpcServerHeaderV1(Header header, UidFetcher uidFetcher) {
@@ -44,15 +43,6 @@ public class GrpcServerHeaderV1 implements ServerHeader {
         return header.getApplicationName();
     }
 
-    @NonNull
-    @Override
-    public Supplier<ApplicationUid> getApplicationUid() {
-        String applicationName = getApplicationName();
-        CompletableFuture<ApplicationUid> future = this.uidFetcher.getApplicationUid(ServiceUid.DEFAULT, applicationName, getServiceType());
-        return UidSuppliers.of(applicationName, future);
-    }
-
-    @NonNull
     @Override
     public String getServiceName() {
         return header.getServiceName();
@@ -69,15 +59,11 @@ public class GrpcServerHeaderV1 implements ServerHeader {
     }
 
     @Override
-    public long getSocketId() {
-        return header.getSocketId();
-    }
-
-    @Override
     public int getServiceType() {
         return header.getServiceType();
     }
 
+    @Override
     public boolean isGrpcBuiltInRetry() {
         return header.isGrpcBuiltInRetry();
     }
