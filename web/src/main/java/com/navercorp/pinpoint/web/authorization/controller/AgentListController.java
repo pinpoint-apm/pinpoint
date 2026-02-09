@@ -91,32 +91,6 @@ public class AgentListController implements AccessDeniedExceptionHandler {
         this.rangeValidator = new ForwardRangeValidator(Duration.ofDays(configProperties.getInspectorPeriodMax()));
     }
 
-    @PreAuthorize("hasPermission(null, null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ADMINISTRATION_CALL_API_FOR_APP_AGENT_MANAGEMENT)")
-    @GetMapping(value = "/search-all")
-    public TreeView<InstancesList<AgentAndStatus>> getAllAgentsList() {
-        final long timestamp = System.currentTimeMillis();
-        final AgentsMapByApplication<AgentAndStatus> allAgentsList = this.agentInfoService.getAllAgentsList(
-                AgentStatusFilters.acceptAll(),
-                Range.between(timestamp, timestamp)
-        );
-        return treeView(allAgentsList);
-    }
-
-    @PreAuthorize("hasPermission(null, null, T(com.navercorp.pinpoint.web.security.PermissionChecker).PERMISSION_ADMINISTRATION_CALL_API_FOR_APP_AGENT_MANAGEMENT)")
-    @GetMapping(value = "/search-all", params = {"from", "to"})
-    public TreeView<InstancesList<AgentAndStatus>> getAllAgentsList(
-            @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to) {
-        Range range = Range.between(from, to);
-        rangeValidator.validate(range);
-        final AgentStatusFilter filter = AgentStatusFilters.recentStatus(from);
-        final AgentsMapByApplication<AgentAndStatus> allAgentsList = this.agentInfoService.getAllAgentsList(
-                filter,
-                range
-        );
-        return treeView(allAgentsList);
-    }
-
     private static <T> TreeView<InstancesList<T>> treeView(AgentsMapByApplication<T> agentsListsList) {
         final List<InstancesList<T>> list = agentsListsList.getAgentsListsList();
         return new StaticTreeView<>(list);
