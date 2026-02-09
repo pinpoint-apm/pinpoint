@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.trace.span;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.trace.OpenTelemetryServiceTypeCategory;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -112,6 +113,9 @@ public class LinkList implements Iterable<Link> {
         }
 
         linkList.sort(STARTTIME_COMPARATOR);
+        if(OpenTelemetryServiceTypeCategory.isServer(span.getServiceType())) {
+            return linkList.get(0);
+        }
 
         Optional<Link> first = linkList.stream()
                 .filter(LinkList.startTimeFilter(span))

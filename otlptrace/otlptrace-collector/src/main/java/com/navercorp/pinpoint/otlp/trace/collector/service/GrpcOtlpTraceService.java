@@ -50,7 +50,6 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
     private final OtlpTraceMapper otlpTraceMapper;
     private final LRUCache<String, Boolean> agentIdCache = new LRUCache<>(10000);
 
-
     public GrpcOtlpTraceService(TraceService traceService, HbaseOtlpAgentInfoService agentInfoService, HbaseOtlpApplicationIndexV2Service applicationIndexV2Service, OtlpTraceMapper otlpTraceMapper) {
         this.traceService = traceService;
         this.agentInfoService = agentInfoService;
@@ -73,6 +72,9 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
         for (SpanBo spanBo : otlpTraceMapperData.getSpanBoList()) {
             try {
                 traceService.insertSpan(spanBo);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("SpanBo inserted. {}", spanBo);
+                }
             } catch (Exception e) {
                 logger.warn("Failed to insert spanBo", e);
             }
@@ -81,6 +83,9 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
         for (SpanChunkBo spanChunkBo : otlpTraceMapperData.getSpanChunkBoList()) {
             try {
                 traceService.insertSpanChunk(spanChunkBo);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("SpanChunkBo inserted. {}", spanChunkBo);
+                }
             } catch (Exception e) {
                 logger.warn("Failed to insert spanChunkBo", e);
             }

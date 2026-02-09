@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.server.util.ByteStringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
+import com.navercorp.pinpoint.io.SpanVersion;
 import io.opentelemetry.proto.trace.v1.Span;
 import org.springframework.stereotype.Component;
 
@@ -42,7 +43,7 @@ public class OtlpTraceSpanEventMapper {
 
     List<SpanEventBo> map(long spanStartTime, Span span) {
         SpanEventBo spanEventBo = new SpanEventBo();
-        spanEventBo.setVersion((byte) 1); // TODO
+        spanEventBo.setVersion(SpanVersion.TRACE_V2); // TODO
         spanEventBo.setSequence((short) 0);
         final long eventStartTime = TimeUnit.NANOSECONDS.toMillis(span.getStartTimeUnixNano());
         final long eventEndTime = TimeUnit.NANOSECONDS.toMillis(span.getEndTimeUnixNano());

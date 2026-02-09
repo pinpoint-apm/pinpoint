@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.trace.OpenTelemetryServiceTypeCategory;
 import com.navercorp.pinpoint.io.SpanVersion;
 
 import java.util.Objects;
@@ -50,6 +51,9 @@ public class SpanChunkEventAlign extends SpanEventAlign {
             return super.getStartTime();
         } else if (version == SpanVersion.TRACE_V2) {
             final long keyTime = spanChunkBo.getKeyTime();
+            if (OpenTelemetryServiceTypeCategory.contains(getSpanBo().getServiceType())) {
+                return keyTime;
+            }
             return keyTime + getSpanEventBo().getStartElapsed();
         } else {
             throw new IllegalStateException("unsupported version:" + version);
@@ -72,7 +76,6 @@ public class SpanChunkEventAlign extends SpanEventAlign {
         }
         return localAsyncIdBo.getAsyncId();
     }
-
 
 
 }
