@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.io.SpanVersion;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.trace.v1.Span;
 import org.springframework.stereotype.Component;
@@ -39,7 +40,7 @@ public class OtlpTraceSpanChunkMapper {
 
     SpanChunkBo map(List<KeyValue> resourceAttributesList, Span span) {
         SpanChunkBo spanChunkBo = new SpanChunkBo();
-        spanChunkBo.setVersion((byte) 1); // TODO
+        spanChunkBo.setVersion(SpanVersion.TRACE_V2);
         final AgentIdAndName agentIdAndName = OtlpTraceMapperUtils.getAgentId(resourceAttributesList);
         spanChunkBo.setAgentId(agentIdAndName.agentId());
         if (agentIdAndName.agentName() != null) {
