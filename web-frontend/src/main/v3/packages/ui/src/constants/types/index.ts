@@ -2,6 +2,7 @@ export * from './common';
 export * from './ActiveThreadDump';
 export * from './ActiveThreadLightDump';
 export * from './AgentActiveThread';
+export * from './AgentOverview';
 export * from './AlarmRule';
 export * from './Application';
 export * from './Bind';

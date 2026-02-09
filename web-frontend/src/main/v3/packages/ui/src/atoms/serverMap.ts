@@ -4,7 +4,7 @@ import {
   FilteredMapType as FilteredMap,
   GetHistogramStatistics,
   GetServerMap,
-  SearchApplication,
+  AgentOverview,
 } from '@pinpoint-fe/ui/src/constants';
 import { Node, Edge } from '@pinpoint-fe/server-map';
 import { configurationAtom } from './configuration';
@@ -62,7 +62,7 @@ export const currentNodeStatisticsAtom = atom<GetHistogramStatistics.Response | 
 );
 
 // server-list 선택시
-export const currentServerAtom = atom<SearchApplication.Instance | undefined>(undefined);
+export const currentServerAtom = atom<AgentOverview.Instance | undefined>(undefined);
 
 export const currentServerAgentIdAtom = atom<string | undefined>((get) => {
   const currentServer = get(currentServerAtom);

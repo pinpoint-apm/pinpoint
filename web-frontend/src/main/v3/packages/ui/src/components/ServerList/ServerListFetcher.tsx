@@ -1,5 +1,4 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
   serverMapCurrentTargetDataAtom,
@@ -8,20 +7,13 @@ import {
   serverMapDataAtom,
   serverMapCurrentTargetAtom,
 } from '@pinpoint-fe/ui/src/atoms';
+import { GetServerMap, BASE_PATH, GetHistogramStatistics } from '@pinpoint-fe/ui/src/constants';
+import { getParsedDate, getInspectorPath } from '@pinpoint-fe/ui/src/utils';
 import {
-  END_POINTS,
-  GetServerMap,
-  SearchApplication,
-  BASE_PATH,
-  GetHistogramStatistics,
-} from '@pinpoint-fe/ui/src/constants';
-import {
-  convertParamsToQueryString,
-  getParsedDate,
-  getInspectorPath,
-} from '@pinpoint-fe/ui/src/utils';
-import { useSearchParameters, useServerMapLinkedData } from '@pinpoint-fe/ui/src/hooks';
-import { queryFn } from '@pinpoint-fe/ui/src/hooks/api/reactQueryHelper';
+  useGetAgentOverview,
+  useSearchParameters,
+  useServerMapLinkedData,
+} from '@pinpoint-fe/ui/src/hooks';
 import { ServerList as SL, ServerListProps, Button, ServerListSkeleton } from '@pinpoint-fe/ui';
 import { upperCase } from 'lodash';
 
@@ -52,94 +44,38 @@ export const ServerListFetcher = ({ nodeStatistics, disableFetch }: ServerListFe
     ]),
   };
 
-  const queryParams: SearchApplication.Parameters = {
+  const { data, isLoading } = useGetAgentOverview({
     application: currentTargetData?.applicationName,
     serviceTypeName: currentTargetData?.serviceType,
     serviceTypeCode: currentTargetData?.serviceTypeCode,
-    sortBy: 'AGENT_ID_ASC',
+    applicationPairs: JSON.stringify(applicationPairs),
     from: getParsedDate(searchParameters.from).getTime(),
     to: getParsedDate(searchParameters.to).getTime(),
-    applicationPairs: JSON.stringify(applicationPairs),
-  };
-
-  const queryString = React.useMemo(() => {
-    if (
-      queryParams.from &&
-      queryParams.to &&
-      queryParams.application &&
-      queryParams.sortBy &&
-      queryParams.serviceTypeCode &&
-      queryParams.applicationPairs
-    ) {
-      return '?' + convertParamsToQueryString(queryParams);
-    }
-    return '';
-  }, [queryParams]);
-
-  const { data, isLoading } = useQuery<SearchApplication.Response | null>({
-    queryKey: [END_POINTS.SEARCH_APPLICATION, queryString],
-    queryFn: queryFn(`${END_POINTS.SEARCH_APPLICATION}${queryString}`),
-    enabled: !!queryString && !disableFetch,
   });
 
   React.useEffect(() => {
     if (data) {
-      const servers = getServers();
-      setCurrentServer(servers?.[0]);
+      setCurrentServer(data?.[0]);
     }
   }, [data, currentTarget]);
-
-  const getServers = () => {
-    return data?.reduce<SearchApplication.Instance[]>((prev, curr) => {
-      curr.instancesList.forEach((instance) => {
-        prev.push(instance);
-      });
-      return prev;
-    }, []);
-  };
 
   const handleClickItem: ServerListProps['onClick'] = (instance) => {
     setCurrentServer(instance);
   };
 
-  const renderGroupName: ServerListProps['groupNameRenderer'] = (application) => {
-    return (
-      <>
-        {application?.groupName === 'Container' ? (
-          <div className="flex-1 truncate">{application.groupName}</div>
-        ) : (
-          <>
-            <div className="flex-1 truncate">{application.groupName}</div>
-            {application?.instancesList?.[0]?.linkList?.map((link, index) => {
-              return (
-                <LinkButton key={index}>
-                  <a href={link.linkURL} target={'_blank'}>
-                    {upperCase(link.linkName)}
-                  </a>
-                </LinkButton>
-              );
-            })}
-          </>
-        )}
-      </>
-    );
-  };
-
-  const renderItem: ServerListProps['itemRenderer'] = (application, instance) => {
+  const renderItem: ServerListProps['itemRenderer'] = (instance) => {
     return (
       <>
         <div className="flex-1 truncate">{instance?.agentName || instance.agentId}</div>{' '}
-        {application?.groupName === 'Container'
-          ? instance?.linkList?.map((link, index) => {
-              return (
-                <LinkButton key={index}>
-                  <a href={link.linkURL} target={'_blank'}>
-                    {upperCase(link.linkName)}
-                  </a>
-                </LinkButton>
-              );
-            })
-          : null}
+        {instance?.linkList?.map((link, index) => {
+          return (
+            <LinkButton key={index}>
+              <a href={link.linkURL} target={'_blank'}>
+                {upperCase(link.linkName)}
+              </a>
+            </LinkButton>
+          );
+        })}
       </>
     );
   };
@@ -159,7 +95,6 @@ export const ServerListFetcher = ({ nodeStatistics, disableFetch }: ServerListFe
       statistics={nodeStatistics}
       selectedId={currentServerAgent}
       onClick={handleClickItem}
-      groupNameRenderer={renderGroupName}
       itemRenderer={renderItem}
       onClickInspectorLink={(agentId) => {
         window.open(
