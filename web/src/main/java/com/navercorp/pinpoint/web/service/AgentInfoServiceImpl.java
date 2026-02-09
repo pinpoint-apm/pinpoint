@@ -39,7 +39,6 @@ import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimeline;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineBuilder;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegment;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
-import com.navercorp.pinpoint.web.vo.tree.AgentsMapByApplication;
 import com.navercorp.pinpoint.web.vo.tree.ApplicationAgentHostList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -93,35 +92,21 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     }
 
     @Override
-    public AgentsMapByApplication<AgentAndStatus> getAllAgentsList(AgentStatusFilter filter, Range range) {
-        Objects.requireNonNull(filter, "filter");
-
-        List<String> applicationNameList = applicationIndexService.selectAllApplicationNames();
-        List<AgentAndStatus> agents = new ArrayList<>();
-        for (String applicationName : applicationNameList) {
-            agents.addAll(getAgentsByApplicationName(applicationName, range.getTo()));
-        }
-
-        return AgentsMapByApplication.newAgentAndStatusMap(
-                filter,
-                agents
-        );
-    }
-
-    @Override
-    public AgentsMapByApplication<DetailedAgentInfo> getAllAgentsStatisticsList(AgentStatusFilter filter, Range range) {
+    public List<DetailedAgentAndStatus> getAllAgentsStatisticsList(AgentStatusFilter filter, Range range) {
         Objects.requireNonNull(filter, "filter");
 
         List<String> applicationNameList = applicationIndexService.selectAllApplicationNames();
         List<DetailedAgentAndStatus> agents = new ArrayList<>();
         for (String applicationName : applicationNameList) {
-            agents.addAll(getDetailedAgentsByApplicationName(applicationName, range.getTo()));
+            Set<DetailedAgentAndStatus> detailedAgents = getDetailedAgentsByApplicationName(applicationName, range.getTo());
+            for (DetailedAgentAndStatus detailedAgent : detailedAgents) {
+                AgentStatus status = detailedAgent.getStatus();
+                if (filter.test(status)) {
+                    agents.add(detailedAgent);
+                }
+            }
         }
-
-        return AgentsMapByApplication.newDetailedAgentInfoMap(
-                filter,
-                agents
-        );
+        return agents;
     }
 
     @Override
