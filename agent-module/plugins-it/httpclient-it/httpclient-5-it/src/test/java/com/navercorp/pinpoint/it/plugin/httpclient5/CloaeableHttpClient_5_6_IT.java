@@ -40,6 +40,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
+import java.nio.file.Path;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotation;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
@@ -49,8 +50,8 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
  */
 @PluginTest
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"org.apache.httpcomponents.client5:httpclient5:[5.4,5.6)", WebServer.VERSION})
-public class CloaeableHttpClient_5_4_IT extends HttpClientITBase {
+@Dependency({"org.apache.httpcomponents.client5:httpclient5:[5.6,]", WebServer.VERSION})
+public class CloaeableHttpClient_5_6_IT extends HttpClientITBase {
 
     @Test
     public void test() throws Exception {
@@ -67,7 +68,7 @@ public class CloaeableHttpClient_5_4_IT extends HttpClientITBase {
         verifier.ignoreServiceType("HTTP_CLIENT_5");
         Method connect1 = PoolingHttpClientConnectionManager.class.getMethod("connect", ConnectionEndpoint.class, TimeValue.class, HttpContext.class);
         verifier.verifyTrace(event("HTTP_CLIENT_5_INTERNAL", connect1));
-        Method connect2 = DefaultHttpClientConnectionOperator.class.getMethod("connect", ManagedHttpClientConnection.class, HttpHost.class, NamedEndpoint.class, InetSocketAddress.class, Timeout.class, SocketConfig.class, Object.class, HttpContext.class);
+        Method connect2 = DefaultHttpClientConnectionOperator.class.getMethod("connect", ManagedHttpClientConnection.class, HttpHost.class, NamedEndpoint.class, Path.class, InetSocketAddress.class, Timeout.class, SocketConfig.class, Object.class, HttpContext.class);
         verifier.verifyTrace(event("HTTP_CLIENT_5_INTERNAL", connect2, annotation("http.internal.display", getAddress())));
 
         verifier.verifyTraceCount(0);
