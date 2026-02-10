@@ -27,12 +27,17 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 @Component
 public class OtlpTraceSpanChunkMapper {
+    private static final Supplier<Random> RANDOM = platformDefault();
 
     private final OtlpTraceSpanEventMapper spanEventMapper;
+
 
     public OtlpTraceSpanChunkMapper(OtlpTraceSpanEventMapper spanEventMapper) {
         this.spanEventMapper = Objects.requireNonNull(spanEventMapper, "spanEventMapper");
@@ -49,7 +54,8 @@ public class OtlpTraceSpanChunkMapper {
         spanChunkBo.setApplicationName(OtlpTraceMapperUtils.getApplicationName(resourceAttributesList));
 
         final long startTime = TimeUnit.NANOSECONDS.toMillis(span.getStartTimeUnixNano());
-        spanChunkBo.setAgentStartTime(startTime);
+        // The sequence value is 0, so make a difference with the agentStartTime value.
+        spanChunkBo.setAgentStartTime(generateAgentStartTime());
         spanChunkBo.setTransactionId(new OtelServerTraceId(span.getTraceId().toByteArray()));
         spanChunkBo.setSpanId(OtlpTraceMapperUtils.getSpanId(span.getParentSpanId()));
         // spanChunkBo.setEndPoint();
@@ -61,5 +67,18 @@ public class OtlpTraceSpanChunkMapper {
         spanChunkBo.setKeyTime(startTime);
 
         return spanChunkBo;
+    }
+
+    public long generateAgentStartTime() {
+        long id;
+        Random random = RANDOM.get();
+        do {
+            id = random.nextLong();
+        } while (id <= 0);
+        return id;
+    }
+
+    public static Supplier<Random> platformDefault() {
+        return ThreadLocalRandom::current;
     }
 }
