@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.realtime;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
+import com.navercorp.pinpoint.web.realtime.activethread.count.dto.ClusterKeyAndMetadata;
 import com.navercorp.pinpoint.web.realtime.service.AgentLookupService;
 import com.navercorp.pinpoint.web.service.ApplicationAgentListService;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
@@ -44,27 +45,30 @@ class AgentLookupServiceImpl implements AgentLookupService {
     }
 
     @Override
-    public List<ClusterKey> getRecentAgents(String applicationName) {
+    public List<ClusterKeyAndMetadata> getRecentAgents(String applicationName) {
         long now = System.currentTimeMillis();
         long from = now - recentness.toMillis();
         Range between = Range.between(from, now);
         TimeWindow timeWindow = new TimeWindow(between);
 
-        return intoClusterKeyList(this.applicationAgentListService.activeStatisticsAgentList(applicationName, null,
+        return intoClusterKeyAndMetadataList(this.applicationAgentListService.activeStatisticsAgentList(applicationName, null,
                 timeWindow,
                 ACTUAL_AGENT_INFO_PREDICATE
         ));
     }
 
-    private static List<ClusterKey> intoClusterKeyList(List<AgentAndStatus> agentAndStatusList) {
+    private static List<ClusterKeyAndMetadata> intoClusterKeyAndMetadataList(List<AgentAndStatus> agentAndStatusList) {
         return agentAndStatusList.stream()
                 .map(AgentAndStatus::getAgentInfo)
-                .map(AgentLookupServiceImpl::intoClusterKey)
+                .map(AgentLookupServiceImpl::intoClusterKeyAndMetadata)
                 .collect(Collectors.toList());
     }
 
-    private static ClusterKey intoClusterKey(AgentInfo src) {
-        return new ClusterKey(src.getApplicationName(), src.getAgentId(), src.getStartTimestamp());
+    private static ClusterKeyAndMetadata intoClusterKeyAndMetadata(AgentInfo src) {
+        return new ClusterKeyAndMetadata(
+                new ClusterKey(src.getApplicationName(), src.getAgentId(), src.getStartTimestamp()),
+                src.getAgentName()
+        );
     }
 
 }

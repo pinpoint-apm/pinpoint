@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.web.realtime.activethread.count.dto;
 
-import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 import com.navercorp.pinpoint.realtime.dto.ATCSupply;
 
 import java.util.HashMap;
@@ -51,17 +50,17 @@ public class ActiveThreadCountResponse {
         return result;
     }
 
-    public void putSuccessAgent(ClusterKey agentKey, List<Integer> values) {
-        putAgent(agentKey.getAgentId(), 0, "OK", values);
+    public void putSuccessAgent(ClusterKeyAndMetadata agentKey, List<Integer> values) {
+        putAgent(agentKey, 0, "OK", values);
     }
 
-    public void putFailureAgent(ClusterKey agentKey, ATCSupply supply, long connectUntil) {
+    public void putFailureAgent(ClusterKeyAndMetadata agentKey, ATCSupply supply, long connectUntil) {
         final String message = decideMessage(supply, connectUntil);
-        putAgent(agentKey.getAgentId(), -1, message, List.of());
+        putAgent(agentKey, -1, message, List.of());
     }
 
-    public void putFailureAgent(ClusterKey agentKey, String message) {
-        putAgent(agentKey.getAgentId(), -1, message, List.of());
+    public void putFailureAgent(ClusterKeyAndMetadata agentKey, String message) {
+        putAgent(agentKey, -1, message, List.of());
     }
 
     private String decideMessage(ATCSupply supply, long connectUntil) {
@@ -75,9 +74,12 @@ public class ActiveThreadCountResponse {
         }
     }
 
-    private void putAgent(String agentId, int code, String message, List<Integer> status) {
-        final Result.Count count = new Result.Count(code, message, status);
-        result.activeThreadCounts.put(agentId, count);
+    private void putAgent(ClusterKeyAndMetadata agentKey, int code, String message, List<Integer> status) {
+        final Result.Count count = new Result.Count(
+                code, message, status,
+                new Result.Count.Metadata(agentKey.agentName())
+        );
+        result.activeThreadCounts.put(agentKey.key().getAgentId(), count);
     }
 
     public static class Result {
@@ -109,11 +111,16 @@ public class ActiveThreadCountResponse {
             private final int code;
             private final String message;
             private final List<Integer> status;
+            private final Metadata metadata;
 
-            public Count(int code, String message, List<Integer> status) {
+            public Count(int code, String message, List<Integer> status, Metadata metadata) {
                 this.code = code;
                 this.message = message;
                 this.status = status;
+                this.metadata = metadata;
+            }
+
+            public record Metadata(String agentName) {
             }
 
             @SuppressWarnings("unused")
@@ -129,6 +136,11 @@ public class ActiveThreadCountResponse {
             @SuppressWarnings("unused")
             public List<Integer> getStatus() {
                 return status;
+            }
+
+            @SuppressWarnings("unused")
+            public String getAgentName() {
+                return metadata.agentName;
             }
         }
     }

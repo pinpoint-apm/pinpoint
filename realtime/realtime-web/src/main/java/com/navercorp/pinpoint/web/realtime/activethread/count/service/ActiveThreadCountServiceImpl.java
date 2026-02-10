@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.server.task.TaskDecoratorFactory;
 import com.navercorp.pinpoint.realtime.dto.ATCSupply;
 import com.navercorp.pinpoint.web.realtime.activethread.count.dao.ActiveThreadCountDao;
 import com.navercorp.pinpoint.web.realtime.activethread.count.dto.ActiveThreadCountResponse;
+import com.navercorp.pinpoint.web.realtime.activethread.count.dto.ClusterKeyAndMetadata;
 import com.navercorp.pinpoint.web.realtime.service.AgentLookupService;
 import org.springframework.core.task.TaskDecorator;
 import reactor.core.Disposable;
@@ -76,7 +77,8 @@ public class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
 
         Disposable updateDisposable = this.scheduler.schedulePeriodically(() -> {
             getAgents(taskDecorator, applicationName).subscribe(agents -> {
-                for (ClusterKey agent : agents) {
+                for (ClusterKeyAndMetadata agentMetadata : agents) {
+                    ClusterKey agent = agentMetadata.key();
                     Flux<ATCSupply> supplies = this.atcDao.getSupplies(agent);
                     Disposable disposable = supplies.subscribe(collector::add);
                     Disposable prev = disposableMap.put(agent, disposable);
@@ -104,7 +106,7 @@ public class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
         return new ClusterKey(supply.getApplicationName(), supply.getAgentId(), supply.getStartTimestamp());
     }
 
-    private Mono<List<ClusterKey>> getAgents(TaskDecorator taskDecorator, String applicationName) {
+    private Mono<List<ClusterKeyAndMetadata>> getAgents(TaskDecorator taskDecorator, String applicationName) {
         return Mono.create(sink -> {
             taskDecorator.decorate(new Runnable() {
                 @Override
@@ -125,7 +127,7 @@ public class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
         long sessionStartedAt = System.currentTimeMillis();
         long shouldConnectUntil = sessionStartedAt + MAX_CONNECTION_WAITING_MILLIS;
 
-        private volatile  List<ClusterKey> agents;
+        private volatile List<ClusterKeyAndMetadata> agents;
         Map<ClusterKey, ATCSupply> supplyMap = new ConcurrentHashMap<>();
         Map<ClusterKey, Long> updatedAtMap = new ConcurrentHashMap<>();
 
@@ -152,47 +154,48 @@ public class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
 
         public ActiveThreadCountResponse compose(Long t) {
             @SuppressWarnings("unchecked")
-            List<ClusterKey> agents = REF.get(this);
+            List<ClusterKeyAndMetadata> agents = REF.get(this);
             if (agents == null) {
                 return null;
             }
 
             long now = System.currentTimeMillis();
             ActiveThreadCountResponse response = new ActiveThreadCountResponse(applicationName, now);
-            for (ClusterKey agent : agents) {
-                putAgent(response, agent, now);
+            for (ClusterKeyAndMetadata agentMetadata : agents) {
+                putAgent(response, agentMetadata, now);
             }
             return response;
         }
 
-        public void updateAgents(List<ClusterKey> agents) {
+        public void updateAgents(List<ClusterKeyAndMetadata> agents) {
             REF.set(this, agents);
         }
 
-        private void putAgent(ActiveThreadCountResponse response, ClusterKey agent, long now) {
+        private void putAgent(ActiveThreadCountResponse response, ClusterKeyAndMetadata agentMetadata, long now) {
+            ClusterKey agent = agentMetadata.key();
             ATCSupply supply = supplyMap.get(agent);
             Long updatedAt = updatedAtMap.get(agent);
 
             if (supply == null || updatedAt == null) {
                 if (now <= this.shouldConnectUntil) {
-                    response.putFailureAgent(agent, "CONNECTING");
+                    response.putFailureAgent(agentMetadata, "CONNECTING");
                 } else {
-                    response.putFailureAgent(agent, "TIMEOUT");
+                    response.putFailureAgent(agentMetadata, "TIMEOUT");
                 }
                 return;
             }
 
             if (supply.getValues().isEmpty()) {
-                response.putFailureAgent(agent, "CONNECTED");
+                response.putFailureAgent(agentMetadata, "CONNECTED");
                 return;
             }
 
             if (now - updatedAt > this.supplyExpiredIn) {
-                response.putFailureAgent(agent, "SLOW RESPONSE");
+                response.putFailureAgent(agentMetadata, "SLOW RESPONSE");
                 return;
             }
 
-            response.putSuccessAgent(agent, supply.getValues());
+            response.putSuccessAgent(agentMetadata, supply.getValues());
         }
     }
 
