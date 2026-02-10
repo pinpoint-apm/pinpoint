@@ -39,7 +39,7 @@ public class ApplicationIndexV2CopyServiceImpl implements ApplicationIndexV2Copy
 
         stopWatch.start("Insert all applicationNames to v2");
         for (Application application : applications) {
-            applicationDao.insert(ServiceUid.DEFAULT, application.getName(), application.getServiceTypeCode());
+            applicationDao.insert(ServiceUid.DEFAULT_SERVICE_UID_CODE, application.getName(), application.getServiceTypeCode());
         }
         stopWatch.stop();
         logger.info(stopWatch.prettyPrint());
@@ -57,7 +57,7 @@ public class ApplicationIndexV2CopyServiceImpl implements ApplicationIndexV2Copy
             for (int i = 0; i < agentIds.size(); i += 100) {
                 int end = Math.min(i + 100, agentIds.size());
                 List<String> agentIdBatch = agentIds.subList(i, end);
-                agentIdDao.insert(ServiceUid.DEFAULT, application.getName(), application.getServiceTypeCode(), agentIdBatch);
+                agentIdDao.insert(ServiceUid.DEFAULT_SERVICE_UID_CODE, application.getName(), application.getServiceTypeCode(), agentIdBatch);
             }
         }
         stopWatch.stop();

@@ -11,9 +11,9 @@ public class ServiceGroupRowKeyPrefixUtilsTest {
         ServiceUid serviceUid = ServiceUid.TEST;
         String applicationName = "appName";
         int serviceTypeCode = 1000;
-        byte[] rowKey1 = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid);
-        byte[] rowKey2 = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName);
-        byte[] rowKey3 = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
+        byte[] rowKey1 = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid.getUid());
+        byte[] rowKey2 = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid.getUid(), applicationName);
+        byte[] rowKey3 = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid.getUid(), applicationName, serviceTypeCode);
 
         Assertions.assertThat(rowKey1).hasSize(Integer.BYTES);
         Assertions.assertThat(rowKey2).hasSize(Integer.BYTES + applicationName.length() + 1);

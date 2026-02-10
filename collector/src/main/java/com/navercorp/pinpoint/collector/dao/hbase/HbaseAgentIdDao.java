@@ -5,9 +5,8 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.server.util.ServiceGroupRowKeyPrefixUtils;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.common.server.util.ServiceGroupRowKeyPrefixUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -29,7 +28,7 @@ public class HbaseAgentIdDao implements AgentIdDao {
     }
 
     @Override
-    public void insert(ServiceUid serviceUid, AgentInfoBo agentInfo) {
+    public void insert(int serviceUid, AgentInfoBo agentInfo) {
         byte[] rowKey = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, agentInfo.getApplicationName(), agentInfo.getServiceTypeCode());
         byte[] qualifier = Bytes.toBytes(agentInfo.getAgentId());
 

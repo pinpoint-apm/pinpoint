@@ -30,39 +30,39 @@ public class ApplicationIndexServiceV2Impl implements ApplicationIndexServiceV2 
     @Override
     public List<Application> getApplications(String serviceName) {
         ServiceUid serviceUid = handleServiceUid(serviceName);
-        return applicationDao.getApplications(serviceUid);
+        return applicationDao.getApplications(serviceUid.getUid());
     }
 
     @Override
     public List<Application> getApplications(String serviceName, String applicationName) {
         ServiceUid serviceUid = handleServiceUid(serviceName);
-        return applicationDao.getApplications(serviceUid, applicationName);
+        return applicationDao.getApplications(serviceUid.getUid(), applicationName);
     }
 
     @Override
     public List<String> getAgentIds(String serviceName, String applicationName, int serviceTypeCode) {
         ServiceUid serviceUid = handleServiceUid(serviceName);
-        return agentIdDao.getAgentIds(serviceUid, applicationName, serviceTypeCode);
+        return agentIdDao.getAgentIds(serviceUid.getUid(), applicationName, serviceTypeCode);
     }
 
     @Override
     public void deleteApplication(String serviceName, String applicationName, int serviceTypeCode) {
         ServiceUid serviceUid = handleServiceUid(serviceName);
         deleteAllAgents(serviceName, applicationName, serviceTypeCode);
-        applicationDao.deleteApplication(serviceUid, applicationName, serviceTypeCode);
+        applicationDao.deleteApplication(serviceUid.getUid(), applicationName, serviceTypeCode);
     }
 
     @Override
     public void deleteAllAgents(String serviceName, String applicationName, int serviceTypeCode) {
         ServiceUid serviceUid = handleServiceUid(serviceName);
-        List<String> agentList = agentIdDao.getAgentIds(serviceUid, applicationName, serviceTypeCode);
-        agentIdDao.deleteAgents(serviceUid, applicationName, serviceTypeCode, agentList);
+        List<String> agentList = agentIdDao.getAgentIds(serviceUid.getUid(), applicationName, serviceTypeCode);
+        agentIdDao.deleteAgents(serviceUid.getUid(), applicationName, serviceTypeCode, agentList);
     }
 
     @Override
     public void deleteAgents(String serviceName, String applicationName, int serviceTypeCode, List<String> agentIdList) {
         ServiceUid serviceUid = handleServiceUid(serviceName);
-        agentIdDao.deleteAgents(serviceUid, applicationName, serviceTypeCode, agentIdList);
+        agentIdDao.deleteAgents(serviceUid.getUid(), applicationName, serviceTypeCode, agentIdList);
     }
 
     private ServiceUid handleServiceUid(String serviceName) {
