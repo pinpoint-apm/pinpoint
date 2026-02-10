@@ -9,9 +9,10 @@ import {
 } from '@pinpoint-fe/ui/src/hooks';
 import { AgentOverview, colors } from '@pinpoint-fe/ui/src/constants';
 import { cn } from '../../lib/utils';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui';
 import { FaArrowAltCircleDown, FaExclamationCircle, FaTimesCircle } from 'react-icons/fa';
 import { PiHardDriveFill } from 'react-icons/pi';
+import { AgentIdNameTooltip } from './AgentIdNameTooltip';
+import { TooltipProvider } from '../ui';
 
 export interface AgentListFetcherProps extends Pick<React.HTMLAttributes<HTMLDivElement>, 'style'> {
   className?: string;
@@ -88,48 +89,40 @@ export const AgentListFetcher = ({
   }
 
   return (
-    <TooltipProvider>
+    <TooltipProvider delayDuration={0}>
       <div className={className} style={style}>
         {filteredList && filteredList.length > 0 ? (
           filteredList?.map((instance, i) => {
             return (
-              <Tooltip key={instance.agentId}>
-                <TooltipTrigger asChild>
-                  <div
-                    className={cn(
-                      'flex items-center gap-2 p-1 px-1 text-xs rounded cursor-pointer hover:bg-accent h-7',
-                      {
-                        'bg-accent': selectedAgentId === instance.agentId,
-                      },
-                    )}
-                    onClick={() => onClickAgent?.(instance)}
-                  >
-                    {agentRenderer ? (
-                      agentRenderer(instance)
-                    ) : (
-                      <div className="grid grid-cols-[1rem_auto] items-center">
-                        {selectedAgentId === instance.agentId ? <RxCheck /> : <span />}
-                        <div className="truncate">
-                          <span className="mr-1 align-bottom">
-                            {renderIcon(instance?.status?.state?.code)}
-                          </span>
-                          {instance?.agentName || instance.agentId}
-                        </div>
+              <AgentIdNameTooltip
+                key={instance?.agentId}
+                agentId={instance.agentId}
+                agentName={instance.agentName}
+              >
+                <div
+                  className={cn(
+                    'flex items-center gap-2 p-1 px-1 text-xs rounded cursor-pointer hover:bg-accent h-7',
+                    {
+                      'bg-accent': selectedAgentId === instance.agentId,
+                    },
+                  )}
+                  onClick={() => onClickAgent?.(instance)}
+                >
+                  {agentRenderer ? (
+                    agentRenderer(instance)
+                  ) : (
+                    <div className="grid grid-cols-[1rem_auto] items-center">
+                      {selectedAgentId === instance.agentId ? <RxCheck /> : <span />}
+                      <div className="truncate">
+                        <span className="mr-1 align-bottom">
+                          {renderIcon(instance?.status?.state?.code)}
+                        </span>
+                        {instance?.agentName || instance.agentId}
                       </div>
-                    )}
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <>
-                    <div>
-                      <span className="text-gray-500">Agent ID:</span> {instance.agentId}
                     </div>
-                    <div>
-                      <span className="text-gray-500">Agent Name:</span> {instance.agentName}
-                    </div>
-                  </>
-                </TooltipContent>
-              </Tooltip>
+                  )}
+                </div>
+              </AgentIdNameTooltip>
             );
           })
         ) : (

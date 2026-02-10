@@ -24,6 +24,7 @@ export namespace AgentActiveThread {
   }
 
   export interface ActiveThreadStatus {
+    agentName: string;
     code: number;
     message: string;
     status?: number[];
