@@ -9,6 +9,7 @@ import { BASE_PATH, colors } from '@pinpoint-fe/ui/src/constants';
 import { RxExternalLink } from 'react-icons/rx';
 import { getThreadDumpPath } from '@pinpoint-fe/ui/src/utils';
 import { useSearchParameters } from '@pinpoint-fe/ui/src/hooks';
+import { AgentIdNameTooltip } from '../Agent/AgentIdNameTooltip';
 
 export type AgentActiveData = {
   server: string;
@@ -16,6 +17,7 @@ export type AgentActiveData = {
   '3s': number;
   '5s': number;
   slow: number;
+  agentName: string;
   message?: string;
 };
 
@@ -35,130 +37,138 @@ export const AgentActiveTable = ({
     return data.findIndex((d) => d.server === clickedActiveThread);
   }, [data, clickedActiveThread]);
 
-  const columns: ColumnDef<AgentActiveData>[] = [
-    {
-      accessorKey: 'server',
-      header: 'Server',
-      size: 230,
-      cell: ({ getValue, row }) => {
-        const value = getValue<string>() || '';
-        const message = row?.original?.message || '';
+  const columns: ColumnDef<AgentActiveData>[] = React.useMemo(
+    () => [
+      {
+        accessorKey: 'server',
+        header: 'Server',
+        size: 230,
+        cell: ({ getValue, row }) => {
+          const value = getValue<string>() || '';
+          const agentName = row?.original?.agentName || '';
+          const message = row?.original?.message || '';
 
-        return (
-          <div className="flex items-center gap-1">
-            <span>{value}</span>
-            <Button
-              className="text-muted-foreground p-0 w-4 h-4 mr-1.5"
-              variant="ghost"
-              onClick={() => {
-                window.open(`${BASE_PATH}${getThreadDumpPath(application)}?agentId=${value}`);
-              }}
+          return (
+            <TooltipProvider delayDuration={0}>
+              <div className="flex gap-1 items-center">
+                <AgentIdNameTooltip agentId={value} agentName={agentName} usePortal={true}>
+                  <div className="flex gap-1 items-center">
+                    <span>{agentName}</span>
+                  </div>
+                </AgentIdNameTooltip>
+                <Button
+                  className="text-muted-foreground p-0 w-4 h-4 mr-1.5"
+                  variant="ghost"
+                  onClick={() => {
+                    window.open(`${BASE_PATH}${getThreadDumpPath(application)}?agentId=${value}`);
+                  }}
+                >
+                  <RxExternalLink />
+                </Button>
+                {message && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <HiMiniExclamationCircle color={colors.red[500]} size={16} />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipPrimitive.Portal>
+                      <TooltipContent>
+                        <p>{message}</p>
+                      </TooltipContent>
+                    </TooltipPrimitive.Portal>
+                  </Tooltip>
+                )}
+              </div>
+            </TooltipProvider>
+          );
+        },
+      },
+      {
+        accessorKey: 'slow',
+        header: 'Slow',
+        size: SIZE,
+        meta: {
+          headerClassName: 'flex justify-end',
+          cellClassName: 'text-right',
+        },
+        cell: ({ getValue }) => {
+          const value = getValue<number>() || 0;
+
+          if (value === -1) {
+            return '-';
+          }
+
+          return (
+            <span
+              className={cn({
+                'text-red-500 font-bold': value > 0,
+              })}
             >
-              <RxExternalLink />
-            </Button>
-            {message && (
-              <TooltipProvider delayDuration={0}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div>
-                      <HiMiniExclamationCircle color={colors.red[500]} size={16} />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipPrimitive.Portal>
-                    <TooltipContent>
-                      <p>{message}</p>
-                    </TooltipContent>
-                  </TooltipPrimitive.Portal>
-                </Tooltip>
-              </TooltipProvider>
-            )}
-          </div>
-        );
+              {value}
+            </span>
+          );
+        },
       },
-    },
-    {
-      accessorKey: 'slow',
-      header: 'Slow',
-      size: SIZE,
-      meta: {
-        headerClassName: 'flex justify-end',
-        cellClassName: 'text-right',
+      {
+        accessorKey: '5s',
+        header: '5s',
+        size: SIZE,
+        meta: {
+          headerClassName: 'flex justify-end',
+          cellClassName: 'text-right',
+        },
+        cell: ({ getValue }) => {
+          const value = getValue<number>() || 0;
+          if (value === -1) {
+            return '-';
+          }
+          return (
+            <span
+              className={cn({
+                'text-red-500 font-bold': value > 0,
+              })}
+            >
+              {value}
+            </span>
+          );
+        },
       },
-      cell: ({ getValue }) => {
-        const value = getValue<number>() || 0;
-
-        if (value === -1) {
-          return '-';
-        }
-
-        return (
-          <span
-            className={cn({
-              'text-red-500 font-bold': value > 0,
-            })}
-          >
-            {value}
-          </span>
-        );
+      {
+        accessorKey: '3s',
+        header: '3s',
+        size: SIZE,
+        meta: {
+          headerClassName: 'flex justify-end',
+          cellClassName: 'text-right',
+        },
+        cell: ({ getValue }) => {
+          const value = getValue<number>() || 0;
+          if (value === -1) {
+            return '-';
+          }
+          return value;
+        },
       },
-    },
-    {
-      accessorKey: '5s',
-      header: '5s',
-      size: SIZE,
-      meta: {
-        headerClassName: 'flex justify-end',
-        cellClassName: 'text-right',
+      {
+        accessorKey: '1s',
+        header: '1s',
+        size: SIZE,
+        meta: {
+          headerClassName: 'flex justify-end',
+          cellClassName: 'text-right',
+        },
+        cell: ({ getValue }) => {
+          const value = getValue<number>() || 0;
+          if (value === -1) {
+            return '-';
+          }
+          return value;
+        },
       },
-      cell: ({ getValue }) => {
-        const value = getValue<number>() || 0;
-        if (value === -1) {
-          return '-';
-        }
-        return (
-          <span
-            className={cn({
-              'text-red-500 font-bold': value > 0,
-            })}
-          >
-            {value}
-          </span>
-        );
-      },
-    },
-    {
-      accessorKey: '3s',
-      header: '3s',
-      size: SIZE,
-      meta: {
-        headerClassName: 'flex justify-end',
-        cellClassName: 'text-right',
-      },
-      cell: ({ getValue }) => {
-        const value = getValue<number>() || 0;
-        if (value === -1) {
-          return '-';
-        }
-        return value;
-      },
-    },
-    {
-      accessorKey: '1s',
-      header: '1s',
-      size: SIZE,
-      meta: {
-        headerClassName: 'flex justify-end',
-        cellClassName: 'text-right',
-      },
-      cell: ({ getValue }) => {
-        const value = getValue<number>() || 0;
-        if (value === -1) {
-          return '-';
-        }
-        return value;
-      },
-    },
-  ];
+    ],
+    [application?.applicationName, application?.serviceType],
+  );
 
   return (
     <div className="block h-[-webkit-fill-available] max-w-[50%] w-auto">

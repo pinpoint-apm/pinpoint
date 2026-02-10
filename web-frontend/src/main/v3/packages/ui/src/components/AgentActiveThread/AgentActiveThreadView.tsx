@@ -16,7 +16,10 @@ export const AgentActiveThreadView = ({
   setting,
 }: AgentActiveThreadViewProps) => {
   const dataMap = React.useRef(
-    new Map<string, { status: number[]; lastOKTimeStamp: number; message?: string }>(),
+    new Map<
+      string,
+      { agentName: string; status: number[]; lastOKTimeStamp: number; message?: string }
+    >(),
   );
   const [loading, setLoading] = React.useState<boolean>(false);
   const [activeThreadCountsData, setActiveThreadCountsData] = React.useState<AgentActiveData[]>([]);
@@ -48,6 +51,7 @@ export const AgentActiveThreadView = ({
       if (serverData?.message === 'OK') {
         // If "OK" the status will be updated.
         dataMap.current.set(key, {
+          agentName: serverData.agentName,
           status: serverData.status || [0, 0, 0, 0],
           lastOKTimeStamp: timeStamp,
           message: '',
@@ -55,6 +59,7 @@ export const AgentActiveThreadView = ({
       } else {
         // If it is not “OK”, only the message is updated.
         const dataMapData = dataMap.current.get(key) || {
+          agentName: serverData.agentName,
           status: [-1, -1, -1, -1],
           lastOKTimeStamp: timeStamp,
         };
@@ -95,6 +100,7 @@ export const AgentActiveThreadView = ({
         '5s': fiveS,
         slow,
         message: mapData?.message || '',
+        agentName: mapData?.agentName || '',
       };
     });
 

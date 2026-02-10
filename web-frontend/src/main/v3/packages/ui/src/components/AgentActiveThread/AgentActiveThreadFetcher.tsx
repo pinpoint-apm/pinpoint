@@ -129,13 +129,13 @@ export const AgentActiveThreadFetcher = () => {
       {webSocketState === WebSocket.OPEN ? (
         isApplicationLocked ||
         currentTargetData?.nodeCategory === GetServerMap.NodeCategory.SERVER ? (
-          <div className="flex flex-col items-center h-full p-4">
-            <div className="flex flex-row items-center justify-between w-full gap-1 p-1 text-sm font-semibold truncate">
+          <div className="flex flex-col items-center p-4 h-full">
+            <div className="flex flex-row gap-1 justify-between items-center p-1 w-full text-sm font-semibold truncate">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
-                      className="px-3 text-lg h-7"
+                      className="px-3 h-7 text-lg"
                       variant="ghost"
                       onClick={() => setApplicationLock(!isApplicationLocked)}
                     >
@@ -147,11 +147,11 @@ export const AgentActiveThreadFetcher = () => {
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              <div className="flex flex-row w-full gap-1 truncate">
+              <div className="flex flex-row gap-1 w-full truncate">
                 {applicationNameRef.current}
                 <HelpPopover helpKey="HELP_VIEWER.REAL_TIME" />
               </div>
-              <div className="flex items-center gap-1 font-normal text-gray-400">
+              <div className="flex gap-1 items-center font-normal text-gray-400">
                 <span className="text-sm">
                   {formatInTimeZone(
                     activeThreadCounts?.result?.timeStamp || 0,
@@ -173,7 +173,7 @@ export const AgentActiveThreadFetcher = () => {
               />
               {showSetting && (
                 <div
-                  className={`absolute w-[-webkit-fill-available] h-[-webkit-fill-available] z-10 flex items-center justify-center`}
+                  className={`flex absolute z-10 justify-center items-center w-[-webkit-fill-available] h-[-webkit-fill-available]`}
                 >
                   <AgentActiveSetting
                     className="z-10"
@@ -183,20 +183,20 @@ export const AgentActiveThreadFetcher = () => {
                       setSetting(newSetting);
                     }}
                   />
-                  <div className="absolute w-full h-full bg-background opacity-80"></div>
+                  <div className="absolute w-full h-full opacity-80 bg-background"></div>
                 </div>
               )}
             </div>
           </div>
         ) : (
-          <div className="flex items-center justify-center w-full h-full">
+          <div className="flex justify-center items-center w-full h-full">
             Selected target is not a WAS.
           </div>
         )
       ) : webSocketState === WebSocket.CONNECTING ? (
         <AgentActiveThreadSkeleton />
       ) : (
-        <div className="flex items-center justify-center w-full h-full">Connection closed.</div>
+        <div className="flex justify-center items-center w-full h-full">Connection closed.</div>
       )}
     </div>
   );
