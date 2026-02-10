@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 NAVER Corp.
+ * Copyright 2026 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.navercorp.pinpoint.web.realtime.service;
+package com.navercorp.pinpoint.web.realtime.activethread.count.dto;
 
-import com.navercorp.pinpoint.web.realtime.activethread.count.dto.ClusterKeyAndMetadata;
-
-import java.util.List;
+import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
 
 /**
- * @author youngjin.kim2
+ * @author intr3p1d
  */
-public interface AgentLookupService {
-
-    List<ClusterKeyAndMetadata> getRecentAgents(String applicationName);
-
+public record ClusterKeyAndMetadata(ClusterKey key, String agentName) {
 }
