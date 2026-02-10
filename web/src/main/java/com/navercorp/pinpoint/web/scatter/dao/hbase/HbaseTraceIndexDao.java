@@ -141,7 +141,6 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 
         Scan scan = createScan(serviceUid, applicationName, serviceTypeCode, range);
         setHbaseFilter(scan, dragAreaQuery, rpcRegex);
-        scan.setLimit(limit);
         scan.addFamily(META.getName());
 
         RowMapper<List<DotMetaData>> mapper = createDotMetaMapper(applicationName, dragAreaQuery);
