@@ -36,16 +36,17 @@ import java.util.function.Supplier;
  * @author Woonduk Kang(emeroad)
  */
 public class DefaultServerRequestFactory implements ServerRequestFactory {
-    private final ServerRequestPostProcessor postProcessor;
-    private final GrpcHeaderFactory headerFactory = new GrpcHeaderFactory();
+    private final GrpcHeaderFactory headerFactory;
 
     public DefaultServerRequestFactory() {
-        this.postProcessor = null;
+        this(new GrpcHeaderFactory());
     }
 
-    public DefaultServerRequestFactory(ServerRequestPostProcessor postProcessor) {
-        this.postProcessor = Objects.requireNonNull(postProcessor, "postProcessor");
+    public DefaultServerRequestFactory(GrpcHeaderFactory headerFactory) {
+        this.headerFactory = Objects.requireNonNull(headerFactory, "headerFactory");
     }
+
+
 
     @Override
     public <T> ServerRequest<T> newServerRequest(Context context, MessageType messageType, T data) {
@@ -67,18 +68,8 @@ public class DefaultServerRequestFactory implements ServerRequestFactory {
                 return ServiceUid.DEFAULT;
             }
         });
-        ServerRequest<T> serverRequest = new DefaultServerRequest<>(serverHeader, transportMetadata, requestTime, messageType, data);
 
-        postProcessor(context, serverRequest);
-
-        return serverRequest;
-    }
-
-    private <T> void postProcessor(Context context, ServerRequest<T> serverRequest) {
-        final ServerRequestPostProcessor postProcessor = this.postProcessor;
-        if (postProcessor != null) {
-            postProcessor.postProcess(context, serverRequest);
-        }
+        return new DefaultServerRequest<>(serverHeader, transportMetadata, requestTime, messageType, data);
     }
 
 }
