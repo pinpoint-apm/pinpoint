@@ -5,7 +5,6 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.ServiceGroupRowKeyPrefixUtils;
 import com.navercorp.pinpoint.web.dao.ApplicationDao;
 import com.navercorp.pinpoint.web.util.ListListUtils;
@@ -37,13 +36,13 @@ public class HbaseApplicationDao implements ApplicationDao {
     }
 
     @Override
-    public List<Application> getApplications(ServiceUid serviceUid) {
+    public List<Application> getApplications(int serviceUid) {
         byte[] rewKeyPrefix = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid);
         return scanApplications(rewKeyPrefix);
     }
 
     @Override
-    public List<Application> getApplications(ServiceUid serviceUid, String applicationName) {
+    public List<Application> getApplications(int serviceUid, String applicationName) {
         byte[] rewKeyPrefix = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName);
         return scanApplications(rewKeyPrefix);
     }
@@ -59,7 +58,7 @@ public class HbaseApplicationDao implements ApplicationDao {
     }
 
     @Override
-    public void deleteApplication(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
+    public void deleteApplication(int serviceUid, String applicationName, int serviceTypeCode) {
         byte[] rowKey = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
         Delete delete = new Delete(rowKey);
 
@@ -68,7 +67,7 @@ public class HbaseApplicationDao implements ApplicationDao {
     }
 
     @Override
-    public void insert(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
+    public void insert(int serviceUid, String applicationName, int serviceTypeCode) {
         byte[] rowKey = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
         final Put put = new Put(rowKey, true);
         put.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName(), PREFIXED_EMPTY_VALUE);

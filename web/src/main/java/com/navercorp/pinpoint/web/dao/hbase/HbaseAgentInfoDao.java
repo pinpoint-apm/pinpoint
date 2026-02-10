@@ -16,19 +16,30 @@
 
 package com.navercorp.pinpoint.web.dao.hbase;
 
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstants;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.agent.AgentIdRowKeyEncoder;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
+import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentInfoQuery;
+import com.navercorp.pinpoint.web.mapper.Timestamped;
+import com.navercorp.pinpoint.web.mapper.TimestampedMapper;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentInfo;
+import jakarta.annotation.Nullable;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.unit.DataSize;
 
@@ -43,6 +54,7 @@ import java.util.Objects;
  */
 @Repository
 public class HbaseAgentInfoDao implements AgentInfoDao {
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private static final int SCANNER_CACHING = 1;
     private static final long MAX_RESULT_BYTES = DataSize.ofBytes(1).toBytes();
@@ -50,12 +62,11 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     private static final HbaseTables.AgentInfo DESCRIPTOR = HbaseTables.AGENTINFO_INFO;
 
     private final HbaseOperations hbaseOperations;
-
     private final TableNameProvider tableNameProvider;
 
     private final ResultsExtractor<AgentInfo> agentInfoResultsExtractor;
-
     private final ResultsExtractor<DetailedAgentInfo> detailedAgentInfoResultsExtractor;
+    private final RowMapper<Timestamped<AgentInfoBo>> timestampedRowMapper;
 
     private final AgentIdRowKeyEncoder rowKeyEncoder;
 
@@ -64,12 +75,14 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
                              AgentIdRowKeyEncoder rowKeyEncoder,
                              TableNameProvider tableNameProvider,
                              ResultsExtractor<AgentInfo> agentInfoResultsExtractor,
-                             ResultsExtractor<DetailedAgentInfo> detailedAgentInfoResultsExtractor) {
+                             ResultsExtractor<DetailedAgentInfo> detailedAgentInfoResultsExtractor,
+                             RowMapper<AgentInfoBo> agentInfoMapper) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.agentInfoResultsExtractor = Objects.requireNonNull(agentInfoResultsExtractor, "agentInfoResultsExtractor");
         this.detailedAgentInfoResultsExtractor = Objects.requireNonNull(detailedAgentInfoResultsExtractor, "detailedAgentInfoResultsExtractor");
+        this.timestampedRowMapper = new TimestampedMapper<>(Objects.requireNonNull(agentInfoMapper, "agentInfoMapper"));
     }
 
     @Override
@@ -191,4 +204,33 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         return scan;
     }
 
+    // only for agentList migration
+    @Override
+    public List<Timestamped<AgentInfoBo>> getAgentInfo(int limit, long fromTimestamp, @Nullable String lastAgentId, long startTime) {
+        Scan scan = new Scan();
+        setStartRow(scan, lastAgentId, startTime);
+        if (fromTimestamp > 0) {
+            try {
+                scan.setTimeRange(fromTimestamp, Long.MAX_VALUE);
+            } catch (Exception e) {
+                logger.error("setTimeRange error ", e);
+            }
+        }
+        scan.setLimit(limit);
+        scan.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.QUALIFIER_IDENTIFIER);
+        scan.readVersions(1);
+
+        TableName agentInfoTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
+        return this.hbaseOperations.find(agentInfoTableName, scan, timestampedRowMapper);
+
+    }
+
+    private void setStartRow(Scan scan, String lastAgentId, long startTime) {
+        if (lastAgentId != null && startTime > 0) {
+            Buffer buffer = new FixedBuffer(HbaseTableConstants.AGENT_ID_MAX_LEN + Long.BYTES);
+            buffer.putPadString(lastAgentId, HbaseTableConstants.AGENT_ID_MAX_LEN);
+            buffer.putLong(LongInverter.invert(startTime));
+            scan.withStartRow(buffer.getBuffer(), false);
+        }
+    }
 }

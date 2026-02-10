@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.web.dao.AgentIdDao;
 import com.navercorp.pinpoint.web.dao.ApplicationDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.agent.AgentListItem;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -63,7 +64,7 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     @Override
     public List<Application> selectAllApplications() {
         if (isReadV2()) {
-            return this.applicationDao.getApplications(ServiceUid.DEFAULT);
+            return this.applicationDao.getApplications(ServiceUid.DEFAULT.getUid());
         }
         return this.applicationIndexDao.selectAllApplicationNames();
     }
@@ -72,7 +73,7 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     @Deprecated
     public List<String> selectAllApplicationNames() {
         if (isReadV2()) {
-            return this.applicationDao.getApplications(ServiceUid.DEFAULT).stream()
+            return this.applicationDao.getApplications(ServiceUid.DEFAULT.getUid()).stream()
                     .map(Application::getName)
                     .toList();
         }
@@ -85,7 +86,7 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     @Override
     public void remove(String applicationName, int serviceTypeCode) {
         if (v2Enabled) {
-            this.applicationDao.deleteApplication(ServiceUid.DEFAULT, applicationName, serviceTypeCode);
+            this.applicationDao.deleteApplication(ServiceUid.DEFAULT.getUid(), applicationName, serviceTypeCode);
         }
         // v1 doesn't need application level deletion, just delete all agentIds
     }
@@ -93,7 +94,10 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     @Override
     public List<String> selectAgentIds(String applicationName) {
         if (isReadV2()) {
-            return this.agentIdDao.getAgentIds(ServiceUid.DEFAULT, applicationName);
+            return this.agentIdDao.getAgentListItems(ServiceUid.DEFAULT.getUid(), applicationName).stream()
+                    .map(AgentListItem::getAgentId)
+                    .distinct()
+                    .toList();
         }
         return this.applicationIndexDao.selectAgentIds(applicationName);
     }
@@ -101,7 +105,10 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     @Override
     public List<String> selectAgentIds(String applicationName, int serviceTypeCode) {
         if (isReadV2()) {
-            return this.agentIdDao.getAgentIds(ServiceUid.DEFAULT, applicationName, serviceTypeCode);
+            return this.agentIdDao.getAgentListItems(ServiceUid.DEFAULT.getUid(), applicationName, serviceTypeCode).stream()
+                    .map(AgentListItem::getAgentId)
+                    .distinct()
+                    .toList();
         }
         return this.applicationIndexDao.selectAgentIds(applicationName, serviceTypeCode);
     }
@@ -109,7 +116,10 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     @Override
     public List<String> selectAgentIds(String applicationName, int serviceTypeCode, long maxTimestamp) {
         if (isReadV2()) {
-            return this.agentIdDao.getAgentIds(ServiceUid.DEFAULT, applicationName, serviceTypeCode, maxTimestamp);
+            return this.agentIdDao.getAgentListItems(ServiceUid.DEFAULT.getUid(), applicationName, serviceTypeCode, maxTimestamp).stream()
+                    .map(AgentListItem::getAgentId)
+                    .distinct()
+                    .toList();
         }
         return this.applicationIndexDao.selectAgentIds(applicationName, serviceTypeCode, maxTimestamp);
     }
@@ -117,7 +127,9 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     @Override
     public void deleteAgentIds(String applicationName, int serviceTypeCode, List<String> agentIds) {
         if (v2Enabled) {
-            this.agentIdDao.deleteAgents(ServiceUid.DEFAULT, applicationName, serviceTypeCode, agentIds);
+            for (String agentId : agentIds) {
+                this.agentIdDao.delete(ServiceUid.DEFAULT.getUid(), applicationName, serviceTypeCode, agentId);
+            }
         }
         if (v1Enabled) {
             applicationIndexDao.deleteAgentIds(applicationName, agentIds);

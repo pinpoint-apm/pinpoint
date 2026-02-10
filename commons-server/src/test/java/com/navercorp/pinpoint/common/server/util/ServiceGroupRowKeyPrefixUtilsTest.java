@@ -8,7 +8,7 @@ public class ServiceGroupRowKeyPrefixUtilsTest {
 
     @Test
     public void createRowKeyTest() {
-        ServiceUid serviceUid = ServiceUid.TEST;
+        int serviceUid = ServiceUid.TEST.getUid();
         String applicationName = "appName";
         int serviceTypeCode = 1000;
         byte[] rowKey1 = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid);

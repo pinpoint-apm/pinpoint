@@ -35,8 +35,8 @@ public class ApplicationIndexV2Service {
         }
         try {
             ServiceUid serviceUid = serviceUidSupplier.get();
-            applicationDao.insert(serviceUid, agentInfoBo.getApplicationName(), agentInfoBo.getServiceTypeCode());
-            agentIdDao.insert(serviceUid, agentInfoBo);
+            applicationDao.insert(serviceUid.getUid(), agentInfoBo.getApplicationName(), agentInfoBo.getServiceTypeCode());
+            agentIdDao.insert(serviceUid.getUid(), agentInfoBo);
         } catch (Exception e) {
             logger.warn("Failed to insert agent. applicationName: {}, agentId: {}", agentInfoBo.getApplicationName(), agentInfoBo.getAgentId(), e);
         }

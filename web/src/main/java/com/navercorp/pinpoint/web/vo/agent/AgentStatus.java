@@ -27,6 +27,8 @@ import java.util.Objects;
  */
 public class AgentStatus {
 
+    public static final AgentStatus UNKNOWN = new AgentStatus("unknown", AgentLifeCycleState.UNKNOWN, 0);
+
     private final String agentId;
 
     private final long eventTimestamp;

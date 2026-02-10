@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilters;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatusQuery;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -127,7 +128,7 @@ public class ApplicationAgentListServiceImplTest {
         List<String> agentIds = List.of(testAgentId);
         when(applicationIndexService.selectAgentIds(testApplicationName)).thenReturn(agentIds);
         when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
-        when(agentLifeCycleDao.getAgentStatus(ArgumentMatchers.any())).thenReturn(List.of(Optional.of(testAgentStatus)));
+        when(agentLifeCycleDao.getAgentStatus((AgentStatusQuery) any())).thenReturn(List.of(Optional.of(testAgentStatus)));
 
         List<AgentAndStatus> agentAndStatusList = applicationAgentListService.activeStatusAgentList(testApplicationName, testApplicationServiceType, timeWindow, AgentInfoFilters.acceptAll());
 
@@ -145,7 +146,7 @@ public class ApplicationAgentListServiceImplTest {
         List<String> agentIds = List.of(testAgentId);
         when(applicationIndexService.selectAgentIds(testApplicationName)).thenReturn(agentIds);
         when(agentInfoDao.getSimpleAgentInfos(agentIds, range.getTo())).thenReturn(List.of(testAgentInfo));
-        when(agentLifeCycleDao.getAgentStatus(ArgumentMatchers.any())).thenReturn(List.of(Optional.of(testAgentStatus)));
+        when(agentLifeCycleDao.getAgentStatus((AgentStatusQuery) any())).thenReturn(List.of(Optional.of(testAgentStatus)));
 
         List<AgentAndStatus> agentAndStatusList = applicationAgentListService.activeStatusAgentList(testApplicationName, null, timeWindow, AgentInfoFilters.acceptAll());
 

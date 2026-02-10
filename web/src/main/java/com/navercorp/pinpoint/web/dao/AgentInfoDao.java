@@ -16,8 +16,11 @@
 
 package com.navercorp.pinpoint.web.dao;
 
+import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
+import com.navercorp.pinpoint.web.mapper.Timestamped;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentInfo;
+import jakarta.annotation.Nullable;
 
 import java.util.List;
 
@@ -39,4 +42,6 @@ public interface AgentInfoDao {
     List<AgentInfo> getSimpleAgentInfos(List<String> agentIds, long timestamp);
 
     List<DetailedAgentInfo> getDetailedAgentInfos(List<String> agentIds, long timestamp, AgentInfoQuery query);
+
+    List<Timestamped<AgentInfoBo>> getAgentInfo(int limit, long fromTimestamp, @Nullable String lastAgentId, long startTime);
 }
