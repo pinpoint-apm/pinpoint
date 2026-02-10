@@ -5,7 +5,6 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.ServiceGroupRowKeyPrefixUtils;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.dao.AgentIdDao;
@@ -39,7 +38,7 @@ public class HbaseAgentIdDao implements AgentIdDao {
     }
 
     @Override
-    public List<String> getAgentIds(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
+    public List<String> getAgentIds(int serviceUid, String applicationName, int serviceTypeCode) {
         byte[] rowKeyPrefix = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
         Scan scan = createScan(rowKeyPrefix);
 
@@ -49,7 +48,7 @@ public class HbaseAgentIdDao implements AgentIdDao {
     }
 
     @Override
-    public List<String> getAgentIds(ServiceUid serviceUid, String applicationName) {
+    public List<String> getAgentIds(int serviceUid, String applicationName) {
         byte[] rowKeyPrefix = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName);
         Scan scan = createScan(rowKeyPrefix);
 
@@ -59,7 +58,7 @@ public class HbaseAgentIdDao implements AgentIdDao {
     }
 
     @Override
-    public List<String> getAgentIds(ServiceUid serviceUid, String applicationName, int serviceTypeCode, long maxTimestamp) {
+    public List<String> getAgentIds(int serviceUid, String applicationName, int serviceTypeCode, long maxTimestamp) {
         byte[] rowKeyPrefix = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
         Scan scan = createScan(rowKeyPrefix);
         try {
@@ -82,7 +81,7 @@ public class HbaseAgentIdDao implements AgentIdDao {
     }
 
     @Override
-    public void deleteAllAgents(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
+    public void deleteAllAgents(int serviceUid, String applicationName, int serviceTypeCode) {
         byte[] rowKey = ServiceGroupRowKeyPrefixUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
         Delete delete = new Delete(rowKey);
 
@@ -91,7 +90,7 @@ public class HbaseAgentIdDao implements AgentIdDao {
     }
 
     @Override
-    public void deleteAgents(ServiceUid serviceUid, String applicationName, int serviceTypeCode, List<String> agentIdList) {
+    public void deleteAgents(int serviceUid, String applicationName, int serviceTypeCode, List<String> agentIdList) {
         if (CollectionUtils.isEmpty(agentIdList)) {
             return;
         }
@@ -106,7 +105,7 @@ public class HbaseAgentIdDao implements AgentIdDao {
     }
 
     @Override
-    public void insert(ServiceUid serviceUid, String applicationName, int serviceTypeCode, List<String> agentIdList) {
+    public void insert(int serviceUid, String applicationName, int serviceTypeCode, List<String> agentIdList) {
         if (CollectionUtils.isEmpty(agentIdList)) {
             return;
         }

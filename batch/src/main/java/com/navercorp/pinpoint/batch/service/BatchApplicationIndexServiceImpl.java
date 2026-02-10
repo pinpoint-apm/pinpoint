@@ -63,7 +63,7 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     @Override
     public List<Application> selectAllApplications() {
         if (isReadV2()) {
-            return this.applicationDao.getApplications(ServiceUid.DEFAULT);
+            return this.applicationDao.getApplications(ServiceUid.DEFAULT_SERVICE_UID_CODE);
         }
         return this.applicationIndexDao.selectAllApplicationNames();
     }
@@ -72,7 +72,7 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     @Deprecated
     public List<String> selectAllApplicationNames() {
         if (isReadV2()) {
-            return this.applicationDao.getApplications(ServiceUid.DEFAULT).stream()
+            return this.applicationDao.getApplications(ServiceUid.DEFAULT_SERVICE_UID_CODE).stream()
                     .map(Application::getName)
                     .toList();
         }
@@ -85,7 +85,7 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     @Override
     public void remove(String applicationName, int serviceTypeCode) {
         if (v2Enabled) {
-            this.applicationDao.deleteApplication(ServiceUid.DEFAULT, applicationName, serviceTypeCode);
+            this.applicationDao.deleteApplication(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode);
         }
         // v1 doesn't need application level deletion, just delete all agentIds
     }
@@ -93,7 +93,7 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     @Override
     public List<String> selectAgentIds(String applicationName) {
         if (isReadV2()) {
-            return this.agentIdDao.getAgentIds(ServiceUid.DEFAULT, applicationName);
+            return this.agentIdDao.getAgentIds(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName);
         }
         return this.applicationIndexDao.selectAgentIds(applicationName);
     }
@@ -101,7 +101,7 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     @Override
     public List<String> selectAgentIds(String applicationName, int serviceTypeCode) {
         if (isReadV2()) {
-            return this.agentIdDao.getAgentIds(ServiceUid.DEFAULT, applicationName, serviceTypeCode);
+            return this.agentIdDao.getAgentIds(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode);
         }
         return this.applicationIndexDao.selectAgentIds(applicationName, serviceTypeCode);
     }
@@ -109,7 +109,7 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     @Override
     public List<String> selectAgentIds(String applicationName, int serviceTypeCode, long maxTimestamp) {
         if (isReadV2()) {
-            return this.agentIdDao.getAgentIds(ServiceUid.DEFAULT, applicationName, serviceTypeCode, maxTimestamp);
+            return this.agentIdDao.getAgentIds(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode, maxTimestamp);
         }
         return this.applicationIndexDao.selectAgentIds(applicationName, serviceTypeCode, maxTimestamp);
     }
@@ -117,7 +117,7 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     @Override
     public void deleteAgentIds(String applicationName, int serviceTypeCode, List<String> agentIds) {
         if (v2Enabled) {
-            this.agentIdDao.deleteAgents(ServiceUid.DEFAULT, applicationName, serviceTypeCode, agentIds);
+            this.agentIdDao.deleteAgents(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode, agentIds);
         }
         if (v1Enabled) {
             applicationIndexDao.deleteAgentIds(applicationName, agentIds);
