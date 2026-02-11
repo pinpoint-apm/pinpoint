@@ -22,9 +22,7 @@ import com.navercorp.pinpoint.batch.common.BatchJobLauncher;
 import com.navercorp.pinpoint.batch.common.StartupJobLauncher;
 import com.navercorp.pinpoint.batch.config.AgentCountJobConfig;
 import com.navercorp.pinpoint.batch.config.AgentCountJobXmlConfig;
-import com.navercorp.pinpoint.batch.config.AlarmJobModule;
 import com.navercorp.pinpoint.batch.config.BatchJavaConfigModule;
-import com.navercorp.pinpoint.batch.config.BatchXmlConfig;
 import com.navercorp.pinpoint.batch.config.CleanupInactiveApplicationsJobConfig;
 import com.navercorp.pinpoint.common.server.config.CommonCacheManagerConfiguration;
 import com.navercorp.pinpoint.common.server.config.RestTemplateConfiguration;
@@ -32,6 +30,7 @@ import com.navercorp.pinpoint.common.timeseries.window.DefaultTimeSlot;
 import com.navercorp.pinpoint.common.timeseries.window.TimeSlot;
 import com.navercorp.pinpoint.datasource.MainDataSourceConfiguration;
 import com.navercorp.pinpoint.datasource.MetaDataSourceConfiguration;
+import com.navercorp.pinpoint.mybatis.MyBatisConfiguration;
 import com.navercorp.pinpoint.user.UserModule;
 import com.navercorp.pinpoint.web.WebHbaseModule;
 import com.navercorp.pinpoint.web.WebServiceConfig;
@@ -45,14 +44,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
 
 import java.util.List;
 
-@ImportResource({
-        "classpath:applicationContext-batch-dao-config.xml",
-        "classpath:applicationContext-batch-web-component.xml",
-})
 @Import({
         TransactionAutoConfiguration.class,
         BatchAppPropertySources.class,
@@ -62,10 +56,8 @@ import java.util.List;
 
         MainDataSourceConfiguration.class,
         MetaDataSourceConfiguration.class,
+        MyBatisConfiguration.class,
 
-        AlarmJobModule.class,
-
-        BatchXmlConfig.class,
         BatchJavaConfigModule.class,
 
         AgentCountJobXmlConfig.class,
