@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
+import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorRejectedSpan;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
@@ -52,41 +53,66 @@ public class OtlpTraceMapper {
 
     public OtlpTraceMapperData map(List<ResourceSpans> resourceSpanList) {
         final OtlpTraceMapperData mapperData = new OtlpTraceMapperData();
-
         for (ResourceSpans resourceSpan : resourceSpanList) {
+            final IdAndName idAndName = getId(mapperData, resourceSpan);
+            if (idAndName == null) {
+                // skip
+                continue;
+            }
+
             final List<KeyValue> attributesList = resourceSpan.getResource().getAttributesList();
             final List<ScopeSpans> scopeSpanList = resourceSpan.getScopeSpansList();
             for (ScopeSpans scopeSpan : scopeSpanList) {
                 List<Span> spansList = scopeSpan.getSpansList();
+                int errorCount = 0;
                 for (Span span : spansList) {
                     try {
                         if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE) {
-                            final SpanBo spanBo = spanMapper.map(attributesList, span);
+                            final SpanBo spanBo = spanMapper.map(idAndName, span);
                             mapperData.addSpanBo(spanBo);
                             final AgentInfoBo agentInfoBo = agentInfoMapper.map(spanBo, attributesList);
                             mapperData.addAgentInfoBo(agentInfoBo);
                         } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE) {
-                            final SpanBo spanBo = spanMapper.map(attributesList, span);
+                            final SpanBo spanBo = spanMapper.map(idAndName, span);
                             mapperData.addSpanBo(spanBo);
                             final AgentInfoBo agentInfoBo = agentInfoMapper.map(spanBo, attributesList);
                             mapperData.addAgentInfoBo(agentInfoBo);
                         } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CLIENT_VALUE) {
-                            final SpanChunkBo spanChunkBo = spanChunkMapper.map(attributesList, span);
+                            final SpanChunkBo spanChunkBo = spanChunkMapper.map(idAndName, span);
                             mapperData.addSpanChunkBo(spanChunkBo);
                         } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_PRODUCER_VALUE) {
-                            final SpanChunkBo spanChunkBo = spanChunkMapper.map(attributesList, span);
+                            final SpanChunkBo spanChunkBo = spanChunkMapper.map(idAndName, span);
                             mapperData.addSpanChunkBo(spanChunkBo);
                         } else {
-                            final SpanChunkBo spanChunkBo = spanChunkMapper.map(attributesList, span);
+                            final SpanChunkBo spanChunkBo = spanChunkMapper.map(idAndName, span);
                             mapperData.addSpanChunkBo(spanChunkBo);
                         }
                     } catch (Exception e) {
+                        errorCount++;
                         logger.warn("Failed to map", e);
                     }
+                }
+                if (errorCount > 0) {
+                    OtlpTraceCollectorRejectedSpan rejectedSpan = mapperData.getRejectedSpan();
+                    rejectedSpan.putMessage("mapping error (" + errorCount + ")");
+                    rejectedSpan.addCount(errorCount);
                 }
             }
         }
 
         return mapperData;
+    }
+
+    IdAndName getId(OtlpTraceMapperData mapperData, ResourceSpans resourceSpan) {
+        try {
+            return OtlpTraceMapperUtils.getId(resourceSpan.getResource().getAttributesList());
+        } catch (Exception e) {
+            logger.warn("Failed to auth", e);
+            OtlpTraceCollectorRejectedSpan rejectedSpan = mapperData.getRejectedSpan();
+            int spansCount = resourceSpan.getScopeSpansCount();
+            rejectedSpan.putMessage(e.getMessage() + " (" + spansCount + ")");
+            rejectedSpan.addCount(spansCount);
+            return null;
+        }
     }
 }

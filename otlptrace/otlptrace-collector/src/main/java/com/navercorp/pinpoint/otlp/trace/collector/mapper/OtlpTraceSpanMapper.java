@@ -25,9 +25,8 @@ import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import com.navercorp.pinpoint.io.SpanVersion;
-import io.opentelemetry.proto.common.v1.KeyValue;
+import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.proto.trace.v1.Status;
 import org.springframework.stereotype.Component;
@@ -41,22 +40,19 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class OtlpTraceSpanMapper {
     private final ObjectMapper objectMapper;
-    private OtlpTraceSpanEventMapper spanEventMapper;
 
-    public OtlpTraceSpanMapper(ObjectMapper objectMapper, OtlpTraceSpanEventMapper spanEventMapper) {
+    public OtlpTraceSpanMapper(ObjectMapper objectMapper) {
         this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper");
-        this.spanEventMapper = spanEventMapper;
     }
 
-    SpanBo map(List<KeyValue> resourceAttributesList, Span span) {
+    SpanBo map(IdAndName idAndName, Span span) {
         SpanBo spanBo = new SpanBo();
         spanBo.setVersion(SpanVersion.TRACE_V2);
-        final AgentIdAndName agentIdAndName = OtlpTraceMapperUtils.getAgentId(resourceAttributesList);
-        spanBo.setAgentId(agentIdAndName.agentId());
-        if (agentIdAndName.agentName() != null) {
-            spanBo.setAgentName(agentIdAndName.agentName());
+        spanBo.setAgentId(idAndName.agentId());
+        if (idAndName.agentName() != null) {
+            spanBo.setAgentName(idAndName.agentName());
         }
-        spanBo.setApplicationName(OtlpTraceMapperUtils.getApplicationName(resourceAttributesList));
+        spanBo.setApplicationName(idAndName.applicationName());
 
         spanBo.setTransactionId(new OtelServerTraceId(span.getTraceId().toByteArray()));
 
