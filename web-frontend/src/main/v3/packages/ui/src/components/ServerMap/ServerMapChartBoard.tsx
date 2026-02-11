@@ -277,6 +277,7 @@ export const ServerMapChartsBoardFetcher = ({
         )}
       </ChartsBoard>
       <Drawer
+        destroyOnClose
         open={openServerView}
         getContainer={`#${SERVERMAP_CONTAINER_ID}`}
         contentWrapperStyle={{
@@ -286,16 +287,16 @@ export const ServerMapChartsBoardFetcher = ({
         onClose={() => setOpenServerView(false)}
       >
         <div style={{ width: SERVER_LIST_WIDTH }}>
-          <div className="flex items-center h-12 gap-1 font-semibold border-b-1 shrink-0">
+          <div className="flex gap-1 items-center h-12 font-semibold border-b-1 shrink-0">
             <img src={serverMapCurrentTarget?.imgPath} width={52} />
             <div className="truncate">{serverMapCurrentTarget?.applicationName}</div>
           </div>
-          <ServerListForCommon nodeStatistics={data} disableFetch={!openServerView} />
+          <ServerListForCommon nodeStatistics={data} />
         </div>
         <div style={{ width: currentPanelWidth }}>
           <ChartsBoard
             header={
-              <div className="flex items-center h-12 gap-1 font-semibold border-b-1 shrink-0">
+              <div className="flex gap-1 items-center h-12 font-semibold border-b-1 shrink-0">
                 <div className="flex items-center">
                   <RxChevronRight />
                 </div>
