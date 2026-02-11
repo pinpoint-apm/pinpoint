@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.hbase.wd.RowKeyDistributor;
 import com.navercorp.pinpoint.common.server.scatter.TraceIndexFilterBuilder;
 import com.navercorp.pinpoint.common.server.scatter.TraceIndexRowKeyUtils;
-import com.navercorp.pinpoint.common.server.util.pair.LongPair;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.config.ScatterChartProperties;
 import com.navercorp.pinpoint.web.scatter.DragArea;
@@ -42,6 +41,7 @@ import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -173,13 +173,17 @@ public class HbaseTraceIndexDao implements TraceIndexDao {
 
     private void setHbaseFilter(Scan scan, DragAreaQuery dragAreaQuery, String rpcRegex) {
         TraceIndexFilterBuilder filterBuilder = new TraceIndexFilterBuilder();
-        filterBuilder.setElapsedMinMax(new LongPair(dragAreaQuery.getDragArea().getYLow(), dragAreaQuery.getDragArea().getYHigh()));
+        filterBuilder.setElapsedMin(dragAreaQuery.getDragArea().getYLow());
+        filterBuilder.setElapsedMax(dragAreaQuery.getDragArea().getYHigh());
         filterBuilder.setAgentId(dragAreaQuery.getAgentId());
         filterBuilder.setRpcRegex(rpcRegex);
         if (dragAreaQuery.getDotStatus() != null) {
             filterBuilder.setSuccess(dragAreaQuery.getDotStatus() == Dot.Status.SUCCESS);
         }
-        scan.setFilter(filterBuilder.build(scatterChartProperties.isEnableHbaseRowFilter(), scatterChartProperties.isEnableHbaseValueFilter()));
+        FilterList filter = filterBuilder.build(scatterChartProperties.isEnableHbaseRowFilter(), scatterChartProperties.isEnableHbaseValueFilter());
+        if (!filter.getFilters().isEmpty()) {
+            scan.setFilter(filter);
+        }
     }
 
     private TraceIndexMetaMapper createDotMetaMapper(String applicationName) {
