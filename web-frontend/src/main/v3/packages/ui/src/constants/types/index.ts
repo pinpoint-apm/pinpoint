@@ -38,7 +38,6 @@ export * from './OtlpMetricData';
 export * from './OtlpMetricDefProperty';
 export * from './OtlpMetricDefUserDefined';
 export * from './Scatter';
-export * from './SearchApplication';
 export * from './SystemMetricChart';
 export * from './SystemMetricHost';
 export * from './SystemMetricHostGroup';

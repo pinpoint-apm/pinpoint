@@ -1,13 +1,13 @@
 import React from 'react';
 import { AgentStatisticChart, ChartData } from './AgentStatisticChart';
-import { SearchApplication } from '@pinpoint-fe/ui/src/constants';
+import { AgentOverview } from '@pinpoint-fe/ui/src/constants';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const useVersionChartData = (data: any, versionKey: 'vmVersion' | 'agentVersion') =>
   React.useMemo(() => {
-    const instances = data?.flatMap((group: SearchApplication.Application) => group.instancesList);
+    const instances = data;
 
-    const versionCounts = instances?.reduce((acc: any, instance: SearchApplication.Instance) => {
+    const versionCounts = instances?.reduce((acc: any, instance: AgentOverview.Instance) => {
       const version = instance[versionKey];
       if (version) {
         acc[version] = (acc[version] || 0) + 1;
@@ -21,7 +21,7 @@ const useVersionChartData = (data: any, versionKey: 'vmVersion' | 'agentVersion'
     }));
   }, [data, versionKey]);
 
-export function AgentStatisticContainer({ data }: { data?: SearchApplication.Application[] }) {
+export function AgentStatisticContainer({ data }: { data?: AgentOverview.Response }) {
   const vmVersionChartData = useVersionChartData(data, 'vmVersion');
   const agentVersionChartData = useVersionChartData(data, 'agentVersion');
 
