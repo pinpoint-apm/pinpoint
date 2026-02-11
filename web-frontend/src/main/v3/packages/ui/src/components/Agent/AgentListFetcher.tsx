@@ -113,7 +113,7 @@ export const AgentListFetcher = ({
                           <span className="mr-1 align-bottom">
                             {renderIcon(instance?.status?.state?.code)}
                           </span>
-                          {instance.agentId}
+                          {instance?.agentName || instance.agentId}
                         </div>
                       </div>
                     )}
