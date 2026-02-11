@@ -45,14 +45,14 @@ export const AgentStatisticFetcher = ({ configuration }: AgentStatisticFetcherPr
       <div className="bg-red-300"></div>
       <div className="h-[-webkit-fill-available] relative overflow-hidden">
         {isLoading && (
-          <div className="absolute flex items-center justify-center w-full h-full">
+          <div className="flex absolute justify-center items-center w-full h-full">
             <CgSpinner className="absolute opacity-100 animate-spin" size={100} />
             <div className="w-full h-full bg-gray-400 opacity-20"></div>
           </div>
         )}
         {data ? (
-          <div className="flex flex-col h-full gap-5">
-            <div className="flex flex-row items-center justify-end gap-1">
+          <div className="flex flex-col gap-5 h-full">
+            <div className="flex flex-row gap-1 justify-end items-center">
               {loadDate && formatInTimeZone(loadDate, timezone, 'yyyy.MM.dd HH:mm:ss')}
               <Button onClick={handleReload} size="sm">
                 <HiOutlineRefresh size={18} />
@@ -63,7 +63,7 @@ export const AgentStatisticFetcher = ({ configuration }: AgentStatisticFetcherPr
           </div>
         ) : (
           <div
-            className={cn('flex flex-col items-center justify-center h-full gap-3', {
+            className={cn('flex flex-col gap-3 justify-center items-center h-full', {
               'opacity-20': isLoading,
             })}
           >

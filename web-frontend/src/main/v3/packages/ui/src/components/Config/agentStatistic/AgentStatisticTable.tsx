@@ -3,24 +3,19 @@ import {
   APP_PATH,
   BASE_PATH,
   SEARCH_PARAMETER_DATE_FORMAT,
-  SearchApplication,
+  AgentOverview,
 } from '@pinpoint-fe/ui/src/constants';
 import { Button, Input, VirtualizedDataTable } from '../../../components';
 import { Cell, ColumnDef } from '@tanstack/react-table';
-import { LuChevronRight, LuChevronDown, LuMoveDown, LuMoveUp } from 'react-icons/lu';
+import { LuMoveDown, LuMoveUp } from 'react-icons/lu';
 import { cn } from '../../../lib';
 import { RxMagnifyingGlass } from 'react-icons/rx';
 import { addMinutes } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { useTimezone } from '@pinpoint-fe/ui/src/hooks';
 
-type ExpandableDataType = {
-  applicationName: string;
-  subRows?: SearchApplication.Instance[];
-};
-
-function containsString(obj: SearchApplication.Instance, input: string): boolean {
-  const keysToCheck: (keyof SearchApplication.Instance)[] = [
+function containsString(obj: AgentOverview.Instance, input: string): boolean {
+  const keysToCheck: (keyof AgentOverview.Instance)[] = [
     'applicationName',
     'agentId',
     'agentName',
@@ -28,80 +23,22 @@ function containsString(obj: SearchApplication.Instance, input: string): boolean
     'vmVersion',
   ];
   return keysToCheck.some(
-    (key) => typeof obj[key] === 'string' && obj[key]?.toLocaleLowerCase()?.includes(input),
+    (key) =>
+      typeof obj[key] === 'string' && obj[key]?.toLocaleLowerCase()?.includes(input?.toLowerCase()),
   );
 }
 
-export function AgentStatisticTable({ data }: { data?: SearchApplication.Application[] }) {
+export function AgentStatisticTable({ data }: { data?: AgentOverview.Response }) {
   const [timezone] = useTimezone();
   const [input, setInput] = React.useState('');
   const [filterInput, setFilterInput] = React.useState('');
   const [filteredRowIds, setFilteredRowIds] = React.useState<string[]>([]);
   const [focusRowId, setFocusRowId] = React.useState<string>();
 
-  const expandableData = React.useMemo(() => {
-    return (
-      data?.map((d) => {
-        return {
-          applicationName: d?.groupName,
-          subRows: d?.instancesList,
-        };
-      }) || []
-    );
-  }, [data]);
-
-  // flattenedData to check index of focusRowId
-  const flattenedData = React.useMemo(() => {
-    return data?.reduce(
-      (acc, item, i) => {
-        // 현재 항목의 name 추가
-        acc.push({ applicationName: item?.groupName, id: `${i}` });
-
-        if (Array.isArray(item?.instancesList)) {
-          acc.push(
-            ...item.instancesList.map((instance, j) => {
-              return {
-                ...(instance || {}),
-                id: `${i}.${j}`,
-              };
-            }),
-          );
-        }
-
-        return acc;
-      },
-      [] as (
-        | { applicationName: string; id: string }
-        | (SearchApplication.Instance & { id: string })
-      )[],
-    );
-  }, [data]);
-
-  const columns: ColumnDef<ExpandableDataType>[] = [
+  const columns: ColumnDef<AgentOverview.Instance>[] = [
     {
       accessorKey: 'applicationName',
       header: 'ApplicationName',
-      cell: (props) => {
-        return (
-          <div className="flex items-center">
-            {props.row.getCanExpand() && (
-              <button
-                onClick={props.row.getToggleExpandedHandler()}
-                className="pr-1 cursor-pointer"
-              >
-                {props.row.getIsExpanded() ? <LuChevronDown /> : <LuChevronRight />}
-              </button>
-            )}
-            <span
-              className={cn({
-                'font-bold': props.row.getCanExpand(),
-              })}
-            >
-              {props?.getValue() as string}
-            </span>
-          </div>
-        );
-      },
       size: 350,
     },
     {
@@ -129,12 +66,10 @@ export function AgentStatisticTable({ data }: { data?: SearchApplication.Applica
     }
 
     const newFocusRows: string[] = [];
-    expandableData?.forEach((group, i) => {
-      group?.subRows?.forEach((sRow, j) => {
-        if (containsString(sRow, filterInput)) {
-          newFocusRows.push(`${i}.${j}`);
-        }
-      });
+    data?.forEach((instance, i) => {
+      if (containsString(instance, filterInput)) {
+        newFocusRows.push(`${i}`);
+      }
     });
     setFilteredRowIds(newFocusRows);
     setFocusRowId(newFocusRows?.[0]);
@@ -150,18 +85,12 @@ export function AgentStatisticTable({ data }: { data?: SearchApplication.Applica
   function backToPrevSearchIndex() {
     setFocusRowId((prev) => {
       const idIndex = filteredRowIds?.findIndex((fw) => fw === prev);
-      return filteredRowIds?.[idIndex === 0 ? filteredRowIds?.length - 1 : idIndex - 1];
+      return filteredRowIds?.[idIndex <= 0 ? filteredRowIds?.length - 1 : idIndex - 1];
     });
   }
 
-  function handleClickCell(
-    data: Cell<ExpandableDataType | SearchApplication.Instance, string | number>,
-  ) {
-    const original = data?.row?.original as SearchApplication.Instance;
-
-    if ((original as ExpandableDataType)?.subRows?.length) {
-      return;
-    }
+  function handleClickCell(data: Cell<AgentOverview.Instance, string | number>) {
+    const original = data?.row?.original as AgentOverview.Instance;
 
     if (data?.column?.id === 'applicationName') {
       window.open(
@@ -236,7 +165,7 @@ export function AgentStatisticTable({ data }: { data?: SearchApplication.Applica
           </Button>
         </div>
       </div>
-      <VirtualizedDataTable<ExpandableDataType, string | number>
+      <VirtualizedDataTable<AgentOverview.Instance, string | number>
         enableColumnResizing
         tableClassName={cn('text-xs [&_td]:p-1.5')}
         rowClassName={(row) => {
@@ -249,10 +178,8 @@ export function AgentStatisticTable({ data }: { data?: SearchApplication.Applica
           }
           return '';
         }}
-        focusRowIndex={flattenedData?.findIndex(
-          (fd: { id: string | undefined }) => fd?.id === focusRowId,
-        )}
-        data={expandableData || []}
+        focusRowIndex={focusRowId ? Number(focusRowId) : undefined}
+        data={data || []}
         columns={columns || []}
         onClickCell={handleClickCell}
       />
