@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.vo;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.view.ApplicationSerializer;
 
@@ -31,17 +32,27 @@ import java.util.Objects;
  */
 @JsonSerialize(using = ApplicationSerializer.class)
 public final class Application {
-    private final String name;
+    private final Service service;
+
+    private final String applicationName;
     private final ServiceType serviceType;
 
-    public Application(String name, ServiceType serviceType) {
-        this.name = Objects.requireNonNull(name, "name");
+    public Application(String applicationName, ServiceType serviceType) {
+        this(Service.DEFAULT, applicationName, serviceType);
+    }
+
+    public Application(Service service, String applicationName, ServiceType serviceType) {
+        this.service = Objects.requireNonNull(service, "service");
+        this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
     }
 
+    public Service getService() {
+        return service;
+    }
 
     public String getName() {
-        return name;
+        return applicationName;
     }
 
     public ServiceType getServiceType() {
@@ -54,28 +65,30 @@ public final class Application {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
         Application that = (Application) o;
-
-        if (!name.equals(that.name)) return false;
-        return serviceType.equals(that.serviceType);
+        return Objects.equals(service, that.service) && Objects.equals(applicationName, that.applicationName) && Objects.equals(serviceType, that.serviceType);
     }
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + serviceType.hashCode();
+        int result = Objects.hashCode(service);
+        result = 31 * result + Objects.hashCode(applicationName);
+        result = 31 * result + Objects.hashCode(serviceType);
         return result;
     }
 
+    public boolean equals(Service service, String name, int serviceTypeCode) {
+        return this.service.equals(service) &&  this.applicationName.equals(name) && this.serviceType.getCode() == serviceTypeCode;
+    }
+
     public boolean equals(String name, int serviceTypeCode) {
-        return this.name.equals(name) && this.serviceType.getCode() == serviceTypeCode;
+        return this.equals(Service.DEFAULT, name, serviceTypeCode);
     }
 
     @Override
     public String toString() {
-        return name + "(" + serviceType.getDesc() + ":" + serviceType.getCode() + ")";
+        return service + " " + applicationName + "(" + serviceType.getDesc() + ":" + serviceType.getCode() + ")";
     }
 }

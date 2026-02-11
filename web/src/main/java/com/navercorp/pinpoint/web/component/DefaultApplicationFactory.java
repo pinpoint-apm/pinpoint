@@ -20,6 +20,7 @@ package com.navercorp.pinpoint.web.component;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Service;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -41,12 +42,12 @@ public class DefaultApplicationFactory implements ApplicationFactory {
         Objects.requireNonNull(applicationName, "applicationName");
 
         final ServiceType serviceType = registry.findServiceType(serviceTypeCode);
-        return new Application(applicationName, serviceType);
+        return new Application(Service.DEFAULT, applicationName, serviceType);
     }
 
     @Override
     public Application createApplication(String applicationName, ServiceType serviceType) {
-        return new Application(applicationName, serviceType);
+        return new Application(Service.DEFAULT, applicationName, serviceType);
     }
 
     @Override
@@ -55,7 +56,7 @@ public class DefaultApplicationFactory implements ApplicationFactory {
         Objects.requireNonNull(serviceTypeName, "serviceTypeName");
 
         final ServiceType serviceType = registry.findServiceTypeByName(serviceTypeName);
-        return new Application(applicationName, serviceType);
+        return new Application(Service.DEFAULT, applicationName, serviceType);
     }
 
 }
