@@ -70,10 +70,6 @@ public class TraceIndexRowKeyUtils {
         return fuzzyRowKeyFactory.getKey(elapsed);
     }
 
-    public static List<Byte> toElapsedByteList(LongPair elapsedMinMax) {
-        return fuzzyRowKeyFactory.getRangeKey(elapsedMinMax.second(), elapsedMinMax.first());
-    }
-
     public static byte toErrorByte(int errorCode) {
         return errorCode == 0 ? (byte) 0 : (byte) 1;
     } // zero or non-zero

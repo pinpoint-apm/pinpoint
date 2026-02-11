@@ -1,10 +1,10 @@
 package com.navercorp.pinpoint.common.server.scatter;
 
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
-import com.navercorp.pinpoint.common.server.util.pair.LongPair;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -47,7 +47,8 @@ public class TraceIndexFilterBuilderTest {
     @Test
     public void elapsedByteRowFilterTest() throws IOException {
         TraceIndexFilterBuilder builder = new TraceIndexFilterBuilder();
-        builder.setElapsedMinMax(new LongPair(250, 350));
+        builder.setElapsedMin(250L);
+        builder.setElapsedMax(350L);
         Filter filter = builder.build(true, false);
 
         // elapsed time with different byte slots
@@ -65,9 +66,19 @@ public class TraceIndexFilterBuilderTest {
     }
 
     @Test
+    public void elapsedByteRowFilterMinTest() throws IOException {
+        TraceIndexFilterBuilder builder = new TraceIndexFilterBuilder();
+        builder.setElapsedMin(0L);
+        FilterList filter = builder.build(true, false);
+
+        Assertions.assertThat(filter.getFilters()).hasSize(0);
+    }
+
+    @Test
     public void elapsedTimeValueFilterTest() throws IOException {
         TraceIndexFilterBuilder builder = new TraceIndexFilterBuilder();
-        builder.setElapsedMinMax(new LongPair(50, 200));
+        builder.setElapsedMin(50L);
+        builder.setElapsedMax(200L);
         Filter filter = builder.build(false, true);
 
         byte[] rowKey = createTestRowKey();
@@ -78,6 +89,16 @@ public class TraceIndexFilterBuilderTest {
         Assertions.assertThat(getFilterReturnCode(filter, createIndexKeyValue(rowKey, value1))).isEqualTo(Filter.ReturnCode.INCLUDE);
         Assertions.assertThat(getFilterReturnCode(filter, createIndexKeyValue(rowKey, value2))).isEqualTo(Filter.ReturnCode.NEXT_ROW);
         Assertions.assertThat(getFilterReturnCode(filter, createIndexKeyValue(rowKey, value3))).isEqualTo(Filter.ReturnCode.NEXT_ROW);
+    }
+
+    @Test
+    public void elapsedTimeValueFilterMinMaxTest() throws IOException {
+        TraceIndexFilterBuilder builder = new TraceIndexFilterBuilder();
+        builder.setElapsedMin(0L);
+        builder.setElapsedMax(Long.MAX_VALUE); // integer max is enough
+        FilterList filter = builder.build(false, true);
+
+        Assertions.assertThat(filter.getFilters()).hasSize(0);
     }
 
     @Test
