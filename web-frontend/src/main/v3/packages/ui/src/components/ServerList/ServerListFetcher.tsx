@@ -19,10 +19,9 @@ import { upperCase } from 'lodash';
 
 export interface ServerListFetcherProps extends ServerListProps {
   nodeStatistics?: GetHistogramStatistics.Response;
-  disableFetch?: boolean;
 }
 
-export const ServerListFetcher = ({ nodeStatistics, disableFetch }: ServerListFetcherProps) => {
+export const ServerListFetcher = ({ nodeStatistics }: ServerListFetcherProps) => {
   const { searchParameters } = useSearchParameters();
   const currentTarget = useAtomValue(serverMapCurrentTargetAtom);
   const currentTargetData = useAtomValue(serverMapCurrentTargetDataAtom) as GetServerMap.NodeData;

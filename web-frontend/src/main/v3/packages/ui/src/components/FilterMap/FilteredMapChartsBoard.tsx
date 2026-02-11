@@ -241,6 +241,7 @@ export const FilteredMapChartsBoard = ({
         )}
       </ChartsBoard>
       <Drawer
+        destroyOnClose
         open={openServerView}
         getContainer={`#${FILTERED_MAP_CONTAINER_ID}`}
         contentWrapperStyle={{
@@ -251,20 +252,19 @@ export const FilteredMapChartsBoard = ({
         onClose={() => setOpenServerView(false)}
       >
         <div style={{ width: SERVER_LIST_WIDTH }}>
-          <div className="flex items-center h-12 gap-1 font-semibold border-b-1 shrink-0">
+          <div className="flex gap-1 items-center h-12 font-semibold border-b-1 shrink-0">
             <img src={serverMapCurrentTarget?.imgPath} width={52} />
             <div className="truncate">{serverMapCurrentTarget?.applicationName}</div>
           </div>
           <ServerListForCommon
             nodeStatistics={serverMapData as unknown as GetHistogramStatistics.Response}
-            disableFetch={!openServerView}
           />
         </div>
         <div style={{ width: currentPanelWidth }}>
           <ChartsBoard
             header={
-              <div className="flex items-center h-12 gap-1 font-semibold border-b-1 shrink-0">
-                <div className="flex items-center justify-center">
+              <div className="flex gap-1 items-center h-12 font-semibold border-b-1 shrink-0">
+                <div className="flex justify-center items-center">
                   <MdArrowForwardIos />
                 </div>
                 {currentServer?.agentId}
