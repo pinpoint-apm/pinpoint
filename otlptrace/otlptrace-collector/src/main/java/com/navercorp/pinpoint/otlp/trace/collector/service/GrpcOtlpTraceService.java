@@ -22,9 +22,12 @@ import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
+import com.navercorp.pinpoint.otlp.trace.collector.OtlpTraceCollectorRejectedSpan;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapper;
 import com.navercorp.pinpoint.otlp.trace.collector.mapper.OtlpTraceMapperData;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
+import io.opentelemetry.proto.collector.trace.v1.ExportTracePartialSuccess;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceResponse;
 import io.opentelemetry.proto.collector.trace.v1.TraceServiceGrpc;
@@ -61,15 +64,24 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
     @Override
     public void export(ExportTraceServiceRequest request, StreamObserver<ExportTraceServiceResponse> responseObserver) {
         final List<ResourceSpans> resourceSpanList = request.getResourceSpansList();
-        export(resourceSpanList);
+        final OtlpTraceCollectorRejectedSpan rejectedSpan = export(resourceSpanList);
 
-        // TODO response
-        responseObserver.onNext(ExportTraceServiceResponse.getDefaultInstance());
-        responseObserver.onCompleted();
+        if (rejectedSpan.count() > 0) {
+            final ExportTracePartialSuccess.Builder builder = ExportTracePartialSuccess.newBuilder();
+            builder.setErrorMessage(rejectedSpan.getMessage());
+            builder.setRejectedSpans(rejectedSpan.count());
+            responseObserver.onNext(ExportTraceServiceResponse.newBuilder().setPartialSuccess(builder.build()).build());
+            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription(rejectedSpan.getMessage()).asRuntimeException());
+        } else {
+            // success
+            responseObserver.onNext(ExportTraceServiceResponse.getDefaultInstance());
+            responseObserver.onCompleted();
+        }
     }
 
-    private void export(List<ResourceSpans> resourceSpanList) {
+    private OtlpTraceCollectorRejectedSpan export(List<ResourceSpans> resourceSpanList) {
         final OtlpTraceMapperData otlpTraceMapperData = otlpTraceMapper.map(resourceSpanList);
+        int errorCount = 0;
         for (SpanBo spanBo : otlpTraceMapperData.getSpanBoList()) {
             try {
                 traceService.insertSpan(spanBo);
@@ -77,6 +89,7 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
                     logger.debug("SpanBo inserted. {}", spanBo);
                 }
             } catch (Exception e) {
+                errorCount++;
                 logger.warn("Failed to insert spanBo", e);
             }
         }
@@ -88,10 +101,18 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
                     logger.debug("SpanChunkBo inserted. {}", spanChunkBo);
                 }
             } catch (Exception e) {
+                errorCount++;
                 logger.warn("Failed to insert spanChunkBo", e);
             }
         }
 
+        if (errorCount > 0) {
+            OtlpTraceCollectorRejectedSpan rejectedSpan = otlpTraceMapperData.getRejectedSpan();
+            rejectedSpan.putMessage("insert error (" + errorCount + ")");
+            rejectedSpan.addCount(errorCount);
+        }
+
+        int agentInfoErrorCount = 0;
         for (AgentInfoBo agentInfoBo : otlpTraceMapperData.getAgentInfoBoList()) {
             if (agentIdCache.get(agentInfoBo.getAgentId()) == null) {
                 agentIdCache.put(agentInfoBo.getAgentId(), true);
@@ -99,9 +120,18 @@ public class GrpcOtlpTraceService extends TraceServiceGrpc.TraceServiceImplBase 
                     agentInfoService.insert(agentInfoBo);
                     applicationIndexV2Service.insert(DEFAULT_SERVICE_UID, agentInfoBo);
                 } catch (Exception e) {
+                    agentInfoErrorCount++;
                     logger.warn("Failed to insert agentInfoBo", e);
                 }
             }
         }
+
+        if (agentInfoErrorCount > 0) {
+            OtlpTraceCollectorRejectedSpan rejectedSpan = otlpTraceMapperData.getRejectedSpan();
+            rejectedSpan.putMessage("agentInfo error (" + agentInfoErrorCount + ")");
+            rejectedSpan.addCount(agentInfoErrorCount);
+        }
+
+        return otlpTraceMapperData.getRejectedSpan();
     }
 }

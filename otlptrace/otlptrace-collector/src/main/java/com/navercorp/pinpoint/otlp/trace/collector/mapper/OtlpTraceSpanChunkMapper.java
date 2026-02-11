@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.trace.OtelServerTraceId;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.io.SpanVersion;
-import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.trace.v1.Span;
 import org.springframework.stereotype.Component;
 
@@ -38,20 +37,19 @@ public class OtlpTraceSpanChunkMapper {
 
     private final OtlpTraceSpanEventMapper spanEventMapper;
 
-
     public OtlpTraceSpanChunkMapper(OtlpTraceSpanEventMapper spanEventMapper) {
         this.spanEventMapper = Objects.requireNonNull(spanEventMapper, "spanEventMapper");
     }
 
-    SpanChunkBo map(List<KeyValue> resourceAttributesList, Span span) {
+    SpanChunkBo map(IdAndName idAndName, Span span) {
         SpanChunkBo spanChunkBo = new SpanChunkBo();
         spanChunkBo.setVersion(SpanVersion.TRACE_V2);
-        final AgentIdAndName agentIdAndName = OtlpTraceMapperUtils.getAgentId(resourceAttributesList);
-        spanChunkBo.setAgentId(agentIdAndName.agentId());
-        if (agentIdAndName.agentName() != null) {
-            spanChunkBo.setAgentName(agentIdAndName.agentName());
+
+        spanChunkBo.setAgentId(idAndName.agentId());
+        if (idAndName.agentName() != null) {
+            spanChunkBo.setAgentName(idAndName.agentName());
         }
-        spanChunkBo.setApplicationName(OtlpTraceMapperUtils.getApplicationName(resourceAttributesList));
+        spanChunkBo.setApplicationName(idAndName.applicationName());
 
         final long startTime = TimeUnit.NANOSECONDS.toMillis(span.getStartTimeUnixNano());
         // The sequence value is 0, so make a difference with the agentStartTime value.

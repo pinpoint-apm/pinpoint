@@ -44,7 +44,7 @@ public class OtlpTraceMapperUtils {
     private static final String KEY_SERVICE_INSTANCE_ID = "service.instance.id";
     private static final String KEY_SERVICE_NAME = "service.name";
 
-    public static AgentIdAndName getAgentId(List<KeyValue> attributesList) {
+    public static IdAndName getId(List<KeyValue> attributesList) {
         final String agentId = attributesList.stream().filter(kv -> kv.getKey().equals(KEY_AGENT_ID)).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
         if (agentId == null) {
             final String serviceInstanceId = attributesList.stream().filter(kv -> kv.getKey().equals(KEY_SERVICE_INSTANCE_ID)).findFirst().map(kv -> kv.getValue().getStringValue()).orElse(null);
@@ -55,20 +55,20 @@ public class OtlpTraceMapperUtils {
             if (serviceInstanceId.length() == 36) {
                 final UUID uuid = UUID.fromString(serviceInstanceId);
                 final String encoded = Base64Utils.encode(uuid.toString());
-                return new AgentIdAndName(encoded, serviceInstanceId);
+                return new IdAndName(encoded, serviceInstanceId, getApplicationName(attributesList));
             }
             // agentId
             if (!IdValidateUtils.validateId(serviceInstanceId, PinpointConstants.AGENT_ID_MAX_LEN)) {
                 throw new IllegalArgumentException("invalid agentId=" + serviceInstanceId);
             }
-            return new AgentIdAndName(serviceInstanceId, null);
+            return new IdAndName(serviceInstanceId, null, getApplicationName(attributesList));
         }
 
         if (!IdValidateUtils.validateId(agentId, PinpointConstants.AGENT_ID_MAX_LEN)) {
             throw new IllegalArgumentException("invalid agentId=" + agentId);
         }
 
-        return new AgentIdAndName(agentId, null);
+        return new IdAndName(agentId, null, getApplicationName(attributesList));
     }
 
     public static String getApplicationName(List<KeyValue> attributesList) {
