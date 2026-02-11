@@ -30,7 +30,8 @@ import org.springframework.context.annotation.Import;
 @Import({
     BatchInfrastructureConfig.class,
     BatchScheduleConfig.class,
-    AlarmJobConfig.class
+    AlarmJobConfig.class,
+    AlarmJobModule.class
 })
 public class BatchJavaConfigModule {
 }
