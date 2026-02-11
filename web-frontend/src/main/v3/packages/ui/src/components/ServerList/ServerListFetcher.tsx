@@ -57,7 +57,7 @@ export const ServerListFetcher = ({ nodeStatistics, disableFetch }: ServerListFe
     if (data) {
       setCurrentServer(data?.[0]);
     }
-  }, [data, currentTarget]);
+  }, [currentTargetData?.key]); // currentTarget이 바뀌어서 agent 목록이 바뀐 경우에만 동작
 
   const handleClickItem: ServerListProps['onClick'] = (instance) => {
     setCurrentServer(instance);
@@ -107,7 +107,7 @@ export const ServerListFetcher = ({ nodeStatistics, disableFetch }: ServerListFe
 
 const LinkButton = ({ children }: { children: React.ReactNode }) => {
   return (
-    <Button variant={'outline'} className="h-5 px-1 text-xs border border-primary" asChild>
+    <Button variant={'outline'} className="px-1 h-5 text-xs border border-primary" asChild>
       {children}
     </Button>
   );
