@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.Collection;
@@ -62,7 +63,6 @@ public final class CustomExceptionHandler extends ResponseEntityExceptionHandler
 
     private final String hostname;
     private final ErrorProperties errorProperties;
-
 
 
     public CustomExceptionHandler(String hostname, ErrorProperties errorProperties) {
@@ -109,6 +109,29 @@ public final class CustomExceptionHandler extends ResponseEntityExceptionHandler
                 .body(problemDetail);
     }
 
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ProblemDetail> handleResponseStatusException(
+            ResponseStatusException ex,
+            WebRequest request
+    ) {
+        logger.debug("handleResponseStatusException: {}", ex.getMessage(), ex);
+        HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());
+        if (status == null) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        String detail = (ex.getReason() != null) ? ex.getReason() : ex.getMessage();
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, detail);
+        problemDetail.setTitle(status.getReasonPhrase());
+
+        addProperties(problemDetail, request);
+        addStackTraces(problemDetail, ex);
+
+        return ResponseEntity
+                .status(status)
+                .body(problemDetail);
+    }
+
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(
             @NonNull Exception ex,
@@ -137,7 +160,7 @@ public final class CustomExceptionHandler extends ResponseEntityExceptionHandler
         if (request instanceof ServletWebRequest servletWebRequest) {
             HttpServletResponse response = servletWebRequest.getResponse();
             if (response != null && response.isCommitted()) {
-                    logger.info("Response already committed: StackTrace {}", ex, ex);
+                logger.info("Response already committed: StackTrace {}", ex, ex);
             }
         }
     }
