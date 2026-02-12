@@ -42,7 +42,7 @@ export const useGetFilteredServerMapData = (isPaused: boolean) => {
     hint: searchParameters.hint,
   });
   const queryString = getQueryString(queryParams);
-  const { data, isLoading } = useQuery<FilteredMap.Response>({
+  const { data, isLoading, error } = useQuery<FilteredMap.Response>({
     queryKey: [END_POINTS.FILTERED_SERVER_MAP_DATA, queryString],
     queryFn: queryString
       ? queryFn(`${END_POINTS.FILTERED_SERVER_MAP_DATA}${queryString}`)
@@ -59,5 +59,5 @@ export const useGetFilteredServerMapData = (isPaused: boolean) => {
     });
   }, [search]);
 
-  return { data, isLoading, setQueryParams };
+  return { data, error, isLoading, setQueryParams };
 };

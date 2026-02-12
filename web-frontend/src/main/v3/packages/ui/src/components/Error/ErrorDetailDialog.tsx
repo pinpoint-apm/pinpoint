@@ -10,15 +10,33 @@ import {
   Separator,
 } from '../ui';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
-import { ErrorDetailResponse } from '@pinpoint-fe/ui/src/constants';
+import { ErrorLike } from '@pinpoint-fe/ui/src/constants';
 import { cn } from '../../lib';
 import { HighLightCode } from '../HighLightCode';
 import { RxChevronDown, RxChevronUp } from 'react-icons/rx';
 
 export interface ErrorDetailDialogProps {
-  error: ErrorDetailResponse | Error;
+  error: Error | ErrorLike;
   contentOption?: PopoverPrimitive.PopoverContentProps;
   contentClassName?: string;
+}
+
+function getDisplayMessage(error: Error | ErrorLike): string {
+  const msg = (error as Error).message;
+  const detail = (error as ErrorLike).detail;
+  return detail ?? msg ?? '';
+}
+
+function getClientStack(error: Error | ErrorLike): string | null {
+  const stack = (error as Error).stack;
+  return stack ?? null;
+}
+
+function getServerTrace(error: Error | ErrorLike): string | null {
+  const trace = (error as ErrorLike).trace;
+  if (Array.isArray(trace) && trace.length > 0) return trace.join('\n');
+  if (typeof trace === 'string') return trace;
+  return null;
 }
 
 export const ErrorDetailDialog = ({
@@ -26,9 +44,15 @@ export const ErrorDetailDialog = ({
   contentOption,
   contentClassName,
 }: ErrorDetailDialogProps) => {
-  const [headerOpen, setHeaderOpen] = React.useState(false);
-  const [paremetersOpen, setParametersOpen] = React.useState(false);
-  const [stackTraceOpen, setStackTraceOpen] = React.useState(true);
+  const [serverTraceOpen, setServerTraceOpen] = React.useState(false);
+  const serverError = error as ErrorLike;
+  const hasMethod = serverError?.method != null;
+  const hasStatus = serverError?.status != null;
+  const params = serverError?.parameters ?? {};
+  const hasParams = Object.keys(params).length > 0;
+  const clientStack = getClientStack(error);
+  const serverTrace = getServerTrace(error);
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -42,113 +66,113 @@ export const ErrorDetailDialog = ({
         onMouseDown={(e) => e.stopPropagation()}
         {...contentOption}
       >
-        <div className="flex flex-col gap-4 overflow-hidden">
+        <div className="flex overflow-hidden flex-col gap-4">
           <div className="space-y-2">
-            <h4 className="flex items-center gap-1 font-medium">
+            <h4 className="flex gap-1 items-center font-medium">
               <div className="w-1 h-4 rounded-sm bg-status-fail" />
               Error Details
             </h4>
-            <div className="flex items-center gap-1">
-              <a
-                className="text-sm font-semibold text-primary hover:underline"
-                href={(error as ErrorDetailResponse)?.url}
-                target="_blank"
-              >
-                {(error as ErrorDetailResponse)?.instance}
-              </a>
-            </div>
-            <p className="text-sm break-all text-muted-foreground">{error?.message}</p>
-          </div>
-          <Separator />
-          {(error as Error)?.stack && (
-            <div className="overflow-auto">
-              <pre>{(error as Error)?.stack}</pre>
-            </div>
-          )}
-          {(error as ErrorDetailResponse)?.data && (
-            <div className="grid gap-2 text-sm scrollbar-hide">
-              <div className="grid grid-cols-[7rem_auto] gap-2">
-                <div className="text-muted-foreground">Method</div>
-                <div>{(error as ErrorDetailResponse)?.data?.requestInfo?.method}</div>
+
+            {serverError?.instance && (
+              <div className="flex gap-1 items-center">
+                <a
+                  className="text-sm font-semibold text-primary hover:underline"
+                  href={serverError?.url}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {serverError.instance}
+                </a>
               </div>
-              <Collapsible className="space-y-2" open={headerOpen} onOpenChange={setHeaderOpen}>
-                <CollapsibleTrigger
-                  className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  Header {headerOpen ? <RxChevronUp /> : <RxChevronDown />}
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <div className="grid grid-cols-[7rem_auto] gap-2 text-xs p-2">
-                    {(error as ErrorDetailResponse)?.data?.requestInfo?.headers &&
-                      Object.keys((error as ErrorDetailResponse)?.data?.requestInfo?.headers)
-                        .sort()
-                        .map((key) => {
-                          return (
-                            <React.Fragment key={key}>
-                              <div className="text-muted-foreground">{key}</div>
-                              <div className="break-all">
-                                {(error as ErrorDetailResponse)?.data?.requestInfo?.headers?.[key]}
-                              </div>
-                            </React.Fragment>
-                          );
-                        })}
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
+            )}
+            {hasMethod && (
+              <div className="grid grid-cols-[5rem_auto] gap-x-2 gap-y-1 text-sm items-baseline">
+                <div className="text-muted-foreground">Method</div>
+                <div>{serverError.method}</div>
+              </div>
+            )}
+            {hasStatus && (
+              <div className="grid grid-cols-[5rem_auto] gap-x-2 gap-y-1 text-sm items-baseline">
+                <div className="text-muted-foreground">Status</div>
+                <div>{serverError.status}</div>
+              </div>
+            )}
+            {serverError.title != null && serverError.title !== '' && (
+              <div className="grid grid-cols-[5rem_auto] gap-x-2 gap-y-1 text-sm items-baseline">
+                <div className="text-muted-foreground">Title</div>
+                <div>{serverError.title}</div>
+              </div>
+            )}
+            {serverError.detail != null && serverError.detail !== '' && (
+              <div className="grid grid-cols-[5rem_auto] gap-x-2 gap-y-1 text-sm items-baseline">
+                <div className="text-muted-foreground">Detail</div>
+                <p className="text-sm break-all">{getDisplayMessage(error) || '—'}</p>
+              </div>
+            )}
+            {!hasStatus && (
+              <p className="text-sm break-all text-muted-foreground">
+                {getDisplayMessage(error) || '—'}
+              </p>
+            )}
+            {hasParams && (
+              <>
+                <div className="grid gap-2 text-sm scrollbar-hide">
+                  {hasParams && (
+                    <>
+                      <div className="text-muted-foreground">Parameters</div>
+                      <div className="grid grid-cols-[10rem_auto] gap-2 text-xs">
+                        {Object.keys(params)
+                          .sort()
+                          .map((key) => {
+                            const value = params[key];
+                            return (
+                              <React.Fragment key={key}>
+                                <div className="pl-3 text-muted-foreground">{key}</div>
+                                <div className="pl-3 break-all">
+                                  {Array.isArray(value) ? value.join(', ') : String(value)}
+                                </div>
+                              </React.Fragment>
+                            );
+                          })}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+          {clientStack != null && (
+            <>
+              <Separator />
+              <div className="overflow-auto">
+                <pre className="p-2 text-sm">{clientStack}</pre>
+              </div>
+            </>
+          )}
+          {serverTrace != null && (
+            <>
+              <Separator />
               <Collapsible
                 className="space-y-2"
-                open={paremetersOpen}
-                onOpenChange={setParametersOpen}
+                open={serverTraceOpen}
+                onOpenChange={setServerTraceOpen}
+                defaultOpen={false}
               >
                 <CollapsibleTrigger
-                  className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
+                  className="flex gap-1 items-center text-sm text-muted-foreground hover:text-foreground"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  Parameters {paremetersOpen ? <RxChevronUp /> : <RxChevronDown />}
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <div className="grid grid-cols-[7rem_auto] gap-2 text-xs p-2">
-                    {(error as ErrorDetailResponse)?.data?.requestInfo?.parameters &&
-                      Object.keys((error as ErrorDetailResponse)?.data?.requestInfo?.parameters)
-                        .sort()
-                        .map((key) => {
-                          return (
-                            <React.Fragment key={key}>
-                              <div className="text-muted-foreground">{key}</div>
-                              <div className="break-all">
-                                {
-                                  (error as ErrorDetailResponse)?.data?.requestInfo?.parameters?.[
-                                    key
-                                  ]
-                                }
-                              </div>
-                            </React.Fragment>
-                          );
-                        })}
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-              <Collapsible
-                className="space-y-2"
-                open={stackTraceOpen}
-                onOpenChange={setStackTraceOpen}
-              >
-                <CollapsibleTrigger
-                  className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  StackTrace {stackTraceOpen ? <RxChevronUp /> : <RxChevronDown />}
+                  Server stack trace {serverTraceOpen ? <RxChevronUp /> : <RxChevronDown />}
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <HighLightCode
                     language="java"
-                    code={(error as ErrorDetailResponse)?.trace}
-                    className="p-2 text-xs"
+                    code={serverTrace}
+                    className="overflow-auto p-2 text-xs"
                   />
                 </CollapsibleContent>
               </Collapsible>
-            </div>
+            </>
           )}
         </div>
       </DialogContent>
