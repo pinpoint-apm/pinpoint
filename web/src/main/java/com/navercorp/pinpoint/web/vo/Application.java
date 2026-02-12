@@ -89,6 +89,7 @@ public final class Application {
 
     @Override
     public String toString() {
-        return service + " " + applicationName + "(" + serviceType.getDesc() + ":" + serviceType.getCode() + ")";
+        return service.getServiceName() + "(" + service.getUid() + ")/"
+                + applicationName + "(" + serviceType.getDesc() + ":" + serviceType.getCode() + ")";
     }
 }
