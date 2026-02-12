@@ -29,6 +29,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -90,6 +91,22 @@ public final class CustomExceptionHandler extends ResponseEntityExceptionHandler
         addStackTraces(problemDetail, ex);
 
         return new ResponseEntity<>(problemDetail, status);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ProblemDetail> handleAccessDeniedException(
+            AccessDeniedException ex,
+            WebRequest request
+    ) {
+        HttpStatus status = HttpStatus.FORBIDDEN;
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
+
+        problemDetail.setTitle("Forbidden");
+        addProperties(problemDetail, request);
+
+        return ResponseEntity
+                .status(status)
+                .body(problemDetail);
     }
 
     @Override
