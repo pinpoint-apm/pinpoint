@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.servertime;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
-@ComponentScan(basePackages = "com.navercorp.pinpoint.web.controller")
+@ComponentScan(basePackages = "com.navercorp.pinpoint.web.servertime.controller")
 @Configuration
 public class ServerTimeConfiguration {
 
