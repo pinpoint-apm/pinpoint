@@ -6,7 +6,7 @@ import {
 } from 'react-error-boundary';
 import { ErrorDetailDialog } from './ErrorDetailDialog';
 import { useReactToastifyToast } from '../Toast';
-import { ErrorResponse } from '@pinpoint-fe/ui/src/constants';
+import { ErrorLike } from '@pinpoint-fe/ui/src/constants';
 import { ErrorToast } from './ErrorToast';
 import { useSearchParameters } from '@pinpoint-fe/ui/src/hooks';
 
@@ -28,7 +28,7 @@ export const ErrorBoundary = ({
     <ErrorBoundaryComponent
       resetKeys={[search, ...(resetKeys || [])]}
       onError={(props) => {
-        const error = props as unknown as ErrorResponse;
+        const error = props as unknown as ErrorLike;
         toast.error(<ErrorToast error={error} />, {
           bodyClassName: '!items-start',
           autoClose: false,
@@ -39,17 +39,22 @@ export const ErrorBoundary = ({
           return fallbackRender({ error, resetErrorBoundary });
         }
         return (
-          <div className="flex flex-col items-center justify-center w-full h-full gap-5 p-3">
+          <div className="flex flex-col gap-5 justify-center items-center p-3 w-full h-full">
             <div className="w-full text-center max-w-[28rem]">
               {errorMessage ? (
                 typeof errorMessage === 'function' ? (
-                  errorMessage(error?.message)
+                  errorMessage(
+                    (error as ErrorLike)?.detail ?? error?.message ?? (error as ErrorLike)?.title,
+                  )
                 ) : (
                   errorMessage
                 )
               ) : (
                 <p className="mb-2 text-sm truncate">
-                  {error?.message || t('COMMON.SOMETHING_WENT_WRONG')}
+                  {(error as ErrorLike)?.detail ??
+                    error?.message ??
+                    (error as ErrorLike)?.title ??
+                    t('COMMON.SOMETHING_WENT_WRONG')}
                 </p>
               )}
               <ErrorDetailDialog error={error} />

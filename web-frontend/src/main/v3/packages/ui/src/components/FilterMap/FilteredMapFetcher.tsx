@@ -34,7 +34,7 @@ export const FilteredMapFetcher = ({
   const setServerMapCurrentTarget = useSetAtom(serverMapCurrentTargetAtom);
   const { dateRange, application } = useFilteredMapParameters();
   const from = dateRange.from.getTime();
-  const { data, isLoading, setQueryParams } = useGetFilteredServerMapData(isPaused);
+  const { data, error, isLoading, setQueryParams } = useGetFilteredServerMapData(isPaused);
   const { t } = useTranslation();
 
   React.useEffect(() => {
@@ -178,6 +178,7 @@ export const FilteredMapFetcher = ({
   return (
     <ServerMapCore
       data={serverMapData}
+      error={error}
       onClickNode={handleClickNode}
       onClickEdge={handleClickEdge}
       onClickMenuItem={handleClickServerMapMenuItem}
