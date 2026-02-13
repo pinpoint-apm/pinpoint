@@ -44,6 +44,12 @@ jobs:
         echo "JAVA_HOME=$JAVA_HOME_8_X64" >> $GITHUB_ENV
     - name: Java Environment
       run: env | grep '^JAVA'
+    - name: Docker sanity check
+      run: |
+        whoami
+        ls -l /var/run/docker.sock || true
+        docker version
+        docker info
     - name: Build with Maven
       run: ./mvnw --batch-mode -Pcode.coverage package --file pom.xml
     - name: Code coverage report
