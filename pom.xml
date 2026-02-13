@@ -255,7 +255,7 @@
         <mockito.version>4.11.0</mockito.version>
         <bytebuddy.version>1.12.23</bytebuddy.version>
 
-        <testcontainers.version>1.21.3</testcontainers.version>
+        <testcontainers.version>1.21.4</testcontainers.version>
         <junit-jupiter.version>5.12.2</junit-jupiter.version>
 
         <!-- maven-plugin -->
