@@ -39,6 +39,7 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationPair;
 import com.navercorp.pinpoint.web.vo.ApplicationPairs;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
+import com.navercorp.pinpoint.web.vo.Service;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.apache.logging.log4j.LogManager;
@@ -94,7 +95,7 @@ public class ResponseTimeController {
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
+        Application application = createApplication(Service.DEFAULT, applicationName, serviceTypeCode, serviceTypeName);
 
         ResponseTimeHistogramServiceOption option = createWasOptionBuilder(application, timeWindow)
                 .setUseStatisticsAgentState(false) //set useStatisticsAgentState to false for agent data
@@ -116,7 +117,7 @@ public class ResponseTimeController {
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
+        Application application = createApplication(Service.DEFAULT, applicationName, serviceTypeCode, serviceTypeName);
 
         ResponseTimeHistogramServiceOption option = createWasOptionBuilder(application, timeWindow)
                 .setUseStatisticsAgentState(true)
@@ -152,7 +153,7 @@ public class ResponseTimeController {
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
+        Application application = createApplication(Service.DEFAULT, applicationName, serviceTypeCode, serviceTypeName);
         TimeHistogramType timeHistogramType = TimeHistogramType.valueOf(type);
 
         ResponseTimeHistogramServiceOption option = createWasOptionBuilder(application, timeWindow)
@@ -176,7 +177,7 @@ public class ResponseTimeController {
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
+        Application application = createApplication(Service.DEFAULT, applicationName, serviceTypeCode, serviceTypeName);
 
         ResponseTimeHistogramServiceOption option = createWasOptionBuilder(application, timeWindow)
                 .setUseStatisticsAgentState(true)
@@ -206,7 +207,7 @@ public class ResponseTimeController {
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
+        Application application = createApplication(Service.DEFAULT, applicationName, serviceTypeCode, serviceTypeName);
 
         ResponseTimeHistogramServiceOption option = createOptionBuilder(application, timeWindow, applicationPairs)
                 .setUseStatisticsAgentState(false) //set useStatisticsAgentState to false for agent data
@@ -229,7 +230,7 @@ public class ResponseTimeController {
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
+        Application application = createApplication(Service.DEFAULT, applicationName, serviceTypeCode, serviceTypeName);
 
         ResponseTimeHistogramServiceOption option = createOptionBuilder(application, timeWindow, applicationPairs)
                 .setUseStatisticsAgentState(true)
@@ -254,7 +255,7 @@ public class ResponseTimeController {
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
+        Application application = createApplication(Service.DEFAULT, applicationName, serviceTypeCode, serviceTypeName);
         TimeHistogramType timeHistogramType = TimeHistogramType.valueOf(type);
 
         ResponseTimeHistogramServiceOption option = createOptionBuilder(application, timeWindow, applicationPairs)
@@ -288,8 +289,8 @@ public class ResponseTimeController {
         this.rangeValidator.validate(range);
         final TimeWindow timeWindow = new TimeWindow(range);
 
-        Application fromApplication = createApplication(fromApplicationName, fromServiceTypeCode, fromServiceTypeName);
-        Application toApplication = createApplication(toApplicationName, toServiceTypeCode, toServiceTypeName);
+        Application fromApplication = createApplication(Service.DEFAULT, fromApplicationName, fromServiceTypeCode, fromServiceTypeName);
+        Application toApplication = createApplication(Service.DEFAULT, toApplicationName, toServiceTypeCode, toServiceTypeName);
 
         LinkHistogramSummary linkHistogramSummary =
                 responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, timeWindow);
@@ -321,8 +322,8 @@ public class ResponseTimeController {
         this.rangeValidator.validate(range);
         final TimeWindow timeWindow = new TimeWindow(range);
 
-        Application fromApplication = createApplication(fromApplicationName, fromServiceTypeCode, fromServiceTypeName);
-        Application toApplication = createApplication(toApplicationName, toServiceTypeCode, toServiceTypeName);
+        Application fromApplication = createApplication(Service.DEFAULT, fromApplicationName, fromServiceTypeCode, fromServiceTypeName);
+        Application toApplication = createApplication(Service.DEFAULT, toApplicationName, toServiceTypeCode, toServiceTypeName);
         TimeHistogramType timeHistogramType = TimeHistogramType.valueOf(type);
 
         LinkHistogramSummary linkHistogramSummary =
@@ -348,18 +349,18 @@ public class ResponseTimeController {
         for (ApplicationPair applicationPair : applicationPairs) {
             String applicationName = applicationPair.getApplicationName();
             short serviceTypeCode = applicationPair.getServiceTypeCode();
-            Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+            Application application = applicationFactory.createApplication(Service.DEFAULT, applicationName, serviceTypeCode);
             applications.add(application);
         }
         return applications;
     }
 
-    private Application createApplication(String applicationName, Short serviceTypeCode, String serviceTypeName) {
+    private Application createApplication(Service service, String applicationName, Short serviceTypeCode, String serviceTypeName) {
         if (StringUtils.hasLength(applicationName)) {
             if (serviceTypeCode != null) {
-                return applicationFactory.createApplication(applicationName, serviceTypeCode);
+                return applicationFactory.createApplication(service, applicationName, serviceTypeCode);
             } else if (serviceTypeName != null) {
-                return applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
+                return applicationFactory.createApplicationByTypeName(service, applicationName, serviceTypeName);
             }
         }
         logger.error("can not create application. applicationName: {}, serviceTypeCode: {}, serviceTypeName: {}", applicationName, serviceTypeCode, serviceTypeName);

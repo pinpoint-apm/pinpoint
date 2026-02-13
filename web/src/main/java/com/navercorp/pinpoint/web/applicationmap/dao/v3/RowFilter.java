@@ -32,7 +32,7 @@ public class RowFilter<T extends UidRowKey> implements Predicate<T> {
 
     public boolean test(UidRowKey row) {
         return this.application.getService().getUid() == row.getServiceUid()
-                &&  application.getName().equals(row.getApplicationName())
+                &&  application.getApplicationName().equals(row.getApplicationName())
                 && application.getServiceTypeCode() == row.getServiceType();
     }
 }

@@ -8,6 +8,7 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.ApdexScore;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.ApdexScoreService;
 import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Service;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -42,7 +43,7 @@ public class ApdexScoreController {
         final Range range = Range.between(from, to);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+        Application application = applicationFactory.createApplication(Service.DEFAULT, applicationName, serviceTypeCode);
 
         return apdexScoreService.selectApdexScoreData(application, timeWindow);
     }

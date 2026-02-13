@@ -144,11 +144,12 @@ public class MapV3DaoConfiguration {
 
     @Bean
     public ResultExtractorFactory<ApplicationResponse> applicationResponseTimeResultExtractor(ServiceTypeRegistryService registry,
+                                                                                                 ApplicationFactory applicationFactory,
                                                                                                  RowKeyDecoder<UidAppRowKey> rowKeyDecoder) {
         HbaseColumnFamily table = HbaseTables.MAP_APP_SELF;
         return (windowFunction, application) -> {
             Predicate<UidAppRowKey> rowFilter = new RowFilter<>(application);
-            return new ApplicationResponseTimeV3ResultExtractor(table, registry, rowKeyDecoder, windowFunction, rowFilter);
+            return new ApplicationResponseTimeV3ResultExtractor(table, applicationFactory, rowKeyDecoder, windowFunction, rowFilter);
         };
     }
 

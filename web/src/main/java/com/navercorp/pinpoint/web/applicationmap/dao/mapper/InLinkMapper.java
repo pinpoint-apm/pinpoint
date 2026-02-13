@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Service;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.logging.log4j.LogManager;
@@ -131,13 +132,13 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
         return outHost;
     }
 
-    private Application readSelfApplication(String selfApplicationName, short selfServiceType, ServiceType inServiceType) {
+    private Application readSelfApplication(String selfApplicationName, int selfServiceType, ServiceType inServiceType) {
         // Caller may be a user node, and user nodes may call nodes with the same application name but different service type.
         // To distinguish between these user nodes, append callee's service type to the application name.
         if (registry.findServiceType(selfServiceType).isUser()) {
             selfApplicationName = UserNodeUtils.newUserNodeName(selfApplicationName, inServiceType);
         }
-        return this.applicationFactory.createApplication(selfApplicationName, selfServiceType);
+        return this.applicationFactory.createApplication(Service.DEFAULT, selfApplicationName, selfServiceType);
     }
 
     private Application readInApplication(LinkRowKey row) {

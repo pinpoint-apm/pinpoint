@@ -85,9 +85,9 @@ public class HostApplicationMapperV3 implements ResultsExtractor<Set<AcceptAppli
         String bindApplicationName = reader.readPrefixedString();
         int bindServiceTypeCode = reader.readInt();
         // skip
-//        int serviceUid = reader.readInt();
+        int serviceUid = reader.readInt();
 
-        final Application bindApplication = applicationFactory.createApplication(bindApplicationName, bindServiceTypeCode);
+        final Application bindApplication = applicationFactory.createApplication(serviceUid, bindApplicationName, bindServiceTypeCode);
         return new AcceptApplication(host, bindApplication);
     }
 }

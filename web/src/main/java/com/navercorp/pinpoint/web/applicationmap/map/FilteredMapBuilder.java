@@ -41,6 +41,7 @@ import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.service.DotExtractor;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
+import com.navercorp.pinpoint.web.vo.Service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.LinkedMultiValueMap;
@@ -103,7 +104,7 @@ public class FilteredMapBuilder {
 
         for (SpanBo span : transaction) {
             final Application parentApplication = createParentApplication(span, transactionSpanMap);
-            final Application spanApplication = this.applicationFactory.createApplication(span.getApplicationName(), span.getApplicationServiceType());
+            final Application spanApplication = getSpanApplication(span);
 
             // records the Span's response time statistics
             responseHistogramsBuilder.addHistogram(spanApplication, span, span.getCollectorAcceptTime());
@@ -146,6 +147,12 @@ public class FilteredMapBuilder {
             addNodeFromSpanEvent(span, spanApplication, transactionSpanMap);
         }
         return this;
+    }
+
+    private Application getSpanApplication(SpanBo span) {
+        String applicationName = span.getApplicationName();
+        int applicationServiceType = span.getApplicationServiceType();
+        return this.applicationFactory.createApplication(applicationName, applicationServiceType);
     }
 
     private void addLinkData(LinkDataMap linkDataMap, SpanBo span, Application parentApplication, Application spanApplication) {
@@ -223,7 +230,9 @@ public class FilteredMapBuilder {
                 return this.applicationFactory.createApplication(applicationName, spanServiceType);
             } else {
                 String applicationName = newUserNodeName(span);
-                return this.applicationFactory.createApplication(applicationName, ServiceType.USER.getCode());
+//                String serviceName = span.getServiceName();
+                Service service = Service.DEFAULT;
+                return this.applicationFactory.createApplication(service, applicationName, ServiceType.USER.getCode());
             }
         } else {
             // create virtual queue node if current' span's service type is a queue AND :
@@ -239,12 +248,12 @@ public class FilteredMapBuilder {
                         parentApplicationName = span.getRemoteAddr();
                     }
                     int parentServiceType = span.getServiceType();
-                    return this.applicationFactory.createApplication(parentApplicationName, parentServiceType);
+                    return this.applicationFactory.createApplication(Service.DEFAULT, parentApplicationName, parentServiceType);
                 }
             }
             String parentApplicationName = parentSpan.getApplicationName();
             int parentServiceType = parentSpan.getApplicationServiceType();
-            return this.applicationFactory.createApplication(parentApplicationName, parentServiceType);
+            return this.applicationFactory.createApplication(Service.DEFAULT, parentApplicationName, parentServiceType);
         }
     }
 

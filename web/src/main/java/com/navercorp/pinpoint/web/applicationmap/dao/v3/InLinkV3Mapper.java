@@ -98,9 +98,7 @@ public class InLinkV3Mapper implements RowMapper<LinkDataMap> {
             final long timestamp = timeWindowFunction.refineTimestamp(inRowKey.getTimestamp());
             final Application inApplication = readInApplication(inRowKey);
 
-            int selfServiceType = inRowKey.getLinkServiceType();
-            String selfApplicationName = inRowKey.getLinkApplicationName();
-            final Application self = readSelfApplication(selfApplicationName, selfServiceType, inApplication.getServiceType());
+            final Application self = readSelfApplication(inRowKey, inApplication.getServiceType());
             if (filter.filter(self)) {
                 continue;
             }
@@ -145,20 +143,25 @@ public class InLinkV3Mapper implements RowMapper<LinkDataMap> {
         return SlotCode.valueOf(slotCodeByte);
     }
 
-    private Application readSelfApplication(String selfApplicationName, int selfServiceType, ServiceType inServiceType) {
+    private Application readSelfApplication(UidLinkRowKey self, ServiceType inServiceType) {
+        int serviceUid = self.getServiceUid();
+        String selfApplicationName = self.getLinkApplicationName();
+        int selfServiceType = self.getLinkServiceType();
+
         // Caller may be a user node, and user nodes may call nodes with the same application name but different service type.
         // To distinguish between these user nodes, append callee's service type to the application name.
         if (registry.findServiceType(selfServiceType).isUser()) {
             selfApplicationName = UserNodeUtils.newUserNodeName(selfApplicationName, inServiceType);
         }
-        return this.applicationFactory.createApplication(selfApplicationName, selfServiceType);
+        return this.applicationFactory.createApplication(serviceUid, selfApplicationName, selfServiceType);
     }
 
     private Application readInApplication(UidRowKey rowKey) {
+        int serviceUid = rowKey.getServiceUid();
         String selfApplicationName = rowKey.getApplicationName();
         int selfServiceType = rowKey.getServiceType();
 
-        return this.applicationFactory.createApplication(selfApplicationName, selfServiceType);
+        return this.applicationFactory.createApplication(serviceUid, selfApplicationName, selfServiceType);
     }
 
 }
