@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.wd.ByteSaltKey;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidPrefix;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.web.applicationmap.dao.hbase.MapScanKeyFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 
@@ -29,7 +30,7 @@ public class MapAgentScanKeyFactoryV3 implements MapScanKeyFactory {
     public byte[] scanKey(int serviceUid, Application application, long timestamp) {
         final Buffer buffer = new AutomaticBuffer(64);
         buffer.skip(saltKeySize);
-        UidPrefix.writePrefix(buffer, serviceUid, application.getName().getBytes(), application.getServiceTypeCode(), timestamp);
+        UidPrefix.writePrefix(buffer, serviceUid, BytesUtils.toBytes(application.getName()), application.getServiceTypeCode(), timestamp);
         return buffer.getBuffer();
     }
 }
