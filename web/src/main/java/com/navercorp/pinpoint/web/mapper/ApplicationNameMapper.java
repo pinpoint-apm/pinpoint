@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Service;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.eclipse.collections.api.factory.primitive.IntSets;
@@ -59,7 +60,7 @@ public class ApplicationNameMapper implements RowMapper<List<Application>> {
 
         List<Application> applicationList = new ArrayList<>();
         uniqueTypeCodes.forEach(serviceTypeCode -> {
-            final Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+            final Application application = applicationFactory.createApplication(Service.DEFAULT.getUid(), applicationName, serviceTypeCode);
             applicationList.add(application);
         });
         return applicationList;

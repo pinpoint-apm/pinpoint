@@ -37,17 +37,57 @@ public class DefaultApplicationFactory implements ApplicationFactory {
         this.registry = Objects.requireNonNull(registry, "registry");
     }
 
+    static Application newApplication(Service service, String applicationName, ServiceType serviceType) {
+        return new Application(service, applicationName, serviceType);
+    }
+
+    static Service requireDefaultService(int serviceUid) {
+        if (Service.DEFAULT.getUid() != serviceUid) {
+            throw new UnsupportedOperationException("Unsupported serviceUid: " + serviceUid);
+        }
+        return Service.DEFAULT;
+    }
+
+    @Override
+    public Application createApplication(Service service, String applicationName, ServiceType serviceType) {
+        Objects.requireNonNull(service, "service");
+        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(serviceType, "serviceType");
+
+        return newApplication(service, applicationName, serviceType);
+    }
+
+    @Override
+    public Application createApplication(Service service, String applicationName, int serviceTypeCode) {
+        Objects.requireNonNull(service, "service");
+        Objects.requireNonNull(applicationName, "applicationName");
+
+        final ServiceType serviceType = registry.findServiceType(serviceTypeCode);
+        return newApplication(service, applicationName, serviceType);
+    }
+
+    @Override
+    public Application createApplication(int serviceUid, String applicationName, int serviceTypeCode) {
+        Service service = requireDefaultService(serviceUid);
+
+        final ServiceType serviceType = registry.findServiceType(serviceTypeCode);
+        return newApplication(service, applicationName, serviceType);
+    }
+
     @Override
     public Application createApplication(String applicationName, int serviceTypeCode) {
         Objects.requireNonNull(applicationName, "applicationName");
 
         final ServiceType serviceType = registry.findServiceType(serviceTypeCode);
-        return new Application(Service.DEFAULT, applicationName, serviceType);
+        return newApplication(Service.DEFAULT, applicationName, serviceType);
     }
 
     @Override
     public Application createApplication(String applicationName, ServiceType serviceType) {
-        return new Application(Service.DEFAULT, applicationName, serviceType);
+        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(serviceType, "serviceType");
+
+        return newApplication(Service.DEFAULT, applicationName, serviceType);
     }
 
     @Override
@@ -56,7 +96,27 @@ public class DefaultApplicationFactory implements ApplicationFactory {
         Objects.requireNonNull(serviceTypeName, "serviceTypeName");
 
         final ServiceType serviceType = registry.findServiceTypeByName(serviceTypeName);
-        return new Application(Service.DEFAULT, applicationName, serviceType);
+        return newApplication(Service.DEFAULT, applicationName, serviceType);
+    }
+
+    @Override
+    public Application createApplicationByTypeName(int serviceUid, String applicationName, String serviceTypeName) {
+        Service service = requireDefaultService(serviceUid);
+        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(serviceTypeName, "serviceTypeName");
+
+        final ServiceType serviceType = registry.findServiceTypeByName(serviceTypeName);
+        return newApplication(service, applicationName, serviceType);
+    }
+
+    @Override
+    public Application createApplicationByTypeName(Service service, String applicationName, String serviceTypeName) {
+        Objects.requireNonNull(service, "service");
+        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(serviceTypeName, "serviceTypeName");
+
+        final ServiceType serviceType = registry.findServiceTypeByName(serviceTypeName);
+        return newApplication(service, applicationName, serviceType);
     }
 
 }

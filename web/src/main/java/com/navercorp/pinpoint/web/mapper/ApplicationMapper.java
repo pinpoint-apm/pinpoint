@@ -28,9 +28,9 @@ public class ApplicationMapper implements RowMapper<List<Application>> {
         }
         byte[] rowKey = result.getRow();
         Buffer buffer = new FixedBuffer(rowKey);
-        buffer.skip(4); //serviceUid
+        int serviceUid = buffer.readInt(); //serviceUid
         String applicationName = buffer.readNullTerminatedString();
         int serviceTypeCode = buffer.readInt();
-        return List.of(applicationFactory.createApplication(applicationName, serviceTypeCode));
+        return List.of(applicationFactory.createApplication(serviceUid, applicationName, serviceTypeCode));
     }
 }

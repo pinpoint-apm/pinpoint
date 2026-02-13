@@ -41,6 +41,7 @@ import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationPair;
 import com.navercorp.pinpoint.web.vo.ApplicationPairs;
+import com.navercorp.pinpoint.web.vo.Service;
 import jakarta.validation.Valid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -198,8 +199,11 @@ public class MapHistogramController {
     private List<Application> toApplications(List<String> applicationNames, List<Short> serviceTypeCodes) {
         final List<Application> result = new ArrayList<>(applicationNames.size());
         for (int i = 0; i < applicationNames.size(); i++) {
+            String applicationName = applicationNames.get(i);
+            int serviceTypeCode = serviceTypeCodes.get(i);
+
             final Application application =
-                    this.applicationFactory.createApplication(applicationNames.get(i), serviceTypeCodes.get(i));
+                    this.applicationFactory.createApplication(Service.DEFAULT, applicationName, serviceTypeCode);
             result.add(application);
         }
         return result;
@@ -212,8 +216,8 @@ public class MapHistogramController {
         final List<Application> applications = new ArrayList<>(applicationPairs.size());
         for (ApplicationPair applicationPair : applicationPairs) {
             final String applicationName = applicationPair.getApplicationName();
-            final short serviceTypeCode = applicationPair.getServiceTypeCode();
-            final Application application = this.applicationFactory.createApplication(applicationName, serviceTypeCode);
+            final int serviceTypeCode = applicationPair.getServiceTypeCode();
+            final Application application = this.applicationFactory.createApplication(Service.DEFAULT, applicationName, serviceTypeCode);
             applications.add(application);
         }
         return applications;
@@ -232,8 +236,8 @@ public class MapHistogramController {
         this.rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        final Application fromApplication = this.createApplication(fromApplicationName, fromServiceTypeCode);
-        final Application toApplication = this.createApplication(toApplicationName, toServiceTypeCode);
+        final Application fromApplication = this.createApplication(Service.DEFAULT, fromApplicationName, fromServiceTypeCode);
+        final Application toApplication = this.createApplication(Service.DEFAULT,toApplicationName, toServiceTypeCode);
         final LinkHistogramSummary linkHistogramSummary =
                 responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, timeWindow);
 
@@ -241,11 +245,11 @@ public class MapHistogramController {
     }
 
     @Nullable
-    private Application createApplication(@Nullable String name, Short serviceTypeCode) {
+    private Application createApplication(Service serviceUid, @Nullable String name, Short serviceTypeCode) {
         if (name == null) {
             return null;
         }
-        return this.applicationFactory.createApplication(name, serviceTypeCode);
+        return this.applicationFactory.createApplication(serviceUid, name, serviceTypeCode);
     }
 
     private Application getApplication(ApplicationForm appForm) {

@@ -42,6 +42,7 @@ import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.util.ApplicationValidator;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.SearchOption;
+import com.navercorp.pinpoint.web.vo.Service;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.apache.logging.log4j.LogManager;
@@ -281,11 +282,11 @@ public class ServerMapHistogramController {
             @RequestParam(value = "fromApplicationNames", defaultValue = "", required = false)
             List<String> fromApplicationNames,
             @RequestParam(value = "fromServiceTypeCodes", defaultValue = "", required = false)
-            List<Short> fromServiceTypeCodes,
+            List<Integer> fromServiceTypeCodes,
             @RequestParam(value = "toApplicationNames", defaultValue = "", required = false)
             List<String> toApplicationNames,
             @RequestParam(value = "toServiceTypeCodes", defaultValue = "", required = false)
-            List<Short> toServiceTypeCodes,
+            List<Integer> toServiceTypeCodes,
             @RequestParam(value = "useStatisticsAgentState", defaultValue = "true", required = false)
             boolean useStatisticsAgentState
     ) {
@@ -318,11 +319,11 @@ public class ServerMapHistogramController {
         return new NodeHistogramSummaryView(nodeHistogramSummary, timeWindow, serverGroupListView, TimeHistogramView.TimeseriesHistogram);
     }
 
-    private List<Application> toApplications(List<String> applicationNames, List<Short> serviceTypeCodes) {
+    private List<Application> toApplications(List<String> applicationNames, List<Integer> serviceTypeCodes) {
         final List<Application> result = new ArrayList<>(applicationNames.size());
         for (int i = 0; i < applicationNames.size(); i++) {
             final Application application =
-                    this.applicationFactory.createApplication(applicationNames.get(i), serviceTypeCodes.get(i));
+                    this.applicationFactory.createApplication(Service.DEFAULT, applicationNames.get(i), serviceTypeCodes.get(i));
             result.add(application);
         }
         return result;

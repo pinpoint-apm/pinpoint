@@ -21,20 +21,21 @@ import com.navercorp.pinpoint.common.timeseries.time.RangeValidator;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.web.agentlist.AgentsFactory;
+import com.navercorp.pinpoint.web.agentlist.service.AgentsService;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramService;
 import com.navercorp.pinpoint.web.applicationmap.service.ResponseTimeHistogramServiceOption;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
-import com.navercorp.pinpoint.web.agentlist.service.AgentsService;
 import com.navercorp.pinpoint.web.service.ApplicationAgentListQueryRule;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationPair;
 import com.navercorp.pinpoint.web.vo.ApplicationPairs;
+import com.navercorp.pinpoint.web.vo.Service;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilters;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
-import com.navercorp.pinpoint.web.agentlist.AgentsFactory;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -97,7 +98,7 @@ public class AgentsController {
         final ApplicationAgentListQueryRule applicationAgentListQueryRule = ApplicationAgentListQueryRule
                 .getByValue(query, ApplicationAgentListQueryRule.ALL);
         final long timestamp = System.currentTimeMillis();
-        final Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
+        final Application application = createApplication(Service.DEFAULT, applicationName, serviceTypeCode, serviceTypeName);
         Range between = Range.between(timestamp, timestamp);
         TimeWindow timeWindow = new TimeWindow(between);
         return agentsService.getAgentsByApplicationName(
@@ -118,7 +119,7 @@ public class AgentsController {
             @RequestParam("to") @PositiveOrZero long to,
             @RequestParam(value = "query", required = false) String query) {
         final ApplicationAgentListQueryRule applicationAgentListQueryRule = ApplicationAgentListQueryRule.getByValue(query, ApplicationAgentListQueryRule.ACTIVE_STATUS);
-        final Application application = createApplication(applicationName, serviceTypeCode, serviceTypeName);
+        final Application application = createApplication(Service.DEFAULT, applicationName, serviceTypeCode, serviceTypeName);
         Range range = Range.between(from, to);
         rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
@@ -180,19 +181,19 @@ public class AgentsController {
         final List<Application> applications = new ArrayList<>(applicationPairs.size());
         for (ApplicationPair applicationPair : applicationPairs) {
             final String applicationName = applicationPair.getApplicationName();
-            final short serviceTypeCode = applicationPair.getServiceTypeCode();
-            final Application application = this.applicationFactory.createApplication(applicationName, serviceTypeCode);
+            final int serviceTypeCode = applicationPair.getServiceTypeCode();
+            final Application application = this.applicationFactory.createApplication(Service.DEFAULT, applicationName, serviceTypeCode);
             applications.add(application);
         }
         return applications;
     }
 
-    private Application createApplication(String applicationName, Short serviceTypeCode, String serviceTypeName) {
+    private Application createApplication(Service service, String applicationName, Short serviceTypeCode, String serviceTypeName) {
         if (StringUtils.hasLength(applicationName)) {
             if (serviceTypeCode != null) {
-                return applicationFactory.createApplication(applicationName, serviceTypeCode);
+                return applicationFactory.createApplication(service, applicationName, serviceTypeCode);
             } else if (serviceTypeName != null) {
-                return applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
+                return applicationFactory.createApplicationByTypeName(service, applicationName, serviceTypeName);
             }
         }
         // return application without service type

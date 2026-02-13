@@ -46,6 +46,7 @@ import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramView;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeHistogramViewModel;
 import com.navercorp.pinpoint.web.applicationmap.view.TimeseriesHistogramView;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
+import com.navercorp.pinpoint.web.component.DefaultApplicationFactory;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.service.ServerInstanceDatasourceService;
 import com.navercorp.pinpoint.web.trace.dao.TraceDao;
@@ -72,12 +73,8 @@ import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 /**
@@ -94,13 +91,11 @@ public class FilteredMapServiceImplTest {
     @Mock
     private TraceDao traceDao;
 
-    @Mock
     private ApplicationFactory applicationFactory;
 
     @Mock
     private ServerInstanceDatasourceService serverInstanceDatasourceService;
 
-    @Mock
     private NodeHistogramService nodeHistogramService;
 
     @Mock
@@ -110,7 +105,7 @@ public class FilteredMapServiceImplTest {
     private MapResponseDao mapResponseDao;
 
     // Mocked
-    private final ServiceTypeRegistryService registry = TestTraceUtils.mockServiceTypeRegistryService();
+    private ServiceTypeRegistryService registry;
 
     TimeHistogramView timeHistogramView = TimeHistogramView.TimeseriesHistogram;
 
@@ -124,24 +119,8 @@ public class FilteredMapServiceImplTest {
 
     @BeforeEach
     public void init() {
-        when(applicationFactory.createApplication(anyString(), anyInt()))
-                .thenAnswer(invocation -> {
-                    String applicationName = invocation.getArgument(0);
-                    ServiceType serviceType = registry.findServiceType(invocation.getArgument(1));
-                    return new Application(applicationName, serviceType);
-                });
-        when(applicationFactory.createApplication(anyString(), any(ServiceType.class)))
-                .thenAnswer(invocation -> {
-                    String applicationName = invocation.getArgument(0);
-                    ServiceType serviceType = invocation.getArgument(1);
-                    return new Application(applicationName, serviceType);
-                });
-        lenient().when(applicationFactory.createApplicationByTypeName(anyString(), anyString()))
-                .thenAnswer(invocation -> {
-                    String applicationName = invocation.getArgument(0);
-                    ServiceType serviceType = registry.findServiceTypeByName(invocation.getArgument(1));
-                    return new Application(applicationName, serviceType);
-                });
+        registry = TestTraceUtils.mockServiceTypeRegistryService();
+        applicationFactory = new DefaultApplicationFactory(registry);
 
         nodeHistogramService = new NodeHistogramServiceImpl(mapAgentResponseDao, mapResponseDao);
 

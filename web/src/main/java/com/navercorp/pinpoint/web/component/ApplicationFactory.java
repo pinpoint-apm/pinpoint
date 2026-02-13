@@ -19,11 +19,23 @@ package com.navercorp.pinpoint.web.component;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Service;
 
 /**
  * @author emeroad
  */
 public interface ApplicationFactory {
+
+    Application createApplication(Service service, String applicationName, ServiceType serviceType);
+
+    Application createApplication(Service service, String applicationName, int serviceType);
+
+    Application createApplication(int serviceUid, String applicationName, int serviceTypeCode);
+
+
+    Application createApplicationByTypeName(Service service, String applicationName, String serviceTypeName);
+    Application createApplicationByTypeName(int serviceUid, String applicationName, String serviceTypeName);
+
 
     Application createApplication(String applicationName, int serviceTypeCode);
 

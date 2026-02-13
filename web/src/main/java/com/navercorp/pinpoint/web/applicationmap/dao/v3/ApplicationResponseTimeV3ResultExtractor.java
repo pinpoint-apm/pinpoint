@@ -22,10 +22,9 @@ import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.server.applicationmap.statistics.UidAppRowKey;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindowFunction;
-import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.SlotCode;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
+import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -48,21 +47,20 @@ public class ApplicationResponseTimeV3ResultExtractor implements ResultsExtracto
 
     private final HbaseColumnFamily table;
 
-    private final ServiceTypeRegistryService registry;
+    private final ApplicationFactory applicationFactory;
 
     private final RowKeyDecoder<UidAppRowKey> rowKeyDecoder;
 
     private final TimeWindowFunction timeWindowFunction;
     private final Predicate<UidAppRowKey> rowFilter;
 
-
     public ApplicationResponseTimeV3ResultExtractor(HbaseColumnFamily table,
-                                                    ServiceTypeRegistryService registry,
+                                                    ApplicationFactory applicationFactory,
                                                     RowKeyDecoder<UidAppRowKey> rowKeyDecoder,
                                                     TimeWindowFunction timeWindowFunction,
                                                     Predicate<UidAppRowKey> rowFilter) {
         this.table = Objects.requireNonNull(table, "table");
-        this.registry = Objects.requireNonNull(registry, "registry");
+        this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
 
         this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
         this.timeWindowFunction = Objects.requireNonNull(timeWindowFunction, "timeWindowFunction");
@@ -94,8 +92,7 @@ public class ApplicationResponseTimeV3ResultExtractor implements ResultsExtracto
                 final long timestamp = timeWindowFunction.refineTimestamp(uidRowKey.getTimestamp());
 
                 if (builder == null) {
-                    ServiceType serviceType = registry.findServiceType(uidRowKey.getServiceType());
-                    Application application = new Application(uidRowKey.getApplicationName(), serviceType);
+                    Application application = applicationFactory.createApplication(uidRowKey.getServiceUid(), uidRowKey.getApplicationName(), uidRowKey.getServiceType());
                     builder = ApplicationResponse.newBuilder(application);
                 }
                 recordColumn(builder, timestamp, cell);

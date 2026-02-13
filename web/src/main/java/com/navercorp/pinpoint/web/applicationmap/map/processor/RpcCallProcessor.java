@@ -100,7 +100,7 @@ public class RpcCallProcessor implements LinkDataMapProcessor {
                 if (toApplication.getServiceType().isQueue()) {
                     return Collections.singletonList(linkData);
                 } else {
-                    final Application unknown = new Application(toApplication.getName(), ServiceType.UNKNOWN);
+                    final Application unknown = new Application(toApplication.getService(), toApplication.getName(), ServiceType.UNKNOWN);
                     final LinkData unknownLinkData = LinkData.copyOf(linkData.getFromApplication(), unknown, linkData.getLinkCallDataMap());
                     return Collections.singletonList(unknownLinkData);
                 }
