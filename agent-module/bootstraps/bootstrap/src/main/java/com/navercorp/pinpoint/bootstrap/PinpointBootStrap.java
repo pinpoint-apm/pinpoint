@@ -146,10 +146,20 @@ public class PinpointBootStrap {
 
     private void appendToBootstrapClassLoader(Instrumentation instrumentation, BootDir bootDir) {
         List<JarFile> jarFiles = bootDir.openJarFiles();
-        for (JarFile jarFile : jarFiles) {
-            Path path = FileUtils.subpathAfterLast(Paths.get(jarFile.getName()), 2);
-            logger.info("appendToBootstrapClassLoader:" + path);
-            instrumentation.appendToBootstrapClassLoaderSearch(jarFile);
+        try {
+            for (JarFile jarFile : jarFiles) {
+                Path path = FileUtils.subpathAfterLast(Paths.get(jarFile.getName()), 2);
+                logger.info("appendToBootstrapClassLoader:" + path);
+                instrumentation.appendToBootstrapClassLoaderSearch(jarFile);
+            }
+        } finally {
+            for (JarFile jarFile : jarFiles) {
+                try {
+                    jarFile.close();
+                } catch (Exception e) {
+                    logger.warn("Failed to close JarFile:" + jarFile.getName(), e);
+                }
+            }
         }
     }
 
