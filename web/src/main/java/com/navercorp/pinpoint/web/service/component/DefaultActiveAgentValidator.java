@@ -55,16 +55,6 @@ public class DefaultActiveAgentValidator implements ActiveAgentValidator {
         return false;
     }
 
-    @Override
-    public boolean isActiveAgent(Application agent, String version, List<Range> ranges) {
-        for (Range range : ranges) {
-            if (isActiveAgent(agent, version, range)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 
     @Override
     public boolean isActiveAgentByEvent(String agentId, Range range) {
