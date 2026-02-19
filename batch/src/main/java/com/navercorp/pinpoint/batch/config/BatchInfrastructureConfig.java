@@ -138,9 +138,6 @@ public class BatchInfrastructureConfig {
         return new DefaultAlarmMessageSender(mailSender, webhookSender, smsSender);
     }
 
-    // ---- 기존 XML(applicationContext-batch-common.xml)에 있던 추가 빈들 ----
-    // 다른 Job들(agentCount, cleanup 등)에서 사용될 수 있으므로 누락 방지 차원에서 등록
-
     @Bean
     public ConfigProperties configProperties() {
         return new ConfigProperties();
@@ -151,7 +148,6 @@ public class BatchInfrastructureConfig {
         return new TransactionTemplate(transactionManager);
     }
 
-    //  - sqlSessionFactory (MyBatis core factory)
     @Bean
     public FactoryBean<SqlSessionFactory> sqlSessionFactory(
             @Qualifier("dataSource") DataSource dataSource,
@@ -173,15 +169,13 @@ public class BatchInfrastructureConfig {
         return sessionFactoryBean;
     }
 
-    //  - sqlSessionTemplate (if a SqlSessionFactory exists in the context)
     @Bean
     public SqlSessionTemplate sqlSessionTemplate(
             @Qualifier("sqlSessionFactory") SqlSessionFactory sessionFactory) {
         return new SqlSessionTemplate(sessionFactory);
     }
 
-    //  - batchSqlSessionTemplate (configured for BATCH executor type)
-    @Bean(name = "batchSqlSessionTemplate")
+    @Bean
     public SqlSessionTemplate batchSqlSessionTemplate(
             @Qualifier("sqlSessionFactory") SqlSessionFactory sessionFactory) {
         return new SqlSessionTemplate(sessionFactory, org.apache.ibatis.session.ExecutorType.BATCH);
