@@ -231,17 +231,15 @@ export const AlarmDetail = ({
                       disabled={!editable}
                     >
                       <FormControl>
-                        <>
-                          {editable ? (
-                            <SelectTrigger
-                              className={cn('w-90', { 'border-destructive': fieldState.invalid })}
-                            >
-                              <SelectValue placeholder="Select rule" />
-                            </SelectTrigger>
-                          ) : (
-                            <Input className="w-90" value={field.value} disabled />
-                          )}
-                        </>
+                        {editable ? (
+                          <SelectTrigger
+                            className={cn('w-90', { 'border-destructive': fieldState.invalid })}
+                          >
+                            <SelectValue placeholder="Select rule" />
+                          </SelectTrigger>
+                        ) : (
+                          <Input className="w-90" value={field.value} disabled />
+                        )}
                       </FormControl>
                       <SelectContent className="z-[51]">
                         {chekerList?.map((checker) => (
@@ -270,18 +268,15 @@ export const AlarmDetail = ({
                       disabled={!editable}
                     >
                       <FormControl>
-                        <>
-                          {' '}
-                          {editable ? (
-                            <SelectTrigger
-                              className={cn('w-90', { 'border-destructive': fieldState.invalid })}
-                            >
-                              <SelectValue placeholder="Select user group" />
-                            </SelectTrigger>
-                          ) : (
-                            <Input className="w-90" value={field.value} disabled />
-                          )}
-                        </>
+                        {editable ? (
+                          <SelectTrigger
+                            className={cn('w-90', { 'border-destructive': fieldState.invalid })}
+                          >
+                            <SelectValue placeholder="Select user group" />
+                          </SelectTrigger>
+                        ) : (
+                          <Input className="w-90" value={field.value} disabled />
+                        )}
                       </FormControl>
                       <SelectContent>
                         {userGroupList?.map((item) => (
