@@ -9,7 +9,6 @@ import {
   DialogTrigger,
   Separator,
 } from '../ui';
-import * as PopoverPrimitive from '@radix-ui/react-popover';
 import { ErrorLike } from '@pinpoint-fe/ui/src/constants';
 import { cn } from '../../lib';
 import { HighLightCode } from '../HighLightCode';
@@ -17,7 +16,7 @@ import { RxChevronDown, RxChevronUp } from 'react-icons/rx';
 
 export interface ErrorDetailDialogProps {
   error: Error | ErrorLike;
-  contentOption?: PopoverPrimitive.PopoverContentProps;
+  contentOption?: React.ComponentPropsWithoutRef<typeof DialogContent>;
   contentClassName?: string;
 }
 
@@ -62,7 +61,6 @@ export const ErrorDetailDialog = ({
       </DialogTrigger>
       <DialogContent
         className={cn('max-h-[90%] overflow-auto max-w-5xl', contentClassName)}
-        collisionPadding={16}
         onMouseDown={(e) => e.stopPropagation()}
         {...contentOption}
       >
@@ -75,14 +73,20 @@ export const ErrorDetailDialog = ({
 
             {serverError?.instance && (
               <div className="flex gap-1 items-center">
-                <a
-                  className="text-sm font-semibold text-primary hover:underline"
-                  href={serverError?.url}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {serverError.instance}
-                </a>
+                {serverError?.url ? (
+                  <a
+                    className="text-sm font-semibold text-primary hover:underline"
+                    href={serverError.url}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {serverError.instance}
+                  </a>
+                ) : (
+                  <span className="text-sm font-semibold">
+                    {serverError.instance}
+                  </span>
+                )}
               </div>
             )}
             {hasMethod && (
