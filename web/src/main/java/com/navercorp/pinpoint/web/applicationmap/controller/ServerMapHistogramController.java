@@ -119,9 +119,7 @@ public class ServerMapHistogramController {
             @Valid @ModelAttribute
             RangeForm rangeForm,
             @Valid @ModelAttribute
-            SearchOptionForm searchForm,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
-            boolean useStatisticsAgentState
+            SearchOptionForm searchForm
     ) {
         final Range range = toRange(rangeForm);
         this.rangeValidator.validate(range);
@@ -130,7 +128,7 @@ public class ServerMapHistogramController {
 
         final LinkDataDuplexMap map = newLinkDataDuplexMap(
                 application, timeWindow, searchForm.getCallerRange(), searchForm.getCalleeRange(),
-                searchForm.isBidirectional(), searchForm.isWasOnly(), useStatisticsAgentState
+                searchForm.isBidirectional(), searchForm.isWasOnly()
         );
 
         final List<Application> fromApplications = this.histogramService.getFromApplications(map);
@@ -138,7 +136,7 @@ public class ServerMapHistogramController {
 
         return newNodeHistogramSummaryView(
                 application, timeWindow, fromApplications, toApplications,
-                useStatisticsAgentState, TimeHistogramView.TimeseriesHistogram
+                TimeHistogramView.TimeseriesHistogram
         );
     }
 
@@ -153,17 +151,14 @@ public class ServerMapHistogramController {
             RangeForm rangeForm,
             @Valid @ModelAttribute
             SearchOptionForm searchForm,
-            @RequestParam(value = "nodeKey") String nodeKey,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false)
-            boolean useStatisticsAgentState
+            @RequestParam(value = "nodeKey") String nodeKey
     ) {
 
         final Application application = getApplication(appForm);
         final Application nodeApplication = this.newApplication(nodeKey);
         if (application.equals(nodeApplication)) {
             return getStatisticsFromServerMap(
-                    appForm, rangeForm, searchForm,
-                    useStatisticsAgentState
+                    appForm, rangeForm, searchForm
             );
         }
 
@@ -173,7 +168,7 @@ public class ServerMapHistogramController {
 
         final LinkDataDuplexMap map = newLinkDataDuplexMap(
                 application, timeWindow, searchForm.getCallerRange(), searchForm.getCalleeRange(),
-                searchForm.isBidirectional(), searchForm.isWasOnly(), useStatisticsAgentState
+                searchForm.isBidirectional(), searchForm.isWasOnly()
         );
 
         // To or From node is the original application
@@ -189,7 +184,7 @@ public class ServerMapHistogramController {
 
         return newNodeHistogramSummaryView(
                 nodeApplication, timeWindow, fromApplications, toApplications,
-                useStatisticsAgentState, TimeHistogramView.TimeseriesHistogram
+                TimeHistogramView.TimeseriesHistogram
         );
     }
 
@@ -199,15 +194,13 @@ public class ServerMapHistogramController {
             int callerRange,
             int calleeRange,
             boolean bidirectional,
-            boolean wasOnly,
-            boolean useStatisticsAgentState
+            boolean wasOnly
     ) {
         final SearchOption searchOption = searchOptionBuilder()
                 .build(callerRange, calleeRange, bidirectional, wasOnly);
 
         final MapServiceOption option = new MapServiceOption
                 .Builder(application, timeWindow, searchOption)
-                .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 
         logger.info("Select ApplicationMap option={}", option);
@@ -219,12 +212,10 @@ public class ServerMapHistogramController {
             TimeWindow timeWindow,
             List<Application> fromApplications,
             List<Application> toApplications,
-            boolean useStatisticsAgentState,
             TimeHistogramView timeHistogramView
     ) {
         final ResponseTimeHistogramServiceOption histogramServiceOption = new ResponseTimeHistogramServiceOption
                 .Builder(application, timeWindow, fromApplications, toApplications)
-                .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 
         final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(histogramServiceOption);
@@ -285,9 +276,7 @@ public class ServerMapHistogramController {
             @RequestParam(value = "toApplicationNames", defaultValue = "", required = false)
             List<String> toApplicationNames,
             @RequestParam(value = "toServiceTypeCodes", defaultValue = "", required = false)
-            List<Short> toServiceTypeCodes,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "true", required = false)
-            boolean useStatisticsAgentState
+            List<Short> toServiceTypeCodes
     ) {
         final Range range = toRange(rangeForm);
         this.rangeValidator.validate(range);
@@ -308,7 +297,6 @@ public class ServerMapHistogramController {
         final List<Application> toApplications = toApplications(toApplicationNames, toServiceTypeCodes);
         final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption
                 .Builder(application, timeWindow, fromApplications, toApplications)
-                .setUseStatisticsAgentState(useStatisticsAgentState)
                 .build();
 
         final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
