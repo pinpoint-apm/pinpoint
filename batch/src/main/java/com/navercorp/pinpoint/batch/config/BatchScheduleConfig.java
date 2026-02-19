@@ -27,12 +27,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.support.CronTrigger;
 
-/**
- * 기존 applicationContext-batch-schedule.xml 대체
- *
- * Java Configuration 기반 배치 스케줄링 설정
- * BatchJavaConfigModule에 의해 조건부 로드됨
- */
 @Configuration
 @EnableScheduling
 public class BatchScheduleConfig implements SchedulingConfigurer {
