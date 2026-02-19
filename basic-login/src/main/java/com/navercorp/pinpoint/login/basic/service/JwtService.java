@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.login.basic.service;
 
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.login.basic.config.BasicLoginProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -56,7 +57,7 @@ public class JwtService {
         Assert.isTrue(basicLoginProperties.getExpirationTimeSeconds() > 0, "expirationTimeSeconds must be '>= 0'");
         this.expirationTimeMillis = TimeUnit.SECONDS.toMillis(basicLoginProperties.getExpirationTimeSeconds());
 
-        byte[] keyBytes = Base64.getEncoder().encode(secretKeyStr.getBytes());
+        byte[] keyBytes = Base64.getEncoder().encode(BytesUtils.toBytes(secretKeyStr));
         this.secretKey = Keys.hmacShaKeyFor(keyBytes);
 
         JwtParserBuilder jwtParser = Jwts.parser();
