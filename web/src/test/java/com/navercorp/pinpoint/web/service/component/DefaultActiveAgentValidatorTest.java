@@ -2,10 +2,10 @@ package com.navercorp.pinpoint.web.service.component;
 
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
-import com.navercorp.pinpoint.web.vo.Application;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +24,8 @@ class DefaultActiveAgentValidatorTest {
     @Mock
     AgentEventService agentEventService;
 
-    Application node = new Application("testNodeApp", ServiceTypeFactory.of(1400, "node"));
+    String agentId = "testNodeApp";
+    ServiceType node = ServiceTypeFactory.of(1400, "node");
 //    Application java = new Application("testJavaApp", ServiceTypeFactory.of(1010, "java"));
 
     @Test
@@ -32,7 +33,7 @@ class DefaultActiveAgentValidatorTest {
         LegacyAgentCompatibility agentCompatibility = new DefaultLegacyAgentCompatibility();
         ActiveAgentValidator validator = new DefaultActiveAgentValidator(agentEventService, agentCompatibility);
 
-        Assertions.assertFalse(validator.isActiveAgent(node, "0.7.0", Range.between(0, 1)));
+        Assertions.assertFalse(validator.isActiveAgent(agentId, node.getCode(), "0.7.0", Range.between(0, 1)));
     }
 
     @Test
@@ -43,7 +44,7 @@ class DefaultActiveAgentValidatorTest {
         AgentEvent gc = new AgentEvent("test", 1, 1, AgentEventType.AGENT_PING);
         when(agentEventService.getAgentEvents(any(), any(), any())).thenReturn(List.of(gc));
 
-        Assertions.assertTrue(validator.isActiveAgent(node, "5.0.0", Range.between(0, 1)));
+        Assertions.assertTrue(validator.isActiveAgent(agentId, node.getCode(), "5.0.0", Range.between(0, 1)));
     }
 
     @Test
@@ -51,7 +52,7 @@ class DefaultActiveAgentValidatorTest {
         LegacyAgentCompatibility agentCompatibility = new DefaultLegacyAgentCompatibility();
         ActiveAgentValidator validator = new DefaultActiveAgentValidator(agentEventService, agentCompatibility);
 
-        Assertions.assertFalse(validator.isActiveAgent(node, "0.8.0", Range.between(0, 1)));
+        Assertions.assertFalse(validator.isActiveAgent(agentId, node.getCode(), "0.8.0", Range.between(0, 1)));
 
         verify(agentEventService).getAgentEvents(any(), any(), any());
     }
@@ -64,6 +65,6 @@ class DefaultActiveAgentValidatorTest {
         LegacyAgentCompatibility agentCompatibility = new DefaultLegacyAgentCompatibility();
         ActiveAgentValidator validator = new DefaultActiveAgentValidator(agentEventService, agentCompatibility);
 
-        Assertions.assertTrue(validator.isActiveAgent(node, "0.8.0", Range.between(0, 1)));
+        Assertions.assertTrue(validator.isActiveAgent(agentId, node.getCode(), "0.8.0", Range.between(0, 1)));
     }
 }

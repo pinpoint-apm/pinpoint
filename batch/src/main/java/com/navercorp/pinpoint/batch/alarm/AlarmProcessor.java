@@ -101,13 +101,15 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
 
     private List<String> fetchActiveAgents(Application application, Range activeRange) {
         List<String> agentList = batchAgentService.getIds(application.getName());
-        return agentList
-                .stream()
-                .filter(id -> {
-                    Application agent = new Application(id, application.getServiceType());
-                    return batchAgentService.isActive(agent, activeRange);
-                })
-                .toList();
+
+        int code = application.getServiceType().getCode();
+        List<String> list = new ArrayList<>();
+        for (String agentId : agentList) {
+            if (batchAgentService.isActive(agentId, code, activeRange)) {
+                list.add(agentId);
+            }
+        }
+        return list;
     }
 
     private static class AlarmCheckerFactory {

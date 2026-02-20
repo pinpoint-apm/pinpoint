@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.batch.service;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.service.component.ActiveAgentValidator;
-import com.navercorp.pinpoint.web.vo.Application;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -51,7 +50,7 @@ public class BatchAgentServiceImpl implements BatchAgentService {
     }
 
     @Override
-    public boolean isActive(Application agent, Range range) {
-        return this.activeAgentValidator.isActiveAgent(agent, range);
+    public boolean isActive(String agentId, int agentServiceType, Range range) {
+        return this.activeAgentValidator.isActiveAgent(agentId, agentServiceType, range);
     }
 }
