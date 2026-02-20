@@ -156,7 +156,7 @@ public class AgentsController {
         rangeValidator.validate(range);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        final Application application = applicationFactory.createApplication(applicationName, serviceType.getCode());
+        final Application application = applicationFactory.createApplication(Service.DEFAULT, applicationName, serviceType.getCode());
 
         final List<Application> fromApplications =
                 pairsToList(applicationPairs.getFromApplications());

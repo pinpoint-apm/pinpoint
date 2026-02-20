@@ -57,7 +57,7 @@ public class ApdexScoreController {
         final Range range = Range.between(from, to);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
+        Application application = applicationFactory.createApplicationByTypeName(Service.DEFAULT, applicationName, serviceTypeName);
 
         return apdexScoreService.selectApdexScoreData(application, timeWindow);
     }
@@ -72,7 +72,7 @@ public class ApdexScoreController {
         final Range range = Range.between(from, to);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+        Application application = applicationFactory.createApplication(Service.DEFAULT, applicationName, serviceTypeCode);
 
         return apdexScoreService.selectApdexScoreData(application, agentId, timeWindow);
     }
@@ -87,7 +87,7 @@ public class ApdexScoreController {
         final Range range = Range.between(from, to);
         TimeWindow timeWindow = new TimeWindow(range);
 
-        Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
+        Application application = applicationFactory.createApplicationByTypeName(Service.DEFAULT, applicationName, serviceTypeName);
 
         return apdexScoreService.selectApdexScoreData(application, agentId, timeWindow);
     }
@@ -101,7 +101,7 @@ public class ApdexScoreController {
         final Range range = Range.between(from, to);
         TimeWindow timeWindow = new TimeWindow(range, APDEX_SCORE_TIME_WINDOW_SAMPLER);
 
-        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+        Application application = applicationFactory.createApplication(Service.DEFAULT, applicationName, serviceTypeCode);
 
         return apdexScoreService.selectApplicationChart(application, timeWindow);
     }
@@ -115,7 +115,7 @@ public class ApdexScoreController {
         final Range range = Range.between(from, to);
         TimeWindow timeWindow = new TimeWindow(range, APDEX_SCORE_TIME_WINDOW_SAMPLER);
 
-        Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
+        Application application = applicationFactory.createApplicationByTypeName(Service.DEFAULT, applicationName, serviceTypeName);
 
         return apdexScoreService.selectApplicationChart(application, timeWindow);
     }
@@ -130,7 +130,7 @@ public class ApdexScoreController {
         final Range range = Range.between(from, to);
         TimeWindow timeWindow = new TimeWindow(range, APDEX_SCORE_TIME_WINDOW_SAMPLER);
 
-        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+        Application application = applicationFactory.createApplication(Service.DEFAULT, applicationName, serviceTypeCode);
 
         return apdexScoreService.selectAgentChart(application, timeWindow, agentId);
     }
@@ -145,7 +145,7 @@ public class ApdexScoreController {
         final Range range = Range.between(from, to);
         TimeWindow timeWindow = new TimeWindow(range, APDEX_SCORE_TIME_WINDOW_SAMPLER);
 
-        Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
+        Application application = applicationFactory.createApplicationByTypeName(Service.DEFAULT, applicationName, serviceTypeName);
 
         return apdexScoreService.selectAgentChart(application, timeWindow, agentId);
     }
