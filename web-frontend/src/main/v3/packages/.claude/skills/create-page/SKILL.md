@@ -38,13 +38,14 @@ Create `packages/ui/src/loader/{pageName}.ts` following the pattern in existing 
 - Redirect with corrected dates if invalid
 
 ### 2e. Create Page Wrapper
-Create `apps/web/src/pages/{PageName}.tsx`:
+Create `apps/web/src/pages/<PageName>.tsx`:
 ```tsx
-import { withInitialFetch, {PageName}Page } from '@pinpoint-fe/ui';
+// Replace <PageName> with the actual page name (e.g., Inspector, ErrorAnalysis)
+import { withInitialFetch, <PageName>Page } from '@pinpoint-fe/ui';
 import { getLayoutWithSideNavigation } from '@pinpoint-fe/web/src/components/Layout/LayoutWithSideNavigation';
 
 export default withInitialFetch((props) =>
-  getLayoutWithSideNavigation(<{PageName}Page {...props} />),
+  getLayoutWithSideNavigation(<<PageName>Page {...props} />),
 );
 ```
 

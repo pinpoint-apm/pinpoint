@@ -15,7 +15,7 @@ Add translation key `$0` with English text `$1` and Korean text `$2`.
 2. Read `packages/ui/src/constants/locales/ko.json`
 3. Determine the correct section based on the key prefix (COMMON, SERVER_MAP, TRANSACTION, etc.)
 4. Add the key to BOTH files in the correct section, maintaining alphabetical order within the section
-5. If Korean text is not provided, add the English text as a placeholder with a `TODO` comment
+5. If Korean text is not provided, add the English text as a placeholder prefixed with `[TODO]` (e.g., `"[TODO] English text"`) so it can be easily searched and replaced later
 
 ## Key Naming
 - SCREAMING_SNAKE_CASE with dot-separated sections

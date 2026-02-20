@@ -1,7 +1,7 @@
 ---
 name: code-reviewer
 description: Pinpoint Frontend code review specialist. Reviews code for adherence to project conventions, architecture patterns, and best practices. Use proactively when code changes are made or PRs are created.
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash(git diff*, git log*, git show*)
 model: sonnet
 permissionMode: dontAsk
 maxTurns: 30
