@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.AdminService;
 import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Service;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -73,7 +74,7 @@ public class AdminController {
     public String removeApplicationName(@RequestParam("applicationName") @NotBlank String applicationName,
                                         @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
                                         @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName) {
-        Application application = getApplication(applicationName, serviceTypeCode, serviceTypeName);
+        Application application = getApplication(Service.DEFAULT, applicationName, serviceTypeCode, serviceTypeName);
         if (application.getServiceType().equals(ServiceType.UNDEFINED)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Undefined service type");
         }
@@ -108,7 +109,7 @@ public class AdminController {
             @RequestParam(value = "serviceTypeCode", required = false) Integer serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
             @RequestParam(value = "agentId") @NotBlank String agentId) {
-        Application application = getApplication(applicationName, serviceTypeCode, serviceTypeName);
+        Application application = getApplication(Service.DEFAULT, applicationName, serviceTypeCode, serviceTypeName);
         if (application.getServiceType().equals(ServiceType.UNDEFINED)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Undefined service type");
         }
@@ -160,11 +161,11 @@ public class AdminController {
         return this.adminService.getInactiveAgents(applicationName, durationDays);
     }
 
-    private Application getApplication(String applicationName, Integer serviceTypeCode, String serviceTypeName) {
+    private Application getApplication(Service service, String applicationName, Integer serviceTypeCode, String serviceTypeName) {
         if (serviceTypeCode != null) {
-            return applicationFactory.createApplication(applicationName, serviceTypeCode);
+            return applicationFactory.createApplication(service, applicationName, serviceTypeCode);
         } else if (serviceTypeName != null) {
-            return applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
+            return applicationFactory.createApplicationByTypeName(service, applicationName, serviceTypeName);
         }
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No service type provided.");
     }

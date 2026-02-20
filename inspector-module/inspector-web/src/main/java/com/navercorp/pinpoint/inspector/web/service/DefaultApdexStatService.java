@@ -33,13 +33,13 @@ import com.navercorp.pinpoint.metric.common.util.TagUtils;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.ApdexScoreService;
 import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Service;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
 import com.navercorp.pinpoint.web.vo.stat.chart.agent.AgentApdexScoreChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationApdexScoreChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationStatPoint;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -51,7 +51,7 @@ import java.util.function.ToIntFunction;
 /**
  * @author minwoo-jung
  */
-@Service
+@org.springframework.stereotype.Service
 public class DefaultApdexStatService implements ApdexStatService {
 
     private static final TimeWindowSampler APDEX_SCORE_TIME_WINDOW_SAMPLER = new TimeWindowSlotCentricSampler(60 * 1000, 200);
@@ -79,12 +79,12 @@ public class DefaultApdexStatService implements ApdexStatService {
     }
 
     @Override
-    public InspectorMetricData selectAgentStat(String applicationName, String serviceTypeName, String metricDefinitionId, String agentId, long from, long to) {
+    public InspectorMetricData selectAgentStat(Service service, String applicationName, String serviceTypeName, String metricDefinitionId, String agentId, long from, long to) {
         MetricDefinition metricDefinition = agentYmlInspectorManager.findElementOfBasicGroup(metricDefinitionId);
 
         final Range range = Range.between(from, to);
         TimeWindow timeWindow = new TimeWindow(range, APDEX_SCORE_TIME_WINDOW_SAMPLER);
-        Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
+        Application application = applicationFactory.createApplicationByTypeName(service, applicationName, serviceTypeName);
 
         AgentApdexScoreChart agentApdexScoreChart = (AgentApdexScoreChart) apdexScoreService.selectAgentChart(application, timeWindow, agentId);
 
@@ -92,11 +92,11 @@ public class DefaultApdexStatService implements ApdexStatService {
     }
 
     @Override
-    public InspectorMetricData selectApplicationStat(String applicationName, String serviceTypeName, String metricDefinitionId, long from, long to) {
+    public InspectorMetricData selectApplicationStat(Service service, String applicationName, String serviceTypeName, String metricDefinitionId, long from, long to) {
         MetricDefinition metricDefinition = appYmlInspectorManager.findElementOfBasicGroup(metricDefinitionId);
         final Range range = Range.between(from, to);
         TimeWindow timeWindow = new TimeWindow(range, APDEX_SCORE_TIME_WINDOW_SAMPLER);
-        Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
+        Application application = applicationFactory.createApplicationByTypeName(service, applicationName, serviceTypeName);
         ApplicationApdexScoreChart applicationApdexScoreChart = (ApplicationApdexScoreChart) apdexScoreService.selectApplicationChart(application, timeWindow);
 
         return convertToInspectorMetricData(metricDefinition, applicationApdexScoreChart);

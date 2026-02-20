@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.inspector.web.service.ApdexStatService;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricGroupDataView;
 import com.navercorp.pinpoint.inspector.web.view.InspectorMetricView;
 import com.navercorp.pinpoint.pinot.tenant.TenantProvider;
+import com.navercorp.pinpoint.web.vo.Service;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -94,7 +95,7 @@ public class AgentInspectorStatController {
         Range range = Range.between(from, to);
         rangeValidator.validate(range.getFromInstant(), range.getToInstant());
 
-        InspectorMetricData inspectorMetricData = apdexStatService.selectAgentStat(applicationName, serviceTypeName, metricDefinitionId, agentId, from, to);
+        InspectorMetricData inspectorMetricData = apdexStatService.selectAgentStat(Service.DEFAULT, applicationName, serviceTypeName, metricDefinitionId, agentId, from, to);
         return new InspectorMetricView(inspectorMetricData);
     }
 
