@@ -25,7 +25,7 @@ paths:
 - Use shared `queryFn` from `reactQueryHelper.ts` — it handles ProblemDetail error parsing
 - Always set `enabled` option to prevent queries from firing without required params
 - Default cache settings: `gcTime: 30000` (30s), `staleTime: 3000` (3s)
-- For polling/realtime: `gcTime: 0`, `keepPreviousData` for smooth transitions
+- For polling/realtime: `gcTime: 0`, `placeholderData: (prev) => prev` for smooth transitions
 - Endpoints defined in `packages/ui/src/constants/EndPoints.ts`
 
 ## URL Search Parameters

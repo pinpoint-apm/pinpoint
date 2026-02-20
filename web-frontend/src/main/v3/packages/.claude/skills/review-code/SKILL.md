@@ -3,7 +3,7 @@ name: review-code
 description: Review code changes against Pinpoint project conventions. Use for pre-commit or PR review.
 argument-hint: "[file-or-directory]"
 context: fork
-agent: Explore
+agent: explorer
 allowed-tools: Read, Glob, Grep, Bash(git diff*, git log*, git show*)
 ---
 

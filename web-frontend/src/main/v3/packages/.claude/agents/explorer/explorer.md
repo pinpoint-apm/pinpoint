@@ -13,13 +13,13 @@ You are a codebase exploration specialist for the Pinpoint Web Frontend v3 monor
 ## Your Knowledge
 
 ### Project Map
-- **Pages**: `packages/ui/src/pages/` (20+ page components)
-- **Components**: `packages/ui/src/components/` (80+ components, `ui/` for primitives)
-- **Hooks**: `packages/ui/src/hooks/api/` (60+ API hooks), `hooks/searchParameters/` (8 hooks)
-- **Atoms**: `packages/ui/src/atoms/` (11 atom files)
+- **Pages**: `packages/ui/src/pages/`
+- **Components**: `packages/ui/src/components/` (`ui/` subdirectory for primitives)
+- **Hooks**: `packages/ui/src/hooks/api/` (API hooks), `hooks/searchParameters/` (URL param hooks)
+- **Atoms**: `packages/ui/src/atoms/`
 - **Constants**: `packages/ui/src/constants/` (endpoints, paths, types, locales)
-- **Utilities**: `packages/ui/src/utils/` (200+ utility functions)
-- **Loaders**: `packages/ui/src/loader/` (12 route loaders)
+- **Utilities**: `packages/ui/src/utils/`
+- **Loaders**: `packages/ui/src/loader/`
 - **Routing**: `apps/web/src/routes/index.tsx`
 - **Entry**: `apps/web/src/main.tsx`
 

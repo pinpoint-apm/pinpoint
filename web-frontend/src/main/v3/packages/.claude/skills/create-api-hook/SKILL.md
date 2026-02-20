@@ -44,15 +44,16 @@ Create `packages/ui/src/hooks/api/useGetNewData.ts`:
 ```typescript
 import { useQuery } from '@tanstack/react-query';
 import { END_POINTS, GetNewData } from '@pinpoint-fe/ui/src/constants';
+import { convertParamsToQueryString } from '@pinpoint-fe/ui/src/utils';
 import { queryFn } from './reactQueryHelper';
 
-export const useGetNewData = (params: { /* hook params */ }) => {
-  const queryString = new URLSearchParams({ ... }).toString();
+export const useGetNewData = (params: GetNewData.Parameters) => {
+  const queryString = convertParamsToQueryString(params);
 
   return useQuery<GetNewData.Response>({
     queryKey: [END_POINTS.NEW_ENDPOINT, queryString],
     queryFn: queryFn(`${END_POINTS.NEW_ENDPOINT}?${queryString}`),
-    enabled: !!requiredParam,
+    enabled: !!params.applicationName,
     gcTime: 30000,
   });
 };
@@ -66,4 +67,4 @@ Export from `packages/ui/src/hooks/api/index.ts` (or equivalent barrel file).
 - Use `queryFn` from `reactQueryHelper.ts` — never roll your own fetch
 - Query key must include the endpoint and all parameters that affect the response
 - For POST mutations, use `useMutation` instead of `useQuery`
-- For polling, set `gcTime: 0` and use `keepPreviousData`
+- For polling, set `gcTime: 0` and use `placeholderData: (prev) => prev` for smooth transitions
