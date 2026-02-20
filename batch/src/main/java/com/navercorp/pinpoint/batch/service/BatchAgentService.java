@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.batch.service;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
-import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.List;
 
@@ -30,6 +29,6 @@ public interface BatchAgentService {
 
     boolean isActive(String agentId, Range range);
 
-    boolean isActive(Application agent, Range range);
+    boolean isActive(String agentId, int agentServiceType, Range range);
 
 }

@@ -4,7 +4,6 @@ import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.service.AgentEventService;
 import com.navercorp.pinpoint.web.vo.AgentEvent;
-import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -36,15 +35,15 @@ public class DefaultActiveAgentValidator implements ActiveAgentValidator {
     }
 
     @Override
-    public boolean isActiveAgent(Application agent, Range range) {
-        return isActiveAgent(agent, null, range);
+    public boolean isActiveAgent(String agentId, int agentServiceType, Range range) {
+        return isActiveAgent(agentId, agentServiceType, null, range);
     }
 
     @Override
-    public boolean isActiveAgent(Application agent, String version, Range range) {
-        Objects.requireNonNull(agent, "agent");
-        String agentId = agent.getName();
-        if (!agentCompatibility.isLegacyAgent(agent.getServiceTypeCode(), version)) {
+    public boolean isActiveAgent(String agentId, int agentServiceType, String version, Range range) {
+        Objects.requireNonNull(agentId, "agentId");
+
+        if (!agentCompatibility.isLegacyAgent(agentServiceType, version)) {
             logger.trace("isActiveAgentByPing");
 
             if (isActiveAgentByEvent(agentId, range)) {
