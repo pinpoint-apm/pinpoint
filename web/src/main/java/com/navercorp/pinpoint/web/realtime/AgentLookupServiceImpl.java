@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.realtime;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.realtime.activethread.count.dto.ClusterKeyAndMetadata;
@@ -66,7 +67,7 @@ class AgentLookupServiceImpl implements AgentLookupService {
 
     private static ClusterKeyAndMetadata intoClusterKeyAndMetadata(AgentInfo src) {
         return new ClusterKeyAndMetadata(
-                new ClusterKey(src.getApplicationName(), src.getAgentId(), src.getStartTimestamp()),
+                new ClusterKey(ServiceUid.DEFAULT_SERVICE_UID_NAME, src.getApplicationName(), src.getAgentId(), src.getStartTimestamp()),
                 src.getAgentName()
         );
     }

@@ -36,10 +36,11 @@ public class ClusterKeyDeserializer extends StdDeserializer<ClusterKey> {
     public ClusterKey deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
         JsonNode clusterNode = parser.readValueAsTree();
 
+        String serviceName = clusterNode.get("serviceName").asText();
         String applicationName = clusterNode.get("applicationName").asText();
         String agentId = clusterNode.get("agentId").asText();
         long startTimestamp = clusterNode.get("startTimestamp").asLong();
-        return new ClusterKey(applicationName, agentId, startTimestamp);
+        return new ClusterKey(serviceName, applicationName, agentId, startTimestamp);
     }
 
 }

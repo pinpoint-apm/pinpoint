@@ -48,6 +48,7 @@ public class ChannelActiveThreadCountDao implements ActiveThreadCountDao {
     private static ATCDemand makeDemand(long id, ClusterKey key) {
         ATCDemand demand = new ATCDemand();
         demand.setId(id);
+        demand.setServiceName(key.getServiceName());
         demand.setApplicationName(key.getApplicationName());
         demand.setAgentId(key.getAgentId());
         demand.setStartTimestamp(key.getStartTimestamp());

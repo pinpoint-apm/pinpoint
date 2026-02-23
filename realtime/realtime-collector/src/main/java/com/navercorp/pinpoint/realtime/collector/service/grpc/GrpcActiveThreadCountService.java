@@ -71,6 +71,7 @@ class GrpcActiveThreadCountService implements ActiveThreadCountService {
     public Flux<ATCSupply> requestAsync(ATCDemand demand) {
         try {
             ClusterKey clusterKey = new ClusterKey(
+                    demand.getServiceName(),
                     demand.getApplicationName(),
                     demand.getAgentId(),
                     demand.getStartTimestamp());
@@ -114,6 +115,7 @@ class GrpcActiveThreadCountService implements ActiveThreadCountService {
         supply.setMessage(ATCSupply.Message.OK);
         supply.setValues(res.getActiveThreadCountList());
         supply.setCollectorId(COLLECTOR_ID);
+        supply.setServiceName(clusterKey.getServiceName());
         supply.setApplicationName(clusterKey.getApplicationName());
         supply.setAgentId(clusterKey.getAgentId());
         supply.setStartTimestamp(clusterKey.getStartTimestamp());

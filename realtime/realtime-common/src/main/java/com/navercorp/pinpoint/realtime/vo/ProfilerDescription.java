@@ -40,11 +40,11 @@ public class ProfilerDescription {
     }
 
     public static ProfilerDescription fromString(String raw) {
-        String[] words = raw.split(":", 3);
-        if (words.length != 3) {
+        String[] words = raw.split(":", 4);
+        if (words.length != 4) {
             throw new RuntimeException("Invalid serialized profiler description: " + raw);
         }
-        return new ProfilerDescription(new ClusterKey(words[0], words[1], Long.parseLong(words[2])));
+        return new ProfilerDescription(new ClusterKey(words[0], words[1], words[2], Long.parseLong(words[3])));
     }
 
 

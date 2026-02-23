@@ -55,6 +55,7 @@ public class ATCServiceProtocolConfig {
     private static URI getATCSupplyChannelURI(ATCDemand demand) {
         return URI.create(RedisPubSubConstants.SCHEME +
                 ":supply:atc-2:" +
+                demand.getServiceName() + ':' +
                 demand.getApplicationName() + ':' +
                 demand.getAgentId() + ':' +
                 demand.getStartTimestamp());

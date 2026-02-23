@@ -20,6 +20,7 @@ class ClusterTest {
     void deserialize() throws IOException {
 
         Map<String, Object> clusterKeyMap = Map.of(
+                "serviceName", "service1",
                 "applicationName", "app1",
                 "agentId", "agentId1",
                 "startTimestamp", 1234L
@@ -35,6 +36,7 @@ class ClusterTest {
         ClusterKey clusterKey = deserializer.deserialize(parser, null);
 
         assertNotNull(clusterKey);
+        assertEquals("service1", clusterKey.getServiceName());
         assertEquals("app1", clusterKey.getApplicationName());
         assertEquals("agentId1", clusterKey.getAgentId());
         assertEquals(1234, clusterKey.getStartTimestamp());

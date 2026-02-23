@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.realtime.collector.controller;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.grpc.trace.PCmdEcho;
@@ -71,25 +72,28 @@ public class ClusterPointController {
 
     @GetMapping(value = "/html/getClusterPoint")
     public String getClusterPointToHtml(
+            @RequestParam(value = "serviceName", required = false, defaultValue = ServiceUid.DEFAULT_SERVICE_UID_NAME) String serviceName,
             @RequestParam("applicationName") String applicationName,
             @RequestParam(value = "agentId", defaultValue = "") String agentId,
             @RequestParam(value = "startTimestamp", defaultValue = "-1") long startTimestamp) {
 
-        List<GrpcAgentConnectionStats> result = getClusterPoint0(applicationName, agentId, startTimestamp);
+        List<GrpcAgentConnectionStats> result = getClusterPoint0(serviceName, applicationName, agentId, startTimestamp);
         return buildHtml(result);
     }
 
     @GetMapping(value = "/getClusterPoint")
     public List<GrpcAgentConnectionStats> getClusterPoint(
+            @RequestParam(value = "serviceName", required = false, defaultValue = ServiceUid.DEFAULT_SERVICE_UID_NAME) String serviceName,
             @RequestParam("applicationName") String applicationName,
             @RequestParam(value = "agentId", defaultValue = "") String agentId,
             @RequestParam(value = "startTimestamp", defaultValue = "-1") long startTimestamp) {
 
-        return getClusterPoint0(applicationName, agentId, startTimestamp);
+        return getClusterPoint0(serviceName, applicationName, agentId, startTimestamp);
     }
 
     @GetMapping(value = "/checkConnectionStatus")
     public List<GrpcAgentConnectionStats> checkConnectionStatus(
+            @RequestParam(value = "serviceName", required = false, defaultValue = ServiceUid.DEFAULT_SERVICE_UID_NAME) String serviceName,
             @RequestParam("applicationName") String applicationName,
             @RequestParam("agentId") String agentId,
             @RequestParam("startTimestamp") long startTimestamp,
@@ -97,7 +101,7 @@ public class ClusterPointController {
         Assert.isTrue(checkCount > 0, "checkCount must be ' > 0'");
 
         List<GrpcAgentConnection> grpcAgentConnectionList =
-                getGrpcAgentConnectionList(applicationName, agentId, startTimestamp);
+                getGrpcAgentConnectionList(serviceName, applicationName, agentId, startTimestamp);
 
         List<GrpcAgentConnectionStats> result = new ArrayList<>(grpcAgentConnectionList.size());
         for (GrpcAgentConnection grpcAgentConnection : grpcAgentConnectionList) {
@@ -117,12 +121,13 @@ public class ClusterPointController {
     }
 
     private List<GrpcAgentConnectionStats> getClusterPoint0(
+            String serviceName,
             String applicationName,
             String agentId,
             long startTimestamp
     ) {
         List<GrpcAgentConnection> grpcAgentConnectionList =
-                getGrpcAgentConnectionList(applicationName, agentId, startTimestamp);
+                getGrpcAgentConnectionList(serviceName, applicationName, agentId, startTimestamp);
 
         List<GrpcAgentConnectionStats> result = new ArrayList<>(grpcAgentConnectionList.size());
         for (GrpcAgentConnection grpcAgentConnection : grpcAgentConnectionList) {
@@ -133,10 +138,12 @@ public class ClusterPointController {
     }
 
     private List<GrpcAgentConnection> getGrpcAgentConnectionList(
+            String serviceName,
             String applicationName,
             String agentId,
             long startTimestamp
     ) {
+        Objects.requireNonNull(serviceName, "serviceName");
         Objects.requireNonNull(applicationName, "applicationName");
 
         List<GrpcAgentConnection> result = new ArrayList<>();
@@ -146,6 +153,10 @@ public class ClusterPointController {
                 continue;
             }
             ClusterKey destClusterInfo = clusterPoint.getClusterKey();
+
+            if (!destClusterInfo.getServiceName().equals(serviceName)) {
+                continue;
+            }
 
             if (!destClusterInfo.getApplicationName().equals(applicationName)) {
                 continue;
