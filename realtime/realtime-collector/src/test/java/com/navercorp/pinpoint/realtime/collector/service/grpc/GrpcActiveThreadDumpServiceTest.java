@@ -78,7 +78,7 @@ public class GrpcActiveThreadDumpServiceTest {
                 .getSupportCommandList();
 
         doReturn(connection).when(connectionRepository)
-                .getConnection(ClusterKey.parse("application-name:agent-id:1234"));
+                .getConnection(ClusterKey.parse("service-name:application-name:agent-id:1234"));
 
         ActiveThreadDumpService service = new GrpcActiveThreadDumpService(
                 connectionRepository,
@@ -88,7 +88,7 @@ public class GrpcActiveThreadDumpServiceTest {
 
         ATDDemand demand = new ATDDemand();
         demand.setId(0);
-        demand.setClusterKey(ClusterKey.parse("application-name:agent-id:1234"));
+        demand.setClusterKey(ClusterKey.parse("service-name:application-name:agent-id:1234"));
         demand.setLight(false);
 
         ATDSupply dump = service.getDump(demand).block();
@@ -126,7 +126,7 @@ public class GrpcActiveThreadDumpServiceTest {
                 .getSupportCommandList();
 
         doReturn(connection).when(connectionRepository)
-                .getConnection(ClusterKey.parse("application-name:agent-id:1234"));
+                .getConnection(ClusterKey.parse("service-name:application-name:agent-id:1234"));
 
         ActiveThreadDumpService service = new GrpcActiveThreadDumpService(
                 connectionRepository,
@@ -136,7 +136,7 @@ public class GrpcActiveThreadDumpServiceTest {
 
         ATDDemand demand = new ATDDemand();
         demand.setId(0);
-        demand.setClusterKey(ClusterKey.parse("application-name:agent-id:1234"));
+        demand.setClusterKey(ClusterKey.parse("service-name:application-name:agent-id:1234"));
         demand.setLight(true);
 
         ATDSupply dump = service.getDump(demand).block();

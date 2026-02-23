@@ -17,8 +17,8 @@ class CollectorStateSerdeTest {
     @Test
     void serde() throws IOException {
         List<ProfilerDescription> profilers = List.of(
-                new ProfilerDescription(new ClusterKey("app1", "agent1", 1)),
-                new ProfilerDescription(new ClusterKey("app2", "agent2", 1))
+                new ProfilerDescription(new ClusterKey("service1", "app1", "agent1", 1)),
+                new ProfilerDescription(new ClusterKey("service2", "app2", "agent2", 1))
         );
         CollectorState state = new CollectorState(profilers);
 

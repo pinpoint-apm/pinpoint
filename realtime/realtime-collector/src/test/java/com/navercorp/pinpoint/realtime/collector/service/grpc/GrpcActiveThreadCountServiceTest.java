@@ -81,7 +81,7 @@ public class GrpcActiveThreadCountServiceTest {
                 .getSupportCommandList();
 
         doReturn(connection).when(connectionRepository)
-                .getConnection(ClusterKey.parse("application-name:agent-id:1234"));
+                .getConnection(ClusterKey.parse("service-name:application-name:agent-id:1234"));
 
         ActiveThreadCountService service = new GrpcActiveThreadCountService(
                 connectionRepository,
@@ -91,6 +91,7 @@ public class GrpcActiveThreadCountServiceTest {
 
         ATCDemand demand = new ATCDemand();
         demand.setId(0);
+        demand.setServiceName("service-name");
         demand.setApplicationName("application-name");
         demand.setAgentId("agent-id");
         demand.setStartTimestamp(1234);

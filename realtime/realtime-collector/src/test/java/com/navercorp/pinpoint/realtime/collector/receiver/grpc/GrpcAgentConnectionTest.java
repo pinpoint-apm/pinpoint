@@ -45,7 +45,7 @@ public class GrpcAgentConnectionTest {
 
         GrpcAgentConnection conn = new GrpcAgentConnection(
                 InetSocketAddress.createUnresolved("127.0.0.1", 9999),
-                ClusterKey.parse("application-name:agent-id:0"),
+                ClusterKey.parse("service-name:application-name:agent-id:0"),
                 requestObserver,
                 List.of()
         );

@@ -44,9 +44,9 @@ public class CollectorStateUpdateRunnableTest {
 
     @Test
     public void test() {
-        ClusterPoint point0 = mockClusterPoint(ClusterKey.parse("application-name:agent-id:0"));
-        ClusterPoint point1 = mockClusterPoint(ClusterKey.parse("application-name:agent-id:1"));
-        ClusterPoint point2 = mockClusterPoint(ClusterKey.parse("application-name:agent-id:2"));
+        ClusterPoint point0 = mockClusterPoint(ClusterKey.parse("service-name:application-name:agent-id:0"));
+        ClusterPoint point1 = mockClusterPoint(ClusterKey.parse("service-name:application-name:agent-id:1"));
+        ClusterPoint point2 = mockClusterPoint(ClusterKey.parse("service-name:application-name:agent-id:2"));
         List<ClusterPoint> points = List.of(point0, point1, point2);
         doReturn(points).when(locator).getClusterPointList();
 
@@ -61,7 +61,7 @@ public class CollectorStateUpdateRunnableTest {
 
         List<ProfilerDescription> profilers = stateRef.get().getProfilers();
         for (int i = 0; i < 3; i++) {
-            assertThat(profilers.get(i).getClusterKey()).isEqualTo(ClusterKey.parse("application-name:agent-id:" + i));
+            assertThat(profilers.get(i).getClusterKey()).isEqualTo(ClusterKey.parse("service-name:application-name:agent-id:" + i));
         }
     }
 

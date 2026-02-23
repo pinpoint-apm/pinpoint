@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.realtime.dto;
 
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 
 import java.util.Objects;
@@ -25,6 +26,7 @@ import java.util.Objects;
 public class ATCDemand implements RealtimeDemand {
 
     private long id;
+    private String serviceName = ServiceUid.DEFAULT_SERVICE_UID_NAME;
     private String applicationName;
     private String agentId;
     private long startTimestamp;
@@ -35,6 +37,14 @@ public class ATCDemand implements RealtimeDemand {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
     }
 
     public String getApplicationName() {
@@ -66,19 +76,19 @@ public class ATCDemand implements RealtimeDemand {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ATCDemand demand = (ATCDemand) o;
-        return id == demand.id && startTimestamp == demand.startTimestamp && Objects.equals(applicationName, demand.applicationName) && Objects.equals(agentId, demand.agentId);
+        return id == demand.id && startTimestamp == demand.startTimestamp && Objects.equals(serviceName, demand.serviceName) && Objects.equals(applicationName, demand.applicationName) && Objects.equals(agentId, demand.agentId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, applicationName, agentId, startTimestamp);
+        return Objects.hash(id, serviceName, applicationName, agentId, startTimestamp);
     }
 
     @Override
     public String toString() {
         return "ATCDemand{" +
                 "id=" + id +
-                ", clusterKey='" + applicationName + ':' + agentId + ':' + startTimestamp +
+                ", clusterKey='" + serviceName + ':' + applicationName + ':' + agentId + ':' + startTimestamp +
                 '}';
     }
 }

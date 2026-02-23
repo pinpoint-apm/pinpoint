@@ -103,7 +103,7 @@ public class ActiveThreadCountServiceImpl implements ActiveThreadCountService {
     }
 
     private static ClusterKey extractKey(ATCSupply supply) {
-        return new ClusterKey(supply.getApplicationName(), supply.getAgentId(), supply.getStartTimestamp());
+        return new ClusterKey(supply.getServiceName(), supply.getApplicationName(), supply.getAgentId(), supply.getStartTimestamp());
     }
 
     private Mono<List<ClusterKeyAndMetadata>> getAgents(TaskDecorator taskDecorator, String applicationName) {

@@ -319,7 +319,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
     }
 
     private ClusterKey getClusterKeyFromContext(Header header) {
-        return new ClusterKey(header.getApplicationName(), header.getAgentId(), header.getAgentStartTime());
+        return new ClusterKey(header.getServiceName(), header.getApplicationName(), header.getAgentId(), header.getAgentStartTime());
     }
 
     private Long getTransportIdFromContext(Context context) {

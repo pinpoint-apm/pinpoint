@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.realtime.dto;
 
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.server.util.StringPrecondition;
 
 import java.util.List;
@@ -25,12 +26,21 @@ import java.util.Objects;
  */
 public class ATCSupply implements RealtimeSupply {
 
+    private String serviceName = ServiceUid.DEFAULT_SERVICE_UID_NAME;
     private String applicationName;
     private String agentId;
     private long startTimestamp;
     private String collectorId;
     private List<Integer> values;
     private Message message;
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
+    }
 
     @SuppressWarnings("unused")
     public String getApplicationName() {
@@ -98,7 +108,7 @@ public class ATCSupply implements RealtimeSupply {
     @Override
     public String toString() {
         return "ATCSupply{" +
-                "agentKey='" + applicationName + ':' + agentId + ':' + startTimestamp +
+                "agentKey='" + serviceName + ':' + applicationName + ':' + agentId + ':' + startTimestamp +
                 ", collectorId='" + collectorId + '\'' +
                 ", values=" + values +
                 ", message='" + message + '\'' +

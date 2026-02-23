@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.cluster.ClusterKey;
+import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import org.springframework.stereotype.Service;
 
@@ -87,13 +88,13 @@ public class AgentServiceImpl implements AgentService {
             }
             return null;
         } else {
-            return new ClusterKey(applicationName, agentId, startTimeStamp);
+            return new ClusterKey(ServiceUid.DEFAULT_SERVICE_UID_NAME, applicationName, agentId, startTimeStamp);
         }
     }
 
     private static ClusterKey buildClusterKey(AgentInfo info) {
         Objects.requireNonNull(info, "info");
-        return new ClusterKey(info.getApplicationName(), info.getAgentId(), info.getStartTimestamp());
+        return new ClusterKey(ServiceUid.DEFAULT_SERVICE_UID_NAME, info.getApplicationName(), info.getAgentId(), info.getStartTimestamp());
     }
 
 }

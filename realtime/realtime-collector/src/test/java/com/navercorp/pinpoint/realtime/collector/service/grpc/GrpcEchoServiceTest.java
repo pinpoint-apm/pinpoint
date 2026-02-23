@@ -73,7 +73,7 @@ public class GrpcEchoServiceTest {
         doReturn(List.of(CommandType.ECHO)).when(connection)
                 .getSupportCommandList();
 
-        ClusterKey clusterKey = ClusterKey.parse("application-name:agent-id:1234");
+        ClusterKey clusterKey = ClusterKey.parse("service-name:application-name:agent-id:1234");
         doReturn(connection).when(connectionRepository)
                 .getConnection(clusterKey);
 
