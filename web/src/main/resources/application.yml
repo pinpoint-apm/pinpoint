@@ -6,6 +6,9 @@ spring:
       enabled: true
 
 server:
+  tomcat:
+    mbeanregistry:
+      enabled: true
   port: 8080
   error:
     path: /api/error
@@ -22,6 +25,10 @@ server:
     min-response-size: 2KB
 
 management:
+  metrics:
+    binders:
+      tomcat:
+        enabled: true
   health:
     defaults:
       enabled: false

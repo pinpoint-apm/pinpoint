@@ -8,7 +8,16 @@ spring:
     history:
       enabled: false
 
+server:
+  tomcat:
+    mbeanregistry:
+      enabled: true
+
 management:
+  metrics:
+    binders:
+      tomcat:
+        enabled: true
   otlp:
     metrics:
       export:
@@ -21,37 +30,37 @@ management:
   endpoint:
     health:
       show-details: always
-      enabled: true
+      access: read_only
     beans:
-      enabled: true
+      access: read_only
     conditions:
-      enabled: true
+      access: read_only
     configprops:
-      enabled: true
+      access: read_only
       show-values: always
     env:
-      enabled: true
+      access: read_only
       show-values: always
     logfile:
-      enabled: true
+      access: read_only
     loggers:
-      enabled: true
+      access: unrestricted
     mappings:
-      enabled: true
+      access: read_only
     info:
-      enabled: true
+      access: read_only
     threaddump:
-      enabled: true
+      access: read_only
     heapdump:
-      enabled: true
+      access: read_only
     metrics:
-      enabled: true
+      access: read_only
     httptrace:
-      enabled: false
+      access: none
     prometheus:
-      enabled: false
+      access: none
     shutdown:
-      enabled: false
+      access: none
   endpoints:
     web:
       exposure:
