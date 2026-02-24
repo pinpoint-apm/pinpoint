@@ -28,6 +28,4 @@ import java.util.List;
  */
 public interface LinkSelector {
     LinkDataDuplexMap select(List<Application> sourceApplications, TimeWindow timeWindow, int outSearchDepth, int inSearchDepth);
-
-    LinkDataDuplexMap select(List<Application> sourceApplications, TimeWindow timeWindow, int outSearchDepth, int inSearchDepth, boolean timeAggregated);
 }

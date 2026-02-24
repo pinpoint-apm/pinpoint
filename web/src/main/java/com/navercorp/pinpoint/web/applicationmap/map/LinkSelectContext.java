@@ -43,17 +43,15 @@ public class LinkSelectContext {
     private final SearchDepth inDepth;
 
     private final LinkVisitChecker linkVisitChecker;
-    private final boolean timeAggregated;
 
     private final Set<Application> nextApplications = ConcurrentHashMap.newKeySet();
 
     public LinkSelectContext(TimeWindow timeWindow, SearchDepth outDepth, SearchDepth inDepth,
-                             LinkVisitChecker linkVisitChecker, boolean timeAggregated) {
+                             LinkVisitChecker linkVisitChecker) {
         this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
         this.outDepth = Objects.requireNonNull(outDepth, "outDepth");
         this.inDepth = Objects.requireNonNull(inDepth, "inDepth");
         this.linkVisitChecker = Objects.requireNonNull(linkVisitChecker, "linkVisitChecker");
-        this.timeAggregated = timeAggregated;
     }
 
     public TimeWindow getTimeWindow() {
@@ -66,10 +64,6 @@ public class LinkSelectContext {
 
     public int getInDepth() {
         return inDepth.getDepth();
-    }
-
-    public boolean isTimeAggregated() {
-        return timeAggregated;
     }
 
     public boolean checkNextOut(Application application) {
@@ -106,6 +100,6 @@ public class LinkSelectContext {
     public LinkSelectContext advance() {
         SearchDepth nextOutDepth = outDepth.nextDepth();
         SearchDepth nextInDepth = inDepth.nextDepth();
-        return new LinkSelectContext(timeWindow, nextOutDepth, nextInDepth, linkVisitChecker, timeAggregated);
+        return new LinkSelectContext(timeWindow, nextOutDepth, nextInDepth, linkVisitChecker);
     }
 }

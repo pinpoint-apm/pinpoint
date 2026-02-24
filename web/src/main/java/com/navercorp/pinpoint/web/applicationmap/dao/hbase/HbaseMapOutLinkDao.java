@@ -80,9 +80,9 @@ public class HbaseMapOutLinkDao implements MapOutLinkDao {
     }
 
     @Override
-    public LinkDataMap selectOutLink(Application outApplication, TimeWindow timeWindow, boolean timeAggregated) {
+    public LinkDataMap selectOutLink(Application outApplication, TimeWindow timeWindow) {
 
-        TimeWindowFunction mapperWindow = TimeWindowFunction.newTimeWindow(timeAggregated);
+        TimeWindowFunction mapperWindow = TimeWindowFunction.identity();
 
         RowMapper<LinkDataMap> rowMapper = this.outMapperFactory.newMapper(mapperWindow, outApplication);
 

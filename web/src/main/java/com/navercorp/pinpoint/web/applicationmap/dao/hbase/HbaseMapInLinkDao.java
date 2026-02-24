@@ -80,11 +80,11 @@ public class HbaseMapInLinkDao implements MapInLinkDao {
     }
 
     @Override
-    public LinkDataMap selectInLink(Application inApplication, TimeWindow timeWindow, boolean timeAggregated) {
+    public LinkDataMap selectInLink(Application inApplication, TimeWindow timeWindow) {
         Objects.requireNonNull(inApplication, "inApplication");
         Objects.requireNonNull(timeWindow, "timeWindow");
 
-        TimeWindowFunction mapperWindow = TimeWindowFunction.newTimeWindow(timeAggregated);
+        TimeWindowFunction mapperWindow = TimeWindowFunction.identity();
 
         RowMapper<LinkDataMap> rowMapper = this.inLinkMapperFactory.newMapper(mapperWindow, inApplication);
         ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(rowMapper, new LinkTimeWindowReducer(timeWindow));

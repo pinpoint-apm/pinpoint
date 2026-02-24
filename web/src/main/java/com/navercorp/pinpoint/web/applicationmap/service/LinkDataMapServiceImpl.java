@@ -42,12 +42,12 @@ public class LinkDataMapServiceImpl implements LinkDataMapService {
     }
 
     @Override
-    public LinkDataMap selectOutLinkDataMap(Application outApplication, TimeWindow timeWindow, boolean timeAggregated) {
-        return mapOutLinkDao.selectOutLink(outApplication, timeWindow, timeAggregated);
+    public LinkDataMap selectOutLinkDataMap(Application outApplication, TimeWindow timeWindow) {
+        return mapOutLinkDao.selectOutLink(outApplication, timeWindow);
     }
 
     @Override
-    public LinkDataMap selectInLinkDataMap(Application inApplication, TimeWindow timeWindow, boolean timeAggregated) {
-        return mapInLinkDao.selectInLink(inApplication, timeWindow, timeAggregated);
+    public LinkDataMap selectInLinkDataMap(Application inApplication, TimeWindow timeWindow) {
+        return mapInLinkDao.selectInLink(inApplication, timeWindow);
     }
 }

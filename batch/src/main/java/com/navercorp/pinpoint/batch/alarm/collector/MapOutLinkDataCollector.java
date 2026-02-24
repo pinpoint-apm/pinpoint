@@ -62,7 +62,7 @@ public class MapOutLinkDataCollector extends DataCollector {
 
         Range between = Range.between(timeSlotEndTime - slotInterval, timeSlotEndTime);
         TimeWindow timeWindow = new TimeWindow(between);
-        LinkDataMap outLinkDataMap = mapOutLinkDao.selectOutLink(application, timeWindow, false);
+        LinkDataMap outLinkDataMap = mapOutLinkDao.selectOutLink(application, timeWindow);
 
         for (LinkData linkData : outLinkDataMap.getLinkDataList()) {
             LinkCallDataMap linkCallDataMap = linkData.getLinkCallDataMap();

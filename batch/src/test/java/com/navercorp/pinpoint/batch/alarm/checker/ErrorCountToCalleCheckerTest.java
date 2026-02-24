@@ -53,7 +53,7 @@ public class ErrorCountToCalleCheckerTest {
         dao = new MapOutLinkDao() {
 
             @Override
-            public LinkDataMap selectOutLink(Application outApplication, TimeWindow timeWindow, boolean timeAggregated) {
+            public LinkDataMap selectOutLink(Application outApplication, TimeWindow timeWindow) {
                 long timeStamp = 1409814914298L;
                 LinkDataMap linkDataMap = new LinkDataMap();
                 Application fromApplication = new Application(FROM_SERVICE_NAME, ServiceType.STAND_ALONE);
