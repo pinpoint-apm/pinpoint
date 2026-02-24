@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.web.vo.Application;
  */
 public interface LinkDataMapService {
 
-    LinkDataMap selectOutLinkDataMap(Application outApplication, TimeWindow timeWindow, boolean timeAggregated);
+    LinkDataMap selectOutLinkDataMap(Application outApplication, TimeWindow timeWindow);
 
-    LinkDataMap selectInLinkDataMap(Application inApplication, TimeWindow timeWindow, boolean timeAggregated);
+    LinkDataMap selectInLinkDataMap(Application inApplication, TimeWindow timeWindow);
 }

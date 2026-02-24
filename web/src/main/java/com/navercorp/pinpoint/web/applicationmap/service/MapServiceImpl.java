@@ -38,7 +38,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -94,7 +94,6 @@ public class MapServiceImpl implements MapService {
         LinkSelectorType linkSelectorType = searchOption.getLinkSelectorType();
         int outSearchDepth = searchOption.getOutSearchDepth();
         int inSearchDepth = searchOption.getInSearchDepth();
-        boolean timeAggregate = option.isSimpleResponseHistogram();
 
         LinkDataMapProcessor outLinkProcessor = LinkDataMapProcessor.NO_OP;
         if (searchOption.isWasOnly()) {
@@ -104,7 +103,7 @@ public class MapServiceImpl implements MapService {
         LinkSelector linkSelector = linkSelectorFactory.createLinkSelector(linkSelectorType, outLinkProcessor, inLinkProcessor);
 
         TimeWindow timeWindow = option.getTimeWindow();
-        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(Collections.singletonList(option.getSourceApplication()), timeWindow, outSearchDepth, inSearchDepth, timeAggregate);
+        LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(List.of(option.getSourceApplication()), timeWindow, outSearchDepth, inSearchDepth);
         watch.stop();
 
         if (linkDataLimiter.excess(linkDataDuplexMap.getTotalCount())) {
@@ -137,7 +136,7 @@ public class MapServiceImpl implements MapService {
     private ApplicationMapBuilder createApplicationMapBuilder(MapServiceOption option) {
         ApplicationMapBuilder builder = applicationMapBuilderFactory.createApplicationMapBuilder(option.getTimeWindow());
 
-        final NodeHistogramFactory nodeHistogramFactory = newNodeHistogramFactory(option.isSimpleResponseHistogram());
+        final NodeHistogramFactory nodeHistogramFactory = newNodeHistogramFactory();
         builder.includeNodeHistogram(nodeHistogramFactory);
 
         final ServerGroupListFactory serverGroupListFactory = newServerGroupListFactory(option.isUseStatisticsAgentState());
@@ -145,13 +144,8 @@ public class MapServiceImpl implements MapService {
         return builder;
     }
 
-    private NodeHistogramFactory newNodeHistogramFactory(boolean isSimpleResponseHistogram) {
-        if (isSimpleResponseHistogram) {
-            return nodeHistogramService.getSimpleHistogram();
-        } else {
-            return nodeHistogramService.getApplicationHistogram();
-
-        }
+    private NodeHistogramFactory newNodeHistogramFactory() {
+        return nodeHistogramService.getApplicationHistogram();
     }
 
     private ServerGroupListFactory newServerGroupListFactory(boolean isUseStatisticsAgentState) {

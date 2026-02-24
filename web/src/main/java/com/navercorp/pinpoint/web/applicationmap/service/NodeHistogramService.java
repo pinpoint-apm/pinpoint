@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogra
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 
 public interface NodeHistogramService {
-    NodeHistogramFactory getSimpleHistogram();
 
     NodeHistogramFactory getApplicationHistogram();
 

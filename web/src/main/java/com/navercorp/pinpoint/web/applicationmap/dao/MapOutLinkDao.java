@@ -27,6 +27,6 @@ import com.navercorp.pinpoint.web.vo.Application;
  * 
  */
 public interface MapOutLinkDao {
-   LinkDataMap selectOutLink(Application outApplication, TimeWindow timeWindow, boolean timeAggregated);
+   LinkDataMap selectOutLink(Application outApplication, TimeWindow timeWindow);
 
 }

@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
 
 /**
@@ -77,7 +76,7 @@ public class UnidirectionalLinkSelectorTest extends LinkSelectorTestBase {
         LinkDataMap link_OUT_IN_to_OUT = new LinkDataMap();
         link_OUT_IN_to_OUT.addLinkData(APP_OUT_IN, "agentOutIn", APP_OUT, "agentOut", 1000, ServiceType.STAND_ALONE.getHistogramSchema().getNormalSlot().getSlotTime(), callCount);
 
-        when(linkDataMapService.selectOutLinkDataMap(any(Application.class), any(TimeWindow.class), anyBoolean())).thenAnswer(new Answer<LinkDataMap>() {
+        when(linkDataMapService.selectOutLinkDataMap(any(Application.class), any(TimeWindow.class))).thenAnswer(new Answer<LinkDataMap>() {
             @Override
             public LinkDataMap answer(InvocationOnMock invocation) throws Throwable {
                 Application callerApplication = invocation.getArgument(0);
@@ -98,7 +97,7 @@ public class UnidirectionalLinkSelectorTest extends LinkSelectorTestBase {
                 return newEmptyLinkDataMap();
             }
         });
-        when(linkDataMapService.selectInLinkDataMap(any(Application.class), any(TimeWindow.class), anyBoolean())).thenAnswer(new Answer<LinkDataMap>() {
+        when(linkDataMapService.selectInLinkDataMap(any(Application.class), any(TimeWindow.class))).thenAnswer(new Answer<LinkDataMap>() {
             @Override
             public LinkDataMap answer(InvocationOnMock invocation) throws Throwable {
                 Application calleeApplication = invocation.getArgument(0);

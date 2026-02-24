@@ -580,14 +580,6 @@ public class ResponseTimeHistogramServiceImplTest {
                 }
                 return linkDataDuplexMap;
             }
-
-            @Override
-            public LinkDataDuplexMap select(List<Application> sourceApplications, TimeWindow timeWindow, int callerSearchDepth, int calleeSearchDepth, boolean timeAggregated) {
-                if (timeAggregated) {
-                    throw new IllegalArgumentException("link histogram data require timeSeries data");
-                }
-                return select(sourceApplications, timeWindow, callerSearchDepth, calleeSearchDepth);
-            }
         };
     }
 
@@ -604,14 +596,6 @@ public class ResponseTimeHistogramServiceImplTest {
                     linkDataDuplexMap.addSourceLinkData(createLinkData(linkKey.getFrom(), linkKey.getTo(), timestamp));
                 }
                 return linkDataDuplexMap;
-            }
-
-            @Override
-            public LinkDataDuplexMap select(List<Application> sourceApplications, TimeWindow timeWindow, int callerSearchDepth, int calleeSearchDepth, boolean timeAggregated) {
-                if (timeAggregated) {
-                    throw new IllegalArgumentException("link histogram data require timeSeries data");
-                }
-                return select(sourceApplications, timeWindow, callerSearchDepth, calleeSearchDepth);
             }
         };
     }

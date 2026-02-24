@@ -75,7 +75,6 @@ public class HistogramServiceImpl implements HistogramService {
         LinkSelectorType linkSelectorType = searchOption.getLinkSelectorType();
         int outSearchDepth = searchOption.getOutSearchDepth();
         int inSearchDepth = searchOption.getInSearchDepth();
-        boolean timeAggregate = option.isSimpleResponseHistogram();
 
         LinkDataMapProcessor outLinkProcessor = LinkDataMapProcessor.NO_OP;
         if (searchOption.isWasOnly()) {
@@ -86,9 +85,7 @@ public class HistogramServiceImpl implements HistogramService {
 
         TimeWindow timeWindow = option.getTimeWindow();
         LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(
-                Collections.singletonList(
-                        option.getSourceApplication()
-                ), timeWindow, outSearchDepth, inSearchDepth, timeAggregate);
+                List.of(option.getSourceApplication()), timeWindow, outSearchDepth, inSearchDepth);
         watch.stop();
         logger.debug("LinkDataDuplexMap selected in {} ms. node={}, outDepth={}, inDepth={}, count={}",
                 watch.getTotalTimeMillis(), option.getSourceApplication(), outSearchDepth, inSearchDepth, linkDataDuplexMap.size());

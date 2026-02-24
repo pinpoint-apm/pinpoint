@@ -32,14 +32,12 @@ public class MapServiceOption {
     private final TimeWindow timeWindow;
     private final SearchOption searchOption;
 
-    private final boolean simpleResponseHistogram;
     private final boolean useStatisticsAgentState;
 
     private MapServiceOption(Builder builder) {
         this.sourceApplication = builder.sourceApplication;
         this.timeWindow = builder.timeWindow;
         this.searchOption = builder.searchOption;
-        this.simpleResponseHistogram = builder.simpleResponseHistogram;
         this.useStatisticsAgentState = builder.useStatisticsAgentState;
     }
 
@@ -59,10 +57,6 @@ public class MapServiceOption {
         return searchOption;
     }
 
-    public boolean isSimpleResponseHistogram() {
-        return simpleResponseHistogram;
-    }
-
     public boolean isUseStatisticsAgentState() {
         return useStatisticsAgentState;
     }
@@ -73,7 +67,6 @@ public class MapServiceOption {
                 "sourceApplication=" + sourceApplication +
                 ", timeWindow=" + timeWindow +
                 ", searchOption=" + searchOption +
-                ", simpleResponseHistogram=" + simpleResponseHistogram +
                 ", useStatisticsAgentState=" + useStatisticsAgentState +
                 '}';
     }
@@ -83,7 +76,6 @@ public class MapServiceOption {
         private final TimeWindow timeWindow;
         private final SearchOption searchOption;
 
-        private boolean simpleResponseHistogram;
         // option
         private boolean useStatisticsAgentState;
 
@@ -93,10 +85,6 @@ public class MapServiceOption {
             this.searchOption = Objects.requireNonNull(searchOption, "searchOption");
         }
 
-        public Builder setSimpleResponseHistogram(boolean simpleResponseHistogram) {
-            this.simpleResponseHistogram = simpleResponseHistogram;
-            return this;
-        }
 
         public Builder setUseStatisticsAgentState(boolean useStatisticsAgentState) {
             this.useStatisticsAgentState = useStatisticsAgentState;

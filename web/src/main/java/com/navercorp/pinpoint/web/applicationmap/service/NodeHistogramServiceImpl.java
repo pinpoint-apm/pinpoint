@@ -18,10 +18,8 @@ package com.navercorp.pinpoint.web.applicationmap.service;
 
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.DefaultNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.NodeHistogramFactory;
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.SimplifiedNodeHistogramFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapApplicationResponseNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseNodeHistogramDataSource;
-import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.MapResponseSimplifiedNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.ResponseHistogramsNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
@@ -40,12 +38,6 @@ public class NodeHistogramServiceImpl implements NodeHistogramService {
     public NodeHistogramServiceImpl(MapAgentResponseDao mapAgentResponseDao, MapResponseDao mapResponseDao) {
         this.mapAgentResponseDao = Objects.requireNonNull(mapAgentResponseDao, "mapAgentResponseDao");
         this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
-    }
-
-    @Override
-    public NodeHistogramFactory getSimpleHistogram() {
-        WasNodeHistogramDataSource dataSource = new MapResponseSimplifiedNodeHistogramDataSource(mapAgentResponseDao);
-        return new SimplifiedNodeHistogramFactory(dataSource);
     }
 
     @Override

@@ -87,7 +87,7 @@ public class VirtualLinkHandler {
     }
 
     private Collection<LinkData> getEmulatedNodeInLinkData(LinkVisitChecker linkVisitChecker, Application emulatedNode, TimeWindow timeWindow) {
-        LinkDataMap inLinkDataMap = linkDataMapService.selectInLinkDataMap(emulatedNode, timeWindow, false);
+        LinkDataMap inLinkDataMap = linkDataMapService.selectInLinkDataMap(emulatedNode, timeWindow);
         logger.debug("emulated node [{}] in LinkDataMap:{}", emulatedNode, inLinkDataMap);
 
         LinkDataMap filteredInLinkDataMap = new LinkDataMap();
