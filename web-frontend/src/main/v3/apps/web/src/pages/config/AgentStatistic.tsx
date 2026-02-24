@@ -1,9 +1,8 @@
-import {
-  getLayoutWithConfiguration,
-  getLayoutWithSideNavigation,
-} from '@pinpoint-fe/web/src/components/Layout';
-import { AgentStatisticPage, withInitialFetch } from '@pinpoint-fe/ui';
+import { useAtomValue } from 'jotai';
+import { AgentStatisticPage } from '@pinpoint-fe/ui';
+import { configurationAtom } from '@pinpoint-fe/ui/src/atoms';
 
-export default withInitialFetch((props) =>
-  getLayoutWithSideNavigation(getLayoutWithConfiguration(<AgentStatisticPage {...props} />)),
-);
+export default function AgentStatistic() {
+  const configuration = useAtomValue(configurationAtom);
+  return <AgentStatisticPage configuration={configuration} />;
+}

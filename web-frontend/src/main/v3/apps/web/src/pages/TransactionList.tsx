@@ -1,6 +1,5 @@
-import { TransactionListPage, TransactionListPageProps, withInitialFetch } from '@pinpoint-fe/ui';
-import { getLayoutWithSideNavigation } from '@pinpoint-fe/web/src/components/Layout/LayoutWithSideNavigation';
+import { TransactionListPage } from '@pinpoint-fe/ui';
 
-export default withInitialFetch((props: TransactionListPageProps) =>
-  getLayoutWithSideNavigation(<TransactionListPage {...props} />),
-);
+export default function TransactionList() {
+  return <TransactionListPage />;
+}

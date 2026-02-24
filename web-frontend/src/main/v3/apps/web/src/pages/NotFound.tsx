@@ -1,4 +1,5 @@
-import { NotFound404, withInitialFetch } from '@pinpoint-fe/ui';
-import { getLayoutWithSideNavigation } from '@pinpoint-fe/web/src/components/Layout/LayoutWithSideNavigation';
+import { NotFound404 } from '@pinpoint-fe/ui';
 
-export default withInitialFetch(() => getLayoutWithSideNavigation(<NotFound404 />));
+export default function NotFound() {
+  return <NotFound404 />;
+}

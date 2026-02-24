@@ -1,17 +1,8 @@
 import { useAtomValue } from 'jotai';
-import {
-  getLayoutWithConfiguration,
-  getLayoutWithSideNavigation,
-} from '@pinpoint-fe/web/src/components/Layout';
-import { UsersPage as CommonUsersPage, withInitialFetch } from '@pinpoint-fe/ui';
+import { UsersPage as CommonUsersPage } from '@pinpoint-fe/ui';
 import { configurationAtom } from '@pinpoint-fe/ui/src/atoms';
 
-const UsersPage = () => {
+export default function Users() {
   const configuration = useAtomValue(configurationAtom);
-
   return <CommonUsersPage configuration={configuration} />;
-};
-
-export default withInitialFetch((props) =>
-  getLayoutWithSideNavigation(getLayoutWithConfiguration(<UsersPage {...props} />)),
-);
+}

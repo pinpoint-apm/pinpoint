@@ -1,7 +1,8 @@
-import { withInitialFetch, ErrorAnalysisPage } from '@pinpoint-fe/ui';
+import { useAtomValue } from 'jotai';
+import { ErrorAnalysisPage } from '@pinpoint-fe/ui';
+import { configurationAtom } from '@pinpoint-fe/ui/src/atoms';
 
-import { getLayoutWithSideNavigation } from '@pinpoint-fe/web/src/components/Layout/LayoutWithSideNavigation';
-
-export default withInitialFetch((props) =>
-  getLayoutWithSideNavigation(<ErrorAnalysisPage {...props} />),
-);
+export default function ErrorAnalysis() {
+  const configuration = useAtomValue(configurationAtom);
+  return <ErrorAnalysisPage configuration={configuration} />;
+}
