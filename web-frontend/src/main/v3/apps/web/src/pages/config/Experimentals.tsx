@@ -1,9 +1,8 @@
-import { ExperimentalPage as Experimental, withInitialFetch } from '@pinpoint-fe/ui';
-import {
-  getLayoutWithConfiguration,
-  getLayoutWithSideNavigation,
-} from '@pinpoint-fe/web/src/components/Layout';
+import { useAtomValue } from 'jotai';
+import { ExperimentalPage } from '@pinpoint-fe/ui';
+import { configurationAtom } from '@pinpoint-fe/ui/src/atoms';
 
-export default withInitialFetch((props) =>
-  getLayoutWithSideNavigation(getLayoutWithConfiguration(<Experimental {...props} />)),
-);
+export default function Experimentals() {
+  const configuration = useAtomValue(configurationAtom);
+  return <ExperimentalPage configuration={configuration} />;
+}

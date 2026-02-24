@@ -1,9 +1,8 @@
-import {
-  getLayoutWithConfiguration,
-  getLayoutWithSideNavigation,
-} from '@pinpoint-fe/web/src/components/Layout';
-import { AgentManagementPage, withInitialFetch } from '@pinpoint-fe/ui';
+import { useAtomValue } from 'jotai';
+import { AgentManagementPage } from '@pinpoint-fe/ui';
+import { configurationAtom } from '@pinpoint-fe/ui/src/atoms';
 
-export default withInitialFetch((props) =>
-  getLayoutWithSideNavigation(getLayoutWithConfiguration(<AgentManagementPage {...props} />)),
-);
+export default function AgentManagement() {
+  const configuration = useAtomValue(configurationAtom);
+  return <AgentManagementPage configuration={configuration} />;
+}

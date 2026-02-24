@@ -21,7 +21,6 @@ export * from './GlobalSearch';
 export * from './Heatmap';
 export * from './HelpPopover';
 export * from './HighLightCode';
-export * from './HOC';
 export * from './Host';
 export * from './HostGroup';
 export * from './InstanceCount';

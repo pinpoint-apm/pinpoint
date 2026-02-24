@@ -1,6 +1,8 @@
-import { getLayoutWithSideNavigation } from '@pinpoint-fe/web/src/components/Layout/LayoutWithSideNavigation';
-import { withInitialFetch, InspectorPage } from '@pinpoint-fe/ui';
+import { useAtomValue } from 'jotai';
+import { InspectorPage } from '@pinpoint-fe/ui';
+import { configurationAtom } from '@pinpoint-fe/ui/src/atoms';
 
-export default withInitialFetch((props) =>
-  getLayoutWithSideNavigation(<InspectorPage {...props} />),
-);
+export default function Inspector() {
+  const configuration = useAtomValue(configurationAtom);
+  return <InspectorPage configuration={configuration} />;
+}

@@ -1,9 +1,8 @@
-import { WebhookPage, WebhookPageProps, withInitialFetch } from '@pinpoint-fe/ui';
-import {
-  getLayoutWithConfiguration,
-  getLayoutWithSideNavigation,
-} from '@pinpoint-fe/web/src/components/Layout';
+import { useAtomValue } from 'jotai';
+import { WebhookPage } from '@pinpoint-fe/ui';
+import { configurationAtom } from '@pinpoint-fe/ui/src/atoms';
 
-export default withInitialFetch((props: WebhookPageProps) =>
-  getLayoutWithSideNavigation(getLayoutWithConfiguration(<WebhookPage {...props} />)),
-);
+export default function Webhook() {
+  const configuration = useAtomValue(configurationAtom);
+  return <WebhookPage configuration={configuration} />;
+}

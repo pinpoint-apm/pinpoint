@@ -1,7 +1,5 @@
 import { AiFillApi } from 'react-icons/ai';
-
 import { MainHeader, ApiCheck as ApiCheckComponent } from '@pinpoint-fe/ui';
-import { getLayoutWithSideNavigation } from '@pinpoint-fe/web/src/components/Layout/LayoutWithSideNavigation';
 
 export const ApiCheck = () => {
   return (
@@ -19,4 +17,4 @@ export const ApiCheck = () => {
   );
 };
 
-export default () => getLayoutWithSideNavigation(<ApiCheck />);
+export default ApiCheck;

@@ -1,6 +1,11 @@
-import { getLayoutWithSideNavigation } from '@pinpoint-fe/web/src/components/Layout/LayoutWithSideNavigation';
-import { withInitialFetch, ServerMapPage } from '@pinpoint-fe/ui';
+import { useAtomValue } from 'jotai';
+import { ServerMapPage } from '@pinpoint-fe/ui';
+import { configurationAtom } from '@pinpoint-fe/ui/src/atoms';
+import { Configuration } from '@pinpoint-fe/ui/src/constants';
 
-export default withInitialFetch((props) =>
-  getLayoutWithSideNavigation(<ServerMapPage {...props} />),
-);
+export default function ServerMap() {
+  const configuration = useAtomValue(configurationAtom) as
+    | (Configuration & Record<string, string>)
+    | undefined;
+  return <ServerMapPage configuration={configuration} />;
+}

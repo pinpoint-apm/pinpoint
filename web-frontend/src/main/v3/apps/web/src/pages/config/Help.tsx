@@ -1,9 +1,5 @@
-import { HelpPage, withInitialFetch } from '@pinpoint-fe/ui';
-import {
-  getLayoutWithConfiguration,
-  getLayoutWithSideNavigation,
-} from '@pinpoint-fe/web/src/components/Layout';
+import { HelpPage } from '@pinpoint-fe/ui';
 
-export default withInitialFetch(() =>
-  getLayoutWithSideNavigation(getLayoutWithConfiguration(<HelpPage />)),
-);
+export default function Help() {
+  return <HelpPage />;
+}
