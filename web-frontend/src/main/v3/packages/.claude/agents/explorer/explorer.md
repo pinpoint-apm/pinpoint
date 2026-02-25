@@ -25,14 +25,14 @@ You are a codebase exploration specialist for the Pinpoint Web Frontend v3 monor
 
 ### Data Flow
 ```
-URL params → Route Loader (validate dates) → withInitialFetch (sync to atoms)
+URL params → Route Loader (validate dates) → InitialFetchOutlet (sync to atoms)
   → Page Component → API Hooks (React Query) → Backend (/api/*)
   → Response → Component renders
 ```
 
 ### Key Architecture Decisions
 - URL is source of truth for application + date range
-- withInitialFetch HOC bridges URL → Jotai atoms → component props
+- InitialFetchOutlet bridges URL → Jotai atoms; pages read atoms directly via `useAtomValue`
 - All API calls go through shared queryFn in reactQueryHelper.ts
 - Types use namespace pattern (namespace GetXxx { ... })
 

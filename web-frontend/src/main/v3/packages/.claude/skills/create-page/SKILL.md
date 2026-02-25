@@ -24,7 +24,7 @@ Add the new path constant to `APP_PATH` in `packages/ui/src/constants/path.ts`.
 ### 2b. Create Page Component
 Create `packages/ui/src/pages/{PageName}.tsx`:
 - Import hooks and components from `@pinpoint-fe/ui`
-- Accept `configuration` prop from `withInitialFetch`
+- Accept `configuration` prop (read from `configurationAtom` in the page wrapper)
 - Use appropriate search parameter hook
 - Use React Query hooks for data fetching
 
@@ -41,18 +41,21 @@ Create `packages/ui/src/loader/{pageName}.ts` following the pattern in existing 
 Create `apps/web/src/pages/<PageName>.tsx`:
 ```tsx
 // Replace <PageName> with the actual page name (e.g., Inspector, ErrorAnalysis)
-import { withInitialFetch, <PageName>Page } from '@pinpoint-fe/ui';
-import { getLayoutWithSideNavigation } from '@pinpoint-fe/web/src/components/Layout/LayoutWithSideNavigation';
+import { useAtomValue } from 'jotai';
+import { <PageName>Page } from '@pinpoint-fe/ui';
+import { configurationAtom } from '@pinpoint-fe/ui/src/atoms';
 
-export default withInitialFetch((props) =>
-  getLayoutWithSideNavigation(<<PageName>Page {...props} />),
-);
+export default function <PageName>() {
+  const configuration = useAtomValue(configurationAtom);
+  return <<PageName>Page configuration={configuration} />;
+}
 ```
 
 ### 2f. Add Route
 Add the route to `apps/web/src/routes/index.tsx`:
 - Add lazy import at the top
-- Add route entry with loader and element
+- Add route entry inside the `InitialFetchOutlet` children (or `ConfigurationOutlet` for config pages)
+- Include loader and element
 
 ## 3. Add i18n Keys
 Add any user-facing strings to both `en.json` and `ko.json` in `packages/ui/src/constants/locales/`.
@@ -60,4 +63,4 @@ Add any user-facing strings to both `en.json` and `ko.json` in `packages/ui/src/
 ## 4. Verify
 - Check that the route path is unique
 - Confirm all imports are correct
-- Verify the page follows withInitialFetch pattern
+- Verify the page is placed inside the correct layout outlet in the route tree

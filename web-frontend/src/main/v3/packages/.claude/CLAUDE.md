@@ -59,10 +59,13 @@ Pages in `apps/web/src/pages/` are thin wrappers. Almost all logic lives in `pac
 
 ```
 apps/web/src/pages/Inspector.tsx  →  wraps InspectorPage from @pinpoint-fe/ui
-                                     via withInitialFetch HOC
+                                     reads configuration from configurationAtom
 ```
 
-**`withInitialFetch` HOC** (`packages/ui/src/components/HOC/`): Fetches configuration, syncs URL search params to Jotai atoms, and redirects to `/apiCheck` on error. All routed pages use this.
+**Nested Layout Routes** (`apps/web/src/components/Layout/`): The routing uses React Router nested `<Outlet />` components to handle cross-cutting concerns:
+- `SideNavigationOutlet` — wraps pages with the side navigation layout
+- `InitialFetchOutlet` — fetches configuration, syncs URL search params to Jotai atoms, and redirects to `/apiCheck` on error
+- `ConfigurationOutlet` — wraps configuration pages with the configuration layout
 
 **Route loaders** (`packages/ui/src/loader/`): React Router loaders validate/normalize URL date params (from/to) before rendering. They redirect with corrected date formats when needed.
 
@@ -70,7 +73,7 @@ apps/web/src/pages/Inspector.tsx  →  wraps InspectorPage from @pinpoint-fe/ui
 
 - **Jotai** atoms in `packages/ui/src/atoms/` — global state for search parameters, server map data, scatter data, configuration, transactions, toasts, etc.
 - **React Query** (`@tanstack/react-query`) — all server data fetching. Custom hooks in `packages/ui/src/hooks/api/` follow pattern: `useGetXxx` wraps `useQuery` with endpoint from `END_POINTS` and shared `queryFn`.
-- URL search params (`from`, `to`, application) are the source of truth for time ranges and selected application, synced to atoms via `withInitialFetch`.
+- URL search params (`from`, `to`, application) are the source of truth for time ranges and selected application, synced to atoms via `InitialFetchOutlet`.
 
 ### API Layer
 

@@ -9,14 +9,14 @@ paths:
 
 ## Architecture (Three Layers)
 1. **URL State (Source of Truth)**: Application name, date range (from/to), query filters
-2. **Jotai Atoms (Global State)**: Synced from URL via `withInitialFetch`, plus UI state
+2. **Jotai Atoms (Global State)**: Synced from URL via `InitialFetchOutlet`, plus UI state
 3. **React Query (Server State)**: All API data fetching with caching
 
 ## Jotai Atoms (`packages/ui/src/atoms/`)
 - Atom naming: camelCase with `Atom` suffix (e.g., `serverMapDataAtom`)
 - Derived atoms use `atom((get) => ...)` pattern
 - Keep atoms minimal — store only what multiple components need
-- Atoms are synced from URL search params via `withInitialFetch` HOC
+- Atoms are synced from URL search params via `InitialFetchOutlet` layout route
 - Key atoms: `searchParametersAtom`, `configurationAtom`, `serverMapDataAtom`, `serverMapCurrentTargetAtom`
 
 ## React Query Hooks (`packages/ui/src/hooks/api/`)
@@ -37,4 +37,4 @@ paths:
 ## Do NOT
 - Store derived state in atoms — compute it in components or derived atoms
 - Duplicate server data in atoms — let React Query manage it
-- Manually sync URL params — use `withInitialFetch` and search parameter hooks
+- Manually sync URL params — use `InitialFetchOutlet` and search parameter hooks

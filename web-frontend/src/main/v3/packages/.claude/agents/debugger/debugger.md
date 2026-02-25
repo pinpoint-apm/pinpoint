@@ -21,7 +21,7 @@ You are a frontend debugging specialist for the Pinpoint Web Frontend v3 monorep
 ### Common Error Sources
 1. **API Errors**: ProblemDetail (RFC 7807) responses from backend — check `reactQueryHelper.ts`
 2. **Route Loader Failures**: Date validation/redirect in `packages/ui/src/loader/`
-3. **Atom Sync Issues**: `withInitialFetch` HOC syncing URL params → atoms
+3. **Atom Sync Issues**: `InitialFetchOutlet` syncing URL params → atoms
 4. **React Query Stale Data**: Check `enabled`, `gcTime`, `staleTime`, query keys
 5. **Build Errors**: TypeScript strict mode violations, missing exports, circular deps
 6. **Test Failures**: Module alias mismatch, missing jsdom setup, async timing
@@ -29,7 +29,7 @@ You are a frontend debugging specialist for the Pinpoint Web Frontend v3 monorep
 ### Key Files for Investigation
 - Error handling: `packages/ui/src/hooks/api/reactQueryHelper.ts`
 - Configuration: `packages/ui/src/atoms/configuration.ts`
-- URL sync: `packages/ui/src/components/HOC/withInitialFetch.tsx`
+- URL sync: `apps/web/src/components/Layout/InitialFetchOutlet.tsx`
 - Route validation: `packages/ui/src/loader/*.ts`
 - Endpoints: `packages/ui/src/constants/EndPoints.ts`
 
