@@ -63,6 +63,10 @@ public class NodeList {
         return this.nodeMap.size();
     }
 
+    public boolean isEmpty() {
+        return this.nodeMap.isEmpty();
+    }
+
     public static NodeList.Builder newBuilder() {
         return newBuilder(16);
     }

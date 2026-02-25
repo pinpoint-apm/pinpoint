@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.applicationmap.util.CancellableHistogramFactory;
 import com.navercorp.pinpoint.web.vo.Application;
-import org.springframework.util.CollectionUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -57,13 +56,10 @@ public class DefaultNodeHistogramAppender implements NodeHistogramAppender {
 
     @Override
     public void appendNodeHistogram(final TimeWindow timeWindow, final NodeList nodeList, final LinkList linkList, final long timeoutMillis) {
-        if (nodeList == null) {
+        if (nodeList == null || nodeList.isEmpty()) {
             return;
         }
         final Collection<Node> nodes = nodeList.getNodeList();
-        if (CollectionUtils.isEmpty(nodes)) {
-            return;
-        }
         final Node[] nodeArray = nodes.toArray(new Node[0]);
         final CompletableFuture<List<NodeHistogram>> future = getNodeHistogramList(timeWindow, nodeArray, linkList);
         List<NodeHistogram> result = allOf(future, timeoutMillis, nodeHistogramFactory::cancel);
