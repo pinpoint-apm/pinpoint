@@ -37,6 +37,10 @@ public class NodeList {
         return new NodeList(Map.of(node.getApplication(), node));
     }
 
+    public static boolean isEmpty(NodeList nodeList) {
+        return nodeList == null || nodeList.isEmpty();
+    }
+
     public static NodeList of() {
         return EMPTY;
     }

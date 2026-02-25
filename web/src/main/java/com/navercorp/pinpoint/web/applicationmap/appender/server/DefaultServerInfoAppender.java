@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,14 +54,11 @@ public class DefaultServerInfoAppender implements ServerInfoAppender {
 
     @Override
     public void appendServerInfo(final Range range, final NodeList source, final LinkDataDuplexMap linkDataDuplexMap, long timeoutMillis) {
-        if (source == null) {
+        if (NodeList.isEmpty(source)) {
             return;
         }
 
         Collection<Node> nodes = source.getNodeList();
-        if (CollectionUtils.isEmpty(nodes)) {
-            return;
-        }
 
         final List<ServerGroupRequest> serverGroupRequest = getServerGroupListFutures(range, nodes, linkDataDuplexMap);
 
