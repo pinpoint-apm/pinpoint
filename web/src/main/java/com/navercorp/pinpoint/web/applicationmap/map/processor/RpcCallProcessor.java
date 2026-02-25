@@ -78,7 +78,7 @@ public class RpcCallProcessor implements LinkDataMapProcessor {
             // rpc client's destination could have an agent installed in which case the link data must be replaced to point
             // to the destination application.
             logger.debug("Finding {} accept applications for {}, {}", direction, toApplication, range);
-            final AcceptApplicationSet acceptApplicationList = findAcceptApplications(linkData.getFromApplication(), toApplication.getName(), range);
+            final AcceptApplicationSet acceptApplicationList = findAcceptApplications(linkData.getFromApplication(), toApplication.getApplicationName(), range);
             logger.debug("Found {} accept applications: {}", direction, acceptApplicationList);
             final int size = AcceptApplicationSet.size(acceptApplicationList);
             if (size > 0) {
@@ -100,7 +100,7 @@ public class RpcCallProcessor implements LinkDataMapProcessor {
                 if (toApplication.getServiceType().isQueue()) {
                     return Collections.singletonList(linkData);
                 } else {
-                    final Application unknown = new Application(toApplication.getService(), toApplication.getName(), ServiceType.UNKNOWN);
+                    final Application unknown = new Application(toApplication.getService(), toApplication.getApplicationName(), ServiceType.UNKNOWN);
                     final LinkData unknownLinkData = LinkData.copyOf(linkData.getFromApplication(), unknown, linkData.getLinkCallDataMap());
                     return Collections.singletonList(unknownLinkData);
                 }

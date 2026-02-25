@@ -161,7 +161,7 @@ public class AdminServiceImpl implements AdminService {
         Map<String, List<Application>> agentIdMap = new TreeMap<>();
         List<Application> applications = this.applicationIndexService.selectAllApplications();
         for (Application application : applications) {
-            List<String> agentIds = this.applicationIndexService.selectAgentIds(application.getName());
+            List<String> agentIds = this.applicationIndexService.selectAgentIds(application.getApplicationName());
             for (String agentId : agentIds) {
                 List<Application> applicationList = agentIdMap.computeIfAbsent(agentId, k -> new ArrayList<>());
                 applicationList.add(application);

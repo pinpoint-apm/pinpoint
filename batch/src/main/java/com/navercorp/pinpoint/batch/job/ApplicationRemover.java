@@ -45,7 +45,7 @@ public class ApplicationRemover implements ItemWriter<CleanTarget.TypeApplicatio
             Application application = target.application();
             logger.info("Removing application: {}", application);
             try {
-                this.batchApplicationIndexService.remove(application.getName(), application.getServiceTypeCode());
+                this.batchApplicationIndexService.remove(application.getApplicationName(), application.getServiceTypeCode());
             } catch (Exception e) {
                 logger.error("Failed to remove application: {}", target, e);
             }

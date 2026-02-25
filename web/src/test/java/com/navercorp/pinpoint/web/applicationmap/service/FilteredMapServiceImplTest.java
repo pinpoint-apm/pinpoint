@@ -182,7 +182,7 @@ public class FilteredMapServiceImplTest {
         assertThat(nodes).hasSize(4);
         for (Node node : nodes) {
             Application application = node.getApplication();
-            if (application.getName().equals(UserNodeUtils.newUserNodeName("ROOT_APP", ServiceType.TEST_STAND_ALONE)) && application.getServiceType().getCode() == TestTraceUtils.USER_TYPE_CODE) {
+            if (application.getApplicationName().equals(UserNodeUtils.newUserNodeName("ROOT_APP", ServiceType.TEST_STAND_ALONE)) && application.getServiceType().getCode() == TestTraceUtils.USER_TYPE_CODE) {
                 // USER node
                 NodeHistogram nodeHistogram = node.getNodeHistogram();
                 // histogram
@@ -201,7 +201,7 @@ public class FilteredMapServiceImplTest {
                 JsonFields<AgentNameView, List<TimeHistogramViewModel>> agentTimeHistogram = getAgentTimeHistogram(nodeHistogram);
 //                AgentResponseTimeViewModelList agentTimeHistogram = agentTimeHistogram;
                 Assertions.assertTrue(agentTimeHistogram.isEmpty());
-            } else if (application.getName().equals("ROOT_APP") && application.getServiceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE) {
+            } else if (application.getApplicationName().equals("ROOT_APP") && application.getServiceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE) {
                 // ROOT_APP node
                 NodeHistogram nodeHistogram = node.getNodeHistogram();
                 // histogram
@@ -219,7 +219,7 @@ public class FilteredMapServiceImplTest {
                 JsonFields<AgentNameView, List<TimeHistogramViewModel>> agentTimeHistogram = getAgentTimeHistogram(nodeHistogram);
 //                AgentResponseTimeViewModelList agentTimeHistogram = nodeHistogram.getAgentTimeHistogram(TimeHistogramFormat.V1);
                 assertAgentTimeHistogram(agentTimeHistogram, "root-agent", histogramSchema.getFastSlot(), expectedTimeCounts);
-            } else if (application.getName().equals("APP_A") && application.getServiceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE) {
+            } else if (application.getApplicationName().equals("APP_A") && application.getServiceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE) {
                 // APP_A node
                 NodeHistogram nodeHistogram = node.getNodeHistogram();
                 // histogram
@@ -237,7 +237,7 @@ public class FilteredMapServiceImplTest {
                 JsonFields<AgentNameView, List<TimeHistogramViewModel>> agentTimeHistogram = getAgentTimeHistogram(nodeHistogram);
 //                AgentResponseTimeViewModelList agentTimeHistogram = nodeHistogram.getAgentTimeHistogram(TimeHistogramFormat.V1);
                 assertAgentTimeHistogram(agentTimeHistogram, "app-a", histogramSchema.getFastSlot(), expectedTimeCounts);
-            } else if (application.getName().equals("CacheName") && application.getServiceType().getCode() == TestTraceUtils.CACHE_TYPE_CODE) {
+            } else if (application.getApplicationName().equals("CacheName") && application.getServiceType().getCode() == TestTraceUtils.CACHE_TYPE_CODE) {
                 // CACHE node
                 NodeHistogram nodeHistogram = node.getNodeHistogram();
                 // histogram
@@ -265,8 +265,8 @@ public class FilteredMapServiceImplTest {
         for (Link link : links) {
             Application fromApplication = link.getFrom().getApplication();
             Application toApplication = link.getTo().getApplication();
-            if ((fromApplication.getName().equals(UserNodeUtils.newUserNodeName("ROOT_APP", ServiceType.TEST_STAND_ALONE)) && fromApplication.getServiceType().getCode() == TestTraceUtils.USER_TYPE_CODE) &&
-                    (toApplication.getName().equals("ROOT_APP") && toApplication.getServiceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE)) {
+            if ((fromApplication.getApplicationName().equals(UserNodeUtils.newUserNodeName("ROOT_APP", ServiceType.TEST_STAND_ALONE)) && fromApplication.getServiceType().getCode() == TestTraceUtils.USER_TYPE_CODE) &&
+                    (toApplication.getApplicationName().equals("ROOT_APP") && toApplication.getServiceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE)) {
                 // histogram
                 Histogram histogram = link.getHistogram();
                 assertHistogram(histogram, 1, 0, 0, 0, 0);
@@ -277,8 +277,8 @@ public class FilteredMapServiceImplTest {
                         new TimeCount(timeWindow.refineTimestamp(rootSpanCollectorAcceptTime), 1)
                 );
                 assertTimeHistogram(histogramViewModels, targetHistogramSchema.getFastSlot(), expectedTimeCounts);
-            } else if ((fromApplication.getName().equals("ROOT_APP") && fromApplication.getServiceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE) &&
-                    (toApplication.getName().equals("APP_A") && toApplication.getServiceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE)) {
+            } else if ((fromApplication.getApplicationName().equals("ROOT_APP") && fromApplication.getServiceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE) &&
+                    (toApplication.getApplicationName().equals("APP_A") && toApplication.getServiceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE)) {
                 // histogram
                 Histogram histogram = link.getHistogram();
                 assertHistogram(histogram, 1, 0, 0, 0, 0);
@@ -289,8 +289,8 @@ public class FilteredMapServiceImplTest {
                         new TimeCount(timeWindow.refineTimestamp(appASpanCollectorAcceptTime), 1)
                 );
                 assertTimeHistogram(linkApplicationTimeSeriesHistogram, targetHistogramSchema.getFastSlot(), expectedTimeCounts);
-            } else if ((fromApplication.getName().equals("APP_A") && fromApplication.getServiceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE) &&
-                    (toApplication.getName().equals("CacheName") && toApplication.getServiceType().getCode() == TestTraceUtils.CACHE_TYPE_CODE
+            } else if ((fromApplication.getApplicationName().equals("APP_A") && fromApplication.getServiceType().getCode() == TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE) &&
+                    (toApplication.getApplicationName().equals("CacheName") && toApplication.getServiceType().getCode() == TestTraceUtils.CACHE_TYPE_CODE
                     )) {
                 // histogram
                 Histogram histogram = link.getHistogram();

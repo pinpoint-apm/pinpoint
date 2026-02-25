@@ -102,7 +102,7 @@ public class OutLinkMapper implements RowMapper<LinkDataMap> {
             }
 
             if (StringUtils.isEmpty(inHost)) {
-                inHost = inApplication.getName();
+                inHost = inApplication.getApplicationName();
             }
             linkDataMap.addLinkData(outApplication, outAgentId, inApplication, inHost, timestamp, histogramSlot, requestCount);
         }

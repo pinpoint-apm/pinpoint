@@ -36,7 +36,7 @@ import java.util.Objects;
  */
 public class AgentHistogramList {
     public static final Comparator<AgentHistogram> AGENT_HISTOGRAM_COMPARATOR
-            = Comparator.comparing((e) -> e.getAgentId().getName());
+            = Comparator.comparing((e) -> e.getAgentId().getApplicationName());
 
     // stores times series data per agent
     private final List<AgentHistogram> agentHistogramList;

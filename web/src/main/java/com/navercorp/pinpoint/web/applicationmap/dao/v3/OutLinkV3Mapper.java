@@ -105,7 +105,7 @@ public class OutLinkV3Mapper implements RowMapper<LinkDataMap> {
             }
 
             if (StringUtils.isEmpty(outSubLink)) {
-                outSubLink = inApplication.getName();
+                outSubLink = inApplication.getApplicationName();
             }
             Application selfApplication = getApplication(selfRowKey);
             linkDataMap.addLinkDataByCode(selfApplication, MERGE_AGENT, inApplication, outSubLink, timestamp, slotCode, requestCount);

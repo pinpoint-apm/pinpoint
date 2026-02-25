@@ -31,7 +31,7 @@ public class ApplicationSerializer extends JsonSerializer<Application> {
     @Override
     public void serialize(Application application, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeStartObject();
-        jgen.writeStringField("applicationName", application.getName());
+        jgen.writeStringField("applicationName", application.getApplicationName());
         jgen.writeStringField("serviceType", application.getServiceType().getDesc());
         jgen.writeNumberField("code", application.getServiceTypeCode());
         jgen.writeEndObject();

@@ -79,7 +79,7 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
     }
 
     private List<AlarmChecker<?>> getAlarmCheckers(Application application) {
-        List<Rule> rules = alarmService.selectRuleByApplicationName(application.getName());
+        List<Rule> rules = alarmService.selectRuleByApplicationName(application.getApplicationName());
 
         long now = System.currentTimeMillis();
         Supplier<List<String>> agentIds = getAgentIdsSupplier(application, now);
@@ -100,7 +100,7 @@ public class AlarmProcessor implements ItemProcessor<Application, AppAlarmChecke
     }
 
     private List<String> fetchActiveAgents(Application application, Range activeRange) {
-        List<String> agentList = batchAgentService.getIds(application.getName());
+        List<String> agentList = batchAgentService.getIds(application.getApplicationName());
 
         int code = application.getServiceType().getCode();
         List<String> list = new ArrayList<>();

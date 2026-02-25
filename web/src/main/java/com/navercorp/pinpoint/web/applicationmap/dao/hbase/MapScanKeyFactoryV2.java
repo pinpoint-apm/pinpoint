@@ -22,6 +22,6 @@ import com.navercorp.pinpoint.web.vo.Application;
 
 public class MapScanKeyFactoryV2 implements MapScanKeyFactory {
     public byte[] scanKey(int serviceUid, Application application, long timestamp) {
-        return LinkRowKey.makeRowKey(ByteSaltKey.NONE.size(), application.getName(), (short) application.getServiceTypeCode(), timestamp);
+        return LinkRowKey.makeRowKey(ByteSaltKey.NONE.size(), application.getApplicationName(), (short) application.getServiceTypeCode(), timestamp);
     }
 }

@@ -50,7 +50,7 @@ public class AgentHistogram {
 
     @JsonProperty("name")
     public String getId() {
-        return agentId.getName();
+        return agentId.getApplicationName();
     }
 
     @JsonIgnore
@@ -116,7 +116,7 @@ public class AgentHistogram {
     @Override
     public String toString() {
         return "AgentHistogram{" +
-                "agent='" + agentId.getName() + '\'' +
+                "agent='" + agentId.getApplicationName() + '\'' +
                 ", serviceType=" + agentId.getServiceType() +
                 ", " + timeHistogramList +
                 '}';

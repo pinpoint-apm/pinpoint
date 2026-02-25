@@ -52,7 +52,7 @@ public class AlarmReaderTest {
     );
 
     private static final List<String> applicationIds = mockApplications.stream()
-            .map(Application::getName)
+            .map(Application::getApplicationName)
             .toList();
 
     @Test

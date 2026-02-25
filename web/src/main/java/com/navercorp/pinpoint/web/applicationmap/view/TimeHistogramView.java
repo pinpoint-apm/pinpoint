@@ -39,7 +39,7 @@ public interface TimeHistogramView {
         for (AgentHistogram agentHistogram : histogram.getAgentHistogramList()) {
             List<TimeHistogram> timeHistogram = agentHistogram.getTimeHistogram();
             List<TimeHistogramViewModel> responseTimeViewModel = this.build(histogram.getApplication(), timeHistogram);
-            builder.addField(new AgentNameView(agentHistogram.getAgentId().getName()), responseTimeViewModel);
+            builder.addField(new AgentNameView(agentHistogram.getAgentId().getApplicationName()), responseTimeViewModel);
         }
         return builder.build();
     }

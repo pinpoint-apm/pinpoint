@@ -97,7 +97,7 @@ public class ApplicationMapBuilderTestHelper {
         Application toApplication = createApplicationFromDepth(toDepth);
         LinkData targetLinkData = new LinkData(fromApplication, toApplication);
         targetLinkData.addLinkData(
-                fromApplication.getName(), WAS_TYPE,
+                fromApplication.getApplicationName(), WAS_TYPE,
                 createAgentIdFromDepth(toDepth), WAS_TYPE,
                 System.currentTimeMillis(), WAS_TYPE.getHistogramSchema().getNormalSlot().getSlotTime(), 1);
         return targetLinkData;
@@ -109,7 +109,7 @@ public class ApplicationMapBuilderTestHelper {
         Application fromApplication = createUserApplication(toApplication);
         LinkData targetLinkData = new LinkData(fromApplication, toApplication);
         targetLinkData.addLinkData(
-                fromApplication.getName(), USER_TYPE,
+                fromApplication.getApplicationName(), USER_TYPE,
                 createAgentIdFromDepth(toDepth), WAS_TYPE,
                 System.currentTimeMillis(), WAS_TYPE.getHistogramSchema().getNormalSlot().getSlotTime(), 1);
         return targetLinkData;
@@ -158,18 +158,18 @@ public class ApplicationMapBuilderTestHelper {
     }
 
     public static Application createUserApplication(Application toApplication) {
-        String userApplicationName = toApplication.getName() + "_" + toApplication.getServiceType().getName();
+        String userApplicationName = toApplication.getApplicationName() + "_" + toApplication.getServiceType().getName();
         return new Application(userApplicationName, USER_TYPE);
     }
 
     public static Application createTerminalApplication(Application fromApplication) {
-        int depth = getDepthFromApplicationName(fromApplication.getName());
+        int depth = getDepthFromApplicationName(fromApplication.getApplicationName());
         String terminalApplicationName = "destinationId_" + depth;
         return new Application(terminalApplicationName, TERMINAL_TYPE);
     }
 
     public static Application createUnknownApplication(Application fromApplication) {
-        int depth = getDepthFromApplicationName(fromApplication.getName());
+        int depth = getDepthFromApplicationName(fromApplication.getApplicationName());
         return new Application(createHostnameFromDepth(depth), UNKNOWN_TYPE);
     }
 

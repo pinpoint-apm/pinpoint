@@ -158,7 +158,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     private List<String> getApplicationNameList(List<Application> applications) {
         return applications.stream()
-                .map(Application::getName)
+                .map(Application::getApplicationName)
                 .distinct()
                 .sorted(Comparator.naturalOrder())
                 .collect(Collectors.toList());

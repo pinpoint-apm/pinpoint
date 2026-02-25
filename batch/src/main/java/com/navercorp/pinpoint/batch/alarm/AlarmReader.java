@@ -61,7 +61,7 @@ public class AlarmReader implements ItemReader<Application>, StepExecutionListen
 
         List<Application> validApplications = new ArrayList<>(applications.size());
         for (Application application: applications) {
-            if (validApplicationNames.contains(application.getName())) {
+            if (validApplicationNames.contains(application.getApplicationName())) {
                 validApplications.add(application);
             }
         }

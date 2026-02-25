@@ -99,7 +99,7 @@ public class ApplicationResponse {
         }
 
         public String getApplicationName() {
-            return application.getName();
+            return application.getApplicationName();
         }
 
         public ServiceType getApplicationServiceType() {

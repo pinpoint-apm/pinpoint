@@ -72,7 +72,7 @@ public class AgentTimeHistogram {
         Map<String, List<TimeHistogram>> result = new LinkedHashMap<>();
 
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
-            result.put(agentHistogram.getAgentId().getName(), agentHistogram.getTimeHistogram());
+            result.put(agentHistogram.getAgentId().getApplicationName(), agentHistogram.getTimeHistogram());
         }
         return result;
     }
@@ -108,7 +108,7 @@ public class AgentTimeHistogram {
     private AgentHistogram selectAgentHistogram(String agentName) {
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
             Application agentId = agentHistogram.getAgentId();
-            if (agentId.getName().equals(agentName)) {
+            if (agentId.getApplicationName().equals(agentName)) {
                 return agentHistogram;
             }
         }

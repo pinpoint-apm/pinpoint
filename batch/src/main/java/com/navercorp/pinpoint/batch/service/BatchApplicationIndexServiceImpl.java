@@ -80,12 +80,12 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     public List<String> selectAllApplicationNames() {
         if (isReadV2()) {
             return this.applicationDao.getApplications(ServiceUid.DEFAULT_SERVICE_UID_CODE).stream()
-                    .map(Application::getName)
+                    .map(Application::getApplicationName)
                     .toList();
         }
         return this.applicationIndexDao.selectAllApplicationNames()
                 .stream()
-                .map(Application::getName)
+                .map(Application::getApplicationName)
                 .toList();
     }
 

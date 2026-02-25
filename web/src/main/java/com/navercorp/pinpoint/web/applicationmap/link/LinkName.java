@@ -30,7 +30,7 @@ public class LinkName {
     }
 
     private String toNodeName(Application node) {
-        return NodeName.toNodeName(node.getName(), node.getServiceType());
+        return NodeName.toNodeName(node.getApplicationName(), node.getServiceType());
     }
 
     public String getLinkKey() {
@@ -38,7 +38,7 @@ public class LinkName {
     }
 
     private String toNodeKey(Application node) {
-        return NodeName.toNodeKey(node.getName(), node.getServiceType());
+        return NodeName.toNodeKey(node.getApplicationName(), node.getServiceType());
     }
 
 

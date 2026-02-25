@@ -93,11 +93,11 @@ public class ApplicationCleaningProcessor implements ItemProcessor<Application, 
     }
 
     private List<String> getOldAgents(Application application, long maxTimestamp) {
-        return this.batchApplicationIndexService.selectAgentIds(application.getName(), application.getServiceTypeCode(), maxTimestamp);
+        return this.batchApplicationIndexService.selectAgentIds(application.getApplicationName(), application.getServiceTypeCode(), maxTimestamp);
     }
 
     private List<String> getAllAgents(Application application) {
-        return this.batchApplicationIndexService.selectAgentIds(application.getName(), application.getServiceTypeCode());
+        return this.batchApplicationIndexService.selectAgentIds(application.getApplicationName(), application.getServiceTypeCode());
     }
 
     private Range getRange() {

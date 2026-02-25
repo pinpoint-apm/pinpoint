@@ -254,7 +254,7 @@ public abstract class LinkSelectorTestBase {
         List<LinkCallData> callDatas = List.copyOf(linkData_A_B.getLinkCallDataMap().getLinkDataList());
         assertThat(callDatas).hasSize(1);
         LinkCallData callData = callDatas.get(0);
-        assertEquals(rpcUri, callData.getTarget().getName());
+        assertEquals(rpcUri, callData.getTarget().getApplicationName());
         assertEquals(testRpcServiceType, callData.getTarget().getServiceType());
     }
 
@@ -388,13 +388,13 @@ public abstract class LinkSelectorTestBase {
         List<LinkCallData> callData_A_Bs = List.copyOf(linkData_A_B.getLinkCallDataMap().getLinkDataList());
         assertThat(callData_A_Bs).hasSize(1);
         LinkCallData callData_A_B = callData_A_Bs.get(0);
-        assertEquals(rpcUri, callData_A_B.getTarget().getName());
+        assertEquals(rpcUri, callData_A_B.getTarget().getApplicationName());
         assertEquals(testRpcServiceType, callData_A_B.getTarget().getServiceType());
 
         List<LinkCallData> callData_A_Cs = List.copyOf(linkData_A_C.getLinkCallDataMap().getLinkDataList());
         assertThat(callData_A_Cs).hasSize(1);
         LinkCallData callData_A_C = callData_A_Cs.get(0);
-        assertEquals(rpcUri, callData_A_C.getTarget().getName());
+        assertEquals(rpcUri, callData_A_C.getTarget().getApplicationName());
         assertEquals(testRpcServiceType, callData_A_C.getTarget().getServiceType());
     }
 
