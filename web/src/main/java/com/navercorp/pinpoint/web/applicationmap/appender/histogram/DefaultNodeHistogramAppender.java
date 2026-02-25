@@ -56,7 +56,7 @@ public class DefaultNodeHistogramAppender implements NodeHistogramAppender {
 
     @Override
     public void appendNodeHistogram(final TimeWindow timeWindow, final NodeList nodeList, final LinkList linkList, final long timeoutMillis) {
-        if (nodeList == null || nodeList.isEmpty()) {
+        if (NodeList.isEmpty(nodeList)) {
             return;
         }
         final Collection<Node> nodes = nodeList.getNodeList();
