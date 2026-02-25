@@ -119,7 +119,7 @@ public class InLinkV3Mapper implements RowMapper<LinkDataMap> {
                         self, selfHost, inApplication, slotCode, requestCount);
             }
 
-            linkDataMap.addLinkDataByCode(self, self.getName(), inApplication, selfHost, timestamp, slotCode, requestCount);
+            linkDataMap.addLinkDataByCode(self, self.getApplicationName(), inApplication, selfHost, timestamp, slotCode, requestCount);
 
             if (logger.isTraceEnabled()) {
                 logger.trace("    Fetched IN_LINK inLink:{}", linkDataMap);

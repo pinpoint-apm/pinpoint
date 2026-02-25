@@ -51,7 +51,7 @@ public class Node {
         if (application.getServiceType().isUser()) {
             return "USER";
         } else {
-            return application.getName();
+            return application.getApplicationName();
         }
     }
 
@@ -76,7 +76,7 @@ public class Node {
     }
 
     public String getNodeKey() {
-        return NodeName.toNodeKey(application.getName(), application.getServiceType());
+        return NodeName.toNodeKey(application.getApplicationName(), application.getServiceType());
     }
 
     public ServiceType getServiceType() {

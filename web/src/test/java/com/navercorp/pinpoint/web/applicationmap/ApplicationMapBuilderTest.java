@@ -99,10 +99,10 @@ public class ApplicationMapBuilderTest {
             @Override
             public List<ResponseTime> answer(InvocationOnMock invocation) {
                 Application application = invocation.getArgument(0);
-                String applicationName = application.getName();
+                String applicationName = application.getApplicationName();
                 ServiceType applicationServiceType = application.getServiceType();
                 int depth = ApplicationMapBuilderTestHelper.getDepthFromApplicationName(applicationName);
-                ResponseTime.Builder responseTimeBuilder = ResponseTime.newBuilder(application.getName(), application.getServiceType(), timestamp);
+                ResponseTime.Builder responseTimeBuilder = ResponseTime.newBuilder(application.getApplicationName(), application.getServiceType(), timestamp);
                 responseTimeBuilder.addResponseTime(ApplicationMapBuilderTestHelper.createAgentIdFromDepth(depth), applicationServiceType.getHistogramSchema().getNormalSlot().getSlotTime(), 1);
                 return List.of(responseTimeBuilder.build());
             }

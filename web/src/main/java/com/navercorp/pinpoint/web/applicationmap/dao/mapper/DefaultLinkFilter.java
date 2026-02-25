@@ -52,7 +52,7 @@ public class DefaultLinkFilter implements LinkFilter {
         } else if (this.outApplication.getServiceType().isUser()) {
             logger.debug("check client to was");
             // if dest not equals to that WAS, drop
-            if (!this.inApplication.getName().equals(foundApplication.getName())) {
+            if (!this.inApplication.getApplicationName().equals(foundApplication.getApplicationName())) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("  DROP THE ROW,2, DIFFERENT DEST. fetched={}, params={}", foundApplication, this.inApplication);
                 }
@@ -63,7 +63,7 @@ public class DefaultLinkFilter implements LinkFilter {
             if (this.inApplication.getServiceType().isUnknown()) {
                 //  compare just only application name when dest is unknown.
                 // TODO need more nice way to compare
-                if (!this.inApplication.getName().equals(foundApplication.getName())) {
+                if (!this.inApplication.getApplicationName().equals(foundApplication.getApplicationName())) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("  DROP THE ROW,3, DIFFERENT DEST. fetched={}, params={}", foundApplication, inApplication);
                     }

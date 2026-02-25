@@ -35,7 +35,7 @@ public class ServerHistogramView {
 
     public static ServerHistogramView view(NodeHistogramSummary summary, HyperLinkFactory hyperLinkFactory) {
         Application application = summary.getApplication();
-        String key = NodeName.toNodeName(application.getName(), application.getServiceType());
+        String key = NodeName.toNodeName(application.getApplicationName(), application.getServiceType());
         List<HistogramView> agentHistogramList = summary.getNodeHistogram().createAgentHistogramViewList();
         ServerGroupList serverGroupList = summary.getServerGroupList();
         ServerGroupListView serverGroupListView = new ServerGroupListView(serverGroupList, hyperLinkFactory);

@@ -26,7 +26,7 @@ public class HostScanKeyFactoryV2 implements HostScanKeyFactory {
     @Override
     public byte[] scanKey(Application parentApplication, long timestamp) {
         Buffer buffer = new AutomaticBuffer();
-        buffer.putPadString(parentApplication.getName(), HbaseTableConstants.APPLICATION_NAME_MAX_LEN);
+        buffer.putPadString(parentApplication.getApplicationName(), HbaseTableConstants.APPLICATION_NAME_MAX_LEN);
         buffer.putShort((short) parentApplication.getServiceTypeCode());
         long reverseTimestamp = LongInverter.invert(timestamp);
         buffer.putLong(reverseTimestamp);

@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.web.view;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.scatter.vo.ApplicationScatterScanResult;
+import com.navercorp.pinpoint.web.vo.Application;
 
 import java.io.IOException;
 
@@ -32,7 +32,7 @@ public class ApplicationScatterScanResultSerializer extends JsonSerializer<Appli
     public void serialize(ApplicationScatterScanResult value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeStartObject();
         Application application = value.getApplication();
-        jgen.writeStringField("applicationName", application.getName());
+        jgen.writeStringField("applicationName", application.getApplicationName());
         jgen.writeNumberField("applicationServiceType", application.getServiceTypeCode());
 
         jgen.writeFieldName("scatter");

@@ -115,7 +115,7 @@ public class InLinkMapper implements RowMapper<LinkDataMap> {
                         self, selfHost, inApplication, histogramSlot, requestCount);
             }
 
-            linkDataMap.addLinkData(self, self.getName(), inApplication, selfHost, timestamp, histogramSlot, requestCount);
+            linkDataMap.addLinkData(self, self.getApplicationName(), inApplication, selfHost, timestamp, histogramSlot, requestCount);
 
             if (logger.isTraceEnabled()) {
                 logger.trace("    Fetched IN_LINK inLink:{}", linkDataMap);

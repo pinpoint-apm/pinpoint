@@ -68,7 +68,7 @@ public class MapOutLinkDataCollector extends DataCollector {
             LinkCallDataMap linkCallDataMap = linkData.getLinkCallDataMap();
 
             for (LinkCallData linkCallData : linkCallDataMap.getLinkDataList()) {
-                inLinkStatMap.put(linkCallData.getTarget().getName(), linkCallData);
+                inLinkStatMap.put(linkCallData.getTarget().getApplicationName(), linkCallData);
             }
         }
 

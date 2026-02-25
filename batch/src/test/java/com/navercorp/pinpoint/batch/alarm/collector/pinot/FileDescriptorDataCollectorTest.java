@@ -58,7 +58,7 @@ class FileDescriptorDataCollectorTest {
                 new AgentUsage("testAgent5", 300D),
                 new AgentUsage("testAgent6", 400D)
         );
-        when(alarmDao.selectAvg(application.getName(), FileDescriptorDataCollector.METRIC_NAME, FileDescriptorDataCollector.FIELD_NAME, range)).thenReturn(agentUsageList);
+        when(alarmDao.selectAvg(application.getApplicationName(), FileDescriptorDataCollector.METRIC_NAME, FileDescriptorDataCollector.FIELD_NAME, range)).thenReturn(agentUsageList);
         fileDescriptorDataCollector.collect();
 
         Map<String, Long> fileDescriptorCount = fileDescriptorDataCollector.getFileDescriptorCount();

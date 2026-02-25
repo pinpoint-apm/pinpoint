@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.agentlist.service;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.agentlist.AgentsFactory;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkFactory;
 import com.navercorp.pinpoint.web.service.ApplicationAgentListQueryRule;
 import com.navercorp.pinpoint.web.service.ApplicationAgentListService;
@@ -25,7 +26,6 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilter;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
-import com.navercorp.pinpoint.web.agentlist.AgentsFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -79,7 +79,7 @@ public class AgentsServiceImpl implements AgentsService {
             ApplicationAgentListQueryRule applicationAgentListQueryRule,
             AgentInfoFilter agentInfoFilter
     ) {
-        final String applicationName = application.getName();
+        final String applicationName = application.getApplicationName();
         final ServiceType serviceType = application.getServiceType();
         final Range windowRange = timeWindow.getWindowRange();
         return switch (applicationAgentListQueryRule) {

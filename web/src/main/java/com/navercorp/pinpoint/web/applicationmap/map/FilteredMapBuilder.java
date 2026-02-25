@@ -338,7 +338,7 @@ public class FilteredMapBuilder {
                     //replace with alias instead of Unkown when exists
                     logger.debug("replace with alias {}", replacedApplication.getServiceType());
                     destServiceType = replacedApplication.getServiceType();
-                    dest = replacedApplication.getName();
+                    dest = replacedApplication.getApplicationName();
                 }
             }
         }
@@ -354,7 +354,7 @@ public class FilteredMapBuilder {
             logger.trace("spanEvent  src:{} {} -> dest:{} {}", srcApplication, span.getAgentId(), destApplication, spanEvent.getEndPoint());
         }
         // endPoint may be null
-        final String destinationAgentId = Objects.toString(spanEvent.getEndPoint(), destApplication.getName());
+        final String destinationAgentId = Objects.toString(spanEvent.getEndPoint(), destApplication.getApplicationName());
         sourceLinkDataMap.addLinkData(srcApplication, span.getAgentId(), destApplication, destinationAgentId, spanEventTimeStamp, slotTime, 1);
     }
 

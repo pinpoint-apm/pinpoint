@@ -159,7 +159,7 @@ public class ResponseTimeHistogramServiceImplTest {
     }
 
     private ResponseTime createResponseTime(Application application, long timestamp) {
-        ResponseTime.Builder responseTimeBuilder = ResponseTime.newBuilder(application.getName(), application.getServiceType(), timestamp);
+        ResponseTime.Builder responseTimeBuilder = ResponseTime.newBuilder(application.getApplicationName(), application.getServiceType(), timestamp);
         HistogramSchema schema = application.getServiceType().getHistogramSchema();
         responseTimeBuilder.addResponseTime("agentId", schema.getFastSlot().getSlotTime(), 1L);
         responseTimeBuilder.addResponseTime("agentId", schema.getNormalSlot().getSlotTime(), 2L);

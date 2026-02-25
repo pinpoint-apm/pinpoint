@@ -89,7 +89,7 @@ public class ResponseHistograms {
             Map<Application, ResponseTime.Builder> responseTimeMap = map.getIfAbsentPutWithKey(timestamp, (k) -> new HashMap<>());
             ResponseTime.Builder responseTime = responseTimeMap.get(application);
             if (responseTime == null) {
-                responseTime = ResponseTime.newBuilder(application.getName(), application.getServiceType(), timestamp);
+                responseTime = ResponseTime.newBuilder(application.getApplicationName(), application.getServiceType(), timestamp);
                 responseTimeMap.put(application, responseTime);
             }
             return responseTime;

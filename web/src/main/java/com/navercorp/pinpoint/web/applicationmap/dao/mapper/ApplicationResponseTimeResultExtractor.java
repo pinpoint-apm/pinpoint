@@ -92,7 +92,7 @@ public class ApplicationResponseTimeResultExtractor implements ResultsExtractor<
             builder = ApplicationResponse.newBuilder(application);
         } else {
             Application builderApp = builder.getApplication();
-            if (!builderApp.getName().equals(applicationName)) {
+            if (!builderApp.getApplicationName().equals(applicationName)) {
                 throw new IllegalStateException("applicationName must match");
             }
             if (builderApp.getServiceType().getCode() != serviceTypeCode) {

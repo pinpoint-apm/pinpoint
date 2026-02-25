@@ -65,10 +65,10 @@ public class ApplicationTimeHistogramTest {
 
     private List<ResponseTime> createResponseTime(Application app) {
 
-        ResponseTime.Builder one = ResponseTime.newBuilder(app.getName(), app.getServiceType(), 0);
+        ResponseTime.Builder one = ResponseTime.newBuilder(app.getApplicationName(), app.getServiceType(), 0);
         one.addResponseTime("test", (short) 1000, 1);
 
-        ResponseTime.Builder two = ResponseTime.newBuilder(app.getName(), app.getServiceType(), 1000 * 60);
+        ResponseTime.Builder two = ResponseTime.newBuilder(app.getApplicationName(), app.getServiceType(), 1000 * 60);
         two.addResponseTime("test", (short) 3000, 1);
 
         return List.of(one.build(), two.build());
@@ -82,7 +82,7 @@ public class ApplicationTimeHistogramTest {
 
         ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(app, range);
 
-        ResponseTime.Builder responseTime = new ResponseTime.Builder(app.getName(), app.getServiceType(), timestamp);
+        ResponseTime.Builder responseTime = new ResponseTime.Builder(app.getApplicationName(), app.getServiceType(), timestamp);
         responseTime.addResponseTime("test", (short) 1000, 1);
 
         List<ResponseTime> responseHistogramList = List.of(responseTime.build());

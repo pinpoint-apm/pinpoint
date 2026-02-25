@@ -30,7 +30,7 @@ public class MapAppScanKeyFactoryV3 implements MapScanKeyFactory {
     public byte[] scanKey(int serviceUid, Application application, long timestamp) {
         final Buffer buffer = new AutomaticBuffer(64);
         buffer.skip(saltKeySize);
-        UidPrefix.writePrefix(buffer, serviceUid, BytesUtils.toBytes(application.getName()), application.getServiceTypeCode(), timestamp);
+        UidPrefix.writePrefix(buffer, serviceUid, BytesUtils.toBytes(application.getApplicationName()), application.getServiceTypeCode(), timestamp);
         return buffer.getBuffer();
     }
 }
