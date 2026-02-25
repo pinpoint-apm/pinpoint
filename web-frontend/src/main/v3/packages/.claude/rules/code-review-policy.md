@@ -33,7 +33,7 @@ Every time code is modified, the following review must be performed:
 - [ ] No exports were accidentally removed or renamed
 - [ ] No query keys were changed in a way that breaks cache invalidation
 - [ ] Route loaders still validate and redirect correctly
-- [ ] withInitialFetch HOC still receives expected data shape
+- [ ] InitialFetchOutlet correctly syncs URL params to atoms and handles configuration errors
 
 ### 5. Test Awareness
 - If modifying code that has tests, run the relevant tests: `yarn workspace @pinpoint-fe/ui test`

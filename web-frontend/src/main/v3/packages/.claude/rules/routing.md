@@ -16,10 +16,22 @@ paths:
 ## Adding a New Route
 1. Define path constant in `packages/ui/src/constants/path.ts` under `APP_PATH`
 2. Create page component in `packages/ui/src/pages/`
-3. Create page wrapper in `apps/web/src/pages/` using `withInitialFetch`
+3. Create thin page wrapper in `apps/web/src/pages/` (read `configurationAtom` via `useAtomValue` if needed)
 4. Create route loader in `packages/ui/src/loader/` if date validation needed
-5. Add route to `apps/web/src/routes/index.tsx`
+5. Add route to `apps/web/src/routes/index.tsx` inside the `InitialFetchOutlet` children (or `ConfigurationOutlet` for config pages)
 6. Use `React.lazy()` for code splitting (except default route)
+
+## Nested Layout Route Structure
+Routes use nested `<Outlet />` components for cross-cutting concerns:
+```
+SideNavigationOutlet
+  ├── /apiCheck (outside InitialFetchOutlet)
+  └── InitialFetchOutlet (fetches config, syncs URL → atoms)
+       ├── Page routes (with loaders)
+       ├── ConfigurationOutlet (wraps config pages with config layout)
+       │    └── Config page routes
+       └── * (NotFound)
+```
 
 ## Route Loaders (`packages/ui/src/loader/`)
 - Validate URL date parameters (from/to)

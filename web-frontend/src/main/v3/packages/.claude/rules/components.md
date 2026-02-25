@@ -8,15 +8,19 @@ paths:
 # React Component Rules
 
 ## Page Components (apps/web/src/pages/)
-- Pages are thin wrappers: import page component from `@pinpoint-fe/ui` and wrap with `withInitialFetch` HOC
-- Always wrap with a layout component (`getLayoutWithSideNavigation` or `getLayoutWithConfiguration`)
+- Pages are thin wrappers: import page component from `@pinpoint-fe/ui` and render it
+- Layout wrapping is handled by nested layout routes (`SideNavigationOutlet`, `InitialFetchOutlet`, `ConfigurationOutlet`) in `apps/web/src/routes/index.tsx`
+- Pages that need configuration read it from `configurationAtom` via `useAtomValue`
 - Pattern:
   ```tsx
-  import { withInitialFetch, SomePageComponent } from '@pinpoint-fe/ui';
-  import { getLayoutWithSideNavigation } from '@pinpoint-fe/web/src/components/Layout/LayoutWithSideNavigation';
-  export default withInitialFetch((props) =>
-    getLayoutWithSideNavigation(<SomePageComponent {...props} />),
-  );
+  import { useAtomValue } from 'jotai';
+  import { SomePageComponent } from '@pinpoint-fe/ui';
+  import { configurationAtom } from '@pinpoint-fe/ui/src/atoms';
+
+  export default function SomePage() {
+    const configuration = useAtomValue(configurationAtom);
+    return <SomePageComponent configuration={configuration} />;
+  }
   ```
 
 ## Domain Components (packages/ui/src/components/)

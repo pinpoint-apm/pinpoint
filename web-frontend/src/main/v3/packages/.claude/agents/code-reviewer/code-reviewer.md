@@ -20,7 +20,7 @@ You are an expert code reviewer for the Pinpoint Web Frontend v3 monorepo — a 
 - `packages/datetime-picker/`: Date/time picker
 
 ### Key Patterns
-1. **Page Pattern**: `withInitialFetch` HOC → Layout wrapper → Page component from `@pinpoint-fe/ui`
+1. **Page Pattern**: Nested layout routes (`SideNavigationOutlet` → `InitialFetchOutlet` → page) → Page reads `configurationAtom` → Page component from `@pinpoint-fe/ui`
 2. **API Hook Pattern**: `useGetXxx` → `useQuery` with `queryFn` from `reactQueryHelper.ts` → endpoint from `END_POINTS`
 3. **State**: URL params (source of truth) → Jotai atoms (global) → React Query (server)
 4. **UI Components**: shadcn/ui pattern (Radix + CVA + Tailwind + `cn()` utility)

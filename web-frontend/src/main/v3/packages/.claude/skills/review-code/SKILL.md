@@ -15,7 +15,7 @@ Review the code at `$ARGUMENTS` (or recent git changes if no path given).
 
 ### 1. Architecture
 - [ ] Code in correct package (apps/web for routing, packages/ui for everything else)
-- [ ] Page follows withInitialFetch + Layout wrapper pattern
+- [ ] Page is placed inside correct nested layout outlet (InitialFetchOutlet / ConfigurationOutlet)
 - [ ] API hooks use shared queryFn from reactQueryHelper
 - [ ] State management uses correct layer (URL → Jotai → React Query)
 
