@@ -16,13 +16,16 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.util.CellUtils;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Service;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
 import org.eclipse.collections.api.factory.primitive.IntSets;
 import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import org.springframework.stereotype.Component;
@@ -31,12 +34,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  *
  */
 @Component
-public class ApplicationNameMapper implements RowMapper<List<Application>> {
+public class ApplicationNameMapper implements RowMapper<List<Application>>, ResultsExtractor<List<Application>> {
 
     private final ApplicationFactory applicationFactory;
 
@@ -49,20 +53,38 @@ public class ApplicationNameMapper implements RowMapper<List<Application>> {
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
+        List<Application> applicationList = new ArrayList<>();
+
+        readApplication(result.rawCells(), applicationList::add);
+
+        return applicationList;
+    }
+
+    public void readApplication(Cell[] cells, Consumer<Application> consumer) {
         MutableIntSet uniqueTypeCodes = IntSets.mutable.of();
-        String applicationName = CellUtils.rowToString(result);
-        
-        Cell[] rawCells = result.rawCells();
-        for (Cell cell : rawCells) {
+        String applicationName = null;
+        for (Cell cell : cells) {
+            if (applicationName == null) {
+                applicationName = BytesUtils.toString(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength());
+            }
             int serviceTypeCode = CellUtils.valueToShort(cell);
-            uniqueTypeCodes.add(serviceTypeCode);
+            if (uniqueTypeCodes.add(serviceTypeCode)) {
+                Application application = applicationFactory.createApplication(Service.DEFAULT, applicationName, serviceTypeCode);
+                consumer.accept(application);
+            }
+        }
+    }
+
+    @Override
+    public List<Application> extractData(ResultScanner results) throws Exception {
+        List<Application> applications = new ArrayList<>(256);
+        for (Result result : results) {
+            if (result.isEmpty()) {
+                continue;
+            }
+            readApplication(result.rawCells(), applications::add);
         }
 
-        List<Application> applicationList = new ArrayList<>();
-        uniqueTypeCodes.forEach(serviceTypeCode -> {
-            final Application application = applicationFactory.createApplication(Service.DEFAULT.getUid(), applicationName, serviceTypeCode);
-            applicationList.add(application);
-        });
-        return applicationList;
+        return applications;
     }
 }
