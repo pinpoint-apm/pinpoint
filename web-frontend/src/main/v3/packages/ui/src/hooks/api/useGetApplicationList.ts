@@ -55,6 +55,7 @@ export const useGetApplicationList = (shouldFetch = true) => {
       return applicationListQueryFn(shouldClearCache);
     },
     enabled: shouldFetch,
+    refetchOnMount: false,
   });
 
   const { refetch } = query;
