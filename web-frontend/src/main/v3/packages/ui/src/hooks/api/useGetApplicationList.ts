@@ -11,6 +11,9 @@ const applicationListQueryFn = async (clearCache?: boolean) => {
     : END_POINTS.APPLICATION_LIST;
 
   const headers: HeadersInit = {};
+  if (clearCache) {
+    cachedETag = null;
+  }
   if (cachedETag) {
     headers['If-None-Match'] = cachedETag;
   }
@@ -21,7 +24,10 @@ const applicationListQueryFn = async (clearCache?: boolean) => {
   });
 
   if (response.status === 304) {
-    return queryClient.getQueryData([END_POINTS.APPLICATION_LIST]);
+    const cached = queryClient.getQueryData([END_POINTS.APPLICATION_LIST]);
+    if (cached !== undefined) return cached;
+    cachedETag = null;
+    return applicationListQueryFn(clearCache);
   }
 
   if (!response.ok) {
@@ -51,10 +57,11 @@ export const useGetApplicationList = (shouldFetch = true) => {
     enabled: shouldFetch,
   });
 
+  const { refetch } = query;
   const refetchWithClearCache = React.useCallback(() => {
     clearCacheRef.current = true;
-    query.refetch();
-  }, [query]);
+    refetch();
+  }, [refetch]);
 
   return { ...query, refetchWithClearCache };
 };
