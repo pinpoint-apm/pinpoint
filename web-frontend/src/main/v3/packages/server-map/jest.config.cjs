@@ -1,6 +1,5 @@
 /** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
 module.exports = {
-  preset: 'ts-jest',
   testEnvironment: 'jsdom',
   collectCoverageFrom: [
     './src/**/*.[jt]s?(x)',
@@ -11,5 +10,15 @@ module.exports = {
   ],
   moduleNameMapper: {
     '\\.(css|scss)$': '<rootDir>/src/test/mock/styleMock.ts',
+  },
+  transform: {
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      {
+        tsconfig: {
+          moduleResolution: 'node',
+        },
+      },
+    ],
   },
 };
