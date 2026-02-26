@@ -6,7 +6,7 @@ import { ApplicationVirtualListProps, ApplicationVirtualList } from '.';
 import { ListItemSkeleton } from '../VirtualList';
 
 export const ApplicationListFetcher = (props: ApplicationVirtualListProps) => {
-  const { data, refetch, isFetching } = useGetApplicationList();
+  const { data, refetchWithClearCache, isFetching } = useGetApplicationList();
 
   return (
     <>
@@ -19,7 +19,7 @@ export const ApplicationListFetcher = (props: ApplicationVirtualListProps) => {
       </div>
       <Button
         className="flex items-center w-full gap-1 font-semibold rounded-t-none"
-        onClick={() => refetch()}
+        onClick={() => refetchWithClearCache()}
       >
         refetch <LuRotateCw />
       </Button>
