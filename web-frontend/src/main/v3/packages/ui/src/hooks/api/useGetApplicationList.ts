@@ -7,5 +7,6 @@ export const useGetApplicationList = (shouldFetch = true) => {
     queryKey: [END_POINTS.APPLICATION_LIST],
     queryFn: queryFn(END_POINTS.APPLICATION_LIST),
     enabled: shouldFetch,
+    refetchOnMount: false,
   });
 };
