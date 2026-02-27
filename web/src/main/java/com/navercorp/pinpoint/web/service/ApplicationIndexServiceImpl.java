@@ -66,22 +66,6 @@ public class ApplicationIndexServiceImpl implements ApplicationIndexService {
     }
 
     @Override
-    @Deprecated
-    public List<String> selectAllApplicationNames() {
-        if (isReadV2()) {
-            return this.applicationDao.getApplications(ServiceUid.DEFAULT_SERVICE_UID_CODE).stream()
-                    .map(Application::getName)
-                    .distinct()
-                    .toList();
-        }
-        return this.applicationIndexDao.selectAllApplicationNames()
-                .stream()
-                .map(Application::getName)
-                .distinct()
-                .toList();
-    }
-
-    @Override
     public List<Application> selectApplication(String applicationName) {
         if (isReadV2()) {
             return this.applicationDao.getApplications(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName);
