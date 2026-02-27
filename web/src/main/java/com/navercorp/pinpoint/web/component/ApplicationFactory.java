@@ -26,6 +26,8 @@ import com.navercorp.pinpoint.web.vo.Service;
  */
 public interface ApplicationFactory {
 
+    Application createApplication(int serviceUid);
+
     Application createApplication(Service service, String applicationName, ServiceType serviceType);
 
     Application createApplication(Service service, String applicationName, int serviceType);

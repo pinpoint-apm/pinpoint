@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -80,15 +81,16 @@ public class AdminServiceImpl implements AdminService {
             throw new IllegalArgumentException("duration may not be less than " + MIN_DURATION_DAYS_FOR_INACTIVITY + " days");
         }
 
-        List<String> applicationNames = this.applicationIndexService.selectAllApplicationNames().stream()
-                .distinct()
-                .collect(Collectors.toList());
-        Collections.shuffle(applicationNames);
+        List<Application> applications = this.applicationIndexService.selectAllApplications();
+
+        Set<String> applicationNames = applications.stream()
+                .map(Application::getApplicationName)
+                .collect(Collectors.toSet());
 
         int index = 1;
-        for (String applicationName : applicationNames) {
-            logger.info("Cleaning {} ({}/{})", applicationName, index++, applicationNames.size());
-            removeInactiveAgentInApplication(applicationName, durationDays);
+        for (String application : applicationNames) {
+            logger.info("Cleaning {} ({}/{})", application, index++, applicationNames.size());
+            removeInactiveAgentInApplication(application, durationDays);
         }
     }
 

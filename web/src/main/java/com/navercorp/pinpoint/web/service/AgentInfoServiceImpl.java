@@ -95,10 +95,10 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     public List<DetailedAgentAndStatus> getAllAgentsStatisticsList(AgentStatusFilter filter, Range range) {
         Objects.requireNonNull(filter, "filter");
 
-        List<String> applicationNameList = applicationIndexService.selectAllApplicationNames();
+        List<Application> applicationList = applicationIndexService.selectAllApplications();
         List<DetailedAgentAndStatus> agents = new ArrayList<>();
-        for (String applicationName : applicationNameList) {
-            Set<DetailedAgentAndStatus> detailedAgents = getDetailedAgentsByApplicationName(applicationName, range.getTo());
+        for (Application application : applicationList) {
+            Set<DetailedAgentAndStatus> detailedAgents = getDetailedAgentsByApplicationName(application.getApplicationName(), range.getTo());
             for (DetailedAgentAndStatus detailedAgent : detailedAgents) {
                 AgentStatus status = detailedAgent.getStatus();
                 if (filter.test(status)) {

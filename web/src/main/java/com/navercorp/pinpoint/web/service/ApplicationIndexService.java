@@ -29,9 +29,6 @@ public interface ApplicationIndexService {
 
     List<Application> selectAllApplications();
 
-    @Deprecated
-    List<String> selectAllApplicationNames();
-
     List<Application> selectApplication(String applicationName);
 
     void deleteApplicationName(String applicationName);
