@@ -162,8 +162,32 @@ public class ASMClass implements InstrumentClass {
     }
 
     @Override
+    public InstrumentMethod getDeclaredMethod(final String methodName, final MethodFilter methodFilter) {
+        Objects.requireNonNull(methodName, "name");
+        Objects.requireNonNull(methodFilter, "methodFilter");
+
+        final List<ASMMethodNodeAdapter> declaredMethod = this.classNode.getDeclaredMethod(methodName);
+        if (declaredMethod.isEmpty()) {
+            return null;
+        }
+        for (ASMMethodNodeAdapter methodNode : declaredMethod) {
+            final InstrumentMethod method = new ASMMethod(this.engineComponent, this.pluginContext, this, methodNode);
+            if (methodFilter.accept(method)) {
+                return method;
+            }
+        }
+        
+        return null;
+    }
+
+    @Override
     public InstrumentMethod getConstructor(final String... parameterTypes) {
         return getDeclaredMethod("<init>", parameterTypes);
+    }
+
+    @Override
+    public InstrumentMethod getConstructor(final MethodFilter methodFilter) {
+        return getDeclaredMethod("<init>", methodFilter);
     }
 
     @Override

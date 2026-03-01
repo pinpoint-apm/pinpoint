@@ -38,6 +38,8 @@ public interface InstrumentClass {
     
     InstrumentMethod getConstructor(String... parameterTypes);
 
+    InstrumentMethod getConstructor(MethodFilter filter);
+
     List<InstrumentMethod> getDeclaredConstructors();
 
     List<InstrumentMethod> getDeclaredMethods();
@@ -45,6 +47,8 @@ public interface InstrumentClass {
     List<InstrumentMethod> getDeclaredMethods(MethodFilter filter);
 
     InstrumentMethod getDeclaredMethod(String name, String... parameterTypes);
+    
+    InstrumentMethod getDeclaredMethod(String name, MethodFilter filter);
 
     @Deprecated
     InstrumentMethod getLambdaMethod(String... parameterTypes);

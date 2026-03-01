@@ -9,6 +9,12 @@ public class ArgsClass {
     public ArgsClass(int a) {
     }
 
+    public ArgsClass(String a) {
+    }
+
+    public ArgsClass(String a, int b) {
+    }
+
 
     public void arg() {
     }
@@ -107,6 +113,12 @@ public class ArgsClass {
     }
 
     public void argString5(String a, String b, String c, String d, String e) {
+    }
+
+    public void argSpecificMethod(int a) {
+    }
+
+    public void argSpecificMethod(int a, long b) {
     }
 
 }
