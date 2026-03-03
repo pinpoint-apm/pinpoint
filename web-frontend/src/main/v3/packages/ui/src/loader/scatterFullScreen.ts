@@ -15,53 +15,55 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 
 export const scatterFullScreenLoader = async ({ params, request }: LoaderFunctionArgs) => {
+  const application = getApplicationTypeAndName(params.application);
+
+  let configuration: Configuration | undefined;
   try {
-    const application = getApplicationTypeAndName(params.application);
-    const configuration = await getConfiguration<Configuration>();
-    const timezone = getTimezone();
-
-    if (application?.applicationName && application.serviceType) {
-      const basePath = `${APP_PATH.SCATTER_FULL_SCREEN}/${params.application}`;
-      const queryParam = Object.fromEntries(new URL(request.url).searchParams);
-      const conditions = Object.keys(queryParam);
-
-      const from = queryParam?.from as string;
-      const to = queryParam?.to as string;
-
-      const currentDate = new Date();
-      const parsedDateRange = {
-        from: parse(from, SEARCH_PARAMETER_DATE_FORMAT, currentDate),
-        to: parse(to, SEARCH_PARAMETER_DATE_FORMAT, currentDate),
-      };
-      const defaultParsedDateRange = getParsedDateRange({ from, to });
-      const defaultFormattedDateRange = {
-        from: formatInTimeZone(defaultParsedDateRange.from, timezone, SEARCH_PARAMETER_DATE_FORMAT),
-        to: formatInTimeZone(defaultParsedDateRange.to, timezone, SEARCH_PARAMETER_DATE_FORMAT),
-      };
-      const defaultDatesQueryString = new URLSearchParams(defaultFormattedDateRange).toString();
-      const defaultDestination = `${basePath}?${defaultDatesQueryString}`;
-
-      if (conditions.length === 0) {
-        return redirect(defaultDestination);
-      } else if (conditions.includes('from')) {
-        if (
-          conditions.includes('to') &&
-          isValidDateRange(configuration?.['periodMax.serverMap'] || 2)(parsedDateRange)
-        ) {
-          return application;
-        } else {
-          return redirect(defaultDestination);
-        }
-      }
-    } else {
-      return redirect('/');
-    }
-
-    return application;
-  } catch (err) {
-    console.error('Error in scatterFullScreenLoader:', err);
-    return null;
+    configuration = await getConfiguration<Configuration>();
+  } catch {
+    // Continue with defaults so that date params are still redirected.
   }
+
+  const timezone = getTimezone();
+
+  if (application?.applicationName && application.serviceType) {
+    const basePath = `${APP_PATH.SCATTER_FULL_SCREEN}/${params.application}`;
+    const queryParam = Object.fromEntries(new URL(request.url).searchParams);
+    const conditions = Object.keys(queryParam);
+
+    const from = queryParam?.from as string;
+    const to = queryParam?.to as string;
+
+    const currentDate = new Date();
+    const parsedDateRange = {
+      from: parse(from, SEARCH_PARAMETER_DATE_FORMAT, currentDate),
+      to: parse(to, SEARCH_PARAMETER_DATE_FORMAT, currentDate),
+    };
+    const defaultParsedDateRange = getParsedDateRange({ from, to });
+    const defaultFormattedDateRange = {
+      from: formatInTimeZone(defaultParsedDateRange.from, timezone, SEARCH_PARAMETER_DATE_FORMAT),
+      to: formatInTimeZone(defaultParsedDateRange.to, timezone, SEARCH_PARAMETER_DATE_FORMAT),
+    };
+    const defaultDatesQueryString = new URLSearchParams(defaultFormattedDateRange).toString();
+    const defaultDestination = `${basePath}?${defaultDatesQueryString}`;
+
+    if (conditions.length === 0) {
+      return redirect(defaultDestination);
+    } else if (conditions.includes('from')) {
+      if (
+        conditions.includes('to') &&
+        isValidDateRange(configuration?.['periodMax.serverMap'] || 2)(parsedDateRange)
+      ) {
+        return application;
+      } else {
+        return redirect(defaultDestination);
+      }
+    }
+  } else {
+    return redirect('/');
+  }
+
+  return application;
 };
 
 export const scatterFullScreenRealtimeLoader = ({ params, request }: LoaderFunctionArgs) => {
