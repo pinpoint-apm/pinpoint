@@ -15,51 +15,53 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { LoaderFunctionArgs, redirect } from 'react-router-dom';
 
 export const errorAnalysisRouteLoader = async ({ params, request }: LoaderFunctionArgs) => {
+  const application = getApplicationTypeAndName(params.application!);
+
+  let config: Configuration | undefined;
   try {
-    const application = getApplicationTypeAndName(params.application!);
-    const config = await getConfiguration<Configuration>();
-    const timezone = getTimezone();
+    config = await getConfiguration<Configuration>();
+  } catch {
+    // Continue with defaults so that date params are still redirected.
+  }
 
-    if (application?.applicationName && application.serviceType) {
-      const basePath = `${APP_PATH.ERROR_ANALYSIS}/${params.application}`;
-      const queryParam = Object.fromEntries(new URL(request.url).searchParams);
-      const conditions = Object.keys(queryParam);
+  const timezone = getTimezone();
 
-      const from = queryParam?.from as string;
-      const to = queryParam?.to as string;
+  if (application?.applicationName && application.serviceType) {
+    const basePath = `${APP_PATH.ERROR_ANALYSIS}/${params.application}`;
+    const queryParam = Object.fromEntries(new URL(request.url).searchParams);
+    const conditions = Object.keys(queryParam);
 
-      const currentDate = new Date();
-      const parsedDateRange = {
-        from: parse(from, SEARCH_PARAMETER_DATE_FORMAT, currentDate),
-        to: parse(to, SEARCH_PARAMETER_DATE_FORMAT, currentDate),
-      };
-      const validateDateRange = isValidDateRange(config?.['periodMax.exceptionTrace'] || 7);
-      const defaultParsedDateRange = getParsedDateRange({ from, to }, validateDateRange);
-      const defaultFormattedDateRange = {
-        from: formatInTimeZone(defaultParsedDateRange.from, timezone, SEARCH_PARAMETER_DATE_FORMAT),
-        to: formatInTimeZone(defaultParsedDateRange.to, timezone, SEARCH_PARAMETER_DATE_FORMAT),
-      };
-      const defaultDatesQueryString = new URLSearchParams(defaultFormattedDateRange).toString();
-      const defaultDestination = `${basePath}?${defaultDatesQueryString}`;
+    const from = queryParam?.from as string;
+    const to = queryParam?.to as string;
 
-      if (conditions.length === 0) {
-        return redirect(defaultDestination);
+    const currentDate = new Date();
+    const parsedDateRange = {
+      from: parse(from, SEARCH_PARAMETER_DATE_FORMAT, currentDate),
+      to: parse(to, SEARCH_PARAMETER_DATE_FORMAT, currentDate),
+    };
+    const validateDateRange = isValidDateRange(config?.['periodMax.exceptionTrace'] || 7);
+    const defaultParsedDateRange = getParsedDateRange({ from, to }, validateDateRange);
+    const defaultFormattedDateRange = {
+      from: formatInTimeZone(defaultParsedDateRange.from, timezone, SEARCH_PARAMETER_DATE_FORMAT),
+      to: formatInTimeZone(defaultParsedDateRange.to, timezone, SEARCH_PARAMETER_DATE_FORMAT),
+    };
+    const defaultDatesQueryString = new URLSearchParams(defaultFormattedDateRange).toString();
+    const defaultDestination = `${basePath}?${defaultDatesQueryString}`;
+
+    if (conditions.length === 0) {
+      return redirect(defaultDestination);
+    } else {
+      if (
+        conditions.includes('from') &&
+        conditions.includes('to') &&
+        validateDateRange(parsedDateRange)
+      ) {
+        return application;
       } else {
-        if (
-          conditions.includes('from') &&
-          conditions.includes('to') &&
-          validateDateRange(parsedDateRange)
-        ) {
-          return application;
-        } else {
-          return redirect(defaultDestination);
-        }
+        return redirect(defaultDestination);
       }
     }
-
-    return application;
-  } catch (err) {
-    console.error('Error in errorAnalysisRouteLoader:', err);
-    return null;
   }
+
+  return application;
 };
