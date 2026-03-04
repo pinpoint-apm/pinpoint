@@ -5,8 +5,6 @@ import { Axis } from './Axis';
 import { Layer, LayerProps } from './Layer';
 
 export interface GridAxisProps extends LayerProps {
-  // xTickCount?: number;
-  // yTickCount?: number;
   xAxis: Axis;
   yAxis: Axis;
   padding?: DeepNonNullable<Padding>;
@@ -90,14 +88,4 @@ export class GridAxis extends Layer {
     this.render();
     return this;
   }
-
-  // public setXTickCount(tick: number) {
-  //   this.xTickCount = tick;
-  //   return this;
-  // }
-
-  // public setYickCount(tick: number) {
-  //   this.yTickCount = tick;
-  //   return this;
-  // }
 }

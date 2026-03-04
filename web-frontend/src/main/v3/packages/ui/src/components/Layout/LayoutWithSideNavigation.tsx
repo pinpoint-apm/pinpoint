@@ -408,7 +408,3 @@ const WithTooltip = ({ trigger, content, hidden }: TooltipProps) => {
 const getMenuKey = (path: SideNavigationMenuItem['path']) => {
   return Array.isArray(path) ? path[0] : path;
 };
-
-export const getLayoutWithSideNavigation = (page: React.ReactNode) => {
-  return <LayoutWithSideNavigation>{page}</LayoutWithSideNavigation>;
-};

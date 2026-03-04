@@ -26,3 +26,14 @@
 - `apps/web/src/components/Layout/InitialFetchOutlet.tsx` - 핵심 초기화 로직
 - `packages/ui/src/atoms/searchParameters.ts` - 검색 파라미터 atom
 - `apps/web/src/hooks/useMenuItems.tsx` - 사이드 네비게이션 메뉴
+
+## 타입 캐스팅 패턴 — 페이지별 정답 (확인됨)
+`configurationAtom`의 타입은 `Configuration | undefined`. 각 페이지가 전달하는 props 타입과 일치해야 함:
+- `Record<string, string>` 필요: ServerMap, Realtime, FilteredMap (올바르게 사용)
+- `Record<string, unknown>` 필요: UrlStatistic, SystemMetric, OpenTelemetry, ScatterOrHeatmapFullScreen (올바르게 사용)
+- `Configuration` 그대로: Inspector, ErrorAnalysis, AgentManagement, AgentStatistic, Alarm, Experimentals, UserGroup, Users, Webhook (캐스팅 없이 바로 전달)
+
+## InitialFetchOutlet 의존성 배열 패턴 (주의)
+- searchParameters는 매 렌더마다 새 객체(`Object.fromEntries(...)`)이므로 의존성 배열에 직접 넣으면 무한 루프
+- `searchParameters?.from`, `searchParameters?.to`만 배열에 포함 (올바른 패턴)
+- `setSearchParameters`, `setConfiguration`은 Jotai setter라 stable하므로 의존성 배열에서 생략 가능 (안전)

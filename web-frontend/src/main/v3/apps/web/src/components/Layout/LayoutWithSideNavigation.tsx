@@ -45,7 +45,3 @@ export const LayoutWithSideNavigation = ({ ...props }: LayoutWithSideNavigationP
     />
   );
 };
-
-export const getLayoutWithSideNavigation = (page: React.ReactNode) => {
-  return <LayoutWithSideNavigation>{page}</LayoutWithSideNavigation>;
-};

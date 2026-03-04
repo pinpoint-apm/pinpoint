@@ -86,7 +86,3 @@ export const LayoutWithConfiguration = ({ ...props }: LayoutWithConfigurationPro
 
   return <LayoutWithConfigurationComponent configMenu={configMenu} {...props} />;
 };
-
-export const getLayoutWithConfiguration = (page: React.ReactNode) => {
-  return <LayoutWithConfiguration>{page}</LayoutWithConfiguration>;
-};

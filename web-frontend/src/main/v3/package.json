@@ -12,6 +12,7 @@
     "dev": "yarn workspace @pinpoint-fe/web dev",
     "lint": "yarn workspace @pinpoint-fe/web lint",
     "test": "yarn workspaces run test",
+    "test:e2e": "yarn workspace @pinpoint-fe/web test:e2e",
     "clean": "yarn workspace @pinpoint-fe/web clean && rm -rf node_modules"
   },
   "devDependencies": {
