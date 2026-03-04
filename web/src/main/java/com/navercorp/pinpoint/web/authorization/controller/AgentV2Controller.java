@@ -47,7 +47,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/api")
@@ -71,46 +70,67 @@ public class AgentV2Controller {
     }
 
     @PreAuthorize("hasPermission(#application, 'application', 'inspector')")
-    @GetMapping(value = "/agents", params = {"application", "from", "to"})
-    public List<AgentIdEntryAndStatus> getAgentsListOldParam(
+    @GetMapping(value = {"/agents", "/v2/agents"}, params = {"application", "from", "to"})
+    public List<AgentIdEntryAndStatus> getAgentsV2OldParam(
             @RequestParam("application") @NotBlank String application,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
             @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
-            @RequestParam(value = "readV2", required = false) Optional<Boolean> readV2) {
-        return getAgentsList(null, application, serviceTypeCode, serviceTypeName, from, to, readV2);
+            @RequestParam("to") @PositiveOrZero long to) {
+        return getAgentsV2(null, application, serviceTypeCode, serviceTypeName, from, to);
     }
 
     @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
-    @GetMapping(value = "/agents", params = {"applicationName", "from", "to"})
-    public List<AgentIdEntryAndStatus> getAgentsList(
+    @GetMapping(value = {"/agents", "/v2/agents"}, params = {"applicationName", "from", "to"})
+    public List<AgentIdEntryAndStatus> getAgentsV2(
             @RequestParam(value = "serviceName", required = false) String serviceName,
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
             @RequestParam("from") @PositiveOrZero long from,
-            @RequestParam("to") @PositiveOrZero long to,
-            @RequestParam(value = "readV2", required = false) Optional<Boolean> readV2) {
+            @RequestParam("to") @PositiveOrZero long to) {
         ServiceUid serviceUid = handleServiceUid(serviceName);
         final ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
         Range range = Range.between(from, to);
 
-        final boolean useV2 = readV2.orElse(true);
-        if (useV2) {
-            if (serviceType.equals(ServiceType.UNDEFINED)) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid serviceType. ServiceType is required for v2 table");
-            }
-            return agentListV2Service.getAgentList(serviceUid, applicationName, serviceType, range);
-        } else {
-            if (!ServiceUid.DEFAULT.equals(serviceUid)) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "v1 table only supports 'default' service");
-            }
-            return agentsService.getAgentsByApplicationName(new Application(applicationName, serviceType), new TimeWindow(range),
-                            ApplicationAgentListQueryRule.ACTIVE_STATUS, AgentInfoFilters.acceptAll()).stream()
-                    .map(this::v1ToV2Format)
-                    .toList();
+        if (serviceType.equals(ServiceType.UNDEFINED)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid serviceType. ServiceType is required for v2 table");
         }
+        return agentListV2Service.getAgentList(serviceUid, applicationName, serviceType, range);
+    }
+
+    @PreAuthorize("hasPermission(#application, 'application', 'inspector')")
+    @GetMapping(value = "/v1/agents", params = {"application", "from", "to"})
+    public List<AgentIdEntryAndStatus> getAgentsV1OldParam(
+            @RequestParam("application") @NotBlank String application,
+            @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
+            @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to) {
+        return getAgentsV1(null, application, serviceTypeCode, serviceTypeName, from, to);
+    }
+
+    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
+    @GetMapping(value = "/v1/agents", params = {"applicationName", "from", "to"})
+    public List<AgentIdEntryAndStatus> getAgentsV1(
+            @RequestParam(value = "serviceName", required = false) String serviceName,
+            @RequestParam("applicationName") @NotBlank String applicationName,
+            @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
+            @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
+            @RequestParam("from") @PositiveOrZero long from,
+            @RequestParam("to") @PositiveOrZero long to) {
+        ServiceUid serviceUid = handleServiceUid(serviceName);
+        final ServiceType serviceType = findServiceType(serviceTypeCode, serviceTypeName);
+        Range range = Range.between(from, to);
+
+        if (!ServiceUid.DEFAULT.equals(serviceUid)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "v1 table only supports 'default' service");
+        }
+        // Note: AgentsService internally uses v2 agentIds when 'pinpoint.web.agent.read.v2' is true
+        return agentsService.getAgentsByApplicationName(new Application(applicationName, serviceType), new TimeWindow(range),
+                        ApplicationAgentListQueryRule.ACTIVE_STATUS, AgentInfoFilters.acceptAll()).stream()
+                .map(this::v1ToV2Format)
+                .toList();
     }
 
     private AgentIdEntryAndStatus v1ToV2Format(AgentStatusAndLink agentStatusAndLink) {

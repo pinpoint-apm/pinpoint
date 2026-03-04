@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.authorization.controller;
 
 import com.navercorp.pinpoint.common.server.uid.ServiceUid;
 import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.service.ApplicationServiceV2;
 import com.navercorp.pinpoint.web.uid.service.ServiceUidService;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -33,28 +34,32 @@ import java.util.List;
 import java.util.Objects;
 
 @RestController
-@RequestMapping(value = "/api/application")
+@RequestMapping(value = "/api")
 @Validated
 @ConditionalOnProperty(name = "pinpoint.web.application.index.v2.enabled", havingValue = "true")
 public class ApplicationV2Controller {
 
     private final ServiceUidService serviceUidService;
     private final ApplicationServiceV2 applicationServiceV2;
+    // v1 for test
+    private final ApplicationIndexDao applicationIndexDao;
 
     public ApplicationV2Controller(@Autowired(required = false) ServiceUidService serviceUidService,
-                                   ApplicationServiceV2 applicationServiceV2) {
+                                   ApplicationServiceV2 applicationServiceV2,
+                                   ApplicationIndexDao applicationIndexDao) {
         this.serviceUidService = serviceUidService;
         this.applicationServiceV2 = Objects.requireNonNull(applicationServiceV2, "applicationServiceV2");
+        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
     }
 
-    @GetMapping()
+    @GetMapping(value = "/v2/applications")
     public List<Application> getApplicationListV2(
             @RequestParam(value = "serviceName", required = false) String serviceName) {
         ServiceUid serviceUid = handleServiceUid(serviceName);
         return applicationServiceV2.getApplications(serviceUid);
     }
 
-    @GetMapping(params = {"applicationName"})
+    @GetMapping(value = "/v2/applications", params = {"applicationName"})
     public List<Application> getApplicationListV2(
             @RequestParam(value = "serviceName", required = false) String serviceName,
             @RequestParam(value = "applicationName") String applicationName) {
@@ -62,6 +67,10 @@ public class ApplicationV2Controller {
         return applicationServiceV2.getApplications(serviceUid, applicationName);
     }
 
+    @GetMapping(value = "/v1/applications")
+    public List<Application> getApplicationListV1() {
+        return applicationIndexDao.selectAllApplicationNames();
+    }
 
     //delete
 
