@@ -1,4 +1,3 @@
-export * from './chartsBoard';
 export * from './configuration';
 export * from './globalSearch';
 export * from './installationInfo';

@@ -159,11 +159,6 @@ export class Guide extends Layer {
         const x = offsetX;
         const y = offsetY;
         if (this.isMouseInValidArea(x, y)) {
-          // vertical line
-          // drawLine(this.context, x , 0, x, height - padding.bottom + AXIS_INNER_PADDING)
-          // horizontal line
-          // drawLine(this.context, padding.left, y, width, y)
-
           this.drawGuideText(x, y);
         }
         if (this.isMouseDown) {

@@ -96,7 +96,3 @@ export const getLocale = (localeKey: LocaleKey): Locale => {
       throw new Error(`Unsupported locale: ${localeKey}`);
   }
 };
-
-export const getLocaleKey = (locale: Locale) => {
-  return (locale.code?.substring(0, 2) || 'en') as LocaleKey;
-};
