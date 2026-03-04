@@ -27,7 +27,6 @@ export const FilteredMapFetcher = ({
   isPaused = false,
   onClickMenuItem,
 }: FilteredMapFetcherProps) => {
-  // const currentTargetData = useAtomValue(serverMapCurrentTargetDataAtom);
   const [serverMapData, setServerMapData] = useAtom(serverMapDataAtom);
   const setCurrentServer = useSetAtom(currentServerAtom);
   const setScatterDataByApplicationKey = useSetAtom(scatterDataByApplicationKeyAtom);
@@ -41,63 +40,57 @@ export const FilteredMapFetcher = ({
     if (!isLoading && data) {
       setServerMapData((prev) => {
         if (prev) {
-          const timestampAray = prev.applicationMapData.timestamp;
-          const nodeDataArray = prev.applicationMapData.nodeDataArray as FilteredMap.NodeData[];
-          const linkDataArray = prev.applicationMapData.linkDataArray as FilteredMap.LinkData[];
+          const timestampArray = [...prev.applicationMapData.timestamp];
+          const nodeDataArray = [
+            ...prev.applicationMapData.nodeDataArray,
+          ] as FilteredMap.NodeData[];
+          const linkDataArray = [
+            ...prev.applicationMapData.linkDataArray,
+          ] as FilteredMap.LinkData[];
 
-          data?.applicationMapData?.timestamp.forEach((timestamp) => {
-            if (!timestampAray.includes(timestamp)) {
-              timestampAray.push(timestamp);
+          data?.applicationMapData?.timestamp?.forEach((timestamp) => {
+            if (!timestampArray.includes(timestamp)) {
+              timestampArray.push(timestamp);
             }
           });
 
-          data.applicationMapData.nodeDataArray.forEach((newNodeData) => {
-            const prevNode = nodeDataArray.find(
+          data?.applicationMapData?.nodeDataArray?.forEach((newNodeData) => {
+            const existingIndex = nodeDataArray.findIndex(
               (prevNodeData) => newNodeData.key === prevNodeData.key,
             );
 
-            if (prevNode) {
-              nodeDataArray.map((node) => {
-                if (node.key === newNodeData.key) {
-                  return mergeFilteredMapNodeData(
-                    {
-                      timestamp: prev?.applicationMapData.timestamp,
-                      data: node,
-                    },
-                    {
-                      timestamp: data?.applicationMapData.timestamp,
-                      data: newNodeData,
-                    },
-                  );
-                }
-                return node;
-              });
+            if (existingIndex !== -1) {
+              nodeDataArray[existingIndex] = mergeFilteredMapNodeData(
+                {
+                  timestamp: prev?.applicationMapData?.timestamp,
+                  data: nodeDataArray[existingIndex],
+                },
+                {
+                  timestamp: data?.applicationMapData?.timestamp,
+                  data: newNodeData,
+                },
+              );
             } else {
               nodeDataArray.push(newNodeData);
             }
           });
 
-          data.applicationMapData.linkDataArray.forEach((newLinkData) => {
-            const hasExistLink = linkDataArray.find(
+          data?.applicationMapData?.linkDataArray?.forEach((newLinkData) => {
+            const existingIndex = linkDataArray.findIndex(
               (prevLinkData) => prevLinkData.key === newLinkData.key,
             );
 
-            if (hasExistLink) {
-              linkDataArray.map((link) => {
-                if (link.key === newLinkData.key) {
-                  return mergeFilteredMapLinkData(
-                    {
-                      timestamp: prev?.applicationMapData.timestamp,
-                      data: link,
-                    },
-                    {
-                      timestamp: data?.applicationMapData.timestamp,
-                      data: newLinkData,
-                    },
-                  );
-                }
-                return link;
-              });
+            if (existingIndex !== -1) {
+              linkDataArray[existingIndex] = mergeFilteredMapLinkData(
+                {
+                  timestamp: prev?.applicationMapData?.timestamp,
+                  data: linkDataArray[existingIndex],
+                },
+                {
+                  timestamp: data?.applicationMapData?.timestamp,
+                  data: newLinkData,
+                },
+              );
             } else {
               linkDataArray.push(newLinkData);
             }
@@ -106,10 +99,10 @@ export const FilteredMapFetcher = ({
           return {
             ...data,
             applicationMapData: {
-              ...data.applicationMapData,
-              timestamp: timestampAray,
-              nodeDataArray: nodeDataArray,
-              linkDataArray: linkDataArray,
+              ...data?.applicationMapData,
+              timestamp: timestampArray,
+              nodeDataArray,
+              linkDataArray,
             },
           };
         }
