@@ -152,9 +152,12 @@ export const ServerMapChartsBoardFetcher = ({
     );
   }, [currentTargetData]);
 
-  const timestamp = React.useMemo(() => {
-    return data?.timestamp;
-  }, [data]);
+  const [timestamp, setTimestamp] = React.useState(data?.timestamp);
+  React.useEffect(() => {
+    if (!isLoading) {
+      setTimestamp(data?.timestamp);
+    }
+  }, [data, isLoading]);
 
   const histogramStatisticsData = React.useMemo(() => {
     if (!isLoading && data) {
@@ -287,7 +290,7 @@ export const ServerMapChartsBoardFetcher = ({
         onClose={() => setOpenServerView(false)}
       >
         <div style={{ width: SERVER_LIST_WIDTH }}>
-          <div className="flex gap-1 items-center h-12 font-semibold border-b-1 shrink-0">
+          <div className="flex items-center h-12 gap-1 font-semibold border-b-1 shrink-0">
             <img src={serverMapCurrentTarget?.imgPath} width={52} />
             <div className="truncate">{serverMapCurrentTarget?.applicationName}</div>
           </div>
@@ -296,7 +299,7 @@ export const ServerMapChartsBoardFetcher = ({
         <div style={{ width: currentPanelWidth }}>
           <ChartsBoard
             header={
-              <div className="flex gap-1 items-center h-12 font-semibold border-b-1 shrink-0">
+              <div className="flex items-center h-12 gap-1 font-semibold border-b-1 shrink-0">
                 <div className="flex items-center">
                   <RxChevronRight />
                 </div>
