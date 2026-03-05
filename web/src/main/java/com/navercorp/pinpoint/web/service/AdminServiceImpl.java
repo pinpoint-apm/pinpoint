@@ -42,6 +42,8 @@ public class AdminServiceImpl implements AdminService {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
+    private static final Integer SERVICE_TYPE_EMPTY = null;
+
     private final ActiveAgentValidator activeAgentValidator;
 
     private final ApplicationIndexService applicationIndexService;
@@ -80,33 +82,40 @@ public class AdminServiceImpl implements AdminService {
             throw new IllegalArgumentException("duration may not be less than " + MIN_DURATION_DAYS_FOR_INACTIVITY + " days");
         }
 
-        List<String> applicationNames = this.applicationIndexService.selectAllApplicationNames().stream()
-                .distinct()
-                .collect(Collectors.toList());
-        Collections.shuffle(applicationNames);
+        List<Application> applications = this.applicationIndexService.selectAllApplications();
+
 
         int index = 1;
-        for (String applicationName : applicationNames) {
-            logger.info("Cleaning {} ({}/{})", applicationName, index++, applicationNames.size());
-            removeInactiveAgentInApplication(applicationName, durationDays);
+        for (Application application : applications) {
+            logger.info("Cleaning {} ({}/{})", application, index++, applications.size());
+            removeInactiveAgentInApplication(application.getApplicationName(), application.getServiceTypeCode(), durationDays);
         }
     }
 
-    @Override
-    public int removeInactiveAgentInApplication(String applicationName, int durationDays) {
+    public int removeInactiveAgentInApplication(String applicationName, Integer serviceType, int durationDays) {
         try {
-            return removeInactiveAgentInApplication0(applicationName, durationDays);
+            return removeInactiveAgentInApplication0(applicationName, serviceType, durationDays);
         } catch (Exception e) {
             logger.error("Backoff to remove inactive agents in application {}", applicationName, e);
         }
         return 0;
     }
 
-    private int removeInactiveAgentInApplication0(String applicationName, int durationDays) {
+    @Override
+    public int removeInactiveAgentInApplication(String applicationName, int durationDays) {
+        try {
+            return removeInactiveAgentInApplication0(applicationName, SERVICE_TYPE_EMPTY, durationDays);
+        } catch (Exception e) {
+            logger.error("Backoff to remove inactive agents in application {}", applicationName, e);
+        }
+        return 0;
+    }
+
+    private int removeInactiveAgentInApplication0(String applicationName, Integer serviceTypeCode, int durationDays) {
         final List<String> agentsToDelete = new ArrayList<>(100);
         int deleteCount = 0;
 
-        final List<String> agentIds = this.applicationIndexService.selectAgentIds(applicationName);
+        final List<String> agentIds = selectAgentIds(applicationName, serviceTypeCode);
         for (String agentId : agentIds) {
             if (!isInactiveAgent(agentId, durationDays)) {
                 continue;
@@ -117,18 +126,34 @@ public class AdminServiceImpl implements AdminService {
 
             if (agentsToDelete.size() >= 100) {
                 logger.info("Delete {} of {}", agentsToDelete, applicationName);
-                applicationIndexService.deleteAgentIds(applicationName, agentsToDelete);
+                deleteAgentInfos(applicationName, serviceTypeCode, agentsToDelete);
                 agentsToDelete.clear();
             }
         }
 
         if (!agentsToDelete.isEmpty()) {
             logger.info("Delete {} of {}", agentsToDelete, applicationName);
-            applicationIndexService.deleteAgentIds(applicationName, agentsToDelete);
+            deleteAgentInfos(applicationName, serviceTypeCode, agentsToDelete);
         }
 
         logger.info("({}/{}) agents of {} had been cleaned up", deleteCount, agentIds.size(), applicationName);
         return deleteCount;
+    }
+
+    private List<String> selectAgentIds(String applicationName, Integer serviceTypeCode) {
+        if (serviceTypeCode == null) {
+            return this.applicationIndexService.selectAgentIds(applicationName);
+        } else {
+            return this.applicationIndexService.selectAgentIds(applicationName, serviceTypeCode);
+        }
+    }
+
+    private void deleteAgentInfos(String applicationName, Integer serviceTypeCode, List<String> agentsToDelete) {
+        if (serviceTypeCode == null) {
+            applicationIndexService.deleteAgentIds(applicationName, agentsToDelete);
+        } else {
+            applicationIndexService.deleteAgentIds(applicationName, serviceTypeCode, agentsToDelete);
+        }
     }
 
     @Override
