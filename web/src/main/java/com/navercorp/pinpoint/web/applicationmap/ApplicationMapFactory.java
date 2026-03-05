@@ -19,11 +19,9 @@ package com.navercorp.pinpoint.web.applicationmap;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
-import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Node map
@@ -31,14 +29,14 @@ import java.util.List;
  * @author netspider
  * @author emeroad
  */
-public class DefaultApplicationMap {
+public class ApplicationMapFactory {
 
-    private static Collection<Link> createNewLinkList(LinkList originalLinkList) {
-        Collection<Link> linkList = originalLinkList.getLinkList();
-        if (linkList.isEmpty()) {
-            return List.of();
+    public static LinkList filterEmptyLink(LinkList originalLinkList) {
+        if (originalLinkList.isEmpty()) {
+            return LinkList.of();
         }
 
+        Collection<Link> linkList = originalLinkList.getLinkList();
         LinkList.Builder builder = LinkList.newBuilder(linkList.size());
         for (Link link : linkList) {
             if (link == null) {
@@ -50,14 +48,12 @@ public class DefaultApplicationMap {
             builder.addLink(link);
         }
 
-        LinkList links = builder.build();
-        return links.getLinkList();
+        return builder.build();
     }
 
     public static ApplicationMap build(NodeList nodeList, LinkList linkList, Range range) {
-        Collection<Node> nodes = nodeList.getNodeList();
-        Collection<Link> links = createNewLinkList(linkList);
-        return new SimpleApplicationMap(nodes, links, range);
+        LinkList links = filterEmptyLink(linkList);
+        return new SimpleApplicationMap(nodeList, links, range);
     }
 
 }

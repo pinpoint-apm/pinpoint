@@ -130,7 +130,7 @@ public class MapServiceImpl implements MapService {
     private ApplicationMap buildForNoRequest(Application source, ApplicationMapBuilder builder) {
         // If no nodes are found, we still need to build the map with the source application.
         builder.includeServerInfo(newServerGroupListFactory(false));
-        return builder.build(source, buildTimeoutMillis);
+        return builder.buildForEmptyApplication(source, buildTimeoutMillis);
     }
 
     private ApplicationMapBuilder createApplicationMapBuilder(MapServiceOption option) {

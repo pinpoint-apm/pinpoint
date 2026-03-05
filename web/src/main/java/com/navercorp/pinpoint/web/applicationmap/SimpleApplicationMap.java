@@ -1,42 +1,42 @@
 package com.navercorp.pinpoint.web.applicationmap;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
-import com.navercorp.pinpoint.web.applicationmap.link.Link;
-import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import jakarta.annotation.Nullable;
 
-import java.util.Collection;
 import java.util.Objects;
 
 public class SimpleApplicationMap implements ApplicationMap {
-    private final Collection<Node> nodes;
-    private final Collection<Link> links;
+    private final NodeList nodes;
+    private final LinkList links;
 
     @Nullable
     private final Range range;
 
-    public SimpleApplicationMap(Collection<Node> nodes, Collection<Link> links) {
+    public SimpleApplicationMap(NodeList nodes, LinkList links) {
         this.nodes = Objects.requireNonNull(nodes, "nodes");
         this.links = Objects.requireNonNull(links, "links");
         this.range = null;
     }
 
-    public SimpleApplicationMap(Collection<Node> nodes, Collection<Link> links, Range range) {
+    public SimpleApplicationMap(NodeList nodes, LinkList links, Range range) {
         this.nodes = Objects.requireNonNull(nodes, "nodes");
         this.links = Objects.requireNonNull(links, "links");
         this.range = Objects.requireNonNull(range, "range");
     }
 
     @Override
-    public Collection<Node> getNodes() {
+    public NodeList getNodes() {
         return nodes;
     }
 
     @Override
-    public Collection<Link> getLinks() {
+    public LinkList getLinks() {
         return links;
     }
 
+    @Nullable
     @Override
     public Range getRange() {
         return range;

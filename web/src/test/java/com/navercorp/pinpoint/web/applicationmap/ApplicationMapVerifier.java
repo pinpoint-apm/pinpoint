@@ -20,14 +20,15 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkKey;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroup;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstance;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.junit.jupiter.api.Assertions;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -49,27 +50,17 @@ public class ApplicationMapVerifier {
         verifyLinks(otherApplicationMap.getLinks());
     }
 
-    private void verifyNodes(Collection<Node> otherNodes) {
-        Collection<Node> thisNodes = applicationMap.getNodes();
+    private void verifyNodes(NodeList otherNodes) {
+        NodeList thisNodes = applicationMap.getNodes();
         verifySize(thisNodes, otherNodes);
-        for (Node otherNode : otherNodes) {
+        for (Node otherNode : otherNodes.getNodeList()) {
             Application nodeNameToFind = otherNode.getApplication();
-            Node thisNode = findNode(thisNodes, nodeNameToFind);
+            Node thisNode = thisNodes.findNode(nodeNameToFind);
             if (thisNode == null) {
                 Assertions.fail(otherNode + " not in " + thisNodes);
             }
             verifyNode(thisNode, otherNode);
         }
-    }
-
-    private Node findNode(Collection<Node> nodes, Application nodeNameToFind) {
-        for (Node node : nodes) {
-            Application nodeName = node.getApplication();
-            if (nodeName.equals(nodeNameToFind)) {
-                return node;
-            }
-        }
-        return null;
     }
 
     private void verifyNode(Node node1, Node node2) {
@@ -147,27 +138,17 @@ public class ApplicationMapVerifier {
         Assertions.assertEquals(histogram1.getVerySlowErrorCount(), histogram2.getVerySlowErrorCount());
     }
 
-    private void verifyLinks(Collection<Link> otherLinks) {
-        Collection<Link> thisLinks = applicationMap.getLinks();
+    private void verifyLinks(LinkList otherLinks) {
+        LinkList thisLinks = applicationMap.getLinks();
         verifySize(thisLinks, otherLinks);
-        for (Link otherLink : otherLinks) {
+        for (Link otherLink : otherLinks.getLinkList()) {
             LinkKey linkKeyToFind = otherLink.getLinkKey();
-            Link thisLink = findLink(thisLinks, linkKeyToFind);
+            Link thisLink = thisLinks.getLink(linkKeyToFind);
             if (thisLink == null) {
                 Assertions.fail(otherLink + " not in " + thisLinks);
             }
             verifyLink(thisLink, otherLink);
         }
-    }
-
-    private Link findLink(Collection<Link> links, LinkKey linkKeyToFind) {
-        for (Link link : links) {
-            LinkKey linkKey = link.getLinkKey();
-            if (linkKey.equals(linkKeyToFind)) {
-                return link;
-            }
-        }
-        return null;
     }
 
     private void verifyLink(Link thisLink, Link otherLink) {
@@ -179,8 +160,12 @@ public class ApplicationMapVerifier {
         verifyHistogram(thisLinkHistogram, otherLinkHistogram);
     }
 
-    private <T> void verifySize(Collection<T> collection1, Collection<T> collection2) {
-        assertThat(collection1).hasSameSizeAs(collection2);
+    private <T> void verifySize(LinkList collection1, LinkList collection2) {
+        Assertions.assertEquals(collection1.size(), collection2.size());
+    }
+
+    private <T> void verifySize(NodeList collection1, NodeList collection2) {
+        Assertions.assertEquals(collection1.size(), collection2.size());
     }
 
     private <T> void verifyNullable(T nullable1, T nullable2) {

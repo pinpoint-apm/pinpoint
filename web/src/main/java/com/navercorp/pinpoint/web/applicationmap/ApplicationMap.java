@@ -16,19 +16,19 @@
 package com.navercorp.pinpoint.web.applicationmap;
 
 import com.navercorp.pinpoint.common.timeseries.time.Range;
-import com.navercorp.pinpoint.web.applicationmap.link.Link;
-import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
-
-import java.util.Collection;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
+import org.jspecify.annotations.Nullable;
 
 /**
  * @author Taejin Koo
  */
 public interface ApplicationMap {
 
-    Collection<Node> getNodes();
+    NodeList getNodes();
 
-    Collection<Link> getLinks();
+    LinkList getLinks();
 
+    @Nullable
     Range getRange();
 }
