@@ -79,7 +79,7 @@ public class ApplicationMapBuilder {
         return this;
     }
 
-    public ApplicationMap build(Application application, long timeoutMillis) {
+    public ApplicationMap buildForEmptyApplication(Application application, long timeoutMillis) {
         logger.info("Building empty application map");
 
         NodeList nodeList = getNodeList(application);
@@ -92,7 +92,7 @@ public class ApplicationMapBuilder {
         LinkList emptyLinkList = LinkList.of();
         nodeHistogramAppender.appendNodeHistogram(timeWindow, nodeList, emptyLinkList, timeoutMillis);
 
-        return DefaultApplicationMap.build(nodeList, emptyLinkList, timeWindow.getWindowRange());
+        return ApplicationMapFactory.build(nodeList, emptyLinkList, timeWindow.getWindowRange());
     }
 
     private NodeList getNodeList(Application application) {
@@ -133,7 +133,8 @@ public class ApplicationMapBuilder {
         ServerInfoAppender serverInfoAppender = serverInfoAppenderFactory.create(serverGroupListFactory);
         serverInfoAppender.appendServerInfo(range, nodeList, linkDataDuplexMap, timeoutWatcher.remainingTimeMillis());
 
-        return DefaultApplicationMap.build(nodeList, linkList, range);
+        linkList = ApplicationMapFactory.filterEmptyLink(linkList);
+        return new SimpleApplicationMap(nodeList, linkList, range);
     }
 
 }

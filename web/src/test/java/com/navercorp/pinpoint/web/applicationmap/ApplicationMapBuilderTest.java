@@ -164,15 +164,15 @@ public class ApplicationMapBuilderTest {
         ApplicationMapBuilder applicationMapBuilder_parallelAppenders = ApplicationMapBuilderTestHelper.createApplicationMapBuilder(timeWindow, parallelExecutor);
         ApplicationMap applicationMap = applicationMapBuilder
                 .includeServerInfo(serverGroupListFactory)
-                .build(application, buildTimeoutMillis);
+                .buildForEmptyApplication(application, buildTimeoutMillis);
         ApplicationMap applicationMap_parallelAppenders = applicationMapBuilder_parallelAppenders
                 .includeServerInfo(serverGroupListFactory)
-                .build(application, buildTimeoutMillis);
+                .buildForEmptyApplication(application, buildTimeoutMillis);
 
-        assertThat(applicationMap.getNodes()).hasSize(1);
-        assertThat(applicationMap_parallelAppenders.getNodes()).hasSize(1);
-        assertThat(applicationMap.getLinks()).isEmpty();
-        assertThat(applicationMap_parallelAppenders.getLinks()).isEmpty();
+        assertThat(applicationMap.getNodes().getNodeList()).hasSize(1);
+        assertThat(applicationMap_parallelAppenders.getNodes().getNodeList()).hasSize(1);
+        assertThat(applicationMap.getLinks().getLinkList()).isEmpty();
+        assertThat(applicationMap_parallelAppenders.getLinks().getLinkList()).isEmpty();
 
         ApplicationMapVerifier verifier = new ApplicationMapVerifier(applicationMap);
         verifier.verify(applicationMap);
@@ -200,11 +200,11 @@ public class ApplicationMapBuilderTest {
                 .includeServerInfo(serverGroupListFactory)
                 .build(linkDataDuplexMap, buildTimeoutMillis);
 
-        assertThat(applicationMap.getNodes()).isEmpty();
-        assertThat(applicationMap_parallelAppenders.getNodes()).isEmpty();
+        assertThat(applicationMap.getNodes().getNodeList()).isEmpty();
+        assertThat(applicationMap_parallelAppenders.getNodes().getNodeList()).isEmpty();
 
-        assertThat(applicationMap.getLinks()).isEmpty();
-        assertThat(applicationMap_parallelAppenders.getLinks()).isEmpty();
+        assertThat(applicationMap.getLinks().getLinkList()).isEmpty();
+        assertThat(applicationMap_parallelAppenders.getLinks().getLinkList()).isEmpty();
 
         ApplicationMapVerifier verifier = new ApplicationMapVerifier(applicationMap);
         verifier.verify(applicationMap);
@@ -232,11 +232,11 @@ public class ApplicationMapBuilderTest {
                 .includeServerInfo(serverGroupListFactory)
                 .build(linkDataDuplexMap, buildTimeoutMillis);
 
-        assertThat(applicationMap.getNodes()).isEmpty();
-        assertThat(applicationMap_parallelAppenders.getNodes()).isEmpty();
+        assertThat(applicationMap.getNodes().getNodeList()).isEmpty();
+        assertThat(applicationMap_parallelAppenders.getNodes().getNodeList()).isEmpty();
 
-        assertThat(applicationMap.getLinks()).isEmpty();
-        assertThat(applicationMap_parallelAppenders.getLinks()).isEmpty();
+        assertThat(applicationMap.getLinks().getLinkList()).isEmpty();
+        assertThat(applicationMap_parallelAppenders.getLinks().getLinkList()).isEmpty();
 
         ApplicationMapVerifier verifier = new ApplicationMapVerifier(applicationMap);
         verifier.verify(applicationMap);
@@ -381,10 +381,10 @@ public class ApplicationMapBuilderTest {
                 .includeServerInfo(serverGroupListFactory)
                 .build(linkDataDuplexMap, buildTimeoutMillis);
 
-        assertThat(applicationMap_MapResponseDao.getNodes()).hasSize(expectedNumNodes);
-        assertThat(applicationMap_MapResponseDao_parallelAppenders.getNodes()).hasSize(expectedNumNodes);
-        assertThat(applicationMap_MapResponseDao.getLinks()).hasSize(expectedNumLinks);
-        assertThat(applicationMap_MapResponseDao_parallelAppenders.getLinks()).hasSize(expectedNumLinks);
+        assertThat(applicationMap_MapResponseDao.getNodes().getNodeList()).hasSize(expectedNumNodes);
+        assertThat(applicationMap_MapResponseDao_parallelAppenders.getNodes().getNodeList()).hasSize(expectedNumNodes);
+        assertThat(applicationMap_MapResponseDao.getLinks().getLinkList()).hasSize(expectedNumLinks);
+        assertThat(applicationMap_MapResponseDao_parallelAppenders.getLinks().getLinkList()).hasSize(expectedNumLinks);
 
         ApplicationMapVerifier verifier_MapResponseDao = new ApplicationMapVerifier(applicationMap_MapResponseDao);
         verifier_MapResponseDao.verify(applicationMap_MapResponseDao);
@@ -400,10 +400,10 @@ public class ApplicationMapBuilderTest {
                 .includeServerInfo(serverGroupListFactory)
                 .build(linkDataDuplexMap, buildTimeoutMillis);
 
-        assertThat(applicationMap_ResponseHistogramBuilder.getNodes()).hasSize(expectedNumNodes);
-        assertThat(applicationMap_ResponseHistogramBuilder_parallelAppenders.getNodes()).hasSize(expectedNumNodes);
-        assertThat(applicationMap_ResponseHistogramBuilder.getLinks()).hasSize(expectedNumLinks);
-        assertThat(applicationMap_ResponseHistogramBuilder_parallelAppenders.getLinks()).hasSize(expectedNumLinks);
+        assertThat(applicationMap_ResponseHistogramBuilder.getNodes().getNodeList()).hasSize(expectedNumNodes);
+        assertThat(applicationMap_ResponseHistogramBuilder_parallelAppenders.getNodes().getNodeList()).hasSize(expectedNumNodes);
+        assertThat(applicationMap_ResponseHistogramBuilder.getLinks().getLinkList()).hasSize(expectedNumLinks);
+        assertThat(applicationMap_ResponseHistogramBuilder_parallelAppenders.getLinks().getLinkList()).hasSize(expectedNumLinks);
 
         ApplicationMapVerifier verifier_ResponseHistogramBuilder = new ApplicationMapVerifier(applicationMap_ResponseHistogramBuilder);
         verifier_ResponseHistogramBuilder.verify(applicationMap_ResponseHistogramBuilder);
@@ -434,10 +434,10 @@ public class ApplicationMapBuilderTest {
                 .includeServerInfo(serverGroupListFactory)
                 .build(linkDataDuplexMap, buildTimeoutMillis);
 
-        assertThat(applicationMap_MapResponseDao.getNodes()).hasSize(expectedNumNodes);
-        assertThat(applicationMap_MapResponseDao_parallelAppenders.getNodes()).hasSize(expectedNumNodes);
-        assertThat(applicationMap_MapResponseDao.getLinks()).hasSize(expectedNumLinks);
-        assertThat(applicationMap_MapResponseDao_parallelAppenders.getLinks()).hasSize(expectedNumLinks);
+        assertThat(applicationMap_MapResponseDao.getNodes().getNodeList()).hasSize(expectedNumNodes);
+        assertThat(applicationMap_MapResponseDao_parallelAppenders.getNodes().getNodeList()).hasSize(expectedNumNodes);
+        assertThat(applicationMap_MapResponseDao.getLinks().getLinkList()).hasSize(expectedNumLinks);
+        assertThat(applicationMap_MapResponseDao_parallelAppenders.getLinks().getLinkList()).hasSize(expectedNumLinks);
 
         ApplicationMapVerifier verifier_MapResponseDao = new ApplicationMapVerifier(applicationMap_MapResponseDao);
         verifier_MapResponseDao.verify(applicationMap_MapResponseDao);

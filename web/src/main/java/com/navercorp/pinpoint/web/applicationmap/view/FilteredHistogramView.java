@@ -34,7 +34,7 @@ public class FilteredHistogramView {
     }
 
     public Iterator<ServerHistogramView> getNodeServerHistogramData() {
-        Collection<Node> nodes = applicationMap.getNodes();
+        Collection<Node> nodes = applicationMap.getNodes().getNodeList();
         return Iterators.transform(nodes.iterator(), this::newServerHistogramView);
     }
 
@@ -46,7 +46,7 @@ public class FilteredHistogramView {
     }
 
     public Iterator<HistogramView> getNodeHistogramData() {
-        Collection<Node> nodes = applicationMap.getNodes();
+        Collection<Node> nodes = applicationMap.getNodes().getNodeList();
         return Iterators.transform(nodes.iterator(), this::getNodeHistogramView);
     }
 
@@ -59,7 +59,7 @@ public class FilteredHistogramView {
     }
 
     public Iterator<HistogramView> getLinkHistogramData() {
-        Collection<Link> links = applicationMap.getLinks();
+        Collection<Link> links = applicationMap.getLinks().getLinkList();
         return Iterators.transform(links.iterator(), this::getLinkHistogramView);
     }
 

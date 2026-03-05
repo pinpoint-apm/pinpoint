@@ -53,6 +53,10 @@ public class LinkList {
         return this.linkMap.values();
     }
 
+    public boolean isEmpty() {
+        return this.linkMap.isEmpty();
+    }
+
     /**
      * find all in links of toApplication
      * @param toApplication

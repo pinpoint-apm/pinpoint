@@ -178,7 +178,7 @@ public class FilteredMapServiceImplTest {
         ApplicationMap applicationMap = filterMapWithScatter.getApplicationMap();
 
         // Then
-        Collection<Node> nodes = applicationMap.getNodes();
+        Collection<Node> nodes = applicationMap.getNodes().getNodeList();
         assertThat(nodes).hasSize(4);
         for (Node node : nodes) {
             Application application = node.getApplication();
@@ -260,7 +260,7 @@ public class FilteredMapServiceImplTest {
             }
         }
 
-        Collection<Link> links = applicationMap.getLinks();
+        Collection<Link> links = applicationMap.getLinks().getLinkList();
         assertThat(links).hasSize(3);
         for (Link link : links) {
             Application fromApplication = link.getFrom().getApplication();

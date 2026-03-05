@@ -53,14 +53,14 @@ public class ApplicationMapView implements MapView {
 
     @JsonProperty("nodeDataArray")
     public Iterator<NodeView> getNodes() {
-        Collection<Node> nodes = applicationMap.getNodes();
+        Collection<Node> nodes = applicationMap.getNodes().getNodeList();
 
         return Iterators.transform(nodes.iterator(), nodeRender::render);
     }
 
     @JsonProperty("linkDataArray")
     public Iterator<LinkView> getLinks() {
-        Collection<Link> links = applicationMap.getLinks();
+        Collection<Link> links = applicationMap.getLinks().getLinkList();
 
         return Iterators.transform(links.iterator(), linkRender::render);
     }
