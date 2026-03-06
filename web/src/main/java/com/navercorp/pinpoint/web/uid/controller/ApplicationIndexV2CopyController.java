@@ -29,7 +29,7 @@ public class ApplicationIndexV2CopyController {
     }
 
     @PostMapping(value = "/agents")
-    public ResponseEntity<String> copyAgentInfos(
+    public ResponseEntity<String> copyAgentInfoAndStatus(
             @RequestParam(value = "durationDays", required = false, defaultValue = "0") int durationDays,
             @RequestParam(value = "maxIterations", required = false, defaultValue = "200000") int maxIterations,
             @RequestParam(value = "batchSize", required = false, defaultValue = "1000") int batchSize

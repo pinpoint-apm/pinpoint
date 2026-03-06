@@ -16,8 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.agent;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.navercorp.pinpoint.common.util.StringUtils;
+import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Service;
 import org.jspecify.annotations.Nullable;
@@ -29,20 +28,21 @@ public class AgentIdEntry {
     private final Application application;
     private final String agentId;
     private final long agentStartTime;
-
     private final String agentName;
-    private final long lastUpdated;
 
-    public AgentIdEntry(Application application, String agentId, long agentStartTime,
-                        long lastUpdated, @Nullable String agentName) {
+    private final AgentLifeCycleState currentState;
+    private final long currentStateTimestamp;
+
+    public AgentIdEntry(Application application, String agentId, long agentStartTime, @Nullable String agentName,
+                        AgentLifeCycleState currentState, long currentStateTimestamp) {
         this.application = Objects.requireNonNull(application, "application");
         this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.agentStartTime = agentStartTime;
-        this.lastUpdated = lastUpdated;
-        this.agentName = StringUtils.hasText(agentName) ? agentName : agentId;
+        this.agentName = Objects.requireNonNullElse(agentName, "");
+        this.currentState = Objects.requireNonNull(currentState, "currentState");
+        this.currentStateTimestamp = currentStateTimestamp;
     }
 
-    @JsonIgnore
     public Application getApplication() {
         return application;
     }
@@ -75,8 +75,11 @@ public class AgentIdEntry {
         return agentName;
     }
 
-    @JsonIgnore
-    public long getLastUpdated() {
-        return lastUpdated;
+    public AgentLifeCycleState getCurrentState() {
+        return currentState;
+    }
+
+    public long getCurrentStateTimestamp() {
+        return currentStateTimestamp;
     }
 }
