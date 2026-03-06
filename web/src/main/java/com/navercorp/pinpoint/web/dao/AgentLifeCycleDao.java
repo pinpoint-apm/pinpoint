@@ -34,5 +34,5 @@ public interface AgentLifeCycleDao {
 
     List<Optional<AgentStatus>> getAgentStatus(AgentStatusQuery agentStatusQuery);
 
-    List<Optional<AgentStatus>> getLatestAgentStatus(List<SimpleAgentKey> agentKeyList);
+    List<Optional<AgentStatus>> getCurrentAgentStatus(List<SimpleAgentKey> agentKeyList);
 }

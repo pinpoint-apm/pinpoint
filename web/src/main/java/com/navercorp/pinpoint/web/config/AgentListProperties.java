@@ -22,38 +22,17 @@ import java.util.Set;
 
 public class AgentListProperties {
 
-    @Value("${pinpoint.web.agents.filter.statisticsExistence.serviceTypes:1220,1400,1700}") // otlp(1220), node(1400), python(1700)
+    @Value("${pinpoint.web.agents.filter.statisticsExistence.serviceTypes:1400,1700}") // node(1400), python(1700)
     private Set<Integer> filterStatisticsExistenceServiceTypeCodes;
-
-    @Value("${pinpoint.web.agents.filter.updateTime.exclude.serviceTypes:1220,1400,1700,1800,1550}") //otlp(1220), node(1400), python(1700), go(1800), envoy(1550)
-    private Set<Integer> filterUpdateTimeExcludeServiceTypeCodes;
-
-    @Value("${pinpoint.web.agents.filter.updateTime.thresholdMillis:86400000}") // default 1 day
-    private long filterUpdateTimeThresholdMillis;
 
     @Value("${pinpoint.web.agents.filter.lastStatus.exclude.serviceTypes:1220,1400,1700}") // otlp(1220), node(1400), python(1700)
     private Set<Integer> filterLastStatusExcludeServiceTypeCodes;
-
-    @Value("${pinpoint.web.agents.filter.lastStatus.thresholdMillis:0}") // default 0
-    private long filterLastStatusThresholdMillis;
 
     public Set<Integer> getFilterStatisticsExistenceServiceTypeCodes() {
         return filterStatisticsExistenceServiceTypeCodes;
     }
 
-    public Set<Integer> getFilterUpdateTimeExcludeServiceTypeCodes() {
-        return filterUpdateTimeExcludeServiceTypeCodes;
-    }
-
-    public long getFilterUpdateTimeThresholdMillis() {
-        return filterUpdateTimeThresholdMillis;
-    }
-
     public Set<Integer> getFilterLastStatusExcludeServiceTypeCodes() {
         return filterLastStatusExcludeServiceTypeCodes;
-    }
-
-    public long getFilterLastStatusThresholdMillis() {
-        return filterLastStatusThresholdMillis;
     }
 }

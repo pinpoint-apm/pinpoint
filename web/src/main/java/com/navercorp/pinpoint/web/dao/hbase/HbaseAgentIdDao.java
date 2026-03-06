@@ -1,25 +1,32 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.util.AgentIdRowKeyUtils;
+import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.dao.AgentIdDao;
-import com.navercorp.pinpoint.web.mapper.AgentStartTimeInfoMapper;
+import com.navercorp.pinpoint.web.mapper.AgentIdEntryMapper;
 import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.agent.AgentIdEntry;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
+import org.apache.hadoop.hbase.CompareOperator;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
+import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Repository;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -61,7 +68,7 @@ public class HbaseAgentIdDao implements AgentIdDao {
     private List<AgentIdEntry> getAgentIdEntry(byte[] rowKeyPrefix, String applicationName) {
         Scan scan = createScan(rowKeyPrefix);
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        RowMapper<List<AgentIdEntry>> agentStartTimeInfoMapper = new AgentStartTimeInfoMapper(applicationFactory, AgentIdRowKeyUtils.createApplicationNamePredicate(applicationName));
+        RowMapper<List<AgentIdEntry>> agentStartTimeInfoMapper = new AgentIdEntryMapper(applicationFactory, AgentIdRowKeyUtils.createApplicationNamePredicate(applicationName));
         List<List<AgentIdEntry>> results = hbaseTemplate.find(applicationIndexTableName, scan, agentStartTimeInfoMapper);
         return ListListUtils.toList(results);
     }
@@ -69,24 +76,23 @@ public class HbaseAgentIdDao implements AgentIdDao {
     private Scan createScan(byte[] rowKeyPrefix) {
         Scan scan = new Scan();
         scan.setStartStopRowForPrefixScan(rowKeyPrefix);
-        scan.addFamily(DESCRIPTOR.getName());
+        scan.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName());
+        scan.addColumn(DESCRIPTOR.getName(), HbaseTables.AGENT_ID_STATE_QUALIFIER);
         scan.setCaching(100);
         return scan;
     }
 
     @Override
-    public List<AgentIdEntry> getAgentIdEntryByInsertTimeAfter(int serviceUid, String applicationName, int serviceTypeCode, long minUpdateTime) {
+    public List<AgentIdEntry> getAgentIdEntryByMinStatusTimestamp(int serviceUid, String applicationName, int serviceTypeCode, long minStatusTimestamp) {
         byte[] rowKeyPrefix = AgentIdRowKeyUtils.createPrefix(serviceUid, applicationName, serviceTypeCode);
         Scan scan = createScan(rowKeyPrefix);
-        // TODO: create update time column and use it instead of insert time
-        try {
-            scan.setTimeRange(minUpdateTime, Long.MAX_VALUE);
-        } catch (IOException exception) {
-            throw new IllegalArgumentException(exception);
-        }
+
+        SingleColumnValueFilter filter = new SingleColumnValueFilter(DESCRIPTOR.getName(), HbaseTables.AGENT_ID_STATE_QUALIFIER, CompareOperator.GREATER_OR_EQUAL, new BinaryPrefixComparator(Bytes.toBytes(minStatusTimestamp)));
+        filter.setFilterIfMissing(false);
+        scan.setFilter(filter);
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        RowMapper<List<AgentIdEntry>> agentStartTimeInfoMapper = new AgentStartTimeInfoMapper(applicationFactory, AgentIdRowKeyUtils.createApplicationNamePredicate(applicationName));
+        RowMapper<List<AgentIdEntry>> agentStartTimeInfoMapper = new AgentIdEntryMapper(applicationFactory, AgentIdRowKeyUtils.createApplicationNamePredicate(applicationName));
         List<List<AgentIdEntry>> results = hbaseTemplate.find(applicationIndexTableName, scan, agentStartTimeInfoMapper);
         return ListListUtils.toList(results);
     }
@@ -111,15 +117,17 @@ public class HbaseAgentIdDao implements AgentIdDao {
     }
 
     @Override
-    public void insert(int serviceUid, String applicationName, int serviceTypeCode, String agentId, long agentStartTime, String agentName, long timestamp) {
+    public void insert(int serviceUid, String applicationName, int serviceTypeCode, String agentId, long agentStartTime,
+                       String agentName, @Nullable AgentStatus agentStatus) {
         byte[] row = AgentIdRowKeyUtils.createRow(serviceUid, applicationName, serviceTypeCode, agentId, agentStartTime);
         byte[] value = createValueBytes(agentName);
         final Put put = new Put(row, true);
-        if (timestamp > 0) {
-            put.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName(), timestamp, value);
-        } else {
-            put.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName(), value);
+
+        put.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.getName(), value);
+        if (agentStatus != null && agentStatus.getEventTimestamp() > 0) {
+            put.addColumn(DESCRIPTOR.getName(), HbaseTables.AGENT_ID_STATE_QUALIFIER, createStatusValueBytes(agentStatus.getEventTimestamp(), agentStatus.getState()));
         }
+
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         hbaseTemplate.put(applicationIndexTableName, put);
     }
@@ -131,6 +139,13 @@ public class HbaseAgentIdDao implements AgentIdDao {
         AutomaticBuffer buffer = new AutomaticBuffer(32);
         buffer.putByte(VERSION_0);
         buffer.putPrefixedString(agentName);
+        return buffer.getBuffer();
+    }
+
+    private byte[] createStatusValueBytes(long eventTimestamp, AgentLifeCycleState state) {
+        FixedBuffer buffer = new FixedBuffer(Long.BYTES + Short.BYTES);
+        buffer.putLong(eventTimestamp);
+        buffer.putShort(state.getCode());
         return buffer.getBuffer();
     }
 }

@@ -26,16 +26,18 @@ import com.navercorp.pinpoint.web.agentlist.service.AgentsService;
 import com.navercorp.pinpoint.web.service.AgentListV2Service;
 import com.navercorp.pinpoint.web.service.ApplicationAgentListQueryRule;
 import com.navercorp.pinpoint.web.uid.service.ServiceUidService;
+import com.navercorp.pinpoint.web.view.tree.AgentIdView;
 import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.agent.AgentIdEntry;
-import com.navercorp.pinpoint.web.vo.agent.AgentIdEntryAndStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfoFilters;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
 import com.navercorp.pinpoint.web.vo.agent.AgentStatusAndLink;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -58,20 +60,32 @@ public class AgentV2Controller {
 
     private final AgentListV2Service agentListV2Service;
     private final AgentsService agentsService;
+    private final boolean agentReadV2;
 
     public AgentV2Controller(@Autowired(required = false) ServiceUidService serviceUidService,
                              ServiceTypeRegistryService serviceTypeRegistryService,
                              AgentListV2Service agentListV2Service,
-                             AgentsService agentsService) {
+                             AgentsService agentsService,
+                             @Value("${pinpoint.web.agent.read.v2:false}") boolean readAgentV2) {
         this.serviceUidService = serviceUidService;
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
         this.agentListV2Service = Objects.requireNonNull(agentListV2Service, "agentListV2Service");
         this.agentsService = Objects.requireNonNull(agentsService, "agentsService");
+        this.agentReadV2 = readAgentV2;
+    }
+
+    @GetMapping("/agents")
+    public void forwardAgentsRequest(ServletRequest req, HttpServletResponse res) throws Exception {
+        if (agentReadV2) {
+            req.getRequestDispatcher("/api/v2/agents").forward(req, res);
+            return;
+        }
+        req.getRequestDispatcher("/api/v1/agents").forward(req, res);
     }
 
     @PreAuthorize("hasPermission(#application, 'application', 'inspector')")
-    @GetMapping(value = {"/agents", "/v2/agents"}, params = {"application", "from", "to"})
-    public List<AgentIdEntryAndStatus> getAgentsV2OldParam(
+    @GetMapping(value = "/v2/agents", params = {"application", "from", "to"})
+    public List<AgentIdView> getAgentsV2OldParam(
             @RequestParam("application") @NotBlank String application,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
@@ -81,8 +95,8 @@ public class AgentV2Controller {
     }
 
     @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
-    @GetMapping(value = {"/agents", "/v2/agents"}, params = {"applicationName", "from", "to"})
-    public List<AgentIdEntryAndStatus> getAgentsV2(
+    @GetMapping(value = "/v2/agents", params = {"applicationName", "from", "to"})
+    public List<AgentIdView> getAgentsV2(
             @RequestParam(value = "serviceName", required = false) String serviceName,
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
@@ -96,12 +110,14 @@ public class AgentV2Controller {
         if (serviceType.equals(ServiceType.UNDEFINED)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid serviceType. ServiceType is required for v2 table");
         }
-        return agentListV2Service.getAgentList(serviceUid, applicationName, serviceType, range);
+        return agentListV2Service.getAgentList(serviceUid, applicationName, serviceType, range).stream()
+                .map(entry -> AgentIdView.of(entry, range.getTo()))
+                .toList();
     }
 
     @PreAuthorize("hasPermission(#application, 'application', 'inspector')")
     @GetMapping(value = "/v1/agents", params = {"application", "from", "to"})
-    public List<AgentIdEntryAndStatus> getAgentsV1OldParam(
+    public List<AgentIdView> getAgentsV1OldParam(
             @RequestParam("application") @NotBlank String application,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
             @RequestParam(value = "serviceTypeName", required = false) String serviceTypeName,
@@ -112,7 +128,7 @@ public class AgentV2Controller {
 
     @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
     @GetMapping(value = "/v1/agents", params = {"applicationName", "from", "to"})
-    public List<AgentIdEntryAndStatus> getAgentsV1(
+    public List<AgentIdView> getAgentsV1(
             @RequestParam(value = "serviceName", required = false) String serviceName,
             @RequestParam("applicationName") @NotBlank String applicationName,
             @RequestParam(value = "serviceTypeCode", required = false) Short serviceTypeCode,
@@ -129,20 +145,19 @@ public class AgentV2Controller {
         // Note: AgentsService internally uses v2 agentIds when 'pinpoint.web.agent.read.v2' is true
         return agentsService.getAgentsByApplicationName(new Application(applicationName, serviceType), new TimeWindow(range),
                         ApplicationAgentListQueryRule.ACTIVE_STATUS, AgentInfoFilters.acceptAll()).stream()
-                .map(this::v1ToV2Format)
+                .map(agentStatusAndLink -> v1ToV2Format(agentStatusAndLink, range))
                 .toList();
     }
 
-    private AgentIdEntryAndStatus v1ToV2Format(AgentStatusAndLink agentStatusAndLink) {
+    private AgentIdView v1ToV2Format(AgentStatusAndLink agentStatusAndLink, Range range) {
         AgentInfo agentInfo = agentStatusAndLink.getAgentInfo();
+        AgentStatus status = agentStatusAndLink.getStatus();
         Application application = new Application(agentInfo.getApplicationName(), agentInfo.getServiceType());
-        AgentIdEntry agentIdEntry = new AgentIdEntry(application, agentInfo.getAgentId(), agentInfo.getStartTimestamp(),
-                0, agentInfo.getAgentName());
-        if (agentStatusAndLink.getStatus() == null) {
-            return new AgentIdEntryAndStatus(agentIdEntry, new AgentStatus(agentInfo.getAgentId(), AgentLifeCycleState.UNKNOWN, 0));
-        } else {
-            return new AgentIdEntryAndStatus(agentIdEntry, agentStatusAndLink.getStatus());
-        }
+        return AgentIdView.of(application, agentInfo.getAgentId(), agentInfo.getStartTimestamp(), agentInfo.getAgentName(),
+                status != null ? status.getState() : AgentLifeCycleState.UNKNOWN,
+                status != null ? status.getEventTimestamp() : 0,
+                range.getTo()
+        );
     }
 
     private ServiceUid handleServiceUid(String serviceName) {

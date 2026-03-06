@@ -125,7 +125,7 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
             List<AgentIdEntry> agentIdEntryList = this.agentIdDao.getAgentIdEntry(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode);
             // dedupe first so that we can check agentId with the latest startTime
             return dedupeConsecutiveAgentId(agentIdEntryList).stream()
-                    .filter(entry -> entry.getLastUpdated() <= maxTimestamp)
+                    .filter(entry -> entry.getCurrentStateTimestamp() <= maxTimestamp)
                     .map(AgentIdEntry::getAgentId)
                     .distinct()
                     .toList();

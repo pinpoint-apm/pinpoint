@@ -30,8 +30,6 @@ import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.timeseries.util.LongInverter;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentInfoQuery;
-import com.navercorp.pinpoint.web.mapper.Timestamped;
-import com.navercorp.pinpoint.web.mapper.TimestampedMapper;
 import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.agent.AgentInfo;
 import com.navercorp.pinpoint.web.vo.agent.DetailedAgentInfo;
@@ -67,7 +65,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
     private final ResultsExtractor<AgentInfo> agentInfoResultsExtractor;
     private final ResultsExtractor<DetailedAgentInfo> detailedAgentInfoResultsExtractor;
-    private final RowMapper<Timestamped<AgentInfoBo>> timestampedRowMapper;
+    private final RowMapper<AgentInfoBo> agentInfoBoMapper;
 
     private final AgentIdRowKeyEncoder rowKeyEncoder;
 
@@ -77,13 +75,13 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
                              TableNameProvider tableNameProvider,
                              ResultsExtractor<AgentInfo> agentInfoResultsExtractor,
                              ResultsExtractor<DetailedAgentInfo> detailedAgentInfoResultsExtractor,
-                             RowMapper<AgentInfoBo> agentInfoMapper) {
+                             RowMapper<AgentInfoBo> agentInfoBoMapper) {
         this.hbaseOperations = Objects.requireNonNull(hbaseOperations, "hbaseOperations");
         this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
         this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
         this.agentInfoResultsExtractor = Objects.requireNonNull(agentInfoResultsExtractor, "agentInfoResultsExtractor");
         this.detailedAgentInfoResultsExtractor = Objects.requireNonNull(detailedAgentInfoResultsExtractor, "detailedAgentInfoResultsExtractor");
-        this.timestampedRowMapper = new TimestampedMapper<>(Objects.requireNonNull(agentInfoMapper, "agentInfoMapper"));
+        this.agentInfoBoMapper = Objects.requireNonNull(agentInfoBoMapper, "agentInfoBoMapper");
     }
 
     @Override
@@ -207,7 +205,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
     // only for agentList migration
     @Override
-    public List<Timestamped<AgentInfoBo>> getTimestampedAgentInfoBo(int limit, long fromTimestamp, @Nullable String lastAgentId, long startTime) {
+    public List<AgentInfoBo> getAgentInfoBo(int limit, long fromTimestamp, @Nullable String lastAgentId, long startTime) {
         Scan scan = new Scan();
         setStartRow(scan, lastAgentId, startTime);
         if (fromTimestamp > 0) {
@@ -222,7 +220,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         scan.readVersions(1);
 
         TableName agentInfoTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        return this.hbaseOperations.find(agentInfoTableName, scan, timestampedRowMapper);
+        return this.hbaseOperations.find(agentInfoTableName, scan, agentInfoBoMapper);
     }
 
     private void setStartRow(Scan scan, String lastAgentId, long startTime) {
@@ -235,7 +233,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     }
 
     @Override
-    public List<Timestamped<AgentInfoBo>> getTimestampedAgentInfoBo(List<String> agentIds) {
+    public List<AgentInfoBo> getAgentInfoBo(List<String> agentIds) {
         List<Scan> scans = new ArrayList<>(agentIds.size());
         for (String agentId : agentIds) {
             Scan scan = new Scan();
@@ -246,7 +244,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         }
 
         TableName agentInfoTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
-        List<List<Timestamped<AgentInfoBo>>> lists = this.hbaseOperations.find(agentInfoTableName, scans, timestampedRowMapper);
+        List<List<AgentInfoBo>> lists = this.hbaseOperations.find(agentInfoTableName, scans, agentInfoBoMapper);
         return ListListUtils.toList(lists, agentIds.size());
     }
 

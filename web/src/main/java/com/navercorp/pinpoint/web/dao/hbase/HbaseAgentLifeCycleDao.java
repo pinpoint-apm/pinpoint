@@ -142,7 +142,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         scan.withStartRow(startKeyBytes);
         scan.withStopRow(endKeyBytes);
 
-        scan.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.QUALIFIER_STATES);
+        scan.addColumn(DESCRIPTOR.getName(), HbaseTables.AgentLifeCycleStatus.QUALIFIER_STATES);
         scan.readVersions(1);
         scan.setCaching(SCANNER_CACHING);
         scan.setMaxResultSize(MAX_RESULT_SIZE);
@@ -151,7 +151,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
     }
 
     @Override
-    public List<Optional<AgentStatus>> getLatestAgentStatus(List<SimpleAgentKey> agentKeyList) {
+    public List<Optional<AgentStatus>> getCurrentAgentStatus(List<SimpleAgentKey> agentKeyList) {
         Objects.requireNonNull(agentKeyList, "agentKeyList");
         if (agentKeyList.isEmpty()) {
             return Collections.emptyList();
@@ -173,7 +173,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         byte[] rowPreFix = rowKeyEncoder.encodeRowKey(agentId, agentStartTime);
         Scan scan = new Scan();
         scan.setStartStopRowForPrefixScan(rowPreFix);
-        scan.addColumn(DESCRIPTOR.getName(), DESCRIPTOR.QUALIFIER_STATES);
+        scan.addColumn(DESCRIPTOR.getName(), HbaseTables.AgentLifeCycleStatus.QUALIFIER_STATES);
         scan.setOneRowLimit();
         return scan;
     }

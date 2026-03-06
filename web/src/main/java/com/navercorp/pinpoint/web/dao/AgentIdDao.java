@@ -1,6 +1,8 @@
 package com.navercorp.pinpoint.web.dao;
 
 import com.navercorp.pinpoint.web.vo.agent.AgentIdEntry;
+import com.navercorp.pinpoint.web.vo.agent.AgentStatus;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -12,11 +14,12 @@ public interface AgentIdDao {
 
     List<AgentIdEntry> getAgentIdEntry(int serviceUid, String applicationName, int serviceTypeCode, String agentId);
 
-    List<AgentIdEntry> getAgentIdEntryByInsertTimeAfter(int serviceUid, String applicationName, int serviceTypeCode, long minUpdateTimestamp);
+    List<AgentIdEntry> getAgentIdEntryByMinStatusTimestamp(int serviceUid, String applicationName, int serviceTypeCode, long minStatusTimestamp);
 
     void delete(int serviceUid, String applicationName, int serviceTypeCode, String agentId, long agentStartTime);
 
     void delete(List<AgentIdEntry> agentIdEntryList);
 
-    void insert(int serviceUid, String applicationName, int serviceTypeCode, String agentId, long agentStartTime, String agentName, long timestamp);
+    void insert(int serviceUid, String applicationName, int serviceTypeCode, String agentId, long agentStartTime,
+                String agentName, @Nullable AgentStatus agentStatus);
 }

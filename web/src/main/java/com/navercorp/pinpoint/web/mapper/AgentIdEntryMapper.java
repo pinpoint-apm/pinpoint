@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HbaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.util.AgentIdRowKeyUtils;
+import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.component.ApplicationFactory;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentIdEntry;
@@ -32,12 +33,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-public class AgentStartTimeInfoMapper implements RowMapper<List<AgentIdEntry>> {
+public class AgentIdEntryMapper implements RowMapper<List<AgentIdEntry>> {
 
     private final ApplicationFactory applicationFactory;
     private final Predicate<byte[]> rowFilter;
 
-    public AgentStartTimeInfoMapper(ApplicationFactory applicationFactory, Predicate<byte[]> rowFilter) {
+    public AgentIdEntryMapper(ApplicationFactory applicationFactory, Predicate<byte[]> rowFilter) {
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
         this.rowFilter = rowFilter;
     }
@@ -52,38 +53,37 @@ public class AgentStartTimeInfoMapper implements RowMapper<List<AgentIdEntry>> {
             return Collections.emptyList();
         }
 
+        // parse cell
+        Cell cell = result.getColumnLatestCell(HbaseTables.AGENT_ID.getName(), HbaseTables.AGENT_ID.getName());
+        if (cell == null) {
+            return Collections.emptyList();
+        }
+        Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+        valueBuffer.skip(1); // version
+        String agentName = valueBuffer.readPrefixedString();
+
         // parse row
         int serviceUid = AgentIdRowKeyUtils.extractServiceUid(row);
         String applicationName = AgentIdRowKeyUtils.extractApplicationName(row);
         int serviceTypeCode = AgentIdRowKeyUtils.extractServiceTypeCode(row);
         Application application = applicationFactory.createApplication(serviceUid, applicationName, serviceTypeCode);
-
         String agentId = AgentIdRowKeyUtils.extractAgentId(row);
         long agentStartTime = AgentIdRowKeyUtils.extractAgentStartTime(row);
 
-        // parse cell
-        Cell cell = result.getColumnLatestCell(HbaseTables.AGENT_ID.getName(), HbaseTables.AGENT_ID.getName());
-        Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
-        valueBuffer.skip(1); // version
-        String agentName = valueBuffer.readPrefixedString();
-
-        // TODO: create update time column and use it instead of latest timestamp of cells
-        long latestTimestamp = getLatestTimestamp(result);
-        AgentIdEntry agentIdEntry = new AgentIdEntry(application,
-                agentId, agentStartTime,
-                latestTimestamp,
-                agentName);
-        return List.of(agentIdEntry);
-    }
-
-    private long getLatestTimestamp(Result result) {
-        long latestTimestamp = Long.MIN_VALUE;
-        for (Cell cell : result.rawCells()) {
-            long ts = cell.getTimestamp();
-            if (ts > latestTimestamp) {
-                latestTimestamp = ts;
-            }
+        // parse state cell
+        Cell stateCell = result.getColumnLatestCell(HbaseTables.AGENT_ID.getName(), HbaseTables.AGENT_ID_STATE_QUALIFIER);
+        long stateTimestamp = 0;
+        AgentLifeCycleState agentState = AgentLifeCycleState.UNKNOWN;
+        if (stateCell != null) {
+            Buffer statusBuffer = new OffsetFixedBuffer(stateCell.getValueArray(), stateCell.getValueOffset(), stateCell.getValueLength());
+            stateTimestamp = statusBuffer.readLong();
+            agentState = AgentLifeCycleState.getStateByCode(statusBuffer.readShort());
         }
-        return latestTimestamp;
+
+        return List.of(
+                new AgentIdEntry(application, agentId, agentStartTime, agentName,
+                        agentState, stateTimestamp
+                )
+        );
     }
 }

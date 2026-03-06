@@ -60,6 +60,7 @@ public class HbaseTables {
 
     public static final HbaseColumnFamily APPLICATION = new HbaseColumnFamily(HbaseTableV3.APPLICATION, Bytes.toBytes("A"));
     public static final HbaseColumnFamily AGENT_ID = new HbaseColumnFamily(HbaseTableV3.AGENT_ID, Bytes.toBytes("A"));
+    public static final byte[] AGENT_ID_STATE_QUALIFIER = Bytes.toBytes("s");
 
     public static final HbaseColumnFamily APPLICATION_INDEX_AGENTS = new HbaseColumnFamily(HbaseTableV2.APPLICATION_INDEX, Bytes.toBytes("Agents"));
 
