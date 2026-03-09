@@ -35,6 +35,8 @@ public class ExceptionMetaData {
     private long spanId;
     private long exceptionId;
 
+    private String serviceName;
+
     private String applicationServiceType;
     private String applicationName;
     private String agentId;
@@ -57,6 +59,7 @@ public class ExceptionMetaData {
             String transactionId,
             long spanId,
             long exceptionId,
+            String serviceName,
             String applicationServiceType,
             String applicationName,
             String agentId,
@@ -72,6 +75,7 @@ public class ExceptionMetaData {
         this.transactionId = StringPrecondition.requireHasLength(transactionId, "transactionId");
         this.spanId = spanId;
         this.exceptionId = exceptionId;
+        this.serviceName = StringPrecondition.requireHasLength(serviceName, "serviceName");
         this.applicationServiceType = StringPrecondition.requireHasLength(applicationServiceType, "applicationServiceType");
         this.applicationName = StringPrecondition.requireHasLength(applicationName, "applicationName");
         this.agentId = StringPrecondition.requireHasLength(agentId, "agentId");
@@ -86,6 +90,7 @@ public class ExceptionMetaData {
     public static ExceptionMetaData valueOf(
             String tenantId,
             long timestamp, String transactionId, long spanId, long exceptionId,
+            String serviceName,
             String applicationServiceType, String applicationName, String agentId,
             String uriTemplate,
             String errorClassName, String errorMessage, int exceptionDepth,
@@ -97,6 +102,7 @@ public class ExceptionMetaData {
                 transactionId,
                 spanId,
                 exceptionId,
+                serviceName,
                 applicationServiceType,
                 applicationName,
                 agentId,
@@ -147,6 +153,14 @@ public class ExceptionMetaData {
 
     public void setExceptionId(long exceptionId) {
         this.exceptionId = exceptionId;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 
     public String getApplicationServiceType() {
@@ -229,6 +243,7 @@ public class ExceptionMetaData {
                 ", transactionId='" + transactionId + '\'' +
                 ", spanId=" + spanId +
                 ", exceptionId=" + exceptionId +
+                ", serviceName='" + serviceName + '\'' +
                 ", applicationServiceType='" + applicationServiceType + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +

@@ -30,6 +30,7 @@ public class ExceptionMetaDataEntity {
     private long spanId;
     private long exceptionId;
 
+    private String serviceName;
     private String applicationServiceType;
     private String applicationName;
     private String agentId;
@@ -86,6 +87,14 @@ public class ExceptionMetaDataEntity {
 
     public void setExceptionId(long exceptionId) {
         this.exceptionId = exceptionId;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 
     public String getApplicationServiceType() {
@@ -192,6 +201,7 @@ public class ExceptionMetaDataEntity {
                 ", transactionId='" + transactionId + '\'' +
                 ", spanId=" + spanId +
                 ", exceptionId=" + exceptionId +
+                ", serviceName='" + serviceName + '\'' +
                 ", applicationServiceType='" + applicationServiceType + '\'' +
                 ", applicationName='" + applicationName + '\'' +
                 ", agentId='" + agentId + '\'' +
