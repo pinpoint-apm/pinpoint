@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.batch.service.BatchApplicationIndexService;
 import com.navercorp.pinpoint.batch.vo.CleanTarget;
 import com.navercorp.pinpoint.web.vo.Application;
 import jakarta.annotation.Nonnull;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 
@@ -29,6 +31,7 @@ import java.util.Objects;
  * @author youngjin.kim2
  */
 public class AgentRemover implements ItemWriter<CleanTarget.TypeAgents> {
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final BatchApplicationIndexService batchApplicationIndexService;
 
@@ -39,8 +42,13 @@ public class AgentRemover implements ItemWriter<CleanTarget.TypeAgents> {
     @Override
     public void write(@Nonnull Chunk<? extends CleanTarget.TypeAgents> targets) throws Exception {
         for (CleanTarget.TypeAgents target : targets) {
+            logger.info("Removing agents: {}", target);
             Application application = target.application();
-            batchApplicationIndexService.deleteAgentIds(application.getApplicationName(), application.getServiceTypeCode(), target.agentIds());
+            try {
+                batchApplicationIndexService.deleteAgentIds(application.getApplicationName(), application.getServiceTypeCode(), target.agentIds());
+            } catch (Exception e) {
+                throw new IllegalStateException("Failed to remove agents: " + target, e);
+            }
         }
     }
 }

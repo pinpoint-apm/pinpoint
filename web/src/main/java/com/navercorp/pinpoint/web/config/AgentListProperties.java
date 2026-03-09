@@ -22,10 +22,10 @@ import java.util.Set;
 
 public class AgentListProperties {
 
-    @Value("${pinpoint.web.agents.filter.statisticsExistence.serviceTypes:1400,1700}") // node(1400), python(1700)
+    @Value("${pinpoint.agent.list.filter.statisticsExistence.serviceTypes:1400,1700}") // node(1400), python(1700)
     private Set<Integer> filterStatisticsExistenceServiceTypeCodes;
 
-    @Value("${pinpoint.web.agents.filter.lastStatus.exclude.serviceTypes:1220,1400,1700}") // otlp(1220), node(1400), python(1700)
+    @Value("${pinpoint.agent.list.filter.lastStatus.exclude.serviceTypes:1220,1400,1700}") // otlp(1220), node(1400), python(1700)
     private Set<Integer> filterLastStatusExcludeServiceTypeCodes;
 
     public Set<Integer> getFilterStatisticsExistenceServiceTypeCodes() {

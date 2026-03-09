@@ -35,6 +35,7 @@ import com.navercorp.pinpoint.user.UserModule;
 import com.navercorp.pinpoint.web.WebHbaseModule;
 import com.navercorp.pinpoint.web.WebServiceConfig;
 import com.navercorp.pinpoint.web.component.config.ComponentConfiguration;
+import com.navercorp.pinpoint.web.config.AgentListProperties;
 import com.navercorp.pinpoint.web.hyperlink.HyperLinkConfiguration;
 import com.navercorp.pinpoint.web.scatter.config.ScatterWebConfiguration;
 import com.navercorp.pinpoint.web.trace.TraceConfiguration;
@@ -78,6 +79,11 @@ import java.util.List;
         CommonCacheManagerConfiguration.class
 })
 public class BatchModule {
+
+    @Bean
+    public AgentListProperties agentListProperties() {
+        return new AgentListProperties();
+    }
 
     @Bean
     public TimeSlot timeSlot() {

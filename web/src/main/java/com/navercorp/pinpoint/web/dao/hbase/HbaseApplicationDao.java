@@ -59,8 +59,16 @@ public class HbaseApplicationDao implements ApplicationDao {
 
     @Override
     public void deleteApplication(int serviceUid, String applicationName, int serviceTypeCode) {
+        deleteApplication(serviceUid, applicationName, serviceTypeCode, Long.MAX_VALUE);
+    }
+
+    @Override
+    public void deleteApplication(int serviceUid, String applicationName, int serviceTypeCode, long timestamp) {
         byte[] rowKey = ApplicationRowKeyUtils.createRowKey(serviceUid, applicationName, serviceTypeCode);
         Delete delete = new Delete(rowKey);
+        if (timestamp != Long.MAX_VALUE) {
+            delete.setTimestamp(timestamp);
+        }
 
         final TableName applicationIndexTableName = tableNameProvider.getTableName(DESCRIPTOR.getTable());
         hbaseTemplate.delete(applicationIndexTableName, delete);
