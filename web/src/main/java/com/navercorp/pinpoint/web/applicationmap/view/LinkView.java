@@ -122,6 +122,7 @@ public class LinkView {
             Application filterApplication = link.getFilterApplication();
             jgen.writeFieldName("filter");
             jgen.writeStartObject();
+            jgen.writeStringField("serviceName", filterApplication.getService().getServiceName());
             jgen.writeStringField("applicationName", filterApplication.getApplicationName());
             ServiceType serviceType = filterApplication.getServiceType();
             jgen.writeNumberField("serviceTypeCode", serviceType.getCode());
@@ -146,7 +147,9 @@ public class LinkView {
             Collection<Application> sourceLinkTargetAgentList = link.getSourceLinkTargetAgentList();
             for (Application application : sourceLinkTargetAgentList) {
                 jgen.writeStartObject();
+                jgen.writeStringField("rpcServiceName", application.getService().getServiceName());
                 jgen.writeStringField("rpc", application.getApplicationName());
+                jgen.writeStringField("rpcApplicationName", application.getApplicationName());
                 jgen.writeNumberField("rpcServiceTypeCode", application.getServiceTypeCode());
                 jgen.writeEndObject();
             }
@@ -159,6 +162,7 @@ public class LinkView {
 
             jgen.writeStartObject();
             Application application = node.getApplication();
+            jgen.writeStringField("serviceName", application.getService().getServiceName());
             jgen.writeStringField("applicationName", application.getApplicationName());
             ServiceType serviceType = application.getServiceType();
             jgen.writeStringField("serviceType", serviceType.toString());
