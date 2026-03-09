@@ -93,21 +93,55 @@ export const OpenTelemetryMetricFetcher = ({
 
   const { stack, stackDetails } = metricDefinition;
 
-  if (error) {
-    try {
-      const errorObj = JSON.parse(error.message);
-      return (
-        <div className="flex flex-col items-center justify-center w-full h-full">
-          {errorObj?.message}
-          <ErrorDetailDialog error={errorObj as unknown as ErrorDetailResponse} />
-          <Button className="text-xs" variant="outline" onClick={() => getMetricData()}>
-            {t('COMMON.TRY_AGAIN')}
-          </Button>
-        </div>
-      );
-    } catch (err) {
-      return;
+  function renderWidgetContent() {
+    if (error) {
+      try {
+        const errorObj = JSON.parse(error.message);
+        return (
+          <div className="flex flex-col items-center justify-center w-full h-full">
+            {errorObj?.message}
+            <ErrorDetailDialog error={errorObj as unknown as ErrorDetailResponse} />
+            <Button className="text-xs" variant="outline" onClick={() => getMetricData()}>
+              {t('COMMON.TRY_AGAIN')}
+            </Button>
+          </div>
+        );
+      } catch (err) {
+        return;
+      }
     }
+
+    if (isPending) {
+      return <ChartSkeleton />;
+    }
+
+    return (
+      <ReChart
+        syncId={dashboardId}
+        chartData={{
+          title: '',
+          timestamp: data?.timestamp || [],
+          metricValueGroups: [
+            {
+              groupName: '',
+              chartType: data?.chartType || '',
+              unit: data?.unit || '',
+              metricValues: (data?.metricValues || [])?.map((mv) => {
+                return {
+                  fieldName: mv?.legendName,
+                  values: mv?.values,
+                };
+              }),
+            },
+          ],
+        }}
+        isAnimationActive={false}
+        unit={data?.unit}
+        tooltipConfig={{
+          showTotal: stack && stackDetails?.showTotal,
+        }}
+      />
+    );
   }
 
   return (
@@ -125,7 +159,9 @@ export const OpenTelemetryMetricFetcher = ({
                 </TooltipTrigger>
                 <TooltipPrimitive.Portal>
                   <TooltipContent>
-                    {data?.message?.split('\n').map((m, i) => <p key={i}>{m}</p>)}
+                    {data?.message?.split('\n').map((m, i) => (
+                      <p key={i}>{m}</p>
+                    ))}
                   </TooltipContent>
                 </TooltipPrimitive.Portal>
               </Tooltip>
@@ -141,35 +177,7 @@ export const OpenTelemetryMetricFetcher = ({
       }}
     >
       <div ref={ref} className="w-full h-full">
-        {isPending ? (
-          <ChartSkeleton />
-        ) : (
-          <ReChart
-            syncId={dashboardId}
-            chartData={{
-              title: '',
-              timestamp: data?.timestamp || [],
-              metricValueGroups: [
-                {
-                  groupName: '',
-                  chartType: data?.chartType || '',
-                  unit: data?.unit || '',
-                  metricValues: (data?.metricValues || [])?.map((mv) => {
-                    return {
-                      fieldName: mv?.legendName,
-                      values: mv?.values,
-                    };
-                  }),
-                },
-              ],
-            }}
-            isAnimationActive={false}
-            unit={data?.unit}
-            tooltipConfig={{
-              showTotal: stack && stackDetails?.showTotal,
-            }}
-          />
-        )}
+        {renderWidgetContent()}
       </div>
     </Widget>
   );
