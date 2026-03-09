@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.web.applicationmap.nodes.AgentServerGroupListWrite
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerGroupList;
 import com.navercorp.pinpoint.web.applicationmap.service.AlertViewService;
+import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ResponseTimeStatics;
 import org.springframework.boot.jackson.JsonComponent;
 
@@ -103,6 +104,8 @@ public class NodeView {
             jgen.writeObjectField("key", node.getNodeName()); // necessary for go.js
             jgen.writeStringField("nodeKey", node.getNodeKey());
 
+            Application application = node.getApplication();
+            jgen.writeStringField("serviceName", application.getService().getServiceName());
             jgen.writeStringField("applicationName", node.getApplicationTextName()); // for go.js
 
             final ServiceType serviceType = node.getServiceType();
