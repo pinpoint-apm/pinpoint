@@ -113,7 +113,7 @@ public class CleanupInactiveApplicationsJobConfig {
         return builder
                 .faultTolerant()
                 .retry(Exception.class)
-                .retryLimit(10)
+                .retryLimit(3)
                 .skip(IllegalArgumentException.class)
                 .skipLimit(10)
                 .build();

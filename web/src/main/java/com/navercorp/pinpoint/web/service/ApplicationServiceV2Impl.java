@@ -7,6 +7,7 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.agent.AgentIdEntry;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,8 +34,14 @@ public class ApplicationServiceV2Impl implements ApplicationServiceV2 {
     }
 
     @Override
-    public void deleteApplication(ServiceUid serviceUid, String applicationName, int serviceTypeCode) {
-        applicationDao.deleteApplication(serviceUid.getUid(), applicationName, serviceTypeCode);
+    public void deleteApplication(ServiceUid serviceUid, String applicationName, int serviceTypeCode, int bufferTimeMinutes) {
+        if (bufferTimeMinutes > 0) {
+            // TODO: check if application was updated after maxDeleteTimestamp and let caller know if application was not deleted
+            final long maxDeleteTimestamp = System.currentTimeMillis() - Duration.ofMinutes(bufferTimeMinutes).toMillis();
+            applicationDao.deleteApplication(serviceUid.getUid(), applicationName, serviceTypeCode, maxDeleteTimestamp);
+        } else {
+            applicationDao.deleteApplication(serviceUid.getUid(), applicationName, serviceTypeCode);
+        }
         deleteAllAgents(serviceUid, applicationName, serviceTypeCode);
     }
 

@@ -30,8 +30,7 @@ import java.util.Objects;
  * @author youngjin.kim2
  */
 public class ApplicationRemover implements ItemWriter<CleanTarget.TypeApplication> {
-
-    private static final Logger logger = LogManager.getLogger(ApplicationRemover.class);
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final BatchApplicationIndexService batchApplicationIndexService;
 
@@ -42,12 +41,12 @@ public class ApplicationRemover implements ItemWriter<CleanTarget.TypeApplicatio
     @Override
     public void write(Chunk<? extends CleanTarget.TypeApplication> targets) throws Exception {
         for (CleanTarget.TypeApplication target : targets) {
+            logger.info("Removing application: {}", targets);
             Application application = target.application();
-            logger.info("Removing application: {}", application);
             try {
                 this.batchApplicationIndexService.remove(application.getApplicationName(), application.getServiceTypeCode());
             } catch (Exception e) {
-                logger.error("Failed to remove application: {}", target, e);
+                throw new IllegalStateException("Failed to remove application: " + target, e);
             }
         }
     }

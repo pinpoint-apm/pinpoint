@@ -27,6 +27,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -92,7 +93,8 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
     @Override
     public void remove(String applicationName, int serviceTypeCode) {
         if (v2Enabled) {
-            this.applicationDao.deleteApplication(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode);
+            final long maxDeleteTimestamp = System.currentTimeMillis() - Duration.ofHours(1).toMillis(); // 1 hour buffer for deletion to avoid deleting newly added application
+            this.applicationDao.deleteApplication(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode, maxDeleteTimestamp);
         }
         // v1 doesn't need application level deletion, just delete all agentIds
     }
@@ -125,7 +127,8 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
             List<AgentIdEntry> agentIdEntryList = this.agentIdDao.getAgentIdEntry(ServiceUid.DEFAULT_SERVICE_UID_CODE, applicationName, serviceTypeCode);
             // dedupe first so that we can check agentId with the latest startTime
             return dedupeConsecutiveAgentId(agentIdEntryList).stream()
-                    .filter(entry -> entry.getCurrentStateTimestamp() <= maxTimestamp)
+                    .filter(entry -> entry.getAgentStartTime() < maxTimestamp)
+                    .filter(entry -> entry.getCurrentStateTimestamp() < maxTimestamp)
                     .map(AgentIdEntry::getAgentId)
                     .distinct()
                     .toList();
@@ -167,26 +170,26 @@ public class BatchApplicationIndexServiceImpl implements BatchApplicationIndexSe
         for (int i = 0; i < agentIds.size(); i += batchSize) {
             int end = Math.min(i + batchSize, agentIds.size());
             List<String> agentIdBatch = agentIds.subList(i, end);
-            logger.info("Removing agents. serviceUid: {} application: {}@{}, agents: {}", serviceUid, applicationName, serviceTypeCode, agentIdBatch);
-            try {
-                applicationIndexDao.deleteAgentIds(applicationName, agentIdBatch);
-            } catch (Exception e) {
-                logger.error("Failed to remove agents. serviceUid: {} application: {}@{}, endIndex: {}", serviceUid, applicationName, serviceTypeCode, end, e);
-            }
+            logger.debug("Removing agents. serviceUid: {} application: {}@{}, agents: {}", serviceUid, applicationName, serviceTypeCode, agentIdBatch);
+            applicationIndexDao.deleteAgentIds(applicationName, agentIdBatch);
         }
     }
 
 
     private void batchDeleteAgentIdsV2(int serviceUid, String applicationName, int serviceTypeCode, List<String> agentIds) {
-        List<AgentIdEntry> agentIdEntryList = agentIdDao.getAgentIdEntry(serviceUid, applicationName, serviceTypeCode);
-        List<AgentIdEntry> targetAgentIdEntryList = new ArrayList<>(100);
+        int batchSize = 200;
+        long thresholdTimestamp = System.currentTimeMillis() - Duration.ofHours(1).toMillis(); // 1 hour buffer for deletion to avoid deleting newly added agentIds
+        List<AgentIdEntry> agentIdEntryList = agentIdDao.getAgentIdEntry(serviceUid, applicationName, serviceTypeCode).stream()
+                .filter(entry -> entry.getAgentStartTime() < thresholdTimestamp)
+                .toList();
+        List<AgentIdEntry> targetAgentIdEntryList = new ArrayList<>(batchSize);
         Set<String> agentIdsSet = new HashSet<>(agentIds);
         for (AgentIdEntry agentIdEntry : agentIdEntryList) {
             if (agentIdsSet.contains(agentIdEntry.getAgentId())) {
                 targetAgentIdEntryList.add(agentIdEntry);
             }
 
-            if (targetAgentIdEntryList.size() >= 100) {
+            if (targetAgentIdEntryList.size() >= batchSize) {
                 agentIdDao.delete(targetAgentIdEntryList);
                 targetAgentIdEntryList.clear();
             }

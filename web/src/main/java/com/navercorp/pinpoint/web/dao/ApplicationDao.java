@@ -11,6 +11,8 @@ public interface ApplicationDao {
 
     void deleteApplication(int serviceUid, String applicationName, int serviceTypeCode);
 
+    void deleteApplication(int serviceUid, String applicationName, int serviceTypeCode, long timestamp);
+
     // only for table migration
     void insert(int serviceUid, String applicationName, int serviceTypeCode);
 }

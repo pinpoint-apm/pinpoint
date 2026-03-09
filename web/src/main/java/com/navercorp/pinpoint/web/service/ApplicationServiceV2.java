@@ -11,6 +11,5 @@ public interface ApplicationServiceV2 {
 
     List<Application> getApplications(ServiceUid serviceUid, String applicationName);
 
-    void deleteApplication(ServiceUid serviceUid, String applicationName, int serviceTypeCode);
-
+    void deleteApplication(ServiceUid serviceUid, String applicationName, int serviceTypeCode, int bufferTimeMinutes);
 }
