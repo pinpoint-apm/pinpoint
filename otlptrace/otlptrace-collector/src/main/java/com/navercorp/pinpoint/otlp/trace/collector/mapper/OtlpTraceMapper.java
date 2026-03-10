@@ -67,25 +67,26 @@ public class OtlpTraceMapper {
                 int errorCount = 0;
                 for (Span span : spansList) {
                     try {
-                        if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_SERVER_VALUE) {
-                            final SpanBo spanBo = spanMapper.map(idAndName, span);
-                            mapperData.addSpanBo(spanBo);
-                            final AgentInfoBo agentInfoBo = agentInfoMapper.map(spanBo, attributesList);
-                            mapperData.addAgentInfoBo(agentInfoBo);
-                        } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CONSUMER_VALUE) {
-                            final SpanBo spanBo = spanMapper.map(idAndName, span);
-                            mapperData.addSpanBo(spanBo);
-                            final AgentInfoBo agentInfoBo = agentInfoMapper.map(spanBo, attributesList);
-                            mapperData.addAgentInfoBo(agentInfoBo);
-                        } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_CLIENT_VALUE) {
-                            final SpanChunkBo spanChunkBo = spanChunkMapper.map(idAndName, span);
-                            mapperData.addSpanChunkBo(spanChunkBo);
-                        } else if (span.getKind().getNumber() == Span.SpanKind.SPAN_KIND_PRODUCER_VALUE) {
-                            final SpanChunkBo spanChunkBo = spanChunkMapper.map(idAndName, span);
-                            mapperData.addSpanChunkBo(spanChunkBo);
-                        } else {
-                            final SpanChunkBo spanChunkBo = spanChunkMapper.map(idAndName, span);
-                            mapperData.addSpanChunkBo(spanChunkBo);
+                        switch (span.getKind().getNumber()) {
+                            case Span.SpanKind.SPAN_KIND_SERVER_VALUE,
+                                 Span.SpanKind.SPAN_KIND_CONSUMER_VALUE -> {
+                                final SpanBo spanBo = spanMapper.map(idAndName, span);
+                                mapperData.addSpanBo(spanBo);
+                                final AgentInfoBo agentInfoBo = agentInfoMapper.map(spanBo, attributesList);
+                                mapperData.addAgentInfoBo(agentInfoBo);
+                            }
+                            case Span.SpanKind.SPAN_KIND_CLIENT_VALUE -> {
+                                final SpanChunkBo spanChunkBo = spanChunkMapper.map(idAndName, span);
+                                mapperData.addSpanChunkBo(spanChunkBo);
+                            }
+                            case Span.SpanKind.SPAN_KIND_PRODUCER_VALUE -> {
+                                final SpanChunkBo spanChunkBo = spanChunkMapper.map(idAndName, span);
+                                mapperData.addSpanChunkBo(spanChunkBo);
+                            }
+                            default -> {
+                                final SpanChunkBo spanChunkBo = spanChunkMapper.map(idAndName, span);
+                                mapperData.addSpanChunkBo(spanChunkBo);
+                            }
                         }
                     } catch (Exception e) {
                         errorCount++;
