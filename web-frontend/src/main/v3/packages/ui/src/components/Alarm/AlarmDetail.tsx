@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { AlarmRule, ErrorResponse } from '@pinpoint-fe/ui/src/constants';
+import { AlarmRule } from '@pinpoint-fe/ui/src/constants';
 import omit from 'lodash.omit';
 import {
   useAlarmRuleMutation,
@@ -34,7 +34,6 @@ import { Optional } from '../../components/Form/Optional';
 import { WebhookCheckedList } from '../../components/Webhook/WebhookCheckedList';
 import { Button } from '../../components/ui/button';
 import { useReactToastifyToast } from '../../components/Toast';
-import { ErrorToast } from '../../components/Error/ErrorToast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { WebhookDetail } from '../../components/Webhook/WebhookDetail';
 import { cn } from '../../lib/utils';
@@ -165,20 +164,11 @@ export const AlarmDetail = ({
     refetchUsedWebhookList();
     onCompleteMutation?.();
   };
-  const handleMutationError = (error: ErrorResponse) => {
-    toast.error(<ErrorToast error={error} />, {
-      className: 'pointer-events-auto',
-      bodyClassName: '!items-start',
-      autoClose: false,
-    });
-  };
   const { mutate: alarmRuleMutate } = useAlarmRuleMutation({
     onSuccess: handleMutationSuccess,
-    onError: handleMutationError,
   });
   const { mutate: includeWebhookMutate } = useWebhookIncludeMutaion({
     onSuccess: handleMutationSuccess,
-    onError: handleMutationError,
   });
 
   const handleSubmit = async (value: z.infer<typeof formSchema>) => {

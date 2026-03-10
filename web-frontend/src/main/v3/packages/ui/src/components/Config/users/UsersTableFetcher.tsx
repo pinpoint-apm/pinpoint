@@ -6,13 +6,13 @@ import {
   usePutConfigUser,
   useDeleteConfigUser,
 } from '@pinpoint-fe/ui/src/hooks';
-import { Configuration, ConfigUsers, ErrorResponse } from '@pinpoint-fe/ui/src/constants';
+import { Configuration, ConfigUsers } from '@pinpoint-fe/ui/src/constants';
 import { UsersTable } from './UsersTable';
 import { FaRegTrashCan } from 'react-icons/fa6';
 import { UserForm } from './UserForm';
 import { UsersSheet } from './UsersSheet';
 import { UserRemovePopup } from './UserRemovePopup';
-import { useReactToastifyToast, Button, ErrorToast } from '../../../components';
+import { useReactToastifyToast, Button } from '../../../components';
 
 export interface UsersTableFetcherProps {
   configuration?: Configuration;
@@ -32,14 +32,6 @@ export const UsersTableFetcher = ({ configuration }: UsersTableFetcherProps) => 
 
   const { data, refetch } = useGetConfigUsers(query ? { searchKey: query } : undefined);
 
-  const handleMutationError = (error: ErrorResponse) => {
-    toast.error(<ErrorToast error={error} />, {
-      className: 'pointer-events-auto',
-      bodyClassName: '!items-start',
-      autoClose: false,
-    });
-  };
-
   const onSuccess = React.useCallback((message: string) => {
     toast.success(message, {
       autoClose: 2000,
@@ -49,17 +41,14 @@ export const UsersTableFetcher = ({ configuration }: UsersTableFetcherProps) => 
 
   const { mutate: postMutate } = usePostConfigUser({
     onSuccess: () => onSuccess(t('COMMON.CREATE_SUCCESS')),
-    onError: handleMutationError,
   });
 
   const { mutate: putMutate } = usePutConfigUser({
     onSuccess: () => onSuccess(t('COMMON.UPDATE_SUCCESS')),
-    onError: handleMutationError,
   });
 
   const { mutate: deleteMutate } = useDeleteConfigUser({
     onSuccess: () => onSuccess(t('COMMON.REMOVE_SUCCESS')),
-    onError: handleMutationError,
   });
 
   function handleRemove(userId: string) {
