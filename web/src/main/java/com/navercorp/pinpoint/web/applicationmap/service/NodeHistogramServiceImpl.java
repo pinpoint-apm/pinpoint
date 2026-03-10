@@ -42,7 +42,7 @@ public class NodeHistogramServiceImpl implements NodeHistogramService {
 
     @Override
     public NodeHistogramFactory getApplicationHistogram() {
-        WasNodeHistogramDataSource dataSource = new MapApplicationResponseNodeHistogramDataSource(mapResponseDao);
+        WasNodeHistogramDataSource dataSource = new MapApplicationResponseNodeHistogramDataSource(mapResponseDao, mapAgentResponseDao);
         return new DefaultNodeHistogramFactory(dataSource);
     }
 

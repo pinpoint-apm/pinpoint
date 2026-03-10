@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource;
 import com.navercorp.pinpoint.common.timeseries.time.Range;
 import com.navercorp.pinpoint.common.timeseries.window.TimeWindow;
 import com.navercorp.pinpoint.web.applicationmap.dao.ApplicationResponse;
+import com.navercorp.pinpoint.web.applicationmap.dao.MapAgentResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogramBuilder;
@@ -38,9 +39,12 @@ import java.util.Set;
 public class MapApplicationResponseNodeHistogramDataSource implements WasNodeHistogramDataSource {
 
     private final MapResponseDao mapResponseDao;
+    private final MapAgentResponseDao mapAgentResponseDao;
 
-    public MapApplicationResponseNodeHistogramDataSource(MapResponseDao mapResponseDao) {
+    public MapApplicationResponseNodeHistogramDataSource(MapResponseDao mapResponseDao,
+                                                         MapAgentResponseDao mapAgentResponseDao) {
         this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
+        this.mapAgentResponseDao = Objects.requireNonNull(mapAgentResponseDao, "mapAgentResponseDao");
     }
 
     @Override
@@ -56,7 +60,8 @@ public class MapApplicationResponseNodeHistogramDataSource implements WasNodeHis
         Histogram appHistogram = getHistogram(application, applicationTimeHistogram.getHistogramList());
         builder.setApplicationHistogram(appHistogram);
 
-        Map<String, Histogram> agentMap = getAgentIdMap(application, applicationResponse.getAgentIds());
+        Set<String> agentIds = mapAgentResponseDao.selectAgentIds(application, timeWindow);
+        Map<String, Histogram> agentMap = getAgentIdMap(application, agentIds);
         builder.setAgentHistogramMap(agentMap);
         return builder.build();
     }
