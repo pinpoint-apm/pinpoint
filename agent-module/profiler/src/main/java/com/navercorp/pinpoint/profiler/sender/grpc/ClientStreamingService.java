@@ -21,6 +21,13 @@ public class ClientStreamingService<ReqT, ResT> {
         return clientStreamingProvider.newStream(response);
     }
 
+    public ResponseStreamObserver<ReqT, ResT> newResponseStreamObserver(StreamEventListener<ReqT> listener) {
+        return new ResponseStreamObserver<>(listener);
+    }
+
+    public ClientCallStateStreamObserver<ReqT> newStream(ResponseStreamObserver<ReqT, ResT> response) {
+        return clientStreamingProvider.newStream(response);
+    }
 
     private ResponseStreamObserver<ReqT, ResT> newResponse(StreamJob<ReqT> streamJob) {
         StreamEventListener<ReqT> listener = new DefaultStreamEventListener<>(reconnector, streamJob);

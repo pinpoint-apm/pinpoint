@@ -77,6 +77,8 @@ public class GrpcTransportConfig {
 
     private static final boolean DEFAULT_ENABLE_SPAN_STATS_LOGGING = false;
 
+    private static final int DEFAULT_SPAN_BATCH_SIZE = 70;
+
     private ClientOption agentClientOption = new ClientOption();
     private ClientOption metadataClientOption = new ClientOption();
     private ClientOption statClientOption = new ClientOption();
@@ -163,8 +165,8 @@ public class GrpcTransportConfig {
     private long spanDiscardCountForReconnect = DEFAULT_DISCARD_COUNT_FOR_RECONNECT;
     @Value("${profiler.transport.grpc.span.sender.discardpolicy.not-ready-timeout-millis}")
     private long spanNotReadyTimeoutMillis = DEFAULT_NOT_READY_TIMEOUT_MILLIS;
-    @Value("${profiler.transport.grpc.span.sender.rpc.age.max.millis}")
-    private long spanRpcMaxAgeMillis = DEFAULT_RPC_MAX_AGE_MILLIS;
+    @Value("${profiler.transport.grpc.span.sender.batch.size}")
+    private int spanBatchSize = DEFAULT_SPAN_BATCH_SIZE;
 
     @Value("${profiler.transport.grpc.loadbalancer.renew.period.millis}")
     private long renewTransportPeriodMillis = DEFAULT_RENEW_TRANSPORT_PERIOD_MILLIS;
@@ -321,8 +323,8 @@ public class GrpcTransportConfig {
         return spanNotReadyTimeoutMillis;
     }
 
-    public long getSpanRpcMaxAgeMillis() {
-        return spanRpcMaxAgeMillis;
+    public int getSpanBatchSize() {
+        return spanBatchSize;
     }
 
     public long getRenewTransportPeriodMillis() {

@@ -34,9 +34,7 @@ import com.navercorp.pinpoint.profiler.context.SpanType;
 import com.navercorp.pinpoint.profiler.context.grpc.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
-import com.navercorp.pinpoint.profiler.sender.grpc.SimpleStreamState;
 import com.navercorp.pinpoint.profiler.sender.grpc.SpanGrpcDataSender;
-import com.navercorp.pinpoint.profiler.sender.grpc.StreamState;
 import com.navercorp.pinpoint.profiler.sender.grpc.metric.ChannelzReporter;
 import com.navercorp.pinpoint.profiler.sender.grpc.metric.ChannelzScheduledReporter;
 import com.navercorp.pinpoint.profiler.sender.grpc.metric.DefaultChannelzReporter;
@@ -104,13 +102,9 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<SpanType>
 
         final ReconnectExecutor reconnectExecutor = this.reconnectExecutor.get();
 
-        ClientOption spanClientOption = grpcTransportConfig.getSpanClientOption();
-        final StreamState failState = new SimpleStreamState(spanClientOption.getLimitCount(), spanClientOption.getLimitTime());
-        logger.info("failState:{}", failState);
-
         final SpanGrpcDataSender spanGrpcDataSender = new SpanGrpcDataSender(collectorIp, collectorPort,
                 senderExecutorQueueSize, messageConverter,
-                reconnectExecutor, channelFactory, failState, grpcTransportConfig.getSpanRpcMaxAgeMillis());
+                reconnectExecutor, channelFactory, grpcTransportConfig.getSpanBatchSize());
 
         if (grpcTransportConfig.isSpanEnableStatLogging()) {
             registerChannelzReporter(spanGrpcDataSender);

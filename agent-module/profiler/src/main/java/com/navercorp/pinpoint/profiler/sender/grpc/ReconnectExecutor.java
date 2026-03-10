@@ -66,6 +66,25 @@ public class ReconnectExecutor {
         shutdown = true;
     }
 
+    /**
+     * Schedules the given runnable for immediate execution on the internal scheduled executor.
+     * Unlike {@link Reconnector#reconnect()}, this does not apply any backoff delay.
+     * Note: execution happens asynchronously on the executor thread, not synchronously on the calling thread.
+     */
+    public void scheduleNow(Runnable runnable) {
+        Objects.requireNonNull(runnable, "runnable");
+        if (shutdown) {
+            logger.debug("already shutdown, skip scheduleNow");
+            return;
+        }
+        try {
+            scheduledExecutorService.schedule(runnable, 0, TimeUnit.MILLISECONDS);
+        } catch (RejectedExecutionException e) {
+            final long failCount = rejectedCounter.incrementAndGet();
+            logger.info("{} scheduleNow failed {}", runnable, failCount);
+        }
+    }
+
     public Reconnector newReconnector(Runnable reconnectJob) {
         Objects.requireNonNull(reconnectJob, "reconnectJob");
         if (logger.isInfoEnabled()) {
