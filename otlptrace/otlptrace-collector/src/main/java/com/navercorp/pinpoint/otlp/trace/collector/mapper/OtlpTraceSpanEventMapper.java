@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.util.ByteStringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import com.navercorp.pinpoint.io.SpanVersion;
+import com.navercorp.pinpoint.otlp.trace.collector.util.AttributeUtils;
 import io.opentelemetry.proto.trace.v1.Span;
 import org.springframework.stereotype.Component;
 
@@ -35,10 +35,14 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 public class OtlpTraceSpanEventMapper {
-    private final ObjectMapper objectMapper;
+
+    private final OtlpTraceAttributeMapper attributeMapper;
+    private final OtlpTraceEventMapper eventMapper;
 
     public OtlpTraceSpanEventMapper(ObjectMapper objectMapper) {
-        this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper");
+        Objects.requireNonNull(objectMapper, "objectMapper");
+        this.attributeMapper = new OtlpTraceAttributeMapper(objectMapper);
+        this.eventMapper = new OtlpTraceEventMapper(objectMapper);
     }
 
     List<SpanEventBo> map(long spanStartTime, Span span) {
@@ -80,13 +84,13 @@ public class OtlpTraceSpanEventMapper {
         spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_START_TIME.getCode(), span.getStartTimeUnixNano()));
         // attributes
         if (span.getAttributesCount() > 0) {
-            OtlpTraceMapperUtils.addAttributesToAnnotation(objectMapper, span.getAttributesList(), spanEventBo::addAnnotation);
+            attributeMapper.addAttributesToAnnotation(span.getAttributesList(), spanEventBo::addAnnotation);
         }
         // argument
         spanEventBo.addAnnotation(AnnotationBo.of(AnnotationKey.ARGS0.getCode(), span.getName()));
         // event
         for (Span.Event event : span.getEventsList()) {
-            OtlpTraceMapperUtils.addEventToAnnotation(objectMapper, event, spanEventBo::addAnnotation);
+            eventMapper.addEventToAnnotation(event, spanEventBo::addAnnotation);
         }
 
         spanEventBo.setDepth(1);

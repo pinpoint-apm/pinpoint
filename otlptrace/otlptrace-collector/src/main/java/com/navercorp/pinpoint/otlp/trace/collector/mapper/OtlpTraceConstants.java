@@ -17,8 +17,7 @@
 package com.navercorp.pinpoint.otlp.trace.collector.mapper;
 
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.function.Predicate;
 
 public class OtlpTraceConstants {
     public static final String ATTRIBUTE_KEY_CLIENT_ADDRESS = "client.address";
@@ -34,17 +33,22 @@ public class OtlpTraceConstants {
     public static final String ATTRIBUTE_KEY_DB_STATEMENT = "db.statement";
     public static final String ATTRIBUTE_KEY_DB_SYSTEM = "db.system";
 
-    public static final Map<String, Boolean> FILTERED_ATTRIBUTE_KEY_MAP = Stream.of(
-            ATTRIBUTE_KEY_CLIENT_ADDRESS,
-            ATTRIBUTE_KEY_HTTP_RESPONSE_STATUS_CODE,
-            ATTRIBUTE_KEY_MESSAGING_KAFKA_MESSAGE_OFFSET,
-            ATTRIBUTE_KEY_MESSAGING_DESTINATION_PARTITION_ID,
-            ATTRIBUTE_KEY_MESSAGING_DESTINATION_NAME,
-            ATTRIBUTE_KEY_URL_PATH,
-            ATTRIBUTE_KEY_MESSAGING_CLIENT_ID,
-            ATTRIBUTE_KEY_SERVER_PORT,
-            ATTRIBUTE_KEY_SERVER_ADDRESS,
-            ATTRIBUTE_KEY_DB_NAME,
-            ATTRIBUTE_KEY_DB_STATEMENT,
-            ATTRIBUTE_KEY_DB_SYSTEM).collect(Collectors.toUnmodifiableMap(key -> key, value -> Boolean.TRUE));
+    public static final Map<String, Boolean> FILTERED_ATTRIBUTE_KEY_MAP = Map.ofEntries(
+            Map.entry(ATTRIBUTE_KEY_CLIENT_ADDRESS, Boolean.TRUE),
+            Map.entry(ATTRIBUTE_KEY_HTTP_RESPONSE_STATUS_CODE, Boolean.TRUE),
+            Map.entry(ATTRIBUTE_KEY_MESSAGING_KAFKA_MESSAGE_OFFSET, Boolean.TRUE),
+            Map.entry(ATTRIBUTE_KEY_MESSAGING_DESTINATION_PARTITION_ID, Boolean.TRUE),
+            Map.entry(ATTRIBUTE_KEY_MESSAGING_DESTINATION_NAME, Boolean.TRUE),
+            Map.entry(ATTRIBUTE_KEY_URL_PATH, Boolean.TRUE),
+            Map.entry(ATTRIBUTE_KEY_MESSAGING_CLIENT_ID, Boolean.TRUE),
+            Map.entry(ATTRIBUTE_KEY_SERVER_PORT, Boolean.TRUE),
+            Map.entry(ATTRIBUTE_KEY_SERVER_ADDRESS, Boolean.TRUE),
+            Map.entry(ATTRIBUTE_KEY_DB_NAME, Boolean.TRUE),
+            Map.entry(ATTRIBUTE_KEY_DB_STATEMENT, Boolean.TRUE),
+            Map.entry(ATTRIBUTE_KEY_DB_SYSTEM, Boolean.TRUE)
+    );
+
+    public static final Predicate<String> FILTERED_ATTRIBUTE_KEY = FILTERED_ATTRIBUTE_KEY_MAP::containsKey;
+
+
 }

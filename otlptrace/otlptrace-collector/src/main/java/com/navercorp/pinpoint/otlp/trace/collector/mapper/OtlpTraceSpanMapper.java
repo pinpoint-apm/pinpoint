@@ -39,10 +39,16 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 public class OtlpTraceSpanMapper {
-    private final ObjectMapper objectMapper;
+    private final OtlpTraceAttributeMapper attributeMapper;
+    private final OtlpTraceEventMapper eventMapper;
+    private final OtlpTraceLinkMapper linkMapper;
+
 
     public OtlpTraceSpanMapper(ObjectMapper objectMapper) {
-        this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper");
+        Objects.requireNonNull(objectMapper, "objectMapper");
+        this.attributeMapper = new OtlpTraceAttributeMapper(objectMapper);
+        this.eventMapper = new OtlpTraceEventMapper(objectMapper);
+        this.linkMapper = new OtlpTraceLinkMapper(objectMapper);
     }
 
     SpanBo map(IdAndName idAndName, Span span) {
@@ -102,16 +108,16 @@ public class OtlpTraceSpanMapper {
         }
         // attributes
         if (span.getAttributesCount() > 0) {
-            OtlpTraceMapperUtils.addAttributesToAnnotation(objectMapper, span.getAttributesList(), spanBo::addAnnotation);
+            attributeMapper.addAttributesToAnnotation(span.getAttributesList(), spanBo::addAnnotation);
         }
 
         // event
         for (Span.Event event : span.getEventsList()) {
-            OtlpTraceMapperUtils.addEventToAnnotation(objectMapper, event, spanBo::addAnnotation);
+            eventMapper.addEventToAnnotation(event, spanBo::addAnnotation);
         }
         // link
         for (Span.Link link : span.getLinksList()) {
-            OtlpTraceMapperUtils.addLinkToAnnotation(objectMapper, link, spanBo::addAnnotation);
+            linkMapper.addLinkToAnnotation(link, spanBo::addAnnotation);
         }
 
         final List<SpanEventBo> spanEventBoList = new ArrayList<>();
