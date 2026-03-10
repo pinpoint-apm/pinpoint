@@ -64,15 +64,15 @@ export const ErrorDetailDialog = ({
         onMouseDown={(e) => e.stopPropagation()}
         {...contentOption}
       >
-        <div className="flex overflow-hidden flex-col gap-4">
+        <div className="flex flex-col gap-4 overflow-hidden">
           <div className="space-y-2">
-            <h4 className="flex gap-1 items-center font-medium">
+            <h4 className="flex items-center gap-1 font-medium">
               <div className="w-1 h-4 rounded-sm bg-status-fail" />
               Error Details
             </h4>
 
             {serverError?.instance && (
-              <div className="flex gap-1 items-center">
+              <div className="flex items-center gap-1">
                 {serverError?.url ? (
                   <a
                     className="text-sm font-semibold text-primary hover:underline"
@@ -83,9 +83,7 @@ export const ErrorDetailDialog = ({
                     {serverError.instance}
                   </a>
                 ) : (
-                  <span className="text-sm font-semibold">
-                    {serverError.instance}
-                  </span>
+                  <span className="text-sm font-semibold">{serverError.instance}</span>
                 )}
               </div>
             )}
@@ -163,7 +161,7 @@ export const ErrorDetailDialog = ({
                 defaultOpen={false}
               >
                 <CollapsibleTrigger
-                  className="flex gap-1 items-center text-sm text-muted-foreground hover:text-foreground"
+                  className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
                   onClick={(e) => e.stopPropagation()}
                 >
                   Server stack trace {serverTraceOpen ? <RxChevronUp /> : <RxChevronDown />}
@@ -172,7 +170,7 @@ export const ErrorDetailDialog = ({
                   <HighLightCode
                     language="java"
                     code={serverTrace}
-                    className="overflow-auto p-2 text-xs"
+                    className="p-2 overflow-auto text-xs"
                   />
                 </CollapsibleContent>
               </Collapsible>

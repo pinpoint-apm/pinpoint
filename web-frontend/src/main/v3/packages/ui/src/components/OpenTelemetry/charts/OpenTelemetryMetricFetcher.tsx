@@ -1,9 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import {
-  colors,
-  ErrorDetailResponse,
-  OtlpMetricDefUserDefined,
-} from '@pinpoint-fe/ui/src/constants';
+import { colors, OtlpMetricDefUserDefined } from '@pinpoint-fe/ui/src/constants';
 import { useOpenTelemetrySearchParameters, usePostOtlpMetricData } from '@pinpoint-fe/ui/src/hooks';
 import React from 'react';
 import { assign } from 'lodash';
@@ -30,7 +26,9 @@ export const OpenTelemetryMetricFetcher = ({
   onEdit,
 }: OpenTelemetryMetricFetcherProps) => {
   const { t } = useTranslation();
-  const { mutate, data, error, isPending } = usePostOtlpMetricData();
+  const { mutate, data, error, isPending } = usePostOtlpMetricData({
+    meta: { ignoreGlobalError: true },
+  });
   const { dateRange, agentId } = useOpenTelemetrySearchParameters();
   const prevDateRange = React.useRef<{ from: Date; to: Date } | undefined>(undefined);
   const prevAgentId = React.useRef<string | undefined>(undefined);
@@ -95,21 +93,10 @@ export const OpenTelemetryMetricFetcher = ({
 
   function renderWidgetContent() {
     if (error) {
-      let errorMessage = error.message;
-      let errorDetail: ErrorDetailResponse | undefined;
-
-      try {
-        const errorObj = JSON.parse(error.message);
-        errorMessage = errorObj?.message;
-        errorDetail = errorObj as unknown as ErrorDetailResponse;
-      } catch {
-        // non-JSON error message, use as-is
-      }
-
       return (
-        <div className="flex flex-col items-center justify-center w-full h-full">
-          {errorMessage}
-          {errorDetail && <ErrorDetailDialog error={errorDetail} />}
+        <div className="flex flex-col items-center justify-center w-full h-full text-center">
+          {error.message}
+          <ErrorDetailDialog error={error} />
           <Button className="text-xs" variant="outline" onClick={() => getMetricData()}>
             {t('COMMON.TRY_AGAIN')}
           </Button>

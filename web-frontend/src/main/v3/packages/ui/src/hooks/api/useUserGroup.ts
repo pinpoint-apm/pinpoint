@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { END_POINTS, ConfigUserGroup } from '@pinpoint-fe/ui/src/constants';
 import { convertParamsToQueryString, isEmpty } from '@pinpoint-fe/ui/src/utils';
-import { queryFn } from './reactQueryHelper';
+import { queryFn, parseResponseError } from './reactQueryHelper';
 
 const getQueryString = (queryParams: ConfigUserGroup.Parameters) => {
   if (isEmpty(queryParams)) {
@@ -41,15 +41,12 @@ export const usePostUserGroup = ({ onCompleteSubmit, onError }: PostUserGroupPro
         },
         body: JSON.stringify(userGroupInfo),
       });
-
-      if (!response?.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData?.message || 'Failed to post user group');
+      if (!response.ok) {
+        await parseResponseError(response);
       }
-
-      const data = await response.json();
-      return data;
+      return response.json();
     },
+    meta: { ignoreGlobalError: true },
   });
 
   const onSubmit = async (userGroupInfo: ConfigUserGroup.Body) => {
@@ -80,15 +77,12 @@ export const useDeleteUserGroup = ({ onCompleteRemove, onError }: DeleteUserGrou
         },
         body: JSON.stringify(params),
       });
-
-      if (!response?.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData?.message || 'Failed to delete user group');
+      if (!response.ok) {
+        await parseResponseError(response);
       }
-
-      const data = await response.json();
-      return data;
+      return response.json();
     },
+    meta: { ignoreGlobalError: true },
   });
 
   const onRemove = async (params: ConfigUserGroup.Body) => {

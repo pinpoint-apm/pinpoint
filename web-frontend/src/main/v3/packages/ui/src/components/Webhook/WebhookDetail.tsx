@@ -15,7 +15,6 @@ import { Input, Button } from '../../components';
 import { useReactToastifyToast } from '../../components/Toast';
 import { Optional } from '../../components/Form/Optional';
 import { useWebhookMutation } from '@pinpoint-fe/ui/src/hooks';
-import { ErrorToast } from '../../components/Error/ErrorToast';
 import { useTranslation } from 'react-i18next';
 import { cn } from '../../lib/utils';
 
@@ -59,13 +58,6 @@ export const WebhookDetail = ({
     onSuccess: () => {
       toast.success(data?.webhookId ? t('COMMON.UPDATE_SUCCESS') : t('COMMON.CREATE_SUCCESS'));
       onCompleteMutation?.();
-    },
-    onError: (error) => {
-      toast.error(<ErrorToast error={error} />, {
-        className: 'pointer-events-auto',
-        bodyClassName: '!items-start',
-        autoClose: false,
-      });
     },
   });
 
