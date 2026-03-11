@@ -1,0 +1,20 @@
+name: Dependabot Issue Creator
+on:
+  pull_request:
+      types: [opened]
+jobs:
+  create-issue:
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-22.04
+    permissions:
+      issues: write
+      pull-requests: read
+    steps:
+      - name: Create an issue for Dependabot PR
+        run: |
+          gh issue create \
+            --title "Dependency Update: ${{ github.event.pull_request.title }}" \
+            --body "Dependabot has opened a new PR: ${{ github.event.pull_request.html_url }}" \
+            --label "dependencies"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
