@@ -6,6 +6,7 @@ import { ErrorToast } from '../../components/Error/ErrorToast';
 declare module '@tanstack/react-query' {
   interface Register {
     mutationMeta: {
+      /** true로 설정하면 MutationCache의 글로벌 에러 토스트를 표시하지 않음. 컴포넌트에서 에러를 자체 처리할 때 사용. */
       ignoreGlobalError?: boolean;
     };
   }
@@ -62,7 +63,6 @@ export const queryFn = (url: string) => async () => {
 const mutationCache = new MutationCache({
   onError: (error, _variables, _context, mutation) => {
     if (mutation.meta?.ignoreGlobalError) return;
-    if (mutation.options.onError) return;
 
     toast.error(<ErrorToast error={error as Error} />, {
       className: 'pointer-events-auto',
