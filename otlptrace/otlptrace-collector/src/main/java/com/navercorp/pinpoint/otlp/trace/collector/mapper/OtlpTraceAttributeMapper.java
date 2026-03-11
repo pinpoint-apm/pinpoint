@@ -28,7 +28,6 @@ public class OtlpTraceAttributeMapper {
         try {
             Map<String, Object> map = getAttributeToMap(keyValueList, OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY);
             if (!map.isEmpty()) {
-                map.entrySet().removeIf(entry -> OtlpTraceConstants.FILTERED_ATTRIBUTE_KEY_MAP.containsKey(entry.getKey()));
                 final String value = mapWriter.writeValueAsString(map);
                 annotationWriter.write(AnnotationBo.of(AnnotationKey.OPENTELEMETRY_ATTRIBUTE.getCode(), value));
             }
